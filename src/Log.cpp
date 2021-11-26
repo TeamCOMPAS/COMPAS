@@ -159,7 +159,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                         }
                         else {                                                                                          // dataset created ok
 
-                            m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5DataType, compasType, {}});             // record dataset details
+                            m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5DataType, compasType, STRING_QUALIFIER::FIXED_LENGTH, {}}); // record dataset details
 
                             // derivation
                             h5DatasetName += "-Derivation";                                                             // derivation
@@ -169,7 +169,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                                 ok = false;                                                                             // fail
                             }
                             else
-                                m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}}); // dataset created ok - record details
+                                m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, STRING_QUALIFIER::FIXED_LENGTH, {}}); // dataset created ok - record details
                         }
                     }
                     if (!ok) break;                                                                                     // something went wrong - fail
@@ -188,7 +188,8 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                         ok = false;                                                                                     // fail
                     }
                     else {                                                                                              // dataset created ok
-                        m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5DataType, compasType, {}});                 // record dataset details
+
+                        m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5DataType, compasType, STRING_QUALIFIER::FIXED_LENGTH, {}}); // record dataset details
 
                         // derivation
                         h5DatasetName += "-Derivation";                                                                 // derivation
@@ -198,7 +199,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                             ok = false;                                                                                 // fail
                         }
                         else
-                            m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, {}}); // dataset created ok - record details
+                            m_Run_Details_H5_File.dataSets.push_back({h5Dset, h5String13DataType, TYPENAME::STRING, STRING_QUALIFIER::FIXED_LENGTH, {}}); // dataset created ok - record details
                     }
                     if (!ok) break;                                                                                     // something went wrong - fail
                 }
@@ -281,6 +282,28 @@ void Log::Start(const string              p_LogBasePath,
 
         m_OptionDetails = OPTIONS->CmdLineOptionsDetails();                                                                 // get commandline option details
 
+        // if the PROGRAM_OPTION::NOTES property is present in the record specification for a logfile at this stage,
+        // we want all notes present in the logfile, so set the default for the annotations to true.  Note that this
+        // may be changed if a logfile definitions file is present and processed.
+
+        // BSE
+        if (NotesPropertyPresent(m_BSE_BE_Binaries_Rec)) m_BSE_BE_Binaries_Notes = std::vector<bool>(m_BSE_BE_Binaries_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_CEE_Rec        )) m_BSE_CEE_Notes         = std::vector<bool>(m_BSE_CEE_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_DCO_Rec        )) m_BSE_DCO_Notes         = std::vector<bool>(m_BSE_DCO_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Detailed_Rec   )) m_BSE_Detailed_Notes    = std::vector<bool>(m_BSE_Detailed_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Pulsars_Rec    )) m_BSE_Pulsars_Notes     = std::vector<bool>(m_BSE_Pulsars_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_RLOF_Rec       )) m_BSE_RLOF_Notes        = std::vector<bool>(m_BSE_RLOF_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_SNE_Rec        )) m_BSE_SNE_Notes         = std::vector<bool>(m_BSE_SNE_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Switch_Rec     )) m_BSE_Switch_Notes      = std::vector<bool>(m_BSE_Switch_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_SysParms_Rec   )) m_BSE_SysParms_Notes    = std::vector<bool>(m_BSE_SysParms_Notes.size(), true);
+
+        // SSE
+        if (NotesPropertyPresent(m_SSE_Detailed_Rec   )) m_SSE_Detailed_Notes    = std::vector<bool>(m_SSE_Detailed_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_SNE_Rec        )) m_SSE_SNE_Notes         = std::vector<bool>(m_SSE_SNE_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_Switch_Rec     )) m_SSE_Switch_Notes      = std::vector<bool>(m_SSE_Switch_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_SysParms_Rec   )) m_SSE_SysParms_Notes    = std::vector<bool>(m_SSE_SysParms_Notes.size(), true);
+
+        // process the logfile definitions file if specified
         m_Enabled = UpdateAllLogfileRecordSpecs();                                                                          // update all logfile record specifications - disable logging upon failure
 
         if (m_Enabled) {                                                                                                    // still ok?
@@ -561,7 +584,7 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
             }
 
             if (ok) {
-                // program  options datasets
+                // program options datasets
 
                 try {
                     for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                                    // for eav program option
@@ -617,11 +640,14 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
                     Squawk("ERROR: Error converting option value to correct datatype for HDF5 dataset with name " + h5DatasetName);     // announce error
                     ok = false;
                 }
+                catch (const std::invalid_argument& e) {                                                                                // type conversion failed
+                    Squawk("ERROR: Error converting option value to correct datatype for HDF5 dataset with name " + h5DatasetName);     // announce error
+                    ok = false;
+                }
             }
         }
 
         // update run details text file
-
         string filename = m_LogBasePath + "/" + m_LogContainerName + "/" + RUN_DETAILS_FILE_NAME;                                       // run details filename with container name
         try {  
             m_RunDetailsFile << utils::SplashScreen(false) << std::endl;                                                                // write splash string with version number to file
@@ -686,7 +712,6 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
             }
 
             m_RunDetailsFile << "Actual random seed = " << actualRandomSeed  << ", CALCULATED, UNSIGNED_LONG" << std::endl;             // actual random seed
-
 
             // done writing - flush and close the file
             try {
@@ -1023,13 +1048,13 @@ void Log::Squawk(const string p_SquawkStr) {
  * bool DoIt(const string p_Class, const int p_Level, const std::vector<string> p_EnabledClasses, const int p_EnabledLevel)
  *
  * @param   [IN]    p_Class                     The class (logging or debug) of the record being evaluated
- * @param   [IN]    p_LogLevel                  The level (logging or debug) of the record being evaluated
+ * @param   [IN]    p_Level                     The level (logging or debug) of the record being evaluated
  * @param   [IN]    p_EnabledClasses            List of classes enabled for logging or debugging (vector<string>)
  * @param   [IN]    p_EnabledLevel              The application logging or debug level
  * @return                                      Boolean indicating whether record should be logged/debug string should be written
  */
 bool Log::DoIt(const string p_Class, const int p_Level, const std::vector<string> p_EnabledClasses, const int p_EnabledLevel) {
-
+    
     bool doIt = (p_Level <= p_EnabledLevel);                                                                    // first check level
 
     if (doIt) {                                                                                                 // now check class
@@ -1083,7 +1108,7 @@ void Log::Say_(const string p_SayStr) {
 
 
 /*
- * Write to specified log file
+ * Write a string record to specified log file
  *
  * If logging is enabled and the specified log file is active, and class and level are enabled (see DoIt()),
  * write string to log file
@@ -1107,6 +1132,47 @@ bool Log::Write(const int p_LogfileId, const string p_LogClass, const int p_LogL
         if (DoIt(p_LogClass, p_LogLevel, m_LogClasses, m_LogLevel)) {                                               // yes - logging this class and level?
             result = Write_(p_LogfileId, p_LogStr);                                                                 // yes - log it
         }
+        else result = true;                                                                                         // not logging this class and level - but ok
+    }
+
+    return result;
+}
+
+
+/*
+ * Write a multi-value record to specified log file
+ *
+ * If logging is enabled and the specified log file is active, and class and level are enabled (see DoIt()),
+ * write the log record values to log file
+ *
+ * Disable the specified log file if errors occur.
+ *
+ *
+ * bool Write(const id                                p_LogfileId, 
+ *            const string                            p_LogClass, 
+ *            const int                               p_LogLevel, 
+ *            const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, 
+ *            const bool                              p_Flush)
+ *
+ * @param   [IN]    p_LogfileId                 The id of the log file to which the log string should be written
+ * @param   [IN]    p_LogClass                  Class to determine if string should be written
+ * @param   [IN]    p_LogLevel                  Level to determine if string should be written
+ * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE_TYPE values to be written
+ * @return                                      Boolean indicating whether record was written successfully
+ */
+bool Log::Write(const int                               p_LogfileId, 
+                const string                            p_LogClass, 
+                const int                               p_LogLevel, 
+                const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, 
+                const bool                              p_Flush) {
+
+    bool result = false;
+
+    if (m_Enabled && IsActiveId(p_LogfileId)) {                                                                     // logging service enabled and specified log file active?
+        if (DoIt(p_LogClass, p_LogLevel, m_LogClasses, m_LogLevel)) {                                               // yes - logging this class and level?
+            result = Write_(p_LogfileId, p_LogRecordValues, p_Flush);                                               // yes - log it
+        }
+        else result = true;                                                                                         // not logging this class and level - but ok
     }
 
     return result;
@@ -1162,7 +1228,7 @@ bool Log::Write_(const int p_LogfileId, const string p_LogStr) {
  * (the contents of the write buf will be cleared after writing)
  *
  *
- * bool WriteHDF5_(h5AttrT p_H5file, const string p_H5filename, const hid_t p_DataSet)
+ * bool WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t p_DataSetIdx)
  *
  * @param   [IN]    p_H5file                    Struct containing details of the HDF5 file to which the buffer should be written - contains the buffer to write
  * @param   [IN]    p_H5filename                String filename of the HDF5 file - for error logging should an error occur
@@ -1181,7 +1247,7 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
     size_t  bufSize         = p_H5file.dataSets[p_DataSetIdx].buf.size();                                                   // size of write buffer
 
     hid_t   dSet            = p_H5file.dataSets[p_DataSetIdx].dataSetId;                                                    // dataset id
-    hid_t   dType           = p_H5file.dataSets[p_DataSetIdx].h5DataType;                                                   // HDF5 datatye
+    hid_t   dType           = p_H5file.dataSets[p_DataSetIdx].h5DataType;                                                   // HDF5 datatype
     hsize_t dSetCurrentSize = H5Dget_storage_size(dSet) / H5Tget_size(dType);                                               // current size (entries) of HDF5 dataset
     hsize_t h5Dims[1]       = {bufSize};                                                                                    // size of buffer to be written
     hid_t   h5Dspace        = H5Screate_simple(1, h5Dims, NULL);                                                            // create memory dataspace for write
@@ -1306,62 +1372,61 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
             std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);
             ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
         }
-        else if (dType == H5T_C_S1) {
+        else if (p_H5file.dataSets[p_DataSetIdx].dataType == TYPENAME::STRING) {
 
-            // string type - we use fixed length strings
-            // HDF5 functions don't know about std::string - they need c-style char arrays
-            // string length is determined by the length of the datatype +1 for the null terminator (for c-style)
+            // here we handle strings - both fixed length and variable length
+            // not that HDF5 functions don't know about std::string - they need c-style char arrays
+
+            bool fixedLength = p_H5file.dataSets[p_DataSetIdx].stringType == STRING_QUALIFIER::FIXED_LENGTH;
 
             string buf[bufSize];
-            size_t elemLen = H5Tget_size(dType) - 1;                                                                        // -1 for null terminator
-            size_t bufLen  = bufSize * (elemLen + 1);                                                                       // +1 for null terminator
+            size_t elemLen = H5Tget_size(dType) - 1;                                                                        // for fixed-length strings (-1 for null terminator)
+
+            // format each string:
+            // format bool as "TRUE" or "FALSE" if required
+            // for fixed-length strings, pad the string to the defined length
 
             for (size_t i = 0; i < bufSize; i++) {
-                buf[i] = utils::PadTrailingSpaces(boost::get<string>(p_H5file.dataSets[p_DataSetIdx].buf[i]), elemLen);
-            }
-            std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);
-
-            char* cBuf = new char[bufLen];                                                                                  // char array to hold strings with null terminators
-            size_t pos = 0;
-            for (size_t i = 0; i < bufSize; i++) {
-                strcpy(cBuf + pos, buf[i].c_str());                                                                         // copy chars + null terminator
-                pos += buf[i].length() + 1;
-            }
-            ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)cBuf);
-            delete[] cBuf;
-        }
-        else { // assume custom string type
-
-            // string type - we use fixed length strings
-            // HDF5 functions don't know about std::string - they need c-style char arrays
-            // string length is determined by the length of the datatype +1 for the null terminator (for c-style)
-                                    
-            string buf[bufSize];
-            size_t elemLen = H5Tget_size(dType) - 1;                                                                        // -1 for null terminator
-            size_t bufLen  = bufSize * (elemLen + 1);                                                                       // +1 for null terminator
-
-            for (size_t i = 0; i < bufSize; i++) {
-
                 // if user specified "print-bool-as-string" option, need to translate bool value to "TRUE" or "FALSE"
                 string v = p_H5file.dataSets[p_DataSetIdx].dataType == TYPENAME::BOOL                                       // bool variable (printing as string "TRUE" or "FALSE")?
                             ? boost::get<bool>(p_H5file.dataSets[p_DataSetIdx].buf[i]) ? string("TRUE") : string("FALSE")   // yes
                             : boost::get<string>(p_H5file.dataSets[p_DataSetIdx].buf[i]);                                   // no, regular STRING variable
                         
-                buf[i]   = utils::PadTrailingSpaces(v, elemLen);
+                buf[i] = fixedLength ? utils::PadTrailingSpaces(v, elemLen) : v;
             }
             std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);
 
-            char* cBuf = new char[bufLen];                                                                                  // char array to hold strings with null terminators
-            size_t pos = 0;
-            for (size_t i = 0; i < bufSize; i++) {
-                strcpy(cBuf + pos, buf[i].c_str());                                                                         // copy chars + null terminator
-                pos += buf[i].length() + 1;
-            }
-            ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)cBuf);
-            delete[] cBuf;
-        }
+            // write the strings - need c-style char array
+            if (fixedLength) {                                                                                              // fixed-length string?
+                char *cBuf = new char[bufSize * (buf[0].length() + 1)];                                                     // H5Dwrite() needs contiguous memory
+                size_t pos = 0;                                                                                             // start position
+                for (size_t i = 0; i < bufSize; i++) {                                                                      // for each entry in the buffer
+                    strcpy(cBuf + pos, buf[i].c_str());                                                                     // copy chars + null terminator
+                    pos += buf[i].length() + 1;                                                                             // next start position
+                }
 
-        // write done
+                ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)cBuf);                            // write the data
+                delete[] cBuf;                                                                                              // release allocated memory
+            }
+            else {                                                                                                          // no - variable length
+                char* cBuf[bufSize];                                                                                        // char array for H5Dwrite()
+                for (size_t i = 0; i < bufSize; i++) {                                                                      // for each entry in the buffer
+                    cBuf[i] = new char[buf[i].length() + 1];                                                                // H5Dwrite() needs contiguous memory only for each element
+                    strcpy(cBuf[i], buf[i].c_str());                                                                        // copy chars + null terminator
+                }
+
+                ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)cBuf);;                            // write the data
+            
+                // release allocated memory
+                for (size_t i = 0; i < bufSize; i++) {
+                    delete[] cBuf[i];
+                }
+            }
+        }
+        else {
+            Squawk("ERROR: Unable to format data to write to HDF5 group for log file " + p_H5filename);                     // announce error
+            ok = -1;                                                                                                        // fail
+        }
 
         (void)H5Sclose(h5FSpace);                                                                                           // close filespace
         (void)H5Sclose(h5Dspace);                                                                                           // close dataspace
@@ -1441,7 +1506,7 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
 
 
 /*
- * Write a minimally formatted record to the specified log file.
+ * Write a minimally formatted record to the specified log file.  Used for CSV, TSV, and TXT files.
  *
  * If logging is enabled and the specified log file is active, and class and level are enabled (see DoIt()),
  * write string to log file
@@ -1470,6 +1535,39 @@ bool Log::Put(const int p_LogfileId, const string p_LogClass, const int p_LogLev
         if (DoIt(p_LogClass, p_LogLevel, m_LogClasses, m_LogLevel)) {                                               // yes - logging this class and level?
             result = Put_(p_LogfileId, p_LogStr, p_LogClass);                                                       // yes - log it
         }
+        else result = true;                                                                                         // not logging this class and level - but ok
+    }
+
+    return result;
+}
+
+
+/*
+ * Write a multi-value record to specified log file.
+ *
+ * If logging is enabled and the specified log file is active, and class and level are enabled (see DoIt()),
+ * write the log record values to the log file
+ *
+ * Disable the specified log file if errors occur.
+ *
+ *
+ * bool Put(const id p_LogfileId, const string p_LogClass, const int p_LogLevel, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues)
+ *
+ * @param   [IN]    p_LogfileId                 The id of the log file to which the log record values should be written
+ * @param   [IN]    p_LogClass                  Class to determine if log record values sould be written
+ * @param   [IN]    p_LogLevel                  Level to determine if log record values should be written
+ * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE_TYPE values to be written
+ * @return                                      Boolean indicating whether log record values were written successfully
+ */
+bool Log::Put(const int p_LogfileId, const string p_LogClass, const int p_LogLevel, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues) {
+
+    bool result = false;
+
+    if (m_Enabled && IsActiveId(p_LogfileId)) {                                                                     // logging service enabled and specified log file active?
+        if (DoIt(p_LogClass, p_LogLevel, m_LogClasses, m_LogLevel)) {                                               // yes - logging this class and level?
+            result = Put_(p_LogfileId, p_LogRecordValues);                                                          // yes - log it
+        }
+        else result = true;                                                                                         // not logging this class and level - but ok
     }
 
     return result;
@@ -1580,6 +1678,7 @@ bool Log::Debug(const string p_DbgClass, const int p_DbgLevel, const string p_Db
         if (DoIt(p_DbgClass, p_DbgLevel, m_DbgClasses, m_DbgLevel)) {                                               // debugging this class and level?
             result = Debug_(p_DbgStr);                                                                              // debug it
         }
+        else result = true;                                                                                         // not logging this class and level - but ok
     }
 
     return result;
@@ -1635,6 +1734,7 @@ bool Log::DebugWait(const string p_DbgClass, const int p_DbgLevel, const string 
             std::cout << "DEBUG: Press any key to continue...";                                                     // announce
             string tmp; std::cin >> tmp;                                                                            // and wait for input
         }
+        else result = true;                                                                                         // not logging this class and level - but ok
     }
 
     return result;
@@ -1690,12 +1790,12 @@ bool Log::Error(const string p_ErrStr) {
  * { TYPENAME, Header string, Units string, fields width, precision }
  *
  *
- * PROPERTY_DETAILS StellarPropertyDetails(ANY_STAR_PROPERTY p_Property)
+ * PROPERTY_DETAILS StellarPropertyDetails(const ANY_STAR_PROPERTY p_Property)
  *
  * @param   [IN]    p_Property                  The property for which the details are required
  * @return                                      Tuple containing the properties (default properties if p_Property not found)
  */
-PROPERTY_DETAILS Log::StellarPropertyDetails(ANY_STAR_PROPERTY p_Property) {
+PROPERTY_DETAILS Log::StellarPropertyDetails(const ANY_STAR_PROPERTY p_Property) {
 
     PROPERTY_DETAILS details;
     try { details = ANY_STAR_PROPERTY_DETAIL.at(p_Property); }          // get stellar property details
@@ -1716,12 +1816,12 @@ PROPERTY_DETAILS Log::StellarPropertyDetails(ANY_STAR_PROPERTY p_Property) {
  * { TYPENAME, Header string, Units string, fields width, precision }
  *
  *
- * PROPERTY_DETAILS BinaryPropertyDetails(BINARY_PROPERTY p_Property)
+ * PROPERTY_DETAILS BinaryPropertyDetails(const BINARY_PROPERTY p_Property)
  *
  * @param   [IN]    p_Property                  The property for which the details are required
  * @return                                      Tuple containing the properties (default properties if p_Property not found)
  */
-PROPERTY_DETAILS Log::BinaryPropertyDetails(BINARY_PROPERTY p_Property) {
+PROPERTY_DETAILS Log::BinaryPropertyDetails(const BINARY_PROPERTY p_Property) {
 
     PROPERTY_DETAILS details;
 
@@ -1740,24 +1840,35 @@ PROPERTY_DETAILS Log::BinaryPropertyDetails(BINARY_PROPERTY p_Property) {
  *
  * Property details are:
  *
- * { TYPENAME, Header string, Units string, fields width, precision }
+ * { TYPENAME, Header string, Units string, field width, precision }
  *
  *
- * PROPERTY_DETAILS ProgramOptionDetails(ProgramOptionDetails p_Property)
+ * PROPERTY_DETAILS ProgramOptionDetails(const ProgramOptionDetails p_Property, const size_t p_Idx)
  *
  * @param   [IN]    p_Property                  The property for which the details are required
+ * @param   [IN]    p_Idx                       Index for vector properties (only PROGRAM_OPTION::NOTES currently)
+ *                                              Defaults to 0
  * @return                                      Tuple containing the properties (default properties if p_Property not found)
  */
-PROPERTY_DETAILS Log::ProgramOptionDetails(PROGRAM_OPTION p_Property) {
+PROPERTY_DETAILS Log::ProgramOptionDetails(const PROGRAM_OPTION p_Property, const size_t p_Idx) {
 
     PROPERTY_DETAILS details;
 
-    try { details = PROGRAM_OPTION_DETAIL.at(p_Property); }             // get program option details
-    catch (const std::exception& e) {                                   // unknown property
-        details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);        // empty details
-        DBG_WARN(ERR_MSG(ERROR::UNKNOWN_PROGRAM_OPTION));               // show warning
-    }
+    // PROGRAM_OPTION::NOTES is special
+    // There are no entry for PROGRAM_OPTION::NOTES in the PROGRAM_OPTION_DETAIL map
+    // (at least there shouldn't be - and if there is we just ignore it)
+    // We construct the PROPERTY_DETAILS tuple for PROGRAM_OPTION::NOTES here
 
+    if (p_Property == PROGRAM_OPTION::NOTES) {                                              // PROGRAM_OPTION::NOTES?
+        details = std::make_tuple(TYPENAME::STRING, OPTIONS->NotesHdrs(p_Idx), "-", 0, 1);  // yes - construct details
+    }
+    else {                                                                                  // not PROGRAM_OPTION::NOTES
+        try { details = PROGRAM_OPTION_DETAIL.at(p_Property); }                             // get program option details
+        catch (const std::exception& e) {                                                   // unknown property
+            details = std::make_tuple(TYPENAME::NONE, "", "", 0, 0);                        // empty details
+            DBG_WARN(ERR_MSG(ERROR::UNKNOWN_PROGRAM_OPTION));                               // show warning
+        }
+    }
     return details;
 }
 
@@ -1789,37 +1900,43 @@ PROPERTY_DETAILS Log::ProgramOptionDetails(PROGRAM_OPTION p_Property) {
  *             property.
  *
  *    Format - the format string is used by logging code to format the property value.  The format string is
- *             constructed he because the final field width is determined here.
+ *             constructed here because the final field width is determined here.
  *
  *
- * STR_STR_STR_STR FormatFieldHeaders(PROPERTY_DETAILS p_PropertyDetails, string p_HeaderSuffix)
+ * STR_STR_STR_STR FormatFieldHeaders(const PROPERTY_DETAILS p_PropertyDetails, string p_HeaderSuffix)
  *
  * @param   [IN]    p_PropertyDetails           The property details for the property for which the headers are to be formatted
  * @param   [IN]    p_HeaderSuffix              The suffix string to be appended to the header string
  * @return                                      Tuple containing formatted strings for the property requested: <header, units, type, format>
  *                                              If the property details are not valid (e.g. unknown data type), error strings will be returned
  */
-STR_STR_STR_STR Log::FormatFieldHeaders(PROPERTY_DETAILS p_PropertyDetails, string p_HeaderSuffix) {
+STR_STR_STR_STR Log::FormatFieldHeaders(const PROPERTY_DETAILS p_PropertyDetails, string p_HeaderSuffix) {
 
-    TYPENAME typeName = std::get<0>(p_PropertyDetails);                                                             // data type
-    if (typeName == TYPENAME::NONE) {                                                                               // valid data type?
-        return std::make_tuple("ERROR!", "ERROR!", "ERROR!", "ERROR!");                                             // return error values
+    TYPENAME typeName = std::get<0>(p_PropertyDetails);                                                                 // data type
+    if (typeName == TYPENAME::NONE) {                                                                                   // valid data type?
+        return std::make_tuple("ERROR!", "ERROR!", "ERROR!", "ERROR!");                                                 // return error values
     }
 
-    string headerStr = std::get<1>(p_PropertyDetails) + p_HeaderSuffix;                                             // header string
-    string unitsStr  = std::get<2>(p_PropertyDetails);                                                              // units string
-    string typeStr   = std::get<1>(TYPENAME_LABEL.at(typeName));                                                    // type will be one of "BOOL", "INT", "FLOAT" and "STRING" (non-primitive types coerced to INT)
+    string headerStr = std::get<1>(p_PropertyDetails) + p_HeaderSuffix;                                                 // header string
+    string unitsStr  = std::get<2>(p_PropertyDetails);                                                                  // units string
+    string typeStr   = std::get<1>(TYPENAME_LABEL.at(typeName));                                                        // type will be one of "BOOL", "INT", "FLOAT" and "STRING" (non-primitive types coerced to INT)
 
     int fieldWidth     = std::get<3>(p_PropertyDetails);
-    int fieldPrecision = std::get<4>(p_PropertyDetails);                                                            // field precision (for double and int)
+    int fieldPrecision = std::get<4>(p_PropertyDetails);                                                                // field precision (for double and int)
 
-    fieldWidth = std::max(fieldWidth, std::max((int)headerStr.length(), std::max((int)unitsStr.length(), 6)));      // field width - maximum of requested width, header width, units width and type width ("STRING" is max type)
+    string fmtStr;
+    if (typeName == TYPENAME::STRING) {                                                                                 // type string
+        fmtStr = fieldWidth == 0 ? "" : std::to_string(fieldWidth);                                                     // precision not used for strings
+    }
+    else {                                                                                                              // no - fieldwidth limited
+        fieldWidth = std::max(fieldWidth, std::max((int)headerStr.length(), std::max((int)unitsStr.length(), 6)));      // maximum of requested width, header width, units width and type width ("STRING" is max type)
 
-    headerStr = utils::CentreJustify(headerStr, fieldWidth);                                                        // centre-justify header string
-    unitsStr  = utils::CentreJustify(unitsStr, fieldWidth);                                                         // centre-justify units string
-    typeStr   = utils::CentreJustify(typeStr, fieldWidth);                                                          // centre-justify type string
+        headerStr = utils::CentreJustify(headerStr, fieldWidth);                                                        // centre-justify header string
+        unitsStr  = utils::CentreJustify(unitsStr, fieldWidth);                                                         // centre-justify units string
+        typeStr   = utils::CentreJustify(typeStr, fieldWidth);                                                          // centre-justify type string
 
-    string fmtStr = std::to_string(fieldWidth) + "." + std::to_string(fieldPrecision);                              // field width and precision spcifiers
+        fmtStr    = std::to_string(fieldWidth) + "." + std::to_string(fieldPrecision);                                  // field width and precision spcifiers
+    }
 
     return std::make_tuple(headerStr, unitsStr, typeStr, fmtStr);
 }
@@ -1870,7 +1987,8 @@ std::tuple<bool, LOGFILE> Log::GetStandardLogfileKey(const int p_FileId) {
 
 
 /*
- * Get standard log file record properties and format vector from the logfile record specifier
+ * Get standard log file record properties, format vector, and annotations, from the logfile
+ * record specifier
  *
  * This function is a very reduced version of Log::StandardLogFileDetails(), and exists mainly
  * to support writing to the (new) SSE Supernova logfile (it was written specifically for that
@@ -1893,24 +2011,28 @@ std::tuple<bool, LOGFILE> Log::GetStandardLogfileKey(const int p_FileId) {
  * With hindsight, Log::StandardLogFileDetails() should probably have been written with this
  * part separated out.  Ideally Log::StandardLogFileDetails() would call this function to get
  * these details - that way if we ever need to change how this is done we don't need to change
- * it in two places.  But Log::StandardLogFileDetails() is, the way it was initially written,
- * a bit too complex (this whole flexible printing code is a complex beast - unfortunately it 
- * has to be to get it to work) and this code is a bit too intertwined to easily and quickly
- * disentangle it from Log::StandardLogFileDetails() - that's probably a good code cleanup to 
- * do some time in the future, but for now this will have to suffice.
+ * it in two places.  Although, this function needs to be able to get the properties even if
+ * the file is not open...  Still, should be able to put the code in one place instead of two.
+ * But Log::StandardLogFileDetails() is, the way it was initially written, a bit too complex 
+ * (this whole flexible printing code is a complex beast - unfortunately it  has to be to get
+ * it to work) and this code is a bit too intertwined to easily and quickly disentangle it from
+ * Log::StandardLogFileDetails() - that's probably a good code cleanup to do some time in the 
+ * future, but for now this will have to suffice.
  *
  *
- * std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> GetStandardLogFileRecordDetails(const LOGFILE p_Logfile)
+ * std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>, std::vector<bool>> GetStandardLogFileRecordDetails(const LOGFILE p_Logfile)
  *
  * @param   [IN]    p_Logfile                   Logfile for which details are to be retrieved (see enum class LOGFILE in constants.h)
  * @return                                      Tuple containing:
- *                                                 - a vector of logfile record properties
- *                                                 - a vector of format strings
+ *                                                 - vector of logfile record properties
+ *                                                 - vector of format strings
+ *                                                 - vector of annotations
  */
-std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileRecordDetails(const LOGFILE p_Logfile) {
+std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>, std::vector<bool>> Log::GetStandardLogFileRecordDetails(const LOGFILE p_Logfile) {
 
     ANY_PROPERTY_VECTOR  recordProperties = {};                                                                                     // default is empty
     std::vector<string>  fmtVector = {};                                                                                            // default is empty
+    std::vector<bool>  annotations = {};                                                                                            // default is empty
 
     try {
         // get record properties for this file
@@ -1919,38 +2041,47 @@ std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileReco
 
             case LOGFILE::BSE_BE_BINARIES:                                                                                          // BSE_BE_BINARIES
                 recordProperties = m_BSE_BE_Binaries_Rec;                                                                           // record properties
+                annotations      = m_BSE_BE_Binaries_Notes;                                                                         // logfile annotations
                 break;
 
             case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                     // BSE_COMMON_ENVELOPES
                 recordProperties = m_BSE_CEE_Rec;                                                                                   // record properties
+                annotations      = m_BSE_CEE_Notes;                                                                                 // logfile annotations
                 break;
 
             case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                      // BSE_DETAILED_OUTPUT
                 recordProperties = m_BSE_Detailed_Rec;                                                                              // record properties
+                annotations      = m_BSE_Detailed_Notes;                                                                            // logfile annotations
                 break;
 
             case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:                                                                               // BSE_DOUBLE_COMPACT_OBJECTS
                 recordProperties = m_BSE_DCO_Rec;                                                                                   // record properties
+                annotations      = m_BSE_DCO_Notes;                                                                                 // logfile annotations
                 break;
 
             case LOGFILE::BSE_PULSAR_EVOLUTION:                                                                                     // BSE_PULSAR_EVOLUTION
                 recordProperties = m_BSE_Pulsars_Rec;                                                                               // record properties
+                annotations      = m_BSE_Pulsars_Notes;                                                                             // logfile annotations
                 break;
 
             case LOGFILE::BSE_RLOF_PARAMETERS:                                                                                      // BSE_RLOF_PARAMETERS
                 recordProperties = m_BSE_RLOF_Rec;                                                                                  // record properties
+                annotations      = m_BSE_RLOF_Notes;                                                                                // logfile annotations
                 break;
 
             case LOGFILE::BSE_SUPERNOVAE:                                                                                           // BSE_SUPERNOVAE
                 recordProperties = m_BSE_SNE_Rec;                                                                                   // record properties
+                annotations      = m_BSE_SNE_Notes;                                                                                 // logfile annotations
                 break;
 
             case LOGFILE::BSE_SWITCH_LOG:                                                                                           // BSE_SWITCH_LOG
                 recordProperties = m_BSE_Switch_Rec;                                                                                // record properties
+                annotations      = m_BSE_Switch_Notes;                                                                              // logfile annotations
                 break;
 
             case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                    // BSE_SYSTEM_PARAMETERS
                 recordProperties = m_BSE_SysParms_Rec;                                                                              // record properties
+                annotations      = m_BSE_SysParms_Notes;                                                                            // logfile annotations
 
                 // check whether to add program option columns to BSE_SYSTEM_PARAMETERS file and add them if required
                 if ((OPTIONS->AddOptionsToSysParms() == ADD_OPTIONS_TO_SYSPARMS::ALWAYS) ||                                         // always add option columns?                   
@@ -1969,19 +2100,23 @@ std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileReco
                 break;
 
             case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                      // SSE_DETAILED_OUTPUT
-                recordProperties = m_SSE_Detailed_Rec;                                                                              // record properties
+                recordProperties = m_SSE_SNE_Rec;                                                                                   // record properties
+                annotations      = m_SSE_SNE_Notes;                                                                                 // logfile annotations
                 break;
 
             case LOGFILE::SSE_SUPERNOVAE:                                                                                           // SSE_SUPERNOVAE
                 recordProperties = m_SSE_SNE_Rec;                                                                                   // record properties
+                annotations      = m_SSE_SNE_Notes;                                                                                 // logfile annotations
                 break;
 
             case LOGFILE::SSE_SWITCH_LOG:                                                                                           // SSE_SWITCH_LOG
                 recordProperties = m_SSE_Switch_Rec;                                                                                // record properties
+                annotations      = m_SSE_Switch_Notes;                                                                              // logfile annotations
                 break;
 
             case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                    // SSE_SYSTEM_PARAMETERS
                 recordProperties = m_SSE_SysParms_Rec;                                                                              // record properties
+                annotations      = m_SSE_SysParms_Notes;                                                                            // logfile annotations
 
                 // check whether to add program option columns to SSE_SYSTEM_PARAMETERS file and add them if required
                 if ((OPTIONS->AddOptionsToSysParms() == ADD_OPTIONS_TO_SYSPARMS::ALWAYS) ||                                         // always add option columns?                   
@@ -2001,6 +2136,7 @@ std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileReco
 
             default:                                                                                                                // unknown logfile
                 recordProperties = {};                                                                                              // no record properties
+                annotations      = {};                                                                                              // no annotations
         }
 
         if (!recordProperties.empty()) {                                                                                            // have properties?
@@ -2075,10 +2211,11 @@ std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileReco
     }
     catch (const std::exception& e) {                                                                                               // oops...
         recordProperties = {};                                                                                                      // no record properties
-        fmtVector = {};                                                                                                             // no format vector
+        fmtVector        = {};                                                                                                      // no format vector
+        annotations      = {};                                                                                                      // no annotations
     }
 
-    return std::make_tuple(recordProperties, fmtVector);
+    return std::make_tuple(recordProperties, fmtVector, annotations);
 }
 
 
@@ -2090,15 +2227,15 @@ std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>> Log::GetStandardLogFileReco
  *
  * @param   [IN]    p_COMPASdatatype            COMPAS datatype
  * @param   [IN]    p_FieldWidth                Field width for strings (i.e. length of string).
- *                                                  - defaults to 0
- *                                                  - ignored for COMPAS datatype != TYPENAME::STRING
+ * @param   [IN]    p_StringQualifier           String qualifier for p_COMPASdatatype == TYPENAME::STRING
+ *                                              Indicates whether the string is fixed or variable length.  Default is fixed-length.
  * @return                                      HDF5 datatype
  */
-hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWidth) {
+hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWidth, const STRING_QUALIFIER p_StringQualifier) {
     
-    hid_t h5DataType = -1;                                                                  // HDF5 datatype - return value
+    hid_t h5DataType = -1;                                                                                          // HDF5 datatype - return value
 
-    switch (p_COMPASdatatype) {                                                             // which COMPAS datatype?
+    switch (p_COMPASdatatype) {                                                                                     // which COMPAS datatype?
         case TYPENAME::SHORTINT    : h5DataType = H5T_NATIVE_SHORT; break;
         case TYPENAME::INT         : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::LONGINT     : h5DataType = H5T_NATIVE_LONG; break;
@@ -2116,33 +2253,33 @@ hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWid
         case TYPENAME::SN_EVENT    : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::SN_STATE    : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::STRING: {
-            hid_t h5DType = H5Tcopy(H5T_C_S1);                                              // HDF5 c-string datatype
-            (void)H5Tset_size(h5DType, p_FieldWidth + 1);                                   // size is field width + 1 (for NULL terminator)
-            (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                     // ASCII (rather than UTF-8)
+            hid_t h5DType = H5Tcopy(H5T_C_S1);                                                                      // HDF5 c-string datatype
+            size_t size = p_StringQualifier == STRING_QUALIFIER::FIXED_LENGTH ? p_FieldWidth + 1 : H5T_VARIABLE;    // size is dependent upon string type (fixed or variable length)
+            (void)H5Tset_size(h5DType, size);                                                                       // size is field width + 1 (for NULL terminator) if fixed; variable if not limited
+            (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                                             // ASCII (rather than UTF-8)
             h5DataType = h5DType;
             } break;
         case TYPENAME::BOOL: {
-            if (OPTIONS->PrintBoolAsString()) {                                             // print bool values as strings "TRUE" or "FALSE"?
-                hid_t h5DType = H5Tcopy(H5T_C_S1);                                          // yes - HDF5 c-string datatype
-                (void)H5Tset_size(h5DType, 6);                                              // len("FALSE") + 1 (for NULL terminator)
-                (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                 // ASCII (rather than UTF-8)
+            if (OPTIONS->PrintBoolAsString()) {                                                                     // print bool values as strings "TRUE" or "FALSE"?
+                hid_t h5DType = H5Tcopy(H5T_C_S1);                                                                  // yes - HDF5 c-string datatype
+                (void)H5Tset_size(h5DType, 6);                                                                      // len("FALSE") + 1 (for NULL terminator)
+                (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                                         // ASCII (rather than UTF-8)
                 h5DataType = h5DType;
             }
-            else {                                                                          // no - print bool values as 1 or 0
+            else {                                                                                                  // no - print bool values as 1 or 0
                 h5DataType = H5T_NATIVE_UCHAR;
             }
             } break;
-        default:                                                                            // unknown property type
-            Squawk(ERR_MSG(ERROR::UNKNOWN_DATA_TYPE));                                      // announce error
+        default:                                                                                                    // unknown property type
+            Squawk(ERR_MSG(ERROR::UNKNOWN_DATA_TYPE));                                                              // announce error
     }
-    return h5DataType;                                                                      // HDF5 datatype
+
+    return h5DataType;                                                                                              // HDF5 datatype
 }
 
 
 /*
  * Create a dataset subordinate to a group in an HDF5 file
- * 
- * 
  * 
  * 
  * hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr, const size_t p_HDF5ChunkSize)
@@ -2230,7 +2367,7 @@ hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, con
  * strings are written to the file.  The logfile name is constructed using the LOGFILE_DESCRIPTOR
  * enum from constants.h, and the p_FileSuffix parameter.  The file suffix (p_FileSuffix) can be
  * used to indicate, for example, the ordinal number of the star for which information is being
- * logged (for example, when loopong through a population of binary star, p_FileSuffix would indicate
+ * logged (for example, when looping through a population of binary stars, p_FileSuffix would indicate
  * the loop index of the star for which information is being logged). The file remains open until
  * explicitly closed (by calling CloseStandardFile(), possibly via CloseAllStandardFiles().
  *
@@ -2246,7 +2383,7 @@ hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, con
 LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const string p_FileSuffix) {
 
     bool                 ok = true;
-    LogfileDetailsT      retVal = {-1, "", {}, {}, {}, {}, {}, {}};                                                                             // default return value
+    LogfileDetailsT      retVal = {-1, "", {}, {}, {}, {}, {}, {}, {}, {}};                                                                     // default return value
 
     LogfileDetailsT      fileDetails = retVal;                                                                                                  // logfile details
     LOGFILE_DESCRIPTOR_T fileDescriptor;                                                                                                        // logfile descriptor
@@ -2260,41 +2397,49 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                 case LOGFILE::BSE_BE_BINARIES:                                                                                                  // BSE_BE_BINARIES
                     fileDetails.filename         = OPTIONS->LogfileBeBinaries();
                     fileDetails.recordProperties = m_BSE_BE_Binaries_Rec;
+                    fileDetails.annotations      = m_BSE_BE_Binaries_Notes;
                     break;
 
                 case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                             // BSE_COMMON_ENVELOPES
                     fileDetails.filename         = OPTIONS->LogfileCommonEnvelopes();
                     fileDetails.recordProperties = m_BSE_CEE_Rec;
+                    fileDetails.annotations      = m_BSE_CEE_Notes;
                     break;
 
                 case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:                                                                                       // BSE_DOUBLE_COMPACT_OBJECTS
                     fileDetails.filename         = OPTIONS->LogfileDoubleCompactObjects();
                     fileDetails.recordProperties = m_BSE_DCO_Rec;
+                    fileDetails.annotations      = m_BSE_DCO_Notes;
                     break;
                
                 case LOGFILE::BSE_PULSAR_EVOLUTION:                                                                                             // BSE_PULSAR_EVOLUTION
                     fileDetails.filename         = OPTIONS->LogfilePulsarEvolution();
                     fileDetails.recordProperties = m_BSE_Pulsars_Rec;
+                    fileDetails.annotations      = m_BSE_Pulsars_Notes;
                     break;
 
                 case LOGFILE::BSE_RLOF_PARAMETERS:                                                                                              // BSE_RLOF_PARAMETERS
                     fileDetails.filename         = OPTIONS->LogfileRLOFParameters();
                     fileDetails.recordProperties = m_BSE_RLOF_Rec;
+                    fileDetails.annotations      = m_BSE_RLOF_Notes;
                     break;
 
                 case LOGFILE::BSE_SUPERNOVAE:                                                                                                   // BSE_SUPERNOVAE
                     fileDetails.filename         = OPTIONS->LogfileSupernovae();
                     fileDetails.recordProperties = m_BSE_SNE_Rec;
+                    fileDetails.annotations      = m_BSE_SNE_Notes;
                     break;
 
                 case LOGFILE::BSE_SWITCH_LOG:                                                                                                   // BSE_SWITCH_LOG
                     fileDetails.filename         = OPTIONS->LogfileSwitchLog();
                     fileDetails.recordProperties = m_BSE_Switch_Rec;
+                    fileDetails.annotations      = m_BSE_Switch_Notes;
                     break;
 
                 case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                            // BSE_SYSTEM_PARAMETERS
                     fileDetails.filename         = OPTIONS->LogfileSystemParameters();
                     fileDetails.recordProperties = m_BSE_SysParms_Rec;
+                    fileDetails.annotations      = m_BSE_SysParms_Notes;
 
                     // check whether to add program option columns to BSE_SYSTEM_PARAMETERS file and add them if required
                     if ((OPTIONS->AddOptionsToSysParms() == ADD_OPTIONS_TO_SYSPARMS::ALWAYS) ||                                                 // always add option columns?                   
@@ -2315,16 +2460,19 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                 case LOGFILE::SSE_SUPERNOVAE:                                                                                                   // SSE_SUPERNOVAE
                     fileDetails.filename         = OPTIONS->LogfileSupernovae();
                     fileDetails.recordProperties = m_SSE_SNE_Rec;
+                    fileDetails.annotations      = m_SSE_SNE_Notes;
                     break;
 
                 case LOGFILE::SSE_SWITCH_LOG:                                                                                                   // SSE_SWITCH_LOG
                     fileDetails.filename         = OPTIONS->LogfileSwitchLog();
                     fileDetails.recordProperties = m_SSE_Switch_Rec;
+                    fileDetails.annotations      = m_SSE_Switch_Notes;
                     break;
 
                 case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                            // SSE_SYSTEM_PARAMETERS
                     fileDetails.filename         = OPTIONS->LogfileSystemParameters();
                     fileDetails.recordProperties = m_SSE_SysParms_Rec;
+                    fileDetails.annotations      = m_SSE_SysParms_Notes;
 
                     // check whether to add program option columns to SSE_SYSTEM_PARAMETERS file and add them if required
                     if ((OPTIONS->AddOptionsToSysParms() == ADD_OPTIONS_TO_SYSPARMS::ALWAYS) ||                                                 // always add option columns?                   
@@ -2381,11 +2529,13 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                  // SSE_DETAILED_OUTPUT
                                 fileDetails.filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();         // logfile filename with directory
                                 fileDetails.recordProperties = m_SSE_Detailed_Rec;                                                              // record properties
+                                fileDetails.annotations      = m_SSE_Detailed_Notes;
                                 break;
 
                             case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                  // BSE_DETAILED_OUTPUT
                                 fileDetails.filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();         // logfile filename with directory
                                 fileDetails.recordProperties = m_BSE_Detailed_Rec;                                                              // record properties
+                                fileDetails.annotations      = m_BSE_Detailed_Notes;
                                 break;
 
                             default: break;
@@ -2458,15 +2608,16 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     // get and format field headers for printing; get field format strings
                     if (!fileDetails.recordProperties.empty()) {
 
-                        for (auto &property : fileDetails.recordProperties) {                                                                   // for each property to be included in the log record
+                        for (auto iter = fileDetails.recordProperties.begin(); iter != fileDetails.recordProperties.end();) {                   // for each property to be included in the log record
+
+                            T_ANY_PROPERTY property = *iter;                                                                                    // this record proerty
 
                             string headerStr = "";
                             string unitsStr  = "";
                             string typeStr   = "";
                             string fmtStr    = "";
 
-                            bool ok = true;
-
+                            bool push = true;
                             ANY_PROPERTY_TYPE propertyType = boost::apply_visitor(VariantPropertyType(), property);                             // property type
                             PROPERTY_DETAILS  details;                                                                                          // property details
 
@@ -2510,21 +2661,61 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                                 case ANY_PROPERTY_TYPE::T_PROGRAM_OPTION: {                                                                     // program option
                                     PROGRAM_OPTION programOption = boost::get<PROGRAM_OPTION>(property);                                        // property
-                                    details = ProgramOptionDetails(programOption);                                                              // property details
-                                    std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details);                               // format the headers
+
+                                    // check if we're adding PROGRAM_OPTION::NOTES - handled differently
+
+                                    if (programOption == PROGRAM_OPTION::NOTES) {                                                               // PROGRAM_OPTION::NOTES?
+                                                                                                                                                // yes
+                                        // processing PROGRAM_OPTION::NOTES
+                                        //
+                                        // program option NOTES is special - the property is actually a vector of strings (OPTIONS->Notes()),
+                                        // each of which is printed to a separate column, so we need to add as many entries to fileDetails
+                                        // as there are notes columns to add to this file.  The notes required to be written to this file
+                                        // are record in fileDetails.annotations (already set).
+
+                                        if (fileDetails.annotations.size() == 0) {                                                              // annotations present?
+                                            iter = fileDetails.recordProperties.erase(iter);                                                    // no - remove NOTES from record properties
+                                        }
+                                        else {                                                                                                  // have annotations
+                                            for (size_t idx = 0; idx < fileDetails.annotations.size(); idx ++) {                                // for each user-specified annotation
+                                                if (fileDetails.annotations[idx]) {                                                             // include it?
+                                                                                                                                                // yes
+                                                    details = ProgramOptionDetails(programOption, idx);                                         // property details
+                                                    std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details);               // format the headers
+
+                                                    fileDetails.propertyTypes.push_back(std::get<0>(details));                                  // append property typename
+                                                    fileDetails.stringTypes.push_back(STRING_QUALIFIER::VARIABLE_LENGTH);                       // append string type - annotations are variable length
+                                                    fileDetails.hdrStrings.push_back(headerStr);                                                // append header string for field
+                                                    fileDetails.unitsStrings.push_back(unitsStr);                                               // append units string for field
+                                                    fileDetails.typeStrings.push_back(typeStr);                                                 // append type string for field
+                                                    fileDetails.fmtStrings.push_back(fmtStr);                                                   // append format string for field
+                                                }
+                                            }
+                                            iter++;                                                                                             // next property
+                                        }
+                                        push = false;                                                                                           // don't need to add property details later - already done
+                                    }
+                                    else {                                                                                                      // not PROGRAM_OPTION::NOTES
+                                        details = ProgramOptionDetails(programOption);                                                          // property details
+                                        std::tie(headerStr, unitsStr, typeStr, fmtStr) = FormatFieldHeaders(details);                           // format the headers
+                                    }
                                     } break;
 
                                 default:                                                                                                        // unknown property type
-                                    ok = false;                                                                                                 // that's not ok...
+                                    push = false;                                                                                               // that's not ok - don't add property details
                                     Squawk(ERR_MSG(ERROR::UNKNOWN_PROPERTY_TYPE));                                                              // show warning
                             }
 
-                            if (ok) {
+                            if (push) {                                                                                                         // record details?
+                                                                                                                                                // yes
                                 fileDetails.propertyTypes.push_back(std::get<0>(details));                                                      // append property typename
+                                fileDetails.stringTypes.push_back(STRING_QUALIFIER::FIXED_LENGTH);                                              // append string type - default is fixed length
                                 fileDetails.hdrStrings.push_back(headerStr);                                                                    // append header string for field
                                 fileDetails.unitsStrings.push_back(unitsStr);                                                                   // append units string for field
                                 fileDetails.typeStrings.push_back(typeStr);                                                                     // append type string for field
                                 fileDetails.fmtStrings.push_back(fmtStr);                                                                       // append format string for field
+
+                                iter++;                                                                                                         // next property
                             }
                         }
 
@@ -2571,7 +2762,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accomodates header string)
                         }
                     }
-                    
+
                     // record new open file details
                     m_OpenStandardLogFileIds.insert({p_Logfile, fileDetails});                                                                  // record the new file details and format strings
 
@@ -2593,12 +2784,14 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             m_Logfiles[fileDetails.id].h5File.dataSets.push_back({-1, -1, TYPENAME::NONE, {}});                                 // create new dataset
 
                             // set datatypes
-                            hid_t h5DataType = GetHDF5DataType(fileDetails.propertyTypes[idx], (int)std::stod(fileDetails.fmtStrings[idx]));    // get HDF5 data type from COMPAS data type
+                            int fieldWidth = fileDetails.fmtStrings[idx].empty() ? 0 : (int)std::stod(fileDetails.fmtStrings[idx]);
+                            hid_t h5DataType = GetHDF5DataType(fileDetails.propertyTypes[idx], fieldWidth, fileDetails.stringTypes[idx]);       // get HDF5 data type from COMPAS data type
                             if (h5DataType < 0) {                                                                                               // ok?
                                 ok = false;                                                                                                     // no - fail
                             }
                             else {                                                                                                              // yes - ok
                                 m_Logfiles[fileDetails.id].h5File.dataSets[idx].dataType   = fileDetails.propertyTypes[idx];                    // record COMPAS data type
+                                m_Logfiles[fileDetails.id].h5File.dataSets[idx].stringType = fileDetails.stringTypes[idx];                      // record COMPAS string type
                                 m_Logfiles[fileDetails.id].h5File.dataSets[idx].h5DataType = h5DataType;                                        // record HDF5 data type
 
                                 // create HDF5 dataset
@@ -2653,7 +2846,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
             Squawk(ERR_MSG(ERROR::UNKNOWN_LOGFILE) + ": Logging disabled for this file");                                                       // show warning
         }
     }
-    else {                                                                                                                                      // already exists
+    else {                                                                                                                                      // logfile already exists
         fileDetails = logfile->second;                                                                                                          // get existing file details
     }
 
@@ -2795,7 +2988,7 @@ void Log::PrintLogfileRecordDetails(const ANY_PROPERTY_VECTOR& p_LogfileRecord, 
  *
  * Note the order in which the updates are applied.  Usually only one of p_AddProps and
  * p_SubtractProps will be populated, so order isn't relevant in that case.  Order is
- * relevant of both p_AddProps and p_SubtractProps are non-empty.  The order is:
+ * relevant if both p_AddProps and p_SubtractProps are non-empty.  The order is:
  *
  *    1. The base set of parameters is set empty, or populated with the default set, according
  *       to p_UseDefaultProps
@@ -2817,44 +3010,99 @@ void Log::PrintLogfileRecordDetails(const ANY_PROPERTY_VECTOR& p_LogfileRecord, 
  * void UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *                               bool                      p_UseDefaultProps,
  *                               const ANY_PROPERTY_VECTOR p_AddProps,
- *                               const ANY_PROPERTY_VECTOR p_SubtractProps)
+ *                               const ANY_PROPERTY_VECTOR p_SubtractProps,
+ *                               const std::vector<bool>   p_AddNotes,
+ *                               const std::vector<bool>   p_SubtractNotes)
  *
+ * 
+ * @param   [IN]    p_Logfile                   the logfile for which the record specifier should be updated
  * @param   [IN]    p_UseDefaultProps           indicates whether the default properties of the given logfile should be
  *                                              be used as the base set of properties.  If p_UseDefaultProps is true,
- *                                              the base set of properties is set to thedefault set (from constants.h).
+ *                                              the base set of properties is set to the current set for the file indicated
+ *                                              by p_LogFile (initially the default set from constants.h).
  *                                              If p_UseDefaultProps is false, the base set of of properties is set
  *                                              empty
  * @param   [IN]    p_AddProps                  vector containing the properties to be added to the given logfile properties
  * @param   [IN]    p_SubtractProps             vector containing the properties to be subtracted from the given logfile properties
+ * @param   [IN]    p_AddNotes                  vector of booleans indicating which notes are to be added, if PROGRAM_OPTION::NOTES is in p_AddProps
+ * @param   [IN]    p_SubtractNotes             vector of booleans indicating which notes are to be subtracted, if PROGRAM_OPTION::NOTES is in p_SubtractProps
  */
 void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
                                    bool                      p_UseDefaultProps,
                                    const ANY_PROPERTY_VECTOR p_AddProps,
-                                   const ANY_PROPERTY_VECTOR p_SubtractProps) {
+                                   const ANY_PROPERTY_VECTOR p_SubtractProps,
+                                   const std::vector<bool>   p_AddNotes,
+                                   const std::vector<bool>   p_SubtractNotes) {
 
-    ANY_PROPERTY_VECTOR baseProps = {};                                                                                 // base props for the given logfile - deault is {}
-    ANY_PROPERTY_VECTOR newProps = {};                                                                                  // new props for the given logfile - deault is {}
+    ANY_PROPERTY_VECTOR baseProps = {};                                                                                 // base props for the given logfile
+    std::vector<bool>   baseNotes;                                                                                      // base annotations for the given logfile
 
-    if (p_UseDefaultProps) {                                                                                            // use logfile default props as base?
-                                                                                                                        // yes - get existing props for given logfile
-        switch (p_Logfile) {
-            case LOGFILE::BSE_BE_BINARIES           : baseProps = m_BSE_BE_Binaries_Rec; break;
-            case LOGFILE::BSE_COMMON_ENVELOPES      : baseProps = m_BSE_CEE_Rec;         break;
-            case LOGFILE::BSE_DETAILED_OUTPUT       : baseProps = m_BSE_Detailed_Rec;    break;
-            case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: baseProps = m_BSE_DCO_Rec;         break;
-            case LOGFILE::BSE_PULSAR_EVOLUTION      : baseProps = m_BSE_Pulsars_Rec;     break;
-            case LOGFILE::BSE_RLOF_PARAMETERS       : baseProps = m_BSE_RLOF_Rec;        break;
-            case LOGFILE::BSE_SUPERNOVAE            : baseProps = m_BSE_SNE_Rec;         break;
-            case LOGFILE::BSE_SWITCH_LOG            : baseProps = m_BSE_Switch_Rec;      break;
-            case LOGFILE::BSE_SYSTEM_PARAMETERS     : baseProps = m_BSE_SysParms_Rec;    break;
-            case LOGFILE::SSE_DETAILED_OUTPUT       : baseProps = m_SSE_Detailed_Rec;    break;
-            case LOGFILE::SSE_SUPERNOVAE            : baseProps = m_SSE_SNE_Rec;         break;
-            case LOGFILE::SSE_SWITCH_LOG            : baseProps = m_SSE_Switch_Rec;      break;
-            case LOGFILE::SSE_SYSTEM_PARAMETERS     : baseProps = m_SSE_SysParms_Rec;    break;
-            default: break;                                                                                             // avoids compiler warning
-        }
+    ANY_PROPERTY_VECTOR newProps = {};                                                                                  // new props for the given logfile
+    std::vector<bool>   newNotes;                                                                                       // new annotations for the given logfile
+
+    // initialise baseProps, baseNotes, and newNotes
+    // if p_UseDefaultProps is TRUE, baseProps is initialised to the default record specifier for the file,
+    // otherwise it is initialised to an empty vector.
+    // baseNotes and newNotes are both initialised to the current annottions vector for the file - these
+    // are only used if the record specifier includes PROGRAM_OPTION::NOTES, and initialising to the current
+    // annotations vector for the file makes updating the vector correctly easier.
+
+    switch (p_Logfile) {
+        case LOGFILE::BSE_BE_BINARIES:
+            if (p_UseDefaultProps) baseProps = BSE_BE_BINARIES_REC;
+            baseNotes = m_BSE_BE_Binaries_Notes;
+            break;
+        case LOGFILE::BSE_COMMON_ENVELOPES:
+            if (p_UseDefaultProps) baseProps = BSE_COMMON_ENVELOPES_REC;
+            baseNotes = m_BSE_CEE_Notes;
+            break;
+        case LOGFILE::BSE_DETAILED_OUTPUT:
+            if (p_UseDefaultProps) baseProps = BSE_DETAILED_OUTPUT_REC;
+            baseNotes = m_BSE_Detailed_Notes;
+            break;
+        case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:
+            if (p_UseDefaultProps) baseProps = BSE_DOUBLE_COMPACT_OBJECTS_REC;
+            baseNotes = m_BSE_DCO_Notes;
+            break;
+        case LOGFILE::BSE_PULSAR_EVOLUTION:
+            if (p_UseDefaultProps) baseProps = BSE_PULSAR_EVOLUTION_REC;
+            baseNotes = m_BSE_Pulsars_Notes;
+            break;
+        case LOGFILE::BSE_RLOF_PARAMETERS:
+            if (p_UseDefaultProps) baseProps = BSE_RLOF_PARAMETERS_REC;
+            baseNotes = m_BSE_RLOF_Notes;
+            break;
+        case LOGFILE::BSE_SUPERNOVAE:
+            if (p_UseDefaultProps) baseProps = BSE_SUPERNOVAE_REC;
+            baseNotes = m_BSE_SNE_Notes;
+            break;
+        case LOGFILE::BSE_SWITCH_LOG:
+            if (p_UseDefaultProps) baseProps = BSE_SWITCH_LOG_REC;
+            baseNotes = m_BSE_Switch_Notes;
+            break;
+        case LOGFILE::BSE_SYSTEM_PARAMETERS:
+            if (p_UseDefaultProps) baseProps = BSE_SYSTEM_PARAMETERS_REC;
+            baseNotes = m_BSE_SysParms_Notes;
+            break;
+        case LOGFILE::SSE_DETAILED_OUTPUT:
+            if (p_UseDefaultProps) baseProps = SSE_DETAILED_OUTPUT_REC;
+            baseNotes = m_SSE_Detailed_Notes;
+            break;
+        case LOGFILE::SSE_SUPERNOVAE:
+            if (p_UseDefaultProps) baseProps = SSE_SUPERNOVAE_REC;
+            baseNotes = m_SSE_Detailed_Notes;
+            break;
+        case LOGFILE::SSE_SWITCH_LOG:
+            if (p_UseDefaultProps) baseProps = SSE_SWITCH_LOG_REC;
+            baseNotes = m_SSE_Switch_Notes;
+            break;
+        case LOGFILE::SSE_SYSTEM_PARAMETERS:
+            if (p_UseDefaultProps) baseProps = SSE_SYSTEM_PARAMETERS_REC;
+            baseNotes = m_SSE_SysParms_Notes;
+            break;
+        default: break;                                                                                                 // avoids compiler warning
     }
-
+    newNotes = baseNotes;
 
     // copy all base props that are not to be subtracted
     if (!baseProps.empty()) {                                                                                           // nothing to copy if baseProps is empty
@@ -2872,21 +3120,36 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
                         case ANY_PROPERTY_TYPE::T_SUPERNOVA_PROPERTY: isSubtract = boost::get<SUPERNOVA_PROPERTY>(baseProperty) == boost::get<SUPERNOVA_PROPERTY>(subtractProperty); break; // SUPERNOVA_PROPERTY
                         case ANY_PROPERTY_TYPE::T_COMPANION_PROPERTY: isSubtract = boost::get<COMPANION_PROPERTY>(baseProperty) == boost::get<COMPANION_PROPERTY>(subtractProperty); break; // STAR_1_PROPERTY
                         case ANY_PROPERTY_TYPE::T_BINARY_PROPERTY   : isSubtract = boost::get<BINARY_PROPERTY>(baseProperty)    == boost::get<BINARY_PROPERTY>(subtractProperty);    break; // BINARY_PROPERTY
-                        case ANY_PROPERTY_TYPE::T_PROGRAM_OPTION    : isSubtract = boost::get<PROGRAM_OPTION>(baseProperty)     == boost::get<PROGRAM_OPTION>(subtractProperty);     break; // PROGRAM_OPTION
+                        case ANY_PROPERTY_TYPE::T_PROGRAM_OPTION    : {                                                                                                                      // PROGRAM_OPTION
+                        
+                            PROGRAM_OPTION thisBaseProperty     = boost::get<PROGRAM_OPTION>(baseProperty);             // base property
+                            PROGRAM_OPTION thisSubtractProperty = boost::get<PROGRAM_OPTION>(subtractProperty);         // property to be subtracted
+                            
+                            isSubtract = thisBaseProperty == thisSubtractProperty;                                      // should subtract (nominally)?
+
+                            if (isSubtract && thisBaseProperty == PROGRAM_OPTION::NOTES) {                              // subtracting PROGRAM_OPTION::NOTES?
+                                                                                                                        // yes - update the annotations vector for this logfile
+                                size_t notesCount = 0;                                                                  // count of notes user wants
+                                for (size_t idx = 0; idx < std::min(newNotes.size(), p_SubtractNotes.size()); idx++) {  // min of sizes for safety - should be same
+                                    newNotes[idx] = p_SubtractNotes[idx] ? false : baseNotes[idx];                      // subtract notes index requested
+                                    if (newNotes[idx]) notesCount++;
+                                }
+                                isSubtract = notesCount == 0;                                                           //  only remove PROGRAM_OPTION::NOTES if the user wants none of the notes
+                            }}
+                            break;
+                        default: break;                                                                                 // avoids compiler warning
                     }
                     if (isSubtract) break;
                 }
             }
-
             if (!isSubtract) newProps.push_back(baseProperty);                                                          // add property to newProps if necessary
         }
     }
 
-
     // copy all props to be added that don't already exist
     if (!p_AddProps.empty()) {                                                                                          // nothing to copy if p_AddProps is empty
         for (auto const& addProperty: p_AddProps) {                                                                     // for each property in p_AddProps
-            ANY_PROPERTY_TYPE addPropertyType = boost::apply_visitor(VariantPropertyType(), addProperty);                             // add property type
+            ANY_PROPERTY_TYPE addPropertyType = boost::apply_visitor(VariantPropertyType(), addProperty);               // add property type
 
             bool isAlready = false;
             for (auto const& newProperty: newProps) {                                                                   // for each property in newProps
@@ -2899,31 +3162,47 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
                         case ANY_PROPERTY_TYPE::T_SUPERNOVA_PROPERTY: isAlready = boost::get<SUPERNOVA_PROPERTY>(addProperty) == boost::get<SUPERNOVA_PROPERTY>(newProperty); break; // SUPERNOVA_PROPERTY
                         case ANY_PROPERTY_TYPE::T_COMPANION_PROPERTY: isAlready = boost::get<COMPANION_PROPERTY>(addProperty) == boost::get<COMPANION_PROPERTY>(newProperty); break; // STAR_1_PROPERTY
                         case ANY_PROPERTY_TYPE::T_BINARY_PROPERTY   : isAlready = boost::get<BINARY_PROPERTY>(addProperty)    == boost::get<BINARY_PROPERTY>(newProperty);    break; // BINARY_PROPERTY
-                        case ANY_PROPERTY_TYPE::T_PROGRAM_OPTION    : isAlready = boost::get<PROGRAM_OPTION>(addProperty)     == boost::get<PROGRAM_OPTION>(newProperty);     break; // PROGRAM_OPTION
+                        case ANY_PROPERTY_TYPE::T_PROGRAM_OPTION    : {                                                                                                               // PROGRAM_OPTION                        
+                        
+                            PROGRAM_OPTION thisNewProperty = boost::get<PROGRAM_OPTION>(newProperty);                   // new property
+                            PROGRAM_OPTION thisAddProperty  = boost::get<PROGRAM_OPTION>(addProperty);                  // property to be added
+                            
+                            isAlready = thisNewProperty == thisAddProperty;                                             // should add (nominally)?
+
+                            if (isAlready && thisNewProperty == PROGRAM_OPTION::NOTES) {                                // adding PROGRAM_OPTION::NOTES?
+                                                                                                                        // yes - update the annotations vector for this logfile
+                                size_t notesCount = 0;                                                                  // count of notes user wants
+                                for (size_t idx = 0; idx < std::min(newNotes.size(), p_AddNotes.size()); idx++) {       // min of sizes for safety - should be same
+                                    newNotes[idx] = p_AddNotes[idx] ? true : newNotes[idx];                             // add notes index requested
+                                    if (newNotes[idx]) notesCount++;
+                                }
+                                isAlready = notesCount > 0;                                                             //  only add PROGRAM_OPTION::NOTES if the user wants at least one of the notes
+                            }}
+                            break;
+                        default: break;                                                                                 // avoids compiler warning
                     }
                     if (isAlready) break;
                 }
             }
-
             if (!isAlready) newProps.push_back(addProperty);                                                            // add property to newProps if necessary
         }
     }
 
-    // replace  existing props for given logfile
+    // replace existing props and annotations vector for given logfile
     switch (p_Logfile) {
-        case LOGFILE::BSE_BE_BINARIES           : m_BSE_BE_Binaries_Rec = newProps; break;
-        case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec         = newProps; break;
-        case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec    = newProps; break;
-        case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec         = newProps; break;
-        case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec     = newProps; break;
-        case LOGFILE::BSE_RLOF_PARAMETERS       : m_BSE_RLOF_Rec        = newProps; break;
-        case LOGFILE::BSE_SUPERNOVAE            : m_BSE_SNE_Rec         = newProps; break;
-        case LOGFILE::BSE_SWITCH_LOG            : m_BSE_Switch_Rec      = newProps; break;
-        case LOGFILE::BSE_SYSTEM_PARAMETERS     : m_BSE_SysParms_Rec    = newProps; break;
-        case LOGFILE::SSE_DETAILED_OUTPUT       : m_SSE_Detailed_Rec    = newProps; break;
-        case LOGFILE::SSE_SUPERNOVAE            : m_SSE_SNE_Rec         = newProps; break;
-        case LOGFILE::SSE_SWITCH_LOG            : m_SSE_Switch_Rec      = newProps; break;
-        case LOGFILE::SSE_SYSTEM_PARAMETERS     : m_SSE_SysParms_Rec    = newProps; break;
+        case LOGFILE::BSE_BE_BINARIES           : m_BSE_BE_Binaries_Rec = newProps; m_BSE_BE_Binaries_Notes = newNotes; break;
+        case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec         = newProps; m_BSE_CEE_Notes         = newNotes; break;
+        case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec    = newProps; m_BSE_Detailed_Notes    = newNotes; break;
+        case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec         = newProps; m_BSE_DCO_Notes         = newNotes; break;
+        case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec     = newProps; m_BSE_Pulsars_Notes     = newNotes; break;
+        case LOGFILE::BSE_RLOF_PARAMETERS       : m_BSE_RLOF_Rec        = newProps; m_BSE_RLOF_Notes        = newNotes; break;
+        case LOGFILE::BSE_SUPERNOVAE            : m_BSE_SNE_Rec         = newProps; m_BSE_SNE_Notes         = newNotes; break;
+        case LOGFILE::BSE_SWITCH_LOG            : m_BSE_Switch_Rec      = newProps; m_BSE_Switch_Notes      = newNotes; break;
+        case LOGFILE::BSE_SYSTEM_PARAMETERS     : m_BSE_SysParms_Rec    = newProps; m_BSE_SysParms_Notes    = newNotes; break;
+        case LOGFILE::SSE_DETAILED_OUTPUT       : m_SSE_Detailed_Rec    = newProps; m_SSE_Detailed_Notes    = newNotes; break;
+        case LOGFILE::SSE_SUPERNOVAE            : m_SSE_SNE_Rec         = newProps; m_SSE_SNE_Notes         = newNotes; break;
+        case LOGFILE::SSE_SWITCH_LOG            : m_SSE_Switch_Rec      = newProps; m_SSE_Switch_Notes      = newNotes; break;
+        case LOGFILE::SSE_SYSTEM_PARAMETERS     : m_SSE_SysParms_Rec    = newProps; m_SSE_SysParms_Notes    = newNotes; break;
         default: break;                                                                                                 // avoids compiler warning...
     }
 }
@@ -2949,6 +3228,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *     [ x ]  means x is optional: x may appear, or not
  *     <name> is a term (expression)
  *     "abc"  means literal string "abc"
+ *       n    means integer number
  *       |    means "or"
  *       #    indicates the start of a comment
  *
@@ -2977,8 +3257,8 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *
  * <props_list> ::= <prop_spec> [ <prop_delim> <props_list> ]
  *
- * <prop_spec>  ::= <prop_type> "::" <prop_name> <prop_delim>
- *
+ * <prop_spec>  ::= <prop_type> "::" <prop_name> [ <prop_index> ] <prop_delim>
+ * 
  * <spec_delim> ::= " " | EOL
  *
  * <prop_delim> ::= "," | <spec_delim>
@@ -2990,6 +3270,8 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *                  "COMPANION_PROPERTY" |				# BSE only
  *                  "BINARY_PROPERTY"    |				# BSE only
  *                  "PROGRAM_OPTION"      				# SSE or BSE
+ *
+ * <prop_index> ::= "[" n "]"
  *
  * <prop_name>  ::= valid property name for specified property type
  *                  (see definitions in constants.h)
@@ -3026,7 +3308,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *
  * bool UpdateAllLogfileRecordSpecs()
  *
- * @return                                      boolean indicating if if lohfile record specifications were updated successfully:
+ * @return                                      boolean indicating if logfile record specifications were updated successfully:
  *                                              true = yes - updated successfully, false = no - an error occurred
  */
 bool Log::UpdateAllLogfileRecordSpecs() {
@@ -3063,6 +3345,8 @@ bool Log::UpdateAllLogfileRecordSpecs() {
     bool useDefaultProps;                                                                                                       // indicates whether the default props for a logfile should be the base set of props
     ANY_PROPERTY_VECTOR addProps;                                                                                               // properties user wants added to the base properties
     ANY_PROPERTY_VECTOR subtractProps;                                                                                          // properties user wants subtracted from the base properties
+    std::vector<bool>   addNotes = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);                                       // annotations (notes) user wants added to the base properties
+    std::vector<bool>   subtractNotes = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);                                  // annotations (notes) user wants subtracted from the base properties
 
     // read and parse the file records
 
@@ -3146,6 +3430,8 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                         currentLogfileType = std::get<4>(LOGFILE_DESCRIPTOR.at(currentLogfile));                                // and type (STELLAR or BINARY)
                         addProps      = {};                                                                                     // start with empty set of properties to be added
                         subtractProps = {};                                                                                     // start with empty set of properties to be subtracted
+                        addNotes      = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);                                  // start with no annotations to be added       
+                        subtractNotes = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);                                  // start with no annotations to be subtracted
 
                         expecting = TOKEN_TYPE::ASSIGN;                                                                         // now expecting assignment operator {"=", "-=", "+="}
                     }
@@ -3187,7 +3473,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                 case TOKEN_TYPE::COMMA:                                                                                         // ... comma (or close brace)
 
                     if (tokStr == "}") {                                                                                        // token is open brace "{"?
-                        UpdateLogfileRecordSpecs(currentLogfile, useDefaultProps, addProps, subtractProps);                     // update current logfile record specifications
+                        UpdateLogfileRecordSpecs(currentLogfile, useDefaultProps, addProps, subtractProps, addNotes, subtractNotes); // update current logfile record specifications
 
                         expecting = TOKEN_TYPE::LOGFILE_RECORD_NAME;                                                            // now expecting new logfile record name
                     }
@@ -3203,7 +3489,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
 
                     // check for close brace to end property list
                     if (tokStr == "}") {                                                                                        // have close brace - end of list
-                        UpdateLogfileRecordSpecs(currentLogfile, useDefaultProps, addProps, subtractProps);                     // update current logfile record specifications
+                        UpdateLogfileRecordSpecs(currentLogfile, useDefaultProps, addProps, subtractProps, addNotes, subtractNotes); // update current logfile record specifications
 
                         expecting = TOKEN_TYPE::LOGFILE_RECORD_NAME;                                                            // now expecting new logfile record name
                     }
@@ -3236,7 +3522,9 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                         }
 
                         // if no error at this stage, we have the property type and name
+                        // check for indexed property name - only allowed for PROGRAM_OPTION::NOTES
                         // check that property type and name are a valid, known property type and name
+                        // check that subscript for PROGRAM_OPTION::NOTES, if present, is valid
 
                         if (error == ERROR::NONE) {                                                                             // parse error?
                                                                                                                                 // no - have property type and name
@@ -3342,19 +3630,89 @@ bool Log::UpdateAllLogfileRecordSpecs() {
 
                                     case PROPERTY_TYPE::PROGRAM_OPTION: {                                                       // PROGRAM_OPTION
 
-                                        bool found;
-                                        PROGRAM_OPTION property;                                                                // lookup property name
-                                        std::tie(found, property) = utils::GetMapKey(propNameStr, PROGRAM_OPTION_LABEL, PROGRAM_OPTION::RANDOM_SEED);
-                                        if (!found) {                                                                           // property name found?
-                                            error = ERROR::UNKNOWN_PROGRAM_OPTION;                                              // no - set error
+                                        // check for indexed PROGRAM_OPTION::NOTES
+
+                                        int notesIdx = -1;                                                                      // index value for PROGRAM_OPTION::NOTES
+                                        if (propNameStr.length() > 5 && utils::Equals(propNameStr.substr(0, 5), "notes")) {     // PROGRAM_OPTION::NOTES?
+                                            if (propNameStr[5] == '[' && propNameStr[propNameStr.length() - 1] != ']') {        // wanted index, but failed?
+                                                error = ERROR::EXPECTED_POSITIVE_INTEGER;                                       // set error - expected an integer index > 0
+                                                errorPos += 22;                                                                 // caret position for error
+                                            }
+                                            else if (propNameStr[5] == '[' && propNameStr[propNameStr.length() - 1] == ']') {   // possibly - indexed?
+                                                size_t idxLen = propNameStr.length() - 7;                                       // possibly...
+                                                if (idxLen > 0) {                                                               // length of index value > 0?    
+                                                    // indexed - check for valid index
+                                                    try {
+                                                        size_t lastChar;                                                        // for conversion
+                                                        notesIdx = std::stoi(propNameStr.substr(6, idxLen), &lastChar);         // try conversion
+                                                        if (lastChar != idxLen) {                                               // valid INT only if propNameStr completely consumed
+                                                            error = ERROR::EXPECTED_POSITIVE_INTEGER;                           // not valid - set error - expected an integer index > 0
+                                                            errorPos += 22;                                                     // caret position for error
+                                                            notesIdx = -1;                                                      // don't want to use invalid index value
+                                                        }
+                                                        else {                                                                  // valid integer - valid index?
+                                                            // the index for PROGRAM_OPTION::NOTES is 1-based (i.e. the first
+                                                            // note is index 1 (not 0))
+                                                            // to be a valid index for PROGRAM_OPTION::NOTES, the index value
+                                                            // must be from 1..number of notes headers (inclusive)
+
+                                                            if (notesIdx < 1 or notesIdx > (int)OPTIONS->NotesHdrs().size()) {  // index in valid range?
+                                                                error = ERROR::OUT_OF_BOUNDS;                                   // no - set error
+                                                                errorPos += 22;                                                 // caret position for error
+                                                            }
+                                                            else {                                                              // yes - valid index
+                                                                propNameStr = propNameStr.substr(0, 5);                         // remove index from property name
+                                                            }
+                                                        }
+                                                    }
+                                                    catch (const std::out_of_range& e) {                                        // conversion failed
+                                                        error = ERROR::EXPECTED_POSITIVE_INTEGER;                               // set error - expected an integer index > 0
+                                                        errorPos += 22;                                                         // caret position for error
+                                                    }
+                                                    catch (const std::invalid_argument& e) {                                    // conversion failed
+                                                        error = ERROR::EXPECTED_POSITIVE_INTEGER;                               // set error - expected an integer index > 0
+                                                        errorPos += 22;                                                         // caret position for error
+                                                    }
+                                                }                              
+                                            }
                                         }
-                                        else {                                                                                  // found known property name
-                                            if (addAssign)                                                                      // add property?
-                                                addProps.push_back(property);                                                   // yes - add it to 'add' list
-                                            else                                                                                // no - subtract property
-                                                subtractProps.push_back(property);                                              // add it to 'subtract' list
+
+                                        if (error == ERROR::NONE) {                                                             // ok so far?
+                                                                                                                                // yes
+                                            bool found;
+                                            PROGRAM_OPTION property;                                                            // lookup property name
+                                            std::tie(found, property) = utils::GetMapKey(propNameStr, PROGRAM_OPTION_LABEL, PROGRAM_OPTION::RANDOM_SEED);
+                                            if (!found) {                                                                       // property name found?
+                                                error = ERROR::UNKNOWN_PROGRAM_OPTION;                                          // no - set error
+                                            }
+                                            else {                                                                              // found known property name
+                                                if (addAssign) {                                                                // add property?
+                                                    addProps.push_back(property);                                               // yes - add it to 'add' list
+
+                                                    if (property == PROGRAM_OPTION::NOTES) {                                    // PROGRAM_OPTION::NOTES?
+                                                        if (notesIdx < 1) {                                                     // yes - indexed?
+                                                            for (size_t idx = 0; idx < addNotes.size(); idx++) addNotes[idx] = true; // no - add all notes
+                                                        }
+                                                        else {                                                                  // yes, indexed
+                                                            addNotes[notesIdx - 1] = true;                                      // add specified note only (0 - based)
+                                                        }
+                                                    }
+                                                }
+                                                else {                                                                          // no - subtract property
+                                                    subtractProps.push_back(property);                                          // add it to 'subtract' list
+
+                                                    if (property == PROGRAM_OPTION::NOTES) {                                    // PROGRAM_OPTION::NOTES?
+                                                        if (notesIdx < 1) {                                                     // yes - indexed?
+                                                            for (size_t idx = 0; idx < subtractNotes.size(); idx++) subtractNotes[idx] = true; // no - subtract all notes
+                                                        }
+                                                        else {                                                                  // yes, indexed
+                                                            subtractNotes[notesIdx - 1] = true;                                 // subtract specified note only (0 - based)
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            expecting = TOKEN_TYPE::COMMA;                                                      // now expecting a comma or close brace
                                         }
-                                        expecting = TOKEN_TYPE::COMMA;                                                          // now expecting a comma or close brace
                                         } break;
 
                                     default:                                                                                    // unknown property type
