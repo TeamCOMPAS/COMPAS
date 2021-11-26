@@ -62,6 +62,7 @@ import h5rewrite
 # ### *Note:* It is required to have some COMPAS output to complete the rest of the post-processing notebooks, but if you already have an output file, you can skip this section.
 
 # To run terminal commands in a jupyter notebook, prepend the command with an exclamation mark
+# The curly brackets here are used to input python variables into the bash command
 # !COMPAS -n 1000 -o {tutorialDir}
 
 # ### *Note:* This will produce output in the COMPAS_Output directory only the first time it is run. If you run this multiple times, new directories will be created as COMPAS_Output_X. Ensure that you are using the data in the desired directory.
@@ -75,13 +76,19 @@ import h5rewrite
 # # 2. Reading HDF5 files
 #
 # ## Here we show the basic h5 file syntax for how to load and close the file, and extract/inspect the data.
+#
+# While working with this notebook, feel free to change the data file used to see how it affects the output. For the purpose of consistency and ensuring that our examples work properly, the default data file `'COMPAS_Output_tutorial.h5'` has been pre-run using precisely chosen input parameters, specified in `'tutorial_grid.txt'`. 
+#
+# If the default data file is accidentally deleted, it can be reconstructed by running:
+#
+# `COMPAS --grid tutorial_grid.txt`
 
 # ## Load the h5 file
 
 # +
 # Set the appropriate path to the data file
 
-pathToH5 = tutorialDir + 'COMPAS_Output/COMPAS_Output.h5' 
+pathToH5 = tutorialDir + 'COMPAS_Output_tutorial.h5' 
 Data  = h5.File(pathToH5)
 # -
 
@@ -108,7 +115,7 @@ print(SPs['Mass@ZAMS(1)'].attrs['units']) # attrs refers to attributes
 #Giving me the actual array
 mZams1 = SPs['Mass@ZAMS(1)'][()]
 print(mZams1.shape)                   # number of systems in this file
-print(mZams1[:10])                    # the values of the first 10 entries
+print(mZams1[:3])                    # the values of the first 3 entries
 
 # ## Closing the Data
 #
