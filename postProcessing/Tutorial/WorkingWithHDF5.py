@@ -88,7 +88,7 @@ import h5rewrite
 # +
 # Set the appropriate path to the data file
 
-pathToH5 = tutorialDir + 'COMPAS_Output_tutorial.h5' 
+pathToH5 = tutorialDir + 'COMPAS_Tutorial_Output.h5' 
 Data  = h5.File(pathToH5)
 # -
 
