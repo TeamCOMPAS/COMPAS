@@ -9,7 +9,6 @@ class COMPASData(object):
     def __init__(
         self,
         path=None,
-        fileName="COMPAS_Output.h5",
         lazyData=True,
         Mlower=None,
         Mupper=None,
@@ -18,13 +17,8 @@ class COMPASData(object):
         suppress_reminder=False,
     ):
         self.path = path
-        self.fileName = fileName
-        if self.path is None:
-            print("Just to double check you create instance of ClassCOMPAS without path/Data")
-        elif not os.path.isfile(path + fileName):
-            raise ValueError(
-                "h5 file not found. Wrong path given? %s" % (path + fileName)
-            )
+        if not os.path.isfile(path):
+            raise ValueError( "h5 file not found. Wrong path given? {}".format(path))
 
         # Crucial values to be able to calculate MSSFR
         self.metallicityGrid = None
@@ -144,7 +138,6 @@ class COMPASData(object):
         # general to the entire simulation so calculate once
         _, self.totalMassEvolvedPerZ = MPZ.totalMassEvolvedPerZ(
             path=self.path,
-            fileName=self.fileName,
             Mlower=self.Mlower,
             Mupper=self.Mupper,
             binaryFraction=self.binaryFraction,
@@ -152,7 +145,7 @@ class COMPASData(object):
         # Want to recover entire metallicity grid, assume that every metallicity
         # evolved shows in all systems again should not change within same run
         # so dont redo if we reset the data
-        Data = h5.File(self.path + self.fileName, "r")
+        Data = h5.File(self.path, "r")
         if self.initialZ is None:
             self.initialZ = Data["BSE_System_Parameters"]["Metallicity@ZAMS(1)"][()]
         self.metallicityGrid = np.unique(self.initialZ)
@@ -214,7 +207,7 @@ class COMPASData(object):
                 var_list  --> [list of lists]         A list of variables (or a single variable if only one name supplied)
         """
         # open the COMPAS file
-        with h5.File(self.path + self.fileName, "r") as compas_file:
+        with h5.File(self.path, "r") as compas_file:
             # if the list is only a string (i.e. one variable) then don't return a list
             if isinstance(var_names, str):
                 return compas_file[hdf5_file][var_names][...].squeeze()

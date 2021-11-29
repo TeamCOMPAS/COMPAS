@@ -50,7 +50,7 @@ sys.path.append(compasRootDir + 'postProcessing/PythonScripts')
 from compasUtils import printCompasDetails, getEventHistory, getEventStrings
 
 # Choose an output hdf5 file to work with
-pathToData = 'COMPAS_Tutorial_Output.h5'
+pathToData = compasRootDir + 'postProcessing/Tutorial/COMPAS_Output/COMPAS_Output.h5'
 
 # This is known as an ipython magic command, and allows plots to be produced within the notebook
 # %matplotlib inline
@@ -66,7 +66,7 @@ pathToData = 'COMPAS_Tutorial_Output.h5'
 #
 # --
 #
-# If you want to create an alternative COMPAS_Output.h5, see Section 1 [Working With HDF5](./WorkingWithHDF5.py), or download some data from our [Zenodo database](https://zenodo.org/communities/compas/?page=1&size=20).
+# If you do not already have a COMPAS_Output.h5 ready, see Section 1 [Working With HDF5](./WorkingWithHDF5.py) on how to create your own output file, or download some data from our [Zenodo database](https://zenodo.org/communities/compas/?page=1&size=20).
 
 # *Note:* These cells may take a long time if you test them on large datasets.
 
@@ -122,8 +122,8 @@ printCompasDetails(MTs, firstThreeUniqueSeeds)
 # +
 seeds, events = getEventHistory(Data)
 
-for ii, seed in enumerate(seeds):
-    print(seed, events[ii])
+for ii in range(3):
+    print(seeds[ii], events[ii])
 # -
 
 # `getEventHistory` takes the h5file as input, and returns an array of the seeds processed as well as the major events for that seed. The format for events depends on the event type. Currently, we only include supernova and mass transfer events, but mass transfer events include a flag for whether the system underwent CEE.
@@ -396,38 +396,30 @@ printCompasDetails(MTs, 1636090318, mask=maskCEE)
 #
 # Imagine you want the primary masses of systems that experienced at any point a core collapse supernova (CCSN). We'll reuse our mock data, with additional information about the types of SN which occured in each star. Here, PPISN refers to Pulsational Pair Instability Supernovae.
 
-printCompasDetails(SNe)
-
 # +
-# Example: get the primary ZAMS masses of systems which experience 2 CCSNe before becoming a DCO
+# example mock data from above
+SystemSeeds = np.array([1,  2,  3,  4 ])
+SystemMass1 = np.array([1, 20,  5, 45 ])
+DCOSeeds    = np.array([    2,      4 ])
 
-seedsSP = SPs['SEED'][()]
-seedsSN = SNe['SEED'][()]
-seedsDC = DCs['SEED'][()]
+SNSeeds     = np.array([     2,      2,      4,       4 ])  
+SNTypes     = np.array(['CCSN', 'CCSN', 'CCSN', 'PPISN' ])
 
-snType  = SNe['SN_Type(SN)'][()]
-m1Zams  = SPs['Mass@ZAMS(1)'][()]
+# get seeds which had a CCSN
+maskCCSN  = SNTypes == 'CCSN'
+seedsCCSN = SNSeeds[maskCCSN]
+print('CCSN seeds =%s' %(seedsCCSN))
 
-# Note: the SN_Type(SN) parameter maps integers to SN types:
-snTypeDict = {
-    1: 'CCSN',
-    2: 'ECSN',
-    16: 'USSN'
-} # this dictionary is illustrative, but not explicitly used here
+#compare which element of 1-d array are in other
+#this because in 
 
+seedsCCSN = np.unique(seedsCCSN)
+# in this particular case, it is not necessary to reduce seedsCCSN to it's unique entries.
+# the numpy.in1d function will work with duplicate seeds, but we include it explicitly here
+# as other more complicated scenarios might rely on unique sets of seeds
 
-# Determine which seeds experienced at least 1 CCSN
-maskCCSN  = snType == 1
-seedsCCSN, countsCCSN = np.unique(seedsSN[maskCCSN], return_counts=True) 
-
-# Seeds with 2 CCSNe will have a countsCCSN value of 2
-seedsDoubleCCSN = seedsCCSN[countsCCSN == 2]
-
-# Make a mask for SPs using the seeds aquired above
-maskDoubleCcsnSP = np.in1d(seedsSP, seedsDoubleCCSN)
-m1ZamsDoubleCcsn = m1Zams[maskDoubleCcsnSP]
-
-print("Primary ZAMS masses for systems which undergo 2 CCSNe before becoming a DCO are: ",m1ZamsDoubleCcsn)
+mask = np.in1d(SystemSeeds, seedsCCSN)
+print(SystemMass1[mask])
 # -
 
 # Always remember to close your data file
@@ -453,54 +445,152 @@ Data.close()
 #
 # 2 - We choose to do the binning within the numpy/array environment instead of with inbuilt functions such as plt.hist / axes.hist. The reason is that you have more control over what you do, such as custom normalization (using rates, weights, pdf, etc.). It also forces you to have a deeper understanding of what you are calculating, and allows you to check intermediate steps with print statements.  Once you know how to bin your data this way you can also easily expand these routines for more complicated plots (2D binning).
 
-# **Note:** for this exercise, we recommend running your own simulation of at least 100,000 binaries in order to have a sufficient number of DCOs to have an interesting plot. We use the default tutorial data here for illustrative purposes, and because such a large data file would be too large to store on github.
+# # Path to be set by user
+#
+
+pathToData = '/home/cneijssel/Desktop/Test/COMPAS_output.h5'
 
 # # Get some data to plot
 
 # +
-pathToData = 'COMPAS_Tutorial_Output.h5'
-
 Data  = h5.File(pathToData)
+
 print(list(Data.keys()))
+# DCOs = double compact objects
 
-DCs = Data['BSE_Double_Compact_Objects']
 
-m1 = DCs['Mass(1)'][()]
-m2 = DCs['Mass(2)'][()]
-mTot = np.add(m1, m2)
+DCOs = Data['DoubleCompactObjects']
 
-Data.close()
+M1   = DCOs['Mass_1'][()]
+M2   = DCOs['Mass_2'][()]
+Mtot = np.add(M1, M2)
 # -
 
-# ## Plot histogram and CDF of data on left, and component mass scatter plot on the right
+Data.close()
+
+# # Histogram
 
 # +
-fig, axes = plt.subplots(ncols=2, figsize=(15,8))
-largefontsize = 30
-smallfontsize = 20
+# You can use numpy to create an array with specific min, max and interval values
+minMtot = 0
+maxMtot = max(Mtot)
+nBins   = 50
 
-# Histogram
-ax1 = axes[0]
-bins = np.linspace(0, max(mTot), 21) # use 20 bins, up to the maximum total DCO mass
-ax1.hist(mTot, bins=bins)
-ax1.set_ylabel('Histogram counts', fontsize=smallfontsize)
-ax1.set_xlabel('Total mass', fontsize=smallfontsize)
-ax1.set_title('Total  mass at DCO formation', fontsize=largefontsize)
+# Number of bin edges is one more than number of bins
+binEdges = np.linspace(minMtot, maxMtot, nBins+1)
 
-# CDF
-ax2 = ax1.twinx()
-cdf_xvalues = np.cumsum(np.sort(mTot))
-np.insert(cdf_xvalues, 0, 0) # insert a 0 at the front of the array
-cdf_yvalues = np.linspace(0, ax2.get_ylim()[1], len(cdf_xvalues))
-ax2.plot(cdf_xvalues, cdf_yvalues)
-ax2.set_ylabel('CDF values', rotation=270, labelpad=15)
-ax2.grid(False)
+# What is the value at the center of the bin?
+# add each edge of the side of the bin and divide by 2
+xvaluesHist  = (binEdges[:-1] + binEdges[1:])/2.
 
-# Scatter plot 
-ax3 = axes[1]
-ax3.scatter(m1, m2)
-ax3.set_xlabel(r'M1 [$M_\odot$]', fontsize=smallfontsize)
-ax3.set_ylabel(r'M2 [$M_\odot$]', fontsize=smallfontsize)
-ax3.set_title('Component Masses', fontsize=largefontsize)
+# What is the width of each bin? (an array in general, if the spacing is non-uniform)
+binWidths = np.diff(binEdges)
 
-fig.tight_layout()
+
+### Set yvalues to the height of the bins
+
+# Create an array of y-values for each x-value
+yvalues = np.zeros(len(xvaluesHist))
+
+# Iterate over the bins to calcuate the number of data points per bin
+for iBin in range(nBins):
+    mask = (Mtot >= binEdges[iBin]) & (Mtot < binEdges[iBin+1])
+    yvalues[iBin] = np.sum(mask)
+
+# You can of course apply any mask you like to get the desired histogram    
+
+## Generally, you can calculate the rate per unit x (dy/dx) using
+dYdXHist = np.divide(yvalues, binWidths)
+
+# To convert your distribution to a PDF, normalize in y-values:
+PDF = np.divide(yvalues, np.sum(yvalues))
+
+# You can then multiply by, e.g, rates/weights to scale the distribution
+# -
+
+# # CDF
+#
+# Sometimes we want to know what fraction of the data lies below a given value. To find this, we calculate a Cumulative Distribution Function, or CDF.
+
+# +
+# Question: How many points have a value less than X? 
+
+# Sort the values of interest
+MtotSorted = np.sort(Mtot)   
+
+# These values are your xvalues 
+xvaluesCDF = MtotSorted
+
+# The CDF is a non-strictly increasing function from 0 to 1 across the range of x values.
+# It should increment by 1/len(xvaluesCDF) at each x in the array, and remain constant otherwise.
+
+# Numpy provides several functions that make this very straightforward
+nDataPoints = len(xvaluesCDF)
+yvalues = np.cumsum(np.ones(nDataPoints))
+CDF = yvalues / nDataPoints
+# -
+
+# # A two panel plot
+
+# +
+# For two panels side by side:
+fig, axes = plt.subplots(1,2, figsize=(18,8))
+
+# axes is an array relating to each panel
+# panel1 = axes[0]
+# panel2 = axes[1]
+
+largefontsize = 18
+smallfontsize = 13
+
+
+
+
+### In the left panel, we want to plot the histogram and CDF overlayed
+### with the same x-axis, but different y-axes
+
+# Plot the Histogram first
+histAxes = axes[0]
+histAxes.plot(xvaluesHist, dYdXHist)
+
+histAxes.set_xlabel(r'Mtot [$M_\odot$]', fontsize=smallfontsize)
+histAxes.set_ylabel(r'dN/dMtot [$M_\odot^{-1}$]', fontsize=smallfontsize)
+
+# Overlay the CDF with the same x-axis but different y-axis
+cdfAxes =  axes[0].twinx()
+cdfAxes.plot(xvaluesCDF, CDF, c='r')
+
+# Dont have to do xlabel since they are the same
+cdfAxes.set_ylabel('CDF', fontsize=smallfontsize, labelpad=-40)
+cdfAxes.tick_params(axis='y', direction='in', pad=-20) # Adjust the CDF axis for clarity in the plot
+
+axes[0].set_title('Total Mass Histogram and CDF', fontsize=largefontsize)
+
+
+
+
+### In the right panel, we want to display a scatterplot of M1 & M2 
+
+axes[1].scatter(M1, M2)
+axes[1].set_xlabel(r'M1 [$M_\odot$]', fontsize=smallfontsize)
+axes[1].set_ylabel(r'M2 [$M_\odot$]', fontsize=smallfontsize)
+
+axes[1].set_title('Component Masses', fontsize=largefontsize)
+
+
+
+
+### Clean up and display the plot
+
+# You can force plt to pad enough between plots
+# such that the labels fit
+plt.tight_layout()
+
+# If you want to save the figure, use:
+#plt.savefig(pathToSave)
+
+# To produce the plot, always remember to:
+plt.show()
+# -
+
+

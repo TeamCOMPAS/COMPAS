@@ -142,8 +142,7 @@ def inverseCDF(C, CDF, index, xmin, xmax):
 
 
 
-def retrieveMassEvolvedPerZ(path, fileName):
-    path = os.path.join(path, fileName) 
+def retrieveMassEvolvedPerZ(path):
     f = h5.File(path, 'r') # open in read-only
 
     allSystems = f['BSE_System_Parameters']
@@ -159,12 +158,12 @@ def retrieveMassEvolvedPerZ(path, fileName):
 
 
 
-def totalMassEvolvedPerZ(path=None, fileName=None, Mlower=None, Mupper=None, binaryFraction=0.7, \
+def totalMassEvolvedPerZ(path=None, Mlower=None, Mupper=None, binaryFraction=0.7, \
                          x1=0.01, x2=0.08, x3=0.5, x4=200., a1=-0.3, a2=-1.3, a3=-2.3, C1=1., Mmax=200):
 
     #the default values assume a Kroupa IMF for M1
     if path is None:
-        raise TypeError("\n Need to give path to directory COMPASOutput.h5")
+        raise TypeError("\n Need to give path to data")
     if Mlower is None:
         raise TypeError("\n Need to give lower limit M1 of pythonSubmit")
     if Mupper is None:
@@ -188,7 +187,7 @@ def totalMassEvolvedPerZ(path=None, fileName=None, Mlower=None, Mupper=None, bin
 
     #so we need to muliplu the mass evolved per metallicity times (1/fraction)
     #to know the total mass evolved per metallicity
-    MassEvolvedPerZ = retrieveMassEvolvedPerZ(path, fileName)
+    MassEvolvedPerZ = retrieveMassEvolvedPerZ(path)
 
     multiplicationFactor = 1./fraction
 
