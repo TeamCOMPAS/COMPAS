@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.12.0
+#       jupytext_version: 1.11.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -21,15 +21,13 @@
 
 # ## Material
 #
-# ### [1. Producing HDF5 output ](#1.-Producing-HDF5-output)
+# ### [1) Producing HDF5 output ](#1.-Producing-HDF5-output)
 # How to run default COMPAS and produce a simple output file.
 #         
-#         
-# ### [2. Reading HDF5 files ](#2.-Reading-HDF5-files)
+# ### [2) Reading HDF5 files ](#2.-Reading-HDF5-files)
 # The basics and syntax of loading an HDF5 file.
 #         
-#         
-# ### [3. Rewriting HDF5 files ](#3.-Rewriting-HDF5-files)
+# ### [3) Rewriting HDF5 files ](#3.-Rewriting-HDF5-files)
 # How to rewrite/reduce the HDF5 data.
 
 

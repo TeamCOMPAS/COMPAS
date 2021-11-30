@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.12.0
+#       jupytext_version: 1.11.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -21,13 +21,13 @@
 
 # ## Material
 #
-# ### [1. Inspecting the data ](#1.-Inspecting-the-data)
+# ### [1) Inspecting the data ](#1.-Inspecting-the-data)
 # Look at the data to see which parameters are available and check that it matches expectations.
 #
-# ### [2. Slicing the data ](#2.-Slicing-the-data)
+# ### [2) Slicing the data ](#2.-Slicing-the-data)
 # Select specific systems and their parameters using seeds.
 #
-# ### [3. Visualizing the data ](#3.-Visualizing-the-data)
+# ### [3) Visualizing the data ](#3.-Visualizing-the-data)
 # Binning and visualising your data.
 
 
@@ -66,7 +66,7 @@ pathToData = 'COMPAS_Tutorial_Output.h5'
 #
 # --
 #
-# If you want to create an alternative COMPAS_Output.h5, see Section 1 [Working With HDF5](./WorkingWithHDF5.py), or download some data from our [Zenodo database](https://zenodo.org/communities/compas/?page=1&size=20).
+# If you want to create an alternative COMPAS_Output.h5, see Section 1 [Working With HDF5](./WorkingWithHDF5.ipynb), or download some data from our [Zenodo database](https://zenodo.org/communities/compas/?page=1&size=20).
 
 # *Note:* These cells may take a long time if you test them on large datasets.
 

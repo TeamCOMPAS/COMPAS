@@ -6,11 +6,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.12.0
+#       jupytext_version: 1.11.2
 #   kernelspec:
-#     display_name: Python 3.8.10 64-bit
+#     display_name: Python 3
 #     language: python
-#     name: python3810jvsc74a57bd0916dbcbb3f70747c44a77c7bcd40155683ae19c65e1c03b4aa3499c5328201f1
+#     name: python3
 # ---
 
 # # Introduction
@@ -42,22 +42,22 @@
 # ## Material
 #         
 #
-# ### [1. Setting the Data ](#1.-Setting-the-Data)
+# ### [1) Setting the Data ](#1.-Setting-the-Data)
 # Set the required columns and other information.
 #
-# ### [2. Setting the MSSFR ](#2.-Setting-the-MSSFR) 
+# ### [2) Setting the MSSFR ](#2.-Setting-the-MSSFR) 
 # Choose a model and plot it.
 #
-# ### [3. Setting the Selection Effects ](#3.-Setting-the-Selection-Effects)
+# ### [3) Setting the Selection Effects ](#3.-Setting-the-Selection-Effects)
 # Choose the sensitivity and calculate probability.
 #
-# ### [4. Rate at single redshift ](#4.-Rate-at-single-redshift)
+# ### [4) Rate at single redshift ](#4.-Rate-at-single-redshift)
 # Combine data, MSSFR, and selection effects.
 #
-# ### [5. Rate as function of redshift ](#5.-Rate-as-function-of-redshift)
+# ### [5) Rate as function of redshift ](#5.-Rate-as-function-of-redshift)
 # Set the integral and combine results.
 #
-# ### [6. Fast Cosmic Integration ](#6.-Fast-Cosmic-Integration)
+# ### [6) Fast Cosmic Integration ](#6.-Fast-Cosmic-Integration)
 # Do the whole routine in one go, using the phenomenological variation of the MSSFR and SFRD
 
 
@@ -536,7 +536,7 @@ models = [ MSSFR.SFR_Neijssel(redshifts), MSSFR.SFR_Madau(redshifts),
            MSSFR.SFR_Strolger(ages), MSSFR.SFR_Madau2(redshifts) ]
 labels = [ r'Neijsseletal.(2019)', r'Madau$\&$Dickinson(2014)',
            r'Strolgeretal.(2004)', r'Madau$\&$Fragos(2017)']
-ls     = [ '-', '-.', ':', '--']
+# ls     = [ '-', '-.', ':', '--']
 
 fig, axes = plt.subplots(1,1, figsize=(10,10))
 for ii, model in enumerate(models):
