@@ -17,7 +17,9 @@ class COMPASData(object):
         suppress_reminder=False,
     ):
         self.path = path
-        if not os.path.isfile(path):
+        if self.path is None:
+            print("Template COMPASData object created with no data path")
+        elif not os.path.isfile(path):
             raise ValueError( "h5 file not found. Wrong path given? {}".format(path))
 
         # Crucial values to be able to calculate MSSFR

@@ -24,7 +24,7 @@ class CosmicIntegrator(object):
 
 
     -Class cosmo: Astropy class from python library to set the cosmological relations
-                  betweeN luminosity distance, redshift, age univere etc. We define it once
+                  between luminosity distance, redshift, age univere etc. We define it once
                   here so we can consistently pass around in other classes.
 
 
@@ -35,12 +35,12 @@ class CosmicIntegrator(object):
     -Class MSSFR: Class that calculates the metallicity Specific StarFormation rate
                   for each inidividual object at each individual merger time of interest
 
-    Each class lives in a seperate file (except cosmo which is inbuilt library astropy
+    Each class lives in a seperate file (except cosmo which is inbuilt library astropy)
 
     
     """
 
-    def __init__(self, fileName=None, pathCOMPAS=None, Cosmology='WMAP',hubbleConstant = 67.8,\
+    def __init__(self, pathCOMPAS=None, Cosmology='WMAP',hubbleConstant = 67.8,\
                 omegaMatter=0.308,redshiftFirstSFR=10., \
                 minRedshift=0.0,   maxRedshift=2., nrRedshiftBins=20,\
                 RedshiftTabulated =True, RedshiftTabulatedResolution=100000,
@@ -55,7 +55,6 @@ class CosmicIntegrator(object):
         #Define topology universe using astropy
         self.verbose                  = verbose
         self.pathCOMPAS               = pathCOMPAS
-        self.fileName                 = fileName
 
         if Cosmology == 'WMAP':
             self.cosmology            = WMAP9
@@ -88,15 +87,18 @@ class CosmicIntegrator(object):
         if self.verbose:
             print("Creating instance COMPAS class User has to still set DCO and Data")
         #setting Mlower/Mupper etc to None to force warning for user
-        if fileName is None:
-            # ClassCOMPAS will assume default filename "COMPAS_output.h5"
-            self.COMPAS  = ClassCOMPAS.COMPASData(path=self.pathCOMPAS, lazyData=True,\
-                                              Mlower=None, Mupper=None, \
-                                              binaryFraction=None)
-        else:
-            self.COMPAS  = ClassCOMPAS.COMPASData(path=self.pathCOMPAS, fileName=fileName, lazyData=True,\
-                                              Mlower=None, Mupper=None, \
-                                              binaryFraction=None)
+        self.COMPAS  = ClassCOMPAS.COMPASData(path=self.pathCOMPAS, lazyData=True,\
+                                          Mlower=None, Mupper=None, \
+                                          binaryFraction=None)
+        #if pathCOMPAS is None:
+        #    # ClassCOMPAS will assume default pathCOMPAS "COMPAS_Output.h5"
+        #    self.COMPAS  = ClassCOMPAS.COMPASData(path=self.pathCOMPAS, lazyData=True,\
+        #                                      Mlower=None, Mupper=None, \
+        #                                      binaryFraction=None)
+        #else:
+        #    self.COMPAS  = ClassCOMPAS.COMPASData(path=self.pathCOMPAS, lazyData=True,\
+        #                                      Mlower=None, Mupper=None, \
+        #                                     binaryFraction=None)
 
         #####################################################
         #     set the MSSFR class                           #

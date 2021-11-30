@@ -303,7 +303,7 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
 
     return detection_probability
 
-def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weight_column=None,
+def find_detection_rate(path, dco_type="BBH", weight_column=None,
                         merges_hubble_time=True, pessimistic_CEE=True, no_RLOF_after_CEE=True,
                         max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10,
                         m1_min=5 * u.Msun, m1_max=150 * u.Msun, m2_min=0.1 * u.Msun, fbin=0.7,
@@ -324,8 +324,7 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
             ===================================================
             == Arguments for finding and masking COMPAS file ==
             ===================================================
-            path                   --> [string] Path to the COMPAS file that contains the output
-            filename               --> [string] Name of the COMPAS file
+            path                   --> [string] Path to the COMPAS data file that contains the output
             dco_type               --> [string] Which DCO type to calculate rates for: one of ["all", "BBH", "BHNS", "BNS"]
             weight_column          --> [string] Name of column in "DoubleCompactObjects" file that contains adaptive sampling weights
                                                     (Leave this as None if you have unweighted samples)
@@ -408,7 +407,7 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
         warnings.warn("SNR step is greater than 1.0, large step sizes can produce unpredictable results", stacklevel=2)
 
     # start by getting the necessary data from the COMPAS file
-    COMPAS = ClassCOMPAS.COMPASData(path, fileName=filename, Mlower=m1_min, Mupper=m1_max, m2_min=m2_min, binaryFraction=fbin, suppress_reminder=True)
+    COMPAS = ClassCOMPAS.COMPASData(path, Mlower=m1_min, Mupper=m1_max, m2_min=m2_min, binaryFraction=fbin, suppress_reminder=True)
     COMPAS.setCOMPASDCOmask(types=dco_type, withinHubbleTime=merges_hubble_time, pessimistic=pessimistic_CEE, noRLOFafterCEE=no_RLOF_after_CEE)
     COMPAS.setCOMPASData()
     COMPAS.set_sw_weights(weight_column)
@@ -466,7 +465,7 @@ def find_detection_rate(path, filename="COMPAS_Output.h5", dco_type="BBH", weigh
     return detection_rate, formation_rate, merger_rate, redshifts, COMPAS
 
 
-def append_rates(path, filename, detection_rate, formation_rate, merger_rate, redshifts, COMPAS, n_redshifts_detection,
+def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, COMPAS, n_redshifts_detection,
     maxz=1., sensitivity="O1", dco_type="BHBH", mu0=0.035, muz=-0.23, sigma0=0.39, sigmaz=0., alpha=0.,
     append_binned_by_z = False, redshift_binsize=0.1):
     """
@@ -474,7 +473,6 @@ def append_rates(path, filename, detection_rate, formation_rate, merger_rate, re
 
         Args:
             path                   --> [string] Path to the COMPAS file that contains the output
-            filename               --> [string] Name of the COMPAS file
             detection_rate         --> [2D float array] Detection rate for each binary at each redshift in 1/yr
             formation_rate         --> [2D float array] Formation rate for each binary at each redshift in 1/yr/Gpc^3
             merger_rate            --> [2D float array] Merger rate for each binary at each redshift in 1/yr/Gpc^3
@@ -501,12 +499,11 @@ def append_rates(path, filename, detection_rate, formation_rate, merger_rate, re
     print('shape COMPAS.sw_weights', np.shape(COMPAS.sw_weights) )
     print('COMPAS.DCOmask', COMPAS.DCOmask, ' was set for dco_type', dco_type)
     print('shape COMPAS COMPAS.DCOmask', np.shape(COMPAS.DCOmask) )
-    print('path', path)
 
     #################################################
     #Open hdf5 file that we will write on
-    print('filename', filename)
-    with h5.File(path +'/'+ filename, 'r+') as h_new:
+    print('pathToData', path)
+    with h5.File(path, 'r+') as h_new:
         # The rate info is shaped as BSE_Double_Compact_Objects[COMPAS.DCOmask] , len(redshifts)
         DCO             = h_new['BSE_Double_Compact_Objects']#
         print('shape DCO[SEED]', np.shape(DCO['SEED'][()]) )
@@ -603,18 +600,17 @@ def append_rates(path, filename, detection_rate, formation_rate, merger_rate, re
 
     #Always close your files again ;)
     h_new.close()
-    print( ('Done with append_rates :) your new files are here: %s/%s'%(path,filename)).replace('//', '/') )
+    print(('Done with append_rates :) your new files are here: {}'.format(path)))
 
 
 
-def delete_rates(path, filename, mu0=0.035, muz=-0.23, sigma0=0.39, sigmaz=0., alpha=0., append_binned_by_z=False):
+def delete_rates(path, mu0=0.035, muz=-0.23, sigma0=0.39, sigmaz=0., alpha=0., append_binned_by_z=False):
     """
         Delete the group containing all the rate information from your COMPAS output with weights hdf5 file
 
 
         Args:
             path                   --> [string] Path to the COMPAS file that contains the output
-            filename               --> [string] Name of the COMPAS file
 
             mu0                    --> [float]  metallicity dist: expected value at redshift 0
             muz                    --> [float]  metallicity dist: redshift evolution of expected value
@@ -626,8 +622,8 @@ def delete_rates(path, filename, mu0=0.035, muz=-0.23, sigma0=0.39, sigmaz=0., a
     """
     #################################################
     #Open hdf5 file that we will write on
-    print('filename', filename)
-    with h5.File(path +'/'+ filename, 'r+') as h_new:
+    print('pathToData', path)
+    with h5.File(path, 'r+') as h_new:
         # The rate info is shaped as BSE_Double_Compact_Objects[COMPAS.DCOmask] , len(redshifts)
         DCO             = h_new['BSE_Double_Compact_Objects']#
 
@@ -647,7 +643,7 @@ def delete_rates(path, filename, mu0=0.035, muz=-0.23, sigma0=0.39, sigmaz=0., a
             del h_new[new_rate_group]
             #Always close your files again ;)
             h_new.close()
-            print('Done with delete_rates :) your files are here: ', path + '/' + filename )
+            print('Done with delete_rates :) your files are here: ', path)
             return
 
 
@@ -740,8 +736,7 @@ if __name__ == "__main__":
     #####################################
     # Define command line options for the most commonly varied options
     parser = argparse.ArgumentParser()
-    parser.add_argument("--path", dest= 'path',  help="Path to the COMPAS file that contains the output",type=str, default = './')
-    parser.add_argument("--filename", dest= 'fname',  help="Name of the COMPAS file",type=str, default = "COMPAS_Output.h5")
+    parser.add_argument("--path", dest= 'path',  help="Path to the COMPAS file that contains the output",type=str, default = "COMPAS_Output.h5")
     # For what DCO would you like the rate?  options: ALL, BHBH, BHNS NSNS
     parser.add_argument("--dco_type", dest= 'dco_type',  help="Which DCO type you used to calculate rates, one of: ['all', 'BBH', 'BHNS', 'BNS'] ",type=str, default = "BBH")
     parser.add_argument("--weight", dest= 'weight_column',  help="Name of column w AIS sampling weights, i.e. 'mixture_weight'(leave as None for unweighted samples) ",type=str, default = None)
@@ -780,7 +775,7 @@ if __name__ == "__main__":
     #####################################
     # Run the cosmic integration
     start_CI = time.time()
-    detection_rate, formation_rate, merger_rate, redshifts, COMPAS = find_detection_rate(args.path, filename=args.fname, dco_type=args.dco_type, weight_column=args.weight_column,
+    detection_rate, formation_rate, merger_rate, redshifts, COMPAS = find_detection_rate(args.path, dco_type=args.dco_type, weight_column=args.weight_column,
                             max_redshift=args.max_redshift, max_redshift_detection=args.max_redshift_detection, redshift_step=args.redshift_step, z_first_SF= args.z_first_SF,
                             m1_min=args.m1_min*u.Msun, m1_max=args.m1_max*u.Msun, m2_min=args.m2_min*u.Msun, fbin=args.fbin,
                             aSF = args.aSF, bSF = args.bSF, cSF = args.cSF, dSF = args.dSF, 
