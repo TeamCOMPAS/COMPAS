@@ -8,12 +8,10 @@ human-readable, we provide some tools to help with processing the ``HDF5`` log f
 .. toctree::
    :maxdepth: 1
 
-   post-processing-hdf5-info
-   post-processing-hdf5-tools
-
-
+   post-processing-hdf5-info.rst 
+   Copying and concatenating: h5copy.py <post-processing-h5copy>
+   View summary, header details, and contents: h5view.py <post-processing-h5view>
 
 .. rubric:: Footnotes
 
 .. [#f1] https://www.hdfgroup.org/
-

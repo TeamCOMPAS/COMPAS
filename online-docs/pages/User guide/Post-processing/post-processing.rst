@@ -7,7 +7,5 @@ The COMPAS suite includes some useful post-processing tools that are located in 
 .. toctree::
    :maxdepth: 1
 
-   post-processing-python-basics
-   post-processing-hdf5
-   post-processing-cosmic-integration
-
+   HDF5: Basics and COMPAS command line tools <post-processing-hdf5>
+   Jupyter Notebooks: Working with HDF5, Data Analysis, and Cosmic Integration <../../../notebooks/Overview.ipynb>

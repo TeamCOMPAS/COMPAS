@@ -32,7 +32,6 @@ Contents
     Report a problem <https://github.com/TeamCOMPAS/COMPAS/issues/new>
    
    ./pages/references
-
    ./pages/contact-us
 
 
