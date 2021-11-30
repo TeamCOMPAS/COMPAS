@@ -323,7 +323,8 @@ void Options::OptionValues::Initialise() {
 
 	m_MaximumNeutronStarMass                                        = 2.5;                                                  // StarTrack is 3.0
     
-    m_mCBUR1                                                        = MCBUR1HURLEY;                                         // MHurley value, Fryer+ and Belczynski+ use 1.83
+    m_mCBUR1                                                        = MCBUR1HURLEY;                                         // Hurley value, Fryer+ and Belczynski+ use 1.83, parameter name defined in Fryer+2011
+    // RTW m_mCBUR1                                                        = MCBUR1HURLEY;                                         // Hurley value, Fryer+ and Belczynski+ use 1.83, parameter name defined in Fryer+2011
 
 
     // Output path

@@ -863,6 +863,7 @@ public:
             double                                              m_MetallicityDistributionMax;                                   // Maximum initial metallicity when using a distribution
 
             double                                              m_mCBUR1;                                                       // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
+            // RTW double                                              m_mCBUR1;                                                       // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
 
 
             // Neutron star equation of state
