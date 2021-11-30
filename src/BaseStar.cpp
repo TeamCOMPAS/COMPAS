@@ -1842,7 +1842,7 @@ void BaseStar::ResolveMassLoss() {
         m_COCoreMass=std::min(m_COCoreMass,m_Mass);                             // Not expected, only a precaution to avoid inconsistencies
         m_CoreMass=std::min(m_CoreMass, m_Mass);
         
-        UpdateInitialMass();                                                    // update effective initial mass (MS, HG & HeMS, HeHG)
+        UpdateInitialMass();                                                    // update effective initial mass (MS, HG & HeMS)
         UpdateAgeAfterMassLoss();                                               // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                  // apply age rejuvenation factor
     }
