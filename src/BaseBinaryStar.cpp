@@ -2132,14 +2132,14 @@ void BaseBinaryStar::ResolveMassChanges() {
 
     // update mass of star1 according to mass loss and mass transfer, then update age accordingly
     (void)m_Star1->UpdateAttributes(m_Star1->MassPrev() - m_Star1->Mass() + m_Star1->MassLossDiff() + m_Star1->MassTransferDiff(), 0.0);    // update mass for star1
-    m_Star1->UpdateInitialMass();                                                                       // update initial mass of star1 (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
+    m_Star1->UpdateInitialMass();                                                                       // update effective initial mass of star1 (MS, HG & HeMS)
     m_Star1->UpdateAgeAfterMassLoss();                                                                  // update age of star1
     m_Star1->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star1
     m_Star1->UpdateAttributes(0.0, 0.0, true);
 
     // rinse and repeat for star2
     (void)m_Star2->UpdateAttributes(m_Star2->MassPrev() - m_Star2->Mass() + m_Star2->MassLossDiff() + m_Star2->MassTransferDiff(), 0.0);    // update mass for star2
-    m_Star2->UpdateInitialMass();                                                                       // update initial mass of star 2 (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
+    m_Star2->UpdateInitialMass();                                                                       // update effective initial mass of star 2 (MS, HG & HeMS)
     m_Star2->UpdateAgeAfterMassLoss();                                                                  // update age of star2
     m_Star2->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star2
     m_Star2->UpdateAttributes(0.0, 0.0, true);

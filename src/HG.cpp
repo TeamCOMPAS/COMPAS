@@ -594,11 +594,8 @@ double HG::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) co
 /*
  * Calculate rejuvenation factor for stellar age based on mass lost/gained during mass transfer
  *
- * JR: Description?
- *
- * Always returns 1.0 for HG - the rejuvenation factor is unity for convective main sequence stars.
- * The rest of the code is here so sanity checks can be made and an error displayed if a bad prescription
- * was specified in the program options
+ * Always returns 1.0 for HG
+ * The rest of the code is here so sanity checks can be made and an error displayed if a bad prescription was specified in the program options
  *
  *
  * double CalculateMassTransferRejuvenationFactor()
@@ -904,9 +901,23 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
     }
     else {
         stellarType = STELLAR_TYPE::CORE_HELIUM_BURNING;
-    }
-
+    }    
     return stellarType;
 
 #undef massCutoffs
+}
+
+/*
+ * Update effective initial mass
+ *
+ * Per Hurley et al. 2000, section 7.1, the effective initial mass on the HG tracks the stellar mass -- unless it would yield an unphysical decrease in the core mass
+ *
+ *
+ * void UpdateInitialMass()
+ *
+ */
+void HG::UpdateInitialMass() {
+    if (utils::Compare(m_CoreMass,HG::CalculateCoreMassOnPhase(m_Mass, m_Age)) < 0 ) {        //The current mass would yield a core mass larger than the current core mass -- i.e., no unphysical core mass decrease would ensue
+        m_Mass0 = m_Mass;
+    }
 }

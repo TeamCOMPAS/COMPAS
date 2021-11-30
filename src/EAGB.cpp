@@ -82,7 +82,7 @@ double EAGB::CalculateLambdaNanjing() const {
 	DBL_VECTOR b        = {};                                                       // 0..5 b_coefficients
 
     if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0) {                 // Z>0.5 Zsun: popI
-        if (utils::Compare(m_MZAMS, 1.5) < 0) {
+        if (utils::Compare(m_MZAMS, 1.5) < 0) {                                     // Should probably use effective mass m_Mass0 instead for Lambda calculations
             maxBG = { 2.5, 1.5 };
             if (utils::Compare(m_Radius, 200.0) > 0) lambdaBG = { 0.05, 0.05 };
             else  {
@@ -408,7 +408,7 @@ double EAGB::CalculateLambdaNanjing() const {
 /*
  * Calculate luminosity on the Early Asymptotic Giant Branch
  *
- * Hurley et al. 2000, eqs 61, 62 & 63
+ * Hurley et al. 2000, eq 37
  *
  *
  * double CalculateLuminosityOnPhase(const double p_CoreMass)
