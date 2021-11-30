@@ -121,7 +121,6 @@ import selection_effects
 # To create an instance of the COMPAS output class, we need to specify the following attributes:
 #
 #     path      = None
-#     fileName  = 'COMPAS_output.h5'
 #     
 #     lazyData  = True
 #
@@ -133,9 +132,6 @@ import selection_effects
 #     
 #     path to the h5-data. 
 #     
-# fileName:
-#
-#     name of the h5 data
 #
 # lazyData:
 #
@@ -1015,7 +1011,7 @@ print(P)
 # +
 # Create instance COMPAS data class
 
-COMPAS = ClassCOMPAS.COMPASData(path='COMPAS_CI_Output.h5')
+COMPAS = ClassCOMPAS.COMPASData(path=pathData)
 
 
 # +
@@ -1052,9 +1048,6 @@ MSSFR.logNormalPrescription ='Neijssel Phenomenological'
 # you need to recover when the systems were born
 #
 # First define our cosmology
-
-# +
-# see top notebook
 
 # +
 mergerRedshift = 0.2
@@ -1471,11 +1464,11 @@ for t in types:
     print('------total predicted rate for {} = {} mergers per year'.format(t, observedRate))
 # -
 
-# Note that his means that if you want to loop over 
+# Note that this means that if you want to loop over 
 # both DCO types and SFR prescriptions, it is more time-efficient
 # to loop over types first and then SFR prescriptions.
 #
-# With this you should be all set. good luck
+# With this you should be all set. Good luck!
 # For more info on how to create plots using this pipeline see
 # the plotting library in the postProcessing notes :)
 #     
@@ -1509,7 +1502,6 @@ for t in types:
 
 # +
 # First define the parameters
-path            = "COMPAS_CI_Output.h5"
 
 # For what DCO would you like the rate?  options: ALL, BHBH, BHNS NSNS
 dco_type        = "BBH"
@@ -1620,7 +1612,7 @@ if snr_step > 1.0:
 # ### Use functions in ClassCOMPAS to read your data
 
 # start by getting the necessary data from the COMPAS file
-COMPAS = ClassCOMPAS.COMPASData(path, fileName=filename, Mlower=m1_min, Mupper=m1_max, m2_min=m2_min, binaryFraction=fbin, suppress_reminder=True)
+COMPAS = ClassCOMPAS.COMPASData(path, Mlower=m1_min, Mupper=m1_max, m2_min=m2_min, binaryFraction=fbin, suppress_reminder=True)
 COMPAS.setCOMPASDCOmask(types=dco_type, withinHubbleTime=merges_hubble_time, pessimistic=pessimistic_CEE, noRLOFafterCEE=no_RLOF_after_CEE)
 COMPAS.setCOMPASData()
 COMPAS.set_sw_weights(weight_column)
@@ -1653,7 +1645,7 @@ if max(chirp_masses)*(1+max_redshift_detection) < Mc_max:
 # mostly a list of redsifts and their corresponding cosmological times
 
 # calculate the redshifts array and its equivalents
-redshifts, n_redshifts_detection, times, time_first_SF, distances, shell_volumes = CI.calculate_redshift_related_params(max_redshift, max_redshift_detection, redshift_step, z_first_SF)
+redshifts, n_redshifts_detection, times, time_first_SF, distances, shell_volumes = FCI.calculate_redshift_related_params(max_redshift, max_redshift_detection, redshift_step, z_first_SF)
 
 
 print('redshifts', redshifts, '\ntime_first_SF', time_first_SF, '\nshell_volumes', shell_volumes)
@@ -1667,7 +1659,7 @@ print('redshifts', redshifts, '\ntime_first_SF', time_first_SF, '\nshell_volumes
 #
 
 # find the star forming mass per year per Gpc^3 and convert to total number formed per year per Gpc^3
-sfr = CI.find_sfr(redshifts, a = aSF, b = bSF, c = cSF, d = dSF) # functional form from Madau & Dickinson 2014
+sfr = FCI.find_sfr(redshifts, a = aSF, b = bSF, c = cSF, d = dSF) # functional form from Madau & Dickinson 2014
 n_formed = sfr / (COMPAS.mass_evolved_per_binary.value * COMPAS.n_systems) # Divide the star formation rate density by the representative SF mass
 
 
@@ -1682,7 +1674,7 @@ print('Number formation rate', n_formed, '[$\mathrm{yr^{-1} Gpc^{-3}}$]')
 # ```mu0, muz, sigma_0, sigma_z, alpha```, which you can set from the terminal flags 
 
 # work out the metallicity distribution at each redshift and probability of drawing each metallicity in COMPAS
-dPdlogZ, metallicities, p_draw_metallicity = CI.find_metallicity_distribution(redshifts, min_logZ_COMPAS = np.log(np.min(COMPAS.initialZ)),
+dPdlogZ, metallicities, p_draw_metallicity = FCI.find_metallicity_distribution(redshifts, min_logZ_COMPAS = np.log(np.min(COMPAS.initialZ)),
                                                                             max_logZ_COMPAS = np.log(np.max(COMPAS.initialZ)),
                                                                             mu0=mu0, muz=muz, sigma_0=sigma0, sigma_z=sigmaz, alpha = alpha,
                                                                             min_logZ=min_logZ, max_logZ=max_logZ, step_logZ = step_logZ)
@@ -1697,7 +1689,7 @@ print(np.shape(dPdlogZ))
 #
 
 # calculate the formation and merger rates using what we computed above
-formation_rate, merger_rate = CI.find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF, n_formed, dPdlogZ,
+formation_rate, merger_rate = FCI.find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF, n_formed, dPdlogZ,
                                                                 metallicities, p_draw_metallicity, COMPAS.metallicitySystems,
                                                                 COMPAS.delayTimes, COMPAS.sw_weights)
 
@@ -1707,20 +1699,18 @@ formation_rate, merger_rate = CI.find_formation_and_merger_rates(n_binaries, red
 # Gravitational wave detectors are not perfect. And since heavy objects make louder gravitational waves, we will see them from farther away. With this function we will compute the probability of detecting each system, which will give us a 'detection_rate'
 
 # +
-
 # create lookup tables for the SNR at 1Mpc as a function of the masses and the probability of detection as a function of SNR
-snr_grid_at_1Mpc, detection_probability_from_snr = CI.compute_snr_and_detection_grids(sensitivity, snr_threshold, Mc_max, Mc_step,
+snr_grid_at_1Mpc, detection_probability_from_snr = FCI.compute_snr_and_detection_grids(sensitivity, snr_threshold, Mc_max, Mc_step,
                                                                                 eta_max, eta_step, snr_max, snr_step)
 
 # use lookup tables to find the probability of detecting each binary at each redshift
-detection_probability = CI.find_detection_probability(chirp_masses, etas, redshifts, distances, n_redshifts_detection, n_binaries,
+detection_probability = FCI.find_detection_probability(chirp_masses, etas, redshifts, distances, n_redshifts_detection, n_binaries,
                                                     snr_grid_at_1Mpc, detection_probability_from_snr, Mc_step, eta_step, snr_step)
 
 # finally, compute the detection rate using Neijssel+19 Eq. 2
 detection_rate = np.zeros(shape=(n_binaries, n_redshifts_detection))
 detection_rate = merger_rate[:, :n_redshifts_detection] * detection_probability \
                 * shell_volumes[:n_redshifts_detection] / (1 + redshifts[:n_redshifts_detection])
-
 # -
 
 # ### You are done! :D 
@@ -1735,7 +1725,6 @@ detection_rate = merger_rate[:, :n_redshifts_detection] * detection_probability 
 # +
 chirp_masses = (COMPAS.mass1*COMPAS.mass2)**(3./5.) / (COMPAS.mass1 + COMPAS.mass2)**(1./5.)
 
-
 # sum things up across binaries
 total_formation_rate = np.sum(formation_rate, axis=0)
 total_merger_rate = np.sum(merger_rate, axis=0)
@@ -1744,9 +1733,6 @@ total_detection_rate = np.sum(detection_rate, axis=0)
 # and across redshifts
 cumulative_detection_rate = np.cumsum(total_detection_rate)
 detection_rate_by_binary = np.sum(detection_rate, axis=1)
-
-
-
 
 
 # +
@@ -1798,7 +1784,6 @@ plt.savefig(imageDir + "RateInfoHist_mu0{}_muz{}_alpha{}_sigma0{}_sigmaz{}.png".
 # Below is an example plotting the same distribution, but using a KDE to make things look smoother.
 
 # +
-
 #########################
 # Get the Hist    
 bins = np.arange(0,50, 2)
