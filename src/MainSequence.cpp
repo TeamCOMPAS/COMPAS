@@ -57,7 +57,7 @@ double MainSequence::CalculateDeltaL(const double p_Mass) const {
 
     double deltaL;
 
-    if (utils::Compare(p_Mass, massCutoffs(MHook)) <= 0) {              // JR: todo: added "=" per Hurley et al. 2000, eq 16
+    if (utils::Compare(p_Mass, massCutoffs(MHook)) <= 0) {              // per Hurley et al. 2000, eq 16
         deltaL = 0.0;                                                   // this really is supposed to be zero
     }
     else if (utils::Compare(p_Mass, a[33]) < 0) {
