@@ -108,7 +108,7 @@ protected:
 
     void            UpdateAgeAfterMassLoss();                                                                                                                                   // Per Hurley et al. 2000, section 7.1
 
-    void            UpdateInitialMass()                                             { if (m_Mass0 > m_CoreMass) m_Mass0 = m_Mass; }                                             // Per Hurley et al. 2000, section 7.1
+    void            UpdateInitialMass();                                                   // Per Hurley et al. 2000, section 7.1
 
 };
 

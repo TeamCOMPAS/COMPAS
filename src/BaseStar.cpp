@@ -1055,7 +1055,7 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) const {
         logBindingEnergy += lCoefficients.alpha_mr * utils::intPow(log10(m_Mass), lCoefficients.m) * utils::intPow(log10(m_Radius + deltaR), lCoefficients.r);
     }
 
-    double MZAMS_Mass = (m_MZAMS - m_Mass) / m_MZAMS;
+    double MZAMS_Mass = (m_MZAMS - m_Mass) / m_MZAMS;                                       // Should m_ZAMS really be m_Mass0 (i.e., account for change in effective mass through mass loss in winds, MS mass transfer?)
     logBindingEnergy *= p_IsMassLoss ? 1.0 + (0.25 * MZAMS_Mass * MZAMS_Mass) : 1.0;        // apply mass-loss correction factor (lambda)
 
     constexpr double logBE0 = 33.29866;                                                     // JR: todo: what is this for?  Should it be in constants.h?
@@ -1239,7 +1239,7 @@ double BaseStar::CalculateLuminosityAtZAMS(const double p_MZAMS) {
  *
  * double CalculateLuminosityAtBAGB(double p_Mass)
  *
- * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Mass                      (Effective) mass in Msol
  * @return                                      Luminosity at BAGB in Lsol
  */
 double BaseStar::CalculateLuminosityAtBAGB(double p_Mass) const {
@@ -1842,7 +1842,7 @@ void BaseStar::ResolveMassLoss() {
         m_COCoreMass=std::min(m_COCoreMass,m_Mass);                             // Not expected, only a precaution to avoid inconsistencies
         m_CoreMass=std::min(m_CoreMass, m_Mass);
         
-        UpdateInitialMass();                                                    // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
+        UpdateInitialMass();                                                    // update effective initial mass (MS, HG & HeMS, HeHG)
         UpdateAgeAfterMassLoss();                                               // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                  // apply age rejuvenation factor
     }
@@ -2964,14 +2964,10 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
  *      attributes are updated.  The p_DeltaMass parameter may be zero, in which case no change is made to the
  *      star's mass before the attributes of the star are calculated.
  *
- *    - if required, the star's initial mass is changed by the amount passed as the p_DeltaMass0 parameter before
- *      other attributes are updated.  The p_DeltaMass parameter may be zero, in which case no change is made to
- *      the star's mass before the attributes of the star are calculated.  This should be used infrequently, and
- *      is really a kludge because the Mass0 attribute in Hurley et al. 2000 was overloaded after the introduction
- *      of mass loss (see section 7.1).  We should really separate the different uses of Mass0 in the code and
- *      use a different variable - initial mass shouldn't change (other than to initial mass upon entering a
- *      stellar phase - it doesn't make a lot of sense for initial mass to change during evolution through the
- *      phase).         JR: todo: action this paragraph.
+ *    - if required, the star's effective initial mass is changed by the amount passed as the p_DeltaMass0 parameter before
+ *      other attributes are updated.  The p_DeltaMass0 parameter may be zero, in which case no change is made to
+ *      the star's mass before the attributes of the star are calculated.  The Mass0 attribute in Hurley et al. 2000 is overloaded by the introduction
+ *      of mass loss (see section 7.1).
  *
  *    - if required, the star is aged by the amount passed as the p_DeltaTime parameter, and the simulation time is
  *      advanced by the same amount, before other attributes are updated.  The p_deltaTime parameter may be zero,
