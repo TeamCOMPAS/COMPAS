@@ -16,7 +16,7 @@ class pythonProgramOptions: # TODO: rename? | HFS oct 31 2021
     A class to store and access COMPAS program options in python
     """
 
-    def __init__(self, config_file='compasConfigDefault.yaml', grid_filename=None, randomSeedFileName='randomSeed.txt', output_directory=None):
+    def __init__(self, config_file='compasConfigDefault.yaml', grid_filename=None, random_seed_filename='randomSeed.txt', output_directory=None):
         # Do './COMPAS --help' to see all options
         #-- Define variables
 
@@ -38,13 +38,10 @@ class pythonProgramOptions: # TODO: rename? | HFS oct 31 2021
         self.numericalChoices = config['numericalChoices']
         self.stringChoices = config['stringChoices']
         self.listChoices = config['listChoices']
-        
-        self.grid_filename = grid_filename
-        self.stringChoices['--grid']= self.grid_filename
-        
+                
         compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH')
-        print('compas_executable_override', compas_executable_override)
-        
+        print('compas_executable_override', compas_executable_override)        
+
         if (compas_executable_override is None):
             # Make sure you have set and exported the COMPAS_ROOT_DIR environment variable
             git_directory = os.environ.get('COMPAS_ROOT_DIR')
@@ -52,9 +49,18 @@ class pythonProgramOptions: # TODO: rename? | HFS oct 31 2021
         else:
             self.compas_executable = compas_executable_override
 
-        # If randomSeedFileName is specified, overwrite the random seed from the yaml file
-        if os.path.isfile(randomSeedFileName): 
-            self.numericalChoices['--random-seed'] = int(np.loadtxt(randomSeedFileName))
+        # If random_seed_filename is specified, overwrite the random seed from the yaml file
+        if os.path.isfile(random_seed_filename): 
+            self.numericalChoices['--random-seed'] = int(np.loadtxt(random_seed_filename))
+
+        # If grid is specified in pythonProgramOptions(), ignore the values from yaml file
+        if grid_filename:
+            self.grid_filename = grid_filename
+            self.stringChoices['--grid']= self.grid_filename
+        else:
+            self.grid_filename = self.stringChoices['--grid']
+
+        print('grid_filename', self.grid_filename)
 
         # environment variable COMPAS_LOGS_OUTPUT_DIR_PATH is used primarily for docker runs
         # if COMPAS_LOGS_OUTPUT_DIR_PATH is set (!= None) it is used as the value for the
