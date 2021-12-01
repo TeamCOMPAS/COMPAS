@@ -52,14 +52,9 @@ class pythonProgramOptions: # TODO: rename? | HFS oct 31 2021
         else:
             self.compas_executable = compas_executable_override
 
-        #TODO: add an option to read in the random seed form yaml? | HFS oct 31 2021
-        # AVG - 29/11/2021: Probably not due to the way I *think* we want to do sampling, but will double check.
+        # If randomSeedFileName is specified, overwrite the random seed from the yaml file
         if os.path.isfile(randomSeedFileName): 
             self.numericalChoices['--random-seed'] = int(np.loadtxt(randomSeedFileName))
-        else:
-            self.numericalChoices['--random-seed'] = 0 # If you want a random seed, use: np.random.randint(2,2**63-1) 
-            # TODO: should random_seed be a parameter to give in __init__? | HFS oct 31 2021
-            # AVG - 29/11/2021: again, uncertain about it.
 
         # environment variable COMPAS_LOGS_OUTPUT_DIR_PATH is used primarily for docker runs
         # if COMPAS_LOGS_OUTPUT_DIR_PATH is set (!= None) it is used as the value for the
