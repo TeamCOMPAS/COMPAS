@@ -100,7 +100,6 @@ protected:
 
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
     void            ResolveHeliumFlash() {  }                                                                                                                                   // NO-OP
-    STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss();
     STELLAR_TYPE    ResolveSkippedPhase()                                           { return m_StellarType; }                                                                   // NO-OP
 
     bool            ShouldEvolveOnPhase() const                                     { return (utils::Compare(m_Age, m_Timescales[static_cast<int>(TIMESCALE::tBGB)]) < 0); }    // Evolve on HG phase if age < Base Giant Branch timescale
