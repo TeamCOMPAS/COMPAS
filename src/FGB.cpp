@@ -150,8 +150,21 @@ double FGB::ChooseTimestep(const double p_Time) const {
 /*
  * Modify the star after it loses its envelope
  *
- * Hurley et al. 2000, section 6 just before eq 76
+ * Hurley et al. 2000, section 6 just before eq 76 (see also after Eq. 105)
  *
+ * Where necessary updates attributes of star (depending upon stellar type):
+ *
+ *     - m_StellarType
+ *     - m_Timescales
+ *     - m_GBParams
+ *     - m_Luminosity
+ *     - m_Radius
+ *     - m_Mass
+ *     - m_Mass0
+ *     - m_CoreMass
+ *     - m_HeCoreMass
+ *     - m_COCoreMass
+ *     - m_Age
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
@@ -165,7 +178,7 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {                                      // Envelope loss
 
-        if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {                                        // Star evolves to Helium White Dwarf
+        if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {                                       // Star evolves to Helium White Dwarf
 
             stellarType  = STELLAR_TYPE::HELIUM_WHITE_DWARF;
 
