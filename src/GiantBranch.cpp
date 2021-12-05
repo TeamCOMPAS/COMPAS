@@ -693,7 +693,7 @@ double GiantBranch::CalculateRemnantRadius() const {
 double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
 
 	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
-	clone.ResolveRemnantAfterEnvelopeLoss();        // update clone's attributes after envelope is lost
+	clone.ResolveEnvelopeLoss();        // update clone's attributes after envelope is lost
 
     return m_Radius - clone.Radius();
 }
