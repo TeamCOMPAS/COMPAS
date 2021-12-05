@@ -852,7 +852,11 @@
 //                                      - only decrease effective initial mass for HG and HeHG stars on mass loss when this decrease would not drive an unphysical decrease in the core mass
 //                                      - change mass comparisons (e.g., mass vs. He flash mass threshold) to compare effective initial mass rather than current mass
 //                                      - minor code and comment cleanup
+// 02.26.01     IM - Dec 5, 2021     - Defect repair, Code cleanup:
+//                                      - Removed reduntant function ResolveRemnantAfterEnvelopeLoss (ResolveEnvelopeLoss is sufficient)
+//                                      - Cleaned / updated ResolveEnvelopeLoss
+//                                      - Fixed issue with masses and types of remnants formed from stripped HG stars
 
-const std::string VERSION_STRING = "02.26.00";
+const std::string VERSION_STRING = "02.26.01";
 
 # endif // __changelog_h__
