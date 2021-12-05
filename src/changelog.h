@@ -853,7 +853,7 @@
 //                                      - change mass comparisons (e.g., mass vs. He flash mass threshold) to compare effective initial mass rather than current mass
 //                                      - minor code and comment cleanup
 // 02.26.01     IM - Dec 5, 2021     - Defect repair, Code cleanup:
-//                                      - Removed reduntant function ResolveRemnantAfterEnvelopeLoss (ResolveEnvelopeLoss is sufficient)
+//                                      - Removed redundant function ResolveRemnantAfterEnvelopeLoss (ResolveEnvelopeLoss is sufficient)
 //                                      - Cleaned / updated ResolveEnvelopeLoss
 //                                      - Fixed issue with masses and types of remnants formed from stripped HG stars
 
