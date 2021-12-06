@@ -363,7 +363,19 @@ double HeMS::ChooseTimestep(const double p_Time) const {
 /*
  * Modify the star after it loses its envelope
  *
- * Hurley et al. 2000, section 6 just before eq 76
+ * Where necessary updates attributes of star (depending upon stellar type):
+ *
+ *     - m_StellarType
+ *     - m_Timescales
+ *     - m_GBParams
+ *     - m_Luminosity
+ *     - m_Radius
+ *     - m_Mass
+ *     - m_Mass0
+ *     - m_CoreMass
+ *     - m_HeCoreMass
+ *     - m_COCoreMass
+ *     - m_Age
  *
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
@@ -374,16 +386,9 @@ STELLAR_TYPE HeMS::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) > 0) {        // Envelope lost, form a COWD
-
-        stellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;
-
-        m_CoreMass  = m_COCoreMass;
-        m_HeCoreMass= m_COCoreMass;
-        m_Mass      = m_CoreMass;
-        m_Mass0     = m_Mass;
-        m_Age       = 0.0;
-        m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
+    if (p_NoCheck || utils::Compare(m_Mass, 0.0) <= 0) {
+        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
+        m_Radius = 0.0;   // massless remnant
     }
 
     return stellarType;

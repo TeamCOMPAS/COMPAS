@@ -150,8 +150,21 @@ double FGB::ChooseTimestep(const double p_Time) const {
 /*
  * Modify the star after it loses its envelope
  *
- * Hurley et al. 2000, section 6 just before eq 76
+ * Hurley et al. 2000, section 6 just before eq 76 (see also after Eq. 105)
  *
+ * Where necessary updates attributes of star (depending upon stellar type):
+ *
+ *     - m_StellarType
+ *     - m_Timescales
+ *     - m_GBParams
+ *     - m_Luminosity
+ *     - m_Radius
+ *     - m_Mass
+ *     - m_Mass0
+ *     - m_CoreMass
+ *     - m_HeCoreMass
+ *     - m_COCoreMass
+ *     - m_Age
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
@@ -165,7 +178,7 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {                                      // Envelope loss
 
-        if (utils::Compare(m_Mass, massCutoffs(MHeF)) < 0) {                                        // Star evolves to Helium White Dwarf
+        if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {                                       // Star evolves to Helium White Dwarf
 
             stellarType  = STELLAR_TYPE::HELIUM_WHITE_DWARF;
 
@@ -200,13 +213,10 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 /*
  * Modify the star due to (possible) helium flash
  *
- * JR: Is this described in Hurley et al. 2000?
- *
  *
  * void ResolveHeliumFlash()
  *
- * Deletermine if Helium Flash occurs, and if so modify the star accordingly.
- * The attributes of the star are updated.
+ * Deletermine if Helium Flash occurs, and if so set m_Mass0 equal to current mass as described in Hurley+ (2000), last paragraph before start of 7.1.1.
  */
 void FGB::ResolveHeliumFlash() {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
