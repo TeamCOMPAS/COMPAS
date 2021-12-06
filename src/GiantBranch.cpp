@@ -530,7 +530,7 @@ double GiantBranch::CalculateLuminosityAtHeIgnition_Static(const double      p_M
 double GiantBranch::CalculateRemnantLuminosity() const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    return (utils::Compare(m_Mass, massCutoffs(MHeF)) < 0)
+    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0)
             ? HeMS::CalculateLuminosityAtZAMS_Static(m_CoreMass)
             : WhiteDwarfs::CalculateLuminosityOnPhase_Static(m_CoreMass, 0.0, m_Metallicity, WD_Baryon_Number.at(STELLAR_TYPE::HELIUM_WHITE_DWARF));
 
@@ -670,7 +670,7 @@ double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
 double GiantBranch::CalculateRemnantRadius() const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    return (utils::Compare(m_Mass, massCutoffs(MHeF)) < 0)
+    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0)
             ? HeMS::CalculateRadiusAtZAMS_Static(m_CoreMass)
             : WhiteDwarfs::CalculateRadiusOnPhase_Static(m_CoreMass);
 
@@ -693,7 +693,7 @@ double GiantBranch::CalculateRemnantRadius() const {
 double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
 
 	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
-	clone.ResolveRemnantAfterEnvelopeLoss();        // update clone's attributes after envelope is lost
+	clone.ResolveEnvelopeLoss(true);                // update clone's attributes after envelope is lost
 
     return m_Radius - clone.Radius();
 }

@@ -194,10 +194,6 @@ public:
 
     void            ResolveEnvelopeLossAndSwitch()                                                                  { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
 
-    void            ResolveRemnantAfterEnvelopeLossAndSwitch()                                                      { (void)SwitchTo(m_Star->ResolveRemnantAfterEnvelopeLoss()); }
-
-    STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss()                                                               { return m_Star->ResolveRemnantAfterEnvelopeLoss(); }
-
     bool            RevertState();
 
     void            SaveState();

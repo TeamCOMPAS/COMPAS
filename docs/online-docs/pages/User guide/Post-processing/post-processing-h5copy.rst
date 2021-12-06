@@ -1,10 +1,10 @@
 h5copy.py
 =========
 
-This program copies ``HDF5`` file(s) to a designated output ``HDF5`` file. If the output file is an existing ``HDF5`` file,
-the user can  specify whether the existing content should be erased before copying begins, or whether the copied data should
-be appended to the existing data. If multiple files are given as input files, the resultant ``HDF5`` file is the concatenation
-of the input files.
+This program copies ``COMPAS_Output.h5`` ``HDF5`` file(s) [but not ``Detailed_Ouput`` files] to a designated output ``HDF5`` file. 
+If the output file is an existing ``HDF5`` file, the user can specify whether the existing content should be erased before copying 
+begins, or whether the copied data should be appended to the existing data. If multiple files are given as input files, the 
+resultant ``HDF5`` file is the concatenation of the input files.
 
 
 Some nomenclature
