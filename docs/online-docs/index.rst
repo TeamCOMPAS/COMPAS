@@ -11,6 +11,10 @@ COMPAS
 ======
 
 **C**\ ompact **O**\ bject **M**\ ergers: **P**\ opulation **A**\ strophysics and **S**\ tatistics
+is a publicly available rapid stellar / binary population synthesis code designed so that evolution prescriptions and model parameters are 
+easily adjustable. COMPAS draws properties for a binary star system from a set of initial distributions, and evolves it from 
+zero-age main sequence to the end of its life as two compact remnants. It has been used for inference from observations of 
+gravitational-wave mergers, Galactic neutron stars, X-ray binaries, and luminous red novae.
 
 `... by` `TeamCOMPAS <https://compas.science/index.html>`_
 
