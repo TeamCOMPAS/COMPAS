@@ -54,6 +54,11 @@ in which all source files are compiled, type::
 The `clean` option instructs ``make`` to remove all existing object files (.o), and the COMPAS executable.  A subsequent ``make`` is then forced to compile
 all source files and link the resultant object files (and external libraries) into a new executable.
 
+The executable can be tested with, e.g.,
+
+    ./COMPAS -v
+
+which will display the code version.
 
 See :doc:`../Developer guide/Developer build/COMPAS-local-build` for a detailed description of ``Makefile`` functionality.
 
