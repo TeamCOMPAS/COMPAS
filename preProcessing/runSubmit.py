@@ -11,7 +11,7 @@ import yaml
 python_version = sys.version_info[0]
 print("python_version =", python_version)
 
-class pythonProgramOptions: # TODO: rename? | HFS oct 31 2021
+class pythonProgramOptions:
     """
     A class to store and access COMPAS program options in python
     """
