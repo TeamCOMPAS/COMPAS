@@ -381,35 +381,40 @@ void Options::OptionValues::Initialise() {
     m_MassTransferRejuvenationPrescription.typeString               = MT_REJUVENATION_PRESCRIPTION_LABEL.at(m_MassTransferRejuvenationPrescription.type);
 
     // Mass transfer critical mass ratios
-    m_MassTransferCriticalMassRatioMSLowMass                        = false;
+    // RTW questions::
+    // What to do about the Claey's entries which have no defined values?
+    // Why were some of these values here different to the actual Claey's values? typos?
+    // Claey's does not specify HeMS at all. Are these the same as MS? Should we have MS <0.7 ?
+
+    m_MassTransferCriticalMassRatioMSLowMass                        = true;
     m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor   = 1.44;                                                 // Claeys+ 2014 = 1.44
     m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor      = 1.0;                                                  // Claeys+ 2014 = 1.0
 
-    m_MassTransferCriticalMassRatioMSHighMass                       = false;
+    m_MassTransferCriticalMassRatioMSHighMass                       = true;
     m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor  = 0.625;                                                // Claeys+ 2014 = 0.625
     m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor     = 0.0;
 
-    m_MassTransferCriticalMassRatioHG                               = false;
-    m_MassTransferCriticalMassRatioHGNonDegenerateAccretor          = 0.40;                                                 // Claeys+ 2014 = 0.25
+    m_MassTransferCriticalMassRatioHG                               = true;
+    m_MassTransferCriticalMassRatioHGNonDegenerateAccretor          = 0.25;                                                 // Claeys+ 2014 = 0.25
     m_MassTransferCriticalMassRatioHGDegenerateAccretor             = 0.21;                                                 // Claeys+ 2014 = 0.21
 
-    m_MassTransferCriticalMassRatioGiant                            = false;
+    m_MassTransferCriticalMassRatioGiant                            = true;
     m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor       = 0.0;
-    m_MassTransferCriticalMassRatioGiantDegenerateAccretor          = 0.87;                                                 // Claeys+ 2014 = 0.81
+    m_MassTransferCriticalMassRatioGiantDegenerateAccretor          = 0.87;                                                 // Claeys+ 2014 = 0.81 // this one should actually be 0.87...
 
-    m_MassTransferCriticalMassRatioHeliumMS                         = false;
+    m_MassTransferCriticalMassRatioHeliumMS                         = true;
     m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor    = 0.625;
     m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor       = 0.0;
 
-    m_MassTransferCriticalMassRatioHeliumHG                         = false;
+    m_MassTransferCriticalMassRatioHeliumHG                         = true;
     m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor    = 0.25;                                                 // Claeys+ 2014 = 0.25
     m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor       = 0.21;                                                 // Claeys+ 2014 = 0.21
 
-    m_MassTransferCriticalMassRatioHeliumGiant                      = false;
+    m_MassTransferCriticalMassRatioHeliumGiant                      = true;
     m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor = 1.28;                                                 // Claeys+ 2014 = 0.25
     m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor    = 0.87;
 
-    m_MassTransferCriticalMassRatioWhiteDwarf                       = false;
+    m_MassTransferCriticalMassRatioWhiteDwarf                       = true;
 	m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor  = 0.0;
     m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor     = 1.6;                                                  // Claeys+ 2014 = 1.6
 
