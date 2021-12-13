@@ -89,7 +89,6 @@ protected:
 
             STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
             void            ResolveHeliumFlash() { }                                                                                                                                                        // NO-OP
-            STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss();
             STELLAR_TYPE    ResolveSkippedPhase()                                                                   { return m_StellarType; }                                                               // NO-OP
 
             bool            ShouldEvolveOnPhase() const                                                             { return (utils::Compare(m_COCoreMass, std::min(m_GBParams[static_cast<int>(GBP::McSN)], m_Mass)) < 0); } // Evolve on TPAGB phase if envelope is not lost and not going supernova

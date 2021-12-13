@@ -96,7 +96,6 @@ protected:
 
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
     void            ResolveHeliumFlash() {  }                                                                                                                           // NO-OP
-    STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss();
     STELLAR_TYPE    ResolveSkippedPhase()                                                           { return m_StellarType; }                                           // NO-OP
 
     bool            ShouldEvolveOnPhase() const;

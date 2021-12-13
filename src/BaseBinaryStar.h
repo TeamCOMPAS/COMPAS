@@ -543,7 +543,7 @@ private:
             (void)donorCopy->UpdateAttributes(-dM, -dM*donorCopy->Mass0()/donorCopy->Mass());
             
             // Modify donor Mass0 and Age for MS (including HeMS) and HG stars
-            donorCopy->UpdateInitialMass();         // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge - mass0 is overloaded, and isn't always "initial mass"
+            donorCopy->UpdateInitialMass();         // update initial mass (MS, HG & HeMS)  
             donorCopy->UpdateAgeAfterMassLoss();    // update age (MS, HG & HeMS)
             
             (void)donorCopy->AgeOneTimestep(0.0);   // recalculate radius of star - don't age - just update values
