@@ -57,7 +57,7 @@ double MainSequence::CalculateDeltaL(const double p_Mass) const {
 
     double deltaL;
 
-    if (utils::Compare(p_Mass, massCutoffs(MHook)) <= 0) {              // JR: todo: added "=" per Hurley et al. 2000, eq 16
+    if (utils::Compare(p_Mass, massCutoffs(MHook)) <= 0) {              // per Hurley et al. 2000, eq 16
         deltaL = 0.0;                                                   // this really is supposed to be zero
     }
     else if (utils::Compare(p_Mass, a[33]) < 0) {
@@ -671,21 +671,19 @@ double MainSequence::ChooseTimestep(const double p_Time) const {
  *     - m_COCoreMass
  *     - m_Age
  *
- * Hurley et al. 2000, just after eq 105
  *
- * JR: todo: why is this different from ResolveEnvelopeLoss()?
- * JR: todo: original code: Star::radiusRemnantStarAfterLosingEnvelope() vs Star::modifyStarAfterLosingEnvelope(int stellarType, double mass)
- * JR: todo: why is stellar type changed for some types, but not others?  CheB and EAGB stars have stellar type changed, but no other types do...
- * JR: todo: probably not a huge issue - only called in TIDES() and ResolveRemnantAfterEnvelopeLoss(), and with a copy of the star - probably ok there that attributes are changed (except maybe TIDES()?)
- *
- *
- * STELLAR_TYPE ResolveRemnantAfterEnvelopeLoss()
+ * STELLAR_TYPE ResolveEnvelopeLoss()
  *
  * @return                                      Stellar type to which star should evolve
  */
-STELLAR_TYPE MainSequence::ResolveRemnantAfterEnvelopeLoss() {
+STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
 
-    if (utils::Compare(m_Mass, 0.0) <= 0) m_Radius = 0.0;   // massless remnant
-
-    return m_StellarType;                                   // no change to stellar type
+    STELLAR_TYPE stellarType = m_StellarType;
+    
+    if (p_NoCheck || utils::Compare(m_Mass, 0.0) <= 0) {
+        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
+        m_Radius = 0.0;   // massless remnant
+    }
+    
+    return stellarType;
 }

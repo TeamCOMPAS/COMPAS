@@ -13,9 +13,11 @@ To run COMPAS via a ``pythonSubmit.py`` file, type::
     docker run                                                  \
         --rm                                                    \
         -it                                                     \
+        -v $(pwd)/compas-input:/app/COMPAS/config               \
         -v $(pwd)/compas-logs:/app/COMPAS/logs                  \
         -v $(pwd)/pythonSubmit.py:/app/starts/pythonSubmit.py   \
         -e COMPAS_EXECUTABLE_PATH=/app/COMPAS/bin/COMPAS        \
+        -e COMPAS_INPUT_DIR_PATH=/app/COMPAS/config             \
         -e COMPAS_LOGS_OUTPUT_DIR_PATH=/app/COMPAS/logs         \
         teamcompas/compas                                       \
         python3 /app/starts/pythonSubmit.py                     
@@ -35,8 +37,9 @@ short for [-i and -t] - provides an interactive terminal\ [#f2]_.
 **-v <path-on-host>:<path-in-container>** |br|
 mount ``<path-on-host>`` to ``<path-in-container>``\ [#f3]_. |br|
 
-This time we not only want to get the output from COMPAS on the host machine, we also want to supply a ``pythonSubmit.py`` to the 
-container from the host machine.
+This time we not only want to read the COMPAS input files (i.e. grid file and/or logfile-definitions file) on the
+host from the container, and get the output from COMPAS in the container onto the host machine, we also want to 
+supply a ``pythonSubmit.py`` to the container from the host machine.
 
 **-e VAR_NAME=value** |br|
 set the environment variable ``VAR_VAME`` to `value`\ [#f4]_.
@@ -53,13 +56,14 @@ via the command line
 
 To run the COMPAS executable from the command line (i.e. without ``pythonSubmit.py``), type::
 
-    docker run                                  \
-        --rm                                    \
-        -it                                     \
-        -v $(pwd)/compas-logs:/app/COMPAS/logs  \
-        teamcompas/compas                       \
-        bin/COMPAS                              \
-        --number-of-binaries=5                  \
+    docker run                                      \
+        --rm                                        \
+        -it                                         \
+        -v $(pwd)/compas-input:/app/COMPAS/config   \
+        -v $(pwd)/compas-logs:/app/COMPAS/logs      \
+        teamcompas/compas                           \
+        bin/COMPAS                                  \
+        --number-of-systems=5                       \
         --output-path=/app/COMPAS/logs
 
 
@@ -77,7 +81,9 @@ short for [-i and -t] - provides an interactive terminal\ [#f2]_.
 **-v <path-on-host>:<path-in-container>** |br|
 mount ``<path-on-host>`` to ``<path-in-container>``\ [#f3]_. |br|
 
-In this instance, make it so `$(pwd)/compas-logs` on my machine is the same as `/app/COMPAS/logs` inside the container.
+In this instance, make it so |br|
+   `$(pwd)/compas-input` on my machine is the same as `/app/COMPAS/config` inside the container. |br|
+   `$(pwd)/compas-logs` on my machine is the same as `/app/COMPAS/logs` inside the container.
 
 **teamcompas/compas** |br|
 the image to run.
@@ -85,7 +91,7 @@ the image to run.
 **bin/COMPAS** |br|
 the command to run when the container starts.
 
-**--number-of-binaries=5** |br|
+**--number-of-systems=5** |br|
 the flag to set the number of binaries.
 
 **--output-path=/app/COMPAS/logs** |br|
@@ -102,7 +108,7 @@ environment, and are non-breaking changes (i.e. benign to other environments).
 ``COMPAS_EXECUTABLE_PATH`` specifies where ``pythonSubmit.py`` looks for the COMPAS executable. This override exists purely for 
 ease-of-use from the command line.
 
-`COMPAS_LOGS_OUTPUT_DIR_PATH` specifies where COMPAS output log filess are created. The override exists because the mounted directory 
+`COMPAS_LOGS_OUTPUT_DIR_PATH` specifies where COMPAS output log files are created. The override exists because the mounted directory 
 (option `-v`) is created before COMPAS runs. COMPAS sees that the directory where it's supposed to put logs already exists, so it 
 creates a different (i.e. non-mapped) directory for the output log files.
 
@@ -143,3 +149,4 @@ to get the container id of interest, then type::
 .. [#f5] https://docs.docker.com/engine/reference/run/
 .. [#f6] https://docs.docker.com/engine/reference/run/#detached--d
 
+   

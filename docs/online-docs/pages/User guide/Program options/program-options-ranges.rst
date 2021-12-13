@@ -32,6 +32,10 @@ where `range-specifier` is defined as:
         `start` and `increment` must be the same data type as option-name. |br|
         `count` must be a positive integer value.
 
+There should be no spaces inside the brackets ([]). Spaces on the command line are interpreted as argument delimiters
+by the shell parser before passing the command-line arguments to the COMPAS executable, so if spaces are present inside
+the brackets the shell parser breaks the range specification into multiple command-line arguments.
+
 To specify a range of values for the ``--metallicity`` option, a user, if running COMPAS from the command line
 and with no grid file, would type any of the following::
 
@@ -51,3 +55,9 @@ type::
     ./COMPAS --metallicity [0.0001,10,0.0013] --common-envelope-alpha [0.1,5,0.2]
 
 and COMPAS would evolve a grid of 50 binaries using the 10 metallicity values and 5 common envelope alpha values.
+
+Note that when a range is, or ranges are, specified on the command line, the ``--number-of-systems`` command-line option is ignored.
+This is to avoid multiple systems with identical initial values being evolved.  Ranges and sets can be mixed with grid files, and
+in that case ranges and sets specified on the command line will be played out for each grid file line.
+
+   
