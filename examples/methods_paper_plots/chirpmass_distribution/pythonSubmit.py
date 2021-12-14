@@ -8,6 +8,11 @@ import ntpath
 import subprocess
 from subprocess import call
 
+#### DISCLAIMER: This script uses the `pythonSubmit.py` format
+#### that has been replaced by the `runSubmit.py` and 
+#### `compasConfigDefault.yaml` combo as of v02.25.10.
+#### The `pythonSubmit.py` format will eventually become deprecated.
+
 # Check if we are using python 3
 python_version = sys.version_info[0]
 print("python_version =", python_version)
