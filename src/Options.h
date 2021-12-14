@@ -297,6 +297,7 @@ private:
         //"be-binaries",
 
         "case-BB-stability-prescription",
+        "check-radial-change",
         "circularise-binary-during-mass-transfer",
         "common-envelope-allow-main-sequence-survive",
         "common-envelope-alpha", 
@@ -415,6 +416,7 @@ private:
 
         "case-BB-stability-prescription",
         "check-photon-tiring-limit",
+        "check-radial-change",
         "chemically-homogeneous-evolution",
         "circularise-binary-during-mass-transfer",
         "common-envelope-allow-main-sequence-survive",
@@ -517,6 +519,8 @@ private:
 
         "add-options-to-sysparms",
 
+        "check-radial-change",
+
         "debug-classes",
         "debug-level",
         "debug-to-file",
@@ -600,6 +604,8 @@ public:
 
             bool                                                m_AllowRLOFAtBirth;                                             // Indicates whether binaries that have one or both stars in RLOF at birth are allowed to evolve
             bool                                                m_AllowTouchingAtBirth;                                         // Indicates whether binaries that are touching at birth are allowed to evolve
+
+            bool                                                m_CheckRadialChange;                                            // Flag used to determine if radial cange should be checked in BSE mode
 
             bool                                                m_DebugToFile;                                                  // Flag used to determine whether debug statements should also be written to a log file
             bool                                                m_ErrorsToFile;                                                 // Flag used to determine whether error statements should also be written to a log file
@@ -1106,6 +1112,7 @@ public:
     CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-BB-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
     
     bool                                        CheckPhotonTiringLimit() const                                          { return OPT_VALUE("check-photon-tiring-limit", m_CheckPhotonTiringLimit, true); }
+    bool                                        CheckRadialChange() const                                               { return OPT_VALUE("check-radial-change", m_CheckRadialChange, true); }
 
     CHE_MODE                                    CHEMode() const                                                         { return OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); }
 

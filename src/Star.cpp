@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <csignal>
 
+extern size_t steps;
+extern size_t reverts;
 // Default constructor
 Star::Star() : m_Star(new BaseStar()) {
 
@@ -415,7 +417,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
         
         SaveState();                                                                                            // save the state of the star - in case we want to revert
 
-        double minTimestep = std::max(m_Star->CalculateDynamicalTimescale(), ABSOLUTE_MINIMUM_TIMESTEP);        // calculate the minimum timestep - maximum of dynamical timescale for this star and the aboslute minimum timestep
+        double minTimestep = std::max(m_Star->CalculateDynamicalTimescale(), ABSOLUTE_MINIMUM_TIMESTEP);        // calculate the minimum timestep - maximum of dynamical timescale for this star and the absolute minimum timestep
 
         // evolve the star a single timestep
 
@@ -438,8 +440,8 @@ double Star::EvolveOneTimestep(const double p_Dt) {
                 }
                 else {                                                                                          // not too many retries - retry with smaller timestep
                     if (RevertState()) {                                                                        // revert to last state ok?
-                        dt = dt / 2.0;                                                                          // yes - halve the timestep (limit to minimum)      JR: probably should be dt = max(dt / 2.0, minTimestep);
-                        takeTimestep = false;                                                                   // previous timestep discared - use new one
+                        dt = std::max(dt / 2.0, minTimestep);                                                   // yes - halve the timestep (limit to minimum)
+                        takeTimestep = false;                                                                   // previous timestep discarded - use new one
                     }
                     else {                                                                                      // revert failed
                         takeTimestep = true;                                                                    // take the last timestep anyway

@@ -18,7 +18,6 @@
 
 #include <tuple>                                    // for std::tuple and std::make_tuple.
 
-
 class Log;
 class Star;
 class BinaryConstituentStar;
@@ -480,7 +479,7 @@ private:
 
     void    EvaluateSupernovae();
 
-    void    EvolveOneTimestep(const double p_Dt);
+    EVOLUTION_STATUS EvolveOneTimestep(const double p_Dt);
     void    EvolveOneTimestepPreamble(const double p_Dt);
 
     void    ResolveCoalescence();
