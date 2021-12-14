@@ -8,6 +8,11 @@ import re
 import ntpath
 from subprocess import call
 
+#### DISCLAIMER: This script uses the `pythonSubmit.py` format
+#### that has been replaced by the `runSubmit.py` and 
+#### `compasConfigDefault.yaml` combo as of v02.25.10.
+#### The `pythonSubmit.py` format will eventually become deprecated.
+
 #### NOTE: For this demo, we use the Grid_demo.txt grid file. 
 #### The values in that file will override many of the defaults
 #### listed here, but in order to reproduce the example in Fig. 9
