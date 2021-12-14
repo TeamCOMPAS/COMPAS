@@ -38,7 +38,7 @@ numericalChoices:
     --log-level: 0
     --maximum-evolution-time: 13700.0   # maximum physical time a system can be evolved [Myrs]
     --maximum-number-timestep-iterations: 99999
-    --number-of-systems: 10 # number of systems per batch
+    --number-of-systems: 1 # number of systems per batch
     --timestep-multiplier: 1    # optional multiplier relative to default time step duration
     ### STELLAR PROPERTIES
     --cool-wind-mass-loss-multiplier: 1.0    
