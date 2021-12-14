@@ -856,7 +856,10 @@
 //                                      - Removed redundant function ResolveRemnantAfterEnvelopeLoss (ResolveEnvelopeLoss is sufficient)
 //                                      - Cleaned / updated ResolveEnvelopeLoss
 //                                      - Fixed issue with masses and types of remnants formed from stripped HG stars
+// 02.26.02     JR - Dec 14, 2021    - Defect repair:
+//                                      - Implement radial change check for BSE mode - should help sync binary/single-star evolutionary tracks
+//                                      - Added new (possibly temporary) option: --check-radial-change.  A "BSE only" option that turns the BSE-mode radial change check on/off: off is the default.
 
-const std::string VERSION_STRING = "02.26.01";
+const std::string VERSION_STRING = "02.26.02";
 
 # endif // __changelog_h__

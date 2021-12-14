@@ -21,7 +21,6 @@ BinaryStar::BinaryStar(const unsigned long int p_Seed, const long int p_Id) : m_
  * void SaveState()
  */
 void BinaryStar::SaveState() {
-
     delete m_SaveBinaryStar;            // delete existing saved BaseBinaryStar
     m_SaveBinaryStar = m_BinaryStar;    // copy the underlying BaseBinaryStar
 }

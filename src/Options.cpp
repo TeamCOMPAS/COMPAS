@@ -138,6 +138,8 @@ void Options::OptionValues::Initialise() {
     m_AllowRLOFAtBirth                                              = true;
     m_AllowTouchingAtBirth                                          = false;
 
+    m_CheckRadialChange                                             = false;
+
     m_DebugToFile                                                   = false;
     m_ErrorsToFile                                                  = false;
 
@@ -648,6 +650,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "check-photon-tiring-limit",
             po::value<bool>(&p_Options->m_CheckPhotonTiringLimit)->default_value(p_Options->m_CheckPhotonTiringLimit)->implicit_value(true),                            
             ("Check the photon tiring limit hasn't been exceeded by wind mass loss (default = " + std::string(p_Options->m_CheckPhotonTiringLimit ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "check-radial-change",
+            po::value<bool>(&p_Options->m_CheckRadialChange)->default_value(p_Options->m_CheckRadialChange)->implicit_value(true),                            
+            ("Check radial change in BSE mode (default = " + std::string(p_Options->m_CheckRadialChange ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "circularise-binary-during-mass-transfer",                         

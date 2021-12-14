@@ -160,6 +160,8 @@ public:
     double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                              { return m_Star->CalculateMomentOfInertia(p_RemnantRadius); }
     double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const                            { return m_Star->CalculateMomentOfInertiaAU(p_RemnantRadius); }
 
+    double          CalculateRadialChange() const                                                                   { return m_Star->CalculateRadialChange(); }
+
     void            CalculateSNAnomalies(const double p_Eccentricity)                                               { m_Star->CalculateSNAnomalies(p_Eccentricity); }
     
     double          CalculateSNKickMagnitude(const double p_RemnantMass, 
