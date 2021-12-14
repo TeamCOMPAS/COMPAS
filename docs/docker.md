@@ -42,6 +42,7 @@ To see all available versions, go to the TeamCOMPAS docker hub page [here](https
 ### Running
 
 COMPAS can still be configured via command line arguments passed to the COMPAS executable or via a `runSubmit.py` file.
+The `runSubmit.py` file read the options defined in the `compasConfigDefault.yaml`, which overwrite the COMPAS defaults. 
 
 #### Execute runSubmit.py
 
@@ -52,7 +53,7 @@ docker run                                                  \
     --rm                                                    \
     -it                                                     \
     -v $(pwd)/compas-logs:/app/COMPAS/logs                  \
-    -v $(pwd)/runSubmit.py:/app/starts/runSubmit.py   \
+    -v $(pwd)/runSubmit.py:/app/starts/runSubmit.py         \
     -e COMPAS_EXECUTABLE_PATH=/app/COMPAS/bin/COMPAS        \
     -e COMPAS_LOGS_OUTPUT_DIR_PATH=/app/COMPAS/logs         \
     teamcompas/compas                                       \
