@@ -1,6 +1,6 @@
 #include "HeHG.h"
 #include "HeGB.h"
-#include "HeWD.h"
+#include "COWD.h"
 
 
 /*
@@ -420,8 +420,21 @@ bool HeHG::ShouldEvolveOnPhase() const {
 /*
  * Modify the star after it loses its envelope
  *
- * Hurley et al. 2000, section 6 just before eq 76
+ * Hurley et al. 2000, section 6 just before eq 76 and after Eq. 105
  *
+ * Where necessary updates attributes of star (depending upon stellar type):
+ *
+ *     - m_StellarType
+ *     - m_Timescales
+ *     - m_GBParams
+ *     - m_Luminosity
+ *     - m_Radius
+ *     - m_Mass
+ *     - m_Mass0
+ *     - m_CoreMass
+ *     - m_HeCoreMass
+ *     - m_COCoreMass
+ *     - m_Age
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
@@ -431,20 +444,17 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
     
-    if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) > 0) {        // Envelope lost - determine what type of star to form
+    if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) >= 0) {        // Envelope lost - determine what type of star to form
 
-        m_CoreMass  = m_COCoreMass;
-        m_HeCoreMass= m_COCoreMass;
-        m_Mass      = m_CoreMass;
+        m_CoreMass  = m_Mass;
+        m_HeCoreMass= m_Mass;
+        m_COCoreMass= m_Mass;
         m_Mass0     = m_Mass;
-        
-        if (!(IsSupernova())) {
-            stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
-            m_Age       = 0.0;
-            m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
-        }
+        m_Radius    = COWD::CalculateRadiusOnPhase_Static(m_Mass);
+        m_Age       = 0.0;
+        stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }
-
+    IsSupernova();
     return stellarType;
 }
 
