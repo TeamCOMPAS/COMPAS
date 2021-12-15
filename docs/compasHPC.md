@@ -79,8 +79,8 @@ to your `~/.bash_profile` or equivalent.
   Make a copy of the `stroopwafelInterface.py` file in the `defaults/` folder into your current directory, and set the `run_on_helios` parameter to `True`.
   Set any other stroopwafel parameters as you see fit.
 
-  If you have many non-default COMPAS arguments, you are encouraged to set them in a `pythonSubmit.py` file in the same directory, 
-  and set the `usePythonSubmit` parameter to `True`.
+  If you have many non-default COMPAS arguments, you are encouraged to set them in a `runSubmit.py` file in the same directory, 
+  and set the `usePythonSubmit` parameter to `True`, and adapt `stroopwafelInterface.py` accordingly, given that is still under development.
 
   See sampling.md for details.
 
