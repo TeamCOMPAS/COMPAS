@@ -1827,7 +1827,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         if ((utils::Compare(m_ZetaStar, m_ZetaLobe) > 0 && (!(caseBBAlwaysUnstable && donorIsHeHGorHeGB))) ||
             (donorIsHeHGorHeGB && (caseBBAlwaysStable || (caseBBAlwaysUnstableOntoNSBH && accretorIsNSorBH)))) {                 // Stable MT
             
-                m_MassTransferTrackerHistory = m_Donor==m_Star1 ? MT_TRACKING::STABLE_FROM_1_TO_2 : MT_TRACKING::STABLE_FROM_2_TO_1; // record what happened - for later printing
+                m_MassTransferTrackerHistory = m_Donor == m_Star1 ? MT_TRACKING::STABLE_FROM_1_TO_2 : MT_TRACKING::STABLE_FROM_2_TO_1; // record what happened - for later printing
                 double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
 
                 if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
@@ -1963,7 +1963,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
         m_CEDetails.CEEnow = false;                                                                                             // no common envelope
     }
 
-    m_aMassTransferDiff = 0.0;                                                                                                  // iniitially - no changle to orbit (semi-major axis) due to mass transfer
+    m_aMassTransferDiff = 0.0;                                                                                                  // initially - no change to orbit (semi-major axis) due to mass transfer
 }
 
 
@@ -2252,8 +2252,9 @@ EVOLUTION_STATUS BaseBinaryStar::EvolveOneTimestep(const double p_Dt) {
 
     double dt = p_Dt;                                                                                   // timestep
 
-    if (OPTIONS->CheckRadialChange()) {                                                                 // check radial change?
-                                                                                                        // yes 
+    if (OPTIONS->CheckRadialChange() &&                                                                 // need to check radial change?
+        m_MassTransferTrackerHistory == MT_TRACKING::NO_MASS_TRANSFER) {                                // only if no mass transfer in (previous) timestep
+                                                                                                        // yes - check radial change
         STELLAR_TYPE stellarType1;                                                                      // stellar type to which primary should switch
         STELLAR_TYPE stellarType2;                                                                      // stellar type to which secondary should switch
         
@@ -2274,8 +2275,8 @@ EVOLUTION_STATUS BaseBinaryStar::EvolveOneTimestep(const double p_Dt) {
             // don't take the timestep if we stepped too far
 
             takeTimestep = true;                                                                        // flag to determine if the timestep should be taken
-            if ((utils::Compare(m_Star1->CalculateRadialChange(), MAXIMUM_RADIAL_CHANGE) >= 0) || 
-                (utils::Compare(m_Star2->CalculateRadialChange(), MAXIMUM_RADIAL_CHANGE) >= 0)) {       // too much change?
+            if (utils::Compare(m_Star1->CalculateRadialChange(), MAXIMUM_RADIAL_CHANGE) >= 0 ||         // primary too much change?
+                utils::Compare(m_Star2->CalculateRadialChange(), MAXIMUM_RADIAL_CHANGE) >= 0) {         // secondary too much change?
 
                 if (utils::Compare(dt, minTimestep) <= 0) {                                             // yes - already at or below minimum timestep?
                     takeTimestep = true;                                                                // yes - just take the last timestep
