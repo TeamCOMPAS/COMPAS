@@ -169,7 +169,7 @@ public:
     
             double          CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) const;
 
-            double          CalculateRadialChange() const                                                       { return (utils::Compare(m_RadiusPrev,0)<=0)? 0 : std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; }                    // Return fractional radial change (if previous radius is negative or zero, return 0 to avoid NaN
+            double          CalculateRadialChange() const                                                       { return (utils::Compare(m_RadiusPrev, 0.0) <= 0)? 0.0 : std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; }                    // Return fractional radial change (if previous radius is negative or zero, return 0 to avoid NaN
 
             double          CalculateRadialExpansionTimescale() const                                           { return CalculateRadialExpansionTimescale_Static(m_StellarType, m_StellarTypePrev, m_Radius, m_RadiusPrev, m_DtPrev); } // Use class member variables
     
