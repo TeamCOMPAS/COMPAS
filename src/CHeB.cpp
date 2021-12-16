@@ -100,7 +100,7 @@ double CHeB::CalculateLambdaDewi() const {
     double lambdaCE;
 
          if (utils::Compare(envMass, 1.0) >= 0) lambdaCE = 2.0 * lambda1;                                                   // (A.1) Bottom, Claeys+2014
-	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
+	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (std::sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
 	else                                        lambdaCE = 2.0 * lambda2;	                                                // (A.1) Top, Claeys+2014
 
 	return	lambdaCE;

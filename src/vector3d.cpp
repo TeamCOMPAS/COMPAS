@@ -127,7 +127,7 @@ std::ostream &operator <<(std::ostream &os, Vector3d const p_Vec) {
  */
 double Vector3d::Magnitude() const {
     // Straightforward application of pythagorean theorem 
-    return sqrt(linalg::dot((*this), (*this)));
+    return std::sqrt(linalg::dot((*this), (*this)));
 }
 
 

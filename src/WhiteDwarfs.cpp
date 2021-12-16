@@ -33,5 +33,5 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
 double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     double MCH_Mass_one_third  = std::cbrt(MCH / p_Mass); 
     double MCH_Mass_two_thirds = MCH_Mass_one_third* MCH_Mass_one_third;
-    return std::max(NEUTRON_STAR_RADIUS, 0.0115 * sqrt((MCH_Mass_two_thirds - 1.0/MCH_Mass_two_thirds )));
+    return std::max(NEUTRON_STAR_RADIUS, 0.0115 * std::sqrt((MCH_Mass_two_thirds - 1.0/MCH_Mass_two_thirds )));
 }
