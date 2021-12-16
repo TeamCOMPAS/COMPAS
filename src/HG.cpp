@@ -517,7 +517,7 @@ double HG::CalculateRadialExtentConvectiveEnvelope() const {
 	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
 	clone.ResolveEnvelopeLoss(true);                // update clone's attributes after envelope is lost
 
-    return PPOW(m_Tau, 1.0 / 2.0) * (m_Radius - clone.Radius());
+    return sqrt(m_Tau) * (m_Radius - clone.Radius());
 }
 
 
