@@ -87,7 +87,7 @@ void GiantBranch::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timesca
  * @return                                      Core mass - Luminosity relation parameter B
  */
 double GiantBranch::CalculateCoreMass_Luminosity_B_Static(const double p_Mass) {
-    return std::max(3.0E4, (500.0 + (1.75E4 * PPOW(p_Mass, 0.6))));
+    return std::max(3.0E4, (500.0 + (1.75E4 * PPOW(p_Mass, 0.6))));                 // RTW - Consider replacing this with a 3/5 root function (somehow) to avoid NaNs if the base is negative
 }
 
 
