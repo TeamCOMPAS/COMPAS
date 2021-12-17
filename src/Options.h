@@ -656,9 +656,12 @@ public:
             double                                              m_InitialMassFunctionPower;                                     // single IMF power law set manually
 
             // Stellar type
-            int                                                 m_InitialStellarType;                                           // Initial stellar type of single star (SSE)
-            int                                                 m_InitialStellarType1;                                          // Initial stellar type of primary (BSE)
-            int                                                 m_InitialStellarType2;                                          // Initial stellar type of secondary (BSE)
+            int                                                 m_InitialStellarTypeNum;                                        // Initial stellar type number of single star (SSE)
+            int                                                 m_InitialStellarTypeNum1;                                       // Initial stellar type number of primary (BSE)
+            int                                                 m_InitialStellarTypeNum2;                                       // Initial stellar type number of secondary (BSE)
+            STELLAR_TYPE                                        m_InitialStellarType;                                           // Initial stellar type of single star (SSE)
+            STELLAR_TYPE                                        m_InitialStellarType1;                                          // Initial stellar type of primary (BSE)
+            STELLAR_TYPE                                        m_InitialStellarType2;                                          // Initial stellar type of secondary (BSE)
 
             // Mass ratio
             double                                              m_MassRatio;                                                    // Mass ratio for BSE
@@ -1175,9 +1178,12 @@ public:
     double                                      InitialMassFunctionMin() const                                          { return OPT_VALUE("initial-mass-min", m_InitialMassFunctionMin, true); }
     double                                      InitialMassFunctionPower() const                                        { return OPT_VALUE("initial-mass-power", m_InitialMassFunctionPower, true); }
 
-    int                                         InitialStellarType() const                                              { return OPT_VALUE("initial-stellar-type",   m_InitialStellarType, true); }
-    int                                         InitialStellarType() const                                              { return OPT_VALUE("initial-stellar-type-1", m_InitialStellarType1, true); }
-    int                                         InitialStellarType() const                                              { return OPT_VALUE("initial-stellar-type-2", m_InitialStellarType2, true); }
+    int                                         InitialStellarTypeNum() const                                           { return OPT_VALUE("initial-stellar-type",   m_InitialStellarTypeNum, true); }
+    int                                         InitialStellarTypeNum1() const                                          { return OPT_VALUE("initial-stellar-type-1", m_InitialStellarTypeNum1, true); }
+    int                                         InitialStellarTypeNum2() const                                          { return OPT_VALUE("initial-stellar-type-2", m_InitialStellarTypeNum2, true); }
+    STELLAR_TYPE                                InitialStellarType() const                                              { return static_cast<STELLAR_TYPE>(InitialStellarTypeNum()); }
+    STELLAR_TYPE                                InitialStellarType1() const                                             { return static_cast<STELLAR_TYPE>(InitialStellarTypeNum1()); }
+    STELLAR_TYPE                                InitialStellarType2() const                                             { return static_cast<STELLAR_TYPE>(InitialStellarTypeNum2()); }
 
     KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return OPT_VALUE("kick-direction", m_KickDirectionDistribution.type, true); }
     double                                      KickDirectionPower() const                                              { return OPT_VALUE("kick-direction-power", m_KickDirectionPower, true); }
