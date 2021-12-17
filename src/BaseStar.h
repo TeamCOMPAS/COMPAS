@@ -23,6 +23,7 @@ public:
 
     BaseStar(const unsigned long int p_RandomSeed, 
              const double            p_MZAMS, 
+             const STELLAR_TYPE      p_InitialStellarType,
              const double            p_Metallicity, 
              const KickParameters    p_KickParameters,
              const double            p_RotationalVelocity = -1.0); 
@@ -33,7 +34,6 @@ public:
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const                                                        { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const                                                      { return m_ObjectType; }
-    STELLAR_TYPE        InitialStellarType() const                                              { return m_InitialStellarType; }
     STELLAR_TYPE        StellarType() const                                                     { return m_StellarType; }
     STELLAR_TYPE        StellarTypePrev() const                                                 { return m_StellarTypePrev; }
 

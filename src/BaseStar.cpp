@@ -19,8 +19,8 @@ BaseStar::BaseStar() {
 
     m_ObjectId           = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
     m_ObjectType         = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
-    m_InitialStellarType = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
-    m_StellarType        = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    //m_InitialStellarType = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    //m_StellarType        = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
 
     m_Error              = ERROR::NOT_INITIALISED;                     // clear error flag
 }
@@ -28,6 +28,7 @@ BaseStar::BaseStar() {
 
 BaseStar::BaseStar(const unsigned long int p_RandomSeed, 
                    const double            p_MZAMS,
+                   const STELLAR_TYPE      p_InitialStellarType,
                    const double            p_Metallicity,
                    const KickParameters    p_KickParameters,
                    const double            p_RotationalFrequency) {
@@ -36,8 +37,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     m_ObjectId            = globalObjectId++;                                                       // unique object id - remains for life of star (even through evolution to other phases)
     m_ObjectType          = OBJECT_TYPE::BASE_STAR;                                                 // object type - remains for life of star (even through evolution to other phases)
-    m_InitialStellarType  = STELLAR_TYPE::STAR;                                                     // stellar type - changes throughout life of star (through evolution to other phases)
-    m_StellarType         = STELLAR_TYPE::STAR;                                                     // stellar type - changes throughout life of star (through evolution to other phases)
 
     m_Error               = ERROR::NONE;                                                            // clear error flag
 
@@ -48,6 +47,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_RandomSeed          = p_RandomSeed;
     m_MZAMS               = p_MZAMS;
     m_Metallicity         = p_Metallicity;
+    m_InitialStellarType  = p_InitialStellarType;
 
     // Initialise metallicity dependent values
     m_LogMetallicityXi    = log10(m_Metallicity / ZSOL);
@@ -126,6 +126,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
+    m_StellarType                              = m_InitialStellarType;
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;

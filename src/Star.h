@@ -55,6 +55,7 @@ public:
 
     Star(const unsigned long int p_RandomSeed, 
          const double            p_MZAMS, 
+         const STELLAR_TYPE      p_InitialStellarType,
          const double            p_Metallicity, 
          const KickParameters    p_KickParameters,
          const double            p_RotationalVelocity = -1.0); 
@@ -70,7 +71,7 @@ public:
     OBJECT_ID           ObjectId() const                                                                            { return m_ObjectId; }
     OBJECT_ID           StarObjectId() const                                                                        { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const                                                                          { return m_ObjectType; }
-    STELLAR_TYPE        InitialStellarType() const                                                                  { return m_Star->InitialStellarType(); }
+    //STELLAR_TYPE        InitialStellarType() const                                                                  { return m_Star->InitialStellarType(); }
     STELLAR_TYPE        StellarType() const                                                                         { return m_Star->StellarType(); }
 
 
@@ -92,6 +93,7 @@ public:
     bool                ExperiencedPPISN() const                                                                    { return m_Star->ExperiencedPPISN(); }
     bool                ExperiencedUSSN() const                                                                     { return m_Star->ExperiencedUSSN(); }
     double              HeCoreMass() const                                                                          { return m_Star->HeCoreMass(); }
+    STELLAR_TYPE        InitialStellarType() const                                                                  { return m_Star->InitialStellarType(); }
     bool                IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
     bool                IsDegenerate() const                                                                        { return m_Star->IsDegenerate(); }
     bool                IsECSN() const                                                                              { return m_Star->IsECSN(); }
