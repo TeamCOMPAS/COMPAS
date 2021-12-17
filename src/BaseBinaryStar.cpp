@@ -2388,18 +2388,6 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();                  // new timestep
 
-/*
-std::cout 
-<< "dt1 = " 
-<< m_Star1->CalculateTimestep()
-<< "dt2 = " 
-<< m_Star2->CalculateTimestep()
-<< "dt = " 
-<< OPTIONS->TimestepMultiplier()
-<< std::endl;
-*/
-
-
                 if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt < NUCLEAR_MINIMUM_TIMESTEP) {
                     dt = NUCLEAR_MINIMUM_TIMESTEP;                                                                                          // but not less than minimum
 		}

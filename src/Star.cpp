@@ -41,8 +41,6 @@ Star::Star(const unsigned long int p_RandomSeed,
     //      if star2 non MS, set it
     //      else switch if low mass
 
-    std::cout << "Stellar type is : " << static_cast<int>(p_InitialStellarType) << std::endl;
-
     if (utils::IsOneOf(p_InitialStellarType, { STELLAR_TYPE::MS_GT_07 })) {                                             // Configure CHE or LMMS if stellar type not explicitly set
         if (OPTIONS->CHEMode() != CHE_MODE::NONE && utils::Compare(m_Star->Omega(), m_Star->OmegaCHE()) >= 0) {         // CHE?
             (void)SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                 // yes
@@ -150,7 +148,7 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
     // don't switch if stellarTypePrev == p_StellarType
     // (the call to SwitchTo() in Star::EvolveOneTimestep() doesn't check - it relies on the check here)
 
-    if (p_StellarType != m_Star->StellarType()) {
+    if ((p_StellarType != m_Star->StellarType()) | p_SetInitialType) {
         BaseStar *ptr = nullptr;
 
         switch (p_StellarType) {
