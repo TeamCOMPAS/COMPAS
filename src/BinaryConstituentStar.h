@@ -24,9 +24,10 @@ public:
 
     BinaryConstituentStar(const unsigned long int p_RandomSeed, 
                           const double            p_Mass, 
+                          const STELLAR_TYPE      p_InitialStellarType,
                           const double            p_Metallicity, 
                           const KickParameters    p_KickParameters,
-                          const double            p_RotationalVelocity = -1.0) : Star(p_RandomSeed, p_Mass, p_Metallicity, p_KickParameters, p_RotationalVelocity) {
+                          const double            p_RotationalVelocity = -1.0) : Star(p_RandomSeed, p_Mass, p_InitialStellarType, p_Metallicity, p_KickParameters, p_RotationalVelocity) {
 
         m_ObjectId                 = globalObjectId++;
         m_ObjectType               = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;
