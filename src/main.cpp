@@ -221,10 +221,9 @@ std::tuple<int, int> EvolveSingleStars() {
                                                                                                                     // yes - continue
                     randomSeed = RAND->CurrentSeed();                                                               // current random seed - to pass to star object
 
-                    // the initial mass of the star is supplied - this is to allow binary stars to initialise
-                    // the masses of their constituent stars (rather than have the constituent stars sample 
-                    // their own mass).  Here we use the mass supplied by the user via the program options or, 
-                    // if no mass was supplied by the user, sample the mass from the IMF.
+                    // the initial mass of the star is supplied - this is to allow a single star to initialise
+                    // its own mass (rather than sample it).  Here we use the mass supplied by the user via the 
+                    // program options or, if no mass was supplied by the user, sample the mass from the IMF.
 
                     double initialMass = OPTIONS->OptionSpecified("initial-mass") == 1                              // user specified mass?
                                             ? OPTIONS->InitialMass()                                                // yes, use it
@@ -233,11 +232,18 @@ std::tuple<int, int> EvolveSingleStars() {
                                                                        OPTIONS->InitialMassFunctionMin(), 
                                                                        OPTIONS->InitialMassFunctionPower());
 
-                    // the metallicity of the star is supplied - this is to allow binary stars to initialise
-                    // the metallicity of their constituent stars (rather than have the constituent stars sample 
-                    // their own metallicity).  Here we use the mmetallicityass supplied by the user via the program
-                    // options or, if no metallicity was supplied by the user, sample the metallicity.
+                    // the initial of the star is supplied - this is to allow a single star to initialise its own 
+                    // stellar type (rather than sample it).  Here we use the stellar type supplied by the user 
+                    // via the program options or, if no stellar type was supplied by the user, default to MS.
 
+                    STELLAR_TYPE initialStellarType = OPTIONS->OptionSpecified("initial-stellar-type") == 1         // user specified stellar type?
+                                            ? OPTIONS->InitialStellarType()                                         // yes, use it
+                                            : STELLAR_TYPE::MS_GT_07;                                               // no, set it to default value
+
+                    // the metallicity of the star is supplied - this is to allow a single star to initialise
+                    // its own metallicity (rather than sample it).  Here we use the metallicity supplied by the user via the 
+                    // program options or, if no metallicity was supplied by the user, sample the metallicity.
+                    
                     double metallicity = OPTIONS->OptionSpecified("metallicity") == 1                               // user specified metallicity?
                                             ? OPTIONS->Metallicity()                                                // yes, use it
                                             : utils::SampleMetallicity(OPTIONS->MetallicityDistribution(), 
@@ -269,8 +275,8 @@ std::tuple<int, int> EvolveSingleStars() {
                     // create the star
                     delete star; star = nullptr;                                                                    // so we don't leak...
                     star = OPTIONS->OptionSpecified("rotational-frequency") == 1                                    // user specified rotational frequency?
-                        ? new Star(randomSeed, initialMass, metallicity, kickParameters, OPTIONS->RotationalFrequency() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
-                        : new Star(randomSeed, initialMass, metallicity, kickParameters);                           // no - let it be calculated
+                        ? new Star(randomSeed, initialMass, initialStellarType, metallicity, kickParameters, OPTIONS->RotationalFrequency() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
+                        : new Star(randomSeed, initialMass, initialStellarType, metallicity, kickParameters);                           // no - let it be calculated
 
                     EVOLUTION_STATUS thisStatus = star->Evolve(index);                                              // evolve the star
 
@@ -282,6 +288,8 @@ std::tuple<int, int> EvolveSingleStars() {
                             randomSeed                              <<
                             ", Initial Mass = "                     <<
                             initialMass                             <<
+                            ", Initial Stellar Type = "             <<
+                            initialStellarType                      <<
                             ", Metallicity = "                      <<
                             star->Metallicity()                     <<
                             ", "                                    <<
