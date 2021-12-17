@@ -289,7 +289,7 @@ std::tuple<int, int> EvolveSingleStars() {
                             ", Initial Mass = "                     <<
                             initialMass                             <<
                             ", Initial Stellar Type = "             <<
-                            initialStellarType                      <<
+                            static_cast<int>(initialStellarType)    <<
                             ", Metallicity = "                      <<
                             star->Metallicity()                     <<
                             ", "                                    <<

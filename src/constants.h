@@ -2102,6 +2102,10 @@ enum class PROGRAM_OPTION: int {
     INITIAL_MASS_FUNCTION_MIN,
     INITIAL_MASS_FUNCTIONPOWER,
 
+    INITIAL_STELLAR_TYPE,
+    INITIAL_STELLAR_TYPE_1,
+    INITIAL_STELLAR_TYPE_2,
+
     KICK_DIRECTION_DISTRIBUTION,
     KICK_DIRECTION_POWER,
     KICK_SCALING_FACTOR,
@@ -2313,6 +2317,10 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                        "INITIAL_MASS_FUNCTION_MAX" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                        "INITIAL_MASS_FUNCTION_MIN" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                       "INITIAL_MASS_FUNCTIONPOWER" },
+
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE,                             "INITIAL_STELLAR_TYPE" },
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE_1,                           "INITIAL_STELLAR_TYPE_1" },
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE_2,                           "INITIAL_STELLAR_TYPE_2" },
 
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                      "KICK_DIRECTION_DISTRIBUTION" },
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                             "KICK_DIRECTION_POWER" },
@@ -2804,6 +2812,10 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                            { TYPENAME::DOUBLE,         "Initial_Mass_Func_Max",        "Msol",             14, 6 }},
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                            { TYPENAME::DOUBLE,         "Initial_Mass_Func_Min",        "Msol",             14, 6 }},
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                           { TYPENAME::DOUBLE,         "Initial_Mass_Func_Power",      "-",                14, 6 }},
+
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE,                                 { TYPENAME::STELLAR_TYPE,   "Initial_Stellar_Type",         "-",                14, 6 }},
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE_1,                               { TYPENAME::STELLAR_TYPE,   "Initial_Stellar_Type(1)",      "-",                14, 6 }},
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE_2,                               { TYPENAME::STELLAR_TYPE,   "Initial_Stellar_Type(2)",      "-",                14, 6 }},
 
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                          { TYPENAME::INT,            "Kick_Direction_Dstrbtn",       "-",                 4, 1 }},
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                                 { TYPENAME::DOUBLE,         "Kick_Direction_Power",         "-",                14, 6 }},
