@@ -644,6 +644,13 @@ double MainSequence::ChooseTimestep(const double p_Time) const {
     double dtk = 1.0E-2 * timescales(tMS);
     double dte = timescales(tMS) - p_Time;
 
+    std::cout 
+        << "  p_Time = " << p_Time
+        << "  timescales(tMS) = " << timescales(tMS)
+        << "  dtk = " << dtk
+        << "  dte = " << dte
+        << std::endl;
+
     if (utils::Compare(dte, dtk) < 0) {     // short enough to resolve the hook at the end of the MS for HM stars?
         dtk /= 10.0;                        // no - go an order-of-magnitude shorter
     }
