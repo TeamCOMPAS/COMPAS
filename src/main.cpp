@@ -235,10 +235,8 @@ std::tuple<int, int> EvolveSingleStars() {
                     // the initial of the star is supplied - this is to allow a single star to initialise its own 
                     // stellar type (rather than sample it).  Here we use the stellar type supplied by the user 
                     // via the program options or, if no stellar type was supplied by the user, default to MS.
-
-                    STELLAR_TYPE initialStellarType = OPTIONS->OptionSpecified("initial-stellar-type") == 1         // user specified stellar type?
-                                            ? OPTIONS->InitialStellarType()                                         // yes, use it
-                                            : STELLAR_TYPE::MS_GT_07;                                               // no, set it to default value
+                    
+                    STELLAR_TYPE initialStellarType =   OPTIONS->InitialStellarType()       // Get stellar type, possibly user specified
 
                     // the metallicity of the star is supplied - this is to allow a single star to initialise
                     // its own metallicity (rather than sample it).  Here we use the metallicity supplied by the user via the 
@@ -281,18 +279,16 @@ std::tuple<int, int> EvolveSingleStars() {
                     EVOLUTION_STATUS thisStatus = star->Evolve(index);                                              // evolve the star
 
                     if (!OPTIONS->Quiet()) {                                                                        // quiet mode?
-                        SAY(index                                   <<                                              // announce result of evolving the star
-                            ": "                                    <<
-                            EVOLUTION_STATUS_LABEL.at(thisStatus)   <<                  
-                            ": RandomSeed = "                       <<
-                            randomSeed                              <<
-                            ", Initial Mass = "                     <<
-                            initialMass                             <<
-                            ", Initial Stellar Type = "             <<
-                            static_cast<int>(initialStellarType)    <<
-                            ", Metallicity = "                      <<
-                            star->Metallicity()                     <<
-                            ", "                                    <<
+                        SAY(index                                             <<                                              // announce result of evolving the star
+                            ": "                                              <<
+                            EVOLUTION_STATUS_LABEL.at(thisStatus)             <<                  
+                            ": RandomSeed = "                                 <<
+                            randomSeed                                        <<
+                            ", Initial Mass = "                               <<
+                            initialMass                                       <<
+                            ", Metallicity = "                                <<
+                            star->Metallicity()                               <<
+                            ", "                                              <<
                             STELLAR_TYPE_LABEL.at(star->StellarType()));
                     }
 
