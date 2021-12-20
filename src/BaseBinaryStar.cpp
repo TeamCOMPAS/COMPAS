@@ -107,7 +107,6 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
             mass2 = mass1 * q;                                                                                                          // calculate mass2 using mass ratio                                                                     
         }
     
-        // RTW
         STELLAR_TYPE initialStellarType1 = OPTIONS->InitialStellarType1();                                                              // Get primary stellar type, possibly user specified
         STELLAR_TYPE initialStellarType2 = OPTIONS->InitialStellarType2();                                                              // Get secondary stellar type, possibly user specified
 
@@ -292,7 +291,6 @@ void BaseBinaryStar::SetRemainingValues() {
         // newly-assigned rotational frequencies
         // but only if the stellar type was not otherwise explicitly set
 
-        // RTW
         // star 1
         if (m_Star1->IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07, STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS })) {
             if (utils::Compare(m_Star1->Omega(), m_Star1->OmegaCHE()) >= 0) {                                                                               // star 1 CH?

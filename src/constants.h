@@ -226,7 +226,7 @@ constexpr double G_SOLAR_YEAR                           = 3.14E7;               
 
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
-constexpr double ZSOL_ASPLUND				= 0.0142;						    // Solar Metallicity (Asplund+ 2010) used in initial condition
+constexpr double ZSOL_ASPLUND				            = 0.0142;						                            // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
 
 constexpr double AU                                     = 149597870700.0;                                           // 1 AU (Astronomical Unit) in metres
@@ -1244,10 +1244,7 @@ const std::initializer_list<STELLAR_TYPE> EVOLVABLE_TYPES = {
 };
 
 
-// RTW
-//enum class INITIAL_STELLAR_TYPES: int { STAR, NAKED_HELIUM_STAR_MS, HELIUM_WHITE_DWARF, CARBON_OXYGEN_WHITE_DWARF, OXYGEN_NEON_WHITE_DWARF, NEUTRON_STAR, BLACK_HOLE };
 // Allowed initial stellar types (STAR is used here as the default MS in place of either MS_LTE_07 or MS_GT_07 as these get set later depending on initial mass
-// (convenience) initializer list for MAIN SEQUENCE stars (does not include NAKED_HELIUM_STAR_MS)
 const std::initializer_list<STELLAR_TYPE> INITIAL_STELLAR_TYPE = {
     STELLAR_TYPE::STAR,                                    
     STELLAR_TYPE::NAKED_HELIUM_STAR_MS,                    
@@ -1257,7 +1254,7 @@ const std::initializer_list<STELLAR_TYPE> INITIAL_STELLAR_TYPE = {
     STELLAR_TYPE::NEUTRON_STAR,                            
     STELLAR_TYPE::BLACK_HOLE,                              
 };
-// unordered_map - key is integer stellar type (from enum class STELLAR_TYPE above)
+// unordered_map for allowed initial stellar types - key is integer stellar type (from enum class STELLAR_TYPE above)
 const COMPASUnorderedMap<STELLAR_TYPE, std::string> INITIAL_STELLAR_TYPE_LABEL = {
     { STELLAR_TYPE::STAR,                                      "MS" },
     { STELLAR_TYPE::NAKED_HELIUM_STAR_MS,                      "HeMS" },

@@ -71,7 +71,6 @@ public:
     OBJECT_ID           ObjectId() const                                                                            { return m_ObjectId; }
     OBJECT_ID           StarObjectId() const                                                                        { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const                                                                          { return m_ObjectType; }
-    //STELLAR_TYPE        InitialStellarType() const                                                                  { return m_Star->InitialStellarType(); }
     STELLAR_TYPE        StellarType() const                                                                         { return m_Star->StellarType(); }
 
 

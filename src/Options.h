@@ -656,7 +656,6 @@ public:
             double                                              m_InitialMassFunctionPower;                                     // single IMF power law set manually
 
             // Initial stellar type
-            // RTW
             ENUM_OPT<STELLAR_TYPE>                              m_InitialStellarType;                                           // Initial stellar type of single star (SSE)
             ENUM_OPT<STELLAR_TYPE>                              m_InitialStellarType1;                                          // Initial stellar type of primary (BSE)
             ENUM_OPT<STELLAR_TYPE>                              m_InitialStellarType2;                                          // Initial stellar type of secondary (BSE)
@@ -1046,7 +1045,6 @@ private:
     OptionsDescriptorT  m_GridLine = {OPTIONS_ORIGIN::GRIDFILE, {}, {}, {}, {}};
 
     std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> m_CmdLineOptionsDetails;   // for Run_Details file
-
 
     // member functions
 
