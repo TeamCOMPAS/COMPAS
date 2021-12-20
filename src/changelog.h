@@ -856,7 +856,10 @@
 //                                      - Removed redundant function ResolveRemnantAfterEnvelopeLoss (ResolveEnvelopeLoss is sufficient)
 //                                      - Cleaned / updated ResolveEnvelopeLoss
 //                                      - Fixed issue with masses and types of remnants formed from stripped HG stars
+// 02.26.02     RTW - Dec 17, 2021   - Defect repair, Code cleanup:
+//                                      - Changed all occurences of PPOW(base, 1.0/3.0) with std::cbrt, as the former could not handle negative bases
+//                                      - Changed all occurences of sqrt with std::sqrt for consistency with the above change
 
-const std::string VERSION_STRING = "02.26.01";
+const std::string VERSION_STRING = "02.26.02";
 
 # endif // __changelog_h__

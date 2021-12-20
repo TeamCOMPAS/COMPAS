@@ -357,7 +357,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         double term2                  = tau * magFieldLowerLimit * (m_PulsarDetails.magneticField - initialMagField);
         double term3                  = (tau / 2.0) * ((m_PulsarDetails.magneticField * m_PulsarDetails.magneticField) - (initialMagField * initialMagField));
         double oneOverOmegaSquared    = constant_2 * (term1 - term2 - term3) + (1.0 / (m_PulsarDetails.spinFrequency * m_PulsarDetails.spinFrequency));
-        m_PulsarDetails.spinFrequency = 1.0 / sqrt(oneOverOmegaSquared);                                                                        // pulsar spin frequency
+        m_PulsarDetails.spinFrequency = 1.0 / std::sqrt(oneOverOmegaSquared);                                                                        // pulsar spin frequency
 
         // calculate the spin down rate for isolated neutron stars, see Equation 4 in arXiv:0903.3538v2 (Our version is in SI)      
         double omegaDotTop           = PI_8 * m_PulsarDetails.spinFrequency * m_PulsarDetails.spinFrequency * m_PulsarDetails.spinFrequency * NSRadius_6 * m_PulsarDetails.magneticField * m_PulsarDetails.magneticField;
@@ -370,13 +370,13 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
 
         // calculate the Alfven radius for an accreting neutron star, see Equation 8 in  arXiv:0903.3538v2       
         double mDot         = p_MassGainPerTimeStep / p_Stepsize ;
-        double p            = ((radius * radius * radius * radius * radius * radius) / (sqrt(mass) * mDot));
+        double p            = ((radius * radius * radius * radius * radius * radius) / (std::sqrt(mass) * mDot));
         double q            = PPOW(p, 2.0 / 7.0);
         double constant     = PPOW((2.0 * M_PI * M_PI) / (G * MU_0 * MU_0), 1.0 / 7.0);                                                         
         double alfvenRadius = constant * q * PPOW(m_PulsarDetails.magneticField, 4.0 / 7.0);
   
         // calculate the difference in the keplerian angular velocity and surface angular velocity of the neutron star in m - see Equation 2 in 1994MNRAS.269..455J       
-        double keplerianVelocityAtAlfvenRadius        = sqrt(G * mass) / sqrt(alfvenRadius / 2.0);
+        double keplerianVelocityAtAlfvenRadius        = std::sqrt(G * mass) / std::sqrt(alfvenRadius / 2.0);
         double keplerianAngularVelocityAtAlfvenRadius = 2.0 * (keplerianVelocityAtAlfvenRadius / alfvenRadius);
         double velocityDifference                     = keplerianAngularVelocityAtAlfvenRadius - m_PulsarDetails.spinFrequency;
 

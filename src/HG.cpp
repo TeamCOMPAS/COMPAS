@@ -23,7 +23,7 @@
  */
 double HG::CalculateRho(const double p_Mass) const {
 
-    double m_5_25 = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass * sqrt(sqrt(p_Mass));    // pow() is slow - use multiplication (sqrt() is much faster than pow())
+    double m_5_25 = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass * std::sqrt(std::sqrt(p_Mass));    // pow() is slow - use multiplication (sqrt() is much faster than pow())
 
     return (1.586 + m_5_25) / (2.434 + (1.02 * m_5_25));
 }
@@ -61,7 +61,7 @@ double HG::CalculateLambdaDewi() const {
     double lambdaCE;
 
          if (utils::Compare(envMass, 1.0) >= 0) lambdaCE = 2.0 * lambda1;                                                   // (A.1) Bottom, Claeys+2014
-	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
+	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (std::sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
 	else                                        lambdaCE = 2.0 * lambda2;			                                        // (A.1) Top, Claeys+2014
 
 	return	lambdaCE;
@@ -517,7 +517,7 @@ double HG::CalculateRadialExtentConvectiveEnvelope() const {
 	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
 	clone.ResolveEnvelopeLoss(true);                // update clone's attributes after envelope is lost
 
-    return PPOW(m_Tau, 1.0 / 2.0) * (m_Radius - clone.Radius());
+    return std::sqrt(m_Tau) * (m_Radius - clone.Radius());
 }
 
 
