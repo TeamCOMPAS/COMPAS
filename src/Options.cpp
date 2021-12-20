@@ -191,10 +191,13 @@ void Options::OptionValues::Initialise() {
     m_InitialMassFunctionMax                                        = 150.0;
     m_InitialMassFunctionPower                                      = 0.0;
 
-    // Initial stellar type options
-    m_InitialStellarTypeNum                                         = 1;                         // Default Main Sequence
-    m_InitialStellarTypeNum1                                        = 1;                         // Default Main Sequence
-    m_InitialStellarTypeNum2                                        = 1;                         // Default Main Sequence
+    // Supplied initial stellar type 
+    m_SuppliedStellarType.type                                      = INITIAL_STELLAR_TYPE::STAR;                            // Default Main Sequence
+    m_SuppliedStellarType.typeString                                = INITIAL_STELLAR_TYPE_LABEL.at(m_InitialStellarType);   // Default Main Sequence
+    m_SuppliedStellarType1.type                                     = INITIAL_STELLAR_TYPE::STAR;                            // Default Main Sequence
+    m_SuppliedStellarType1.typeString                               = INITIAL_STELLAR_TYPE_LABEL.at(m_InitialStellarType);   // Default Main Sequence
+    m_SuppliedStellarType2.type                                     = INITIAL_STELLAR_TYPE::STAR;                            // Default Main Sequence
+    m_SuppliedStellarType2.typeString                               = INITIAL_STELLAR_TYPE_LABEL.at(m_InitialStellarType);   // Default Main Sequence
 
     // Initial mass ratio
     m_MassRatio                                                     = 1.0;
@@ -786,18 +789,18 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         (
             "initial-stellar-type",                                            
-            po::value<int>(&p_Options->m_InitialStellarTypeNum)->default_value(p_Options->m_InitialStellarTypeNum),                                                                          
-            ("Initial stellar type (Hurley type) for the star (SSE) (default = " + std::to_string(p_Options->m_InitialStellarTypeNum) + ")").c_str()
+            po::value<int>(&p_Options->m_SuppliedStellarType)->default_value(p_Options->m_SuppliedStellarType),                                                                          
+            ("Initial stellar type (Hurley type) for the star (SSE) (default = " + std::to_string(p_Options->m_SuppliedStellarType) + ")").c_str()
         )
         (
             "initial-stellar-type-1",                                            
-            po::value<int>(&p_Options->m_InitialStellarTypeNum1)->default_value(p_Options->m_InitialStellarTypeNum1),                                                                          
-            ("Initial stellar type (Hurley type) for the primary star (BSE) (default = " + std::to_string(p_Options->m_InitialStellarTypeNum1) + ")").c_str()
+            po::value<int>(&p_Options->m_SuppliedStellarType1)->default_value(p_Options->m_SuppliedStellarType1),                                                                          
+            ("Initial stellar type (Hurley type) for the primary star (BSE) (default = " + std::to_string(p_Options->m_SuppliedStellarType1) + ")").c_str()
         )
         (
             "initial-stellar-type-2",                                            
-            po::value<int>(&p_Options->m_InitialStellarTypeNum2)->default_value(p_Options->m_InitialStellarTypeNum2),
-            ("Initial stellar type (Hurley type) for the secondary star (BSE) (default = " + std::to_string(p_Options->m_InitialStellarTypeNum2) + ")").c_str()
+            po::value<int>(&p_Options->m_SuppliedStellarType2)->default_value(p_Options->m_SuppliedStellarType2),
+            ("Initial stellar type (Hurley type) for the secondary star (BSE) (default = " + std::to_string(p_Options->m_SuppliedStellarType2) + ")").c_str()
         )
 
         (
@@ -1869,6 +1872,12 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Initial Mass Function");
         }
 
+        // RTW
+        if (!DEFAULTED("initial-stellar-type")) {                                                                                  // initial stellar type
+            std::tie(found, m_InitialMassFunction.type) = utils::GetMapKey(m_InitialMassFunction.typeString, INITIAL_MASS_FUNCTION_LABEL, m_InitialMassFunction.type);
+            COMPLAIN_IF(!found, "Unknown Initial Mass Function");
+        }
+
         if (!DEFAULTED("kick-direction")) {                                                                                         // kick direction
             std::tie(found, m_KickDirectionDistribution.type) = utils::GetMapKey(m_KickDirectionDistribution.typeString, KICK_DIRECTION_DISTRIBUTION_LABEL, m_KickDirectionDistribution.type);
             COMPLAIN_IF(!found, "Unknown Kick Direction Distribution");
@@ -2014,10 +2023,13 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_InitialMassFunctionMax > MAXIMUM_INITIAL_MASS, "Maximum initial mass (--initial-mass-max) must be <= " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
         COMPLAIN_IF(m_InitialMassFunctionMax <= m_InitialMassFunctionMin, "Maximum initial mass (--initial-mass-max) must be > Minimum initial mass (--initial-mass-min)");
 
-        // RTW TODO
-        //COMPLAIN_IF(m_InitialStellarType < MINIMUM_INITIAL_MASS || m_InitialStellarType > MAXIMUM_INITIAL_MASS,   "Initial mass (--initial-stellar-type) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
-        //COMPLAIN_IF(m_InitialStellarType1 < MINIMUM_INITIAL_MASS || m_InitialStellarType1 > MAXIMUM_INITIAL_MASS, "Primary initial mass (--initial-stellar-type-1) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
-        //COMPLAIN_IF(m_InitialStellarType2 < MINIMUM_INITIAL_MASS || m_InitialStellarType2 > MAXIMUM_INITIAL_MASS, "Secondary initial mass (--initial-stellar-type-2) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
+        // Get string of allowed initial stellar types
+        // RTW
+        std::string ALLOWED_INITIAL_STELLAR_TYPES_STR = "";
+        for (const STELLAR_TYPE & stype : ALLOWED_INITIAL_STELLAR_TYPES) {ALLOWED_INITIAL_STELLAR_TYPES_STR += " " + std::to_string(stype);}
+        COMPLAIN_IF(!utils::IsOneOf(m_InitialStellarTypeNum, ALLOWED_INITIAL_STELLAR_TYPES),   "Initial stellar type (--initial-stellar-type) must be one of {" + ALLOWED_INITIAL_STELLAR_TYPES_STR + "}");
+        COMPLAIN_IF(!utils::IsOneOf(m_InitialStellarTypeNum1, ALLOWED_INITIAL_STELLAR_TYPES),   "Initial primary stellar type (--initial-stellar-type-1) must be one of {" + ALLOWED_INITIAL_STELLAR_TYPES_STR + "}");
+        COMPLAIN_IF(!utils::IsOneOf(m_InitialStellarTypeNum2, ALLOWED_INITIAL_STELLAR_TYPES),   "Initial secondary stellar type (--initial-stellar-type-2) must be one of {" + ALLOWED_INITIAL_STELLAR_TYPES_STR + "}");
 
         if (m_KickMagnitudeDistribution.type == KICK_MAGNITUDE_DISTRIBUTION::FLAT) {
             COMPLAIN_IF(m_KickMagnitudeDistributionMaximum <= 0.0, "User specified --kick-magnitude-distribution = FLAT with Maximum kick magnitude (--kick-magnitude-max) <= 0.0");

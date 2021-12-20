@@ -1243,6 +1243,20 @@ const std::initializer_list<STELLAR_TYPE> EVOLVABLE_TYPES = {
     STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS
 };
 
+
+// Allowed initial stellar types
+enum class INITIAL_STELLAR_TYPES: int { STAR, NAKED_HELIUM_STAR_MS, HELIUM_WHITE_DWARF, CARBON_OXYGEN_WHITE_DWARF, OXYGEN_NEON_WHITE_DWARF, NEUTRON_STAR, BLACK_HOLE };
+const COMPASUnorderedMap<INITIAL_STELLAR_TYPE, std::string> INITIAL_STELLAR_TYPE_LABEL = {
+    { INITIAL_STELLAR_TYPE::STAR,                                      "MS" },
+    { INITIAL_STELLAR_TYPE::NAKED_HELIUM_STAR_MS,                      "HeMS" },
+    { INITIAL_STELLAR_TYPE::HELIUM_WHITE_DWARF,                        "HeWD" },
+    { INITIAL_STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF,                 "COWD" },
+    { INITIAL_STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,                   "ONeWD" },
+    { INITIAL_STELLAR_TYPE::NEUTRON_STAR,                              "NS" },
+    { INITIAL_STELLAR_TYPE::BLACK_HOLE,                                "BH" },
+};
+
+
 // (convenience) initializer list for MAIN SEQUENCE stars (does not include NAKED_HELIUM_STAR_MS)
 const std::initializer_list<STELLAR_TYPE> MAIN_SEQUENCE = {
     STELLAR_TYPE::MS_LTE_07,
