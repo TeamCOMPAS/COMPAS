@@ -23,7 +23,6 @@ public:
 
     BaseStar(const unsigned long int p_RandomSeed, 
              const double            p_MZAMS, 
-             const STELLAR_TYPE      p_InitialStellarType,
              const double            p_Metallicity, 
              const KickParameters    p_KickParameters,
              const double            p_RotationalVelocity = -1.0); 
@@ -34,6 +33,7 @@ public:
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const                                                        { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const                                                      { return m_ObjectType; }
+    STELLAR_TYPE        InitialStellarType() const                                              { return m_InitialStellarType; }
     STELLAR_TYPE        StellarType() const                                                     { return m_StellarType; }
     STELLAR_TYPE        StellarTypePrev() const                                                 { return m_StellarTypePrev; }
 
@@ -60,7 +60,6 @@ public:
             SN_EVENT            ExperiencedSN_Type() const                                      { return utils::SNEventType(m_SupernovaDetails.events.past); }
             bool                ExperiencedUSSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::USSN) == SN_EVENT::USSN; }
             double              HeCoreMass() const                                              { return m_HeCoreMass; }
-            STELLAR_TYPE        InitialStellarType() const                                      { return m_InitialStellarType; }                            
             bool                IsCCSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
     virtual bool                IsDegenerate() const                                            { return false; }   // default is not degenerate - White Dwarfs, NS and BH are degenerate
             bool                IsECSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::ECSN) == SN_EVENT::ECSN; }

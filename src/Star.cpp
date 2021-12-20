@@ -24,37 +24,26 @@ Star::Star(const unsigned long int p_RandomSeed,
     m_ObjectId   = globalObjectId++;                                                                                // set object id
     m_ObjectType = OBJECT_TYPE::STAR;                                                                               // set object type
 
-    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_InitialStellarType, p_Metallicity, p_KickParameters, p_RotationalVelocity);            // create underlying BaseStar object
+    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_KickParameters, p_RotationalVelocity);            // create underlying BaseStar object
 
-    // star begins life as a main sequence star, unless it is
-    // spinning fast enough for it to be chemically homogeneous
+    // Set the stellar type
+    // If user specified, set to the supplied type
+    // Otherwise, check if CHE 
+    // If not, set to low mass or high mass MS as appropriate
 
-    // RTW hack - initialize He ZAMS star
-    //(void)SwitchTo(STELLAR_TYPE::NAKED_HELIUM_STAR_MS, true);                                                               // MS > 0.7 Msol
-    
-    // Want the order to be:
-    // If (star1 MS) and (star2 MS) and CHE check passes:
-    //      Do CHE
-    // Else:
-    //      if star1 non MS, set it
-    //      else switch if low mass
-    //      if star2 non MS, set it
-    //      else switch if low mass
-
-    if (utils::IsOneOf(p_InitialStellarType, { STELLAR_TYPE::MS_GT_07 })) {                                             // Configure CHE or LMMS if stellar type not explicitly set
-        if (OPTIONS->CHEMode() != CHE_MODE::NONE && utils::Compare(m_Star->Omega(), m_Star->OmegaCHE()) >= 0) {         // CHE?
-            (void)SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                 // yes
-        }
-        else if (p_MZAMS <= 0.7) {                                                                                      // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
-            (void)SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                                                              // MS <= 0.0 Msol
-        }
-        // RTW maybe delete this \/ - ahh, actually maybe not...
-        else {
-            (void)SwitchTo(STELLAR_TYPE::MS_GT_07, true);                                                               // MS > 0.7 Msol
-        }
+    if (!utils::IsOneOf(p_InitialStellarType, {STELLAR_TYPE::STAR})) {                                               // Stellar type set by user?
+        (void)SwitchTo(p_InitialStellarType, true);                                                                     // yes - switch to user supplied type
     }
-    else {
-        (void)SwitchTo(p_InitialStellarType, true);                                                                     // Switch to user supplied type
+    else {                                                                                                              // no -
+        if (OPTIONS->CHEMode() != CHE_MODE::NONE && utils::Compare(m_Star->Omega(), m_Star->OmegaCHE()) >= 0) {             // CHE?
+            (void)SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                     // yes
+        }
+        else if (p_MZAMS <= 0.7) {                                                                                          // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
+            (void)SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                                                                  // MS <= 0.0 Msol
+        }
+        else {
+            (void)SwitchTo(STELLAR_TYPE::MS_GT_07, true);                                                                   // MS > 0.7 Msol
+        }
     }
 
     m_SaveStar = nullptr;
