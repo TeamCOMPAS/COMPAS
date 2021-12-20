@@ -859,7 +859,9 @@
 // 02.26.02     RTW - Dec 17, 2021   - Defect repair, Code cleanup:
 //                                      - Changed all occurences of PPOW(base, 1.0/3.0) with std::cbrt, as the former could not handle negative bases
 //                                      - Changed all occurences of sqrt with std::sqrt for consistency with the above change
+// 02.27.00     RTW - Dec 20, 2021   - Enhancements:
+//                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
 
-const std::string VERSION_STRING = "02.26.02";
+const std::string VERSION_STRING = "02.27.00";
 
 # endif // __changelog_h__
