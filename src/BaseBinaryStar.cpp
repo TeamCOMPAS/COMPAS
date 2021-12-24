@@ -1018,7 +1018,7 @@ double BaseBinaryStar::CalculateTimeToCoalescence(const double p_SemiMajorAxis,
         double f      = 1.0 - (e0 * e0);
         double f_3    = f * f * f;
     
-        tC = f <= 0.0 ? 0.0 : tC * (1.0 + 0.27 * e0_10 + 0.33 * e0_20 + 0.2 * e0_100) * f_3 * sqrt(f);  // check f <= 0.0 just in case a rounding error hurts us
+        tC = f <= 0.0 ? 0.0 : tC * (1.0 + 0.27 * e0_10 + 0.33 * e0_20 + 0.2 * e0_100) * f_3 * std::sqrt(f);  // check f <= 0.0 just in case a rounding error hurts us
     }
 
     return tC;
@@ -1156,7 +1156,7 @@ bool BaseBinaryStar::ResolveSupernova() {
         // Pre-SN parameters
         double semiMajorAxisPrev_km = m_SemiMajorAxis * AU_TO_KM;                                                       // km  - Semi-Major axis
         double eccentricityPrev = m_Eccentricity;                                                                       // --  - Eccentricity, written with a prev to distinguish from later use
-        double sqrt1MinusEccPrevSquared = sqrt(1 - eccentricityPrev * eccentricityPrev);                                // useful function of eccentricity
+        double sqrt1MinusEccPrevSquared = std::sqrt(1 - eccentricityPrev * eccentricityPrev);                                // useful function of eccentricity
 
         double m1Prev = m_Supernova->SN_TotalMassAtCOFormation();                                                       // Mo  - SN star pre-SN mass
         double m2Prev = m_Companion->Mass();                                                                            // Mo  - CP star pre-SN mass
@@ -1168,7 +1168,7 @@ bool BaseBinaryStar::ResolveSupernova() {
         double sinEccAnomaly = sin(m_Supernova->SN_EccentricAnomaly());
 
         // Derived quantities
-        double omega = sqrt(G_SN*totalMassPrev / (semiMajorAxisPrev_km * semiMajorAxisPrev_km*semiMajorAxisPrev_km));   // rad/s  - Keplerian orbital frequency
+        double omega = std::sqrt(G_SN*totalMassPrev / (semiMajorAxisPrev_km * semiMajorAxisPrev_km*semiMajorAxisPrev_km));   // rad/s  - Keplerian orbital frequency
 
         Vector3d separationVectorPrev = Vector3d( semiMajorAxisPrev_km * (cosEccAnomaly - eccentricityPrev),            
                                                   semiMajorAxisPrev_km * (sinEccAnomaly) * sqrt1MinusEccPrevSquared,
@@ -1249,10 +1249,10 @@ bool BaseBinaryStar::ResolveSupernova() {
             m_Unbound = true;
 
             // Calculate the asymptotic Center of Mass velocity 
-            double   relativeVelocityAtInfinity = (G_SN*totalMass/orbitalAngularMomentum) * sqrt(eccSquared - 1);
+            double   relativeVelocityAtInfinity = (G_SN*totalMass/orbitalAngularMomentum) * std::sqrt(eccSquared - 1);
             Vector3d relativeVelocityVectorAtInfinity = relativeVelocityAtInfinity 
                                                         * (-1 * (eccentricityVector.hat / m_Eccentricity) 
-                                                        + sqrt(1 - 1.0 / eccSquared) * cross(orbitalAngularMomentumVector.hat, eccentricityVector.hat));
+                                                        + std::sqrt(1 - 1.0 / eccSquared) * cross(orbitalAngularMomentumVector.hat, eccentricityVector.hat));
 
             // Calculate the asymptotic velocities of Star1 (SN) and Star2 (CP)
             Vector3d component1VelocityVectorAtInfinity =  (m2 / totalMass) * relativeVelocityVectorAtInfinity + centerOfMassVelocity;
@@ -1659,7 +1659,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
     double massD           = p_DonorMass;                                                                       // donor mass
     double massAtimesMassD = massA * massD;                                                                     // accretor mass * donor mass
     double massAplusMassD  = massA + massD;                                                                     // accretor mass + donor mass
-    double jOrb            = (massAtimesMassD / massAplusMassD) * sqrt(semiMajorAxis * G1 * massAplusMassD);    // orbital angular momentum
+    double jOrb            = (massAtimesMassD / massAplusMassD) * std::sqrt(semiMajorAxis * G1 * massAplusMassD);    // orbital angular momentum
     double jLoss;                                                                                               // specific angular momentum carried away by non-conservative mass transfer
     
     int numberIterations   = fmax( floor (fabs(p_DeltaMassDonor/(MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP*massD))), 1);   // number of iterations
@@ -2079,7 +2079,7 @@ double BaseBinaryStar::CalculateAngularMomentum(const double p_SemiMajorAxis,
 
 	double Is1  = ks1 * m1 * R1 * R1;
 	double Is2  = ks2 * m2 * R2 * R2;
-    double Jorb = ((m1 * m2) / (m1 + m2)) * sqrt(G1 * (m1 + m2) * p_SemiMajorAxis * (1.0 - (p_Eccentricity * p_Eccentricity)));
+    double Jorb = ((m1 * m2) / (m1 + m2)) * std::sqrt(G1 * (m1 + m2) * p_SemiMajorAxis * (1.0 - (p_Eccentricity * p_Eccentricity)));
 
 	return (Is1 * w1) + (Is2 * w2) + Jorb;
 }
@@ -2132,14 +2132,14 @@ void BaseBinaryStar::ResolveMassChanges() {
 
     // update mass of star1 according to mass loss and mass transfer, then update age accordingly
     (void)m_Star1->UpdateAttributes(m_Star1->MassPrev() - m_Star1->Mass() + m_Star1->MassLossDiff() + m_Star1->MassTransferDiff(), 0.0);    // update mass for star1
-    m_Star1->UpdateInitialMass();                                                                       // update initial mass of star1 (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
+    m_Star1->UpdateInitialMass();                                                                       // update effective initial mass of star1 (MS, HG & HeMS)
     m_Star1->UpdateAgeAfterMassLoss();                                                                  // update age of star1
     m_Star1->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star1
     m_Star1->UpdateAttributes(0.0, 0.0, true);
 
     // rinse and repeat for star2
     (void)m_Star2->UpdateAttributes(m_Star2->MassPrev() - m_Star2->Mass() + m_Star2->MassLossDiff() + m_Star2->MassTransferDiff(), 0.0);    // update mass for star2
-    m_Star2->UpdateInitialMass();                                                                       // update initial mass of star 2 (MS, HG & HeMS)  JR: todo: fix this kludge one day - mass0 is overloaded, and isn't always "initial mass"
+    m_Star2->UpdateInitialMass();                                                                       // update effective initial mass of star 2 (MS, HG & HeMS)
     m_Star2->UpdateAgeAfterMassLoss();                                                                  // update age of star2
     m_Star2->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star2
     m_Star2->UpdateAttributes(0.0, 0.0, true);
@@ -2374,8 +2374,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                            // continue evolution?
 
                 dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();                  // new timestep
-                if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt<NUCLEAR_MINIMUM_TIMESTEP)
+                if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt < NUCLEAR_MINIMUM_TIMESTEP) {
                     dt = NUCLEAR_MINIMUM_TIMESTEP;                                                                                          // but not less than minimum
+		}
                 stepNum++;                                                                                                                  // increment stepNum
             }
         }

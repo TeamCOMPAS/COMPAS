@@ -56,12 +56,12 @@ void HeMS::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
 double HeMS::CalculateLuminosityAtZAMS_Static(const double p_Mass) {
 
     // pow() is slow - use multiplication (sqrt() is much faster than pow())
-    double m_0_5   = sqrt(p_Mass);
+    double m_0_5   = std::sqrt(p_Mass);
     double m_3     = p_Mass * p_Mass * p_Mass;
     double m_6     = m_3 * m_3;
     double m_7_5   = m_6 * p_Mass * m_0_5;
     double m_9     = m_6 * m_3;
-    double m_10_25 = m_9 * p_Mass * sqrt(m_0_5);
+    double m_10_25 = m_9 * p_Mass * std::sqrt(m_0_5);
 
     return (15262.0 * m_10_25) / (m_9 + (29.54 * m_7_5) + (31.18 * m_6) + 0.0469);
 }
@@ -303,7 +303,7 @@ double HeMS::CalculateLifetimeOnPhase_Static(const double p_Mass) {
     // pow() is slow - use multiplication (sqrt() is much faster than pow())
     double m_4   = p_Mass * p_Mass * p_Mass * p_Mass;
     double m_6   = m_4 * p_Mass * p_Mass;
-    double m_6_5 = m_6 * sqrt(p_Mass);
+    double m_6_5 = m_6 * std::sqrt(p_Mass);
 
     return (0.4129 + (18.81 * m_4) + (1.853 * m_6)) / m_6_5;
 }
@@ -363,7 +363,19 @@ double HeMS::ChooseTimestep(const double p_Time) const {
 /*
  * Modify the star after it loses its envelope
  *
- * Hurley et al. 2000, section 6 just before eq 76
+ * Where necessary updates attributes of star (depending upon stellar type):
+ *
+ *     - m_StellarType
+ *     - m_Timescales
+ *     - m_GBParams
+ *     - m_Luminosity
+ *     - m_Radius
+ *     - m_Mass
+ *     - m_Mass0
+ *     - m_CoreMass
+ *     - m_HeCoreMass
+ *     - m_COCoreMass
+ *     - m_Age
  *
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
@@ -374,16 +386,9 @@ STELLAR_TYPE HeMS::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) > 0) {        // Envelope lost, form a COWD
-
-        stellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;
-
-        m_CoreMass  = m_COCoreMass;
-        m_HeCoreMass= m_COCoreMass;
-        m_Mass      = m_CoreMass;
-        m_Mass0     = m_Mass;
-        m_Age       = 0.0;
-        m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
+    if (p_NoCheck || utils::Compare(m_Mass, 0.0) <= 0) {
+        stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
+        m_Radius = 0.0;   // massless remnant
     }
 
     return stellarType;

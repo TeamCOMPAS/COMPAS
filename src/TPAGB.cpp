@@ -88,7 +88,7 @@ double TPAGB::CalculateLambdaDewi() const {
     double lambdaCE;
 
          if (utils::Compare(envMass, 1.0) >= 0) lambdaCE = 2.0 * lambda1;                                                   // (A.1) Bottom, Claeys+2014
-	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
+	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (std::sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
 	else                                        lambdaCE = 2.0 * lambda2;                                                   // (A.1) Top, Claeys+2014
 
 	return	lambdaCE;
@@ -588,7 +588,9 @@ double TPAGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time)
 
 
 /*
- * Resolve changes to the remnant after the star loses its envelope
+ * Modify the star after it loses its envelope
+ *
+ * Hurley et al. 2000, section 6 just before eq 76 and after Eq. 105
  *
  * Where necessary updates attributes of star (depending upon stellar type):
  *
@@ -604,30 +606,6 @@ double TPAGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time)
  *     - m_COCoreMass
  *     - m_Age
  *
- * Hurley et al. 2000, just after eq 105
- *
- * JR: todo: why is this different from ResolveEnvelopeLoss()?
- * JR: todo: original code: Star::radiusRemnantStarAfterLosingEnvelope() vs Star::modifyStarAfterLosingEnvelope(int stellarType, double mass)
- * JR: todo: why is stellar type changed for some types, but not others?  CheB and EAGB stars have stellar type changed, but no other types do...
- *
- *
- * STELLAR_TYPE ResolveRemnantAfterEnvelopeLoss()
- *
- * @return                                      Stellar type to which star should evolve
- */
-STELLAR_TYPE TPAGB::ResolveRemnantAfterEnvelopeLoss() {
-
-    m_Radius = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
-
-    return m_StellarType;   // no change
-}
-
-
-/*
- * Modify the star after it loses its envelope
- *
- * Hurley et al. 2000, section 6 just before eq 76
- *
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
@@ -640,13 +618,13 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     if (p_NoCheck || (utils::Compare(m_CoreMass, m_Mass)) >= 0) {
 
-        stellarType = utils::Compare(gbParams(McBAGB), OPTIONS->MCBUR1() ) < 0 ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
-        
-        m_Mass      = m_CoreMass;
-        m_HeCoreMass= m_COCoreMass;
+        m_CoreMass  = m_Mass;
+        m_HeCoreMass= m_Mass;
+        m_COCoreMass= m_Mass;
         m_Mass0     = m_Mass;
+        m_Radius    = COWD::CalculateRadiusOnPhase_Static(m_Mass);
         m_Age       = 0.0;
-        m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
+        stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }
 
     return stellarType;
