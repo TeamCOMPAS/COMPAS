@@ -82,9 +82,7 @@ protected:
 
     void            PerturbLuminosityAndRadius() { }                                                                                                                // NO-OP
 
-    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                             { return m_StellarType; }                                               // NO-OP
-
-    STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss();
+    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
 
     bool            ShouldEvolveOnPhase() const                                             { return (m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]); }    // Evolve on MS phase if age in MS timescale
 

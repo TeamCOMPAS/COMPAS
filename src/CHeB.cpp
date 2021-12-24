@@ -94,13 +94,13 @@ double CHeB::CalculateLambdaDewi() const {
 
     double lambda3 = std::min(-0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                          // (A.4) Claeys+2014
     double lambda1 = std::min(lambda3, std::min(0.8, 1.25 - (0.15 * log10(m_Luminosity))));                                 // (A.5) Top, Claeys+2014
-	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
+	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014          // RTW - Consider replacing this with a 2/5 root function (somehow) to avoid NaNs if the base is negative
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
 
     double lambdaCE;
 
          if (utils::Compare(envMass, 1.0) >= 0) lambdaCE = 2.0 * lambda1;                                                   // (A.1) Bottom, Claeys+2014
-	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
+	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (std::sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
 	else                                        lambdaCE = 2.0 * lambda2;	                                                // (A.1) Top, Claeys+2014
 
 	return	lambdaCE;
@@ -778,9 +778,9 @@ double CHeB::CalculateRadiusRho(const double p_Mass, const double p_Tau) const {
 
     double ty_tx = ty - tx;
 
-    double one   = PPOW(log((Ry / Rmin)), 1.0 / 3.0);
+    double one   = std::cbrt(log((Ry / Rmin)));
     double two   = (p_Tau - tx) / ty_tx;
-    double three = PPOW(log((Rx / Rmin)), 1.0 / 3.0);
+    double three = std::cbrt(log((Rx / Rmin)));
     double four  = (ty - p_Tau) / ty_tx;
 
     return (one * two) - (three * four);
@@ -1101,8 +1101,11 @@ double CHeB::ChooseTimestep(const double p_Time) const {
 }
 
 
+
 /*
- * Resolve changes to the remnant after the star loses its envelope
+ * Modify the star after it loses its envelope
+ *
+ * Hurley et al. 2000, section 6 just before eq 76 and after Eq. 105
  *
  * Where necessary updates attributes of star (depending upon stellar type):
  *
@@ -1118,50 +1121,6 @@ double CHeB::ChooseTimestep(const double p_Time) const {
  *     - m_COCoreMass
  *     - m_Age
  *
- * Hurley et al. 2000, just after eq 105
- *
- * JR: todo: why is this different from ResolveEnvelopeLoss()?
- * JR: todo: original code: Star::radiusRemnantStarAfterLosingEnvelope() vs Star::modifyStarAfterLosingEnvelope(int stellarType, double mass)
- * JR: todo: why is stellar type changed for some types, but not others?  CheB and EAGB stars have stellar type changed, but no other types do...
- *
- *
- * STELLAR_TYPE ResolveRemnantAfterEnvelopeLoss()
- *
- * @return                                      Stellar type to which star should evolve
- */
-STELLAR_TYPE CHeB::ResolveRemnantAfterEnvelopeLoss() {
-#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-
-    m_CoreMass   = m_Mass;
-    m_Mass0      = m_Mass;
-    m_HeCoreMass = m_CoreMass;
-    m_COCoreMass = 0.0;
-
-    // set evolved time for naked helium star since already has some core mass.
-    // Coen 10-01-2016 added prime parameters
-    double tHeIPrime = timescales(tHeI);
-    double tHePrime  = timescales(tHe);
-
-    m_Tau = ((m_Age - tHeIPrime) / tHePrime);                                   // Hurley et al. 2000, just after eq 81: tau = t/tHeMS
-    m_Age = m_Tau * HeMS::CalculateLifetimeOnPhase_Static(m_Mass0);             // JR: see Hurley et al. 2000, eq 76 and following discussion
-
-    CalculateTimescales(m_Mass0, m_Timescales);                                 // JR: todo: not sure this is actually necessary here
-    CalculateGBParams(m_Mass0, m_GBParams);                                     // Mass or Mass0 for GBParams?      JR: doesn't matter here (Mass0 = Mass above)
-
-    m_Luminosity = HeMS::CalculateLuminosityOnPhase_Static(m_Mass, m_Tau);
-    m_Radius     = HeMS::CalculateRadiusOnPhase_Static(m_Mass, m_Tau);
-
-    return STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                                  // will evolve to an evolved helium star
-
-#undef timescales
-}
-
-
-/*
- * Modify the star after it loses its envelope
- *
- * Hurley et al. 2000, section 6 just before eq 76
- *
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
@@ -1172,23 +1131,22 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                     // Envelope loss    JR: todo: >= in original code - not consistent?
+    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                     // Envelope loss
 
-        // reset total mass to be core mass
-        m_CoreMass   = m_HeCoreMass;
-        m_Mass       = m_CoreMass;
+        m_CoreMass   = m_Mass;
         m_Mass0      = m_Mass;
+        m_HeCoreMass = m_CoreMass;
         m_COCoreMass = 0.0;
 
  		// set evolved time for naked helium star since already has some core mass.
-		// Coen 10-01-2016 added prime parameters
 		double tHeIPrime = timescales(tHeI);
 		double tHePrime  = timescales(tHe);
 
         m_Tau = ((m_Age - tHeIPrime) / tHePrime);                                   // Hurley et al. 2000, just after eq 81: tau = t/tHeMS
-        m_Age = m_Tau * HeMS::CalculateLifetimeOnPhase_Static(m_Mass0);             // JR: see Hurley et al. 2000, eq 76 and following discussion
+        m_Age = m_Tau * HeMS::CalculateLifetimeOnPhase_Static(m_Mass0);             // see Hurley et al. 2000, eq 76 and following discussion
 
-        CalculateGBParams(m_Mass0, m_GBParams);                                     // Mass or Mass0 for GBParams?      JR: doesn't matter here (Mass0 = Mass above)
+        CalculateTimescales(m_Mass0, m_Timescales);
+        CalculateGBParams(m_Mass0, m_GBParams);
 
         m_Luminosity = HeMS::CalculateLuminosityOnPhase_Static(m_Mass, m_Tau);
         m_Radius     = HeMS::CalculateRadiusOnPhase_Static(m_Mass, m_Tau);

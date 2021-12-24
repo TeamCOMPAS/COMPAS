@@ -98,8 +98,6 @@ protected:
 
     void            ResolveMassLoss() { }                                                                                                                                         // NO-OP
 
-    STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss()                                                           { return BaseStar::ResolveRemnantAfterEnvelopeLoss(); }                 // Default to BaseStar
-
     STELLAR_TYPE    ResolveSkippedPhase()                                                                       { return BaseStar::ResolveSkippedPhase(); }                             // Default to BaseStar
     STELLAR_TYPE    ResolveSupernova()                                                                          { return BaseStar::ResolveSupernova(); }                                // Default to BaseStar
 

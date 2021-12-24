@@ -2359,7 +2359,7 @@ std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPEN
  */
 void Options::PrintOptionHelp(const bool p_Verbose) {
 
-    std::cerr << "Options:" << std::endl;
+    std::cout << "Options:" << std::endl;
 
     for (po::variables_map::const_iterator it = m_CmdLine.optionValues.m_VM.begin(); it != m_CmdLine.optionValues.m_VM.end(); it++) {
   
@@ -2371,12 +2371,12 @@ void Options::PrintOptionHelp(const bool p_Verbose) {
         std::string optionShortName = opt.canonical_display_name(cls::allow_dash_for_short);                // short name ('-') prefix
         if (optionShortName[0] == '-') optionShortName.erase(0, optionShortName.find_first_not_of("-"));    // remove the "-" or "--"
 
-        std::cerr << "--" << optionLongName;
-        if (optionLongName != optionShortName) std::cerr << " [ -" << optionShortName << " ]";
-        std::cerr << std::endl;
+        std::cout << "--" << optionLongName;
+        if (optionLongName != optionShortName) std::cout << " [ -" << optionShortName << " ]";
+        std::cout << std::endl;
 
         if (p_Verbose) {
-            std::cerr << "  " << opt.description() << std::endl;
+            std::cout << "  " << opt.description() << std::endl;
         }
     }
 }

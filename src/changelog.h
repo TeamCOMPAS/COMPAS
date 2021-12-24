@@ -836,7 +836,30 @@
 //                                      - Clarified program option documentation
 //                                      - Removed unused CUSTOM semi-major axis initial distribution
 //                                      - Removed unused STARTRACK zeta prescription
+// 02.25.07     IM - Nov 12, 2021    - Defect repair:
+//                                      - Changed EAGB::CalculateLuminosityOnPhase() and EAGB::CalculateLuminosityAtPhaseEnd() to use the helium core mass rather than the CO core mass (see Eq. in second paragraph of section 5.4 of Hurley+, 2000); this fixes a downward step in luminosity and radius on transition to EAGB
+// 02.25.08     JR - Nov 15, 2021    - Defect repair:
+//                                      - Fixed error introduced in v02.25.00: Added HDF5 support to GetLogStandardRecord().
+//                                        Defect introduced was omission of code for HDF5 file support if a specified property is supplied to GetLogStandardRecord(), causing a boost::bad_get error.
+//                                        The defect only affected HDF5 SSE_Supernovae files.  This fix adds the omitted code.
+//                                      - Changed Options::PrintOptionHelp() to print help (-h/--h) to stdout instead of stderr.
+// 02.25.09     IM - Nov 16, 2021    - Defect repair:
+//                                      -Revert EAGB treatment to 02.25.06 until a proper fix is introduced
+// 02.25.10     JR - Nov 19, 2021    - Defect repairs:
+//                                      - clamp timestep returned in BaseStar::CalculateTimestep() to NUCLEAR_MINIMUM_TIMESTEP
+//                                      - change NUCLEAR_MINIMUM_TIMESTEP to 1 year (from 100 years) in constants.h
+// 02.26.00     IM - Nov 30, 2021    - Defect repairs:
+//                                      - only decrease effective initial mass for HG and HeHG stars on mass loss when this decrease would not drive an unphysical decrease in the core mass
+//                                      - change mass comparisons (e.g., mass vs. He flash mass threshold) to compare effective initial mass rather than current mass
+//                                      - minor code and comment cleanup
+// 02.26.01     IM - Dec 5, 2021     - Defect repair, Code cleanup:
+//                                      - Removed redundant function ResolveRemnantAfterEnvelopeLoss (ResolveEnvelopeLoss is sufficient)
+//                                      - Cleaned / updated ResolveEnvelopeLoss
+//                                      - Fixed issue with masses and types of remnants formed from stripped HG stars
+// 02.26.02     RTW - Dec 17, 2021   - Defect repair, Code cleanup:
+//                                      - Changed all occurences of PPOW(base, 1.0/3.0) with std::cbrt, as the former could not handle negative bases
+//                                      - Changed all occurences of sqrt with std::sqrt for consistency with the above change
 
-const std::string VERSION_STRING = "02.25.06";
+const std::string VERSION_STRING = "02.26.02";
 
 # endif // __changelog_h__
