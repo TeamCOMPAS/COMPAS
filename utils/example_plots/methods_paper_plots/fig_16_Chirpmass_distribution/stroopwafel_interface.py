@@ -9,8 +9,6 @@ sys.path.append('/n/home04/lvanson/Programs/stroopwafel/') # Specific for Lieke 
 from stroopwafel import sw, classes, prior, sampler, distributions, constants, utils
 import argparse
 
-# STROOPWAFEL interface is based on https://pypi.org/project/stroopwafel/ More details are provided in this link. 
-
 # TODO fix issues with adaptive sampling
 # TODO add in functionality for alternative pythonSubmit names and locations
 

@@ -16,6 +16,7 @@ bse_sysparms_rec += {                                                    # set t
     BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,			# Optimistic CE flag
     BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE,                # Flag to indicate if either star overflows its Roche lobe immediately following common envelope event.
     BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT,
+    BINARY_PROPERTY::SYSTEMIC_SPEED,
 }
 
 
