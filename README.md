@@ -14,6 +14,8 @@ remnants.  It has been used for inference from observations of gravitational-wav
 ## Documentation
 https://compas.science/docs
 
+JOSS: 10.21105/joss.03838 
+
 ## Contact
 Please email your queries to compas-user@googlegroups.com. You are also welcome to join the [COMPAS User Google Group](https://groups.google.com/forum/#!members/compas-user) to engage in discussions with COMPAS users and developers.
 
