@@ -137,7 +137,7 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
     // don't switch if stellarTypePrev == p_StellarType
     // (the call to SwitchTo() in Star::EvolveOneTimestep() doesn't check - it relies on the check here)
 
-    if ((p_StellarType != m_Star->StellarType()) | p_SetInitialType) {
+    if ((p_StellarType != m_Star->StellarType()) || p_SetInitialType) {
         BaseStar *ptr = nullptr;
 
         switch (p_StellarType) {

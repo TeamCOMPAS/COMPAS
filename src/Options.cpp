@@ -1874,15 +1874,15 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         if (!DEFAULTED("initial-stellar-type")) {                                                                                  // initial stellar type
             std::tie(found, m_InitialStellarType.type) = utils::GetMapKey(m_InitialStellarType.typeString, INITIAL_STELLAR_TYPE_LABEL, m_InitialStellarType.type);
-            COMPLAIN_IF(!found | !utils::IsOneOf(m_InitialStellarType.type, INITIAL_STELLAR_TYPE),   "Initial stellar type (--initial-stellar-type) must be one of { MS, HeMS, HeWD, COWD, ONeWD, NS, BH }");
+            COMPLAIN_IF(!found || !utils::IsOneOf(m_InitialStellarType.type, INITIAL_STELLAR_TYPE),   "Initial stellar type (--initial-stellar-type) must be one of { MS, HeMS, HeWD, COWD, ONeWD, NS, BH }");
         }
         if (!DEFAULTED("initial-stellar-type-1")) {                                                                                // initial primary stellar type
             std::tie(found, m_InitialStellarType1.type) = utils::GetMapKey(m_InitialStellarType1.typeString, INITIAL_STELLAR_TYPE_LABEL, m_InitialStellarType1.type);
-            COMPLAIN_IF(!found | !utils::IsOneOf(m_InitialStellarType1.type, INITIAL_STELLAR_TYPE),   "Initial primary stellar type (--initial-stellar-type-1) must be one of { MS, HeMS, HeWD, COWD, ONeWD, NS, BH }");
+            COMPLAIN_IF(!found || !utils::IsOneOf(m_InitialStellarType1.type, INITIAL_STELLAR_TYPE),   "Initial primary stellar type (--initial-stellar-type-1) must be one of { MS, HeMS, HeWD, COWD, ONeWD, NS, BH }");
         }
         if (!DEFAULTED("initial-stellar-type-2")) {                                                                                // initial secondary stellar type
             std::tie(found, m_InitialStellarType2.type) = utils::GetMapKey(m_InitialStellarType2.typeString, INITIAL_STELLAR_TYPE_LABEL, m_InitialStellarType2.type);
-            COMPLAIN_IF(!found | !utils::IsOneOf(m_InitialStellarType2.type, INITIAL_STELLAR_TYPE),   "Initial secondary stellar type (--initial-stellar-type-2) must be one of { MS, HeMS, HeWD, COWD, ONeWD, NS, BH }");
+            COMPLAIN_IF(!found || !utils::IsOneOf(m_InitialStellarType2.type, INITIAL_STELLAR_TYPE),   "Initial secondary stellar type (--initial-stellar-type-2) must be one of { MS, HeMS, HeWD, COWD, ONeWD, NS, BH }");
         }
 
         if (!DEFAULTED("kick-direction")) {                                                                                         // kick direction
