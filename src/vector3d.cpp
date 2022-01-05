@@ -24,37 +24,37 @@ Vector3d::Vector3d() {
 
 // Initialize from values 
 
-Vector3d::Vector3d(double x, double y, double z) {
+Vector3d::Vector3d(double p_x, double p_y, double p_z) {
 
     m_ObjectId = globalObjectId++; 
 
-    m_x = x;
-    m_y = y;
-    m_z = z;
+    m_x = p_x;
+    m_y = p_y;
+    m_z = p_z;
 }
 
-Vector3d::Vector3d(DBL_VECTOR v) {
+Vector3d::Vector3d(DBL_VECTOR p_v) {
 
     m_ObjectId = globalObjectId++; 
     
-    m_x = v[0];
-    m_y = v[1];
-    m_z = v[2];
+    m_x = p_v[0];
+    m_y = p_v[1];
+    m_z = p_v[2];
 }
 
 // Update after initialization
-void Vector3d::updateVector( const double x, const double y, const double z) {
-    m_x = x;
-    m_y = y;
-    m_z = z;
+void Vector3d::UpdateVector(const double p_x, const double p_y, const double p_z) {
+    m_x = p_x;
+    m_y = p_y;
+    m_z = p_z;
 }
 
 ///////////////////////////////
 // Overload operators
 
 // Indexing Operator
-double& Vector3d::operator[] (size_t i) {
-    switch (i) {
+double& Vector3d::operator[] (size_t p_i) {
+    switch (p_i) {
         case 0: return m_x;
         case 1: return m_y;
         case 2: return m_z;
@@ -63,61 +63,56 @@ double& Vector3d::operator[] (size_t i) {
 }
 
 // Overload setting operator
-void Vector3d::operator =( Vector3d vNew ) {
-    updateVector( vNew[0], vNew[1], vNew[2] );
+void Vector3d::operator =(Vector3d p_SourceVec) {
+    UpdateVector(p_SourceVec[0], p_SourceVec[1], p_SourceVec[2]);
 }
 
 // Overload vector addition operator
-Vector3d Vector3d::operator +(Vector3d vec) {
+Vector3d Vector3d::operator +(Vector3d p_Vec) {
     Vector3d newVect;
 
-    for (int i=0; i<3; i++) {
-        newVect[i] = (*this)[i] + vec[i];
+    for (size_t i=0; i<3; i++) {
+        newVect[i] = (*this)[i] + p_Vec[i];
     }
-
     return newVect;
 }
 
 // Overload vector subtraction operator
-Vector3d Vector3d::operator -(Vector3d vec) {
+Vector3d Vector3d::operator -(Vector3d p_Vec) {
     Vector3d newVect;
 
-    for (int i=0; i<3; i++) {
-        newVect[i] = (*this)[i] - vec[i];
+    for (size_t i=0; i<3; i++) {
+        newVect[i] = (*this)[i] - p_Vec[i];
     }
-
     return newVect;
 }
 
 // Overload scalar multiplication operator...
-Vector3d Vector3d::operator *(const double scalar) {
+Vector3d Vector3d::operator *(const double p_Scalar) {
     Vector3d newVect;
 
-    for (int i=0; i<3; i++) { 
-        newVect[i] = (*this)[i] * scalar; 
+    for (size_t i=0; i<3; i++) { 
+        newVect[i] = (*this)[i] * p_Scalar; 
     }
-
     return newVect;
 }
 // ...and in reverse order (need the reverser to be a free function)
-Vector3d operator *(double s, Vector3d v) { return v*s; }
+Vector3d operator *(double p_Scalar, Vector3d p_Vec) { return p_Vec * p_Scalar; }
 
 // Overload scalar division operator
-Vector3d Vector3d::operator /(const double scalar) {
+Vector3d Vector3d::operator /(const double p_Scalar) {
     Vector3d newVect;
 
-    for (int i=0; i<3; i++) { 
-        newVect[i] = (*this)[i] / scalar; 
+    for (size_t i=0; i<3; i++) { 
+        newVect[i] = (*this)[i] / p_Scalar; 
     }
-
     return newVect;
-    
 }
 
 
 // Overload output << operator for Vector3d
-std::ostream &operator <<(std::ostream &os, Vector3d const vec) {
-    return os << "{" << vec[0] << ", " << vec[1] << ", " << vec[2] << "}";
+std::ostream &operator <<(std::ostream &os, Vector3d const p_Vec) {
+    return os << "{" << p_Vec[0] << ", " << p_Vec[1] << ", " << p_Vec[2] << "}";
 }
 
 
@@ -131,11 +126,8 @@ std::ostream &operator <<(std::ostream &os, Vector3d const vec) {
  * @return                                       The magnitude of the velocity vector (speed)
  */
 double Vector3d::Magnitude() const {
-
     // Straightforward application of pythagorean theorem 
-    double speed2 = linalg::dot((*this), (*this));
-
-    return sqrt(speed2);
+    return std::sqrt(linalg::dot((*this), (*this)));
 }
 
 
@@ -153,7 +145,6 @@ DBL_VECTOR Vector3d::asDBL_VECTOR() {
     return vFinal;
 
 }
-
 
 
 /*
@@ -206,20 +197,17 @@ Vector3d Vector3d::RotateVector(const double p_ThetaE, const double p_PhiE, cons
     #undef sPhi
     #undef sPsi
 
-
     // Multiply RotationMatrix * p_oldVector
     Vector3d oldVector = (*this);
     Vector3d newVector = Vector3d(0.0, 0.0, 0.0);
 
-    for (int i=0; i< 3; i++) {
-        for (int j=0; j<3; j++) {
+    for (size_t i=0; i< 3; i++) {
+        for (size_t j=0; j<3; j++) {
             newVector[i] += RotationMatrix[i][j] * oldVector[j];
         }
     }
-
     return newVector;
 }
-
 
 
 /*
@@ -252,14 +240,12 @@ namespace linalg {
      * @param   [IN]   b                            second vector
      * @return                                      dot product
      */
-    double dot(const Vector3d& a, const Vector3d& b) {
+    double dot(const Vector3d& p_a, const Vector3d& p_b) {
     
         double c = 0;
-    
-        for (int i=0; i<3; i++) {
-            c += a[i]*b[i];
+        for (size_t i=0; i<3; i++) {
+            c += p_a[i] * p_b[i];
         }
-    
         return c;
     }
     
@@ -272,13 +258,13 @@ namespace linalg {
      * @param   [IN]   b                            second vector
      * @return                                      cross product
      */
-    Vector3d cross(const Vector3d& a, const Vector3d& b) {
+    Vector3d cross(const Vector3d& p_a, const Vector3d& p_b) {
     
         Vector3d c = Vector3d(0, 0, 0);
     
-        c[0] = a[1]*b[2] - a[2]*b[1];
-        c[1] = a[2]*b[0] - a[0]*b[2];
-        c[2] = a[0]*b[1] - a[1]*b[0];
+        c[0] = p_a[1] * p_b[2] - p_a[2] * p_b[1];
+        c[1] = p_a[2] * p_b[0] - p_a[0] * p_b[2];
+        c[2] = p_a[0] * p_b[1] - p_a[1] * p_b[0];
     
         return c;
     }
@@ -291,10 +277,9 @@ namespace linalg {
      * @param   [IN]   b                            second vector
      * @return                                      angle between them, in radians
      */
-    double angleBetween(const Vector3d& a, const Vector3d& b) {
+    double angleBetween(const Vector3d& p_a, const Vector3d& p_b) {
         // Angle between 2 vectors, between [0, pi] 
-        return acos(linalg::dot(a,b)/(a.Magnitude()*b.Magnitude()));
+        return std::acos(linalg::dot(p_a, p_b) / (p_a.Magnitude() * p_b.Magnitude()));
     }
-
 }
 

@@ -334,10 +334,10 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
             double rInAU                  = Radius() * RSOL_TO_AU;
             double rInAUPow3              = rInAU * rInAU * rInAU;                                                                      // use multiplication - pow() is slow
             double rOverAPow10            = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;    // use multiplication - pow() is slow
-            double rOverAPow21Over2       = rOverAPow10 * rOverA * sqrt(rOverA);                                                        // srqt() is faster than pow()
+            double rOverAPow21Over2       = rOverAPow10 * rOverA * std::sqrt(rOverA);                                                   // sqrt() is faster than pow()
 
 		    double	secondOrderTidalCoeff = 1.592E-09 * PPOW(Mass(), 2.84);                                                              // aka E_2.
-		    double	freeFallFactor        = sqrt(G1 * Mass() / rInAUPow3);
+		    double	freeFallFactor        = std::sqrt(G1 * Mass() / rInAUPow3);
 		
 		    timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * PPOW(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
         } break;
@@ -387,7 +387,7 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
             double e2              = 1.592E-9 * PPOW(Mass(), 2.84);             // second order tidal coefficient (a.k.a. E_2)
             double rAU             = Radius() * RSOL_TO_AU;
             double rAU_3           = rAU * rAU * rAU;
-            double freeFallFactor  = sqrt(G1 * Mass() / rAU_3);
+            double freeFallFactor  = std::sqrt(G1 * Mass() / rAU_3);
 
 		    timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * PPOW(1.0 + q2, 5.0 / 6.0) * e2 * PPOW(rOverA, 17.0 / 2.0));
             } break;
@@ -419,11 +419,11 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
     double rocheLobeTracker = RocheLobeTracker(p_SemiMajorAxis, p_Eccentricity);
 
     if (utils::Compare(rocheLobeTracker, 1.0) >= 0) {                                                                   // if star is equal to or larger than its Roche Lobe...
-		m_RLOFDetails.isRLOF          = true;                                                                           // ... it is currently Roche Lobe overflowing
+        m_RLOFDetails.isRLOF          = true;                                                                           // ... it is currently Roche Lobe overflowing
 		m_RLOFDetails.experiencedRLOF = true;                                                                           // ... and for future checks, did Roche Lobe overflow
 	}
 
-	m_RLOFDetails.RLOFPostCEE = m_RLOFDetails.isRLOF && p_CommonEnvelope ? true : m_RLOFDetails.RLOFPostCEE;            // check for RLOF just after the CEE     JR: todo: should the else part be false?
+	m_RLOFDetails.RLOFPostCEE = m_RLOFDetails.isRLOF && p_CommonEnvelope ? true : m_RLOFDetails.RLOFPostCEE;            // check for RLOF just after the CEE (if this flag was ever true for this system, it remains true)
 }
 
 

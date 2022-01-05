@@ -24,7 +24,7 @@
  * @param   [IN]    p_Time                      Time in Myr
  * @return                                      Luminosity on the First Giant Branch in Lsol
  */
-double FGB::CalculateLuminosityOnPhase(const double p_Time) {
+double FGB::CalculateLuminosityOnPhase(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
@@ -68,7 +68,7 @@ double FGB::CalculateLuminosityOnPhase(const double p_Time) {
  * @param   [IN]    p_Time                      Time after ZAMS in MYRS (tBGB <= time <= tHeI)
  * @return                                      Core mass on the First Giant Branch in Msol
  */
-double FGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) {
+double FGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]                // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
@@ -105,11 +105,9 @@ double FGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) {
  * @return                                      FGB relative age, clamped to [0, 1]
  */
 
-double FGB::CalculateTauOnPhase() {
+double FGB::CalculateTauOnPhase() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-
     return std::max(0.0, std::min(1.0, (m_Age - timescales(tBGB)) / (timescales(tHeI) - timescales(tBGB))));
-
 #undef timescales
 }
 
@@ -133,7 +131,7 @@ double FGB::CalculateTauOnPhase() {
  * @param   [IN]    p_Time                      Current age of star in Myr
  * @return                                      Suggested timestep (dt)
  */
-double FGB::ChooseTimestep(const double p_Time) {
+double FGB::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 
     double dtk = utils::Compare(p_Time, timescales(tMx_FGB)) <= 0       // ah because timescales[4,5,6] are not calculated yet   JR: todo: ?but... timescales[4] is used if this is true...? (and 5 if not)
@@ -152,8 +150,21 @@ double FGB::ChooseTimestep(const double p_Time) {
 /*
  * Modify the star after it loses its envelope
  *
- * Hurley et al. 2000, section 6 just before eq 76
+ * Hurley et al. 2000, section 6 just before eq 76 (see also after Eq. 105)
  *
+ * Where necessary updates attributes of star (depending upon stellar type):
+ *
+ *     - m_StellarType
+ *     - m_Timescales
+ *     - m_GBParams
+ *     - m_Luminosity
+ *     - m_Radius
+ *     - m_Mass
+ *     - m_Mass0
+ *     - m_CoreMass
+ *     - m_HeCoreMass
+ *     - m_COCoreMass
+ *     - m_Age
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
@@ -167,7 +178,7 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {                                      // Envelope loss
 
-        if (utils::Compare(m_Mass, massCutoffs(MHeF)) < 0) {                                        // Star evolves to Helium White Dwarf
+        if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {                                       // Star evolves to Helium White Dwarf
 
             stellarType  = STELLAR_TYPE::HELIUM_WHITE_DWARF;
 
@@ -202,13 +213,10 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 /*
  * Modify the star due to (possible) helium flash
  *
- * JR: Is this described in Hurley et al. 2000?
- *
  *
  * void ResolveHeliumFlash()
  *
- * Deletermine if Helium Flash occurs, and if so modify the star accordingly.
- * The attributes of the star are updated.
+ * Deletermine if Helium Flash occurs, and if so set m_Mass0 equal to current mass as described in Hurley+ (2000), last paragraph before start of 7.1.1.
  */
 void FGB::ResolveHeliumFlash() {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function

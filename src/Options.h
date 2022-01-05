@@ -25,15 +25,15 @@
 #include "Rand.h"
 #include "changelog.h"
 
-using std::string;
-using std::vector;
-using std::get;
-
 namespace po = boost::program_options;
+
+
+const std::string NOT_PROVIDED = std::to_string(255);
+
 
 // OPT_VALUE macro
 //
-// getter functions return the value of the class member variable - the class
+// Getter functions return the value of the class member variable - the class
 // member variable is set to a value depending upon the value of the corresponding
 // option enetered by the user.
 // 
@@ -115,7 +115,10 @@ class Options {
 private:
 
     // The following vectors are used to constrain which options can be specified
-    // when.  There are three groups of two vectors:
+    // when:
+    //
+    // m_ShorthandAllowed records option strings that may be specified using the
+    // shorthand notation described in Options::PreprocessOptionValues()
     //
     // m_GridLineExcluded records option strings that may not be specified on a grid line
     //
@@ -128,6 +131,39 @@ private:
     // Each of these is described in more detail below
 
 
+    // m_ShorthandAllowed records option strings that may be specified using the
+    // shorthand notation described in Options::ExpandShorthandOptionValues() and
+    // in Log.h.
+    //
+    // Furthermore, the vector records whether option values for such options can be
+    // defaulted (i.e. some or all values need not be specified), and if so, what
+    // string should be substituted for the unspecified values (at this stage there is
+    // no type associated with the options - what is being manipulated is the command-line
+    // or grid-line string that will be parsed to determine options specified and their
+    // values).
+    //
+    // This vector is checked immediately prior to the command line or grid line being parsed
+    // for ranges and sets - i.e. before the command line or grid line is passed to boost
+    // for final parsing.  If any option strings not in this vector are specified using
+    // shorthand notation, boost will parse them as usual and likely (though not necessarily)
+    // complain (boost will only complain if the option/value pair is malformed or unknown,
+    // which would almost certainly be the case - but it isn't guaranteed to be). 
+
+    typedef std::tuple<std::string, bool, std::string> SHORTHAND_ENTRY;         // option name, default allowed (i.e. can be omitted), default string
+    std::vector<SHORTHAND_ENTRY> m_ShorthandAllowed = {
+
+        // trying to keep entries alphabetical so easier to find specific entries
+
+        // option name          default allowed     default string
+        { "debug-classes",      false,              "" },                       // don't allow defaults - we don't know how many classes to specify
+
+        { "log-classes",        false,              "" },                       // don't allow defaults - we don't know how many classes to specify
+
+        { "notes",              true,               "" },                       // allow defaults - number of notes is 0..#notes-hdrs
+        { "notes-hdrs",         false,              "" }                        // don't allow defaults - we don't know how many headers to specify
+    };
+
+
     // m_GridLineExcluded records option strings that may not be specified on a grid line
     //
     // This vector is checked when the grid line is parsed - if any option strings are 
@@ -137,56 +173,79 @@ private:
     // think of a good reason to exclude options from the commandline, so I haven't 
     // implemented that functionality (though it wouldn't be too difficult to add it).
     //
-    // I coupld probably have done this using a different set of options in Boost for
+    // I could probably have done this using a different set of options in Boost for
     // the commandline and gridfile, but in the end I decided this way was actually
     // easier, cleaner, and gives us a bit more control.
 
     std::vector<std::string> m_GridLineExcluded = {
-        "help", "h",
-        "version", "v",
 
-        "quiet", 
-        "log-level", 
-        "log-classes",
+        // trying to keep entries alphabetical so easier to find specific entries
+
+        "add-options-to-sysparms",
+
         "debug-level",
-        "debug_classes",
+        "debug-classes",
         "debug-to-file",
         "detailed-output",
+
         "enable-warnings",
         "errors-to-file",
-        "population-data-printing",
-        "print-bool-as-string",
-        "rlof-printing",
-        "switchlog",
-        "grid",
-        "mode",
-        "number-of-systems",
 
-        // Serena
+        "grid",
+        "grid-start-line",
+        "grid-num-lines",
+
+        "hdf5-buffer-size",
+        "hdf5-chunk-size",
+        "help", "h",
+
+        "log-level", 
+        "log-classes",
+
         //"logfile-be-binaries",
 
-        "logfile-rlof-parameters",
         "logfile-common-envelopes",
+        "logfile-definitions",
         "logfile-detailed-output",
         "logfile-double-compact-objects",
-        "logfile-pulsar-evolution",
-        "logfile-supernovae",
-        "logfile-system-parameters",
-        "logfile-switch-log",
-
-        "logfile-definitions",
-        "logfile-delimiter",
         "logfile-name-prefix",
+        "logfile-pulsar-evolution",
+        "logfile-rlof-parameters",
+        "logfile-supernovae",
+        "logfile-switch-log",
+        "logfile-system-parameters",
+        "logfile-type",
+
+        "maximum-evolution-time",
+        "maximum-number-timestep-iterations",
+        "mode",
+
+        "notes-hdrs",
+        "number-of-systems",
 
         "output-container", "c",
-        "outputPath", "o"
+        "outputPath", "o",
+
+        "population-data-printing",
+        "print-bool-as-string",
+
+        "quiet", 
+
+        "rlof-printing",
+
+        "store-input-files",
+        "switch-log",
+
+        "timestep-multiplier",
+
+        "version", "v"
     };
 
     
     // m_SSEOnly records option strings that apply to SSE only
     // m_BSEOnly records option strings that apply to BSE only
     //
-    // These vectors are checked when the commandline or grid line are parsed for
+    // These vectors are checked when the commandline or grid line is parsed for
     // ranges and sets.  Ranges and sets are played out, and stars/binaries evolved
     // based on the grid of options defined by any ranges and sets specified by the
     // user.
@@ -216,38 +275,42 @@ private:
     // inconsistent options.
 
     std::vector<std::string> m_SSEOnly = {
+
+        // trying to keep enties alphabetical so easier to find specific entries
+
         "initial-mass",
+
         "kick-magnitude",
-        "kick-magnitude-random"
+        "kick-magnitude-random",
+
+        "rotational-frequency"
     };
 
     std::vector<std::string> m_BSEOnly = {
-        "initial-mass-1",
-        "initial-mass-2",
-        "semi-major-axis", "a",
-        "orbital-period",
+
+        // trying to keep entries alphabetical so easier to find specific entries
 
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation", 
 
-        // Serena
         //"be-binaries",
 
+        "case-BB-stability-prescription",
         "circularise-binary-during-mass-transfer",
         "common-envelope-allow-main-sequence-survive",
-
         "common-envelope-alpha", 
         "common-envelope-alpha-thermal",
         "common-envelope-lambda",
         "common-envelope-lambda-multiplier",
+        "common-envelope-lambda-prescription",
         "common-envelope-mass-accretion-constant",
         "common-envelope-mass-accretion-max",
         "common-envelope-mass-accretion-min",
+        "common-envelope-mass-accretion-prescription",
         "common-envelope-recombination-energy-density",
         "common-envelope-slope-kruckow",
 
-        // AVG
         /*
         "critical-mass-ratio-giant-degenerate-accretor",
         "critical-mass-ratio-giant-non-degenerate-accretor",
@@ -267,6 +330,16 @@ private:
         "critical-mass-ratio-white-dwarf-non-degenerate-accretor",
         */
 
+        "eccentricity", "e",
+        "eccentricity-distribution",
+        "eccentricity-max",
+        "eccentricity-min",
+        "evolve-pulsars",
+        "evolve-unbound-systems",
+
+        "initial-mass-1",
+        "initial-mass-2",
+
         "kick-magnitude-1",
         "kick-magnitude-2",
         "kick-magnitude-random-1",
@@ -278,15 +351,25 @@ private:
         "kick-theta-1",
         "kick-theta-2",
 
+        "logfile-common-envelopes",
+        "logfile-double-compact-objects",
+        "logfile-pulsar-evolution",
+        "logfile-rlof-parameters",
+        "logfile-system-parameters",
+
         "mass-ratio", "q",
         "mass-ratio-max",
         "mass-ratio-min",
-
+        "mass-ratio-distribution",
+        "mass-transfer",
         "mass-transfer-fa",
         "mass-transfer-jloss",
-        "mass-transfer-thermal-limit-c",
+        "mass-transfer-accretion-efficiency-prescription",
+        "mass-transfer-angular-momentum-loss-prescription",
+        "mass-transfer-rejuvenation-prescription",
+        "mass-transfer-thermal-limit-accretor",
+        "mass-transfer-thermal-limit-C",
         "maximum-mass-donor-nandez-ivanova",
-
         "minimum-secondary-mass",
 
         "orbital-period",
@@ -294,47 +377,21 @@ private:
         "orbital-period-max",
         "orbital-period-min",
 
+        "rlof-printing",
+        "rotational-frequency-1",
+        "rotational-frequency-2",
+
         "semi-major-axis", "a",
         "semi-major-axis-dsitribution",
         "semi-major-axis-max",
-        "semi-major-axis-min",
-
-        "case-bb-stability-prescription",
-
-        "common-envelope-lambda-prescription",
-        "common-envelope-mass-accretion-prescription",
-
-        "eccentricity", "e",
-        "eccentricity-distribution",
-        "eccentricity-max",
-        "eccentricity-min",
-
-        "mass-ratio-distribution",
-
-        "mass-transfer-accretion-efficiency-prescription",
-        "mass-transfer-angular-momentum-loss-prescription",
-        "mass-transfer-rejuvenation-prescription",
-        "mass-transfer-thermal-limit-accretor",
-
-        "evolve-pulsars",
-        "evolve-unbound-systems",
-
-        "mass-transfer",
-
-        "rlof-printing",
-
-        "logfile-rlof-parameters",
-        "logfile-common-envelopes",
-        "logfile-double-compact-objects",
-        "logfile-pulsar-evolution",
-        "logfile-system-parameters",
+        "semi-major-axis-min"
     };
 
     
     // m_RangeExcluded records option strings that apply to SSE only
     // m_SetExcluded records option strings that apply to BSE only
     //
-    // These vectors are checked when the commandline or grid line are parsed for
+    // These vectors are checked when the commandline or grid line is parsed for
     // ranges and sets.  Ranges can only be specified for numerical options - other
     // data types are not ordered, so ranges don't make sense (what would the
     // increment be...).  Sets can be specified for options of all data types,
@@ -343,153 +400,176 @@ private:
   
 
     std::vector<std::string> m_RangeExcluded = {
-        "help", "h",
-        "version", "v",
+
+        // trying to keep entries alphabetical so easier to find specific entries
+
+        "add-options-to-sysparms",
 
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation",
 
-        // Serena
         //"be-binaries",
-
-        "check-photon-tiring-limit",
-        "circularise-binary-during-mass-transfer",
-        "common-envelope-allow-main-sequence-survive",
-
-        "evolve-pulsars",
-        "evolve-unbound-systems",
-
-        "mass-transfer",
-
-        "pair-instability-supernovae",
-        "pulsational-pair-instability",
-
-        "revised-energy-formalism-nandez-ivanova",
-
-        "use-mass-loss",
 
         "black-hole-kicks",
 
-        "case-bb-stability-prescription",
+        "case-BB-stability-prescription",
+        "check-photon-tiring-limit",
         "chemically-homogeneous-evolution",
+        "circularise-binary-during-mass-transfer",
+        "common-envelope-allow-main-sequence-survive",
         "common-envelope-lambda-prescription",
         "common-envelope-mass-accretion-prescription",
 
+        "debug-classes",
+        "debug-level",
+        "debug-to-file",
+        "detailed-output",
+
         "eccentricity-distribution",
+        "enable-warnings",
         "envelope-state-prescription",
+        "errors-to-file",
+        "evolve-pulsars",
+        "evolve-unbound-systems",
 
         "fryer-supernova-engine",
+
+        "grid",
+        "grid-start-line",
+        "grid-num-lines",
+
+        "hdf5-buffer-size",
+        "hdf5-chunk-size",
+        "help", "h",
 
         "initial-mass-function", "i",
 
         "kick-direction",
         "kick-magnitude-distribution", 
 
+        "log-level", 
+        "log-classes",
+
+        //"logfile-be-binaries",
+
+        "logfile-common-envelopes",
+        "logfile-definitions",
+        "logfile-detailed-output",
+        "logfile-double-compact-objects",
+        "logfile-name-prefix",
+        "logfile-pulsar-evolution",
+        "logfile-rlof-parameters",
+        "logfile-supernovae",
+        "logfile-switch-log",
+        "logfile-system-parameters",
+        "logfile-type",
         "luminous-blue-variable-prescription",
 
         "mass-loss-prescription",
         "mass-ratio-distribution",
-
+        "mass-transfer",
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
         "mass-transfer-thermal-limit-accretor",
-
         "metallicity-distribution",
+        "mode",
 
-        "neutrino-mass-loss-bh-formation",
+        "notes",
+        "notes-hdrs",
+        "neutrino-mass-loss-BH-formation",
         "neutron-star-equation-of-state",
 
         "orbital-period-distribution",
+        "output-container", "c",
+        "outputPath", "o",
 
+        "pair-instability-supernovae",
+        "population-data-printing",
+        "print-bool-as-string",
         "pulsar-birth-magnetic-field-distribution",
         "pulsar-birth-spin-period-distribution",
+        "pulsational-pair-instability",
         "pulsational-pair-instability-prescription",
+
+        "quiet", 
 
         "random-seed",
         "remnant-mass-prescription",
+        "revised-energy-formalism-nandez-ivanova",
+        "rlof-printing",
         "rotational-velocity-distribution",
 
         "semi-major-axis-distribution",
         "stellar-zeta-prescription",
-        
-        "quiet", 
-        "log-level", 
-        "log-classes",
-        "debug-level",
-        "debug_classes",
-        "debug-to-file",
-        "detailed-output",
-        "enable-warnings",
-        "errors-to-file",
-        "population-data-printing",
-        "print-bool-as-string",
-        "rlof-printing",
-        "switchlog",
-        "grid",
-        "mode",
+        "store-input-files",
+        "switch-log",
 
-        // Serena
-        //"logfile-be-binaries",
+        "use-mass-loss",
 
-        "logfile-rlof-parameters",
-        "logfile-common-envelopes",
-        "logfile-detailed-output",
-        "logfile-double-compact-objects",
-        "logfile-pulsar-evolution",
-        "logfile-supernovae",
-        "logfile-system-parameters",
-        "logfile-switch-log",
-
-        "logfile-definitions",
-        "logfile-delimiter",
-        "logfile-name-prefix",
-
-        "output-container", "c",
-        "outputPath", "o"
+        "version", "v"
     };
     
     std::vector<std::string> m_SetExcluded = {
-        "help", "h",
-        "version", "v",
 
-        "random-seed",
+        // trying to keep entries alphabetical so easier to find specific entries
 
-        "quiet",
-        "log-level", 
-        "log-classes",
+        "add-options-to-sysparms",
+
+        "debug-classes",
         "debug-level",
-        "debug_classes",
         "debug-to-file",
         "detailed-output",
+
         "enable-warnings",
         "errors-to-file",
-        "population-data-printing",
-        "print-bool-as-string",
-        "rlof-printing",
-        "switchlog",
-        "grid",
-        "mode",
 
-        // Serena
+        "grid",
+        "grid-start-line",
+        "grid-num-lines",
+
+        "hdf5-buffer-size",
+        "hdf5-chunk-size",
+        "help", "h",
+
+        "log-classes",
+        "log-level", 
+
         //"logfile-be-binaries",
 
-        "logfile-rlof-parameters",
         "logfile-common-envelopes",
+        "logfile-definitions",
         "logfile-detailed-output",
         "logfile-double-compact-objects",
-        "logfile-pulsar-evolution",
-        "logfile-supernovae",
-        "logfile-system-parameters",
-        "logfile-switch-log",
-
-        "logfile-definitions",
-        "logfile-delimiter",
         "logfile-name-prefix",
+        "logfile-pulsar-evolution",
+        "logfile-rlof-parameters",
+        "logfile-supernovae",
+        "logfile-switch-log",
+        "logfile-system-parameters",
+        "logfile-type",
+
+        "mode",
+
+        "notes",
+        "notes-hdrs",
 
         "output-container", "c",
-        "outputPath", "o"
+        "outputPath", "o",
+
+        "population-data-printing",
+        "print-bool-as-string",
+
+        "quiet",
+
+        "random-seed",
+        "rlof-printing",
+
+        "store-input-files",
+        "switch-log",
+
+        "version", "v"
     };
 
 
@@ -526,6 +606,9 @@ public:
 
             bool                                                m_EnableWarnings;                                               // Flag used to determine if warnings (via SHOW_WARN macros) should be displayed
 
+            std::vector<std::string>                            m_Notes;                                                        // Notes contents - for user-defined annotations
+            std::vector<std::string>                            m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
+
 	        bool                                                m_BeBinaries;													// Flag if we want to print BeBinaries (main.cpp)
             bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
 	        bool                                                m_EvolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
@@ -537,6 +620,8 @@ public:
             bool                                                m_RlofPrinting;                                                 // RLOF printing
 
             bool                                                m_ShortHelp;                                                    // Flag to indicate whether user wants short help ('-h', just option names) or long help ('--help', plus descriptions)
+
+            bool                                                m_StoreInputFiles;                                              // Store input files in output container (default = true)
 
             bool                                                m_SwitchLog;                                                    // Print switch log details to file (default = false)
 
@@ -552,6 +637,9 @@ public:
             double                                              m_MaxEvolutionTime;                                             // Maximum time to evolve a binary by
             int                                                 m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
             double                                              m_TimestepMultiplier;                                           // Multiplier for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
+
+            std::streamsize                                     m_GridStartLine;                                                // The grid file line to start processing (0-based)
+            std::streamsize                                     m_GridLinesToProcess;                                           // The number of grid file lines to process (starting at m_GridStartLine)
 
             // Initial distribution variables
 
@@ -586,6 +674,7 @@ public:
             double                                              m_OrbitalPeriodDistributionMax;                                 // Maximum initial period in days
 
             // Wind mass loss
+            double                                              m_CoolWindMassLossMultiplier;                                   // Multiplication factor to reduce cool wind mass loss rate at each timestep
             double                                              m_OverallWindMassLossMultiplier;                                // Multiplication factor to reduce the overall wind mass loss rate at each timestep
 
             // Eccentricity
@@ -656,10 +745,10 @@ public:
 	        double                                              m_MaximumNeutronStarMass;						                // Maximum mass of a neutron star allowed, set to default in StarTrack
 
             // Setup default output directory and desired output directory
-            string                                              m_OutputPathString;                                             // String to hold the output directory
+            std::string                                         m_OutputPathString;                                             // String to hold the output directory
             boost::filesystem::path                             m_DefaultOutputPath;                                            // Default output location
             boost::filesystem::path                             m_OutputPath;                                                   // Desired output location
-            string                                              m_OutputContainerName;                                          // Name of output container (directory)
+            std::string                                         m_OutputContainerName;                                          // Name of output container (directory)
 
             // Mass loss options
             bool                                                m_UseMassLoss;                                                  // Whether to activate mass loss (default = True)
@@ -742,6 +831,8 @@ public:
             bool                                                m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity;          // Use Nanjing lambda's with metallicity interpolation (only used when using enhanced Nanjing lambda's)
             bool                                                m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass;                // Whether or not to use mass after rejuvenation (m_Mass0) instead of true birth mass when calculating Nanjing lambda's
             bool                                                m_AllowMainSequenceStarToSurviveCommonEnvelope;                 // Whether or not to allow a main sequence star to survive a common envelope event
+            bool                                                m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope;            // Whether or not to allow a radiative-envelope star to survive a common envelope event
+            bool                                                m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope;              // Whether or not to allow Roche Lobe Overflow immediately after a CE to survive a common envelope event
     
             // Prescription for envelope state (radiative or convective)
             ENUM_OPT<ENVELOPE_STATE_PRESCRIPTION>               m_EnvelopeStatePrescription;
@@ -799,36 +890,43 @@ public:
 
             // Rotational Velocity distribution options
             ENUM_OPT<ROTATIONAL_VELOCITY_DISTRIBUTION>          m_RotationalVelocityDistribution;                               // Rotational velocity distribution
-
+            double                                              m_RotationalFrequency;                                          // Rotational frequency for single star (SSE)
+            double                                              m_RotationalFrequency1;                                         // Rotational frequency for primary (BSE)
+            double                                              m_RotationalFrequency2;                                         // Rotational frequency for secondary (BSE)
 
 	        // grids
 
-            string                                              m_GridFilename;                                                 // Grid filename
+            std::string                                         m_GridFilename;                                                 // Grid filename
 
 
             // debug and logging options
 
             int                                                 m_DebugLevel;                                                   // Debug level - used to determine which debug statements are actually written
-            vector<string>                                      m_DebugClasses;                                                 // Debug classes - used to determine which debug statements are actually written
+            std::vector<std::string>                            m_DebugClasses;                                                 // Debug classes - used to determine which debug statements are actually written
 
             int                                                 m_LogLevel;                                                     // Logging level - used to determine which logging statements are actually written
-            vector<string>                                      m_LogClasses;                                                   // Logging classes - used to determine which logging statements are actually written
+            std::vector<std::string>                            m_LogClasses;                                                   // Logging classes - used to determine which logging statements are actually written
 
 
             // Logfiles
-            string                                              m_LogfileDefinitionsFilename;                                   // Filename for the logfile record definitions
-            ENUM_OPT<DELIMITER>                                 m_LogfileDelimiter;                                             // Field delimiter for log file records
-            string                                              m_LogfileNamePrefix;                                            // Prefix for log file names
+            std::string                                         m_LogfileDefinitionsFilename;                                   // Filename for the logfile record definitions
+            std::string                                         m_LogfileNamePrefix;                                            // Prefix for log file names
+            ENUM_OPT<LOGFILETYPE>                               m_LogfileType;                                                  // File type log files
 
-            string                                              m_LogfileSystemParameters;                                      // output file name: system parameters
-            string                                              m_LogfileDetailedOutput;                                        // output file name: detailed output
-            string                                              m_LogfileDoubleCompactObjects;                                  // output file name: double compact objects
-            string                                              m_LogfileSupernovae;                                            // output file name: supernovae
-            string                                              m_LogfileCommonEnvelopes;                                       // output file name: common envelopes
-            string                                              m_LogfileRLOFParameters;                                        // output file name: Roche Lobe overflow
-            string                                              m_LogfileBeBinaries;                                            // output file name: Be Binaries
-            string                                              m_LogfilePulsarEvolution;                                       // output file name: pulsar evolution
-            string                                              m_LogfileSwitchLog;                                             // output file name: switch log
+            std::string                                         m_LogfileSystemParameters;                                      // output file name: system parameters
+            std::string                                         m_LogfileDetailedOutput;                                        // output file name: detailed output
+            std::string                                         m_LogfileDoubleCompactObjects;                                  // output file name: double compact objects
+            std::string                                         m_LogfileSupernovae;                                            // output file name: supernovae
+            std::string                                         m_LogfileCommonEnvelopes;                                       // output file name: common envelopes
+            std::string                                         m_LogfileRLOFParameters;                                        // output file name: Roche Lobe overflow
+            std::string                                         m_LogfileBeBinaries;                                            // output file name: Be Binaries
+            std::string                                         m_LogfilePulsarEvolution;                                       // output file name: pulsar evolution
+            std::string                                         m_LogfileSwitchLog;                                             // output file name: switch log
+
+            ENUM_OPT<ADD_OPTIONS_TO_SYSPARMS>                   m_AddOptionsToSysParms;                                         // Whether/when to add program option columns to BSE/SSE sysparms file
+
+            int                                                 m_HDF5BufferSize;                                               // HDF5 file IO buffer size (number of chunks)
+            int                                                 m_HDF5ChunkSize;                                                // HDF5 file chunk size (number of dataset entries)
 
 
             // the boost variables map
@@ -836,7 +934,7 @@ public:
 
             po::variables_map m_VM;
 
-            bool m_Populated;       // flag to indicate whether we're using a grid line
+            bool m_Populated;                                                                                                   // flag to indicate whether we're using a grid line
 
 
             // member functions
@@ -852,7 +950,7 @@ public:
 
             int         OptionSpecified(std::string p_OptionString);
 
-            std::string SetCalculatedOptionDefaults(const bool p_ModifyMap);
+            std::string SetCalculatedOptionDefaults(const BOOST_MAP p_BoostMap);
 
         public:
 
@@ -890,18 +988,18 @@ public:
     } RangeParameterT; 
 
     typedef struct RangeOrSetDescriptor {
-        COMPLEX_TYPE                 type;          // RANGE or SET
-        TYPENAME                     dataType;      // the option datatype
-        std::vector<std::string>     parameters;    // the range or set parameters
-        std::vector<RangeParameterT> rangeParms;    // range parameters numerical values
-        int                          currPos;       // current position of iterator - count for RANGE, pos for SET                                             
+        COMPLEX_TYPE                 type;                                              // RANGE or SET
+        TYPENAME                     dataType;                                          // the option datatype
+        std::vector<std::string>     parameters;                                        // the range or set parameters
+        std::vector<RangeParameterT> rangeParms;                                        // range parameters numerical values
+        int                          currPos;                                           // current position of iterator - count for RANGE, pos for SET                                             
     } RangeOrSetDescriptorT;
 
     typedef std::vector<std::tuple<std::string, RangeOrSetDescriptorT>> COMPLEX_OPTION_VALUES;
 
-    typedef std::tuple<TYPENAME, bool, std::string, std::string> ATTR;  // <dataType, defaulted, typeStr, valueStr>
+    typedef std::tuple<TYPENAME, bool, std::string, std::string> ATTR;                  // <dataType, defaulted, typeStr, valueStr>
 
-    typedef std::tuple<std::string, std::string, std::string, std::string> OPTIONSTR;  // option strings for specified options: <asEntered, asEnteredDownshifted, longName, shortName>
+    typedef std::tuple<std::string, std::string, std::string, std::string> OPTIONSTR;   // option strings for specified options: <asEntered, asEnteredDownshifted, longName, shortName>
 
     // we have two structs:
     //    one for the commandline (program-level) options, and 
@@ -909,12 +1007,14 @@ public:
     //
     // each struct contains:
     //
+    //    an OPTIONS_ORIGIN variable to indicate whether this struct is for command-line or grid file options (so the struct can be queried)
     //    an OptionValues object - holds the values of the options 
-    //    a  Boost options_decsriptions object
+    //    a  Boost options_descriptions object
     //    a  COMPLEX_OPTION_VALUES object - holds the complex option values (ranges, sets)
     //    a  struct containing the option strings of the specified options
 
     typedef struct OptionsDescriptor {
+        OPTIONS_ORIGIN          optionsOrigin;
         OptionValues            optionValues;
         po::options_description optionDescriptions;
         COMPLEX_OPTION_VALUES   complexOptionValues;
@@ -935,12 +1035,12 @@ private:
 
     // member variables
 
-    std::string        m_CmdLineOptionsDetails;        // for Run_Details file
+    GridfileT           m_Gridfile = {"", ERROR::EMPTY_FILENAME};
 
-    GridfileT          m_Gridfile = {"", ERROR::EMPTY_FILENAME};
+    OptionsDescriptorT  m_CmdLine = {OPTIONS_ORIGIN::CMDLINE, {}, {}, {}, {}};
+    OptionsDescriptorT  m_GridLine = {OPTIONS_ORIGIN::GRIDFILE, {}, {}, {}, {}};
 
-    OptionsDescriptorT m_CmdLine;
-    OptionsDescriptorT m_GridLine;
+    std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> m_CmdLineOptionsDetails;   // for Run_Details file
 
 
     // member functions
@@ -948,12 +1048,18 @@ private:
     bool            AddOptions(OptionValues *p_Options, po::options_description *p_OptionsDescription);
     int             AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor);
 
+    std::tuple<std::string, int, std::vector<std::string>> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]);
+
+    bool            IsSupportedNumericDataType(TYPENAME p_TypeName);
+
     ATTR            OptionAttributes(const po::variables_map p_VM, const po::variables_map::const_iterator p_IT);
-    string          OptionDetails(const OptionsDescriptorT &p_Options);
 
     PROGRAM_STATUS  ParseCommandLineOptions(int argc, char * argv[]);
     std::string     ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], OptionsDescriptorT &p_OptionsDescriptor);
 
+    std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> OptionDetails(const OptionsDescriptorT &p_Options);
+
+    int             SetRandomSeed(OptionsDescriptorT &p_OptionsDescriptor, const unsigned long int p_RandomSeed);
 
 public:
 
@@ -961,8 +1067,8 @@ public:
 
 
 
-    int             AdvanceCmdLineOptionValues()    { return AdvanceOptionVariation(m_CmdLine); }
-    int             AdvanceGridLineOptionValues()   { return AdvanceOptionVariation(m_GridLine); }
+    int             AdvanceCmdLineOptionValues()  { return AdvanceOptionVariation(m_CmdLine); }
+    int             AdvanceGridLineOptionValues() { return AdvanceOptionVariation(m_GridLine); }
     int             ApplyNextGridLine();
 
     void            CloseGridFile() { m_Gridfile.handle.close(); m_Gridfile.filename = ""; m_Gridfile.error = ERROR::EMPTY_FILENAME; }
@@ -978,34 +1084,41 @@ public:
 
     void            PrintOptionHelp(const bool p_Verbose);
 
-    void            RewindGridFile() { m_Gridfile.handle.clear(); m_Gridfile.handle.seekg(0); }
+    ERROR           RewindGridFile();
+
+    ERROR           SeekToGridFileLine(const unsigned int p_Line);
+
+    int             SetRandomSeed(const unsigned long int p_RandomSeed, const OPTIONS_ORIGIN p_OptionsSet);
 
 
     // getters
+
+    ADD_OPTIONS_TO_SYSPARMS                     AddOptionsToSysParms() const                                            { return m_CmdLine.optionValues.m_AddOptionsToSysParms.type; }
 
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return OPT_VALUE("common-envelope-allow-main-sequence-survive", m_AllowMainSequenceStarToSurviveCommonEnvelope, true); }
     bool                                        CommonEnvelopeLambdaNanjingEnhanced() const                             { return OPT_VALUE("common-envelope-lambda-nanjing-enhanced", m_CommonEnvelopeLambdaNanjingEnhanced, true); }
     bool                                        CommonEnvelopeLambdaNanjingInterpolateInMass() const                    { return OPT_VALUE("common-envelope-lambda-nanjing-interpolate-in-mass", m_CommonEnvelopeLambdaNanjingInterpolateInMass, true); }
     bool                                        CommonEnvelopeLambdaNanjingInterpolateInMetallicity() const             { return OPT_VALUE("common-envelope-lambda-nanjing-interpolate-in-metallicity", m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity, true); }
     bool                                        CommonEnvelopeLambdaNanjingUseRejuvenatedMass() const                   { return OPT_VALUE("common-envelope-lambda-nanjing-use-rejuvenated-mass", m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass, true); }
+    bool                                        AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() const               { return OPT_VALUE("common-envelope-allow-radiative-envelope-survive", m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope, true); }
+    bool                                        AllowImmediateRLOFpostCEToSurviveCommonEnvelope() const                 { return OPT_VALUE("common-envelope-allow-immediate-rlof-post-ce-survive", m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope, true); }
     bool                                        AllowRLOFAtBirth() const                                                { return OPT_VALUE("allow-rlof-at-birth", m_AllowRLOFAtBirth, true); }
     bool                                        AllowTouchingAtBirth() const                                            { return OPT_VALUE("allow-touching-at-birth", m_AllowTouchingAtBirth, true); }
     bool                                        AngularMomentumConservationDuringCircularisation() const                { return OPT_VALUE("angular-momentum-conservation-during-circularisation", m_AngularMomentumConservationDuringCircularisation, true); }
 
-// Serena
     bool                                        BeBinaries() const                                                      { return OPT_VALUE("be-binaries", m_BeBinaries, true); }
 
     BLACK_HOLE_KICKS                            BlackHoleKicks() const                                                  { return OPT_VALUE("black-hole-kicks", m_BlackHoleKicks.type, true); }
-
-    EVOLUTION_MODE                              EvolutionMode() const                                                   { return m_CmdLine.optionValues.m_EvolutionMode.type; }
     
-    CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-bb-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
+    CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-BB-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
     
     bool                                        CheckPhotonTiringLimit() const                                          { return OPT_VALUE("check-photon-tiring-limit", m_CheckPhotonTiringLimit, true); }
 
     CHE_MODE                                    CHEMode() const                                                         { return OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); }
 
     bool                                        CirculariseBinaryDuringMassTransfer() const                             { return OPT_VALUE("circularise-binary-during-mass-transfer", m_CirculariseBinaryDuringMassTransfer, true); }
+
+    std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> CmdLineOptionsDetails() const { return m_CmdLineOptionsDetails; }
 
     bool                                        CommandLineGrid() const                                                 { return m_CmdLine.complexOptionValues.size() != 0; }
     
@@ -1021,7 +1134,9 @@ public:
     double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return OPT_VALUE("common-envelope-recombination-energy-density", m_CommonEnvelopeRecombinationEnergyDensity, true); }
     double                                      CommonEnvelopeSlopeKruckow() const                                      { return OPT_VALUE("common-envelope-slope-kruckow", m_CommonEnvelopeSlopeKruckow, true); }
 
-    vector<string>                              DebugClasses() const                                                    { return m_CmdLine.optionValues.m_DebugClasses; }
+    double                                      CoolWindMassLossMultiplier() const                                      { return OPT_VALUE("cool-wind-mass-loss-multiplier", m_CoolWindMassLossMultiplier, true); }
+
+    std::vector<std::string>                    DebugClasses() const                                                    { return m_CmdLine.optionValues.m_DebugClasses; }
     int                                         DebugLevel() const                                                      { return m_CmdLine.optionValues.m_DebugLevel; }
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
     bool                                        DetailedOutput() const                                                  { return m_CmdLine.optionValues.m_DetailedOutput; }
@@ -1034,15 +1149,21 @@ public:
     double                                      EccentricityDistributionMin() const                                     { return OPT_VALUE("eccentricity-distribution-min", m_EccentricityDistributionMin, true); }
     double                                      EddingtonAccretionFactor() const                                        { return OPT_VALUE("eddington-accretion-factor", m_EddingtonAccretionFactor, true); }
     ENVELOPE_STATE_PRESCRIPTION                 EnvelopeStatePrescription() const                                       { return OPT_VALUE("envelope-state-prescription", m_EnvelopeStatePrescription.type, true); }
-    bool                                        EvolvePulsars() const                                                   { return m_CmdLine.optionValues.m_EvolvePulsars; }
-    bool                                        EvolveUnboundSystems() const                                            { return m_CmdLine.optionValues.m_EvolveUnboundSystems; }
+    EVOLUTION_MODE                              EvolutionMode() const                                                   { return m_CmdLine.optionValues.m_EvolutionMode.type; }
+    bool                                        EvolvePulsars() const                                                   { return OPT_VALUE("evolve-pulsars", m_EvolvePulsars, true); }
+    bool                                        EvolveUnboundSystems() const                                            { return OPT_VALUE("evolve-unbound-systems", m_EvolveUnboundSystems, true); }
 
     bool                                        FixedRandomSeedCmdLine() const                                          { return m_CmdLine.optionValues.m_FixedRandomSeed; }
     bool                                        FixedRandomSeedGridLine() const                                         { return m_GridLine.optionValues.m_FixedRandomSeed; }
     double                                      FixedUK() const                                                         { return m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_FixedUK; }
     SN_ENGINE                                   FryerSupernovaEngine() const                                            { return OPT_VALUE("fryer-supernova-engine", m_FryerSupernovaEngine.type, true); }
 
-    string                                      GridFilename() const                                                    { return m_CmdLine.optionValues.m_GridFilename; }
+    std::string                                 GridFilename() const                                                    { return m_CmdLine.optionValues.m_GridFilename; }
+    std::streamsize                             GridStartLine() const                                                   { return m_CmdLine.optionValues.m_GridStartLine; }
+    std::streamsize                             GridLinesToProcess() const                                              { return m_CmdLine.optionValues.m_GridLinesToProcess; }
+
+    size_t                                      HDF5ChunkSize() const                                                   { return m_CmdLine.optionValues.m_HDF5ChunkSize; }
+    size_t                                      HDF5BufferSize() const                                                  { return m_CmdLine.optionValues.m_HDF5BufferSize; }
 
     double                                      InitialMass() const                                                     { return OPT_VALUE("initial-mass", m_InitialMass, true); }
     double                                      InitialMass1() const                                                    { return OPT_VALUE("initial-mass-1", m_InitialMass1, true); }
@@ -1060,10 +1181,10 @@ public:
 
     double                                      KickMagnitudeDistributionMaximum() const                                { return OPT_VALUE("kick-magnitude-max", m_KickMagnitudeDistributionMaximum, true); }
 
-    double                                      KickMagnitudeDistributionSigmaCCSN_BH() const                           { return OPT_VALUE("kick-magnitude-sigma-ccsn-bh", m_KickMagnitudeDistributionSigmaCCSN_BH, true); }
-    double                                      KickMagnitudeDistributionSigmaCCSN_NS() const                           { return OPT_VALUE("kick-magnitude-sigma-ccsn-ns", m_KickMagnitudeDistributionSigmaCCSN_NS, true); }
-    double                                      KickMagnitudeDistributionSigmaForECSN() const                           { return OPT_VALUE("kick-magnitude-sigma-ecsn", m_KickMagnitudeDistributionSigmaForECSN, true); }
-    double                                      KickMagnitudeDistributionSigmaForUSSN() const                           { return OPT_VALUE("kick-magnitude-sigma-ussn", m_KickMagnitudeDistributionSigmaForUSSN, true); }
+    double                                      KickMagnitudeDistributionSigmaCCSN_BH() const                           { return OPT_VALUE("kick-magnitude-sigma-CCSN-BH", m_KickMagnitudeDistributionSigmaCCSN_BH, true); }
+    double                                      KickMagnitudeDistributionSigmaCCSN_NS() const                           { return OPT_VALUE("kick-magnitude-sigma-CCSN-NS", m_KickMagnitudeDistributionSigmaCCSN_NS, true); }
+    double                                      KickMagnitudeDistributionSigmaForECSN() const                           { return OPT_VALUE("kick-magnitude-sigma-ECSN", m_KickMagnitudeDistributionSigmaForECSN, true); }
+    double                                      KickMagnitudeDistributionSigmaForUSSN() const                           { return OPT_VALUE("kick-magnitude-sigma-USSN", m_KickMagnitudeDistributionSigmaForUSSN, true); }
 
     double                                      KickMagnitude() const                                                   { return OPT_VALUE("kick-magnitude", m_KickMagnitude, true); }
     double                                      KickMagnitude1() const                                                  { return OPT_VALUE("kick-magnitude-1", m_KickMagnitude1, true); }
@@ -1073,51 +1194,44 @@ public:
     double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, false); }
     double                                      KickMagnitudeRandom2() const                                            { return OPT_VALUE("kick-magnitude-random-2", m_KickMagnitudeRandom2, false); }
 
-    double                                      SN_MeanAnomaly1() const                                                 { return OPT_VALUE("kick-mean-anomaly-1", m_KickMeanAnomaly1, false); }
-    double                                      SN_MeanAnomaly2() const                                                 { return OPT_VALUE("kick-mean-anomaly-2", m_KickMeanAnomaly2, false); }
-    double                                      SN_Phi1() const                                                         { return OPT_VALUE("kick-phi-1", m_KickPhi1, false); }
-    double                                      SN_Phi2() const                                                         { return OPT_VALUE("kick-phi-2", m_KickPhi2, false); }
-    double                                      SN_Theta1() const                                                       { return OPT_VALUE("kick-theta-1", m_KickTheta1, false); }
-    double                                      SN_Theta2() const                                                       { return OPT_VALUE("kick-theta-2", m_KickTheta2, false); }
-
-    vector<string>                              LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
-    string                                      LogfileBeBinaries() const                                               { return m_CmdLine.optionValues.m_LogfileBeBinaries; }
-    string                                      LogfileCommonEnvelopes() const                                          { return m_CmdLine.optionValues.m_LogfileCommonEnvelopes; }
-    string                                      LogfileDefinitionsFilename() const                                      { return m_CmdLine.optionValues.m_LogfileDefinitionsFilename; }
-    DELIMITER                                   LogfileDelimiter() const                                                { return m_CmdLine.optionValues.m_LogfileDelimiter.type; }
-    string                                      LogfileDelimiterString() const                                          { return m_CmdLine.optionValues.m_LogfileDelimiter.typeString; }
-    string                                      LogfileDetailedOutput() const                                           { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-detailed-output"].defaulted()
+    std::vector<std::string>                    LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
+    std::string                                 LogfileBeBinaries() const                                               { return m_CmdLine.optionValues.m_LogfileBeBinaries; }
+    std::string                                 LogfileCommonEnvelopes() const                                          { return m_CmdLine.optionValues.m_LogfileCommonEnvelopes; }
+    std::string                                 LogfileDefinitionsFilename() const                                      { return m_CmdLine.optionValues.m_LogfileDefinitionsFilename; }
+    std::string                                 LogfileDetailedOutput() const                                           { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-detailed-output"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileDetailedOutput
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
-                                                                                                                                        ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT))
-                                                                                                                                        : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT))
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT))
                                                                                                                                       );
                                                                                                                         }
-    string                                      LogfileDoubleCompactObjects() const                                     { return m_CmdLine.optionValues.m_LogfileDoubleCompactObjects; }
-    string                                      LogfileNamePrefix() const                                               { return m_CmdLine.optionValues.m_LogfileNamePrefix; }
-    string                                      LogfilePulsarEvolution() const                                          { return m_CmdLine.optionValues.m_LogfilePulsarEvolution; }
-    string                                      LogfileRLOFParameters() const                                           { return m_CmdLine.optionValues.m_LogfileRLOFParameters; }
-    string                                      LogfileSupernovae() const                                               { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-supernovae"].defaulted()
+    std::string                                 LogfileDoubleCompactObjects() const                                     { return m_CmdLine.optionValues.m_LogfileDoubleCompactObjects; }
+    std::string                                 LogfileNamePrefix() const                                               { return m_CmdLine.optionValues.m_LogfileNamePrefix; }
+    std::string                                 LogfilePulsarEvolution() const                                          { return m_CmdLine.optionValues.m_LogfilePulsarEvolution; }
+    std::string                                 LogfileRLOFParameters() const                                           { return m_CmdLine.optionValues.m_LogfileRLOFParameters; }
+    std::string                                 LogfileSupernovae() const                                               { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-supernovae"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileSupernovae
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
-                                                                                                                                        ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE))
-                                                                                                                                        : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE))
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE))
                                                                                                                                       );
                                                                                                                         }
-    string                                      LogfileSwitchLog() const                                                { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-switch-log"].defaulted()
+    std::string                                 LogfileSwitchLog() const                                                { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-switch-log"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileSwitchLog
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
-                                                                                                                                        ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG))
-                                                                                                                                        : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG))
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG))
                                                                                                                                       );
                                                                                                                         }
-    string                                      LogfileSystemParameters() const                                         { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-system-parameters"].defaulted()
+    std::string                                 LogfileSystemParameters() const                                         { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-system-parameters"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileSystemParameters
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
-                                                                                                                                        ? get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS))
-                                                                                                                                        : get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS))
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS))
                                                                                                                                       );
                                                                                                                         }
+    LOGFILETYPE                                 LogfileType() const                                                     { return m_CmdLine.optionValues.m_LogfileType.type; }
+    std::string                                 LogfileTypeString() const                                               { return m_CmdLine.optionValues.m_LogfileType.typeString; }
     int                                         LogLevel() const                                                        { return m_CmdLine.optionValues.m_LogLevel; }
 
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
@@ -1132,7 +1246,7 @@ public:
 
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION        MassTransferAccretionEfficiencyPrescription() const                     { return OPT_VALUE("mass-transfer-accretion-efficiency-prescription", m_MassTransferAccretionEfficiencyPrescription.type, true); }
     MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION       MassTransferAngularMomentumLossPrescription() const                     { return OPT_VALUE("mass-transfer-angular-momentum-loss-prescription", m_MassTransferAngularMomentumLossPrescription.type, true); }
-    double                                      MassTransferCParameter() const                                          { return OPT_VALUE("mass-transfer-thermal-limit-c", m_MassTransferCParameter, true); }
+    double                                      MassTransferCParameter() const                                          { return OPT_VALUE("mass-transfer-thermal-limit-C", m_MassTransferCParameter, true); }
 
     // AVG
     bool                                        MassTransferCriticalMassRatioMSLowMass() const                          { return m_CmdLine.optionValues.m_MassTransferCriticalMassRatioMSLowMass; }     // JR: no option implemented - always FALSE
@@ -1177,32 +1291,34 @@ public:
 
     double                                      MinimumMassSecondary() const                                            { return OPT_VALUE("minimum-secondary-mass", m_MinimumMassSecondary, true); }
 
-    double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-bh", m_MullerMandelKickBH, true); }
-    double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-ns", m_MullerMandelKickNS, true); }
+    double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-BH", m_MullerMandelKickBH, true); }
+    double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-NS", m_MullerMandelKickNS, true); }
 
-    NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-bh-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
-    double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-bh-formation-value", m_NeutrinoMassLossValueBH, true); }
+    NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
+    double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-BH-formation-value", m_NeutrinoMassLossValueBH, true); }
 
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return OPT_VALUE("neutron-star-equation-of-state", m_NeutronStarEquationOfState.type, true); }
 
-    int                                         nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
+    std::string                                 Notes(const size_t p_Idx) const                                         { return OPT_VALUE("notes", m_Notes[p_Idx], true); }
+    std::vector<std::string>                    Notes() const                                                           { return OPT_VALUE("notes", m_Notes, true); }
+    std::string                                 NotesHdrs(const size_t p_Idx) const                                     { return m_CmdLine.optionValues.m_NotesHdrs[p_Idx]; }
+    std::vector<std::string>                    NotesHdrs() const                                                       { return m_CmdLine.optionValues.m_NotesHdrs; }
+ 
+    size_t                                      nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
     bool                                        OptimisticCHE() const                                                   { CHE_MODE che = OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); return che == CHE_MODE::OPTIMISTIC; }
-
-    string                                      CmdLineOptionsDetails() const                                           { return m_CmdLineOptionsDetails; }
 
     double                                      OrbitalPeriod() const                                                   { return OPT_VALUE("orbital-period", m_OrbitalPeriod, true); }
     ORBITAL_PERIOD_DISTRIBUTION                 OrbitalPeriodDistribution() const                                       { return OPT_VALUE("orbital-period-distribution", m_OrbitalPeriodDistribution.type, true); }
     double                                      OrbitalPeriodDistributionMax() const                                    { return OPT_VALUE("orbital-period-max", m_OrbitalPeriodDistributionMax, true); }
     double                                      OrbitalPeriodDistributionMin() const                                    { return OPT_VALUE("orbital-period-min", m_OrbitalPeriodDistributionMin, true); }
 
-    string                                      OutputContainerName() const                                             { return m_CmdLine.optionValues.m_OutputContainerName; }
-    string                                      OutputPathString() const                                                { return m_CmdLine.optionValues.m_OutputPath.string(); }
-
+    std::string                                 OutputContainerName() const                                             { return m_CmdLine.optionValues.m_OutputContainerName; }
+    std::string                                 OutputPathString() const                                                { return m_CmdLine.optionValues.m_OutputPath.string(); }
 
     double                                      OverallWindMassLossMultiplier() const                                   { return OPT_VALUE("overall-wind-mass-loss-multiplier", m_OverallWindMassLossMultiplier, true); }
 
-    double                                      PairInstabilityLowerLimit() const                                       { return OPT_VALUE("pisn-lower-limit", m_PairInstabilityLowerLimit, true); }
-    double                                      PairInstabilityUpperLimit() const                                       { return OPT_VALUE("pisn-upper-limit", m_PairInstabilityUpperLimit, true); }
+    double                                      PairInstabilityLowerLimit() const                                       { return OPT_VALUE("PISN-lower-limit", m_PairInstabilityLowerLimit, true); }
+    double                                      PairInstabilityUpperLimit() const                                       { return OPT_VALUE("PISN-upper-limit", m_PairInstabilityUpperLimit, true); }
 
     bool                                        PopulationDataPrinting() const                                          { return m_CmdLine.optionValues.m_PopulationDataPrinting; }
     bool                                        PrintBoolAsString() const                                               { return m_CmdLine.optionValues.m_PrintBoolAsString; }
@@ -1221,8 +1337,8 @@ public:
     double                                      PulsarMagneticFieldDecayTimescale() const                               { return OPT_VALUE("pulsar-magnetic-field-decay-timescale", m_PulsarMagneticFieldDecayTimescale, true); }
 
     PPI_PRESCRIPTION                            PulsationalPairInstabilityPrescription() const                          { return OPT_VALUE("pulsational-pair-instability-prescription", m_PulsationalPairInstabilityPrescription.type, true); }
-    double                                      PulsationalPairInstabilityLowerLimit() const                            { return OPT_VALUE("ppi-lower-limit", m_PulsationalPairInstabilityLowerLimit, true); }
-    double                                      PulsationalPairInstabilityUpperLimit() const                            { return OPT_VALUE("ppi-upper-limit", m_PulsationalPairInstabilityUpperLimit, true); }
+    double                                      PulsationalPairInstabilityLowerLimit() const                            { return OPT_VALUE("PPI-lower-limit", m_PulsationalPairInstabilityLowerLimit, true); }
+    double                                      PulsationalPairInstabilityUpperLimit() const                            { return OPT_VALUE("PPI-upper-limit", m_PulsationalPairInstabilityUpperLimit, true); }
 
     bool                                        Quiet() const                                                           { return m_CmdLine.optionValues.m_Quiet; }
 
@@ -1234,6 +1350,9 @@ public:
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
 
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return OPT_VALUE("rotational-velocity-distribution", m_RotationalVelocityDistribution.type, true); }
+    double                                      RotationalFrequency() const                                             { return OPT_VALUE("rotational-frequency", m_RotationalFrequency, true); }
+    double                                      RotationalFrequency1() const                                            { return OPT_VALUE("rotational-frequency-1", m_RotationalFrequency1, true); }
+    double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
    
     double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis, true); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }
@@ -1243,10 +1362,18 @@ public:
 
     void                                        ShowHelp()                                                              { PrintOptionHelp(!m_CmdLine.optionValues.m_ShortHelp); }
 
+    double                                      SN_MeanAnomaly1() const                                                 { return OPT_VALUE("kick-mean-anomaly-1", m_KickMeanAnomaly1, false); }
+    double                                      SN_MeanAnomaly2() const                                                 { return OPT_VALUE("kick-mean-anomaly-2", m_KickMeanAnomaly2, false); }
+    double                                      SN_Phi1() const                                                         { return OPT_VALUE("kick-phi-1", m_KickPhi1, false); }
+    double                                      SN_Phi2() const                                                         { return OPT_VALUE("kick-phi-2", m_KickPhi2, false); }
+    double                                      SN_Theta1() const                                                       { return OPT_VALUE("kick-theta-1", m_KickTheta1, false); }
+    double                                      SN_Theta2() const                                                       { return OPT_VALUE("kick-theta-2", m_KickTheta2, false); }
+
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
 
-    bool                                        SwitchLog() const                                                       { return OPT_VALUE("switchlog", m_SwitchLog, true); }
+    bool                                        StoreInputFiles() const                                                 { return m_CmdLine.optionValues.m_StoreInputFiles; }
+    bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }
 
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
 

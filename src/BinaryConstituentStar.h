@@ -61,8 +61,6 @@ public:
         m_Flags.recycledNS                           = false;
         m_Flags.rlofOntoNS                           = false;
 
-        m_IsPrimary                                  = false;
-
         m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_MassLossDiff                               = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -90,8 +88,6 @@ public:
         m_CEDetails                = p_Star.m_CEDetails;
 
         m_Flags                    = p_Star.m_Flags;
-
-        m_IsPrimary                = p_Star.m_IsPrimary;
 
         m_MassTransferDiff         = p_Star.m_MassTransferDiff;
         m_MassLossDiff             = p_Star.m_MassLossDiff;
@@ -121,8 +117,6 @@ public:
 
             m_Flags                    = p_Star.m_Flags;
             
-            m_IsPrimary                = p_Star.m_IsPrimary;
-
             m_MassTransferDiff         = p_Star.m_MassTransferDiff;
             m_MassLossDiff             = p_Star.m_MassLossDiff;
 
@@ -162,7 +156,6 @@ public:
 
     double          HeCoreMassAtCEE() const                                             { return m_CEDetails.HeCoreMass; }
 
-    bool            IsPrimary() const                                                   { return m_IsPrimary; }
     bool            IsRLOF() const                                                      { return m_RLOFDetails.isRLOF; }
     bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN(); }
 
@@ -213,10 +206,6 @@ public:
     void            ClearRLOFOntoNS()                                                   { m_Flags.rlofOntoNS = false; }
     void            SetRLOFOntoNS()                                                     { m_Flags.rlofOntoNS = true; }
 
-    // member functions - alphabetically
-    void            BecomePrimary()                                                     { m_IsPrimary = true; }
-    void            BecomeSecondary()                                                   { m_IsPrimary = false; }
-
     void            CalculateCommonEnvelopeValues();
 
     void            CalculateOmegaTidesIndividualDiff(const double p_OrbitalAngularVelocity) { m_OmegaTidesIndividualDiff = p_OrbitalAngularVelocity - OmegaPrev(); }
@@ -250,8 +239,6 @@ private:
     // member variables - alphabetically
 
     StellarCEDetailsT       m_CEDetails;                            // Common envelope details
-
-    bool                    m_IsPrimary;
 
     bool                    m_FirstMassTransferEpisode;             // Activated for the initial Mass Transfer Episode
 

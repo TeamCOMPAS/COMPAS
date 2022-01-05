@@ -1,0 +1,58 @@
+/* This is here because the :class: attribute doesn't seem to work with flat-table - it does with list-table */
+/* flat-table allows spanning of columns - list-table doesn't...                                             */
+/* unfortunately this takes borders of ALL rst tables                                                        */
+.rst-content table.docutils, .wy-table-bordered-all, table, thead, tbody, tr, td, th {
+    border: 0 solid transparent !important; 
+    background-color: transparent !important;
+    background-image: none !important;
+    font-size: 1em !important;
+    padding: 0 !important;
+    white-space: normal !important;
+    vertical-align: text-top !important;
+}
+  
+/* This takes all borders off tables with class 'aligned-text' - at least it does for list-table, but doesn't seem to work for flat-table */
+.rst-content table.docutils.aligned-text, .wy-table-bordered-all.aligned-text, .aligned-text table, thead, tbody, tr, td, th {
+  border: 0 solid transparent !important; 
+  background-color: transparent !important;
+  background-image: none !important;
+  font-size: 1em !important;
+  padding: 0 !important;
+  white-space: normal !important;
+  vertical-align: text-top !important;
+}
+  
+/* This takes puts borders on tables with class 'bordered' - at least it does for list-table, but doesn't seem to work for flat-table */
+.rst-content table.docutils.bordered, .wy-table-bordered-all.bordered, .bordered table, .bordered thead, .bordered tbody, .bordered tr, .bordered td, .bordered th {
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-color: black !important;
+    padding: 5px !important;
+}
+
+.boldtext {
+    font-weight: bold !important;
+}
+
+.italictext {
+    font-style: italic !important;
+}
+
+.bolditalictext {
+  font-weight: bold !important;
+  font-style: italic !important;
+}
+
+.toms-nav-container .box, .toms-nav-box {
+  background-color: #333;
+  padding: 20px;
+  border-radius: 10px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+  text-align: center;
+  transition: 0.2s;
+  cursor: pointer;
+}

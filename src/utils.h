@@ -89,13 +89,13 @@ namespace utils {
         return std::make_tuple(false, p_Default);
     }
 
-
     double                              intPow(const double p_Base, const int p_Exponent);
 
     double                              InverseSampleFromPowerLaw(const double p_Power, const double p_Xmax, const double p_Xmin);
     double                              InverseSampleFromTabulatedCDF(const double p_Y, const std::map<double, double> p_Table);
 
     int                                 IsBOOL(const std::string p_Str);
+    bool                                IsDOUBLE(const std::string p_Str);
     bool                                IsFLOAT(const std::string p_Str);
     bool                                IsINT(const std::string p_Str);
     bool                                IsLONGDOUBLE(const std::string p_Str);
@@ -106,7 +106,8 @@ namespace utils {
 
 
     std::string                         PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength);
-
+    std::string                         PadTrailingSpaces(const std::string p_Str, const std::size_t p_MaxLength);
+    
     std::string&                        ltrim(std::string& p_Str);
     std::string&                        rtrim(std::string& p_Str);
     std::string&                        trim(std::string& p_Str);

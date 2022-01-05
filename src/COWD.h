@@ -4,17 +4,17 @@
 #include "constants.h"
 #include "typedefs.h"
 
-#include "HeWD.h"
+#include "WhiteDwarfs.h"
 
 
 class BaseStar;
-class HeWD;
+class WhiteDwarfs;
 
-class COWD: virtual public BaseStar, public HeWD {
+class COWD: virtual public BaseStar, public WhiteDwarfs {
 
 public:
 
-    COWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HeWD(p_BaseStar, false) {
+    COWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), WhiteDwarfs(p_BaseStar, false) {
         if (p_Initialise) Initialise();
     }
 
@@ -26,27 +26,32 @@ public:
 
 
     // member functions
-           void   CalculateAngularMomentum() { }                        // NO-OP
-    static double CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Time, const double p_Metallicity);
+           void   CalculateAngularMomentum() const { }                                                                                                          // NO-OP
+
+    static double CalculateLuminosityOnPhase_Static(const double p_Mass, 
+                                                    const double p_Time, 
+                                                    const double p_Metallicity)     { return WhiteDwarfs::CalculateLuminosityOnPhase_Static(p_Mass, 
+                                                                                                                                            p_Time, 
+                                                                                                                                            p_Metallicity, 
+                                                                                                                                            WD_Baryon_Number.at(STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF)); }
 
 
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                            // Set stellar type
-        CalculateTimescales();                                                                                                                              // Initialise timescales
+        m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                                // Set stellar type
+        CalculateTimescales();                                                                                                                                  // Initialise timescales
     }
 
 
     double          CalculateLuminosityOnPhase(const double p_Mass,
                                                const double p_Time,
-                                               const double p_Metallicity)  { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
-    double          CalculateLuminosityOnPhase()                            { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age, m_Metallicity); }     // Use class member variables
+                                               const double p_Metallicity) const    { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
+    double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }        // Use class member variables
 
-    STELLAR_TYPE    EvolveToNextPhase();
+    STELLAR_TYPE    EvolveToNextPhase()                                             { m_Mass = m_Radius = m_Luminosity = m_Age = 0.0; return STELLAR_TYPE::MASSLESS_REMNANT; }
 
-    bool            ShouldEvolveOnPhase()                                   { return (m_Mass <= MCH); }                                                     // Evolve on phase unless mass > Chandrasekhar mass
-    bool            ShouldSkipPhase()                                       { return false; }                                                               // Never skip HeMS phase
+    bool            ShouldEvolveOnPhase() const                                     { return (m_Mass <= MCH); }                                                 // Evolve on phase unless mass > Chandrasekhar mass
 
 };
 

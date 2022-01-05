@@ -17,23 +17,14 @@ public:
 
     /* Constructors
      *
-     * Parameter p_Id is optional, and is only included so that comparison tests can
-     * be run against the legacy Compas code.  If a fixed random seed is being used
-     * (program option) the legacy code effectivley adds the loop index of the binary
-     * (from COMPASBinary() in main.cpp) to the user-specified fixed random seed so
-     * that each binary has a repeatable random seed.
-     *
-     * Notes: the legacy code doesn't actually use the loop index - it uses a generated
-     * object id that is the same as the loop index.  The new code also assigns objects
-     * object ids, but the ids are assigned to all objects, not just binary stars, so
-     * the ids generated in the new code won't match the legacy code ids - hence the
-     * need to use the loop index here.  The parameter is optional - if no comparison
-     * testing against the legacy code is required, the p_Id parameter can be let default
-     * (in which case it is not used to generate the random seed - the generated object
-     * id is used instead).
+     * Parameter p_Seed is the seed for the random number generator - see main.cpp for an
+     * explanation of how p_Seed is derived.
+     * 
+     * Parameter p_Id is the id of the binary - effectively an index - which is added as
+     * a suffix to the filenames of any detailed output files created.
      */
 
-    BinaryStar(const long int p_Id = -1l);
+    BinaryStar(const unsigned long int p_Seed, const long int p_Id);
 
     // Copy constructor
     BinaryStar(const BinaryStar& p_Star) {
@@ -82,7 +73,7 @@ public:
     STELLAR_TYPE        Star2InitialType()          { return m_BinaryStar->InitialStellarType2(); }
     STELLAR_TYPE        Star2Type()                 { return m_BinaryStar->StellarType2(); }
 
-    void                PrintSwitchLog();
+    bool                PrintSwitchLog();
 
 private:
 
