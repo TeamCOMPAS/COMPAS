@@ -383,7 +383,7 @@ double EAGB::CalculateLambdaNanjing() const {
 	DBL_VECTOR b        = {};                                                       // 0..5 b_coefficients
 
     if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0) {                 // Z>0.5 Zsun: popI
-        if (utils::Compare(m_MZAMS, 1.5) < 0) {
+        if (utils::Compare(m_MZAMS, 1.5) < 0) {                                     // Should probably use effective mass m_Mass0 instead for Lambda calculations
             maxBG = { 2.5, 1.5 };
             if (utils::Compare(m_Radius, 200.0) > 0) lambdaBG = { 0.05, 0.05 };
             else  {
@@ -709,7 +709,7 @@ double EAGB::CalculateLambdaNanjing() const {
 /*
  * Calculate luminosity on the Early Asymptotic Giant Branch
  *
- * Hurley et al. 2000, eqs 61, 62 & 63
+ * Hurley et al. 2000, eq 37
  *
  *
  * double CalculateLuminosityOnPhase(const double p_CoreMass)
@@ -717,7 +717,7 @@ double EAGB::CalculateLambdaNanjing() const {
  * @param   [IN]    p_CoreMass                  Core mass in Msol
  * @return                                      Luminosity on the Early Asymptotic Giant Branch in Lsol
  */
-double EAGB::CalculateLuminosityOnPhase(const double p_CoreMass) {
+double EAGB::CalculateLuminosityOnPhase(const double p_CoreMass) const {
     return CalculateLuminosityGivenCoreMass(p_CoreMass);
 }
 
@@ -733,11 +733,9 @@ double EAGB::CalculateLuminosityOnPhase(const double p_CoreMass) {
  *
  * @return                                      Luminosity of remnant core in Lsol
  */
-double EAGB::CalculateRemnantLuminosity() {
+double EAGB::CalculateRemnantLuminosity() const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
-
     return HeGB::CalculateLuminosityOnPhase_Static(m_COCoreMass, gbParams(B), gbParams(D));
-
 #undef gbParams
 }
 
@@ -823,7 +821,7 @@ double EAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
  *
  * @return                                      Radius of remnant core in Rsol
  */
-double EAGB::CalculateRemnantRadius() {
+double EAGB::CalculateRemnantRadius() const {
     double R1, R2;
     std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(m_HeCoreMass, CalculateRemnantLuminosity());
 
@@ -850,7 +848,7 @@ double EAGB::CalculateRemnantRadius() {
  * @param   [IN]    p_Time                      Time in Myr
  * @return                                      Core mass on the Early Asymptotic Giant Branch in Msol
  */
-double EAGB::CalculateCOCoreMassOnPhase(const double p_Time) {
+double EAGB::CalculateCOCoreMassOnPhase(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)] // for convenience and readability - undefined at end of function
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
@@ -921,7 +919,7 @@ double EAGB::CalculateMassLossRateHurley() {
  * @param   [IN]    p_Tinf2_FAGB                tinf2_FAGB (Timescales[TS::tinf2_FAGB]) - Early Asymptotic Giant Branch tinf2
  * @return                                      Lifetime to second dredge up (tDU)
  */
-double EAGB::CalculateLifetimeTo2ndDredgeUp(const double p_Tinf1_FAGB, const double p_Tinf2_FAGB) {
+double EAGB::CalculateLifetimeTo2ndDredgeUp(const double p_Tinf1_FAGB, const double p_Tinf2_FAGB) const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
     double p1  = gbParams(p) - 1.0;
@@ -956,7 +954,7 @@ double EAGB::CalculateLifetimeTo2ndDredgeUp(const double p_Tinf1_FAGB, const dou
  * @param   [IN]    p_Time                      Current age of star in Myr
  * @return                                      Suggested timestep (dt)
  */
-double EAGB::ChooseTimestep(const double p_Time) {
+double EAGB::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     double dtk = utils::Compare(p_Time, timescales(tMx_FAGB)) <= 0
@@ -973,7 +971,9 @@ double EAGB::ChooseTimestep(const double p_Time) {
 
 
 /*
- * Resolve changes to the remnant after the star loses its envelope
+ * Modify the star after it loses its envelope
+ *
+ * Hurley et al. 2000, section 6 just before eq 76 and after Eq. 105
  *
  * Where necessary updates attributes of star (depending upon stellar type):
  *
@@ -989,68 +989,6 @@ double EAGB::ChooseTimestep(const double p_Time) {
  *     - m_COCoreMass
  *     - m_Age
  *
- * Hurley et al. 2000, just after eq 105
- *
- * JR: todo: why is this different from ResolveEnvelopeLoss()?
- * JR: todo: original code: Star::radiusRemnantStarAfterLosingEnvelope() vs Star::modifyStarAfterLosingEnvelope(int stellarType, double mass)
- * JR: todo: why is stellar type changed for some types, but not others?  CheB and EAGB stars have stellar type changed, but no other types do...
- *
- *
- * STELLAR_TYPE ResolveRemnantAfterEnvelopeLoss()
- *
- * @return                                      Stellar type to which star should evolve
- */
-STELLAR_TYPE EAGB::ResolveRemnantAfterEnvelopeLoss() {
-#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
-
-    m_Mass     = m_HeCoreMass;
-    m_Mass0    = m_Mass;
-    m_CoreMass = m_COCoreMass;
-
-    double p1   = gbParams(p) - 1.0;
-    double q1   = gbParams(q) - 1.0;
-    double p1_p = p1 / gbParams(p);
-    double q1_q = q1 / gbParams(q);
-
-    timescales(tHeMS) = HeMS::CalculateLifetimeOnPhase_Static(m_Mass);  // calculate common values
-
-    double LTHe = HeMS::CalculateLuminosityAtPhaseEnd_Static(m_Mass);
-
-    timescales(tinf1_HeGB) = timescales(tHeMS) + (1.0 / ((p1 * gbParams(AHe) * gbParams(D))) * PPOW((gbParams(D) / LTHe), p1_p));
-    timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * PPOW((LTHe / gbParams(Lx)), p1_p);
-    timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
-
-    m_Age      = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
-
-    CalculateGBParams(m_Mass0, m_GBParams);                             // Mass or Mass0 for GBParams?      JR: doesn't matter here (Mass0 = Mass above)
-
-    m_Luminosity = HeGB::CalculateLuminosityOnPhase_Static(m_COCoreMass, gbParams(B), gbParams(D));
-
-    STELLAR_TYPE stellarType;
-    double       R1, R2;
-    std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(m_Mass, m_Luminosity);
-    if (utils::Compare(R1, R2) < 0) {
-        m_Radius    = R1;
-        stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;
-    }
-    else {
-        m_Radius    = R2;
-        stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH;     // Has a deep convective envelope
-    }
-
-    return stellarType;
-
-#undef gbParams
-#undef timescales
-}
-
-
-/*
- * Modify the star after it loses its envelope
- *
- * Hurley et al. 2000, section 6 just before eq 76
- *
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
@@ -1062,9 +1000,9 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {              // Envelope lost, form an evolved naked helium giant
+    if (p_NoCheck || utils::Compare(m_HeCoreMass, m_Mass) >= 0) {              // Envelope lost, form an evolved naked helium giant
 
-        m_Mass     = m_HeCoreMass;
+        m_HeCoreMass  = m_Mass;
         m_Mass0    = m_Mass;
         m_CoreMass = m_COCoreMass;
 
@@ -1081,16 +1019,8 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * PPOW((LTHe / gbParams(Lx)), p1_p);
         timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
 
-
-        // Need to calculate gbParams for new stellar type - calculations of stellar attributes below depend
-        // on new gbParams.  
-        // JR: This really needs to be revisited one day - these calculations should really be performed after
-        // switching to the new stellar type, but other calculations are done (in the legacy code) before the switch
-        // (see evolveOneTimestep() in star.cpp for EAGB stars in the legacy code)
-        
-        HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, m_LogMetallicityXi, m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams);
-
-        m_Age        = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
+        m_Age      = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
+        HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, m_LogMetallicityXi, m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams);  // IM: order of type change and parameter updates to be revisited (e.g., why not just CalculateGBParams(m_Mass0, m_GBParams)?)
         m_Luminosity = HeGB::CalculateLuminosityOnPhase_Static(m_COCoreMass, gbParams(B), gbParams(D));
 
         double R1, R2;
@@ -1120,7 +1050,7 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
  *
  * @return                                      Boolean flag: true if this phase should be skipped, false if not
  */
-bool EAGB::ShouldSkipPhase() {
+bool EAGB::ShouldSkipPhase() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
@@ -1143,7 +1073,7 @@ bool EAGB::ShouldSkipPhase() {
  *
  * @return                                      Boolean flag: true if evolution on this phase should continue, false if not
  */
-bool EAGB::ShouldEvolveOnPhase() {
+bool EAGB::ShouldEvolveOnPhase() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
@@ -1163,7 +1093,7 @@ bool EAGB::ShouldEvolveOnPhase() {
  *
  * @return                                      Boolean flag: true if star has gone Supernova, false if not
  */
-bool EAGB::IsSupernova() {
+bool EAGB::IsSupernova() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 

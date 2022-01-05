@@ -86,8 +86,8 @@ public:
         m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
 
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
-        m_RLOFDetails.currentProps         = p_Star.m_RLOFDetails.currentProps  == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
-        m_RLOFDetails.previousProps        = p_Star.m_RLOFDetails.previousProps == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
+        m_RLOFDetails.propsPreMT           = p_Star.m_RLOFDetails.propsPreMT == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
+        m_RLOFDetails.propsPostMT          = p_Star.m_RLOFDetails.propsPostMT == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
 
         m_SemiMajorAxis                    = p_Star.m_SemiMajorAxis;
         m_SemiMajorAxisAtDCOFormation      = p_Star.m_SemiMajorAxisAtDCOFormation;
@@ -203,8 +203,6 @@ public:
     bool                IsNSandNS() const                           { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR}); }
     bool                IsUnbound() const                           { return (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || (utils::Compare(m_Eccentricity, 1.0) > 0)); }         // semi major axis <= 0.0 means unbound, presumably by SN)
     bool                IsWDandWD() const                           { return HasTwoOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF}); }
-    double              Mass1Final() const                          { return m_Mass1Final; }
-    double              Mass2Final() const                          { return m_Mass2Final; }
     double              Mass1PostCEE() const                        { return m_Star1->MassPostCEE(); }
     double              Mass1PreCEE() const                         { return m_Star1->MassPreCEE(); }
     double              Mass2PostCEE() const                        { return m_Star2->MassPostCEE(); }
@@ -216,7 +214,7 @@ public:
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_Flags.mergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
-    double              OrbitalAngularVelocity() const              { return sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
+    double              OrbitalAngularVelocity() const              { return std::sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
     double              Periastron() const                          { return m_SemiMajorAxis * (1.0-m_Eccentricity); }
     double              PeriastronRsol() const                      { return Periastron() * AU_TO_RSOL; }
@@ -271,7 +269,7 @@ public:
 
             EVOLUTION_STATUS    Evolve();
 
-            bool                PrintSwitchLog(const long int p_Id, const bool p_PrimarySwitching) { return OPTIONS->SwitchLog() ? LOGGING->LogBSESwitchLog(this, p_Id, p_PrimarySwitching) : true; }
+            bool                PrintSwitchLog(const bool p_PrimarySwitching) { return OPTIONS->SwitchLog() ? LOGGING->LogBSESwitchLog(this, p_PrimarySwitching) : true; }
 
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
 
@@ -446,7 +444,7 @@ private:
 
     double  CalculateOrbitalAngularMomentum(const double p_Mu,
                                             const double p_Mass,
-                                            const double p_SemiMajorAxis) const { return p_Mu * sqrt(G1 * p_Mass * p_SemiMajorAxis); }
+                                            const double p_SemiMajorAxis) const { return p_Mu * std::sqrt(G1 * p_Mass * p_SemiMajorAxis); }
 
     double  CalculateOrbitalEnergy(const double p_Mu,
                                    const double p_Mass,
@@ -501,19 +499,19 @@ private:
                             const double p_RocheLobe2to1);
 
     void    StashBeBinaryProperties();
-    void    StashRLOFProperties();
+    void    StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which);
 
     void    UpdateSystemicVelocity(Vector3d p_newVelocity);
 
     // printing functions
-    bool PrintRLOFParameters(const string p_Rec = "");
-    bool PrintBinarySystemParameters(const string p_Rec = "") const              { return LOGGING->LogBSESystemParameters(this, p_Rec); }
-    bool PrintDetailedOutput(const long int p_Id, const string p_Rec = "") const { return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id, p_Rec) : true; }
-    bool PrintDoubleCompactObjects(const string p_Rec = "") const                { return LOGGING->LogDoubleCompactObject(this, p_Rec); }
-    bool PrintCommonEnvelope(const string p_Rec = "") const                      { return LOGGING->LogCommonEnvelope(this, p_Rec); }
-    bool PrintBeBinary(const string p_Rec = "");
-    bool PrintPulsarEvolutionParameters(const string p_Rec = "") const           { return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_Rec) : true; }
-    bool PrintSupernovaDetails(const string p_Rec = "") const                    { return LOGGING->LogBSESupernovaDetails(this, p_Rec); }
+    bool PrintRLOFParameters();
+    bool PrintBinarySystemParameters() const            { return LOGGING->LogBSESystemParameters(this); }
+    bool PrintDetailedOutput(const long int p_Id) const { return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id) : true; }
+    bool PrintDoubleCompactObjects() const              { return LOGGING->LogDoubleCompactObject(this); }
+    bool PrintCommonEnvelope() const                    { return LOGGING->LogCommonEnvelope(this); }
+    bool PrintBeBinary();
+    bool PrintPulsarEvolutionParameters() const         { return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this) : true; }
+    bool PrintSupernovaDetails() const                  { return LOGGING->LogBSESupernovaDetails(this); }
 
     
     //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
@@ -545,7 +543,7 @@ private:
             (void)donorCopy->UpdateAttributes(-dM, -dM*donorCopy->Mass0()/donorCopy->Mass());
             
             // Modify donor Mass0 and Age for MS (including HeMS) and HG stars
-            donorCopy->UpdateInitialMass();         // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge - mass0 is overloaded, and isn't always "initial mass"
+            donorCopy->UpdateInitialMass();         // update initial mass (MS, HG & HeMS)  
             donorCopy->UpdateAgeAfterMassLoss();    // update age (MS, HG & HeMS)
             
             (void)donorCopy->AgeOneTimestep(0.0);   // recalculate radius of star - don't age - just update values

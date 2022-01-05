@@ -78,18 +78,18 @@ void TPAGB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
  *
  * @return                                      Dewi lambda for use in common envelope
  */
-double TPAGB::CalculateLambdaDewi() {
+double TPAGB::CalculateLambdaDewi() const {
 
     double lambda3 = std::min(-0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                          // (A.4) Claeys+2014
     double lambda1 = std::max(1.0, std::max(lambda3, -3.5 - (0.75 * log10(m_Mass)) + log10(m_Luminosity)));                 // (A.5) Bottom, Claeys+2014
-	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                   // (A.2) Claeys+2014
+	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
 
     double lambdaCE;
 
          if (utils::Compare(envMass, 1.0) >= 0) lambdaCE = 2.0 * lambda1;                                                   // (A.1) Bottom, Claeys+2014
-	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
-	else                                 lambdaCE = 2.0 * lambda2;			                                                // (A.1) Top, Claeys+2014
+	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (std::sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
+	else                                        lambdaCE = 2.0 * lambda2;                                                   // (A.1) Top, Claeys+2014
 
 	return	lambdaCE;
 }
@@ -732,7 +732,7 @@ double TPAGB::CalculateLambdaNanjing() const {
  * I have done it this way to allow me to have a generic EvolveOneTimestep() function,
  * but there must be an elegant way of calculating once and using twice...
  */
-double TPAGB::CalculateMcPrime(const double p_Time) {
+double TPAGB::CalculateMcPrime(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
@@ -756,7 +756,7 @@ double TPAGB::CalculateMcPrime(const double p_Time) {
  * @param   [IN]    p_Time                      Time in Myr
  * @return                                      Luminosity on the Thermally Pulsing Asymptotic Giant Branch in Lsol
  */
-double TPAGB::CalculateLuminosityOnPhase(const double p_Time) {
+double TPAGB::CalculateLuminosityOnPhase(const double p_Time) const {
     return CalculateLuminosityGivenCoreMass(CalculateMcPrime(p_Time));
 }
 
@@ -772,7 +772,7 @@ double TPAGB::CalculateLuminosityOnPhase(const double p_Time) {
  *
  * @return                                      Luminosity of remnant core in Lsol
  */
-double TPAGB::CalculateRemnantLuminosity() {
+double TPAGB::CalculateRemnantLuminosity() const {
     return COWD::CalculateLuminosityOnPhase_Static(m_CoreMass, 0.0, m_Metallicity);
 }
 
@@ -822,7 +822,7 @@ double TPAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
  *
  * @return                                      Radius of remnant core in Rsol
  */
-double TPAGB::CalculateRemnantRadius() {
+double TPAGB::CalculateRemnantRadius() const {
     return HeWD::CalculateRadiusOnPhase_Static(m_CoreMass);
 }
 
@@ -846,13 +846,13 @@ double TPAGB::CalculateRemnantRadius() {
  * @param   [IN]    p_Time                      Time in Myr
  * @return                                      Core mass on the Thermally Pulsing Asymptotic Giant Branch in Msol
  */
-double TPAGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) {
+double TPAGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
-    double m_5    = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass;     // pow() is slow - use ultiplication
-    double lambda = std::min(0.9, 0.3 + (0.001 * m_5));             // Hurley et al. 2000, eq 73
+    double m_5    = p_Mass * p_Mass * p_Mass * p_Mass * p_Mass;                                                     // pow() is slow - use ultiplication
+    double lambda = std::min(0.9, 0.3 + (0.001 * m_5));                                                             // Hurley et al. 2000, eq 73
 
-    return std::min( (gbParams(McDU) +  ((1.0 - lambda) * (CalculateMcPrime(p_Time) - gbParams(McDU)))), m_Mass);                                 // Core should never exceed total mass
+    return std::min((gbParams(McDU) +  ((1.0 - lambda) * (CalculateMcPrime(p_Time) - gbParams(McDU)))), m_Mass);    // Core should never exceed total mass
 
 #undef gbParams
 }
@@ -866,7 +866,9 @@ double TPAGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time)
 
 
 /*
- * Resolve changes to the remnant after the star loses its envelope
+ * Modify the star after it loses its envelope
+ *
+ * Hurley et al. 2000, section 6 just before eq 76 and after Eq. 105
  *
  * Where necessary updates attributes of star (depending upon stellar type):
  *
@@ -882,30 +884,6 @@ double TPAGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time)
  *     - m_COCoreMass
  *     - m_Age
  *
- * Hurley et al. 2000, just after eq 105
- *
- * JR: todo: why is this different from ResolveEnvelopeLoss()?
- * JR: todo: original code: Star::radiusRemnantStarAfterLosingEnvelope() vs Star::modifyStarAfterLosingEnvelope(int stellarType, double mass)
- * JR: todo: why is stellar type changed for some types, but not others?  CheB and EAGB stars have stellar type changed, but no other types do...
- *
- *
- * STELLAR_TYPE ResolveRemnantAfterEnvelopeLoss()
- *
- * @return                                      Stellar type to which star should evolve
- */
-STELLAR_TYPE TPAGB::ResolveRemnantAfterEnvelopeLoss() {
-
-    m_Radius = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
-
-    return m_StellarType;   // no change
-}
-
-
-/*
- * Modify the star after it loses its envelope
- *
- * Hurley et al. 2000, section 6 just before eq 76
- *
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
@@ -918,13 +896,13 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     if (p_NoCheck || (utils::Compare(m_CoreMass, m_Mass)) >= 0) {
 
-        stellarType = utils::Compare(gbParams(McBAGB), OPTIONS->MCBUR1() ) < 0 ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
-        
-        m_Mass      = m_CoreMass;
-        m_HeCoreMass= m_COCoreMass;
+        m_CoreMass  = m_Mass;
+        m_HeCoreMass= m_Mass;
+        m_COCoreMass= m_Mass;
         m_Mass0     = m_Mass;
+        m_Radius    = COWD::CalculateRadiusOnPhase_Static(m_Mass);
         m_Age       = 0.0;
-        m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
+        stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }
 
     return stellarType;
@@ -945,7 +923,7 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
  * @param   [IN]    p_Time                      Current age of star in Myr
  * @return                                      Suggested timestep (dt)
  */
-double TPAGB::ChooseTimestep(const double p_Time) {
+double TPAGB::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     double dtk = utils::Compare(p_Time, timescales(tMx_SAGB)) <= 0

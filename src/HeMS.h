@@ -70,9 +70,6 @@ protected:
 
             double          CalculateLambdaDewi() const                                                 { return 0.5; }
             double          CalculateLambdaNanjing() const                                              { return BaseStar::CalculateLambdaNanjing(); }                          // Not supported - use BaseStar
-            double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const { return CalculateLambdaNanjing(); }
-
-
             double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const                    { return CalculateLuminosityAtPhaseEnd_Static(p_Mass); }
             double          CalculateLuminosityAtPhaseEnd() const                                       { return CalculateLuminosityAtPhaseEnd(m_Mass); }                       // Use class member variables
             double          CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau) const   { return CalculateLuminosityOnPhase_Static(p_Mass, p_Tau); }
@@ -102,12 +99,6 @@ protected:
             double          CalculateTemperatureAtPhaseEnd() const                                      { return BaseStar::CalculateTemperatureAtPhaseEnd(); }
 
             double          CalculateThermalMassLossRate() const                                        { return BaseStar::CalculateThermalMassLossRate(); }                    // Use BaseStar
-
-            double          CalculateThermalTimescale(const double p_Mass,
-                                                      const double p_Radius,
-                                                      const double p_Luminosity,
-                                                      const double p_EnvMass = 1.0) const               { return MainSequence::CalculateThermalTimescale(p_Mass, p_Radius, p_Luminosity); }
-            double          CalculateThermalTimescale() const                                           { return CalculateThermalTimescale(m_Mass, m_Radius, m_Luminosity); }   // Use class member variables
 
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
             void            CalculateTimescales()                                                       { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables

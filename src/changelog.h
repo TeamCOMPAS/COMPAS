@@ -612,7 +612,7 @@
 //                                      - Consolidated checks of luminosity for NJ winds within function
 //                                      - NOTE: the above makes sure luminosity is checked before applying NJ winds for MS stars, this was not previously the case but I think it should be
 // 02.17.08     JR - Nov 19, 2020   - Enhancements, code cleanup
-//                                      - Added orbital-period-distribution option (see not in Options.cpp re orbital period option)
+//                                      - Added orbital-period-distribution option (see note in Options.cpp re orbital period option)
 //                                      - Added mass-ratio option
 //                                      - Updated default pythonSubmit to reflect new options, plus some previous omissions (by me...)
 //                                      - Minor typo/formatting changes throughout
@@ -631,7 +631,235 @@
 //                                      - Added a new class variable to track the dominant mass loss rate at each timestep
 // 02.17.13     JR - Dec 11, 2020   - Defect repair
 //                                      - uncomment initialisations of mass transfer critical mass ratios in Options.cpp (erroneously commented in v02.16.00)
+// 02.17.14     TW - Dec 16, 2020   - Bug fix
+//                                      - fix behaviour at fLBV=0 (had been including other winds but should just ignore them)
+// 02.17.15     JR - Dec 17, 2020   - Code and architecture cleanup
+//                                      - Architecture changes:
+//                                          - Added Remnants class    - inherits from HeGB class
+//                                          - Added WhiteDwarfs class - inherits from Remnants class; most of the WD code moved from HeWD, COWD and ONeWD to WhiteDwarfs class
+//                                          - Changed HeWD class      - inherits from WhiteDwarfs class (COWD still inherits from HeWD; ONeWD from COWD)
+//                                          - Change NS class         - inherits from Remnants class; code added/moved as necessary
+//                                          - Change BH class         - inherits from Remnants class; code added/moved as necessary
+//                                          - Change MR class         - inherits from Remnants class; code added/moved as necessary
+//                                      - Code cleanup:
+//                                          - added "const" to many functions (mostly SSE code) that dont modify class variables ("this") (still much to do, but this is a start)
+//                                          - added "virtual" to GiantBranch::CalculateCoreMassAtBAGB() and BaseStar::CalculateTemperatureAtPhaseEnd()
+//                                              - will have no impact given where they are called, but the keyword should be there (in case of future changes)
+//                                          - changed hard-coded header suffixes from _1 -> (1), _2 -> (2)
+//                                      - Added call to main() to seed random number generator with seed = 0 before options are processed (and user specified seed is know).  Ensures repeatability.
+//                                      - Changed "timestep below minimum" warnings in Star.cpp to be displayed only if --enable-warnings is specified
+// 02.17.16     JR - Dec 17, 2020   - Code cleanup
+//                                      - Removed "virtual" from GiantBranch::CalculateCoreMassAtBAGB() (incorrectly added in v02.17.15 - I was right the first time)
+//                                      - Removed "const" from Remnants::ResolveMassLoss() (inadvertently added in v02.17.15)
+//                                      - Removed declarations of variables m_ReducedMass, m_ReducedMassPrev, m_TotalMass, and m_TotalMassPrevfrom BaseBinaryStar.h (cleanup begun in v02.15.10 - these declarations were missed)
+// 02.17.17     RTW - Dec 17, 2020  - Code cleanup
+//                                      - Removed MassTransferCase related variables in favor of MassTransferDonorHist
+// 02.17.18     JR - Dec 18, 2020   - Defect repair
+//                                      - Typo in options code for option --switch-log: "switchlog" was incorrectly used instead of "switch-log"
+// 02.17.19     LVS - Dec 19, 2020  - Enhancements:
+//                                      - Added option to vary winds of cool stars (with T < VINK_MASS_LOSS_MINIMUM_TEMP) via a CoolWindMassLossMultiplier
+// 02.18.00     JR - Jan 08, 2021   - Enhancement:
+//                                      - Added support for HDF5 logfiles (see notes at top of log.h)
+//                                      - Added 'logfile-type' option; allowed values are HDF5, CSV, TSV, TXT; default is HDF5
+//                                      - Added 'hdf5-chunk-size' option - specifies the HDF5 chunk size (number of dataset entries)
+//                                      - Added 'hdf5-buffer-size' option - specifies the HDF5 IO buffer size (number of chunks)
+//                                      - Removed 'logfile-delimiter' option - delimiter now set by logfile type (--logfile-type option described above)
+//                                      - Changed header strings containing '/' character: '/' replaced by '|' (header strings become dataset names in HDF5 files, and '/' is a path delimiter...)
+// 02.18.01     SS - Jan 11, 2021   - Defect repair
+//                                      - Added check if binary is bound when evolving unbound binaries
+// 02.18.02     JR - Jan 12, 2021   - Defect repair:
+//                                      - Changed "hdf5_chunk_size = 5000" to "hdf5_chunk_size = 100000" in default pythonSubmit (inadvertently left at 5000 after some tests...)
+// 02.18.03     SS - Jan 19, 2021   - Enhancement:
+// 									    - Added check for neutron star mass against maximum neutron star mass. 
+//									      If a neutron star exceeds this mass it should collapse to a black hole. 
+//                                        This can be relevant for neutron stars accreting, e.g. during common envelope evolution
+// 02.18.04     IM - Jan 28, 2021   - Enhancement:
+//                                      - NS to BH collapse preserves mass (see discussion in #514)
+//                                      - Fixed comment typo
+// 02.18.05     JR - Jan 29, 2021   - Defect repair:
+//                                      - Honour '--evolve-unbound-systems' option when specified in a grid file (see issue #519)
+//                                      - Honour '--evolve-pulsars' option when specified in a grid file (same as issue #519)
+//                                      - Added "maximum-evolution-time", "maximum-number-timestep-iterations", and "timestep-multiplier" to m_GridLineExcluded vector in Options.h (previous oversight)
+// 02.18.06     SS - Feb 1, 2021    - Defect repair:
+//                                      - Make COMPAS use --neutrino-mass-loss-BH-formation options (resolves issue #453)
+// 02.18.07     JR - Feb 18, 2021   - Enhancement:
+//                                      - Added 'rotational-frequency' option so users can specify initial rotational frequency of SSE star
+//                                      - Added 'rotational-frequency-1' and 'rotational-frequency-2' options so users can specify initial rotational frequency of both BSE stars
+//                                      - Changed units of rotational frequencies written to logfiles (omega, omega_break, omega_ZAMS) from rotations per year to Hz
+//                                      - Changed program option header strings containing '_1' and '_2' to '(1)' and '(2)' for consistency
+// 02.18.08     JR - Feb 26, 2021   - Defect repairs:
+//                                      - Remove stray diagnostic print from BaseStar constructor in BaseStar.cpp
+//                                      - Fix for issue #530 - some commandline options ignored when a grid file is used
+//                                          - the issue here was case-sensitive vs case-insensitive matches (asking BOOST to do case-insensitive matches for option names doesn't propagate to all matches BOOST does...)
+//                                          - the options affected were all options that have mixed-case names:
+//
+//                                              - case-BB-stability-prescription
+//                                              - kick-magnitude-sigma-CCSN-BH
+//                                              - kick-magnitude-sigma-CCSN-NS
+//                                              - kick-magnitude-sigma-ECSN
+//                                              - kick-magnitude-sigma-USSN
+//                                              - mass-transfer-thermal-limit-C
+//                                              - muller-mandel-kick-multiplier-BH
+//                                              - muller-mandel-kick-multiplier-NS
+//                                              - neutrino-mass-loss-BH-formation
+//                                              - neutrino-mass-loss-BH-formation-value
+//                                              - PISN-lower-limit
+//                                              - PISN-upper-limit
+//                                              - PPI-lower-limit
+//                                              - PPI-upper-limit
+// 02.18.09     ML - Mar 22, 2021   - Defect repair:
+//                                      - Correct polynomial evaluation of Nanjing lambda's for EAGB and TPAGB stellar types.
+// 02.18.10     LVS - Apr 06, 2021   - Enhancement:
+//                                      - Added PPISN prescription option - Farmer 2019
+// 02.19.00     JR - Apr 20, 2021   - Enhancements and Defect Repairs:
+//                                      - Enhancements:
+//                                          - Added option to enable users to add program options values to BSE/SSE system parameters files
+//                                              - option is '--add-options-to-sysparms', allowed values are {ALWAYS, GRID, NEVER}.  See docs for details.
+//                                          - Included "Run_Details" file in HDF5 output file if logfile type = HDF5.  The text Run_Details file still exists
+//                                            so users can still easily look at the contents of the Run_Details file - this enhancements adds a copy of the
+//                                            Run_Details file to the HDF5 output file.
+//
+//                                      - Defect Repairs:
+//                                          - fixed a few previously unnoticed typos in PROGRAM_OPTION map in constamts.h, and in Options::OptionValue() function.
+//                                            Fairly benign since they had't been noticed, but needed to be fixed.
+//
+//                                      Modified h5copy.py (in postProcessing/Folders/H5/PythonScripts) so that groups (COMPAS files) will not be copied
+//                                      if the group exists in the destination file but has a different number of datasets (columns) from the group in
+//                                      the source file.
+//
+//                                      Also provided h5view.py - an HDF5 file viewer for COMPAS HDF5 files (in postProcessing/Folders/H5/PythonScripts).  See
+//                                      documentation as top of source file for details.
+// 02.19.01     JR - Apr 30, 2021   - Enhancements and Defect Repairs:
+//                                      - Enhancements:
+//                                          - changed chunk size for HDF5 files to HDF5_MINIMUM_CHUNK_SIZE for Run_Details group in COMPAS_Output and for detailed output files.
+//                                              - Run_Details is a small file, and detailed output files are generally a few thousand records rather than hundreds of thousands, 
+//                                                so a smaller chunk size wastes less space and doesn't impact performance significantly
+//
+//                                      - Defect Repairs:
+//                                          - fixed issue #548 - HDF5 detailed output files not created when random-seed specified in a grid file
+//                                          - fixed defect where records in HDF5 output files would be duplicated if the number of systems exceeded the HDF5 chunck size
+//                                            being used (the default chunk size is 100000 - that might explain why this problem hasn't been reported)
+//
+//                                      Modified h5view.py (in postProcessing/Folders/H5/PythonScripts) to handle detailed ouput files
+// 02.19.02     LVS - May 04, 2021   - Defect Repairs:
+//                                      - Avoid possibility of exceeding total mass in Farmer PPISN prescription
+// 02.19.03     TW - May 18, 2021    - Enhancement:
+//                                      - Change default LBV wind prescription to HURLEY_ADD
+// 02.19.04     JR - May 24, 2021    - Defect Repair:
+//                                      - Fixed incrementing of random seed and binary id when grid file contains sets/ranges
+//
+//                                      Modified h5view.py (in postProcessing/Folders/H5/PythonScripts) to print number of unique seeds (where relevant) in summary output
+// 02.20.00     IM - June 14, 2021  - Enhancement:
+//                                      - Port defaults from preProcessing/pythonSubmit.py to options.cpp
+//                                      - Minor fixes (e.g., documentation)
+// 02.20.01     JR - June 21, 2021  - Defect repair:
+//                                      - Fix for issue #585: add formatted value and delimiter to logrecord string in Log.h (defect introduced in v02.18.00; only affected SSE_Supernovae logfile)
+// 02.20.02     JR - July 26, 2021  - Defect repair:
+//                                      - Add HDF5 support to logging code for SSE/BSE switch log files.  Support for HDF5 switch files was inadvertently not added when HDF5 file support as added in v02.18.00 for all standard log files.  Switch log files are 'special' (they have extra columns, not part of the 'standard' log file functionality), and that was missed.
+//                                      - Also removed '-lsz' from Makefile and Makefile.docker - library not required
+// 02.21.00     JR - July 28, 2021  - Enhancement and Defect Repairs:
+//                                      - Added code to copy any grid file and/or logfile-definitions file specified to output container.
+//                                      - Copying a large grid file could take time, and take up much space, so added new program option '--store-input-files' which is TRUE by default.  If FALSE, neither the grid file (if specified) nor the logfile-definitions file (if specified) will be copied to the output container (if TRUE, both will be copied (if specified)).
+//                                      - Fixed issue #600: changed pythonSubmit.py to treat fully-qualified grid filenames and fully-qualified logfile-definitions filenames correctly (i.e. don't add CWD if the filename is already fully-qualified).
+//                                      - Fixed issue #601: changed pythonSubmit.py to put all boolean parameters on the commandline, with "True" or "False" value.
+// 02.21.01     RTW - Aug 21, 2021  - Defect Repair:
+//                                      - PrintRLOFProperties now gets called immediately before and after the call to EvaluateBinary so that the changes reflect only BSE changes.
+//                                      - The function call has also been tidied up to take an argument specifying whether the call was made before or after the MT took place.
+// 02.22.00     JR - Aug 26, 2021   - Enhancement:
+//                                      - Added functionality to allow users to select a range of lines from the grid file (if specified) to process.  Added program options --grid-start-line and --grid-lines-to-process - see documentation for details.
+// 02.22.01     JR - Sep 11, 2021   - Defect repair:
+//                                      - Fix for issue #615: defaults for calculated/drawn program options now calculated after random seed is set for the system being evolved.
+// 02.22.02     IM - Oct 4, 2021    - Defecr repair:
+//                                      - Removed unnecessary IsPrimary() / BecomePrimary() functionality, fixed incorrect MassTransferTrackerHistory (see issue #605)
+// 02.22.03     IM - Oct 4, 2022    - Defect repair:
+//                                      - Corrected Eddington mass accretion limits, issue #612 (very minor change for WDs and NSs, factor of a few increase for BHs)
+// 02.23.00 FSB/JR - Oct 11, 2021   - Enhancement:
+//                                      - updated kelvin-helmholtz (thermal) timescale calculation with more accurate pre-factor and updated documentation.
+//                                      - rationalised parameters of, and calls to, CalculateThermalTimescale()
+// 02.23.01     JR - Oct 11, 2021   - Code cleanup:
+//                                      - Typo fixed in version for changes made on October 11, 2021
+//                                      - Changed KROUPA_POWER to SALPETER_POWER in utils:SampleInitialMass(); Removed KROUPA_POWER from constants.h
+//                                      - Removed p_Id parameter from SSE/BSE switchlog functions - leftover from debugging
+//                                      - Added CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE property to SSE_SYSTEM_PARAMETERS_REC and BSE_SYSTEM_PARAMETERS_REC (both stars)
+//                                      - Tidied up some parameters etc. to better comply with COMPAS coding guidelines
+//                                      - Typo fixed in preProcessing/COMPAS_Output_Definitions.txt
+// 02.24.00     JR - Oct 12, 2021   - Minor enhancements/optimisations:
+//                                      - Added BaseStar::CalculateThermalMassAcceptanceRate() as a first-pass to address issue #595 - can be changed/expanded as required
+//                                      - Changed BaseBinaryStar::CalculateTimeToCoalescence() to use Mandel 2021 https://iopscience.iop.org/article/10.3847/2515-5172/ac2d35, eq 5 to address issue #538
+// 02.24.01     RTW - Oct 13, 2021  - Enhancements:
+//                                      - Added units uniformly to the --help input descriptions
+//                                      - Removed the BeBinary- and RLOF-specific random seeds (which were attributes of the events and were printed with e.g <MT) and replaced with system random seed
+//                                      - In CE output, changed MASS_2_FINAL (which was sort of a wrapper for core mass) for MASS_2_POST_COMMON_ENVELOPE
+//                                      - Removed SN kick angles from SystemParameters output (they are duplicated in SN output) and changed true_anomaly to mean_anomaly in BSE SN output
+//                                      - Cosmetic typo fixes and added consistency, in the Event_Counter parameters and some function definitions
+//                                      - Added *.eps, *.png to gitignore
+// 02.24.02     JR - Oct 13, 2021   - Minor fixes:
+//                                      - Fixed a few typos in header strings
+//                                      - Changed true_anomaly to mean_anomaly in SSE SN output
+// 02.25.00     JR - Oct 30, 2021   - Enhancements and minor fixes:
+//                                      - Added ability for users to annotate log files via new program options '--notes-hdrs' and '--notes'.  See docs for details. 
+//                                      - Added a shorthand notation for vector program options (e.g. annotations, log-classes, debug-classes).  See docs for details.
+//                                      - Added '--notes-hdrs' and '--notes' to pythonSubmit.py (default = None for both)
+//                                      - Added HDF5 support to Log::GetLogStandardRecord() (return value) and Log::LogStandardRecord() (input parameter).  This only matters
+//                                        to SSE Supernovae file - for delayed writes.  The original implementation may have resulted in minor discrepanicies in SSE Supernovae
+//                                        log records, (because of when the values were sampled (i.e. mid-timestep, or end of timestep)), which would only have been evident if
+//                                        HDF5 files were compared to e.g. CSV files for the same binary - CSV, TSV, and TXT files had values sampled mid-timestep, HDF5 files 
+//                                        at end of timestep).
+//                                      - Added Log::Write() and Log::Put() for HDF5 files (better implementation - worked around in original implementation)
+//                                      - Added additional checks for bad string -> number conversions throughout (for stoi(), stod(), etc.)
+//                                      - Performance enhancement to BaseBinaryStar::CalculateTimeToCoalescence() (return early if e = 0.0)
+//                                      - Fixed a few typos in comments
+// 02.25.01     IM - Nov 1, 2021    -  Enhancements:
+//                                      - Introduced common-envelope-allow-radiative-envelope-survive and common-envelope-allow-immediate-rlof-post-ce-survive options
+//                                      - Addresses issue # 637
+// 02.25.02     JR - Nov 1 , 2021    - Minor fixes:
+//                                      - reinstated "_n" suffix for BSE detailed filenames (inadvertently removed in v02.25.00)
+//                                      - updated pythonSubmit files:
+//                                          preProcessing/pythonSubmit.py
+//                                          examples/methods_paper_plots/detailed_evolution/pythonSubmitDemo.py
+//                                          examples/methods_paper_plots/chirpmass_distribution/pythonSubmit.py
+//                                          examples/methods_paper_plots/fig_5_HR_diagram/pythonSubmit.py
+//                                          examples/methods_paper_plots/fig_6_max_R/pythonSubmit.py
+//                                          examples/methods_paper_plots/fig_8_initial_core_final_mass_relations/pythonSubmitDefaults.py
+//                                          examples/methods_paper_plots/fig_8_initial_core_final_mass_relations/pythonSubmitFryerRapid.py
+//                                          examples/methods_paper_plots/fig_8_initial_core_final_mass_relations/pythonSubmitMandelMueller.py
+// 02.25.03     JR - Nov 1 , 2021    - Minor fixes:
+//                                      - fixed typo in Options.cpp for option --common-envelope-allow-immediate-RLOF-post-CE-survive (was typed common-envelope-allow-immediate-RLOF-post-CE_survive)
+//                                      - fixed typo in Options.cpp for option --common-envelope-allow-radiative-envelope-survive (was typed common-envelope-allow-radiative-envelope-surive)
+//                                        (neither of these caused problems because Boost matches only as many characters as necessary to determine the option name - would have if the names were not unique up to the typos)
+// 02.25.04     IM - Nov 4, 2021     - Minor fixes
+//                                      - More surive->survive typo fixes in python files to address issue #660
+//                                      - Documentation edits to reflect new options common-envelope-allow-radiative-envelope-survive and common-envelope-allow-immediate-rlof-post-ce-survive options
+// 02.25.05     IM - Nov 4, 2021     - Defect repair:
+//                                      - Changed GiantBranch::CalculateRemnantMassByMullerMandel() to ensure that the remnant mass is no greater than the He core mass
+// 02.25.06     IM - Nov 7, 2021     - Enhancements:
+//                                      - Clarified program option documentation
+//                                      - Removed unused CUSTOM semi-major axis initial distribution
+//                                      - Removed unused STARTRACK zeta prescription
+// 02.25.07     IM - Nov 12, 2021    - Defect repair:
+//                                      - Changed EAGB::CalculateLuminosityOnPhase() and EAGB::CalculateLuminosityAtPhaseEnd() to use the helium core mass rather than the CO core mass (see Eq. in second paragraph of section 5.4 of Hurley+, 2000); this fixes a downward step in luminosity and radius on transition to EAGB
+// 02.25.08     JR - Nov 15, 2021    - Defect repair:
+//                                      - Fixed error introduced in v02.25.00: Added HDF5 support to GetLogStandardRecord().
+//                                        Defect introduced was omission of code for HDF5 file support if a specified property is supplied to GetLogStandardRecord(), causing a boost::bad_get error.
+//                                        The defect only affected HDF5 SSE_Supernovae files.  This fix adds the omitted code.
+//                                      - Changed Options::PrintOptionHelp() to print help (-h/--h) to stdout instead of stderr.
+// 02.25.09     IM - Nov 16, 2021    - Defect repair:
+//                                      -Revert EAGB treatment to 02.25.06 until a proper fix is introduced
+// 02.25.10     JR - Nov 19, 2021    - Defect repairs:
+//                                      - clamp timestep returned in BaseStar::CalculateTimestep() to NUCLEAR_MINIMUM_TIMESTEP
+//                                      - change NUCLEAR_MINIMUM_TIMESTEP to 1 year (from 100 years) in constants.h
+// 02.26.00     IM - Nov 30, 2021    - Defect repairs:
+//                                      - only decrease effective initial mass for HG and HeHG stars on mass loss when this decrease would not drive an unphysical decrease in the core mass
+//                                      - change mass comparisons (e.g., mass vs. He flash mass threshold) to compare effective initial mass rather than current mass
+//                                      - minor code and comment cleanup
+// 02.26.01     IM - Dec 5, 2021     - Defect repair, Code cleanup:
+//                                      - Removed redundant function ResolveRemnantAfterEnvelopeLoss (ResolveEnvelopeLoss is sufficient)
+//                                      - Cleaned / updated ResolveEnvelopeLoss
+//                                      - Fixed issue with masses and types of remnants formed from stripped HG stars
+// 02.26.02     RTW - Dec 17, 2021   - Defect repair, Code cleanup:
+//                                      - Changed all occurences of PPOW(base, 1.0/3.0) with std::cbrt, as the former could not handle negative bases
+//                                      - Changed all occurences of sqrt with std::sqrt for consistency with the above change
 
-const std::string VERSION_STRING = "02.17.13";
+const std::string VERSION_STRING = "02.26.02";
 
 # endif // __changelog_h__
