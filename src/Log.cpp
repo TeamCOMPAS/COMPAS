@@ -2352,81 +2352,6 @@ hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, con
 
 
 /*
- * Create a dataset subordinate to a group in an HDF5 file
- * 
- * 
- * 
- * 
- * hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr, const size_t p_HDF5ChunkSize)
- *
- * @param   [IN]    p_Filename                  The filename of the HDF5 file (for error logging)
- * @param   [IN]    p_GroupId                   The group id under which the dataset should be created
- * @param   [IN]    p_DatasetName               The dataset name (this (generally) corresponds to the COMPAS column header)
- * @param   [IN]    p_H5DataType                The HDF5 datatype for the dataset
- * @param   [IN]    p_UnitsStr                  The units string to be associated with the dataset (generally corresponds to COMPAS units string)
- * @param   [IN]    p_HDF5ChunkSize             Chunk size for this dataset
- * @return                                      HDF5 dataset id (-1 indicates failure)
- */
-hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr, const size_t p_HDF5ChunkSize) {
-
-    hid_t h5Dset = -1;                                                                                              // datset id - return value
-
-    // create a 1-d HDF5 dataspace
-    hsize_t h5Dims[1]    = {0};                                                                                     // initially 0, but...
-    hsize_t h5MaxDims[1] = {H5S_UNLIMITED};                                                                         // ... unlimited
-    hid_t   h5Dspace     = H5Screate_simple(1, h5Dims, h5MaxDims);                                                  // create the dataspace
-    hid_t   h5CPlist     = H5Pcreate(H5P_DATASET_CREATE);                                                           // create the dataset creation property list
-    (void)H5Pset_alloc_time(h5CPlist, H5D_ALLOC_TIME_INCR);                                                         // allocate space on disk incrementally
-    (void)H5Pset_layout(h5CPlist, H5D_CHUNKED);                                                                     // must be chunked when using unlimited dimensions
-
-    hsize_t h5ChunkDims[1] = {p_HDF5ChunkSize};                                                                     // chunk size - affects performance
-    herr_t h5Result = H5Pset_chunk(h5CPlist, 1, h5ChunkDims);                                                       // set chunk size
-    if (h5Result < 0) {                                                                                             // ok?
-        Squawk("ERROR: Unable to set chunk size for HDF5 container file " + p_Filename);                            // no - announce error
-    }
-    else {                                                                                                          // yes - chunk size set ok
-        // create HDF5 dataset
-        string h5DsetName = p_DatasetName;                                                                          // dataset name 
-        h5DsetName        = utils::trim(h5DsetName);                                                                // remove leading and trailing blanks
-        h5Dset            = H5Dcreate(p_GroupId,                                                                    // create the dataset in group p_GroupId
-                                      h5DsetName.c_str(),                                                           // dataset name
-                                      p_H5DataType,                                                                 // datatype
-                                      h5Dspace,                                                                     // dataspace
-                                      H5P_DEFAULT,                                                                  // dataset link property list                                                                     
-                                      h5CPlist,                                                                     // dataset creation property list
-                                      H5P_DEFAULT);                                                                 // dataset access property list
-        if (h5Dset < 0) {                                                                                           // dataset created ok?
-            Squawk("ERROR: Unable to create HDF5 dataSet " + h5DsetName + " for file " + p_Filename);               // no - announce error
-        }
-        else {                                                                                                      // yes - dataset created ok
-            // create attribute for units
-            hid_t h5Dspace = H5Screate(H5S_SCALAR);                                                                 // HDF5 scalar dataspace
-            hid_t h5DType  = H5Tcopy(H5T_C_S1);                                                                     // HDF5 c-string datatype
-
-            (void)H5Tset_size(h5DType, p_UnitsStr.length() + 1);                                                    // size is strlen + 1 (for NULL terminator)
-            (void)H5Tset_cset(h5DType, H5T_CSET_ASCII);                                                             // ASCII (rather than UTF-8)
-            hid_t h5Attr = H5Acreate(h5Dset, "units", h5DType, h5Dspace, H5P_DEFAULT, H5P_DEFAULT);                 // create attribute for units
-            if (h5Attr < 0) {                                                                                       // attribute created ok?
-                Squawk("ERROR: Unable to create HDF5 attribute " + p_UnitsStr + " for dataSet " + h5DsetName);      // no - announce error
-                h5Dset = -1;                                                                                        // fail
-            }
-            else {                                                                                                  // yes - attribute created ok
-                if (H5Awrite(h5Attr, h5DType, (const void *)p_UnitsStr.c_str()) < 0) {                              // write units attributes to file - ok?
-                    Squawk("ERROR: Unable to write HDF5 attribute " + p_UnitsStr + " for dataSet " + h5DsetName);   // no - announce error
-                    h5Dset = -1;                                                                                    // fail
-                }
-            }
-            (void)H5Aclose(h5Attr);                                                                                 // close attribute 
-        }
-    }
-    (void)H5Sclose(h5CPlist);                                                                                       // close creation property list
-    (void)H5Sclose(h5Dspace);                                                                                       // close scalar dataspace
-
-    return h5Dset;                                                                                                  // return dataset id: < 0 = fail
-}
-
-
-/*
  * Get standard log file details and open file if necessary
  *
  * This function will retrieve the details for the logfile specified, and open the file if it
@@ -2837,15 +2762,6 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accomodates header string)
                         }
                     }
-                    else {                                                                                                                      // no - FS file
-                        string fullHdrsStr  = "";                                                                                               // initialise full headers string
-                        string fullUnitsStr = "";                                                                                               // initialise full units string
-                        string fullTypesStr = "";                                                                                               // initialise full types string
-                        for (size_t idx = 0; idx < fileDetails.hdrStrings.size(); idx++) {                                                      // for each property
-                            fullHdrsStr  += fileDetails.hdrStrings[idx] + delimiter;                                                            // append field header string to full header string
-                            fullUnitsStr += fileDetails.unitsStrings[idx] + delimiter;                                                          // append field units string to full units string
-                            fullTypesStr += fileDetails.typeStrings[idx] + delimiter;                                                           // append field type string to full type string
-                        }
 
                     // record new open file details
                     m_OpenStandardLogFileIds.insert({p_Logfile, fileDetails});                                                                  // record the new file details and format strings

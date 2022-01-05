@@ -292,11 +292,11 @@ double HeHG::CalculatePerturbationMu() const {
  * This function good for HeHG and HeGB stars (for Helium stars: always use Natasha's fit)
  *
  *
- * double CalculateLambdaNanjing(const int p_MassInd, const int p_Zind)
+ * double CalculateLambdaNanjing(const double p_Mass, const double p_Metallicity)
  *
  * @return                                      Nanjing lambda for use in common envelope
  */
-double HeHG::CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) const {
+double HeHG::CalculateLambdaNanjing(const double p_Mass, const double p_Metallicity) const {
 
     double rMin = 0.25;                              // minimum considered radius: Natasha       JR: todo: should this be in constants.h?
 	double rMax = 120.0;                             // maximum considered radius: Natasha       JR: todo: should this be in constants.h?
