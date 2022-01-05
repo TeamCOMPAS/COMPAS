@@ -79,7 +79,7 @@ double HG::CalculateLambdaDewi() const {
  *
  * @return                                      Nanjing lambda for use in common envelope
  */
-double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) {
+double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const {
 
 	DBL_VECTOR maxBG    = {};                                                           // [0] = maxB, [1] = maxG
 	DBL_VECTOR lambdaBG = {};                                                           // [0] = lambdaB, [1] = lambdaG
@@ -379,19 +379,19 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
  * This function good for HG and FGB stars.
  *
  *
- * double CalculateLambdaNanjing()
+ * double CalculateLambdaNanjing(const double p_Mass, const double p_Metallicity)
  *
  * @return                                      Nanjing lambda for use in common envelope
  */
-double HG::CalculateLambdaNanjing() const {
+double HG::CalculateLambdaNanjing(const double p_Mass, const double p_Metallicity) const {
 
 	DBL_VECTOR maxBG    = {};                                                           // [0] = maxB, [1] = maxG
 	DBL_VECTOR lambdaBG = {};                                                           // [0] = lambdaB, [1] = lambdaG
 	DBL_VECTOR a        = {};                                                           // 0..5 a_coefficients
 	DBL_VECTOR b        = {};                                                           // 0..5 b_coefficients
 
-    if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0) {                     // Z>0.5 Zsun: popI
-        if (utils::Compare(m_MZAMS, 1.5) < 0) {
+    if (utils::Compare(p_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0) {                     // Z>0.5 Zsun: popI
+        if (utils::Compare(p_Mass, 1.5) < 0) {
             maxBG = { 2.5, 1.5 };
                  if (utils::Compare(m_Radius, 200.0) > 0) lambdaBG = { 0.05, 0.05 };
             else if (utils::Compare(m_Radius, 2.7  ) > 0) lambdaBG = { 2.33 - (m_Radius * 9.18E-03), 1.12 - (m_Radius * 4.59E-03) };
@@ -400,7 +400,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 17.58328, -34.84355, 10.70536, 8.49042, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 2.5) < 0) {
+        else if (utils::Compare(p_Mass, 2.5) < 0) {
             maxBG = { 4.0, 2.0 };
             if (utils::Compare(m_Radius, 340.0) > 0) lambdaBG = { 3.589970, 0.514132 };
             else {
@@ -408,7 +408,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 1.07658, -0.01041, -4.90553E-05, 1.13528E-06, -3.91609E-09, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 3.5) < 0) {
+        else if (utils::Compare(p_Mass, 3.5) < 0) {
             maxBG = { 500.0, 10.0 };
             if (utils::Compare(m_Radius, 400.0) > 0) lambdaBG = { 116.935557, 0.848808 };
             else {
@@ -417,7 +417,7 @@ double HG::CalculateLambdaNanjing() const {
                 b     = { 1.30705, -0.22924, 0.01847, -5.06216E-04, 4.57098E-06, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 4.5) < 0) {
+        else if (utils::Compare(p_Mass, 4.5) < 0) {
             maxBG = { 1000.0, 8.0 };
             if (utils::Compare(m_Radius, 410.0) > 0) lambdaBG = { 52.980056, 1.109736 };
             else {
@@ -426,7 +426,7 @@ double HG::CalculateLambdaNanjing() const {
                 b     = { 1.02183, -0.1024 , 0.00493, -8.16343E-05, 4.55426E-07, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 5.5) < 0) {
+        else if (utils::Compare(p_Mass, 5.5) < 0) {
             maxBG = { 1000.0, 8.0 };
             if (utils::Compare(m_Radius, 430.0) > 0) lambdaBG = { 109.593522, 1.324248 };
             else {
@@ -434,7 +434,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.85723, -0.04922, 0.00137, -1.36163E-05, 4.68683E-08, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 6.5) < 0) {
+        else if (utils::Compare(p_Mass, 6.5) < 0) {
             maxBG = { 25.5, 5.0 };
             if (utils::Compare(m_Radius, 440.0) > 0) lambdaBG = { 16.279603, 1.352166 };
             else {
@@ -442,7 +442,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.78428, -0.02959, 5.2013E-04 , -3.45172E-06, 8.17248E-09, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 7.5) < 0) {
+        else if (utils::Compare(p_Mass, 7.5) < 0) {
             maxBG = { 9.0, 3.0 };
             if (utils::Compare(m_Radius, 420.0) > 0) lambdaBG = { 5.133959, 1.004036 };
             else {
@@ -450,7 +450,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.76009, -0.02412, 3.47104E-04, -1.92347E-06, 3.79609E-09, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 8.5) < 0) {
+        else if (utils::Compare(p_Mass, 8.5) < 0) {
             maxBG = { 7.0, 3.0 };
             if (utils::Compare(m_Radius, 490.0) > 0) lambdaBG = { 4.342985, 0.934659 };
             else {
@@ -458,7 +458,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.73826, -0.01995, 2.37842E-04, -1.09803E-06, 1.79044E-09, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 9.5) < 0) {
+        else if (utils::Compare(p_Mass, 9.5) < 0) {
             maxBG = { 4.0, 2.0 };
             if (utils::Compare(m_Radius, 530.0) > 0) lambdaBG = { 2.441672, 0.702310 };
             else {
@@ -466,7 +466,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.71571, -0.01657, 1.64607E-04, -6.31935E-07, 8.52082E-10, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 11.0) < 0) {
+        else if (utils::Compare(p_Mass, 11.0) < 0) {
             maxBG = { 3.0, 1.5 };
             if (utils::Compare(m_Radius, 600.0) > 0) lambdaBG = { 1.842314, 0.593854 };
             else {
@@ -475,7 +475,7 @@ double HG::CalculateLambdaNanjing() const {
                 b     = { 0.69245, -0.01398, 1.17256E-04, -3.81487E-07, 4.35818E-10, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 13.0) < 0) {
+        else if (utils::Compare(p_Mass, 13.0) < 0) {
             maxBG = { 1.5, 1.0 };
                  if (utils::Compare(m_Radius, 850.0) > 0) lambdaBG = { 0.392470, 0.176660 };
             else if (utils::Compare(m_Radius, 0.0) > 0 && utils::Compare(m_Radius, 350.0) <= 0) {
@@ -491,7 +491,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { -15.11672, 0.06331, -8.81542E-05, 4.0982E-08 , 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 15.0) < 0) {
+        else if (utils::Compare(p_Mass, 15.0) < 0) {
             maxBG = { 1.5, 1.0 };
                  if (utils::Compare(m_Radius, 1000.0) > 0)                                       lambdaBG = { 0.414200, 0.189008 };
             else if (utils::Compare(m_Radius, 190.0) > 0 && utils::Compare(m_Radius, 600.0) < 0) lambdaBG = { 0.15, 0.15 };
@@ -500,7 +500,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.78215, -0.02326, 3.25984E-04, -1.94991E-06, 4.08044E-09, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 18.0) < 0) {
+        else if (utils::Compare(p_Mass, 18.0) < 0) {
             maxBG = { 1.5, 1.0 };
                  if (utils::Compare(m_Radius, 1050.0) > 0)                                       lambdaBG = { 0.2, 0.1 };
             else if (utils::Compare(m_Radius, 120.0) > 0 && utils::Compare(m_Radius, 170.0) < 0) lambdaBG = { 0.2, 0.2 };
@@ -509,12 +509,12 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.85384, -0.03086, 5.50878E-04, -4.37671E-06, 1.25075E-08, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 35.0) < 0) {
+        else if (utils::Compare(p_Mass, 35.0) < 0) {
             maxBG = { 1.5, 1.0 };
             if (utils::Compare(m_Radius, 1200.0) > 0) lambdaBG = { 0.05, 0.05 };
             else                                      lambdaBG = { 1.2 * exp(-m_Radius / 90.0), 0.55 * exp(-m_Radius / 160.0) };
         }
-        else if (utils::Compare(m_MZAMS, 75.0) < 0) {
+        else if (utils::Compare(p_Mass, 75.0) < 0) {
             maxBG = { 1.0, 0.5 };
             a     = { 0.31321, -7.50384E-04, 5.38545E-07, -1.16946E-10, 0.0, 0.0 };
             b     = { 0.159  , -3.94451E-04, 2.88452E-07, -6.35132E-11, 0.0, 0.0 };
@@ -526,7 +526,7 @@ double HG::CalculateLambdaNanjing() const {
         }
     }
     else {                                                                  // Z<=0.5 Zsun: popI and popII
-        if (utils::Compare(m_MZAMS, 1.5) < 0) {
+        if (utils::Compare(p_Mass, 1.5) < 0) {
             maxBG = { 2.0, 1.5 };
                  if (utils::Compare(m_Radius, 160.0) > 0) lambdaBG = { 0.05, 0.05 };
             else if (utils::Compare(m_Radius, 12.0)  > 0) lambdaBG = { 1.8 * exp(-m_Radius / 80.0), exp(-m_Radius / 45.0) };
@@ -535,7 +535,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.15504, -0.01238, 3.96633E-04, -5.3329E-06 , 3.16052E-08, -6.84288E-11 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 2.5) < 0) {
+        else if (utils::Compare(p_Mass, 2.5) < 0) {
             maxBG = { 4.0, 2.0 };
                  if (utils::Compare(m_Radius, 350.0) > 0)                                      lambdaBG = { 2.868539, 0.389991 };
             else if (utils::Compare(m_Radius, 22.0) > 0 && utils::Compare(m_Radius, 87.0) < 0) lambdaBG = { 1.95, 0.85 };
@@ -544,7 +544,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 1.41896, -0.4266 , 0.05792, -0.00281, 4.61E-05   , 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 3.5) < 0) {
+        else if (utils::Compare(p_Mass, 3.5) < 0) {
             maxBG = { 600.0, 2.0 };
             if (utils::Compare(m_Radius, 400.0) > 0) lambdaBG = { 398.126442, 0.648560 };
             else {
@@ -552,7 +552,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.99218, -0.10082, 0.00451, -5.53632E-05, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 4.5) < 0) {
+        else if (utils::Compare(p_Mass, 4.5) < 0) {
             maxBG = { 600.0, 2.0 };
             if (utils::Compare(m_Radius, 410.0) > 0) lambdaBG = { 91.579093, 1.032432 };
             else {
@@ -560,7 +560,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.92172, -0.06187, 0.00177, -1.42677E-05, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 5.5) < 0) {
+        else if (utils::Compare(p_Mass, 5.5) < 0) {
             maxBG = { 10.0, 3.0 };
             if (utils::Compare(m_Radius, 320.0) > 0) lambdaBG = { 7.618019, 1.257919 };
             else {
@@ -568,7 +568,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.87647, -0.04103, 7.91444E-04, -4.41644E-06, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 6.5) < 0) {
+        else if (utils::Compare(p_Mass, 6.5) < 0) {
             maxBG = { 4.0, 1.5 };
             if (utils::Compare(m_Radius, 330.0) > 0) lambdaBG = { 2.390575, 0.772091 };
             else {
@@ -576,7 +576,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.83636, -0.02806, 3.73346E-04, -1.47016E-06, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 7.5) < 0) {
+        else if (utils::Compare(p_Mass, 7.5) < 0) {
             maxBG = { 2.5, 1.0 };
             if (utils::Compare(m_Radius, 360.0) > 0) lambdaBG = { 1.878174, 0.646353 };
             else {
@@ -584,7 +584,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.81688, -0.02324, 2.5804E-04, -8.54696E-07, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 8.5) < 0) {
+        else if (utils::Compare(p_Mass, 8.5) < 0) {
             maxBG = { 2.0, 1.0 };
             if (utils::Compare(m_Radius, 400.0) > 0) lambdaBG = { 1.517662, 0.553169 };
             else {
@@ -592,7 +592,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.79396, -0.01903, 1.77574E-04, -5.04262E-07, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 9.5) < 0) {
+        else if (utils::Compare(p_Mass, 9.5) < 0) {
             maxBG = { 1.6, 1.0 };
             if (utils::Compare(m_Radius, 440.0) > 0) lambdaBG = { 1.136394, 0.478963 };
             else {
@@ -600,12 +600,12 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.805  , -0.02   , 2.01872E-04, -6.4295E-07 , 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 11.0) < 0) {
+        else if (utils::Compare(p_Mass, 11.0) < 0) {
             maxBG = { 1.6, 1.0 };
             if (utils::Compare(m_Radius, 500.0) > 0) lambdaBG = { 1.068300, 0.424706 };
             else                                     lambdaBG = { 1.75 * exp(-m_Radius / 35.0), 0.9 * exp(-m_Radius /35.0) };
         }
-        else if (utils::Compare(m_MZAMS, 13.0) < 0) {
+        else if (utils::Compare(p_Mass, 13.0) < 0) {
             maxBG = { 1.6, 1.0 };
             if (utils::Compare(m_Radius, 600.0) > 0) lambdaBG = { 0.537155, 0.211105 };
             else {
@@ -613,7 +613,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 1.17934, -0.08481, 0.00329    , -4.69096E-05, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 15.0) < 0) {
+        else if (utils::Compare(p_Mass, 15.0) < 0) {
             maxBG = { 1.6, 1.0 };
             if (utils::Compare(m_Radius, 650.0) > 0) lambdaBG = { 0.3, 0.160696 };
             else {
@@ -621,7 +621,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 1.19526, -0.08503,  0.00324, -4.58919E-05, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 18.0) < 0) {
+        else if (utils::Compare(p_Mass, 18.0) < 0) {
             maxBG = { 1.5, 1.0 };
             if (utils::Compare(m_Radius, 750.0) > 0) lambdaBG = { 0.5, 0.204092 };
             else {
@@ -629,7 +629,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 1.17731, -0.07834,  0.00275, -3.58108E-05, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 35.0) < 0) {
+        else if (utils::Compare(p_Mass, 35.0) < 0) {
             maxBG = { 1.5, 1.0 };
             if (utils::Compare(m_Radius, 900.0) > 0) lambdaBG = { 0.2, 0.107914 };
             else {
@@ -637,7 +637,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 1.07496, -0.05737,  0.00153, -1.49005E-05, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 75.0) < 0) {
+        else if (utils::Compare(p_Mass, 75.0) < 0) {
             maxBG = { 20.0, 3.0 };
             a     = { 0.821  , -0.00669, 1.57665E-05, -1.3427E-08 , 3.74204E-12, 0.0 };
             b     = { 0.49287, -0.00439, 1.06766E-05, -9.22015E-09, 2.58926E-12, 0.0 };
@@ -650,7 +650,7 @@ double HG::CalculateLambdaNanjing() const {
     }
 
     if (lambdaBG.empty()) {                                                 // calculate lambda B & G - not approximated by hand
-        if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0 && utils::Compare(m_MZAMS, 1.5) < 0) {
+        if (utils::Compare(p_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0 && utils::Compare(p_Mass, 1.5) < 0) {
             double x  = (m_Mass - m_CoreMass) / m_Mass;
             double x2 = x * x;
             double x3 = x2 * x;

@@ -50,7 +50,7 @@ protected:
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_CoreMass; }                                                                  // NO-OP
 
             double          CalculateLambdaDewi() const;
-            double          CalculateLambdaNanjing(const int p_MassInd, const int p_Zind) const;
+            double          CalculateLambdaNanjing(const double p_Mass, const double p_Metallicity) const;
             double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const;
 
             double          CalculateLuminosityOnPhase(const double p_Time) const;
