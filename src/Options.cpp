@@ -423,7 +423,6 @@ void Options::OptionValues::Initialise() {
     m_CommonEnvelopeLambdaNanjingInterpolateInMass                  = false;
     m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity           = false;
     m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass                 = false;
-    m_AllowMainSequenceStarToSurviveCommonEnvelope                  = true;
     m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope             = false;
     m_AllowMainSequenceStarToSurviveCommonEnvelope                  = true;
     m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope               = false;
@@ -3068,23 +3067,29 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                         details.rangeParms = {tmp, tmp, tmp};                                               // create the vector
 
                                         size_t lastChar;
-                                        details.rangeParms[0].dVal = std::stof(details.parameters[0], &lastChar);           // floating point start
-                                        COMPLAIN_IF(lastChar != details.parameters[0].size(), complaint1);                  // not a valid float
-                                        details.rangeParms[2].dVal = std::stof(details.parameters[2], &lastChar);           // floating point inc
-                                        COMPLAIN_IF(lastChar != details.parameters[2].size(), complaint1);                  // not a valid float
+                                        details.rangeParms[0].dVal = std::stod(details.parameters[0], &lastChar);           // floating point start
+                                        COMPLAIN_IF(lastChar != details.parameters[0].length(), complaint1);                // not a valid double
+                                        details.rangeParms[2].dVal = std::stod(details.parameters[2], &lastChar);           // floating point inc
+                                        COMPLAIN_IF(lastChar != details.parameters[2].length(), complaint1);                // not a valid double
 
                                         try {
                                             size_t lastChar;
                                             details.rangeParms[1].ulVal = std::stoul(details.parameters[1], &lastChar);     // unsigned long int count
-                                            COMPLAIN_IF(lastChar != details.parameters[1].size(), complaint2);              // not a valid unsigned long int
+                                            COMPLAIN_IF(lastChar != details.parameters[1].length(), complaint2);            // not a valid unsigned long int
 
                                             p_OptionsDescriptor.complexOptionValues[idx] = std::make_tuple(longOptionName, details); // reset values
                                         }
                                         catch (const std::out_of_range& e) {                                                // not a valid unsigned long int
                                             errStr = complaint2;
                                         }
+                                        catch (const std::invalid_argument& e) {                                            // not a valid unsigned long int
+                                            errStr = complaint2;
+                                        }
                                     }
                                     catch (const std::out_of_range& e) {                                                    // not a valid floating point number
+                                        errStr = complaint1;
+                                    }
+                                    catch (const std::invalid_argument& e) {                                                // not a valid floating point number
                                         errStr = complaint1;
                                     }
                                 } break;
