@@ -45,7 +45,7 @@ protected:
     double          CalculateInitialSupernovaMass() const                                                       { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
 
     double          CalculateLambdaDewi() const                                                                 { return BaseStar::CalculateLambdaDewi(); }                             // Not supported - use BaseStar
-    double          CalculateLambdaNanjing() const                                                              { return BaseStar::CalculateLambdaNanjing(0.0, 0.0); }                  // Not supported - use BaseStar (0.0 are dummy values)      JR: todo: check this (type 10 not mentioned as not supported in original code)
+    double          CalculateLambdaNanjing(const double p_Mass, const double p_Metallicity) const               { return BaseStar::CalculateLambdaNanjing(0.0, 0.0); }                  // Not supported - use BaseStar (0.0 are dummy values)      JR: todo: check this (type 10 not mentioned as not supported in original code)
 
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                     const double p_AccretorMassRate = 0.0);

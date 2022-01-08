@@ -1119,7 +1119,7 @@ double BaseStar::EvaluateLambdaNanjing() const {
             }
         }
     }
-    else {return BaseStar::CalculateLambdaNanjing(mass, m_Metallicity);}                                        // Use default Nanjing Lambda's as implemented in STARTRACK (no mass nor metallicity interpolation)
+    else { return CalculateLambdaNanjing(mass, m_Metallicity); }
 }
 
 
@@ -1193,15 +1193,15 @@ double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Mass, con
 double BaseStar::CalculateZInterpolatedLambdaNanjing(const double p_Z, const int p_MassInd) const {
 
     if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
-        return BaseStar::CalculateLambdaNanjingEnhanced(p_MassInd, 0);                       // Use lambda for pop. II metallicity
+        return CalculateLambdaNanjingEnhanced(p_MassInd, 0);                       // Use lambda for pop. II metallicity
     }
     else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) > 0) {
-        return BaseStar::CalculateLambdaNanjingEnhanced(p_MassInd, 1);                       // Use lambda for pop. I metallicity
+        return CalculateLambdaNanjingEnhanced(p_MassInd, 1);                       // Use lambda for pop. I metallicity
     }
-    else {                                                                                   // Linear interpolation in logZ between pop. I and pop. II metallicities
+    else {                                                                         // Linear interpolation in logZ between pop. I and pop. II metallicities
         const double logZ = log(m_Metallicity);
-        double lambdaLow = BaseStar::CalculateLambdaNanjingEnhanced(p_MassInd, 0);
-        double lambdaUp  = BaseStar::CalculateLambdaNanjingEnhanced(p_MassInd, 1);
+        double lambdaLow = CalculateLambdaNanjingEnhanced(p_MassInd, 0);
+        double lambdaUp  = CalculateLambdaNanjingEnhanced(p_MassInd, 1);
         return lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
     }
 }
