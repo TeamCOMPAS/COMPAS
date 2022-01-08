@@ -48,6 +48,7 @@ protected:
     // member functions - alphabetically
     double  CalculateLambdaDewi()                                                         { return BaseStar::CalculateLambdaDewi(); }                                     // Not supported - use BaseStar
     double  CalculateLambdaNanjing(const double p_Mass, const double p_Metallicity) const { return BaseStar::CalculateLambdaNanjing(0.0, 0.0); }                          // Not supported - use BaseStar (0.0 are dummy values)    JR: todo: check this (type 10 not mentioned as not supported in original code)
+    double  CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const   { return CalculateLambdaNanjing(0.0, 0.0); }                            // 0.0 are dummy values that are not used
     double  CalculateLuminosityOnPhase(const double p_Mass,
                                        const double p_Time,
                                        const double p_Metallicity) const                  { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
