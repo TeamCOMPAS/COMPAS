@@ -220,9 +220,6 @@ def getEventHistory(h5file, exclude_null=False):
 
     if numMtSeeds < 1 and numSnSeeds < 1: return []                         # no events - return empty history
 
-    returnedSeeds = []                                                      # array of seeds - will only contain seeds that have events (of any type)
-    returnedEvents = []                                                     # array of events - same size as returnedSeeds (icludes event times)
-
     eventOrdering = ['MT', 'SN']                                            # order of preference for simultaneous events
 
     mtIndex = 0                                                             # index into MT events arrays
@@ -233,11 +230,15 @@ def getEventHistory(h5file, exclude_null=False):
     else:
         seedsToIterate = allSeeds
         
-    for seed in seedsToIterate:
+    iorder = np.argsort(seedsToIterate)
+    returnedSeeds = [None] * np.size(seedsToIterate)                        # array of seeds - will only contain seeds that have events (of any type)
+    returnedEvents = [None] * np.size(seedsToIterate)                       # array of events - same size as returnedSeeds (icludes event times)
 
+    for count, ind in enumerate(iorder):
+        seed = seedsToIterate[ind]
         seedEvents = []                                                     # initialise the events for the seed being processed
-        
-        # Collect any MT events for this seed, add the time of the event and the event type 
+
+        # Collect any MT events for this seed, add the time of the event and the event type
         while mtIndex < numMtSeeds and mtSeeds[mtIndex] == seed:
             for eventIndex, event in enumerate(mtEvents[mtIndex]):
                 seedEvents.append(('MT', mtTimes[mtIndex][eventIndex], *mtEvents[mtIndex][eventIndex]))
@@ -248,13 +249,13 @@ def getEventHistory(h5file, exclude_null=False):
             for eventIndex, event in enumerate(snEvents[snIndex]):
                 seedEvents.append(('SN', snTimes[snIndex][eventIndex], *snEvents[snIndex][eventIndex]))
             snIndex += 1
-        
+
         seedEvents.sort(key=lambda ev:(ev[1], eventOrdering.index(ev[0])))  # sort the events by time and event type (MT before SN if at the same time)
 
-        returnedSeeds.append(seed)                                          # record the seed in the seeds array being returned
-        returnedEvents.append(seedEvents)                                   # record the events for this seed in the events array being returned
+        returnedSeeds[ind] = seed                                           # record the seed in the seeds array being returned
+        returnedEvents[ind] = seedEvents                                    # record the events for this seed in the events array being returned
 
-    return returnedSeeds, returnedEvents                                              # see above for details
+    return returnedSeeds, returnedEvents                                    # see above for details
 
 
 ###########################################
