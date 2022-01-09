@@ -87,7 +87,7 @@ void GiantBranch::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timesca
  * @return                                      Core mass - Luminosity relation parameter B
  */
 double GiantBranch::CalculateCoreMass_Luminosity_B_Static(const double p_Mass) {
-    return std::max(3.0E4, (500.0 + (1.75E4 * PPOW(p_Mass, 0.6))));
+    return std::max(3.0E4, (500.0 + (1.75E4 * PPOW(p_Mass, 0.6))));                 // RTW - Consider replacing this with a 3/5 root function (somehow) to avoid NaNs if the base is negative
 }
 
 
@@ -720,7 +720,7 @@ double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
 double GiantBranch::CalculateCoreMassAtBAGB(const double p_Mass) const {
 #define b m_BnCoefficients  // for convenience and readability - undefined at end of function
 
-    return sqrt(sqrt((b[36] * PPOW(p_Mass, b[37])) + b[38]));   // sqrt() is much faster than PPOW()
+    return std::sqrt(std::sqrt((b[36] * PPOW(p_Mass, b[37])) + b[38]));   // sqrt() is much faster than PPOW()
 
 #undef b
 }
@@ -743,7 +743,7 @@ double GiantBranch::CalculateCoreMassAtBAGB(const double p_Mass) const {
 double GiantBranch::CalculateCoreMassAtBAGB_Static(const double p_Mass, const DBL_VECTOR &p_BnCoefficients) {
 #define b p_BnCoefficients  // for convenience and readability - undefined at end of function
 
-    return sqrt(sqrt((b[36] * PPOW(p_Mass, b[37])) + b[38]));   // sqrt() is much faster than PPOW()
+    return std::sqrt(std::sqrt((b[36] * PPOW(p_Mass, b[37])) + b[38]));   // sqrt() is much faster than PPOW()
 
 #undef b
 }
@@ -771,7 +771,7 @@ double GiantBranch::CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR
     double Mc_MHeF    = BaseStar::CalculateCoreMassGivenLuminosity_Static(luminosity, p_GBParams);
     double c          = (Mc_MHeF * Mc_MHeF * Mc_MHeF * Mc_MHeF) - (MC_L_C1 * PPOW(massCutoffs(MHeF), MC_L_C2));  // pow() is slow - use multiplication
 
-    return std::min((0.95 * gbParams(McBAGB)), sqrt(sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));               // sqrt is much faster than PPOW()
+    return std::min((0.95 * gbParams(McBAGB)), std::sqrt(std::sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));               // sqrt is much faster than PPOW()
 
 #undef massCutoffs
 #undef gbParams
@@ -807,7 +807,7 @@ double GiantBranch::CalculateCoreMassAtBGB_Static(const double      p_Mass,
     double Mc_MHeF    = BaseStar::CalculateCoreMassGivenLuminosity_Static(luminosity, p_GBParams);
     double c          = (Mc_MHeF * Mc_MHeF * Mc_MHeF * Mc_MHeF) - (MC_L_C1 * PPOW(massCutoffs(MHeF), MC_L_C2));  // pow() is slow - use multiplication
 
-    return std::min((0.95 * gbParams(McBAGB)), sqrt(sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));               // sqrt is much faster than PPOW()
+    return std::min((0.95 * gbParams(McBAGB)), std::sqrt(std::sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));               // sqrt is much faster than PPOW()
 
 #undef massCutoffs
 #undef gbParams
@@ -860,7 +860,7 @@ double GiantBranch::CalculateCoreMassAtHeIgnition(const double p_Mass) const {
         double McBAGB          = CalculateCoreMassAtBAGB(p_Mass);
         double c               = (Mc_MHeF * Mc_MHeF * Mc_MHeF * Mc_MHeF) - (MC_L_C1 * PPOW(massCutoffs(MHeF), MC_L_C2)); // pow() is slow - use multiplication
 
-        coreMass               = std::min((0.95 * McBAGB), sqrt(sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));           // sqrt() is much faster than PPOW()
+        coreMass               = std::min((0.95 * McBAGB), std::sqrt(std::sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));           // sqrt() is much faster than PPOW()
     }
 
     return coreMass;
