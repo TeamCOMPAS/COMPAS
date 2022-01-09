@@ -729,8 +729,6 @@ double HG::CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) {
             
         case ENVELOPE::CONVECTIVE:
             zeta = CalculateZadiabatic(p_ZetaPrescription);
-            if (OPTIONS->EnvelopeStatePrescription() == ENVELOPE_STATE_PRESCRIPTION::LEGACY && StellarType() == STELLAR_TYPE::HERTZSPRUNG_GAP)
-                zeta = OPTIONS->ZetaRadiativeEnvelopeGiant();       // HG stars within LEGACY  prescription are hardcoded to use zeta=ZetaRadiativeEnvelopeGiant despite nominally being convective
             break;
             
         default:                                                    // shouldn't happen
@@ -753,11 +751,14 @@ double HG::CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) {
  */
 ENVELOPE HG::DetermineEnvelopeType() const {
  
-    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                       // default envelope type is CONVECTIVE
+    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type  is RADIATIVE
     
-    switch (OPTIONS->EnvelopeStatePrescription()) {                                                 // which envelope prescription?
+    switch (OPTIONS->EnvelopeStatePrescription()) {                                                  // which envelope prescription?
             
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
+            envelope = ENVELOPE::RADIATIVE;                                                          // default treatment
+            break;
+            
         case ENVELOPE_STATE_PRESCRIPTION::HURLEY:                                                   // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG; we approximate it as convective here
             envelope = ENVELOPE::CONVECTIVE;
             break;
