@@ -859,7 +859,9 @@
 // 02.26.02     RTW - Dec 17, 2021   - Defect repair, Code cleanup:
 //                                      - Changed all occurences of PPOW(base, 1.0/3.0) with std::cbrt, as the former could not handle negative bases
 //                                      - Changed all occurences of sqrt with std::sqrt for consistency with the above change
+// 02.26.03     IM - Jan 10, 2022    - Defect repair, code cleanup:
+//                                      - Cleaned up treatment of HG donors having CONVECTIVE envelopes in LEGACY; fixes an issue with missed failed CEs introduced in 02.25.01 
 
-const std::string VERSION_STRING = "02.26.02";
+const std::string VERSION_STRING = "02.26.03";
 
 # endif // __changelog_h__
