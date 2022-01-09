@@ -189,8 +189,8 @@ def getSNevents(SNe):
                 returnedTimes[-1].append(thisTime)          #     yes - append time at end of array
                 returnedEvents[-1].append(thisEvent)        #         - append event at end of array
             else:
-                np.insert(returnedTimes[-1], 0, thisTime)   #     no - insert time at beginning of array
-                np.insert(returnedEvents[-1], 0, thisEvent) #        - insert event at beginning of array
+                returnedTimes[-1].insert(0, thisTime)       #     no - insert time at beginning of array
+                returnedEvents[-1].insert(0, thisEvent)     #        - insert event at beginning of array
                 
     return returnedSeeds, returnedEvents, returnedTimes     # see above for description
 
