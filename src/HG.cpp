@@ -751,7 +751,7 @@ double HG::CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) {
  */
 ENVELOPE HG::DetermineEnvelopeType() const {
  
-    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type  is RADIATIVE
+    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type is RADIATIVE
     
     switch (OPTIONS->EnvelopeStatePrescription()) {                                                  // which envelope prescription?
             

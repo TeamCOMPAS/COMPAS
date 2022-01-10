@@ -325,7 +325,7 @@ double HeHG::CalculateLambdaNanjing() const {
  */
 ENVELOPE HeHG::DetermineEnvelopeType() const {
     
-    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type  is RADIATIVE
+    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type is RADIATIVE
     
     switch (OPTIONS->EnvelopeStatePrescription()) {                                                  // which envelope prescription?
             
