@@ -379,11 +379,11 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
  * This function good for HG and FGB stars.
  *
  *
- * double CalculateLambdaNanjing(const double p_Mass, const double p_Metallicity)
+ * double CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity)
  *
  * @return                                      Nanjing lambda for use in common envelope
  */
-double HG::CalculateLambdaNanjing(const double p_Mass, const double p_Metallicity) const {
+double HG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
 
 	DBL_VECTOR maxBG    = {};                                                           // [0] = maxB, [1] = maxG
 	DBL_VECTOR lambdaBG = {};                                                           // [0] = lambdaB, [1] = lambdaG

@@ -1088,11 +1088,11 @@ double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass,
  * Wrapper function to return Nanjing lambda based on options
  * 
  * 
- * double BaseStar::EvaluateLambdaNanjing()
+ * double BaseStar::CalculateLambdaNanjing()
  * 
  * @return                                      Common envelope lambda parameter
  */ 
-double BaseStar::EvaluateLambdaNanjing() const {
+double BaseStar::CalculateLambdaNanjing() const {
 
     double mass = m_MZAMS;
     double lambda = 0.0;
@@ -1121,8 +1121,8 @@ double BaseStar::EvaluateLambdaNanjing() const {
             }
         }
     }
-    else { lambda = CalculateLambdaNanjing(mass, m_Metallicity); }
-    return lambda
+    else { lambda = CalculateLambdaNanjingStarTrack(mass, m_Metallicity); }
+    return lambda;
 }
 
 
@@ -1149,7 +1149,7 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass,
         double lambdaUp  = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 1);
         lambda = lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
     }
-    return lambda
+    return lambda;
 }
 
 
@@ -1183,7 +1183,7 @@ double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Mass, con
         double lambdaUp  = CalculateLambdaNanjingEnhanced(up, p_Zind);
         lambda = lambdaLow + (p_Mass - NANJING_MASSES[low]) / (NANJING_MASSES[up] - NANJING_MASSES[low]) * (lambdaUp - lambdaLow);
     }
-    return lambda
+    return lambda;
 }
 
 
@@ -1212,7 +1212,7 @@ double BaseStar::CalculateZInterpolatedLambdaNanjing(const double p_Z, const int
         double lambdaUp  = CalculateLambdaNanjingEnhanced(p_MassInd, 1);
         lambda = lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
     }
-    return lambda
+    return lambda;
 }
 
 
@@ -1332,7 +1332,7 @@ double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
 void BaseStar::CalculateLambdas(const double p_EnvMass) {
 
     m_Lambdas.fixed          = OPTIONS->CommonEnvelopeLambda();
-	m_Lambdas.nanjing        = EvaluateLambdaNanjing();
+	m_Lambdas.nanjing        = CalculateLambdaNanjing();
 	m_Lambdas.loveridge      = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, false);
 	m_Lambdas.loveridgeWinds = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, true);      
 	m_Lambdas.kruckow        = CalculateLambdaKruckow(m_Radius, OPTIONS->CommonEnvelopeSlopeKruckow());
