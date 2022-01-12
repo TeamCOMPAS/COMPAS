@@ -325,11 +325,14 @@ double HeHG::CalculateLambdaNanjing(const double p_Mass, const double p_Metallic
  */
 ENVELOPE HeHG::DetermineEnvelopeType() const {
     
-    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                       // default envelope type  is CONVECTIVE
+    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type is RADIATIVE
     
-    switch (OPTIONS->EnvelopeStatePrescription()) {                                                 // which envelope prescription?
+    switch (OPTIONS->EnvelopeStatePrescription()) {                                                  // which envelope prescription?
             
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
+            envelope = ENVELOPE::RADIATIVE;                                                          // default treatment
+            break;
+            
         case ENVELOPE_STATE_PRESCRIPTION::HURLEY: // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG, but we approximate it as already convective here
             envelope = ENVELOPE::CONVECTIVE;
             break;
