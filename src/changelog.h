@@ -861,7 +861,12 @@
 //                                      - Changed all occurences of sqrt with std::sqrt for consistency with the above change
 // 02.26.03     IM - Jan 10, 2022    - Defect repair, code cleanup:
 //                                      - Cleaned up treatment of HG donors having CONVECTIVE envelopes in LEGACY; fixed an issues with CEs from HG donors introduced in 02.25.01 
+// 02.27.00     ML - Jan 08, 2021    - Enhancements:
+//                                      - Add enhanced Nanjing lambda option that continuously extrapolates beyond radial range
+//                                      - Add Nanjing lambda option to switch between calculation using rejuvenated mass and true birth mass
+//                                      - Add Nanjing lambda mass and metallicity interpolation options
+//                                      - No change in default behaviour
 
-const std::string VERSION_STRING = "02.26.03";
+const std::string VERSION_STRING = "02.27.00";
 
 # endif // __changelog_h__

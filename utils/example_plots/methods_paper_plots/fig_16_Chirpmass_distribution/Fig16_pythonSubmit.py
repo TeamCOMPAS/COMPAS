@@ -141,6 +141,12 @@ class pythonProgramOptions:
     common_envelope_maximum_donor_mass_revised_energy_formalism = 2.0
     common_envelope_recombination_energy_density = 1.5E13
     common_envelope_alpha_thermal = 1.0                         # lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
+    common_envelope_lambda_multiplier = 1.0                     # Multiply common envelope lambda by some constant
+    common_envelope_allow_main_sequence_survive = True          # Allow main sequence stars to survive CE. Was previously False by default
+    common_envelope_lambda_nanjing_enhanced = False
+    common_envelope_lambda_nanjing_interpolate_in_mass = False
+    common_envelope_lambda_nanjing_interpolate_in_metallicity = False
+    common_envelope_lambda_nanjing_use_rejuvenated_mass = False
     wolf_rayet_multiplier = 1.0
     cool_wind_mass_loss_multiplier = 1.0
     common_envelope_mass_accretion_prescription = 'ZERO'
@@ -327,6 +333,10 @@ class pythonProgramOptions:
             self.pulsation_pair_instability,
             self.quiet,
             self.common_envelope_allow_main_sequence_survive,
+            self.common_envelope_lambda_nanjing_enhanced,
+            self.common_envelope_lambda_nanjing_interpolate_in_mass,
+            self.common_envelope_lambda_nanjing_interpolate_in_metallicity,
+            self.common_envelope_lambda_nanjing_use_rejuvenated_mass,
             self.evolvePulsars,
             self.debug_to_file,
             self.errors_to_file,
@@ -354,6 +364,10 @@ class pythonProgramOptions:
             '--pulsational-pair-instability',
             '--quiet',
             '--common-envelope-allow-main-sequence-survive',
+            '--common_envelope_lambda_nanjing_enhanced',
+            '--common_envelope_lambda_nanjing_interpolate_in_mass',
+            '--common_envelope_lambda_nanjing_interpolate_in_metallicity',
+            '--common_envelope_lambda_nanjing_use_rejuvenated_mass',
             '--evolve-pulsars',
             '--debug-to-file',
             '--errors-to-file',
