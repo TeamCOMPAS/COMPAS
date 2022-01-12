@@ -64,7 +64,7 @@ protected:
     double          CalculateHeCoreMassOnPhase() const                              { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
 
     double          CalculateLambdaDewi() const;
-    double          CalculateLambdaNanjing(const double p_Mass, const double p_Metallicity) const;
+    double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
     double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const;
 
     double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;

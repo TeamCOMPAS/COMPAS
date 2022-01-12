@@ -386,7 +386,7 @@ protected:
     virtual double              CalculateLambdaDewi() const                                                             { SHOW_WARN(ERROR::NO_LAMBDA_DEWI, "Default used: 1.0"); return 1.0; }      // Not supported: show error
             double              CalculateLambdaKruckow(const double p_Radius, const double p_Alpha) const;
             double              CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss = false) const;
-    virtual double              CalculateLambdaNanjing(const double p_Mass, const double p_Metallicity) const           { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: show error
+    virtual double              CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const           { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: show error
     virtual double              CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const             { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: show error
 
             void                CalculateLCoefficients(const double p_LogMetallicityXi, DBL_VECTOR &p_LCoefficients);
@@ -503,7 +503,7 @@ protected:
                                                     const double p_EjectaMass,
                                                     const double p_RemnantMass) const;
 
-            double              EvaluateLambdaNanjing() const;
+            double              CalculateLambdaNanjing() const;
     virtual void                EvolveOneTimestepPreamble() { };                                                                                                                                    // Default is NO-OP
 
             STELLAR_TYPE        EvolveOnPhase();
