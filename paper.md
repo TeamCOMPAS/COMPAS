@@ -95,13 +95,13 @@ bibliography: paper.bib
 
 # Optional fields if submitting to a AAS journal too, see this blog post:
 # https://blog.joss.theoj.org/2018/12/a-new-collaboration-with-aas-publishing
-aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
-aas-journal: Astrophysical Journal Supplements <- The name of the AAS journal.
+aas-doi: 10.3847/1538-4365/ac416c
+aas-journal: Astrophysical Journal Supplements 
 ---
 
 # Summary
 
-Most massive stars---those with initial masses greater than 8 $M_\odot$---are born with another massive star as a companion [@Sana:2012Sci;@Moe:2017ApJS]. Massive binary stars are responsible for producing many exotic astrophysical phenomena, such as the observed diversity of supernovae, binary pulsars, X-ray binaries and merging compact objects. The latter are now regularly observed by the ground-based gravitational wave observatories Advanced LIGO and Virgo [@abbott2016observation;@GWTC2].  Population models of massive binary evolution make it possible to interpret existing observations and to make predictions for future observing campaigns.  
+Most massive stars---those with initial masses greater than 8 $M_\odot$---are born with another massive star as a companion [@Sana:2012Sci;@Moe:2017ApJS]. Massive binary stars are responsible for producing many exotic astrophysical phenomena, such as the observed diversity of supernovae, binary pulsars, X-ray binaries and merging compact objects. The latter are now regularly observed by the ground-based gravitational wave observatories Advanced LIGO and Virgo [@abbott2016observation;@GWTC3].  Population models of massive binary evolution make it possible to interpret existing observations and to make predictions for future observing campaigns.  
 
 # Statement of need
 
