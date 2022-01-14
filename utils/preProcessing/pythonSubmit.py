@@ -161,6 +161,10 @@ class pythonProgramOptions:
     common_envelope_alpha = 1.0
     common_envelope_lambda = 0.1                                # Only if using 'LAMBDA_FIXED'
     common_envelope_lambda_prescription = 'LAMBDA_NANJING'      # Xu & Li 2010
+    common_envelope_lambda_nanjing_enhanced = False
+    common_envelope_lambda_nanjing_interpolate_in_mass = False
+    common_envelope_lambda_nanjing_interpolate_in_metallicity = False
+    common_envelope_lambda_nanjing_use_rejuvenated_mass = False
     common_envelope_slope_Kruckow = -5.0/6.0
     stellar_zeta_prescription = 'SOBERMAN'
     common_envelope_revised_energy_formalism = False
@@ -360,6 +364,10 @@ class pythonProgramOptions:
             self.common_envelope_allow_main_sequence_survive,
             self.common_envelope_allow_radiative_envelope_survive,
             self.common_envelope_allow_immediate_RLOF_post_CE_survive,
+            self.common_envelope_lambda_nanjing_enhanced,
+            self.common_envelope_lambda_nanjing_interpolate_in_mass,
+            self.common_envelope_lambda_nanjing_interpolate_in_metallicity,
+            self.common_envelope_lambda_nanjing_use_rejuvenated_mass,
             self.evolvePulsars,
             self.debug_to_file,
             self.errors_to_file,
@@ -389,6 +397,10 @@ class pythonProgramOptions:
             '--common-envelope-allow-main-sequence-survive',
             '--common-envelope-allow-radiative-envelope-survive',
             '--common-envelope-allow-immediate-rlof-post-ce-survive',
+            '--common-envelope-lambda-nanjing-enhanced',
+            '--common-envelope-lambda-nanjing-interpolate-in-mass',
+            '--common-envelope-lambda-nanjing-interpolate-in-metallicity',
+            '--common-envelope-lambda-nanjing-use-rejuvenated-mass',
             '--evolve-pulsars',
             '--debug-to-file',
             '--errors-to-file',

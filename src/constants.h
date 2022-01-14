@@ -277,6 +277,12 @@ constexpr double MINIMUM_MASS_SECONDARY                 = 4.0;                  
 constexpr double MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP= 0.001;                                                    // Maximal fraction of donor mass that can be transferred in one step of stable mass transfer
 
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
+constexpr double LAMBDA_NANJING_POPI_Z                  = 0.02;                                                     // Population I metallicity in Xu & Li (2010)
+constexpr double LAMBDA_NANJING_POPII_Z                 = 0.001;                                                    // Population II metallicity in Xu & Li (2010)
+constexpr double LAMBDA_NANJING_POPI_LOGZ               = -1.69897;                                                 // Population I log metallicity in Xu & Li (2010)
+constexpr double LAMBDA_NANJING_POPII_LOGZ              = -3.0;                                                     // Population II log metallicity in Xu & Li (2010)
+constexpr double LAMBDA_NANJING_MIN_MASS                = 1.0;                                                      // Minimum tabulated mass model in Xu & Li (2010)
+constexpr double LAMBDA_NANJING_MAX_MASS                = 100.0;                                                    // Maximum tabulated mass model in Xu & Li (2010)
 
 constexpr int    MAX_KEPLER_ITERATIONS                  = 1000;                                                     // Maximum number of iterations to solve Kepler's equation
 constexpr double NEWTON_RAPHSON_EPSILON                 = 1.0E-5;                                                   // Accuracy for Newton-Raphson method
@@ -2567,7 +2573,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_TOP,                                { TYPENAME::DOUBLE,         "Lambda_Kruckow_Top",   "-",                14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE,                                  { TYPENAME::DOUBLE,         "Lambda_Loveridge",     "-",                14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE_WINDS,                            { TYPENAME::DOUBLE,         "Lambda_Loveridge_Winds","-",               14, 6 }},
-    { ANY_STAR_PROPERTY::LAMBDA_NANJING,                                    { TYPENAME::DOUBLE,         "Lambda_Lambda_Nanjing","-",                14, 6 }},
+    { ANY_STAR_PROPERTY::LAMBDA_NANJING,                                    { TYPENAME::DOUBLE,         "Lambda_Nanjing",       "-",                14, 6 }},
     { ANY_STAR_PROPERTY::LBV_PHASE_FLAG,                                    { TYPENAME::BOOL,           "LBV_Phase_Flag",       "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::LUMINOSITY,                                        { TYPENAME::DOUBLE,         "Luminosity",           "Lsol",             14, 6 }},
     { ANY_STAR_PROPERTY::LUMINOSITY_POST_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Luminosity>CE",        "Lsol",             14, 6 }},
@@ -2623,7 +2629,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::ZETA_HURLEY,                                       { TYPENAME::DOUBLE,         "Zeta_Hurley",          "-",                14, 6 }},
     { ANY_STAR_PROPERTY::ZETA_HURLEY_HE,                                    { TYPENAME::DOUBLE,         "Zeta_Hurley_He",       "-",                14, 6 }},
     { ANY_STAR_PROPERTY::ZETA_SOBERMAN,                                     { TYPENAME::DOUBLE,         "Zeta_Soberman",        "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE,                                  { TYPENAME::DOUBLE,         "Zeta_SoberMan_He",     "-",                14, 6 }}
+    { ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE,                                  { TYPENAME::DOUBLE,         "Zeta_Soberman_He",     "-",                14, 6 }}
 };
 
 // map BINARY_PROPERTY_DETAIL
@@ -3807,6 +3813,14 @@ const std::map<double, double> ARP3MassRadiusRelation = {
 };
 
 
+// vector NANJING_MASSES
+// Mass / Msun of stellar models computed by Xu & Li (2010), with additional unpublished 50 and 100 Msun models
+const DBL_VECTOR NANJING_MASSES = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 20.0, 50.0, 100.0 };
+
+// vector NANJING_MASSES_MIDPOINTS
+// Mass / Msun bin edges of Xu & Li (2010) lambda prescription as implemented in StarTrack. These are the midpoints between the masses in NANJING_MASSES
+const DBL_VECTOR NANJING_MASSES_MIDPOINTS = { 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 11.0, 13.0, 15.0, 18.0, 35.0, 75.0 };
+
 // Coefficients for calculating binding and recombination energy as described in Loveridge et al. 2011
 // Electronic tables, program and further information in: http://astro.ru.nl/~sluys/index.php?title=BE
 
@@ -3870,7 +3884,7 @@ const std::vector<DBL_VECTOR> LOVERIDGE_LM1_LM2_CUTOFFS = {
 // vector LOVERIDGE_COEFFICIENTS
 // Multi-dimensional vector of struct LoveridgeCoefficients, indexed by
 // metallicity (LOVERIDGE_METALLICITY) and evolutionary stage (LOVERIDGE_GROUP)
-// This vector records the coefficients (m, r, alpha(m,r) used in Loveridge et al. 20001, eq 5
+// This vector records the coefficients (m, r, alpha(m,r) used in Loveridge et al. 2001, eq 5
 // Using a vector indexed by metallicity and evolutionary stage because it's faster than a map, and
 // the lambdas could be calculated at every timestep.
 const std::vector<std::vector<std::vector<LoveridgeCoefficients>>> LOVERIDGE_COEFFICIENTS = {

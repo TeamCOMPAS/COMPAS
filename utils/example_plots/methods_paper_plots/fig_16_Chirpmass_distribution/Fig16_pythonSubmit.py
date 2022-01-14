@@ -1,21 +1,14 @@
 import numpy as np
 import sys
 import os
-import pickle
-import itertools
+from subprocess import call
 import re
 import ntpath
-import subprocess
-from subprocess import call
-
-#### DISCLAIMER: This script uses the `pythonSubmit.py` format
-#### that has been replaced by the `runSubmit.py` and 
-#### `compasConfigDefault.yaml` combo as of v02.25.10.
-#### The `pythonSubmit.py` format will eventually become deprecated.
 
 # Check if we are using python 3
 python_version = sys.version_info[0]
 print("python_version =", python_version)
+
 
 class pythonProgramOptions:
     """
@@ -33,39 +26,16 @@ class pythonProgramOptions:
     # docker container (src, obj, bin), and the COMPAS executable resides
     # in the bin directory (rather than the src directory)
     compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH')
-    
+
     if (compas_executable_override is None):
-        
-        # we should fix this one day - we should not assume that the COMPAS executable
-        # is in the 'src' directory.  The standard is to put the object files created
-        # by the compile into the 'obj' directory, and the executable files created by
-        # the link in the 'bin' directory.
-        #
-        # for now though, because this is how everybody expects it to be, we'll just check
-        # that the path to the root directory (the parent directory of the directory in
-        # which we expect the executable to reside - for now, 'src') is set to something.
-
-        compas_root_dir = os.environ.get('COMPAS_ROOT_DIR')
-        assert compas_root_dir is not None, "Unable to locate the COMPAS executable: check that the environment variable COMPAS_ROOT_DIR is set correctly, and the COMPAS executable exists."
-
-        # construct path to executable 
-        #
-        # ideally we wouldn't have the 'src' directory name (or any other directory name)
-        # prepended to the executable name - if we just execute the executable name on its
-        # own, as long as the user navigates to the directory in which the executable resides
-        # they don't need to set the COMPAS_ROOT_DIR environment variable
-
-        compas_executable = os.path.join(compas_root_dir, 'src/COMPAS')
+        git_directory = os.environ.get('COMPAS_ROOT_DIR')
+        compas_executable = os.path.join(git_directory, 'src/COMPAS')
     else:
         compas_executable = compas_executable_override
 
-    # check that a file with the correct name exists where we expect it to
-    assert os.path.isfile(compas_executable), "Unable to locate the COMPAS executable: check that the environment variable COMPAS_ROOT_DIR is set correctly, and the COMPAS executable exists."
-
-
     enable_warnings = False                                     # option to enable/disable warning messages
 
-    number_of_systems = int(1e2)                                # number of systems per batch
+    number_of_systems = 10  #number of systems per batch
 
     populationPrinting = False
 
@@ -73,7 +43,7 @@ class pythonProgramOptions:
     if os.path.isfile(randomSeedFileName):
         random_seed = int(np.loadtxt(randomSeedFileName))
     else:
-        random_seed = 0                                         # If you want a random seed, use: np.random.randint(2,2**63-1)
+        random_seed = 0 # If you want a random seed, use: np.random.randint(2,2**63-1)
 
     # environment variable COMPAS_LOGS_OUTPUT_DIR_PATH is used primarily for docker runs
     # if COMPAS_LOGS_OUTPUT_DIR_PATH is set (!= None) it is used as the value for the
@@ -81,7 +51,7 @@ class pythonProgramOptions:
     # if COMPAS_LOGS_OUTPUT_DIR_PATH is not set (== None) the current working directory
     # is used as the value for the --output-path option
     compas_logs_output_override = os.environ.get('COMPAS_LOGS_OUTPUT_DIR_PATH')
-    
+
     if (compas_logs_output_override is None):
         output = os.getcwd()
         output_container = None                                 # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
@@ -95,7 +65,7 @@ class pythonProgramOptions:
     # if COMPAS_INPUT_DIR_PATH is not set (== None) the current working directory
     # is prepended to input filenames
     compas_input_path_override = os.environ.get('COMPAS_INPUT_DIR_PATH')
-    
+
     #-- option to make a grid of hyperparameter values at which to produce populations.
     #-- If this is set to true, it will divide the number_of_binaries parameter equally
     #-- amoungst the grid points (as closely as possible). See the hyperparameterGrid method below
@@ -104,9 +74,6 @@ class pythonProgramOptions:
     hyperparameterGrid = False
     hyperparameterList = False
     shareSeeds = False
-
-    notes_hdrs = None                                           # no annotations header strings (no annotations)
-    notes      = None                                           # no annotations
 
     mode = 'BSE'                                                # evolving single stars (SSE) or binaries (BSE)?
 
@@ -123,11 +90,11 @@ class pythonProgramOptions:
             else:
                 grid_filename = compas_input_path_override + '/' + grid_filename.strip("'\"")
 
-    logfile_definitions = "COMPAS_Output_Definitions.txt"       # logfile record definitions file name (e.g. 'logdefs.txt')
+    logfile_definitions = None                                  # logfile record definitions file name (e.g. 'logdefs.txt')
 
     if logfile_definitions != None:
         # if the grid filename supplied is already fully-qualified, leave it as is
-        head, tail = ntpath.split(logfile_definitions)          # split into pathname and base filename
+        head, tail = ntpath.split(grid_filename)                # split into pathname and base filename
         
         if head == '' or head == '.':                           # no path (or CWD) - add path as required
             logfile_definitions = tail or ntpath.basename(head)
@@ -161,6 +128,8 @@ class pythonProgramOptions:
 
     chemically_homogeneous_evolution = 'PESSIMISTIC'            # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
 
+    store_input_files = True                                    # store input files in output container?
+
     switch_log = False
 
     common_envelope_alpha = 1.0
@@ -174,22 +143,26 @@ class pythonProgramOptions:
     common_envelope_alpha_thermal = 1.0                         # lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
     common_envelope_lambda_multiplier = 1.0                     # Multiply common envelope lambda by some constant
     common_envelope_allow_main_sequence_survive = True          # Allow main sequence stars to survive CE. Was previously False by default
+    common_envelope_lambda_nanjing_enhanced = False
+    common_envelope_lambda_nanjing_interpolate_in_mass = False
+    common_envelope_lambda_nanjing_interpolate_in_metallicity = False
+    common_envelope_lambda_nanjing_use_rejuvenated_mass = False
+    wolf_rayet_multiplier = 1.0
+    cool_wind_mass_loss_multiplier = 1.0
     common_envelope_mass_accretion_prescription = 'ZERO'
     common_envelope_mass_accretion_min = 0.04                   # For 'MACLEOD+2014' [Msol]
     common_envelope_mass_accretion_max = 0.10                   # For 'MACLEOD+2014' [Msol]
     envelope_state_prescription = 'LEGACY'
-    common_envelope_allow_radiative_envelope_survive = False
-    common_envelope_allow_immediate_RLOF_post_CE_survive = False
 
     mass_loss_prescription = 'VINK'
-    luminous_blue_variable_prescription = 'HURLEY_ADD'
+    luminous_blue_variable_prescription = 'BELCZYNSKI'#'HURLEY_ADD'
     luminous_blue_variable_multiplier = 1.5
     overall_wind_mass_loss_multiplier = 1.0
     wolf_rayet_multiplier = 1.0
     cool_wind_mass_loss_multiplier = 1.0
     check_photon_tiring_limit = False
 
-    circularise_binary_during_mass_transfer = False
+    circularise_binary_during_mass_transfer = True
     angular_momentum_conservation_during_circularisation = False
     mass_transfer_angular_momentum_loss_prescription = 'ISOTROPIC'
     mass_transfer_accretion_efficiency_prescription = 'THERMAL'
@@ -209,7 +182,7 @@ class pythonProgramOptions:
     timestep_multiplier = 1.0                                   # Optional multiplier relative to default time step duration
 
     initial_mass_function = 'KROUPA'
-    initial_mass_min = 10.0                                      # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
+    initial_mass_min = 5.0                                      # Use 1.0 for LRNe, 5.0 for DCOs  [Msol]
     initial_mass_max = 150.0                                    # Stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
 
     initial_mass_power = 0.0
@@ -256,7 +229,7 @@ class pythonProgramOptions:
 
     neutrino_mass_loss_BH_formation = "FIXED_MASS"              # "FIXED_FRACTION"
     neutrino_mass_loss_BH_formation_value = 0.1                 # Either fraction or mass (Msol) to lose
-    
+
     remnant_mass_prescription   = 'FRYER2012'                   #
     fryer_supernova_engine      = 'DELAYED'
     black_hole_kicks            = 'FALLBACK'
@@ -299,11 +272,9 @@ class pythonProgramOptions:
     PPI_lower_limit = 35.0                                      # Minimum core mass for PPI [Msol]
     PPI_upper_limit = 60.0                                      # Maximum core mass for PPI [Msol]
 
-    pulsational_pair_instability_prescription = 'FARMER'
+    pulsational_pair_instability_prescription = 'MARCHANT'
 
     maximum_neutron_star_mass = 2.5  #  [Msol]
-
-    add_options_to_sysparms = 'GRID'                            # should all option values be added to system parameters files? options are 'ALWAYS', 'GRID', and 'NEVER'
 
     log_level           = 0
     log_classes         = []
@@ -347,7 +318,6 @@ class pythonProgramOptions:
     debug_to_file  = False
     errors_to_file = False
 
-
     def booleanChoices(self):
         booleanChoices = [
             self.enable_warnings,
@@ -363,13 +333,16 @@ class pythonProgramOptions:
             self.pulsation_pair_instability,
             self.quiet,
             self.common_envelope_allow_main_sequence_survive,
-            self.common_envelope_allow_radiative_envelope_survive,
-            self.common_envelope_allow_immediate_RLOF_post_CE_survive,
+            self.common_envelope_lambda_nanjing_enhanced,
+            self.common_envelope_lambda_nanjing_interpolate_in_mass,
+            self.common_envelope_lambda_nanjing_interpolate_in_metallicity,
+            self.common_envelope_lambda_nanjing_use_rejuvenated_mass,
             self.evolvePulsars,
             self.debug_to_file,
             self.errors_to_file,
             self.allow_rlof_at_birth,
             self.allow_touching_at_birth,
+            self.store_input_files,
             self.switch_log,
             self.check_photon_tiring_limit
         ]
@@ -391,13 +364,16 @@ class pythonProgramOptions:
             '--pulsational-pair-instability',
             '--quiet',
             '--common-envelope-allow-main-sequence-survive',
-            '--common-envelope-allow-radiative-envelope-survive',
-            '--common-envelope-allow-immediate-rlof-post-ce-survive',
+            '--common_envelope_lambda_nanjing_enhanced',
+            '--common_envelope_lambda_nanjing_interpolate_in_mass',
+            '--common_envelope_lambda_nanjing_interpolate_in_metallicity',
+            '--common_envelope_lambda_nanjing_use_rejuvenated_mass',
             '--evolve-pulsars',
             '--debug-to-file',
             '--errors-to-file',
             '--allow-rlof-at-birth',
             '--allow-touching-at-birth',
+            '--store-input-files',
             '--switch-log',
             '--check-photon-tiring-limit'
         ]
@@ -588,8 +564,6 @@ class pythonProgramOptions:
 
     def stringChoices(self):
         stringChoices = [
-            self.notes_hdrs,
-            self.notes,
             self.mode,
             self.case_BB_stability_prescription,
             self.chemically_homogeneous_evolution,
@@ -633,16 +607,13 @@ class pythonProgramOptions:
             self.logfile_supernovae,
             self.logfile_switch_log,
             self.logfile_system_parameters,
-            self.neutrino_mass_loss_BH_formation,
-            self.add_options_to_sysparms
+            self.neutrino_mass_loss_BH_formation
         ]
 
         return stringChoices
 
     def stringCommands(self):
         stringCommands = [
-            '--notes-hdrs',
-            '--notes',
             '--mode',
             '--case-BB-stability-prescription',
             '--chemically-homogeneous-evolution',
@@ -686,8 +657,7 @@ class pythonProgramOptions:
             '--logfile-supernovae',
             '--logfile-switch-log',
             '--logfile-system-parameters',
-            '--neutrino-mass-loss-BH-formation',
-            '--add-options-to-sysparms'
+            '--neutrino-mass-loss-BH-formation'
         ]
 
         return stringCommands
@@ -716,12 +686,12 @@ class pythonProgramOptions:
         and run directly as a terminal command, or passed to the stroopwafel interface
         where some of them may be overwritten. Options not to be included in the command 
         line should be set to pythons None (except booleans, which should be set to False)
-    
+
         Parameters
         -----------
         self : pythonProgramOptions
             Contains program options
-    
+
         Returns
         --------
         commands : str or list of strs
@@ -730,17 +700,17 @@ class pythonProgramOptions:
         booleanCommands = self.booleanCommands()
         nBoolean = len(booleanChoices)
         assert len(booleanCommands) == nBoolean
-    
+
         numericalChoices = self.numericalChoices()
         numericalCommands = self.numericalCommands()
         nNumerical = len(numericalChoices)
         assert len(numericalCommands) == nNumerical
-    
+
         stringChoices = self.stringChoices()
         stringCommands = self.stringCommands()
         nString = len(stringChoices)
         assert len(stringCommands) == nString
-    
+
         listChoices = self.listChoices()
         listCommands = self.listCommands()
         nList = len(listChoices)
@@ -750,25 +720,25 @@ class pythonProgramOptions:
         ### Collect all options into a dictionary mapping option name to option value
 
         command = {'compas_executable' : self.compas_executable}
-    
+
         for i in range(nBoolean):
             if booleanChoices[i] == True:
                 command.update({booleanCommands[i] : ''})
             elif booleanChoices[i] == False:
                 command.update({booleanCommands[i] : 'False'})
-    
+
         for i in range(nNumerical):
             if not numericalChoices[i] == None:
                 command.update({numericalCommands[i] : str(numericalChoices[i])})
-    
+
         for i in range(nString):
             if not stringChoices[i] == None:
                 command.update({stringCommands[i] : cleanStringParameter(stringChoices[i])})
-    
+
         for i in range(nList):
             if listChoices[i]:
                 command.update({listCommands[i] : ' '.join(map(str,listChoices[i]))})
-    
+
         return command
 
 
@@ -780,7 +750,7 @@ def combineCommandLineOptionsDictIntoShellCommand(commandOptions):
     """
 
     shellCommand = commandOptions['compas_executable']
-    del commandOptions['compas_executable'] 
+    del commandOptions['compas_executable']
     for key, val in commandOptions.items():
         shellCommand += ' ' + key + ' ' + val
 

@@ -292,11 +292,11 @@ double HeHG::CalculatePerturbationMu() const {
  * This function good for HeHG and HeGB stars (for Helium stars: always use Natasha's fit)
  *
  *
- * double CalculateLambdaNanjing()
+ * double CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity)
  *
  * @return                                      Nanjing lambda for use in common envelope
  */
-double HeHG::CalculateLambdaNanjing() const {
+double HeHG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
 
     double rMin = 0.25;                              // minimum considered radius: Natasha       JR: todo: should this be in constants.h?
 	double rMax = 120.0;                             // maximum considered radius: Natasha       JR: todo: should this be in constants.h?
@@ -325,11 +325,14 @@ double HeHG::CalculateLambdaNanjing() const {
  */
 ENVELOPE HeHG::DetermineEnvelopeType() const {
     
-    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                       // default envelope type  is CONVECTIVE
+    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type is RADIATIVE
     
-    switch (OPTIONS->EnvelopeStatePrescription()) {                                                 // which envelope prescription?
+    switch (OPTIONS->EnvelopeStatePrescription()) {                                                  // which envelope prescription?
             
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
+            envelope = ENVELOPE::RADIATIVE;                                                          // default treatment
+            break;
+            
         case ENVELOPE_STATE_PRESCRIPTION::HURLEY: // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG, but we approximate it as already convective here
             envelope = ENVELOPE::CONVECTIVE;
             break;
