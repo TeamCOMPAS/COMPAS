@@ -31,7 +31,7 @@ Settings
 ~~~~~~~~
 
 NOTE: This sampling method is currently being updated as part of an upgrade
-in our method to parse user-defined options. We plan to adderss this shortly. 
+in our method to parse user-defined options. We plan to address this shortly. 
 Please bear with us and contact the COMPAS team if an urgent solution is needed.
 
 1. runSubmit

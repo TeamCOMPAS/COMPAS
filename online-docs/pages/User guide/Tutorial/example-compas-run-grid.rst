@@ -41,6 +41,7 @@ COMPAS can produce logfiles of different types: ``HDF5``, ``CSV``, ``TSV``, and 
 in ``compasConfigDefault.yaml``. The default type is ``HDF5`` - we'll leave the default.
 
 NOTE: we are currently updating our documentation and will include a ``compasConfigDefault.yaml`` for the demo asap.
+
 ..
     For this turtorial, this has all been done for you in the file ``pythonSubmitDemo.py`` found in the ``examples/methods_paper_plots/detailed_evolution/`` directory.
 
