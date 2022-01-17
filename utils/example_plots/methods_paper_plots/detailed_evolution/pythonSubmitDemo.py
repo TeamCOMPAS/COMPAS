@@ -166,7 +166,7 @@ class pythonProgramOptions:
     allow_rlof_at_birth = True                                  # allow binaries that have one or both stars in RLOF at birth to evolve?
     allow_touching_at_birth = False                             # record binaries that have stars touching at birth in output files?
 
-    chemically_homogeneous_evolution = 'PESSIMISTIC'            # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
+    chemically_homogeneous_evolution = 'OPTIMISTIC'            # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
 
     switch_log = False
 
@@ -185,7 +185,7 @@ class pythonProgramOptions:
     common_envelope_mass_accretion_min = 0.04                   # For 'MACLEOD+2014' [Msol]
     common_envelope_mass_accretion_max = 0.10                   # For 'MACLEOD+2014' [Msol]
     envelope_state_prescription = 'LEGACY'
-    common_envelope_allow_radiative_envelope_survive = False
+    common_envelope_allow_radiative_envelope_survive = True 
     common_envelope_allow_immediate_RLOF_post_CE_survive = True
 
     mass_loss_prescription = 'VINK'
