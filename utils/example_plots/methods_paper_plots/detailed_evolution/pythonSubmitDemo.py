@@ -186,7 +186,7 @@ class pythonProgramOptions:
     common_envelope_mass_accretion_max = 0.10                   # For 'MACLEOD+2014' [Msol]
     envelope_state_prescription = 'LEGACY'
     common_envelope_allow_radiative_envelope_survive = False
-    common_envelope_allow_immediate_RLOF_post_CE_survive = False
+    common_envelope_allow_immediate_RLOF_post_CE_survive = True
 
     mass_loss_prescription = 'VINK'
     luminous_blue_variable_prescription = 'HURLEY_ADD'

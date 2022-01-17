@@ -137,6 +137,22 @@ Default = 0.1
 Multiplicative constant to be applied to the common envelope lambda parameter for any prescription. |br|
 Default = 1.0
 
+**--common-envelope-lambda-nanjing-enhanced** |br|
+Continuous extrapolation beyond maximum radius range in Nanjing lambda's as implemented in StarTrack. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
+Default = FALSE
+
+**--common-envelope-lambda-nanjing-interpolate-in-mass** |br|
+Interpolate Nanjing lambda parameters across different mass models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
+Default = FALSE
+
+**--common-envelope-lambda-nanjing-interpolate-in-metallicity** |br|
+Interpolate Nanjing lambda parameters across population I and population II metallicity models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
+Default = FALSE
+
+**--common-envelope-lambda-nanjing-use_rejuvenated-mass** |br|
+Use rejuvenated or effective ZAMS mass instead of true birth mass when computing Nanjing lambda parameters. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
+Default = FALSE
+
 **--common-envelope-lambda-prescription** |br|
 CE lambda (envelope binding energy) prescription. |br|
 Options: { LAMBDA_FIXED, LAMBDA_LOVERIDGE, LAMBDA_NANJING, LAMBDA_KRUCKOW, LAMBDA_DEWI } |br|
@@ -973,7 +989,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation
 
---envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-lambda-prescription, --common-envelope-lambda, --common-envelope-slope-kruckow, --common-envelope-lambda-multiplier, --common-envelope-allow-main-sequence-survive, --common-envelope-allow-radiative-envelope-survive*, --common-envelope-allow-immediate-RLOF-post-CE-survive, --common-envelope-mass-accretion-prescription, --common-envelope-mass-accretion-constant, --common-envelope-mass-accretion-min, --common-envelope-mass-accretion-max, --common-envelope-recombination-energy-density, --maximum-mass-donor-nandez-ivanova, --revised-energy-formalism-nandez-ivanova
+--envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-lambda-prescription, --common-envelope-lambda, --common-envelope-slope-kruckow, --common-envelope-lambda-multiplier, --common-envelope-lambda-nanjing-enhanced, --common-envelope-lambda-nanjing-interpolate-in-mass, --common-envelope-lambda-nanjing-interpolate-in-metallicity, --common-envelope-lambda-nanjing-use_rejuvenated-mass, --common-envelope-allow-main-sequence-survive, --common-envelope-allow-radiative-envelope-survive*, --common-envelope-allow-immediate-RLOF-post-CE-survive, --common-envelope-mass-accretion-prescription, --common-envelope-mass-accretion-constant, --common-envelope-mass-accretion-min, --common-envelope-mass-accretion-max, --common-envelope-recombination-energy-density, --maximum-mass-donor-nandez-ivanova, --revised-energy-formalism-nandez-ivanova
 
 :ref:`Back to Top <options-props-top>`
 

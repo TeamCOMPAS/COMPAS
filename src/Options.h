@@ -834,6 +834,10 @@ public:
 	        double                                              m_CommonEnvelopeSlopeKruckow;									// Common envelope power factor for Kruckow fit normalized according to Kruckow+2016, Fig. 1
             double                                              m_CommonEnvelopeAlphaThermal;                                   // lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
             double                                              m_CommonEnvelopeLambdaMultiplier;                               // Multiply common envelope lambda by some constant
+            bool                                                m_CommonEnvelopeLambdaNanjingEnhanced;                          // Use Nanjing lambda's with enhanced extrapolation in stellar radius
+            bool                                                m_CommonEnvelopeLambdaNanjingInterpolateInMass;                 // Use Nanjing lambda's with mass interpolation (only used when using enhanced Nanjing lambda's)
+            bool                                                m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity;          // Use Nanjing lambda's with metallicity interpolation (only used when using enhanced Nanjing lambda's)
+            bool                                                m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass;                // Whether or not to use mass after rejuvenation (m_Mass0) instead of true birth mass when calculating Nanjing lambda's
             bool                                                m_AllowMainSequenceStarToSurviveCommonEnvelope;                 // Whether or not to allow a main sequence star to survive a common envelope event
             bool                                                m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope;            // Whether or not to allow a radiative-envelope star to survive a common envelope event
             bool                                                m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope;              // Whether or not to allow Roche Lobe Overflow immediately after a CE to survive a common envelope event
@@ -1099,9 +1103,12 @@ public:
     ADD_OPTIONS_TO_SYSPARMS                     AddOptionsToSysParms() const                                            { return m_CmdLine.optionValues.m_AddOptionsToSysParms.type; }
 
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return OPT_VALUE("common-envelope-allow-main-sequence-survive", m_AllowMainSequenceStarToSurviveCommonEnvelope, true); }
+    bool                                        CommonEnvelopeLambdaNanjingEnhanced() const                             { return OPT_VALUE("common-envelope-lambda-nanjing-enhanced", m_CommonEnvelopeLambdaNanjingEnhanced, true); }
+    bool                                        CommonEnvelopeLambdaNanjingInterpolateInMass() const                    { return OPT_VALUE("common-envelope-lambda-nanjing-interpolate-in-mass", m_CommonEnvelopeLambdaNanjingInterpolateInMass, true); }
+    bool                                        CommonEnvelopeLambdaNanjingInterpolateInMetallicity() const             { return OPT_VALUE("common-envelope-lambda-nanjing-interpolate-in-metallicity", m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity, true); }
+    bool                                        CommonEnvelopeLambdaNanjingUseRejuvenatedMass() const                   { return OPT_VALUE("common-envelope-lambda-nanjing-use-rejuvenated-mass", m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass, true); }
     bool                                        AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() const               { return OPT_VALUE("common-envelope-allow-radiative-envelope-survive", m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope, true); }
     bool                                        AllowImmediateRLOFpostCEToSurviveCommonEnvelope() const                 { return OPT_VALUE("common-envelope-allow-immediate-rlof-post-ce-survive", m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope, true); }
-    
     bool                                        AllowRLOFAtBirth() const                                                { return OPT_VALUE("allow-rlof-at-birth", m_AllowRLOFAtBirth, true); }
     bool                                        AllowTouchingAtBirth() const                                            { return OPT_VALUE("allow-touching-at-birth", m_AllowTouchingAtBirth, true); }
     bool                                        AngularMomentumConservationDuringCircularisation() const                { return OPT_VALUE("angular-momentum-conservation-during-circularisation", m_AngularMomentumConservationDuringCircularisation, true); }

@@ -1534,7 +1534,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             m_Flags.stellarMerger        = true;
         }
     }
-	else {
+	if (!m_Flags.stellarMerger) {
 
         STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                             // star 1 stellar type before resolving envelope loss
         STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                             // star 2 stellar type before resolving envelope loss

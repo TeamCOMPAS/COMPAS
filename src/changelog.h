@@ -859,9 +859,16 @@
 // 02.26.02     RTW - Dec 17, 2021   - Defect repair, Code cleanup:
 //                                      - Changed all occurences of PPOW(base, 1.0/3.0) with std::cbrt, as the former could not handle negative bases
 //                                      - Changed all occurences of sqrt with std::sqrt for consistency with the above change
-// 02.27.00     RTW - Dec 20, 2021   - Enhancements:
+// 02.26.03     IM - Jan 10, 2022    - Defect repair, code cleanup:
+//                                      - Cleaned up treatment of HG donors having CONVECTIVE envelopes in LEGACY; fixed an issues with CEs from HG donors introduced in 02.25.01 
+// 02.27.00     ML - Jan 08, 2021    - Enhancements:
+//                                      - Add enhanced Nanjing lambda option that continuously extrapolates beyond radial range
+//                                      - Add Nanjing lambda option to switch between calculation using rejuvenated mass and true birth mass
+//                                      - Add Nanjing lambda mass and metallicity interpolation options
+//                                      - No change in default behaviour
+// 02.27.01     RTW - Jan 18, 2021   - Enhancements:
 //                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
 
-const std::string VERSION_STRING = "02.27.00";
+const std::string VERSION_STRING = "02.27.01";
 
 # endif // __changelog_h__

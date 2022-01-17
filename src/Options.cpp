@@ -425,6 +425,10 @@ void Options::OptionValues::Initialise() {
 	m_CommonEnvelopeSlopeKruckow                                    = -5.0 / 6.0;
 	m_CommonEnvelopeAlphaThermal                                    = 1.0;
     m_CommonEnvelopeLambdaMultiplier                                = 1.0;
+    m_CommonEnvelopeLambdaNanjingEnhanced                           = false;
+    m_CommonEnvelopeLambdaNanjingInterpolateInMass                  = false;
+    m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity           = false;
+    m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass                 = false;
     m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope             = false;
     m_AllowMainSequenceStarToSurviveCommonEnvelope                  = true;
     m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope               = false;
@@ -669,6 +673,26 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "common-envelope-allow-main-sequence-survive",                 
             po::value<bool>(&p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->default_value(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->implicit_value(true),          
             ("Allow main sequence stars to survive common envelope evolution (default = " + std::string(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "common-envelope-lambda-nanjing-enhanced",
+            po::value<bool>(&p_Options->m_CommonEnvelopeLambdaNanjingEnhanced)->default_value(p_Options->m_CommonEnvelopeLambdaNanjingEnhanced)->implicit_value(true),
+            ("Use Nanjing lambda's with enhanced extrapolation in stellar radius (default = " + std::string(p_Options->m_CommonEnvelopeLambdaNanjingEnhanced ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "common-envelope-lambda-nanjing-interpolate-in-mass",
+            po::value<bool>(&p_Options->m_CommonEnvelopeLambdaNanjingInterpolateInMass)->default_value(p_Options->m_CommonEnvelopeLambdaNanjingInterpolateInMass)->implicit_value(true),
+            ("Use Nanjing lambda's with mass interpolation (only used when using enhanced Nanjing lambda's) (default = " + std::string(p_Options->m_CommonEnvelopeLambdaNanjingInterpolateInMass ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "common-envelope-lambda-nanjing-interpolate-in-metallicity",
+            po::value<bool>(&p_Options->m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity)->default_value(p_Options->m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity)->implicit_value(true),
+            ("Use Nanjing lambda's with metallicity interpolation (only used when using enhanced Nanjing lambda's) (default = " + std::string(p_Options->m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "common-envelope-lambda-nanjing-use-rejuvenated-mass",
+            po::value<bool>(&p_Options->m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass)->default_value(p_Options->m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass)->implicit_value(true),
+            ("Use rejuvenated mass to calculate Nanjing lambda's (default = " + std::string(p_Options->m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "common-envelope-allow-radiative-envelope-survive",
