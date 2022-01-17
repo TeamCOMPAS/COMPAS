@@ -217,13 +217,13 @@ You could copy/paste the following into the terminal...
 
 ::
 
-    docker run --rm -d -v $(pwd)/compas-logs/run_0:/app/COMPAS/logs -v $(pwd)/pythonSubmitMMsolar_01.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
+    docker run --rm -d -v $(pwd)/compas-logs/run_0:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_01.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
     
-    docker run --rm -d -v $(pwd)/compas-logs/run_1:/app/COMPAS/logs -v $(pwd)/pythonSubmitMMsolar_02.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
+    docker run --rm -d -v $(pwd)/compas-logs/run_1:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_02.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
     
-    docker run --rm -d -v $(pwd)/compas-logs/run_2:/app/COMPAS/logs -v $(pwd)/pythonSubmitMMsolar_03.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
+    docker run --rm -d -v $(pwd)/compas-logs/run_2:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_03.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
     
-    docker run --rm -d -v $(pwd)/compas-logs/run_3:/app/COMPAS/logs -v $(pwd)/pythonSubmitMMsolar_04.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py
+    docker run --rm -d -v $(pwd)/compas-logs/run_3:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_04.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py
 
 ...which would run 4 separate instances of COMPAS, each with its own
 ``runSubmit.py`` file and logging directory, and all console output
