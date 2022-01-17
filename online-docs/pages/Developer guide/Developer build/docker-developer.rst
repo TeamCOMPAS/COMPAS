@@ -64,7 +64,7 @@ The Dockerfile for COMPAS is made up of 8 layers:
 
 A Dockerfile usually ends with a ``CMD`` directive that specifies what command should run when the container is started\ [#f11]_. 
 The COMPAS Dockerfile doesn't have a ``CMD`` directive because some users will want to run the executable directly and some will 
-want to use ``pythonSubmit.py``.
+want to use ``runSubmit.py``.
 
 
 Makefile.docker
