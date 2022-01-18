@@ -69,12 +69,12 @@ Running
 
 
 COMPAS can still be configured via command line arguments passed to the
-COMPAS executable or via a ``pythonSubmit.py`` file.
+COMPAS executable or via a ``runSubmit.py`` file.
 
-Run pythonSubmit.py
+Running runSubmit.py
 
 
-To run COMPAS via a ``pythonSubmit.py`` file, the command is a little
+To run COMPAS via a ``runSubmit.py`` file, the command is a little
 more complex.
 
 ::
@@ -83,11 +83,11 @@ more complex.
     --rm                                                    \
     -it                                                     \
     -v $(pwd)/compas-logs:/app/COMPAS/logs                  \
-    -v $(pwd)/pythonSubmit.py:/app/starts/pythonSubmit.py   \
+    -v $(pwd)/runSubmit.py:/app/starts/runSubmit.py   \
     -e COMPAS_EXECUTABLE_PATH=/app/COMPAS/bin/COMPAS        \
     -e COMPAS_LOGS_OUTPUT_DIR_PATH=/app/COMPAS/logs         \
     teamcompas/compas                                       \
-    python3 /app/starts/pythonSubmit.py                     
+    python3 /app/starts/runSubmit.py                     
 
 Breaking down this command:
 
@@ -108,8 +108,15 @@ provides an interactive terminal
 `Bind mounts <https://docs.docker.com/storage/bind-mounts/>`__
 mount ``<path-on-host>`` to ``<path-in-container``>
 This time we not only want to get the output from COMPAS on the host
-machine, we also want to supply a ``pythonSubmit.py`` to the container
+machine, we also want to supply a ``runSubmit.py`` to the container
 from the host machine.
+
+NOTE: if you decide to execute using ``runSubmit.py``, you will need 
+a ``compasConfigDefault.yaml``  file in the same directory. This file 
+can be find in the same directory as the ``runSubmit.py``, and contains
+the default COMPAS choices for stellar and binary physics. These choices
+can be changed by modifying the options availabe in the ``compasConfigDefault.yaml`` 
+file.
 
 ``-e VAR_NAME=value``
 `Environment
@@ -119,13 +126,13 @@ set the environment variable ``VAR_VAME`` to ``value``
 ``teamcompas/compas``
 the image to run
 
-``python3 /app/starts/pythonSubmit.py``
+``python3 /app/starts/runSubmit.py``
 the command to run when the container starts
 
 Run the COMPAS executable
 
 
-To run the COMPAS executable directly (i.e. without ``pythonSubmit.py``)
+To run the COMPAS executable directly (i.e. without ``runSubmit.py``)
 
 ::
 
@@ -181,15 +188,15 @@ More info on ``docker run``
 NOTE 1:
 
 Two new environment variables have been added, both of these apply to
-``pythonSubmit.py`` only and are non-breaking changes.
+``runSubmit.py`` only and are non-breaking changes.
 
 ``COMPAS_EXECUTABLE_PATH`` is an addition to the default
-``pythonSubmit.py`` that overrides where ``pythonSubmit.py`` looks for
+``runSubmit.py`` that overrides where ``runSubmit.py`` looks for
 the compiled COMPAS.
 This override exists purely for ease-of-use from the command line.
 
 ``COMPAS_LOGS_OUTPUT_DIR_PATH`` is also an addition to the default
-``pythonSubmit.py`` that overrides where logs are placed.
+``runSubmit.py`` that overrides where logs are placed.
 The override exists because the mounted directory (option ``-v``) is
 created before COMPAS runs. COMPAS sees that the directory where it's
 supposed to put logs already exists, so it created a different (i.e.
@@ -210,16 +217,16 @@ You could copy/paste the following into the terminal...
 
 ::
 
-    docker run --rm -d -v $(pwd)/compas-logs/run_0:/app/COMPAS/logs -v $(pwd)/pythonSubmitMMsolar_01.py:/app/starts/pythonSubmit.py teamcompas/compas python3 /app/starts/pythonSubmit.py &
+    docker run --rm -d -v $(pwd)/compas-logs/run_0:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_01.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
     
-    docker run --rm -d -v $(pwd)/compas-logs/run_1:/app/COMPAS/logs -v $(pwd)/pythonSubmitMMsolar_02.py:/app/starts/pythonSubmit.py teamcompas/compas python3 /app/starts/pythonSubmit.py &
+    docker run --rm -d -v $(pwd)/compas-logs/run_1:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_02.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
     
-    docker run --rm -d -v $(pwd)/compas-logs/run_2:/app/COMPAS/logs -v $(pwd)/pythonSubmitMMsolar_03.py:/app/starts/pythonSubmit.py teamcompas/compas python3 /app/starts/pythonSubmit.py &
+    docker run --rm -d -v $(pwd)/compas-logs/run_2:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_03.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
     
-    docker run --rm -d -v $(pwd)/compas-logs/run_3:/app/COMPAS/logs -v $(pwd)/pythonSubmitMMsolar_04.py:/app/starts/pythonSubmit.py teamcompas/compas python3 /app/starts/pythonSubmit.py
+    docker run --rm -d -v $(pwd)/compas-logs/run_3:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_04.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py
 
 ...which would run 4 separate instances of COMPAS, each with its own
-``pythonSubmit.py`` file and logging directory, and all console output
+``runSubmit.py`` file and logging directory, and all console output
 supressed.
 
 You may want to check the console output to see how far into the run
@@ -322,7 +329,7 @@ Dockerfiles will usually end with a ``CMD`` directive that specifies
 what command should run when the container is started.
 COMPAS doesn't have a ``CMD`` directive because some users will want
 to run the executable directly and some will want to use
-``pythonSubmit.``.
+``runSubmit.``.
 `CMD <https://docs.docker.com/engine/reference/builder/#cmd>`__ docs
 
 Makefile.docker

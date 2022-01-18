@@ -4,16 +4,15 @@ Running COMPAS via Python
 A convenient method of managing the many program options provided by COMPAS is to run COMPAS via Python, using a script to manage and 
 specify the values of the program options.
 
-An example Python script is provided in the COMPAS suite on github: ``pythonSubmit.py``. Users should copy this script and modify their 
-copy to match their experimental requirements. Refer to the :doc:`Getting started guide <../../Getting started/getting-started>` for more details.
+An example Python script is provided in the COMPAS suite on github: ``runSubmit.py``. Additionally, the default COMPAS options are specified on ``compasConfigDefault.yaml``. Users should copy the ``runSubmit.py`` and ``runSubmit.py`` scripts and modify the ``compasConfigDefault.yaml`` copy to match their experimental requirements. Refer to the :doc:`Getting started guide <../../Getting started/getting-started>` for more details.
 
-To run COMPAS via Python using the ``pythonSubmit.py`` script provided, set the shell environment variable ``COMPAS-ROOT-DIR``
-to the parent directory of the directory in which the COMPAS executable resides, then type `python /path-to-pythonSubmit/pythonSubmit.py`. 
+To run COMPAS via Python using the ``runSubmit.py`` script provided, set the shell environment variable ``COMPAS-ROOT-DIR``
+to the parent directory of the directory in which the COMPAS executable resides, then type `python /path-to-runSubmit/runSubmit.py`. 
 For example, for Ubuntu Linux, type::
 
     export COMPAS_ROOT_DIR=/path-to-dir
 
-    python /path-to-pythonSubmit/pythonSubmit.py
+    python /path-to-runSubmit/runSubmit.py
 
 This should produce an output similar to::
 
@@ -50,8 +49,8 @@ This should produce an output similar to::
 Note that Python prints the Python version, the executes the command to run COMPAS.  The command exceuted is echoed to the stdout.  COMPAS
 then runs and produces its usual output.
 
-When using Python and a script file (such as `pythonSubmit.py`) to run COMPAS, care must be taken to specify program option values correctly.
-For example, ranges and sets can be specified for options in the Python script file, but the range or set parameter must be enclosed in quotes – 
+When using Python and a script file (such as `runSubmit.py`) to run COMPAS, care must be taken to specify program option values correctly in the ``compasConfigDefault.yaml`` file.
+For example, ranges and sets can be specified for options in the ``compasConfigDefault.yaml`` file, but the range or set parameter must be enclosed in quotes – 
 otherwise python tries to parse the construct. For example, to specify a set of metallicity values in the Python script file, use::
 
     metallicity = 's[0.001,0.002,0.003,0.007,0.01,0.015,0.02]'
