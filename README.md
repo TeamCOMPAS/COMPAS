@@ -26,8 +26,6 @@ If you use this code or parts of this code for results presented in a scientific
      keywords = {Astrophysics - Instrumentation and Methods for Astrophysics, Astrophysics - High Energy Astrophysical Phenomena, Astrophysics - Solar and Stellar Astrophysics},
          year = 2021,
         month = sep,
-          eid = {arXiv:2109.10352},
-        pages = {arXiv:2109.10352},
 archivePrefix = {arXiv},
        eprint = {2109.10352},
  primaryClass = {astro-ph.IM},
