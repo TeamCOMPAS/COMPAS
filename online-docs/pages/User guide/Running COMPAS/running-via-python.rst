@@ -4,9 +4,6 @@ Running COMPAS via Python
 A convenient method of managing the many program options provided by COMPAS is to run COMPAS via Python, using a script to manage and 
 specify the values of the program options.
 
-..
-    An example Python script is provided in the COMPAS suite on github: ``runSubmit.py``. Users should copy this script and modify their copy to match their experimental requirements. Refer to the :doc:`Getting started guide <../../Getting started/getting-started>` for more details.
-
 An example Python script is provided in the COMPAS suite on github: ``runSubmit.py``. Additionally, the default COMPAS options are specified on ``compasConfigDefault.yaml``. Users should copy the ``runSubmit.py`` and ``runSubmit.py`` scripts and modify the ``compasConfigDefault.yaml`` copy to match their experimental requirements. Refer to the :doc:`Getting started guide <../../Getting started/getting-started>` for more details.
 
 To run COMPAS via Python using the ``runSubmit.py`` script provided, set the shell environment variable ``COMPAS-ROOT-DIR``
