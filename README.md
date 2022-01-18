@@ -4,8 +4,6 @@
 
 # Compact Object Mergers: Population Astrophysics & Statistics
 
-[![Documentation](https://img.shields.io/badge/Documentation-latest-orange.svg?style=flat)](https://github.com/TeamCOMPAS/COMPAS/blob/Documentation/COMPAS_Documentation.pdf)
-
 [//]: ## (Outline features)
 COMPAS is a publicly available rapid binary population synthesis code (https://compas.science/) that is designed so that evolution prescriptions and model parameters are easily 
 adjustable.  COMPAS draws properties for a binary star system from a set of initial distributions, and evolves it from zero-age main sequence to the end of its life as two compact 
@@ -28,8 +26,6 @@ If you use this code or parts of this code for results presented in a scientific
      keywords = {Astrophysics - Instrumentation and Methods for Astrophysics, Astrophysics - High Energy Astrophysical Phenomena, Astrophysics - Solar and Stellar Astrophysics},
          year = 2021,
         month = sep,
-          eid = {arXiv:2109.10352},
-        pages = {arXiv:2109.10352},
 archivePrefix = {arXiv},
        eprint = {2109.10352},
  primaryClass = {astro-ph.IM},
