@@ -53,6 +53,16 @@ protected:
         // and Age is calculated differently in those cases
     }
 
+    void FastForward() {                                                                                                                                                        // Set stellar attributes for stars initialized to this stellar type
+
+        m_Radius                                   = CalculateRadiusAtZAMS_Static(m_MZAMS);
+        m_Luminosity                               = CalculateLuminosityAtZAMS_Static(m_MZAMS);
+        m_Temperature                              = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
+    
+        m_HeCoreMass                               = m_Mass;
+        m_InitialStellarType                       = m_StellarType;
+        m_StellarTypePrev                          = m_StellarType;
+    }
 
     // member functions - alphabetically
             double          CalculateCOCoreMassAtPhaseEnd() const                                       { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase

@@ -43,6 +43,15 @@ protected:
         CalculateTimescales();                                                                                                                                  // Initialise timescales
     }
 
+    void FastForward() {                                                                                                                                                        // Set stellar attributes for stars initialized to this stellar type
+
+        m_Radius                                   = CalculateRadiusOnPhase();
+        m_Luminosity                               = CalculateLuminosityOnPhase();
+    
+        m_InitialStellarType                       = m_StellarType;
+        m_StellarTypePrev                          = m_StellarType;
+    }
+
 
     double          CalculateLuminosityOnPhase(const double p_Mass,
                                                const double p_Time,

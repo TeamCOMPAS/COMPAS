@@ -33,6 +33,15 @@ protected:
         m_Age = 0.0;                                                                                                                                                // Set age appropriately
     }
 
+    void FastForward() {                                                                                                                                                        // Set stellar attributes for stars initialized to this stellar type
+
+        m_Radius                                   = CalculateRadiusOnPhase();
+        m_Luminosity                               = CalculateLuminosityOnPhase();
+    
+        m_InitialStellarType                       = m_StellarType;
+        m_StellarTypePrev                          = m_StellarType;
+    }
+
 
     // member functions
 

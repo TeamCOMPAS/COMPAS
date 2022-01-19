@@ -189,6 +189,8 @@ public:
 
     double          EvolveOneTimestep(const double p_Dt);
 
+    void            FastForward()                                                                                   { m_Star->FastForward(); }
+
     void            IncrementOmega(const double p_OmegaDelta)                                                       { m_Star->IncrementOmega(p_OmegaDelta); }
 
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }

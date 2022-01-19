@@ -33,8 +33,10 @@ Star::Star(const unsigned long int p_RandomSeed,
 
     if (!utils::IsOneOf(p_InitialStellarType, {STELLAR_TYPE::STAR})) {                                               // Stellar type set by user?
         (void)SwitchTo(p_InitialStellarType, true);                                                                     // yes - switch to user supplied type
+        (void)FastForward();                                                                                            // for non-MS stellar types, need to fast forward their attributes
     }
     else {                                                                                                              // no -
+    //if (utils::IsOneOf(p_InitialStellarType, {STELLAR_TYPE::STAR})) {                                                  // Stellar type is default?
         if (OPTIONS->CHEMode() != CHE_MODE::NONE && utils::Compare(m_Star->Omega(), m_Star->OmegaCHE()) >= 0) {             // CHE?
             (void)SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                     // yes
         }
