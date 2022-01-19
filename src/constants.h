@@ -1569,6 +1569,8 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     HE_CORE_MASS_AT_COMMON_ENVELOPE,                 \
     HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        \
     ID,                                              \
+    INITIAL_LUMINOSITY,                              \
+    INITIAL_RADIUS,                                  \
     INITIAL_STELLAR_TYPE,                            \
     INITIAL_STELLAR_TYPE_NAME,                       \
     IS_CCSN,                                         \
