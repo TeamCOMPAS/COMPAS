@@ -518,7 +518,7 @@ should output something similar to
     local_feature_branch
     remotes/another_fork/dev
     remotes/another_fork/production
-    remotes/another_fork/pythonSubmit
+    remotes/another_fork/runSubmit
     remotes/origin/HEAD -> origin/production
     remotes/origin/dev
     remotes/origin/production
@@ -538,7 +538,7 @@ All of the remote branches are available to be copied locally with:
 
 *Example:*
 
-``git checkout -b myPySubmit another_fork/pythonSubmit``
+``git checkout -b myPySubmit another_fork/runSubmit``
 
 
 
