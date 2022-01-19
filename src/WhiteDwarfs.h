@@ -34,6 +34,7 @@ public:
 
 protected:
 
+
     // member functions - alphabetically
             double      CalculateCOCoreMassOnPhase() const                  { return m_COCoreMass; }                                                // NO-OP
 

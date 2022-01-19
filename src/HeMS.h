@@ -58,10 +58,12 @@ protected:
         m_Radius                                   = CalculateRadiusAtZAMS_Static(m_MZAMS);
         m_Luminosity                               = CalculateLuminosityAtZAMS_Static(m_MZAMS);
         m_Temperature                              = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
-    
-        m_HeCoreMass                               = m_Mass;
+
+        m_InitialLuminosity                        = m_Luminosity;
+        m_InitialRadius                            = m_Radius;
         m_InitialStellarType                       = m_StellarType;
         m_StellarTypePrev                          = m_StellarType;
+        m_HeCoreMass                               = m_Mass;
     }
 
     // member functions - alphabetically
