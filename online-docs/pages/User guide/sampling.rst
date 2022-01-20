@@ -30,17 +30,22 @@ To use Stroopwafel sampling, copy
 Settings
 ~~~~~~~~
 
-1. PythonSubmit
+NOTE: This sampling method is currently being updated as part of an upgrade
+in our method to parse user-defined options. We plan to address this shortly. 
+Please bear with us and contact the COMPAS team if an urgent solution is needed.
+
+1. runSubmit
 
 
 If you are running COMPAS on default settings, skip this section.
 
 If you have many non-default COMPAS arguments, you may want to set
-them in the ``pythonSubmit.py`` file in the same directory. For now, the file must
+them in the ``compasConfigDefault.yaml``, that is read and executed by the 
+``runSubmit.py`` file in the same directory. For now, the file must
 be named this way and placed in the same directory as the ``stroopwafelInterface.py``
 file.
 
-A configurable pythonSubmit file can be found in the ``preProcessing/``
+A configurable runSubmit file can be found in the ``preProcessing/``
 directory.
 
 Set your desired options, then set the ``usePythonSubmit`` parameter to ``True``
@@ -57,7 +62,7 @@ See ``python3 stroopwafelInterface.py --help``.
 
 ``num_systems`` is the total number of binaries you would like to
 evolve.
-This value overrides the value set in the pythonSubmit.
+This value overrides the value set in the ``compasConfigDefault.yaml`` file.
 
 ``num_cores`` is the number of cores you would like to use to
 parallelize your run. More cores means your run will finish sooner, but

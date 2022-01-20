@@ -15,10 +15,10 @@ It should be clear that this grid file specifies a binary of zero-age main seque
 35.4\ :math:`\small M_\odot`, secondary mass 29.3\ :math:`\small M_\odot`, metallicity 0.001, zero eccentricity, and semi-major axis of 
 1.02AU. See :doc:`../grid-files` for detailed information regarding COMPAS's grid functionality for both single and binary stars.
 
-We will execute COMPAS via the ``pythonSubmit.py`` script, but first we need to edit the script to instruct COMPAS to read the grid file
+We will execute COMPAS via the ``runSubmit.py`` script, but first we need to edit the companion ``compasConfigDefault.yaml`` script to instruct COMPAS to read the grid file
 (via the ``grid`` program option).
 
-Open ``$COMPAS_ROOT_DIR/preProcessing/pythonSubmit.py`` with a text editor, and specify the grid filename::
+Open ``$COMPAS_ROOT_DIR/preProcessing/compasConfigDefault.yaml`` with a text editor, and specify the grid filename::
 
     grid_filename = 'Grid_demo.txt'
     
@@ -32,43 +32,45 @@ To print the detailed evolution of binary properties over time, we need to turn 
 
     detailed_output = True
 
-in ``pythonSubmit.py``.
+in ``compasConfigDefault.yaml``.
 
 COMPAS can produce logfiles of different types: ``HDF5``, ``CSV``, ``TSV``, and ``TXT``, which can be chosen by editing the line::
 
     logfile_type = 'HDF5'
 
-in ``pythonSubmit.py``. The default type is ``HDF5`` - we'll leave the default.
+in ``compasConfigDefault.yaml``. The default type is ``HDF5`` - we'll leave the default.
 
+NOTE: we are currently updating our documentation and will include a ``compasConfigDefault.yaml`` for the demo asap.
 
-For this turtorial, this has all been done for you in the file ``pythonSubmitDemo.py`` found in the 
-``examples/methods_paper_plots/detailed_evolution/`` directory.
+..
+    For this turtorial, this has all been done for you in the file ``pythonSubmitDemo.py`` found in the ``examples/methods_paper_plots/detailed_evolution/`` directory.
 
+..
+    Now let's run COMPAS!
 
-Now let's run COMPAS!
+..
+    ::
 
-::
+        $ python3 pythonSubmitDemo.py
 
-    $ python3 pythonSubmitDemo.py
+        COMPAS v02.18.06
+        Compact Object Mergers: Population Astrophysics and Statistics
+        by Team COMPAS (http://compas.science/index.html)
+        A binary star simulator
 
-    COMPAS v02.18.06
-    Compact Object Mergers: Population Astrophysics and Statistics
-    by Team COMPAS (http://compas.science/index.html)
-    A binary star simulator
+        Start generating binaries at Thu Feb 25 14:42:05 2021
 
-    Start generating binaries at Thu Feb 25 14:42:05 2021
+        Evolution of current binary stopped: Double compact object
+        0: Evolution stopped: (Main_Sequence_>_0.7 -> Black_Hole) + (Main_Sequence_>_0.7 -> Black_Hole)
 
-    Evolution of current binary stopped: Double compact object
-    0: Evolution stopped: (Main_Sequence_>_0.7 -> Black_Hole) + (Main_Sequence_>_0.7 -> Black_Hole)
+        Generated 1 of 1 binaries requested
 
-    Generated 1 of 1 binaries requested
+        Simulation completed
 
-    Simulation completed
+        End generating binaries at Thu Feb 25 14:42:05 2021
 
-    End generating binaries at Thu Feb 25 14:42:05 2021
+        Clock time = 0.108338 CPU seconds
+        Wall time  = 00:00:00 (hh:mm:ss)
 
-    Clock time = 0.108338 CPU seconds
-    Wall time  = 00:00:00 (hh:mm:ss)
-
-
-Congratulations! You've just made a binary black hole. And it didn't even take a second.
+..
+    Congratulations! You've just made a binary black hole. And it didn't even take a second.
