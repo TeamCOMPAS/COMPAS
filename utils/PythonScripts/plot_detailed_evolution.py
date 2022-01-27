@@ -20,7 +20,12 @@ compasRootDir = os.path.expandvars(os.environ['COMPAS_ROOT_DIR'])
 
 def main():
     ### Read file and create dataframe.
-    data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
+    try:
+        optional_input = sys.argv[1] 
+        if optional_input is not None:
+            data_path = optional_input
+    except IndexError: # default
+        data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
 
     Data = h5.File(data_path, 'r')
 
@@ -214,8 +219,11 @@ def plotStellarTypeAttributesAndEccentricity(fig=None, ax=None, Data=None):
 
 
 def plotVanDenHeuval(events=None):
+    # Only want events with an associated image
+    events = [event for event in events if (event.eventImage is not None)]
     num_events = len(events)
     fig, axs = plt.subplots(num_events, 1)
+    fig.set_figwidth(9)
     plt.rcParams["text.usetex"] = True  # Use latex
     
     for ii in range(num_events):
@@ -311,6 +319,7 @@ class Event(object):
         self.e      = Data['Eccentricity'][ii]
         self.Z1     = Data['Metallicity@ZAMS(1)'][ii]
 
+        self.eventImage = None
         self.eventString = self.getEventDetails(**kwargs)
 
 
@@ -443,7 +452,7 @@ class Event(object):
         on the stellar types, to get the van Den Heuval diagrams.
         """
 
-        self.imgFile = compasRootDir + '/docs/media/vanDenHeuval_figures/{}.png'.format(image_num)
+        self.imgFile = compasRootDir + 'utils/media/vanDenHeuval_figures/{}.png'.format(image_num)
         img = plt.imread(self.imgFile) # import image
         if rotate_image:
             img = img[:,::-1,:] # flip across y-axis
