@@ -24,6 +24,7 @@ void HeHG::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
 
     HeMS::CalculateTimescales(p_Mass, p_Timescales);    // calculate common values
 
+    // RTW: the p and q values here are wrong if CalculateTimescales is called before CalculateGBParams
     double p1   = gbParams(p) - 1.0;
     double q1   = gbParams(q) - 1.0;
     double p1_p = p1 / gbParams(p);
@@ -63,6 +64,9 @@ void HeHG::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
 	gbParams(B)      = CalculateCoreMass_Luminosity_B_Static();
 	gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass);
 
+    gbParams(p)      = CalculateCoreMass_Luminosity_p_Static();
+    gbParams(q)      = CalculateCoreMass_Luminosity_q_Static();
+    
     gbParams(Mx)     = GiantBranch::CalculateCoreMass_Luminosity_Mx_Static(p_GBParams);      // depends on B, D, p & q - recalculate if any of those are changed
     gbParams(Lx)     = GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // JR: Added this - depends on B, D, p, q & Mx - recalculate if any of those are changed
 
