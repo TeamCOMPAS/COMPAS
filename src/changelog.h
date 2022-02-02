@@ -866,7 +866,9 @@
 //                                      - Add Nanjing lambda option to switch between calculation using rejuvenated mass and true birth mass
 //                                      - Add Nanjing lambda mass and metallicity interpolation options
 //                                      - No change in default behaviour
+// 02.27.01     RTW - Dec 17, 2021   - Defect repair:
+//                                      - Added HeHG core mass growth p and q values
 
-const std::string VERSION_STRING = "02.27.00";
+const std::string VERSION_STRING = "02.27.01";
 
 # endif // __changelog_h__
