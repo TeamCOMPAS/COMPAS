@@ -871,6 +871,6 @@
 // 02.27.02     IM - Feb 3, 2021     - Defect repair:
 //                                      - Fixed mass change on forced envelope loss in response to issue # 743
 
-const std::string VERSION_STRING = "02.27.01";
+const std::string VERSION_STRING = "02.27.02";
 
 # endif // __changelog_h__

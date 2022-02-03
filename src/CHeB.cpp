@@ -1487,8 +1487,8 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 		double tHeIPrime = timescales(tHeI);
 		double tHePrime  = timescales(tHe);
 
-        m_Tau = ((m_Age - tHeIPrime) / tHePrime);                                   // Hurley et al. 2000, eq 76 and following discussion
-        m_Age = m_Tau * HeMS::CalculateLifetimeOnPhase_Static(m_Mass0);
+        m_Tau = ((m_Age - tHeIPrime) / tHePrime);                                   // Hurley et al. 2000, just after eq 81
+        m_Age = m_Tau * HeMS::CalculateLifetimeOnPhase_Static(m_Mass0);             // Hurley et al. 2000, eq 76 and following discussion
 
         CalculateTimescales(m_Mass0, m_Timescales);
         CalculateGBParams(m_Mass0, m_GBParams);
