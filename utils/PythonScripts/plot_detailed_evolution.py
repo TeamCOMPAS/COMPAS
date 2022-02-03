@@ -69,11 +69,11 @@ def makeDetailedPlots(Data=None, events=None):
 
 
     rcParams.update(fontparams) # Set configurations for uniform plot output
-    fig, axes = plt.subplots(nrows=len(listOfPlots), figsize=(10, 20)) # W, H
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(15, 8)) # W, H
 
     for ii, specificPlot in enumerate(listOfPlots): # exclude the last one
 
-        ax = axes[ii]
+        ax = axes.flatten()[ii]
 
         # TODO: Set the reverse log scale for time
 
@@ -87,26 +87,24 @@ def makeDetailedPlots(Data=None, events=None):
         # Add vertical lines for specific event times
         [ax.axvline(time, ymin=0.975, zorder=0) for time in event_times]
 
+        ### Top plots should have event letters spaced out, bottom plots should have Time label and tick labels
         # Add the event letters to the first plot
-        if ii == 0:
+        if ii in [0, 1]: # top plots
             spaced_out_event_times = space_out(event_times, min_separation=ax.get_xlim()[1]/75) # min_separation of xmax/50 was found to fit the letter sizes well
             for jj in range(num_events):
                 yOffsetFactor = 1.5 if (ax.get_yscale() == 'log') else 1.02
                 ax.text(x=spaced_out_event_times[jj], y=ax.get_ylim()[1]*yOffsetFactor, s=chr(ord('@')+1+jj)) # The unicode representation of the capital letters - works as long as there are less than 26 images to show
-        
-        if ii < len(listOfPlots):
             ax.axes.xaxis.set_ticklabels([])
-
+        else: # bottom plots
+            ax.set_xlabel('Time / Myr')
+        
         if handles is not None:
             ax.legend(handles=handles, labels=labels, loc='center left', bbox_to_anchor=(1.03,0.5), fancybox=True)
-
-        if (ii == len(listOfPlots)-1): # last of the regular plots
-            ax.set_xlabel('Time / Myr')
 
 
     #### Finalize the boundaries, save, and show
     fig.suptitle('Detailed evolution for seed = {}'.format(Data['SEED'][()][0]), fontsize=18) 
-    fig.tight_layout(h_pad=1, rect= (0., 0.08, 1., .98), pad=0.) # (left, bottom, right, top) 
+    fig.tight_layout(h_pad=1, w_pad=1, rect= (0.08, 0.08, .98, .98), pad=0.) # (left, bottom, right, top) 
     plt.savefig('detailedEvolutionPlot.eps', bbox_inches='tight',pad_inches = 0, format='eps')
 
 
