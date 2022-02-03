@@ -895,7 +895,8 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
     STELLAR_TYPE stellarType = m_StellarType;               // default is unchanged
 
     if (p_NoCheck || (utils::Compare(m_CoreMass, m_Mass)) >= 0) {
-
+        
+        m_Mass      = std::min(m_CoreMass, m_Mass);
         m_CoreMass  = m_Mass;
         m_HeCoreMass= m_Mass;
         m_COCoreMass= m_Mass;
