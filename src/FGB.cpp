@@ -178,13 +178,15 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {                                      // Envelope loss
 
+        m_Mass      = std::min(m_CoreMass, m_Mass);
+        m_CoreMass   = m_HeCoreMass;
+        m_Mass       = m_CoreMass;
+        m_COCoreMass = 0.0;
+        
         if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {                                       // Star evolves to Helium White Dwarf
 
             stellarType  = STELLAR_TYPE::HELIUM_WHITE_DWARF;
 
-            m_CoreMass   = m_HeCoreMass;
-            m_Mass       = m_CoreMass;
-            m_COCoreMass = 0.0;
             m_Age        = 0.0;
             m_Radius     = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
         }
@@ -192,12 +194,8 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
             stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;
 
-            m_CoreMass   = m_HeCoreMass;
-            m_Mass       = m_CoreMass;
             m_Mass0      = m_Mass;
-            m_COCoreMass = 0.0;
             m_Age        = 0.0;
-//            m_Age        = ((m_Age - timescales(tHeI)) / timescales(tHe)) * timescales(tHeMS);       // JR: see Hurley et al. 2000, eq 76 and following discussion
             m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);
         }
 
