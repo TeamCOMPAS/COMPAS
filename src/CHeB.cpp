@@ -1403,7 +1403,7 @@ ENVELOPE CHeB::DetermineEnvelopeType() const {
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
-            envelope =  utils::Compare(Temperature() * TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            envelope =  utils::Compare(Temperature() * TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
             
         default:                                                                                    // unknown prescription - use default envelope type
@@ -1477,6 +1477,7 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                     // Envelope loss
 
+        m_Mass       = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_Mass;
         m_Mass0      = m_Mass;
         m_HeCoreMass = m_CoreMass;
@@ -1486,8 +1487,8 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 		double tHeIPrime = timescales(tHeI);
 		double tHePrime  = timescales(tHe);
 
-        m_Tau = ((m_Age - tHeIPrime) / tHePrime);                                   // Hurley et al. 2000, just after eq 81: tau = t/tHeMS
-        m_Age = m_Tau * HeMS::CalculateLifetimeOnPhase_Static(m_Mass0);             // see Hurley et al. 2000, eq 76 and following discussion
+        m_Tau = ((m_Age - tHeIPrime) / tHePrime);                                   // Hurley et al. 2000, just after eq 81
+        m_Age = m_Tau * HeMS::CalculateLifetimeOnPhase_Static(m_Mass0);             // Hurley et al. 2000, eq 76 and following discussion
 
         CalculateTimescales(m_Mass0, m_Timescales);
         CalculateGBParams(m_Mass0, m_GBParams);
