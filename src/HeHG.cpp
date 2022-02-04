@@ -338,7 +338,7 @@ ENVELOPE HeHG::DetermineEnvelopeType() const {
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
-            envelope =  utils::Compare(Temperature() *  TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            envelope =  utils::Compare(Temperature() *  TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
             
         default:                                                                                    // unknown prescription - use default envelope type
@@ -449,6 +449,7 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
     
     if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) >= 0) {        // Envelope lost - determine what type of star to form
 
+        m_Mass      = std::min(m_COCoreMass, m_Mass);
         m_CoreMass  = m_Mass;
         m_HeCoreMass= m_Mass;
         m_COCoreMass= m_Mass;
@@ -457,7 +458,6 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
         m_Age       = 0.0;
         stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }
-    IsSupernova();
     return stellarType;
 }
 

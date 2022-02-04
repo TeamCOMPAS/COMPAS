@@ -20,7 +20,12 @@ compasRootDir = os.path.expandvars(os.environ['COMPAS_ROOT_DIR'])
 
 def main():
     ### Read file and create dataframe.
-    data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
+    try:
+        optional_input = sys.argv[1] 
+        if optional_input is not None:
+            data_path = optional_input
+    except IndexError: # default
+        data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
 
     Data = h5.File(data_path, 'r')
 
@@ -64,11 +69,11 @@ def makeDetailedPlots(Data=None, events=None):
 
 
     rcParams.update(fontparams) # Set configurations for uniform plot output
-    fig, axes = plt.subplots(nrows=len(listOfPlots), figsize=(10, 20)) # W, H
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(15, 8)) # W, H
 
     for ii, specificPlot in enumerate(listOfPlots): # exclude the last one
 
-        ax = axes[ii]
+        ax = axes.flatten()[ii]
 
         # TODO: Set the reverse log scale for time
 
@@ -82,26 +87,24 @@ def makeDetailedPlots(Data=None, events=None):
         # Add vertical lines for specific event times
         [ax.axvline(time, ymin=0.975, zorder=0) for time in event_times]
 
+        ### Top plots should have event letters spaced out, bottom plots should have Time label and tick labels
         # Add the event letters to the first plot
-        if ii == 0:
+        if ii in [0, 1]: # top plots
             spaced_out_event_times = space_out(event_times, min_separation=ax.get_xlim()[1]/75) # min_separation of xmax/50 was found to fit the letter sizes well
             for jj in range(num_events):
                 yOffsetFactor = 1.5 if (ax.get_yscale() == 'log') else 1.02
                 ax.text(x=spaced_out_event_times[jj], y=ax.get_ylim()[1]*yOffsetFactor, s=chr(ord('@')+1+jj)) # The unicode representation of the capital letters - works as long as there are less than 26 images to show
-        
-        if ii < len(listOfPlots):
             ax.axes.xaxis.set_ticklabels([])
-
+        else: # bottom plots
+            ax.set_xlabel('Time / Myr')
+        
         if handles is not None:
             ax.legend(handles=handles, labels=labels, loc='center left', bbox_to_anchor=(1.03,0.5), fancybox=True)
-
-        if (ii == len(listOfPlots)-1): # last of the regular plots
-            ax.set_xlabel('Time / Myr')
 
 
     #### Finalize the boundaries, save, and show
     fig.suptitle('Detailed evolution for seed = {}'.format(Data['SEED'][()][0]), fontsize=18) 
-    fig.tight_layout(h_pad=1, rect= (0., 0.08, 1., .98), pad=0.) # (left, bottom, right, top) 
+    fig.tight_layout(h_pad=1, w_pad=1, rect= (0.08, 0.08, .98, .98), pad=0.) # (left, bottom, right, top) 
     plt.savefig('detailedEvolutionPlot.eps', bbox_inches='tight',pad_inches = 0, format='eps')
 
 
@@ -214,8 +217,11 @@ def plotStellarTypeAttributesAndEccentricity(fig=None, ax=None, Data=None):
 
 
 def plotVanDenHeuval(events=None):
+    # Only want events with an associated image
+    events = [event for event in events if (event.eventImage is not None)]
     num_events = len(events)
     fig, axs = plt.subplots(num_events, 1)
+    fig.set_figwidth(9)
     plt.rcParams["text.usetex"] = True  # Use latex
     
     for ii in range(num_events):
@@ -311,6 +317,7 @@ class Event(object):
         self.e      = Data['Eccentricity'][ii]
         self.Z1     = Data['Metallicity@ZAMS(1)'][ii]
 
+        self.eventImage = None
         self.eventString = self.getEventDetails(**kwargs)
 
 
@@ -443,7 +450,7 @@ class Event(object):
         on the stellar types, to get the van Den Heuval diagrams.
         """
 
-        self.imgFile = compasRootDir + '/docs/media/vanDenHeuval_figures/{}.png'.format(image_num)
+        self.imgFile = compasRootDir + 'utils/media/vanDenHeuval_figures/{}.png'.format(image_num)
         img = plt.imread(self.imgFile) # import image
         if rotate_image:
             img = img[:,::-1,:] # flip across y-axis

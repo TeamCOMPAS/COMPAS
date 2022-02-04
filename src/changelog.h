@@ -866,7 +866,11 @@
 //                                      - Add Nanjing lambda option to switch between calculation using rejuvenated mass and true birth mass
 //                                      - Add Nanjing lambda mass and metallicity interpolation options
 //                                      - No change in default behaviour
+// 02.27.01     IM - Feb 3, 2021     - Defect repair:
+//                                      - Fixed condition for envelope type when using ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE (previously, almost all envelopes were incorrecctly declared radiative)
+// 02.27.02     IM - Feb 3, 2021     - Defect repair:
+//                                      - Fixed mass change on forced envelope loss in response to issue # 743
 
-const std::string VERSION_STRING = "02.27.00";
+const std::string VERSION_STRING = "02.27.02";
 
 # endif // __changelog_h__
