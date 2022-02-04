@@ -866,9 +866,13 @@
 //                                      - Add Nanjing lambda option to switch between calculation using rejuvenated mass and true birth mass
 //                                      - Add Nanjing lambda mass and metallicity interpolation options
 //                                      - No change in default behaviour
-// 02.27.01     RTW - Jan 18, 2021   - Enhancements:
+// 02.27.01     IM - Feb 3, 2021     - Defect repair:
+//                                      - Fixed condition for envelope type when using ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE (previously, almost all envelopes were incorrecctly declared radiative)
+// 02.27.02     IM - Feb 3, 2021     - Defect repair:
+//                                      - Fixed mass change on forced envelope loss in response to issue # 743
+// 02.27.03     RTW - Jan 18, 2021   - Enhancements:
 //                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
 
-const std::string VERSION_STRING = "02.27.01";
+const std::string VERSION_STRING = "02.27.03";
 
 # endif // __changelog_h__

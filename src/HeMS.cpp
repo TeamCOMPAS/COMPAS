@@ -389,6 +389,7 @@ STELLAR_TYPE HeMS::ResolveEnvelopeLoss(bool p_NoCheck) {
     if (p_NoCheck || utils::Compare(m_Mass, 0.0) <= 0) {
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
         m_Radius = 0.0;   // massless remnant
+        m_Mass = 0.0;
     }
 
     return stellarType;
