@@ -24,7 +24,6 @@ void HeHG::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
 
     HeMS::CalculateTimescales(p_Mass, p_Timescales);    // calculate common values
 
-    // RTW: the p and q values here are wrong if CalculateTimescales is called before CalculateGBParams
     double p1   = gbParams(p) - 1.0;
     double q1   = gbParams(q) - 1.0;
     double p1_p = p1 / gbParams(p);
