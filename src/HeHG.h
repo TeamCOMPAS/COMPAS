@@ -34,13 +34,14 @@ protected:
     void Initialise() {
         m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;                                                                                                                    // Set stellar type
         m_Tau = 0.0;                                                                                      // Start of phase
+        CalculateGBParams(); // RTW add
         CalculateTimescales();                                                                                                                                                              // Initialise timescales
         // JR: Age for HeHG is calculated before switching -
         // can get here via EvolveOneTimestep() and ResolveEnvelopeLoss(),
         // and Age is calculated differently in those cases
         
         //Update stellar properties at start of HeHG phase (since core defintion changes)
-        CalculateGBParams();
+        //CalculateGBParams();
         m_COCoreMass  = CalculateCOCoreMassOnPhase();
         m_CoreMass    = CalculateCoreMassOnPhase();
         m_HeCoreMass  = CalculateHeCoreMassOnPhase();
@@ -59,6 +60,9 @@ protected:
 
     static  double          CalculateCoreMass_Luminosity_B_Static()                                                 { return 4.1E4; }
     static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                              { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }   // pow() is slow - use multiplication
+
+    static  double          CalculateCoreMass_Luminosity_p_Static()                                                 { return 5.0; } 
+    static  double          CalculateCoreMass_Luminosity_q_Static()                                                 { return 3.0; } 
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                                     { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
