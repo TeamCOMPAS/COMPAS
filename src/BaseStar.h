@@ -62,6 +62,7 @@ public:
             double              HeCoreMass() const                                              { return m_HeCoreMass; }
             double              InitialLuminosity() const                                       { return m_InitialLuminosity; }
             double              InitialRadius() const                                           { return m_InitialRadius; }
+            double              InitialTemperature() const                                      { return m_InitialTemperature; }
             bool                IsCCSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
     virtual bool                IsDegenerate() const                                            { return false; }   // default is not degenerate - White Dwarfs, NS and BH are degenerate
             bool                IsECSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
@@ -261,6 +262,7 @@ protected:
     double                  m_TZAMS0;                                   // Effective ZAMS Temperature
     double                  m_InitialLuminosity;                        // Initial luminosity (Lsol)
     double                  m_InitialRadius;                            // Initial radius (Rsol)
+    double                  m_InitialTemperature;                       // Initial temperature (Tsol)
 
     // Current timestep variables
     double                  m_Age;                                      // Current effective age (changes with mass loss/gain)(myrs)

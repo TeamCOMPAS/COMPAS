@@ -131,6 +131,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Radius                                   = m_RZAMS;
     m_InitialRadius                            = m_RZAMS;
     m_Temperature                              = m_TZAMS;
+    m_InitialTemperature                       = m_TZAMS;
 	m_ComponentVelocity						   = Vector3d();
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -314,6 +315,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
             case ANY_STAR_PROPERTY::INITIAL_LUMINOSITY:                                 value = InitialLuminosity();                                    break;
             case ANY_STAR_PROPERTY::INITIAL_RADIUS:                                     value = InitialRadius();                                        break;
+            case ANY_STAR_PROPERTY::INITIAL_TEMPERATURE:                                value = InitialTemperature();                                   break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
             case ANY_STAR_PROPERTY::IS_CCSN:                                            value = IsCCSN();                                               break;

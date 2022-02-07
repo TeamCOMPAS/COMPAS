@@ -61,6 +61,7 @@ protected:
 
         m_InitialLuminosity                        = m_Luminosity;
         m_InitialRadius                            = m_Radius;
+        m_InitialTemperature                       = m_Temperature;
         m_InitialStellarType                       = m_StellarType;
         m_StellarTypePrev                          = m_StellarType;
         m_HeCoreMass                               = m_Mass;
