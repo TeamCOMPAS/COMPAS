@@ -232,11 +232,10 @@ std::tuple<int, int> EvolveSingleStars() {
                                                                        OPTIONS->InitialMassFunctionMin(), 
                                                                        OPTIONS->InitialMassFunctionPower());
 
-                    // the initial of the star is supplied - this is to allow a single star to initialise its own 
-                    // stellar type (rather than sample it).  Here we use the stellar type supplied by the user 
-                    // via the program options or, if no stellar type was supplied by the user, default to MS.
+                    // Set the initial stellar type to that which was supplied by the user via the program 
+                    // options or, if no stellar type was supplied by the user, default to MS.
                     
-                    STELLAR_TYPE initialStellarType =   OPTIONS->InitialStellarType();                              // Get stellar type, possibly user specified
+                    STELLAR_TYPE initialStellarType = OPTIONS->InitialStellarType();                                // Get stellar type, possibly user specified
 
                     // the metallicity of the star is supplied - this is to allow a single star to initialise
                     // its own metallicity (rather than sample it).  Here we use the metallicity supplied by the user via the 

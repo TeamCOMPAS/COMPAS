@@ -740,6 +740,22 @@ the other is printed in any file, but not both. If both are printed then the fil
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **INITIAL_RADIUS**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_InitialRadius
+   * - Description:
+     - Initial radius of the star at the beginning of the simulation
+   * - Header Strings:
+     - Initial_Radius(1), Initial_Radius(2)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **INITIAL_STELLAR_TYPE**
      -
    * - Data type:
