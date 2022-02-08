@@ -3020,8 +3020,7 @@ void Log::PrintLogfileRecordDetails(const ANY_PROPERTY_VECTOR& p_LogfileRecord, 
  *                                              be used as the base set of properties.  If p_UseDefaultProps is true,
  *                                              the base set of properties is set to the current set for the file indicated
  *                                              by p_LogFile (initially the default set from constants.h).
- *                                              If p_UseDefaultProps is false, the base set of of properties is set
- *                                              empty
+ *                                              If p_UseDefaultProps is false, the base set of of properties is set empty
  * @param   [IN]    p_AddProps                  vector containing the properties to be added to the given logfile properties
  * @param   [IN]    p_SubtractProps             vector containing the properties to be subtracted from the given logfile properties
  * @param   [IN]    p_AddNotes                  vector of booleans indicating which notes are to be added, if PROGRAM_OPTION::NOTES is in p_AddProps
@@ -3043,61 +3042,61 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
     // initialise baseProps, baseNotes, and newNotes
     // if p_UseDefaultProps is TRUE, baseProps is initialised to the default record specifier for the file,
     // otherwise it is initialised to an empty vector.
-    // baseNotes and newNotes are both initialised to the current annottions vector for the file - these
+    // baseNotes and newNotes are both initialised to the current annotations vector for the file - these
     // are only used if the record specifier includes PROGRAM_OPTION::NOTES, and initialising to the current
     // annotations vector for the file makes updating the vector correctly easier.
 
     switch (p_Logfile) {
         case LOGFILE::BSE_BE_BINARIES:
-            if (p_UseDefaultProps) baseProps = BSE_BE_BINARIES_REC;
+            if (p_UseDefaultProps) baseProps = m_BSE_BE_Binaries_Rec;
             baseNotes = m_BSE_BE_Binaries_Notes;
             break;
         case LOGFILE::BSE_COMMON_ENVELOPES:
-            if (p_UseDefaultProps) baseProps = BSE_COMMON_ENVELOPES_REC;
+            if (p_UseDefaultProps) baseProps = m_BSE_CEE_Rec;
             baseNotes = m_BSE_CEE_Notes;
             break;
         case LOGFILE::BSE_DETAILED_OUTPUT:
-            if (p_UseDefaultProps) baseProps = BSE_DETAILED_OUTPUT_REC;
+            if (p_UseDefaultProps) baseProps = m_BSE_Detailed_Rec;
             baseNotes = m_BSE_Detailed_Notes;
             break;
         case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:
-            if (p_UseDefaultProps) baseProps = BSE_DOUBLE_COMPACT_OBJECTS_REC;
+            if (p_UseDefaultProps) baseProps = m_BSE_DCO_Rec;
             baseNotes = m_BSE_DCO_Notes;
             break;
         case LOGFILE::BSE_PULSAR_EVOLUTION:
-            if (p_UseDefaultProps) baseProps = BSE_PULSAR_EVOLUTION_REC;
+            if (p_UseDefaultProps) baseProps = m_BSE_Pulsars_Rec;
             baseNotes = m_BSE_Pulsars_Notes;
             break;
         case LOGFILE::BSE_RLOF_PARAMETERS:
-            if (p_UseDefaultProps) baseProps = BSE_RLOF_PARAMETERS_REC;
+            if (p_UseDefaultProps) baseProps = m_BSE_RLOF_Rec;
             baseNotes = m_BSE_RLOF_Notes;
             break;
         case LOGFILE::BSE_SUPERNOVAE:
-            if (p_UseDefaultProps) baseProps = BSE_SUPERNOVAE_REC;
+            if (p_UseDefaultProps) baseProps = m_BSE_SNE_Rec;
             baseNotes = m_BSE_SNE_Notes;
             break;
         case LOGFILE::BSE_SWITCH_LOG:
-            if (p_UseDefaultProps) baseProps = BSE_SWITCH_LOG_REC;
+            if (p_UseDefaultProps) baseProps = m_BSE_Switch_Rec;
             baseNotes = m_BSE_Switch_Notes;
             break;
         case LOGFILE::BSE_SYSTEM_PARAMETERS:
-            if (p_UseDefaultProps) baseProps = BSE_SYSTEM_PARAMETERS_REC;
+            if (p_UseDefaultProps) baseProps = m_BSE_SysParms_Rec;
             baseNotes = m_BSE_SysParms_Notes;
             break;
         case LOGFILE::SSE_DETAILED_OUTPUT:
-            if (p_UseDefaultProps) baseProps = SSE_DETAILED_OUTPUT_REC;
+            if (p_UseDefaultProps) baseProps = m_SSE_Detailed_Rec;
             baseNotes = m_SSE_Detailed_Notes;
             break;
         case LOGFILE::SSE_SUPERNOVAE:
-            if (p_UseDefaultProps) baseProps = SSE_SUPERNOVAE_REC;
+            if (p_UseDefaultProps) baseProps = m_SSE_SNE_Rec;
             baseNotes = m_SSE_Detailed_Notes;
             break;
         case LOGFILE::SSE_SWITCH_LOG:
-            if (p_UseDefaultProps) baseProps = SSE_SWITCH_LOG_REC;
+            if (p_UseDefaultProps) baseProps = m_SSE_Switch_Rec;
             baseNotes = m_SSE_Switch_Notes;
             break;
         case LOGFILE::SSE_SYSTEM_PARAMETERS:
-            if (p_UseDefaultProps) baseProps = SSE_SYSTEM_PARAMETERS_REC;
+            if (p_UseDefaultProps) baseProps = m_SSE_SysParms_Rec;
             baseNotes = m_SSE_SysParms_Notes;
             break;
         default: break;                                                                                                 // avoids compiler warning
