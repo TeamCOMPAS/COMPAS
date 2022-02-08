@@ -871,7 +871,7 @@
 // 02.27.02     IM - Feb 3, 2021     - Defect repair:
 //                                      - Fixed mass change on forced envelope loss in response to issue # 743
 // 02.27.03     JR - Feb 8, 2021     - Defect repair:
-//                                      - Fixed for issue # 745 - logfile definition records not updated correctly when using logfile-definitions file (see issue for details)
+//                                      - Fix for issue # 745 - logfile definition records not updated correctly when using logfile-definitions file (see issue for details)
 
 const std::string VERSION_STRING = "02.27.03";
 

@@ -3033,8 +3033,6 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
                                    const std::vector<bool>   p_AddNotes,
                                    const std::vector<bool>   p_SubtractNotes) {
 
-    PrintLogfileRecordDetails(p_AddProps, "p_AddProps");
-    PrintLogfileRecordDetails(p_SubtractProps, "p_SubtractProps");
     ANY_PROPERTY_VECTOR baseProps = {};                                                                                 // base props for the given logfile
     std::vector<bool>   baseNotes;                                                                                      // base annotations for the given logfile
 
@@ -3206,7 +3204,6 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
         case LOGFILE::SSE_SYSTEM_PARAMETERS     : m_SSE_SysParms_Rec    = newProps; m_SSE_SysParms_Notes    = newNotes; break;
         default: break;                                                                                                 // avoids compiler warning...
     }
-    PrintLogfileRecordDetails(m_SSE_SysParms_Rec, "UPDATED m_SSE_SysParms_Rec");
 }
 
 
