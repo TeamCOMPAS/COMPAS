@@ -861,7 +861,7 @@
 //                                      - Changed all occurences of sqrt with std::sqrt for consistency with the above change
 // 02.26.03     IM - Jan 10, 2022    - Defect repair, code cleanup:
 //                                      - Cleaned up treatment of HG donors having CONVECTIVE envelopes in LEGACY; fixed an issues with CEs from HG donors introduced in 02.25.01 
-// 02.27.00     ML - Jan 08, 2021    - Enhancements:
+// 02.27.00     ML - Jan 12, 2021    - Enhancements:
 //                                      - Add enhanced Nanjing lambda option that continuously extrapolates beyond radial range
 //                                      - Add Nanjing lambda option to switch between calculation using rejuvenated mass and true birth mass
 //                                      - Add Nanjing lambda mass and metallicity interpolation options
@@ -870,9 +870,11 @@
 //                                      - Fixed condition for envelope type when using ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE (previously, almost all envelopes were incorrecctly declared radiative)
 // 02.27.02     IM - Feb 3, 2021     - Defect repair:
 //                                      - Fixed mass change on forced envelope loss in response to issue # 743
-// 02.27.03     RTW - Jan 18, 2021   - Enhancements:
+// 02.27.03     JR - Feb 8, 2021     - Defect repair:
+//                                      - Fix for issue # 745 - logfile definition records not updated correctly when using logfile-definitions file (see issue for details)
+// 02.27.04     RTW - Jan 18, 2021   - Enhancements:
 //                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
 
-const std::string VERSION_STRING = "02.27.03";
+const std::string VERSION_STRING = "02.27.04";
 
 # endif // __changelog_h__
