@@ -1638,16 +1638,17 @@ STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
 
 
 /*
- * Resolve Type Ia Supernova
- *
+ * Resolve Type IIa Supernova
+ * 
+ * This is a possibly made up SN type which would look like a Type Ia + H (see Hurley)
  * Zero attributes - leaves a Massless remnant
  *
  *
- * STELLAR_TYPE ResolveTypeIaSN()
+ * STELLAR_TYPE ResolveTypeIIaSN()
  *
  * @return                                      Stellar type of remnant (always STELLAR_TYPE::MASSLESS_REMNANT)
  */
-STELLAR_TYPE GiantBranch::ResolveTypeIaSN() {
+STELLAR_TYPE GiantBranch::ResolveTypeIIaSN() {
 
     m_Mass              = 0.0;
     m_Radius            = 0.0;
@@ -1840,8 +1841,8 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
 
             stellarType = ResolvePairInstabilitySN();
         }
-        else if (utils::Compare(snMass, OPTIONS->MCBUR1()) < 0) {                                   // Type Ia Supernova
-            stellarType = ResolveTypeIaSN();
+        else if (utils::Compare(snMass, OPTIONS->MCBUR1()) < 0) {                                   // Type IIa Supernova - like a Type Ia + H (see Hurley)
+            stellarType = ResolveTypeIIaSN();
         }
         else if (utils::Compare(snMass, MCBUR2) < 0) {                                              // Electron Capture Supernova
             stellarType = ResolveElectronCaptureSN();
