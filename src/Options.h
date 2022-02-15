@@ -198,6 +198,7 @@ private:
         "hdf5-buffer-size",
         "hdf5-chunk-size",
         "help", "h",
+        "hmxr-binaries",
 
         "log-level", 
         "log-classes",
@@ -234,7 +235,6 @@ private:
         "rlof-printing",
 
         "store-input-files",
-        "store-hmxr-binaries",
         "switch-log",
 
         "timestep-multiplier",
@@ -443,6 +443,7 @@ private:
         "hdf5-buffer-size",
         "hdf5-chunk-size",
         "help", "h",
+        "hmxr-binaries",
 
         "initial-mass-function", "i",
 
@@ -505,7 +506,6 @@ private:
         "semi-major-axis-distribution",
         "stellar-zeta-prescription",
         "store-input-files",
-        "store-hmxr-binaries",
         "switch-log",
 
         "use-mass-loss",
@@ -534,6 +534,7 @@ private:
         "hdf5-buffer-size",
         "hdf5-chunk-size",
         "help", "h",
+        "hmxr-binaries",
 
         "log-classes",
         "log-level", 
@@ -569,7 +570,6 @@ private:
         "rlof-printing",
 
         "store-input-files",
-        "store-hmxr-binaries",
         "switch-log",
 
         "version", "v"
@@ -613,7 +613,7 @@ public:
             std::vector<std::string>                            m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
 
 	        bool                                                m_BeBinaries;													// Flag if we want to print BeBinaries (main.cpp)
-            bool                                                m_StoreHMXRBinaries;                                            // Flag if we want to store HMXRBs in RLOF output file
+            bool                                                m_HMXRBinaries;                                                 // Flag if we want to store HMXRBs in RLOF output file
             bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
 	        bool                                                m_EvolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
 
@@ -1168,6 +1168,7 @@ public:
 
     size_t                                      HDF5ChunkSize() const                                                   { return m_CmdLine.optionValues.m_HDF5ChunkSize; }
     size_t                                      HDF5BufferSize() const                                                  { return m_CmdLine.optionValues.m_HDF5BufferSize; }
+    bool                                        HMXRBinaries() const                                                    { return OPT_VALUE("hmxr-binaries", m_HMXRBinaries, false); }
 
     double                                      InitialMass() const                                                     { return OPT_VALUE("initial-mass", m_InitialMass, true); }
     double                                      InitialMass1() const                                                    { return OPT_VALUE("initial-mass-1", m_InitialMass1, true); }
@@ -1376,7 +1377,6 @@ public:
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
 
-    bool                                        StoreHMXRBinaries() const                                               { return OPT_VALUE("store-hmxr-binaries", m_StoreHMXRBinaries, false); }
     bool                                        StoreInputFiles() const                                                 { return m_CmdLine.optionValues.m_StoreInputFiles; }
     bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }
 
