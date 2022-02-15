@@ -825,8 +825,8 @@ bool BaseBinaryStar::HasTwoOf(STELLAR_TYPE_LIST p_List) const {
  */
 bool BaseBinaryStar::IsHMXRBinary() const {
     if (HasOnlyOneOf({STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE})){
-        if (m_Star1->StellarType() < STELLAR_TYPE::NEUTRON_STAR && utils::Compare(RocheLobeTracker1(), 0.8) > 0) return true;
-        if (m_Star2->StellarType() < STELLAR_TYPE::NEUTRON_STAR && utils::Compare(RocheLobeTracker2(), 0.8) > 0) return true;
+        if (m_Star1->StellarType() < STELLAR_TYPE::NEUTRON_STAR && utils::Compare(RocheLobeTracker1(), MIN_HMXRB_ROCHE_LOBE_FILLING_FRACTION) > 0) return true;
+        if (m_Star2->StellarType() < STELLAR_TYPE::NEUTRON_STAR && utils::Compare(RocheLobeTracker2(), MIN_HMXRB_ROCHE_LOBE_FILLING_FRACTION) > 0) return true;
     }
         return false;
 }
