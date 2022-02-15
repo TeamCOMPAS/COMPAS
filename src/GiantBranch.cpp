@@ -1638,16 +1638,16 @@ STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
 
 
 /*
- * Resolve Type IIa Supernova
+ * Resolve Type Ia Supernova
  *
  * Zero attributes - leaves a Massless remnant
  *
  *
- * STELLAR_TYPE ResolveTypeIIaSN()
+ * STELLAR_TYPE ResolveTypeIaSN()
  *
  * @return                                      Stellar type of remnant (always STELLAR_TYPE::MASSLESS_REMNANT)
  */
-STELLAR_TYPE GiantBranch::ResolveTypeIIaSN() {
+STELLAR_TYPE GiantBranch::ResolveTypeIaSN() {
 
     m_Mass              = 0.0;
     m_Radius            = 0.0;
@@ -1830,23 +1830,23 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
 
         if (                             OPTIONS->UsePulsationalPairInstability()              &&
             utils::Compare(m_HeCoreMass, OPTIONS->PulsationalPairInstabilityLowerLimit()) >= 0 &&
-            utils::Compare(m_HeCoreMass, OPTIONS->PulsationalPairInstabilityUpperLimit()) <= 0) {   // Pulsational Pair Instability SuperNova
+            utils::Compare(m_HeCoreMass, OPTIONS->PulsationalPairInstabilityUpperLimit()) <= 0) {   // Pulsational Pair Instability Supernova
 
             stellarType = ResolvePulsationalPairInstabilitySN();
         }
         else if (                        OPTIONS->UsePairInstabilitySupernovae()    &&
             utils::Compare(m_HeCoreMass, OPTIONS->PairInstabilityLowerLimit()) >= 0 &&
-            utils::Compare(m_HeCoreMass, OPTIONS->PairInstabilityUpperLimit()) <= 0) {              // Pair Instability SuperNova
+            utils::Compare(m_HeCoreMass, OPTIONS->PairInstabilityUpperLimit()) <= 0) {              // Pair Instability Supernova
 
             stellarType = ResolvePairInstabilitySN();
         }
-        else if (utils::Compare(snMass, OPTIONS->MCBUR1()) < 0) {                                   // Type IIa SuperNova
-            stellarType = ResolveTypeIIaSN();
+        else if (utils::Compare(snMass, OPTIONS->MCBUR1()) < 0) {                                   // Type Ia Supernova
+            stellarType = ResolveTypeIaSN();
         }
-        else if (utils::Compare(snMass, MCBUR2) < 0) {                                              // Electron Capture SuperNova
+        else if (utils::Compare(snMass, MCBUR2) < 0) {                                              // Electron Capture Supernova
             stellarType = ResolveElectronCaptureSN();
         }
-        else {                                                                                      // Core Collapse SuperNova
+        else {                                                                                      // Core Collapse Supernova
             stellarType = ResolveCoreCollapseSN();
         }
             
