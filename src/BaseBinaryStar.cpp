@@ -773,9 +773,9 @@ bool BaseBinaryStar::HasOnlyOneOf(STELLAR_TYPE_LIST p_List) const {
     for (auto elem: p_List) {
         if (m_Star1->StellarType() == elem) matchCount++;
         if (m_Star2->StellarType() == elem) matchCount++;
-        if (matchCount == 1) return true;
     }
-        return false;
+    if (matchCount == 1) return true;
+    return false;
 }
 
 
