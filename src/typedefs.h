@@ -174,6 +174,9 @@ typedef struct RLOFProperties {
     double        radius1;
     double        radius2;
 
+    double rocheLobeTracker1;                                    
+    double rocheLobeTracker2;
+
     double        eccentricity;
     double        semiMajorAxis;
 

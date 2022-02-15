@@ -157,6 +157,8 @@ void Options::OptionValues::Initialise() {
 
     m_StoreInputFiles                                               = true;
 
+    m_StoreHMXRBinaries                                             = false;
+
     m_SwitchLog                                                     = false;
 
 
@@ -772,6 +774,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "store-input-files",                                                
             po::value<bool>(&p_Options->m_StoreInputFiles)->default_value(p_Options->m_StoreInputFiles)->implicit_value(true),                                                                          
             ("Store input files in output container (default = " + std::string(p_Options->m_StoreInputFiles ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "store-hmxr-binaries",
+            po::value<bool>(&p_Options->m_StoreHMXRBinaries)->default_value(p_Options->m_StoreHMXRBinaries)->implicit_value(true),
+            ("Store HMXRB candidates (default = " + std::string(p_Options->m_StoreHMXRBinaries ? "FALSE" : "TRUE") + ")").c_str()
         )
         (
             "switch-log",                                                
