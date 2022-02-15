@@ -855,7 +855,7 @@ bool BaseBinaryStar::PrintRLOFParameters() {
         ok = LOGGING->LogRLOFParameters(this);                  // yes - write to log file
     }
 
-    if (!OPTIONS->StoreHMXRBinaries()) return ok;
+    if (!OPTIONS->HMXRBinaries()) return ok;
  
     if (IsHMXRBinary()) {  // print if star is HMXRB candidate
         ok = LOGGING->LogRLOFParameters(this); 
