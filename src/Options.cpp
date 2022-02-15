@@ -778,7 +778,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "store-hmxr-binaries",
             po::value<bool>(&p_Options->m_StoreHMXRBinaries)->default_value(p_Options->m_StoreHMXRBinaries)->implicit_value(true),
-            ("Store HMXRB candidates (default = " + std::string(p_Options->m_StoreHMXRBinaries ? "FALSE" : "TRUE") + ")").c_str()
+            ("Store HMXRB candidates (default = " + std::string(p_Options->m_StoreHMXRBinaries ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "switch-log",                                                
