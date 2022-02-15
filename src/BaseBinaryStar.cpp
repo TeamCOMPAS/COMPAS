@@ -816,7 +816,7 @@ bool BaseBinaryStar::HasTwoOf(STELLAR_TYPE_LIST p_List) const {
 }
 
 /*
- * Determines if the binary is a high-mass XRB candidate (one compact object with a companion at >=80% Roche lobe filling)
+ * Determines if the binary is a high-mass XRB candidate (one compact object with a companion at >80% Roche lobe filling)
  *
  *
  * bool IsHMXRBinary()
