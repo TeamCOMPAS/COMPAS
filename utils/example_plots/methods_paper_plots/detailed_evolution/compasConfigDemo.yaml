@@ -3,7 +3,7 @@
 booleanChoices:
     ### LOGISTICS
     --debug-to-file: False
-    --detailed-output: False # WARNING! this creates a data heavy file
+    --detailed-output: True # WARNING! this creates a data heavy file
     --enable-warnings: False    # option to enable/disable warning messages
     --errors-to-file: False    
     --evolve-unbound-systems: False
@@ -26,7 +26,7 @@ booleanChoices:
     ### COMMON ENVELOPE
     --common-envelope-allow-immediate-RLOF-post-CE-survive: False
     --common-envelope-allow-main-sequence-survive: True # Allow main sequence stars to survive CE. Was previously False by default
-    --common-envelope-allow-radiative-envelope-survive: False
+    --common-envelope-allow-radiative-envelope-survive: True
     --common-envelope-lambda-nanjing-enhanced: False
     --common-envelope-lambda-nanjing-interpolate-in-mass: False
     --common-envelope-lambda-nanjing-interpolate-in-metallicity: False
@@ -150,6 +150,7 @@ stringChoices:
     ### STELLAR PROPERTIES
     --chemically-homogeneous-evolution: 'PESSIMISTIC'      # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
     --envelope-state-prescription: 'LEGACY'
+    --grid: 'Grid_demo.txt'    # grid file name (e.g. 'mygrid.txt')
     --initial-mass-function: 'KROUPA'
     --luminous-blue-variable-prescription: 'HURLEY_ADD'
     --mass-loss-prescription: 'VINK'
