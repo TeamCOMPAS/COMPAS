@@ -191,11 +191,11 @@ def rejected_systems(locations, dimensions):
     for index, location in enumerate(locations):
         radius_1 = utils.get_zams_radius(mass_1[index], metallicity_1[index])
         radius_2 = utils.get_zams_radius(mass_2[index], metallicity_2[index])
-        roche_lobe_tracker_1 = radius_1 / (location.dimensions[a] * (1 - eccentricity[index]) * utils.calculate_roche_lobe_radius(mass_1[index], mass_2[index]))
-        roche_lobe_tracker_2 = radius_2 / (location.dimensions[a] * (1 - eccentricity[index]) * utils.calculate_roche_lobe_radius(mass_2[index], mass_1[index]))
+        star_to_roche_lobe_radius_ratio_1 = radius_1 / (location.dimensions[a] * (1 - eccentricity[index]) * utils.calculate_roche_lobe_radius(mass_1[index], mass_2[index]))
+        star_to_roche_lobe_radius_ratio_2 = radius_2 / (location.dimensions[a] * (1 - eccentricity[index]) * utils.calculate_roche_lobe_radius(mass_2[index], mass_1[index]))
         location.properties['is_rejected'] = 0
         if (mass_2[index] < constants.MINIMUM_SECONDARY_MASS) or (location.dimensions[a] <= (radius_1 + radius_2)) \
-        or roche_lobe_tracker_1 > 1 or roche_lobe_tracker_2 > 1:
+        or star_to_roche_lobe_radius_ratio_1 > 1 or star_to_roche_lobe_radius_ratio_2 > 1:
             location.properties['is_rejected'] = 1
             num_rejected += 1
     return num_rejected

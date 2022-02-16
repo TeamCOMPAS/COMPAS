@@ -158,13 +158,13 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
                     ? new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2, OPTIONS->RotationalFrequency2() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
                     : new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2);                                     // no - let it be calculated
 
-        double rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * (1.0 - m_Eccentricity) * CalculateRocheLobeRadius_Static(mass1, mass2));
-        double rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * (1.0 - m_Eccentricity) * CalculateRocheLobeRadius_Static(mass2, mass1));
+        double starToRocheLobeRadiusRatio1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * (1.0 - m_Eccentricity) * CalculateRocheLobeRadius_Static(mass1, mass2));
+        double starToRocheLobeRadiusRatio2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * (1.0 - m_Eccentricity) * CalculateRocheLobeRadius_Static(mass2, mass1));
 
         m_Flags.massesEquilibrated        = false;                                                                                      // default
         m_Flags.massesEquilibratedAtBirth = false;                                                                                      // default
 
-        rlof = utils::Compare(rocheLobeTracker1, 1.0) > 0 || utils::Compare(rocheLobeTracker2, 1.0) > 0;					            // either star overflowing Roche Lobe?
+        rlof = utils::Compare(starToRocheLobeRadiusRatio1, 1.0) > 0 || utils::Compare(starToRocheLobeRadiusRatio2, 1.0) > 0;					            // either star overflowing Roche Lobe?
 
         if (rlof && OPTIONS->AllowRLOFAtBirth()) {                                                                                      // over-contact binaries at birth allowed?    
             m_Flags.massesEquilibratedAtBirth = true;                                                                                   // record that we've equilbrated at birth
@@ -189,8 +189,8 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
                         ? new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2, OPTIONS->RotationalFrequency2() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
                         : new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2);                                 // no - let it be calculated
         
-            rocheLobeTracker1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass1, mass2));   //eccentricity already zero
-            rocheLobeTracker2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass2, mass1));
+            starToRocheLobeRadiusRatio1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass1, mass2));   //eccentricity already zero
+            starToRocheLobeRadiusRatio2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass2, mass1));
         }
 
         m_Star1->SetCompanion(m_Star2);
@@ -423,8 +423,8 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.props1.radius1                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props1.radius2                 = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_RLOFDetails.props1.rocheLobeTracker1       = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_RLOFDetails.props1.rocheLobeTracker2       = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.starToRocheLobeRadiusRatio1       = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.starToRocheLobeRadiusRatio2       = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_RLOFDetails.props1.semiMajorAxis           = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props1.eccentricity            = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -450,8 +450,8 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.props2.radius1                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props2.radius2                 = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_RLOFDetails.props2.rocheLobeTracker1       = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_RLOFDetails.props2.rocheLobeTracker2       = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.starToRocheLobeRadiusRatio1       = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.starToRocheLobeRadiusRatio2       = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 
     m_RLOFDetails.props2.semiMajorAxis           = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -620,8 +620,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE:                      value = RLOFDetails().propsPostMT->stellarType2;                            break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME:                 value = STELLAR_TYPE_LABEL.at(RLOFDetails().propsPostMT->stellarType2);     break;
         case BINARY_PROPERTY::RLOF_POST_MT_TIME:                                    value = RLOFDetails().propsPostMT->time;                                    break;
-        case BINARY_PROPERTY::RLOF_POST_STEP_ROCHE_LOBE_TRACKER_1:                  value = RLOFDetails().propsPostMT->rocheLobeTracker1;                       break;
-        case BINARY_PROPERTY::RLOF_POST_STEP_ROCHE_LOBE_TRACKER_2:                  value = RLOFDetails().propsPostMT->rocheLobeTracker2;                       break;
+        case BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1:                  value = RLOFDetails().propsPostMT->starToRocheLobeRadiusRatio1;                       break;
+        case BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2:                  value = RLOFDetails().propsPostMT->starToRocheLobeRadiusRatio2;                       break;
         case BINARY_PROPERTY::RLOF_PRE_MT_ECCENTRICITY:                             value = RLOFDetails().propsPreMT->eccentricity;                             break;
         case BINARY_PROPERTY::RLOF_PRE_MT_SEMI_MAJOR_AXIS:                          value = RLOFDetails().propsPreMT->semiMajorAxis;                            break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_MASS:                               value = RLOFDetails().propsPreMT->mass1;                                    break;
@@ -635,8 +635,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE:                       value = RLOFDetails().propsPreMT->stellarType2;                             break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME:                  value = STELLAR_TYPE_LABEL.at(RLOFDetails().propsPreMT->stellarType2);      break;
         case BINARY_PROPERTY::RLOF_PRE_MT_TIME:                                     value = RLOFDetails().propsPreMT->time;                                     break;
-        case BINARY_PROPERTY::RLOF_PRE_STEP_ROCHE_LOBE_TRACKER_1:                   value = RLOFDetails().propsPreMT->rocheLobeTracker1;                        break;
-        case BINARY_PROPERTY::RLOF_PRE_STEP_ROCHE_LOBE_TRACKER_2:                   value = RLOFDetails().propsPreMT->rocheLobeTracker2;                        break;
+        case BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1:                   value = RLOFDetails().propsPreMT->starToRocheLobeRadiusRatio1;                        break;
+        case BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2:                   value = RLOFDetails().propsPreMT->starToRocheLobeRadiusRatio2;                        break;
         case BINARY_PROPERTY::RLOF_SECONDARY_POST_COMMON_ENVELOPE:                  value = RLOFSecondaryPostCEE();                                             break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1:                                  value = RocheLobeRadius1();                                                 break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE:             value = RocheLobe1to2PostCEE();                                             break;
@@ -644,8 +644,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2:                                  value = RocheLobeRadius2();                                                 break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_POST_COMMON_ENVELOPE:             value = RocheLobe2to1PostCEE();                                             break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_PRE_COMMON_ENVELOPE:              value = RocheLobe2to1PreCEE();                                              break;
-        case BINARY_PROPERTY::ROCHE_LOBE_TRACKER_1:                                 value = RocheLobeTracker1();                                                break;
-        case BINARY_PROPERTY::ROCHE_LOBE_TRACKER_2:                                 value = RocheLobeTracker2();                                                break;
+        case BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1:                                 value = StarToRocheLobeRadiusRatio1();                                                break;
+        case BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2:                                 value = StarToRocheLobeRadiusRatio2();                                                break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION:                     value = SemiMajorAxisAtDCOFormation();                                      break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL:                              value = SemiMajorAxisInitial();                                             break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE:                 value = SemiMajorAxisPostCEE();                                             break;
@@ -824,8 +824,8 @@ bool BaseBinaryStar::HasTwoOf(STELLAR_TYPE_LIST p_List) const {
  */
 bool BaseBinaryStar::IsHMXRBinary() const {
     if (HasOnlyOneOf({STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE})){
-        if (m_Star1->StellarType() < STELLAR_TYPE::NEUTRON_STAR && utils::Compare(RocheLobeTracker1(), MIN_HMXRB_ROCHE_LOBE_FILLING_FRACTION) > 0) return true;
-        if (m_Star2->StellarType() < STELLAR_TYPE::NEUTRON_STAR && utils::Compare(RocheLobeTracker2(), MIN_HMXRB_ROCHE_LOBE_FILLING_FRACTION) > 0) return true;
+        if (m_Star1->StellarType() < STELLAR_TYPE::NEUTRON_STAR && utils::Compare(StarToRocheLobeRadiusRatio1(), MIN_HMXRB_STAR_TO_ROCHE_LOBE_RADIUS_RATIO) > 0) return true;
+        if (m_Star2->StellarType() < STELLAR_TYPE::NEUTRON_STAR && utils::Compare(StarToRocheLobeRadiusRatio2(), MIN_HMXRB_STAR_TO_ROCHE_LOBE_RADIUS_RATIO) > 0) return true;
     }
         return false;
 }
@@ -911,8 +911,8 @@ void BaseBinaryStar::StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which) {
     rlofPropertiesToReset->mass2             = m_Star2->Mass();
     rlofPropertiesToReset->radius1           = m_Star1->Radius();
     rlofPropertiesToReset->radius2           = m_Star2->Radius();
-    rlofPropertiesToReset->rocheLobeTracker1 = RocheLobeTracker1();
-    rlofPropertiesToReset->rocheLobeTracker2 = RocheLobeTracker2();
+    rlofPropertiesToReset->starToRocheLobeRadiusRatio1 = StarToRocheLobeRadiusRatio1();
+    rlofPropertiesToReset->starToRocheLobeRadiusRatio2 = StarToRocheLobeRadiusRatio2();
     rlofPropertiesToReset->stellarType1      = m_Star1->StellarType();
     rlofPropertiesToReset->stellarType2      = m_Star2->StellarType();
     rlofPropertiesToReset->eccentricity      = m_Eccentricity;

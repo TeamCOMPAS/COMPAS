@@ -233,8 +233,8 @@ public:
     double              RocheLobe2to1PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe2to1; }
     double              RocheLobeRadius1() const                    { return CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass()); }
     double              RocheLobeRadius2() const                    { return CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()); }
-    double              RocheLobeTracker1() const                   { return m_Star1->RocheLobeTracker(m_SemiMajorAxis, m_Eccentricity); }
-    double              RocheLobeTracker2() const                   { return m_Star2->RocheLobeTracker(m_SemiMajorAxis, m_Eccentricity); }
+    double              StarToRocheLobeRadiusRatio1() const                   { return m_Star1->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
+    double              StarToRocheLobeRadiusRatio2() const                   { return m_Star2->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
     double              SemiMajorAxisAtDCOFormation() const         { return m_SemiMajorAxisAtDCOFormation; }
     double              SemiMajorAxisInitial() const                { return m_SemiMajorAxisInitial; }
     double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
