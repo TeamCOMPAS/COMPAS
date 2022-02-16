@@ -120,7 +120,7 @@ protected:
             STELLAR_TYPE    ResolveElectronCaptureSN();
             STELLAR_TYPE    ResolvePairInstabilitySN();
             STELLAR_TYPE    ResolvePulsationalPairInstabilitySN();
-            STELLAR_TYPE    ResolveTypeIaSN();
+            STELLAR_TYPE    ResolveTypeIIaSN();
     
             void            UpdateAgeAfterMassLoss() { }                                                                                                                        // NO-OP for most stellar types
 
