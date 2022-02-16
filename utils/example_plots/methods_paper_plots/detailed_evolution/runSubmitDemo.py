@@ -141,7 +141,9 @@ class pythonProgramOptions:
 
 if __name__ == "__main__":
     #-- Get the program options
-    myoptions = pythonProgramOptions()
+    myoptions = pythonProgramOptions(config_file='compasConfigDemo.yaml')
     print(myoptions.shellCommand)
+    with open('runSubOptions.txt', 'w') as fwrite:
+        fwrite.write(myoptions.shellCommand)
     #-- Run exectute COMPAS shell string
     call(myoptions.shellCommand,shell=True)
