@@ -447,7 +447,7 @@ class Event(object):
     def getEventImage(self, image_num, rotate_image):
         """
         Map the eventClass and possibly eventSubClass, with information
-        on the stellar types, to get the van Den Heuvel diagrams.
+        on the stellar types, to get the van den Heuvel diagrams.
         """
 
         self.imgFile = compasRootDir + 'utils/media/vanDenHeuvel_figures/{}.png'.format(image_num)
