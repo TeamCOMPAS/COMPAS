@@ -1199,32 +1199,32 @@ but not both. If both are printed then the file will contain two columns with th
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **ROCHE_LOBE_TRACKER_1**
+   * - :cspan:`2` **STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1**
      -
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BinaryConstituentStar::m_RocheLobeTracker
+     - Calculated using BinaryConstituentStar::m_StarToRocheLobeRadiusRatio
    * - Description:
      - Ratio of the primary star’s stellar radius to Roche radius (R/RL), evaluated at periapsis.
    * - Header String:
-     - Radius|RL
+     - Radius(1)|RL
 
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **ROCHE_LOBE_TRACKER_2**
+   * - :cspan:`2` **STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2**
      -
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BinaryConstituentStar::m_RocheLobeTracker
+     - Calculated using BinaryConstituentStar::m_StarToRocheLobeRadiusRatio
    * - Description:
      - Ratio of the secondary star’s stellar radius to Roche radius (R/RL), evaluated at periapsis.
    * - Header String:
-     - Radius|RL
+     - Radius(2)|RL
 
 .. _binary-props-S:
 
