@@ -1204,11 +1204,11 @@ but not both. If both are printed then the file will contain two columns with th
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BinaryConstituentStar::m_StarToRocheLobeRadiusRatio
+     - Calculated using BinaryConstituentStar::m_StarToRocheLobeRadiusRatio
    * - Description:
      - Ratio of the primary star’s stellar radius to Roche radius (R/RL), evaluated at periapsis.
    * - Header String:
-     - Radius|RL
+     - Radius(1)|RL
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1220,11 +1220,11 @@ but not both. If both are printed then the file will contain two columns with th
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BinaryConstituentStar::m_StarToRocheLobeRadiusRatio
+     - Calculated using BinaryConstituentStar::m_StarToRocheLobeRadiusRatio
    * - Description:
      - Ratio of the secondary star’s stellar radius to Roche radius (R/RL), evaluated at periapsis.
    * - Header String:
-     - Radius|RL
+     - Radius(2)|RL
 
 .. _binary-props-S:
 
