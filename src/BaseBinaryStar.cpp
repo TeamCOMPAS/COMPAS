@@ -405,70 +405,70 @@ void BaseBinaryStar::SetRemainingValues() {
     m_PrintExtraDetailedOutput                   = false;
 
 	// RLOF details
-    m_RLOFDetails.experiencedRLOF                = false;
-    m_RLOFDetails.immediateRLOFPostCEE           = false;
-    m_RLOFDetails.isRLOF                         = false;
-    m_RLOFDetails.simultaneousRLOF               = false;
-    m_RLOFDetails.stableRLOFPostCEE              = false;
+    m_RLOFDetails.experiencedRLOF                          = false;
+    m_RLOFDetails.immediateRLOFPostCEE                     = false;
+    m_RLOFDetails.isRLOF                                   = false;
+    m_RLOFDetails.simultaneousRLOF                         = false;
+    m_RLOFDetails.stableRLOFPostCEE                        = false;
 
 	// RLOF details - properties 1
-    m_RLOFDetails.props1.id                      = -1l;
+    m_RLOFDetails.props1.id                                = -1l;
 
-    m_RLOFDetails.props1.stellarType1            = STELLAR_TYPE::NONE;
-    m_RLOFDetails.props1.stellarType2            = STELLAR_TYPE::NONE;
+    m_RLOFDetails.props1.stellarType1                      = STELLAR_TYPE::NONE;
+    m_RLOFDetails.props1.stellarType2                      = STELLAR_TYPE::NONE;
 
-    m_RLOFDetails.props1.mass1                   = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_RLOFDetails.props1.mass2                   = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.mass1                             = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.mass2                             = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_RLOFDetails.props1.radius1                 = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_RLOFDetails.props1.radius2                 = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.radius1                           = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.radius2                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_RLOFDetails.props1.starToRocheLobeRadiusRatio1       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props1.starToRocheLobeRadiusRatio2       = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_RLOFDetails.props1.semiMajorAxis           = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_RLOFDetails.props1.eccentricity            = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.semiMajorAxis                     = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.eccentricity                      = DEFAULT_INITIAL_DOUBLE_VALUE;
     
-    m_RLOFDetails.props1.eventCounter            = DEFAULT_INITIAL_ULONGINT_VALUE;
+    m_RLOFDetails.props1.eventCounter                      = DEFAULT_INITIAL_ULONGINT_VALUE;
 
-    m_RLOFDetails.props1.time                    = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.time                              = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_RLOFDetails.props1.isRLOF1                 = false;
-    m_RLOFDetails.props1.isRLOF2                 = false;
+    m_RLOFDetails.props1.isRLOF1                           = false;
+    m_RLOFDetails.props1.isRLOF2                           = false;
 
-    m_RLOFDetails.props1.isCE                    = false;
+    m_RLOFDetails.props1.isCE                              = false;
 
 	// RLOF details - properties 2
     m_RLOFDetails.props2.id = -1l;
 
-    m_RLOFDetails.props2.stellarType1            = STELLAR_TYPE::NONE;
-    m_RLOFDetails.props2.stellarType2            = STELLAR_TYPE::NONE;
+    m_RLOFDetails.props2.stellarType1                      = STELLAR_TYPE::NONE;
+    m_RLOFDetails.props2.stellarType2                      = STELLAR_TYPE::NONE;
 
-    m_RLOFDetails.props2.mass1                   = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_RLOFDetails.props2.mass2                   = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.mass1                             = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.mass2                             = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_RLOFDetails.props2.radius1                 = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_RLOFDetails.props2.radius2                 = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.radius1                           = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.radius2                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_RLOFDetails.props2.starToRocheLobeRadiusRatio1       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props2.starToRocheLobeRadiusRatio2       = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 
-    m_RLOFDetails.props2.semiMajorAxis           = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_RLOFDetails.props2.eccentricity            = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.semiMajorAxis                     = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.eccentricity                      = DEFAULT_INITIAL_DOUBLE_VALUE;
     
-    m_RLOFDetails.props2.eventCounter            = DEFAULT_INITIAL_ULONGINT_VALUE;
+    m_RLOFDetails.props2.eventCounter                      = DEFAULT_INITIAL_ULONGINT_VALUE;
 
-    m_RLOFDetails.props2.time                    = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.time                              = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_RLOFDetails.props2.isRLOF1                 = false;
-    m_RLOFDetails.props2.isRLOF2                 = false;
+    m_RLOFDetails.props2.isRLOF1                           = false;
+    m_RLOFDetails.props2.isRLOF2                           = false;
 
-    m_RLOFDetails.props2.isCE                    = false;
+    m_RLOFDetails.props2.isCE                              = false;
 
     // RLOF details - pre/post-MT props pointers
-    m_RLOFDetails.propsPostMT                    = &m_RLOFDetails.props1;
-    m_RLOFDetails.propsPreMT                     = &m_RLOFDetails.props2;
+    m_RLOFDetails.propsPostMT                              = &m_RLOFDetails.props1;
+    m_RLOFDetails.propsPreMT                               = &m_RLOFDetails.props2;
 
 
     // BeBinary details - properties 1
@@ -620,8 +620,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE:                      value = RLOFDetails().propsPostMT->stellarType2;                            break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME:                 value = STELLAR_TYPE_LABEL.at(RLOFDetails().propsPostMT->stellarType2);     break;
         case BINARY_PROPERTY::RLOF_POST_MT_TIME:                                    value = RLOFDetails().propsPostMT->time;                                    break;
-        case BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1:                  value = RLOFDetails().propsPostMT->starToRocheLobeRadiusRatio1;                       break;
-        case BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2:                  value = RLOFDetails().propsPostMT->starToRocheLobeRadiusRatio2;                       break;
+        case BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1:     value = RLOFDetails().propsPostMT->starToRocheLobeRadiusRatio1;             break;
+        case BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2:     value = RLOFDetails().propsPostMT->starToRocheLobeRadiusRatio2;             break;
         case BINARY_PROPERTY::RLOF_PRE_MT_ECCENTRICITY:                             value = RLOFDetails().propsPreMT->eccentricity;                             break;
         case BINARY_PROPERTY::RLOF_PRE_MT_SEMI_MAJOR_AXIS:                          value = RLOFDetails().propsPreMT->semiMajorAxis;                            break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_MASS:                               value = RLOFDetails().propsPreMT->mass1;                                    break;
@@ -635,8 +635,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE:                       value = RLOFDetails().propsPreMT->stellarType2;                             break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME:                  value = STELLAR_TYPE_LABEL.at(RLOFDetails().propsPreMT->stellarType2);      break;
         case BINARY_PROPERTY::RLOF_PRE_MT_TIME:                                     value = RLOFDetails().propsPreMT->time;                                     break;
-        case BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1:                   value = RLOFDetails().propsPreMT->starToRocheLobeRadiusRatio1;                        break;
-        case BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2:                   value = RLOFDetails().propsPreMT->starToRocheLobeRadiusRatio2;                        break;
+        case BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1:      value = RLOFDetails().propsPreMT->starToRocheLobeRadiusRatio1;              break;
+        case BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2:      value = RLOFDetails().propsPreMT->starToRocheLobeRadiusRatio2;              break;
         case BINARY_PROPERTY::RLOF_SECONDARY_POST_COMMON_ENVELOPE:                  value = RLOFSecondaryPostCEE();                                             break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1:                                  value = RocheLobeRadius1();                                                 break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE:             value = RocheLobe1to2PostCEE();                                             break;
@@ -644,8 +644,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2:                                  value = RocheLobeRadius2();                                                 break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_POST_COMMON_ENVELOPE:             value = RocheLobe2to1PostCEE();                                             break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_PRE_COMMON_ENVELOPE:              value = RocheLobe2to1PreCEE();                                              break;
-        case BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1:                                 value = StarToRocheLobeRadiusRatio1();                                                break;
-        case BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2:                                 value = StarToRocheLobeRadiusRatio2();                                                break;
+        case BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1:                    value = StarToRocheLobeRadiusRatio1();                                      break;
+        case BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2:                    value = StarToRocheLobeRadiusRatio2();                                      break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION:                     value = SemiMajorAxisAtDCOFormation();                                      break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL:                              value = SemiMajorAxisInitial();                                             break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE:                 value = SemiMajorAxisPostCEE();                                             break;
@@ -906,21 +906,21 @@ void BaseBinaryStar::StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which) {
                              m_RLOFDetails.propsPostMT ;
 
     // update properites for appropriate timestep
-    rlofPropertiesToReset->id                = m_ObjectId;
-    rlofPropertiesToReset->mass1             = m_Star1->Mass();
-    rlofPropertiesToReset->mass2             = m_Star2->Mass();
-    rlofPropertiesToReset->radius1           = m_Star1->Radius();
-    rlofPropertiesToReset->radius2           = m_Star2->Radius();
+    rlofPropertiesToReset->id                          = m_ObjectId;
+    rlofPropertiesToReset->mass1                       = m_Star1->Mass();
+    rlofPropertiesToReset->mass2                       = m_Star2->Mass();
+    rlofPropertiesToReset->radius1                     = m_Star1->Radius();
+    rlofPropertiesToReset->radius2                     = m_Star2->Radius();
     rlofPropertiesToReset->starToRocheLobeRadiusRatio1 = StarToRocheLobeRadiusRatio1();
     rlofPropertiesToReset->starToRocheLobeRadiusRatio2 = StarToRocheLobeRadiusRatio2();
-    rlofPropertiesToReset->stellarType1      = m_Star1->StellarType();
-    rlofPropertiesToReset->stellarType2      = m_Star2->StellarType();
-    rlofPropertiesToReset->eccentricity      = m_Eccentricity;
-    rlofPropertiesToReset->semiMajorAxis     = m_SemiMajorAxis * AU_TO_RSOL;                                       // semi-major axis - change units to Rsol
-    rlofPropertiesToReset->time              = m_Time;
-    rlofPropertiesToReset->isRLOF1           = m_Star1->IsRLOF();
-    rlofPropertiesToReset->isRLOF2           = m_Star2->IsRLOF();
-    rlofPropertiesToReset->isCE              = m_CEDetails.CEEnow;
+    rlofPropertiesToReset->stellarType1                = m_Star1->StellarType();
+    rlofPropertiesToReset->stellarType2                = m_Star2->StellarType();
+    rlofPropertiesToReset->eccentricity                = m_Eccentricity;
+    rlofPropertiesToReset->semiMajorAxis               = m_SemiMajorAxis * AU_TO_RSOL;                               // semi-major axis - change units to Rsol
+    rlofPropertiesToReset->time                        = m_Time;
+    rlofPropertiesToReset->isRLOF1                     = m_Star1->IsRLOF();
+    rlofPropertiesToReset->isRLOF2                     = m_Star2->IsRLOF();
+    rlofPropertiesToReset->isCE                        = m_CEDetails.CEEnow;
 }
 
 
