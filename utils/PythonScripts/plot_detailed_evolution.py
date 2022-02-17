@@ -36,8 +36,8 @@ def main():
 
     ### Produce the two plots
     makeDetailedPlots(Data, events)
-    plotVanDenHeuval(events=events)
-    plt.savefig('vanDenHeuvalPlot.eps', bbox_inches='tight',pad_inches = 0, format='eps')
+    plotVanDenHeuvel(events=events)
+    plt.savefig('vanDenHeuvelPlot.eps', bbox_inches='tight',pad_inches = 0, format='eps')
     plt.show()
 
 
@@ -216,7 +216,7 @@ def plotStellarTypeAttributesAndEccentricity(fig=None, ax=None, Data=None):
     return handles, labels
 
 
-def plotVanDenHeuval(events=None):
+def plotVanDenHeuvel(events=None):
     # Only want events with an associated image
     events = [event for event in events if (event.eventImage is not None)]
     num_events = len(events)
@@ -447,10 +447,10 @@ class Event(object):
     def getEventImage(self, image_num, rotate_image):
         """
         Map the eventClass and possibly eventSubClass, with information
-        on the stellar types, to get the van Den Heuval diagrams.
+        on the stellar types, to get the van den Heuvel diagrams.
         """
 
-        self.imgFile = compasRootDir + 'utils/media/vanDenHeuval_figures/{}.png'.format(image_num)
+        self.imgFile = compasRootDir + 'utils/media/vanDenHeuvel_figures/{}.png'.format(image_num)
         img = plt.imread(self.imgFile) # import image
         if rotate_image:
             img = img[:,::-1,:] # flip across y-axis
