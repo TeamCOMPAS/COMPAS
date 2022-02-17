@@ -872,14 +872,16 @@
 //                                      - Fixed mass change on forced envelope loss in response to issue # 743
 // 02.27.03     JR - Feb 8, 2022     - Defect repair:
 //                                      - Fix for issue # 745 - logfile definition records not updated correctly when using logfile-definitions file (see issue for details)
-// 02.27.04     IRS - Feb 17, 2022   - Enhancements:
-                                       - Add function HasOnlyOneOf, which returns true if a binary has only one comoponent in the list of stellar types passed, and false if neither or both are in the list
-                                       - Add function IsHMXRBinary, which returns true if HasOnlyOneOf(Black hole, Neutron star) and the companion radius is > 80% of the Roche Lobe radius
-                                       - Add flag --hmxr-binaries, which tells COMPAS to store binaries in BSE_RLOF output file if IsHMXRBinary
-                                       - Add columns for pre- and post-timestep ratio of stars to Roche Lobe radius to BSE_RLOF output file (addressing issue #746)
-                                       - Changed variables named rocheLobeTracker, roche_lobe_tracker etc. to starToRocheLobeRadiusRatio, star_to_roche_lobe_radius_ratio, etc. for clarity
-  
+// 02.27.04     RTW - Feb 15, 2022   - Defect repair:
+//                                      - Fix for issue # 761 - USSNe not occuring. See issue for details.
+// 02.27.045     IRS - Feb 17, 2022   - Enhancements:
+//                                      - Add function HasOnlyOneOf, which returns true if a binary has only one comoponent in the list of stellar types passed, and false if neither or both are in the list
+//                                      - Add function IsHMXRBinary, which returns true if HasOnlyOneOf(Black hole, Neutron star) and the companion radius is > 80% of the Roche Lobe radius
+//                                      - Add flag --hmxr-binaries, which tells COMPAS to store binaries in BSE_RLOF output file if IsHMXRBinary
+//                                      - Add columns for pre- and post-timestep ratio of stars to Roche Lobe radius to BSE_RLOF output file (addressing issue #746)
+//                                      - Changed variables named rocheLobeTracker, roche_lobe_tracker etc. to starToRocheLobeRadiusRatio, star_to_roche_lobe_radius_ratio, etc. for clarity
+ 
 
-const std::string VERSION_STRING = "02.27.04";
+const std::string VERSION_STRING = "02.27.05";
 
 # endif // __changelog_h__
