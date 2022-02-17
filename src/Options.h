@@ -1294,7 +1294,7 @@ public:
 
     double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-BH", m_MullerMandelKickBH, true); }
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-NS", m_MullerMandelKickNS, true); }
-    double                                      MullerMandelSigmaKick() const                                         { return OPT_VALUE("muller-mandel--sigma-kick", m_MullerMandelSigmaKick, true); }
+    double                                      MullerMandelSigmaKick() const                                           { return OPT_VALUE("muller-mandel-sigma-kick", m_MullerMandelSigmaKick, true); }
 
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-BH-formation-value", m_NeutrinoMassLossValueBH, true); }
