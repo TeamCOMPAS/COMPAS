@@ -416,9 +416,9 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
 
     m_RLOFDetails.isRLOF = false;                                                                                       // default - not overflowing Roche Lobe
 
-    double rocheLobeTracker = RocheLobeTracker(p_SemiMajorAxis, p_Eccentricity);
+    double starToRocheLobeRadiusRatio = StarToRocheLobeRadiusRatio(p_SemiMajorAxis, p_Eccentricity);
 
-    if (utils::Compare(rocheLobeTracker, 1.0) >= 0) {                                                                   // if star is equal to or larger than its Roche Lobe...
+    if (utils::Compare(starToRocheLobeRadiusRatio, 1.0) >= 0) {                                                                   // if star is equal to or larger than its Roche Lobe...
         m_RLOFDetails.isRLOF          = true;                                                                           // ... it is currently Roche Lobe overflowing
 		m_RLOFDetails.experiencedRLOF = true;                                                                           // ... and for future checks, did Roche Lobe overflow
 	}
@@ -430,13 +430,13 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
 /*
  * Ratio of star's radius to its Roche Lobe radius, calculated at the point of closest approach, periapsis
  *
- * double RocheLobeTracker() const
+ * double StarToRocheLobeRadiusRatio() const
  *
  * @param   [IN]    p_SemiMajorAxis             Semi major axis of the binary (in AU)
  * @param   [IN]    p_Eccentricity              Eccentricity of the binary orbit
  * @return                              Ratio of stars radius to its Roche lobe radius
  */
-double  BinaryConstituentStar::RocheLobeTracker(const double p_SemiMajorAxis, const double p_Eccentricity) {
+double  BinaryConstituentStar::StarToRocheLobeRadiusRatio(const double p_SemiMajorAxis, const double p_Eccentricity) {
     if ((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0))
         return 0.0;         // binary is unbound, so not in RLOF
     
