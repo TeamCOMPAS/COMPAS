@@ -144,6 +144,8 @@ void Options::OptionValues::Initialise() {
     m_EnableWarnings                                                = false;
 
 	m_BeBinaries                                                    = false;
+        m_HMXRBinaries                                                  = false;
+
     m_EvolvePulsars                                                 = false;
 	m_EvolveUnboundSystems                                          = false;
 
@@ -156,6 +158,7 @@ void Options::OptionValues::Initialise() {
     m_ShortHelp                                                     = true;
 
     m_StoreInputFiles                                               = true;
+
 
     m_SwitchLog                                                     = false;
 
@@ -773,6 +776,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "store-input-files",                                                
             po::value<bool>(&p_Options->m_StoreInputFiles)->default_value(p_Options->m_StoreInputFiles)->implicit_value(true),                                                                          
             ("Store input files in output container (default = " + std::string(p_Options->m_StoreInputFiles ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "hmxr-binaries",
+            po::value<bool>(&p_Options->m_HMXRBinaries)->default_value(p_Options->m_HMXRBinaries)->implicit_value(true),
+            ("Store HMXRB candidates in BSE_RLOF output file (default = " + std::string(p_Options->m_HMXRBinaries ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "switch-log",                                                
