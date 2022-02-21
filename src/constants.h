@@ -373,10 +373,6 @@ constexpr double MULLERMANDEL_KICKBH                    = 200.0;
 constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3; 
 
 
-// constants for the Fryer 2022 remnant mass prescription
-constexpr double FRYER22_FMIX                           = 0.5;
-constexpr double FRYER22_MCRIT                          = 5.75; 
-
 
 // object types
 enum class OBJECT_TYPE: int { NONE, MAIN, PROFILING, UTILS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR };    //  if BASE_STAR, check STELLAR_TYPE
@@ -2099,6 +2095,9 @@ enum class PROGRAM_OPTION: int {
 
     FRYER_SUPERNOVA_ENGINE,
 
+    FRYER22_FMIX,
+    FRYER22_MCRIT,
+
     INITIAL_MASS,
     INITIAL_MASS_1,
     INITIAL_MASS_2,
@@ -2310,6 +2309,9 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::EVOLUTION_MODE,                                   "EVOLUTION_MODE" },
 
     { PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE,                           "FRYER_SUPERNOVA_ENGINE" },
+
+    { PROGRAM_OPTION::FRYER22_FMIX,                                     "FRYER22_FMIX" },
+    { PROGRAM_OPTION::FRYER22_MCRIT,                                    "FRYER22_MCRIT" },
 
     { PROGRAM_OPTION::INITIAL_MASS,                                     "INITIAL_MASS" },
     { PROGRAM_OPTION::INITIAL_MASS_1,                                   "INITIAL_MASS_1" },

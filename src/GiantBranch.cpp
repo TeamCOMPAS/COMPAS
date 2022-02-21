@@ -4,6 +4,8 @@
 #include "NS.h"
 #include "BH.h"
 
+using std::min;
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -1468,6 +1470,7 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const do
  *
  * @param   [IN]    p_Mass                      Pre supernova mass in Msol
  * @param   [IN]    p_COCoreMass                Pre supernova Carbon Oxygen (CO) core mass in Msol
+ * @param   [IN]    OPTIONS->Fryer22fmix()               
  * @return                                      Tuple containing Remnant mass in Msol and updated fraction of mass falling back onto compact object
  */
 std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const double p_Mass, const double p_COCoreMass) {
@@ -1479,8 +1482,8 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const do
     double gravitationalRemnantMass = 0.0;
 
 
-    baryonicRemnantMass  = 1.2 + 0.05 * fmix + 0.01 * pow(p_COCoreMass/fmix, 2.0);  // equation 5. 
-    ;// check that baryonicRemnantMass doesn't exceed the 
+    baryonicRemnantMass  = 1.2 + 0.05 * OPTIONS->Fryer22fmix() + 0.01 * pow(p_COCoreMass/OPTIONS->Fryer22fmix(), 2.0);  // equation 5. 
+    baryonicRemnantMass  = min(baryonicRemnantMass, p_Mass);// check that baryonicRemnantMass doesn't exceed the total mass
 
     fallbackMass         = baryonicRemnantMass - p_COCoreMass ;// mrem-mco p_Mass, mProto, fallbackFraction);
     fallbackFraction     = fallbackMass/(p_Mass - p_COCoreMass) ;// fallbackMass/Menv  CalculateFallbackFractionDelayed(p_Mass, mProto, p_COCoreMass);
