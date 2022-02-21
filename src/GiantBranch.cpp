@@ -1459,6 +1459,41 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const do
 
 
 /*
+ * Calculate the remnant mass using the new Fryer prescription from 2022
+ *
+ * Fryer et al. 2022 eq. 5
+ *
+ *
+ * std::tuple<double, double> CalculateRemnantMassByFryer2022(const double p_Mass, const double p_COCoreMass)
+ *
+ * @param   [IN]    p_Mass                      Pre supernova mass in Msol
+ * @param   [IN]    p_COCoreMass                Pre supernova Carbon Oxygen (CO) core mass in Msol
+ * @return                                      Tuple containing Remnant mass in Msol and updated fraction of mass falling back onto compact object
+ */
+std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const double p_Mass, const double p_COCoreMass) {
+
+    double fallbackMass;
+    double baryonicRemnantMass;
+
+    double fallbackFraction         = 0.0;
+    double gravitationalRemnantMass = 0.0;
+
+
+    baryonicRemnantMass  = 1.2 + 0.05 * fmix + 0.01 * pow(p_COCoreMass/fmix, 2.0);  // equation 5. 
+    ;// check that baryonicRemnantMass doesn't exceed the 
+
+    fallbackMass         = baryonicRemnantMass - p_COCoreMass ;// mrem-mco p_Mass, mProto, fallbackFraction);
+    fallbackFraction     = fallbackMass/(p_Mass - p_COCoreMass) ;// fallbackMass/Menv  CalculateFallbackFractionDelayed(p_Mass, mProto, p_COCoreMass);
+
+    gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
+
+
+    return std::make_tuple(gravitationalRemnantMass, fallbackFraction);
+}
+
+
+
+/*
  * Calculate fallback using linear interpolation
  *
  * Belczynski et al. 2002
@@ -1538,6 +1573,11 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         case REMNANT_MASS_PRESCRIPTION::FRYER2012:                                                          // Fryer 2012
 
             std::tie(m_Mass, m_SupernovaDetails.fallbackFraction) = CalculateRemnantMassByFryer2012(m_Mass, m_COCoreMass);
+            break;
+
+        case REMNANT_MASS_PRESCRIPTION::FRYER2022:                                                          // Fryer 2012
+
+            std::tie(m_Mass, m_SupernovaDetails.fallbackFraction) = CalculateRemnantMassByFryer2022(m_Mass, m_COCoreMass);
             break;
 
         case REMNANT_MASS_PRESCRIPTION::MULLER2016:                                                         // Muller 2016
