@@ -1482,12 +1482,12 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const do
     double gravitationalRemnantMass = 0.0;
 
 
-    baryonicRemnantMass  = 1.2 + 0.05 * OPTIONS->Fryer22fmix() + 0.01 * pow( (p_COCoreMass/OPTIONS->Fryer22fmix()), 2.0);  // equation 5. 
+    baryonicRemnantMass  = 1.2 + 0.05 * OPTIONS->Fryer22fmix() + 0.01 * pow( (p_COCoreMass/OPTIONS->Fryer22fmix()), 2.0) + exp(OPTIONS->Fryer22fmix() * (p_COCoreMass - OPTIONS->Fryer22Mcrit()) ) ;  // equation 5. 
     SAY(" baryonicRemnantMass = " << baryonicRemnantMass << " OPTIONS->Fryer22fmix() = " << OPTIONS->Fryer22fmix() << " p_COCoreMass = " << p_COCoreMass);
 
     baryonicRemnantMass  = min(baryonicRemnantMass, p_Mass);// check that baryonicRemnantMass doesn't exceed the total mass
 
-    fallbackMass         = baryonicRemnantMass - p_COCoreMass ;// mrem-mco p_Mass, mProto, fallbackFraction);
+    fallbackMass         = p_COCoreMass - baryonicRemnantMass ;// mco - mrem p_Mass, mProto, fallbackFraction);
     fallbackFraction     = fallbackMass/(p_Mass - p_COCoreMass) ;// fallbackMass/Menv  CalculateFallbackFractionDelayed(p_Mass, mProto, p_COCoreMass);
 
     gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
