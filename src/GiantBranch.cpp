@@ -1491,7 +1491,7 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const do
     gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
 
 
-    return std::make_tuple(gravitationalRemnantMass, fallbackFraction);
+    return std::make_tuple(baryonicRemnantMass, fallbackFraction);
 }
 
 
