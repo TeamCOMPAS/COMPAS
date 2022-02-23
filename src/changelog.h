@@ -875,7 +875,7 @@
 // 02.27.04     RTW - Feb 15, 2022   - Defect repair:
 //                                      - Fix for issue # 761 - USSNe not occuring. See issue for details.
 // 02.27.05     IRS - Feb 17, 2022   - Enhancements:
-//                                      - Add function HasOnlyOneOf, which returns true if a binary has only one comoponent in the list of stellar types passed, and false if neither or both are in the list
+//                                      - Add function HasOnlyOneOf, which returns true if a binary has only one component in the list of stellar types passed, and false if neither or both are in the list
 //                                      - Add function IsHMXRBinary, which returns true if HasOnlyOneOf(Black hole, Neutron star) and the companion radius is > 80% of the Roche Lobe radius
 //                                      - Add flag --hmxr-binaries, which tells COMPAS to store binaries in BSE_RLOF output file if IsHMXRBinary
 //                                      - Add columns for pre- and post-timestep ratio of stars to Roche Lobe radius to BSE_RLOF output file (addressing issue #746)

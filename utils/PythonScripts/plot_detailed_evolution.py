@@ -232,8 +232,12 @@ def plotVanDenHeuvel(events=None):
         axs[ii].yaxis.set_label_position("right")
         plt.subplots_adjust(hspace=0)
 
-        pltString = "$t$ = {:.1f} Myr, $a = {:.1f}$ $R_\odot$ \n $M_1$ = {:.1f} $M_\odot$, $M_2$ = {:.1f} $M_\odot$ \n"+events[ii].eventString
-        pltString = pltString.format(events[ii].time,events[ii].a,events[ii].m1,events[ii].m2)
+        if ii==0:
+            pltString = "$t$ = {:.1f} Myr, $a$ = {:.1f} $R_\odot$ \n $M_1$ = {:.1f} $M_\odot$, $M_2$ = {:.1f} $M_\odot$ \n"+events[ii].eventString
+            pltString = pltString.format(events[ii].time, events[ii].a,events[ii].m1,events[ii].m2)
+        else:
+            pltString = "$t$ = {:.1f} Myr, $a$ = {:.1f} to {:.1f} $R_\odot$ \n $M_1$ = {:.1f} to {:.1f} $M_\odot$, $M_2$ = {:.1f} to {:.1f} $M_\odot$ \n"+events[ii].eventString
+            pltString = pltString.format(events[ii].time,events[ii].aprev, events[ii].a,events[ii].m1prev,events[ii].m1,events[ii].m2prev,events[ii].m2)
         
         pad = 5
         axs[ii].annotate(pltString, xy=(0,0.5), xytext=(-axs[ii].yaxis.labelpad + pad,0),xycoords=axs[ii].yaxis.label,fontsize=8,textcoords='offset points', ha='left', va='center')
@@ -308,12 +312,28 @@ class Event(object):
         ii = index
         self.time   = Data['Time'][ii] 
         self.m1     = Data['Mass(1)'][ii]
-        self.m2     = Data['Mass(2)'][ii] 
-        self.stype1 = Data['Stellar_Type(1)'][ii] 
+        self.m2     = Data['Mass(2)'][ii]
+        self.a      = Data['SemiMajorAxis'][ii]
+        if ii==0:
+            self.m1prev=0
+            self.m2prev=0
+            self.aprev=0
+        else:
+            self.m1prev = Data['Mass(1)'][ii-1]
+            self.m2prev = Data['Mass(2)'][ii-1]
+            self.aprev  = Data['SemiMajorAxis'][ii-1]
+        # Cheap kludge for SN separations - later, should clean up when detailed printing is called
+        if eventClass == 'SN':
+            try: # Bad form to do a try except, but this works for now
+                self.a = Data['SemiMajorAxis'][ii+1]
+                self.aprev = Data['SemiMajorAxis'][ii]
+            except:
+                self.a = Data['SemiMajorAxis'][ii]
+                self.aprev = Data['SemiMajorAxis'][ii-1]
+        self.stype1 = Data['Stellar_Type(1)'][ii]
         self.stype2 = Data['Stellar_Type(2)'][ii] 
         self.stypeName1 = stellarTypeMap[self.stype1]
         self.stypeName2 = stellarTypeMap[self.stype2]
-        self.a      = Data['SemiMajorAxis'][ii]
         self.e      = Data['Eccentricity'][ii]
         self.Z1     = Data['Metallicity@ZAMS(1)'][ii]
 
