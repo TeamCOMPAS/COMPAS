@@ -322,6 +322,14 @@ class Event(object):
             self.m1prev = Data['Mass(1)'][ii-1]
             self.m2prev = Data['Mass(2)'][ii-1]
             self.aprev  = Data['SemiMajorAxis'][ii-1]
+        # Cheap kludge for SN separations - later, should clean up when detailed printing is called
+        if eventClass == 'SN':
+            try: # Bad form to do a try except, but this works for now
+                self.a = Data['SemiMajorAxis'][ii+1]
+                self.aprev = Data['SemiMajorAxis'][ii]
+            except:
+                self.a = Data['SemiMajorAxis'][ii]
+                self.aprev = Data['SemiMajorAxis'][ii-1]
         self.stype1 = Data['Stellar_Type(1)'][ii]
         self.stype2 = Data['Stellar_Type(2)'][ii] 
         self.stypeName1 = stellarTypeMap[self.stype1]
