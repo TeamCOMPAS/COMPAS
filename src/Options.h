@@ -198,6 +198,7 @@ private:
         "hdf5-buffer-size",
         "hdf5-chunk-size",
         "help", "h",
+        "hmxr-binaries",
 
         "log-level", 
         "log-classes",
@@ -385,14 +386,14 @@ private:
         "rotational-frequency-2",
 
         "semi-major-axis", "a",
-        "semi-major-axis-dsitribution",
+        "semi-major-axis-distribution",
         "semi-major-axis-max",
-        "semi-major-axis-min"
+        "semi-major-axis-min",
     };
 
     
-    // m_RangeExcluded records option strings that apply to SSE only
-    // m_SetExcluded records option strings that apply to BSE only
+    // m_RangeExcluded records option strings that cannot be ranges
+    // m_SetExcluded records option strings that cannot be sets
     //
     // These vectors are checked when the commandline or grid line is parsed for
     // ranges and sets.  Ranges can only be specified for numerical options - other
@@ -445,6 +446,7 @@ private:
         "hdf5-buffer-size",
         "hdf5-chunk-size",
         "help", "h",
+        "hmxr-binaries",
 
         "initial-mass-function", "i",
 
@@ -535,6 +537,7 @@ private:
         "hdf5-buffer-size",
         "hdf5-chunk-size",
         "help", "h",
+        "hmxr-binaries",
 
         "log-classes",
         "log-level", 
@@ -613,6 +616,7 @@ public:
             std::vector<std::string>                            m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
 
 	        bool                                                m_BeBinaries;													// Flag if we want to print BeBinaries (main.cpp)
+            bool                                                m_HMXRBinaries;                                                 // Flag if we want to store HMXRBs in RLOF output file
             bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
 	        bool                                                m_EvolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
 
@@ -1171,6 +1175,7 @@ public:
 
     size_t                                      HDF5ChunkSize() const                                                   { return m_CmdLine.optionValues.m_HDF5ChunkSize; }
     size_t                                      HDF5BufferSize() const                                                  { return m_CmdLine.optionValues.m_HDF5BufferSize; }
+    bool                                        HMXRBinaries() const                                                    { return OPT_VALUE("hmxr-binaries", m_HMXRBinaries, false); }
 
     double                                      InitialMass() const                                                     { return OPT_VALUE("initial-mass", m_InitialMass, true); }
     double                                      InitialMass1() const                                                    { return OPT_VALUE("initial-mass-1", m_InitialMass1, true); }

@@ -181,7 +181,7 @@ public:
     double          RadiusPostCEE() const                                               { return m_CEDetails.postCEE.radius; }
     double          RadiusPreCEE() const                                                { return m_CEDetails.preCEE.radius; }
     bool            RLOFPostCEE() const                                                 { return m_RLOFDetails.RLOFPostCEE; }
-    double          RocheLobeTracker(const double p_SemiMajorAxis, const double p_Eccentricity);
+    double          StarToRocheLobeRadiusRatio(const double p_SemiMajorAxis, const double p_Eccentricity);
 
     STELLAR_TYPE    StellarTypePostCEE() const                                          { return m_CEDetails.postCEE.stellarType; }
     STELLAR_TYPE    StellarTypePreCEE() const                                           { return m_CEDetails.preCEE.stellarType; }
