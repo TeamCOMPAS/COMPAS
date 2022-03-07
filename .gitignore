@@ -28,10 +28,17 @@ COMPAS
 *.bbl
 *.blg
 *.pdf
+*.eps
+*.png
 *.synctex
 *.synctex(busy)
 *.synctex.gz
 *.synctex.gz(busy)
+
+# docs html
+*_build
+
+*.vscode
 
 Makefile-reinhold
 .gitignore

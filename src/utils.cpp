@@ -16,6 +16,43 @@ namespace utils {
 
     // Alphabetical - so I can find them...
 
+     /*
+     * Iterative binary search
+     *
+     * For a given number x and a sorted array arr, return the lower and upper bin edges of x in arr.
+     *
+     *
+     * std::vector<int> binarySearch(const std::vector<double> p_Arr, const double p_x)
+     *
+     * @param   [IN]    p_Array             Sorted array to search over
+     * @param   [IN]    p_x                 Value to search for
+
+     * @return                              Vector containing indices of the lower and upper
+                                            bin edges containing x. If x < min(Arr), return
+                                            {-1, 0}. If x > max(Arr), return {0, -1}. If x
+                                            is equal to an array element, return index of that
+                                            element.
+     */
+    std::vector<int> binarySearch(const std::vector<double> p_Arr, const double p_x) {
+        int low = 0;
+        int up = p_Arr.size() - 1;
+        int mid = 0;
+
+        // If x is not within array limits...
+        if      (p_x < p_Arr[low]) { return {-1, 0}; }
+        else if (p_x > p_Arr[up])  { return {0, -1}; }
+
+        while(1) {
+            mid = roundl( 0.5*(up + low) );
+            if (std::abs(low - up) == 1) { return {low, low+1}; }    // arr(low) < x < arr(up), so return low
+            else if (p_x == p_Arr[low])  { return {low, low}; }      // arr(low) = x. In this case, return low = up
+            else if (p_x == p_Arr[up])   { return {up, up}; }        // arr(up) = x. In this case, return low = up
+            else if (p_x == p_Arr[mid])  { return {mid, mid}; }      // arr(mid) = x. In this case, return low = up = mid
+            else if (p_x < p_Arr[mid])   { up = mid; }               // Bring down upper bound
+            else                         { low = mid; }              // Bring up lower bound
+        }
+    }
+
 
     /*
      * Calculate the value of the CDF of the Kroupa (2001) IMF at p_Mass
@@ -172,7 +209,7 @@ namespace utils {
         double a_cubed_SI_top    = G * ((p_Mass1 * MSOL_TO_KG) + (p_Mass2 * MSOL_TO_KG)) * p_Period * p_Period * SECONDS_IN_DAY * SECONDS_IN_DAY;
         double a_cubed_SI_bottom = 4.0 * M_PI * M_PI;
         double a_cubed_SI        = a_cubed_SI_top / a_cubed_SI_bottom;
-        double a_SI              = PPOW(a_cubed_SI, 1.0 / 3.0);
+        double a_SI              = std::cbrt(a_cubed_SI); 
 
         return a_SI / AU;
     }
@@ -240,7 +277,7 @@ namespace utils {
                 phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
                 break;
 
-            case KICK_DIRECTION_DISTRIBUTION::WEDGE:                                                                // WEDGE: Direct kick into a wedge around the horizon (theta = 0)
+            case KICK_DIRECTION_DISTRIBUTION::WEDGE:                                                                // WEDGE: Direct kick into a wedge around the equator (theta = 0)
                 theta = RAND->RandomGaussian(delta);                                                                // Gaussian around 0 with a deviation delta
                 phi   = RAND->Random() * _2_PI;                                                                     // allow to randomly take an angle 0 - 2pi in the plane
                 break;
@@ -482,6 +519,9 @@ namespace utils {
         catch (const std::out_of_range& e) {        // conversion failed
             result = false;                         // not a valid DOUBLE
         }
+        catch (const std::invalid_argument& e) {    // conversion failed
+            result = false;                         // not a valid DOUBLE
+        }
         return result;
     }
 
@@ -509,6 +549,9 @@ namespace utils {
             result = lastChar == p_Str.size();      // valid FLOAT if p_Str completely consumed
         }
         catch (const std::out_of_range& e) {        // conversion failed
+            result = false;                         // not a valid FLOAT
+        }
+        catch (const std::invalid_argument& e) {    // conversion failed
             result = false;                         // not a valid FLOAT
         }
         return result;
@@ -540,6 +583,9 @@ namespace utils {
         catch (const std::out_of_range& e) {        // conversion failed
             result = false;                         // not a valid INT
         }
+        catch (const std::invalid_argument& e) {    // conversion failed
+            result = false;                         // not a valid INT
+        }
         return result;
     }
 
@@ -567,6 +613,9 @@ namespace utils {
             result = lastChar == p_Str.size();      // valid LONG DOUBLE if p_Str completely consumed
         }
         catch (const std::out_of_range& e) {        // conversion failed
+            result = false;                         // not a valid LONG DOUBLE
+        }
+        catch (const std::invalid_argument& e) {    // conversion failed
             result = false;                         // not a valid LONG DOUBLE
         }
         return result;
@@ -598,6 +647,9 @@ namespace utils {
         catch (const std::out_of_range& e) {        // conversion failed
             result = false;                         // not a valid LONG INT
         }
+        catch (const std::invalid_argument& e) {    // conversion failed
+            result = false;                         // not a valid LONG INT
+        }
         return result;
     }
 
@@ -625,6 +677,9 @@ namespace utils {
             result = lastChar == p_Str.size();      // valid UNSIGNED LONG INT if p_Str completely consumed
         }
         catch (const std::out_of_range& e) {        // conversion failed
+            result = false;                         // not a valid UNSIGNED LONG INT
+        }
+        catch (const std::invalid_argument& e) {    // conversion failed
             result = false;                         // not a valid UNSIGNED LONG INT
         }
         return result;
@@ -717,7 +772,7 @@ namespace utils {
      *
      * std::string& trim(std::string& p_Str)
      *
-     * @param   [IN]    p_Str                       String to be timmed of whitespace
+     * @param   [IN]    p_Str                       String to be trimmed of whitespace
      * @return                                      Trimmed string
      */
     std::string& trim(std::string& p_Str) {
@@ -829,7 +884,7 @@ namespace utils {
                 // Sampling function taken from binpop.f in NBODY6
 
                 do {
-                    eccentricity = 0.23 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.38;
+                    eccentricity = 0.23 * std::sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.38;
                 } while (eccentricity < p_Min || eccentricity > p_Max);                                 // JR: don't use utils::Compare() here
                 break;
 
@@ -838,7 +893,7 @@ namespace utils {
                 // Sampling function taken from binpop.f in NBODY6
 
                 do {
-                    eccentricity = 0.15 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.3;
+                    eccentricity = 0.15 * std::sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.3;
                 } while (eccentricity < p_Min or eccentricity > p_Max);                                 // JR: don't use utils::Compare() here
                 break;
 
@@ -1015,7 +1070,7 @@ namespace utils {
                 break;
 
             default:                                                                                                // unknown IMF
-                thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER, KROUPA_MAXIMUM, KROUPA_MINIMUM);          // calculate mass using power law with default values
+                thisMass = utils::InverseSampleFromPowerLaw(SALPETER_POWER, SALPETER_MAXIMUM, SALPETER_MINIMUM);    // calculate mass using power law with default values
         }
 
         return thisMass;
@@ -1046,7 +1101,7 @@ namespace utils {
             case MASS_RATIO_DISTRIBUTION::DUQUENNOYMAYOR1991:                                                   // mass ratio distribution from Duquennoy & Mayor (1991) (http://adsabs.harvard.edu/abs/1991A%26A...248..485D)
 
                 do {                                                                                            // JR: todo: catch non-convergence?
-                    q = 0.42 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.23;
+                    q = 0.42 * std::sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.23;
                 } while (q < p_Min || q > p_Max);                                                               // JR: don't use utils::Compare() here
                 break;
 
@@ -1150,7 +1205,7 @@ namespace utils {
      * @param   [IN]    p_Adist                     The distribution to use to draw semi-major axis
      * @param   [IN]    p_AdistMax                  Semi-major axis distribution maximum
      * @param   [IN]    p_AdistMin                  Semi-major axis distribution minimum
-     * @param   [IN]    p_AdistPower                Semi-major axis distribution power (for CUSTOM distribution)
+     * @param   [IN]    p_AdistPower                Semi-major axis distribution power
      * @param   [IN]    p_PdistMax                  Period distribution maximum (for SANA2012 distribution)
      * @param   [IN]    p_PdistMin                  Period distribution minimum (for SANA2012 distribution)
      * @param   [IN]    p_Mass1                     Mass of the primary
@@ -1184,14 +1239,9 @@ namespace utils {
 
                 // Make sure that the drawn semi-major axis is in the range specified by the user
                 do {                                                                                                    // JR: todo: catch for non-convergence?
-                    double periodInDays = PPOW(10.0, 2.3 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 4.8);
+                    double periodInDays = PPOW(10.0, 2.3 * std::sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 4.8);
                     semiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);      // convert period in days to semi-major axis in AU
                 } while (semiMajorAxis < p_AdistMin || semiMajorAxis > p_AdistMax);                                     // JR: don't use utils::Compare() here
-                break;
-
-            case SEMI_MAJOR_AXIS_DISTRIBUTION::CUSTOM:                                                                  // CUSTOM
-
-                semiMajorAxis = utils::InverseSampleFromPowerLaw(p_AdistPower, p_AdistMax, p_AdistMin);
                 break;
 
             case SEMI_MAJOR_AXIS_DISTRIBUTION::SANA2012: {                                                              // Sana et al 2012
@@ -1285,7 +1335,7 @@ namespace utils {
 
         if (iteration >= MAX_KEPLER_ITERATIONS) error = ERROR::NO_CONVERGENCE;                                                          // no convergence - set error
 
-        double nu = 2.0 * atan((sqrt((1.0 + e) / (1.0 - e))) * tan(0.5*E));                                                             // convert eccentric anomaly into true anomaly.  Equation (96) in my "A simple toy model" document
+        double nu = 2.0 * atan((std::sqrt((1.0 + e) / (1.0 - e))) * tan(0.5*E));                                                             // convert eccentric anomaly into true anomaly.  Equation (96) in my "A simple toy model" document
 
              if (utils::Compare(E, M_PI) >= 0 && utils::Compare(E, _2_PI) <= 0) nu += _2_PI;                                            // add 2PI if necessary
         else if (utils::Compare(E, 0.0)  <  0 || utils::Compare(E, _2_PI) >  0) error = ERROR::OUT_OF_BOUNDS;                           // out of bounds - set error
@@ -1329,7 +1379,7 @@ namespace utils {
             error = ERROR::NO_REAL_ROOTS;                           // no real roots - set error
         }
         else if (discriminant > 0.0) {                              // 2 real roots (leae this as an absolute compare)
-            double sqrtD = sqrt(discriminant);
+            double sqrtD = std::sqrt(discriminant);
             double A2    = p_A + p_A;
 
             double root1 = (-p_B + sqrtD) / A2;                     // (-B + SQRT(B^2 - 4AC)) / 2A

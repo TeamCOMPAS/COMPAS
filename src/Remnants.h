@@ -34,7 +34,7 @@ protected:
 
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 
-    double          CalculateEddingtonCriticalRate() const                                                      { return 1.5E-8 * (m_Radius * RSOL_TO_KM / 10.0) * MYR_TO_YEAR; }       // Sluys 2013 ("Binary Evolution in a Nutshell"), eq 70
+    double          CalculateEddingtonCriticalRate() const                                                      { return 2.08E-3 / 1.7 * m_Radius * MYR_TO_YEAR; }       // Hurley+, 2002, Eq. (67)
 
     void            CalculateGBParams()                                                                         { GiantBranch::CalculateGBParams(); }                                   // Default to GiantBranch
 
@@ -45,7 +45,7 @@ protected:
     double          CalculateInitialSupernovaMass() const                                                       { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
 
     double          CalculateLambdaDewi() const                                                                 { return BaseStar::CalculateLambdaDewi(); }                             // Not supported - use BaseStar
-    double          CalculateLambdaNanjing() const                                                              { return BaseStar::CalculateLambdaNanjing(); }                          // Not supported - use BaseStar     JR: todo: check this (type 10 not mentioned as not supported in original code)
+    double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const               { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }                  // Not supported - use BaseStar (0.0 are dummy values)      JR: todo: check this (type 10 not mentioned as not supported in original code)
 
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                     const double p_AccretorMassRate = 0.0);
@@ -64,11 +64,7 @@ protected:
 
     double          CalculateTauOnPhase() const                                                                 { return m_Tau; }                                                       // NO-OP
    
-    double          CalculateThermalTimescale() const                                                           { return CalculateDynamicalTimescale(); }                               // Use dynamical timescale for mass transfer purposes
-    double          CalculateThermalTimescale(const double p_Mass,
-                                              const double p_Radius,
-                                              const double p_Luminosity,
-                                              const double p_EnvMass = 1.0) const                               { return CalculateThermalTimescale(); }                                 // Ignore parameters
+    double          CalculateThermalTimescale(const double p_Radius = 1.0) const                                { return CalculateDynamicalTimescale(); }                               // Parameter is ignored
 
     double          CalculateThermalMassLossRate() const                                                        { return BaseStar::CalculateThermalMassLossRate(); }                    // Set thermal mass gain rate to be effectively infinite, using dynamical timescale (in practice, will be Eddington limited), avoid division by zero
 
@@ -101,8 +97,6 @@ protected:
     void            ResolveEnvelopeMassOnPhase(const double p_Tau) const { }                                                                                                            // NO-OP
 
     void            ResolveMassLoss() { }                                                                                                                                         // NO-OP
-
-    STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss()                                                           { return BaseStar::ResolveRemnantAfterEnvelopeLoss(); }                 // Default to BaseStar
 
     STELLAR_TYPE    ResolveSkippedPhase()                                                                       { return BaseStar::ResolveSkippedPhase(); }                             // Default to BaseStar
     STELLAR_TYPE    ResolveSupernova()                                                                          { return BaseStar::ResolveSupernova(); }                                // Default to BaseStar

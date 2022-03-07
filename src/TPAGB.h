@@ -50,7 +50,8 @@ protected:
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_CoreMass; }                                                                  // NO-OP
 
             double          CalculateLambdaDewi() const;
-            double          CalculateLambdaNanjing() const;
+            double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
+            double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const;
 
             double          CalculateLuminosityOnPhase(const double p_Time) const;
             double          CalculateLuminosityOnPhase() const                                                      { return CalculateLuminosityOnPhase(m_Age); }                                           // Use class member variables
@@ -89,7 +90,6 @@ protected:
 
             STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
             void            ResolveHeliumFlash() { }                                                                                                                                                        // NO-OP
-            STELLAR_TYPE    ResolveRemnantAfterEnvelopeLoss();
             STELLAR_TYPE    ResolveSkippedPhase()                                                                   { return m_StellarType; }                                                               // NO-OP
 
             bool            ShouldEvolveOnPhase() const                                                             { return (utils::Compare(m_COCoreMass, std::min(m_GBParams[static_cast<int>(GBP::McSN)], m_Mass)) < 0); } // Evolve on TPAGB phase if envelope is not lost and not going supernova

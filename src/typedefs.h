@@ -14,14 +14,16 @@ typedef std::vector<STELLAR_TYPE>              STYPE_VECTOR;
 
 // Log file details
 typedef struct LogfileDetails {
-    int                      id;
-    std::string              filename;
-    ANY_PROPERTY_VECTOR      recordProperties;
-    std::vector<TYPENAME>    propertyTypes;
-    std::vector<std::string> hdrStrings;
-    std::vector<std::string> unitsStrings;
-    std::vector<std::string> typeStrings;
-    std::vector<std::string> fmtStrings;
+    int                           id;                       // logfile id
+    std::string                   filename;                 // filename
+    ANY_PROPERTY_VECTOR           recordProperties;         // list of properties (columns) to be written to the logfile
+    std::vector<TYPENAME>         propertyTypes;            // the COMPAS datatypes of the properties
+    std::vector<STRING_QUALIFIER> stringTypes;              // the string type (fixed or variable length) for TYPENAME::STRING datatypes
+    std::vector<std::string>      hdrStrings;               // the column header strings
+    std::vector<std::string>      unitsStrings;             // the column units strings
+    std::vector<std::string>      typeStrings;              // the column datatype strings
+    std::vector<std::string>      fmtStrings;               // format strings for the columns - how the value is formatted for printing to the logfile
+    std::vector<bool>             annotations;              // print flags for each annotation specified by the user (e.g. OPTIONS->NotesHdrs())
 } LogfileDetailsT;
 
 
@@ -162,7 +164,6 @@ typedef struct BindingEnergies {
 // RLOF properties
 typedef struct RLOFProperties {
     OBJECT_ID     id;
-    unsigned long randomSeed;
 
     STELLAR_TYPE  stellarType1;
     STELLAR_TYPE  stellarType2;
@@ -172,6 +173,9 @@ typedef struct RLOFProperties {
 
     double        radius1;
     double        radius2;
+
+    double starToRocheLobeRadiusRatio1;                                    
+    double starToRocheLobeRadiusRatio2;
 
     double        eccentricity;
     double        semiMajorAxis;
@@ -210,7 +214,6 @@ typedef struct StellarRLOFDetails {                         // RLOF details pert
 // BeBinary properties
 typedef struct BeBinaryProperties {
     OBJECT_ID     id;
-    unsigned long randomSeed;
 
     double        dt;
     double        totalTime;

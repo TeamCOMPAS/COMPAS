@@ -175,10 +175,10 @@ public:
 
     // getters - alphabetically
     BeBinaryDetailsT    BeBinaryDetails() const                     { return m_BeBinaryDetails; }
-	bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
+    bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
     unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
-	double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
-	unsigned int        CommonEnvelopeEventCount() const            { return m_CEDetails.CEEcount; }
+    double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
+    unsigned int        CommonEnvelopeEventCount() const            { return m_CEDetails.CEEcount; }
     bool                Unbound() const                             { return m_Unbound; }
     bool                DoubleCoreCE() const                        { return m_CEDetails.doubleCoreCE; }
     double              Dt() const                                  { return m_Dt; }
@@ -190,6 +190,7 @@ public:
     double              EccentricityPreCEE() const                  { return m_CEDetails.preCEE.eccentricity; }
     ERROR               Error() const                               { return m_Error; }
     double              FractionAccreted() const                    { return m_FractionAccreted; }
+    bool                HasOnlyOneOf(STELLAR_TYPE_LIST p_List) const;
     bool                HasOneOf(STELLAR_TYPE_LIST p_List) const;
     bool                HasStarsTouching() const                    { return (utils::Compare(m_SemiMajorAxis, 0.0) > 0) && (m_SemiMajorAxis <= RSOL_TO_AU * (m_Star1->Radius() + m_Star2->Radius())); }
     bool                HasTwoOf(STELLAR_TYPE_LIST p_List) const;
@@ -197,14 +198,13 @@ public:
     STELLAR_TYPE        InitialStellarType1() const                 { return m_Star1->InitialStellarType(); }
     STELLAR_TYPE        InitialStellarType2() const                 { return m_Star2->InitialStellarType(); }
     bool                IsBeBinary() const                          { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07}); }
+    bool                IsHMXRBinary() const;
     bool                IsBHandBH() const                           { return HasTwoOf({STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsDCO() const                               { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsNSandBH() const                           { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsNSandNS() const                           { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR}); }
     bool                IsUnbound() const                           { return (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || (utils::Compare(m_Eccentricity, 1.0) > 0)); }         // semi major axis <= 0.0 means unbound, presumably by SN)
     bool                IsWDandWD() const                           { return HasTwoOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF}); }
-    double              Mass1Final() const                          { return m_Mass1Final; }
-    double              Mass2Final() const                          { return m_Mass2Final; }
     double              Mass1PostCEE() const                        { return m_Star1->MassPostCEE(); }
     double              Mass1PreCEE() const                         { return m_Star1->MassPreCEE(); }
     double              Mass2PostCEE() const                        { return m_Star2->MassPostCEE(); }
@@ -216,16 +216,16 @@ public:
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_Flags.mergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
-    double              OrbitalAngularVelocity() const              { return sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
+    double              OrbitalAngularVelocity() const              { return std::sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
     double              Periastron() const                          { return m_SemiMajorAxis * (1.0-m_Eccentricity); }
     double              PeriastronRsol() const                      { return Periastron() * AU_TO_RSOL; }
-	double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
-	double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
-	double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
-	double              Radius2PreCEE() const                       { return m_Star2->RadiusPreCEE(); }
-	unsigned long int   RandomSeed() const                          { return m_RandomSeed; }
-	BinaryRLOFDetailsT  RLOFDetails() const                         { return m_RLOFDetails; }
+    double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
+    double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
+    double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
+    double              Radius2PreCEE() const                       { return m_Star2->RadiusPreCEE(); }
+    unsigned long int   RandomSeed() const                          { return m_RandomSeed; }
+    BinaryRLOFDetailsT  RLOFDetails() const                         { return m_RLOFDetails; }
     bool                RLOFSecondaryPostCEE() const                { return m_Star2->RLOFPostCEE(); }
     double              RocheLobe1to2PostCEE() const                { return m_CEDetails.postCEE.rocheLobe1to2; }
     double              RocheLobe1to2PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe1to2; }
@@ -233,8 +233,8 @@ public:
     double              RocheLobe2to1PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe2to1; }
     double              RocheLobeRadius1() const                    { return CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass()); }
     double              RocheLobeRadius2() const                    { return CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()); }
-    double              RocheLobeTracker1() const                   { return m_Star1->RocheLobeTracker(m_SemiMajorAxis, m_Eccentricity); }
-    double              RocheLobeTracker2() const                   { return m_Star2->RocheLobeTracker(m_SemiMajorAxis, m_Eccentricity); }
+    double              StarToRocheLobeRadiusRatio1() const         { return m_Star1->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
+    double              StarToRocheLobeRadiusRatio2() const         { return m_Star2->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
     double              SemiMajorAxisAtDCOFormation() const         { return m_SemiMajorAxisAtDCOFormation; }
     double              SemiMajorAxisInitial() const                { return m_SemiMajorAxisInitial; }
     double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
@@ -271,7 +271,7 @@ public:
 
             EVOLUTION_STATUS    Evolve();
 
-            bool                PrintSwitchLog(const long int p_Id, const bool p_PrimarySwitching) { return OPTIONS->SwitchLog() ? LOGGING->LogBSESwitchLog(this, p_Id, p_PrimarySwitching) : true; }
+            bool                PrintSwitchLog(const bool p_PrimarySwitching) { return OPTIONS->SwitchLog() ? LOGGING->LogBSESwitchLog(this, p_PrimarySwitching) : true; }
 
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
 
@@ -446,7 +446,7 @@ private:
 
     double  CalculateOrbitalAngularMomentum(const double p_Mu,
                                             const double p_Mass,
-                                            const double p_SemiMajorAxis) const { return p_Mu * sqrt(G1 * p_Mass * p_SemiMajorAxis); }
+                                            const double p_SemiMajorAxis) const { return p_Mu * std::sqrt(G1 * p_Mass * p_SemiMajorAxis); }
 
     double  CalculateOrbitalEnergy(const double p_Mu,
                                    const double p_Mass,
@@ -506,14 +506,14 @@ private:
     void    UpdateSystemicVelocity(Vector3d p_newVelocity);
 
     // printing functions
-    bool PrintRLOFParameters(const string p_Rec = "");
-    bool PrintBinarySystemParameters(const string p_Rec = "") const              { return LOGGING->LogBSESystemParameters(this, p_Rec); }
-    bool PrintDetailedOutput(const long int p_Id, const string p_Rec = "") const { return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id, p_Rec) : true; }
-    bool PrintDoubleCompactObjects(const string p_Rec = "") const                { return LOGGING->LogDoubleCompactObject(this, p_Rec); }
-    bool PrintCommonEnvelope(const string p_Rec = "") const                      { return LOGGING->LogCommonEnvelope(this, p_Rec); }
-    bool PrintBeBinary(const string p_Rec = "");
-    bool PrintPulsarEvolutionParameters(const string p_Rec = "") const           { return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_Rec) : true; }
-    bool PrintSupernovaDetails(const string p_Rec = "") const                    { return LOGGING->LogBSESupernovaDetails(this, p_Rec); }
+    bool PrintRLOFParameters();
+    bool PrintBinarySystemParameters() const            { return LOGGING->LogBSESystemParameters(this); }
+    bool PrintDetailedOutput(const long int p_Id) const { return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id) : true; }
+    bool PrintDoubleCompactObjects() const              { return LOGGING->LogDoubleCompactObject(this); }
+    bool PrintCommonEnvelope() const                    { return LOGGING->LogCommonEnvelope(this); }
+    bool PrintBeBinary();
+    bool PrintPulsarEvolutionParameters() const         { return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this) : true; }
+    bool PrintSupernovaDetails() const                  { return LOGGING->LogBSESupernovaDetails(this); }
 
     
     //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
@@ -545,7 +545,7 @@ private:
             (void)donorCopy->UpdateAttributes(-dM, -dM*donorCopy->Mass0()/donorCopy->Mass());
             
             // Modify donor Mass0 and Age for MS (including HeMS) and HG stars
-            donorCopy->UpdateInitialMass();         // update initial mass (MS, HG & HeMS)  JR: todo: fix this kludge - mass0 is overloaded, and isn't always "initial mass"
+            donorCopy->UpdateInitialMass();         // update initial mass (MS, HG & HeMS)  
             donorCopy->UpdateAgeAfterMassLoss();    // update age (MS, HG & HeMS)
             
             (void)donorCopy->AgeOneTimestep(0.0);   // recalculate radius of star - don't age - just update values
