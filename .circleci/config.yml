@@ -23,6 +23,9 @@ jobs:
           command: |
             export COMPAS_ROOT_DIR=~/codes/COMPAS
             pwd
+            cd src
+            make -j 4 -f Makefile
+            ./COMPAS -v
   
   build-docker-image:
     docker:
