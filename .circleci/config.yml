@@ -32,24 +32,24 @@ jobs:
 workflows:
   First:
     jobs:
-      - build-and-test
-        filters:
-          branches:
-            only:
-             - dev
+      - build-and-test:
+          filters:
+            branches:
+              only:
+                - dev
       - Hold-For-Approval:
           type: approval
           filters:
-          branches:
-            only:
-             - dev
+            branches:
+              only:
+                - dev
           requires:
             - build-and-test
       - build-docker-image:
           filters:
-          branches:
-            only:
-             - dev
+            branches:
+              only:
+                - dev
           requires:
             - Hold-For-Approval
 
