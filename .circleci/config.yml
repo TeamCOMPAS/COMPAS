@@ -13,7 +13,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apt-get install -y g++ libboost-all-dev libgsl-dev libhdf5-serial-dev zip
+            sudo apt-get install -y g++ libboost-all-dev libgsl-dev libhdf5-serial-dev zip
             python --version
             pip3 install matplotlib numpy h5py
             
