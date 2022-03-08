@@ -14,8 +14,8 @@ jobs:
           name: Install dependencies
           command: |
             sudo apt-get update
-            sudo apt-get install -y g++ libboost-all-dev libgsl-dev libhdf5-serial-dev zip PyYAML
-            pip3 install matplotlib numpy h5py
+            sudo apt-get install -y g++ libboost-all-dev libgsl-dev libhdf5-serial-dev zip
+            pip3 install matplotlib numpy h5py pip install PyYAML
             
       - run:
           name: Build COMPAS
