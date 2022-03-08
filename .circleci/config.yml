@@ -15,7 +15,6 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt-get install -y g++ libboost-all-dev libgsl-dev libhdf5-serial-dev zip
-            python --version
             pip3 install matplotlib numpy h5py
             
       - run:
@@ -26,6 +25,14 @@ jobs:
             cd src
             make -j 4 -f Makefile
             ./COMPAS -v
+            
+      - run:
+          name: Run python scripts
+          command: |
+            cd utils/example_plots/methods_paper_plots/detailed_evolution
+            rm -r COMPAS_Output
+            python3 runSubmitDemo.py
+            python3 plot_detailed_evolution.py
   
   build-docker-image:
     docker:
