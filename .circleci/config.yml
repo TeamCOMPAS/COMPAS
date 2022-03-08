@@ -20,7 +20,7 @@ jobs:
       - run:
           name: Build COMPAS
           command: |
-            export COMPAS_ROOT_DIR=~/codes/COMPAS
+            export COMPAS_ROOT_DIR=$(pwd)
             pwd
             cd src
             make -j 4 -f Makefile
