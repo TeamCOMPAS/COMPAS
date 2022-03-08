@@ -1,0 +1,56 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@1.5.0
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/python:3.6
+
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apt-get install -y g++ libboost-all-dev libgsl-dev libhdf5-serial-dev zip
+            python --version
+            pip3 install matplotlib numpy h5py
+            
+      - run:
+          name: Build COMPAS
+          command: |
+            export COMPAS_ROOT_DIR=~/codes/COMPAS
+            pwd
+  
+  build-docker-image:
+    docker:
+      - image: cimg/python:3.6
+    steps:
+      - run: echo ' all done and dusted'
+      
+workflows:
+  First:
+    jobs:
+      - build-and-test
+        filters:
+          branches:
+            only:
+             - dev
+      - Hold-For-Approval:
+          type: approval
+          filters:
+          branches:
+            only:
+             - dev
+          requires:
+            - build-and-test
+      - build-docker-image:
+          filters:
+          branches:
+            only:
+             - dev
+          requires:
+            - Hold-For-Approval
+
+        
