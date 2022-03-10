@@ -17,7 +17,7 @@ jobs:
             sudo apt-get update
             sudo apt install texlive-latex-extra cm-super dvipng
             sudo apt-get install -y g++ libboost-all-dev libgsl-dev libhdf5-serial-dev zip
-            pip3 install 'matplotlib==3.3.4' numpy h5py pip install PyYAML pandas astropy scipy
+            pip3 install numpy h5py pip install PyYAML pandas astropy scipy
             
       - run:
           name: Build COMPAS
