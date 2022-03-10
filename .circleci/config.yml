@@ -7,8 +7,6 @@ jobs:
   build-and-test:
     docker:
       - image: cimg/python:3.6
-    environment:
-      COMPAS_ROOT_DIR: '$CIRCLE_WORKING_DIRECTORY'
 
     steps:
       - run: sh -c env
@@ -23,8 +21,6 @@ jobs:
       - run:
           name: Build COMPAS
           command: |
-            echo "$CIRCLE_WORKING_DIRECTORY"
-            echo "$COMPAS_ROOT_DIR"
             pwd
             cd src
             make -j 4 -f Makefile
@@ -33,6 +29,7 @@ jobs:
       - run:
           name: Run python scripts
           command: |
+            export COMPAS_ROOT_DIR=${CIRCLE_WORKING_DIRECTORY}
             echo $COMPAS_ROOT_DIR
             cd utils/example_plots/methods_paper_plots/detailed_evolution
             python3 runSubmitDemo.py
