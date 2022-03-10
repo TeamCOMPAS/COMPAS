@@ -7,8 +7,11 @@ jobs:
   build-and-test:
     docker:
       - image: cimg/python:3.6
+    environment:
+      COMPAS_ROOT_DIR: $CIRCLE_WORKING_DIRECTORY
 
     steps:
+      - run: sh -c env
       - checkout
       - run:
           name: Install dependencies
