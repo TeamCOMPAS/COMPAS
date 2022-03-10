@@ -16,7 +16,7 @@ from matplotlib.legend import Legend
 from matplotlib import rcParams, transforms, patches
 import matplotlib.gridspec as gridspec
 
-compasRootDir = os.path.expandvars(os.environ['COMPAS_ROOT_DIR'])
+compasRootDir = os.path.abspath(os.path.expandvars(os.environ['COMPAS_ROOT_DIR']))
 
 def main():
     ### Read file and create dataframe.
