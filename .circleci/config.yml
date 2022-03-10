@@ -15,7 +15,7 @@ jobs:
           name: Install dependencies
           command: |
             sudo apt-get update
-            sudo apt install texlive-latex-extra
+            sudo apt install texlive-latex-extra cm-super
             sudo apt-get install -y g++ libboost-all-dev libgsl-dev libhdf5-serial-dev zip
             pip3 install 'matplotlib==3.3.4' numpy h5py pip install PyYAML pandas astropy scipy
             
