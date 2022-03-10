@@ -16,9 +16,7 @@ from matplotlib.legend import Legend
 from matplotlib import rcParams, transforms, patches
 import matplotlib.gridspec as gridspec
 
-compasRootDir = os.path.expandvars(os.environ['COMPAS_ROOT_DIR'])
-print(f'compasRootDir: {compasRootDir}')
-print(os.path.abspath(compasRootDir))
+compasRootDir = os.path.expanduser(os.path.expandvars(os.environ['COMPAS_ROOT_DIR']))
 
 def main():
     ### Read file and create dataframe.
@@ -473,7 +471,6 @@ class Event(object):
         """
 
         self.imgFile = os.path.join(compasRootDir, 'utils/media/vanDenHeuvel_figures/{}.png'.format(image_num))
-        print(os.path.abspath(self.imgFile))
         img = plt.imread(self.imgFile) # import image
         if rotate_image:
             img = img[:,::-1,:] # flip across y-axis
