@@ -471,7 +471,7 @@ class Event(object):
         """
 
         self.imgFile = os.path.join(compasRootDir, 'utils/media/vanDenHeuvel_figures/{}.png'.format(image_num))
-        img = plt.imread(self.imgFile) # import image
+        img = plt.imread(self.imgFile, 'png') # import image
         if rotate_image:
             img = img[:,::-1,:] # flip across y-axis
         return img
