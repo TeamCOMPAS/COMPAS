@@ -22,7 +22,6 @@ jobs:
       - run:
           name: Build COMPAS
           command: |
-            pwd
             cd src
             make -j 4 -f Makefile
             ./COMPAS -v
@@ -31,8 +30,6 @@ jobs:
           name: Run python scripts
           command: |
             export COMPAS_ROOT_DIR=${CIRCLE_WORKING_DIRECTORY}
-            echo $COMPAS_ROOT_DIR
-            ls -l ~/project/utils/media/vanDenHeuvel_figures/2.png
             cd utils/example_plots/methods_paper_plots/detailed_evolution
             python3 runSubmitDemo.py
             python3 plot_detailed_evolution.py
