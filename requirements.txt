@@ -21,6 +21,7 @@ nbsphinx
 ipykernel
 IPython
 
+extension-helpers
 numpy >= 1.16'
 numpydoc
 astropy >= 4.0'
