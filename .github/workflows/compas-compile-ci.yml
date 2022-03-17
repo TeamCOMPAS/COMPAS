@@ -13,18 +13,22 @@ jobs:
         run: sudo apt update && sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
 
       - name: Build Compas
-        run: cd src && make -j $(nproc) -f Makefile
-        run: ./COMPAS -v
+        run: |
+          cd src && make -j $(nproc) -f Makefile
+          ./COMPAS -v
 
       - name: Install Python 3.8 and required packages
-        run: sudo apt-get install python3.8 python3.8-dev python3.8-distutils python3.8-venv
-        run: python3 --version
-        run: python3.8 -m venv dev3.8
-        run: source dev3.8/bin/activate
-        run: which python
-        run: cd .. && pip install requirements.txt
+        run: |
+          python3 --version
+          sudo apt-get install python3.8 python3.8-dev python3.8-distutils python3.8-venv
+          python3 --version
+          python3.8 -m venv dev3.8
+          source dev3.8/bin/activate
+          which python
+          cd .. && pip install requirements.txt
       
       - name: Run Post-Processing Python Scripts
-        run: cd utils/example_plots/methods_paper_plots/detailed_evolution
-        run: python3 runSubmitDemo.py
-        run: python3 plot_detailed_evolution.py
+        run: |
+          cd utils/example_plots/methods_paper_plots/detailed_evolution
+          python3 runSubmitDemo.py
+          python3 plot_detailed_evolution.py
