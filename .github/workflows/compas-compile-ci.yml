@@ -9,8 +9,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install dependencies 
-        run: sudo apt update && sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
+      # - name: Install dependencies 
+      #   run: sudo apt update && sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
 
       # - name: Build Compas
       #   run: |
