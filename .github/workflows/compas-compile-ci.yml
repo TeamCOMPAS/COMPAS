@@ -9,14 +9,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install dependencies 
-        run: sudo apt update && sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
-
-      - name: Build Compas
-        run: |
-          cd src && make -j $(nproc) -f Makefile
-          ./COMPAS -v
-
       - name: Install Python 3.8 and required packages
         run: |
           python3 --version
@@ -25,6 +17,7 @@ jobs:
           python3.8 -m venv dev3.8
           source dev3.8/bin/activate
           which python
+          ls -alt
           cd .. && pip install requirements.txt
       
       - name: Run Post-Processing Python Scripts
