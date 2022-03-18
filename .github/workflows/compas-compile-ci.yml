@@ -14,10 +14,10 @@ jobs:
           sudo apt install texlive-latex-extra cm-super dvipng
           sudo apt update && sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
           
-      # - name: Build Compas
-      #   run: |
-      #     cd src && make -j $(nproc) -f Makefile
-      #     ./COMPAS -v
+      - name: Build Compas
+        run: |
+          cd src && make -j $(nproc) -f Makefile
+          ./COMPAS -v
 
       - name: Install Python and required packages
         run: |
@@ -31,9 +31,9 @@ jobs:
           pip3 install wheel
           pip3 install -r requirements.txt
       
-      # - name: Run Post-Processing Python Scripts
-      #   run: |
-      #     export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
-      #     cd utils/example_plots/methods_paper_plots/detailed_evolution
-      #     python3 runSubmitDemo.py
-      #     python3 plot_detailed_evolution.py
+      - name: Run Post-Processing Python Scripts
+        run: |
+          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+          cd utils/example_plots/methods_paper_plots/detailed_evolution
+          python3 runSubmitDemo.py
+          python3 plot_detailed_evolution.py
