@@ -50,9 +50,10 @@ jobs:
       - name: Install Python and required packages using MacPorts
         if: startsWith(matrix.os, 'macos')
         run: |
+          cd ${GITHUB_WORKSPACE}
           curl -O https://github.com/macports/macports-base/releases/download/v2.7.2/MacPorts-2.7.2-11-BigSur.pkg
           pwd
-          installer -pkg MacPorts-2.7.2-11-BigSur.pkg -target CurrentUserHomeDirectory
+          installer -pkg ${GITHUB_WORKSPACE}/MacPorts-2.7.2-11-BigSur.pkg -target CurrentUserHomeDirectory
           port --version
           port install python36
           sudoport select --set python3 python36
