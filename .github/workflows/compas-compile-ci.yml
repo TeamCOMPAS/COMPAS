@@ -9,8 +9,8 @@ jobs:
     runs-on: ${{ matrix.os}}
     strategy:
       matrix:
-        # os: [ubuntu-18.04, ubuntu-20.04, macos-latest]
-        os: [macos-latest]
+        # os: [ubuntu-18.04, ubuntu-20.04, macos-11]
+        os: [macos-11]
     steps:
       - uses: actions/checkout@v2
 
@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies on macos
         if: startsWith(matrix.os, 'macos')
         run: |
-          /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
           brew --version
           brew install gsl
           brew install boost
@@ -51,11 +51,10 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: |
           /usr/bin/xcodebuild -version
-          sudo port -v selfupdate
-          # curl -O https://github.com/macports/macports-base/releases/download/v2.7.2/MacPorts-2.7.2-11-BigSur.pkg
-          # pwd
-          # installer -pkg ${GITHUB_WORKSPACE}/MacPorts-2.7.2-11-BigSur.pkg -target CurrentUserHomeDirectory
-
+          # sudo port -v selfupdate
+          curl -O https://github.com/macports/macports-base/releases/download/v2.7.2/MacPorts-2.7.2-11-BigSur.pkg
+          pwd
+          installer -pkg ${GITHUB_WORKSPACE}/MacPorts-2.7.2-11-BigSur.pkg -target CurrentUserHomeDirectory
           
           # curl -O https://distfiles.macports.org/MacPorts/MacPorts-2.7.2.tar.bz2
           # tar xf MacPorts-2.7.2.tar.bz2
@@ -64,9 +63,10 @@ jobs:
           # make
           # sudo make install
 
+          export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
           port --version
           port install python36
-          sudoport select --set python3 python36
+          sudo port select --set python3 python36
           port install py36-pip
           select --set pip36
           pip3 install -r requirements.txt
