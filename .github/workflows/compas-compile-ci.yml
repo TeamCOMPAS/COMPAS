@@ -29,10 +29,10 @@ jobs:
           brew install boost
           brew install hdf5
 
-      - name: Build Compas
-        run: |
-          cd src && make -j $(nproc) -f Makefile
-          ./COMPAS -v
+      # - name: Build Compas
+      #   run: |
+      #     cd src && make -j $(nproc) -f Makefile
+      #     ./COMPAS -v
 
       # - name: Install Python and required packages on Ubuntu
       #   if: startsWith(matrix.os, 'ubuntu')
@@ -50,23 +50,24 @@ jobs:
       - name: Install Python and required packages using MacPorts
         if: startsWith(matrix.os, 'macos')
         run: |
-          cd ${GITHUB_WORKSPACE}
-          curl -O https://github.com/macports/macports-base/releases/download/v2.7.2/MacPorts-2.7.2-11-BigSur.pkg
-          pwd
-          installer -pkg ${GITHUB_WORKSPACE}/MacPorts-2.7.2-11-BigSur.pkg -target CurrentUserHomeDirectory
+          # cd ${GITHUB_WORKSPACE}
+          # curl -O https://github.com/macports/macports-base/releases/download/v2.7.2/MacPorts-2.7.2-11-BigSur.pkg
+          # pwd
+          # installer -pkg ${GITHUB_WORKSPACE}/MacPorts-2.7.2-11-BigSur.pkg -target CurrentUserHomeDirectory
+
+          curl -O https://distfiles.macports.org/MacPorts/MacPorts-2.7.2.tar.bz2
+          tar xf MacPorts-2.7.2.tar.bz2
+          cd MacPorts-2.7.2/
+          ./configure
+          make
+          sudo make install
+          
           port --version
           port install python36
           sudoport select --set python3 python36
           port install py36-pip
           select --set pip36
           pip3 install -r requirements.txt
-
-          # curl -O https://distfiles.macports.org/MacPorts/MacPorts-2.7.2.tar.bz2
-          # tar xf MacPorts-2.7.2.tar.bz2
-          # cd MacPorts-2.7.2/
-          # ./configure
-          # make
-          # sudo make install
       
       # - name: Run Post-Processing Python Scripts
       #   if: startsWith(matrix.os, 'ubuntu')
