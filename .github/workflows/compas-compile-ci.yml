@@ -51,7 +51,8 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: |
           curl -O https://github.com/macports/macports-base/releases/download/v2.7.2/MacPorts-2.7.2-11-BigSur.pkg
-          sudo installer -pkg MacPorts-2.7.2-11-BigSur.pkg -target /
+          ls -alt
+          sudo installer -pkg ./MacPorts-2.7.2-11-BigSur.pkg -target /
           port --version
           sudo port install python36
           sudo port select --set python3 python36
