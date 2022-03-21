@@ -51,7 +51,6 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: |
           /usr/bin/xcodebuild -version
-          sudo xcode-select --install
           sudo port -v selfupdate
           # curl -O https://github.com/macports/macports-base/releases/download/v2.7.2/MacPorts-2.7.2-11-BigSur.pkg
           # pwd
