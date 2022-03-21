@@ -9,7 +9,8 @@ jobs:
     runs-on: ${{ matrix.os}}
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04, macos-latest]
+        # os: [ubuntu-18.04, ubuntu-20.04, macos-latest]
+        os: [macos-latest]
     steps:
       - uses: actions/checkout@v2
 
@@ -28,11 +29,10 @@ jobs:
           brew install boost
           brew install hdf5
 
-      # - name: Build Compas
-      #   if: startsWith(matrix.os, 'ubuntu')
-      #   run: |
-      #     cd src && make -j $(nproc) -f Makefile
-      #     ./COMPAS -v
+      - name: Build Compas
+        run: |
+          cd src && make -j $(nproc) -f Makefile
+          ./COMPAS -v
 
       # - name: Install Python and required packages on Ubuntu
       #   if: startsWith(matrix.os, 'ubuntu')
