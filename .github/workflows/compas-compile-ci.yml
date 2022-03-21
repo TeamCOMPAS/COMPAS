@@ -20,7 +20,7 @@ jobs:
       #     sudo apt update && sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
           
       - name: Install dependencies on macos
-        if: startsWith(matrix.os, macos)
+        if: startsWith(matrix.os, 'macos')
         run: |
           /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
           brew --version
