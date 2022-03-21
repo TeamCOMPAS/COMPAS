@@ -46,6 +46,25 @@ jobs:
       #     pip3 install --upgrade setuptools
       #     pip3 install wheel
       #     pip3 install -r requirements.txt
+
+      - name: Install Python and required packages using MacPorts
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          curl -O https://github.com/macports/macports-base/releases/download/v2.7.2/MacPorts-2.7.2-11-BigSur.pkg
+          sudo installer -pkg MacPorts-2.7.2-11-BigSur.pkg -target /
+          port --version
+          sudo port install python36
+          sudo port select --set python3 python36
+          sudo port install py36-pip
+          sudo port select --set pip36
+          sudo pip3 install -r requirements.txt
+
+          # curl -O https://distfiles.macports.org/MacPorts/MacPorts-2.7.2.tar.bz2
+          # tar xf MacPorts-2.7.2.tar.bz2
+          # cd MacPorts-2.7.2/
+          # ./configure
+          # make
+          # sudo make install
       
       # - name: Run Post-Processing Python Scripts
       #   if: startsWith(matrix.os, 'ubuntu')
