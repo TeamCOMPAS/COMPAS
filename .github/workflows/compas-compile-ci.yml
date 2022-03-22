@@ -72,7 +72,6 @@ jobs:
           # select --set pip36
           # pip3 install -r requirements.txt
 
-          brew install python
           pip install -r requirements.txt
       
       # - name: Run Post-Processing Python Scripts
