@@ -26,7 +26,8 @@ numpy >= 1.16'
 # astropy >= 4.0'
 astropy
 # numba >= 0.50'
-scipy >= 1.5.0'
+# scipy >= 1.5.0'
+scipy
 h5py
 matplotlib >= 3.3.2'
 PyYAML
