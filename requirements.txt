@@ -21,7 +21,7 @@ nbsphinx
 ipykernel
 IPython
 pandas
-numpy >= 1.16'
+numpy>=1.16
 # numpydoc
 astropy>=4.0
 astropy
