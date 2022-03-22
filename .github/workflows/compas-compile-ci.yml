@@ -50,7 +50,7 @@ jobs:
       - name: Install Python and required packages using MacPorts
         if: startsWith(matrix.os, 'macos')
         run: |
-          /usr/bin/? -version
+          # /usr/bin/xcodebuild -version
           # sudo port -v selfupdate
           # curl -O https://github.com/macports/macports-base/releases/download/v2.7.2/MacPorts-2.7.2-11-BigSur.pkg
           # pwd
@@ -64,8 +64,7 @@ jobs:
           sudo make install
 
           export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
-          sudo port -v selfupdate
-          port version
+          port --version
           port install python36
           sudo port select --set python3 python36
           port install py36-pip
