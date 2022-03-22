@@ -54,7 +54,7 @@ jobs:
           # sudo port -v selfupdate
           curl -O https://github.com/macports/macports-base/releases/download/v2.7.2/MacPorts-2.7.2-11-BigSur.pkg
           pwd
-          installer -pkg ${GITHUB_WORKSPACE}/MacPorts-2.7.2-11-BigSur.pkg -target CurrentUserHomeDirectory
+          sudo installer -pkg ${GITHUB_WORKSPACE}/MacPorts-2.7.2-11-BigSur.pkg -target CurrentUserHomeDirectory
           
           # curl -O https://distfiles.macports.org/MacPorts/MacPorts-2.7.2.tar.bz2
           # tar xf MacPorts-2.7.2.tar.bz2
