@@ -30,6 +30,7 @@ jobs:
           brew install boost
           brew install hdf5
           brew install basictex
+          eval "$(/usr/libexec/path_helper)"
           sudo tlmgr update --self
           sudo tlmgr install texliveonfly
           sudo tlmgr install adjustbox
