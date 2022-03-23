@@ -30,14 +30,16 @@ jobs:
           brew install boost
           brew install hdf5
           brew install texlive
-          brew install --cask basictex
-          # brew install libmagic
+          # brew install --cask mactex
+          brew install libmagic
 
 
       - name: Build Compas
         run: |
           cd src && make -j $(nproc) -f Makefile
           ./COMPAS -v
+        env:
+          nproc: 4
 
       # - name: Install Python and required packages on Ubuntu
       #   if: startsWith(matrix.os, 'ubuntu')
