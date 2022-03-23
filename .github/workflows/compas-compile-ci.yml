@@ -72,8 +72,8 @@ jobs:
           # select --set pip36
           # pip3 install -r requirements.txt
 
-          pip3 install -r requirements.txt
-          python3 -m pip3 show
+          # pip3 install -r requirements.txt
+          python3 -m pip install -r requirements.txt
           # python3 --version
           # which python3
           # python --version
