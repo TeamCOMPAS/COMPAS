@@ -73,19 +73,19 @@ jobs:
           # pip3 install -r requirements.txt
 
           pip install -r requirements.txt
-          python3 --version
-          which python3
-          python --version
-          which python
+          # python3 --version
+          # which python3
+          # python --version
+          # which python
 
       
-      # - name: Run Post-Processing Python Scripts
-      #   if: startsWith(matrix.os, 'ubuntu')
-      #   run: |
-      #     export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
-      #     cd utils/example_plots/methods_paper_plots/detailed_evolution
-      #     python3 runSubmitDemo.py
-      #     python3 plot_detailed_evolution.py
+      - name: Run Post-Processing Python Scripts
+        # if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+          cd utils/example_plots/methods_paper_plots/detailed_evolution
+          python3 runSubmitDemo.py
+          python3 plot_detailed_evolution.py
 
       - name: Finish Job
         run: echo 'All done and dusted'
