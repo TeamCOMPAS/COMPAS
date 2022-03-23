@@ -73,6 +73,11 @@ jobs:
           # pip3 install -r requirements.txt
 
           pip install -r requirements.txt
+          python3 --version
+          which python3
+          python --version
+          which python
+
       
       # - name: Run Post-Processing Python Scripts
       #   if: startsWith(matrix.os, 'ubuntu')
