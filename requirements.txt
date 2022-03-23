@@ -23,14 +23,14 @@ IPython
 pandas
 numpy>=1.16
 # numpydoc
-# astropy>=4.0
-astropy
+astropy>=4.0
+# astropy
 # numba>=0.50
-# scipy>=1.5.0
-scipy
+scipy>=1.5.0
+# scipy
 h5py
-# matplotlib>=3.3.2
-matplotlib
+matplotlib>=3.3.2
+# matplotlib
 PyYAML
 
 # The following are listed in the 'extensions []' block in conf.py

@@ -48,7 +48,7 @@ jobs:
       #     pip3 install wheel
       #     pip3 install -r requirements.txt
 
-      - name: Install Python and required packages using MacPorts
+      - name: Install Python and required packages on MacOS
         if: startsWith(matrix.os, 'macos')
         run: |
           # /usr/bin/xcodebuild -version
@@ -72,7 +72,8 @@ jobs:
           # select --set pip36
           # pip3 install -r requirements.txt
 
-          pip install -r requirements.txt
+          pip3 install -r requirements.txt
+          python3 -m pip3 show
           # python3 --version
           # which python3
           # python --version
