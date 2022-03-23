@@ -29,9 +29,19 @@ jobs:
           brew install gsl
           brew install boost
           brew install hdf5
-          # brew install texlive
-          brew install --cask mactex
-          brew install libmagic
+          brew install basictex
+          sudo tlmgr update --self
+          sudo tlmgr install texliveonfly
+          sudo tlmgr install adjustbox
+          sudo tlmgr install tcolorbox
+          sudo tlmgr install collectbox
+          sudo tlmgr install ucs
+          sudo tlmgr install environ
+          sudo tlmgr install trimspaces
+          sudo tlmgr install titling
+          sudo tlmgr install enumitem
+          sudo tlmgr install rsfs
+          # brew install libmagic
 
 
       - name: Build Compas
