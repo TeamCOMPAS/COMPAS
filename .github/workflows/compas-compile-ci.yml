@@ -44,7 +44,7 @@ jobs:
           sudo tlmgr install enumitem
           sudo tlmgr install rsfs
           eval "$(/usr/libexec/path_helper)
-          # brew install libmagic
+          brew install libmagic
 
 
       - name: Build Compas
