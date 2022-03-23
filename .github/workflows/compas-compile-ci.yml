@@ -29,13 +29,13 @@ jobs:
           brew install gsl
           brew install boost
           brew install hdf5
-          brew install libmagic
+          # brew install libmagic
 
 
-      # - name: Build Compas
-      #   run: |
-      #     cd src && make -j $(nproc) -f Makefile
-      #     ./COMPAS -v
+      - name: Build Compas
+        run: |
+          cd src && make -j $(nproc) -f Makefile
+          ./COMPAS -v
 
       # - name: Install Python and required packages on Ubuntu
       #   if: startsWith(matrix.os, 'ubuntu')
