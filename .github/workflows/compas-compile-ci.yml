@@ -29,8 +29,8 @@ jobs:
           brew install gsl
           brew install boost
           brew install hdf5
-          brew install texlive
-          # brew install --cask mactex
+          # brew install texlive
+          brew install --cask mactex
           brew install libmagic
 
 
