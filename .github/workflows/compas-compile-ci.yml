@@ -47,8 +47,8 @@ jobs:
           sudo tlmgr install rsfs
           # brew install libmagic
           sudo tlmgr install dvipng
-          sudo tlmgr install ghostscript
-          sudo tlmgr install pdflatex
+          brew install ghostscript
+          # sudo tlmgr install pdflatex
           eval "$(/usr/libexec/path_helper)
 
 
