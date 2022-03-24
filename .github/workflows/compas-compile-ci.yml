@@ -31,9 +31,9 @@ jobs:
           brew install hdf5
           brew install basictex
           eval "$(/usr/libexec/path_helper)"
+          pdflatex --version
           sudo tlmgr update --self
-          sudo tlmgr install texliveonfly          
-          sudo tlmgr install dvipng
+          sudo tlmgr install texliveonfly
           sudo tlmgr install adjustbox
           sudo tlmgr install tcolorbox
           sudo tlmgr install collectbox
@@ -43,8 +43,9 @@ jobs:
           sudo tlmgr install titling
           sudo tlmgr install enumitem
           sudo tlmgr install rsfs
-          eval "$(/usr/libexec/path_helper)
+          # eval "$(/usr/libexec/path_helper)
           brew install libmagic
+          sudo tlmgr install dvipng
 
 
       - name: Build Compas
