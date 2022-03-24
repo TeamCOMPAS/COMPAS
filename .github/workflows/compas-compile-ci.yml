@@ -31,6 +31,8 @@ jobs:
           brew install hdf5
           brew install basictex
           eval "$(/usr/libexec/path_helper)"
+          # export PATH="/Library/TeX/texbin:$PATH"
+          echo $PATH
           pdflatex --version
           sudo tlmgr update --self
           sudo tlmgr install texliveonfly
@@ -43,9 +45,11 @@ jobs:
           sudo tlmgr install titling
           sudo tlmgr install enumitem
           sudo tlmgr install rsfs
-          # eval "$(/usr/libexec/path_helper)
-          brew install libmagic
+          # brew install libmagic
           sudo tlmgr install dvipng
+          sudo tlmgr install ghostscript
+          sudo tlmgr install pdflatex
+          eval "$(/usr/libexec/path_helper)
 
 
       - name: Build Compas
@@ -103,7 +107,6 @@ jobs:
       - name: Run Post-Processing Python Scripts
         # if: startsWith(matrix.os, 'ubuntu')
         run: |
-          pdflatex --version
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
           cd utils/example_plots/methods_paper_plots/detailed_evolution
           python3 runSubmitDemo.py
