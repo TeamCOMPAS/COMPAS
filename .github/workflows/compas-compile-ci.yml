@@ -49,7 +49,7 @@ jobs:
           sudo tlmgr install dvipng
           brew install ghostscript
           # sudo tlmgr install pdflatex
-          eval "$(/usr/libexec/path_helper)
+          eval "$(/usr/libexec/path_helper)"
 
 
       - name: Build Compas
