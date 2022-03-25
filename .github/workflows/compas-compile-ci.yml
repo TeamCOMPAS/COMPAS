@@ -31,7 +31,7 @@ jobs:
           brew install hdf5
           brew install mactex
           eval "$(/usr/libexec/path_helper)"
-          # export PATH="/Library/TeX/texbin:$PATH"
+          export PATH="/Library/TeX/texbin:$PATH"
           echo $PATH
           pdflatex --version
           sudo tlmgr update --self
