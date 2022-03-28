@@ -1692,22 +1692,18 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
  *
  * double CalculateMassTransferOrbit (const double                 p_DonorMass, 
  *                                    const double                 p_DeltaMassDonor, 
- *                                    const double                 p_ThermalRateDonor, 
- *                                          BinaryConstituentStar& p_Accretor, 
+ *                                          BinaryConstituentStar& p_Accretor,
  *                                    const double                 p_FractionAccreted)
  *
  * @param   [IN]    p_DonorMass                 Donor mass
- * @param   [IN]    p_AccretorMass              Accretor mass
  * @param   [IN]    p_DeltaMassDonor            Change in donor mass
- * @param   [IN]    p_ThermalRateDonor          Donor thermal mass loss rate
  * @param   [IN]    p_Accretor                  Pointer to accretor
- * @param   [IN]    p_FractionAccreted      Mass fraction lost from donor accreted by accretor
+ * @param   [IN]    p_FractionAccreted          Mass fraction lost from donor accreted by accretor
  * @return                                      Semi-major axis
  */
 double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p_DonorMass, 
                                                   const double                 p_DeltaMassDonor, 
-                                                  const double                 p_ThermalRateDonor, 
-                                                        BinaryConstituentStar& p_Accretor, 
+                                                        BinaryConstituentStar& p_Accretor,
                                                   const double                 p_FractionAccreted) {
 
     double semiMajorAxis   = m_SemiMajorAxis;                                                                   // new semi-major axis value - default is no change
@@ -1894,7 +1890,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                     STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                     // donor stellar type before resolving envelope loss
                     
-                    aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, m_Donor->CalculateThermalMassLossRate(), *m_Accretor, m_FractionAccreted);
+                    aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, *m_Accretor, m_FractionAccreted);
                     
                     m_Donor->ResolveEnvelopeLossAndSwitch();                                                                    // only other interaction that adds/removes mass is winds, so it is safe to update star here
                     
@@ -1904,10 +1900,11 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 }
                 else{                                                                                                           // donor has no envelope
                     double dM = - MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
+                    m_Donor->UpdateMinimumCoreMass();                                                                           // update minimum core mass of possible MS donor
                     m_Donor->SetMassTransferDiff(dM);                                                                           // mass transferred by donor
                     m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted);                                                  // mass accreted by accretor
                       
-                    aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), dM, m_Donor->CalculateThermalMassLossRate(), *m_Accretor, m_FractionAccreted);
+                    aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), dM, *m_Accretor, m_FractionAccreted);
                 }
                        
 

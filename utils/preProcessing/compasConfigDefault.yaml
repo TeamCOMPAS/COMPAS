@@ -23,6 +23,7 @@ booleanChoices:
     --allow-rlof-at-birth: True # allow binaries that have one or both stars in RLOF at birth to evolve, particularly useful in the context of CHE binaries.    
     --circularise-binary-during-mass-transfer: True
     --mass-transfer: True    
+    --retain-core-mass-during-caseA-mass-transfer: False  
     ### COMMON ENVELOPE
     --common-envelope-allow-immediate-RLOF-post-CE-survive: False
     --common-envelope-allow-main-sequence-survive: True # Allow main sequence stars to survive CE. Was previously False by default

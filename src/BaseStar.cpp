@@ -126,6 +126,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
+    m_MinimumCoreMass                          = 0.0;
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
@@ -135,7 +136,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_HeCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mu                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_CoreRadius                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mdot                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_DominantMassLossRate                     = MASS_LOSS_TYPE::NONE;
 
@@ -2085,7 +2085,7 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
  *
  * double CalculateThermalMassAcceptanceRate(const double p_Radius)
  *
- * @param   [IN]    p_Radius                    Radius of the accretor (Rsol)
+ * @param   [IN]    p_Radius                    Radius of the accretor (Rsol) [typically called with Roche Lobe radius]
  * @return                                      Thermal mass acceptance rate
  */
 double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) const {
@@ -3346,6 +3346,34 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase() {
     return stellarType;
 }
 
-
+void BaseStar::UpdateMinimumCoreMass()
+{
+    
+    //from 
+#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]                // for convenience and readability - undefined at end of function
+#define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
+    
+    double coreMass;
+    
+    if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {
+        double LBGB = GiantBranch::CalculateLuminosityAtPhaseBase_Static(m_Mass0, m_AnCoefficients);
+        coreMass    = BaseStar::CalculateCoreMassGivenLuminosity_Static(LBGB, m_GBParams);
+    }
+    else if (utils::Compare(m_Mass0, massCutoffs(MFGB)) < 0) {
+        coreMass = gbParams(McBGB);
+    }
+    else {
+        coreMass = CalculateCoreMassAtHeIgnition(m_Mass0);
+    }
+    
+    
+#undef massCutoffs
+#undef gbParams
+    
+    double EndHGCoreMass=coreMass;
+    //double TerminalMSCoreMass=EndHGCoreMass * HG::CalculateRho(m_Mass0);
+    m_MinimumCoreMass=EndHGCoreMass * CalculateTauOnPhase();
+    std::cout<<EndHGCoreMass<<" "<<CalculateTauOnPhase()<<std::endl;
+}
 
 
