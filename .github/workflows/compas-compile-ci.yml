@@ -29,11 +29,11 @@ jobs:
         if: matrix.container=='centos'
         run: |
           echo "I'm on CentOS 7"
-          sudo yum update
-          sudo yum install epel-release
-          sudo yum install boost boost-thread boost-devel
-          sudo yum -y install gsl
-          sudo yum -y install hdf5
+          yum update
+          yum install epel-release
+          yum install boost boost-thread boost-devel
+          yum -y install gsl
+          yum -y install hdf5
           
       - name: Install dependencies on macos
         if: startsWith(matrix.os, 'macos')
