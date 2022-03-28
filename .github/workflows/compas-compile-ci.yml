@@ -14,7 +14,7 @@ jobs:
         os: [ubuntu-18.04, ubuntu-20.04]
         include: 
           - os: ubuntu-18.04
-            container: centos7
+            container: centos
 
     steps:
       - uses: actions/checkout@v2
