@@ -27,8 +27,6 @@ void MainSequence::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timesc
 #define timescales(x) p_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     timescales(tBGB)   = CalculateLifetimeToBGB(p_Mass);
     timescales(tMS)    = CalculateLifetimeOnPhase(p_Mass, timescales(tBGB));
-    timescales(tMcMax) = 0.0;                                       // JR: todo: this is never used - is it actually needed?
-
 #undef timescales
 }
 

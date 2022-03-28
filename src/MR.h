@@ -36,7 +36,6 @@ protected:
         m_HeCoreMass  = 0.0;
         m_CoreMass    = 0.0;
         m_Mass0       = 0.0;
-        m_CoreRadius  = 0.0;
         m_Luminosity  = 0.0;
         m_Radius      = 0.0;
         m_Temperature = 0.0;

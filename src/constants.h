@@ -1349,7 +1349,6 @@ enum class TIMESCALE: int {
     tinf2_SAGB,             // Thermally Pulsating Asymptotic Giant Branch tinf2
     tMx_SAGB,               // Thermally Pulsating Asymptotic Giant Branch t(Mx)
     tP,                     // (tDU?)
-    tMcMax,                 // Never used? not sure what TP, t(McMax) are
                             // Helium Giant Branch
     tHeMS,                  // Naked Helium Star central helium burning lifetime (HeMs)
     tinf1_HeGB,             // Helium Giant Branch tinf1

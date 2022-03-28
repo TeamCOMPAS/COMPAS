@@ -38,12 +38,12 @@ protected:
     double          CalculateCOCoreMassAtPhaseEnd() const                                   { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase
     double          CalculateCOCoreMassOnPhase() const                                      { return 0.0; }                                                         // McCO(MS) = 0.0
 
-    double          CalculateCoreMassAtPhaseEnd() const                                     { return CalculateCoreMassOnPhase(); }                                  // Same as on phase
+    double          CalculateCoreMassAtPhaseEnd() const                                     { return OPTIONS->RetainCoreMassDuringCaseAMassTransfer() ? MinimumCoreMass() : 0.0; }                // Accounts for minimal core mass built up prior to mass loss through mass transfer
     double          CalculateCoreMassOnPhase() const                                        { return 0.0; }                                                         // Mc(MS) = 0.0 (Hurley et al. 2000, just before eq 28)
 
     double          CalculateGyrationRadius() const;
 
-    double          CalculateHeCoreMassAtPhaseEnd() const                                   { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
+    double          CalculateHeCoreMassAtPhaseEnd() const                                   { return CalculateCoreMassAtPhaseEnd(); }                               // Same as He core mass
     double          CalculateHeCoreMassOnPhase() const                                      { return 0.0; }                                                         // McHe(MS) = 0.0
 
     double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const;
