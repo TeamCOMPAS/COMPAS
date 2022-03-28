@@ -8,17 +8,27 @@ jobs:
     # runs-on: ubuntu-18.04
     runs-on: ${{ matrix.os}}
     strategy:
+      fail-fast: false
       matrix:
-        # os: [ubuntu-18.04, ubuntu-20.04, macos-10.15]
-        os: [macos-10.15]
+        os: [ubuntu-20.04]
+        include: 
+          - os: ubuntu-20.04
+            container: centos7
+            experimental: true
+
     steps:
       - uses: actions/checkout@v2
 
-      # - name: Install dependencies on ubuntu
-      #   if: startsWith(matrix.os, 'ubuntu')
-      #   run: |
-      #     sudo apt install texlive-latex-extra cm-super dvipng
-      #     sudo apt update && sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
+      - name: Install dependencies on ubuntu
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt install texlive-latex-extra cm-super dvipng
+          sudo apt update && sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
+
+      - name: Install dependencies on centos docker
+        if: startsWith(matrix.container, 'centos')
+        run: |
+          echo "I'm on CentOS 7"
           
       - name: Install dependencies on macos
         if: startsWith(matrix.os, 'macos')
