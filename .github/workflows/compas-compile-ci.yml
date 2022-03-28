@@ -31,9 +31,10 @@ jobs:
           brew install hdf5
           brew install mactex
           eval "$(/usr/libexec/path_helper)"
-          export PATH="/Library/TeX/texbin:$PATH"
+          export PATH="/usr/local/texlive:/Library/TeX/texbin:$PATH"
           echo $PATH
           pdflatex --version
+          brew install ghostscript
           sudo tlmgr update --self
           sudo tlmgr install texliveonfly
           sudo tlmgr install adjustbox
@@ -47,7 +48,7 @@ jobs:
           sudo tlmgr install rsfs
           # brew install libmagic
           sudo tlmgr install dvipng
-          brew install ghostscript
+          
           # sudo tlmgr install pdflatex
           eval "$(/usr/libexec/path_helper)"
 

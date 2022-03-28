@@ -24,14 +24,13 @@ pandas
 numpy>=1.16
 # numpydoc
 astropy>=4.0
-# astropy
 # numba>=0.50
 scipy>=1.5.0
-# scipy
 h5py
 matplotlib>=3.3.2
-# matplotlib
+latex
 PyYAML
+
 
 # The following are listed in the 'extensions []' block in conf.py
 # Readthedocs doesn't want them here, but they are required if you want
