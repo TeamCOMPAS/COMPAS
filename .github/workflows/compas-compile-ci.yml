@@ -28,16 +28,16 @@ jobs:
       - name: Install dependencies on centos docker container
         if: startsWith(matrix.container, 'centos')
         run: |
-          echo "I'm on CentOS 7"
+          # echo "I'm on CentOS 7"
           yum clean all
           rm -rf /var/cache/yum/*
           yum makecache
-          cd /etc/yum.repos.d/
-          sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
-          sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+          # cd /etc/yum.repos.d/
+          # sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+          # sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
           yum update -y
-          yum install epel-release
-          yum install boost boost-thread boost-devel
+          yum -y install epel-release
+          yum -y install boost boost-thread boost-devel
           yum -y install gsl
           yum -y install hdf5
           yum -y install make
