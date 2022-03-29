@@ -27,6 +27,7 @@ jobs:
           # sudo apt-get install gcc libpq-dev -y
           # sudo apt-get install python3-dev python3-pip python3-venv python3-wheel -y
           cd utils/cicd-scripts
+          chmod 755 linux-dependencie
           ls -alt
           ./linux-dependencies
 
