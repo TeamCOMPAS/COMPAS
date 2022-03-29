@@ -8,11 +8,12 @@ brew install boost
 brew install hdf5
 brew install mactex
 eval "$(/usr/libexec/path_helper)"
+export PATH="/usr/local/texlive:/Library/TeX/texbin:$PATH"
 pdflatex --version
 sudo tlmgr update --self
 sudo tlmgr install dvipng
 eval "$(/usr/libexec/path_helper)"
-export PATH="/usr/local/texlive:/Library/TeX/texbin:$PATH"
+# export PATH="/usr/local/texlive:/Library/TeX/texbin:$PATH"
 echo $PATH
 # sudo tlmgr install texliveonfly
 # sudo tlmgr install environ
