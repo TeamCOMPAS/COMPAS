@@ -10,10 +10,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]  # runners(virtual machines) to run the job on
-        # include: # add the combination to run the centos container only on ubuntu-18.04
-        #   - os: ubuntu-18.04
-        #     container: 'centos:7'
+        os: [ubuntu-20.04, ubuntu-18.04, macos-11]  # runners(virtual machines) to run the job on
+        include: # add the combination to run the centos container only on ubuntu-18.04
+          - os: ubuntu-18.04
+            container: 'centos:7'
 
     steps:
       - uses: actions/checkout@v2
@@ -23,8 +23,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu-20') 
         run: |
           cd utils/cicd-scripts
-          # chmod Development755 linux-dependencies
-          # ls -alt
+          chmod 755 linux-dependencies
           ./linux-dependencies
 
       # This step will run only on centos 7 container on ubuntu-18.04
@@ -32,8 +31,7 @@ jobs:
         if: startsWith(matrix.container, 'centos')
         run: |
           cd utils/cicd-scripts
-          # chmod Development755 centos-dependencies
-          # ls -alt
+          chmod 755 centos-dependencies
           ./centos-dependencies
       
       # This step will run only on macos
@@ -41,8 +39,7 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: |
           cd utils/cicd-scripts
-          # chmod Development755 macos-dependencies
-          # ls -alt
+          chmod 755 macos-dependencies
           ./macos-dependencies
 
       # This step will run only on all runners

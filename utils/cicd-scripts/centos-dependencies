@@ -9,4 +9,4 @@ yum -y install boost boost-thread boost-devel
 yum -y install gsl
 yum -y install gsl-devel
 yum -y install hdf5
-yum -y group install "Developer Tools"
+yum -y group install "Development Tools"
