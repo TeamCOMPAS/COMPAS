@@ -22,59 +22,28 @@ jobs:
       - name: Install dependencies on ubuntu
         if: startsWith(matrix.os, 'ubuntu-20') 
         run: |
-          # sudo apt install texlive-latex-extra cm-super dvipng
-          # sudo apt update && sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
-          # sudo apt-get install gcc libpq-dev -y
-          # sudo apt-get install python3-dev python3-pip python3-venv python3-wheel -y
-          ls -alt utils
           cd utils/cicd-scripts
-          chmod 755 linux-dependencies
-          ls -alt
+          # chmod Development755 linux-dependencies
+          # ls -alt
           ./linux-dependencies
 
       # This step will run only on centos 7 container on ubuntu-18.04
       - name: Install dependencies on centos docker container
         if: startsWith(matrix.container, 'centos')
         run: |
-          yum clean all
-          rm -rf /var/cache/yum/*
-          yum makecache
-          yum update -y
-          yum -y install epel-release
-          yum -y install boost boost-thread boost-devel
-          yum -y install gsl
-          yum -y install gsl-devel
-          yum -y install hdf5
-          yum -y group install "Development Tools"
+          cd utils/cicd-scripts
+          # chmod Development755 centos-dependencies
+          # ls -alt
+          ./centos-dependencies
       
       # This step will run only on macos
       - name: Install dependencies on macos
         if: startsWith(matrix.os, 'macos')
         run: |
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          export PATH="/usr/local/opt/python/libexec/bin:$PATH"
-          brew --version
-          brew install gsl
-          brew install boost
-          brew install hdf5
-          brew install mactex
-          eval "$(/usr/libexec/path_helper)"
-          export PATH="/usr/local/texlive:/Library/TeX/texbin:$PATH"
-          echo $PATH
-          pdflatex --version
-          brew install ghostscript
-          sudo tlmgr update --self
-          sudo tlmgr install dvipng
-          sudo tlmgr install texliveonfly
-          sudo tlmgr install environ
-          sudo tlmgr install adjustbox
-          sudo tlmgr install tcolorbox
-          sudo tlmgr install collectbox
-          sudo tlmgr install ucs
-          sudo tlmgr install trimspaces
-          sudo tlmgr install titling
-          sudo tlmgr install enumitem
-          sudo tlmgr install rsfs
+          cd utils/cicd-scripts
+          # chmod Development755 macos-dependencies
+          # ls -alt
+          ./macos-dependencies
 
       # This step will run only on all runners
       - name: Build Compas

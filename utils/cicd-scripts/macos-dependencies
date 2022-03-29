@@ -1,0 +1,26 @@
+#! /bin/sh
+
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+export PATH="/usr/local/opt/python/libexec/bin:$PATH"
+brew --version
+brew install gsl
+brew install boost
+brew install hdf5
+brew install mactex
+eval "$(/usr/libexec/path_helper)"
+export PATH="/usr/local/texlive:/Library/TeX/texbin:$PATH"
+echo $PATH
+pdflatex --version
+brew install ghostscript
+sudo tlmgr update --self
+sudo tlmgr install dvipng
+sudo tlmgr install texliveonfly
+sudo tlmgr install environ
+sudo tlmgr install adjustbox
+sudo tlmgr install tcolorbox
+sudo tlmgr install collectbox
+sudo tlmgr install ucs
+sudo tlmgr install trimspaces
+sudo tlmgr install titling
+sudo tlmgr install enumitem
+sudo tlmgr install rsfs
