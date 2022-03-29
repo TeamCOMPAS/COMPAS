@@ -6,11 +6,11 @@ jobs:
   compas:
     name: Build COMPAS
     runs-on: ${{ matrix.os}}
-    # container: ${{matrix.container}}
+    container: ${{matrix.container}}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04, macos-11]
+        os: [ubuntu-18.04] #, ubuntu-20.04, macos-11]
         include: 
           - os: ubuntu-18.04
             container: 'centos:7'
