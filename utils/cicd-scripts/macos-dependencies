@@ -7,8 +7,8 @@ brew install gsl
 brew install boost
 brew install hdf5
 brew install mactex
+eval "$(/usr/libexec/path_helper)"
 pdflatex --version
-brew install ghostscript
 sudo tlmgr update --self
 sudo tlmgr install dvipng
 eval "$(/usr/libexec/path_helper)"
