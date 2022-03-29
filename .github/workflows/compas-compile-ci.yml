@@ -10,10 +10,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, ubuntu-18.04, macos-11]  # runners(virtual machines) to run the job on
+        os: [macos-11]  # runners(virtual machines) to run the job on
         include: # add the combination to run the centos container only on ubuntu-18.04
-          - os: ubuntu-18.04
-            container: 'centos:7'
+          # - os: ubuntu-18.04
+          #   container: 'centos:7'
 
     steps:
       - uses: actions/checkout@v2
@@ -58,7 +58,6 @@ jobs:
       # This step will run on all runners
       - name: Run Post-Processing Python Scripts
         run: |
-          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
-          cd utils/example_plots/methods_paper_plots/detailed_evolution
-          python3 runSubmitDemo.py
-          python3 plot_detailed_evolution.py
+          cd utils/cicd-scripts
+          chmod 755 python-scripts
+          ./python-scripts
