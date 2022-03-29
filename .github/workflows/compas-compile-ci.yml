@@ -6,7 +6,7 @@ jobs:
   compas:
     name: Build COMPAS
     runs-on: ${{ matrix.os}}
-    container: ${{matrix.container}}  # to run the job on centos 7 docker image which runs on ubuntu-18.04 machine
+    # container: ${{matrix.container}}  # to run the job on centos 7 docker image which runs on ubuntu-18.04 machine
     strategy:
       fail-fast: false
       matrix:
