@@ -38,7 +38,7 @@ jobs:
           yum -y install boost boost-thread boost-devel
           yum -y install gsl
           yum -y install hdf5
-          yum -y install make
+          yum -y group install "Development Tools"
           
       - name: Install dependencies on macos
         if: startsWith(matrix.os, 'macos')
