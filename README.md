@@ -1,6 +1,6 @@
 [//]: ## (grip -b README.md)
 
-![COMPASlogo](docs/media/COMPASlogo.png)
+![COMPASlogo](utils/COMPAS-logo/fullCompasLogo.png)
 
 # Compact Object Mergers: Population Astrophysics & Statistics
 
