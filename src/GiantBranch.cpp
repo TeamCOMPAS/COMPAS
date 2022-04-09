@@ -1475,29 +1475,31 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const do
 std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const double p_Mass, const double p_COCoreMass) {
 
     double fallbackMass;
+    double MassAvailableForFallback;
     double baryonicRemnantMass;
 
     double fallbackFraction         = 0.0;
     double gravitationalRemnantMass = 0.0;
 
 
-    baryonicRemnantMass  = 1.2 + 0.05 * OPTIONS->Fryer22fmix() + 0.01 * pow( (p_COCoreMass/OPTIONS->Fryer22fmix()), 2.0) + exp(OPTIONS->Fryer22fmix() * (p_COCoreMass - OPTIONS->Fryer22Mcrit()) ) ;  // equation 5. 
-    SAY(" baryonicRemnantMass = " << baryonicRemnantMass << " OPTIONS->Fryer22fmix() = " << OPTIONS->Fryer22fmix() << " p_COCoreMass = " << p_COCoreMass);
+    baryonicRemnantMass  = 1.2 + 0.05 * OPTIONS->Fryer22fmix() + 0.01 * pow( (p_COCoreMass/OPTIONS->Fryer22fmix()), 2.0) + exp( OPTIONS->Fryer22fmix() * (p_COCoreMass - OPTIONS->Fryer22Mcrit()) ) ;  // equation 5. 
+    //SAY(" baryonicRemnantMass = " << baryonicRemnantMass << " OPTIONS->Fryer22fmix() = " << OPTIONS->Fryer22fmix() << " p_COCoreMass = " << p_COCoreMass);
 
     baryonicRemnantMass  = std::min(baryonicRemnantMass, p_Mass);// check that baryonicRemnantMass doesn't exceed the total mass
 
-    SAY(" p_Mass = " << p_Mass << " baryonicRemnantMass = " << baryonicRemnantMass );
+    //SAY(" p_Mass = " << p_Mass << " baryonicRemnantMass = " << baryonicRemnantMass );
 
     //fallbackMass         = (baryonicRemnantMass - p_COCoreMass);// mco - mrem p_Mass, mProto, fallbackFraction);
-    fallbackMass         = std::max(0.0,(baryonicRemnantMass - p_COCoreMass) );
-    SAY(" fallbackMass = " << fallbackMass << " envelope mass = " << (p_Mass - p_COCoreMass) );
-    fallbackFraction     = fallbackMass/(p_Mass - p_COCoreMass) ;// fallbackMass/Menv  CalculateFallbackFractionDelayed(p_Mass, mProto, p_COCoreMass);
-    SAY(" fallbackFraction = " << fallbackFraction );
+    fallbackMass              = std::max(0.0,(baryonicRemnantMass - p_COCoreMass) );
+    MassAvailableForFallback  = std::max(fallbackMass + 0.001,(p_Mass - p_COCoreMass) ); //set min to fallbackMass to make sure fallbackFraction goes to 0 if no envelope
+    //SAY(" fallbackMass = " << fallbackMass << " MassAvailableForFallback mass = " << MassAvailableForFallback );
+    fallbackFraction     = fallbackMass/MassAvailableForFallback ; // 
+    //SAY(" fallbackFraction = " << fallbackFraction );
 
     gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
 
 
-    return std::make_tuple(baryonicRemnantMass, fallbackFraction);
+    return std::make_tuple(gravitationalRemnantMass, fallbackFraction);
 }
 
 
