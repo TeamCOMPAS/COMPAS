@@ -255,6 +255,8 @@ class pythonProgramOptions:
 
     remnant_mass_prescription   = 'FRYER2012'                   #
     fryer_supernova_engine      = 'DELAYED'
+    fryer22_fmix                = 0.5                           # parameter describing mixing growth time when using the 'FRYER2022' remnant mass prescription
+    fryer22_mcrit               = 5.75                          # critical mass for BH formation when using the 'FRYER2022' remnant mass prescription
     black_hole_kicks            = 'FALLBACK'
     kick_magnitude_distribution = 'MAXWELLIAN'
 
@@ -408,6 +410,8 @@ class pythonProgramOptions:
             self.initial_mass_1,
             self.initial_mass_2,
             self.eccentricity,
+            self.fryer22_fmix,
+            self.fryer22_mcrit,
             self.semi_major_axis,
             self.orbital_period,
             self.metallicity,
@@ -499,6 +503,8 @@ class pythonProgramOptions:
             '--initial-mass-1',
             '--initial-mass-2',
             '--eccentricity',
+            '--fryer-22-fmix',
+            '--fryer-22-mcrit',
             '--semi-major-axis',
             '--orbital-period',
             '--metallicity',
