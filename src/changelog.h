@@ -880,11 +880,13 @@
 //                                      - Add flag --hmxr-binaries, which tells COMPAS to store binaries in BSE_RLOF output file if IsHMXRBinary
 //                                      - Add columns for pre- and post-timestep ratio of stars to Roche Lobe radius to BSE_RLOF output file (addressing issue #746)
 //                                      - Changed variables named rocheLobeTracker, roche_lobe_tracker etc. to starToRocheLobeRadiusRatio, star_to_roche_lobe_radius_ratio, etc. for clarity
-// 02.27.06     SS - Apr 5, 2022    -  Defect repair:
+// 02.27.06     SS - Apr 5, 2022     -  Defect repair:
 //                                      - Fixed StarTrack PPISN prescription, previously it was doing the same thing as the COMPAS PPISN prescription.
 // 02.27.07     RTW - Apr 5, 2022    - Defect repair:
 //                                      - Fix for issue # 773 - ONeWD not forming due to incorrect mass comparison in TPAGB. 
+// 02.27.08     RTW - Apr 12, 2022   - Defect repair:
+//                                      - Fix for issue # 783 - Some mergers involving a massive star were not logged properly in BSE_RLOF, whenever a jump in radius due to changing stellar type within ResolveMassChanges was much greater than the separation.
  
-const std::string VERSION_STRING = "02.27.07";
+const std::string VERSION_STRING = "02.27.08";
 
 # endif // __changelog_h__
