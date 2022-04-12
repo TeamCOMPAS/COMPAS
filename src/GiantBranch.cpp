@@ -1507,7 +1507,7 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const do
     fallbackMass        = std::max(0.0, baryonicRemnantMass - mProto);                                      // fallbackMass larger than 0
 
     fallbackFraction    = fallbackMass/(p_Mass - mProto);                                                   //
-    fallbackFraction    = std::max(0.0, std::min(1.0, fallbackFraction))                                                  // make sure the fb fraction lies between 0-1
+    fallbackFraction    = std::max(0.0, std::min(1.0, fallbackFraction));                                   // make sure the fb fraction lies between 0-1
 
     gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
 
