@@ -2251,8 +2251,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         if (HasStarsTouching()) {                                                                                       // if stars emerged from mass transfer as touching, it's a merger
             m_Flags.stellarMerger = true;
             // Initialise MT for both stars so that the show correct RLOF status
-            m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                                       // initialise mass transfer for star1
-            m_Star2->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                                       // initialise mass transfer for star2
+            m_Star1->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                                       // initialise mass transfer for star1
+            m_Star2->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                                       // initialise mass transfer for star2
         }
     }
 
