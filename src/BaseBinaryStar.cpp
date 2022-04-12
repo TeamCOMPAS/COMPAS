@@ -1831,8 +1831,13 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     }
 
     if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                                                                               // both stars overflowing their Roche Lobe?
-        m_CEDetails.CEEnow = true;                                                                                              // yes - common envelope event - no mass transfer
-        return;                                                                                                                 // and return - nothing (else) to do
+        if (HasTwoOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07 })) {                                                        // yes - but both are MS, so this is an over-contact binary
+            return;                                                                                                                 // so it stays in RLOF until they touch (no common envelope)
+        }
+        else {
+            m_CEDetails.CEEnow = true;                                                                                              // yes - and one is evolved so enter a common envelope event 
+            return;                                                                                                                 // - no mass transfer and return 
+        }
     }
 
     // one, and only one, star is overflowing its Roche Lobe - resolve mass transfer
