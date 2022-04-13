@@ -2370,7 +2370,6 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             }
             else if (StellarMerger() ) {                                                                                                    // have stars merged?
                 evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                         // for now, stop evolution
-                m_Flags.stellarMerger = true;
             }
             else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                 evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                         // yes - stop evolution
@@ -2393,7 +2392,6 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 // check for problems
                 if (StellarMerger()) {                                                                                                      // have stars merged?
                     evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                     // for now, stop evolution
-                    m_Flags.stellarMerger = true;
                 }
                 else if (HasStarsTouching()) {                                                                                              // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                     evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                     // yes - stop evolution
