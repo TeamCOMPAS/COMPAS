@@ -2370,9 +2370,11 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             }
             else if (StellarMerger() ) {                                                                                                    // have stars merged?
                 evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                         // for now, stop evolution
+                m_Flags.stellarMerger = true;
             }
             else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                 evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                         // yes - stop evolution
+                m_Flags.stellarMerger = true;
             }
             else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                     // binary is unbound and we don't want unbound systems?
                 m_Unbound       = true;                                                                                                     // yes - set the unbound flag (should already be set)
@@ -2391,9 +2393,11 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 // check for problems
                 if (StellarMerger()) {                                                                                                      // have stars merged?
                     evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                     // for now, stop evolution
+                    m_Flags.stellarMerger = true;
                 }
                 else if (HasStarsTouching()) {                                                                                              // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                     evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                     // yes - stop evolution
+                    m_Flags.stellarMerger = true;
                 }
                 else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                 // binary is unbound and we don't want unbound systems?
                     evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                            // stop evolution
@@ -2438,12 +2442,14 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();                  // new timestep
                 if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt < NUCLEAR_MINIMUM_TIMESTEP) {
                     dt = NUCLEAR_MINIMUM_TIMESTEP;                                                                                          // but not less than minimum
-		}
+		        }
                 stepNum++;                                                                                                                  // increment stepNum
             }
         }
-        if (!StellarMerger())
-            (void)PrintDetailedOutput(m_Id);                                                                                                // print (log) detailed output for binary
+        if (StellarMerger())
+            (void)PrintRLOFParameters();                                                                                                    // print (log) RLOF parameters for mergers
+
+        (void)PrintDetailedOutput(m_Id);                                                                                                    // print (log) detailed output for binary
 
         if (evolutionStatus == EVOLUTION_STATUS::STEPS_UP) {                                                                                // stopped because max timesteps reached?
             SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED);                                                                                    // show error
