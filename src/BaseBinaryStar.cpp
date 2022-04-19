@@ -447,6 +447,12 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.props2.mass1                             = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props2.mass2                             = DEFAULT_INITIAL_DOUBLE_VALUE;
 
+    m_RLOFDetails.props2.massHe1                           = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.massHe2                           = DEFAULT_INITIAL_DOUBLE_VALUE;
+
+    m_RLOFDetails.props2.massCO1                           = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.massCO2                           = DEFAULT_INITIAL_DOUBLE_VALUE;
+
     m_RLOFDetails.props2.radius1                           = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props2.radius2                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -611,6 +617,10 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_POST_MT_SEMI_MAJOR_AXIS:                         value = RLOFDetails().propsPostMT->semiMajorAxis;                           break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_MASS:                              value = RLOFDetails().propsPostMT->mass1;                                   break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS:                              value = RLOFDetails().propsPostMT->mass2;                                   break;
+        case BINARY_PROPERTY::RLOF_POST_MT_STAR1_HEMASS:                            value = RLOFDetails().propsPostMT->massHe1;                                 break;
+        case BINARY_PROPERTY::RLOF_POST_MT_STAR2_HEMASS:                            value = RLOFDetails().propsPostMT->massHe2;                                 break;
+        case BINARY_PROPERTY::RLOF_POST_MT_STAR1_COMASS:                            value = RLOFDetails().propsPostMT->massCO1;                                 break;
+        case BINARY_PROPERTY::RLOF_POST_MT_STAR2_COMASS:                            value = RLOFDetails().propsPostMT->massCO2;                                 break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_RADIUS:                            value = RLOFDetails().propsPostMT->radius1;                                 break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_RADIUS:                            value = RLOFDetails().propsPostMT->radius2;                                 break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_RLOF:                              value = RLOFDetails().propsPostMT->isRLOF1;                                 break;
@@ -626,6 +636,10 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_PRE_MT_SEMI_MAJOR_AXIS:                          value = RLOFDetails().propsPreMT->semiMajorAxis;                            break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_MASS:                               value = RLOFDetails().propsPreMT->mass1;                                    break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_MASS:                               value = RLOFDetails().propsPreMT->mass2;                                    break;
+        case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_HEMASS:                             value = RLOFDetails().propsPreMT->massHe1;                                  break;
+        case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_HEMASS:                             value = RLOFDetails().propsPreMT->massHe2;                                  break;
+        case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_COMASS:                             value = RLOFDetails().propsPreMT->massCO1;                                  break;
+        case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_COMASS:                             value = RLOFDetails().propsPreMT->massCO2;                                  break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RADIUS:                             value = RLOFDetails().propsPreMT->radius1;                                  break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RADIUS:                             value = RLOFDetails().propsPreMT->radius2;                                  break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RLOF:                               value = RLOFDetails().propsPreMT->isRLOF1;                                  break;
@@ -847,8 +861,6 @@ bool BaseBinaryStar::PrintRLOFParameters() {
 
     if (!OPTIONS->RLOFPrinting()) return ok;                    // do not print if printing option off
 
-    StashRLOFProperties(MASS_TRANSFER_TIMING::POST_MT);         // stash properties immediately post-Mass Transfer 
-
     if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {               // print if either star is in RLOF
         m_RLOFDetails.propsPostMT->eventCounter += 1;           // every time we print a MT event happened, increment counter
         ok = LOGGING->LogRLOFParameters(this);                  // yes - write to log file
@@ -909,6 +921,10 @@ void BaseBinaryStar::StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which) {
     rlofPropertiesToReset->id                          = m_ObjectId;
     rlofPropertiesToReset->mass1                       = m_Star1->Mass();
     rlofPropertiesToReset->mass2                       = m_Star2->Mass();
+    rlofPropertiesToReset->massHe1                     = m_Star1->HeCoreMass();
+    rlofPropertiesToReset->massHe2                     = m_Star2->HeCoreMass();
+    rlofPropertiesToReset->massCO1                     = m_Star1->COCoreMass();
+    rlofPropertiesToReset->massCO2                     = m_Star2->COCoreMass();
     rlofPropertiesToReset->radius1                     = m_Star1->Radius();
     rlofPropertiesToReset->radius2                     = m_Star2->Radius();
     rlofPropertiesToReset->starToRocheLobeRadiusRatio1 = StarToRocheLobeRadiusRatio1();
@@ -1454,10 +1470,19 @@ void BaseBinaryStar::EvaluateSupernovae() {
     
     if (m_Star1->IsSNevent()) {                                                                                         // star1 supernova
         m_SupernovaState = SN_STATE::STAR1;                                                                             // star1
-
-        // resolve star1 supernova
         m_Supernova = m_Star1;                                                                                          // supernova
         m_Companion = m_Star2;                                                                                          // companion
+
+        // When RLOF and SN occur in the same timestep, need to reset the stored RLOF values
+        m_RLOFDetails.propsPostMT->mass1                       = m_Supernova->SN_TotalMassAtCOFormation();
+        m_RLOFDetails.propsPostMT->massHe1                     = m_Supernova->SN_HeCoreMassAtCOFormation();
+        m_RLOFDetails.propsPostMT->massCO1                     = m_Supernova->SN_COCoreMassAtCOFormation();
+        m_RLOFDetails.propsPostMT->radius1                     = m_Supernova->Radius();
+        m_RLOFDetails.propsPostMT->stellarType1                = m_Supernova->StellarType();
+        m_RLOFDetails.propsPostMT->eccentricity                = m_Eccentricity;
+        m_RLOFDetails.propsPostMT->semiMajorAxis               = m_SemiMajorAxis * AU_TO_RSOL;                          // semi-major axis - change units to Rsol
+
+        // resolve star1 supernova
         (void)ResolveSupernova();                                                                                       // resolve supernova
     }
 
@@ -1465,9 +1490,19 @@ void BaseBinaryStar::EvaluateSupernovae() {
         m_SupernovaState = m_SupernovaState == SN_STATE::NONE                                                           // star1 not supernova?
                             ? SN_STATE::STAR2                                                                           // yes - just star2
                             : SN_STATE::BOTH;                                                                           // no - both 
-
         m_Supernova = m_Star2;                                                                                          // supernova
         m_Companion = m_Star1;                                                                                          // companion
+        
+        // When RLOF and SN occur in the same timestep, need to reset the stored RLOF values
+        m_RLOFDetails.propsPostMT->mass2                       = m_Supernova->SN_TotalMassAtCOFormation();
+        m_RLOFDetails.propsPostMT->massHe2                     = m_Supernova->SN_HeCoreMassAtCOFormation();
+        m_RLOFDetails.propsPostMT->massCO2                     = m_Supernova->SN_COCoreMassAtCOFormation();
+        m_RLOFDetails.propsPostMT->radius2                     = m_Supernova->Radius();
+        m_RLOFDetails.propsPostMT->stellarType2                = m_Supernova->StellarType();
+        m_RLOFDetails.propsPostMT->eccentricity                = m_Eccentricity;
+        m_RLOFDetails.propsPostMT->semiMajorAxis               = m_SemiMajorAxis * AU_TO_RSOL;                          // semi-major axis - change units to Rsol
+
+        // resolve star2 supernova
         (void)ResolveSupernova();                                                                                       // resolve supernova
     }
 }
@@ -2239,9 +2274,12 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds
 
+    StashRLOFProperties(MASS_TRANSFER_TIMING::POST_MT);                                                                 // stash properties immediately post-Mass Transfer 
+
     if ((m_CEDetails.CEEnow || StellarMerger()) &&                                                                      // CEE or merger?
         !(OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {                  // yes - avoid CEE if CH+CH
         ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
+        StashRLOFProperties(MASS_TRANSFER_TIMING::POST_MT);                                                             // stash properties immediately post-Mass Transfer 
     }
     else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
         EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) - immediate event
@@ -2254,6 +2292,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
             // Set Roche lobe flags for both stars so that they show correct RLOF status
             m_Star1->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star1
             m_Star2->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star2
+            StashRLOFProperties(MASS_TRANSFER_TIMING::POST_MT);                                                         // stash properties immediately post-Mass Transfer 
         }
     }
 

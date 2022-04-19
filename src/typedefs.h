@@ -171,6 +171,12 @@ typedef struct RLOFProperties {
     double        mass1;
     double        mass2;
 
+    double        massHe1;
+    double        massHe2;
+
+    double        massCO1;
+    double        massCO2;
+
     double        radius1;
     double        radius2;
 
