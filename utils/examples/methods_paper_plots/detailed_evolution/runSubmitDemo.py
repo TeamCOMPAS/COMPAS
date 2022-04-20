@@ -115,8 +115,8 @@ class pythonProgramOptions:
         for boolKey, boolVal in self.booleanChoices.items():
             if boolVal is True:
                 self.command.update({boolKey: ''}) 
-            elif boolVal is False:
-                self.command.update({boolKey: 'False'})
+            else:
+                self.command.update({boolKey: 'FALSE'}) 
                 
         for numKey, numVal in self.numericalChoices.items():
             if not numVal == None:
@@ -141,7 +141,9 @@ class pythonProgramOptions:
 
 if __name__ == "__main__":
     #-- Get the program options
-    myoptions = pythonProgramOptions()
+    myoptions = pythonProgramOptions(config_file='compasConfigDemo.yaml')
     print(myoptions.shellCommand)
+    with open('runSubOptions.txt', 'w') as fwrite:
+        fwrite.write(myoptions.shellCommand)
     #-- Run exectute COMPAS shell string
     call(myoptions.shellCommand,shell=True)
