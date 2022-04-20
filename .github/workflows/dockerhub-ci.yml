@@ -1,0 +1,29 @@
+name: Dockerhub Image CI
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  release:
+    name: Build Docker image and push to DockerHub
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Log in to Dockerhub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Get release version
+        run: echo "COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/changelog.h | sed 's/.*"\(.*\)"[^"]*$/\1/')" >> $GITHUB_ENV
+        
+      - name: Print version
+        run: echo $COMPAS_VERSION
+        
+      - name: Build and tag Docker image
+        run: docker build -t teamcompas/compas:$COMPAS_VERSION -t teamcompas/compas:latest .
+        
+      - name: Push Docker image
+        run: |
+          docker push teamcompas/compas:$COMPAS_VERSION
+          docker push teamcompas/compas:latest
