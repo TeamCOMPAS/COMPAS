@@ -1,0 +1,68 @@
+name: LaTeX compile test
+
+# Test Latex compiles on pull_requests
+# Public documentation on push to dev
+
+on:
+  pull_request:
+  push: 
+      branches: [dev] 
+
+jobs:
+  latex:
+    name: Build LaTeX documentation
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies 
+        run: sudo apt install texlive-base
+        
+      # Need to do pdflatex, bibtex, pdflatex, pdflatex
+      - name: pdflatex main
+        uses: dante-ev/latex-action@latest
+        with:
+          working_directory: docs/COMPAS_LaTeX
+          root_file: main.tex
+          compiler: pdflatex
+          args: -interaction=nonstopmode -shell-escape
+
+      - name: bibtex main
+        uses: dante-ev/latex-action@latest
+        with:
+          working_directory: docs/COMPAS_LaTeX
+          root_file: main.aux
+          compiler: bibtex 
+          args: 
+
+      - name: pdflatex main
+        uses: dante-ev/latex-action@latest
+        with:
+          working_directory: docs/COMPAS_LaTeX
+          root_file: main.tex
+          compiler: pdflatex
+          args: -interaction=nonstopmode -shell-escape
+          
+      - name: pdflatex main
+        uses: dante-ev/latex-action@latest
+        with:
+          working_directory: docs/COMPAS_LaTeX
+          root_file: main.tex
+          compiler: pdflatex
+          args: -interaction=nonstopmode -shell-escape
+
+
+      # If push to dev, publish the documentation
+      - name: publish documentation 
+        if: github.event_name == 'push' 
+        run: |
+          git checkout --orphan Documentation
+          PDF_FILE=COMPAS_Documentation.pdf
+          mv docs/COMPAS_LaTeX/main.pdf $PDF_FILE
+          git rm -rf .
+          git add -f $PDF_FILE
+          git config user.name "Team COMPAS"
+          git config user.email "<>"
+          git commit -m "Documentation update"
+          git push -f --set-upstream origin Documentation
