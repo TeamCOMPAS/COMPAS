@@ -234,10 +234,11 @@ if __name__ == '__main__':
     # Over-ride with pythonSubmit parameters, if desired
     if usePythonSubmit:
         try:
-            from pythonSubmit import pythonProgramOptions
-            programOptions = pythonProgramOptions()
-            pySubOptions = programOptions.generateCommandLineOptionsDict()
+            from runSubmit import pythonProgramOptions
+            programOptions = pythonProgramOptions()   # Call the programoption class from runSubmit
+            pySubOptions   = programOptions.command   # Get the dict from pythonProgramOptions
 
+            # Continue to work from the dict, by edditing SW related options
             # Remove extraneous options
             pySubOptions.pop('compas_executable', None)
             pySubOptions.pop('--grid', None)
