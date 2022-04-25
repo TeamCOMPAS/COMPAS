@@ -6,33 +6,19 @@
 # e.g. make CPP=clang will use clang instead of g++
 # (note uppercase 'CPP' and no whitespace around '=')
 
-CPP := g++ 
+CPP := g++
 
-  
+# gsl directories
+GSLINCDIR := /include
+GSLLIBDIR := /lib
 
-# gsl directories 
+# boost directories
+BOOSTINCDIR := /include
+BOOSTLIBDIR := /lib
 
-GSLINCDIR := /opt/apps/intel19/gsl/2.6/include 
-
-GSLLIBDIR := /opt/apps/intel19/gsl/2.6/lib 
-
-  
-
-# boost directories 
-
-BOOSTINCDIR := /opt/apps/intel19/python3_7/boost/1.72/include 
-
-BOOSTLIBDIR := /opt/apps/intel19/python3_7/boost/1.72/lib 
-
-  
-
-# hdf5 directories 
-
-HDF5INCDIR := /opt/apps/intel19/hdf5/1.10.4/x86_64/include 
-
-HDF5LIBDIR := /opt/apps/intel19/hdf5/1.10.4/x86_64/lib 
-
-
+# hdf5 directories
+HDF5INCDIR := /usr/include/hdf5/serial
+HDF5LIBDIR := /usr/lib/x86_64-linux-gnu/hdf5/serial
 
 EXE := COMPAS
 
