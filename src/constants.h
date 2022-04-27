@@ -2206,6 +2206,7 @@ enum class PROGRAM_OPTION: int {
 
     MULLER_MANDEL_KICK_MULTIPLIER_BH,
     MULLER_MANDEL_KICK_MULTIPLIER_NS,
+    MULLER_MANDEL_SIGMA_KICK,
 
     NEUTRINO_MASS_LOSS_ASSUMPTION_BH,
     NEUTRINO_MASS_LOSS_VALUE_BH,
@@ -2418,6 +2419,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH,                 "MULLER_MANDEL_KICK_MULTIPLIER_BH" },
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                 "MULLER_MANDEL_KICK_MULTIPLIER_NS" },
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK,                 "MULLER_MANDEL_SIGMA_KICK" },
 
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                 "NEUTRINO_MASS_LOSS_ASSUMPTION_BH" },
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                      "NEUTRINO_MASS_LOSS_VALUE_BH" },
@@ -2914,7 +2916,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH,                     { TYPENAME::DOUBLE,         "MM_Kick_Multiplier_BH",        "-",                14, 6 }},
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                     { TYPENAME::DOUBLE,         "MM_Kick_Multiplier_NS",        "-",                14, 6 }},
-
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK,                             { TYPENAME::DOUBLE,         "MM_Sigma_Kick",                "-",                14, 6 }},
+    
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                     { TYPENAME::INT,            "Neutrino_Mass_Loss_Assmptn",   "-",                 4, 1 }},
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                          { TYPENAME::DOUBLE,         "Neutrino_Mass_Loss_Value",     "-",                14, 6 }},
 
