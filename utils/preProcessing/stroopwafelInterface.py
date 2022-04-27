@@ -18,7 +18,7 @@ import argparse
 #######################################################
 
 
-### Include options from local runSubmit file      
+### Include options from local runSubmit + compasConfigDefault files      
 userunSubmit = False #If false, use stroopwafel defaults
 
 ### Set default stroopwafel inputs - these are overwritten by any command-line arguments
