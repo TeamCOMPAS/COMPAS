@@ -1474,30 +1474,32 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const do
  */
 std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const double p_Mass, const double p_COCoreMass) {
 
+
+    double mProto;
     double fallbackMass;
     double baryonicRemnantMass;
 
     double fallbackFraction         = 0.0;
     double gravitationalRemnantMass = 0.0;
 
-
-    baryonicRemnantMass  = 1.2 + 0.05 * OPTIONS->Fryer22fmix() + 0.01 * pow( (p_COCoreMass/OPTIONS->Fryer22fmix()), 2.0) + exp(OPTIONS->Fryer22fmix() * (p_COCoreMass - OPTIONS->Fryer22Mcrit()) ) ;  // equation 5. 
-    SAY(" baryonicRemnantMass = " << baryonicRemnantMass << " OPTIONS->Fryer22fmix() = " << OPTIONS->Fryer22fmix() << " p_COCoreMass = " << p_COCoreMass);
-
+    baryonicRemnantMass  = 1.2 + 0.05 * OPTIONS->Fryer22fmix() + 0.01 * pow( (p_COCoreMass/OPTIONS->Fryer22fmix()), 2.0) + exp( OPTIONS->Fryer22fmix() * (p_COCoreMass - OPTIONS->Fryer22Mcrit()) ) ;  // equation 5. 
     baryonicRemnantMass  = std::min(baryonicRemnantMass, p_Mass);// check that baryonicRemnantMass doesn't exceed the total mass
 
-    SAY(" p_Mass = " << p_Mass << " baryonicRemnantMass = " << baryonicRemnantMass );
+    // Now the proto mass, which is only used for the calculation of kicks, will still be calculated using the DELAYED/RAPID prescriptions from Fryer 2012
+    if (OPTIONS->FryerSupernovaEngine() == SN_ENGINE::DELAYED) {                                           // Mproto from DELAYED
+        mProto           = CalculateProtoCoreMassDelayed(p_COCoreMass);
+        }
+    else if (OPTIONS->FryerSupernovaEngine() ==SN_ENGINE::RAPID){                                           // Mproto from RAPID
+        mProto           = CalculateProtoCoreMassRapid();
+        }
 
-    //fallbackMass         = (baryonicRemnantMass - p_COCoreMass);// mco - mrem p_Mass, mProto, fallbackFraction);
-    fallbackMass         = std::max(0.0,(baryonicRemnantMass - p_COCoreMass) );
-    SAY(" fallbackMass = " << fallbackMass << " envelope mass = " << (p_Mass - p_COCoreMass) );
-    fallbackFraction     = fallbackMass/(p_Mass - p_COCoreMass) ;// fallbackMass/Menv  CalculateFallbackFractionDelayed(p_Mass, mProto, p_COCoreMass);
-    SAY(" fallbackFraction = " << fallbackFraction );
+    fallbackMass        = std::max(0.0, baryonicRemnantMass - mProto);                                      // fallbackMass larger than 0
+    fallbackFraction    = fallbackMass/(p_Mass - mProto);                                                   //
+    fallbackFraction    = std::max(0.0, std::min(1.0, fallbackFraction));                                   // make sure the fb fraction lies between 0-1
 
     gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
 
-
-    return std::make_tuple(baryonicRemnantMass, fallbackFraction);
+    return std::make_tuple(gravitationalRemnantMass, fallbackFraction);
 }
 
 
@@ -1584,7 +1586,8 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
             std::tie(m_Mass, m_SupernovaDetails.fallbackFraction) = CalculateRemnantMassByFryer2012(m_Mass, m_COCoreMass);
             break;
 
-        case REMNANT_MASS_PRESCRIPTION::FRYER2022:                                                          // Fryer 2012
+
+        case REMNANT_MASS_PRESCRIPTION::FRYER2022:                                                          // Fryer 2022
 
             std::tie(m_Mass, m_SupernovaDetails.fallbackFraction) = CalculateRemnantMassByFryer2022(m_Mass, m_COCoreMass);
             break;
