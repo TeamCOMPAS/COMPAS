@@ -26,7 +26,7 @@ booleanChoices:
     ### COMMON ENVELOPE
     --common-envelope-allow-immediate-RLOF-post-CE-survive: False
     --common-envelope-allow-main-sequence-survive: True # Allow main sequence stars to survive CE. Was previously False by default
-    --common-envelope-allow-radiative-envelope-survive: True
+    --common-envelope-allow-radiative-envelope-survive: False
     --common-envelope-lambda-nanjing-enhanced: False
     --common-envelope-lambda-nanjing-interpolate-in-mass: False
     --common-envelope-lambda-nanjing-interpolate-in-metallicity: False
