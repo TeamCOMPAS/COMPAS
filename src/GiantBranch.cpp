@@ -1486,19 +1486,30 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const do
     baryonicRemnantMass  = std::min(baryonicRemnantMass, p_Mass);// check that baryonicRemnantMass doesn't exceed the total mass
 
     // Now the proto mass, which is only used for the calculation of kicks, will still be calculated using the DELAYED/RAPID prescriptions from Fryer 2012
-    if (OPTIONS->FryerSupernovaEngine() == SN_ENGINE::DELAYED) {                                           // Mproto from DELAYED
+    switch (OPTIONS->FryerSupernovaEngine()) {                                                                                     // which SN_ENGINE?
+
+        case SN_ENGINE::DELAYED:  
         mProto           = CalculateProtoCoreMassDelayed(p_COCoreMass);
-        }
-    else if (OPTIONS->FryerSupernovaEngine() ==SN_ENGINE::RAPID){                                           // Mproto from RAPID
+
+        fallbackMass        = std::max(0.0, baryonicRemnantMass - mProto);                                      // fallbackMass larger than 0
+        fallbackFraction    = fallbackMass/(p_Mass - mProto);                                                   //
+        fallbackFraction    = std::max(0.0, std::min(1.0, fallbackFraction));                                   // make sure the fb fraction lies between 0-1
+        gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
+        break;
+
+        case SN_ENGINE::RAPID:  
         mProto           = CalculateProtoCoreMassRapid();
-        }
 
-    fallbackMass        = std::max(0.0, baryonicRemnantMass - mProto);                                      // fallbackMass larger than 0
-    fallbackFraction    = fallbackMass/(p_Mass - mProto);                                                   //
-    fallbackFraction    = std::max(0.0, std::min(1.0, fallbackFraction));                                   // make sure the fb fraction lies between 0-1
+        fallbackMass        = std::max(0.0, baryonicRemnantMass - mProto);                                      // fallbackMass larger than 0
+        fallbackFraction    = fallbackMass/(p_Mass - mProto);                                                   //
+        fallbackFraction    = std::max(0.0, std::min(1.0, fallbackFraction));                                   // make sure the fb fraction lies between 0-1
+        gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
+        break;
 
-    gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
-
+        default:                                                                                            // unknown SN_ENGINE
+        SHOW_WARN(ERROR::UNKNOWN_SN_ENGINE, "Using defaults");                                          // show warning
+    }
+                                   
     return std::make_tuple(gravitationalRemnantMass, fallbackFraction);
 }
 
