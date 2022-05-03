@@ -18,20 +18,25 @@ Please email your queries to compas-user@googlegroups.com. You are also welcome 
 ## Acknowledgements
 If you use this code or parts of this code for results presented in a scientific publication, we would greatly appreciate if you send us your paper reference and make your input settings and output data publicly available by uploading it to the [COMPAS Zenodo community](https://zenodo.org/communities/compas/). Please also kindly include citations to our COMPAS methods paper https://ui.adsabs.harvard.edu/abs/2021arXiv210910352T/abstract. As the public COMPAS code is a product of work by the entire COMPAS collaboration over many years, we kindly request that, in recognition of this team effort, the paper is cited as “Team COMPAS: J. Riley et al.”. An example bibtex code is:
 
-
-@ARTICLE{COMPAS:2021methodsPaper,
-       author = {{\noopsort{Team COMPAS}}{Team COMPAS: J. Riley} and  {Riley}, Jeff and {Agrawal}, Poojan and {Barrett}, Jim W. and {Boyett}, Kristan N.~K. and {Broekgaarden}, Floor S. and {Chattopadhyay}, Debatri and {Gaebel}, Sebastian M. and {Gittins}, Fabian and {Hirai}, Ryosuke and {Howitt}, George and {Justham}, Stephen and {Khandelwal}, Lokesh and {Kummer}, Floris and {Lau}, Mike Y.~M. and {Mandel}, Ilya and {de Mink}, Selma E. and {Neijssel}, Coenraad and {Riley}, Tim and {van Son}, Lieke and {Stevenson}, Simon and {Vigna-Gomez}, Alejandro and {Vinciguerra}, Serena and {Wagg}, Tom and {Willcox}, Reinhold},
-        title = "{Rapid stellar and binary population synthesis with COMPAS}",
-      journal = {arXiv e-prints},
-     keywords = {Astrophysics - Instrumentation and Methods for Astrophysics, Astrophysics - High Energy Astrophysical Phenomena, Astrophysics - Solar and Stellar Astrophysics},
-         year = 2021,
-        month = sep,
+@ARTICLE{2022ApJS..258...34R,
+       author = {{Riley}, Jeff and {Agrawal}, Poojan and {Barrett}, Jim W. and {Boyett}, Kristan N.~K. and {Broekgaarden}, Floor S. and {Chattopadhyay}, Debatri and {Gaebel}, Sebastian M. and {Gittins}, Fabian and {Hirai}, Ryosuke and {Howitt}, George and {Justham}, Stephen and {Khandelwal}, Lokesh and {Kummer}, Floris and {Lau}, Mike Y.~M. and {Mandel}, Ilya and {de Mink}, Selma E. and {Neijssel}, Coenraad and {Riley}, Tim and {van Son}, Lieke and {Stevenson}, Simon and {Vigna-G{\'o}mez}, Alejandro and {Vinciguerra}, Serena and {Wagg}, Tom and {Willcox}, Reinhold and {Team Compas}},
+        title = "{Rapid Stellar and Binary Population Synthesis with COMPAS}",
+      journal = {\apjs},
+     keywords = {1622, 154, 1108, 162, Astrophysics - Instrumentation and Methods for Astrophysics, Astrophysics - High Energy Astrophysical Phenomena, Astrophysics - Solar and Stellar Astrophysics},
+         year = 2022,
+        month = feb,
+       volume = {258},
+       number = {2},
+          eid = {34},
+        pages = {34},
+          doi = {10.3847/1538-4365/ac416c},
 archivePrefix = {arXiv},
        eprint = {2109.10352},
  primaryClass = {astro-ph.IM},
-       adsurl = {https://ui.adsabs.harvard.edu/abs/2021arXiv210910352T},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/2022ApJS..258...34R},
       adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
+
 
 Note that the preferred acknowledgement relies on \noopsort; to make it work, you'll have to include the following line at the start of your bibtex file:
 @PREAMBLE{ {\providecommand{\noopsort}[1]{}} }
