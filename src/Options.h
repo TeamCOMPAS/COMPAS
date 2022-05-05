@@ -406,6 +406,7 @@ private:
 
         "add-options-to-sysparms",
 
+        "allow-H-rich-ECSN"
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation",
@@ -601,6 +602,7 @@ public:
             
             // member variables - alphabetically in groups (sort of...)
 
+            bool                                                m_AllowHRichECSN;                                               // Indicates whether single stars should undergo ECSNe if they have H envelopes
             bool                                                m_AllowRLOFAtBirth;                                             // Indicates whether binaries that have one or both stars in RLOF at birth are allowed to evolve
             bool                                                m_AllowTouchingAtBirth;                                         // Indicates whether binaries that are touching at birth are allowed to evolve
 
@@ -1100,11 +1102,8 @@ public:
 
     ADD_OPTIONS_TO_SYSPARMS                     AddOptionsToSysParms() const                                            { return m_CmdLine.optionValues.m_AddOptionsToSysParms.type; }
 
+    bool                                        AllowHRichECSN() const                                                  { return OPT_VALUE("allow-H-rich-ECSN", m_AllowHRichECSN, true); }
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return OPT_VALUE("common-envelope-allow-main-sequence-survive", m_AllowMainSequenceStarToSurviveCommonEnvelope, true); }
-    bool                                        CommonEnvelopeLambdaNanjingEnhanced() const                             { return OPT_VALUE("common-envelope-lambda-nanjing-enhanced", m_CommonEnvelopeLambdaNanjingEnhanced, true); }
-    bool                                        CommonEnvelopeLambdaNanjingInterpolateInMass() const                    { return OPT_VALUE("common-envelope-lambda-nanjing-interpolate-in-mass", m_CommonEnvelopeLambdaNanjingInterpolateInMass, true); }
-    bool                                        CommonEnvelopeLambdaNanjingInterpolateInMetallicity() const             { return OPT_VALUE("common-envelope-lambda-nanjing-interpolate-in-metallicity", m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity, true); }
-    bool                                        CommonEnvelopeLambdaNanjingUseRejuvenatedMass() const                   { return OPT_VALUE("common-envelope-lambda-nanjing-use-rejuvenated-mass", m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass, true); }
     bool                                        AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() const               { return OPT_VALUE("common-envelope-allow-radiative-envelope-survive", m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope, true); }
     bool                                        AllowImmediateRLOFpostCEToSurviveCommonEnvelope() const                 { return OPT_VALUE("common-envelope-allow-immediate-rlof-post-ce-survive", m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope, true); }
     bool                                        AllowRLOFAtBirth() const                                                { return OPT_VALUE("allow-rlof-at-birth", m_AllowRLOFAtBirth, true); }
@@ -1131,6 +1130,10 @@ public:
     double                                      CommonEnvelopeAlphaThermal() const                                      { return OPT_VALUE("common-envelope-alpha-thermal", m_CommonEnvelopeAlphaThermal, true); }
     double                                      CommonEnvelopeLambda() const                                            { return OPT_VALUE("common-envelope-lambda", m_CommonEnvelopeLambda, true); }
     double                                      CommonEnvelopeLambdaMultiplier() const                                  { return OPT_VALUE("common-envelope-lambda-multiplier", m_CommonEnvelopeLambdaMultiplier, true); }
+    bool                                        CommonEnvelopeLambdaNanjingEnhanced() const                             { return OPT_VALUE("common-envelope-lambda-nanjing-enhanced", m_CommonEnvelopeLambdaNanjingEnhanced, true); }
+    bool                                        CommonEnvelopeLambdaNanjingInterpolateInMass() const                    { return OPT_VALUE("common-envelope-lambda-nanjing-interpolate-in-mass", m_CommonEnvelopeLambdaNanjingInterpolateInMass, true); }
+    bool                                        CommonEnvelopeLambdaNanjingInterpolateInMetallicity() const             { return OPT_VALUE("common-envelope-lambda-nanjing-interpolate-in-metallicity", m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity, true); }
+    bool                                        CommonEnvelopeLambdaNanjingUseRejuvenatedMass() const                   { return OPT_VALUE("common-envelope-lambda-nanjing-use-rejuvenated-mass", m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass, true); }
     CE_LAMBDA_PRESCRIPTION                      CommonEnvelopeLambdaPrescription() const                                { return OPT_VALUE("common-envelope-lambda-prescription", m_CommonEnvelopeLambdaPrescription.type, true); }
     double                                      CommonEnvelopeMassAccretionConstant() const                             { return OPT_VALUE("common-envelope-mass-accretion-constant", m_CommonEnvelopeMassAccretionConstant, true); }
     double                                      CommonEnvelopeMassAccretionMax() const                                  { return OPT_VALUE("common-envelope-mass-accretion-max", m_CommonEnvelopeMassAccretionMax, true); }
