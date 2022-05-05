@@ -135,6 +135,8 @@ void Options::OptionValues::Initialise() {
 
     // flags
 
+    
+    m_AllowHRichECSNe                                               = false;
     m_AllowRLOFAtBirth                                              = true;
     m_AllowTouchingAtBirth                                          = false;
 
@@ -144,7 +146,7 @@ void Options::OptionValues::Initialise() {
     m_EnableWarnings                                                = false;
 
 	m_BeBinaries                                                    = false;
-        m_HMXRBinaries                                                  = false;
+    m_HMXRBinaries                                                  = false;
 
     m_EvolvePulsars                                                 = false;
 	m_EvolveUnboundSystems                                          = false;
@@ -158,7 +160,6 @@ void Options::OptionValues::Initialise() {
     m_ShortHelp                                                     = true;
 
     m_StoreInputFiles                                               = true;
-
 
     m_SwitchLog                                                     = false;
 

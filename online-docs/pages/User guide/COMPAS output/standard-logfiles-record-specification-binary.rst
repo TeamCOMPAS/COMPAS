@@ -464,6 +464,10 @@ Binary Properties
              - = 6
            * - CE MS WITH CO
              - = 7
+           * - CE MERGER WITH RADIATIVE ENVELOPE
+             - = 8
+           * - CE MERGER DUE TO IMMEDIATE POST-CE RLOF
+             - = 9
 
    * - Header String:
      - MT_History
