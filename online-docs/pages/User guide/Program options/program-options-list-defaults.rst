@@ -556,7 +556,7 @@ Default = THERMAL
 
 **--mass-transfer-angular-momentum-loss-prescription** |br|
 Mass Transfer Angular Momentum Loss prescription. |br|
-Options: { JEANS, ISOTROPIC, CIRCUMBINARY, ARBITRARY } |br|
+Options: { JEANS, ISOTROPIC, CIRCUMBINARY, MACLEOD_LINEAR, ARBITRARY } |br|
 Default = ISOTROPIC
 
 **--mass-transfer-fa** |br|
@@ -568,6 +568,11 @@ Default = 0.5
 Specific angular momentum with which the non-accreted system leaves the system. |br|
 Used when ``--mass-transfer-angular-momentum-loss-prescription = ARBITRARY``, ignored otherwise. |br|
 Default = 1.0
+
+**--mass-transfer-jloss-macleod-linear-fraction** |br|
+Specific angular momentum interpolation fraction, linear between 0 and 1 corresponding to the accretor and L2 point. |br|
+Used when ``--mass-transfer-angular-momentum-loss-prescription = MACLEOD_LINEAR``, ignored otherwise. |br|
+Default = 0.5
 
 **--mass-transfer-rejuvenation-prescription** |br|
 Mass Transfer Rejuvenation prescription. |br|
