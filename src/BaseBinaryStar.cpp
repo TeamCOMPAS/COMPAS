@@ -1676,7 +1676,8 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR       : {                                                // Linear interpolation between accretor and L2 point
             double gamma_ac = p_DonorMass / p_AccretorMass;
             double gamma_L2 = (M_SQRT2 * (p_DonorMass + p_AccretorMass) * (p_DonorMass + p_AccretorMass)) / (p_DonorMass * p_AccretorMass); 
-            gamma = OPTIONS->MassTransferJlossMacLeodLinearFraction() * (gamma_L2 - gamma_ac) + gamma_ac; break;                                                                                    
+            gamma = OPTIONS->MassTransferJlossMacLeodLinearFraction() * (gamma_L2 - gamma_ac) + gamma_ac; 
+            break;                                                                                    
         }
         //case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR       : {
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY            : gamma = OPTIONS->MassTransferJloss(); break;
