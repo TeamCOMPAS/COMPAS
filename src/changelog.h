@@ -888,9 +888,9 @@
 //                                      - Fix for issue # 783 - Some mergers involving a massive star were not logged properly in BSE_RLOF, whenever a jump in radius due to changing stellar type within ResolveMassChanges was much greater than the separation.
 // 02.27.09     VK - Apr 25, 2022    - Minor Enhancement:
 //                                      - Converted constant: MULLERMANDEL_SIGMAKICK into an option: --muller-mandel-sigma-kick
-// 02.27.10     RTW - May 8, 2022    - Enhancement
+// 02.28.00     RTW - May 8, 2022    - Enhancement
 //                                      - Added MACLEOD_LINEAR specific angular momentum gamma loss prescription for stable mass transfer
  
-const std::string VERSION_STRING = "02.27.10";
+const std::string VERSION_STRING = "02.28.00";
 
 # endif // __changelog_h__
