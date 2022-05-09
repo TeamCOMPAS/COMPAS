@@ -1,0 +1,12 @@
+#! /bin/sh
+
+yum clean all
+rm -rf /var/cache/yum/*
+yum makecache
+yum update -y
+yum -y install epel-release
+yum -y install boost boost-thread boost-devel
+yum -y install gsl
+yum -y install gsl-devel
+yum -y install hdf5
+yum -y group install "Development Tools"
