@@ -135,7 +135,7 @@ void Options::OptionValues::Initialise() {
 
     // flags
 
-    m_AllowHRichECSN                                                = false;
+    m_AllowHRichECSN                                                = true;
     m_AllowRLOFAtBirth                                              = true;
     m_AllowTouchingAtBirth                                          = false;
 
