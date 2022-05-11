@@ -508,7 +508,7 @@ def createParameterGridfile(gridname, nSamples, m1Min=5, m1Max=100):
 if __name__ == "__main__":
     # Simulate nSamples systems
 
-    nSamples=1e4
+    nSamples=1e5
     gridname = 'grid_moedistefano_nSamples{}.txt'.format(int(nSamples))
     createParameterGridfile(gridname=gridname, nSamples=nSamples)
 
