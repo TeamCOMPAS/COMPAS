@@ -1469,7 +1469,6 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const do
  *
  * @param   [IN]    p_Mass                      Pre supernova mass in Msol
  * @param   [IN]    p_COCoreMass                Pre supernova Carbon Oxygen (CO) core mass in Msol
- * @param   [IN]    OPTIONS->Fryer22fmix()               
  * @return                                      Tuple containing Remnant mass in Msol and updated fraction of mass falling back onto compact object
  */
 std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const double p_Mass, const double p_COCoreMass) {

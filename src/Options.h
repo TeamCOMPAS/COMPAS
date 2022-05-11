@@ -730,11 +730,11 @@ public:
             ENUM_OPT<SN_ENGINE>                                 m_FryerSupernovaEngine;                                         // Which Fryer et al. supernova engine
 
             ENUM_OPT<NEUTRINO_MASS_LOSS_PRESCRIPTION>           m_NeutrinoMassLossAssumptionBH;                                 // Which neutrino mass loss assumption for BH formation
-            double                                              m_NeutrinoMassLossValueBH;     
+            double                                              m_NeutrinoMassLossValueBH;                                      // Value (corresponding to assumption) for neutrino mass loss for BH formation
 
 
-            double                                              m_Fryer22fmix;   //lieke                                        // Critical mass for black hole formation when using Fryer 2022 remnant mass presc. 
-            double                                              m_Fryer22Mcrit;                                                 // Parameter describing the mixing growth time when using Fryer 2022 remnant mass presc. 
+            double                                              m_Fryer22fmix;                                                  // Parameter describing the mixing growth time when using Fryer 2022 remnant mass presc. 
+            double                                              m_Fryer22Mcrit;                                                 // Critical mass for black hole formation when using Fryer 2022 remnant mass presc. 
 
             // Fixed uk options
             bool                                                m_UseFixedUK;                                                   // Whether to fix uk to a certain value (default is to NOT fix uk)

@@ -1437,7 +1437,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "fryer-22-mcrit",                                        
             po::value<double>(&p_Options->m_Fryer22Mcrit)->default_value(p_Options->m_Fryer22Mcrit),                                                                                  
-            ("Critical CO core mass mass for black hole formation when using the 'FRYER2022' remnant mass distribution (default = " + std::to_string(p_Options->m_Fryer22Mcrit) + ")").c_str()
+            ("Critical CO core mass for black hole formation when using the 'FRYER2022' remnant mass distribution (default = " + std::to_string(p_Options->m_Fryer22Mcrit) + ")").c_str()
         )
 
         (
