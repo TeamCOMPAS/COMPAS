@@ -9,7 +9,7 @@ from stroopwafel import sw, classes, prior, sampler, distributions, constants, u
 import argparse
 
 # TODO fix issues with adaptive sampling
-# TODO add in functionality for alternative pythonSubmit names and locations
+# TODO add in functionality for alternative runSubmit names and locations
 
 #######################################################
 ### 
@@ -18,15 +18,15 @@ import argparse
 #######################################################
 
 
-### Include options from local pythonSubmit file      
-usePythonSubmit = False #If false, use stroopwafel defaults
+### Include options from local runSubmit + compasConfigDefault files      
+userunSubmit = False #If false, use stroopwafel defaults
 
 ### Set default stroopwafel inputs - these are overwritten by any command-line arguments
 
-compas_executable = os.path.join(os.environ.get('COMPAS_ROOT_DIR'), 'src/COMPAS')   # Location of the executable      # Note: overrides pythonSubmit value
-num_systems = 1000                  # Number of binary systems to evolve                                              # Note: overrides pythonSubmit value
-output_folder = 'output/'           # Location of output folder (relative to cwd)                                     # Note: overrides pythonSubmit value
-random_seed_base = 0                # The initial random seed to increment from                                       # Note: overrides pythonSubmit value
+compas_executable = os.path.join(os.environ.get('COMPAS_ROOT_DIR'), 'src/COMPAS')   # Location of the executable      # Note: overrides runSubmit + compasConfigDefault.yaml value
+num_systems = 1000                  # Number of binary systems to evolve                                              # Note: overrides runSubmit + compasConfigDefault.yaml value
+output_folder = 'output/'           # Location of output folder (relative to cwd)                                     # Note: overrides runSubmit + compasConfigDefault.yaml value
+random_seed_base = 0                # The initial random seed to increment from                                       # Note: overrides runSubmit + compasConfigDefault.yaml value
 
 num_cores = 4                       # Number of cores to parallelize over 
 num_per_core = 250                  # Number of binaries per batch
@@ -229,15 +229,16 @@ if __name__ == '__main__':
     # Set commandOptions defaults - these are Compas option arguments
     commandOptions = dict()
     commandOptions.update({'--output-path' : output_folder}) 
-    commandOptions.update({'--logfile-delimiter' : 'COMMA'})  # overriden if there is a pythonSubmit
+    commandOptions.update({'--logfile-delimiter' : 'COMMA'})  # overriden if there is a runSubmit + compas ConfigDefault.yaml
 
-    # Over-ride with pythonSubmit parameters, if desired
-    if usePythonSubmit:
+    # Over-ride with runSubmit + compasConfigDefault.yaml parameters, if desired
+    if userunSubmit:
         try:
-            from pythonSubmit import pythonProgramOptions
-            programOptions = pythonProgramOptions()
-            pySubOptions = programOptions.generateCommandLineOptionsDict()
+            from runSubmit import pythonProgramOptions
+            programOptions = pythonProgramOptions()   # Call the programoption class from runSubmit
+            pySubOptions   = programOptions.command   # Get the dict from pythonProgramOptions
 
+            # Continue to work from the dict, by edditing SW related options
             # Remove extraneous options
             pySubOptions.pop('compas_executable', None)
             pySubOptions.pop('--grid', None)
@@ -249,8 +250,8 @@ if __name__ == '__main__':
             commandOptions.update(pySubOptions)
 
         except:
-            print("Invalid pythonSubmit file, using default stroopwafel options")
-            usePythonSubmit = False
+            print("Invalid runSubmit + compas ConfigDefault.yaml file, using default stroopwafel options")
+            userunSubmit = False
     
 
     print("Output folder is: ", output_folder)

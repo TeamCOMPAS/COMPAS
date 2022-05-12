@@ -2710,7 +2710,7 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
 	}
 
 	while (remnantKick < 0.0) {
-		remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, MULLERMANDEL_SIGMAKICK));
+		remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, OPTIONS->MullerMandelSigmaKick()));
 		rand        = min(rand + p_Rand + 0.0001, 1.0);
 	}
 
