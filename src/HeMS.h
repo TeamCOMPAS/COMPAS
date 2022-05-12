@@ -56,7 +56,7 @@ protected:
 
     // member functions - alphabetically
             double          CalculateCOCoreMassAtPhaseEnd() const                                       { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase
-            double          CalculateCOCoreMassOnPhase() const                                          { return OPTIONS->RetainCoreMassDuringCaseAMassTransfer() ? MinimumCoreMass() : 0.0;  }               // Accounts for minimal core mass built up prior to mass loss through mass transfer
+            double          CalculateCOCoreMassOnPhase() const                                          { return 0.0;  }                                                        // McCO(HeMS) = 0.0
 
             double          CalculateCoreMassAtPhaseEnd() const                                         { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
             double          CalculateCoreMassOnPhase() const                                            { return 0.0; }                                                         // Mc(HeMS) = 0.0

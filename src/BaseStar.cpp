@@ -3345,35 +3345,3 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase() {
 
     return stellarType;
 }
-
-void BaseStar::UpdateMinimumCoreMass()
-{
-    
-    //from 
-#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]                // for convenience and readability - undefined at end of function
-#define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
-    
-    double coreMass;
-    
-    if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {
-        double LBGB = GiantBranch::CalculateLuminosityAtPhaseBase_Static(m_Mass0, m_AnCoefficients);
-        coreMass    = BaseStar::CalculateCoreMassGivenLuminosity_Static(LBGB, m_GBParams);
-    }
-    else if (utils::Compare(m_Mass0, massCutoffs(MFGB)) < 0) {
-        coreMass = gbParams(McBGB);
-    }
-    else {
-        coreMass = CalculateCoreMassAtHeIgnition(m_Mass0);
-    }
-    
-    
-#undef massCutoffs
-#undef gbParams
-    
-    double EndHGCoreMass=coreMass;
-    //double TerminalMSCoreMass=EndHGCoreMass * HG::CalculateRho(m_Mass0);
-    m_MinimumCoreMass=EndHGCoreMass * CalculateTauOnPhase();
-    std::cout<<EndHGCoreMass<<" "<<CalculateTauOnPhase()<<std::endl;
-}
-
-
