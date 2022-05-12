@@ -686,3 +686,20 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
     
     return stellarType;
 }
+
+/*
+ * Update the minimum core mass of a main sequence star that loses mass on mass transfer by setting it equal to the core mass of a TAMS star
+ *
+ *
+ * STELLAR_TYPE UpdateMinimumCoreMass()
+ *
+ */
+void MainSequence::UpdateMinimumCoreMass()
+{
+    double fractionalAge=CalculateTauOnPhase();
+    BaseStar clone = *this;
+    clone.SwitchTo(STELLAR_TYPE::HG, false);
+    double TAMSCoreMass = clone.coreMass();
+    m_MinimumCoreMass=fractionalAge * clone.coreMass();
+    std::cout<<"Mass: "<<m_Mass<<" TAMS core: "<< TAMSCoreMass <<" min core: "<<m_MinimumCoreMass<<std::endl;
+}

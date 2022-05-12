@@ -220,7 +220,7 @@ public:
                                                        const double p_Stepsize,
                                                        const double p_MassGainPerTimeStep,
                                                        const double p_Epsilon) { }                                                                                                  // Default is NO-OP
-    void            UpdateMinimumCoreMass() ;                                                            //{ m_MinimumCoreMass=CalculateCoreMassAtPhaseEnd() * CalculateTauOnPhase();  }                    // Set minimal core mass following Main Sequence mass transfer to age fraction of final core
+    virtual void            UpdateMinimumCoreMass()  {}                                                                                                                 // Only set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass; default is NO-OP
 
     
     // printing functions
