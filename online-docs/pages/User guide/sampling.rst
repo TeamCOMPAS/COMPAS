@@ -48,13 +48,13 @@ file.
 A configurable runSubmit file can be found in the ``preProcessing/``
 directory.
 
-Set your desired options, then set the ``usePythonSubmit`` parameter to ``True``
+Set your desired options, then set the ``userunSubmit`` parameter to ``True``
 in the ``stroopwafelInterface.py``.
 
 2. Stroopwafel inputs
 
 
-The lines below ``usePythonSubmit`` represent stroopwafel inputs.
+The lines below ``userunSubmit`` represent stroopwafel inputs.
 These are treated as
 defaults, but can be overriden by command-line arguments to
 stroopwafel.
