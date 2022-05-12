@@ -103,6 +103,8 @@ numericalChoices:
     ### SUPERNOVAE, KICKS AND REMNANTS
     --eddington-accretion-factor: 1 # multiplication Factor for eddington accretion onto NS&BH    
     --fix-dimensionless-kick-magnitude: -1.0                       
+    --fryer-22-fmix: 0.5            # parameter describing mixing growth time when using the 'FRYER2022' remnant mass prescription
+    --fryer-22-mcrit: 5.75          # critical mass for BH formation when using the 'FRYER2022' remnant mass prescription
     --kick-direction-power: 0.0
     --kick-magnitude-sigma-CCSN-NS: 265.0  #  [km/s]
     --kick-magnitude-sigma-CCSN-BH: 265.0  #  [km/s]
