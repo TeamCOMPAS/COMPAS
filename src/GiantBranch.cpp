@@ -1,6 +1,7 @@
 #include "GiantBranch.h"
 #include "HeMS.h"
 #include "WhiteDwarfs.h"
+#include "ONeWD.h"
 #include "NS.h"
 #include "BH.h"
 
@@ -1688,14 +1689,27 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
  */
 STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
 
-    m_Mass       = MECS_REM;                                                        // defined in constant.h
-    m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                       // neutronStarRadius in Rsol
-    m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
+    if (SN_IsHydrogenPoor() || (OPTIONS->AllowHRichECSN())) {                           // If progenitor is H rich, is it allowed to ECSN?
+                                                                                            // - yes
+        m_Mass       = MECS_REM;                                                            // defined in constants.h
+        m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
+        m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
+    
+        SetSNCurrentEvent(SN_EVENT::ECSN);                                                  // electron capture SN happening now
+        SetSNPastEvent(SN_EVENT::ECSN);                                                     // ... and will be a past event
+    
+        return STELLAR_TYPE::NEUTRON_STAR;
 
-    SetSNCurrentEvent(SN_EVENT::ECSN);                                              // electron capture SN happening now
-    SetSNPastEvent(SN_EVENT::ECSN);                                                 // ... and will be a past event
+    }
+    else {                                                                                  // -no, treat as ONeWD 
+        
+        m_Mass       = m_COCoreMass;                                                        
+        m_Radius     = WhiteDwarfs::CalculateRadiusOnPhase_Static(m_Mass);                  // radius is defined equivalently for all WDs
+        m_Luminosity = ONeWD::CalculateLuminosityOnPhase_Static(m_Mass, m_Time, m_Metallicity); //Need to get the luminosity for ONeWD specifically
+    
+        return STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
 
-    return STELLAR_TYPE::NEUTRON_STAR;
+    }	    
 }
 
 
