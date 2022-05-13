@@ -69,7 +69,7 @@ def makeDetailedPlots(Data=None, events=None):
 
 
     rcParams.update(fontparams) # Set configurations for uniform plot output
-    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(15, 8)) # W, H
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(15, 8), sharex=True) # W, H
 
     for ii, specificPlot in enumerate(listOfPlots): # exclude the last one
 
@@ -226,10 +226,15 @@ def plotVanDenHeuvel(events=None):
     
     for ii in range(num_events):
         img = events[ii].eventImage
-        axs[ii].imshow(img)
-        axs[ii].set_xticks([])
-        axs[ii].set_yticks([])
-        axs[ii].yaxis.set_label_position("right")
+
+        if num_events == 1:
+            ax = axs
+        else:
+            ax = axs[ii]
+        ax.imshow(img)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.yaxis.set_label_position("right")
         plt.subplots_adjust(hspace=0)
 
         if ii==0:
@@ -240,8 +245,8 @@ def plotVanDenHeuvel(events=None):
             pltString = pltString.format(events[ii].time,events[ii].aprev, events[ii].a,events[ii].m1prev,events[ii].m1,events[ii].m2prev,events[ii].m2)
         
         pad = 5
-        axs[ii].annotate(pltString, xy=(0,0.5), xytext=(-axs[ii].yaxis.labelpad + pad,0),xycoords=axs[ii].yaxis.label,fontsize=8,textcoords='offset points', ha='left', va='center')
-        axs[ii].annotate(chr(ord('@')+1+ii), xy=(-0.15,0.8),xycoords='axes fraction',fontsize=8,fontweight='bold')
+        ax.annotate(pltString, xy=(0,0.5), xytext=(-ax.yaxis.labelpad + pad,0),xycoords=ax.yaxis.label,fontsize=8,textcoords='offset points', ha='left', va='center')
+        ax.annotate(chr(ord('@')+1+ii), xy=(-0.15,0.8),xycoords='axes fraction',fontsize=8,fontweight='bold')
 
 
 ### Helper functions
@@ -394,6 +399,12 @@ class Event(object):
                 image_num = 28
             elif mtValue == 7:
                 eventString = r'CE: MS with CO'
+                image_num = 49
+            elif mtValue == 8:
+                eventString = r'Other'
+                image_num = 49
+            elif mtValue == 9:
+                eventString = r'Other'
                 image_num = 49
             else:
                 raise ValueError("Unknown MT: {}".format(mtValue))
