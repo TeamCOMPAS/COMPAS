@@ -62,6 +62,10 @@ Default = GRID
    * - NEVER
      - indicates that the program options should `not` be added to the sysparms file
 
+**--allow-H-rich-ECSN** |br|
+Allow ECSNe in effectively single progenitors (those which retain a H envelope). |br|
+Default = FALSE
+
 **--allow-rlof-at-birth** |br|
 Allow binaries that have one or both stars in RLOF at birth to evolve as over-contact systems. |br|
 Default = TRUE
@@ -270,9 +274,21 @@ Fix dimensionless kick magnitude to this value. |br|
 Default = n/a (not used if option not present)
 
 **--fryer-supernova-engine** |br|
-Supernova engine type if using the fallback prescription from :cite:`Fryer2012`. |br|
+Supernova engine type if using the remnant mass prescription from :cite:`Fryer2012`. |br|
 Options: { DELAYED, RAPID }
 Default = DELAYED
+
+**--fryer-22-fmix** |br|
+Paramter describing the mixing growth time when using the 'FRYER2022' remnant mass distribution  :cite:`Fryer2022`. |br|
+Default = 0.5, which is closest to the 'DELAYED' remnant mass prescription from :cite:`Fryer2012`. A value of 4.0 is closest to  the 'RAPID' remnant mass prescription from :cite:`Fryer2012`. |br|
+If the FALLBACK option is used for the kicks, then the proto core masses will be determined by the fryer-supernova-engine option. |br| 
+
+
+**--fryer-22-mcrit** |br|
+Critical CO core mass for black hole formation when using the 'FRYER2022' remnant mass distribution :cite:`Fryer2022`. |br|
+Default = 5.75
+
+
 
 .. _options-props-G:
 
@@ -816,8 +832,8 @@ Default = 0
 
 **--remnant-mass-prescription** |br|
 Remnant mass prescription. |br|
-Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT } |br|
-Remnant mass recipes from Hurley, Pols, Tout (2000) for ``HURLEY2000``, Belczynski et al. 2002, Fryer et al. 2012, Mueller 2016, Mandel & Mueller 2020, and Schneider et al. 2020 (with the alternative prescription for effectively single stars from the same paper in the ``SCHNEIDER2020ALT`` case) |br|
+Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT } |br|
+Remnant mass recipes from Hurley, Pols, Tout (2000) for ``HURLEY2000``, Belczynski et al. 2002, Fryer et al. 2012,  Fryer et al. 2022, Mueller 2016, Mandel & Mueller 2020, and Schneider et al. 2020 (with the alternative prescription for effectively single stars from the same paper in the ``SCHNEIDER2020ALT`` case) |br|
 Default = FRYER2012
 
 **--revised-energy-formalism-nandez-ivanova** |br|
@@ -983,7 +999,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Supernovae**
 
---remnant-mass-prescription, --fryer-supernova-engine, --maximum-neutron-star-mass, --mcbur1, --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state
+--remnant-mass-prescription, --fryer-supernova-engine, --maximum-neutron-star-mass, --mcbur1, --allow-H-rich-ECSN, --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state
 
 --pair-instability-supernovae, --PISN-lower-limit, --PISN-upper-limit, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 
