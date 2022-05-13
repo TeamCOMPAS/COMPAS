@@ -33,6 +33,7 @@ booleanChoices:
     --common-envelope-lambda-nanjing-use-rejuvenated-mass: False
     --revised-energy-formalism-nandez-ivanova: False
     ### SUPERNOVAE, KICKS AND REMNANTS
+    --allow-H-rich-ECSN: True
     --pair-instability-supernovae: True
     --pulsational-pair-instability: True
     ### PULSAR PARAMETERS

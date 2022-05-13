@@ -62,6 +62,10 @@ Default = GRID
    * - NEVER
      - indicates that the program options should `not` be added to the sysparms file
 
+**--allow-H-rich-ECSN** |br|
+Allow ECSNe in effectively single progenitors (those which retain a H envelope). |br|
+Default = FALSE
+
 **--allow-rlof-at-birth** |br|
 Allow binaries that have one or both stars in RLOF at birth to evolve as over-contact systems. |br|
 Default = TRUE
@@ -1000,7 +1004,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Supernovae**
 
---remnant-mass-prescription, --fryer-supernova-engine, --maximum-neutron-star-mass, --mcbur1, --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state
+--remnant-mass-prescription, --fryer-supernova-engine, --maximum-neutron-star-mass, --mcbur1, --allow-H-rich-ECSN, --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state
 
 --pair-instability-supernovae, --PISN-lower-limit, --PISN-upper-limit, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 
