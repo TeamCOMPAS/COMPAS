@@ -1,4 +1,5 @@
 #include "MainSequence.h"
+#include "HG.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -696,10 +697,10 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
  */
 void MainSequence::UpdateMinimumCoreMass()
 {
-    double fractionalAge=CalculateTauOnPhase();
-    BaseStar clone = *this;
-    clone.SwitchTo(STELLAR_TYPE::HG, false);
-    double TAMSCoreMass = clone.coreMass();
-    m_MinimumCoreMass=fractionalAge * clone.coreMass();
-    std::cout<<"Mass: "<<m_Mass<<" TAMS core: "<< TAMSCoreMass <<" min core: "<<m_MinimumCoreMass<<std::endl;
+    if(OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
+        double fractionalAge=CalculateTauOnPhase();
+        HG clone = *this;                               //create an HG star clone to query its core mass just after TAMS
+        double TAMSCoreMass = clone.CoreMass();
+        m_MinimumCoreMass=std::max(m_MinimumCoreMass, fractionalAge * TAMSCoreMass);
+    }
 }
