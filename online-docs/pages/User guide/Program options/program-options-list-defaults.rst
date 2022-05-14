@@ -62,6 +62,10 @@ Default = GRID
    * - NEVER
      - indicates that the program options should `not` be added to the sysparms file
 
+**--allow-H-rich-ECSN** |br|
+Allow ECSNe in effectively single progenitors (those which retain a H envelope). |br|
+Default = FALSE
+
 **--allow-rlof-at-birth** |br|
 Allow binaries that have one or both stars in RLOF at birth to evolve as over-contact systems. |br|
 Default = TRUE
@@ -568,7 +572,7 @@ Default = THERMAL
 
 **--mass-transfer-angular-momentum-loss-prescription** |br|
 Mass Transfer Angular Momentum Loss prescription. |br|
-Options: { JEANS, ISOTROPIC, CIRCUMBINARY, ARBITRARY } |br|
+Options: { JEANS, ISOTROPIC, CIRCUMBINARY, MACLEOD_LINEAR, ARBITRARY } |br|
 Default = ISOTROPIC
 
 **--mass-transfer-fa** |br|
@@ -580,6 +584,11 @@ Default = 0.5
 Specific angular momentum with which the non-accreted system leaves the system. |br|
 Used when ``--mass-transfer-angular-momentum-loss-prescription = ARBITRARY``, ignored otherwise. |br|
 Default = 1.0
+
+**--mass-transfer-jloss-macleod-linear-fraction** |br|
+Specific angular momentum interpolation fraction, linear between 0 and 1 corresponding to the accretor and L2 point. |br|
+Used when ``--mass-transfer-angular-momentum-loss-prescription = MACLEOD_LINEAR``, ignored otherwise. |br|
+Default = 0.5
 
 **--mass-transfer-rejuvenation-prescription** |br|
 Mass Transfer Rejuvenation prescription. |br|
@@ -995,7 +1004,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Supernovae**
 
---remnant-mass-prescription, --fryer-supernova-engine, --maximum-neutron-star-mass, --mcbur1, --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state
+--remnant-mass-prescription, --fryer-supernova-engine, --maximum-neutron-star-mass, --mcbur1, --allow-H-rich-ECSN, --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state
 
 --pair-instability-supernovae, --PISN-lower-limit, --PISN-upper-limit, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 
