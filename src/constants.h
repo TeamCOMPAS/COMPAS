@@ -294,6 +294,8 @@ constexpr double MIN_HMXRB_STAR_TO_ROCHE_LOBE_RADIUS_RATIO  = 0.8;              
 constexpr double ADAPTIVE_RLOF_FRACTION_DONOR_GUESS     = 0.001;                                                    // Fraction of donor mass to use as guess in MassLossToFitInsideRocheLobe()
 constexpr int    ADAPTIVE_RLOF_MAX_ITERATIONS           = 50;                                                       // Maximum number of iterations in MassLossToFitInsideRocheLobe()
 constexpr double ADAPTIVE_RLOF_SEARCH_FACTOR            = 2.0;                                                      // Search factor in MassLossToFitInsideRocheLobe()
+constexpr int    ADAPTIVE_MASS0_MAX_ITERATIONS          = 50;                                                       // Maximum number of iterations in Mass0ToMatchDesiredCoreMass()
+constexpr double ADAPTIVE_MASS0_SEARCH_FACTOR           = 2.0;                                                      // Search factor in Mass0ToMatchDesiredCoreMass()
 constexpr double FARMER_PPISN_UPP_LIM_LIN_REGIME        = 38.0;                                                     // Maximum CO core mass to result in the linear remnant mass regime of the FARMER PPISN prescription
 constexpr double FARMER_PPISN_UPP_LIM_QUAD_REGIME       = 60.0;                                                     // Maximum CO core mass to result in the quadratic remnant mass regime of the FARMER PPISN prescription
 constexpr double FARMER_PPISN_UPP_LIM_INSTABILLITY      = 140.0;                                                    // Maximum CO core mass to result in PI (upper edge of PISN gap) from FARMER PPISN prescription
@@ -485,6 +487,7 @@ enum class ERROR: int {
     STELLAR_SIMULATION_STOPPED,                                     // stellar simulation stopped
     SUGGEST_HELP,                                                   // suggest using --help
     TIMESTEP_BELOW_MINIMUM,                                         // timestep too small - below minimum
+    TOO_MANY_MASS0_ITERATIONS,                                      // too many iterations in MASS0 root finder
     TOO_MANY_RLOF_ITERATIONS,                                       // too many iterations in RLOF root finder
     UNEXPECTED_END_OF_FILE,                                         // unexpected end of file
     UNEXPECTED_LOG_FILE_TYPE,                                       // unexpected log file type
@@ -622,6 +625,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
     { ERROR::SUGGEST_HELP,                                          { ERROR_SCOPE::ALWAYS,              "Use option '-h' (or '--help') to see (descriptions of) available options" }},
     { ERROR::TIMESTEP_BELOW_MINIMUM,                                { ERROR_SCOPE::ALWAYS,              "Timestep below minimum - timestep taken" }},
+    { ERROR::TOO_MANY_MASS0_ITERATIONS,                             { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when looking for effective initial mass Mass_0 to match desired stellar core of HG star following case A mass transfer" }},
     { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::UNEXPECTED_END_OF_FILE,                                { ERROR_SCOPE::ALWAYS,              "Unexpected end of file" }},
     { ERROR::UNEXPECTED_LOG_FILE_TYPE,                              { ERROR_SCOPE::ALWAYS,              "Unexpected log file type" }},

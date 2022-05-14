@@ -1371,7 +1371,7 @@ public:
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
     
-    bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return OPT_VALUE("retain-core-mass-during-caseA-mass-transfer", m_RetainCoreMassDuringCaseAMassTransfer, true); }
+    bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
     
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
 

@@ -775,7 +775,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
         (
             "retain-core-mass-during-caseA-mass-transfer",
-            po::value<bool>(&p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->default_value(p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->implicit_value(false),
+            po::value<bool>(&p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->default_value(p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->implicit_value(true),
             ("Retain approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = " + std::string(p_Options->m_RetainCoreMassDuringCaseAMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
         )
         (

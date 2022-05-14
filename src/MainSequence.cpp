@@ -689,7 +689,7 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
 }
 
 /*
- * Update the minimum core mass of a main sequence star that loses mass on mass transfer by setting it equal to the core mass of a TAMS star
+ * Update the minimum core mass of a main sequence star that loses mass through Case A mass transfer by setting it equal to the core mass of a TAMS star, scaled by the fractional age
  *
  *
  * STELLAR_TYPE UpdateMinimumCoreMass()
