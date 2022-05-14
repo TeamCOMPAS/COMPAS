@@ -892,7 +892,9 @@
 //                                      - Introduced new remnant mass prescription: Fryer+ 2022, adding new options --fryer-22-fmix and --fryer-22-mcrit
 // 02.29.00     RTW - May 5, 2022    - Enhancement:
 //                                      - Fix for issue # 596 - New option to allow for H rich ECSN (defaults to false). This removes non-interacting ECSN progenitors from contributing to the single pulsar population.
+// 02.30.00     RTW - May 8, 2022    - Enhancement
+//                                      - Added MACLEOD_LINEAR specific angular momentum gamma loss prescription for stable mass transfer
  
-const std::string VERSION_STRING = "02.29.00";
+const std::string VERSION_STRING = "02.30.00";
 
 # endif // __changelog_h__
