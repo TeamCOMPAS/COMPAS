@@ -896,6 +896,7 @@
 //                                      - Added MACLEOD_LINEAR specific angular momentum gamma loss prescription for stable mass transfer
 // 02.31.00     IM - May 14, 2022    - Enhancement
 //                                      - Added option retain-core-mass-during-caseA-mass-transfer to preserve a larger donor core mass following case A MT, set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of its MS lifetime
+//                                      - Code and comment cleaning
 
 const std::string VERSION_STRING = "02.31.00";
 

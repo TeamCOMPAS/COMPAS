@@ -269,7 +269,7 @@ protected:
     double                  m_Luminosity;                               // Current luminosity (Lsol)
     double                  m_Mass;                                     // Current mass (Msol)
     double                  m_Mass0;                                    // Current effective initial mass (Msol)
-    double                  m_MinimumCoreMass;                          // Minimum core mass at end of H or He main sequence (for stars have no core in the Hurley prescription)
+    double                  m_MinimumCoreMass;                          // Minimum core mass at end of main sequence (MS stars have no core in the Hurley prescription)
     double                  m_MinimumLuminosityOnPhase;                 // JR: Only required for CHeB stars, but only needs to be calculated once per star
     double                  m_Mdot;                                     // Current mass loss rate (Msol per ?)
     MASS_LOSS_TYPE          m_DominantMassLossRate;                     // Current dominant mass loss rate
