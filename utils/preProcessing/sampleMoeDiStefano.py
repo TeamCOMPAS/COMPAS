@@ -27,11 +27,7 @@ original comments for clarity.
 
 
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Feb  2 08:42:01 2017
 
-@author: MS
-"""
 import numpy as np
 import scipy.integrate
 
