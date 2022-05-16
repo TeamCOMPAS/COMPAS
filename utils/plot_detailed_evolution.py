@@ -400,14 +400,33 @@ class Event(object):
 
         elif eventClass == 'SN':
             whichStar = kwargs['whichStar']
-            remnantTypeName = self.stellarTypeMap[Data['Stellar_Type({})'.format(whichStar)][ii]] 
+            remType = Data['Stellar_Type({})'.format(whichStar)][ii]
+            remnantTypeName = self.stellarTypeMap[remType] 
             compType = Data['Stellar_Type({})'.format(2 if whichStar==1 else 1)][ii]
-            status = '. Orbit becomes unbound' if (Data['Eccentricity'][ii]>1 or Data['SemiMajorAxis'][ii]<0) else ''
+            disrupted = (Data['Eccentricity'][ii]>1 or Data['SemiMajorAxis'][ii]<0)
+            status = '. Orbit becomes unbound' if disrupted else ''
             eventString = r'Star {} undergoes supernova and forms a {}{}'.format(whichStar, remnantTypeName, status)
-            if compType < 13:
-                image_num = 13 # 13 for normal companion
+            if disrupted: 
+                if compType < 13:        # normal companion
+                    if remType == 13:    # with NS
+                        image_num = 19 
+                    else:                # with BH
+                        image_num = 20   
+                elif compType == 13:     # NS companion
+                    if remType == 13:    # with NS
+                        image_num = 22 
+                    else:                # with BH
+                        image_num = 21   
+                else:                    # BH companion 
+                    if remType == 13:    # with NS
+                        image_num = 24   
+                    else:                # with BH
+                        image_num = 23   
             else:
-                image_num = 15 # 15 for CO companion
+                if compType < 13:
+                    image_num = 13 # 13 for normal companion
+                else:
+                    image_num = 15 # 15 for CO companion
 
         elif eventClass == 'Stype':
             whichStar = kwargs['whichStar']

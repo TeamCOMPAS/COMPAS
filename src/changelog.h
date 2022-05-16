@@ -892,7 +892,12 @@
 //                                      - Introduced new remnant mass prescription: Fryer+ 2022, adding new options --fryer-22-fmix and --fryer-22-mcrit
 // 02.29.00     RTW - May 5, 2022    - Enhancement:
 //                                      - Fix for issue # 596 - New option to allow for H rich ECSN (defaults to false). This removes non-interacting ECSN progenitors from contributing to the single pulsar population.
- 
-const std::string VERSION_STRING = "02.29.00";
+// 02.30.00     RTW - May 8, 2022    - Enhancement
+//                                      - Added MACLEOD_LINEAR specific angular momentum gamma loss prescription for stable mass transfer
+// 02.31.00     IM - May 14, 2022    - Enhancement
+//                                      - Added option retain-core-mass-during-caseA-mass-transfer to preserve a larger donor core mass following case A MT, set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of its MS lifetime
+//                                      - Code and comment cleaning
+
+const std::string VERSION_STRING = "02.31.00";
 
 # endif // __changelog_h__
