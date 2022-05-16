@@ -7,6 +7,7 @@ order systems on the Main Sequence, following Moe & DiStefano 2017.
 This script is modified from the original IDL script 
 by Max Moe, converted into python by Mads Sorensen, and
 adapted for COMPAS by Reinhold Willcox.
+See: https://arxiv.org/abs/1808.06488
 
 The output of this script is a grid file suitable for 
 COMPAS input of parameters for single stars, isolated
