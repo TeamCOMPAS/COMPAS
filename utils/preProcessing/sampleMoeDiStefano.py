@@ -21,8 +21,11 @@ Due to the correlated nature of these parameters, it is not
 straightforward to supply alternative constraints, e.g
 including only short period systems. Thus the only free
 parameters are the maximum and minimum total mass, 
-and the number of systems sampled. See below the 
-original comments for clarity.
+and the number of systems sampled. To change these,
+set them within the `if __name__ == "__main__":`
+function at the bottom of this file.
+
+See the original comments below for clarity.
 """
 
 
@@ -502,11 +505,12 @@ def createParameterGridfile(gridname, nSamples, m1Min=5, m1Max=100):
 
 
 if __name__ == "__main__":
-    # Simulate nSamples systems
 
+    # USER SET PARAMETERS
     nSamples=1e5
+    m1Min=5 
+    m1Max=100
+
+    # LEAVE THESE 
     gridname = 'grid_moedistefano_nSamples{}.txt'.format(int(nSamples))
     createParameterGridfile(gridname=gridname, nSamples=nSamples)
-
-
-
