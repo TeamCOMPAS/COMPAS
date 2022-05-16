@@ -129,7 +129,7 @@ Default = 1.0
 
 **--common-envelope-alpha-thermal** |br|
 Thermal energy contribution to the total envelope binding energy. |br|
-Defined such that :math:`λ = \alpha_{th} \times \lambda_{b} + (1.0 - \alpha_{th}) \times \lambda_{g}`. |br|
+Defined such that :math:`\lambda = \alpha_{th} \times \lambda_{b} + (1.0 - \alpha_{th}) \times \lambda_{g}`. |br|
 Default = 1.0
 
 **--common-envelope-lambda** |br|
@@ -572,7 +572,7 @@ Default = THERMAL
 
 **--mass-transfer-angular-momentum-loss-prescription** |br|
 Mass Transfer Angular Momentum Loss prescription. |br|
-Options: { JEANS, ISOTROPIC, CIRCUMBINARY, ARBITRARY } |br|
+Options: { JEANS, ISOTROPIC, CIRCUMBINARY, MACLEOD_LINEAR, ARBITRARY } |br|
 Default = ISOTROPIC
 
 **--mass-transfer-fa** |br|
@@ -584,6 +584,11 @@ Default = 0.5
 Specific angular momentum with which the non-accreted system leaves the system. |br|
 Used when ``--mass-transfer-angular-momentum-loss-prescription = ARBITRARY``, ignored otherwise. |br|
 Default = 1.0
+
+**--mass-transfer-jloss-macleod-linear-fraction** |br|
+Specific angular momentum interpolation fraction, linear between 0 and 1 corresponding to the accretor and L2 point. |br|
+Used when ``--mass-transfer-angular-momentum-loss-prescription = MACLEOD_LINEAR``, ignored otherwise. |br|
+Default = 0.5
 
 **--mass-transfer-rejuvenation-prescription** |br|
 Mass Transfer Rejuvenation prescription. |br|
@@ -836,6 +841,10 @@ Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERM
 Remnant mass recipes from Hurley, Pols, Tout (2000) for ``HURLEY2000``, Belczynski et al. 2002, Fryer et al. 2012,  Fryer et al. 2022, Mueller 2016, Mandel & Mueller 2020, and Schneider et al. 2020 (with the alternative prescription for effectively single stars from the same paper in the ``SCHNEIDER2020ALT`` case) |br|
 Default = FRYER2012
 
+**--retain-core-mass-during-caseA-mass-transfer |br|
+If set to true, preserve a larger donor core mass following case A mass transfer.  The core is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer. |br|
+Default = FALSE
+
 **--revised-energy-formalism-nandez-ivanova** |br|
 Enable revised energy formalism of Nandez & Ivanova. |br|
 Default = FALSE
@@ -987,7 +996,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Mass transfer physics**
 
---mass-transfer, --mass-transfer-accretion-efficiency-prescription, --mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-C, --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star, --case-bb-stability-prescription, --eddington-accretion-factor
+--mass-transfer, --mass-transfer-accretion-efficiency-prescription, --mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-macleod-linear-fraction, --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-C, --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star, --case-bb-stability-prescription, --eddington-accretion-factor, --retain-core-mass-during-caseA-mass-transfer
 
 --circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation
 
@@ -999,7 +1008,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Supernovae**
 
---remnant-mass-prescription, --fryer-supernova-engine, --maximum-neutron-star-mass, --mcbur1, --allow-H-rich-ECSN, --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state
+--remnant-mass-prescription, --fryer-supernova-engine, --fryer-22-fmix, --fryer-22-mcrit, --maximum-neutron-star-mass, --mcbur1, --allow-H-rich-ECSN, --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state
 
 --pair-instability-supernovae, --PISN-lower-limit, --PISN-upper-limit, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 
