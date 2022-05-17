@@ -638,7 +638,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "allow-H-rich-ECSN",
             po::value<bool>(&p_Options->m_AllowHRichECSN)->default_value(p_Options->m_AllowHRichECSN)->implicit_value(true),                                                                  
-            ("Allow binaries that have one or both stars in RLOF at birth to evolve (default = " + std::string(p_Options->m_AllowHRichECSN? "TRUE" : "FALSE") + ")").c_str()
+            ("Allow ECSN to occur in H rich (unstripped) progenitors (default = " + std::string(p_Options->m_AllowHRichECSN? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "allow-rlof-at-birth",                                         
