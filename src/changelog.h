@@ -897,7 +897,9 @@
 // 02.31.00     IM - May 14, 2022    - Enhancement
 //                                      - Added option retain-core-mass-during-caseA-mass-transfer to preserve a larger donor core mass following case A MT, set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of its MS lifetime
 //                                      - Code and comment cleaning
+// 02.31.01     RTW - May 16, 2022   - Defect repair:
+//                                      - Fixed help string for H rich ECSN option implemented in v2.29.99
 
-const std::string VERSION_STRING = "02.31.00";
+const std::string VERSION_STRING = "02.31.01";
 
 # endif // __changelog_h__
