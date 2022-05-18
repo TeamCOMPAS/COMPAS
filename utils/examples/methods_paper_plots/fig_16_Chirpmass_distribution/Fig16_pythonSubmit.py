@@ -28,14 +28,36 @@ class pythonProgramOptions:
     compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH')
 
     if (compas_executable_override is None):
-        git_directory = os.environ.get('COMPAS_ROOT_DIR')
-        compas_executable = os.path.join(git_directory, 'src/COMPAS')
+        
+        # we should fix this one day - we should not assume that the COMPAS executable
+        # is in the 'src' directory.  The standard is to put the object files created
+        # by the compile into the 'obj' directory, and the executable files created by
+        # the link in the 'bin' directory.
+        #
+        # for now though, because this is how everybody expects it to be, we'll just check
+        # that the path to the root directory (the parent directory of the directory in
+        # which we expect the executable to reside - for now, 'src') is set to something.
+
+        compas_root_dir = os.environ.get('COMPAS_ROOT_DIR')
+        assert compas_root_dir is not None, "Unable to locate the COMPAS executable: check that the environment variable COMPAS_ROOT_DIR is set correctly, and the COMPAS executable exists."
+
+        # construct path to executable
+        #
+        # ideally we wouldn't have the 'src' directory name (or any other directory name)
+        # prepended to the executable name - if we just execute the executable name on its
+        # own, as long as the user navigates to the directory in which the executable resides
+        # they don't need to set the COMPAS_ROOT_DIR environment variable
+
+        compas_executable = os.path.join(compas_root_dir, 'src/COMPAS')
     else:
         compas_executable = compas_executable_override
 
+    # check that a file with the correct name exists where we expect it to
+    assert os.path.isfile(compas_executable), "Unable to locate the COMPAS executable: check that the environment variable COMPAS_ROOT_DIR is set correctly, and the COMPAS executable exists."
+
     enable_warnings = False                                     # option to enable/disable warning messages
 
-    number_of_systems = 10  #number of systems per batch
+    number_of_systems = 10                                      # number of systems per batch
 
     populationPrinting = False
 
