@@ -899,7 +899,9 @@
 //                                      - Code and comment cleaning
 // 02.31.01     RTW - May 16, 2022   - Defect repair:
 //                                      - Fixed help string for H rich ECSN option implemented in v2.29.99
+// 02.31.02     RTW - May 20, 2022   - Defect repair:
+//                                      - Fixed MS+MS unstable MT not getting flagged as a CEE
 
-const std::string VERSION_STRING = "02.31.01";
+const std::string VERSION_STRING = "02.31.02";
 
 # endif // __changelog_h__
