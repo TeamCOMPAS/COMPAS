@@ -897,7 +897,14 @@
 // 02.31.00     IM - May 14, 2022    - Enhancement
 //                                      - Added option retain-core-mass-during-caseA-mass-transfer to preserve a larger donor core mass following case A MT, set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of its MS lifetime
 //                                      - Code and comment cleaning
+// 02.31.01     RTW - May 16, 2022   - Defect repair:
+//                                      - Fixed help string for H rich ECSN option implemented in v2.29.99
+// 02.31.02     JR - May 18, 2022    - Defect repairs:
+//                                      - Fixed STAR_PROPERTY_LABEL entries in contsants.h for INITIAL_STELLAR_TYPE and INITIAL_STELLAR_TYPE_NAME - both missing the prefix "INITIAL_".
+//                                        Only caused a problem if a user wanted to add either of those to the logfile-definitions file - but since they are in the system parameters files (SSE and BSE)
+//                                        by default encountering the problem would probably be unlikely.
+//                                      - Fixed error identifier in Log::UpdateAllLogfileRecordSpecs() - was (incorrectly) ERROR::UNKNOWN_BINARY_PROPERTY, now (correctly) ERROR::UNKNOWN_STELLAR_PROPERTY 
 
-const std::string VERSION_STRING = "02.31.00";
+const std::string VERSION_STRING = "02.31.02";
 
 # endif // __changelog_h__
