@@ -3569,7 +3569,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                         STAR_PROPERTY property;                                                                 // lookup property name
                                         std::tie(found, property) = utils::GetMapKey(propNameStr, STAR_PROPERTY_LABEL, STAR_PROPERTY::ID);
                                         if (!found) {                                                                           // property name found?
-                                            error = ERROR::UNKNOWN_BINARY_PROPERTY;                                             // no - set error
+                                            error = ERROR::UNKNOWN_STELLAR_PROPERTY;                                            // no - set error
                                         }
                                         else {                                                                                  // found known property name
                                             if (currentLogfileType == LOGFILE_TYPE::BINARY) {                                   // current logfile type BINARY?
