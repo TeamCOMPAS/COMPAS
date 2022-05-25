@@ -612,10 +612,10 @@ class allEvents(object):
         isUnbound = (Data['Eccentricity'][-1]>1 or Data['SemiMajorAxis'][-1]<0)
         isMerger = (Data['Time'][-1]<14000) and not isDCO and not isUnbound     # System must have merged with at least one standard component
     
-        if isDCO:
-            state = "DCO" 
-        elif isUnbound:
+        if isUnbound:
             state = "Unbound" 
+        elif isDCO:
+            state = "DCO" 
         elif isMerger:
             state = "Merger"
         else:
