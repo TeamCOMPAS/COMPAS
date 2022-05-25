@@ -904,7 +904,9 @@
 //                                        Only caused a problem if a user wanted to add either of those to the logfile-definitions file - but since they are in the system parameters files (SSE and BSE)
 //                                        by default encountering the problem would probably be unlikely.
 //                                      - Fixed error identifier in Log::UpdateAllLogfileRecordSpecs() - was (incorrectly) ERROR::UNKNOWN_BINARY_PROPERTY, now (correctly) ERROR::UNKNOWN_STELLAR_PROPERTY 
+// 02.31.03     RTW - May 20, 2022   - Defect repair:
+//                                      - Fixed MS+MS unstable MT not getting flagged as a CEE
 
-const std::string VERSION_STRING = "02.31.02";
+const std::string VERSION_STRING = "02.31.03";
 
 # endif // __changelog_h__
