@@ -286,6 +286,8 @@ def plotVanDenHeuvel(events=None):
     events = [event for event in events if (event.eventImage is not None)]
     num_events = len(events)
     fig, axs = plt.subplots(num_events, 1)
+    if num_events == 1:
+        axs = [axs]
     fig.set_figwidth(9)
     plt.rcParams["text.usetex"] = True  # Use latex
     
@@ -608,9 +610,9 @@ class allEvents(object):
                     self.addEvent(ii, eventClass='Stype', whichStar=2)
     
         ### Add an event for final state of the binary
-        isDCO = (Data['Stellar_Type(1)'][-1] in np.arange(10, 15)) and (Data['Stellar_Type(2)'][-1] in np.arange(10, 15)) # Both stars are WDs, NSs, or BHs
         isUnbound = (Data['Eccentricity'][-1]>1 or Data['SemiMajorAxis'][-1]<0)
-        isMerger = (Data['Time'][-1]<14000) and not isDCO and not isUnbound     # System must have merged with at least one standard component
+        isDCO = (Data['Stellar_Type(1)'][-1] in np.arange(10, 15)) and (Data['Stellar_Type(2)'][-1] in np.arange(10, 15)) # Both stars are WDs, NSs, or BHs
+        isMerger = ((Data['Radius(1)'][-1] + Data['Radius(2)'][-1]) > Data['SemiMajorAxis'][-1]*(1-Data['Eccentricity'][-1]))
     
         if isUnbound:
             state = "Unbound" 
