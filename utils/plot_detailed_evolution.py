@@ -540,7 +540,8 @@ class Event(object):
 
             else:
                 #raise ValueError("Unknown event state: {}".format(state))
-                eventString = r'Unspecified endstate: {}+{}'.format(self.stypeName1, self.stypeName2) 
+                eventString = r'Evolution ended too soon: {}+{}'.format(self.stypeName1, self.stypeName2) 
+                image_num = 2
 
         else:
             raise ValueError("Unknown event class: {}".format(self.eventClass))
