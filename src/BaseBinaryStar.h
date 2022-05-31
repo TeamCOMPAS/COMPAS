@@ -76,7 +76,7 @@ public:
 
         m_aMassLossDiff                    = p_Star.m_aMassLossDiff;
 
-        m_MassTransfer                     = p_Star.m_MassTransfer;
+        m_MassTransferNow                     = p_Star.m_MassTransferNow;
         m_aMassTransferDiff                = p_Star.m_aMassTransferDiff;
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
@@ -336,7 +336,7 @@ private:
 
     double              m_aMassLossDiff;
 
-    bool                m_MassTransfer;
+    bool                m_MassTransferNow;
     double              m_aMassTransferDiff;
 
     MT_TRACKING         m_MassTransferTrackerHistory;
@@ -433,7 +433,7 @@ private:
     double  CalculateGammaAngularMomentumLoss()                                 { return CalculateGammaAngularMomentumLoss(m_Donor->Mass(), m_Accretor->Mass()); }
 
 
-    void    CalculateMassTransfer(const double p_Dt);
+    bool    CalculateMassTransfer(const double p_Dt);
 
     double  CalculateMassTransferOrbit(const double                 p_DonorMass, 
                                        const double                 p_DeltaMassDonor, 

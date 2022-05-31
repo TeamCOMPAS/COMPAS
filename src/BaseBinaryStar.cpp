@@ -352,7 +352,7 @@ void BaseBinaryStar::SetRemainingValues() {
     m_aMassTransferDiff                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 	m_MassTransferTrackerHistory                 = MT_TRACKING::NO_MASS_TRANSFER;
-    m_MassTransfer                               = false;
+    m_MassTransferNow                               = false;
 
     m_JLoss                                      = OPTIONS->MassTransferJloss();
 
@@ -846,6 +846,16 @@ bool BaseBinaryStar::PrintRLOFParameters() {
     bool ok = true;
 
     if (!OPTIONS->RLOFPrinting()) return ok;                    // do not print if printing option off
+                                                                
+    // Only print RLOF output if m_MassTransferNow was set during the timestep
+    // If so, reset it afterward
+    if (m_MassTransferNow == true) {
+        m_MassTransferNow = false;
+    }
+    else {
+        return ok;
+    }
+    
 
     StashRLOFProperties(MASS_TRANSFER_TIMING::POST_MT);         // stash properties immediately post-Mass Transfer 
 
@@ -1461,14 +1471,20 @@ void BaseBinaryStar::EvaluateSupernovae() {
         (void)ResolveSupernova();                                                                                       // resolve supernova
     }
 
-    if (m_Star2->IsSNevent()) {                                                                                         // star2 supernova                                                                                                        
-        m_SupernovaState = m_SupernovaState == SN_STATE::NONE                                                           // star1 not supernova?
-                            ? SN_STATE::STAR2                                                                           // yes - just star2
-                            : SN_STATE::BOTH;                                                                           // no - both 
+    else if (m_Star2->IsSNevent()) {                                                                                         // star2 supernova                                                                                                        
+        m_SupernovaState = SN_STATE::STAR2;
+            // star1 not supernova?
+                           // ? SN_STATE::STAR2                                                                           // yes - just star2
+                           // : SN_STATE::BOTH;                                                                           // no - both 
 
         m_Supernova = m_Star2;                                                                                          // supernova
         m_Companion = m_Star1;                                                                                          // companion
         (void)ResolveSupernova();                                                                                       // resolve supernova
+    }
+    
+    else {
+        // RTW: should never get here - should I add a catch?
+        std::cout << "should not have gotten here" << std::endl;
     }
 }
 
@@ -1783,7 +1799,12 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
 
     m_aMassLossDiff = 0.0;                                                                                                      // initially - no change to orbit (semi-major axis) due to winds mass loss
 
-    if (OPTIONS->UseMassTransfer() && m_MassTransfer) {                                                                         // used for halting winds when in mass transfer (first approach).
+    if (OPTIONS->UseMassTransfer() && m_MassTransferNow) {                                                                         // used for halting winds when in mass transfer (first approach).
+        // RTW what's going on here?
+        // Is this to allow for wind-based mass transfer?
+        // does this ever get called?
+        //
+        // RTW - I think this says if there is MT, don't do winds...?
             m_Star1->SetMassLossDiff(0.0);                                                                                      // JR: todo: find a better way?
             m_Star2->SetMassLossDiff(0.0);                                                                                      // JR: todo: find a better way?
     }
@@ -1808,32 +1829,34 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
  *  Check if mass transfer should happen (either star, but not both, overflowing Roche Lobe)
  *  Perform mass transfer if required and update individual stars accordingly
  *
- *  Updates class member variables
+ *  Updates class member variables, return true if MT occured. 
  * 
  *
- * void CalculateMassTransfer(const double p_Dt)
+ * bool CalculateMassTransfer(const double p_Dt)
  *
  * @param   [IN]    p_Dt                        timestep in Myr
  */
-void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
+bool BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     
     InitialiseMassTransfer();                                                                                                   // initialise - even if not using mass transfer (sets some flags we might need)
     
     if (Unbound())
-        return;                                                                                                                 // do nothing for unbound binaries
+        return false;                                                                                                                 // do nothing for unbound binaries
     
-    if (!OPTIONS->UseMassTransfer()) return;                                                                                    // mass transfer not enabled - nothing to do
+    if (!OPTIONS->UseMassTransfer()) return false;                                                                                    // mass transfer not enabled - nothing to do
     
-    if (!m_Star1->IsRLOF() && !m_Star2->IsRLOF()) return;                                                                       // neither star is overflowing its Roche Lobe - no mass transfer - nothing to do
+    if (!m_Star1->IsRLOF() && !m_Star2->IsRLOF()) return false;                                                                       // neither star is overflowing its Roche Lobe - no mass transfer - nothing to do
+                                                                                                                                      
+    //m_MassTransferNow = true; Don't need it here RTW                                                                                                                   // Confirmed, Mass Transfer is happening this timestep, make sure to print RLOF output
     
     if (OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}) && HasStarsTouching()) {       // CHE enabled and both stars CH?
         m_Flags.stellarMerger = true;
-        return;
+        return true;
     }
 
     if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                                                                               // both stars overflowing their Roche Lobe?
         m_CEDetails.CEEnow = true;                                                                                              // yes - common envelope event - no mass transfer
-        return;                                                                                                                 // and return - nothing (else) to do
+        return true;                                                                                                                 // and return - nothing (else) to do
     }
 
     // one, and only one, star is overflowing its Roche Lobe - resolve mass transfer
@@ -1924,6 +1947,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         else {                                                                                                                  // Unstable Mass Transfer
             if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {
                 m_Flags.stellarMerger = true;
+                m_CEDetails.CEEnow    = true;
                 isCEE                 = true;
             }
             else {
@@ -1938,6 +1962,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         m_Donor->SetRLOFOntoNS();                                                                                               // donor donated mass to a neutron star
         m_Accretor->SetRecycledNS();                                                                                            // accretor is (was) a recycled NS
 	}
+
+    return true;
 }
 
 
@@ -1990,11 +2016,11 @@ void BaseBinaryStar::InitialiseMassTransfer() {
             m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                               // re-initialise mass transfer for star1
             m_Star2->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                               // re-initialise mass transfer for star2
 
-            m_MassTransfer     = false;                                                                                         // no mass transfer
+            m_MassTransferNow     = false;                                                                                         // no mass transfer
             m_CEDetails.CEEnow = false;                                                                                         // no common envelope
         }
         else {                                                                                                                  // not both CH, so ...
-		    m_MassTransfer = true;                                                                                              // ... mass transfer
+		    m_MassTransferNow = true;                                                                                              // ... mass transfer
             m_CEDetails.CEEnow = false;                                                                                         // no common envelope
 
 		    if (OPTIONS->CirculariseBinaryDuringMassTransfer()) {                                                               // circularise binary to the periapsis separation?
@@ -2017,7 +2043,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
         }
     }
     else {
-        m_MassTransfer     = false;                                                                                             // no mass transfer
+        m_MassTransferNow     = false;                                                                                             // no mass transfer
         m_CEDetails.CEEnow = false;                                                                                             // no common envelope
     }
 
@@ -2190,6 +2216,7 @@ void BaseBinaryStar::ResolveMassChanges() {
 
     // update mass of star1 according to mass loss and mass transfer, then update age accordingly
     (void)m_Star1->UpdateAttributes(m_Star1->MassPrev() - m_Star1->Mass() + m_Star1->MassLossDiff() + m_Star1->MassTransferDiff(), 0.0);    // update mass for star1
+    // RTW - why does UpdateAttributes take the current and past attributes? how does that work?
     m_Star1->UpdateInitialMass();                                                                       // update effective initial mass of star1 (MS, HG & HeMS)
     m_Star1->UpdateAgeAfterMassLoss();                                                                  // update age of star1
     m_Star1->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star1
@@ -2235,35 +2262,97 @@ void BaseBinaryStar::ResolveMassChanges() {
  *
  * @param   [in]        p_Dt                    Timestep (in Myr)
  */
+
+
+/*
+ 
+Pseudo code: 
+
+
+First run SSE, let stars adjust to new timestep 
+that means total mass is fixed, but core grows a bit, radius, lum,
+temp, tau, and related parameters get adjusted. (should winds happen here
+first, before calculating other parmaters?)
+
+
+Then, if a stellar type changes, that should be all that happens. Ensure
+the orbit is corrected for the mass loss (in this case, only from winds).
+
+If not, check if the core is sufficiently massive that the star shoud go
+supernova. If so, that should be done regardless of anything else.
+
+If not a supernova, look into the mass tranfser, incl CE.
+
+*****************
+
+If there was an SSE stellar type change, only allow winds
+If not, but there was a SN, skip winds and only do SN
+If no stype change and no SN, look at winds and mass transfer, including CE
+If there were winds or mass transfer (i.e no SN), resolve mass changes()
+
+
+
+ */
 void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
-    CalculateMassTransfer(p_Dt);                                                                                        // calculate mass transfer if necessary
+    bool stellarTypeChangedFromSSE = (m_Star1->StellarType() !=  m_Star1->StellarTypePrev()) || (m_Star2->StellarType() !=  m_Star2->StellarTypePrev());
 
-    CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds
+    if (!stellarTypeChangedFromSSE) {
 
-    if ((m_CEDetails.CEEnow || StellarMerger()) &&                                                                      // CEE or merger?
-        !(OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {                  // yes - avoid CEE if CH+CH
-        ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
-    }
-    else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
-        EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) - immediate event
-    }
-    else {
-        ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
-        if (HasStarsTouching()) {                                                                                       // if stars emerged from mass transfer as touching, it's a merger
-            m_Flags.stellarMerger = true;
-		
-            // Set Roche lobe flags for both stars so that they show correct RLOF status
-            m_Star1->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star1
-            m_Star2->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star2
+        // If the stellar type hasn't changed yet during this timestep, and a star is ready to SN
+        if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
+            EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) - immediate event
+        }
+    
+        // RTW very first thing is check if stellar type changed 
+        // next check if stellar type has already changed - if so, move on
+        //if (m_Star1->StellarType() !=  m_Star1->StellarTypePrev()) || (m_Star2->StellarType() !=  m_Star2->StellarTypePrev()) {
+    
+        // Check for SN first - this overrules even winds
+        // But does that come from the SSE? Where are those parameters set?
+        
+        else  {
+            (void)CalculateMassTransfer(p_Dt); // RTW turn off the bool for this
+
+                                                                                                                                //
+            // If the stellar type hasn't changed yet during the timestep, look at whether there was mass transfer
+            // calculate mass transfer if necessary
+    
+            if ((m_CEDetails.CEEnow || StellarMerger()) &&                                                                      // CEE or merger?
+                !(OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {                  // yes - avoid CEE if CH+CH
+                ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
+            }
+        
+    
+            CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds - only applies if there was not other mass loss
+                                                                                                                                //
+            if (!m_CEDetails.CEEnow) {           
+                ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
+            }
+            if (HasStarsTouching()) {                                                                                       // if stars emerged from mass transfer as touching, it's a merger
+                m_Flags.stellarMerger = true;
+        	
+                // Set Roche lobe flags for both stars so that they show correct RLOF status
+                m_Star1->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star1
+                m_Star2->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star2
+            }
         }
     }
+    else { // Stellar type changed just due to SSE, only apply winds
+           // Note: this code is copied directly from above, but I'm not sure how we can do better...
+            CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds - only applies if there was not other mass loss
+                                                                                                                                //
+            if (!m_CEDetails.CEEnow) {           
+                ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
+            }
+            if (HasStarsTouching()) {                                                                                       // if stars emerged from mass transfer as touching, it's a merger
+                m_Flags.stellarMerger = true;
+        	
+                // Set Roche lobe flags for both stars so that they show correct RLOF status
+                m_Star1->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star1
+                m_Star2->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star2
+            }
 
-    if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { (void)PrintDetailedOutput(m_Id); }                    // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
-    m_PrintExtraDetailedOutput = false;                                                                                 // reset detailed output printing flag for the next timestep
-
-    if ((m_Star1->IsSNevent() || m_Star2->IsSNevent())) {
-        EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) if mass changes are responsible for a supernova
     }
 
     // assign new values to "previous" values, for following timestep
@@ -2371,9 +2460,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             else if (StellarMerger() ) {                                                                                                    // have stars merged?
                 evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                         // for now, stop evolution
             }
-            else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
-                evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                         // yes - stop evolution
-            }
+            //else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
+            //    evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                         // yes - stop evolution
+            //}
             else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                     // binary is unbound and we don't want unbound systems?
                 m_Unbound       = true;                                                                                                     // yes - set the unbound flag (should already be set)
                 evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                                // stop evolution
@@ -2392,9 +2481,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 if (StellarMerger()) {                                                                                                      // have stars merged?
                     evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                     // for now, stop evolution
                 }
-                else if (HasStarsTouching()) {                                                                                              // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
-                    evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                     // yes - stop evolution
-                }
+                //else if (HasStarsTouching()) {                                                                                              // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
+                //    evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                     // yes - stop evolution
+                //}
                 else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                 // binary is unbound and we don't want unbound systems?
                     evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                            // stop evolution
                 }
