@@ -352,7 +352,7 @@ void BaseBinaryStar::SetRemainingValues() {
     m_aMassTransferDiff                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 	m_MassTransferTrackerHistory                 = MT_TRACKING::NO_MASS_TRANSFER;
-    m_MassTransferNow                               = false;
+    m_MassTransferNow                           = false;
 
     m_JLoss                                      = OPTIONS->MassTransferJloss();
 
@@ -1870,7 +1870,6 @@ bool BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     double aInitial = m_SemiMajorAxis;                                                                                          // semi-major axis in default units, AU, current timestep
     double aFinal;                                                                                                              // semi-major axis in default units, AU, after next timestep
     double jLoss    = m_JLoss;                            		                                                                // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
-	bool   isCEE    = false;									                                                                // is there a CEE in this MT episode?
 
 	// Check for stability
 	bool qCritFlag = OPTIONS->MassTransferCriticalMassRatioMSLowMass()   || OPTIONS->MassTransferCriticalMassRatioMSHighMass()  ||
@@ -1945,20 +1944,15 @@ bool BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 }
         }
         else {                                                                                                                  // Unstable Mass Transfer
+            m_CEDetails.CEEnow = true;
             if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {
                 m_Flags.stellarMerger = true;
-                m_CEDetails.CEEnow    = true;
-                isCEE                 = true;
-            }
-            else {
-                m_CEDetails.CEEnow = true;
-                isCEE              = true;
             }
         }
     }
     
 	// Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
-	if (!isCEE && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                                        // accretor is a neutron star
+	if (!m_CEDetails.CEEnow && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                                        // accretor is a neutron star
         m_Donor->SetRLOFOntoNS();                                                                                               // donor donated mass to a neutron star
         m_Accretor->SetRecycledNS();                                                                                            // accretor is (was) a recycled NS
 	}
