@@ -64,6 +64,8 @@ def makeDetailedPlots(Data=None, events=None):
     listOfPlots = [ plotMassAttributes, plotLengthAttributes, plotStellarTypeAttributes, plotHertzsprungRussell]
 
     events = [event for event in events if event.eventClass != 'Stype'] # want to ignore simple stellar type changes
+    if events[-1].endState == "Merger":
+        events.pop()                                                    # don't include mergers in the detailed plots
     num_events = len(events)
     event_times = [event.time for event in events]
 
@@ -407,6 +409,7 @@ class Event(object):
 
         self.eventImage = None
         self.eventString = self.getEventDetails(**kwargs)
+        self.endState = None # sets the endstate - only relevant if eventClass=='End'
 
 
     def getEventDetails(self, **kwargs):
@@ -504,6 +507,7 @@ class Event(object):
 
         elif eventClass == 'End':
             state = kwargs['state']
+            self.endState = state
             stype1 = self.stype1 
             stype2 = self.stype2 
             m1     = self.m1 
