@@ -1,1 +1,1 @@
-../../../PythonScripts/plot_detailed_evolution.py
+../../../plot_detailed_evolution.py
