@@ -23,6 +23,7 @@ booleanChoices:
     --allow-rlof-at-birth: True # allow binaries that have one or both stars in RLOF at birth to evolve, particularly useful in the context of CHE binaries.    
     --circularise-binary-during-mass-transfer: True
     --mass-transfer: True    
+    --retain-core-mass-during-caseA-mass-transfer: False  
     ### COMMON ENVELOPE
     --common-envelope-allow-immediate-RLOF-post-CE-survive: False
     --common-envelope-allow-main-sequence-survive: True # Allow main sequence stars to survive CE. Was previously False by default
@@ -33,6 +34,7 @@ booleanChoices:
     --common-envelope-lambda-nanjing-use-rejuvenated-mass: False
     --revised-energy-formalism-nandez-ivanova: False
     ### SUPERNOVAE, KICKS AND REMNANTS
+    --allow-H-rich-ECSN: True
     --pair-instability-supernovae: True
     --pulsational-pair-instability: True
     ### PULSAR PARAMETERS
@@ -85,6 +87,7 @@ numericalChoices:
     ### MASS TRANSFER
     --mass-transfer-fa: 0.5 # Only if using mass_transfer_accretion_efficiency_prescription = 'FIXED'
     --mass-transfer-jloss: 1.0  # Only if using mass_transfer_angular_momentum_loss_prescription = 'FIXED'
+    --mass-transfer-jloss-macleod-linear-fraction: 0.5
     --mass-transfer-thermal-limit-C: 10.0
     --zeta-adiabatic-arbitrary: 1.0E5
     --zeta-main-sequence: 2.0
