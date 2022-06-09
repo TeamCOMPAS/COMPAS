@@ -782,4 +782,3 @@ if __name__ == "__main__":
     #-- Run exectute COMPAS shell string
     print(shellCommand)
     call(shellCommand,shell=True)
-

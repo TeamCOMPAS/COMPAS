@@ -56,12 +56,12 @@ protected:
 
     // member functions - alphabetically
             double          CalculateCOCoreMassAtPhaseEnd() const                                       { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase
-            double          CalculateCOCoreMassOnPhase() const                                          { return 0.0; }                                                         // McCO(HeMS) = 0.0
+            double          CalculateCOCoreMassOnPhase() const                                          { return 0.0;  }                                                        // McCO(HeMS) = 0.0
 
             double          CalculateCoreMassAtPhaseEnd() const                                         { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
-            double          CalculateCoreMassOnPhase() const                                            { return m_COCoreMass; }                                                // Mc(HeMS) = McCOMass
+            double          CalculateCoreMassOnPhase() const                                            { return 0.0; }                                                         // Mc(HeMS) = 0.0
 
-            double          CalculateGyrationRadius() const                                             { return 0.1; }                                                         // JR: todo: Nobody seems sure about this...
+            double          CalculateGyrationRadius() const                                             { return 0.1; }
 
             double          CalculateHeCoreMassOnPhase() const                                          { return m_Mass; }                                                      // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd() const                                       { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase

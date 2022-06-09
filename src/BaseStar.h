@@ -81,6 +81,7 @@ public:
             double              Luminosity() const                                              { return m_Luminosity; }
             double              Mass() const                                                    { return m_Mass; }
             double              Mass0() const                                                   { return m_Mass0; }
+            double              MinimumCoreMass() const                                         { return m_MinimumCoreMass; }
             double              MassPrev() const                                                { return m_MassPrev; }
             STYPE_VECTOR        MassTransferDonorHistory() const                                { return m_MassTransferDonorHistory; }
             std::string         MassTransferDonorHistoryString() const;
@@ -205,7 +206,7 @@ public:
 
             void            StashSupernovaDetails(const STELLAR_TYPE p_StellarType)                             { LOGGING->StashSSESupernovaDetails(this, p_StellarType); }
 
-    virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
+    virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                             // Default is NO-OP
 
             STELLAR_TYPE    UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
                                                               const double p_DeltaMass0,
@@ -219,7 +220,9 @@ public:
                                                        const double p_Stepsize,
                                                        const double p_MassGainPerTimeStep,
                                                        const double p_Epsilon) { }                                                                                                  // Default is NO-OP
+    virtual void            UpdateMinimumCoreMass()  {}                                                                                                                 // Only set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass; default is NO-OP
 
+    
     // printing functions
             bool            PrintDetailedOutput(const int p_Id) const                                           { return OPTIONS->DetailedOutput() ? LOGGING->LogSSEDetailedOutput(this, p_Id) : true; } // Write record to SSE Detailed Output log file
             bool            PrintSupernovaDetails() const                                                       { return LOGGING->LogSSESupernovaDetails(this); }                   // Write record to SSE Supernovae log file
@@ -260,13 +263,13 @@ protected:
     double                  m_Age;                                      // Current effective age (changes with mass loss/gain)(myrs)
     double                  m_COCoreMass;                               // Current CO core mass (Msol)
     double                  m_CoreMass;                                 // Current core mass (Msol)
-    double                  m_CoreRadius;                               // Current core radius (Rsol)                   JR: todo: I don't think this is used anywhere...
     double                  m_Dt;                                       // Current timestep (myrs)
     double                  m_HeCoreMass;                               // Current He core mass (Msol)
     bool                    m_LBVphaseFlag;                             // Flag to know if the star satisfied the conditions, at any point in its evolution, to be considered a Luminous Blue Variable (LBV)
     double                  m_Luminosity;                               // Current luminosity (Lsol)
     double                  m_Mass;                                     // Current mass (Msol)
-    double                  m_Mass0;                                    // Current effective initial mass (Msol)        JR: todo: fix this one day - it is not always initial mass
+    double                  m_Mass0;                                    // Current effective initial mass (Msol)
+    double                  m_MinimumCoreMass;                          // Minimum core mass at end of main sequence (MS stars have no core in the Hurley prescription)
     double                  m_MinimumLuminosityOnPhase;                 // JR: Only required for CHeB stars, but only needs to be calculated once per star
     double                  m_Mdot;                                     // Current mass loss rate (Msol per ?)
     MASS_LOSS_TYPE          m_DominantMassLossRate;                     // Current dominant mass loss rate

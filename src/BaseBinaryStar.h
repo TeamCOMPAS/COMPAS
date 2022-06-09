@@ -437,7 +437,6 @@ private:
 
     double  CalculateMassTransferOrbit(const double                 p_DonorMass, 
                                        const double                 p_DeltaMassDonor, 
-                                       const double                 p_ThermalRateDonor, 
                                              BinaryConstituentStar& p_Accretor, 
                                        const double                 p_FractionAccreted);
 
@@ -539,7 +538,7 @@ private:
             double accretorMass = m_Accretor->Mass();
 
             BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
-            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -dM , donorCopy->CalculateThermalMassLossRate(), *m_Accretor, m_FractionAccreted);
+            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -dM , *m_Accretor, m_FractionAccreted);
             double RLRadius      = semiMajorAxis * (1 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - dM, accretorMass + (m_Binary->FractionAccreted() * dM)) * AU_TO_RSOL;
             
             (void)donorCopy->UpdateAttributes(-dM, -dM*donorCopy->Mass0()/donorCopy->Mass());
