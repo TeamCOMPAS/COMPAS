@@ -64,6 +64,8 @@ def makeDetailedPlots(Data=None, events=None):
     listOfPlots = [ plotMassAttributes, plotLengthAttributes, plotStellarTypeAttributes, plotHertzsprungRussell]
 
     events = [event for event in events if event.eventClass != 'Stype'] # want to ignore simple stellar type changes
+    if events[-1].endState == "Merger":
+        events.pop()                                                    # don't include mergers in the detailed plots
     num_events = len(events)
     event_times = [event.time for event in events]
 
@@ -101,7 +103,6 @@ def makeDetailedPlots(Data=None, events=None):
             for jj in range(num_events):
                 yOffsetFactor = 1.5 if (ax.get_yscale() == 'log') else 1.02
                 ax.text(x=spaced_out_event_times[jj], y=ax.get_ylim()[1]*yOffsetFactor, s=chr(ord('@')+1+jj)) # The unicode representation of the capital letters - works as long as there are less than 26 images to show
-            ax.axes.xaxis.set_ticklabels([])
             ax.set_xlabel('Time / Myr')
 
         
@@ -245,22 +246,24 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, **kwargs):
     ylim = ax.get_ylim()
     ax.invert_xaxis()
 
-    alpha=0.4
     # Add lines of const radii
     for R in np.logspace(-9, 5, 15):
         exp = "{:.1e}".format(R)
         exp = exp[-3] + exp[-1]
+        if ((int(exp)%2)==1): # skip odd ones to remove clutter
+            continue
         T_K = np.logspace(3, 7, 41) # in K
         T = T_K/6e3  # Tsol=6e3K
         def get_L(t): # assumes K
             return R*R *t*t*t*t
         L = get_L(T)
-        ax.plot(T_K,L, '--k', alpha=alpha)
+        ax.plot(T_K,L, '--k', alpha=0.2)
         # Plot the Rsol text at the bottom and right
         Lbot = ylim[0]*8 #Lsun  -2
         Trgt = xlim[0]*2 #3e3
         Tbot = np.sqrt(np.sqrt(Lbot/(R*R)))*6e3 # K
         Lrgt = get_L(Trgt/6e3)
+        alpha=0.4
         if (Tbot > Trgt) and (Tbot < xlim[1]):
             ax.text(x=Tbot, y=Lbot, s=r"$R_\odot^{{{exp}}}$".format(exp=exp), alpha=alpha)
         elif (Lrgt > Lbot) and (Lrgt < ylim[1]):
@@ -406,6 +409,7 @@ class Event(object):
 
         self.eventImage = None
         self.eventString = self.getEventDetails(**kwargs)
+        self.endState = None # sets the endstate - only relevant if eventClass=='End'
 
 
     def getEventDetails(self, **kwargs):
@@ -503,6 +507,7 @@ class Event(object):
 
         elif eventClass == 'End':
             state = kwargs['state']
+            self.endState = state
             stype1 = self.stype1 
             stype2 = self.stype2 
             m1     = self.m1 
