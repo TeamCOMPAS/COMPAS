@@ -457,7 +457,7 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
         m_Radius    = COWD::CalculateRadiusOnPhase_Static(m_Mass);
         m_Age       = 0.0;
         if (!IsSupernova()) {
-            stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
+            stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;         //Note that this uses the CO core mass, rather than the core mass at base of AGB or He mass at He star birth suggested by Hurley+, 2000
         }
     }
     return stellarType;

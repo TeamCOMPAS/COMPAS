@@ -126,6 +126,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
+    m_MinimumCoreMass                          = 0.0;
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
@@ -135,7 +136,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_HeCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mu                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_CoreRadius                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mdot                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_DominantMassLossRate                     = MASS_LOSS_TYPE::NONE;
 
@@ -2085,7 +2085,7 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
  *
  * double CalculateThermalMassAcceptanceRate(const double p_Radius)
  *
- * @param   [IN]    p_Radius                    Radius of the accretor (Rsol)
+ * @param   [IN]    p_Radius                    Radius of the accretor (Rsol) [typically called with Roche Lobe radius]
  * @return                                      Thermal mass acceptance rate
  */
 double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) const {
@@ -3345,7 +3345,3 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase() {
 
     return stellarType;
 }
-
-
-
-
