@@ -2437,8 +2437,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 stepNum++;                                                                                                                  // increment stepNum
             }
         }
-        //if (!StellarMerger())
-        (void)PrintDetailedOutput(m_Id);                                                                                                // print (log) detailed output for binary
+        if (!StellarMerger())
+            (void)PrintDetailedOutput(m_Id);                                                                                                // print (log) detailed output for binary
 
         if (evolutionStatus == EVOLUTION_STATUS::STEPS_UP) {                                                                                // stopped because max timesteps reached?
             SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED);                                                                                    // show error
