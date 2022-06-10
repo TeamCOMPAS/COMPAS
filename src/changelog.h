@@ -906,7 +906,11 @@
 //                                      - Fixed error identifier in Log::UpdateAllLogfileRecordSpecs() - was (incorrectly) ERROR::UNKNOWN_BINARY_PROPERTY, now (correctly) ERROR::UNKNOWN_STELLAR_PROPERTY 
 // 02.31.03     RTW - May 20, 2022   - Defect repair:
 //                                      - Fixed MS+MS unstable MT not getting flagged as a CEE
+// 02.31.04     RTW - June 10, 2022  - Enhancements
+//                                      - Fixed MT_TRACKER values to be clearer and complementary to each other
+//                                      - Updated the relevant section in the detailed plotter that uses MT_TRACKER values
+//                                      - Removed end states from detailed plotter (Merger, DCO, Unbound) so that they don't over compress the rest
 
-const std::string VERSION_STRING = "02.31.03";
+const std::string VERSION_STRING = "02.31.04";
 
 # endif // __changelog_h__
