@@ -1576,7 +1576,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         m_Flags.stellarMerger        = true;
     }
     else if ( (m_Star1->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) ||
-             (m_Star2->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) ) {        // check if we have a non-MS radiative-envelope star
+              (m_Star2->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) ) {        // check if we have a non-MS radiative-envelope star
         m_CEDetails.optimisticCE = true;
         if(!OPTIONS->AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() ) {                                            // stellar merger
             m_MassTransferTrackerHistory = MT_TRACKING::CE_WITH_RAD_ENV;
@@ -1669,11 +1669,16 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
 	double gamma;
 
 	switch (OPTIONS->MassTransferAngularMomentumLossPrescription()) {                                                       // which precription?
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS                : gamma = p_AccretorMass / p_DonorMass; break;
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION: gamma = p_DonorMass / p_AccretorMass; break;
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING    : gamma = (M_SQRT2 * (p_DonorMass + p_AccretorMass) * (p_DonorMass + p_AccretorMass)) / (p_DonorMass * p_AccretorMass); break; // Based on the assumption that a_ring ~= 2*a*, Vinciguerra+, 2020
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS                : gamma = p_AccretorMass / p_DonorMass; break;     // vicinity of the donor
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION: gamma = p_DonorMass / p_AccretorMass; break;     // vicinity of the accretor
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING    : gamma = (M_SQRT2 * (p_DonorMass + p_AccretorMass) * (p_DonorMass + p_AccretorMass)) / (p_DonorMass * p_AccretorMass); break; // Based on the assumption that a_ring ~= 2*a*, Vinciguerra+, 2020 
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR       : {                                                // Linear interpolation between accretor and L2 point
+            double gamma_ac = p_DonorMass / p_AccretorMass;
+            double gamma_L2 = 1.414 *(p_DonorMass + p_AccretorMass) * (p_DonorMass + p_AccretorMass) / (p_DonorMass * p_AccretorMass); // prefactor comes from MacLeod & Loeb 2020; this is an approximation -- see Pribulla+, https://articles.adsabs.harvard.edu/pdf/1998CoSka..28..101P 
+            gamma = OPTIONS->MassTransferJlossMacLeodLinearFraction() * (gamma_L2 - gamma_ac) + gamma_ac; 
+            break;                                                                                    
+        }
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY            : gamma = OPTIONS->MassTransferJloss(); break;
-
         default:                                                                                                            // unknown mass transfer angular momentum loss prescription - shouldn't happen
             gamma = 1.0;                                                                                                    // default value
             m_Error = ERROR::UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION;                                                 // set error value
@@ -1692,22 +1697,18 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
  *
  * double CalculateMassTransferOrbit (const double                 p_DonorMass, 
  *                                    const double                 p_DeltaMassDonor, 
- *                                    const double                 p_ThermalRateDonor, 
- *                                          BinaryConstituentStar& p_Accretor, 
+ *                                          BinaryConstituentStar& p_Accretor,
  *                                    const double                 p_FractionAccreted)
  *
  * @param   [IN]    p_DonorMass                 Donor mass
- * @param   [IN]    p_AccretorMass              Accretor mass
  * @param   [IN]    p_DeltaMassDonor            Change in donor mass
- * @param   [IN]    p_ThermalRateDonor          Donor thermal mass loss rate
  * @param   [IN]    p_Accretor                  Pointer to accretor
- * @param   [IN]    p_FractionAccreted      Mass fraction lost from donor accreted by accretor
+ * @param   [IN]    p_FractionAccreted          Mass fraction lost from donor accreted by accretor
  * @return                                      Semi-major axis
  */
 double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p_DonorMass, 
                                                   const double                 p_DeltaMassDonor, 
-                                                  const double                 p_ThermalRateDonor, 
-                                                        BinaryConstituentStar& p_Accretor, 
+                                                        BinaryConstituentStar& p_Accretor,
                                                   const double                 p_FractionAccreted) {
 
     double semiMajorAxis   = m_SemiMajorAxis;                                                                   // new semi-major axis value - default is no change
@@ -1846,7 +1847,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     double aInitial = m_SemiMajorAxis;                                                                                          // semi-major axis in default units, AU, current timestep
     double aFinal;                                                                                                              // semi-major axis in default units, AU, after next timestep
     double jLoss    = m_JLoss;                            		                                                                // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
-	bool   isCEE    = false;									                                                                // is there a CEE in this MT episode?
 
 	// Check for stability
 	bool qCritFlag = OPTIONS->MassTransferCriticalMassRatioMSLowMass()   || OPTIONS->MassTransferCriticalMassRatioMSHighMass()  ||
@@ -1894,7 +1894,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                     STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                     // donor stellar type before resolving envelope loss
                     
-                    aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, m_Donor->CalculateThermalMassLossRate(), *m_Accretor, m_FractionAccreted);
+                    aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, *m_Accretor, m_FractionAccreted);
                     
                     m_Donor->ResolveEnvelopeLossAndSwitch();                                                                    // only other interaction that adds/removes mass is winds, so it is safe to update star here
                     
@@ -1904,10 +1904,11 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 }
                 else{                                                                                                           // donor has no envelope
                     double dM = - MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
+                    m_Donor->UpdateMinimumCoreMass();                                                                           // update minimum core mass of possible MS donor
                     m_Donor->SetMassTransferDiff(dM);                                                                           // mass transferred by donor
                     m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted);                                                  // mass accreted by accretor
                       
-                    aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), dM, m_Donor->CalculateThermalMassLossRate(), *m_Accretor, m_FractionAccreted);
+                    aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), dM, *m_Accretor, m_FractionAccreted);
                 }
                        
 
@@ -1920,19 +1921,15 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 }
         }
         else {                                                                                                                  // Unstable Mass Transfer
+            m_CEDetails.CEEnow = true;
             if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {
                 m_Flags.stellarMerger = true;
-                isCEE                 = true;
-            }
-            else {
-                m_CEDetails.CEEnow = true;
-                isCEE              = true;
             }
         }
     }
     
 	// Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
-	if (!isCEE && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                                        // accretor is a neutron star
+	if (!m_CEDetails.CEEnow && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                                        // accretor is a neutron star
         m_Donor->SetRLOFOntoNS();                                                                                               // donor donated mass to a neutron star
         m_Accretor->SetRecycledNS();                                                                                            // accretor is (was) a recycled NS
 	}
@@ -2135,7 +2132,7 @@ double BaseBinaryStar::CalculateAngularMomentum(const double p_SemiMajorAxis,
 
 	double Is1  = ks1 * m1 * R1 * R1;
 	double Is2  = ks2 * m2 * R2 * R2;
-    double Jorb = ((m1 * m2) / (m1 + m2)) * std::sqrt(G1 * (m1 + m2) * p_SemiMajorAxis * (1.0 - (p_Eccentricity * p_Eccentricity)));
+    	double Jorb = ((m1 * m2) / (m1 + m2)) * std::sqrt(G1 * (m1 + m2) * p_SemiMajorAxis * (1.0 - (p_Eccentricity * p_Eccentricity)));
 
 	return (Is1 * w1) + (Is2 * w2) + Jorb;
 }
@@ -2250,6 +2247,10 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
         if (HasStarsTouching()) {                                                                                       // if stars emerged from mass transfer as touching, it's a merger
             m_Flags.stellarMerger = true;
+		
+            // Set Roche lobe flags for both stars so that they show correct RLOF status
+            m_Star1->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star1
+            m_Star2->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star2
         }
     }
 

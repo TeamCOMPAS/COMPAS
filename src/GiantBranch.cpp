@@ -1,8 +1,10 @@
 #include "GiantBranch.h"
 #include "HeMS.h"
 #include "WhiteDwarfs.h"
+#include "ONeWD.h"
 #include "NS.h"
 #include "BH.h"
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1459,6 +1461,61 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const do
 
 
 /*
+ * Calculate the remnant mass using the new Fryer prescription from 2022
+ *
+ * Fryer et al. 2022 eq. 5
+ *
+ *
+ * std::tuple<double, double> CalculateRemnantMassByFryer2022(const double p_Mass, const double p_COCoreMass)
+ *
+ * @param   [IN]    p_Mass                      Pre supernova mass in Msol
+ * @param   [IN]    p_COCoreMass                Pre supernova Carbon Oxygen (CO) core mass in Msol
+ * @return                                      Tuple containing Remnant mass in Msol and updated fraction of mass falling back onto compact object
+ */
+std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const double p_Mass, const double p_COCoreMass) {
+
+
+    double mProto;
+    double fallbackMass;
+    double baryonicRemnantMass;
+
+    double fallbackFraction         = 0.0;
+    double gravitationalRemnantMass = 0.0;
+
+    baryonicRemnantMass  = 1.2 + 0.05 * OPTIONS->Fryer22fmix() + 0.01 * pow( (p_COCoreMass/OPTIONS->Fryer22fmix()), 2.0) + exp( OPTIONS->Fryer22fmix() * (p_COCoreMass - OPTIONS->Fryer22Mcrit()) ) ;  // equation 5. 
+    baryonicRemnantMass  = std::min(baryonicRemnantMass, p_Mass);// check that baryonicRemnantMass doesn't exceed the total mass
+
+    // Now the proto mass, which is only used for the calculation of kicks, will still be calculated using the DELAYED/RAPID prescriptions from Fryer 2012
+    switch (OPTIONS->FryerSupernovaEngine()) {                                                                                     // which SN_ENGINE?
+
+        case SN_ENGINE::DELAYED:  
+        mProto           = CalculateProtoCoreMassDelayed(p_COCoreMass);
+
+        fallbackMass        = std::max(0.0, baryonicRemnantMass - mProto);                                      // fallbackMass larger than 0
+        fallbackFraction    = fallbackMass/(p_Mass - mProto);                                                   //
+        fallbackFraction    = std::max(0.0, std::min(1.0, fallbackFraction));                                   // make sure the fb fraction lies between 0-1
+        gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
+        break;
+
+        case SN_ENGINE::RAPID:  
+        mProto           = CalculateProtoCoreMassRapid();
+
+        fallbackMass        = std::max(0.0, baryonicRemnantMass - mProto);                                      // fallbackMass larger than 0
+        fallbackFraction    = fallbackMass/(p_Mass - mProto);                                                   //
+        fallbackFraction    = std::max(0.0, std::min(1.0, fallbackFraction));                                   // make sure the fb fraction lies between 0-1
+        gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
+        break;
+
+        default:                                                                                            // unknown SN_ENGINE
+        SHOW_WARN(ERROR::UNKNOWN_SN_ENGINE, "Using defaults");                                          // show warning
+    }
+                                   
+    return std::make_tuple(gravitationalRemnantMass, fallbackFraction);
+}
+
+
+
+/*
  * Calculate fallback using linear interpolation
  *
  * Belczynski et al. 2002
@@ -1538,6 +1595,12 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         case REMNANT_MASS_PRESCRIPTION::FRYER2012:                                                          // Fryer 2012
 
             std::tie(m_Mass, m_SupernovaDetails.fallbackFraction) = CalculateRemnantMassByFryer2012(m_Mass, m_COCoreMass);
+            break;
+
+
+        case REMNANT_MASS_PRESCRIPTION::FRYER2022:                                                          // Fryer 2022
+
+            std::tie(m_Mass, m_SupernovaDetails.fallbackFraction) = CalculateRemnantMassByFryer2022(m_Mass, m_COCoreMass);
             break;
 
         case REMNANT_MASS_PRESCRIPTION::MULLER2016:                                                         // Muller 2016
@@ -1626,14 +1689,27 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
  */
 STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
 
-    m_Mass       = MECS_REM;                                                        // defined in constant.h
-    m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                       // neutronStarRadius in Rsol
-    m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
+    if (SN_IsHydrogenPoor() || (OPTIONS->AllowHRichECSN())) {                           // If progenitor is H rich, is it allowed to ECSN?
+                                                                                            // - yes
+        m_Mass       = MECS_REM;                                                            // defined in constants.h
+        m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
+        m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
+    
+        SetSNCurrentEvent(SN_EVENT::ECSN);                                                  // electron capture SN happening now
+        SetSNPastEvent(SN_EVENT::ECSN);                                                     // ... and will be a past event
+    
+        return STELLAR_TYPE::NEUTRON_STAR;
 
-    SetSNCurrentEvent(SN_EVENT::ECSN);                                              // electron capture SN happening now
-    SetSNPastEvent(SN_EVENT::ECSN);                                                 // ... and will be a past event
+    }
+    else {                                                                                  // -no, treat as ONeWD 
+        
+        m_Mass       = m_COCoreMass;                                                        
+        m_Radius     = WhiteDwarfs::CalculateRadiusOnPhase_Static(m_Mass);                  // radius is defined equivalently for all WDs
+        m_Luminosity = ONeWD::CalculateLuminosityOnPhase_Static(m_Mass, m_Time, m_Metallicity); //Need to get the luminosity for ONeWD specifically
+    
+        return STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
 
-    return STELLAR_TYPE::NEUTRON_STAR;
+    }	    
 }
 
 
@@ -1723,7 +1799,7 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
             break;
 
         case PPI_PRESCRIPTION::STARTRACK:                                                               // Belczynski et al. 2016 https://arxiv.org/abs/1607.03116
-            baryonicMass = m_HeCoreMass;                                                                // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static)
+            baryonicMass = std::min(m_HeCoreMass, STARTRACK_PPISN_HE_CORE_MASS);  // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static), limit helium core mass to 45 Msun
             m_Mass = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                                // convert to gravitational mass due to neutrino mass loss
 
             break;

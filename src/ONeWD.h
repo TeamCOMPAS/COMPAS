@@ -24,6 +24,13 @@ public:
         return *this;
     }
 
+    // member functions
+    static double       CalculateLuminosityOnPhase_Static(const double p_Mass, 
+                                                          const double p_Time, 
+                                                          const double p_Metallicity)   { return WhiteDwarfs::CalculateLuminosityOnPhase_Static(p_Mass, 
+                                                                                                                                        p_Time, 
+                                                                                                                                        p_Metallicity, 
+                                                                                                                                        WD_Baryon_Number.at(STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF)); }
 
 protected:
 
@@ -41,14 +48,8 @@ protected:
            double       CalculateLuminosityOnPhase(const double p_Mass,
                                                    const double p_Time,
                                                    const double p_Metallicity) const    { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
-           double       CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }        // Use class member variables
-    static double       CalculateLuminosityOnPhase_Static(const double p_Mass, 
-                                                          const double p_Time, 
-                                                          const double p_Metallicity)   { return WhiteDwarfs::CalculateLuminosityOnPhase_Static(p_Mass, 
-                                                                                                                                        p_Time, 
-                                                                                                                                        p_Metallicity, 
-                                                                                                                                        WD_Baryon_Number.at(STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF)); }
 
+        double       CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }        // Use class member variables
             bool         IsSupernova() const                                             { return (utils::Compare(m_Mass, MECS) > 0); }                              // Going supernova if mass large enough
 
             STELLAR_TYPE ResolveSupernova()                                              { return GiantBranch::ResolveSupernova(); }                                 // Use GiantBranch

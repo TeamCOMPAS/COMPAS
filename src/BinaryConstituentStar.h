@@ -221,6 +221,8 @@ public:
     void            SetPostCEEValues();
     void            SetPreCEEValues();
 
+    void            SetRocheLobeFlags(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
+
     COMPAS_VARIABLE StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
 
     void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
@@ -266,8 +268,6 @@ private:
 
 	// member functions - alphabetically
     double              CalculateMassAccretedForNS(const double p_CompanionMass, const double p_CompanionRadius);
-
-    void                SetRocheLobeFlags(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
 
 };
 

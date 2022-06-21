@@ -23,6 +23,7 @@ booleanChoices:
     --allow-rlof-at-birth: True # allow binaries that have one or both stars in RLOF at birth to evolve, particularly useful in the context of CHE binaries.    
     --circularise-binary-during-mass-transfer: True
     --mass-transfer: True    
+    --retain-core-mass-during-caseA-mass-transfer: False  
     ### COMMON ENVELOPE
     --common-envelope-allow-immediate-RLOF-post-CE-survive: False
     --common-envelope-allow-main-sequence-survive: True # Allow main sequence stars to survive CE. Was previously False by default
@@ -33,6 +34,7 @@ booleanChoices:
     --common-envelope-lambda-nanjing-use-rejuvenated-mass: False
     --revised-energy-formalism-nandez-ivanova: False
     ### SUPERNOVAE, KICKS AND REMNANTS
+    --allow-H-rich-ECSN: True
     --pair-instability-supernovae: True
     --pulsational-pair-instability: True
     ### PULSAR PARAMETERS
@@ -85,6 +87,7 @@ numericalChoices:
     ### MASS TRANSFER
     --mass-transfer-fa: 0.5 # Only if using mass_transfer_accretion_efficiency_prescription = 'FIXED'
     --mass-transfer-jloss: 1.0  # Only if using mass_transfer_angular_momentum_loss_prescription = 'FIXED'
+    --mass-transfer-jloss-macleod-linear-fraction: 0.5
     --mass-transfer-thermal-limit-C: 10.0
     --zeta-adiabatic-arbitrary: 1.0E5
     --zeta-main-sequence: 2.0
@@ -103,6 +106,8 @@ numericalChoices:
     ### SUPERNOVAE, KICKS AND REMNANTS
     --eddington-accretion-factor: 1 # multiplication Factor for eddington accretion onto NS&BH    
     --fix-dimensionless-kick-magnitude: -1.0                       
+    --fryer-22-fmix: 0.5            # parameter describing mixing growth time when using the 'FRYER2022' remnant mass prescription
+    --fryer-22-mcrit: 5.75          # critical mass for BH formation when using the 'FRYER2022' remnant mass prescription
     --kick-direction-power: 0.0
     --kick-magnitude-sigma-CCSN-NS: 265.0  #  [km/s]
     --kick-magnitude-sigma-CCSN-BH: 265.0  #  [km/s]
