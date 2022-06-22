@@ -382,7 +382,13 @@ constexpr double MULLERMANDEL_KICKNS                    = 400.0;
 constexpr double MULLERMANDEL_KICKBH                    = 200.0;
 constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3; 
 
+// Constants for WD evolution
 
+constexpr double HELIUM_WHITE_DWARF_MCRIT               = log10(2) - 8;                                             // Critical accretion rate for He WD accreting He-rich material. From Belczynski+ 2008, Mdot_crit2 in section 5.7.1.
+constexpr double MDOT_OFF_C                             = -5.688246139;                                             // From Wang+ 2017. Log( 2.05 x 10^-6).
+constexpr double M_DETONATION_CO                        = 0.9;                                                      // Minimum mass for detonation which would yield something similar to SN Ia. Ruiter+ 2014.
+constexpr double M_HE_BUR                               = 0.35;                                                     // Minimum for HeMS burning
+constexpr double SHELL_CRIT                             = 0.05;                                                     // Minimum shell mass of He for detonation. Should be composed of helium (so, exclude burnt material), but not implemented yet. Ruiter+ 2014.
 
 // object types
 enum class OBJECT_TYPE: int { NONE, MAIN, PROFILING, UTILS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR };    //  if BASE_STAR, check STELLAR_TYPE

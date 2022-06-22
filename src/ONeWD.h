@@ -25,12 +25,18 @@ public:
     }
 
     // member functions
-    static double       CalculateLuminosityOnPhase_Static(const double p_Mass, 
-                                                          const double p_Time, 
-                                                          const double p_Metallicity)   { return WhiteDwarfs::CalculateLuminosityOnPhase_Static(p_Mass, 
-                                                                                                                                        p_Time, 
-                                                                                                                                        p_Metallicity, 
-                                                                                                                                        WD_Baryon_Number.at(STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF)); }
+
+    static double       CalculateLuminosityOnPhase_Static(const double p_Mass,
+                                                         const double p_Time, 
+                                                         const double p_Metallicity)   { return WhiteDwarfs::CalculateLuminosityOnPhase_Static(p_Mass,
+                                                                                                                                               p_Time, 
+                                                                                                                                               p_Metallicity, 
+                                                                                                                                               WD_Baryon_Number.at(STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF)); }
+    
+    std::tuple<double,int> DetermineAccretionRegime(bool p_HeRich,
+                        const double p_AccretedMass,
+                        const double p_Dt);
+    void ResolveAccretionRegime(const int p_Regime) { ;}
 
 protected:
 
@@ -38,6 +44,8 @@ protected:
         m_StellarType = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;                                                                                                      // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
         m_Age = 0.0;                                                                                                                                                // Set age appropriately
+    m_HShell = 0.0; // Initialize hydrogen shell
+    m_HeShell = 0.0; // Initialize helium shell
     }
 
 
@@ -48,8 +56,7 @@ protected:
            double       CalculateLuminosityOnPhase(const double p_Mass,
                                                    const double p_Time,
                                                    const double p_Metallicity) const    { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
-
-        double       CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }        // Use class member variables
+           double       CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }        // Use class member variables
             bool         IsSupernova() const                                             { return (utils::Compare(m_Mass, MECS) > 0); }                              // Going supernova if mass large enough
 
             STELLAR_TYPE ResolveSupernova()                                              { return GiantBranch::ResolveSupernova(); }                                 // Use GiantBranch

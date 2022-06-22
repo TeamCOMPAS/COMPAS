@@ -32,6 +32,9 @@ public:
     static  double      CalculateRadiusOnPhase_Static(const double p_Mass);
 
 
+    void                IncrementShell(const double p_AccretedMass,
+                                       bool p_HeRich);
+
 protected:
 
 
@@ -40,7 +43,22 @@ protected:
 
             double      CalculateHeCoreMassOnPhase() const                  { return m_HeCoreMass; }                                                // NO-OP
 
+            double      CalculateetaH(const double p_LogMassRate);
+
+            double      CalculateetaHe(const double p_LogMassRate);
+
+            double      CalculateetaPTY(const double p_MassRate);
+
+            double      Calculatel0() const                                  {return (m_Metallicity > 0.01) ? 1995262.3 : 31622.8; }
+
+            double      CalculateX() const                                   {return (m_Metallicity > 0.01) ? 0.7 : 0.8 ; }
+
+            double      Calculatelambda() const                              {return (m_Metallicity > 0.01) ? 8 : 5 ;  }
+
             double      CalculateInitialSupernovaMass() const               { return 0.0; }
+
+            DBL_DBL     CalculateWDMassAcceptanceRate(const double p_DonorMassRate,
+                                                      const bool   p_IsHeRich);
 
             double      CalculateRadiusOnPhase(const double p_Mass) const   { return CalculateRadiusOnPhase_Static(p_Mass); }
             double      CalculateRadiusOnPhase() const                      { return CalculateRadiusOnPhase(m_Mass); }                              // Use class member variables

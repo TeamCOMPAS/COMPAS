@@ -124,6 +124,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Dt                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Tau                                      = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
+    m_OffCenterIgnition                        = false;                                             // Flag to check whether a WD has experienced off-center ignition or not.
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
     m_MinimumCoreMass                          = 0.0;
@@ -172,6 +173,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     // Supernova detais
 
+    m_DoubleDetonation                         = false;                                   // Flag to check whether a WD has undergone a double detonation (which leads to SN event), or not.
     m_SupernovaDetails.initialKickParameters   = p_KickParameters;
 
     m_SupernovaDetails.events.current          = SN_EVENT::NONE;

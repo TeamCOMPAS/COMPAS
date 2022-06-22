@@ -1863,6 +1863,9 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 
         // Calculate accretion fraction
         // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
+        bool accretorIsWD                 = m_Accretor->IsOneOf({ STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF }); //To confirm that the accretor is a WD
+        bool donorIsHeRich                = m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH, STELLAR_TYPE::HELIUM_WHITE_DWARF }); // Check composition of accreted material
+
         std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(),
                                                                                             m_Accretor->CalculateThermalMassAcceptanceRate(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL));
 
@@ -1878,6 +1881,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         bool caseBBAlwaysUnstableOntoNSBH = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH;
 
         bool donorIsHeHGorHeGB            = m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH });
+        bool donorIsGiant                 = m_Donor->IsOneOf({ STELLAR_TYPE::FIRST_GIANT_BRANCH, STELLAR_TYPE::CORE_HELIUM_BURNING, STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH, STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH });
         bool accretorIsNSorBH             = m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE });
 
         if ((utils::Compare(m_ZetaStar, m_ZetaLobe) > 0 && (!(caseBBAlwaysUnstable && donorIsHeHGorHeGB))) ||
@@ -1888,7 +1892,22 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                 if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
                     double mdEnvAccreted = envMassDonor * m_FractionAccreted;
-                    
+                    m_Accretor->SetMassTransferDiff(mdEnvAccreted);
+                    if (accretorIsWD) {
+                        double FractionAccretedMass;
+                        int AccretionRegime;
+                        std::tie(FractionAccretedMass, AccretionRegime) = m_Accretor->DetermineAccretionRegime(donorIsHeRich, mdEnvAccreted, p_Dt); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
+                        if (AccretionRegime == 10) {
+                            if (donorIsGiant) {
+                                m_CEDetails.CEEnow = true;
+                            } else {
+                                m_Flags.stellarMerger = true;
+                            }
+                        }
+                        mdEnvAccreted =  mdEnvAccreted*FractionAccretedMass; // Update it depending on retention efficiency.
+                        m_Accretor->IncrementShell(mdEnvAccreted, donorIsHeRich); // Update variable that tracks shell size (H or He shell).
+                        m_Accretor->ResolveAccretionRegime(AccretionRegime, mdEnvAccreted, p_Dt);
+                    }
                     m_Donor->SetMassTransferDiff(-envMassDonor);
                     m_Accretor->SetMassTransferDiff(mdEnvAccreted);
 
@@ -1904,10 +1923,26 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 }
                 else{                                                                                                           // donor has no envelope
                     double dM = - MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
-                    m_Donor->UpdateMinimumCoreMass();                                                                           // update minimum core mass of possible MS donor
+                    if (accretorIsWD) {
+                        double FractionAccretedMass;
+                        int AccretionRegime;
+                        std::tie(FractionAccretedMass, AccretionRegime) = m_Accretor->DetermineAccretionRegime(donorIsHeRich, -dM * m_FractionAccreted, p_Dt); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
+                        if (AccretionRegime == 10) {
+                            if (donorIsGiant) {
+                                m_CEDetails.CEEnow = true;
+                            } else {
+                                m_Flags.stellarMerger = true;
+                            }
+                        }
+                        m_Accretor->IncrementShell(-dM * m_FractionAccreted * FractionAccretedMass, donorIsHeRich); // Update variable that tracks shell size (H or He shell).
+                        m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted * FractionAccretedMass); // Update it depending on retention efficiency.
+                        m_Accretor->ResolveAccretionRegime(AccretionRegime, -dM * m_FractionAccreted * FractionAccretedMass, p_Dt);
+                    } else {
+                        m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted); // mass accreted by accretor
+                    }
+                    m_Donor->UpdateMinimumCoreMass();
                     m_Donor->SetMassTransferDiff(dM);                                                                           // mass transferred by donor
-                    m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted);                                                  // mass accreted by accretor
-                      
+
                     aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), dM, *m_Accretor, m_FractionAccreted);
                 }
                        
