@@ -68,7 +68,7 @@ def makeDetailedPlots(Data=None, events=None):
         events.pop()                                                    # don't include the 'End' eventClasses, they can compress the rest of the evolution too much
     num_events = len(events)
     event_times = [event.time for event in events]
-    stopTimeAt = event_times[-1] + 1 # End time at the last event, plus a Myr for convenience.
+    stopTimeAt = event_times[-1] * 1.05 # End time at the last event, plus 5% for convenience.
     mask = Data['Time'][()] < stopTimeAt # Mask the data to not include the 'End' events
 
     rcParams.update(fontparams) # Set configurations for uniform plot output
@@ -596,7 +596,6 @@ class allEvents(object):
             ### Mass transfer happened
             if (Data['MT_History'][ii]>0) and not (Data['MT_History'][ii]==Data['MT_History'][ii-1]): # Not a repeated entry
                 isMerger = self.addEvent(ii, eventClass='MT') # if a stellar merger, the eventClass changes
-                #print("endearly? ", isEndEarly)
     
             ### Type of star 1 changed
             if Data['Stellar_Type(1)'][ii]!=Data['Stellar_Type(1)'][ii-1]:    
@@ -614,7 +613,6 @@ class allEvents(object):
     
         ### Add an event for final state of the binary
         if not isMerger: # set if a merger was flagged earlier
-            #print('didn"t end early')
             isUnbound = (Data['Eccentricity'][-1]>1 or Data['SemiMajorAxis'][-1]<0)
             isDCO = (Data['Stellar_Type(1)'][-1] in np.arange(10, 15)) and (Data['Stellar_Type(2)'][-1] in np.arange(10, 15)) # Both stars are WDs, NSs, or BHs
         
