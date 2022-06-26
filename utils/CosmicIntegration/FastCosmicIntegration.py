@@ -484,7 +484,6 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
             for i in range(n_redshifts_detection):
                 for j in range(n_binaries):
                     if(merger_rate[j][i]>0):
-                        #output.write(str(COMPAS.mass1[j])+'\t'+str(COMPAS.mass2[j])+'\t'+str(redshifts[i])+'\t'+str(merger_rate[j][i])+'\n')
                         output.write(f'{COMPAS.mass1[j]:.5f}\t{COMPAS.mass2[j]:.5f}\t{redshifts[i]:.5f}\t{merger_rate[j][i]:.10f}\n')
     return detection_rate, formation_rate, merger_rate, redshifts, COMPAS
 
