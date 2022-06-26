@@ -418,14 +418,14 @@ def createParameterDistributionsAndSampler():
     
     
         # Given M1, determine cumulative binary period distribution
-        mycumPbindist=(cumPbindist[:,indM1]).flatten
+        mycumPbindist=(cumPbindist[:,indM1]).flatten()
         # If M1 < 0.8 Msun, rescale to appropriate binary star fraction
         if(myM1 <= 0.8):
-            mycumPbindist=mycumPbindist()*np.interp(np.log10(myM1),np.log10([0.08,0.8]),[0.0,1.0])
+            mycumPbindist=mycumPbindist*np.interp(np.log10(myM1),np.log10([0.08,0.8]),[0.0,1.0])
     
     
         # Given M1, determine the binary star fraction
-        mybinfrac = np.max(mycumPbindist())
+        mybinfrac = np.max(mycumPbindist)
     
     
         # Generate random number myrand between 0 and 1
@@ -435,7 +435,7 @@ def createParameterDistributionsAndSampler():
         # If random number < binary star fraction, generate a binary
         if(myrand < mybinfrac):
             # Given myrand, select P and corresponding index in logPv
-            mylogP=np.interp(myrand,mycumPbindist(),logPv)
+            mylogP=np.interp(myrand,mycumPbindist,logPv)
             indlogP=np.where(abs(mylogP-logPv) == min(abs(mylogP-logPv)))
             indlogP=indlogP[0]
     
@@ -514,4 +514,4 @@ if __name__ == "__main__":
 
     # LEAVE THESE 
     gridname = 'grid_moedistefano_nSamples{}.txt'.format(int(nSamples))
-    createParameterGridfile(gridname=gridname, nSamples=nSamples)
+    createParameterGridfile(gridname=gridname, nSamples=nSamples, m1Min=m1Min, m1Max=m1Max)
