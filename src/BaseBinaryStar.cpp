@@ -1572,14 +1572,14 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     // update stellar type after losing its envelope. Star1, Star2 or both if double CEE.
 
     if (donorMS || (!envelopeFlag1 && !envelopeFlag2)) {                                                                // stellar merger
-        m_MassTransferTrackerHistory = HasTwoOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_MS }) ? MT_TRACKING::CE_BOTH_MS : MT_TRACKING::CE_MS_WITH_CO; // Here MS-WD systems are flagged as CE_BOTH_MS
+        m_MassTransferTrackerHistory = MT_TRACKING::MERGER; 
         m_Flags.stellarMerger        = true;
     }
     else if ( (m_Star1->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) ||
               (m_Star2->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) ) {        // check if we have a non-MS radiative-envelope star
         m_CEDetails.optimisticCE = true;
         if(!OPTIONS->AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() ) {                                            // stellar merger
-            m_MassTransferTrackerHistory = MT_TRACKING::CE_WITH_RAD_ENV;
+            m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
             m_Flags.stellarMerger        = true;
         }
     }
@@ -1590,14 +1590,14 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         
         if (envelopeFlag1) {
             m_Star1->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star1 and switch to new stellar type
-            m_MassTransferTrackerHistory = MT_TRACKING::CE_FROM_1_TO_2;
+            m_MassTransferTrackerHistory = MT_TRACKING::CE_1_TO_2_SURV;
         }
         if (envelopeFlag2) {
             m_Star2->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star1 and switch to new stellar type
-            m_MassTransferTrackerHistory = MT_TRACKING::CE_FROM_2_TO_1;
+            m_MassTransferTrackerHistory = MT_TRACKING::CE_2_TO_1_SURV;
         }
         if (m_CEDetails.doubleCoreCE)
-            m_MassTransferTrackerHistory = MT_TRACKING::CE_DOUBLE_CORE;                                                 // record history - double CEE
+            m_MassTransferTrackerHistory = MT_TRACKING::CE_DOUBLE_SURV;                                                 // record history - double CEE
 
         m_Star1->UpdateAttributes(0.0, 0.0, true);
         m_Star2->UpdateAttributes(0.0, 0.0, true);
@@ -1619,7 +1619,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_Star2->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 2
     SetPostCEEValues(aFinalRsol, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                                       // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
     if (m_RLOFDetails.immediateRLOFPostCEE == true && !OPTIONS->AllowImmediateRLOFpostCEToSurviveCommonEnvelope()) {    // Is there immediate post-CE RLOF which is not allowed?
-            m_MassTransferTrackerHistory = MT_TRACKING::CE_IMMEDIATE_RLOF;
+            m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
             m_Flags.stellarMerger = true;
     }
     (void)PrintCommonEnvelope();
@@ -1883,7 +1883,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         if ((utils::Compare(m_ZetaStar, m_ZetaLobe) > 0 && (!(caseBBAlwaysUnstable && donorIsHeHGorHeGB))) ||
             (donorIsHeHGorHeGB && (caseBBAlwaysStable || (caseBBAlwaysUnstableOntoNSBH && accretorIsNSorBH)))) {                 // Stable MT
             
-                m_MassTransferTrackerHistory = m_Donor==m_Star1 ? MT_TRACKING::STABLE_FROM_1_TO_2 : MT_TRACKING::STABLE_FROM_2_TO_1; // record what happened - for later printing
+                m_MassTransferTrackerHistory = m_Donor==m_Star1 ? MT_TRACKING::STABLE_1_TO_2_SURV: MT_TRACKING::STABLE_2_TO_1_SURV; // record what happened - for later printing
                 double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
 
                 if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
@@ -1916,8 +1916,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 
                 // Check for stable mass transfer after any CEE
                 if (m_CEDetails.CEEcount > 0 && !m_RLOFDetails.stableRLOFPostCEE) {
-                    m_RLOFDetails.stableRLOFPostCEE = m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_2_TO_1 ||
-                                                      m_MassTransferTrackerHistory == MT_TRACKING::STABLE_FROM_1_TO_2;
+                    m_RLOFDetails.stableRLOFPostCEE = m_MassTransferTrackerHistory == MT_TRACKING::STABLE_2_TO_1_SURV ||
+                                                      m_MassTransferTrackerHistory == MT_TRACKING::STABLE_1_TO_2_SURV;
                 }
         }
         else {                                                                                                                  // Unstable Mass Transfer
