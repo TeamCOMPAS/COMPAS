@@ -447,23 +447,21 @@ Binary Properties
            :widths: 35 5
            :header-rows: 0
            :class: aligned-text
-           
-           * - NO MASS TRANSFER
+
+           * - NO MASS TRANSFER 
              - = 0
-           * - STABLE FROM 1 TO 2
+           * - MASS TRANSFER STABLE STAR1 -> STAR2 
              - = 1
-           * - STABLE FROM 2 TO 1
+           * - MASS TRANSFER STABLE STAR2 -> STAR1 
              - = 2
-           * - CE FROM 1 TO 2
+           * - MASS TRANSFER COMMON ENVELOPE STAR1 -> STAR2 
              - = 3
-           * - CE FROM 2 TO 1
+           * - MASS TRANSFER COMMON ENVELOPE STAR2 -> STAR1 
              - = 4
-           * - CE DOUBLE CORE
+           * - MASS TRANSFER COMMON ENVELOPE DOUBLE CORE 
              - = 5
-           * - CE BOTH MS
+           * - MASS TRANSFER -> MERGER 
              - = 6
-           * - CE MS WITH CO
-             - = 7
 
    * - Header String:
      - MT_History
