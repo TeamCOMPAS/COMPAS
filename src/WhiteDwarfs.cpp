@@ -1,10 +1,5 @@
 #include "WhiteDwarfs.h"
 
-/* Pass LogMassRate, MassRate in units of Msun/yr. Logic of eta values follows the one of Claeys2014.
- * Biggest differences are using Piersanti2014 instead of KatoHachisu 2004, and using eta = 1 for accumulation in helium regime.
- * Also, I assumed that mild and strong regimes lead to change in accretion efficiency.
- */
-
 /* Calculate eta_hydrogen from Claeys+ 2014, appendix B. We have changed the mass accretion limits for
  * Nomoto+ 2007 ones, after applying a quadratic fit to cover the low-mass end.
  *
