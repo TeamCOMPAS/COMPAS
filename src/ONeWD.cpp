@@ -29,34 +29,36 @@
  * @return                               Tuple containing fraction of mass that should be retained and accretion regime
  */
 
-std::tuple<double,int> ONeWD::DetermineAccretionRegime(bool p_HeRich, const double p_AccretedMass, const double p_Dt) {
-        double LogMdot = log10(p_AccretedMass / p_Dt) - 6; // Logarithm of the accreted mass (M_sun/yr)
-        double Fraction;
-        std::tie(std::ignore, Fraction) = CalculateWDMassAcceptanceRate(LogMdot, p_HeRich); // Assume everything works the same way as a CO WD
+std::tuple<double,ACCRETION_REGIME> ONeWD::DetermineAccretionRegime(const bool p_HeRich, const double p_AccretedMass, const double p_Dt) {
+        double logMdot = log10(p_AccretedMass / p_Dt) - 6; // Logarithm of the accreted mass (M_sun/yr)
+        double fraction;
+        ACCRETION_REGIME regime;
+        std::tie(std::ignore, fraction) = CalculateWDMassAcceptanceRate(logMdot, p_HeRich); // Assume everything works the same way as a CO WD
         if (p_HeRich) {
-                double MdotCrit = -6.84 + 1.349 * m_Mass;
-                double MdotStable = -8.115 + 2.29 * m_Mass; // Piersanti+2014 has several Flashes regimes. Here we group them into one.
-                double MdotDet = -8.313 + 1.018 * m_Mass; // Critical value for double detonation regime in Piersanti+ 2014. Note: double detonation is NOT implemented for ONeWDs.
-                if (LogMdot < MdotStable) {
-                    if (LogMdot > MdotDet) {
-                        return std::make_tuple(Fraction, 1);
+                double massTransferCrit = -6.84 + 1.349 * m_Mass;
+                double massTransferStable = -8.115 + 2.29 * m_Mass; // Piersanti+2014 has several Flashes regimes. Here we group them into one.
+                double massTransferDetonation = -8.313 + 1.018 * m_Mass; // Critical value for double detonation regime in Piersanti+ 2014
+                if (utils::Compare(logMdot, massTransferStable) < 0) {
+                    if (utils::Compare(logMdot, massTransferDetonation) > 0) {
+                        regime = ACCRETION_REGIME::HELIUM_FLASHES;
                     } else {
-                        return std::make_tuple(Fraction, 0);
+                        regime = ACCRETION_REGIME::HELIUM_ACCUMULATION;
                         }
-                } else if (LogMdot > MdotCrit) {
-                    return std::make_tuple(Fraction, 3);
+                } else if (utils::Compare(logMdot, massTransferCrit) > 0) {
+                    regime = ACCRETION_REGIME::HELIUM_OPT_THICK_WINDS;
                 } else {
-                    return std::make_tuple(Fraction, 2);
+                    regime = ACCRETION_REGIME::HELIUM_STABLE_BURNING;
                 }
         } else {
-                double MdotCrit = -0.98023471 * m_Mass * m_Mass + 2.88247131 * m_Mass - 8.33017155; // Quadratic fits to Nomoto+ 2007 (Mass vs log10 Mdot space), to cover the low-mass end.
-                double MdotStable = -1.2137735 * m_Mass * m_Mass + 3.57319872 * m_Mass - 9.21757267;
-                if (LogMdot < MdotStable) {
-                    return std::make_tuple(Fraction, 4);
-                } else if (LogMdot > MdotCrit) {
-                    return std::make_tuple(Fraction, 6);
+                double massTransferCrit = -0.98023471 * m_Mass * m_Mass + 2.88247131 * m_Mass - 8.33017155; // Quadratic fits to Nomoto+ 2007 (Mass vs log10 Mdot space), to cover the low-mass end.
+                double massTransferStable = -1.2137735 * m_Mass * m_Mass + 3.57319872 * m_Mass - 9.21757267;
+                if (utils::Compare(logMdot, massTransferStable) < 0) {
+                    regime = ACCRETION_REGIME::HYDROGEN_FLASHES;
+                } else if (utils::Compare(logMdot, massTransferCrit) > 0) {
+                    regime = ACCRETION_REGIME::HYDROGEN_OPT_THICK_WINDS;
                 } else {
-                    return std::make_tuple(Fraction, 5);
+                    regime = ACCRETION_REGIME::HYDROGEN_STABLE_BURNING;
                 }
         }
+        return std::make_tuple(fraction, regime);
 }

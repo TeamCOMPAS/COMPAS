@@ -182,7 +182,7 @@ public:
 
     BaseStar*       Clone(const BaseStar& p_Star);
 
-    virtual std::tuple<double,int>    DetermineAccretionRegime(bool p_HeRich,
+    virtual std::tuple<double,ACCRETION_REGIME>    DetermineAccretionRegime(const bool p_HeRich,
                                              const double p_AccretedMass,
                                              const double p_Dt)                                                     { return m_Star->DetermineAccretionRegime(p_HeRich, p_AccretedMass, p_Dt); }  // Used in WDs
 
@@ -194,11 +194,11 @@ public:
 
     void            IncrementOmega(const double p_OmegaDelta)                                                       { m_Star->IncrementOmega(p_OmegaDelta); }
 
-    void            IncrementShell(const double p_AccretedMass, bool p_HeRich)                                      { m_Star->IncrementShell(p_AccretedMass, p_HeRich); }  // Used in WDs
+    void            IncrementShell(const double p_AccretedMass, const bool p_HeRich)                                      { m_Star->IncrementShell(p_AccretedMass, p_HeRich); }  // Used in WDs
 
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
 
-    virtual void    ResolveAccretionRegime(const int p_Regime,
+    virtual void    ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
                                            const double p_AccretedMass,
                                            const double p_Dt)                                                       { m_Star->ResolveAccretionRegime(p_Regime, p_AccretedMass, p_Dt); }  // Used in WDs
 

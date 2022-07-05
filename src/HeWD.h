@@ -34,10 +34,10 @@ public:
                                                                                                                                                 p_Time, 
                                                                                                                                                 p_Metallicity, 
                                                                                                                                                 WD_Baryon_Number.at(STELLAR_TYPE::HELIUM_WHITE_DWARF)); }
-    std::tuple<double,int> DetermineAccretionRegime(bool p_HeRich,
+    std::tuple<double,ACCRETION_REGIME> DetermineAccretionRegime(const bool p_HeRich,
                                     const double p_AccretedMass,
                                     const double p_Dt);
-    void ResolveAccretionRegime(const int p_Regime, const double p_AccretedMass, const double p_Dt);
+    void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_AccretedMass, const double p_Dt);
 
 protected:
 
@@ -47,9 +47,9 @@ protected:
         m_Age = 0.0;                                                                                                                                                // Set age appropriately
     m_HShell = 0.0; // Initialize Hydrogen Shell
     m_HeShell = 0.0; // Initialize Helium Shell
-    m_l0 = Calculatel0();
-    m_X = CalculateX();
-    m_lambda = Calculatelambda();
+    m_l0Ritter = Calculatel0();
+    m_XRitter = CalculateX();
+    m_lambdaRitter = Calculatelambda();
     m_SubChandrasekhar = false;
     m_Rejuvenate = false;
     }

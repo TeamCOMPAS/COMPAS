@@ -35,10 +35,10 @@ public:
                                                                                                                                             p_Metallicity, 
                                                                                                                                             WD_Baryon_Number.at(STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF)); }
 
-    std::tuple<double,int> DetermineAccretionRegime(bool p_HeRich,
+    std::tuple<double,ACCRETION_REGIME> DetermineAccretionRegime(const bool p_HeRich,
         const double p_AccretedMass,
-        const double p_Dt);                                                                                                                                      // NRS: To check the current accretion regime and mass retention. Also activates flags for type change in some situations.
-    void ResolveAccretionRegime(const int p_Regime, const double p_AccretedMass, const double p_Dt);
+        const double p_Dt);                                                                                                                                      // To check the current accretion regime and mass retention. Also activates flags for type change in some situations.
+    void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_AccretedMass, const double p_Dt);
 
 protected:
 
@@ -57,13 +57,13 @@ protected:
                                                const double p_Metallicity) const    { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
     double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }        // Use class member variables
 
-    STELLAR_TYPE    EvolveToNextPhase(); // Modified to include evolution to ONe WD
+    STELLAR_TYPE    EvolveToNextPhase();
 
     bool            IsSupernova() const                                             { return m_DoubleDetonation; }     // Going supernova if mass and He shell are large enough
 
     STELLAR_TYPE    ResolveSupernova()                                              { return GiantBranch::ResolveSupernova(); }                                 // Use GiantBranch, for now
 
-    bool            ShouldEvolveOnPhase();                                                  // Evolve on phase unless mass > Chandrasekhar mass. Modified to include evolution to ONe WD
+    bool            ShouldEvolveOnPhase();                                                  // Evolve on phase unless mass > Chandrasekhar mass.
 
 };
 

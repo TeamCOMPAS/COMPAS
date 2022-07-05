@@ -386,8 +386,8 @@ constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3;
 
 constexpr double HELIUM_WHITE_DWARF_MCRIT               = log10(2) - 8;                                             // Critical accretion rate for He WD accreting He-rich material. From Belczynski+ 2008, Mdot_crit2 in section 5.7.1.
 constexpr double MDOT_OFF_C                             = -5.688246139;                                             // From Wang+ 2017. Log( 2.05 x 10^-6).
-constexpr double M_DETONATION_CO                        = 0.9;                                                      // Minimum mass for detonation which would yield something similar to SN Ia. Ruiter+ 2014.
-constexpr double M_HE_BUR                               = 0.35;                                                     // Minimum for HeMS burning
+constexpr double MASS_DOUBLE_DETONATION_CO              = 0.9;                                                      // Minimum mass for detonation which would yield something similar to SN Ia. Ruiter+ 2014.
+constexpr double MASS_HELIUM_BURN                       = 0.35;                                                     // Minimum for HeMS burning
 constexpr double SHELL_CRIT                             = 0.05;                                                     // Minimum shell mass of He for detonation. Should be composed of helium (so, exclude burnt material), but not implemented yet. Ruiter+ 2014.
 
 // object types
@@ -6718,5 +6718,26 @@ const std::vector<std::vector<std::vector<LoveridgeCoefficients>>> LOVERIDGE_COE
         }
     }
 };
+
+
+
+// enum class ACCRETION_REGIME
+// Symbolic names for WD accretion regimes
+enum class ACCRETION_REGIME: int {
+    HELIUM_ACCUMULATION,
+    HELIUM_FLASHES,
+    HELIUM_STABLE_BURNING,
+    HELIUM_OPT_THICK_WINDS,
+    HYDROGEN_FLASHES,
+    HYDROGEN_STABLE_BURNING,
+    HYDROGEN_OPT_THICK_WINDS,
+    HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR,
+    HELIUM_WHITE_DWARF_HELIUM_IGNITION,
+    HELIUM_WHITE_DWARF_HYDROGEN_FLASHES,
+    HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION,
+    NONE
+};
+
+
 
 #endif // __constants_h__

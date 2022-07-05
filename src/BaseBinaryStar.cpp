@@ -1804,6 +1804,25 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
 }
 
 
+
+double BaseBinaryStar::CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_MassAccreted, const double p_Dt) { //NRS
+    double fractionAccretedMass;
+    ACCRETION_REGIME accretionRegime;
+    std::tie(fractionAccretedMass, accretionRegime) = m_Accretor->DetermineAccretionRegime(p_DonorIsHeRich, p_MassAccreted, p_Dt); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
+    if (accretionRegime == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION) {
+        if (p_DonorIsGiant) {
+            m_CEDetails.CEEnow = true;
+        } else {
+            m_Flags.stellarMerger = true;
+        }
+    }
+    m_Accretor->IncrementShell(p_MassAccreted * fractionAccretedMass, p_DonorIsHeRich); // Update variable that tracks shell size (H or He shell).
+    m_Accretor->ResolveAccretionRegime(accretionRegime, p_MassAccreted * fractionAccretedMass, p_Dt);
+    return fractionAccretedMass * p_MassAccreted;
+
+}
+
+
 /*
  *  Check if mass transfer should happen (either star, but not both, overflowing Roche Lobe)
  *  Perform mass transfer if required and update individual stars accordingly
@@ -1892,21 +1911,9 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                 if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
                     double mdEnvAccreted = envMassDonor * m_FractionAccreted;
-                    m_Accretor->SetMassTransferDiff(mdEnvAccreted);
+//                     m_Accretor->SetMassTransferDiff(mdEnvAccreted); //NRS
                     if (accretorIsWD) {
-                        double FractionAccretedMass;
-                        int AccretionRegime;
-                        std::tie(FractionAccretedMass, AccretionRegime) = m_Accretor->DetermineAccretionRegime(donorIsHeRich, mdEnvAccreted, p_Dt); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
-                        if (AccretionRegime == 10) {
-                            if (donorIsGiant) {
-                                m_CEDetails.CEEnow = true;
-                            } else {
-                                m_Flags.stellarMerger = true;
-                            }
-                        }
-                        mdEnvAccreted =  mdEnvAccreted*FractionAccretedMass; // Update it depending on retention efficiency.
-                        m_Accretor->IncrementShell(mdEnvAccreted, donorIsHeRich); // Update variable that tracks shell size (H or He shell).
-                        m_Accretor->ResolveAccretionRegime(AccretionRegime, mdEnvAccreted, p_Dt);
+                        mdEnvAccreted = CalculateAccretionRegime(donorIsHeRich, donorIsGiant, mdEnvAccreted, p_Dt);
                     }
                     m_Donor->SetMassTransferDiff(-envMassDonor);
                     m_Accretor->SetMassTransferDiff(mdEnvAccreted);
@@ -1923,23 +1930,11 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 }
                 else{                                                                                                           // donor has no envelope
                     double dM = - MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
+                    double massChange = -dM * m_FractionAccreted;
                     if (accretorIsWD) {
-                        double FractionAccretedMass;
-                        int AccretionRegime;
-                        std::tie(FractionAccretedMass, AccretionRegime) = m_Accretor->DetermineAccretionRegime(donorIsHeRich, -dM * m_FractionAccreted, p_Dt); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
-                        if (AccretionRegime == 10) {
-                            if (donorIsGiant) {
-                                m_CEDetails.CEEnow = true;
-                            } else {
-                                m_Flags.stellarMerger = true;
-                            }
-                        }
-                        m_Accretor->IncrementShell(-dM * m_FractionAccreted * FractionAccretedMass, donorIsHeRich); // Update variable that tracks shell size (H or He shell).
-                        m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted * FractionAccretedMass); // Update it depending on retention efficiency.
-                        m_Accretor->ResolveAccretionRegime(AccretionRegime, -dM * m_FractionAccreted * FractionAccretedMass, p_Dt);
-                    } else {
-                        m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted); // mass accreted by accretor
+                        massChange = CalculateAccretionRegime(donorIsHeRich, donorIsGiant, massChange, p_Dt);
                     }
+                    m_Accretor->SetMassTransferDiff(massChange); // mass accreted by accretor
                     m_Donor->UpdateMinimumCoreMass();
                     m_Donor->SetMassTransferDiff(dM);                                                                           // mass transferred by donor
 

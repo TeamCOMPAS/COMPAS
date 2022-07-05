@@ -194,18 +194,18 @@ public:
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
 
-    virtual std::tuple<double,int>    DetermineAccretionRegime(bool p_HeRich,
+    virtual std::tuple<double,ACCRETION_REGIME>    DetermineAccretionRegime(const bool p_HeRich,
                                                const double p_AccretedMass,
-                                               const double p_Dt)                                               { return std::make_tuple(0.0, -1); }                                // Placeholder, use inheritance
+                                               const double p_Dt)                                               { return std::make_tuple(0.0, ACCRETION_REGIME::NONE); }                                // Placeholder, use inheritance
 
             void            IncrementOmega(const double p_OmegaDelta)                                           { m_Omega += p_OmegaDelta; }                                        // Apply delta to current m_Omega
 
     virtual void            IncrementShell(const double p_AccretedMass,
-                                           bool p_HeRich)                                                       { }                                                                 // Default does nothing, use inheritance for WDs.
+                                           const bool p_HeRich)                                                       { }                                                                 // Default does nothing, use inheritance for WDs.
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 
-    virtual void            ResolveAccretionRegime(const int p_Regime,
+    virtual void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
                                                    const double p_AccretedMass,
                                                    const double p_Dt)                                           { }                                                                 // Default does nothing, only works for WDs.
 
@@ -274,31 +274,22 @@ protected:
     double                  m_Age;                                      // Current effective age (changes with mass loss/gain)(myrs)
     double                  m_COCoreMass;                               // Current CO core mass (Msol)
     double                  m_CoreMass;                                 // Current core mass (Msol)
-    bool                    m_DoubleDetonation;                         // Flag
     double                  m_Dt;                                       // Current timestep (myrs)
     double                  m_HeCoreMass;                               // Current He core mass (Msol)
-    double                  m_HeShell;                                  // Current WD He-shell size (Msol). Increases through accretion.
-    double                  m_HShell;                                   // Current WD H-shell size (Msol). Increases through accretion.
     bool                    m_LBVphaseFlag;                             // Flag to know if the star satisfied the conditions, at any point in its evolution, to be considered a Luminous Blue Variable (LBV)
     double                  m_Luminosity;                               // Current luminosity (Lsol)
-    double                  m_l0;                                       // Required for accretion limit onto HeWD
-    double                  m_lambda;                                   // Required for accretion limit onto HeWD
     double                  m_Mass;                                     // Current mass (Msol)
     double                  m_Mass0;                                    // Current effective initial mass (Msol)
     double                  m_MinimumCoreMass;                          // Minimum core mass at end of main sequence (MS stars have no core in the Hurley prescription)
     double                  m_MinimumLuminosityOnPhase;                 // JR: Only required for CHeB stars, but only needs to be calculated once per star
     double                  m_Mdot;                                     // Current mass loss rate (Msol per ?)
-    bool                    m_OffCenterIgnition;                        // Flag for CO WD evolution into ONe WD
     MASS_LOSS_TYPE          m_DominantMassLossRate;                     // Current dominant mass loss rate
     double                  m_Mu;                                       // Current small envelope parameter mu
     double                  m_Omega;                                    // Current angular frequency (yr-1)
     double                  m_Radius;                                   // Current radius (Rsol)
-    bool                    m_Rejuvenate;                               // Flag for evolution of HeWD back into HeMS
-    bool                    m_SubChandrasekhar;                         // Flag for SubCh of HeWD
     double                  m_Tau;                                      // Relative time
     double                  m_Temperature;                              // Current temperature (Tsol)
     double                  m_Time;                                     // Current physical time the star has been evolved(myrs)
-    double                  m_X;                                        // Required for accretion limit onto HeWD
 
     // Previous timestep variables
     double                  m_DtPrev;                                   // Previous timestep

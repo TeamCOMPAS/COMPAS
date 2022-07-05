@@ -27,22 +27,26 @@
  * @return                               Tuple containing fraction of mass that should be retained and accretion regime
  */
 
-std::tuple<double,int> HeWD::DetermineAccretionRegime(bool p_HeRich, const double p_AccretedMass, const double p_Dt) {
-    double LogMdot = log10(p_AccretedMass / p_Dt) - 6; // Logarithm of the accreted mass (M_sun/yr)
+std::tuple<double,ACCRETION_REGIME> HeWD::DetermineAccretionRegime(const bool p_HeRich, const double p_AccretedMass, const double p_Dt) {
+    double logMdot = log10(p_AccretedMass / p_Dt) - 6; // Logarithm of the accreted mass (M_sun/yr)
+    double fraction = 1.0;
+    ACCRETION_REGIME regime;
     if (p_HeRich) {
-        if (LogMdot <= HELIUM_WHITE_DWARF_MCRIT) {
-            return std::make_tuple(1.0, 7); // Could lead to Sub CH SN Ia
+        if (utils::Compare(logMdot, HELIUM_WHITE_DWARF_MCRIT) < 1) {
+            regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR; // Could lead to Sub CH SN Ia
         } else {
-            return std::make_tuple(1.0, 8); // Could lift degeneracy and evolve into He MS. Requires minimum mass ! on top of the shell size
+            regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_IGNITION; // Could lift degeneracy and evolve into He MS. Requires minimum mass ! on top of the shell size
         }
     } else {
-        double Mcrit = log10(m_l0 * PPOW(m_Mass, m_lambda) / (m_X * 6e18));
-        if (LogMdot <= Mcrit) {
-            return std::make_tuple(0.0, 9); // Flashes restrict accumulation
+        double Mcrit = log10(m_l0Ritter * PPOW(m_Mass, m_lambdaRitter) / (m_XRitter * 6e18));
+        if (utils::Compare(logMdot, Mcrit) < 1) {
+            regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES; // Flashes restrict accumulation
+            fraction = 0.0;
         } else {
-            return std::make_tuple(1.0, 10); //Material piles up on the WD leading to mass loss from the system. Leads to merger or CEE.
+            regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION; //Material piles up on the WD leading to mass loss from the system. Leads to merger or CEE.
         }
     }
+    return std::make_tuple(fraction, regime);
 }
 
 /* Resolve what happens when the star goes through accretion regimes that might enable a change pf phase.
@@ -55,18 +59,18 @@ std::tuple<double,int> HeWD::DetermineAccretionRegime(bool p_HeRich, const doubl
  * @param   [IN]    p_Dt                 Size of the timestep, assumed to be the duration of this particular mass transfer episode
  */
 
-void HeWD::ResolveAccretionRegime(const int p_Regime, const double p_AccretedMass, const double p_Dt) {
-    double Mdot = p_AccretedMass / (p_Dt * 1e6);
-    double MassSubCh = -4e8 * Mdot + 1.34; // Minimum mass for Sub-Ch Mass detonation.
-    double ShellCrit = -7.8e-4 * Mdot + 1.34; // Minimum shell mass of He for detonation. Should not be burnt, but not implemented this yet. Ruiter+ 2014.
-    if (p_Regime == 7) {
-        if (m_Mass >= MassSubCh) {
+void HeWD::ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_AccretedMass, const double p_Dt) {
+    double massTransfer = p_AccretedMass / (p_Dt * 1e6);
+    double massSubCh = -4e8 * massTransfer + 1.34; // Minimum mass for Sub-Ch Mass detonation.
+    double shellCrit = -7.8e-4 * massTransfer + 1.34; // Minimum shell mass of He for detonation. Should not be burnt, but not implemented this yet. Ruiter+ 2014.
+    if (p_Regime == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR) {
+        if (utils::Compare(m_Mass, massSubCh) > -1 ) {
             m_SubChandrasekhar = true;
         }
-    } else if (p_Regime == 8) {
-        if ((m_Mass >= M_HE_BUR) && (m_HeShell >= ShellCrit) && (Mdot < 1.64e-6)) {
+    } else if (p_Regime == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_IGNITION) {
+        if ((utils::Compare(m_Mass, MASS_HELIUM_BURN) > -1) && (utils::Compare(m_HeShell, shellCrit) > -1) && (utils::Compare(massTransfer, 1.64e-6) < 0)) {
             m_Rejuvenate = true;
-        } else if ((m_Mass >= M_HE_BUR) && (Mdot >= 1.64e-6)) {
+        } else if ((utils::Compare(m_Mass, MASS_HELIUM_BURN) > -1) && (utils::Compare(massTransfer, 1.64e-6) > -1)) {
             m_Rejuvenate = true;
         }
     }
@@ -74,6 +78,10 @@ void HeWD::ResolveAccretionRegime(const int p_Regime, const double p_AccretedMas
 
 /*
  * Allow the evolution towards an HeMS or SN.
+ *
+ * bool ShouldEvolveOnPhase()
+ *
+ * @return                               Whether the WD should evolve on phase or towards an HeMS/SN.
  */
 
 bool HeWD::ShouldEvolveOnPhase() {
@@ -86,6 +94,10 @@ bool HeWD::ShouldEvolveOnPhase() {
 
 /*
  * Specifies next stage, if the star changes its phase.
+ *
+ * STELLAR_TYPE EvolveToNextPhase()
+ *
+ * @return                               Stellar type of the upcoming stage.
  */
 
 STELLAR_TYPE HeWD::EvolveToNextPhase() {
@@ -93,7 +105,10 @@ STELLAR_TYPE HeWD::EvolveToNextPhase() {
         return STELLAR_TYPE::NAKED_HELIUM_STAR_MS;
     }
     else {
-        m_Mass = m_Radius = m_Luminosity = m_Age = 0.0;
+        m_Mass       = 0.0;
+        m_Radius     = 0.0;
+        m_Luminosity = 0.0;
+        m_Age        = 0.0;
         return STELLAR_TYPE::MASSLESS_REMNANT;
     }
 }

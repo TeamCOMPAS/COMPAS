@@ -18,9 +18,9 @@ double WhiteDwarfs::CalculateetaH(const double p_LogMassRate) {
     double etaH = 0.0;
     double MdotCritH = -0.98023471 * m_Mass * m_Mass + 2.88247131 * m_Mass - 8.33017155;
     double MdotLowH = -1.2137735 * m_Mass * m_Mass + 3.57319872 * m_Mass - 9.21757267;
-    if (p_LogMassRate >= MdotCritH) {
+    if (utils::Compare(p_LogMassRate, MdotCritH) > -1) {
         etaH = PPOW(10, MdotCritH - p_LogMassRate);
-    } else if ((p_LogMassRate < MdotCritH) && (p_LogMassRate >= MdotLowH)) {
+    } else if ((utils::Compare(p_LogMassRate, MdotCritH) == -1) && (utils::Compare(p_LogMassRate, MdotLowH) > -1)) {
         etaH = 1.0;
     }
     return etaH;
@@ -43,11 +43,11 @@ double WhiteDwarfs::CalculateetaHe(const double p_LogMassRate) {
     double MdotLowHe = -8.115 + 2.29 * m_Mass;
     double MdotAccumulation =  -8.313 + 1.018 * m_Mass;
 
-    if (p_LogMassRate >= MdotCritHe) {
+    if (utils::Compare(p_LogMassRate, MdotCritHe) > -1) {
         etaHe = PPOW(10, MdotCritHe - p_LogMassRate);
-    } else if ((p_LogMassRate < MdotCritHe) && (p_LogMassRate >= MdotLowHe)) {
+    } else if ((utils::Compare(p_LogMassRate, MdotCritHe) == -1) && (utils::Compare(p_LogMassRate, MdotLowHe) > -1)) {
         etaHe = 1.0;
-    } else if ((p_LogMassRate < MdotLowHe) && (p_LogMassRate >= MdotAccumulation)) {
+    } else if ((utils::Compare(p_LogMassRate, MdotLowHe) == -1) && (utils::Compare(p_LogMassRate, MdotAccumulation) > -1)) {
         etaHe = CalculateetaPTY(PPOW(10, p_LogMassRate));
     } else {
         etaHe = 1.0; // Modified so we can have double detonations
@@ -69,13 +69,13 @@ double WhiteDwarfs::CalculateetaHe(const double p_LogMassRate) {
  */
 double WhiteDwarfs::CalculateetaPTY(const double p_MassRate) {
     double etaPTY;
-    if (m_Mass <= 0.6) {
+    if (utils::Compare(m_Mass, 0.6) < 1) {
         etaPTY = 6e-3 + 5.1e-2*p_MassRate + 8.3e-3*PPOW(p_MassRate, 2) - 3.317e-4*PPOW(p_MassRate,3);
     } else if ((m_Mass <= 0.7) && (m_Mass > 0.6)) {
         etaPTY = -3.5e-2 + 7.5e-2*p_MassRate - 1.8e-3*PPOW(p_MassRate, 2) + 3.266e-5*PPOW(p_MassRate,3);
-    } else if ((m_Mass <= 0.81) && (m_Mass > 0.7)) {
+    } else if ((utils::Compare(m_Mass, 0.81) < 1) && (utils::Compare(m_Mass, 0.7) > 0)) {
         etaPTY = 9.3e-2 + 1.8e-2*p_MassRate + 1.6e-3*PPOW(p_MassRate, 2) - 4.111e-5*PPOW(p_MassRate,3);
-    } else if ((m_Mass <= 0.92) && (m_Mass > 0.81)) {
+    } else if ((utils::Compare(m_Mass, 0.92) < 1) && (utils::Compare(m_Mass, 0.81) > 0)) {
         etaPTY = -7.59e-2 + 1.54e-2*p_MassRate + 4e-4*PPOW(p_MassRate, 2) - 5.905e-6*PPOW(p_MassRate,3);
     } else {
         etaPTY = -0.323 + 4.1e-2*p_MassRate - 7e-4*PPOW(p_MassRate, 2) + 4.733e-6*PPOW(p_MassRate,3);
@@ -163,7 +163,7 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
  * @param   [IN]    p_AccretedMass              Mass accreted
  * @param   [IN]    p_HeRich                    Material is He-rich or not
  */
-void WhiteDwarfs::IncrementShell(const double p_AccretedMass, bool p_HeRich) {
+void WhiteDwarfs::IncrementShell(const double p_AccretedMass, const bool p_HeRich) {
 	if (p_HeRich) {
 		m_HeShell += p_AccretedMass;
 	} else {
