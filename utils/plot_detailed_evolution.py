@@ -69,6 +69,8 @@ def makeDetailedPlots(Data=None, events=None):
     num_events = len(events)
     event_times = [event.time for event in events]
     stopTimeAt = event_times[-1] * 1.05 # End time at the last event, plus 5% for convenience.
+    if num_events == 1:
+        stopTimeAt = 1 # set to 1 Myr just for plotting visibility
     mask = Data['Time'][()] < stopTimeAt # Mask the data to not include the 'End' events
 
     rcParams.update(fontparams) # Set configurations for uniform plot output
@@ -324,7 +326,7 @@ def getStellarTypes(Data):
     """
 
     # List of Hurley stellar types
-    stellarTypes = [r'MS$<0.7M_{\odot}$', r'MS$\geq0.7M_{\odot}$', 'HG', 'FGB', 'CHeB', 'EAGB', 'TPAGB', 'HeMS', 'HeHG', 'HeGB', 'HeWD', 'COWD', 'ONeWD', 'NS', 'BH', 'MR']
+    stellarTypes = [r'MS$<0.7M_\odot$', r'MS$\geq0.7M_\odot$', 'HG', 'FGB', 'CHeB', 'EAGB', 'TPAGB', 'HeMS', 'HeHG', 'HeGB', 'HeWD', 'COWD', 'ONeWD', 'NS', 'BH', 'MR']
 
     useTypes = np.unique(np.append(Data['Stellar_Type(1)'][()], Data['Stellar_Type(2)'][()]))
     if (0 in useTypes) != (1 in useTypes): # XOR
@@ -355,10 +357,11 @@ def space_out(original_vals, min_separation=None):
         min_separation = np.max(vals)/50 # is this a good value?
     nudge = min_separation/10 # keep the nudge small so that you don't overdo the jump
 
-    while(np.min(np.diff(vals))) < min_separation:
-        maskTooClose = np.diff(vals) < min_separation
-        vals[:-1][maskTooClose] -= nudge
-        vals[1:][maskTooClose]  += nudge
+    if len(vals) > 1:
+        while(np.min(np.diff(vals))) < min_separation:
+            maskTooClose = np.diff(vals) < min_separation
+            vals[:-1][maskTooClose] -= nudge
+            vals[1:][maskTooClose]  += nudge
 
     return vals
         
