@@ -9,15 +9,15 @@
  * Mass retention is based on appendix B of Claeys+ 2014, but critical accretion rates have been updated using
  * Nomoto+ 2007 for hydrogen and Piersanti+ 2014 for helium. Details in CalculateWDMassAcceptanceRate().
  *
- * The accretion regime is just an integer which follows:
+ * The accretion regime is one of the following:
  *
- * 0.- Helium Accumulation
- * 1.- Helium Flashes
- * 2.- Helium Stable Burning
- * 3.- Helium Optically-Thick Winds
- * 4.- Hydrogen Flashes
- * 5.- Hydrogen Stable Burning
- * 6.- Hydrogen Optically-Thick Winds
+ * Helium Accumulation
+ * Helium Flashes
+ * Helium Stable Burning
+ * Helium Optically-Thick Winds
+ * Hydrogen Flashes
+ * Hydrogen Stable Burning
+ * Hydrogen Optically-Thick Winds
  *
  * Note that we have merged the different flashes regimes from Piersanti+ 2014 into a single regime.
  *

@@ -1803,9 +1803,18 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
     }
 }
 
+/* Wraps the computation and resolution of the accretion regime a White Dwarf goes through, triggering the necessary changes.
+ *
+ * double CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_MassAccreted, const double p_Dt)
+ *
+ * @param   [IN]    p_DonorIsHeRich      Whether the accreted material is helium-rich or not
+ * @param   [IN]    p_DonorIsGiant       Whether the donor star is a giant or not
+ * @param   [IN]    p_MassAccreted       Total mass accreted
+ * @param   [IN]    p_Dt                 Size of the timestep, assumed to be the duration of this particular mass transfer episode
+ * @return                               Mass retained, after considering the possible flahes regime and the optically-tick winds regime.
+ */
 
-
-double BaseBinaryStar::CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_MassAccreted, const double p_Dt) { //NRS
+double BaseBinaryStar::CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_MassAccreted, const double p_Dt) {
     double fractionAccretedMass;
     ACCRETION_REGIME accretionRegime;
     std::tie(fractionAccretedMass, accretionRegime) = m_Accretor->DetermineAccretionRegime(p_DonorIsHeRich, p_MassAccreted, p_Dt); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
@@ -1911,7 +1920,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                 if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
                     double mdEnvAccreted = envMassDonor * m_FractionAccreted;
-//                     m_Accretor->SetMassTransferDiff(mdEnvAccreted); //NRS
                     if (accretorIsWD) {
                         mdEnvAccreted = CalculateAccretionRegime(donorIsHeRich, donorIsGiant, mdEnvAccreted, p_Dt);
                     }

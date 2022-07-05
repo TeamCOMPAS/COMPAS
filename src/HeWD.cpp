@@ -8,15 +8,12 @@
  *
  * For the helium WD case, the implementation is based on Belczynski+ 2008.
  *
- * The accretion regime is just an integer which follows:
+ * The accretion regime is one of the following:
  *
- * 0.- Helium Accumulation
- * 1.- Helium Flashes
- * 2.- Helium Stable Burning
- * 3.- Helium Optically-Thick Winds
- * 4.- Hydrogen Flashes
- * 5.- Hydrogen Stable Burning
- * 6.- Hydrogen Optically-Thick Winds
+ * Helium accretion that could lead to Sub-Chandrasekhar SN
+ * Helium accretion that could lead to helium ignition and rejuvenation
+ * Hydrogen Flashes
+ * Hydrogen Accumulation
  *
  *
  * std::tuple<double,int> DetermineAccretionRegime(bool p_HeRich, const double p_AccretedMass, const double p_Dt)
@@ -43,7 +40,7 @@ std::tuple<double,ACCRETION_REGIME> HeWD::DetermineAccretionRegime(const bool p_
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES; // Flashes restrict accumulation
             fraction = 0.0;
         } else {
-            regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION; //Material piles up on the WD leading to mass loss from the system. Leads to merger or CEE.
+            regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION; //Material piles up on the WD. Leads to merger or CEE.
         }
     }
     return std::make_tuple(fraction, regime);
