@@ -70,7 +70,7 @@ def makeDetailedPlots(Data=None, events=None):
     event_times = [event.time for event in events]
     stopTimeAt = event_times[-1] * 1.05 # End time at the last event, plus 5% for convenience.
     if num_events == 1:
-        stopTimeAt = 1 # set to 1 Myr just for plotting visibility
+        stopTimeAt = Data['Time'][-1] * 1.05 # plot all the way to the end of the run if no events beyond ZAMS
     mask = Data['Time'][()] < stopTimeAt # Mask the data to not include the 'End' events
 
     rcParams.update(fontparams) # Set configurations for uniform plot output
