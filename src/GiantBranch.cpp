@@ -1689,7 +1689,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
  */
 STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
 
-    if (SN_IsHydrogenPoor() || (OPTIONS->AllowHRichECSN())) {                           // If progenitor is H rich, is it allowed to ECSN?
+    if (!m_MassTransferDonorHistory.empty() || (OPTIONS->AllowNonStrippedECSN())) {         // If progenitor has never been a MT donor, is it allowed to ECSN?
                                                                                             // - yes
         m_Mass       = MECS_REM;                                                            // defined in constants.h
         m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
