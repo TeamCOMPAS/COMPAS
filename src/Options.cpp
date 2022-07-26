@@ -135,7 +135,7 @@ void Options::OptionValues::Initialise() {
 
     // flags
 
-    m_AllowHRichECSN                                                = true;
+    m_AllowNonStrippedECSN                                          = true;
     m_AllowRLOFAtBirth                                              = true;
     m_AllowTouchingAtBirth                                          = false;
 
@@ -636,9 +636,9 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         // boolean options - alphabetically
 
         (
-            "allow-H-rich-ECSN",
-            po::value<bool>(&p_Options->m_AllowHRichECSN)->default_value(p_Options->m_AllowHRichECSN)->implicit_value(true),                                                                  
-            ("Allow ECSN to occur in H rich (unstripped) progenitors (default = " + std::string(p_Options->m_AllowHRichECSN? "TRUE" : "FALSE") + ")").c_str()
+            "allow-non-stripped-ECSN",
+            po::value<bool>(&p_Options->m_AllowNonStrippedECSN)->default_value(p_Options->m_AllowNonStrippedECSN)->implicit_value(true),                                                                  
+            ("Allow ECSN to occur in unstripped progenitors (default = " + std::string(p_Options->m_AllowNonStrippedECSN? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "allow-rlof-at-birth",                                         
@@ -4030,7 +4030,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
     switch (property) {
 
         case PROGRAM_OPTION::ADD_OPTIONS_TO_SYSPARMS                        : value = static_cast<int>(AddOptionsToSysParms());                             break;
-        case PROGRAM_OPTION::ALLOW_H_RICH_ECSN                              : value = AllowHRichECSN();                                                     break;
+        case PROGRAM_OPTION::ALLOW_NON_STRIPPED_ECSN                        : value = AllowNonStrippedECSN();                                               break;
         case PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE       : value = AllowMainSequenceStarToSurviveCommonEnvelope();                       break;
         case PROGRAM_OPTION::ALLOW_RADIATIVE_ENVELOPE_STAR_TO_SURVIVE_COMMON_ENVELOPE : value = AllowRadiativeEnvelopeStarToSurviveCommonEnvelope();        break;
         case PROGRAM_OPTION::ALLOW_IMMEDIATE_RLOF_POST_CE_TO_SURVIVE_COMMON_ENVELOPE  : value = AllowImmediateRLOFpostCEToSurviveCommonEnvelope();          break;
