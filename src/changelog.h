@@ -914,7 +914,8 @@
 //                                      - Fixed check for non-interacting ECSN progenitors to consider MT history instead of H-richness
 // 02.31.06     IM - August 1, 2022  - Defect repair:
 //                                      - Print to DetailedOutput after merger, addresses https://github.com/TeamCOMPAS/COMPAS/issues/825
-//                                      - Minor comment tweaks
+//                                      - Ensures no ONeWDs are formed with masses above Chandrasekhar mass
+//                                      - Minor comment tweaks and a bit of defensive programming 
 
 const std::string VERSION_STRING = "02.31.06";
 
