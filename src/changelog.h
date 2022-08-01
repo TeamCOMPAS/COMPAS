@@ -912,7 +912,10 @@
 //                                      - Removed end states from detailed plotter (Merger, DCO, Unbound) so that they don't over compress the rest
 // 02.31.05     RTW - July 25, 2022  - Defect repair:
 //                                      - Fixed check for non-interacting ECSN progenitors to consider MT history instead of H-richness
+// 02.31.06     IM - August 1, 2022  - Defect repair:
+//                                      - Print to DetailedOutput after merger, addresses https://github.com/TeamCOMPAS/COMPAS/issues/825
+//                                      - Minor comment tweaks
 
-const std::string VERSION_STRING = "02.31.05";
+const std::string VERSION_STRING = "02.31.06";
 
 # endif // __changelog_h__

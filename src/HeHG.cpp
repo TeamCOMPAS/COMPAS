@@ -477,6 +477,7 @@ bool HeHG::IsSupernova() const {
     }
         
     return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0); // Go supernova if CO core mass large enough
+    //Should we use the prescription in the last paragraph of section 6.1 of Hurley+ 2000, instead?  return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(m_Mass0)) >= 0);
 }
 
 /*
