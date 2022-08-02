@@ -913,7 +913,7 @@
 // 02.31.05     RTW - July 25, 2022  - Defect repair:
 //                                      - Fixed check for non-interacting ECSN progenitors to consider MT history instead of H-richness
 // 02.31.06     RTW - July 25, 2022  - Enhancement:
-//                                      - Added stellar merger to BSE_RLOF output
+//                                      - Added stellar merger to default BSE_RLOF output
 
 const std::string VERSION_STRING = "02.31.06";
 
