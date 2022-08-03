@@ -21,9 +21,17 @@ STELLAR_TYPE ONeWD::ResolveAIC() {
         m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
         m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
         
+        m_SupernovaDetails.drawnKickMagnitude = 0.0;
+        m_SupernovaDetails.kickMagnitude      = 0.0;
+
         SetSNCurrentEvent(SN_EVENT::AIC);                                                  // AIC happening now
         SetSNPastEvent(SN_EVENT::AIC);                                                     // ... and will be a past event
         
+
+        std::cout << "current SN is AIC: " <<
+        SN_EVENT_LABEL.at(m_SupernovaDetails.events.current )
+        << std::endl;
+
         return STELLAR_TYPE::NEUTRON_STAR;
     } else {
         return m_StellarType;
