@@ -385,7 +385,7 @@
 // 02.13.10     IM - Aug 21, 2020   - Enhancement:
 //                                      - Added caseBBStabilityPrescription in lieu of forceCaseBBBCStabilityFlag and alwaysStableCaseBBBCFlag to give more options for case BB/BC MT stability (issue #32)
 // 02.13.11     IM - Aug 22, 2020   - Enhancement:
-//                                      - Removed several stored options (e.g., m_OrbitalAngularVelocity, m_RocheLobeTracker, etc.) to recompute them on an as-needed basis
+//                                      - Removed several stored options (e.g., m_OrbitalAngularVelocity, m_StarToRocheLobeRadiusRatio, etc.) to recompute them on an as-needed basis
 //                                      - Removed some inf values in detailed outputs
 //                                      - Slight speed-ups where feasible
 //                                      - Shift various calculations to only be performed when needed, at printing, and give consistent values there (e.g., OmegaBreak, which was never updated previously)
@@ -861,14 +861,60 @@
 //                                      - Changed all occurences of sqrt with std::sqrt for consistency with the above change
 // 02.26.03     IM - Jan 10, 2022    - Defect repair, code cleanup:
 //                                      - Cleaned up treatment of HG donors having CONVECTIVE envelopes in LEGACY; fixed an issues with CEs from HG donors introduced in 02.25.01 
-// 02.27.00     ML - Jan 08, 2021    - Enhancements:
+// 02.27.00     ML - Jan 12, 2022    - Enhancements:
 //                                      - Add enhanced Nanjing lambda option that continuously extrapolates beyond radial range
 //                                      - Add Nanjing lambda option to switch between calculation using rejuvenated mass and true birth mass
 //                                      - Add Nanjing lambda mass and metallicity interpolation options
 //                                      - No change in default behaviour
-// 02.27.01     RTW - Jan 18, 2021   - Enhancements:
-//                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
+// 02.27.01     IM - Feb 3, 2022     - Defect repair:
+//                                      - Fixed condition for envelope type when using ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE (previously, almost all envelopes were incorrecctly declared radiative)
+// 02.27.02     IM - Feb 3, 2022     - Defect repair:
+//                                      - Fixed mass change on forced envelope loss in response to issue # 743
+// 02.27.03     JR - Feb 8, 2022     - Defect repair:
+//                                      - Fix for issue # 745 - logfile definition records not updated correctly when using logfile-definitions file (see issue for details)
+// 02.27.04     RTW - Feb 15, 2022   - Defect repair:
+//                                      - Fix for issue # 761 - USSNe not occuring. See issue for details.
+// 02.27.05     IRS - Feb 17, 2022   - Enhancements:
+//                                      - Add function HasOnlyOneOf, which returns true if a binary has only one component in the list of stellar types passed, and false if neither or both are in the list
+//                                      - Add function IsHMXRBinary, which returns true if HasOnlyOneOf(Black hole, Neutron star) and the companion radius is > 80% of the Roche Lobe radius
+//                                      - Add flag --hmxr-binaries, which tells COMPAS to store binaries in BSE_RLOF output file if IsHMXRBinary
+//                                      - Add columns for pre- and post-timestep ratio of stars to Roche Lobe radius to BSE_RLOF output file (addressing issue #746)
+//                                      - Changed variables named rocheLobeTracker, roche_lobe_tracker etc. to starToRocheLobeRadiusRatio, star_to_roche_lobe_radius_ratio, etc. for clarity
+// 02.27.06     SS - Apr 5, 2022     -  Defect repair:
+//                                      - Fixed StarTrack PPISN prescription, previously it was doing the same thing as the COMPAS PPISN prescription.
+// 02.27.07     RTW - Apr 5, 2022    - Defect repair:
+//                                      - Fix for issue # 773 - ONeWD not forming due to incorrect mass comparison in TPAGB. 
+// 02.27.08     RTW - Apr 12, 2022   - Defect repair:
+//                                      - Fix for issue # 783 - Some mergers involving a massive star were not logged properly in BSE_RLOF, whenever a jump in radius due to changing stellar type within ResolveMassChanges was much greater than the separation.
+// 02.27.09     VK - Apr 25, 2022    - Minor Enhancement:
+//                                      - Converted constant: MULLERMANDEL_SIGMAKICK into an option: --muller-mandel-sigma-kick
+// 02.28.00     Lvs - May 11, 2022   - Enhancements:
+//                                      - Introduced new remnant mass prescription: Fryer+ 2022, adding new options --fryer-22-fmix and --fryer-22-mcrit
+// 02.29.00     RTW - May 5, 2022    - Enhancement:
+//                                      - Fix for issue # 596 - New option to allow for H rich ECSN (defaults to false). This removes non-interacting ECSN progenitors from contributing to the single pulsar population.
+// 02.30.00     RTW - May 8, 2022    - Enhancement
+//                                      - Added MACLEOD_LINEAR specific angular momentum gamma loss prescription for stable mass transfer
+// 02.31.00     IM - May 14, 2022    - Enhancement
+//                                      - Added option retain-core-mass-during-caseA-mass-transfer to preserve a larger donor core mass following case A MT, set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of its MS lifetime
+//                                      - Code and comment cleaning
+// 02.31.01     RTW - May 16, 2022   - Defect repair:
+//                                      - Fixed help string for H rich ECSN option implemented in v2.29.99
+// 02.31.02     JR - May 18, 2022    - Defect repairs:
+//                                      - Fixed STAR_PROPERTY_LABEL entries in contsants.h for INITIAL_STELLAR_TYPE and INITIAL_STELLAR_TYPE_NAME - both missing the prefix "INITIAL_".
+//                                        Only caused a problem if a user wanted to add either of those to the logfile-definitions file - but since they are in the system parameters files (SSE and BSE)
+//                                        by default encountering the problem would probably be unlikely.
+//                                      - Fixed error identifier in Log::UpdateAllLogfileRecordSpecs() - was (incorrectly) ERROR::UNKNOWN_BINARY_PROPERTY, now (correctly) ERROR::UNKNOWN_STELLAR_PROPERTY 
+// 02.31.03     RTW - May 20, 2022   - Defect repair:
+//                                      - Fixed MS+MS unstable MT not getting flagged as a CEE
+// 02.31.04     RTW - June 10, 2022  - Enhancements
+//                                      - Fixed MT_TRACKER values to be clearer and complementary to each other
+//                                      - Updated the relevant section in the detailed plotter that uses MT_TRACKER values
+//                                      - Removed end states from detailed plotter (Merger, DCO, Unbound) so that they don't over compress the rest
+// 02.31.05     RTW - July 25, 2022  - Defect repair:
+//                                      - Fixed check for non-interacting ECSN progenitors to consider MT history instead of H-richness
+// 02.31.06     RTW - July 25, 2022  - Enhancement:
+//                                      - Added stellar merger to default BSE_RLOF output
 
-const std::string VERSION_STRING = "02.27.01";
+const std::string VERSION_STRING = "02.31.06";
 
 # endif // __changelog_h__

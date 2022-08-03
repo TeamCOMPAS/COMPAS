@@ -5,8 +5,8 @@ The COMPAS run from the tutorial creates a new directory ``COMPAS_Output``, insi
 (here we assume ``logfile_type = 'HDF5'`` in the python submit file):
 
 **Run_Details** |br|
-A record of the COMPAS command-line program options specified for this tutorial (these are the values set by ``pythonSubmit.py``, or 
-the COMPAS default values if not set by ``pythonSubmit.py``).
+A record of the COMPAS command-line program options specified for this tutorial (these are the values set by ``compasConfigDefault.yaml`` when using 
+``runSubmit.py``, or the COMPAS default values if not executing via ``runSubmit.py``).
 
 **COMPAS_Output.h5** |br|
 The primary output file, containing ``HDF5`` data groups for the relevant output physics. By default, and for a sufficiently large simulation, 
@@ -25,9 +25,9 @@ This file, and directory, is only produced if ``detailed_output = True`` in the 
 We examine ``BSE_Detailed_Output_0.h5`` to look at the evolution of the two stars. A default python plotting script has been included to 
 visualise the data. Let's run the script::
 
-  python3 detailed_evol_plotter.py
+  python3 plot_detailed_evolution.py
 
-This should produce the plot shown in :ref:`Figure 5 <fig-5>`:
+This should produce a plot similar to :ref:`Figure 5 <fig-5>`:
 
 .. _fig-5:
 

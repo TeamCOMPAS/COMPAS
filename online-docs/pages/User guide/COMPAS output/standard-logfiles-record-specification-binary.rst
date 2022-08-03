@@ -447,23 +447,21 @@ Binary Properties
            :widths: 35 5
            :header-rows: 0
            :class: aligned-text
-           
-           * - NO MASS TRANSFER
+
+           * - NO MASS TRANSFER 
              - = 0
-           * - STABLE FROM 1 TO 2
+           * - MASS TRANSFER STABLE STAR1 -> STAR2 
              - = 1
-           * - STABLE FROM 2 TO 1
+           * - MASS TRANSFER STABLE STAR2 -> STAR1 
              - = 2
-           * - CE FROM 1 TO 2
+           * - MASS TRANSFER COMMON ENVELOPE STAR1 -> STAR2 
              - = 3
-           * - CE FROM 2 TO 1
+           * - MASS TRANSFER COMMON ENVELOPE STAR2 -> STAR1 
              - = 4
-           * - CE DOUBLE CORE
+           * - MASS TRANSFER COMMON ENVELOPE DOUBLE CORE 
              - = 5
-           * - CE BOTH MS
+           * - MASS TRANSFER -> MERGER 
              - = 6
-           * - CE MS WITH CO
-             - = 7
 
    * - Header String:
      - MT_History
@@ -1199,32 +1197,32 @@ but not both. If both are printed then the file will contain two columns with th
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **ROCHE_LOBE_TRACKER_1**
+   * - :cspan:`2` **STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1**
      -
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BinaryConstituentStar::m_RocheLobeTracker
+     - Calculated using BinaryConstituentStar::m_StarToRocheLobeRadiusRatio
    * - Description:
      - Ratio of the primary star’s stellar radius to Roche radius (R/RL), evaluated at periapsis.
    * - Header String:
-     - Radius|RL
+     - Radius(1)|RL
 
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **ROCHE_LOBE_TRACKER_2**
+   * - :cspan:`2` **STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2**
      -
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BinaryConstituentStar::m_RocheLobeTracker
+     - Calculated using BinaryConstituentStar::m_StarToRocheLobeRadiusRatio
    * - Description:
      - Ratio of the secondary star’s stellar radius to Roche radius (R/RL), evaluated at periapsis.
    * - Header String:
-     - Radius|RL
+     - Radius(2)|RL
 
 .. _binary-props-S:
 

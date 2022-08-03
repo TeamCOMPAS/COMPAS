@@ -1058,7 +1058,7 @@ ENVELOPE HG::DetermineEnvelopeType() const {
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
-            envelope =  utils::Compare(Temperature() * TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            envelope =  utils::Compare(Temperature() * TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
             
         default:                                                                                    // unknown prescription - use default envelope type
@@ -1125,11 +1125,12 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {                  // envelope loss
 
+        m_Mass       = std::min(m_CoreMass, m_Mass);
+        
         if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {                   // star evolves to Helium White Dwarf
 
             stellarType  = STELLAR_TYPE::HELIUM_WHITE_DWARF;
 
-            m_Mass       = m_CoreMass;
             m_Radius     = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
             m_Age        = 0.0;                                                 // see Hurley et al. 2000, discussion after eq 76
         }
@@ -1137,7 +1138,6 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
             stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;
 
-            m_Mass       = m_CoreMass;
             m_Mass0      = m_Mass;
             m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);          
             m_Luminosity = HeMS::CalculateLuminosityAtZAMS_Static(m_Mass);
