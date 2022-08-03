@@ -43,9 +43,6 @@ protected:
 
     // member functions
 
-            // RTW look into this
-            //double       CalculateInitialSupernovaMass() const                           { return OPTIONS->MCBUR1(); }                                               // Force ONeWD to undergo AIC
-            
             double       CalculateLuminosityOnPhase(const double p_Mass,
                                                    const double p_Time,
                                                    const double p_Metallicity) const    { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
@@ -55,7 +52,6 @@ protected:
 
             STELLAR_TYPE ResolveAIC();  
 
-            //STELLAR_TYPE ResolveSupernova()                                              { return GiantBranch::ResolveSupernova(); }                                 // Use GiantBranch
             STELLAR_TYPE ResolveSupernova()                                              { return ResolveAIC(); }                                                   // WDs should not SN, but they can collapse due to accretion
 
             bool         ShouldEvolveOnPhase() const                                     { return (utils::Compare(m_Mass, MECS) <= 0); }                             // Evolve on phase unless mass > ECSN threshold mass
