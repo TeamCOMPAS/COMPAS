@@ -92,6 +92,7 @@ public:
     bool                ExperiencedPPISN() const                                                                    { return m_Star->ExperiencedPPISN(); }
     bool                ExperiencedUSSN() const                                                                     { return m_Star->ExperiencedUSSN(); }
     double              HeCoreMass() const                                                                          { return m_Star->HeCoreMass(); }
+    bool                IsAIC() const                                                                               { return m_Star->IsAIC(); }
     bool                IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
     bool                IsDegenerate() const                                                                        { return m_Star->IsDegenerate(); }
     bool                IsECSN() const                                                                              { return m_Star->IsECSN(); }

@@ -312,6 +312,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
+            case ANY_STAR_PROPERTY::IS_AIC:                                             value = IsAIC();                                                break;
             case ANY_STAR_PROPERTY::IS_CCSN:                                            value = IsCCSN();                                               break;
             case ANY_STAR_PROPERTY::IS_ECSN:                                            value = IsECSN();                                               break;
             case ANY_STAR_PROPERTY::IS_PISN:                                            value = IsPISN();                                               break;
