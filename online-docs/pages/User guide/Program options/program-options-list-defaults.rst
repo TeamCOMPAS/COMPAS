@@ -62,6 +62,10 @@ Default = GRID
    * - NEVER
      - indicates that the program options should `not` be added to the sysparms file
 
+**--allow-non-stripped-ECSN** |br|
+Allow ECSNe in effectively single progenitors. |br|
+Default = FALSE
+
 **--allow-rlof-at-birth** |br|
 Allow binaries that have one or both stars in RLOF at birth to evolve as over-contact systems. |br|
 Default = TRUE
@@ -125,7 +129,7 @@ Default = 1.0
 
 **--common-envelope-alpha-thermal** |br|
 Thermal energy contribution to the total envelope binding energy. |br|
-Defined such that :math:`λ = \alpha_{th} \times \lambda_{b} + (1.0 - \alpha_{th}) \times \lambda_{g}`. |br|
+Defined such that :math:`\lambda = \alpha_{th} \times \lambda_{b} + (1.0 - \alpha_{th}) \times \lambda_{g}`. |br|
 Default = 1.0
 
 **--common-envelope-lambda** |br|
@@ -270,9 +274,21 @@ Fix dimensionless kick magnitude to this value. |br|
 Default = n/a (not used if option not present)
 
 **--fryer-supernova-engine** |br|
-Supernova engine type if using the fallback prescription from :cite:`Fryer2012`. |br|
+Supernova engine type if using the remnant mass prescription from :cite:`Fryer2012`. |br|
 Options: { DELAYED, RAPID }
 Default = DELAYED
+
+**--fryer-22-fmix** |br|
+Paramter describing the mixing growth time when using the 'FRYER2022' remnant mass distribution  :cite:`Fryer2022`. |br|
+Default = 0.5, which is closest to the 'DELAYED' remnant mass prescription from :cite:`Fryer2012`. A value of 4.0 is closest to  the 'RAPID' remnant mass prescription from :cite:`Fryer2012`. |br|
+If the FALLBACK option is used for the kicks, then the proto core masses will be determined by the fryer-supernova-engine option. |br| 
+
+
+**--fryer-22-mcrit** |br|
+Critical CO core mass for black hole formation when using the 'FRYER2022' remnant mass distribution :cite:`Fryer2022`. |br|
+Default = 5.75
+
+
 
 .. _options-props-G:
 
@@ -574,7 +590,7 @@ Default = THERMAL
 
 **--mass-transfer-angular-momentum-loss-prescription** |br|
 Mass Transfer Angular Momentum Loss prescription. |br|
-Options: { JEANS, ISOTROPIC, CIRCUMBINARY, ARBITRARY } |br|
+Options: { JEANS, ISOTROPIC, CIRCUMBINARY, MACLEOD_LINEAR, ARBITRARY } |br|
 Default = ISOTROPIC
 
 **--mass-transfer-fa** |br|
@@ -586,6 +602,11 @@ Default = 0.5
 Specific angular momentum with which the non-accreted system leaves the system. |br|
 Used when ``--mass-transfer-angular-momentum-loss-prescription = ARBITRARY``, ignored otherwise. |br|
 Default = 1.0
+
+**--mass-transfer-jloss-macleod-linear-fraction** |br|
+Specific angular momentum interpolation fraction, linear between 0 and 1 corresponding to the accretor and L2 point. |br|
+Used when ``--mass-transfer-angular-momentum-loss-prescription = MACLEOD_LINEAR``, ignored otherwise. |br|
+Default = 0.5
 
 **--mass-transfer-rejuvenation-prescription** |br|
 Mass Transfer Rejuvenation prescription. |br|
@@ -658,6 +679,10 @@ Default = 200.0
 **--muller-mandel-kick-multiplier-NS** |br|
 Scaling prefactor for NS kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
 Default = 400.0
+
+**--muller-mandel-sigma-kick** |br|
+Scatter width for NS and BH kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
+Default = 0.3
 
 .. _options-props-N:
 
@@ -830,9 +855,13 @@ Default = 0
 
 **--remnant-mass-prescription** |br|
 Remnant mass prescription. |br|
-Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT } |br|
-Remnant mass recipes from Hurley, Pols, Tout (2000) for ``HURLEY2000``, Belczynski et al. 2002, Fryer et al. 2012, Mueller 2016, Mandel & Mueller 2020, and Schneider et al. 2020 (with the alternative prescription for effectively single stars from the same paper in the ``SCHNEIDER2020ALT`` case) |br|
+Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT } |br|
+Remnant mass recipes from Hurley, Pols, Tout (2000) for ``HURLEY2000``, Belczynski et al. 2002, Fryer et al. 2012,  Fryer et al. 2022, Mueller 2016, Mandel & Mueller 2020, and Schneider et al. 2020 (with the alternative prescription for effectively single stars from the same paper in the ``SCHNEIDER2020ALT`` case) |br|
 Default = FRYER2012
+
+**--retain-core-mass-during-caseA-mass-transfer |br|
+If set to true, preserve a larger donor core mass following case A mass transfer.  The core is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer. |br|
+Default = FALSE
 
 **--revised-energy-formalism-nandez-ivanova** |br|
 Enable revised energy formalism of Nandez & Ivanova. |br|
@@ -985,7 +1014,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Mass transfer physics**
 
---mass-transfer, --mass-transfer-accretion-efficiency-prescription, --mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-C, --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star, --case-bb-stability-prescription, --eddington-accretion-factor
+--mass-transfer, --mass-transfer-accretion-efficiency-prescription, --mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-macleod-linear-fraction, --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-C, --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star, --case-bb-stability-prescription, --eddington-accretion-factor, --retain-core-mass-during-caseA-mass-transfer
 
 --circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation
 
@@ -997,13 +1026,13 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Supernovae**
 
---remnant-mass-prescription, --fryer-supernova-engine, --maximum-neutron-star-mass, --mcbur1, --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state
+--remnant-mass-prescription, --fryer-supernova-engine, --fryer-22-fmix, --fryer-22-mcrit, --maximum-neutron-star-mass, --mcbur1, --allow-non-stripped-ECSN, --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state
 
 --pair-instability-supernovae, --PISN-lower-limit, --PISN-upper-limit, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 
 --pulsar-birth-magnetic-field-distribution, --pulsar-birth-magnetic-field-distribution-min, --pulsar-birth-magnetic-field-distribution-max, --pulsar-birth-spin-period-distribution, --pulsar-birth-spin-period-distribution-min, --pulsar-birth-spin-period-distribution-max, --pulsar-magnetic-field-decay-massscale, --pulsar-magnetic-field-decay-timescale, --pulsar-minimum-magnetic-field
 
---kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, --black-hole-kicks, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, --kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH, --muller-mandel-kick-multiplier-NS
+--kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, --black-hole-kicks, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, --kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH, --muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick
 
 --kick-direction, --kick-direction-power, --kick-mean-anomaly-1, --kick-mean-anomaly-2, --kick-phi-1, --kick-phi-2, --kick-theta-1, --kick-theta-2
 

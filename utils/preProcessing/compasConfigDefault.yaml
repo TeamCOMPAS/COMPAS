@@ -3,13 +3,15 @@
 booleanChoices:
     ### LOGISTICS
     --debug-to-file: False
-    --detailed-output: True # WARNING! this creates a data heavy file
+    --detailed-output: False # WARNING! this creates a data heavy file
     --enable-warnings: False    # option to enable/disable warning messages
     --errors-to-file: False    
     --evolve-unbound-systems: False
     --population-data-printing: False
+    --print-bool-as-string: False
     --quiet: False    
     --rlof-printing: True
+    --store-input-files: True
     --switch-log: False    
     ### STELLAR PROPERTIES
     --check-photon-tiring-limit: False    
@@ -21,14 +23,18 @@ booleanChoices:
     --allow-rlof-at-birth: True # allow binaries that have one or both stars in RLOF at birth to evolve, particularly useful in the context of CHE binaries.    
     --circularise-binary-during-mass-transfer: True
     --mass-transfer: True    
+    --retain-core-mass-during-caseA-mass-transfer: False  
     ### COMMON ENVELOPE
+    --common-envelope-allow-immediate-RLOF-post-CE-survive: False
     --common-envelope-allow-main-sequence-survive: True # Allow main sequence stars to survive CE. Was previously False by default
+    --common-envelope-allow-radiative-envelope-survive: False
     --common-envelope-lambda-nanjing-enhanced: False
     --common-envelope-lambda-nanjing-interpolate-in-mass: False
     --common-envelope-lambda-nanjing-interpolate-in-metallicity: False
-    --common-envelope-lambda-nanjing-use_rejuvenated-mass: False
+    --common-envelope-lambda-nanjing-use-rejuvenated-mass: False
     --revised-energy-formalism-nandez-ivanova: False
     ### SUPERNOVAE, KICKS AND REMNANTS
+    --allow-non-stripped-ECSN: True
     --pair-instability-supernovae: True
     --pulsational-pair-instability: True
     ### PULSAR PARAMETERS
@@ -37,12 +43,14 @@ booleanChoices:
 numericalChoices:
     ### LOGISTICS
     --debug-level: 0
+    --grid-lines-to-process: 
+    --grid-start-line: 0
     --hdf5-chunk-size: 100000
     --hdf5-buffer-size: 1
     --log-level: 0
     --maximum-evolution-time: 13700.0   # maximum physical time a system can be evolved [Myrs]
     --maximum-number-timestep-iterations: 99999
-    --number-of-systems: 1 # number of systems per batch
+    --number-of-systems: 10 # number of systems per batch
     --timestep-multiplier: 1    # optional multiplier relative to default time step duration
     ### STELLAR PROPERTIES
     --cool-wind-mass-loss-multiplier: 1.0    
@@ -56,6 +64,9 @@ numericalChoices:
     --luminous-blue-variable-multiplier: 1.5
     --overall-wind-mass-loss-multiplier: 1.0
     --random-seed: 0
+    --rotational-frequency: 0.0
+    --rotational-frequency-1: 0.0
+    --rotational-frequency-2: 0.0
     --wolf-rayet-multiplier: 1.0
     ### BINARY PROPERTIES
     --eccentricity:  # eccentricity for BSE
@@ -76,7 +87,9 @@ numericalChoices:
     ### MASS TRANSFER
     --mass-transfer-fa: 0.5 # Only if using mass_transfer_accretion_efficiency_prescription = 'FIXED'
     --mass-transfer-jloss: 1.0  # Only if using mass_transfer_angular_momentum_loss_prescription = 'FIXED'
+    --mass-transfer-jloss-macleod-linear-fraction: 0.5
     --mass-transfer-thermal-limit-C: 10.0
+    --zeta-adiabatic-arbitrary: 1.0E5
     --zeta-main-sequence: 2.0
     --zeta-radiative-envelope-giant: 6.5
     ### COMMON ENVELOPE
@@ -84,13 +97,17 @@ numericalChoices:
     --common-envelope-alpha-thermal: 1.0    # lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
     --common-envelope-lambda: 0.1  # Only if using 'LAMBDA_FIXED'
     --common-envelope-lambda-multiplier: 1.0  # Multiply common envelope lambda by some constant 
+    --common-envelope-mass-accretion-constant: 0
     --common-envelope-mass-accretion-max: 0.10 # For 'MACLEOD+2014' [Msol]
     --common-envelope-mass-accretion-min: 0.04 # For 'MACLEOD+2014' [Msol]   
     --common-envelope-recombination-energy-density: 1.5E13
     --common-envelope-slope-kruckow: -0.83333333333    
+    --maximum-mass-donor-nandez-ivanova: 2.0
     ### SUPERNOVAE, KICKS AND REMNANTS
     --eddington-accretion-factor: 1 # multiplication Factor for eddington accretion onto NS&BH    
-    --fix-dimensionless-kick-magnitude: -1                       
+    --fix-dimensionless-kick-magnitude: -1.0                       
+    --fryer-22-fmix: 0.5            # parameter describing mixing growth time when using the 'FRYER2022' remnant mass prescription
+    --fryer-22-mcrit: 5.75          # critical mass for BH formation when using the 'FRYER2022' remnant mass prescription
     --kick-direction-power: 0.0
     --kick-magnitude-sigma-CCSN-NS: 265.0  #  [km/s]
     --kick-magnitude-sigma-CCSN-BH: 265.0  #  [km/s]
@@ -110,6 +127,8 @@ numericalChoices:
     --kick-magnitude-sigma-ECSN: 30.0 #  [km/s]
     --kick-magnitude-sigma-USSN: 30.0 #  [km/s]
     --kick-scaling-factor: 1.0
+    --maximum-neutron-star-mass: 2.5
+    --mcbur1: 1.6
     --muller-mandel-kick-multiplier-BH: 200.0  # scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution
     --muller-mandel-kick-multiplier-NS: 400.0  # scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution
     --neutrino-mass-loss-BH-formation-value: 0.1  
@@ -128,11 +147,14 @@ numericalChoices:
 
 stringChoices:
     ### LOGISTICS
+    --grid:     # grid file name (e.g. 'mygrid.txt')
     --mode: 'BSE'  # evolving single stars (SSE) or binaries (BSE)    
+    --notes: 
+    --notes-hdrs: 
+    --output-container: 
     ### STELLAR PROPERTIES
     --chemically-homogeneous-evolution: 'PESSIMISTIC'      # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
     --envelope-state-prescription: 'LEGACY'
-    --grid:     # grid file name (e.g. 'mygrid.txt')
     --initial-mass-function: 'KROUPA'
     --luminous-blue-variable-prescription: 'HURLEY_ADD'
     --mass-loss-prescription: 'VINK'
@@ -181,7 +203,7 @@ stringChoices:
     #
     # For now though, I'll leave them as is - we can change this when (if) we decide to
     # drop the prefixes
-    --logfile-type: HDF5
+    --logfile-type: 'HDF5'
     --logfile-name-prefix: 
     --logfile-definitions:  
     --logfile-common-envelopes:

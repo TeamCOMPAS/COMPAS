@@ -198,6 +198,7 @@ private:
         "hdf5-buffer-size",
         "hdf5-chunk-size",
         "help", "h",
+        "hmxr-binaries",
 
         "log-level", 
         "log-classes",
@@ -385,14 +386,14 @@ private:
         "rotational-frequency-2",
 
         "semi-major-axis", "a",
-        "semi-major-axis-dsitribution",
+        "semi-major-axis-distribution",
         "semi-major-axis-max",
-        "semi-major-axis-min"
+        "semi-major-axis-min",
     };
 
     
-    // m_RangeExcluded records option strings that apply to SSE only
-    // m_SetExcluded records option strings that apply to BSE only
+    // m_RangeExcluded records option strings that cannot be ranges
+    // m_SetExcluded records option strings that cannot be sets
     //
     // These vectors are checked when the commandline or grid line is parsed for
     // ranges and sets.  Ranges can only be specified for numerical options - other
@@ -408,6 +409,7 @@ private:
 
         "add-options-to-sysparms",
 
+        "allow-non-stripped-ECSN"
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation",
@@ -445,6 +447,7 @@ private:
         "hdf5-buffer-size",
         "hdf5-chunk-size",
         "help", "h",
+        "hmxr-binaries",
 
         "initial-mass-function", "i",
 
@@ -535,6 +538,7 @@ private:
         "hdf5-buffer-size",
         "hdf5-chunk-size",
         "help", "h",
+        "hmxr-binaries",
 
         "log-classes",
         "log-level", 
@@ -601,6 +605,7 @@ public:
             
             // member variables - alphabetically in groups (sort of...)
 
+            bool                                                m_AllowNonStrippedECSN;                                         // Indicates whether single stars should undergo ECSNe if they were not stripped by a companion
             bool                                                m_AllowRLOFAtBirth;                                             // Indicates whether binaries that have one or both stars in RLOF at birth are allowed to evolve
             bool                                                m_AllowTouchingAtBirth;                                         // Indicates whether binaries that are touching at birth are allowed to evolve
 
@@ -613,6 +618,7 @@ public:
             std::vector<std::string>                            m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
 
 	        bool                                                m_BeBinaries;													// Flag if we want to print BeBinaries (main.cpp)
+            bool                                                m_HMXRBinaries;                                                 // Flag if we want to store HMXRBs in RLOF output file
             bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
 	        bool                                                m_EvolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
 
@@ -720,6 +726,7 @@ public:
 
             double                                              m_MullerMandelKickBH;                                           // Multiplier for BH kicks per Mandel and Mueller, 2020
             double                                              m_MullerMandelKickNS;                                           // Multiplier for NS kicks per Mandel and Mueller, 2020
+            double                                              m_MullerMandelSigmaKick;                                           // Scatter for kicks per Mandel and Mueller, 2020
 
             // Black hole kicks
             ENUM_OPT<BLACK_HOLE_KICKS>                          m_BlackHoleKicks;                                               // Which black hole kicks mode
@@ -734,6 +741,10 @@ public:
 
             ENUM_OPT<NEUTRINO_MASS_LOSS_PRESCRIPTION>           m_NeutrinoMassLossAssumptionBH;                                 // Which neutrino mass loss assumption for BH formation
             double                                              m_NeutrinoMassLossValueBH;                                      // Value (corresponding to assumption) for neutrino mass loss for BH formation
+
+
+            double                                              m_Fryer22fmix;                                                  // Parameter describing the mixing growth time when using Fryer 2022 remnant mass presc. 
+            double                                              m_Fryer22Mcrit;                                                 // Critical mass for black hole formation when using Fryer 2022 remnant mass presc. 
 
             // Fixed uk options
             bool                                                m_UseFixedUK;                                                   // Whether to fix uk to a certain value (default is to NOT fix uk)
@@ -771,10 +782,12 @@ public:
             double                                              m_WolfRayetFactor;                                              // Multiplicitive factor for Wolf-Rayet (WR) wind mass loss rates
 
             // Mass transfer options
-            bool                                                m_UseMassTransfer;                                              // Whether to use mass transfer (default = false)
-	        bool                                                m_CirculariseBinaryDuringMassTransfer;						    // Whether to circularise binary when it starts (default = false)
+            bool                                                m_UseMassTransfer;                                              // Whether to use mass transfer (default = true)
+	        bool                                                m_CirculariseBinaryDuringMassTransfer;						    // Whether to circularise binary when it starts (default = true)
 	        bool                                                m_AngularMomentumConservationDuringCircularisation;			    // Whether to conserve angular momentum while circularising or circularise to periastron (default = false)
 	
+            bool                                                m_RetainCoreMassDuringCaseAMassTransfer;                        // Whether to retain the approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = false)
+        
             ENUM_OPT<CASE_BB_STABILITY_PRESCRIPTION>            m_CaseBBStabilityPrescription;									// Which prescription for the stability of case BB/BC mass transfer
 
 
@@ -789,6 +802,7 @@ public:
 	        ENUM_OPT<MT_THERMALLY_LIMITED_VARIATION>            m_MassTransferThermallyLimitedVariation;                        // Choose how to deal with mass transfer if it is set as thermally limited.
 
             double                                              m_MassTransferJloss;                                            // Specific angular momentum of the material leaving the system (not accreted)
+            double                                              m_MassTransferJlossMacLeodLinearFraction;                       // Linear interpolation fraction for jloss between accretor and L2 values
             ENUM_OPT<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION>     m_MassTransferAngularMomentumLossPrescription;                  // Which mass transfer angular momentum loss prescription
 
             // Mass transfer rejuvenation prescription
@@ -1102,11 +1116,8 @@ public:
 
     ADD_OPTIONS_TO_SYSPARMS                     AddOptionsToSysParms() const                                            { return m_CmdLine.optionValues.m_AddOptionsToSysParms.type; }
 
+    bool                                        AllowNonStrippedECSN() const                                            { return OPT_VALUE("allow-non-stripped-ECSN", m_AllowNonStrippedECSN, true); }
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return OPT_VALUE("common-envelope-allow-main-sequence-survive", m_AllowMainSequenceStarToSurviveCommonEnvelope, true); }
-    bool                                        CommonEnvelopeLambdaNanjingEnhanced() const                             { return OPT_VALUE("common-envelope-lambda-nanjing-enhanced", m_CommonEnvelopeLambdaNanjingEnhanced, true); }
-    bool                                        CommonEnvelopeLambdaNanjingInterpolateInMass() const                    { return OPT_VALUE("common-envelope-lambda-nanjing-interpolate-in-mass", m_CommonEnvelopeLambdaNanjingInterpolateInMass, true); }
-    bool                                        CommonEnvelopeLambdaNanjingInterpolateInMetallicity() const             { return OPT_VALUE("common-envelope-lambda-nanjing-interpolate-in-metallicity", m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity, true); }
-    bool                                        CommonEnvelopeLambdaNanjingUseRejuvenatedMass() const                   { return OPT_VALUE("common-envelope-lambda-nanjing-use-rejuvenated-mass", m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass, true); }
     bool                                        AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() const               { return OPT_VALUE("common-envelope-allow-radiative-envelope-survive", m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope, true); }
     bool                                        AllowImmediateRLOFpostCEToSurviveCommonEnvelope() const                 { return OPT_VALUE("common-envelope-allow-immediate-rlof-post-ce-survive", m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope, true); }
     bool                                        AllowRLOFAtBirth() const                                                { return OPT_VALUE("allow-rlof-at-birth", m_AllowRLOFAtBirth, true); }
@@ -1133,6 +1144,10 @@ public:
     double                                      CommonEnvelopeAlphaThermal() const                                      { return OPT_VALUE("common-envelope-alpha-thermal", m_CommonEnvelopeAlphaThermal, true); }
     double                                      CommonEnvelopeLambda() const                                            { return OPT_VALUE("common-envelope-lambda", m_CommonEnvelopeLambda, true); }
     double                                      CommonEnvelopeLambdaMultiplier() const                                  { return OPT_VALUE("common-envelope-lambda-multiplier", m_CommonEnvelopeLambdaMultiplier, true); }
+    bool                                        CommonEnvelopeLambdaNanjingEnhanced() const                             { return OPT_VALUE("common-envelope-lambda-nanjing-enhanced", m_CommonEnvelopeLambdaNanjingEnhanced, true); }
+    bool                                        CommonEnvelopeLambdaNanjingInterpolateInMass() const                    { return OPT_VALUE("common-envelope-lambda-nanjing-interpolate-in-mass", m_CommonEnvelopeLambdaNanjingInterpolateInMass, true); }
+    bool                                        CommonEnvelopeLambdaNanjingInterpolateInMetallicity() const             { return OPT_VALUE("common-envelope-lambda-nanjing-interpolate-in-metallicity", m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity, true); }
+    bool                                        CommonEnvelopeLambdaNanjingUseRejuvenatedMass() const                   { return OPT_VALUE("common-envelope-lambda-nanjing-use-rejuvenated-mass", m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass, true); }
     CE_LAMBDA_PRESCRIPTION                      CommonEnvelopeLambdaPrescription() const                                { return OPT_VALUE("common-envelope-lambda-prescription", m_CommonEnvelopeLambdaPrescription.type, true); }
     double                                      CommonEnvelopeMassAccretionConstant() const                             { return OPT_VALUE("common-envelope-mass-accretion-constant", m_CommonEnvelopeMassAccretionConstant, true); }
     double                                      CommonEnvelopeMassAccretionMax() const                                  { return OPT_VALUE("common-envelope-mass-accretion-max", m_CommonEnvelopeMassAccretionMax, true); }
@@ -1164,6 +1179,8 @@ public:
     bool                                        FixedRandomSeedGridLine() const                                         { return m_GridLine.optionValues.m_FixedRandomSeed; }
     double                                      FixedUK() const                                                         { return m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_FixedUK; }
     SN_ENGINE                                   FryerSupernovaEngine() const                                            { return OPT_VALUE("fryer-supernova-engine", m_FryerSupernovaEngine.type, true); }
+    double                                      Fryer22fmix() const                                                     { return OPT_VALUE("fryer-22-fmix", m_Fryer22fmix, true); }
+    double                                      Fryer22Mcrit() const                                                    { return OPT_VALUE("fryer-22-mcrit", m_Fryer22Mcrit, true); }
 
     std::string                                 GridFilename() const                                                    { return m_CmdLine.optionValues.m_GridFilename; }
     std::streamsize                             GridStartLine() const                                                   { return m_CmdLine.optionValues.m_GridStartLine; }
@@ -1171,6 +1188,7 @@ public:
 
     size_t                                      HDF5ChunkSize() const                                                   { return m_CmdLine.optionValues.m_HDF5ChunkSize; }
     size_t                                      HDF5BufferSize() const                                                  { return m_CmdLine.optionValues.m_HDF5BufferSize; }
+    bool                                        HMXRBinaries() const                                                    { return OPT_VALUE("hmxr-binaries", m_HMXRBinaries, false); }
 
     double                                      InitialMass() const                                                     { return OPT_VALUE("initial-mass", m_InitialMass, true); }
     double                                      InitialMass1() const                                                    { return OPT_VALUE("initial-mass-1", m_InitialMass1, true); }
@@ -1287,6 +1305,7 @@ public:
 
     double                                      MassTransferFractionAccreted() const                                    { return OPT_VALUE("mass-transfer-fa", m_MassTransferFractionAccreted, true); }
     double                                      MassTransferJloss() const                                               { return OPT_VALUE("mass-transfer-jloss", m_MassTransferJloss, true); }
+    double                                      MassTransferJlossMacLeodLinearFraction() const                          { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction", m_MassTransferJlossMacLeodLinearFraction, true); }
     MT_REJUVENATION_PRESCRIPTION                MassTransferRejuvenationPrescription() const                            { return OPT_VALUE("mass-transfer-rejuvenation-prescription", m_MassTransferRejuvenationPrescription.type, true); }
     MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return OPT_VALUE("mass-transfer-thermal-limit-accretor", m_MassTransferThermallyLimitedVariation.type, true); }
     double                                      MaxEvolutionTime() const                                                { return m_CmdLine.optionValues.m_MaxEvolutionTime; }
@@ -1304,6 +1323,7 @@ public:
 
     double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-BH", m_MullerMandelKickBH, true); }
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-NS", m_MullerMandelKickNS, true); }
+    double                                      MullerMandelSigmaKick() const                                           { return OPT_VALUE("muller-mandel-sigma-kick", m_MullerMandelSigmaKick, true); }
 
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-BH-formation-value", m_NeutrinoMassLossValueBH, true); }
@@ -1358,6 +1378,12 @@ public:
     unsigned long int                           RandomSeedGridLine() const                                              { return m_GridLine.optionValues.m_RandomSeed; }
 
     REMNANT_MASS_PRESCRIPTION                   RemnantMassPrescription() const                                         { return OPT_VALUE("remnant-mass-prescription", m_RemnantMassPrescription.type, true); }
+    
+    bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
+    bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
+    
+    bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
+    
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
 
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return OPT_VALUE("rotational-velocity-distribution", m_RotationalVelocityDistribution.type, true); }
@@ -1379,9 +1405,6 @@ public:
     double                                      SN_Phi2() const                                                         { return OPT_VALUE("kick-phi-2", m_KickPhi2, false); }
     double                                      SN_Theta1() const                                                       { return OPT_VALUE("kick-theta-1", m_KickTheta1, false); }
     double                                      SN_Theta2() const                                                       { return OPT_VALUE("kick-theta-2", m_KickTheta2, false); }
-
-    bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
-    bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
 
     bool                                        StoreInputFiles() const                                                 { return m_CmdLine.optionValues.m_StoreInputFiles; }
     bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }

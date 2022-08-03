@@ -5,6 +5,8 @@ Sampling in COMPAS
 
 Here are some basic instructions for efficient sampling of the COMPAS
 input parameters, using the python sampling package Stroopwafel.
+Below that are instructions for how to sample from the correlated 
+parameter distributions outlined in Moe & DiStefano 2017. 
 
 Note that the intended Stroopwafel functionality for "Adaptive
 Importance Sampling" is not yet implemented, but is currently in
@@ -30,26 +32,31 @@ To use Stroopwafel sampling, copy
 Settings
 ~~~~~~~~
 
-1. PythonSubmit
+NOTE: This sampling method is currently being updated as part of an upgrade
+in our method to parse user-defined options. We plan to address this shortly. 
+Please bear with us and contact the COMPAS team if an urgent solution is needed.
+
+1. runSubmit
 
 
 If you are running COMPAS on default settings, skip this section.
 
 If you have many non-default COMPAS arguments, you may want to set
-them in the ``pythonSubmit.py`` file in the same directory. For now, the file must
+them in the ``compasConfigDefault.yaml``, that is read and executed by the 
+``runSubmit.py`` file in the same directory. For now, the file must
 be named this way and placed in the same directory as the ``stroopwafelInterface.py``
 file.
 
-A configurable pythonSubmit file can be found in the ``preProcessing/``
+A configurable runSubmit file can be found in the ``preProcessing/``
 directory.
 
-Set your desired options, then set the ``usePythonSubmit`` parameter to ``True``
+Set your desired options, then set the ``userunSubmit`` parameter to ``True``
 in the ``stroopwafelInterface.py``.
 
 2. Stroopwafel inputs
 
 
-The lines below ``usePythonSubmit`` represent stroopwafel inputs.
+The lines below ``userunSubmit`` represent stroopwafel inputs.
 These are treated as
 defaults, but can be overriden by command-line arguments to
 stroopwafel.
@@ -57,7 +64,7 @@ See ``python3 stroopwafelInterface.py --help``.
 
 ``num_systems`` is the total number of binaries you would like to
 evolve.
-This value overrides the value set in the pythonSubmit.
+This value overrides the value set in the ``compasConfigDefault.yaml`` file.
 
 ``num_cores`` is the number of cores you would like to use to
 parallelize your run. More cores means your run will finish sooner, but
@@ -110,3 +117,15 @@ When your satisfied with your settings, simply run with
 batch containers in your output folder.
 To postprocess the output, see
 `getting\_started.md <getting_started.md>`__
+
+
+
+Moe & DiStefano
+~~~~~~~~
+
+To sample from the Moe & DiStefano 2017 distributions, the sampler script
+can be found in ``preProcessing/sampleMoeDiStefano.py``. As described in the 
+header, only the number of systems and upper and lower mass bounds can be
+set (the parameter correlations break if you try to set the other bounds).
+These values are set at the bottom of the script.
+
