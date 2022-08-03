@@ -1,5 +1,25 @@
 #include "ONeWD.h"
+#include "NS.h"
 
-// Nothing to see here...
-//
-// Add Oxygen-Neon White Dwarf (ONeWD) specific code here
+/*
+ * Resolve Accretion-Induced Collapse of a WD
+ *
+ * Hurley et al. 2000, just after eq 43 (before eq 44)
+ *
+ *
+ * STELLAR_TYPE ONeWD::ResolveAIC() 
+ *
+ * @return                                      Stellar type of remnant (always STELLAR_TYPE::NEUTRON_STAR)
+ */
+
+STELLAR_TYPE ONeWD::ResolveAIC() { 
+
+    m_Mass       = MECS_REM;                                                            // defined in constants.h
+    m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
+    m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
+    
+    SetSNCurrentEvent(SN_EVENT::AIC);                                                  // AIC happening now
+    SetSNPastEvent(SN_EVENT::AIC);                                                     // ... and will be a past event
+    
+    return STELLAR_TYPE::NEUTRON_STAR;
+}
