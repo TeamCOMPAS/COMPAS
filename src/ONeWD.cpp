@@ -14,6 +14,8 @@
 
 STELLAR_TYPE ONeWD::ResolveAIC() { 
 
+    std::cout << "got here" << std::endl; // RTW
+
     m_Mass       = MECS_REM;                                                            // defined in constants.h
     m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
     m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
