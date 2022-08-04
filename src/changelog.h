@@ -914,7 +914,11 @@
 //                                      - Fixed check for non-interacting ECSN progenitors to consider MT history instead of H-richness
 // 02.31.06     RTW - July 25, 2022  - Enhancement:
 //                                      - Added stellar merger to default BSE_RLOF output
+// 02.31.07     IM - August 1, 2022  - Defect repair:
+//                                      - Print to DetailedOutput after merger, addresses https://github.com/TeamCOMPAS/COMPAS/issues/825
+//                                      - Ensures no ONeWDs are formed with masses above Chandrasekhar mass
+//                                      - Minor comment tweaks and a bit of defensive programming
 
-const std::string VERSION_STRING = "02.31.06";
+const std::string VERSION_STRING = "02.31.07";
 
 # endif // __changelog_h__
