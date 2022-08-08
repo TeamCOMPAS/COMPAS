@@ -532,7 +532,8 @@ enum class ERROR: int {
     UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,           // unsupported pulsar birth magnetic field distribution
     UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,              // unsupported pulsar birth spin period distribution
     UNSUPPORTED_MT_PRESCRIPTION,                                    // unsupported mass transfer prescription
-    WARNING                                                         // unspecified warning
+    WARNING,                                                        // unspecified warning
+    WHITE_DWARF_TOO_MASSIVE                                         // a white dwarf exceeds the Chandrasekhar mass limit
 };
 
 
@@ -669,7 +670,8 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,  { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth magnetic field distribution" }},
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,     { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth spin period distribution" }},
     { ERROR::UNSUPPORTED_ZETA_PRESCRIPTION,                         { ERROR_SCOPE::ALWAYS,              "Unsupported stellar Zeta prescription" }},
-    { ERROR::WARNING,                                               { ERROR_SCOPE::ALWAYS,              "Warning!" }}
+    { ERROR::WARNING,                                               { ERROR_SCOPE::ALWAYS,              "Warning!" }},
+    { ERROR::WHITE_DWARF_TOO_MASSIVE,                               { ERROR_SCOPE::ALWAYS,              "This white dwarf exceeds the Chandrasekhar mass limit" }}
 };
 
 
