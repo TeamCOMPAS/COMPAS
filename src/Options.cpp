@@ -1216,7 +1216,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "metallicity,z",                                               
             po::value<double>(&p_Options->m_Metallicity)->default_value(p_Options->m_Metallicity),                                                                                                
-            ("Metallicity to use (default " + std::to_string(p_Options->m_Metallicity) + ")").c_str()
+            ("Metallicity to use (default = " + std::to_string(p_Options->m_Metallicity) + ")").c_str()
         )
         (
             "metallicity-max",                                            

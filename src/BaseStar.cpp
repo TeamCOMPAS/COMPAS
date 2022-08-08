@@ -3173,7 +3173,7 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
     }
     else {
-        stellarType = ResolveSupernova();                                                   // handle supernova     JR: moved this to start of timestep        
+        stellarType = ResolveSupernova();                                                   // handle supernova          
         
         if (stellarType == m_StellarType) {                                                 // still on phase?
             
