@@ -12,12 +12,15 @@
  *
  * STELLAR_TYPE ONeWD::ResolveAIC() 
  *
- * @return                                      Stellar type of remnant (always STELLAR_TYPE::NEUTRON_STAR)
+ * @return                                      Stellar type of remnant (STELLAR_TYPE::NEUTRON_STAR if SN, otherwise current type)
  */
 
 STELLAR_TYPE ONeWD::ResolveAIC() { 
 
-    if (IsSupernova()) {                                                                            // has gone supernova
+    if (!IsSupernova()) {                                                                            // has gone supernova
+        return m_StellarType;
+
+    } else {
 
         m_Mass       = MECS_REM;                                                            // defined in constants.h
         m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
@@ -30,8 +33,5 @@ STELLAR_TYPE ONeWD::ResolveAIC() {
         SetSNPastEvent(SN_EVENT::AIC);                                                     // ... and will be a past event
 
         return STELLAR_TYPE::NEUTRON_STAR;
-    } else {
-        return m_StellarType;
     }
-
 }
