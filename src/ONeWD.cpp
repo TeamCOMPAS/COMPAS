@@ -19,6 +19,7 @@ STELLAR_TYPE ONeWD::ResolveAIC() {
 
     if (!IsSupernova()) {                                                                            // has gone supernova
         return m_StellarType;
+    }
 
     m_Mass       = MECS_REM;                                                            // defined in constants.h
     m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
