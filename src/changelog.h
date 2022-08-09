@@ -920,7 +920,9 @@
 //                                      - Minor comment tweaks and a bit of defensive programming
 // 02.31.08     RTW - Aug 3, 2022    - Enhancement:
 //                                      - Added Accretion Induced Collapse (AIC) of ONeWD as another type of SN
+// 02.31.09     RTW - Aug 9, 2022    - Enhancement:
+//                                      - Increased the number of places the detailed plotter gets called, and added a flag for whether it is called at the end of a function
 
-const std::string VERSION_STRING = "02.31.08";
+const std::string VERSION_STRING = "02.31.09";
 
 # endif // __changelog_h__
