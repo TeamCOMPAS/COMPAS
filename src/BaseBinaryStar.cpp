@@ -372,6 +372,8 @@ void BaseBinaryStar::SetRemainingValues() {
 	m_CEDetails.preCEE.rocheLobe2to1             = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CEDetails.preCEE.semiMajorAxis             = DEFAULT_INITIAL_DOUBLE_VALUE;
 
+    m_DetailedOutputEndOfTimestep                = false; // set false by default since there are many extra detailed outputs in the code and only one at the end of the timestep
+
     m_Flags.stellarMerger                        = false;
     m_Flags.stellarMergerAtBirth                 = false;
 
@@ -573,8 +575,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE:                            value = CircularizationTimescale();                                         break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE:                        value = CEAtLeastOnce();                                                    break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT:                          value = CommonEnvelopeEventCount();                                         break;
+        case BINARY_PROPERTY::DETAILED_OUTPUT_END_OF_TIMESTEP:                      value = DetailedOutputEndOfTimestep();                                      break;
         case BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE:                         value = UK();                                                               break;
-        case BINARY_PROPERTY::UNBOUND:                                              value = Unbound();                                                          break;
         case BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE:                          value = DoubleCoreCE();                                                     break;
         case BINARY_PROPERTY::DT:                                                   value = Dt();                                                               break;
         case BINARY_PROPERTY::ECCENTRICITY:                                         value = Eccentricity();                                                     break;
@@ -669,6 +671,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::SUPERNOVA_STATE:                                      value = SN_State();                                                         break;
         case BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE:                            value = SynchronizationTimescale();                                         break;
         case BINARY_PROPERTY::SYSTEMIC_SPEED:                                       value = SystemicSpeed();                                                    break;
+        case BINARY_PROPERTY::UNBOUND:                                              value = Unbound();                                                          break;
         case BINARY_PROPERTY::TIME:                                                 value = Time();                                                             break;
         case BINARY_PROPERTY::TIME_TO_COALESCENCE:                                  value = TimeToCoalescence();                                                break;
         case BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM:                               value = TotalAngularMomentum();                                             break;
@@ -2234,23 +2237,38 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     CalculateMassTransfer(p_Dt);                                                                                        // calculate mass transfer if necessary
 
+    if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { (void)PrintDetailedOutput(m_Id); }                    // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
+    m_PrintExtraDetailedOutput = false;                                                                                 // reset detailed output printing flag for the next timestep
+
     CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds
+
+    if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { (void)PrintDetailedOutput(m_Id); }                    // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
+    m_PrintExtraDetailedOutput = false;                                                                                 // reset detailed output printing flag for the next timestep
 
     if ((m_CEDetails.CEEnow || StellarMerger()) &&                                                                      // CEE or merger?
         !(OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {                  // yes - avoid CEE if CH+CH
         ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
+
+        if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { (void)PrintDetailedOutput(m_Id); }                    // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
+        m_PrintExtraDetailedOutput = false;                                                                                 // reset detailed output printing flag for the next timestep
     }
     else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
         EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) - immediate event
+
+        if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { (void)PrintDetailedOutput(m_Id); }                    // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
+        m_PrintExtraDetailedOutput = false;                                                                                 // reset detailed output printing flag for the next timestep
     }
     else {
         ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
         if (HasStarsTouching()) {                                                                                       // if stars emerged from mass transfer as touching, it's a merger
             m_Flags.stellarMerger = true;
-		
+
             // Set Roche lobe flags for both stars so that they show correct RLOF status
             m_Star1->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star1
             m_Star2->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star2
+
+            if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { (void)PrintDetailedOutput(m_Id); }                    // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
+            m_PrintExtraDetailedOutput = false;                                                                                 // reset detailed output printing flag for the next timestep
         }
     }
 
@@ -2339,7 +2357,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
         evolutionStatus              = EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH;                                                           // binary components are touching - merger at birth
     }
 
+    m_DetailedOutputEndOfTimestep = true;
     (void)PrintDetailedOutput(m_Id);                                                                                                        // print (log) detailed output for binary
+    m_DetailedOutputEndOfTimestep = false;
 
     if (OPTIONS->PopulationDataPrinting()) {
         SAY("\nGenerating a new binary - " << m_Id);
@@ -2375,11 +2395,15 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             }
             else {                                                                                                                          // continue evolution
 
-                (void)PrintDetailedOutput(m_Id);                                                                                            // print (log) detailed output for binary
+                (void)PrintDetailedOutput(m_Id);                                                                                                        // print (log) detailed output for binary
 
                 if (OPTIONS->RLOFPrinting()) StashRLOFProperties(MASS_TRANSFER_TIMING::PRE_MT);                                             // stash properties immediately pre-Mass Transfer 
 
                 EvaluateBinary(dt);                                                                                                         // evaluate the binary at this timestep
+
+                m_DetailedOutputEndOfTimestep = true;
+                (void)PrintDetailedOutput(m_Id);                                                                                                        // print (log) detailed output for binary
+                m_DetailedOutputEndOfTimestep = false;
 
                 (void)PrintRLOFParameters();                                                                                                // print (log) RLOF parameters
                 
@@ -2438,7 +2462,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             }
         }
 
+        m_DetailedOutputEndOfTimestep = true;
         (void)PrintDetailedOutput(m_Id);                                                                                                    // print (log) detailed output for binary
+                                                                                                                                            
 
         if (evolutionStatus == EVOLUTION_STATUS::STEPS_UP) {                                                                                // stopped because max timesteps reached?
             SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED);                                                                                    // show error

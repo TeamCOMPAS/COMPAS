@@ -47,7 +47,7 @@ public:
 
         m_CEDetails                        = p_Star.m_CEDetails;
 
-        m_Unbound                          = p_Star.m_Unbound;
+        m_DetailedOutputEndOfTimestep      = p_Star.m_DetailedOutputEndOfTimestep;
 
         m_DCOFormationTime                 = p_Star.m_DCOFormationTime;
         
@@ -121,6 +121,8 @@ public:
 
         m_uK                               = p_Star.m_uK;
 
+        m_Unbound                          = p_Star.m_Unbound;
+
         m_ZetaLobe                         = p_Star.m_ZetaLobe;
         m_ZetaStar                         = p_Star.m_ZetaStar;
 
@@ -180,6 +182,7 @@ public:
     double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
     unsigned int        CommonEnvelopeEventCount() const            { return m_CEDetails.CEEcount; }
     bool                Unbound() const                             { return m_Unbound; }
+    bool                DetailedOutputEndOfTimestep() const         { return m_DetailedOutputEndOfTimestep; }
     bool                DoubleCoreCE() const                        { return m_CEDetails.doubleCoreCE; }
     double              Dt() const                                  { return m_Dt; }
     double              Eccentricity() const                        { return m_Eccentricity; }
@@ -299,9 +302,9 @@ private:
 
     double              m_CircularizationTimescale;
 
-    bool                m_Unbound;                                                          // Binary unbound?
-
     double              m_Dt;                                                               // Timestep
+
+    double              m_DetailedOutputEndOfTimestep;
 
     double              m_Eccentricity;                                                     // Initial eccentricity
     double              m_EccentricityAtDCOFormation;                                       // Eccentricity at DCO formation
@@ -378,6 +381,8 @@ private:
 	double              m_OrbitalEnergy;
 
     double              m_uK;
+
+    bool                m_Unbound;                                                          // Binary unbound?
 
     double              m_ZetaLobe;
     double              m_ZetaStar;

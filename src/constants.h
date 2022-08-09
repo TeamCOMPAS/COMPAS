@@ -1830,8 +1830,8 @@ enum class BINARY_PROPERTY: int {
     CIRCULARIZATION_TIMESCALE,
     COMMON_ENVELOPE_AT_LEAST_ONCE,
     COMMON_ENVELOPE_EVENT_COUNT,
+    DETAILED_OUTPUT_END_OF_TIMESTEP,
     DIMENSIONLESS_KICK_MAGNITUDE,
-    UNBOUND,
     DOUBLE_CORE_COMMON_ENVELOPE,
     DT,
     ECCENTRICITY,
@@ -1926,6 +1926,7 @@ enum class BINARY_PROPERTY: int {
     SUPERNOVA_STATE,
     SYNCHRONIZATION_TIMESCALE,
     SYSTEMIC_SPEED,
+    UNBOUND,
     TIME,
     TIME_TO_COALESCENCE,
     TOTAL_ANGULAR_MOMENTUM,
@@ -1956,8 +1957,8 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE,                          "CIRCULARIZATION_TIMESCALE" },
     { BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE,                      "COMMON_ENVELOPE_AT_LEAST_ONCE" },
     { BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT,                        "COMMON_ENVELOPE_EVENT_COUNT" },
+    { BINARY_PROPERTY::DETAILED_OUTPUT_END_OF_TIMESTEP,                    "DETAILED_OUTPUT_END_OF_TIMESTEP" },
     { BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE,                       "DIMENSIONLESS_KICK_MAGNITUDE" },
-    { BINARY_PROPERTY::UNBOUND,                                            "UNBOUND" },
     { BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE,                        "DOUBLE_CORE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::DT,                                                 "DT" },
     { BINARY_PROPERTY::ECCENTRICITY,                                       "ECCENTRICITY" },
@@ -2056,6 +2057,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::TIME_TO_COALESCENCE,                                "TIME_TO_COALESCENCE" },
     { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,                             "TOTAL_ANGULAR_MOMENTUM" },
     { BINARY_PROPERTY::TOTAL_ENERGY,                                       "TOTAL_ENERGY" },
+    { BINARY_PROPERTY::UNBOUND,                                            "UNBOUND" },
     { BINARY_PROPERTY::ZETA_LOBE,                                          "ZETA_LOBE" },
     { BINARY_PROPERTY::ZETA_STAR,                                          "ZETA_STAR" }
 };
@@ -2679,6 +2681,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE,                           { TYPENAME::DOUBLE,         "Tau_Circ",             "Myr",              16, 8 }},
     { BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE,                       { TYPENAME::BOOL,           "CEE",                  "Event",             0, 0 }},
     { BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT,                         { TYPENAME::UINT,           "CE_Event_Counter",     "Count",             6, 1 }},
+    { BINARY_PROPERTY::DETAILED_OUTPUT_END_OF_TIMESTEP,                     { TYPENAME::BOOL,           "End_Of_Timestep",      "State",             0, 0 }},
     { BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE,                        { TYPENAME::DOUBLE,         "Kick_Magnitude(uK)",   "-",                14, 6 }},
     { BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE,                         { TYPENAME::BOOL,           "Double_Core_CE",       "Event",             0, 0 }},
     { BINARY_PROPERTY::DT,                                                  { TYPENAME::DOUBLE,         "dT",                   "Myr",              16, 8 }},
@@ -3131,6 +3134,7 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
 // Default record definition for the BSE Detailed Output logfile
 //
 const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
+    BINARY_PROPERTY::DETAILED_OUTPUT_END_OF_TIMESTEP,
     BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::DT,
     BINARY_PROPERTY::TIME,
