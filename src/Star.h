@@ -86,12 +86,14 @@ public:
     double              CalculateThermalTimescale() const                                                           { return m_Star->CalculateThermalTimescale(); }
     double              COCoreMass() const                                                                          { return m_Star->COCoreMass(); }
     double              CoreMass() const                                                                            { return m_Star->CoreMass(); }
+    bool                ExperiencedAIC() const                                                                      { return m_Star->ExperiencedAIC(); }
     bool                ExperiencedCCSN() const                                                                     { return m_Star->ExperiencedCCSN(); }
     bool                ExperiencedECSN() const                                                                     { return m_Star->ExperiencedECSN(); }
     bool                ExperiencedPISN() const                                                                     { return m_Star->ExperiencedPISN() ; }
     bool                ExperiencedPPISN() const                                                                    { return m_Star->ExperiencedPPISN(); }
     bool                ExperiencedUSSN() const                                                                     { return m_Star->ExperiencedUSSN(); }
     double              HeCoreMass() const                                                                          { return m_Star->HeCoreMass(); }
+    bool                IsAIC() const                                                                               { return m_Star->IsAIC(); }
     bool                IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
     bool                IsDegenerate() const                                                                        { return m_Star->IsDegenerate(); }
     bool                IsECSN() const                                                                              { return m_Star->IsECSN(); }
