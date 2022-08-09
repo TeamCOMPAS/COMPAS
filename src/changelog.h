@@ -912,13 +912,15 @@
 //                                      - Removed end states from detailed plotter (Merger, DCO, Unbound) so that they don't over compress the rest
 // 02.31.05     RTW - July 25, 2022  - Defect repair:
 //                                      - Fixed check for non-interacting ECSN progenitors to consider MT history instead of H-richness
-// 02.31.06     RTW - July 25, 2022  - Enhancement:
+// 02.31.06     RTW - Aug 2, 2022    - Enhancement:
 //                                      - Added stellar merger to default BSE_RLOF output
 // 02.31.07     IM - August 1, 2022  - Defect repair:
 //                                      - Print to DetailedOutput after merger, addresses https://github.com/TeamCOMPAS/COMPAS/issues/825
 //                                      - Ensures no ONeWDs are formed with masses above Chandrasekhar mass
 //                                      - Minor comment tweaks and a bit of defensive programming
+// 02.31.08     RTW - Aug 3, 2022    - Enhancement:
+//                                      - Added Accretion Induced Collapse (AIC) of ONeWD as another type of SN
 
-const std::string VERSION_STRING = "02.31.07";
+const std::string VERSION_STRING = "02.31.08";
 
 # endif // __changelog_h__
