@@ -217,8 +217,6 @@ private:
         "logfile-system-parameters",
         "logfile-type",
 
-        "maximum-evolution-time",
-        "maximum-number-timestep-iterations",
         "mode",
 
         "notes-hdrs",
@@ -1297,9 +1295,9 @@ public:
     double                                      MassTransferJlossMacLeodLinearFraction() const                          { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction", m_MassTransferJlossMacLeodLinearFraction, true); }
     MT_REJUVENATION_PRESCRIPTION                MassTransferRejuvenationPrescription() const                            { return OPT_VALUE("mass-transfer-rejuvenation-prescription", m_MassTransferRejuvenationPrescription.type, true); }
     MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return OPT_VALUE("mass-transfer-thermal-limit-accretor", m_MassTransferThermallyLimitedVariation.type, true); }
-    double                                      MaxEvolutionTime() const                                                { return m_CmdLine.optionValues.m_MaxEvolutionTime; }
+    double                                      MaxEvolutionTime() const                                                { return OPT_VALUE("maximum-evolution-time", m_MaxEvolutionTime, true); }
     double                                      MaximumNeutronStarMass() const                                          { return OPT_VALUE("maximum-neutron-star-mass", m_MaximumNeutronStarMass, true); }
-    int                                         MaxNumberOfTimestepIterations() const                                   { return m_CmdLine.optionValues.m_MaxNumberOfTimestepIterations; }
+    int                                         MaxNumberOfTimestepIterations() const                                   { return OPT_VALUE("maximum-number-timestep-iterations", m_MaxNumberOfTimestepIterations, true); }
     double                                      MaximumDonorMass() const                                                { return OPT_VALUE("maximum-mass-donor-nandez-ivanova", m_MaximumMassDonorNandezIvanova, true); }
     double                                      MCBUR1() const                                                          { return OPT_VALUE("mcbur1", m_mCBUR1, true); }
 
