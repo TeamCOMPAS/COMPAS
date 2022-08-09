@@ -920,7 +920,9 @@
 //                                      - Minor comment tweaks and a bit of defensive programming
 // 02.31.08     RTW - Aug 3, 2022    - Enhancement:
 //                                      - Added Accretion Induced Collapse (AIC) of ONeWD as another type of SN
+// 02.31.09     RTW - Aug 9, 2022    - Enhancement:
+//                                      - Max evolution time and max number of timesteps now read in from gridline as well as commandline
 
-const std::string VERSION_STRING = "02.31.08";
+const std::string VERSION_STRING = "02.31.09";
 
 # endif // __changelog_h__
