@@ -1856,6 +1856,9 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
     if (qCritFlag && m_Donor->IsMassRatioUnstable(m_Accretor->Mass(), m_Accretor->IsDegenerate()) ) {
         m_CEDetails.CEEnow = true;
+        if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {
+            m_Flags.stellarMerger = true;
+        }
     }
     else {
 
