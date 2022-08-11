@@ -1,0 +1,9 @@
+# CEEs - no CO
+--random-seed 1636090318 --initial-mass-1 12.703562 --initial-mass-2 2.403020 --semi-major-axis 4.709733
+# BHNS
+--random-seed 1636090389 --initial-mass-1 76.555207 --initial-mass-2 39.541749 --semi-major-axis 0.855167
+# BHBH
+--random-seed 1636091116 --initial-mass-1 113.445902 --initial-mass-2 81.697634 --semi-major-axis 1.013902
+# NSNS
+--random-seed 101048 --initial-mass-1 24.94177 --initial-mass-2 15.42647 --semi-major-axis 0.5196680
+--random-seed 102660 --initial-mass-1 26.74675 --initial-mass-2 16.57629 --semi-major-axis 0.8079884

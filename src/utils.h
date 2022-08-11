@@ -17,6 +17,8 @@ namespace utils {
 
     // namespace functions - alphabetical (sort of)
 
+    std::vector<int>                    binarySearch(const std::vector<double> p_Arr, const double p_x);
+
     double                              CalculateCDFKroupa(const double p_Mass, const double p_Max, const double p_Min);
 
     std::string                         CentreJustify(const std::string p_Str, std::size_t p_Width);

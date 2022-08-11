@@ -54,7 +54,7 @@ struct KickMagnitudeParams {
 
 
 // struct for supernova events:
-// CCSN, ECSN, PISN, PPSIN, USSN
+// CCSN, ECSN, PISN, PPSIN, USSN, AIC
 
 typedef struct SNEvents {
     SN_EVENT current;                                       // Supernova event at the current timestep: NONE if no supernova event happening
@@ -173,6 +173,9 @@ typedef struct RLOFProperties {
 
     double        radius1;
     double        radius2;
+
+    double starToRocheLobeRadiusRatio1;                                    
+    double starToRocheLobeRadiusRatio2;
 
     double        eccentricity;
     double        semiMajorAxis;

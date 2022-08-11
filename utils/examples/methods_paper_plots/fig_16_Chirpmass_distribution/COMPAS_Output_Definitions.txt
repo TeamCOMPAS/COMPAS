@@ -1,0 +1,33 @@
+
+# sample standard log file specifications file
+
+# the '#' character and anything following it on a single line is considered a comment
+# (so, lines starting with '#' are comment lines)
+
+# case is not significant
+# specifications can span several lines
+# specifications for the same log file are cumulative
+# if a log file is not specified in this file, the default specification is used
+
+
+# BSE System Parameters
+# start with the default BSE System Parameters specification and add:
+bse_sysparms_rec += {                                                    # set the BSE System Parameters specification to:
+    BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,			# Optimistic CE flag
+    BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE,                # Flag to indicate if either star overflows its Roche lobe immediately following common envelope event.
+    BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT,
+    BINARY_PROPERTY::SYSTEMIC_SPEED,
+}
+
+
+# BSE Double Compas Objects
+# start with the default Double Compas Objects specification and add:
+BSE_DCO_Rec += {
+    BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,
+    BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE,
+    BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT,
+    STAR_1_PROPERTY::METALLICITY,
+    STAR_1_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,
+    STAR_2_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,
+}
+

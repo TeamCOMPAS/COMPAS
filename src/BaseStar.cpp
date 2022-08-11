@@ -126,6 +126,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
+    m_MinimumCoreMass                          = 0.0;
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
@@ -135,7 +136,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_HeCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mu                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_CoreRadius                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mdot                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_DominantMassLossRate                     = MASS_LOSS_TYPE::NONE;
 
@@ -223,7 +223,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
 
 /*
- * Determine the value of the requested property of the constitusnt star (parameter p_Property)
+ * Determine the value of the requested property of the constituent star (parameter p_Property)
  *
  * The property is a boost variant variable, and is one of the following types:
  *
@@ -299,6 +299,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
             case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass()-CoreMass();                                      break;
             case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
+            case ANY_STAR_PROPERTY::EXPERIENCED_AIC:                                    value = ExperiencedAIC();                                       break;
             case ANY_STAR_PROPERTY::EXPERIENCED_CCSN:                                   value = ExperiencedCCSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_ECSN:                                   value = ExperiencedECSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_PISN:                                   value = ExperiencedPISN();                                      break;
@@ -312,6 +313,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
+            case ANY_STAR_PROPERTY::IS_AIC:                                             value = IsAIC();                                                break;
             case ANY_STAR_PROPERTY::IS_CCSN:                                            value = IsCCSN();                                               break;
             case ANY_STAR_PROPERTY::IS_ECSN:                                            value = IsECSN();                                               break;
             case ANY_STAR_PROPERTY::IS_PISN:                                            value = IsPISN();                                               break;
@@ -1084,6 +1086,161 @@ double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass,
 }
 
 
+/* 
+ * Wrapper function to return Nanjing lambda based on options
+ * 
+ * 
+ * double BaseStar::CalculateLambdaNanjing()
+ * 
+ * @return                                      Common envelope lambda parameter
+ */ 
+double BaseStar::CalculateLambdaNanjing() const {
+
+    double mass = m_MZAMS;
+    double lambda = 0.0;
+    if (OPTIONS->CommonEnvelopeLambdaNanjingUseRejuvenatedMass()) {mass = m_Mass0;}                              // Use rejuvenated mass to calculate lambda instead of true birth mass
+    
+    if (OPTIONS->CommonEnvelopeLambdaNanjingEnhanced()) {                                                        // If using enhanced Nanjing lambda's
+        if (OPTIONS->CommonEnvelopeLambdaNanjingInterpolateInMass()) {
+            if (OPTIONS->CommonEnvelopeLambdaNanjingInterpolateInMetallicity()) {
+                lambda = BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(mass, m_Metallicity);
+            }
+            else {
+                int Zind = 0;
+                if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) < 0) {Zind = 0;} else {Zind = 1;}
+                lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(mass, Zind);
+            }
+        }
+        else {
+            int massInd = BaseStar::FindLambdaNanjingNearestMassIndex(mass);                                    // Do not interpolate in mass, so need to use nearest mass bin
+            if (OPTIONS->CommonEnvelopeLambdaNanjingInterpolateInMetallicity()) {
+                lambda = BaseStar::CalculateZInterpolatedLambdaNanjing(m_Metallicity, massInd);
+            }
+            else {
+                int Zind = 0;
+                if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) < 0) {Zind = 0;} else {Zind = 1;}
+                lambda = BaseStar::CalculateLambdaNanjingEnhanced(massInd, Zind);
+            }
+        }
+    }
+    else { lambda = CalculateLambdaNanjingStarTrack(mass, m_Metallicity); }
+    return lambda;
+}
+
+
+/* 
+ * Calculate mass- and metallicity-interpolated Nanjing lambda
+ * 
+ * 
+ * double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass, const double p_Z)
+ * 
+ * @return                                      Common envelope lambda parameter
+ */ 
+double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass, const double p_Z) const {
+
+    double lambda = 0.0;
+    if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
+        lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 0);                    // Use lambda for pop. II metallicity
+    }
+    else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) > 0) {
+        lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 1);                    // Use lambda for pop. I metallicity
+    }
+    else {                                                                                       // Linear interpolation in logZ between pop. I and pop. II metallicities
+        const double logZ = log(m_Metallicity);
+        double lambdaLow = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 0);
+        double lambdaUp  = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 1);
+        lambda = lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
+    }
+    return lambda;
+}
+
+
+/* 
+ * Interpolate Nanjing lambda in mass for a given metallicity
+ * 
+ * 
+ * double BaseStar::CalculateMassInterpolatedLambdaNanjing(const int p_Zind)
+ * 
+ * @param   [IN]    p_Zind                      Index of metallicity (0 = pop II metallicity, 1 = pop I metallicity)
+ * @param   [IN]    p_Mass                      Mass / Msun to evaluate lambda with
+ * @return                                      Common envelope lambda parameter
+ */ 
+double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Mass, const int p_Zind) const {
+
+    double lambda = 0.0;
+    std::vector<int> ind = utils::binarySearch(NANJING_MASSES, p_Mass);
+    int low = ind[0];
+    int up = ind[1];
+    if ( (low < 0)  && (up >= 0) ) {                                                            // Mass below range calculated by Xu & Li (2010)
+        lambda = CalculateLambdaNanjingEnhanced(0, p_Zind);                                     // Use lambda for minimum mass
+    }
+    else if ( (low >= 0) && (up < 0) ) {                                                        // Mass above range calculated by Xu & Li (2010)
+        lambda = CalculateLambdaNanjingEnhanced(NANJING_MASSES.size() - 1, p_Zind);             // Use lambda for maximum mass
+    }
+    else if (low == up) {                                                                       // Mass is exactly equal to the mass of a model evolved by Xu & Li (2010)
+        lambda = CalculateLambdaNanjingEnhanced(low, p_Zind);
+    }
+    else {                                                                                      // Linear interpolation between upper and lower mass bins
+        double lambdaLow = CalculateLambdaNanjingEnhanced(low, p_Zind);
+        double lambdaUp  = CalculateLambdaNanjingEnhanced(up, p_Zind);
+        lambda = lambdaLow + (p_Mass - NANJING_MASSES[low]) / (NANJING_MASSES[up] - NANJING_MASSES[low]) * (lambdaUp - lambdaLow);
+    }
+    return lambda;
+}
+
+
+/* 
+ * Interpolate Nanjing lambda in metallicity for a given mass
+ * 
+ * 
+ * double BaseStar::CalculateZInterpolatedLambdaNanjing(const int p_Zind)
+ * 
+ * @param   [IN]    p_Z                         Metallicity
+ * @param   [IN]    p_MassInd                   Index specifying donor mass (see NANJING_MASSES in constants.h)
+ * @return                                      Common envelope lambda parameter
+ */ 
+double BaseStar::CalculateZInterpolatedLambdaNanjing(const double p_Z, const int p_MassInd) const {
+
+    double lambda = 0.0;
+    if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
+        lambda = CalculateLambdaNanjingEnhanced(p_MassInd, 0);                       // Use lambda for pop. II metallicity
+    }
+    else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) > 0) {
+        lambda = CalculateLambdaNanjingEnhanced(p_MassInd, 1);                       // Use lambda for pop. I metallicity
+    }
+    else {                                                                           // Linear interpolation in logZ between pop. I and pop. II metallicities
+        const double logZ = log(m_Metallicity);
+        double lambdaLow = CalculateLambdaNanjingEnhanced(p_MassInd, 0);
+        double lambdaUp  = CalculateLambdaNanjingEnhanced(p_MassInd, 1);
+        lambda = lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
+    }
+    return lambda;
+}
+
+
+/* 
+ * Returns index in NANJING_MASSES corresponding to nearest mass model computed by Xu & Li (2010)
+ * 
+ * 
+ * double BaseStar::FindLambdaNanjingNearestMassIndex(const double p_Mass)
+ * 
+ * @return                                      Index in NANJING_MASSES
+ */ 
+double BaseStar::FindLambdaNanjingNearestMassIndex(const double p_Mass) const {
+
+    if (p_Mass < NANJING_MASSES_MIDPOINTS[0]) {                                                                  // M < 1.5 Msun, use lambda for the 1 Msun model
+        return 0;
+    }
+    else if (p_Mass >= NANJING_MASSES_MIDPOINTS.back()) {                                                        // M >= 75 Msun, use lambda for the 100 Msun model
+        return NANJING_MASSES.size() - 1;
+    }
+    else {                                                                                                       // Search for upper and lower mass bin edges
+        std::vector<int> ind = utils::binarySearch(NANJING_MASSES_MIDPOINTS, p_Mass);
+        return ind[1];
+    }
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                                 ZETA CALCULATIONS                                 //
@@ -1212,7 +1369,7 @@ double BaseStar::CalculateLuminosityAtZAMS(const double p_MZAMS) {
 
     // pow() is slow - use multiplication where it makes sense
     // sqrt() is much faster than pow()
-    double m_0_5 = sqrt(p_MZAMS);
+    double m_0_5 = std::sqrt(p_MZAMS);
     double m_2   = p_MZAMS * p_MZAMS;
     double m_3   = m_2 * p_MZAMS;
     double m_5   = m_3 * m_2;
@@ -1295,8 +1452,8 @@ double BaseStar::CalculateRadiusAtZAMS(const double p_MZAMS) const {
 #define coeff(x) m_RCoefficients[static_cast<int>(R_Coeff::x)]  // for convenience and readability - undefined at end of function
 
     // pow() is slow - use multiplication where it makes sense
-    // sqrt() is much faster than pow()
-    double m_0_5  = sqrt(p_MZAMS);
+    // std::sqrt() is much faster than pow()
+    double m_0_5  = std::sqrt(p_MZAMS);
     double m_2    = p_MZAMS * p_MZAMS;
     double m_2_5  = m_2 * m_0_5;
     double m_6    = m_2 * m_2 * m_2;
@@ -1458,7 +1615,7 @@ double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() const {
     double rate = 0.0;
     if (utils::Compare(m_Luminosity, NJ_MINIMUM_LUMINOSITY) > 0) {      // check for minimum luminosity
         double smoothTaper = min(1.0, (m_Luminosity - 4000.0) / 500.0); // Smooth taper between no mass loss and mass loss
-        rate = sqrt((m_Metallicity / ZSOL)) * smoothTaper * 9.6E-15 * PPOW(m_Radius, 0.81) * PPOW(m_Luminosity, 1.24) * PPOW(m_Mass, 0.16);
+        rate = std::sqrt((m_Metallicity / ZSOL)) * smoothTaper * 9.6E-15 * PPOW(m_Radius, 0.81) * PPOW(m_Luminosity, 1.24) * PPOW(m_Mass, 0.16);
     } else {
         rate = 0.0;
     }
@@ -1477,7 +1634,7 @@ double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() const {
  */
 double BaseStar::CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescription) {
     double rate = 0.0;
-    double HD_limit_factor = m_Radius * sqrt(m_Luminosity) * 1.0E-5;                                                            // calculate factor by which you are above the HD limit
+    double HD_limit_factor = m_Radius * std::sqrt(m_Luminosity) * 1.0E-5;                                                            // calculate factor by which you are above the HD limit
     if ((utils::Compare(m_Luminosity, LBV_LUMINOSITY_LIMIT_STARTRACK) > 0) && (utils::Compare(HD_limit_factor, 1.0) > 0)) {     // check if luminous blue variable
 		m_LBVphaseFlag = true;                                                                                                  // mark the star as LBV
         m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;
@@ -1930,7 +2087,7 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
  *
  * double CalculateThermalMassAcceptanceRate(const double p_Radius)
  *
- * @param   [IN]    p_Radius                    Radius of the accretor (Rsol)
+ * @param   [IN]    p_Radius                    Radius of the accretor (Rsol) [typically called with Roche Lobe radius]
  * @return                                      Thermal mass acceptance rate
  */
 double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) const {
@@ -1959,7 +2116,7 @@ double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) const
  * @return                                      Effective temperature of the star (Tsol)
  */
 double BaseStar::CalculateTemperatureOnPhase_Static(const double p_Luminosity, const double p_Radius) {
-    return sqrt(sqrt(p_Luminosity)) / sqrt(p_Radius);   // sqrt() is much faster than pow()
+    return std::sqrt(std::sqrt(p_Luminosity)) / std::sqrt(p_Radius);   // sqrt() is much faster than pow()
 }
 
 
@@ -2188,7 +2345,7 @@ double BaseStar::CalculateZAMSAngularFrequency(const double p_MZAMS, const doubl
 double BaseStar::CalculateOmegaBreak() const {
     constexpr double RSOL_TO_AU_3 = RSOL_TO_AU * RSOL_TO_AU * RSOL_TO_AU;
 
-	return _2_PI * sqrt(m_Mass / (RSOL_TO_AU_3 * m_Radius * m_Radius * m_Radius));
+	return _2_PI * std::sqrt(m_Mass / (RSOL_TO_AU_3 * m_Radius * m_Radius * m_Radius));
 }
 
 
@@ -2255,7 +2412,7 @@ double BaseStar::CalculateLifetimeToBGB(const double p_Mass) const {
     // pow() is slow - use multiplication (sqrt() is much faster than pow())
     double m_2   = p_Mass * p_Mass;
     double m_4   = m_2 * m_2;
-    double m_5_5 = m_4 * p_Mass * sqrt(p_Mass);
+    double m_5_5 = m_4 * p_Mass * std::sqrt(p_Mass);
     double m_7   = m_4 * m_2 * p_Mass;
 
     return (a[1] + (a[2] * m_4) + (a[3] * m_5_5) + m_7) / ((a[4] * m_2) + (a[5] * m_7));
@@ -2292,7 +2449,7 @@ double BaseStar::CalculateLifetimeToBAGB(const double p_tHeI, const double p_tHe
  * @return                                      Dynamical timescale in Myr
  */
 double BaseStar::CalculateDynamicalTimescale_Static(const double p_Mass, const double p_Radius) {
-    return 5.0 * 1.0E-5 * p_Radius * sqrt(p_Radius) * YEAR_TO_MYR / sqrt(p_Mass);   // sqrt() is much faster than pow()
+    return 5.0 * 1.0E-5 * p_Radius * std::sqrt(p_Radius) * YEAR_TO_MYR / std::sqrt(p_Mass);   // sqrt() is much faster than pow()
 }
 
 
@@ -2378,7 +2535,7 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
 
 	double rEnv	= CalculateRadialExtentConvectiveEnvelope();
 
-	return 0.4311 * PPOW((m_Mass * rEnv * (m_Radius - (0.5 * rEnv))) / (3.0 * m_Luminosity), 1.0 / 3.0);
+	return 0.4311 * cbrt((m_Mass * rEnv * (m_Radius - (0.5 * rEnv))) / (3.0 * m_Luminosity));
 }
 
 
@@ -2451,7 +2608,7 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
  * @return                                      Drawn kick magnitude (km s^-1)
  */
 double BaseStar::DrawKickMagnitudeDistributionMaxwell(const double p_Sigma, const double p_Rand) const {
-    return p_Sigma * sqrt(gsl_cdf_chisq_Pinv(p_Rand, 3)); // a Maxwellian is a chi distribution with three degrees of freedom
+    return p_Sigma * std::sqrt(gsl_cdf_chisq_Pinv(p_Rand, 3)); // a Maxwellian is a chi distribution with three degrees of freedom
 }
 
 
@@ -2555,7 +2712,7 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
 	}
 
 	while (remnantKick < 0.0) {
-		remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, MULLERMANDEL_SIGMAKICK));
+		remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, OPTIONS->MullerMandelSigmaKick()));
 		rand        = min(rand + p_Rand + 0.0001, 1.0);
 	}
 
@@ -2615,7 +2772,7 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
 
         case KICK_MAGNITUDE_DISTRIBUTION::MULLER2016MAXWELLIAN: {                                // MULLER2016-MAXWELLIAN
 
-            double mullerSigma = DrawRemnantKickMuller(p_COCoreMass) / sqrt(3.0);
+            double mullerSigma = DrawRemnantKickMuller(p_COCoreMass) / std::sqrt(3.0);
 
             kickMagnitude = DrawKickMagnitudeDistributionMaxwell(mullerSigma, p_Rand);
             } break;
@@ -2661,6 +2818,10 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
 
 		    case SN_EVENT::USSN:                                                                    // USSN may have a separate kick prescription
 			    sigma = OPTIONS->KickMagnitudeDistributionSigmaForUSSN();
+                break;
+
+		    case SN_EVENT::AIC:                                                                     // AIC have 0 kick 
+			    sigma = 0;
                 break;
 
 		    case SN_EVENT::CCSN:                                                                    // draw a random kick magnitude from the user selected distribution - sigma based on whether compact object is a NS or BH
@@ -3012,7 +3173,7 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
     }
     else {
-        stellarType = ResolveSupernova();                                                   // handle supernova     JR: moved this to start of timestep        
+        stellarType = ResolveSupernova();                                                   // handle supernova          
         
         if (stellarType == m_StellarType) {                                                 // still on phase?
             
@@ -3190,7 +3351,3 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase() {
 
     return stellarType;
 }
-
-
-
-

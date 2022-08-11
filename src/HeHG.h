@@ -68,7 +68,8 @@ protected:
             double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_Mass; }                                                      // NO-OP
 
-            double          CalculateLambdaNanjing() const;
+            double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
+            double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const             { return CalculateLambdaNanjingStarTrack(0.0, 0.0); }                            // 0.0 are dummy values that are not used
 
             double          CalculateLuminosityOnPhase() const;
             double          CalculateLuminosityAtPhaseEnd() const                                                   { return m_Luminosity; }                                                // NO-OP

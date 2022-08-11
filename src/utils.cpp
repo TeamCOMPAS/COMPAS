@@ -16,6 +16,43 @@ namespace utils {
 
     // Alphabetical - so I can find them...
 
+     /*
+     * Iterative binary search
+     *
+     * For a given number x and a sorted array arr, return the lower and upper bin edges of x in arr.
+     *
+     *
+     * std::vector<int> binarySearch(const std::vector<double> p_Arr, const double p_x)
+     *
+     * @param   [IN]    p_Array             Sorted array to search over
+     * @param   [IN]    p_x                 Value to search for
+
+     * @return                              Vector containing indices of the lower and upper
+                                            bin edges containing x. If x < min(Arr), return
+                                            {-1, 0}. If x > max(Arr), return {0, -1}. If x
+                                            is equal to an array element, return index of that
+                                            element.
+     */
+    std::vector<int> binarySearch(const std::vector<double> p_Arr, const double p_x) {
+        int low = 0;
+        int up = p_Arr.size() - 1;
+        int mid = 0;
+
+        // If x is not within array limits...
+        if      (p_x < p_Arr[low]) { return {-1, 0}; }
+        else if (p_x > p_Arr[up])  { return {0, -1}; }
+
+        while(1) {
+            mid = roundl( 0.5*(up + low) );
+            if (std::abs(low - up) == 1) { return {low, low+1}; }    // arr(low) < x < arr(up), so return low
+            else if (p_x == p_Arr[low])  { return {low, low}; }      // arr(low) = x. In this case, return low = up
+            else if (p_x == p_Arr[up])   { return {up, up}; }        // arr(up) = x. In this case, return low = up
+            else if (p_x == p_Arr[mid])  { return {mid, mid}; }      // arr(mid) = x. In this case, return low = up = mid
+            else if (p_x < p_Arr[mid])   { up = mid; }               // Bring down upper bound
+            else                         { low = mid; }              // Bring up lower bound
+        }
+    }
+
 
     /*
      * Calculate the value of the CDF of the Kroupa (2001) IMF at p_Mass
@@ -172,7 +209,7 @@ namespace utils {
         double a_cubed_SI_top    = G * ((p_Mass1 * MSOL_TO_KG) + (p_Mass2 * MSOL_TO_KG)) * p_Period * p_Period * SECONDS_IN_DAY * SECONDS_IN_DAY;
         double a_cubed_SI_bottom = 4.0 * M_PI * M_PI;
         double a_cubed_SI        = a_cubed_SI_top / a_cubed_SI_bottom;
-        double a_SI              = PPOW(a_cubed_SI, 1.0 / 3.0);
+        double a_SI              = std::cbrt(a_cubed_SI); 
 
         return a_SI / AU;
     }
@@ -847,7 +884,7 @@ namespace utils {
                 // Sampling function taken from binpop.f in NBODY6
 
                 do {
-                    eccentricity = 0.23 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.38;
+                    eccentricity = 0.23 * std::sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.38;
                 } while (eccentricity < p_Min || eccentricity > p_Max);                                 // JR: don't use utils::Compare() here
                 break;
 
@@ -856,7 +893,7 @@ namespace utils {
                 // Sampling function taken from binpop.f in NBODY6
 
                 do {
-                    eccentricity = 0.15 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.3;
+                    eccentricity = 0.15 * std::sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.3;
                 } while (eccentricity < p_Min or eccentricity > p_Max);                                 // JR: don't use utils::Compare() here
                 break;
 
@@ -1064,7 +1101,7 @@ namespace utils {
             case MASS_RATIO_DISTRIBUTION::DUQUENNOYMAYOR1991:                                                   // mass ratio distribution from Duquennoy & Mayor (1991) (http://adsabs.harvard.edu/abs/1991A%26A...248..485D)
 
                 do {                                                                                            // JR: todo: catch non-convergence?
-                    q = 0.42 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.23;
+                    q = 0.42 * std::sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.23;
                 } while (q < p_Min || q > p_Max);                                                               // JR: don't use utils::Compare() here
                 break;
 
@@ -1202,7 +1239,7 @@ namespace utils {
 
                 // Make sure that the drawn semi-major axis is in the range specified by the user
                 do {                                                                                                    // JR: todo: catch for non-convergence?
-                    double periodInDays = PPOW(10.0, 2.3 * sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 4.8);
+                    double periodInDays = PPOW(10.0, 2.3 * std::sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 4.8);
                     semiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);      // convert period in days to semi-major axis in AU
                 } while (semiMajorAxis < p_AdistMin || semiMajorAxis > p_AdistMax);                                     // JR: don't use utils::Compare() here
                 break;
@@ -1239,6 +1276,7 @@ namespace utils {
      *    SN_EVENT::PISN  iff PISN  bit is set
      *    SN_EVENT::PPISN iff PPISN bit is set
      *    SN_EVENT::USSN  iff USSN  bit is set
+     *    SN_EVENT::AIC   iff AIC   bit is set
      *    SN_EVENT::NONE  otherwise
      * 
      *
@@ -1252,7 +1290,8 @@ namespace utils {
         if ((p_SNEvent & SN_EVENT::PISN )                   == SN_EVENT::PISN ) return SN_EVENT::PISN;
         if ((p_SNEvent & SN_EVENT::PPISN)                   == SN_EVENT::PPISN) return SN_EVENT::PPISN;
         if ((p_SNEvent & SN_EVENT::USSN )                   == SN_EVENT::USSN ) return SN_EVENT::USSN;
-        
+        if ((p_SNEvent & SN_EVENT::AIC  )                   == SN_EVENT::AIC  ) return SN_EVENT::AIC ;
+
         return SN_EVENT::NONE;
     }
 
@@ -1298,7 +1337,7 @@ namespace utils {
 
         if (iteration >= MAX_KEPLER_ITERATIONS) error = ERROR::NO_CONVERGENCE;                                                          // no convergence - set error
 
-        double nu = 2.0 * atan((sqrt((1.0 + e) / (1.0 - e))) * tan(0.5*E));                                                             // convert eccentric anomaly into true anomaly.  Equation (96) in my "A simple toy model" document
+        double nu = 2.0 * atan((std::sqrt((1.0 + e) / (1.0 - e))) * tan(0.5*E));                                                             // convert eccentric anomaly into true anomaly.  Equation (96) in my "A simple toy model" document
 
              if (utils::Compare(E, M_PI) >= 0 && utils::Compare(E, _2_PI) <= 0) nu += _2_PI;                                            // add 2PI if necessary
         else if (utils::Compare(E, 0.0)  <  0 || utils::Compare(E, _2_PI) >  0) error = ERROR::OUT_OF_BOUNDS;                           // out of bounds - set error
@@ -1342,7 +1381,7 @@ namespace utils {
             error = ERROR::NO_REAL_ROOTS;                           // no real roots - set error
         }
         else if (discriminant > 0.0) {                              // 2 real roots (leae this as an absolute compare)
-            double sqrtD = sqrt(discriminant);
+            double sqrtD = std::sqrt(discriminant);
             double A2    = p_A + p_A;
 
             double root1 = (-p_B + sqrtD) / A2;                     // (-B + SQRT(B^2 - 4AC)) / 2A
