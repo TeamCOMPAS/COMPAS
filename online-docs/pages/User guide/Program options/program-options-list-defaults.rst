@@ -196,6 +196,86 @@ VINK_MASS_LOSS_MINIMUM_TEMP (default 12500K). |br|
 Only applicable when ``--mass-loss-prescription = VINK``. |br|
 Default = 1.0
 
+**--critical-mass-ratio-HG-degenerate-accretor** |br|
+Critical mass ratio for MT from a HG star to a degenerate accretor.
+Specify both HG flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-HG. |br|
+Default = 0.210000
+
+**--critical-mass-ratio-HG-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a HG star to a non-degenerate accretor.
+Specify both HG flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-HG. |br|
+Default = 0.250000
+
+**--critical-mass-ratio-MS-high-mass-degenerate-accretor** |br|
+Critical mass ratio for MT from a MS star to a degenerate accretor.
+Specify both MS high mass flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-MS-high-mass. |br|
+Default = 0.000000
+
+**--critical-mass-ratio-MS-high-mass-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a MS star to a non-degenerate accretor.
+Specify both MS high mass flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-MS-high-mass. |br|
+Default = 0.625000
+
+**--critical-mass-ratio-MS-low-mass-degenerate-accretor** |br|
+Critical mass ratio for MT from a MS star to a degenerate accretor.
+Specify both MS low mass flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-MS-low-mass. |br|
+Default = 0.000000
+
+**--critical-mass-ratio-MS-low-mass-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a MS star to a non-degenerate accretor.
+Specify both MS low mass flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-MS-low-mass. |br|
+Default = 1.440000
+
+**--critical-mass-ratio-giant-degenerate-accretor** |br|
+Critical mass ratio for MT from a giant star to a degenerate accretor.
+Specify both giant flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-giant. |br|
+Default = 0.870000
+
+**--critical-mass-ratio-giant-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a giant star to a non-degenerate accretor.
+Specify both giant flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-giant. |br|
+Default = 0.000000
+
+**--critical-mass-ratio-helium-HG-degenerate-accretor** |br|
+Critical mass ratio for MT from a helium HG star to a degenerate accretor.
+Specify both helium HG flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-helium-HG. |br|
+Default = 0.210000
+
+**--critical-mass-ratio-helium-HG-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a helium HG star to a non-degenerate accretor.
+Specify both helium HG flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-helium-HG. |br|
+Default = 0.250000
+
+**--critical-mass-ratio-helium-MS-degenerate-accretor** |br|
+Critical mass ratio for MT from a helium MS star to a degenerate accretor.
+Specify both helium MS flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-helium-MS. |br|
+Default = 0.000000
+
+**--critical-mass-ratio-helium-MS-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a helium MS star to a non-degenerate accretor.
+Specify both helium MS flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-helium-MS. |br|
+Default = 0.000000
+
+**--critical-mass-ratio-helium-giant-degenerate-accretor** |br|
+Critical mass ratio for MT from a helium giant star to a degenerate accretor.
+Specify both helium giant flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-helium-giant. |br|
+Default = 0.870000
+
+**--critical-mass-ratio-helium-giant-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a helium giant star to a non-degenerate accretor.
+Specify both helium giant flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-helium-giant. |br|
+Default = 1.280000
+
+**--critical-mass-ratio-white-dwarf-degenerate-accretor** |br|
+Critical mass ratio for MT from a white dwarf to a degenerate accretor.
+Specify both white dwarf flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-white-dwarf. |br|
+Default = 1.600000
+
+**--critical-mass-ratio-white-dwarf-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a white dwarf to a non-degenerate accretor.
+Specify both white dwarf flags to use. 0 is always stable, <0 is disabled. Requires --use-critical-mass-ratio-white-dwarf. |br|
+Default = 0.000000
+
 .. _options-props-D:
 
 :ref:`Back to Top <options-props-top>`
@@ -918,6 +998,38 @@ Default = 1.0
 .. _options-props-U:
 
 :ref:`Back to Top <options-props-top>`
+
+**--use-critical-mass-ratio-giant** |br|
+Use critical mass ratio for MT from a giant star. |br|
+Default = FALSE
+
+**--use-critical-mass-ratio-helium-giant** |br|
+Use critical mass ratio for MT from a HeGB star. |br|
+Default = FALSE
+
+**--use-critical-mass-ratio-helium-hg** |br|
+Use critical mass ratio for MT from a HeHG star. |br|
+Default = FALSE
+
+**--use-critical-mass-ratio-helium-ms** |br|
+Use critical mass ratio for MT from a HeMS star. |br|
+Default = FALSE
+
+**--use-critical-mass-ratio-hg** |br|
+Use critical mass ratio for MT from a HG star. |br|
+Default = FALSE
+
+**--use-critical-mass-ratio-ms-high-mass** |br|
+Use critical mass ratio for MT from a high mass MS star. |br|
+Default = FALSE
+
+**--use-critical-mass-ratio-ms-low-mass** |br|
+Use critical mass ratio for MT from a low mass MS star. |br|
+Default = FALSE
+
+**--use-critical-mass-ratio-white-dwarf** |br|
+Use critical mass ratio for MT from a WD star |br|
+Default = FALSE
 
 **--use-mass-loss** |br|
 Enable mass loss. |br|
