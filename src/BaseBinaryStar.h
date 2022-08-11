@@ -175,10 +175,10 @@ public:
 
     // getters - alphabetically
     BeBinaryDetailsT    BeBinaryDetails() const                     { return m_BeBinaryDetails; }
-	bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
+    bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
     unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
-	double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
-	unsigned int        CommonEnvelopeEventCount() const            { return m_CEDetails.CEEcount; }
+    double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
+    unsigned int        CommonEnvelopeEventCount() const            { return m_CEDetails.CEEcount; }
     bool                Unbound() const                             { return m_Unbound; }
     bool                DoubleCoreCE() const                        { return m_CEDetails.doubleCoreCE; }
     double              Dt() const                                  { return m_Dt; }
@@ -190,6 +190,7 @@ public:
     double              EccentricityPreCEE() const                  { return m_CEDetails.preCEE.eccentricity; }
     ERROR               Error() const                               { return m_Error; }
     double              FractionAccreted() const                    { return m_FractionAccreted; }
+    bool                HasOnlyOneOf(STELLAR_TYPE_LIST p_List) const;
     bool                HasOneOf(STELLAR_TYPE_LIST p_List) const;
     bool                HasStarsTouching() const                    { return (utils::Compare(m_SemiMajorAxis, 0.0) > 0) && (m_SemiMajorAxis <= RSOL_TO_AU * (m_Star1->Radius() + m_Star2->Radius())); }
     bool                HasTwoOf(STELLAR_TYPE_LIST p_List) const;
@@ -197,6 +198,7 @@ public:
     STELLAR_TYPE        InitialStellarType1() const                 { return m_Star1->InitialStellarType(); }
     STELLAR_TYPE        InitialStellarType2() const                 { return m_Star2->InitialStellarType(); }
     bool                IsBeBinary() const                          { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07}); }
+    bool                IsHMXRBinary() const;
     bool                IsBHandBH() const                           { return HasTwoOf({STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsDCO() const                               { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsNSandBH() const                           { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::BLACK_HOLE}); }
@@ -214,16 +216,16 @@ public:
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_Flags.mergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
-    double              OrbitalAngularVelocity() const              { return sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
+    double              OrbitalAngularVelocity() const              { return std::sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
     double              Periastron() const                          { return m_SemiMajorAxis * (1.0-m_Eccentricity); }
     double              PeriastronRsol() const                      { return Periastron() * AU_TO_RSOL; }
-	double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
-	double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
-	double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
-	double              Radius2PreCEE() const                       { return m_Star2->RadiusPreCEE(); }
-	unsigned long int   RandomSeed() const                          { return m_RandomSeed; }
-	BinaryRLOFDetailsT  RLOFDetails() const                         { return m_RLOFDetails; }
+    double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
+    double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
+    double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
+    double              Radius2PreCEE() const                       { return m_Star2->RadiusPreCEE(); }
+    unsigned long int   RandomSeed() const                          { return m_RandomSeed; }
+    BinaryRLOFDetailsT  RLOFDetails() const                         { return m_RLOFDetails; }
     bool                RLOFSecondaryPostCEE() const                { return m_Star2->RLOFPostCEE(); }
     double              RocheLobe1to2PostCEE() const                { return m_CEDetails.postCEE.rocheLobe1to2; }
     double              RocheLobe1to2PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe1to2; }
@@ -231,8 +233,8 @@ public:
     double              RocheLobe2to1PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe2to1; }
     double              RocheLobeRadius1() const                    { return CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass()); }
     double              RocheLobeRadius2() const                    { return CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()); }
-    double              RocheLobeTracker1() const                   { return m_Star1->RocheLobeTracker(m_SemiMajorAxis, m_Eccentricity); }
-    double              RocheLobeTracker2() const                   { return m_Star2->RocheLobeTracker(m_SemiMajorAxis, m_Eccentricity); }
+    double              StarToRocheLobeRadiusRatio1() const         { return m_Star1->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
+    double              StarToRocheLobeRadiusRatio2() const         { return m_Star2->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
     double              SemiMajorAxisAtDCOFormation() const         { return m_SemiMajorAxisAtDCOFormation; }
     double              SemiMajorAxisInitial() const                { return m_SemiMajorAxisInitial; }
     double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
@@ -435,7 +437,6 @@ private:
 
     double  CalculateMassTransferOrbit(const double                 p_DonorMass, 
                                        const double                 p_DeltaMassDonor, 
-                                       const double                 p_ThermalRateDonor, 
                                              BinaryConstituentStar& p_Accretor, 
                                        const double                 p_FractionAccreted);
 
@@ -444,7 +445,7 @@ private:
 
     double  CalculateOrbitalAngularMomentum(const double p_Mu,
                                             const double p_Mass,
-                                            const double p_SemiMajorAxis) const { return p_Mu * sqrt(G1 * p_Mass * p_SemiMajorAxis); }
+                                            const double p_SemiMajorAxis) const { return p_Mu * std::sqrt(G1 * p_Mass * p_SemiMajorAxis); }
 
     double  CalculateOrbitalEnergy(const double p_Mu,
                                    const double p_Mass,
@@ -537,7 +538,7 @@ private:
             double accretorMass = m_Accretor->Mass();
 
             BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
-            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -dM , donorCopy->CalculateThermalMassLossRate(), *m_Accretor, m_FractionAccreted);
+            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -dM , *m_Accretor, m_FractionAccreted);
             double RLRadius      = semiMajorAxis * (1 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - dM, accretorMass + (m_Binary->FractionAccreted() * dM)) * AU_TO_RSOL;
             
             (void)donorCopy->UpdateAttributes(-dM, -dM*donorCopy->Mass0()/donorCopy->Mass());

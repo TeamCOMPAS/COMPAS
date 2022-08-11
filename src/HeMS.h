@@ -56,12 +56,12 @@ protected:
 
     // member functions - alphabetically
             double          CalculateCOCoreMassAtPhaseEnd() const                                       { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase
-            double          CalculateCOCoreMassOnPhase() const                                          { return 0.0; }                                                         // McCO(HeMS) = 0.0
+            double          CalculateCOCoreMassOnPhase() const                                          { return 0.0;  }                                                        // McCO(HeMS) = 0.0
 
             double          CalculateCoreMassAtPhaseEnd() const                                         { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
-            double          CalculateCoreMassOnPhase() const                                            { return m_COCoreMass; }                                                // Mc(HeMS) = McCOMass
+            double          CalculateCoreMassOnPhase() const                                            { return 0.0; }                                                         // Mc(HeMS) = 0.0
 
-            double          CalculateGyrationRadius() const                                             { return 0.1; }                                                         // JR: todo: Nobody seems sure about this...
+            double          CalculateGyrationRadius() const                                             { return 0.1; }
 
             double          CalculateHeCoreMassOnPhase() const                                          { return m_Mass; }                                                      // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd() const                                       { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
@@ -69,8 +69,8 @@ protected:
             double          CalculateInitialSupernovaMass() const                                       { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
 
             double          CalculateLambdaDewi() const                                                 { return 0.5; }
-            double          CalculateLambdaNanjing() const                                              { return BaseStar::CalculateLambdaNanjing(); }                          // Not supported - use BaseStar
-
+            double          CalculateLambdaNanjingStarTrack(const double p_Mass,
+                                                   const double p_Metallicity) const                    { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }                  // Not supported - use BaseStar (0.0 are dummy values)
             double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const                    { return CalculateLuminosityAtPhaseEnd_Static(p_Mass); }
             double          CalculateLuminosityAtPhaseEnd() const                                       { return CalculateLuminosityAtPhaseEnd(m_Mass); }                       // Use class member variables
             double          CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau) const   { return CalculateLuminosityOnPhase_Static(p_Mass, p_Tau); }

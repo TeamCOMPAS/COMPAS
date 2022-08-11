@@ -135,6 +135,7 @@ void Options::OptionValues::Initialise() {
 
     // flags
 
+    m_AllowNonStrippedECSN                                          = true;
     m_AllowRLOFAtBirth                                              = true;
     m_AllowTouchingAtBirth                                          = false;
 
@@ -144,6 +145,8 @@ void Options::OptionValues::Initialise() {
     m_EnableWarnings                                                = false;
 
 	m_BeBinaries                                                    = false;
+        m_HMXRBinaries                                                  = false;
+
     m_EvolvePulsars                                                 = false;
 	m_EvolveUnboundSystems                                          = false;
 
@@ -156,6 +159,7 @@ void Options::OptionValues::Initialise() {
     m_ShortHelp                                                     = true;
 
     m_StoreInputFiles                                               = true;
+
 
     m_SwitchLog                                                     = false;
 
@@ -264,6 +268,7 @@ void Options::OptionValues::Initialise() {
 
     m_MullerMandelKickBH                                            = MULLERMANDEL_KICKBH;
     m_MullerMandelKickNS                                            = MULLERMANDEL_KICKNS;
+    m_MullerMandelSigmaKick                                         = MULLERMANDEL_SIGMAKICK;
 
     // Kick magnitude random number (used to draw kick magnitude if necessary)
     m_KickMagnitudeRandom                                           = 0.0;                                                  // actual value set later
@@ -298,6 +303,9 @@ void Options::OptionValues::Initialise() {
 
     m_FryerSupernovaEngine.type                                     = SN_ENGINE::DELAYED;
     m_FryerSupernovaEngine.typeString                               = SN_ENGINE_LABEL.at(m_FryerSupernovaEngine.type);
+
+    m_Fryer22fmix                                                   = 0.5; //default is similar to DELAYED engine in Fryer 2012
+    m_Fryer22Mcrit                                                  = 5.75; //
 
     m_NeutrinoMassLossAssumptionBH.type                             = NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS;
     m_NeutrinoMassLossAssumptionBH.typeString                       = NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL.at(m_NeutrinoMassLossAssumptionBH.type);
@@ -354,6 +362,7 @@ void Options::OptionValues::Initialise() {
     m_UseMassTransfer                                               = true;
 	m_CirculariseBinaryDuringMassTransfer         	                = true;
 	m_AngularMomentumConservationDuringCircularisation              = false;
+    m_RetainCoreMassDuringCaseAMassTransfer                         = false;
 
     // Case BB/BC mass transfer stability prescription
     m_CaseBBStabilityPrescription.type                              = CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE;
@@ -373,6 +382,7 @@ void Options::OptionValues::Initialise() {
 
     // Mass transfer angular momentum loss prescription options
     m_MassTransferJloss                                             = 1.0;
+    m_MassTransferJlossMacLeodLinearFraction                        = 0.5;
     m_MassTransferAngularMomentumLossPrescription.type              = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION;
     m_MassTransferAngularMomentumLossPrescription.typeString        = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL.at(m_MassTransferAngularMomentumLossPrescription.type);
 
@@ -424,6 +434,10 @@ void Options::OptionValues::Initialise() {
 	m_CommonEnvelopeSlopeKruckow                                    = -5.0 / 6.0;
 	m_CommonEnvelopeAlphaThermal                                    = 1.0;
     m_CommonEnvelopeLambdaMultiplier                                = 1.0;
+    m_CommonEnvelopeLambdaNanjingEnhanced                           = false;
+    m_CommonEnvelopeLambdaNanjingInterpolateInMass                  = false;
+    m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity           = false;
+    m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass                 = false;
     m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope             = false;
     m_AllowMainSequenceStarToSurviveCommonEnvelope                  = true;
     m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope               = false;
@@ -627,6 +641,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         // boolean options - alphabetically
 
         (
+            "allow-non-stripped-ECSN",
+            po::value<bool>(&p_Options->m_AllowNonStrippedECSN)->default_value(p_Options->m_AllowNonStrippedECSN)->implicit_value(true),                                                                  
+            ("Allow ECSN to occur in unstripped progenitors (default = " + std::string(p_Options->m_AllowNonStrippedECSN? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
             "allow-rlof-at-birth",                                         
             po::value<bool>(&p_Options->m_AllowRLOFAtBirth)->default_value(p_Options->m_AllowRLOFAtBirth)->implicit_value(true),                                                                  
             ("Allow binaries that have one or both stars in RLOF at birth to evolve (default = " + std::string(p_Options->m_AllowRLOFAtBirth ? "TRUE" : "FALSE") + ")").c_str()
@@ -668,6 +687,26 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "common-envelope-allow-main-sequence-survive",                 
             po::value<bool>(&p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->default_value(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope)->implicit_value(true),          
             ("Allow main sequence stars to survive common envelope evolution (default = " + std::string(p_Options->m_AllowMainSequenceStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "common-envelope-lambda-nanjing-enhanced",
+            po::value<bool>(&p_Options->m_CommonEnvelopeLambdaNanjingEnhanced)->default_value(p_Options->m_CommonEnvelopeLambdaNanjingEnhanced)->implicit_value(true),
+            ("Use Nanjing lambda's with enhanced extrapolation in stellar radius (default = " + std::string(p_Options->m_CommonEnvelopeLambdaNanjingEnhanced ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "common-envelope-lambda-nanjing-interpolate-in-mass",
+            po::value<bool>(&p_Options->m_CommonEnvelopeLambdaNanjingInterpolateInMass)->default_value(p_Options->m_CommonEnvelopeLambdaNanjingInterpolateInMass)->implicit_value(true),
+            ("Use Nanjing lambda's with mass interpolation (only used when using enhanced Nanjing lambda's) (default = " + std::string(p_Options->m_CommonEnvelopeLambdaNanjingInterpolateInMass ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "common-envelope-lambda-nanjing-interpolate-in-metallicity",
+            po::value<bool>(&p_Options->m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity)->default_value(p_Options->m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity)->implicit_value(true),
+            ("Use Nanjing lambda's with metallicity interpolation (only used when using enhanced Nanjing lambda's) (default = " + std::string(p_Options->m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "common-envelope-lambda-nanjing-use-rejuvenated-mass",
+            po::value<bool>(&p_Options->m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass)->default_value(p_Options->m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass)->implicit_value(true),
+            ("Use rejuvenated mass to calculate Nanjing lambda's (default = " + std::string(p_Options->m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "common-envelope-allow-radiative-envelope-survive",
@@ -740,6 +779,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Suppress printing (default = " + std::string(p_Options->m_Quiet ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
+            "retain-core-mass-during-caseA-mass-transfer",
+            po::value<bool>(&p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->default_value(p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->implicit_value(true),
+            ("Retain approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = " + std::string(p_Options->m_RetainCoreMassDuringCaseAMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
             "revised-energy-formalism-nandez-ivanova",                     
             po::value<bool>(&p_Options->m_RevisedEnergyFormalismNandezIvanova)->default_value(p_Options->m_RevisedEnergyFormalismNandezIvanova)->implicit_value(true),                            
             ("Enable revised energy formalism (default = " + std::string(p_Options->m_RevisedEnergyFormalismNandezIvanova ? "TRUE" : "FALSE") + ")").c_str()
@@ -753,6 +797,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "store-input-files",                                                
             po::value<bool>(&p_Options->m_StoreInputFiles)->default_value(p_Options->m_StoreInputFiles)->implicit_value(true),                                                                          
             ("Store input files in output container (default = " + std::string(p_Options->m_StoreInputFiles ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "hmxr-binaries",
+            po::value<bool>(&p_Options->m_HMXRBinaries)->default_value(p_Options->m_HMXRBinaries)->implicit_value(true),
+            ("Store HMXRB candidates in BSE_RLOF output file (default = " + std::string(p_Options->m_HMXRBinaries ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "switch-log",                                                
@@ -1140,6 +1189,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Fraction of specific angular momentum which non-accreted matter removes from the system (default = " + std::to_string(p_Options->m_MassTransferJloss) + ")").c_str()
         )
         (
+            "mass-transfer-jloss-macleod-linear-fraction",
+            po::value<double>(&p_Options->m_MassTransferJlossMacLeodLinearFraction)->default_value(p_Options->m_MassTransferJlossMacLeodLinearFraction),                                                                                    
+            ("Interpolation fraction for jloss prescription if --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossMacLeodLinearFraction) + ")").c_str()
+        )
+        (
             "mass-transfer-thermal-limit-C",                               
             po::value<double>(&p_Options->m_MassTransferCParameter)->default_value(p_Options->m_MassTransferCParameter),                                                                          
             ("Mass Transfer Thermal rate factor of the accretor (default = " + std::to_string(p_Options->m_MassTransferCParameter) + ")").c_str()
@@ -1167,7 +1221,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "metallicity,z",                                               
             po::value<double>(&p_Options->m_Metallicity)->default_value(p_Options->m_Metallicity),                                                                                                
-            ("Metallicity to use (default " + std::to_string(p_Options->m_Metallicity) + ")").c_str()
+            ("Metallicity to use (default = " + std::to_string(p_Options->m_Metallicity) + ")").c_str()
         )
         (
             "metallicity-max",                                            
@@ -1193,6 +1247,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "muller-mandel-kick-multiplier-NS",                                        
             po::value<double>(&p_Options->m_MullerMandelKickNS)->default_value(p_Options->m_MullerMandelKickNS),                                                                                  
             ("Scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelKickNS) + ")").c_str()
+        )
+        (
+            "muller-mandel-sigma-kick",                                        
+            po::value<double>(&p_Options->m_MullerMandelSigmaKick)->default_value(p_Options->m_MullerMandelSigmaKick),                                                                                  
+            ("Kick scatter when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelSigmaKick) + ")").c_str()
         )
 
         (
@@ -1393,6 +1452,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_FryerSupernovaEngine.typeString)->default_value(p_Options->m_FryerSupernovaEngine.typeString),                                                                  
             ("If using Fryer et al 2012 fallback prescription. (options: [DELAYED, RAPID], default = " + p_Options->m_FryerSupernovaEngine.typeString + ")").c_str()
         )
+        (
+            "fryer-22-fmix",                                        
+            po::value<double>(&p_Options->m_Fryer22fmix)->default_value(p_Options->m_Fryer22fmix),                                                                                  
+            ("paramter describing the mixing growth time when using the 'FRYER2022' remnant mass distribution (default = " + std::to_string(p_Options->m_Fryer22fmix) + ")").c_str()
+        )
+        (
+            "fryer-22-mcrit",                                        
+            po::value<double>(&p_Options->m_Fryer22Mcrit)->default_value(p_Options->m_Fryer22Mcrit),                                                                                  
+            ("Critical CO core mass for black hole formation when using the 'FRYER2022' remnant mass distribution (default = " + std::to_string(p_Options->m_Fryer22Mcrit) + ")").c_str()
+        )
 
         (
             "grid",                                                        
@@ -1504,7 +1573,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "mass-transfer-angular-momentum-loss-prescription",            
             po::value<std::string>(&p_Options->m_MassTransferAngularMomentumLossPrescription.typeString)->default_value(p_Options->m_MassTransferAngularMomentumLossPrescription.typeString),                    
-            ("Mass Transfer Angular Momentum Loss prescription (options: [JEANS, ISOTROPIC, CIRCUMBINARY, ARBITRARY], default = " + p_Options->m_MassTransferAngularMomentumLossPrescription.typeString + ")").c_str()
+            ("Mass Transfer Angular Momentum Loss prescription (options: [JEANS, ISOTROPIC, CIRCUMBINARY, MACLEOD_LINEAR, ARBITRARY], default = " + p_Options->m_MassTransferAngularMomentumLossPrescription.typeString + ")").c_str()
         )
         (
             "mass-transfer-rejuvenation-prescription",                     
@@ -1573,7 +1642,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "remnant-mass-prescription",                                   
             po::value<std::string>(&p_Options->m_RemnantMassPrescription.typeString)->default_value(p_Options->m_RemnantMassPrescription.typeString),                                                            
-            ("Choose remnant mass prescription (options: [HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT], default = " + p_Options->m_RemnantMassPrescription.typeString + ")").c_str()
+            ("Choose remnant mass prescription (options: [HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT], default = " + p_Options->m_RemnantMassPrescription.typeString + ")").c_str()
         )
         (
             "rotational-velocity-distribution",                            
@@ -3966,10 +4035,10 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
     switch (property) {
 
         case PROGRAM_OPTION::ADD_OPTIONS_TO_SYSPARMS                        : value = static_cast<int>(AddOptionsToSysParms());                             break;
+        case PROGRAM_OPTION::ALLOW_NON_STRIPPED_ECSN                        : value = AllowNonStrippedECSN();                                               break;
         case PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE       : value = AllowMainSequenceStarToSurviveCommonEnvelope();                       break;
-        case PROGRAM_OPTION::ALLOW_RADIATIVE_ENVELOPE_STAR_TO_SURVIVE_COMMON_ENVELOPE : value = AllowRadiativeEnvelopeStarToSurviveCommonEnvelope();                       break;
-        case PROGRAM_OPTION::ALLOW_IMMEDIATE_RLOF_POST_CE_TO_SURVIVE_COMMON_ENVELOPE  : value = AllowImmediateRLOFpostCEToSurviveCommonEnvelope();
-            break;
+        case PROGRAM_OPTION::ALLOW_RADIATIVE_ENVELOPE_STAR_TO_SURVIVE_COMMON_ENVELOPE : value = AllowRadiativeEnvelopeStarToSurviveCommonEnvelope();        break;
+        case PROGRAM_OPTION::ALLOW_IMMEDIATE_RLOF_POST_CE_TO_SURVIVE_COMMON_ENVELOPE  : value = AllowImmediateRLOFpostCEToSurviveCommonEnvelope();          break;
         case PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH                            : value = AllowRLOFAtBirth();                                                   break;
         case PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH                        : value = AllowTouchingAtBirth();                                               break;
         case PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION    : value = AngularMomentumConservationDuringCircularisation();                   break;
@@ -4009,6 +4078,9 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::EVOLUTION_MODE                                 : value = static_cast<int>(EvolutionMode());                                    break;
 
         case PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE                         : value = static_cast<int>(FryerSupernovaEngine());                             break;
+
+        case PROGRAM_OPTION::FRYER22_FMIX                                   : value = Fryer22fmix();                                       break;
+        case PROGRAM_OPTION::FRYER22_MCRIT                                  : value = Fryer22Mcrit();                                       break;
 
         case PROGRAM_OPTION::INITIAL_MASS                                   : value = InitialMass();                                                        break;
         case PROGRAM_OPTION::INITIAL_MASS_1                                 : value = InitialMass1();                                                       break;
@@ -4103,11 +4175,13 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::MT_FRACTION_ACCRETED                           : value = MassTransferFractionAccreted();                                       break;
         case PROGRAM_OPTION::MT_JLOSS                                       : value = MassTransferJloss();                                                  break;
+        case PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION               : value = MassTransferJlossMacLeodLinearFraction();                             break; 
         case PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION                   : value = static_cast<int>(MassTransferRejuvenationPrescription());             break;
         case PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION                 : value = static_cast<int>(MassTransferThermallyLimitedVariation());            break;
 
         case PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH               : value = MullerMandelKickMultiplierBH();                                       break;
         case PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS               : value = MullerMandelKickMultiplierNS();                                       break;
+        case PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK                       : value = MullerMandelSigmaKick();                                             break;
 
         case PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH               : value = static_cast<int>(NeutrinoMassLossAssumptionBH());                     break;
         case PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH                    : value = NeutrinoMassLossValueBH();                                            break;

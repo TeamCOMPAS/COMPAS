@@ -157,7 +157,7 @@ public:
     double          HeCoreMassAtCEE() const                                             { return m_CEDetails.HeCoreMass; }
 
     bool            IsRLOF() const                                                      { return m_RLOFDetails.isRLOF; }
-    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN(); }
+    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN() || IsAIC(); }
 
     double          LambdaAtCEE() const                                                 { return m_CEDetails.lambda; }
     double          LuminosityPostCEE() const                                           { return m_CEDetails.postCEE.luminosity; }
@@ -180,7 +180,7 @@ public:
     double          RadiusPostCEE() const                                               { return m_CEDetails.postCEE.radius; }
     double          RadiusPreCEE() const                                                { return m_CEDetails.preCEE.radius; }
     bool            RLOFPostCEE() const                                                 { return m_RLOFDetails.RLOFPostCEE; }
-    double          RocheLobeTracker(const double p_SemiMajorAxis, const double p_Eccentricity);
+    double          StarToRocheLobeRadiusRatio(const double p_SemiMajorAxis, const double p_Eccentricity);
 
     STELLAR_TYPE    StellarTypePostCEE() const                                          { return m_CEDetails.postCEE.stellarType; }
     STELLAR_TYPE    StellarTypePreCEE() const                                           { return m_CEDetails.preCEE.stellarType; }
@@ -220,6 +220,8 @@ public:
 
     void            SetPostCEEValues();
     void            SetPreCEEValues();
+
+    void            SetRocheLobeFlags(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
 
     COMPAS_VARIABLE StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
 
@@ -266,8 +268,6 @@ private:
 
 	// member functions - alphabetically
     double              CalculateMassAccretedForNS(const double p_CompanionMass, const double p_CompanionRadius);
-
-    void                SetRocheLobeFlags(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
 
 };
 
