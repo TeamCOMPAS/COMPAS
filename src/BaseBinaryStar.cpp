@@ -1572,7 +1572,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     // update stellar type after losing its envelope. Star1, Star2 or both if double CEE.
 
     if (isDonorMS || (!envelopeFlag1 && !envelopeFlag2)) {                                                                // stellar merger
-        m_MassTransferTrackerHistory = MT_TRACKING::MERGER;  
+        m_MassTransferTrackerHistory = MT_TRACKING::MERGER; 
         m_Flags.stellarMerger        = true;
     }
     else if ( (m_Star1->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) ||
@@ -2132,7 +2132,7 @@ double BaseBinaryStar::CalculateAngularMomentum(const double p_SemiMajorAxis,
 
 	double Is1  = ks1 * m1 * R1 * R1;
 	double Is2  = ks2 * m2 * R2 * R2;
-    double Jorb = ((m1 * m2) / (m1 + m2)) * sqrt(G1 * (m1 + m2) * p_SemiMajorAxis * (1.0 - (p_Eccentricity * p_Eccentricity)));
+    double Jorb = ((m1 * m2) / (m1 + m2)) * std::sqrt(G1 * (m1 + m2) * p_SemiMajorAxis * (1.0 - (p_Eccentricity * p_Eccentricity)));
 
 	return (Is1 * w1) + (Is2 * w2) + Jorb;
 }
