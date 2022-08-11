@@ -244,7 +244,7 @@ public:
     double              SemiMajorAxisRsol() const                   { return m_SemiMajorAxis * AU_TO_RSOL; }
     bool                SimultaneousRLOF() const                    { return m_RLOFDetails.simultaneousRLOF; }
     bool                StableRLOFPostCEE() const                   { return m_RLOFDetails.stableRLOFPostCEE; }
-    bool                StellarMerger() const                       { return m_Flags.stellarMerger || HasStarsTouching(); }
+    bool                StellarMerger() const                       { return m_Flags.stellarMerger; }
     bool                StellarMergerAtBirth() const                { return m_Flags.stellarMergerAtBirth; }
     STELLAR_TYPE        StellarType1() const                        { return m_Star1->StellarType(); }
     STELLAR_TYPE        StellarType1PostCEE() const                 { return m_Star1->StellarTypePostCEE(); }

@@ -1572,7 +1572,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     // update stellar type after losing its envelope. Star1, Star2 or both if double CEE.
 
     if (isDonorMS || (!envelopeFlag1 && !envelopeFlag2)) {                                                                // stellar merger
-        m_MassTransferTrackerHistory = HasTwoOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_MS }) ? MT_TRACKING::CE_BOTH_MS : MT_TRACKING::CE_MS_WITH_CO; // Here MS-WD systems are flagged as CE_BOTH_MS
+        m_MassTransferTrackerHistory = MT_TRACKING::MERGER;  
         m_Flags.stellarMerger        = true;
     }
     else if ( (m_Star1->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) ||
@@ -1606,6 +1606,10 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             m_PrintExtraDetailedOutput = true;                                                                          // yes - print detailed output record
         }
 	}
+
+    if (utils::Compare(aFinal, 0.0) <= 0 || utils::Compare(m_Star1->Radius() + m_Star2->Radius(), aFinal * AU_TO_RSOL) > 0) {
+        m_Flags.stellarMerger = true;
+    }
 
     // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
     if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star1->SetOmega(OrbitalAngularVelocity());
