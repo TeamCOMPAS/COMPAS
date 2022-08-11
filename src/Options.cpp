@@ -390,7 +390,8 @@ void Options::OptionValues::Initialise() {
     m_MassTransferRejuvenationPrescription.type                     = MT_REJUVENATION_PRESCRIPTION::STARTRACK;
     m_MassTransferRejuvenationPrescription.typeString               = MT_REJUVENATION_PRESCRIPTION_LABEL.at(m_MassTransferRejuvenationPrescription.type);
 
-    // Mass transfer critical mass ratios
+    // Mass transfer critical mass ratios - defined here as (accretor mass / donor mass)
+    // A value of 0.0 means the mass ratio will never be unstable - this does not guaruntee stability of the MT, just that instability is not based on the mass ratio
     // RTW questions::
     // What to do about the Claey's entries which have no defined values?
     // Why were some of these values here different to the actual Claey's values? typos?
@@ -398,34 +399,34 @@ void Options::OptionValues::Initialise() {
 
     m_MassTransferCriticalMassRatioMSLowMass                        = true;
     m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor   = 1.44;                                                 // Claeys+ 2014 = 1.44
-    m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor      = 1.0;                                                  // Claeys+ 2014 = 1.0
+    m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor      = 0.0;                                                  // Claeys+ 2014 = unspecified
 
     m_MassTransferCriticalMassRatioMSHighMass                       = true;
     m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor  = 0.625;                                                // Claeys+ 2014 = 0.625
-    m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor     = 0.0;
+    m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor     = 0.0;                                                  // Claeys+ 2014 = unspecified
 
     m_MassTransferCriticalMassRatioHG                               = true;
     m_MassTransferCriticalMassRatioHGNonDegenerateAccretor          = 0.25;                                                 // Claeys+ 2014 = 0.25
     m_MassTransferCriticalMassRatioHGDegenerateAccretor             = 0.21;                                                 // Claeys+ 2014 = 0.21
 
     m_MassTransferCriticalMassRatioGiant                            = true;
-    m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor       = 0.0;
-    m_MassTransferCriticalMassRatioGiantDegenerateAccretor          = 0.87;                                                 // Claeys+ 2014 = 0.81 // this one should actually be 0.87...
+    m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor       = 0.0;                                                  // Claeys+ 2014 = an equation in mass-radius exponent and core mass - equivalent to Hurley zeta adiabatic definition
+    m_MassTransferCriticalMassRatioGiantDegenerateAccretor          = 0.87;                                                 // Claeys+ 2014 = 0.87
 
     m_MassTransferCriticalMassRatioHeliumMS                         = true;
-    m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor    = 0.625;
-    m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor       = 0.0;
+    m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor    = 0.0;                                                  // Claeys+ 2014 = unspecified - this used to be 0.625?
+    m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor       = 0.0;                                                  // Claeys+ 2014 = unspecified
 
     m_MassTransferCriticalMassRatioHeliumHG                         = true;
     m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor    = 0.25;                                                 // Claeys+ 2014 = 0.25
     m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor       = 0.21;                                                 // Claeys+ 2014 = 0.21
 
     m_MassTransferCriticalMassRatioHeliumGiant                      = true;
-    m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor = 1.28;                                                 // Claeys+ 2014 = 0.25
-    m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor    = 0.87;
+    m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor = 1.28;                                                 // Claeys+ 2014 = 1.28
+    m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor    = 0.87;                                                 // Claeys+ 2014 = 0.87
 
     m_MassTransferCriticalMassRatioWhiteDwarf                       = true;
-	m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor  = 0.0;
+	m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor  = 0.0;                                                  // Claeys+ 2014 = unspecified
     m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor     = 1.6;                                                  // Claeys+ 2014 = 1.6
 
     // Common Envelope options
