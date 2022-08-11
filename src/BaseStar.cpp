@@ -1296,7 +1296,7 @@ double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) const {
  */
 double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
     
-    double zeta = 0.0;                                              // default value
+    double zeta = 0.0;                                            // default value
     
     switch (p_ZetaPrescription) {                                 // which prescription?
         case ZETA_PRESCRIPTION::SOBERMAN:                         // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
