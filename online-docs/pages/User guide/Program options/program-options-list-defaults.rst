@@ -190,6 +190,11 @@ Default = :math:`1.5 \times 10^{13}`
 Slope for the Kruckow lambda (see Kruckow et al. 2016 as implemented by Vigna-Gomez et al. 2018). |br|
 Default = −0.833333
 
+**convective-envelope-temperature-threshold** |br|
+Temperature [K] threshold, below which the envelope's of giants are convective. 
+Requires --envelope-state-prescription is FIXED_TEMPERATURE. |br|
+Default = 5370
+
 **--cool-wind-mass-loss-multiplier** |br|
 Multiplicative constant for wind mass loss of cool stars, i.e. those with temperatures below the
 VINK_MASS_LOSS_MINIMUM_TEMP (default 12500K). |br|
