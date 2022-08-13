@@ -1848,11 +1848,16 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     double aFinal;                                                                                                              // semi-major axis in default units, AU, after next timestep
     double jLoss    = m_JLoss;                            		                                                                // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
 
-	// Check for stability
-	bool qCritFlag = OPTIONS->MassTransferCriticalMassRatioMSLowMass()   || OPTIONS->MassTransferCriticalMassRatioMSHighMass()  ||
-	                 OPTIONS->MassTransferCriticalMassRatioHG()          || OPTIONS->MassTransferCriticalMassRatioGiant()       ||
-	                 OPTIONS->MassTransferCriticalMassRatioHeliumGiant() || OPTIONS->MassTransferCriticalMassRatioHeliumMS()    ||
-                     OPTIONS->MassTransferCriticalMassRatioHeliumHG()    || OPTIONS->MassTransferCriticalMassRatioWhiteDwarf();
+	// Check for stability from critical mass ratios
+	bool qCritFlag = 
+        (m_Donor->IsOneOf( {STELLAR_TYPE::MS_LTE_07} )                         && OPTIONS->MassTransferCriticalMassRatioMSLowMass()  ) || 
+        (m_Donor->IsOneOf( {STELLAR_TYPE::MS_GT_07} )                          && OPTIONS->MassTransferCriticalMassRatioMSHighMass() ) ||
+        (m_Donor->IsOneOf( {STELLAR_TYPE::HERTZSPRUNG_GAP} )                   && OPTIONS->MassTransferCriticalMassRatioHG()         ) || 
+        (m_Donor->IsOneOf( GIANTS )                                            && OPTIONS->MassTransferCriticalMassRatioGiant()      ) ||
+        (m_Donor->IsOneOf( {STELLAR_TYPE::NAKED_HELIUM_STAR_MS} )              && OPTIONS->MassTransferCriticalMassRatioHeliumGiant()) || 
+        (m_Donor->IsOneOf( {STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP} ) && OPTIONS->MassTransferCriticalMassRatioHeliumMS()   ) ||
+        (m_Donor->IsOneOf( {STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH} )    && OPTIONS->MassTransferCriticalMassRatioHeliumHG()   ) || 
+        (m_Donor->IsOneOf( WHITE_DWARFS )                                      && OPTIONS->MassTransferCriticalMassRatioWhiteDwarf() ) ;
 
     if (qCritFlag && m_Donor->IsMassRatioUnstable(m_Accretor->Mass(), m_Accretor->IsDegenerate()) ) {
         m_CEDetails.CEEnow = true;
@@ -2241,6 +2246,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     if ((m_CEDetails.CEEnow || StellarMerger()) &&                                                                      // CEE or merger?
         !(OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {                  // yes - avoid CEE if CH+CH
+
         ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
     }
     else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
