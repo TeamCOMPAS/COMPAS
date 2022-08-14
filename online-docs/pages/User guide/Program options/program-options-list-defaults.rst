@@ -191,8 +191,8 @@ Slope for the Kruckow lambda (see Kruckow et al. 2016 as implemented by Vigna-Go
 Default = −0.833333
 
 **convective-envelope-temperature-threshold** |br|
-Temperature [K] threshold, below which the envelope's of giants are convective. 
-Requires --envelope-state-prescription is FIXED_TEMPERATURE. |br|
+Temperature [K] threshold, below which the envelopes of giants are convective. 
+Only used for --envelope-state-prescription = FIXED_TEMPERATURE, ignored otherwise. |br|
 Default = 5370
 
 **--cool-wind-mass-loss-multiplier** |br|
