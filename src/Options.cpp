@@ -363,6 +363,7 @@ void Options::OptionValues::Initialise() {
 	m_CirculariseBinaryDuringMassTransfer         	                = true;
 	m_AngularMomentumConservationDuringCircularisation              = false;
     m_RetainCoreMassDuringCaseAMassTransfer                         = false;
+    m_ConvectiveEnvelopeTemperatureThreshold                        = CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI;
 
     // Case BB/BC mass transfer stability prescription
     m_CaseBBStabilityPrescription.type                              = CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE;
@@ -955,6 +956,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "common-envelope-slope-kruckow",                               
             po::value<double>(&p_Options->m_CommonEnvelopeSlopeKruckow)->default_value(p_Options->m_CommonEnvelopeSlopeKruckow),                                                                  
             ("Common Envelope slope for Kruckow lambda (default = " + std::to_string(p_Options->m_CommonEnvelopeSlopeKruckow) + ")").c_str()
+        )
+        (
+            "convective-envelope-temperature-threshold",                               
+            po::value<double>(&p_Options->m_ConvectiveEnvelopeTemperatureThreshold)->default_value(p_Options->m_ConvectiveEnvelopeTemperatureThreshold),                                                                  
+            ("Temperature [K] threshold, below which the envelopes of giants are convective. Only used for --envelope-state-prescription = FIXED_TEMPERATURE, ignored otherwise. (default = " + std::to_string(p_Options->m_ConvectiveEnvelopeTemperatureThreshold) + ")").c_str()
         )
 
         (
@@ -4101,6 +4107,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION    : value = static_cast<int>(CommonEnvelopeMassAccretionPrescription());          break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY   : value = CommonEnvelopeRecombinationEnergyDensity();                           break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW                  : value = CommonEnvelopeSlopeKruckow();                                         break;
+
+        case PROGRAM_OPTION::CONVECTIVE_ENVELOPE_TEMPERATURE_THRESHOLD      : value = ConvectiveEnvelopeTemperatureThreshold();                             break;
 
         case PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER                 : value = CoolWindMassLossMultiplier();                                         break;
 
