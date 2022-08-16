@@ -922,7 +922,9 @@
 //                                      - Added Accretion Induced Collapse (AIC) of ONeWD as another type of SN
 // 02.31.09     RTW - Aug 9, 2022    - Enhancement:
 //                                      - Max evolution time and max number of timesteps now read in from gridline as well as commandline
-// 02.32.00     RTW - Aug 11, 2022   - Enhancement:
+// 02.31.10     RTW - Aug 12, 2022   - Enhancement:
+//                                      - Added option to set the Temperature boundary between convective/radiative giant envelopes
+// 02.32.00     RTW - Aug 13, 2022   - Enhancement:
 //                                      - Added critical mass ratios from Claeys+ 2014 for determining if MT is unstable
 
 const std::string VERSION_STRING = "02.32.00";
