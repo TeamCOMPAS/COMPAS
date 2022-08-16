@@ -836,28 +836,29 @@ bool BaseBinaryStar::IsHMXRBinary() const {
  * and / or HMXRBs are being printed and IsHMXRBinary is true
  *
  *
- * bool PrintRLOFParameters()
+ * bool PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType)
  * 
+ * @param   [IN]    p_RecordType                Record type to be written
  * @return                                      Boolean status (true = success, false = failure)
  * 
  */
-bool BaseBinaryStar::PrintRLOFParameters() {
+bool BaseBinaryStar::PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType) {
 
     bool ok = true;
 
-    if (!OPTIONS->RLOFPrinting()) return ok;                    // do not print if printing option off
+    if (!OPTIONS->RLOFPrinting()) return ok;                            // do not print if printing option off
 
-    StashRLOFProperties(MASS_TRANSFER_TIMING::POST_MT);         // stash properties immediately post-Mass Transfer 
+    StashRLOFProperties(MASS_TRANSFER_TIMING::POST_MT);                 // stash properties immediately post-Mass Transfer 
 
-    if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {               // print if either star is in RLOF
-        m_RLOFDetails.propsPostMT->eventCounter += 1;           // every time we print a MT event happened, increment counter
-        ok = LOGGING->LogRLOFParameters(this);                  // yes - write to log file
+    if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {                       // print if either star is in RLOF
+        m_RLOFDetails.propsPostMT->eventCounter += 1;                   // every time we print a MT event happened, increment counter
+        ok = LOGGING->LogRLOFParameters(this, p_RecordType);    // yes - write to log file
     }
 
-    if (!OPTIONS->HMXRBinaries()) return ok;
- 
-    if (IsHMXRBinary()) {  // print if star is HMXRB candidate
-        ok = LOGGING->LogRLOFParameters(this); 
+    if (OPTIONS->HMXRBinaries()) {
+        if (IsHMXRBinary()) {                                           // print if star is HMXRB candidate
+            ok = LOGGING->LogRLOFParameters(this, p_RecordType); 
+        }
     }
 
     return ok;
@@ -867,18 +868,19 @@ bool BaseBinaryStar::PrintRLOFParameters() {
  * Write Be binary parameters to logfile if required
  *
  *
- * bool PrintBeBinary()
+ * bool PrintBeBinary(const BE_BINARY_RECORD_TYPE p_RecordType)
  * 
+ * @param   [IN]    p_RecordType                Record type to be written
  * @return                                      Boolean status (true = success, false = failure)
  * 
  */
-bool BaseBinaryStar::PrintBeBinary() {
+bool BaseBinaryStar::PrintBeBinary(const BE_BINARY_RECORD_TYPE p_RecordType) {
     
-    if (!OPTIONS->BeBinaries()) return true;                    // do not print if printing option off
+    if (!OPTIONS->BeBinaries()) return true;                // do not print if printing option off
     
-    StashBeBinaryProperties();                                  // stash Be binary properties
+    StashBeBinaryProperties();                              // stash Be binary properties
     
-    return LOGGING->LogBeBinary(this);                          // write to log file
+    return LOGGING->LogBeBinary(this, p_RecordType);        // write to log file
 }
 
 
@@ -1112,8 +1114,9 @@ void BaseBinaryStar::ResolveCoalescence() {
         m_Flags.mergesInHubbleTime = false;
     }
 
-    if (!IsUnbound())
+    if (!IsUnbound()) {
         (void)PrintDoubleCompactObjects();                                                                                                      // print (log) double compact object details
+    }
 }
 
 
@@ -1618,11 +1621,11 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_Star1->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 1
     m_Star2->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 2
     SetPostCEEValues(aFinalRsol, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                                       // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
-    if (m_RLOFDetails.immediateRLOFPostCEE == true && !OPTIONS->AllowImmediateRLOFpostCEToSurviveCommonEnvelope()) {    // Is there immediate post-CE RLOF which is not allowed?
+    if (m_RLOFDetails.immediateRLOFPostCEE == true && !OPTIONS->AllowImmediateRLOFpostCEToSurviveCommonEnvelope()) { // Is there immediate post-CE RLOF which is not allowed?
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
             m_Flags.stellarMerger = true;
     }
-    (void)PrintCommonEnvelope();
+    (void)PrintCommonEnvelope();                                                                                    // print (log) common envelope details
     
 }
 
@@ -2254,7 +2257,9 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         }
     }
 
-    if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { (void)PrintDetailedOutput(m_Id); }                    // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
+    if (m_PrintExtraDetailedOutput && !StellarMerger()) {
+        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::INTRA_TIMESTEP);                                  // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
+    }
     m_PrintExtraDetailedOutput = false;                                                                                 // reset detailed output printing flag for the next timestep
 
     if ((m_Star1->IsSNevent() || m_Star2->IsSNevent())) {
@@ -2375,12 +2380,14 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             }
             else {                                                                                                                          // continue evolution
 
-                (void)PrintDetailedOutput(m_Id);                                                                                            // print (log) detailed output for binary
+                (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::INTRA_TIMESTEP);                                                  // print (log) detailed output for binary
 
                 if (OPTIONS->RLOFPrinting()) StashRLOFProperties(MASS_TRANSFER_TIMING::PRE_MT);                                             // stash properties immediately pre-Mass Transfer 
 
                 EvaluateBinary(dt);                                                                                                         // evaluate the binary at this timestep
 
+                (void)PrintDetailedOutput(m_Id);                                                                                            // print (log) detailed output for binary
+                
                 (void)PrintRLOFParameters();                                                                                                // print (log) RLOF parameters
                 
                 // check for problems
@@ -2398,9 +2405,11 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                        // continue evolution?
 
-                    if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) (void)PrintPulsarEvolutionParameters();                                   // print (log) pulsar evolution parameters 
+                    if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
+                        (void)PrintPulsarEvolutionParameters();                                                                             // print (log) pulsar evolution parameters 
+                    }
 
-                    //(void)PrintBeBinary();                                                                                                // print (log) BeBinary properties
+                    //(void)PrintBeBinary();                                                                                                  // print (log) BeBinary properties
                         
                     if (IsDCO() && !IsUnbound()) {                                                                                          // bound double compact object?
                         if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                                           // DCO not yet evaluated -- to ensure that the coalescence is only resolved once
@@ -2433,7 +2442,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();                  // new timestep
                 if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt < NUCLEAR_MINIMUM_TIMESTEP) {
                     dt = NUCLEAR_MINIMUM_TIMESTEP;                                                                                          // but not less than minimum
-		}
+		        }
                 stepNum++;                                                                                                                  // increment stepNum
             }
         }

@@ -315,6 +315,54 @@ constexpr int    HDF5_DEFAULT_CHUNK_SIZE                = 100000;               
 constexpr int    HDF5_DEFAULT_IO_BUFFER_SIZE            = 1;                                                        // number of HDF5 chunks to buffer for IO (per open dataset)
 constexpr int    HDF5_MINIMUM_CHUNK_SIZE                = 1000;                                                     // minimum HDF5 chunk size (number of dataset entries)
 
+typedef unsigned int LOGRECORDTYPE;
+
+enum class BE_BINARY_RECORD_TYPE: unsigned int {                                                                    // BSE_BE_BINARIES file record type
+    STANDARD                                                                                                        // 0 - default BSE_BE_BINARIES file record type
+};
+
+enum class CE_RECORD_TYPE: unsigned int {                                                                           // BSE_COMMON_ENVELOPES file record type
+    STANDARD                                                                                                        // 0 - default BSE_COMMON_ENVELOPES file record type
+};
+
+enum class DCO_RECORD_TYPE: unsigned int {                                                                          // BSE_DOUBLE_COMPACT_OBJECTS file record type
+    STANDARD                                                                                                        // 0 - default BSE_DOUBLE_COMPACT_OBJECTS file record type
+};
+
+enum class PULSAR_RECORD_TYPE: unsigned int {                                                                       // BSE_PULSAR_EVOLUTION file record type
+    STANDARD                                                                                                        // 0 - default BSE_PULSAR_EVOLUTION file record type
+};
+
+enum class RLOF_RECORD_TYPE: unsigned int {                                                                         // BSE_RLOF_PARAMETERS file record type
+    STANDARD                                                                                                        // 0 - default BSE_RLOF_PARAMETERS file record type
+};
+
+enum class BSE_DETAILED_RECORD_TYPE: unsigned int {                                                                 // BSE_DETAILED_OUTPUT file record type
+    STANDARD,                                                                                                       // 0 - default BSE_DETAILED_OUTPUT record type
+    INTRA_TIMESTEP                                                                                                  // 1 - indicates record logged intra-timestep
+};
+
+enum class SSE_DETAILED_RECORD_TYPE: unsigned int {                                                                 // SSE_DETAILED_OUTPUT file record type
+    STANDARD,                                                                                                       // 0 - default SSE_DETAILED_OUTPUT record type
+    INTRA_TIMESTEP                                                                                                  // 1 - indicates record logged intra-timestep
+};
+
+enum class BSE_SN_RECORD_TYPE: unsigned int {                                                                       // BSE_SUPERNOVAE file record type
+    STANDARD                                                                                                        // 0 - default BSE_SUPERNOVAE file record type
+};
+
+enum class SSE_SN_RECORD_TYPE: unsigned int {                                                                       // SSE_SUPERNOVAE file record type
+    STANDARD                                                                                                        // 0 - default SSE_SUPERNOVAE file record type
+};
+
+enum class BSE_SYSPARMS_RECORD_TYPE: unsigned int {                                                                 // BSE_SYSTEM_PARAMETERS file record type
+    STANDARD                                                                                                        // 0 - default BSE_SYSTEM_PARAMETERS file record type
+};
+
+enum class SSE_SYSPARMS_RECORD_TYPE: unsigned int {                                                                 // SSE_SYSTEM_PARAMETERS file record type
+    STANDARD                                                                                                        // 0 - default SSE_SYSTEM_PARAMETERS file record type
+};
+
 // option constraints
 // Use these constant to specify constraints that should be applied to program option values
 // The values specified here should be checked in Options::OptionValues::CheckAndSetOptions()

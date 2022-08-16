@@ -505,14 +505,35 @@ private:
     void    UpdateSystemicVelocity(Vector3d p_newVelocity);
 
     // printing functions
-    bool PrintRLOFParameters();
-    bool PrintBinarySystemParameters() const            { return LOGGING->LogBSESystemParameters(this); }
-    bool PrintDetailedOutput(const long int p_Id) const { return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id) : true; }
-    bool PrintDoubleCompactObjects() const              { return LOGGING->LogDoubleCompactObject(this); }
-    bool PrintCommonEnvelope() const                    { return LOGGING->LogCommonEnvelope(this); }
-    bool PrintBeBinary();
-    bool PrintPulsarEvolutionParameters() const         { return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this) : true; }
-    bool PrintSupernovaDetails() const                  { return LOGGING->LogBSESupernovaDetails(this); }
+    
+    bool PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType = RLOF_RECORD_TYPE::STANDARD);
+    
+    bool PrintBinarySystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::STANDARD) const { 
+        return LOGGING->LogBSESystemParameters(this, p_RecordType);
+    }
+    
+    bool PrintDetailedOutput(const long int p_Id, 
+                             const BSE_DETAILED_RECORD_TYPE p_RecordType = BSE_DETAILED_RECORD_TYPE::STANDARD) const {
+        return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id, p_RecordType) : true;
+    }
+    
+    bool PrintDoubleCompactObjects(const DCO_RECORD_TYPE p_RecordType = DCO_RECORD_TYPE::STANDARD) const {
+        return LOGGING->LogDoubleCompactObject(this, p_RecordType);
+    }
+    
+    bool PrintCommonEnvelope(const CE_RECORD_TYPE p_RecordType = CE_RECORD_TYPE::STANDARD) const {
+        return LOGGING->LogCommonEnvelope(this, p_RecordType);
+    }
+    
+    bool PrintBeBinary(const BE_BINARY_RECORD_TYPE p_RecordType = BE_BINARY_RECORD_TYPE::STANDARD);
+    
+    bool PrintPulsarEvolutionParameters(const PULSAR_RECORD_TYPE p_RecordType = PULSAR_RECORD_TYPE::STANDARD) const {
+        return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_RecordType) : true;
+    }
+    
+    bool PrintSupernovaDetails(const BSE_SN_RECORD_TYPE p_RecordType = BSE_SN_RECORD_TYPE::STANDARD) const {
+        return LOGGING->LogBSESupernovaDetails(this, p_RecordType);
+    }
 
     
     //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
