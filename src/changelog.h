@@ -922,7 +922,9 @@
 //                                      - Added Accretion Induced Collapse (AIC) of ONeWD as another type of SN
 // 02.31.09     RTW - Aug 9, 2022    - Enhancement:
 //                                      - Max evolution time and max number of timesteps now read in from gridline as well as commandline
+// 02.31.10     RTW - Aug 16, 2022   - Enhancement:
+//                                      - Fix Hurley Z Adiabatic -x for +x (see Issue 838)
 
-const std::string VERSION_STRING = "02.31.09";
+const std::string VERSION_STRING = "02.31.10";
 
 # endif // __changelog_h__
