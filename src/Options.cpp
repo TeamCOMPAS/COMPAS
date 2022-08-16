@@ -917,7 +917,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "convective-envelope-temperature-threshold",                               
             po::value<double>(&p_Options->m_ConvectiveEnvelopeTemperatureThreshold)->default_value(p_Options->m_ConvectiveEnvelopeTemperatureThreshold),                                                                  
-            ("Temperature [K] threshold, below which the envelope's of giants are convective. Requires --envelope-state-prescription is FIXED_TEMPERATURE (default = " + std::to_string(p_Options->m_ConvectiveEnvelopeTemperatureThreshold) + ")").c_str()
+            ("Temperature [K] threshold, below which the envelopes of giants are convective. Only used for --envelope-state-prescription = FIXED_TEMPERATURE, ignored otherwise. (default = " + std::to_string(p_Options->m_ConvectiveEnvelopeTemperatureThreshold) + ")").c_str()
         )
 
         // AVG - 17/03/2020 - Uncomment mass-ratio options when fully implemented
