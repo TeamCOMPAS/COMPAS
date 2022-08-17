@@ -689,7 +689,11 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
 }
 
 /*
- * Update the minimum core mass of a main sequence star that loses mass through Case A mass transfer by setting it equal to the core mass of a TAMS star, scaled by the fractional age
+ * Update the minimum core mass of a main sequence star that loses mass through Case A mass transfer by
+ * setting it equal to the core mass of a TAMS star, scaled by the fractional age.
+ * 
+ * The minimum core mass of the star is updated only if the retain-core-mass-during-caseA-mass-transfer
+ * option is specified, otherwise it is left unchanged.
  *
  *
  * STELLAR_TYPE UpdateMinimumCoreMass()
@@ -697,10 +701,10 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
  */
 void MainSequence::UpdateMinimumCoreMass()
 {
-    if(OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
+    if (OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
         double fractionalAge=CalculateTauOnPhase();
         HG clone = *this;                               //create an HG star clone to query its core mass just after TAMS
         double TAMSCoreMass = clone.CoreMass();
-        m_MinimumCoreMass=std::max(m_MinimumCoreMass, fractionalAge * TAMSCoreMass);
+        m_MinimumCoreMass = std::max(m_MinimumCoreMass, fractionalAge * TAMSCoreMass);
     }
 }

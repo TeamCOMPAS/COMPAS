@@ -924,7 +924,13 @@
 //                                      - Max evolution time and max number of timesteps now read in from gridline as well as commandline
 // 02.32.00     JR - Aug 16, 2022    - Enhancement:
 //                                      - Add 'record type' functionality to all standard log files
-//                                      - WIP: Todo: update dcoumentation (for now, see documentation at top of Log.h)
+//                                      - Add/rationalise calls to PrintDetailedOutput() for binary systems
+//                                          - remove m_PrintExtraDetailedOutput variable (and associated code) from BaseBinaryStar class
+//                                      - WIP: Todo: update documentation (for now, see documentation at top of Log.h)
+//                                      - Minor cleanup:
+//                                          - minor formatting and typo fixes
+//                                          - removed IncrementOmega() function from the BaseStar and Star classes (anti-patterm and no longer used - if it ever was)
+//                                          - tidied up description of MainSequence::UpdateMinimumCoreMass()
 
 const std::string VERSION_STRING = "02.32.00";
 

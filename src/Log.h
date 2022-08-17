@@ -321,9 +321,9 @@ using std::string;
  * Record Types
  * ============
  * 
- * All standard logfiles now have a record type property (column).  The record type property is of type
- * LOGRECORDTYPE, which is a typedef for unsigned int (unsigned int allows up to 4294967296 different 
- * integer record types (per standard log file - that should be plenty...).
+ * All standard logfiles, except the switch log files, now have a record type property (column).  The record
+ * type property is of type LOGRECORDTYPE, which is a typedef for unsigned int (unsigned int allows up to 
+ * 4294967296 different integer record types (per standard log file - that should be plenty...).
  * 
  * The record type property can be used to idenitify and filter records within a standard log file.  The
  * functionality was introduced primarily to support different types of records in the detailed output files

@@ -318,49 +318,61 @@ constexpr int    HDF5_MINIMUM_CHUNK_SIZE                = 1000;                 
 typedef unsigned int LOGRECORDTYPE;
 
 enum class BE_BINARY_RECORD_TYPE: unsigned int {                                                                    // BSE_BE_BINARIES file record type
-    STANDARD                                                                                                        // 0 - default BSE_BE_BINARIES file record type
+    DEFAULT                                                                                                         // 0 - default BSE_BE_BINARIES file record type
 };
 
 enum class CE_RECORD_TYPE: unsigned int {                                                                           // BSE_COMMON_ENVELOPES file record type
-    STANDARD                                                                                                        // 0 - default BSE_COMMON_ENVELOPES file record type
+    DEFAULT                                                                                                         // 0 - default BSE_COMMON_ENVELOPES file record type
 };
 
 enum class DCO_RECORD_TYPE: unsigned int {                                                                          // BSE_DOUBLE_COMPACT_OBJECTS file record type
-    STANDARD                                                                                                        // 0 - default BSE_DOUBLE_COMPACT_OBJECTS file record type
+    DEFAULT                                                                                                         // 0 - default BSE_DOUBLE_COMPACT_OBJECTS file record type
 };
 
 enum class PULSAR_RECORD_TYPE: unsigned int {                                                                       // BSE_PULSAR_EVOLUTION file record type
-    STANDARD                                                                                                        // 0 - default BSE_PULSAR_EVOLUTION file record type
+    DEFAULT                                                                                                         // 0 - default BSE_PULSAR_EVOLUTION file record type
 };
 
 enum class RLOF_RECORD_TYPE: unsigned int {                                                                         // BSE_RLOF_PARAMETERS file record type
-    STANDARD                                                                                                        // 0 - default BSE_RLOF_PARAMETERS file record type
+    DEFAULT                                                                                                         // 0 - default BSE_RLOF_PARAMETERS file record type
 };
 
 enum class BSE_DETAILED_RECORD_TYPE: unsigned int {                                                                 // BSE_DETAILED_OUTPUT file record type
-    STANDARD,                                                                                                       // 0 - default BSE_DETAILED_OUTPUT record type
-    INTRA_TIMESTEP                                                                                                  // 1 - indicates record logged intra-timestep
+    INITIAL_STATE,                                                                                                  //  0 - record describes the initial state of the binary
+    POST_STELLAR_TIMESTEP,                                                                                          //  1 - record was logged immediately following stellar timestep (i.e. the evolution of the constituent stars for a single timestep)
+    POST_BINARY_TIMESTEP,                                                                                           //  2 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
+    TIMESTEP_COMPLETED,                                                                                             //  3 - record was logged immediately following the completion of the timestep (after all changes to the binary and components)
+    FINAL_STATE,                                                                                                    //  4 - record describes the final state of the binary
+    STELLAR_TYPE_CHANGE_DURING_CEE,                                                                                 //  5 - record was logged immediately following a stellar type change during a common envelope event
+    STELLAR_TYPE_CHANGE_DURING_MT,                                                                                  //  6 - record was logged immediately following a stellar type change during a mass transfer event
+    STELLAR_TYPE_CHANGE_DURING_MASS_RESOLUTION,                                                                     //  7 - record was logged immediately following a stellar type change during mass resolution
+    STELLAR_TYPE_CHANGE_DURING_CHE_EQUILIBRATION,                                                                   //  8 - record was logged immediately following a stellar type change during mass equilibration for CHE
+    POST_MT,                                                                                                        //  9 - record was logged immediately following a mass transfer event
+    POST_WINDS,                                                                                                     // 10 - record was logged immediately following winds mass loss
+    POST_CEE,                                                                                                       // 11 - record was logged immediately following a common envelope event
+    POST_SN,                                                                                                        // 12 - record was logged immediately following a supernova event
+    POST_MASS_RESOLUTION,                                                                                           // 13 - record was logged immediately following mass resolution (ie. after winds mass loss & mass transfer complete)
+    POST_MASS_RESOLUTION_MERGER                                                                                     // 14 - record was logged immediately following a merger after mass resolution
 };
 
 enum class SSE_DETAILED_RECORD_TYPE: unsigned int {                                                                 // SSE_DETAILED_OUTPUT file record type
-    STANDARD,                                                                                                       // 0 - default SSE_DETAILED_OUTPUT record type
-    INTRA_TIMESTEP                                                                                                  // 1 - indicates record logged intra-timestep
+    DEFAULT                                                                                                         // 0 - default SSE_DETAILED_OUTPUT record type
 };
 
 enum class BSE_SN_RECORD_TYPE: unsigned int {                                                                       // BSE_SUPERNOVAE file record type
-    STANDARD                                                                                                        // 0 - default BSE_SUPERNOVAE file record type
+    DEFAULT                                                                                                         // 0 - default BSE_SUPERNOVAE file record type
 };
 
 enum class SSE_SN_RECORD_TYPE: unsigned int {                                                                       // SSE_SUPERNOVAE file record type
-    STANDARD                                                                                                        // 0 - default SSE_SUPERNOVAE file record type
+    DEFAULT                                                                                                         // 0 - default SSE_SUPERNOVAE file record type
 };
 
 enum class BSE_SYSPARMS_RECORD_TYPE: unsigned int {                                                                 // BSE_SYSTEM_PARAMETERS file record type
-    STANDARD                                                                                                        // 0 - default BSE_SYSTEM_PARAMETERS file record type
+    DEFAULT                                                                                                         // 0 - default BSE_SYSTEM_PARAMETERS file record type
 };
 
 enum class SSE_SYSPARMS_RECORD_TYPE: unsigned int {                                                                 // SSE_SYSTEM_PARAMETERS file record type
-    STANDARD                                                                                                        // 0 - default SSE_SYSTEM_PARAMETERS file record type
+    DEFAULT                                                                                                         // 0 - default SSE_SYSTEM_PARAMETERS file record type
 };
 
 // option constraints
