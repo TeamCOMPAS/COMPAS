@@ -1251,6 +1251,8 @@ double BaseStar::FindLambdaNanjingNearestMassIndex(const double p_Mass) const {
 /*
  * Calculate the Adiabatic Exponent per Hurley et al. 2002
  *
+ * This is only an approximation to Hurley+ (02), valid for small envelope giants.
+ * A more correct approach uses a value of x that varies with composition.
  *
  * double CalculateZadiabaticHurley2002(const double p_CoreMass) const
  *
