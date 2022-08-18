@@ -3737,6 +3737,11 @@ const std::map<int, COMPASUnorderedMap<AB_TCoeff, double>> A_COEFF = {
     {81, {{ALPHA,  2.493000E0 }, {BETA,  1.147500E0 }, {GAMMA,  0.000000E0 }, {ETA,  0.000000E0 }, {MU,  0.000000E0 }}}
 };
 
+// RTW
+const DBL_VECTOR GE_QAD_MASSES = { 0.1, 0.13, 0.16, 0.2, 0.22, 0.25, 0.28, 0.32, 0.36, 0.4, 0.45, 0.5, 0.56, 0.63, 0.71, 0.8, 0.89, 1.0, 1.14, 1.3, 1.439, 1.6, 1.8, 2.0, 2.04, 2.5, 3.2, 4.0, 5.0, 6.3, 8.0, 10.0, 13.0, 16.0, 20.0, 25.0, 32.0, 40.0, 50.0, 63.0, 80.0, 100.0 };
+const std::map<double, std::vector<std::tuple<double, double>> DBL_DBL> QCRIT_GE15 = {
+ { mass, {{rad1, q1}, {rad2, q2}} etc.
+};
 
 // B coefficients
 // Table in Appendix A of Hurley et al. 2000
