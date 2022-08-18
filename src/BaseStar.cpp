@@ -1155,6 +1155,58 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass,
 }
 
 
+// RTW
+/* 
+ * Interpolate Ge+15 Critical Mass Ratios
+ * 
+ * 
+ * double BaseStar::CalculateInterpolatedQCritGe2015()
+ * 
+ * @param   [IN]    p_Mass                      Mass / Msun to evaluate lambda with
+ * @return                                      Critical mass ratio for given stellar mass / radius
+ */ 
+double BaseStar::CalculateInterpolatedQCritGe2015() const {
+
+    double qCrit = 0.0;
+    m_Mass; m_Radius;
+
+    // Get vector of masses from QCRIT_GE15 TODO
+    std::vector<double> massesFromQcrit15 = ...;
+
+    std::vector<double> indM = utils::binarySearch(massesFromQcrit15, m_Mass);
+    int lowerMassBound = indM[0];
+    int upperMassBound = indM[1];
+
+    std::map<double, double> lowerMassMapRadiusQcrit = QCRIT_GE15[lowerMassBound];
+    std::map<double, double> upperMassMapRadiusQcrit = QCRIT_GE15[upperMassBound];
+
+    // Get vector of radii from QCRIT_GE15[mass] for both massLo and massHi
+    std::vector<double> radiiFromGe15QcritLowerMass = ...;
+    std::vector<double> radiiFromGe15QcritUpperMass = ...;
+
+    std::vector<double> indR0 = utils::binarySearch(radiiFromGe15QcritLowerMass, m_Radius);
+    double lowerRadiusLowerMassBound = indR0[0];
+    double upperRadiusLowerMassBound = indR0[1];
+    double qLowLow = QCRIT_GE15[lowerMassBound][lowerRadiusLowerMassBound];
+    double qLowUpp = QCRIT_GE15[lowerMassBound][upperRadiusLowerMassBound];
+    
+    std::vector<double> indR1 = utils::binarySearch(radiiFromGe15QcritUpperMass, m_Radius);
+    double lowerRadiusUpperMassBound = indR1[0];
+    double upperRadiusUpperMassBound = indR1[1];
+    double qUppLow = QCRIT_GE15[upperMassBound][lowerRadiusUpperMassBound];
+    double qUppUpp = QCRIT_GE15[upperMassBound][upperRadiusUpperMassBound];
+
+    // Interpolate on the radii first, then the masses
+
+    double qCritLowerMass = qLowLow + (upperRadiusLowerMassBound - m_Radius)/(upperRadiusLowerMassBound - lowerRadiusLowerMassBoundd) * (qLowUpp - qLowLow);
+    double qCritUpperMass = qUppLow + (upperRadiusUpperMassBound - m_Radius)/(upperRadiusUpperMassBound - lowerRadiusUpperMassBoundd) * (qUppUpp - qUppLow);
+        
+    qCrit = qCritLowerMass + (upperMassBound - m_Mass)/(upperMassBound - lowerMassBound) * (qCritUpperMass - qCritLowerMass);
+
+    return qCrit;
+
+}
+
 /* 
  * Interpolate Nanjing lambda in mass for a given metallicity
  * 
