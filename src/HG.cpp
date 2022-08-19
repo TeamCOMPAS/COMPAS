@@ -936,11 +936,9 @@ bool HG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorI
 
     bool result = false;                                                                                                    // default is stable
 
-    if (OPTIONS->MassTransferCriticalMassRatioHG()) {
-        result = p_AccretorIsDegenerate
-                    ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGDegenerateAccretor()              // degenerate accretor
-                    : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGNonDegenerateAccretor();          // non-degenerate accretor
-    }
+    result = p_AccretorIsDegenerate
+                ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGDegenerateAccretor()              // degenerate accretor
+                : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGNonDegenerateAccretor();          // non-degenerate accretor
 
     return result;
 }

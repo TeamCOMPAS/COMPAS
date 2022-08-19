@@ -367,11 +367,9 @@ bool HeHG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_Accreto
 
     bool result = false;                                                                                                    // default is stable
 
-    if (OPTIONS->MassTransferCriticalMassRatioHeliumHG()) {
-        result = p_AccretorIsDegenerate
-                    ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHeliumHGDegenerateAccretor()        // degenerate accretor
-                    : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor();    // non-degenerate accretor
-    }
+    result = p_AccretorIsDegenerate
+                ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHeliumHGDegenerateAccretor()        // degenerate accretor
+                : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor();    // non-degenerate accretor
 
     return result;
 }
