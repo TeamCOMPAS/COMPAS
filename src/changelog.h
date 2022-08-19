@@ -926,6 +926,7 @@
 //                                      - Added option to set the Temperature boundary between convective/radiative giant envelopes
 // 02.32.00     RTW - Aug 13, 2022   - Enhancement:
 //                                      - Added critical mass ratios from Claeys+ 2014 for determining if MT is unstable
+//                                      - Cleaned up stability check functions in BaseBinaryStar.cpp for clarity, and to allow for critical mass ratios to be checked correctly
 
 const std::string VERSION_STRING = "02.32.00";
 
