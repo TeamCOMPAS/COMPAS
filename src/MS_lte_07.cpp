@@ -55,11 +55,9 @@ bool MS_lte_07::IsMassRatioUnstable(const double p_AccretorMass, const bool p_Ac
 
     bool result = false;                                                                                                    // default is stable
 
-    if (OPTIONS->MassTransferCriticalMassRatioMSLowMass()) {
-        result = p_AccretorIsDegenerate
-                    ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioMSLowMassDegenerateAccretor()       // degenerate accretor
-                    : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor();   // non-degenerate accretor
-    }
+    result = p_AccretorIsDegenerate
+                ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioMSLowMassDegenerateAccretor()       // degenerate accretor
+                : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor();   // non-degenerate accretor
 
     return result;
 }

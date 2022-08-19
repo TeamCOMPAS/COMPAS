@@ -201,6 +201,93 @@ VINK_MASS_LOSS_MINIMUM_TEMP (default 12500K). |br|
 Only applicable when ``--mass-loss-prescription = VINK``. |br|
 Default = 1.0
 
+**--critical-mass-ratio-HG-degenerate-accretor** |br|
+Critical mass ratio for MT from a HG star to a degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 0.210000
+
+**--critical-mass-ratio-HG-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a HG star to a non-degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 0.250000
+
+**--critical-mass-ratio-MS-high-mass-degenerate-accretor** |br|
+Critical mass ratio for MT from a MS star to a degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 0.000000
+
+**--critical-mass-ratio-MS-high-mass-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a MS star to a non-degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 0.625000
+
+**--critical-mass-ratio-MS-low-mass-degenerate-accretor** |br|
+Critical mass ratio for MT from a MS star to a degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 0.000000
+
+**--critical-mass-ratio-MS-low-mass-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a MS star to a non-degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 1.440000
+
+**--critical-mass-ratio-giant-degenerate-accretor** |br|
+Critical mass ratio for MT from a giant star to a degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 0.870000
+
+**--critical-mass-ratio-giant-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a giant star to a non-degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 0.000000
+
+**--critical-mass-ratio-helium-HG-degenerate-accretor** |br|
+Critical mass ratio for MT from a helium HG star to a degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 0.210000
+
+**--critical-mass-ratio-helium-HG-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a helium HG star to a non-degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 0.250000
+
+**--critical-mass-ratio-helium-MS-degenerate-accretor** |br|
+Critical mass ratio for MT from a helium MS star to a degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 0.000000
+
+**--critical-mass-ratio-helium-MS-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a helium MS star to a non-degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 0.000000
+
+**--critical-mass-ratio-helium-giant-degenerate-accretor** |br|
+Critical mass ratio for MT from a helium giant star to a degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 0.870000
+
+**--critical-mass-ratio-helium-giant-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a helium giant star to a non-degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 1.280000
+
+**--critical-mass-ratio-prescription** |br|
+Which critical mass ratio stability prescription to use (if any).
+Options: { NONE, CLAEYS } |br|
+``NONE`` defaults to the zeta prescription for stability, 
+``CLAEYS`` uses qCrit values from Claeys et al. 2014. |br|
+Default = NONE
+
+**--critical-mass-ratio-white-dwarf-degenerate-accretor** |br|
+Critical mass ratio for MT from a white dwarf to a degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 1.600000
+
+**--critical-mass-ratio-white-dwarf-non-degenerate-accretor** |br|
+Critical mass ratio for MT from a white dwarf to a non-degenerate accretor.
+0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+Default = 0.000000
+
 .. _options-props-D:
 
 :ref:`Back to Top <options-props-top>`
