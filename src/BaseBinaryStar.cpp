@@ -1848,91 +1848,83 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     double aFinal;                                                                                                              // semi-major axis in default units, AU, after next timestep
     double jLoss    = m_JLoss;                            		                                                                // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
 
-	// Check for stability from critical mass ratios
-	bool qCritFlag = 
-        (m_Donor->IsOneOf( {STELLAR_TYPE::MS_LTE_07} )                         && OPTIONS->MassTransferCriticalMassRatioMSLowMass()  ) || 
-        (m_Donor->IsOneOf( {STELLAR_TYPE::MS_GT_07} )                          && OPTIONS->MassTransferCriticalMassRatioMSHighMass() ) ||
-        (m_Donor->IsOneOf( {STELLAR_TYPE::HERTZSPRUNG_GAP} )                   && OPTIONS->MassTransferCriticalMassRatioHG()         ) || 
-        (m_Donor->IsOneOf( GIANTS )                                            && OPTIONS->MassTransferCriticalMassRatioGiant()      ) ||
-        (m_Donor->IsOneOf( {STELLAR_TYPE::NAKED_HELIUM_STAR_MS} )              && OPTIONS->MassTransferCriticalMassRatioHeliumGiant()) || 
-        (m_Donor->IsOneOf( {STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP} ) && OPTIONS->MassTransferCriticalMassRatioHeliumMS()   ) ||
-        (m_Donor->IsOneOf( {STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH} )    && OPTIONS->MassTransferCriticalMassRatioHeliumHG()   ) || 
-        (m_Donor->IsOneOf( WHITE_DWARFS )                                      && OPTIONS->MassTransferCriticalMassRatioWhiteDwarf() ) ;
+    // Calculate accretion fraction if stable
+    // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
+    std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(),
+                                                                                        m_Accretor->CalculateThermalMassAcceptanceRate(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL));
 
-    if (qCritFlag && m_Donor->IsMassRatioUnstable(m_Accretor->Mass(), m_Accretor->IsDegenerate()) ) {
-        m_CEDetails.CEEnow = true;
-        if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {
-            m_Flags.stellarMerger = true;
-        }
+    if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {       // arbitrary angular momentum loss prescription?
+        jLoss = CalculateGammaAngularMomentumLoss();                                                                        // no - re-calculate angular momentum
     }
-    else {
+    m_ZetaLobe = CalculateZRocheLobe(jLoss);
+    m_ZetaStar = m_Donor->CalculateZeta(OPTIONS->StellarZetaPrescription());
 
-		// Begin Mass Transfer
-                
-        // Calculate accretion fraction
-        // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
-        std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(),
-                                                                                            m_Accretor->CalculateThermalMassAcceptanceRate(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL));
+    // Calculate conditions for automatic (in)stability for case BB
+    bool caseBBAlwaysStable           = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE;
+    bool caseBBAlwaysUnstable         = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE;
+    bool caseBBAlwaysUnstableOntoNSBH = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH;
+    bool donorIsHeHGorHeGB            = m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH });
+    bool accretorIsNSorBH             = m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE });
 
-        if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {       // arbitrary angular momentum loss prescription?
-            jLoss = CalculateGammaAngularMomentumLoss();                                                                        // no - re-calculate angular momentum
-        }
 
-        m_ZetaLobe = CalculateZRocheLobe(jLoss);
-        m_ZetaStar = m_Donor->CalculateZeta(OPTIONS->StellarZetaPrescription());
+    // Determine stability
+    bool isUnstable;
+    if (donorIsHeHGorHeGB && (caseBBAlwaysStable || caseBBAlwaysUnstable || (caseBBAlwaysUnstableOntoNSBH && accretorIsNSorBH))) { // Determine stability based on case BB 
+        isUnstable = (caseBBAlwaysUnstable || (caseBBAlwaysUnstableOntoNSBH && accretorIsNSorBH));                                 // Already established that donor is HeHG or HeGB - need to check if new case BB prescriptions are added
+    } 
+    else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::NONE) {                                                           // Determine stability based on critical mass ratios
+        isUnstable = m_Donor->IsMassRatioUnstable(m_Accretor->Mass(), m_Accretor->IsDegenerate());
+    }
+    else {                                                                                                                         // Determine stability based on zetas
+        isUnstable = (utils::Compare(m_ZetaStar, m_ZetaLobe) < 0);
+    }
 
-        bool caseBBAlwaysStable           = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE;
-        bool caseBBAlwaysUnstable         = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE;
-        bool caseBBAlwaysUnstableOntoNSBH = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH;
 
-        bool donorIsHeHGorHeGB            = m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH });
-        bool accretorIsNSorBH             = m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE });
 
-        if ((utils::Compare(m_ZetaStar, m_ZetaLobe) > 0 && (!(caseBBAlwaysUnstable && donorIsHeHGorHeGB))) ||
-            (donorIsHeHGorHeGB && (caseBBAlwaysStable || (caseBBAlwaysUnstableOntoNSBH && accretorIsNSorBH)))) {                 // Stable MT
-            
-                m_MassTransferTrackerHistory = m_Donor==m_Star1 ? MT_TRACKING::STABLE_1_TO_2_SURV: MT_TRACKING::STABLE_2_TO_1_SURV; // record what happened - for later printing
-                double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
-
-                if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
-                    double mdEnvAccreted = envMassDonor * m_FractionAccreted;
-                    
-                    m_Donor->SetMassTransferDiff(-envMassDonor);
-                    m_Accretor->SetMassTransferDiff(mdEnvAccreted);
-
-                    STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                     // donor stellar type before resolving envelope loss
-                    
-                    aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, *m_Accretor, m_FractionAccreted);
-                    
-                    m_Donor->ResolveEnvelopeLossAndSwitch();                                                                    // only other interaction that adds/removes mass is winds, so it is safe to update star here
-                    
-                    if (m_Donor->StellarType() != stellarTypeDonor) {                                                           // stellar type change?
-                        m_PrintExtraDetailedOutput = true;                                                                      // yes - print detailed output record
-                    }
-                }
-                else{                                                                                                           // donor has no envelope
-                    double dM = - MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
-                    m_Donor->UpdateMinimumCoreMass();                                                                           // update minimum core mass of possible MS donor
-                    m_Donor->SetMassTransferDiff(dM);                                                                           // mass transferred by donor
-                    m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted);                                                  // mass accreted by accretor
-                      
-                    aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), dM, *m_Accretor, m_FractionAccreted);
-                }
-                       
-
-                m_aMassTransferDiff = aFinal - aInitial;                                                                        // change in orbit (semi-major axis)
-                
-                // Check for stable mass transfer after any CEE
-                if (m_CEDetails.CEEcount > 0 && !m_RLOFDetails.stableRLOFPostCEE) {
-                    m_RLOFDetails.stableRLOFPostCEE = m_MassTransferTrackerHistory == MT_TRACKING::STABLE_2_TO_1_SURV ||
-                                                      m_MassTransferTrackerHistory == MT_TRACKING::STABLE_1_TO_2_SURV;
-                }
-        }
-        else {                                                                                                                  // Unstable Mass Transfer
+    // Evaluate separately for stable / unstable MT
+    if (isUnstable) {                                              // Unstable Mass Transfer
             m_CEDetails.CEEnow = true;
             if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {
                 m_Flags.stellarMerger = true;
             }
+    }
+    else {                                                      // Stable MT
+            
+        m_MassTransferTrackerHistory = m_Donor==m_Star1 ? MT_TRACKING::STABLE_1_TO_2_SURV: MT_TRACKING::STABLE_2_TO_1_SURV; // record what happened - for later printing
+        double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
+        
+        if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
+            double mdEnvAccreted = envMassDonor * m_FractionAccreted;
+            
+            m_Donor->SetMassTransferDiff(-envMassDonor);
+            m_Accretor->SetMassTransferDiff(mdEnvAccreted);
+        
+            STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                     // donor stellar type before resolving envelope loss
+            
+            aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, *m_Accretor, m_FractionAccreted);
+            
+            m_Donor->ResolveEnvelopeLossAndSwitch();                                                                    // only other interaction that adds/removes mass is winds, so it is safe to update star here
+            
+            if (m_Donor->StellarType() != stellarTypeDonor) {                                                           // stellar type change?
+                m_PrintExtraDetailedOutput = true;                                                                      // yes - print detailed output record
+            }
+        }
+        else{                                                                                                           // donor has no envelope
+            double dM = - MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
+            m_Donor->UpdateMinimumCoreMass();                                                                           // update minimum core mass of possible MS donor
+            m_Donor->SetMassTransferDiff(dM);                                                                           // mass transferred by donor
+            m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted);                                                  // mass accreted by accretor
+              
+            aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), dM, *m_Accretor, m_FractionAccreted);
+        }
+               
+        
+        m_aMassTransferDiff = aFinal - aInitial;                                                                        // change in orbit (semi-major axis)
+        
+        // Check if this was stable mass transfer after a CEE
+        if (m_CEDetails.CEEcount > 0 && !m_RLOFDetails.stableRLOFPostCEE) {
+            m_RLOFDetails.stableRLOFPostCEE = m_MassTransferTrackerHistory == MT_TRACKING::STABLE_2_TO_1_SURV ||
+                                              m_MassTransferTrackerHistory == MT_TRACKING::STABLE_1_TO_2_SURV;
         }
     }
     

@@ -71,11 +71,9 @@ bool MS_gt_07::IsMassRatioUnstable(const double p_AccretorMass, const bool p_Acc
 
     bool result = false;                                                                                                    // default is stable
 
-    if (OPTIONS->MassTransferCriticalMassRatioMSHighMass()) {
-        result = p_AccretorIsDegenerate
-                    ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioMSHighMassDegenerateAccretor()      // degenerate accretor
-                    : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor();  // non-degenerate accretor
-    }
+    result = p_AccretorIsDegenerate
+                ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioMSHighMassDegenerateAccretor()      // degenerate accretor
+                : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor();  // non-degenerate accretor
 
     return result;
 }
