@@ -145,7 +145,7 @@ void Options::OptionValues::Initialise() {
     m_EnableWarnings                                                = false;
 
 	m_BeBinaries                                                    = false;
-        m_HMXRBinaries                                                  = false;
+    m_HMXRBinaries                                                  = false;
 
     m_EvolvePulsars                                                 = false;
 	m_EvolveUnboundSystems                                          = false;
@@ -394,35 +394,29 @@ void Options::OptionValues::Initialise() {
     // Mass transfer critical mass ratios - defined here as (accretor mass / donor mass)
     // A value of 0.0 means the mass ratio will never be unstable - this does not guaruntee stability of the MT, just that instability is not based on the mass ratio
 
-    m_MassTransferCriticalMassRatioMSLowMass                        = false;
+    m_QCritPrescription.type                                        = QCRIT_PRESCRIPTION::NONE;                             // Assume no critical mass ratio prescription
+    m_QCritPrescription.typeString                                  = QCRIT_PRESCRIPTION_LABEL.at(m_QCritPrescription.type);
     m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor   = 1.44;                                                 // Claeys+ 2014 = 1.44
     m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor      = 0.0;                                                  // Claeys+ 2014 = unspecified
 
-    m_MassTransferCriticalMassRatioMSHighMass                       = false;
     m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor  = 0.625;                                                // Claeys+ 2014 = 0.625
     m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor     = 0.0;                                                  // Claeys+ 2014 = unspecified
 
-    m_MassTransferCriticalMassRatioHG                               = false;
     m_MassTransferCriticalMassRatioHGNonDegenerateAccretor          = 0.25;                                                 // Claeys+ 2014 = 0.25
     m_MassTransferCriticalMassRatioHGDegenerateAccretor             = 0.21;                                                 // Claeys+ 2014 = 0.21
 
-    m_MassTransferCriticalMassRatioGiant                            = false;
     m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor       = 0.0;                                                  // Claeys+ 2014 = an equation in mass-radius exponent and core mass - equivalent to Hurley zeta adiabatic definition
     m_MassTransferCriticalMassRatioGiantDegenerateAccretor          = 0.87;                                                 // Claeys+ 2014 = 0.87
 
-    m_MassTransferCriticalMassRatioHeliumMS                         = false;
     m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor    = 0.0;                                                  // Claeys+ 2014 = unspecified - this used to be 0.625?
     m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor       = 0.0;                                                  // Claeys+ 2014 = unspecified
 
-    m_MassTransferCriticalMassRatioHeliumHG                         = false;
     m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor    = 0.25;                                                 // Claeys+ 2014 = 0.25
     m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor       = 0.21;                                                 // Claeys+ 2014 = 0.21
 
-    m_MassTransferCriticalMassRatioHeliumGiant                      = false;
     m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor = 1.28;                                                 // Claeys+ 2014 = 1.28
     m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor    = 0.87;                                                 // Claeys+ 2014 = 0.87
 
-    m_MassTransferCriticalMassRatioWhiteDwarf                       = false;
 	m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor  = 0.0;                                                  // Claeys+ 2014 = unspecified
     m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor     = 1.6;                                                  // Claeys+ 2014 = 1.6
 
@@ -807,46 +801,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Print switch log to file (default = " + std::string(p_Options->m_SwitchLog ? "TRUE" : "FALSE") + ")").c_str()
         )
 
-		(
-			"use-critical-mass-ratio-ms-low-mass",
-			po::value<bool>(&p_Options->m_MassTransferCriticalMassRatioMSLowMass)->default_value(p_Options->m_MassTransferCriticalMassRatioMSLowMass)->implicit_value(true),
-			("Use critical mass ratio for MT from a low mass MS star (default = " + std::string(p_Options->m_MassTransferCriticalMassRatioMSLowMass ? "TRUE" : "FALSE") + ")").c_str()
-		)
-		(
-			"use-critical-mass-ratio-ms-high-mass",
-			po::value<bool>(&p_Options->m_MassTransferCriticalMassRatioMSHighMass)->default_value(p_Options->m_MassTransferCriticalMassRatioMSHighMass)->implicit_value(true),
-			("Use critical mass ratio for MT from a high mass MS star (default = " + std::string(p_Options->m_MassTransferCriticalMassRatioMSHighMass ? "TRUE" : "FALSE") + ")").c_str()
-		)
-        (
-            "use-critical-mass-ratio-giant",
-            po::value<bool>(&p_Options->m_MassTransferCriticalMassRatioGiant)->default_value(p_Options->m_MassTransferCriticalMassRatioGiant)->implicit_value(true),
-            ("Use critical mass ratio for MT from a giant star (default = " + std::string(p_Options->m_MassTransferCriticalMassRatioGiant ? "TRUE" : "FALSE") + ")").c_str()
-        )
-		(
-			"use-critical-mass-ratio-hg",
-			po::value<bool>(&p_Options->m_MassTransferCriticalMassRatioHG)->default_value(p_Options->m_MassTransferCriticalMassRatioHG)->implicit_value(true),
-			("Use critical mass ratio for MT from a HG star (default = " + std::string(p_Options->m_MassTransferCriticalMassRatioHG ? "TRUE" : "FALSE") + ")").c_str()
-		)
-		(
-			"use-critical-mass-ratio-helium-giant",
-			po::value<bool>(&p_Options->m_MassTransferCriticalMassRatioHeliumGiant)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumGiant)->implicit_value(true),
-			("Use critical mass ratio for MT from a HeGB star (default = " + std::string(p_Options->m_MassTransferCriticalMassRatioHeliumGiant ? "TRUE" : "FALSE") + ")").c_str()
-		)
-		(
-			"use-critical-mass-ratio-helium-hg",
-			po::value<bool>(&p_Options->m_MassTransferCriticalMassRatioHeliumHG)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumHG)->implicit_value(true),
-			("Use critical mass ratio for MT from a HeHG star (default = " + std::string(p_Options->m_MassTransferCriticalMassRatioHeliumHG ? "TRUE" : "FALSE") + ")").c_str()
-		)
-		(
-			"use-critical-mass-ratio-helium-ms",
-			po::value<bool>(&p_Options->m_MassTransferCriticalMassRatioHeliumMS)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumMS)->implicit_value(true),
-			("Use critical mass ratio for MT from a HeMS star (default = " + std::string(p_Options->m_MassTransferCriticalMassRatioHeliumMS ? "TRUE" : "FALSE") + ")").c_str()
-		)
-		(
-			"use-critical-mass-ratio-white-dwarf",
-			po::value<bool>(&p_Options->m_MassTransferCriticalMassRatioWhiteDwarf)->default_value(p_Options->m_MassTransferCriticalMassRatioWhiteDwarf)->implicit_value(true),
-			("Use critical mass ratio for MT from a WD star (default = " + std::string(p_Options->m_MassTransferCriticalMassRatioWhiteDwarf ? "TRUE" : "FALSE") + ")").c_str()
-		)
         (
             "use-mass-loss",                                               
             po::value<bool>(&p_Options->m_UseMassLoss)->default_value(p_Options->m_UseMassLoss)->implicit_value(true),                                                                            
@@ -1476,6 +1430,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_CommonEnvelopeMassAccretionPrescription.typeString)->default_value(p_Options->m_CommonEnvelopeMassAccretionPrescription.typeString),                            
             ("Assumption about whether NS/BHs can accrete mass during common envelope evolution (options: [ZERO, CONSTANT, UNIFORM, MACLEOD], default = " + p_Options->m_CommonEnvelopeMassAccretionPrescription.typeString + ")").c_str()
         )
+
+        (
+            "critical-mass-ratio-prescription",                                 
+            po::value<std::string>(&p_Options->m_QCritPrescription.typeString)->default_value(p_Options->m_QCritPrescription.typeString),
+            ("Prescription for which critical mass ratio prescription to use, if any (options: [NONE, CLAEYS], default = " + p_Options->m_QCritPrescription.typeString + ")").c_str()
+        )
         
         (
             "eccentricity-distribution",                                 
@@ -1942,6 +1902,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (!DEFAULTED("common-envelope-mass-accretion-prescription")) {                                                            // common envelope mass accretion prescription
             std::tie(found, m_CommonEnvelopeMassAccretionPrescription.type) = utils::GetMapKey(m_CommonEnvelopeMassAccretionPrescription.typeString, CE_ACCRETION_PRESCRIPTION_LABEL, m_CommonEnvelopeMassAccretionPrescription.type);
             COMPLAIN_IF(!found, "Unknown CE Mass Accretion Prescription");
+        }
+
+        if (!DEFAULTED("critical-mass-ratio-prescription")) {                                                                       // critical mass ratio prescription
+            std::tie(found, m_QCritPrescription.type) = utils::GetMapKey(m_QCritPrescription.typeString, QCRIT_PRESCRIPTION_LABEL, m_QCritPrescription.type);
+            COMPLAIN_IF(!found, "Unknown qCrit Prescription");
         }
             
         if (!DEFAULTED("envelope-state-prescription")) {                                                                            // envelope state prescription
@@ -4188,28 +4153,20 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION                   : value = static_cast<int>(MassTransferAngularMomentumLossPrescription());      break;
         case PROGRAM_OPTION::MT_THERMAL_LIMIT_C                             : value = MassTransferCParameter();                                             break;
 
-        case PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS                         : value = MassTransferCriticalMassRatioMSLowMass();                             break;
         case PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS_DEGENERATE_ACCRETOR     : value = MassTransferCriticalMassRatioMSLowMassDegenerateAccretor();           break;
         case PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS_NON_DEGENERATE_ACCRETOR : value = MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor();        break;
-        case PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS                        : value = MassTransferCriticalMassRatioMSHighMass();                            break;
         case PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS_DEGENERATE_ACCRETOR    : value = MassTransferCriticalMassRatioMSHighMassDegenerateAccretor();          break;
         case PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS_NON_DEGENERATE_ACCRETOR: value = MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor();       break;
-        case PROGRAM_OPTION::MT_CRIT_MR_GIANT                               : value = MassTransferCriticalMassRatioGiant();                                 break;
         case PROGRAM_OPTION::MT_CRIT_MR_GIANT_DEGENERATE_ACCRETOR           : value = MassTransferCriticalMassRatioGiantDegenerateAccretor();               break;
         case PROGRAM_OPTION::MT_CRIT_MR_GIANT_NON_DEGENERATE_ACCRETOR       : value = MassTransferCriticalMassRatioGiantNonDegenerateAccretor();            break;
-        case PROGRAM_OPTION::MT_CRIT_MR_HG                                  : value = MassTransferCriticalMassRatioHG();                                    break;
         case PROGRAM_OPTION::MT_CRIT_MR_HG_DEGENERATE_ACCRETOR              : value = MassTransferCriticalMassRatioHGDegenerateAccretor();                  break;
         case PROGRAM_OPTION::MT_CRIT_MR_HG_NON_DEGENERATE_ACCRETOR          : value = MassTransferCriticalMassRatioHGNonDegenerateAccretor();               break;
-        case PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT                            : value = MassTransferCriticalMassRatioHeliumGiant();                           break;
         case PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_DEGENERATE_ACCRETOR        : value = MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor();         break;
         case PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_NON_DEGENERATE_ACCRETOR    : value = MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor();      break;
-        case PROGRAM_OPTION::MT_CRIT_MR_HE_HG                               : value = MassTransferCriticalMassRatioHeliumHG();                              break;
         case PROGRAM_OPTION::MT_CRIT_MR_HE_HG_DEGENERATE_ACCRETOR           : value = MassTransferCriticalMassRatioHeliumHGDegenerateAccretor();            break;
         case PROGRAM_OPTION::MT_CRIT_MR_HE_HG_NON_DEGENERATE_ACCRETOR       : value = MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor();         break;
-        case PROGRAM_OPTION::MT_CRIT_MR_HE_MS                               : value = MassTransferCriticalMassRatioHeliumMS();                              break;
         case PROGRAM_OPTION::MT_CRIT_MR_HE_MS_DEGENERATE_ACCRETOR           : value = MassTransferCriticalMassRatioHeliumMSDegenerateAccretor();            break;
         case PROGRAM_OPTION::MT_CRIT_MR_HE_MS_NON_DEGENERATE_ACCRETOR       : value = MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor();         break;
-        case PROGRAM_OPTION::MT_CRIT_MR_WD                                  : value = MassTransferCriticalMassRatioWhiteDwarf();                            break;
         case PROGRAM_OPTION::MT_CRIT_MR_WD_DEGENERATE_ACCRETOR              : value = MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor();          break;
         case PROGRAM_OPTION::MT_CRIT_MR_WD_NONDEGENERATE_ACCRETOR           : value = MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor();       break;
 
@@ -4256,6 +4213,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::PPI_PRESCRIPTION                               : value = static_cast<int>(PulsationalPairInstabilityPrescription());           break;
         case PROGRAM_OPTION::PPI_LOWER_LIMIT                                : value = PulsationalPairInstabilityLowerLimit();                               break;
         case PROGRAM_OPTION::PPI_UPPER_LIMIT                                : value = PulsationalPairInstabilityUpperLimit();                               break;
+
+        case PROGRAM_OPTION::QCRIT_PRESCRIPTION                             : value = static_cast<int>(QCritPrescription());                                break;
 
         case PROGRAM_OPTION::RANDOM_SEED                                    : value = RandomSeed();                                                         break;
         case PROGRAM_OPTION::RANDOM_SEED_CMDLINE                            : value = RandomSeedCmdLine();                                                  break;
