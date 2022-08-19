@@ -1165,43 +1165,53 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass,
  * @param   [IN]    p_Mass                      Mass / Msun to evaluate lambda with
  * @return                                      Critical mass ratio for given stellar mass / radius
  */ 
-double BaseStar::CalculateInterpolatedQCritGe2015() const {
+double BaseStar::CalculateInterpolatedQCritGe2015() {
 
     double qCrit = 0.0;
     m_Mass; m_Radius;
 
     // Get vector of masses from QCRIT_GE15 TODO
-    std::vector<double> massesFromQcrit15 = ...;
+    std::vector<double> massesFromQcrit15 = std::get<0>(QCRIT_GE15);
+    std::vector< std::tuple<std::vector<double>, std::vector<double>>> radiiAndQCritsFromQcrit15 = std::get<1>(QCRIT_GE15);
 
-    std::vector<double> indM = utils::binarySearch(massesFromQcrit15, m_Mass);
-    int lowerMassBound = indM[0];
-    int upperMassBound = indM[1];
+    std::vector<int> ind = utils::binarySearch(massesFromQcrit15, m_Mass);
+    int lowerMassInd = ind[0];
+    int upperMassInd = ind[1];
 
-    std::map<double, double> lowerMassMapRadiusQcrit = QCRIT_GE15[lowerMassBound];
-    std::map<double, double> upperMassMapRadiusQcrit = QCRIT_GE15[upperMassBound];
+    //std::tuple<std::vector<double>, std::vector<double>> logRadiusAndMassRatio;
+    std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiAndQCritsFromQcrit15[lowerMassInd]);
+    std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiAndQCritsFromQcrit15[upperMassInd]);
+    std::vector<double> qCritVectorLowerMass     = std::get<1>(radiiAndQCritsFromQcrit15[lowerMassInd]);
+    std::vector<double> qCritVectorUpperMass     = std::get<1>(radiiAndQCritsFromQcrit15[upperMassInd]);
 
-    // Get vector of radii from QCRIT_GE15[mass] for both massLo and massHi
-    std::vector<double> radiiFromGe15QcritLowerMass = ...;
-    std::vector<double> radiiFromGe15QcritUpperMass = ...;
+    // Get vector of radii from QCRIT_GE15 for both lower and upper masses
 
-    std::vector<double> indR0 = utils::binarySearch(radiiFromGe15QcritLowerMass, m_Radius);
-    double lowerRadiusLowerMassBound = indR0[0];
-    double upperRadiusLowerMassBound = indR0[1];
-    double qLowLow = QCRIT_GE15[lowerMassBound][lowerRadiusLowerMassBound];
-    double qLowUpp = QCRIT_GE15[lowerMassBound][upperRadiusLowerMassBound];
-    
-    std::vector<double> indR1 = utils::binarySearch(radiiFromGe15QcritUpperMass, m_Radius);
-    double lowerRadiusUpperMassBound = indR1[0];
-    double upperRadiusUpperMassBound = indR1[1];
-    double qUppLow = QCRIT_GE15[upperMassBound][lowerRadiusUpperMassBound];
-    double qUppUpp = QCRIT_GE15[upperMassBound][upperRadiusUpperMassBound];
+    std::vector<int> indR0 = utils::binarySearch(logRadiusVectorLowerMass, log10(m_Radius));
+    double lowerRadiusLowerMassInd = indR0[0];
+    double upperRadiusLowerMassInd = indR0[1];
 
+    std::vector<int> indR1 = utils::binarySearch(logRadiusVectorUpperMass, log10(m_Radius));
+    double lowerRadiusUpperMassInd = indR1[0];
+    double upperRadiusUpperMassInd = indR1[1];
+
+    // Set the 4 qCrit boundary points for the 2D interpolation
+    double qLowLow = qCritVectorLowerMass[lowerRadiusLowerMassInd];
+    double qLowUpp = qCritVectorLowerMass[upperRadiusLowerMassInd];
+    double qUppLow = qCritVectorUpperMass[lowerRadiusUpperMassInd];
+    double qUppUpp = qCritVectorUpperMass[upperRadiusUpperMassInd];
+
+    double lowerMass = massesFromQcrit15[lowerMassInd];
+    double upperMass = massesFromQcrit15[upperMassInd];
+    double lowerRadiusLowerMass = pow(10, logRadiusVectorLowerMass[lowerRadiusLowerMassInd]);
+    double upperRadiusLowerMass = pow(10, logRadiusVectorLowerMass[upperRadiusLowerMassInd]);
+    double lowerRadiusUpperMass = pow(10, logRadiusVectorUpperMass[lowerRadiusUpperMassInd]);
+    double upperRadiusUpperMass = pow(10, logRadiusVectorUpperMass[upperRadiusUpperMassInd]);
     // Interpolate on the radii first, then the masses
 
-    double qCritLowerMass = qLowLow + (upperRadiusLowerMassBound - m_Radius)/(upperRadiusLowerMassBound - lowerRadiusLowerMassBoundd) * (qLowUpp - qLowLow);
-    double qCritUpperMass = qUppLow + (upperRadiusUpperMassBound - m_Radius)/(upperRadiusUpperMassBound - lowerRadiusUpperMassBoundd) * (qUppUpp - qUppLow);
+    double qCritLowerMass = qLowLow + (upperRadiusLowerMass - m_Radius)/(upperRadiusLowerMass - lowerRadiusLowerMass) * (qLowUpp - qLowLow);
+    double qCritUpperMass = qUppLow + (upperRadiusUpperMass - m_Radius)/(upperRadiusUpperMass - lowerRadiusUpperMass) * (qUppUpp - qUppLow);
         
-    qCrit = qCritLowerMass + (upperMassBound - m_Mass)/(upperMassBound - lowerMassBound) * (qCritUpperMass - qCritLowerMass);
+    qCrit = qCritLowerMass + (upperMass - m_Mass)/(upperMass - lowerMass) * (qCritUpperMass - qCritLowerMass);
 
     return qCrit;
 
