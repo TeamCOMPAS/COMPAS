@@ -310,25 +310,6 @@ private:
         "common-envelope-recombination-energy-density",
         "common-envelope-slope-kruckow",
 
-        /*
-        "critical-mass-ratio-giant-degenerate-accretor",
-        "critical-mass-ratio-giant-non-degenerate-accretor",
-        "critical-mass-ratio-helium-giant-degenerate-accretor",
-        "critical-mass-ratio-helium-giant-non-degenerate-accretor",
-        "critical-mass-ratio-helium-hg-degenerate-accretor",
-        "critical-mass-ratio-helium-hg-non-degenerate-accretor",
-        "critical-mass-ratio-helium-ms-degenerate-accretor",
-        "critical-mass-ratio-helium-ms-non-degenerate-accretor",
-        "critical-mass-ratio-hg-degenerate-accretor",
-        "critical-mass-ratio-hg-non-degenerate-accretor",
-        "critical-mass-ratio-ms-high-mass-degenerate-accretor",
-        "critical-mass-ratio-ms-high-mass-non-degenerate-accretor",
-        "critical-mass-ratio-ms-low-mass-degenerate-accretor",
-        "critical-mass-ratio-ms-low-mass-non-degenerate-accretor",
-        "critical-mass-ratio-white-dwarf-degenerate-accretor",
-        "critical-mass-ratio-white-dwarf-non-degenerate-accretor",
-        */
-
         "eccentricity", "e",
         "eccentricity-distribution",
         "eccentricity-max",
