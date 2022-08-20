@@ -1261,7 +1261,7 @@ double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) const{
     if (utils::Compare(p_CoreMass, m_Mass) >= 0) return 0.0;    // If the object is all core, the calculation is meaningless
 
     double m = p_CoreMass / m_Mass;
-    double x = -0.3;                                            // Depends on composition, should use x from Hurley et al 2000
+    double x = BaseStar::CalculateGBRadiusXExponent();          // x from Hurley et al 2000, Eq. 47 - Depends on composition
     return -x + (2.0 * m * m * m * m * m);
 }
 

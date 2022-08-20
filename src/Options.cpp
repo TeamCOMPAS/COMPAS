@@ -405,7 +405,7 @@ void Options::OptionValues::Initialise() {
     m_MassTransferCriticalMassRatioHGNonDegenerateAccretor          = 0.25;                                                 // Claeys+ 2014 = 0.25
     m_MassTransferCriticalMassRatioHGDegenerateAccretor             = 0.21;                                                 // Claeys+ 2014 = 0.21
 
-    m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor       = 0.0;                                                  // Claeys+ 2014 = an equation in mass-radius exponent and core mass - equivalent to Hurley zeta adiabatic definition
+    m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor       = -1.0;                                                 // Value not used! Claeys+ 2014 uses an equation in mass-radius exponent and core mass (equivalent to Hurley zeta adiabatic definition), so if -1, this value is overwritten later
     m_MassTransferCriticalMassRatioGiantDegenerateAccretor          = 0.87;                                                 // Claeys+ 2014 = 0.87
 
     m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor    = 0.0;                                                  // Claeys+ 2014 = unspecified - this used to be 0.625?
