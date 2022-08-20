@@ -239,7 +239,7 @@ Default = 0.870000
 **--critical-mass-ratio-giant-non-degenerate-accretor** |br|
 Critical mass ratio for MT from a giant star to a non-degenerate accretor.
 0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
-Default = 0.000000
+Default shows -1, but this translates to a function of the core mass ratio, as described in Claeys+ 2014. 
 
 **--critical-mass-ratio-helium-HG-degenerate-accretor** |br|
 Critical mass ratio for MT from a helium HG star to a degenerate accretor.
