@@ -1873,6 +1873,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         isUnstable = (caseBBAlwaysUnstable || (caseBBAlwaysUnstableOntoNSBH && accretorIsNSorBH));                                 // Already established that donor is HeHG or HeGB - need to check if new case BB prescriptions are added
     } 
     else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::NONE) {                                                           // Determine stability based on critical mass ratios
+        // RTW need to set this appropriately
         isUnstable = m_Donor->IsMassRatioUnstable(m_Accretor->Mass(), m_Accretor->IsDegenerate());
     }
     else {                                                                                                                         // Determine stability based on zetas
