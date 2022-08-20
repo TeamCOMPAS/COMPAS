@@ -1167,12 +1167,9 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass,
  */ 
 double BaseStar::CalculateInterpolatedQCritGe2015() {
 
-    double qCrit = 0.0;
-    m_Mass; m_Radius;
-
-    // Get vector of masses from QCRIT_GE15 TODO
+    // Get vector of masses from QCRIT_GE15
     std::vector<double> massesFromQcrit15 = std::get<0>(QCRIT_GE15);
-    std::vector< std::tuple<std::vector<double>, std::vector<double>>> radiiAndQCritsFromQcrit15 = std::get<1>(QCRIT_GE15);
+    std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>> radiiAndQCritsFromQcrit15 = std::get<1>(QCRIT_GE15);
 
     std::vector<int> ind = utils::binarySearch(massesFromQcrit15, m_Mass);
     int lowerMassInd = ind[0];
@@ -1181,8 +1178,23 @@ double BaseStar::CalculateInterpolatedQCritGe2015() {
     //std::tuple<std::vector<double>, std::vector<double>> logRadiusAndMassRatio;
     std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiAndQCritsFromQcrit15[lowerMassInd]);
     std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiAndQCritsFromQcrit15[upperMassInd]);
-    std::vector<double> qCritVectorLowerMass     = std::get<1>(radiiAndQCritsFromQcrit15[lowerMassInd]);
-    std::vector<double> qCritVectorUpperMass     = std::get<1>(radiiAndQCritsFromQcrit15[upperMassInd]);
+
+    // Set the qCrit value from either Ge+15 qad or qadic
+    std::vector<double> qCritVectorLowerMass;
+    std::vector<double> qCritVectorUpperMass;
+    switch (OPTIONS->QCritPrescription()) {
+        case QCRIT_PRESCRIPTION::GE15:
+            qCritVectorLowerMass     = std::get<1>(radiiAndQCritsFromQcrit15[lowerMassInd]);
+            qCritVectorUpperMass     = std::get<1>(radiiAndQCritsFromQcrit15[upperMassInd]);
+            break;
+        case QCRIT_PRESCRIPTION::GE15_IC:
+            qCritVectorLowerMass     = std::get<2>(radiiAndQCritsFromQcrit15[lowerMassInd]);
+            qCritVectorUpperMass     = std::get<2>(radiiAndQCritsFromQcrit15[upperMassInd]);
+            break;
+        default:
+            m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                                    // set error value
+            SHOW_WARN(m_Error);                                                             // warn that an error occurred
+    }
 
     // Get vector of radii from QCRIT_GE15 for both lower and upper masses
 
@@ -1206,12 +1218,13 @@ double BaseStar::CalculateInterpolatedQCritGe2015() {
     double upperRadiusLowerMass = pow(10, logRadiusVectorLowerMass[upperRadiusLowerMassInd]);
     double lowerRadiusUpperMass = pow(10, logRadiusVectorUpperMass[lowerRadiusUpperMassInd]);
     double upperRadiusUpperMass = pow(10, logRadiusVectorUpperMass[upperRadiusUpperMassInd]);
-    // Interpolate on the radii first, then the masses
 
+
+    // Interpolate on the radii first, then the masses
     double qCritLowerMass = qLowLow + (upperRadiusLowerMass - m_Radius)/(upperRadiusLowerMass - lowerRadiusLowerMass) * (qLowUpp - qLowLow);
     double qCritUpperMass = qUppLow + (upperRadiusUpperMass - m_Radius)/(upperRadiusUpperMass - lowerRadiusUpperMass) * (qUppUpp - qUppLow);
         
-    qCrit = qCritLowerMass + (upperMass - m_Mass)/(upperMass - lowerMass) * (qCritUpperMass - qCritLowerMass);
+    double qCrit = qCritLowerMass + (upperMass - m_Mass)/(upperMass - lowerMass) * (qCritUpperMass - qCritLowerMass);
 
     return qCrit;
 
