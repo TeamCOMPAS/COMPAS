@@ -1161,11 +1161,15 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass,
  * 
  * 
  * double BaseStar::CalculateInterpolatedQCritGe2015()
+ *
+ * WARNING: This function and the QCRIT_GE15 map currently only work for HG stars.
+ * In the future, it can and should be extended to all stellar types, hence why this
+ * function is in BaseStar. -RTW 20/08/22
  * 
  * @param   [IN]    p_Mass                      Mass / Msun to evaluate lambda with
  * @return                                      Critical mass ratio for given stellar mass / radius
  */ 
-double BaseStar::CalculateInterpolatedQCritGe2015() {
+double BaseStar::CalculateInterpolatedQCritGe2015() const {
 
     // Get vector of masses from QCRIT_GE15
     std::vector<double> massesFromQcrit15 = std::get<0>(QCRIT_GE15);
@@ -1191,9 +1195,9 @@ double BaseStar::CalculateInterpolatedQCritGe2015() {
             qCritVectorLowerMass     = std::get<2>(radiiAndQCritsFromQcrit15[lowerMassInd]);
             qCritVectorUpperMass     = std::get<2>(radiiAndQCritsFromQcrit15[upperMassInd]);
             break;
-        default:
-            m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                                    // set error value
-            SHOW_WARN(m_Error);                                                             // warn that an error occurred
+        //default:
+        //    m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                                    // set error value
+        //    SHOW_WARN(m_Error);                                                             // warn that an error occurred
     }
 
     // Get vector of radii from QCRIT_GE15 for both lower and upper masses

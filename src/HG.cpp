@@ -921,7 +921,8 @@ double HG::CalculateMassTransferRejuvenationFactor() const {
 /*
  * Determines if mass transfer produces a wet merger
  *
- * According to the mass ratio limit discussed by de Mink et al. 2013 and Claeys et al. 2014
+ * According to the mass ratio limit discussed either by de Mink et al. 2013 and Claeys et al. 2014
+ * or by Ge et al. 2015 (if the option is set)
  *
  * Assumes this star is the donor; relevant accretor details are passed as parameters
  *
@@ -935,12 +936,45 @@ double HG::CalculateMassTransferRejuvenationFactor() const {
 bool HG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
 
     bool result = false;                                                                                                    // default is stable
+    double qCrit;
 
-    result = p_AccretorIsDegenerate
-                ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGDegenerateAccretor()              // degenerate accretor
-                : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGNonDegenerateAccretor();          // non-degenerate accretor
+    if (OPTIONS->QCritPrescription() == QCRIT_PRESCRIPTION::CLAEYS) {
+
+        result = p_AccretorIsDegenerate
+                    ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGDegenerateAccretor()              // degenerate accretor
+                    : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGNonDegenerateAccretor();          // non-degenerate accretor
+    } 
+    else {  
+        // RTW is this the best way to do this? These assume beta = 1, which isn't true at all for degen accretors
+        qCrit = BaseStar::CalculateInterpolatedQCritGe2015();
+        result = (p_AccretorMass / m_Mass) < qCrit;
+    }
 
     return result;
+
+    //bool result = false;                                                                                                    // default is stable
+
+    //result = p_AccretorIsDegenerate
+    //            ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGDegenerateAccretor()              // degenerate accretor
+    //            : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGNonDegenerateAccretor();          // non-degenerate accretor
+    //
+    //
+        //if (p_AccretorIsDegenerate) {                                                                                           // Degenerate accretor
+        //    result = (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioGiantDegenerateAccretor();
+        //}
+        //else {                                                                                                                  // Non-degenerate accretor 
+        //    qCrit = OPTIONS->MassTransferCriticalMassRatioHGNonDegenerateAccretor();
+        //    if (qCrit == -1) {                                                                                                  // Default value of -1 recalculates qCrit with the following function 
+        //        double coreMassRatio = m_HeCoreMass/m_Mass;
+        //        double x = BaseStar::CalculateGBRadiusXExponent();                                                              // x from Hurley et al 2000, Eq. 47 - Depends on composition
+        //        qCrit = 2.13 / ( 1.67 - x + 2*(coreMassRatio*coreMassRatio*coreMassRatio*coreMassRatio*coreMassRatio));         // Claeys+ 2014, Table 2
+        //    }
+        //    result = (p_AccretorMass / m_Mass) < qCrit;
+        //}
+    //
+    //
+    //
+
 }
 
 
