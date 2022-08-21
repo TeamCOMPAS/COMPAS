@@ -1434,7 +1434,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "critical-mass-ratio-prescription",                                 
             po::value<std::string>(&p_Options->m_QCritPrescription.typeString)->default_value(p_Options->m_QCritPrescription.typeString),
-            ("Prescription for which critical mass ratio prescription to use, if any (options: [NONE, CLAEYS], default = " + p_Options->m_QCritPrescription.typeString + ")").c_str()
+            ("Prescription for which critical mass ratio prescription to use, if any (options: [NONE, CLAEYS, GE15, GE15_IC], default = " + p_Options->m_QCritPrescription.typeString + ")").c_str()
         )
         
         (
