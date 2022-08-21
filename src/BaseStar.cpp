@@ -1230,7 +1230,8 @@ double BaseStar::CalculateInterpolatedQCritGe2015() const {
         
     double qCrit = qCritLowerMass + (upperMass - m_Mass)/(upperMass - lowerMass) * (qCritUpperMass - qCritLowerMass);
 
-    return qCrit;
+    // qCrit from Ge+15 is mDonor/mAccretor, but we want the inverse to keep consistency with Claeys+14
+    return 1.0/qCrit;
 
 }
 

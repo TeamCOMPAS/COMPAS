@@ -3740,8 +3740,8 @@ const std::map<int, COMPASUnorderedMap<AB_TCoeff, double>> A_COEFF = {
 // RTW
 // Critial mass ratios, for a grid of masses and radii 
 // Subset of Table 3 in Ge et al. 2015, corresponding to the just the mass, logR, qCrit, qCritIC
-// where qCrit is the critical mass ratio for adiabatic MT (qadic or qad tilde), and
-// qCritIC is the critical mass ratio for isentropic envelopes (qadic or qad tilde).
+// where qCrit is the critical mass ratio for adiabatic MT (qadic or qad tilde), and qCritIC is 
+// the critical mass ratio for isentropic envelopes (qadic or qad tilde). In both cases, q is mDonor/mAccretor.
 // First entry in the tuple is the vector of unique mass values, second entry is the 3-tuple of vectors for logR, qCrit, and qCritIC.
 // Note that the radius contracts at the end of the MS for one point, making interpolation impossible. These singular points have been removed to facilitate the interpolation.
 const std::tuple< std::vector<double>, std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>>> QCRIT_GE15 = {
