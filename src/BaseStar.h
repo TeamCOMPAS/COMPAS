@@ -158,7 +158,7 @@ public:
 
     virtual double          CalculateGyrationRadius() const                                                     { return 0.0; }                                                     // Default is 0.0
 
-            double          CalculateInterpolatedQCritGe2015() const;  
+    virtual double          CalculateInterpolatedQCritGe2020() const;  
 
             void            CalculateLambdas()                                                                  { CalculateLambdas(m_Mass - m_CoreMass); }                          // Use class member variables
             void            CalculateLambdas(const double p_EnvMass);
