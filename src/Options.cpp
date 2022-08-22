@@ -920,82 +920,82 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "critical-mass-ratio-giant-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioGiantDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioGiantDegenerateAccretor),
-            ("Critical mass ratio for MT from a giant star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioGiantDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a giant star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioGiantDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-giant-non-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor),
-            ("Critical mass ratio for MT from a giant star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor) + ", which triggers a call to a function of the core mass ratio [Claeys+2014]).\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()  
+            ("Critical mass ratio (mA/mD) for MT from a giant star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioGiantNonDegenerateAccretor) + ", which triggers a call to a function of the core mass ratio [Claeys+2014]).\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()  
         )
         (
             "critical-mass-ratio-helium-giant-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor),
-            ("Critical mass ratio for MT from a helium giant star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a helium giant star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-helium-giant-non-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor),
-            ("Critical mass ratio for MT from a helium giant star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a helium giant star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-helium-HG-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor),
-            ("Critical mass ratio for MT from a helium HG star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a helium HG star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumHGDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-helium-HG-non-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor),
-            ("Critical mass ratio for MT from a helium HG star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a helium HG star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-helium-MS-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor),
-            ("Critical mass ratio for MT from a helium MS star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a helium MS star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumMSDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-helium-MS-non-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor),
-            ("Critical mass ratio for MT from a helium MS star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a helium MS star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-HG-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHGDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHGDegenerateAccretor),
-            ("Critical mass ratio for MT from a HG star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHGDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a HG star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHGDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-HG-non-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioHGNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioHGNonDegenerateAccretor),
-            ("Critical mass ratio for MT from a HG star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHGNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a HG star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioHGNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-MS-high-mass-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor),
-            ("Critical mass ratio for MT from a MS star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a MS star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioMSHighMassDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-MS-high-mass-non-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor),
-            ("Critical mass ratio for MT from a MS star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a MS star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioMSHighMassNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-MS-low-mass-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor),
-            ("Critical mass ratio for MT from a MS star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a MS star to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-MS-low-mass-non-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor),
-            ("Critical mass ratio for MT from a MS star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a MS star to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-white-dwarf-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor),
-            ("Critical mass ratio for MT from a white dwarf to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a white dwarf to a degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
         (
             "critical-mass-ratio-white-dwarf-non-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor),
-            ("Critical mass ratio for MT from a white dwarf to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
+            ("Critical mass ratio (mA/mD) for MT from a white dwarf to a non-degenerate accretor (default = " + std::to_string(p_Options->m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor) + ")\n  0 is always stable, <0 is disabled.\n  Only used for --critical-mass-ratio-prescription CLAEYS, ignored otherwise.").c_str()
         )
 
         (

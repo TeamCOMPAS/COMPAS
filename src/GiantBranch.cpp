@@ -920,38 +920,39 @@ double GiantBranch::CalculateMassLossRateHurley() {
 
 
 /*
- * Determines if mass transfer produces a wet merger
+ * Determines if mass transfer is unstable according to the critical mass ratio.
  *
+<<<<<<< HEAD
  * According to the mass ratio limit discussed either by de Mink et al. 2013 and Claeys et al. 2014
+=======
+ * See e.g de Mink et al. 2013, Claeys et al. 2014, and Ge et al. 2010, 2015, 2020 for discussions.
+>>>>>>> criticalMassRatios
  *
- * Assumes this star is the donor; relevant accretor details are passed as parameters
+ * Assumes this star is the donor; relevant accretor details are passed as parameters.
+ * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
  *
+ * double GiantBranch::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) 
  *
- * bool IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate)
- *
- * @param   [IN]    p_AccretorMass              Mass of accretor in Msol
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
- * @return                                      Boolean indicating stability of mass transfer (true = unstable)
+ * @return                                      Critical mass ratio for unstable MT 
  */
-bool GiantBranch::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
+double GiantBranch::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const {
 
-    bool result = false;                                                                                                    // default is stable
     double qCrit;
-
+                                                                                                                            
     if (p_AccretorIsDegenerate) {                                                                                           // Degenerate accretor
-        result = (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioGiantDegenerateAccretor();
+        qCrit = OPTIONS->MassTransferCriticalMassRatioGiantDegenerateAccretor();
     }
     else {                                                                                                                  // Non-degenerate accretor 
         qCrit = OPTIONS->MassTransferCriticalMassRatioGiantNonDegenerateAccretor();
         if (qCrit == -1) {                                                                                                  // Default value of -1 recalculates qCrit with the following function 
             double coreMassRatio = m_HeCoreMass/m_Mass;
             double x = BaseStar::CalculateGBRadiusXExponent();                                                              // x from Hurley et al 2000, Eq. 47 - Depends on composition
-            qCrit = 2.13 / ( 1.67 - x + 2*(coreMassRatio*coreMassRatio*coreMassRatio*coreMassRatio*coreMassRatio));         // Claeys+ 2014, Table 2
+            qCrit = 2.13/( 1.67 - x + 2*(coreMassRatio*coreMassRatio*coreMassRatio*coreMassRatio*coreMassRatio));           // Claeys+ 2014, Table 2
         }
-        result = (p_AccretorMass / m_Mass) < qCrit;
     }
 
-    return result;
+    return qCrit;
 }
 
 
