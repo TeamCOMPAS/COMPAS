@@ -61,6 +61,8 @@ protected:
             double          CalculateCoreMassAtPhaseEnd() const                                         { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
             double          CalculateCoreMassOnPhase() const                                            { return 0.0; }                                                         // Mc(HeMS) = 0.0
 
+            double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const;
+
             double          CalculateGyrationRadius() const                                             { return 0.1; }
 
             double          CalculateHeCoreMassOnPhase() const                                          { return m_Mass; }                                                      // McHe(HeMS) = Mass
@@ -113,7 +115,6 @@ protected:
             ENVELOPE        DetermineEnvelopeType() const                                               { return ENVELOPE::RADIATIVE; }                                         // Always RADIATIVE
 
             bool            IsEndOfPhase() const                                                        { return !ShouldEvolveOnPhase(); }
-            bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
             bool            IsSupernova() const                                                         { return false; }                                                       // Not here
 
             void            PerturbLuminosityAndRadius() { }                                                                                                                    // NO-OP
