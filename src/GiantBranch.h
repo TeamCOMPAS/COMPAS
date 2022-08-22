@@ -40,6 +40,8 @@ protected:
     static  double          CalculateCoreMass_Luminosity_Lx_Static(const DBL_VECTOR &p_GBParams);
     static  double          CalculateCoreMass_Luminosity_Mx_Static(const DBL_VECTOR &p_GBParams);
 
+            double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const; 
+
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
     static  void            CalculateGBParams_Static(const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                             { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
@@ -111,8 +113,6 @@ protected:
             void            CalculateTimescales()                                                           { CalculateTimescales(m_Mass0, m_Timescales); }                     // Use class member variables
 
             double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)			            { return 0.0; }
-
-            bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
 
     virtual void            PerturbLuminosityAndRadius();
 
