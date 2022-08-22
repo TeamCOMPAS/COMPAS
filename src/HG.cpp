@@ -934,6 +934,13 @@ double HG::CalculateMassTransferRejuvenationFactor() const {
 double HG::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const {
 
     double qCrit;
+
+
+    //else {  
+    //    // RTW is this the best way to do this? These assume beta = 1, which isn't true at all for degen accretors
+    //    qCrit = BaseStar::CalculateInterpolatedQCritGe2015();
+    //    result = (p_AccretorMass / m_Mass) < qCrit;
+    //}
                                                                                                                             
     qCrit = p_AccretorIsDegenerate
                 ? OPTIONS->MassTransferCriticalMassRatioHGDegenerateAccretor()              // degenerate accretor
