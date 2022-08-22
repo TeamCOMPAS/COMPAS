@@ -45,6 +45,8 @@ protected:
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const;
     double          CalculateCoreMassOnPhase() const                                                { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                            // Use class member variables
 
+    double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const             { return GiantBranch::CalculateCriticalMassRatio(p_AccretorIsDegenerate); }                     // Skip HG 
+                                                                                                                                                                                    
     double          CalculateGyrationRadius() const                                                 { return 0.1; }                                                                                 // Hurley et al., 2000, after eq 109 for giants. Single number approximation.
 
     double          CalculateHeCoreMassAtPhaseEnd() const                                           { return CalculateHeCoreMassOnPhase(); }                                                        // Same as on phase
@@ -72,8 +74,6 @@ protected:
     STELLAR_TYPE    EvolveToNextPhase();
 
     bool            IsEndOfPhase() const                                                            { return !ShouldEvolveOnPhase(); }                                                              // Phase ends when age at or after He ignition timescale
-    bool            IsMassRatioUnstable(const double p_AccretorMass,
-                                            const bool   p_AccretorIsDegenerate) const              { return GiantBranch::IsMassRatioUnstable(p_AccretorMass, p_AccretorIsDegenerate); }            // Skip HG
     bool            IsSupernova() const                                                             { return false; }                                                                               // Not here
 
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
