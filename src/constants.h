@@ -3737,7 +3737,6 @@ const std::map<int, COMPASUnorderedMap<AB_TCoeff, double>> A_COEFF = {
     {81, {{ALPHA,  2.493000E0 }, {BETA,  1.147500E0 }, {GAMMA,  0.000000E0 }, {ETA,  0.000000E0 }, {MU,  0.000000E0 }}}
 };
 
-// RTW
 // Critial mass ratios and zetas, for a grid of masses and radii 
 // Subset of Table 3 in Ge et al. 2020, corresponding to the just the mass, logR, qCrit, qCritIC, zeta, and zetaIC
 // where qCrit is the critical mass ratio for adiabatic MT (qadic or qad tilde), and qCritIC is 

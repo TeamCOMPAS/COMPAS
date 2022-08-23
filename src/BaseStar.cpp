@@ -1155,7 +1155,6 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass,
 }
 
 
-// RTW
 /* 
  * Interpolate Ge+20 Critical Mass Ratios
  * 
@@ -1190,6 +1189,7 @@ double BaseStar::CalculateInterpolatedQCritGe2020() const {
             qCritVectorLowerMass     = std::get<2>(radiiAndQCritsFromQcrit20[lowerMassInd]);
             qCritVectorUpperMass     = std::get<2>(radiiAndQCritsFromQcrit20[upperMassInd]);
             break;
+        // RTW
         //default:
         //    m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                                    // set error value
         //    SHOW_WARN(m_Error);                                                             // warn that an error occurred
