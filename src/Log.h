@@ -66,7 +66,7 @@ using std::string;
  * HDF5 File Support
  * =================
  * 
- * Further note: support for HDF5 was added to the exiting log functionality, which was written
+ * Further note: support for HDF5 was added to the existing log functionality, which was written
  * assuming separate files for each of the log file (system parameters, DCOs, SNe, etc.).  That
  * existing functionality has been maintained, and HDF5 added as an option available to the user.
  * HDF5 support in the code has been shoe-horned into the existing functionality, so although
@@ -81,7 +81,7 @@ using std::string;
  * very likely that there are better ways to do things, so if anyone knows a better way, please
  * either change the code or tell me how to improve it and I'll change it.  Most of what follows
  * is just a brain dump of my reading/research over the past week or so, and it could very well
- * be based on my misunderstanding of what I have read - so uf anyone notices something I've
+ * be based on my misunderstanding of what I have read - so if anyone notices something I've
  * misunderstood please let me know so I can improve the code.)
  * 
  *
@@ -341,10 +341,9 @@ using std::string;
  * written pre-MT and post_MT - the possibilities are (almost) limitless.
  * 
  * Each standard log file has its own set of record types, as defined in constants.h (e.g. for the BSE Detailed 
- * Output file, see 'enum class BSE_DETAILED_RECORD_TYPE' in constants.h).  The idea is to use the value 0 as
- * the "ordinary" or "standard" record type for each standard log file, and other (positive) integers to signify
- * different types of records.  The "ordinary" or "standard" record-type would be used as the default value (see
- * the default parameters for the Print* functions).
+ * Output file, see 'enum class BSE_DETAILED_RECORD_TYPE' in constants.h).  The idea is to use positive integers
+ * to specify the record type, then record types can be ORed together to form a record type bitmap which can be
+ * checked to determine which record type to print (set by program options).
  *  
  * 
  * JR, August 2022
@@ -366,31 +365,31 @@ using std::string;
  */
 class FormatVariantValue: public boost::static_visitor<string> {
 public:
-    string operator()(const bool                     v, const string fmtStr) const {
-                                                        string fmt = OPTIONS->PrintBoolAsString() ? "%5s" : "%1s";
-                                                        string vS  = OPTIONS->PrintBoolAsString() ? (v ? "TRUE " : "FALSE") : (v ? "1" : "0");
-                                                        return utils::vFormat(fmt.c_str(), vS.c_str());
-                                                     }
-    string operator()(const int                      v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const short int                v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const long int                 v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const long long int            v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const unsigned int             v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const unsigned short int       v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const unsigned long int        v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); } // also handles OBJECT_ID (typedef)
-    string operator()(const unsigned long long int   v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const float                    v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const double                   v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const long double              v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const string                   v, const string fmtStr) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v.c_str()); }
-    string operator()(const ERROR                    v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const STELLAR_TYPE             v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const MT_CASE                  v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const MT_TRACKING              v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const SN_EVENT                 v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const SN_STATE                 v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const std::vector<std::string> v, const string fmtStr) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v[0].c_str()); }
-    string operator()(const std::vector<std::string> v, const string fmtStr, const size_t idx) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v[idx].c_str()); }
+    string operator()(const bool                   v, const string fmtStr) const {
+                                                      string fmt = OPTIONS->PrintBoolAsString() ? "%5s" : "%1s";
+                                                      string vS  = OPTIONS->PrintBoolAsString() ? (v ? "TRUE " : "FALSE") : (v ? "1" : "0");
+                                                      return utils::vFormat(fmt.c_str(), vS.c_str());
+                                                   }
+    string operator()(const int                    v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const short int              v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long int               v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long long int          v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned int           v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned short int     v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned long int      v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); } // also handles OBJECT_ID (typedef)
+    string operator()(const unsigned long long int v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const float                  v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const double                 v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long double            v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const string                 v, const string fmtStr) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v.c_str()); }
+    string operator()(const ERROR                  v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const STELLAR_TYPE           v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MT_CASE                v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MT_TRACKING            v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const SN_EVENT               v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const SN_STATE               v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const std::vector<string>    v, const string fmtStr) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v[0].c_str()); }
+    string operator()(const std::vector<string>    v, const string fmtStr, const size_t idx) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v[idx].c_str()); }
 };
 
 
@@ -407,31 +406,31 @@ public:
  */
 class FormatVariantValueDefault: public boost::static_visitor<string> {
 public:
-    string operator()(const bool                     v) const {
-                                                        string fmt = OPTIONS->PrintBoolAsString() ? "%5s" : "%1s";
-                                                        string vS  = OPTIONS->PrintBoolAsString() ? (v ? "TRUE " : "FALSE") : (v ? "1" : "0");
-                                                        return utils::vFormat(fmt.c_str(), vS.c_str());
-                                                     }
-    string operator()(const int                      v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const short int                v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const long int                 v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const long long int            v) const { string fmt = "%28.1d"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const unsigned int             v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const unsigned short int       v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const unsigned long int        v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); } // also handles OBJECT_ID (typedef)
-    string operator()(const unsigned long long int   v) const { string fmt = "%28.1u"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const float                    v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const double                   v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const long double              v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
-    string operator()(const string                   v) const { string fmt = "%-30s";  return utils::vFormat(fmt.c_str(), v.c_str()); }
-    string operator()(const ERROR                    v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const STELLAR_TYPE             v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const MT_CASE                  v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const MT_TRACKING              v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const SN_EVENT                 v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const SN_STATE                 v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const std::vector<std::string> v) const { string fmt = "%-30s"; return utils::vFormat(fmt.c_str(), v[0].c_str()); }
-    string operator()(const std::vector<std::string> v, const size_t idx) const { string fmt ="%-30s"; return utils::vFormat(fmt.c_str(), v[idx].c_str()); }
+    string operator()(const bool                   v) const {
+                                                      string fmt = OPTIONS->PrintBoolAsString() ? "%5s" : "%1s";
+                                                      string vS  = OPTIONS->PrintBoolAsString() ? (v ? "TRUE " : "FALSE") : (v ? "1" : "0");
+                                                      return utils::vFormat(fmt.c_str(), vS.c_str());
+                                                   }
+    string operator()(const int                    v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const short int              v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long int               v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long long int          v) const { string fmt = "%28.1d"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned int           v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned short int     v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const unsigned long int      v) const { string fmt = "%14.1u"; return utils::vFormat(fmt.c_str(), v); } // also handles OBJECT_ID (typedef)
+    string operator()(const unsigned long long int v) const { string fmt = "%28.1u"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const float                  v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const double                 v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const long double            v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v); }
+    string operator()(const string                 v) const { string fmt = "%-30s";  return utils::vFormat(fmt.c_str(), v.c_str()); }
+    string operator()(const ERROR                  v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const STELLAR_TYPE           v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MT_CASE                v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MT_TRACKING            v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const SN_EVENT               v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const SN_STATE               v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const std::vector<string>    v) const { string fmt = "%-30s"; return utils::vFormat(fmt.c_str(), v[0].c_str()); }
+    string operator()(const std::vector<string>    v, const size_t idx) const { string fmt ="%-30s"; return utils::vFormat(fmt.c_str(), v[idx].c_str()); }
 };
 
 
@@ -463,6 +462,7 @@ private:
         m_TypeSwitchingTo   = STELLAR_TYPE::NONE;                                   // stellar type to which Star object is switching - default NONE
         m_PrimarySwitching  = false;                                                // Star swithcing is primary star of binary - default false
 
+        m_SSESupernovae_DelayedWrite.logRecordType       = 0;                       // delayed log record type for SSE_Supernovae file - initially 0 (set later)
         m_SSESupernovae_DelayedWrite.logRecordString     = "";                      // delayed log record (string) for SSE_Supernovae file - initially empty
         m_SSESupernovae_DelayedWrite.logRecordValues     = {};                      // delayed log record (property values) for SSE_Supernovae file - initially empty
         m_SSESupernovae_DelayedWrite.logRecordProperties = {};                      // SSE Supernovae logfile record properties - initially empty
@@ -475,7 +475,7 @@ private:
     Log& operator = (Log const&) = delete;                                          // operator = does nothing, and not exposed publicly
 
     // instance variable
-    static Log       *m_Instance;                                                   // pointer to the instance
+    static Log          *m_Instance;                                                // pointer to the instance
 
 
     // member variables
@@ -503,7 +503,7 @@ private:
     int                  m_ErrLogfileId;                                            // log file id of file to which error statements should be written
 
 
-    std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> m_OptionDetails;  // option details retrieved from commandline
+    std::vector<std::tuple<string, string, string, string, TYPENAME>> m_OptionDetails;  // option details retrieved from commandline
 
 
     struct h5AttrT {                                                                // attributes of HDF5 files
@@ -713,7 +713,7 @@ private:
      * @param   [IN]    p_SpecifiedProperty         The property type of the value to be replaced by p_SpecifiedPropertyValue
      * @param   [IN]    p_SpecifiedPropertyValue    The value of the property to be replaced
      * 
-     * @return                                      tuple containg
+     * @return                                      tuple containing
      *                                                  - String formatted as log file record - empty string if an error occurred
      *                                                  - Vector of property values - empty vector if an error occurred
      */
@@ -771,7 +771,7 @@ private:
                                                                                                                                 // yes
                     for (size_t idx = 0; idx < p_Annotations.size(); idx ++) {                                                  // for each user-specified annotation
                         if (p_Annotations[idx]) {                                                                               // include it?
-                            value = boost::variant<std::string>(OPTIONS->Notes(idx));                                           // yes - get value
+                            value = boost::variant<string>(OPTIONS->Notes(idx));                                                // yes - get value
 
                             if (hdf5) {                                                                                         // HDF5 file?
                                 logRecordValues.push_back(value);                                                               // yes - add value to vector of values
@@ -895,9 +895,8 @@ private:
             // remove it at runtime via the logfile-definitions option.
 
             if (p_LogFile != LOGFILE::BSE_SWITCH_LOG && p_LogFile != LOGFILE::SSE_SWITCH_LOG) {                                 // switch file?
-                                                                                                                                // no - proceed
-                fmtStr = "%10.1u";                                                                                              // format - record type is an unsigned int
-                if (hdf5) {                                                                                                     // yes - HDF5 file?
+                fmtStr = "%10.1u";                                                                                              // no - proceed
+                if (hdf5) {                                                                                                     // HDF5 file?
                     logRecordValues.push_back(p_RecordType);                                                                    // add value to vector of values
                 }
                 else {                                                                                                          // no - CSV, TSV, or TXT file
@@ -991,19 +990,22 @@ private:
 
         LogfileDetailsT fileDetails = StandardLogFileDetails(p_LogFile, p_FileSuffix);                                      // get record details - open file (if necessary)
         if (fileDetails.id >= 0) {                                                                                          // file open?
+//            std::cout << "p_RecordType = " << p_RecordType << ", fileDetails.recordTypes = " << fileDetails.recordTypes << ", ((1 << (p_RecordType - 1)) & fileDetails.recordTypes) = " << ((1 << (p_RecordType - 1)) & fileDetails.recordTypes) << "\n";
+            if (((1 << (p_RecordType - 1)) & fileDetails.recordTypes) > 0) {                                                             // yes - record type enabled?
+                                                                                                                            // yes - proceed
+                string logRecordString;                                                                                     // for CSV, TSV, TXT files: the record to be written to the log file
+                std::vector<COMPAS_VARIABLE_TYPE> logRecordValues;                                                          // for HDF5 files: vector of values to be written
 
-            std::string logRecordString;                                                                                    // for CSV, TSV, TXT files: the record to be written to the log file
-            std::vector<COMPAS_VARIABLE_TYPE> logRecordValues;                                                              // for HDF5 files: vector of values to be written
+                // construct the record - gets both string and vector of values
+                std::tie(logRecordString, logRecordValues) = GetLogStandardRecord(p_LogFile, p_RecordType, p_Star, fileDetails.recordProperties, fileDetails.fmtStrings, fileDetails.annotations);
 
-            // construct the record - gets both string and vector of values
-            std::tie(logRecordString, logRecordValues) = GetLogStandardRecord(p_LogFile, p_RecordType, p_Star, fileDetails.recordProperties, fileDetails.fmtStrings, fileDetails.annotations);
+                if (OPTIONS->LogfileType() == LOGFILETYPE::HDF5)                                                            // logging to HDF5 file?
+                    ok = Put(fileDetails.id, p_LogClass, p_LogLevel, logRecordValues);                                      // yes - write the record
+                else                                                                                                        // not HDF5
+                    ok = Put(fileDetails.id, p_LogClass, p_LogLevel, logRecordString);                                      // write the record
 
-            if (OPTIONS->LogfileType() == LOGFILETYPE::HDF5)                                                                // logging to HDF5 file?
-                ok = Put(fileDetails.id, p_LogClass, p_LogLevel, logRecordValues);                                          // yes - write the record
-            else                                                                                                            // not HDF5
-                ok = Put(fileDetails.id, p_LogClass, p_LogLevel, logRecordString);                                          // write the record
-
-            if (!ok) Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + " while writing to logfile " + fileDetails.filename);        // show warning if record not written ok
+                if (!ok) Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + " while writing to logfile " + fileDetails.filename);    // show warning if record not written ok
+            }
         }
         return ok;
     }
@@ -1035,14 +1037,16 @@ private:
 
         LogfileDetailsT fileDetails = StandardLogFileDetails(p_LogFile, p_FileSuffix);                                      // get record details - open file (if necessary)
         if (fileDetails.id >= 0) {                                                                                          // file open?
-
-            if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                                 // HDF5 file?
-                Squawk(ERR_MSG(ERROR::UNEXPECTED_LOG_FILE_TYPE) + " while writing to logfile " + fileDetails.filename);     // yes - show warning: unexpected logfile type
-                ok = false;                                                                                                 // fail
-            }
-            else {                                                                                                          // not HDF5
-                ok = Put(fileDetails.id, p_LogClass, p_LogLevel, p_LogRecordString);                                        // write the record
-                if (!ok) Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + " while writing to logfile " + fileDetails.filename);    // show warning if record not written ok
+            if ((p_RecordType & fileDetails.recordTypes) > 0) {                                                             // yes - record type enabled?
+                                                                                                                            // yes - proceed
+                if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                             // HDF5 file?
+                    Squawk(ERR_MSG(ERROR::UNEXPECTED_LOG_FILE_TYPE) + " while writing to logfile " + fileDetails.filename); // yes - show warning: unexpected logfile type
+                    ok = false;                                                                                             // fail
+                }
+                else {                                                                                                      // not HDF5
+                    ok = Put(fileDetails.id, p_LogClass, p_LogLevel, p_LogRecordString);                                    // write the record
+                    if (!ok) Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + " while writing to logfile " + fileDetails.filename);// show warning if record not written ok
+                }
             }
         }
         return ok;
@@ -1065,14 +1069,16 @@ private:
 
         LogfileDetailsT fileDetails = StandardLogFileDetails(p_LogFile, p_FileSuffix);                                      // get record details - open file (if necessary)
         if (fileDetails.id >= 0) {                                                                                          // file open?
-
-            if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                                 // HDF5 file?
-                ok = Put(fileDetails.id, p_LogClass, p_LogLevel, p_LogRecordValues);                                        // yes - write the record
-                if (!ok) Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + " while writing to logfile " + fileDetails.filename);    // show warning if record not written ok
-            }
-            else {                                                                                                          // not HDF5
-                Squawk(ERR_MSG(ERROR::UNEXPECTED_LOG_FILE_TYPE) + " while writing to logfile " + fileDetails.filename);     // show warning: unexpected logfile type
-                ok = false;                                                                                                 // fail
+            if ((p_RecordType & fileDetails.recordTypes) > 0) {                                                             // yes - record type enabled?
+                                                                                                                            // yes - proceed
+                if (m_Logfiles[fileDetails.id].filetype == LOGFILETYPE::HDF5) {                                             // HDF5 file?
+                    ok = Put(fileDetails.id, p_LogClass, p_LogLevel, p_LogRecordValues);                                    // yes - write the record
+                    if (!ok) Squawk(ERR_MSG(ERROR::FILE_WRITE_ERROR) + " while writing to logfile " + fileDetails.filename);// show warning if record not written ok
+                }
+                else {                                                                                                      // not HDF5
+                    Squawk(ERR_MSG(ERROR::UNEXPECTED_LOG_FILE_TYPE) + " while writing to logfile " + fileDetails.filename); // show warning: unexpected logfile type
+                    ok = false;                                                                                             // fail
+                }
             }
         }
         return ok;

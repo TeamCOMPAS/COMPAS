@@ -2354,7 +2354,7 @@ hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, con
 /*
  * Get standard log file details and open file if necessary
  *
- * This function will retrieve the details for the logfile specified, and open the file if it
+ * This function will retrieve the details for the logfile specified, and opens the file if it
  * is not already open.
  *
  * The function first checks map of currently open standard logfiles (m_OpenStandardLogFileIds),
@@ -2383,7 +2383,7 @@ hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, con
 LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const string p_FileSuffix) {
 
     bool                 ok = true;
-    LogfileDetailsT      retVal = {-1, "", {}, {}, {}, {}, {}, {}, {}, {}};                                                                     // default return value
+    LogfileDetailsT      retVal = {-1, "", -1, {}, {}, {}, {}, {}, {}, {}, {}};                                                                 // default return value
 
     LogfileDetailsT      fileDetails = retVal;                                                                                                  // logfile details
     LOGFILE_DESCRIPTOR_T fileDescriptor;                                                                                                        // logfile descriptor
@@ -2396,48 +2396,56 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                 case LOGFILE::BSE_BE_BINARIES:                                                                                                  // BSE_BE_BINARIES
                     fileDetails.filename         = OPTIONS->LogfileBeBinaries();
+                    fileDetails.recordTypes      = OPTIONS->LogfileBeBinariesRecordTypes();
                     fileDetails.recordProperties = m_BSE_BE_Binaries_Rec;
                     fileDetails.annotations      = m_BSE_BE_Binaries_Notes;
                     break;
 
                 case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                             // BSE_COMMON_ENVELOPES
                     fileDetails.filename         = OPTIONS->LogfileCommonEnvelopes();
+                    fileDetails.recordTypes      = OPTIONS->LogfileCommonEnvelopesRecordTypes();
                     fileDetails.recordProperties = m_BSE_CEE_Rec;
                     fileDetails.annotations      = m_BSE_CEE_Notes;
                     break;
 
                 case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:                                                                                       // BSE_DOUBLE_COMPACT_OBJECTS
                     fileDetails.filename         = OPTIONS->LogfileDoubleCompactObjects();
+                    fileDetails.recordTypes      = OPTIONS->LogfileDoubleCompactObjectsRecordTypes();
                     fileDetails.recordProperties = m_BSE_DCO_Rec;
                     fileDetails.annotations      = m_BSE_DCO_Notes;
                     break;
                
                 case LOGFILE::BSE_PULSAR_EVOLUTION:                                                                                             // BSE_PULSAR_EVOLUTION
                     fileDetails.filename         = OPTIONS->LogfilePulsarEvolution();
+                    fileDetails.recordTypes      = OPTIONS->LogfilePulsarEvolutionRecordTypes();
                     fileDetails.recordProperties = m_BSE_Pulsars_Rec;
                     fileDetails.annotations      = m_BSE_Pulsars_Notes;
                     break;
 
                 case LOGFILE::BSE_RLOF_PARAMETERS:                                                                                              // BSE_RLOF_PARAMETERS
                     fileDetails.filename         = OPTIONS->LogfileRLOFParameters();
+                    fileDetails.recordTypes      = OPTIONS->LogfileRLOFParametersRecordTypes();
                     fileDetails.recordProperties = m_BSE_RLOF_Rec;
                     fileDetails.annotations      = m_BSE_RLOF_Notes;
                     break;
 
                 case LOGFILE::BSE_SUPERNOVAE:                                                                                                   // BSE_SUPERNOVAE
                     fileDetails.filename         = OPTIONS->LogfileSupernovae();
+                    fileDetails.recordTypes      = OPTIONS->LogfileSupernovaeRecordTypes();
                     fileDetails.recordProperties = m_BSE_SNE_Rec;
                     fileDetails.annotations      = m_BSE_SNE_Notes;
                     break;
 
                 case LOGFILE::BSE_SWITCH_LOG:                                                                                                   // BSE_SWITCH_LOG
                     fileDetails.filename         = OPTIONS->LogfileSwitchLog();
+                    fileDetails.recordTypes      = -1;
                     fileDetails.recordProperties = m_BSE_Switch_Rec;
                     fileDetails.annotations      = m_BSE_Switch_Notes;
                     break;
 
                 case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                            // BSE_SYSTEM_PARAMETERS
                     fileDetails.filename         = OPTIONS->LogfileSystemParameters();
+                    fileDetails.recordTypes      = OPTIONS->LogfileSystemParametersRecordTypes();
                     fileDetails.recordProperties = m_BSE_SysParms_Rec;
                     fileDetails.annotations      = m_BSE_SysParms_Notes;
 
@@ -2459,18 +2467,21 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                 case LOGFILE::SSE_SUPERNOVAE:                                                                                                   // SSE_SUPERNOVAE
                     fileDetails.filename         = OPTIONS->LogfileSupernovae();
+                    fileDetails.recordTypes      = OPTIONS->LogfileSupernovaeRecordTypes();
                     fileDetails.recordProperties = m_SSE_SNE_Rec;
                     fileDetails.annotations      = m_SSE_SNE_Notes;
                     break;
 
                 case LOGFILE::SSE_SWITCH_LOG:                                                                                                   // SSE_SWITCH_LOG
                     fileDetails.filename         = OPTIONS->LogfileSwitchLog();
+                    fileDetails.recordTypes      = -1;
                     fileDetails.recordProperties = m_SSE_Switch_Rec;
                     fileDetails.annotations      = m_SSE_Switch_Notes;
                     break;
 
                 case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                            // SSE_SYSTEM_PARAMETERS
                     fileDetails.filename         = OPTIONS->LogfileSystemParameters();
+                    fileDetails.recordTypes      = OPTIONS->LogfileSystemParametersRecordTypes();
                     fileDetails.recordProperties = m_SSE_SysParms_Rec;
                     fileDetails.annotations      = m_SSE_SysParms_Notes;
 
@@ -2524,17 +2535,18 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                     if (detailedOutputDirectoryExists) {                                                                                        // detailed output directory exists?
                                                                                                                                                 // yes - add path to filename
+                        fileDetails.filename    = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();                      // logfile filename with directory
+                        fileDetails.recordTypes = OPTIONS->LogfileDetailedOutputRecordTypes();                                                  // record types
+
                         switch (p_Logfile) {                                                                                                    // which logfile?
 
                             case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                  // SSE_DETAILED_OUTPUT
-                                fileDetails.filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();         // logfile filename with directory
-                                fileDetails.recordProperties = m_SSE_Detailed_Rec;                                                              // record properties
+                                fileDetails.recordProperties = m_SSE_Detailed_Rec;                                                              // SSE record properties
                                 fileDetails.annotations      = m_SSE_Detailed_Notes;
                                 break;
 
                             case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                  // BSE_DETAILED_OUTPUT
-                                fileDetails.filename         = DETAILED_OUTPUT_DIRECTORY_NAME + "/" + OPTIONS->LogfileDetailedOutput();         // logfile filename with directory
-                                fileDetails.recordProperties = m_BSE_Detailed_Rec;                                                              // record properties
+                                fileDetails.recordProperties = m_BSE_Detailed_Rec;                                                              // BSE record properties
                                 fileDetails.annotations      = m_BSE_Detailed_Notes;
                                 break;
 
@@ -2549,7 +2561,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     Squawk(ERR_MSG(ERROR::UNKNOWN_LOGFILE) + ": Logging disabled for this file");                                               // announce error
             }
 
-            if (!fileDetails.filename.empty() && !fileDetails.recordProperties.empty()) {                                                       // have filename and properties?
+            if (!fileDetails.filename.empty() && !fileDetails.recordProperties.empty() && fileDetails.recordTypes != 0) {                       // have filename and properties?
 
                 fileDetails.filename += p_FileSuffix;                                                                                           // add suffix to filename
 

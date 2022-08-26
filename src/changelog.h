@@ -922,13 +922,18 @@
 //                                      - Added Accretion Induced Collapse (AIC) of ONeWD as another type of SN
 // 02.31.09     RTW - Aug 9, 2022    - Enhancement:
 //                                      - Max evolution time and max number of timesteps now read in from gridline as well as commandline
-// 02.32.00     JR - Aug 16, 2022    - Enhancement:
+// 02.32.00     JR - Aug 27, 2022    - Enhancement:
 //                                      - Add 'record type' functionality to all standard log files
 //                                      - Add/rationalise calls to PrintDetailedOutput() for binary systems
 //                                          - remove m_PrintExtraDetailedOutput variable (and associated code) from BaseBinaryStar class
-//                                      - WIP: Todo: update documentation (for now, see documentation at top of Log.h)
+//                                      - Add new option for each standard log file to allow specification of which record types to print
+//                                          - see e.g. '--logfile-detailed-output-record-types'
+//                                      - Online documentation updated for record types and new options
+//                                      - Detailed ploter changed to work with record type column (thanks RTW)
+//                                      - Added new section to online documentatio: 'What's new in this release'
+//                                          - documented record types changes in this new section
 //                                      - Minor cleanup:
-//                                          - minor formatting and typo fixes
+//                                          - minor formatting and typo fixes (src + docs)
 //                                          - removed IncrementOmega() function from the BaseStar and Star classes (anti-patterm and no longer used - if it ever was)
 //                                          - tidied up description of MainSequence::UpdateMinimumCoreMass()
 
