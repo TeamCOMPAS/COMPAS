@@ -354,7 +354,7 @@
 //                                      - General code cleaning
 //                                      - Removed some redundant variables (e.g., m_EnvMass, which can be computed from m_Mass and m_CoreMass)
 //                                      - Removed calculations of ZetaThermal and ZetaNuclear (these were previously incorrect because they relied on the evolution of a stellar copy which reverted to BaseStar and therefore didn't have the correct behaviour)
-//                                      - Fixed CalculateZadiabatic to use ZetaAdiabaticArbitrary rather than ZetaThermalArbitrary; removed the latter
+//                                      - Fixed CalculateZetaAdiabatic to use ZetaAdiabaticArbitrary rather than ZetaThermalArbitrary; removed the latter
 //                                      - Capped He core mass gain during shell H burning for CHeB and TPAGB stars, whose on-phase evolution now ends promptly when this limit is reached; this change also resolves issue #315 (higher mass SN remnants than total stellar mass)
 // 02.13.06     AVG - Aug 20, 2020  - Defect repair:
 //  									- Issue #229: Corrected fitting parameters in Muller 16 SN kick function

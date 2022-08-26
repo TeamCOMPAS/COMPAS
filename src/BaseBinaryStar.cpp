@@ -1856,8 +1856,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {       // arbitrary angular momentum loss prescription?
         jLoss = CalculateGammaAngularMomentumLoss();                                                                        // no - re-calculate angular momentum
     }
-    m_ZetaLobe = CalculateZRocheLobe(jLoss);
-    m_ZetaStar = m_Donor->CalculateZeta(OPTIONS->StellarZetaPrescription());
 
     // Calculate conditions for automatic (in)stability for case BB
     bool caseBBAlwaysStable           = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE;
@@ -1877,9 +1875,9 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         double qCrit;
 
         switch (OPTIONS->QCritPrescription()) {
-            case QCRIT_PRESCRIPTION::GE20: // Check with Jeff this is the right approach
+            case QCRIT_PRESCRIPTION::GE20: // RTW Check with Jeff this is the right approach
             case QCRIT_PRESCRIPTION::GE20_IC:
-                qCrit = m_Donor->CalculateInterpolatedQCritGe2020();   
+                qCrit = m_Donor->CalculateInterpolatedQCritOrZetaGe2020();   
                 break;
             case QCRIT_PRESCRIPTION::CLAEYS:
                 qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate());
@@ -1889,10 +1887,13 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 SHOW_WARN(m_Error);                                                             // warn that an error occurred
         }
 
-
         isUnstable = (m_Accretor->Mass()/m_Donor->Mass()) < qCrit;
     }
     else {                                                                                                                         // Determine stability based on zetas
+
+        m_ZetaLobe = CalculateZRocheLobe(jLoss);
+        m_ZetaStar = m_Donor->CalculateZetaAdiabatic(OPTIONS->StellarZetaPrescription()); // RTW
+
         isUnstable = (utils::Compare(m_ZetaStar, m_ZetaLobe) < 0);
     }
 

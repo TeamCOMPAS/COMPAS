@@ -97,8 +97,6 @@ protected:
     double          CalculateTauAtPhaseEnd() const                                  { return 1.0; }                                                                             // tau = 1.0 at end of HG
     double          CalculateTauOnPhase() const;
 
-    double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription);
-
     double          ChooseTimestep(const double p_Time) const;
 
     ENVELOPE        DetermineEnvelopeType() const;

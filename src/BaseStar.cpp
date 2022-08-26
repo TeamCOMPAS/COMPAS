@@ -365,10 +365,10 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::TIMESCALE_MS:                                       value = Timescale(TIMESCALE::tMS);                              break;
             case ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION:             value = SN_TotalMassAtCOFormation();                            break;
             case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
-            case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZadiabaticHurley2002(m_CoreMass);              break;
-            case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = CalculateZadiabaticHurley2002(m_HeCoreMass);            break;
-            case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = CalculateZadiabaticSPH(m_CoreMass);                     break;
-            case ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE:                                   value = CalculateZadiabaticSPH(m_HeCoreMass);                   break;
+            case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZetaAdiabaticHurley2002(m_CoreMass);              break;
+            case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = CalculateZetaAdiabaticHurley2002(m_HeCoreMass);            break;
+            case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = CalculateZetaAdiabaticSPH(m_CoreMass);                     break;
+            case ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE:                                   value = CalculateZetaAdiabaticSPH(m_HeCoreMass);                   break;
         default:                                                                                                        // unknown property
             ok    = false;                                                                                              // that's not ok...
             value = "UNKNOWN";                                                                                          // default value
@@ -1155,84 +1155,6 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass,
 }
 
 
-/* 
- * Interpolate Ge+20 Critical Mass Ratios and Zetas
- * 
- * double BaseStar::CalculateInterpolatedQCritOrZetaGe2020()
- * 
- * @return                                      Critical mass ratio or zeta for given stellar mass / radius
- */ 
-double BaseStar::CalculateInterpolatedQCritOrZetaGe2020() const {
-
-    // Get vector of masses from GE20_QCRIT_AND_ZETA
-    std::vector<double> massesFromGe20 = std::get<0>(GE20_QCRIT_AND_ZETA);
-    std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>> 
-        radiiQCritsZetasFromGe20 = std::get<1>(GE20_QCRIT_AND_ZETA);
-
-    std::vector<int> ind = utils::binarySearch(massesFromGe20, m_Mass);
-    int lowerMassInd = ind[0];
-    int upperMassInd = ind[1];
-
-    //std::tuple<std::vector<double>, std::vector<double>> logRadiusAndMassRatio;
-    std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsZetasFromGe20[lowerMassInd]);
-    std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsZetasFromGe20[upperMassInd]);
-
-    // Set the param value (either qCrit or zeta, for adiabatic or isentropic model) from Ge+20 
-    std::vector<double> paramVectorLowerMass;
-    std::vector<double> paramVectorUpperMass;
-    // RTW TODO
-    if QCritPrescription() != NONE:
-        switch (OPTIONS->QCritPrescription()) {
-            case QCRIT_PRESCRIPTION::GE20:
-                paramVectorLowerMass     = std::get<1>(radiiQCritsZetasFromGe20[lowerMassInd]);
-                paramVectorUpperMass     = std::get<1>(radiiQCritsZetasFromGe20[upperMassInd]);
-                break;
-            case QCRIT_PRESCRIPTION::GE20_IC:
-                paramVectorLowerMass     = std::get<2>(radiiQCritsZetasFromGe20[lowerMassInd]);
-                paramVectorUpperMass     = std::get<2>(radiiQCritsZetasFromGe20[upperMassInd]);
-                break;
-            // RTW
-            //default:
-            //    m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                                    // set error value
-            //    SHOW_WARN(m_Error);                                                             // warn that an error occurred
-        }
-    else if {
-
-    }
-
-    // Get vector of radii from GE20_QCRIT_AND_ZETA for both lower and upper masses
-
-    std::vector<int> indR0 = utils::binarySearch(logRadiusVectorLowerMass, log10(m_Radius));
-    double lowerRadiusLowerMassInd = indR0[0];
-    double upperRadiusLowerMassInd = indR0[1];
-
-    std::vector<int> indR1 = utils::binarySearch(logRadiusVectorUpperMass, log10(m_Radius));
-    double lowerRadiusUpperMassInd = indR1[0];
-    double upperRadiusUpperMassInd = indR1[1];
-
-    // Set the 4 boundary points for the 2D interpolation
-    double valLowLow = paramVectorLowerMass[lowerRadiusLowerMassInd];
-    double valLowUpp = paramVectorLowerMass[upperRadiusLowerMassInd];
-    double valUppLow = paramVectorUpperMass[lowerRadiusUpperMassInd];
-    double valUppUpp = paramVectorUpperMass[upperRadiusUpperMassInd];
-
-    double lowerMass = massesFromGe20[lowerMassInd];
-    double upperMass = massesFromGe20[upperMassInd];
-    double lowerRadiusLowerMass = pow(10, logRadiusVectorLowerMass[lowerRadiusLowerMassInd]);
-    double upperRadiusLowerMass = pow(10, logRadiusVectorLowerMass[upperRadiusLowerMassInd]);
-    double lowerRadiusUpperMass = pow(10, logRadiusVectorUpperMass[lowerRadiusUpperMassInd]);
-    double upperRadiusUpperMass = pow(10, logRadiusVectorUpperMass[upperRadiusUpperMassInd]);
-
-
-    // Interpolate on the radii first, then the masses
-    double paramLowerMass = valLowLow + (upperRadiusLowerMass - m_Radius)/(upperRadiusLowerMass - lowerRadiusLowerMass) * (valLowUpp - valLowLow);
-    double paramUpperMass = valUppLow + (upperRadiusUpperMass - m_Radius)/(upperRadiusUpperMass - lowerRadiusUpperMass) * (valUppUpp - valUppLow);
-        
-    double interpolatedValue = paramLowerMass + (upperMass - m_Mass)/(upperMass - lowerMass) * (paramUpperMass - paramLowerMass);
-
-    return interpolatedValue;
-
-}
 
 /* 
  * Interpolate Nanjing lambda in mass for a given metallicity
@@ -1328,15 +1250,46 @@ double BaseStar::FindLambdaNanjingNearestMassIndex(const double p_Mass) const {
 
 
 /*
+ * Calculate the donor radial response zeta 
+ *
+ *
+ * double CalculateZetaAdiabatic(ZETA_PRESCRIPTION p_ZetaPrescription)
+ *
+ * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
+ * @return                                      Adiabatic exponent
+ */
+double BaseStar::CalculateZetaAdiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) { 
+                                                                                
+    double zetaStar;
+    switch (p_ZetaPrescription) {
+    
+        case ZETA_PRESCRIPTION::GE20:     
+        case ZETA_PRESCRIPTION::GE20_IC:  
+            zetaStar = CalculateInterpolatedQCritOrZetaGe2020();
+            break;
+        case ZETA_PRESCRIPTION::SOBERMAN: 
+        case ZETA_PRESCRIPTION::HURLEY:   
+        case ZETA_PRESCRIPTION::ARBITRARY:
+            zetaStar = CalculateZetaByStellarType(p_ZetaPrescription);
+            break;
+        default:
+            m_Error = ERROR::UNKNOWN_ZETA_PRESCRIPTION;                                     // set error value
+            SHOW_WARN(m_Error);                                                             // warn that an error occurred
+    }
+    return zetaStar;
+}
+
+
+/*
  * Calculate the Adiabatic Exponent per Hurley et al. 2002
  *
  *
- * double CalculateZadiabaticHurley2002(const double p_CoreMass) const
+ * double CalculateZetaAdiabaticHurley2002(const double p_CoreMass) const
  *
  * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
  * @return                                      Adiabatic exponent
  */
-double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) const{
+double BaseStar::CalculateZetaAdiabaticHurley2002(const double p_CoreMass) const{
     if (utils::Compare(p_CoreMass, m_Mass) >= 0) return 0.0;    // If the object is all core, the calculation is meaningless
 
     double m = p_CoreMass / m_Mass;
@@ -1345,16 +1298,18 @@ double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) const{
 }
 
 
+
+
 /*
  * Calculate the Adiabatic Exponent per Soberman, Phinney, vdHeuvel 1997
  *
  *
- * double CalculateZadiabaticSPH(const double p_CoreMass) const
+ * double CalculateZetaAdiabaticSPH(const double p_CoreMass) const
  *
  * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
  * @return                                      Adiabatic exponent
  */
-double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) const {
+double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
     if (utils::Compare(p_CoreMass, m_Mass) >= 0) return 0.0;    // If the object is all core, the calculation is meaningless (and would result in division by zero)
 
     double m           = p_CoreMass / m_Mass;                   // eq (57) Soberman, Phinney, vdHeuvel (1997)
@@ -1364,39 +1319,93 @@ double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) const {
 }
 
 
-/*
- * Calculate the Adiabatic Exponent (for convective-envelope giant-like stars)
- *
- *
- * double CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) const
- *
- * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
- * @return                                      Adiabatic exponent
- */
-double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
+
+
+
+/* 
+ * Interpolate Ge+20 Critical Mass Ratios and Zetas
+ * 
+ * double BaseStar::CalculateInterpolatedQCritOrZetaGe2020()
+ * 
+ * @return                                      Critical mass ratio or zeta for given stellar mass / radius
+ */ 
+double BaseStar::CalculateInterpolatedQCritOrZetaGe2020() const {
+
+    // Get vector of masses from GE20_QCRIT_AND_ZETA
+    std::vector<double> massesFromGe20 = std::get<0>(GE20_QCRIT_AND_ZETA);
+    std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>> 
+        radiiQCritsZetasFromGe20 = std::get<1>(GE20_QCRIT_AND_ZETA);
+
+    std::vector<int> ind = utils::binarySearch(massesFromGe20, m_Mass);
+    int lowerMassInd = ind[0];
+    int upperMassInd = ind[1];
+
+    //std::tuple<std::vector<double>, std::vector<double>> logRadiusAndMassRatio;
+    std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsZetasFromGe20[lowerMassInd]);
+    std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsZetasFromGe20[upperMassInd]);
+
+    // Set the param value (either qCrit or zeta, for adiabatic or isentropic model) from Ge+20 
+    std::vector<double> paramVectorLowerMass;
+    std::vector<double> paramVectorUpperMass;
     
-    double zeta = 0.0;                                            // default value
-    
-    switch (p_ZetaPrescription) {                                 // which prescription?
-        case ZETA_PRESCRIPTION::SOBERMAN:                         // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
-            zeta = CalculateZadiabaticSPH(m_CoreMass);
-            break;
-            
-        case ZETA_PRESCRIPTION::HURLEY:                          // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
-            zeta = CalculateZadiabaticHurley2002(m_CoreMass);
-            break;
-            
-        case ZETA_PRESCRIPTION::ARBITRARY:                       // ARBITRARY: user program options thermal zeta value
-            zeta = OPTIONS->ZetaAdiabaticArbitrary();
-            break;
-            
-        default:                                                    // unknown common envelope prescription - shouldn't happen
-            m_Error = ERROR::UNKNOWN_ZETA_PRESCRIPTION;          // set error value
-            SHOW_ERROR(m_Error);                                    // warn that an error occurred
+    // One of the following must be set
+    if (OPTIONS->QCritPrescription() == QCRIT_PRESCRIPTION::GE20) {
+        paramVectorLowerMass     = std::get<1>(radiiQCritsZetasFromGe20[lowerMassInd]);
+        paramVectorUpperMass     = std::get<1>(radiiQCritsZetasFromGe20[upperMassInd]);
     }
-    
-    return zeta;
+    else if (OPTIONS->QCritPrescription() == QCRIT_PRESCRIPTION::GE20_IC) {
+        paramVectorLowerMass     = std::get<2>(radiiQCritsZetasFromGe20[lowerMassInd]);
+        paramVectorUpperMass     = std::get<2>(radiiQCritsZetasFromGe20[upperMassInd]);
+    }
+    else if (OPTIONS->StellarZetaPrescription() == ZETA_PRESCRIPTION::GE20) {
+        paramVectorLowerMass     = std::get<3>(radiiQCritsZetasFromGe20[lowerMassInd]);
+        paramVectorUpperMass     = std::get<3>(radiiQCritsZetasFromGe20[upperMassInd]);
+    }
+    else if (OPTIONS->StellarZetaPrescription() == ZETA_PRESCRIPTION::GE20_IC) {
+        paramVectorLowerMass     = std::get<4>(radiiQCritsZetasFromGe20[lowerMassInd]);
+        paramVectorUpperMass     = std::get<4>(radiiQCritsZetasFromGe20[upperMassInd]);
+    }
+    else { // RTW TODO: check
+        ERROR error = ERROR:: UNHANDLED_EXCEPTION;                                            // set error value
+        SHOW_ERROR(error);                                                                    // warn that an error occurred
+    }
+
+    // Get vector of radii from GE20_QCRIT_AND_ZETA for both lower and upper masses
+
+    std::vector<int> indR0 = utils::binarySearch(logRadiusVectorLowerMass, log10(m_Radius));
+    double lowerRadiusLowerMassInd = indR0[0];
+    double upperRadiusLowerMassInd = indR0[1];
+
+    std::vector<int> indR1 = utils::binarySearch(logRadiusVectorUpperMass, log10(m_Radius));
+    double lowerRadiusUpperMassInd = indR1[0];
+    double upperRadiusUpperMassInd = indR1[1];
+
+    // Set the 4 boundary points for the 2D interpolation
+    double valLowLow = paramVectorLowerMass[lowerRadiusLowerMassInd];
+    double valLowUpp = paramVectorLowerMass[upperRadiusLowerMassInd];
+    double valUppLow = paramVectorUpperMass[lowerRadiusUpperMassInd];
+    double valUppUpp = paramVectorUpperMass[upperRadiusUpperMassInd];
+
+    double lowerMass = massesFromGe20[lowerMassInd];
+    double upperMass = massesFromGe20[upperMassInd];
+    double lowerRadiusLowerMass = pow(10, logRadiusVectorLowerMass[lowerRadiusLowerMassInd]);
+    double upperRadiusLowerMass = pow(10, logRadiusVectorLowerMass[upperRadiusLowerMassInd]);
+    double lowerRadiusUpperMass = pow(10, logRadiusVectorUpperMass[lowerRadiusUpperMassInd]);
+    double upperRadiusUpperMass = pow(10, logRadiusVectorUpperMass[upperRadiusUpperMassInd]);
+
+
+    // Interpolate on the radii first, then the masses
+    double paramLowerMass = valLowLow + (upperRadiusLowerMass - m_Radius)/(upperRadiusLowerMass - lowerRadiusLowerMass) * (valLowUpp - valLowLow);
+    double paramUpperMass = valUppLow + (upperRadiusUpperMass - m_Radius)/(upperRadiusUpperMass - lowerRadiusUpperMass) * (valUppUpp - valUppLow);
+        
+    double interpolatedValue = paramLowerMass + (upperMass - m_Mass)/(upperMass - lowerMass) * (paramUpperMass - paramLowerMass);
+
+    return interpolatedValue;
+
 }
+
+
+
 
 
 /*

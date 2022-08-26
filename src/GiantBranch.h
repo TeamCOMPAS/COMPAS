@@ -112,7 +112,8 @@ protected:
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
             void            CalculateTimescales()                                                           { CalculateTimescales(m_Mass0, m_Timescales); }                     // Use class member variables
 
-            double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)			            { return 0.0; }
+            double          CalculateZetaByStellarType(ZETA_PRESCRIPTION p_ZetaPrescription);
+            double          CalculateZetaConvectiveEnvelopeGiant(ZETA_PRESCRIPTION p_ZetaPrescription);
 
     virtual void            PerturbLuminosityAndRadius();
 
