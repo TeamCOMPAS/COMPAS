@@ -1899,12 +1899,10 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
 
 
+    // RTW
     // Evaluate separately for stable / unstable MT
     if (isUnstable) {                                              // Unstable Mass Transfer
             m_CEDetails.CEEnow = true;
-            if (m_Donor->IsOneOf( MAIN_SEQUENCE )) {
-                m_Flags.stellarMerger = true;
-            }
     }
     else {                                                      // Stable MT
             
