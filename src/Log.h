@@ -990,7 +990,6 @@ private:
 
         LogfileDetailsT fileDetails = StandardLogFileDetails(p_LogFile, p_FileSuffix);                                      // get record details - open file (if necessary)
         if (fileDetails.id >= 0) {                                                                                          // file open?
-//            std::cout << "p_RecordType = " << p_RecordType << ", fileDetails.recordTypes = " << fileDetails.recordTypes << ", ((1 << (p_RecordType - 1)) & fileDetails.recordTypes) = " << ((1 << (p_RecordType - 1)) & fileDetails.recordTypes) << "\n";
             if (((1 << (p_RecordType - 1)) & fileDetails.recordTypes) > 0) {                                                             // yes - record type enabled?
                                                                                                                             // yes - proceed
                 string logRecordString;                                                                                     // for CSV, TSV, TXT files: the record to be written to the log file
