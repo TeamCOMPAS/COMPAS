@@ -1894,6 +1894,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         m_ZetaLobe = CalculateZRocheLobe(jLoss);
         m_ZetaStar = m_Donor->CalculateZetaAdiabatic(OPTIONS->StellarZetaPrescription()); // RTW
 
+        std::cout << "Zeta is " << m_ZetaStar << std::endl; // RTW
         isUnstable = (utils::Compare(m_ZetaStar, m_ZetaLobe) < 0);
     }
 
