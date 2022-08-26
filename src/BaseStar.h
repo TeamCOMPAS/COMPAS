@@ -193,7 +193,8 @@ public:
 
             double          CalculateTimestep();
 
-    virtual double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                 { return 0.0; }                                                     // Use inheritance hierarchy
+            double          CalculateZetaAdiabatic(ZETA_PRESCRIPTION p_ZetaPrescription);
+    virtual double          CalculateZetaByStellarType(ZETA_PRESCRIPTION p_ZetaPrescription)                    { return 0.0; }                                                     // Use inheritance hierarchy
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 
@@ -483,9 +484,8 @@ protected:
     virtual void                CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                             // Use class member variables
     virtual void                CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                                                              // Default is NO-OP
 
-            double              CalculateZadiabaticHurley2002(const double p_CoreMass) const;
-            double              CalculateZadiabaticSPH(const double p_CoreMass) const;
-            double              CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription);
+            double              CalculateZetaAdiabaticHurley2002(const double p_CoreMass) const;
+            double              CalculateZetaAdiabaticSPH(const double p_CoreMass) const;
 
             double              CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) const;
 

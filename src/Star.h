@@ -179,7 +179,8 @@ public:
 
     double          CalculateTimestep()                                                                             { return m_Star->CalculateTimestep(); }
 
-    double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                             { return m_Star->CalculateZeta(p_ZetaPrescription); }
+    double          CalculateZetaAdiabatic(ZETA_PRESCRIPTION p_ZetaPrescription)                                    { return m_Star->CalculateZetaAdiabatic(p_ZetaPrescription); }
+    double          CalculateZetaByStellarType(ZETA_PRESCRIPTION p_ZetaPrescription)                                { return m_Star->CalculateZetaByStellarType(p_ZetaPrescription); }
 
     void            ClearCurrentSNEvent()                                                                           { m_Star->ClearCurrentSNEvent(); }
 

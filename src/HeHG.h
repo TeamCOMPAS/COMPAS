@@ -103,7 +103,7 @@ protected:
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
             void            CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
     
-            double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                     { return HG::CalculateZeta(p_ZetaPrescription); }                       // Calculate Zetas as for HG and other giant stars (HeMS stars were an exception)
+            double          CalculateZetaByStellarType(ZETA_PRESCRIPTION p_ZetaPrescription)                             { return GiantBranch::CalculateZetaByStellarType(p_ZetaPrescription); }      // Calculate Zetas as for other giant stars (HeMS stars were an exception)
 
             double          ChooseTimestep(const double p_Time) const;
 

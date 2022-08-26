@@ -1659,7 +1659,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "stellar-zeta-prescription",                                   
             po::value<std::string>(&p_Options->m_StellarZetaPrescription.typeString)->default_value(p_Options->m_StellarZetaPrescription.typeString),                                                            
-            ("Prescription for stellar zeta (default = " + p_Options->m_StellarZetaPrescription.typeString + ")").c_str()
+            ("Prescription for stellar zeta (options: [SOBERMAN, HURLEY, GE20, GE20_IC, ARBITRARY] default = " + p_Options->m_StellarZetaPrescription.typeString + ")").c_str()
         )
 
 

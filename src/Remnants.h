@@ -73,7 +73,7 @@ protected:
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales)                          { return TPAGB::CalculateTimescales(p_Mass, p_Timescales); }            // Use TPAGB
     void            CalculateTimescales()                                                                       { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
 
-    double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                         { return 0.0; }                                                         // Should never be called...
+    double          CalculateZetaByStellarType(ZETA_PRESCRIPTION p_ZetaPrescription)                                         { return 0.0; }                                                         // Should never be called...
 
     double          ChooseTimestep(const double p_Time) const;
 

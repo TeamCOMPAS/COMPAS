@@ -997,38 +997,6 @@ void HG::UpdateAgeAfterMassLoss() {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-/*
- * Calculate the mass-radius response exponent Zeta
- *
- * Hurley et al. 2000, eqs 97 & 98
- *
- *
- * double CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)
- *
- * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
- * @return                                      mass-radius response exponent Zeta
- */
-double HG::CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) {
-    
-    double zeta = 0.0;                                              // default value
-    
-    // Use ZetaRadiativeEnvelopeGiant() for radiative envelope giant-like stars, CalculateZadiabatic for convective-envelope giants
-    switch (DetermineEnvelopeType()) {                           // which envelope?
-        case ENVELOPE::RADIATIVE:
-            zeta = OPTIONS->ZetaRadiativeEnvelopeGiant();
-            break;
-            
-        case ENVELOPE::CONVECTIVE:
-            zeta = CalculateZadiabatic(p_ZetaPrescription);
-            break;
-            
-        default:                                                    // shouldn't happen
-            m_Error = ERROR::INVALID_TYPE_ZETA_CALCULATION;         // set error value
-            SHOW_ERROR(m_Error);                                    // warn that an error occurred
-    }
-    
-    return zeta;
-}
 
 /*
  * Determine the star's envelope type.
