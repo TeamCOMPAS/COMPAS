@@ -3745,7 +3745,7 @@ const std::map<int, COMPASUnorderedMap<AB_TCoeff, double>> A_COEFF = {
 // In both cases, q is mAccretor/mDonor, which was not the value given in the Ge et al. datatable, so these were inverted below.
 // First entry in the tuple is the vector of unique mass values, second entry is the 5-tuple of vectors for logR, qCrit, qCritIC, zeta, zetaIC.
 // Note that the radius may contract several times. These points have been removed to facilitate the interpolation, so logR is monotonic.
-const std::tuple< std::vector<double>, std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>>> QCRIT_GE20 = {
+const std::tuple< std::vector<double>, std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>>> GE20_QCRIT_AND_ZETA = {
     {0.1, 0.13, 0.16, 0.2, 0.22, 0.25, 0.28, 0.32, 0.36, 0.4, 0.45, 0.5, 0.56, 0.63, 0.71, 0.8, 0.89, 1.0, 1.14, 1.3, 1.439, 1.6, 1.8, 2.0, 2.04, 2.5, 3.2, 4.0, 5.0, 6.3, 8.0, 10.0, 13.0, 16.0, 20.0, 25.0, 32.0, 40.0, 50.0, 63.0, 80.0, 100.0},
     {
       {{-0.8724, -0.8581, -0.8457, -0.8367, -0.8336},  {-2.309, -31.250, -34.483, 43.478, 14.493},  {1.517, 1.531, 1.534, 1.536, 1.538},  {-2.635, -1.708, -1.705, -1.635, -1.545},  {-0.278, -0.293, -0.295, -0.296, -0.298}},
