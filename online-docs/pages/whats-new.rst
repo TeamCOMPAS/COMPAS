@@ -10,7 +10,7 @@ Following is an brief list of important updates to the COMPAS code.  A complete 
 * Added 'record type' functionality to all standard log files.  **Note:** This changes default behaviour: only Detailed Output log files affected in this release
 * Added/rationalised Detailed Output records printed for binary systems
 * Added new program option for each standard log file to allow specification of which record types to print. See e.g. '--logfile-detailed-output-record-types'
-* Changed case on column header strings for switch log files (SSE and BSE. '``SWITCHING_FROM``, ``SWITCHING_TO``, and ``STAR_SWITCHING`` are now ``Switching_From``, ``Switching_To``, and ``Star_Switching`` respectively).   **Note:** This could affect post=processig code that consumes the switch log files - users should check that their code will recognise the new header strings.
+* Changed case on column header strings for switch log files (SSE and BSE. ``SWITCHING_FROM``, ``SWITCHING_TO``, and ``STAR_SWITCHING`` are now ``Switching_From``, ``Switching_To``, and ``Star_Switching`` respectively).   **Note:** This could affect post=processig code that consumes the switch log files - users should check that their code will recognise the new header strings.
 * Added new section to online documentation: 'What's new'
 
 **02.31.10 Aug 12, 2022**
