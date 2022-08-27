@@ -647,7 +647,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "allow-non-stripped-ECSN",
             po::value<bool>(&p_Options->m_AllowNonStrippedECSN)->default_value(p_Options->m_AllowNonStrippedECSN)->implicit_value(true),                                                                  
-            ("Allow ECSN to occur in unstripped progenitors (default = " + std::string(p_Options->m_AllowNonStrippedECSN? "TRUE" : "FALSE") + ")").c_str()
+            ("Allow ECSN to occur in unstripped progenitors (default = " + std::string(p_Options->m_AllowNonStrippedECSN ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "allow-rlof-at-birth",                                         

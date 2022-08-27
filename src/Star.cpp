@@ -506,7 +506,7 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
             stepNum++;                                                              // increment step number                                                      
             dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();       // calculate new timestep
             EvolveOneTimestep(dt);                                                  // evolve for timestep
-            (void)m_Star->PrintDetailedOutput(m_Id);                                // log record  JR: this should probably be before the star switches type, but this way matches the original code
+            (void)m_Star->PrintDetailedOutput(m_Id);                                // log record
         }
     }
 

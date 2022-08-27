@@ -911,6 +911,7 @@
 //                                      - Updated the relevant section in the detailed plotter that uses MT_TRACKER values
 //                                      - Removed end states from detailed plotter (Merger, DCO, Unbound) so that they don't over compress the rest
 // 02.31.05     RTW - July 25, 2022  - Defect repair:
+//                                      - Renamed option '--allow-H-rich-ECSN' to 'allow-non-stripped-ECSN'
 //                                      - Fixed check for non-interacting ECSN progenitors to consider MT history instead of H-richness
 // 02.31.06     RTW - Aug 2, 2022    - Enhancement:
 //                                      - Added stellar merger to default BSE_RLOF output
@@ -932,7 +933,7 @@
 //                                          - see e.g. '--logfile-detailed-output-record-types'
 //                                      - Online documentation updated for record types and new options
 //                                      - Detailed ploter changed to work with record type column (thanks RTW)
-//                                      - Added new section to online documentatio: 'What's new in this release'
+//                                      - Added new section to online documentation: 'What's new'
 //                                          - documented record types changes in this new section
 //                                      - Minor cleanup:
 //                                          - minor formatting and typo fixes (src + docs)
