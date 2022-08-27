@@ -911,6 +911,7 @@
 //                                      - Updated the relevant section in the detailed plotter that uses MT_TRACKER values
 //                                      - Removed end states from detailed plotter (Merger, DCO, Unbound) so that they don't over compress the rest
 // 02.31.05     RTW - July 25, 2022  - Defect repair:
+//                                      - Renamed option '--allow-H-rich-ECSN' to 'allow-non-stripped-ECSN'
 //                                      - Fixed check for non-interacting ECSN progenitors to consider MT history instead of H-richness
 // 02.31.06     RTW - Aug 2, 2022    - Enhancement:
 //                                      - Added stellar merger to default BSE_RLOF output
@@ -924,10 +925,24 @@
 //                                      - Max evolution time and max number of timesteps now read in from gridline as well as commandline
 // 02.31.10     RTW - Aug 12, 2022   - Enhancement:
 //                                      - Added option to set the Temperature boundary between convective/radiative giant envelopes
-// 02.32.00     RTW - Aug 13, 2022   - Enhancement:
+// 02.32.00     JR - Aug 27, 2022    - Enhancement & minor cleanup:
+//                                      - Add 'record type' functionality to all standard log files
+//                                      - Add/rationalise calls to PrintDetailedOutput() for binary systems
+//                                          - remove m_PrintExtraDetailedOutput variable (and associated code) from BaseBinaryStar class
+//                                      - Add new option for each standard log file to allow specification of which record types to print
+//                                          - see e.g. '--logfile-detailed-output-record-types'
+//                                      - Online documentation updated for record types and new options
+//                                      - Detailed ploter changed to work with record type column (thanks RTW)
+//                                      - Added new section to online documentation: 'What's new'
+//                                          - documented record types changes in this new section
+//                                      - Minor cleanup:
+//                                          - minor formatting and typo fixes (src + docs)
+//                                          - removed IncrementOmega() function from the BaseStar and Star classes (anti-patterm and no longer used - if it ever was)
+//                                          - tidied up description of MainSequence::UpdateMinimumCoreMass()
+// 02.33.00     RTW - Aug 13, 2022   - Enhancement:
 //                                      - Added critical mass ratios from Claeys+ 2014 for determining if MT is unstable
 //                                      - Cleaned up stability check functions in BaseBinaryStar.cpp for clarity, and to allow for critical mass ratios to be checked correctly
 
-const std::string VERSION_STRING = "02.32.00";
+const std::string VERSION_STRING = "02.33.00";
 
 # endif // __changelog_h__

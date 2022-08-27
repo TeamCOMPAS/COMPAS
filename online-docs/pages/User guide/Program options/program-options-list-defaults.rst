@@ -571,17 +571,97 @@ Default = `All debug classes enabled (e.g. no filtering)`
 Filename for Common Envelopes logfile (BSE mode). |br|
 Default = ’BSE_Common_Envelopes’
 
+**--logfile-common-envelopes-record-types** |br|
+Enabled record types for Common Envelopes logfile (BSE mode). |br|
+Default = -1 (all record types) |br|
+|br|
+The record types to be enabled are specified as a bitmap, with each bit corresponding to a record type.  To construct the bitmap, for each
+record type to be enabled, raise 2 to the power of (record type - 1), then sum the results - the sum is the bitmap, and the integer value to
+be entered for this option. |br|
+|br|
+Example: |br|
+|br|
+To enable record types 1, 4, and 9, the option value should be |br| |br|
+:math:`2^{(1 - 1)} + 2^{(4 - 1)} + 2^{(9 - 1)} = 2^0 + 2^3 + 2^8 = 1 + 8 + 256 = 265` |br| |br|
+:math:`265` as a binary number is written as :math:`0100001001`, with the 1st, 4th, and 9th bits enabled (counting 1-based from the 
+least-significant bit being the right-most), corresponding to the record types 1, 4, and 9 being enabled, and all other record types
+disabled. |br|
+|br|
+A value of -1 for the bitmap is shorthand for all bits enabled - all record types enabled. |br|
+|br|
+The Common Envelopes logfile currently has only one record type defined (record type 1). |br|
+
 **--logfile-definitions** |br|
 Filename for logfile record definitions file. |br|
 Default = ’’ (None)
 
 **--logfile-detailed-output** |br|
-Filename for the Detailed_Output logfile. |br|
+Filename for the Detailed Output logfile. |br|
 Default = ’SSE_Detailed_Output’ for SSE mode; ’BSE_Detailed_Output’ for BSE mode |br|
+
+**--logfile-detailed-output-record-types** |br|
+Enabled record types for the Detailed Output logfile. |br|
+Default = -1 (all record types) |br|
+See ``--logfile-common-envelopes-record-types`` for a detailed description of the value to be entered. |br|
+|br|
+The Detailed Output logfile currently has the following record types defined: |br|
+
+.. list-table::
+   :widths: 5 90 
+   :header-rows: 0
+   :class: aligned-text
+
+   * - 1
+     - describes the initial state of the binary
+   * - 2
+     - describes the state of the binary immediately following the stellar timestep
+   * -  
+     - (i.e. after the evolution of the constituent stars for a single timestep)
+   * - 3
+     - describes the state of the binary immediately following binary timestep
+   * -  
+     - (i.e. after the evolution of the binary system for a single timestep)
+   * - 4
+     - describes the state of the binary immediately following the completion of the timestep
+   * -  
+     - (i.e. after all changes to the binary and components)
+   * - 5
+     - describes the final state of the binary
+   * - 6
+     - describes the state of the binary immediately following a stellar type change during a common envelope event
+   * - 7
+     - describes the state of the binary immediately following a stellar type change during a mass transfer event
+   * - 8
+     - describes the state of the binary immediately following a stellar type change during mass resolution
+   * - 9
+     - describes the state of the binary immediately following a stellar type change during mass equilibration for CHE
+   * - 10
+     - describes the state of the binary immediately following a mass transfer event
+   * - 11
+     - describes the state of the binary immediately following winds mass loss
+   * - 12
+     - describes the state of the binary immediately following a common envelope event
+   * - 13
+     - describes the state of the binary immediately following a supernova event
+   * - 14
+     - describes the state of the binary immediately following mass resolution
+   * -
+     - (i.e. after winds mass loss & mass transfer complete)
+   * - 15
+     - describes the state of the binary immediately following a merger after mass resolution
+
+For the Detailed Output logfile, this option can be specified in a grid file, allowing the user to enable/disable different record types for each separate detailed output file. |br|
 
 **--logfile-double-compact-objects** |br|
 Filename for the Double Compact Objects logfile (BSE mode). |br|
 Default = ’BSE_Double_Compact_Objects’
+
+**--logfile-double-compact-objects-record-types** |br|
+Enabled record types for the Double Compact Objects logfile (BSE mode). |br|
+Default = -1 (all record types) |br|
+See ``--logfile-common-envelopes-record-types`` for a detailed description of the value to be entered. |br|
+|br|
+The Double Compact Objects logfile currently has only one record type defined (record type 1). |br|
 
 **--logfile-name-prefix** |br|
 Prefix for logfile names. |br|
@@ -591,13 +671,34 @@ Default = ’’ (None)
 Filename for the Pulsar Evolution logfile (BSE mode). |br|
 Default = ’BSE_Pulsar_Evolution’
 
+**--logfile-pulsar-evolution-record-types** |br|
+Enabled record types for the Pulsar Evolution logfile (BSE mode). |br|
+Default = -1 (all record types) |br|
+See ``--logfile-common-envelopes-record-types`` for a detailed description of the value to be entered. |br|
+|br|
+The Pulsar Evolution logfile currently has only one record type defined (record type 1). |br|
+
 **--logfile-rlof-parameters** |br|
 Filename for the RLOF Printing logfile (BSE mode). |br|
 Default = ’BSE_RLOF’
 
+**--logfile-rlof-parameters-record-types** |br|
+Enabled record types for the RLOF Printing logfile (BSE mode). |br|
+Default = -1 (all record types) |br|
+See ``--logfile-common-envelopes-record-types`` for a detailed description of the value to be entered. |br|
+|br|
+The RLOF Printing logfile currently has only one record type defined (record type 1). |br|
+
 **--logfile-supernovae** |br|
 Filename for the Supernovae logfile. |br|
 Default = ’SSE_Supernovae’ for SSE mode; ’BSE_Supernovae’ for BSE mode |br|
+
+**--logfile-supernovae-record-types** |br|
+Enabled record types for the Supernovae logfile. |br|
+Default = -1 (all record types) |br|
+See ``--logfile-common-envelopes-record-types`` for a detailed description of the value to be entered. |br|
+|br|
+The Supernovae logfile currently has only one record type defined (record type 1). |br|
 
 **--logfile-switch-log** |br|
 Filename for the Switch Log logfile. |br|
@@ -606,6 +707,13 @@ Default = ’SSE_Switch_Log’ for SSE mode; ’BSE_Switch_Log’ for BSE mode |
 **--logfile-system-parameters** |br|
 Filename for the System Parameters logfile (BSE mode). |br|
 Default = ’SSE_System_Parameters’ for SSE mode; ’BSE_System_Parameters’ for BSE mode |br|
+
+**--logfile-system-parameters-record-types** |br|
+Enabled record types for the System Parameters logfile (BSE mode). |br|
+Default = -1 (all record types) |br|
+See ``--logfile-common-envelopes-record-types`` for a detailed description of the value to be entered. |br|
+|br|
+The System Parameters logfile currently has only one record type defined (record type 1). |br|
 
 **--logfile-type** |br|
 The type of logfile to be produced by COMPAS. |br|
@@ -933,7 +1041,7 @@ Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERM
 Remnant mass recipes from Hurley, Pols, Tout (2000) for ``HURLEY2000``, Belczynski et al. 2002, Fryer et al. 2012,  Fryer et al. 2022, Mueller 2016, Mandel & Mueller 2020, and Schneider et al. 2020 (with the alternative prescription for effectively single stars from the same paper in the ``SCHNEIDER2020ALT`` case) |br|
 Default = FRYER2012
 
-**--retain-core-mass-during-caseA-mass-transfer |br|
+**--retain-core-mass-during-caseA-mass-transfer** |br|
 If set to true, preserve a larger donor core mass following case A mass transfer.  The core is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer. |br|
 Default = FALSE
 
@@ -1068,7 +1176,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --metallicity-distribution, --metallicity, --metallicity-min, --metallicity-max
 
---orbital-period-distribution, --orbital-period, --orbital-period-min, --orbital-period-max, --semi-major-axis-distribution, --semi-major-axis, --semi-major-axis-min, --semi-major-axis-max, --allow-rlof-at-birth, --allow-touching-at-birth
+--orbital-period-distribution, --orbital-period, --orbital-period-min, --orbital-period-max, --semi-major-axis-distribution, --semi-major-axis, 
+--semi-major-axis-min, --semi-major-axis-max, --allow-rlof-at-birth, --allow-touching-at-birth
 
 --rotational-velocity-distribution, --rotational-frequency, --rotational-frequency-1, --rotational-frequency-2
 
@@ -1078,7 +1187,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Stellar evolution and winds**
 
---use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --luminous-blue-variable-multiplier, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier
+--use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --luminous-blue-variable-multiplier, 
+--mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier
 
 --chemically-homogeneous-evolution
 
@@ -1088,11 +1198,21 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Mass transfer physics**
 
---mass-transfer, --mass-transfer-accretion-efficiency-prescription, --mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-macleod-linear-fraction, --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-C, --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star, --case-bb-stability-prescription, --eddington-accretion-factor, --retain-core-mass-during-caseA-mass-transfer, --convective-envelope-temperature-threshold
+--case-bb-stability-prescription, --convective-envelope-temperature-threshold, --eddington-accretion-factor, --mass-transfer, 
+--mass-transfer-accretion-efficiency-prescription, --mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, 
+--mass-transfer-jloss, --mass-transfer-jloss-macleod-linear-fraction, --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, 
+--mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, 
+--zeta-radiative-giant-star 
 
 --circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation
 
---envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-lambda-prescription, --common-envelope-lambda, --common-envelope-slope-kruckow, --common-envelope-lambda-multiplier, --common-envelope-lambda-nanjing-enhanced, --common-envelope-lambda-nanjing-interpolate-in-mass, --common-envelope-lambda-nanjing-interpolate-in-metallicity, --common-envelope-lambda-nanjing-use_rejuvenated-mass, --common-envelope-allow-main-sequence-survive, --common-envelope-allow-radiative-envelope-survive*, --common-envelope-allow-immediate-RLOF-post-CE-survive, --common-envelope-mass-accretion-prescription, --common-envelope-mass-accretion-constant, --common-envelope-mass-accretion-min, --common-envelope-mass-accretion-max, --common-envelope-recombination-energy-density, --maximum-mass-donor-nandez-ivanova, --revised-energy-formalism-nandez-ivanova
+--envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-lambda-prescription, --common-envelope-lambda, 
+--common-envelope-slope-kruckow, --common-envelope-lambda-multiplier, --common-envelope-lambda-nanjing-enhanced, 
+--common-envelope-lambda-nanjing-interpolate-in-mass, --common-envelope-lambda-nanjing-interpolate-in-metallicity, 
+--common-envelope-lambda-nanjing-use_rejuvenated-mass, --common-envelope-allow-main-sequence-survive, --common-envelope-allow-radiative-envelope-survive, 
+--common-envelope-allow-immediate-RLOF-post-CE-survive, --common-envelope-mass-accretion-prescription, --common-envelope-mass-accretion-constant, 
+--common-envelope-mass-accretion-min, --common-envelope-mass-accretion-max, --common-envelope-recombination-energy-density, --maximum-mass-donor-nandez-ivanova, 
+--revised-energy-formalism-nandez-ivanova
 
 :ref:`Back to Top <options-props-top>`
 
@@ -1100,13 +1220,18 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Supernovae**
 
---remnant-mass-prescription, --fryer-supernova-engine, --fryer-22-fmix, --fryer-22-mcrit, --maximum-neutron-star-mass, --mcbur1, --allow-non-stripped-ECSN, --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state
+--remnant-mass-prescription, --fryer-supernova-engine, --fryer-22-fmix, --fryer-22-mcrit, --maximum-neutron-star-mass, --mcbur1, --allow-non-stripped-ECSN, 
+--neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state, --pair-instability-supernovae, --PISN-lower-limit, 
+--PISN-upper-limit, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 
---pair-instability-supernovae, --PISN-lower-limit, --PISN-upper-limit, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
+--pulsar-birth-magnetic-field-distribution, --pulsar-birth-magnetic-field-distribution-min, --pulsar-birth-magnetic-field-distribution-max, 
+--pulsar-birth-spin-period-distribution, --pulsar-birth-spin-period-distribution-min, --pulsar-birth-spin-period-distribution-max, 
+--pulsar-magnetic-field-decay-massscale, --pulsar-magnetic-field-decay-timescale, --pulsar-minimum-magnetic-field
 
---pulsar-birth-magnetic-field-distribution, --pulsar-birth-magnetic-field-distribution-min, --pulsar-birth-magnetic-field-distribution-max, --pulsar-birth-spin-period-distribution, --pulsar-birth-spin-period-distribution-min, --pulsar-birth-spin-period-distribution-max, --pulsar-magnetic-field-decay-massscale, --pulsar-magnetic-field-decay-timescale, --pulsar-minimum-magnetic-field
-
---kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, --black-hole-kicks, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, --kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH, --muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick
+--kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, 
+--black-hole-kicks, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, 
+--kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH, 
+--muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick
 
 --kick-direction, --kick-direction-power, --kick-mean-anomaly-1, --kick-mean-anomaly-2, --kick-phi-1, --kick-phi-2, --kick-theta-1, --kick-theta-2
 
@@ -1116,13 +1241,19 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Administrative**
 
---mode, --number-of-systems, --evolve-pulsars, --evolve-unbound-systems, --maximum-evolution-time, --maximum-number-timestep-iterations, --random-seed, --timestep-multiplier
+--mode, --number-of-systems, --evolve-pulsars, --evolve-unbound-systems, --maximum-evolution-time, --maximum-number-timestep-iterations, --random-seed, 
+--timestep-multiplier
 
 --grid, --grid-start-line, --grid-lines-to-process
 
---add-options-to-sysparms, --debug-classes, --debug-level, --debug-to-file, --detailed-output, --enable-warnings, --errors-to-file, --help, --notes, --notes-hdrs, --population-data-printing, --print-bool-as-string, --quiet, --version
+--add-options-to-sysparms, --debug-classes, --debug-level, --debug-to-file, --detailed-output, --detailed-output, --enable-warnings, --errors-to-file, 
+--help, --notes, --notes-hdrs, --population-data-printing, --print-bool-as-string, --quiet, --version
 
---log-classes, --logfile-definitions, --logfile-name-prefix, --logfile-type, --log-level, --logfile-common-envelopes, --logfile-detailed-output, --logfile-double-compact-objects, --logfile-pulsar-evolution, --logfile-rlof-parameters, --logfile-supernovae, --logfile-switch-log, --logfile-system-parameters, --output-container, --output-path, --rlof-printing, --store-input-files, --switch-log, --hdf5-buffer-size, --hdf5-chunk-size
+--log-classes, --logfile-definitions, --logfile-name-prefix, --logfile-type, --log-level, --logfile-common-envelopes, --logfile-common-envelopes-record-types, 
+--logfile-detailed-output, --logfile-detailed-output-record-types, --logfile-double-compact-objects, --logfile-double-compact-objects-record-types, 
+--logfile-pulsar-evolution, --logfile-pulsar-evolution-record-type, --logfile-rlof-parameters, --logfile-rlof-parameters-record-types, --logfile-supernovae, 
+--logfile-supernovae-record-types, --logfile-switch-log, --logfile-system-parameters, --logfile-system-parameters-record-types, --output-container, 
+--output-path, --rlof-printing, --store-input-files, --switch-log, --hdf5-buffer-size, --hdf5-chunk-size
 
 :ref:`Back to Top <options-props-top>`
 

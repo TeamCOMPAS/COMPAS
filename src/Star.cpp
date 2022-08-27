@@ -475,11 +475,11 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
 
     EVOLUTION_STATUS status = EVOLUTION_STATUS::CONTINUE;
 
-    m_Id = p_Id;                                                                // store the id
+    m_Id = p_Id;                                                                    // store the id
 
     // evolve the star
 
-    m_Star->CalculateGBParams();                                                // calculate giant branch parameters - in case for some reason star is initially not MS
+    m_Star->CalculateGBParams();                                                    // calculate giant branch parameters - in case for some reason star is initially not MS
 
     double dt = 0.0;
 
@@ -491,26 +491,26 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
     while (status == EVOLUTION_STATUS::CONTINUE) {
     
         if (m_Star->Time() > OPTIONS->MaxEvolutionTime()) {
-            status = EVOLUTION_STATUS::TIMES_UP;                                // out of time...
+            status = EVOLUTION_STATUS::TIMES_UP;                                    // out of time...
         }
         else if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) {
-            status = EVOLUTION_STATUS::STEPS_UP;                                // out of steps...
+            status = EVOLUTION_STATUS::STEPS_UP;                                    // out of steps...
         }
         else if (!m_Star->IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07, STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, STELLAR_TYPE::HERTZSPRUNG_GAP,
                                     STELLAR_TYPE::FIRST_GIANT_BRANCH, STELLAR_TYPE::CORE_HELIUM_BURNING, STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH, STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
                                     STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
 
-            status = EVOLUTION_STATUS::DONE;                                    // we're done
+            status = EVOLUTION_STATUS::DONE;                                        // we're done
         }
         else {
-            stepNum++;                                                          // increment step number                                                      
-            dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();   // calculate new timestep
-            EvolveOneTimestep(dt);                                              // evolve for timestep
-            (void)m_Star->PrintDetailedOutput(m_Id);                            // log record  JR: this should probably be before the star switches type, but this way matches the original code
+            stepNum++;                                                              // increment step number                                                      
+            dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();       // calculate new timestep
+            EvolveOneTimestep(dt);                                                  // evolve for timestep
+            (void)m_Star->PrintDetailedOutput(m_Id);                                // log record
         }
     }
 
-    (void)m_Star->PrintSystemParameters();                                      // log system parameters
+    (void)m_Star->PrintSystemParameters();                                          // log system parameters
 
     return status;
 }
