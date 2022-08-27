@@ -25,6 +25,7 @@ def main():
         if optional_input is not None:
             data_path = optional_input
     except IndexError: # default
+        
         data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
 
     Data = h5.File(data_path, 'r')
@@ -32,7 +33,6 @@ def main():
     ### Collect the important events in the detailed evolution
     events = allEvents(Data).allEvents # Calculate the events here, for use in plot sizing parameters
     printEvolutionaryHistory(events=events)
-    events = [event for event in events if event.eventClass != 'Stype'] # want to ignore simple stellar type changes
 
     ### Produce the two plots
     makeDetailedPlots(Data, events)
@@ -235,6 +235,12 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, **kwargs)
     #Data['Teff(1)'][()] #K
     #Data['Luminosity(1)'][()] # Lsol
     
+    maskNoCOs = (Data['Stellar_Type(1)'][()] < 9) & (Data['Stellar_Type(2)'][()] < 9) 
+    if mask is None:
+        mask = maskNoCOs
+    else:
+        mask &= maskNoCOs
+
     ax.plot(Data['Teff(1)'][()][mask], Data['Luminosity(1)'][()][mask], linestyle='-', c='r', label='Star 1')
     ax.plot(Data['Teff(2)'][()][mask], Data['Luminosity(2)'][()][mask], linestyle='-', c='b', label='Star 2')
     ax.set_xlabel(r'Temperature [log(T/K)]')
@@ -537,7 +543,18 @@ class Event(object):
 
             elif state == "Unbound":
                 eventString = r'Unbound: {}+{}'.format(self.stypeName1, self.stypeName2)
-                image_num = None
+                if (stype1 == 13) & (stype2 < 13):
+                    image_num = 19
+                elif (stype1 < 13) & (stype2 == 13):
+                    image_num = 19
+                    rotate_image = True
+                elif (stype1 == 14) & (stype2 < 13):
+                    image_num = 20
+                elif (stype1 < 13) & (stype2 == 14):
+                    image_num = 20
+                    rotate_image = True
+                else:
+                    image_num = 23
 
             else:
                 eventString = r'Evolution ended by run duration: {}+{}'.format(self.stypeName1, self.stypeName2) 

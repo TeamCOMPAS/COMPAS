@@ -83,8 +83,6 @@ public:
 
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
 
-        m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
-
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
         m_RLOFDetails.propsPreMT           = p_Star.m_RLOFDetails.propsPreMT == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
         m_RLOFDetails.propsPostMT          = p_Star.m_RLOFDetails.propsPostMT == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
@@ -343,8 +341,6 @@ private:
 
     double              m_OrbitalVelocityPreSN;
 
-    bool                m_PrintExtraDetailedOutput;                                         // Flag to ensure that detailed output only gets printed once per timestep
-
     BinaryRLOFDetailsT  m_RLOFDetails;                                                      // RLOF details
 
     double              m_SemiMajorAxis;                                                    // Semi-major axis
@@ -505,14 +501,35 @@ private:
     void    UpdateSystemicVelocity(Vector3d p_newVelocity);
 
     // printing functions
-    bool PrintRLOFParameters();
-    bool PrintBinarySystemParameters() const            { return LOGGING->LogBSESystemParameters(this); }
-    bool PrintDetailedOutput(const long int p_Id) const { return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id) : true; }
-    bool PrintDoubleCompactObjects() const              { return LOGGING->LogDoubleCompactObject(this); }
-    bool PrintCommonEnvelope() const                    { return LOGGING->LogCommonEnvelope(this); }
-    bool PrintBeBinary();
-    bool PrintPulsarEvolutionParameters() const         { return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this) : true; }
-    bool PrintSupernovaDetails() const                  { return LOGGING->LogBSESupernovaDetails(this); }
+    
+    bool PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType = RLOF_RECORD_TYPE::DEFAULT);
+    
+    bool PrintBinarySystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::DEFAULT) const { 
+        return LOGGING->LogBSESystemParameters(this, p_RecordType);
+    }
+    
+    bool PrintDetailedOutput(const long int p_Id, 
+                             const BSE_DETAILED_RECORD_TYPE p_RecordType) const {
+        return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id, p_RecordType) : true;
+    }
+    
+    bool PrintDoubleCompactObjects(const DCO_RECORD_TYPE p_RecordType = DCO_RECORD_TYPE::DEFAULT) const {
+        return LOGGING->LogDoubleCompactObject(this, p_RecordType);
+    }
+    
+    bool PrintCommonEnvelope(const CE_RECORD_TYPE p_RecordType = CE_RECORD_TYPE::DEFAULT) const {
+        return LOGGING->LogCommonEnvelope(this, p_RecordType);
+    }
+    
+    bool PrintBeBinary(const BE_BINARY_RECORD_TYPE p_RecordType = BE_BINARY_RECORD_TYPE::DEFAULT);
+    
+    bool PrintPulsarEvolutionParameters(const PULSAR_RECORD_TYPE p_RecordType = PULSAR_RECORD_TYPE::DEFAULT) const {
+        return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_RecordType) : true;
+    }
+    
+    bool PrintSupernovaDetails(const BSE_SN_RECORD_TYPE p_RecordType = BSE_SN_RECORD_TYPE::DEFAULT) const {
+        return LOGGING->LogBSESupernovaDetails(this, p_RecordType);
+    }
 
     
     //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
