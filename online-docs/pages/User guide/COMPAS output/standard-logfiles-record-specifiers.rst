@@ -25,6 +25,6 @@ All standard log files, except the switch log files, have a record type property
 to idenitify and filter records within a standard log file. The record type property was introduced primarily to support different types of records
 in the detailed output files (BSE and SSE), and is currently unly used in those files, but could be useful for other log files. All record types for
 all standard log files are printed to the log files by default, but records of specific record types can be enabled and disabled using the
-appropriate program option (see e.g. see option ``--logfile-detailed-output-record-types`` in :doc:`program-options-list-defaults` for the detailed
+appropriate program option (see e.g. ``--logfile-detailed-output-record-types`` in :doc:`program-options-list-defaults` for the detailed
 output files).
 
