@@ -1265,13 +1265,11 @@ double BaseStar::CalculateZetaAdiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
     
         case ZETA_PRESCRIPTION::GE20:     
         case ZETA_PRESCRIPTION::GE20_IC:  
-            std::cout << "Counted as a GE for some reason" << std::endl; // RTW
             zetaStar = CalculateInterpolatedQCritOrZetaGe2020();
             break;
         case ZETA_PRESCRIPTION::SOBERMAN: 
         case ZETA_PRESCRIPTION::HURLEY:   
         case ZETA_PRESCRIPTION::ARBITRARY:
-            std::cout << "Counted as normal" << std::endl; // RTW
             zetaStar = CalculateZetaByStellarType(p_ZetaPrescription);
             break;
         default:
