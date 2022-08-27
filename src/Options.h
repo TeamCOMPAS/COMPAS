@@ -221,7 +221,7 @@ private:
         "logfile-supernovae-record-types",
         "logfile-switch-log",
         "logfile-system-parameters",
-        "logfile-system-parameters",
+        "logfile-system-parameters-record-types",
         "logfile-type",
 
         "mode",
