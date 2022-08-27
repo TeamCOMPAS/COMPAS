@@ -509,7 +509,7 @@ void Options::OptionValues::Initialise() {
 
 	m_GridFilename                                                  = "";
     m_GridStartLine                                                 = 0;
-    m_GridLinesToProcess                                            = std::numeric_limits<std::streamsize>::max();                  // effectively no limit - process to EOF
+    m_GridLinesToProcess                                            = std::numeric_limits<std::streamsize>::max();          // effectively no limit - process to EOF
 
     // debug and logging options
 
@@ -526,14 +526,22 @@ void Options::OptionValues::Initialise() {
     m_LogfileType.typeString                                        = LOGFILETYPELabel.at(m_LogfileType.type);
 
     m_LogfileBeBinaries                                             = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));
+    m_LogfileBeBinariesRecordTypes                                  = -1;                                                                   // all record types
     m_LogfileCommonEnvelopes                                        = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));
-    m_LogfileDetailedOutput                                         = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT));  // assume BSE - get real answer when we know mode
+    m_LogfileCommonEnvelopesRecordTypes                             = -1;                                                                   // all record types
+    m_LogfileDetailedOutput                                         = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT));     // assume BSE - get real answer when we know mode
+    m_LogfileDetailedOutputRecordTypes                              = -1;                                                                   // all record types
     m_LogfileDoubleCompactObjects                                   = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));
-    m_LogfilePulsarEvolution                                        = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)); // only BSE for now
+    m_LogfileDoubleCompactObjectsRecordTypes                        = -1;                                                                   // all record types
+    m_LogfilePulsarEvolution                                        = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION));    // only BSE for now
+    m_LogfilePulsarEvolutionRecordTypes                             = -1;                                                                   // all record types
     m_LogfileRLOFParameters                                         = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));
-    m_LogfileSupernovae                                             = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));       // assume BSE - get real answer when we know mode
-    m_LogfileSwitchLog                                              = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));       // assume BSE - get real answer when we know mode
+    m_LogfileRLOFParametersRecordTypes                              = -1;                                                                   // all record types
+    m_LogfileSupernovae                                             = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));          // assume BSE - get real answer when we know mode
+    m_LogfileSupernovaeRecordTypes                                  = -1;                                                                   // all record types
+    m_LogfileSwitchLog                                              = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));          // assume BSE - get real answer when we know mode
     m_LogfileSystemParameters                                       = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));
+    m_LogfileSystemParametersRecordTypes                            = -1;                                                                   // all record types
 
     m_AddOptionsToSysParms.type                                     = ADD_OPTIONS_TO_SYSPARMS::GRID;
     m_AddOptionsToSysParms.typeString                               = ADD_OPTIONS_TO_SYSPARMS_LABEL.at(m_AddOptionsToSysParms.type);
@@ -635,7 +643,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "allow-non-stripped-ECSN",
             po::value<bool>(&p_Options->m_AllowNonStrippedECSN)->default_value(p_Options->m_AllowNonStrippedECSN)->implicit_value(true),                                                                  
-            ("Allow ECSN to occur in unstripped progenitors (default = " + std::string(p_Options->m_AllowNonStrippedECSN? "TRUE" : "FALSE") + ")").c_str()
+            ("Allow ECSN to occur in unstripped progenitors (default = " + std::string(p_Options->m_AllowNonStrippedECSN ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "allow-rlof-at-birth",                                         
@@ -827,6 +835,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<int>(&p_Options->m_DebugLevel)->default_value(p_Options->m_DebugLevel),                                                                                                     
             ("Determines which print statements are displayed for debugging (default = " + std::to_string(p_Options->m_DebugLevel) + ")").c_str()
         )
+
         (
             "grid-start-line",                                                 
             po::value<std::streamsize>(&p_Options->m_GridStartLine)->default_value(p_Options->m_GridStartLine),                                                                                                     
@@ -837,6 +846,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::streamsize>(&p_Options->m_GridLinesToProcess)->default_value(p_Options->m_GridLinesToProcess),                                                                                                     
             ("Specifies how many grid lines should be processed (from the start line - see grid-start-line) (default = " + (p_Options->m_GridLinesToProcess == std::numeric_limits<std::streamsize>::max() ? "Process to EOF" : std::to_string(p_Options->m_GridLinesToProcess)) + ")").c_str()
         )
+
         (
             "hdf5-chunk-size",                                                 
             po::value<int>(&p_Options->m_HDF5ChunkSize)->default_value(p_Options->m_HDF5ChunkSize),                                                                                                     
@@ -847,16 +857,62 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<int>(&p_Options->m_HDF5BufferSize)->default_value(p_Options->m_HDF5BufferSize),                                                                                                     
             ("HDF5 file dataset IO buffer size (number of chunks, default = " + std::to_string(p_Options->m_HDF5BufferSize) + ")").c_str()
         )
+
+        /*
+        (
+            "logfile-BE-binaries-record-types",                                     
+            po::value<int>(&p_Options->m_LogfileBeBinariesRecordTypes)->default_value(p_Options->m_LogfileBeBinariesRecordTypes),                                                                              
+            ("Enabled record types for BSE Be Binaries logfile (default = " + std::to_string(p_Options->m_LogfileBeBinariesRecordTypes) + ")").c_str()
+        )
+        */
+        (
+            "logfile-rlof-parameters-record-types",                                 
+            po::value<int>(&p_Options->m_LogfileRLOFParametersRecordTypes)->default_value(p_Options->m_LogfileRLOFParametersRecordTypes),                                                                      
+            ("Enabled record types for BSE RLOF Parameters logfile ( default = " + std::to_string(p_Options->m_LogfileRLOFParametersRecordTypes) + ")").c_str()
+        )
+        (
+            "logfile-common-envelopes-record-types",                                
+            po::value<int>(&p_Options->m_LogfileCommonEnvelopesRecordTypes)->default_value(p_Options->m_LogfileCommonEnvelopesRecordTypes),                                                                    
+            ("Enabled record types for BSE Common Envelopes logfile (default = " + std::to_string(p_Options->m_LogfileCommonEnvelopesRecordTypes) + ")").c_str()
+        )
+        (
+            "logfile-detailed-output-record-types",                                 
+            po::value<int>(&p_Options->m_LogfileDetailedOutputRecordTypes)->default_value(p_Options->m_LogfileDetailedOutputRecordTypes),                                                                      
+            ("Enabled record types for BSE Detailed Output logfile (default = " + std::to_string(p_Options->m_LogfileDetailedOutputRecordTypes) + ")").c_str()
+        )
+        (
+            "logfile-double-compact-objects-record-types",                          
+            po::value<int>(&p_Options->m_LogfileDoubleCompactObjectsRecordTypes)->default_value(p_Options->m_LogfileDoubleCompactObjectsRecordTypes),                                                          
+            ("Enabled record types for Double Compact Objects logfile (default = " + std::to_string(p_Options->m_LogfileDoubleCompactObjectsRecordTypes) + ")").c_str()
+        )
+        (
+            "logfile-pulsar-evolution-record-types",                                
+            po::value<int>(&p_Options->m_LogfilePulsarEvolutionRecordTypes)->default_value(p_Options->m_LogfilePulsarEvolutionRecordTypes),                                                                    
+            ("Enabled record types for Pulsar Evolution logfile (default = " + std::to_string(p_Options->m_LogfilePulsarEvolutionRecordTypes) + ")").c_str()
+        )
+        (
+            "logfile-supernovae-record-types",                                      
+            po::value<int>(&p_Options->m_LogfileSupernovaeRecordTypes)->default_value(p_Options->m_LogfileSupernovaeRecordTypes),                                                                              
+            ("Enabled record types for Supernovae logfile (default = " + std::to_string(p_Options->m_LogfileSupernovaeRecordTypes) + ")").c_str()
+        )
+        (
+            "logfile-system-parameters-record-types",                               
+            po::value<int>(&p_Options->m_LogfileSystemParametersRecordTypes)->default_value(p_Options->m_LogfileSystemParametersRecordTypes),                                                                  
+            ("Enabled record types for System Parameters logfile (default = " + std::to_string(p_Options->m_LogfileSystemParametersRecordTypes) + ")").c_str()
+        )
+
         (
             "log-level",                                                   
             po::value<int>(&p_Options->m_LogLevel)->default_value(p_Options->m_LogLevel),                                                                                                         
             ("Determines which print statements are included in the logfile (default = " + std::to_string(p_Options->m_LogLevel) + ")").c_str()
         )
+
         (
             "maximum-number-timestep-iterations",                          
             po::value<int>(&p_Options->m_MaxNumberOfTimestepIterations)->default_value(p_Options->m_MaxNumberOfTimestepIterations),                                                               
             ("Maximum number of timesteps to evolve binary before giving up (default = " + std::to_string(p_Options->m_MaxNumberOfTimestepIterations) + ")").c_str()
         )
+
         (
             "number-of-systems,n",                                        
             po::value<int>(&p_Options->m_ObjectsToEvolve)->default_value(p_Options->m_ObjectsToEvolve),                                                                                                       
