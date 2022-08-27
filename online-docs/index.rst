@@ -37,6 +37,7 @@ Contents
    
    ./pages/references
    ./pages/contact-us
+   ./pages/whats-new
 
 
 If you use COMPAS in the preparation of a publication, please :doc:`cite COMPAS <./pages/how-to-cite>`.
