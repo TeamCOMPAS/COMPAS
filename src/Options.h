@@ -206,15 +206,22 @@ private:
         //"logfile-be-binaries",
 
         "logfile-common-envelopes",
+        "logfile-common-envelopes-record-types",
         "logfile-definitions",
         "logfile-detailed-output",
+        "logfile-detailed-output-record-types",
         "logfile-double-compact-objects",
+        "logfile-double-compact-objects-record-types",
         "logfile-name-prefix",
         "logfile-pulsar-evolution",
+        "logfile-pulsar-evolution-record-types",
         "logfile-rlof-parameters",
+        "logfile-rlof-parameters-record-types",
         "logfile-supernovae",
+        "logfile-supernovae-record-types",
         "logfile-switch-log",
         "logfile-system-parameters",
+        "logfile-system-parameters-record-types",
         "logfile-type",
 
         "mode",
@@ -331,11 +338,17 @@ private:
         "kick-theta-1",
         "kick-theta-2",
 
+        //"logfile-be-binaries",
+        //"logfile-be-binaries-record-types",
+
         "logfile-common-envelopes",
+        "logfile-common-envelopes-record-types",
         "logfile-double-compact-objects",
+        "logfile-double-compact-objects-record-types",
         "logfile-pulsar-evolution",
+        "logfile-pulsar-evolution-record-types",
         "logfile-rlof-parameters",
-        "logfile-system-parameters",
+        "logfile-rlof-parameters-record-types",
 
         "mass-ratio", "q",
         "mass-ratio-max",
@@ -436,17 +449,24 @@ private:
         "log-classes",
 
         //"logfile-be-binaries",
+        //"logfile-be-binaries-record-types",
 
         "logfile-common-envelopes",
+        "logfile-common-envelopes-record-types",
         "logfile-definitions",
         "logfile-detailed-output",
         "logfile-double-compact-objects",
+        "logfile-double-compact-objects-record-types",
         "logfile-name-prefix",
         "logfile-pulsar-evolution",
+        "logfile-pulsar-evolution-record-types",
         "logfile-rlof-parameters",
+        "logfile-rlof-parameters-record-types",
         "logfile-supernovae",
+        "logfile-supernovae-record-types",
         "logfile-switch-log",
         "logfile-system-parameters",
+        "logfile-system-parameters-record-types",
         "logfile-type",
         "luminous-blue-variable-prescription",
 
@@ -522,17 +542,25 @@ private:
         "log-level", 
 
         //"logfile-be-binaries",
+        //"logfile-be-binaries-record-types",
 
         "logfile-common-envelopes",
+        "logfile-common-envelopes-record-types",
         "logfile-definitions",
         "logfile-detailed-output",
+        "logfile-detailed-output-record-types",
         "logfile-double-compact-objects",
+        "logfile-double-compact-objects-record-types",
         "logfile-name-prefix",
         "logfile-pulsar-evolution",
+        "logfile-pulsar-evolution-record-types",
         "logfile-rlof-parameters",
+        "logfile-rlof-parameters-record-types",
         "logfile-supernovae",
+        "logfile-supernovae-record-types",
         "logfile-switch-log",
         "logfile-system-parameters",
+        "logfile-system-parameters-record-types",
         "logfile-type",
 
         "mode",
@@ -911,6 +939,15 @@ public:
             std::string                                         m_LogfilePulsarEvolution;                                       // output file name: pulsar evolution
             std::string                                         m_LogfileSwitchLog;                                             // output file name: switch log
 
+            int                                                 m_LogfileSystemParametersRecordTypes;                           // enabled record types: system parameters
+            int                                                 m_LogfileDetailedOutputRecordTypes;                             // enabled record types: detailed output
+            int                                                 m_LogfileDoubleCompactObjectsRecordTypes;                       // enabled record types: double compact objects
+            int                                                 m_LogfileSupernovaeRecordTypes;                                 // enabled record types: supernovae
+            int                                                 m_LogfileCommonEnvelopesRecordTypes;                            // enabled record types: common envelopes
+            int                                                 m_LogfileRLOFParametersRecordTypes;                             // enabled record types: Roche Lobe overflow
+            int                                                 m_LogfileBeBinariesRecordTypes;                                 // enabled record types: Be Binaries
+            int                                                 m_LogfilePulsarEvolutionRecordTypes;                            // enabled record types: pulsar evolution
+
             ENUM_OPT<ADD_OPTIONS_TO_SYSPARMS>                   m_AddOptionsToSysParms;                                         // Whether/when to add program option columns to BSE/SSE sysparms file
 
             int                                                 m_HDF5BufferSize;                                               // HDF5 file IO buffer size (number of chunks)
@@ -1190,7 +1227,9 @@ public:
 
     std::vector<std::string>                    LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
     std::string                                 LogfileBeBinaries() const                                               { return m_CmdLine.optionValues.m_LogfileBeBinaries; }
+    int                                         LogfileBeBinariesRecordTypes() const                                    { return m_CmdLine.optionValues.m_LogfileBeBinariesRecordTypes; }
     std::string                                 LogfileCommonEnvelopes() const                                          { return m_CmdLine.optionValues.m_LogfileCommonEnvelopes; }
+    int                                         LogfileCommonEnvelopesRecordTypes() const                               { return m_CmdLine.optionValues.m_LogfileCommonEnvelopesRecordTypes; }
     std::string                                 LogfileDefinitionsFilename() const                                      { return m_CmdLine.optionValues.m_LogfileDefinitionsFilename; }
     std::string                                 LogfileDetailedOutput() const                                           { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-detailed-output"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileDetailedOutput
@@ -1199,10 +1238,14 @@ public:
                                                                                                                                         : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT))
                                                                                                                                       );
                                                                                                                         }
+    int                                         LogfileDetailedOutputRecordTypes() const                                { return m_CmdLine.optionValues.m_LogfileDetailedOutputRecordTypes; }
     std::string                                 LogfileDoubleCompactObjects() const                                     { return m_CmdLine.optionValues.m_LogfileDoubleCompactObjects; }
+    int                                         LogfileDoubleCompactObjectsRecordTypes() const                          { return m_CmdLine.optionValues.m_LogfileDoubleCompactObjectsRecordTypes; }
     std::string                                 LogfileNamePrefix() const                                               { return m_CmdLine.optionValues.m_LogfileNamePrefix; }
     std::string                                 LogfilePulsarEvolution() const                                          { return m_CmdLine.optionValues.m_LogfilePulsarEvolution; }
+    int                                         LogfilePulsarEvolutionRecordTypes() const                               { return m_CmdLine.optionValues.m_LogfilePulsarEvolutionRecordTypes; }
     std::string                                 LogfileRLOFParameters() const                                           { return m_CmdLine.optionValues.m_LogfileRLOFParameters; }
+    int                                         LogfileRLOFParametersRecordTypes() const                                { return m_CmdLine.optionValues.m_LogfileRLOFParametersRecordTypes; }
     std::string                                 LogfileSupernovae() const                                               { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-supernovae"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileSupernovae
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
@@ -1210,6 +1253,7 @@ public:
                                                                                                                                         : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE))
                                                                                                                                       );
                                                                                                                         }
+    int                                         LogfileSupernovaeRecordTypes() const                                    { return m_CmdLine.optionValues.m_LogfileSupernovaeRecordTypes; }
     std::string                                 LogfileSwitchLog() const                                                { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-switch-log"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileSwitchLog
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
@@ -1224,6 +1268,7 @@ public:
                                                                                                                                         : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS))
                                                                                                                                       );
                                                                                                                         }
+    int                                         LogfileSystemParametersRecordTypes() const                              { return m_CmdLine.optionValues.m_LogfileSystemParametersRecordTypes; }
     LOGFILETYPE                                 LogfileType() const                                                     { return m_CmdLine.optionValues.m_LogfileType.type; }
     std::string                                 LogfileTypeString() const                                               { return m_CmdLine.optionValues.m_LogfileType.typeString; }
     int                                         LogLevel() const                                                        { return m_CmdLine.optionValues.m_LogLevel; }

@@ -402,8 +402,6 @@ void BaseBinaryStar::SetRemainingValues() {
 	m_SynchronizationTimescale                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CircularizationTimescale                   = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    m_PrintExtraDetailedOutput                   = false;
-
 	// RLOF details
     m_RLOFDetails.experiencedRLOF                          = false;
     m_RLOFDetails.immediateRLOFPostCEE                     = false;
@@ -836,28 +834,29 @@ bool BaseBinaryStar::IsHMXRBinary() const {
  * and / or HMXRBs are being printed and IsHMXRBinary is true
  *
  *
- * bool PrintRLOFParameters()
+ * bool PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType)
  * 
+ * @param   [IN]    p_RecordType                Record type to be written
  * @return                                      Boolean status (true = success, false = failure)
  * 
  */
-bool BaseBinaryStar::PrintRLOFParameters() {
+bool BaseBinaryStar::PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType) {
 
     bool ok = true;
 
-    if (!OPTIONS->RLOFPrinting()) return ok;                    // do not print if printing option off
+    if (!OPTIONS->RLOFPrinting()) return ok;                            // do not print if printing option off
 
-    StashRLOFProperties(MASS_TRANSFER_TIMING::POST_MT);         // stash properties immediately post-Mass Transfer 
+    StashRLOFProperties(MASS_TRANSFER_TIMING::POST_MT);                 // stash properties immediately post-Mass Transfer 
 
-    if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {               // print if either star is in RLOF
-        m_RLOFDetails.propsPostMT->eventCounter += 1;           // every time we print a MT event happened, increment counter
-        ok = LOGGING->LogRLOFParameters(this);                  // yes - write to log file
+    if (m_Star1->IsRLOF() || m_Star2->IsRLOF()) {                       // print if either star is in RLOF
+        m_RLOFDetails.propsPostMT->eventCounter += 1;                   // every time we print a MT event happened, increment counter
+        ok = LOGGING->LogRLOFParameters(this, p_RecordType);    // yes - write to log file
     }
 
-    if (!OPTIONS->HMXRBinaries()) return ok;
- 
-    if (IsHMXRBinary()) {  // print if star is HMXRB candidate
-        ok = LOGGING->LogRLOFParameters(this); 
+    if (OPTIONS->HMXRBinaries()) {
+        if (IsHMXRBinary()) {                                           // print if star is HMXRB candidate
+            ok = LOGGING->LogRLOFParameters(this, p_RecordType); 
+        }
     }
 
     return ok;
@@ -867,18 +866,19 @@ bool BaseBinaryStar::PrintRLOFParameters() {
  * Write Be binary parameters to logfile if required
  *
  *
- * bool PrintBeBinary()
+ * bool PrintBeBinary(const BE_BINARY_RECORD_TYPE p_RecordType)
  * 
+ * @param   [IN]    p_RecordType                Record type to be written
  * @return                                      Boolean status (true = success, false = failure)
  * 
  */
-bool BaseBinaryStar::PrintBeBinary() {
+bool BaseBinaryStar::PrintBeBinary(const BE_BINARY_RECORD_TYPE p_RecordType) {
     
-    if (!OPTIONS->BeBinaries()) return true;                    // do not print if printing option off
+    if (!OPTIONS->BeBinaries()) return true;                // do not print if printing option off
     
-    StashBeBinaryProperties();                                  // stash Be binary properties
+    StashBeBinaryProperties();                              // stash Be binary properties
     
-    return LOGGING->LogBeBinary(this);                          // write to log file
+    return LOGGING->LogBeBinary(this, p_RecordType);        // write to log file
 }
 
 
@@ -1112,8 +1112,9 @@ void BaseBinaryStar::ResolveCoalescence() {
         m_Flags.mergesInHubbleTime = false;
     }
 
-    if (!IsUnbound())
+    if (!IsUnbound()) {
         (void)PrintDoubleCompactObjects();                                                                                                      // print (log) double compact object details
+    }
 }
 
 
@@ -1576,7 +1577,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         m_Flags.stellarMerger        = true;
     }
     else if ( (m_Star1->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) ||
-              (m_Star2->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) ) {        // check if we have a non-MS radiative-envelope star
+              (m_Star2->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) ) {       // check if we have a non-MS radiative-envelope star
         m_CEDetails.optimisticCE = true;
         if(!OPTIONS->AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() ) {                                            // stellar merger
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
@@ -1603,7 +1604,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         m_Star2->UpdateAttributes(0.0, 0.0, true);
 
         if (m_Star1->StellarType() != stellarType1 || m_Star2->StellarType() != stellarType2) {                         // stellar type change?
-            m_PrintExtraDetailedOutput = true;                                                                          // yes - print detailed output record
+            (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_CEE);                  // yes - print (log) detailed output
         }
 	}
 
@@ -1615,14 +1616,16 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star1->SetOmega(OrbitalAngularVelocity());
     if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star2->SetOmega(OrbitalAngularVelocity());
     
-    m_Star1->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 1
-    m_Star2->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 2
-    SetPostCEEValues(aFinalRsol, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                                       // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
+    m_Star1->SetPostCEEValues();                                                                                        // squirrel away post CEE stellar values for star 1
+    m_Star2->SetPostCEEValues();                                                                                        // squirrel away post CEE stellar values for star 2
+    SetPostCEEValues(aFinalRsol, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                                           // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
+
     if (m_RLOFDetails.immediateRLOFPostCEE == true && !OPTIONS->AllowImmediateRLOFpostCEToSurviveCommonEnvelope()) {    // Is there immediate post-CE RLOF which is not allowed?
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
             m_Flags.stellarMerger = true;
     }
-    (void)PrintCommonEnvelope();
+
+    (void)PrintCommonEnvelope();                                                                                        // print (log) common envelope details
     
 }
 
@@ -1883,12 +1886,11 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
 
 
-    // RTW
     // Evaluate separately for stable / unstable MT
-    if (isUnstable) {                                              // Unstable Mass Transfer
+    if (isUnstable) {                                               // Unstable Mass Transfer
             m_CEDetails.CEEnow = true;
     }
-    else {                                                      // Stable MT
+    else {                                                          // Stable MT
             
         m_MassTransferTrackerHistory = m_Donor==m_Star1 ? MT_TRACKING::STABLE_1_TO_2_SURV: MT_TRACKING::STABLE_2_TO_1_SURV; // record what happened - for later printing
         double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
@@ -1906,7 +1908,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             m_Donor->ResolveEnvelopeLossAndSwitch();                                                                    // only other interaction that adds/removes mass is winds, so it is safe to update star here
             
             if (m_Donor->StellarType() != stellarTypeDonor) {                                                           // stellar type change?
-                m_PrintExtraDetailedOutput = true;                                                                      // yes - print detailed output record
+                (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_MT);               // yes - print (log) detailed output
             }
         }
         else{                                                                                                           // donor has no envelope
@@ -1963,7 +1965,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
                 double mass = (m_Star1->Mass() + m_Star2->Mass()) / 2.0;                                                        // share mass equally
                 if ((m_Star1->UpdateAttributes(mass - m_Star1->Mass(), mass - m_Star1->Mass0(), true) != stellarType1) ||       // set new mass, mass0 for star 1
                     (m_Star2->UpdateAttributes(mass - m_Star2->Mass(), mass - m_Star2->Mass0(), true) != stellarType2)) {       // set new mass, mass0 for star 2
-                    m_PrintExtraDetailedOutput = true;                                                                          // print detailed output record if stellar type changed
+                    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_CHE_EQUILIBRATION);    // print (log) detailed output if stellar type changed
                 }
                 m_Flags.massesEquilibrated = true;                                                                              // record that we've equilbrated
             }
@@ -1979,8 +1981,6 @@ void BaseBinaryStar::InitialiseMassTransfer() {
                 m_SemiMajorAxis *= 16.0 * m1m2 * m1m2 / (M * M * M * M) * (1.0 - (m_Eccentricity * m_Eccentricity));            // circularise; conserve angular momentum
                 m_Eccentricity   = 0.0;                                                                                         // now circular
             }
-
-            
             
             m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                               // re-initialise mass transfer for star1
             m_Star2->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                               // re-initialise mass transfer for star2
@@ -2197,8 +2197,9 @@ void BaseBinaryStar::ResolveMassChanges() {
     m_Star2->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star2
     m_Star2->UpdateAttributes(0.0, 0.0, true);
     
+    // ** JAR ** Should this be here, or at the end of the function?
     if ((m_Star1->StellarType() != stellarType1) || (m_Star2->StellarType() != stellarType2)) {         // stellar type change?
-        m_PrintExtraDetailedOutput = true;                                                              // yes - print detailed output record
+        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_MASS_RESOLUTION); // yes - print (log) detailed output
     }
 
     // update binary
@@ -2217,7 +2218,7 @@ void BaseBinaryStar::ResolveMassChanges() {
  * Evaluate the binary system
  *
  *    - calculate any mass transfer
- *    - calculate mass loss due to wonds
+ *    - calculate mass loss due to winds
  *    - resolve any Common Envelope Event
  *    - resolve any Supernova Event
  *    - resolve mass changes - apply mass loss and mass transfer
@@ -2225,7 +2226,10 @@ void BaseBinaryStar::ResolveMassChanges() {
  *    - calculate total energy and angular momentum after mass changes
  *    - update pulsar parameters
  *
- *
+ * JR: This is the binary evolution (post stellar evolution).  Maybe we should rename this EvolveBinary()?
+ *     The constituent srats have been evolved for a single timestep before entering this function, and here
+ *     we update (evolve?) the binary in response to the stellar evolution of the components.
+ * 
  * void EvaluateBinary(const double p_Dt)
  *
  * @param   [in]        p_Dt                    Timestep (in Myr)
@@ -2234,44 +2238,50 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     CalculateMassTransfer(p_Dt);                                                                                        // calculate mass transfer if necessary
 
+    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_MT);                                                 // print (log) detailed output
+
     CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds
+
+    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_WINDS);                                              // print (log) detailed output
 
     if ((m_CEDetails.CEEnow || StellarMerger()) &&                                                                      // CEE or merger?
         !(OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {                  // yes - avoid CEE if CH+CH
 
         ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
+        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_CEE);                                            // print (log) detailed output
     }
     else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
         EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) - immediate event
+        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                             // print (log) detailed output
     }
     else {
         ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
+        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_MASS_RESOLUTION);                                // print (log) detailed output
+
         if (HasStarsTouching()) {                                                                                       // if stars emerged from mass transfer as touching, it's a merger
             m_Flags.stellarMerger = true;
 		
             // Set Roche lobe flags for both stars so that they show correct RLOF status
             m_Star1->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star1
             m_Star2->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star2
+            (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_MASS_RESOLUTION_MERGER);                     // print (log) detailed output
         }
     }
 
-    if (m_PrintExtraDetailedOutput == true && !StellarMerger()) { (void)PrintDetailedOutput(m_Id); }                    // print detailed output record if stellar type changed (except on merger, when detailed output is meaningless)
-    m_PrintExtraDetailedOutput = false;                                                                                 // reset detailed output printing flag for the next timestep
-
     if ((m_Star1->IsSNevent() || m_Star2->IsSNevent())) {
         EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) if mass changes are responsible for a supernova
+        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                             // print (log) detailed output
     }
 
     // assign new values to "previous" values, for following timestep
-    m_EccentricityPrev	         = m_Eccentricity;
-    m_SemiMajorAxisPrev          = m_SemiMajorAxis;
+    m_EccentricityPrev  = m_Eccentricity;
+    m_SemiMajorAxisPrev = m_SemiMajorAxis;
 
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
 
     m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star1
     m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star2
 }
-
 
 
 /*
@@ -2340,7 +2350,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
         evolutionStatus              = EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH;                                                           // binary components are touching - merger at birth
     }
 
-    (void)PrintDetailedOutput(m_Id);                                                                                                        // print (log) detailed output for binary
+    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::INITIAL_STATE);                                                               // print (log) detailed output: this is the initial state of the binary
 
     if (OPTIONS->PopulationDataPrinting()) {
         SAY("\nGenerating a new binary - " << m_Id);
@@ -2364,7 +2374,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                                        // at least one massless remnant?
                 evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                                                       // yes - stop evolution
             }
-            else if (StellarMerger() ) {                                                                                                    // have stars merged?
+            else if (StellarMerger()) {                                                                                                     // have stars merged?
                 evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                         // for now, stop evolution
             }
             else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
@@ -2376,12 +2386,14 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             }
             else {                                                                                                                          // continue evolution
 
-                (void)PrintDetailedOutput(m_Id);                                                                                            // print (log) detailed output for binary
+                (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_STELLAR_TIMESTEP);                                           // print (log) detailed output
 
                 if (OPTIONS->RLOFPrinting()) StashRLOFProperties(MASS_TRANSFER_TIMING::PRE_MT);                                             // stash properties immediately pre-Mass Transfer 
 
                 EvaluateBinary(dt);                                                                                                         // evaluate the binary at this timestep
 
+                (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_BINARY_TIMESTEP);                                            // print (log) detailed output
+                
                 (void)PrintRLOFParameters();                                                                                                // print (log) RLOF parameters
                 
                 // check for problems
@@ -2399,9 +2411,11 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                        // continue evolution?
 
-                    if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) (void)PrintPulsarEvolutionParameters();                                   // print (log) pulsar evolution parameters 
+                    if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
+                        (void)PrintPulsarEvolutionParameters();                                                                             // print (log) pulsar evolution parameters 
+                    }
 
-                    //(void)PrintBeBinary();                                                                                                // print (log) BeBinary properties
+                    //(void)PrintBeBinary();                                                                                                  // print (log) BeBinary properties
                         
                     if (IsDCO() && !IsUnbound()) {                                                                                          // bound double compact object?
                         if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                                           // DCO not yet evaluated -- to ensure that the coalescence is only resolved once
@@ -2427,6 +2441,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 }
             }
 
+            (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                                                  // print (log) detailed output: this is after all changes made in the timestep
+
             if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) evolutionStatus = EVOLUTION_STATUS::STEPS_UP;                          // number of timesteps for evolution exceeds maximum
 
             if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                            // continue evolution?
@@ -2434,17 +2450,17 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();                  // new timestep
                 if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt < NUCLEAR_MINIMUM_TIMESTEP) {
                     dt = NUCLEAR_MINIMUM_TIMESTEP;                                                                                          // but not less than minimum
-		}
+		        }
                 stepNum++;                                                                                                                  // increment stepNum
             }
         }
-
-        (void)PrintDetailedOutput(m_Id);                                                                                                    // print (log) detailed output for binary
 
         if (evolutionStatus == EVOLUTION_STATUS::STEPS_UP) {                                                                                // stopped because max timesteps reached?
             SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED);                                                                                    // show error
         }
     }
+
+    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::FINAL_STATE);                                                                 // print (log) detailed output: this is the final state of the binary
 
     (void)PrintBinarySystemParameters();                                                                                                    // print (log) binary system parameters
 
