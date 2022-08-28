@@ -1340,7 +1340,16 @@ double BaseStar::CalculateInterpolatedQCritOrZetaGe2020() const {
     int lowerMassInd = ind[0];
     int upperMassInd = ind[1];
 
-    //std::tuple<std::vector<double>, std::vector<double>> logRadiusAndMassRatio;
+    if (lowerMassInd == -1) {                                                   // if masses are out of range, set to endpoints
+        lowerMassInd = 0; 
+        upperMassInd = 0;
+    } 
+    else if (upperMassInd == -1) { 
+        lowerMassInd = massesFromGe20.size(); 
+        upperMassInd = massesFromGe20.size();
+    } 
+
+    // Get vector of radii from GE20_QCRIT_AND_ZETA for the lower and upper mass indeces
     std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsZetasFromGe20[lowerMassInd]);
     std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsZetasFromGe20[upperMassInd]);
 
@@ -1370,15 +1379,34 @@ double BaseStar::CalculateInterpolatedQCritOrZetaGe2020() const {
         SHOW_ERROR(error);                                                                    // warn that an error occurred
     }
 
-    // Get vector of radii from GE20_QCRIT_AND_ZETA for both lower and upper masses
 
+    // Get vector of radii from GE20_QCRIT_AND_ZETA for both lower and upper masses
     std::vector<int> indR0 = utils::binarySearch(logRadiusVectorLowerMass, log10(m_Radius));
     double lowerRadiusLowerMassInd = indR0[0];
     double upperRadiusLowerMassInd = indR0[1];
 
+    if (lowerRadiusLowerMassInd == -1) {                                                   // if radii are out of range, set to endpoints
+        lowerRadiusLowerMassInd = 0; 
+        upperRadiusLowerMassInd = 0; 
+    }
+    else if (upperRadiusLowerMassInd == -1) {                                                   
+        lowerRadiusLowerMassInd = logRadiusVectorLowerMass.size(); 
+        upperRadiusLowerMassInd = logRadiusVectorLowerMass.size(); 
+    }
+
     std::vector<int> indR1 = utils::binarySearch(logRadiusVectorUpperMass, log10(m_Radius));
     double lowerRadiusUpperMassInd = indR1[0];
     double upperRadiusUpperMassInd = indR1[1];
+
+    if (lowerRadiusUpperMassInd == -1) {                                                   // if radii are out of range, set to endpoints
+        lowerRadiusUpperMassInd = 0; 
+        upperRadiusUpperMassInd = 0; 
+    }
+    else if (upperRadiusUpperMassInd == -1) {                                                   
+        lowerRadiusUpperMassInd = logRadiusVectorUpperMass.size(); 
+        upperRadiusUpperMassInd = logRadiusVectorUpperMass.size(); 
+    }
+
 
     // Set the 4 boundary points for the 2D interpolation
     double valLowLow = paramVectorLowerMass[lowerRadiusLowerMassInd];
