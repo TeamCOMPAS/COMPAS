@@ -392,7 +392,7 @@ void Options::OptionValues::Initialise() {
     m_MassTransferRejuvenationPrescription.typeString               = MT_REJUVENATION_PRESCRIPTION_LABEL.at(m_MassTransferRejuvenationPrescription.type);
 
     // Mass transfer critical mass ratios - defined here as (accretor mass / donor mass)
-    // A value of 0.0 means the mass ratio will never be unstable - this does not guaruntee stability of the MT, just that instability is not based on the mass ratio
+    // A value of 0.0 means the mass transfer will always be stable 
 
     m_QCritPrescription.type                                        = QCRIT_PRESCRIPTION::NONE;                             // Assume no critical mass ratio prescription
     m_QCritPrescription.typeString                                  = QCRIT_PRESCRIPTION_LABEL.at(m_QCritPrescription.type);
