@@ -35,9 +35,10 @@ std::tuple<double,ACCRETION_REGIME> ONeWD::DetermineAccretionRegime(const bool p
     ACCRETION_REGIME regime;
     std::tie(std::ignore, fraction) = CalculateWDMassAcceptanceRate(logMdot, p_HeRich); // Assume everything works the same way as a CO WD
     if (p_HeRich) {
-            double massTransferCrit = -6.84 + 1.349 * m_Mass;
-            double massTransferStable = -8.115 + 2.29 * m_Mass; // Piersanti+2014 has several Flashes regimes. Here we group them into one.
-            double massTransferDetonation = -8.313 + 1.018 * m_Mass; // Critical value for double detonation regime in Piersanti+ 2014
+        // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
+            double massTransferCrit = MT_LIMIT_CRIT_PIERSANTI_0 + MT_LIMIT_CRIT_PIERSANTI_1 * m_Mass;
+            double massTransferStable = MT_LIMIT_STABLE_PIERSANTI_0 + MT_LIMIT_STABLE_PIERSANTI_1 * m_Mass; // Piersanti+2014 has several Flashes regimes. Here we group them into one.
+            double massTransferDetonation = MT_LIMIT_DET_PIERSANTI_0 + MT_LIMIT_DET_PIERSANTI_1 * m_Mass; // Critical value for double detonation regime in Piersanti+ 2014
             if (utils::Compare(logMdot, massTransferStable) < 0) {
                 if (utils::Compare(logMdot, massTransferDetonation) > 0) {
                     regime = ACCRETION_REGIME::HELIUM_FLASHES;
@@ -50,8 +51,9 @@ std::tuple<double,ACCRETION_REGIME> ONeWD::DetermineAccretionRegime(const bool p
                 regime = ACCRETION_REGIME::HELIUM_STABLE_BURNING;
             }
     } else {
-            double massTransferCrit = -0.98023471 * m_Mass * m_Mass + 2.88247131 * m_Mass - 8.33017155; // Quadratic fits to Nomoto+ 2007 (Mass vs log10 Mdot space), to cover the low-mass end.
-            double massTransferStable = -1.2137735 * m_Mass * m_Mass + 3.57319872 * m_Mass - 9.21757267;
+        // The following coefficients in massTransfer limits come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
+            double massTransferCrit = MT_LIMIT_CRIT_NOMOTO_0 +  MT_LIMIT_CRIT_NOMOTO_1 * m_Mass +  MT_LIMIT_CRIT_NOMOTO_2 * m_Mass * m_Mass;
+            double massTransferStable =  MT_LIMIT_STABLE_NOMOTO_0 +  MT_LIMIT_STABLE_NOMOTO_1 * m_Mass +  MT_LIMIT_STABLE_NOMOTO_2 * m_Mass * m_Mass;
             if (utils::Compare(logMdot, massTransferStable) < 0) {
                 regime = ACCRETION_REGIME::HYDROGEN_FLASHES;
             } else if (utils::Compare(logMdot, massTransferCrit) > 0) {
