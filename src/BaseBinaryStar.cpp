@@ -1891,6 +1891,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         }
 
         isUnstable = (m_Accretor->Mass()/m_Donor->Mass()) < qCrit;
+        m_FractionAccreted = 1;                                                                 // Accretion is assumed fully conservative for qCrit calculations
     }
     else {                                                                                      // Determine stability based on zetas
 
