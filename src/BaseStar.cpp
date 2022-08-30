@@ -1329,7 +1329,7 @@ double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
  * 
  * @return                                      Critical mass ratio or zeta for given stellar mass / radius
  */ 
-double BaseStar::CalculateInterpolatedQCritOrZetaGe2020() const {
+double BaseStar::CalculateInterpolatedQCritOrZetaGe2020() {
 
     // Get vector of masses from GE20_QCRIT_AND_ZETA
     std::vector<double> massesFromGe20 = std::get<0>(GE20_QCRIT_AND_ZETA);
@@ -1374,9 +1374,11 @@ double BaseStar::CalculateInterpolatedQCritOrZetaGe2020() const {
         paramVectorLowerMass     = std::get<4>(radiiQCritsZetasFromGe20[lowerMassInd]);
         paramVectorUpperMass     = std::get<4>(radiiQCritsZetasFromGe20[upperMassInd]);
     }
-    else { // RTW TODO: check
-        ERROR error = ERROR:: UNHANDLED_EXCEPTION;                                            // set error value
-        SHOW_ERROR(error);                                                                    // warn that an error occurred
+    else { 
+        ERROR m_Error = ERROR::UNHANDLED_EXCEPTION;                                             // set error value
+        SHOW_ERROR(m_Error);                                                                    // warn that an error occurred
+        paramVectorLowerMass     = std::get<4>(radiiQCritsZetasFromGe20[lowerMassInd]);         // set arbitrary values 
+        paramVectorUpperMass     = std::get<4>(radiiQCritsZetasFromGe20[upperMassInd]);         // set arbitrary values 
     }
 
 
@@ -1385,7 +1387,7 @@ double BaseStar::CalculateInterpolatedQCritOrZetaGe2020() const {
     double lowerRadiusLowerMassInd = indR0[0];
     double upperRadiusLowerMassInd = indR0[1];
 
-    if (lowerRadiusLowerMassInd == -1) {                                                   // if radii are out of range, set to endpoints
+    if (lowerRadiusLowerMassInd == -1) {                                                        // if radii are out of range, set to endpoints
         lowerRadiusLowerMassInd = 0; 
         upperRadiusLowerMassInd = 0; 
     }
