@@ -1334,22 +1334,22 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "pisn-lower-limit",                                            
+            "PISN-lower-limit",                                            
             po::value<double>(&p_Options->m_PairInstabilityLowerLimit)->default_value(p_Options->m_PairInstabilityLowerLimit),                                                                    
             ("Minimum core mass for PISN, in Msol (default = " + std::to_string(p_Options->m_PairInstabilityLowerLimit) + ")").c_str()
         )
         (
-            "pisn-upper-limit",                                            
+            "PISN-upper-limit",                                            
             po::value<double>(&p_Options->m_PairInstabilityUpperLimit)->default_value(p_Options->m_PairInstabilityUpperLimit),                                                                    
             ("Maximum core mass for PISN, in Msol (default = " + std::to_string(p_Options->m_PairInstabilityUpperLimit) + ")").c_str()
         )
         (
-            "ppi-lower-limit",                                             
+            "PPI-lower-limit",                                             
             po::value<double>(&p_Options->m_PulsationalPairInstabilityLowerLimit)->default_value(p_Options->m_PulsationalPairInstabilityLowerLimit),                                              
             ("Minimum core mass for PPI, in Msol (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityLowerLimit) + ")").c_str()
         )
         (
-            "ppi-upper-limit",                                             
+            "PPI-upper-limit",                                             
             po::value<double>(&p_Options->m_PulsationalPairInstabilityUpperLimit)->default_value(p_Options->m_PulsationalPairInstabilityUpperLimit),                                              
             ("Maximum core mass for PPI, in Msol (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityUpperLimit) + ")").c_str()
         )
