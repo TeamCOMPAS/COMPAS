@@ -19,24 +19,24 @@
  * std::tuple<double,int> DetermineAccretionRegime(bool p_HeRich, const double p_AccretedMass, const double p_Dt)
  *
  * @param   [IN]    p_HeRich             Whether the accreted material is helium-rich or not
- * @param   [IN]    p_AccretedMass       Total mass accreted
- * @param   [IN]    p_Dt                 Size of the timestep, assumed to be the duration of this particular mass transfer episode
+ * @param   [IN]    p_AccretedMass       Total mass accreted in M_Sun
+ * @param   [IN]    p_Dt                 Size of the timestep in Myr, assumed to be the duration of this particular mass transfer episode
  * @return                               Tuple containing fraction of mass that should be retained and accretion regime
  */
 
 std::tuple<double,ACCRETION_REGIME> HeWD::DetermineAccretionRegime(const bool p_HeRich, const double p_AccretedMass, const double p_Dt) {
-    double logMdot = log10(p_AccretedMass / p_Dt) - 6; // Logarithm of the accreted mass (M_sun/yr)
+    double logMdot = log10(p_AccretedMass / (p_Dt * MYR_TO_YEAR)); // Logarithm of the accreted mass (M_sun/yr)
     double fraction = 1.0;
     ACCRETION_REGIME regime;
     if (p_HeRich) {
-        if (utils::Compare(logMdot, HELIUM_WHITE_DWARF_MCRIT) < 1) {
+        if (utils::Compare(logMdot, HELIUM_WHITE_DWARF_MCRIT) <= 0) {
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR; // Could lead to Sub CH SN Ia
         } else {
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_IGNITION; // Could lift degeneracy and evolve into He MS. Requires minimum mass ! on top of the shell size
         }
     } else {
-        double Mcrit = log10(m_l0Ritter * PPOW(m_Mass, m_lambdaRitter) / (m_XRitter * 6e18));
-        if (utils::Compare(logMdot, Mcrit) < 1) {
+        double Mcrit = log10(m_l0Ritter * PPOW(m_Mass, m_lambdaRitter) / (m_XRitter * 6e18)); // Eq. 60 in Belczynski+ 2008. 6e18 is the energy yield of H burning in ergs/g.
+        if (utils::Compare(logMdot, Mcrit) <= 0) {
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES; // Flashes restrict accumulation
             fraction = 0.0;
         } else {
@@ -46,29 +46,33 @@ std::tuple<double,ACCRETION_REGIME> HeWD::DetermineAccretionRegime(const bool p_
     return std::make_tuple(fraction, regime);
 }
 
-/* Resolve what happens when the star goes through accretion regimes that might enable a change pf phase.
+/* Resolve what happens when the star goes through accretion regimes that might enable a change of phase.
  * Flags are activated and the actual change happens elsewhere.
  *
  * void ResolveAccretionRegime(const int p_Regime, const double p_AccretedMass, const double p_Dt)
  *
- * @param   [IN]    p_Regime             Integer related to the current accretion regime
+ * @param   [IN]    p_Regime             ACCRETION_REGIME value
  * @param   [IN]    p_AccretedMass       Total mass accreted
- * @param   [IN]    p_Dt                 Size of the timestep, assumed to be the duration of this particular mass transfer episode
+ * @param   [IN]    p_Dt                 Size of the timestep in Myr, assumed to be the duration of this particular mass transfer episode
  */
 
 void HeWD::ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_AccretedMass, const double p_Dt) {
-    double massTransfer = p_AccretedMass / (p_Dt * 1e6);
-    double massSubCh = -4e8 * massTransfer + 1.34; // Minimum mass for Sub-Ch Mass detonation.
-    double shellCrit = -7.8e-4 * massTransfer + 1.34; // Minimum shell mass of He for detonation. Should not be burnt, but not implemented this yet. Ruiter+ 2014.
+    double Mdot = p_AccretedMass / (p_Dt * MYR_TO_YEAR);
+    double massSubCh = -4e8 * Mdot + 1.34; // Minimum mass for Sub-Ch Mass detonation. Eq 62, Belczynski+ 2008.
+    double shellCrit = -7.8e-4 * Mdot + 1.34; // Minimum shell mass of He for detonation. Eq 61, Belczynski+ 2008. This helium should not be burnt, but not implemented this yet. Ruiter+ 2014.
     if (p_Regime == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR) {
-        if (utils::Compare(m_Mass, massSubCh) > -1 ) {
+        if (utils::Compare(m_Mass, massSubCh) >= 0 ) {
             m_SubChandrasekhar = true;
         }
     } else if (p_Regime == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_IGNITION) {
-        if ((utils::Compare(m_Mass, MASS_HELIUM_BURN) > -1) && (utils::Compare(m_HeShell, shellCrit) > -1) && (utils::Compare(massTransfer, 1.64e-6) < 0)) {
-            m_Rejuvenate = true;
-        } else if ((utils::Compare(m_Mass, MASS_HELIUM_BURN) > -1) && (utils::Compare(massTransfer, 1.64e-6) > -1)) {
-            m_Rejuvenate = true;
+        if (utils::Compare(m_Mass, MASS_HELIUM_BURN) >= 0) {
+            if (utils::Compare(Mdot, 1.64e-6) < 0) { // Accretion limit from eq 61, Belczynski+ 2008.
+                if (utils::Compare(m_HeShell, shellCrit) >= 0) {
+                    m_Rejuvenate = true;
+                }
+            } else {
+                m_Rejuvenate = true;
+            }
         }
     }
 }

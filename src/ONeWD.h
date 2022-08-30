@@ -36,7 +36,6 @@ public:
     std::tuple<double,ACCRETION_REGIME> DetermineAccretionRegime(const bool p_HeRich,
                         const double p_AccretedMass,
                         const double p_Dt);
-    void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime) { ;}
 
 protected:
 
@@ -44,8 +43,8 @@ protected:
         m_StellarType = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;                                                                                                      // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
         m_Age = 0.0;                                                                                                                                                // Set age appropriately
-    m_HShell = 0.0; // Initialize hydrogen shell
-    m_HeShell = 0.0; // Initialize helium shell
+        m_HShell = 0.0; // Initialize hydrogen shell
+        m_HeShell = 0.0; // Initialize helium shell
     }
 
 

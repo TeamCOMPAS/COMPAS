@@ -135,6 +135,7 @@ void Options::OptionValues::Initialise() {
 
     // flags
 
+    m_AllowHeIgnitionAt95                                           = false;
     m_AllowHRichECSN                                                = true;
     m_AllowRLOFAtBirth                                              = true;
     m_AllowTouchingAtBirth                                          = false;
@@ -635,6 +636,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         // boolean options - alphabetically
 
+        (
+            "allow-helium-ignition-at-95-percent",
+            po::value<bool>(&p_Options->m_AllowHeIgnitionAt95)->default_value(p_Options->m_AllowHeIgnitionAt95)->implicit_value(true),
+            ("Allow ECSN to occur in H rich (unstripped) progenitors (default = " + std::string(p_Options->m_AllowHeIgnitionAt95? "TRUE" : "FALSE") + ")").c_str()
+        )
         (
             "allow-H-rich-ECSN",
             po::value<bool>(&p_Options->m_AllowHRichECSN)->default_value(p_Options->m_AllowHRichECSN)->implicit_value(true),                                                                  

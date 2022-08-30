@@ -45,10 +45,10 @@ protected:
     void Initialise() {
         m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                                // Set stellar type
         CalculateTimescales();                                                                                                                                  // Initialise timescales
-    m_HShell = 0.0; // Initialize hydrogen shell
-    m_HeShell = 0.0; // Initialize helium shell
-    m_DoubleDetonation = false;
-    m_OffCenterIgnition = false;
+        m_HShell = 0.0; // Initialize hydrogen shell
+        m_HeShell = 0.0; // Initialize helium shell
+        m_DoubleDetonation = false;
+        m_OffCenterIgnition = false;
     }
 
 

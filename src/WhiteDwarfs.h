@@ -32,13 +32,13 @@ public:
     static  double      CalculateRadiusOnPhase_Static(const double p_Mass);
 
 
-    void                IncrementShell(const double p_AccretedMass,
+    void                ResolveShellChange(const double p_AccretedMass,
                                        const bool p_HeRich);
 
 protected:
     // member variables
 
-            bool                    m_DoubleDetonation;                         // Flag
+            bool                    m_DoubleDetonation;                         // Flag to initialize double detonation (i.e. as described in Wang. 2018, sect 5)
             double                  m_HeShell;                                  // Current WD He-shell size (Msol). Increases through accretion.
             double                  m_HShell;                                   // Current WD H-shell size (Msol). Increases through accretion.
             double                  m_l0Ritter;                                 // Parameter from numerical calculations, see Ritter 1999, section 3. Eqs 10 and 12, as well as table 2. Corresponds to L0.
@@ -59,11 +59,11 @@ protected:
 
             double      CalculateetaPTY(const double p_MassRate);
 
-            double      Calculatel0() const                                  {return (m_Metallicity > 0.01) ? 1995262.3 : 31622.8; } // Luminosity constant which depends on metallicity in Ritter 1999, eq 10
+            double      Calculatel0Ritter() const                                  {return (m_Metallicity > 0.01) ? 1995262.3 : 31622.8; } // Luminosity constant which depends on metallicity in Ritter 1999, eq 10
 
-            double      CalculateX() const                                   {return (m_Metallicity > 0.01) ? 0.7 : 0.8 ; } // Assumed Hydrogen-mass fraction
+            double      CalculateXRitter() const                                   {return (m_Metallicity > 0.01) ? 0.7 : 0.8 ; } // Assumed Hydrogen-mass fraction
 
-            double      Calculatelambda() const                              {return (m_Metallicity > 0.01) ? 8 : 5 ;  } // Exponent for the assumed core-mass and luminosity relationship in Ritter 1999
+            double      CalculatelambdaRitter() const                              {return (m_Metallicity > 0.01) ? 8 : 5 ;  } // Exponent for the assumed core-mass and luminosity relationship in Ritter 1999
 
             double      CalculateInitialSupernovaMass() const               { return 0.0; }
 

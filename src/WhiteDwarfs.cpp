@@ -11,11 +11,12 @@
 
 double WhiteDwarfs::CalculateetaH(const double p_LogMassRate) {
     double etaH = 0.0;
-    double MdotCritH = -0.98023471 * m_Mass * m_Mass + 2.88247131 * m_Mass - 8.33017155;
-    double MdotLowH = -1.2137735 * m_Mass * m_Mass + 3.57319872 * m_Mass - 9.21757267;
-    if (utils::Compare(p_LogMassRate, MdotCritH) > -1) {
+    // The following coefficients in massTransfer limits come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
+    double MdotCritH = MT_LIMIT_CRIT_NOMOTO_0 +  MT_LIMIT_CRIT_NOMOTO_1 * m_Mass +  MT_LIMIT_CRIT_NOMOTO_2 * m_Mass * m_Mass;
+    double MdotLowH = MT_LIMIT_STABLE_NOMOTO_0 +  MT_LIMIT_STABLE_NOMOTO_1 * m_Mass +  MT_LIMIT_STABLE_NOMOTO_2 * m_Mass * m_Mass;
+    if (utils::Compare(p_LogMassRate, MdotCritH) >= 0) {
         etaH = PPOW(10, MdotCritH - p_LogMassRate);
-    } else if ((utils::Compare(p_LogMassRate, MdotCritH) == -1) && (utils::Compare(p_LogMassRate, MdotLowH) > -1)) {
+    } else if ((utils::Compare(p_LogMassRate, MdotCritH) < 0) && (utils::Compare(p_LogMassRate, MdotLowH) >= 0)) {
         etaH = 1.0;
     }
     return etaH;
@@ -34,16 +35,17 @@ double WhiteDwarfs::CalculateetaH(const double p_LogMassRate) {
 
 double WhiteDwarfs::CalculateetaHe(const double p_LogMassRate) {
     double etaHe = 0.0;
-    double MdotCritHe = -6.84 + 1.349 * m_Mass;
-    double MdotLowHe = -8.115 + 2.29 * m_Mass;
-    double MdotAccumulation =  -8.313 + 1.018 * m_Mass;
+    // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
+    double MdotCritHe = MT_LIMIT_CRIT_PIERSANTI_0 + MT_LIMIT_CRIT_PIERSANTI_1 * m_Mass;
+    double MdotLowHe = MT_LIMIT_STABLE_PIERSANTI_0 + MT_LIMIT_STABLE_PIERSANTI_1 * m_Mass;
+    double MdotAccumulation = MT_LIMIT_DET_PIERSANTI_0 + MT_LIMIT_DET_PIERSANTI_1 * m_Mass;
 
-    if (utils::Compare(p_LogMassRate, MdotCritHe) > -1) {
+    if (utils::Compare(p_LogMassRate, MdotCritHe) >= 0) {
         etaHe = PPOW(10, MdotCritHe - p_LogMassRate);
-    } else if ((utils::Compare(p_LogMassRate, MdotCritHe) == -1) && (utils::Compare(p_LogMassRate, MdotLowHe) > -1)) {
+    } else if ((utils::Compare(p_LogMassRate, MdotCritHe) < 0) && (utils::Compare(p_LogMassRate, MdotLowHe) >= 0)) {
         etaHe = 1.0;
-    } else if ((utils::Compare(p_LogMassRate, MdotLowHe) == -1) && (utils::Compare(p_LogMassRate, MdotAccumulation) > -1)) {
-        etaHe = CalculateetaPTY(PPOW(10, p_LogMassRate));
+    } else if ((utils::Compare(p_LogMassRate, MdotLowHe) < 0) && (utils::Compare(p_LogMassRate, MdotAccumulation) >= 0)) {
+        etaHe = CalculateetaPTY(p_LogMassRate);
     } else {
         etaHe = 1.0; // Modified so we can have double detonations
     }
@@ -53,27 +55,30 @@ double WhiteDwarfs::CalculateetaHe(const double p_LogMassRate) {
 
 
 /* Calculate accretion efficiency as indicated in Piersanti+ 2014. Their recipe works
- * for specific mass values, so a better implementation requires interpolation and
+ * for specific mass and Mdot values, so a better implementation requires interpolation and
  * extrapolation (specially towards the low-mass end). Right now, we just adopt a
- * piece-wise approach.
+ * piece-wise approach. Note that the authors also specify that this is based on the first
+ * strong flash only.
  *
- * double CalculateetaPTY(const double p_MassRate)
+ * double CalculateetaPTY(const double p_LogMassRate)
  *
- * @param   [IN]    p_MassRate           Mass transfer rate (Msun/yr)
- * @return                               etaPTY, accretion efficency during flashes as per Piersanti+ 2014
+ * @param   [IN]    p_LogMassRate        log10 Mass transfer rate (Msun/yr)
+ * @return                               etaPTY, accretion efficency during the first stron helium flash, Piersanti+ 2014
  */
-double WhiteDwarfs::CalculateetaPTY(const double p_MassRate) {
+double WhiteDwarfs::CalculateetaPTY(const double p_LogMassRate) {
     double etaPTY;
-    if (utils::Compare(m_Mass, 0.6) < 1) {
-        etaPTY = 6e-3 + 5.1e-2*p_MassRate + 8.3e-3*PPOW(p_MassRate, 2) - 3.317e-4*PPOW(p_MassRate,3);
+    double massRate = PPOW(10, p_LogMassRate); // The efficiency prescription uses plain mass rates, section A3 in Piersanti+ 2014.
+    // Limits on each conditional statement come from masses from each model in Piersanti+ 2014. The final etaPTY value is based on table A3.
+    if (utils::Compare(m_Mass, 0.6) <= 0) {
+        etaPTY = 6e-3 + 5.1e-2*massRate + 8.3e-3*PPOW(massRate, 2) - 3.317e-4*PPOW(massRate,3);
     } else if ((m_Mass <= 0.7) && (m_Mass > 0.6)) {
-        etaPTY = -3.5e-2 + 7.5e-2*p_MassRate - 1.8e-3*PPOW(p_MassRate, 2) + 3.266e-5*PPOW(p_MassRate,3);
-    } else if ((utils::Compare(m_Mass, 0.81) < 1) && (utils::Compare(m_Mass, 0.7) > 0)) {
-        etaPTY = 9.3e-2 + 1.8e-2*p_MassRate + 1.6e-3*PPOW(p_MassRate, 2) - 4.111e-5*PPOW(p_MassRate,3);
-    } else if ((utils::Compare(m_Mass, 0.92) < 1) && (utils::Compare(m_Mass, 0.81) > 0)) {
-        etaPTY = -7.59e-2 + 1.54e-2*p_MassRate + 4e-4*PPOW(p_MassRate, 2) - 5.905e-6*PPOW(p_MassRate,3);
+        etaPTY = -3.5e-2 + 7.5e-2*massRate - 1.8e-3*PPOW(massRate, 2) + 3.266e-5*PPOW(massRate,3);
+    } else if ((utils::Compare(m_Mass, 0.81) <= 0) && (utils::Compare(m_Mass, 0.7) > 0)) {
+        etaPTY = 9.3e-2 + 1.8e-2*massRate + 1.6e-3*PPOW(massRate, 2) - 4.111e-5*PPOW(massRate,3);
+    } else if ((utils::Compare(m_Mass, 0.92) <= 0) && (utils::Compare(m_Mass, 0.81) > 0)) {
+        etaPTY = -7.59e-2 + 1.54e-2*massRate + 4e-4*PPOW(massRate, 2) - 5.905e-6*PPOW(massRate,3);
     } else {
-        etaPTY = -0.323 + 4.1e-2*p_MassRate - 7e-4*PPOW(p_MassRate, 2) + 4.733e-6*PPOW(p_MassRate,3);
+        etaPTY = -0.323 + 4.1e-2*massRate - 7e-4*PPOW(massRate, 2) + 4.733e-6*PPOW(massRate,3);
     }
     return etaPTY;
 }
@@ -112,7 +117,7 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
  *
  * @param   [IN]    p_LogDonorMassRate          Logarithm of the mass transfer rate of the donor
  * @param   [IN]    p_IsHeRich                  Material is He-rich or not
- * @return                                      Tuple containing the Maximum Mass Acceptance Rate and Retention Efficiency Parameter
+ * @return                                      Tuple containing the Maximum Mass Acceptance Rate (Msun/yr) and Retention Efficiency Parameter
  */
 DBL_DBL WhiteDwarfs::CalculateWDMassAcceptanceRate(const double p_LogDonorMassRate, const bool p_IsHeRich) {
 
@@ -153,12 +158,12 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
 
 /* Increase shell size after mass transfer episode. Hydrogen and helium shells are kept separately.
  *
- * void IncrementShell(const double p_AccretedMass, bool p_HeRich) {
+ * void ReoslveShellChange(const double p_AccretedMass, bool p_HeRich) {
  *
  * @param   [IN]    p_AccretedMass              Mass accreted
  * @param   [IN]    p_HeRich                    Material is He-rich or not
  */
-void WhiteDwarfs::IncrementShell(const double p_AccretedMass, const bool p_HeRich) {
+void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass, const bool p_HeRich) {
 	if (p_HeRich) {
 		m_HeShell += p_AccretedMass;
 	} else {

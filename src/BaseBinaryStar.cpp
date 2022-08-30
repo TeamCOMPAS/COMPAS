@@ -1825,7 +1825,7 @@ double BaseBinaryStar::CalculateAccretionRegime(const bool p_DonorIsHeRich, cons
             m_Flags.stellarMerger = true;
         }
     }
-    m_Accretor->IncrementShell(p_MassAccreted * fractionAccretedMass, p_DonorIsHeRich); // Update variable that tracks shell size (H or He shell).
+    m_Accretor->ResolveShellChange(p_MassAccreted * fractionAccretedMass, p_DonorIsHeRich); // Update variable that tracks shell size (H or He shell).
     m_Accretor->ResolveAccretionRegime(accretionRegime, p_MassAccreted * fractionAccretedMass, p_Dt);
     return fractionAccretedMass * p_MassAccreted;
 
@@ -1891,8 +1891,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 
         // Calculate accretion fraction
         // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
-        bool accretorIsWD                 = m_Accretor->IsOneOf({ STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF }); //To confirm that the accretor is a WD
-        bool donorIsHeRich                = m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH, STELLAR_TYPE::HELIUM_WHITE_DWARF }); // Check composition of accreted material
+        bool accretorIsWD                 = m_Accretor->IsOneOf(WHITE_DWARFS); //To confirm that the accretor is a WD
+        bool donorIsHeRich                = m_Donor->IsOneOf(He_RICH_TYPES); // Check composition of accreted material
 
         std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(),
                                                                                             m_Accretor->CalculateThermalMassAcceptanceRate(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL));
@@ -1909,7 +1909,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         bool caseBBAlwaysUnstableOntoNSBH = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH;
 
         bool donorIsHeHGorHeGB            = m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH });
-        bool donorIsGiant                 = m_Donor->IsOneOf({ STELLAR_TYPE::FIRST_GIANT_BRANCH, STELLAR_TYPE::CORE_HELIUM_BURNING, STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH, STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH });
+        bool donorIsGiant                 = m_Donor->IsOneOf(GIANTS);
         bool accretorIsNSorBH             = m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE });
 
         if ((utils::Compare(m_ZetaStar, m_ZetaLobe) > 0 && (!(caseBBAlwaysUnstable && donorIsHeHGorHeGB))) ||

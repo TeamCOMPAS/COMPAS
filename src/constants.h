@@ -389,6 +389,18 @@ constexpr double MDOT_OFF_C                             = -5.688246139;         
 constexpr double MASS_DOUBLE_DETONATION_CO              = 0.9;                                                      // Minimum mass for detonation which would yield something similar to SN Ia. Ruiter+ 2014.
 constexpr double MASS_HELIUM_BURN                       = 0.35;                                                     // Minimum for HeMS burning
 constexpr double SHELL_CRIT                             = 0.05;                                                     // Minimum shell mass of He for detonation. Should be composed of helium (so, exclude burnt material), but not implemented yet. Ruiter+ 2014.
+constexpr double MT_LIMIT_CRIT_PIERSANTI_0              = -6.84;
+constexpr double MT_LIMIT_CRIT_PIERSANTI_1              = 1.349;
+constexpr double MT_LIMIT_STABLE_PIERSANTI_0            = -8.115;
+constexpr double MT_LIMIT_STABLE_PIERSANTI_1            = 2.29;
+constexpr double MT_LIMIT_DET_PIERSANTI_0               = -8.313;
+constexpr double MT_LIMIT_DET_PIERSANTI_1               = 1.018;
+constexpr double MT_LIMIT_STABLE_NOMOTO_0               = -9.21757267;
+constexpr double MT_LIMIT_STABLE_NOMOTO_1               = 3.57319872;
+constexpr double MT_LIMIT_STABLE_NOMOTO_2               = -1.2137735;
+constexpr double MT_LIMIT_CRIT_NOMOTO_0                 = -8.33017155;
+constexpr double MT_LIMIT_CRIT_NOMOTO_1                 = 2.88247131;
+constexpr double MT_LIMIT_CRIT_NOMOTO_2                 = -0.98023471;
 
 // object types
 enum class OBJECT_TYPE: int { NONE, MAIN, PROFILING, UTILS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR };    //  if BASE_STAR, check STELLAR_TYPE
@@ -1296,6 +1308,32 @@ const std::initializer_list<STELLAR_TYPE> COMPACT_OBJECTS = {
     STELLAR_TYPE::NEUTRON_STAR,
     STELLAR_TYPE::BLACK_HOLE,
     STELLAR_TYPE::MASSLESS_REMNANT
+};
+
+
+// (convenience) initializer list for GIANTS
+const std::initializer_list<STELLAR_TYPE> GIANTS = {
+    STELLAR_TYPE::FIRST_GIANT_BRANCH,
+    STELLAR_TYPE::CORE_HELIUM_BURNING,
+    STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,
+    STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH
+};
+
+
+// (convenience) initializer list for WHITE DWARFS
+const std::initializer_list<STELLAR_TYPE> WHITE_DWARFS = {
+    STELLAR_TYPE::HELIUM_WHITE_DWARF,
+    STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF,
+    STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF
+};
+
+
+// (convenience) initializer list for He rich stellar types
+const std::initializer_list<STELLAR_TYPE> He_RICH_TYPES = {
+    STELLAR_TYPE::NAKED_HELIUM_STAR_MS,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH,
+    STELLAR_TYPE::HELIUM_WHITE_DWARF
 };
 
 

@@ -45,13 +45,13 @@ protected:
         m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF;                                                                                                           // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
         m_Age = 0.0;                                                                                                                                                // Set age appropriately
-    m_HShell = 0.0; // Initialize Hydrogen Shell
-    m_HeShell = 0.0; // Initialize Helium Shell
-    m_l0Ritter = Calculatel0();
-    m_XRitter = CalculateX();
-    m_lambdaRitter = Calculatelambda();
-    m_SubChandrasekhar = false;
-    m_Rejuvenate = false;
+        m_HShell = 0.0; // Initialize Hydrogen Shell
+        m_HeShell = 0.0; // Initialize Helium Shell
+        m_l0Ritter = Calculatel0Ritter();
+        m_XRitter = CalculateXRitter();
+        m_lambdaRitter = CalculatelambdaRitter();
+        m_SubChandrasekhar = false;
+        m_Rejuvenate = false;
     }
 
 

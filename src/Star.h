@@ -194,7 +194,7 @@ public:
 
     void            IncrementOmega(const double p_OmegaDelta)                                                       { m_Star->IncrementOmega(p_OmegaDelta); }
 
-    void            IncrementShell(const double p_AccretedMass, const bool p_HeRich)                                      { m_Star->IncrementShell(p_AccretedMass, p_HeRich); }  // Used in WDs
+    void            ResolveShellChange(const double p_AccretedMass, const bool p_HeRich)                                      { m_Star->ResolveShellChange(p_AccretedMass, p_HeRich); }  // Used in WDs
 
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
 

@@ -200,7 +200,7 @@ public:
 
             void            IncrementOmega(const double p_OmegaDelta)                                           { m_Omega += p_OmegaDelta; }                                        // Apply delta to current m_Omega
 
-    virtual void            IncrementShell(const double p_AccretedMass,
+    virtual void            ResolveShellChange(const double p_AccretedMass,
                                            const bool p_HeRich)                                                       { }                                                                 // Default does nothing, use inheritance for WDs.
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
