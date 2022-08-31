@@ -819,7 +819,7 @@ double GiantBranch::CalculateCoreMassAtBGB_Static(const double      p_Mass,
 /*
  * Calculate the core mass at which the Asymptotic Giant Branch phase is terminated in a SN/loss of envelope
  *
- * Hurley et al. 2000, eq 75
+ * Hurley et al. 2000, eq 75 -- but note we use MECS rather than MCH
  *
  *
  * double CalculateCoreMassAtSupernova_Static(const double p_McBAGB)
@@ -1678,9 +1678,8 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
  *
  *
  * Short hand wavy story. The core ignites ONeMg and collapses through electron
- * capture. This core is less dense than the heavier Fe Core collapses and thus
- * people expect the neutrinos to escape easier resulting in a zero kick
- * TODO a nice reference (Nomoto 1984 for thorough discussion and a summary in Nomoto 1987)
+ * capture (e.g., Nomoto 1984 for thorough discussion and a summary in Nomoto 1987).
+ * The explosion is likely accompanied by a low natal kick
  *
  *
  * STELLAR_TYPE ResolveElectronCaptureSN()
@@ -1689,9 +1688,13 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
  */
 STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
 
-    if (SN_IsHydrogenPoor() || (OPTIONS->AllowHRichECSN())) {                           // If progenitor is H rich, is it allowed to ECSN?
+    if (!m_MassTransferDonorHistory.empty() || (OPTIONS->AllowNonStrippedECSN())) {         // If progenitor has never been a MT donor, is it allowed to ECSN?
                                                                                             // - yes
         m_Mass       = MECS_REM;                                                            // defined in constants.h
+        m_CoreMass   = m_Mass;
+        m_HeCoreMass = m_Mass;
+        m_COCoreMass = m_Mass;
+        m_Mass0      = m_Mass;
         m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
         m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
     
@@ -1703,7 +1706,14 @@ STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
     }
     else {                                                                                  // -no, treat as ONeWD 
         
-        m_Mass       = m_COCoreMass;                                                        
+        if(utils::Compare(m_COCoreMass,MCH) > 0){
+            SHOW_WARN(ERROR::WHITE_DWARF_TOO_MASSIVE, "Setting mass to Chandraskhar mass.");
+        }
+        m_Mass       = std::min(m_COCoreMass,MCH);                                          // no WD masses above Chandrasekhar mass
+        m_CoreMass   = m_Mass;
+        m_HeCoreMass = m_Mass;
+        m_COCoreMass = m_Mass;
+        m_Mass0      = m_Mass;
         m_Radius     = WhiteDwarfs::CalculateRadiusOnPhase_Static(m_Mass);                  // radius is defined equivalently for all WDs
         m_Luminosity = ONeWD::CalculateLuminosityOnPhase_Static(m_Mass, m_Time, m_Metallicity); //Need to get the luminosity for ONeWD specifically
     

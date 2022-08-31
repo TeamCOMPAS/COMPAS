@@ -29,8 +29,8 @@
  * @return                               Tuple containing fraction of mass that should be retained and accretion regime
  */
 
-std::tuple<double,ACCRETION_REGIME> COWD::DetermineAccretionRegime(const bool p_HeRich, const double p_AccretedMass, const double p_Dt) {
-    double logMdot = log10(p_AccretedMass / (p_Dt * MYR_TO_YEAR)); // Logarithm of the accreted mass (M_sun/yr)
+std::tuple<double,ACCRETION_REGIME> COWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate) {
+    double logMdot = log10(p_DonorThermalMassLossRate / MYR_TO_YEAR); // Logarithm of the accreted mass (M_sun/yr)
     double fraction;
     ACCRETION_REGIME regime;
     std::tie(std::ignore, fraction) = CalculateWDMassAcceptanceRate(logMdot, p_HeRich);
@@ -77,8 +77,8 @@ std::tuple<double,ACCRETION_REGIME> COWD::DetermineAccretionRegime(const bool p_
  * @param   [IN]    p_Dt                 Size of the timestep in Myr, assumed to be the duration of this particular mass transfer episode
  */
 
-void COWD::ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_AccretedMass, const double p_Dt) {
-    double logMdot = log10(p_AccretedMass / (p_Dt * MYR_TO_YEAR)); // Logarithm of the accreted mass (M_sun/yr)
+void COWD::ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate) {
+    double logMdot = log10(p_DonorThermalMassLossRate / MYR_TO_YEAR); // Logarithm of the accreted mass (M_sun/yr)
     if (p_Regime == ACCRETION_REGIME::HELIUM_ACCUMULATION) {
         if ((utils::Compare(m_Mass, MASS_DOUBLE_DETONATION_CO) >= 0) && (utils::Compare(m_HeShell, SHELL_CRIT) >= 0)) {
             m_DoubleDetonation = true;

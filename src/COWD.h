@@ -36,9 +36,8 @@ public:
                                                                                                                                             WD_Baryon_Number.at(STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF)); }
 
     std::tuple<double,ACCRETION_REGIME> DetermineAccretionRegime(const bool p_HeRich,
-        const double p_AccretedMass,
-        const double p_Dt);                                                                                                                                      // To check the current accretion regime and mass retention. Also activates flags for type change in some situations.
-    void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_AccretedMass, const double p_Dt);
+        const double p_DonorThermalMassLossRate);                                                                                                                                      // To check the current accretion regime and mass retention. Also activates flags for type change in some situations.
+    void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate);
 
 protected:
 

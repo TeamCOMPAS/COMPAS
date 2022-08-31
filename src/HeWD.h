@@ -35,9 +35,8 @@ public:
                                                                                                                                                 p_Metallicity, 
                                                                                                                                                 WD_Baryon_Number.at(STELLAR_TYPE::HELIUM_WHITE_DWARF)); }
     std::tuple<double,ACCRETION_REGIME> DetermineAccretionRegime(const bool p_HeRich,
-                                    const double p_AccretedMass,
-                                    const double p_Dt);
-    void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_AccretedMass, const double p_Dt);
+                                    const double p_DonorThermalMassLossRate);
+    void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate);
 
 protected:
 

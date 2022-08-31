@@ -86,12 +86,14 @@ public:
     double              CalculateThermalTimescale() const                                                           { return m_Star->CalculateThermalTimescale(); }
     double              COCoreMass() const                                                                          { return m_Star->COCoreMass(); }
     double              CoreMass() const                                                                            { return m_Star->CoreMass(); }
+    bool                ExperiencedAIC() const                                                                      { return m_Star->ExperiencedAIC(); }
     bool                ExperiencedCCSN() const                                                                     { return m_Star->ExperiencedCCSN(); }
     bool                ExperiencedECSN() const                                                                     { return m_Star->ExperiencedECSN(); }
     bool                ExperiencedPISN() const                                                                     { return m_Star->ExperiencedPISN() ; }
     bool                ExperiencedPPISN() const                                                                    { return m_Star->ExperiencedPPISN(); }
     bool                ExperiencedUSSN() const                                                                     { return m_Star->ExperiencedUSSN(); }
     double              HeCoreMass() const                                                                          { return m_Star->HeCoreMass(); }
+    bool                IsAIC() const                                                                               { return m_Star->IsAIC(); }
     bool                IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
     bool                IsDegenerate() const                                                                        { return m_Star->IsDegenerate(); }
     bool                IsECSN() const                                                                              { return m_Star->IsECSN(); }
@@ -183,8 +185,7 @@ public:
     BaseStar*       Clone(const BaseStar& p_Star);
 
     virtual std::tuple<double,ACCRETION_REGIME>    DetermineAccretionRegime(const bool p_HeRich,
-                                             const double p_AccretedMass,
-                                             const double p_Dt)                                                     { return m_Star->DetermineAccretionRegime(p_HeRich, p_AccretedMass, p_Dt); }  // Used in WDs
+                                             const double p_DonorThermalMassLossRate)                               { return m_Star->DetermineAccretionRegime(p_HeRich, p_DonorThermalMassLossRate); }  // Used in WDs
 
     ENVELOPE        DetermineEnvelopeType() const                                                                   { return m_Star->DetermineEnvelopeType(); }
 
@@ -192,15 +193,12 @@ public:
 
     double          EvolveOneTimestep(const double p_Dt);
 
-    void            IncrementOmega(const double p_OmegaDelta)                                                       { m_Star->IncrementOmega(p_OmegaDelta); }
-
-    void            ResolveShellChange(const double p_AccretedMass, const bool p_HeRich)                                      { m_Star->ResolveShellChange(p_AccretedMass, p_HeRich); }  // Used in WDs
+    void            ResolveShellChange(const double p_AccretedMass, const bool p_HeRich)                            { m_Star->ResolveShellChange(p_AccretedMass, p_HeRich); }  // Used in WDs
 
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
 
     virtual void    ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
-                                           const double p_AccretedMass,
-                                           const double p_Dt)                                                       { m_Star->ResolveAccretionRegime(p_Regime, p_AccretedMass, p_Dt); }  // Used in WDs
+                                           const double p_DonorThermalMassLossRate)                                 { m_Star->ResolveAccretionRegime(p_Regime, p_DonorThermalMassLossRate); }  // Used in WDs
 
     void            ResolveEnvelopeLossAndSwitch()                                                                  { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
 

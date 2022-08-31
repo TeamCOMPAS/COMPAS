@@ -24,8 +24,8 @@
  * @return                               Tuple containing fraction of mass that should be retained and accretion regime
  */
 
-std::tuple<double,ACCRETION_REGIME> HeWD::DetermineAccretionRegime(const bool p_HeRich, const double p_AccretedMass, const double p_Dt) {
-    double logMdot = log10(p_AccretedMass / (p_Dt * MYR_TO_YEAR)); // Logarithm of the accreted mass (M_sun/yr)
+std::tuple<double,ACCRETION_REGIME> HeWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate) {
+    double logMdot = log10(p_DonorThermalMassLossRate / MYR_TO_YEAR); // Logarithm of the accreted mass (M_sun/yr)
     double fraction = 1.0;
     ACCRETION_REGIME regime;
     if (p_HeRich) {
@@ -56,8 +56,8 @@ std::tuple<double,ACCRETION_REGIME> HeWD::DetermineAccretionRegime(const bool p_
  * @param   [IN]    p_Dt                 Size of the timestep in Myr, assumed to be the duration of this particular mass transfer episode
  */
 
-void HeWD::ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_AccretedMass, const double p_Dt) {
-    double Mdot = p_AccretedMass / (p_Dt * MYR_TO_YEAR);
+void HeWD::ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate) {
+    double Mdot = p_DonorThermalMassLossRate / MYR_TO_YEAR;
     double massSubCh = -4e8 * Mdot + 1.34; // Minimum mass for Sub-Ch Mass detonation. Eq 62, Belczynski+ 2008.
     double shellCrit = -7.8e-4 * Mdot + 1.34; // Minimum shell mass of He for detonation. Eq 61, Belczynski+ 2008. This helium should not be burnt, but not implemented this yet. Ruiter+ 2014.
     if (p_Regime == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR) {
