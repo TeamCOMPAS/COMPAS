@@ -5,6 +5,11 @@ Following is an brief list of important updates to the COMPAS code.  A complete 
 
 
 **LATEST RELEASE** |br|
+
+**02.33.00 Aug 28, 2022**
+
+* Added simplified (constant per stellar type) critical mass ratios from Claeys+ 2014 for determining if MT is unstable
+
 **02.32.00 Aug 27, 2022**
 
 * Added 'record type' functionality to all standard log files.  **Note:** This changes default behaviour: only Detailed Output log files affected in this release
