@@ -942,7 +942,9 @@
 // 02.33.00     RTW - Aug 13, 2022   - Enhancement:
 //                                      - Added critical mass ratios from Claeys+ 2014 for determining if MT is unstable
 //                                      - Cleaned up stability check functions in BaseBinaryStar.cpp for clarity, and to allow for critical mass ratios to be checked correctly
+// 02.34.00     RTW - Sep 1, 2022    - Enhancement:
+//                                      - Added critical mass ratios and zetas from Ge+ 2020 for determining if MT is unstable
 
-const std::string VERSION_STRING = "02.33.00";
+const std::string VERSION_STRING = "02.34.00";
 
 # endif // __changelog_h__
