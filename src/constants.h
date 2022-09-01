@@ -1359,16 +1359,6 @@ const std::initializer_list<STELLAR_TYPE> ALL_HERTZSPRUNG_GAP = {
 };
 
 
-// (convenience) initializer list for GIANTS (excluding HG)
-const std::initializer_list<STELLAR_TYPE> GIANTS = {
-    STELLAR_TYPE::FIRST_GIANT_BRANCH,
-    STELLAR_TYPE::CORE_HELIUM_BURNING,
-    STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,
-    STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
-};
-
-
-
 // (convenience) initializer list for COMPACT OBJECTS
 const std::initializer_list<STELLAR_TYPE> COMPACT_OBJECTS = {
     STELLAR_TYPE::HELIUM_WHITE_DWARF,

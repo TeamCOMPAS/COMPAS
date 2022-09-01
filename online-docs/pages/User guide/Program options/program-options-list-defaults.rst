@@ -224,7 +224,7 @@ Default = 0.625000
 **--critical-mass-ratio-MS-low-mass-degenerate-accretor** |br|
 Critical mass ratio for MT from a MS star to a degenerate accretor.
 0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
-Default = 0.000000
+Default = 1.000000
 
 **--critical-mass-ratio-MS-low-mass-non-degenerate-accretor** |br|
 Critical mass ratio for MT from a MS star to a non-degenerate accretor.
