@@ -1260,7 +1260,7 @@ double BaseStar::FindLambdaNanjingNearestMassIndex(const double p_Mass) const {
  */
 double BaseStar::CalculateZetaAdiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) { 
                                                                                 
-    double zetaStar;
+    double zetaStar = 0.0;
     switch (p_ZetaPrescription) {
     
         case ZETA_PRESCRIPTION::GE20:     
@@ -1298,8 +1298,6 @@ double BaseStar::CalculateZetaAdiabaticHurley2002(const double p_CoreMass) const
 }
 
 
-
-
 /*
  * Calculate the Adiabatic Exponent per Soberman, Phinney, vdHeuvel 1997
  *
@@ -1317,9 +1315,6 @@ double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
     double oneMinusM_6 = oneMinusM * oneMinusM * oneMinusM * oneMinusM * oneMinusM * oneMinusM;
     return ((2.0 / 3.0) * m / oneMinusM) - ((1.0 / 3.0) * (oneMinusM / (1.0 + (m + m)))) - (0.03 * m) + (0.2 * m / (1.0 + (1.0 / oneMinusM_6))); // eq (61) Soberman, Phinney, vdHeuvel (1997)
 }
-
-
-
 
 
 /* 
@@ -1435,9 +1430,6 @@ double BaseStar::CalculateInterpolatedQCritOrZetaGe2020() {
 }
 
 
-
-
-
 /*
  * Calculate all Lambdas
  *
@@ -1461,7 +1453,6 @@ void BaseStar::CalculateLambdas(const double p_EnvMass) {
 	m_Lambdas.kruckowBottom  = CalculateLambdaKruckow(m_Radius, -1.0);
 	m_Lambdas.dewi           = CalculateLambdaDewi();
 }
-
 
 
 

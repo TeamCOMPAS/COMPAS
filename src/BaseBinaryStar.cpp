@@ -1875,7 +1875,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     } 
     else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::NONE) {                                                           // Determine stability based on critical mass ratios
 
-        double qCrit;                                                                           // Critical mass ratio is mAccretor/mDonor
+        double qCrit = 0.0;                                                                     // Critical mass ratio is mAccretor/mDonor
 
         switch (OPTIONS->QCritPrescription()) {
             case QCRIT_PRESCRIPTION::GE20: 
@@ -1888,7 +1888,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             default:
                 m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                                    // set error value
                 SHOW_ERROR(m_Error);                                                             // warn that an error occurred
-                qCrit = 0.0;
         }
 
         isUnstable = (m_Accretor->Mass()/m_Donor->Mass()) < qCrit;
@@ -1901,7 +1900,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
         isUnstable = (utils::Compare(m_ZetaStar, m_ZetaLobe) < 0);
     }
-
 
 
     // Evaluate separately for stable / unstable MT
