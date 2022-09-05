@@ -1808,13 +1808,13 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
 
 /* Wraps the computation and resolution of the accretion regime a White Dwarf goes through, triggering the necessary changes.
  *
- * double CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_MassAccreted, const double p_Dt)
+ * double CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_DonorThermalMassLossRate, const double p_MassLostByDonor)
  *
- * @param   [IN]    p_DonorIsHeRich      Whether the accreted material is helium-rich or not
- * @param   [IN]    p_DonorIsGiant       Whether the donor star is a giant or not
- * @param   [IN]    p_MassAccreted       Total mass accreted
- * @param   [IN]    p_Dt                 Size of the timestep, assumed to be the duration of this particular mass transfer episode
- * @return                               Mass retained, after considering the possible flahes regime and the optically-tick winds regime.
+ * @param   [IN]    p_DonorIsHeRich                  Whether the accreted material is helium-rich or not
+ * @param   [IN]    p_DonorIsGiant                   Whether the donor star is a giant or not
+ * @param   [IN]    p_DonorThermalMassLossRate       Donor thermal mass loss rate, in units of Msol / Myr
+ * @param   [IN]    p_MassLostByDonor                Total mass lost by donor
+ * @return                                           Mass retained by accretor, after considering the possible flahes regime and the optically-tick winds regime.
  */
 
 double BaseBinaryStar::CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_DonorThermalMassLossRate, const double p_MassLostByDonor) {

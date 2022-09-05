@@ -22,12 +22,11 @@
  *
  * Note that we have merged the different flashes regimes from Piersanti+ 2014 into a single regime.
  *
- * std::tuple<double,int> DetermineAccretionRegime(bool p_HeRich, const double p_AccretedMass, const double p_Dt)
+ * std::tuple<double,int> DetermineAccretionRegime(bool p_HeRich, const double p_DonorThermalMassLossRate)
  *
- * @param   [IN]    p_HeRich             Whether the accreted material is helium-rich or not
- * @param   [IN]    p_AccretedMass       Total mass accreted in M_Sun
- * @param   [IN]    p_Dt                 Size of the timestep in Myr, assumed to be the duration of this particular mass transfer episode
- * @return                               Tuple containing fraction of mass that should be retained and accretion regime
+ * @param   [IN]    p_HeRich                        Whether the accreted material is helium-rich or not
+ * @param   [IN]    p_DonorThermalMassLossRate      Donor thermal mass loss rate, in units of Msol / Myr
+ * @return                                          Tuple containing fraction of mass that should be retained and accretion regime
  */
 
 std::tuple<double,ACCRETION_REGIME> ONeWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate) {

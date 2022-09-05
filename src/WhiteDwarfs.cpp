@@ -58,7 +58,7 @@ double WhiteDwarfs::CalculateetaHe(const double p_LogMassRate) {
  * for specific mass and Mdot values, so a better implementation requires interpolation and
  * extrapolation (specially towards the low-mass end). Right now, we just adopt a
  * piece-wise approach. Note that the authors also specify that this is based on the first
- * strong flash only.
+ * strong flash only, but we use it for all episodes.
  *
  * double CalculateetaPTY(const double p_LogMassRate)
  *
