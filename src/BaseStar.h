@@ -65,7 +65,6 @@ public:
             bool                IsCCSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
     virtual bool                IsDegenerate() const                                            { return false; }   // default is not degenerate - White Dwarfs, NS and BH are degenerate
             bool                IsECSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
-    virtual bool                IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const { return false; } // default is stable
             bool                IsOneOf(const STELLAR_TYPE_LIST p_List) const;
             bool                IsPISN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::PISN) == SN_EVENT::PISN; }
             bool                IsPPISN() const                                                 { return (m_SupernovaDetails.events.current & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
@@ -148,7 +147,9 @@ public:
 
             void            CalculateBindingEnergies(const double p_CoreMass, const double p_EnvMass, const double p_Radius);
 
-            double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }         // Use class member variables
+    virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                 { return 0.0; }                                                     // Default is 0.0
+                                                                                                                                                                                         
+            double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
 
             double          CalculateEddyTurnoverTimescale();
 
@@ -198,8 +199,6 @@ public:
 
     virtual std::tuple<double,ACCRETION_REGIME>    DetermineAccretionRegime(const bool p_HeRich,
                                                const double p_DonorThermalMassLossRate)                         { return std::make_tuple(0.0, ACCRETION_REGIME::NONE); }                                // Placeholder, use inheritance
-
-            void            IncrementOmega(const double p_OmegaDelta)                                           { m_Omega += p_OmegaDelta; }                                        // Apply delta to current m_Omega
 
     virtual void            ResolveShellChange(const double p_AccretedMass,
                                            const bool p_HeRich)                                                       { }                                                                 // Default does nothing, use inheritance for WDs.
