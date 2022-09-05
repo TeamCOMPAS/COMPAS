@@ -48,7 +48,12 @@ protected:
             bool                    m_SubChandrasekhar;                         // Flag for SubCh SN of HeWD
             double                  m_XRitter;                                  // Assumed hydrogen-mass fraction of material being accreted by He WD, as in Ritter 1999, table 2.
 
-    // member functions - alphabetically
+            // member functions - alphabetically
+            double  CalculateAccretionRegime(const bool p_DonorIsHeRich,
+                                             const bool p_DonorIsGiant,
+                                             const double p_DonorThermalMassLossRate,
+                                             const double p_MassLostByDonor);
+        
             double      CalculateCOCoreMassOnPhase() const                  { return m_COCoreMass; }                                                // NO-OP
 
             double      CalculateHeCoreMassOnPhase() const                  { return m_HeCoreMass; }                                                // NO-OP

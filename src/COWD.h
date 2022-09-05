@@ -44,6 +44,7 @@ protected:
     void Initialise() {
         m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                                // Set stellar type
         CalculateTimescales();                                                                                                                                  // Initialise timescales
+        // RTW is this the right place for these?
         m_HShell = 0.0; // Initialize hydrogen shell
         m_HeShell = 0.0; // Initialize helium shell
         m_DoubleDetonation = false;
@@ -60,6 +61,7 @@ protected:
 
     bool            IsSupernova() const                                             { return m_DoubleDetonation; }     // Going supernova if mass and He shell are large enough
 
+    // RTW why are we using the giantbranch version?
     STELLAR_TYPE    ResolveSupernova()                                              { return GiantBranch::ResolveSupernova(); }                                 // Use GiantBranch, for now
 
     bool            ShouldEvolveOnPhase();                                                  // Evolve on phase unless mass > Chandrasekhar mass.

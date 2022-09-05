@@ -1806,34 +1806,6 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
     }
 }
 
-/* Wraps the computation and resolution of the accretion regime a White Dwarf goes through, triggering the necessary changes.
- *
- * double CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_DonorThermalMassLossRate, const double p_MassLostByDonor)
- *
- * @param   [IN]    p_DonorIsHeRich                  Whether the accreted material is helium-rich or not
- * @param   [IN]    p_DonorIsGiant                   Whether the donor star is a giant or not
- * @param   [IN]    p_DonorThermalMassLossRate       Donor thermal mass loss rate, in units of Msol / Myr
- * @param   [IN]    p_MassLostByDonor                Total mass lost by donor
- * @return                                           Mass retained by accretor, after considering the possible flahes regime and the optically-tick winds regime.
- */
-
-double BaseBinaryStar::CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_DonorThermalMassLossRate, const double p_MassLostByDonor) {
-    double fractionAccretedMass;
-    ACCRETION_REGIME accretionRegime;
-    std::tie(fractionAccretedMass, accretionRegime) = m_Accretor->DetermineAccretionRegime(p_DonorIsHeRich, p_DonorThermalMassLossRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
-    if (accretionRegime == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION) {
-        if (p_DonorIsGiant) {
-            m_CEDetails.CEEnow = true;
-        } else {
-            m_Flags.stellarMerger = true;
-        }
-    }
-    m_Accretor->ResolveShellChange(p_MassLostByDonor * fractionAccretedMass, p_DonorIsHeRich); // Update variable that tracks shell size (H or He shell).
-    m_Accretor->ResolveAccretionRegime(accretionRegime, p_DonorThermalMassLossRate);
-    return fractionAccretedMass * p_MassLostByDonor;
-
-}
-
 
 /*
  *  Check if mass transfer should happen (either star, but not both, overflowing Roche Lobe)
@@ -1928,37 +1900,27 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
         m_MassTransferTrackerHistory = m_Donor==m_Star1 ? MT_TRACKING::STABLE_1_TO_2_SURV: MT_TRACKING::STABLE_2_TO_1_SURV; // record what happened - for later printing
         double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
+        double massLossDonor;
         
         if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
-            double mdEnvAccreted = accretorIsWD ? CalculateAccretionRegime(donorIsHeRich, donorIsGiant, m_Donor->CalculateThermalMassLossRate(), envMassDonor) : envMassDonor * m_FractionAccreted;
-            
-            m_Donor->SetMassTransferDiff(-envMassDonor);
-            m_Accretor->SetMassTransferDiff(mdEnvAccreted);
-
-            STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                     // donor stellar type before resolving envelope loss
-            
-            aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, *m_Accretor, m_FractionAccreted);
-            
-            m_Donor->ResolveEnvelopeLossAndSwitch();                                                                    // only other interaction that adds/removes mass is winds, so it is safe to update star here
-            
-            if (m_Donor->StellarType() != stellarTypeDonor) {                                                           // stellar type change?
-                (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_MT);               // yes - print (log) detailed output
-            }
-        }
-               
+            massLossDonor = -envMassDonor;
         }
         else{                                                                                                           // donor has no envelope
-            double dM = - MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
-            double massChange = accretorIsWD ? CalculateAccretionRegime(donorIsHeRich, donorIsGiant, m_Donor->CalculateThermalMassLossRate(), -dM) : -dM * m_FractionAccreted;
+            massLossDonor = -MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
+        } 
+        double massGainAccretor = - massLossDonor * m_FractionAccreted;
 
-            m_Accretor->SetMassTransferDiff(massChange); // mass accreted by accretor
-            m_Donor->UpdateMinimumCoreMass();
-            m_Donor->SetMassTransferDiff(dM);                                                                           // mass transferred by donor
+        m_Accretor->SetMassTransferDiff(massGainAccretor);
+        m_Donor->UpdateMinimumCoreMass();
+        m_Donor->SetMassTransferDiff(massLossDonor);
 
-            aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), dM, *m_Accretor, m_FractionAccreted);
+        STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                     // donor stellar type before resolving envelope loss
+        m_Donor->ResolveEnvelopeLossAndSwitch(false);                                                               // only other interaction that adds/removes mass is winds, so it is safe to update star here - want to check if envelope is truly gone
+        if (m_Donor->StellarType() != stellarTypeDonor) {                                                           // stellar type change?
+            (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_MT);               // yes - print (log) detailed output
         }
 
-        
+        aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), massLossDonor, *m_Accretor, m_FractionAccreted);
         m_aMassTransferDiff = aFinal - aInitial;                                                                        // change in orbit (semi-major axis)
         
         // Check if this was stable mass transfer after a CEE

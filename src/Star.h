@@ -193,6 +193,7 @@ public:
 
     double          EvolveOneTimestep(const double p_Dt);
 
+    // RTW not sure what ShellChange means - also, these should be alphabetical
     void            ResolveShellChange(const double p_AccretedMass, const bool p_HeRich)                            { m_Star->ResolveShellChange(p_AccretedMass, p_HeRich); }  // Used in WDs
 
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
@@ -200,7 +201,7 @@ public:
     virtual void    ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
                                            const double p_DonorThermalMassLossRate)                                 { m_Star->ResolveAccretionRegime(p_Regime, p_DonorThermalMassLossRate); }  // Used in WDs
 
-    void            ResolveEnvelopeLossAndSwitch()                                                                  { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
+    void            ResolveEnvelopeLossAndSwitch(bool p_NoCheck = true)                                             { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(p_NoCheck)); }
 
     bool            RevertState();
 

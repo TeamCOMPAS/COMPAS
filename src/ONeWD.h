@@ -41,6 +41,7 @@ protected:
         m_StellarType = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;                                                                                                      // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
         m_Age = 0.0;                                                                                                                                                // Set age appropriately
+        // RTW right place?
         m_HShell = 0.0; // Initialize hydrogen shell
         m_HeShell = 0.0; // Initialize helium shell
     }

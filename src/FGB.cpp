@@ -184,6 +184,7 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         m_COCoreMass = 0.0;
         
         double coreFraction = 1.0;                                              // modifier to allow He-core ignition within 5% of the mass at the tip of the RGB. See Han+ 2002 (2002MNRAS.336..449H, section 3.1) and D'Cruz+ 1996 (page 12). Defaults to 1.0 (modifier disabled).
+        // RTW: this option should say percent, or something. And why is 95 hard-coded?
         if (OPTIONS->AllowHeIgnitionAt95()) {
             coreFraction = 0.95;
         }

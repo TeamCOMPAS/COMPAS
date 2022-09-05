@@ -44,6 +44,7 @@ protected:
         m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF;                                                                                                           // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
         m_Age = 0.0;                                                                                                                                                // Set age appropriately
+        // RTW: is this the right place for this?
         m_HShell = 0.0; // Initialize Hydrogen Shell
         m_HeShell = 0.0; // Initialize Helium Shell
         m_l0Ritter = Calculatel0Ritter();
@@ -69,6 +70,7 @@ protected:
 
     STELLAR_TYPE    EvolveToNextPhase(); // Allow evolution, either SN or Rejuvenation
 
+    // RTW: should this be a check? Why is it returning just an attribute?
     bool    IsSupernova() const                                                           { return m_SubChandrasekhar; }     // Going supernova if mass and He shell are large enough
 
     bool    ShouldEvolveOnPhase(); // Modified so now it includes rejuvenation and Sub-Ch SN Ia

@@ -1,5 +1,7 @@
 #include "WhiteDwarfs.h"
 
+// RTW: eta should be capitalized. Might want to use Hydrogen and Helium instead of H and He, for readability
+
 /* Calculate eta_hydrogen from Claeys+ 2014, appendix B. We have changed the mass accretion limits for
  * Nomoto+ 2007 ones, after applying a quadratic fit to cover the low-mass end.
  *
@@ -154,11 +156,11 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     return std::max(NEUTRON_STAR_RADIUS, 0.0115 * std::sqrt((MCH_Mass_two_thirds - 1.0/MCH_Mass_two_thirds )));
 }
 
-
+// RTW: why does it not matter what the WD type is? Can you accrete the He Shell if you have a H shell already?
 
 /* Increase shell size after mass transfer episode. Hydrogen and helium shells are kept separately.
  *
- * void ReoslveShellChange(const double p_AccretedMass, bool p_HeRich) {
+ * void ResolveShellChange(const double p_AccretedMass, bool p_HeRich) {
  *
  * @param   [IN]    p_AccretedMass              Mass accreted
  * @param   [IN]    p_HeRich                    Material is He-rich or not
@@ -170,3 +172,42 @@ void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass, const bool p_H
 		m_HShell += p_AccretedMass;
 	}
 }
+
+
+
+// * RTW : Make sure this function only gets the accretion regime, then rewrite the part that's supposed to add the mass on to take in information about whether the donor is He rich
+ 
+/* Wraps the computation and resolution of the accretion regime a White Dwarf goes through, triggering the necessary changes.
+ *
+ * double CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_DonorThermalMassLossRate, const double p_MassLostByDonor)
+ *
+ * @param   [IN]    p_DonorIsHeRich                  Whether the accreted material is helium-rich or not
+ * @param   [IN]    p_DonorIsGiant                   Whether the donor star is a giant or not
+ * @param   [IN]    p_DonorThermalMassLossRate       Donor thermal mass loss rate, in units of Msol / Myr
+ * @param   [IN]    p_MassLostByDonor                Total mass lost by donor
+ * @return                                           Mass retained by accretor, after considering the possible flahes regime and the optically-tick winds regime.
+ */
+
+// This should be calculate 
+double BaseBinaryStar::CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_DonorThermalMassLossRate, const double p_MassLostByDonor) {
+    double fractionAccretedMass;
+    ACCRETION_REGIME accretionRegime;
+    std::tie(fractionAccretedMass, accretionRegime) = m_Accretor->DetermineAccretionRegime(p_DonorIsHeRich, p_DonorThermalMassLossRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
+    if (accretionRegime == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION) {
+        if (p_DonorIsGiant) {
+            m_CEDetails.CEEnow = true;
+        } else {
+            m_Flags.stellarMerger = true;
+        }
+    }
+    return fractionAccretedMass * p_MassLostByDonor;
+}
+
+
+    // RTW the function below just adds to the mass, but you need to know if the donor is He rich...
+    m_Accretor->ResolveShellChange(p_MassLostByDonor * fractionAccretedMass, p_DonorIsHeRich); // Update variable that tracks shell size (H or He shell).
+    m_Accretor->ResolveAccretionRegime(accretionRegime, p_DonorThermalMassLossRate);
+
+//}
+
+

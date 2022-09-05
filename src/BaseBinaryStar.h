@@ -400,11 +400,6 @@ private:
     void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
     void    SetRemainingValues();
 
-    double  CalculateAccretionRegime(const bool p_DonorIsHeRich,
-                                     const bool p_DonorIsGiant,
-                                     const double p_DonorThermalMassLossRate,
-                                     const double p_MassLostByDonor);
-
     double  CalculateAngularMomentum(const double p_SemiMajorAxis,
                                      const double p_Eccentricity,
                                      const double p_Star1Mass,

@@ -36,6 +36,7 @@ std::tuple<double,ACCRETION_REGIME> ONeWD::DetermineAccretionRegime(const bool p
     std::tie(std::ignore, fraction) = CalculateWDMassAcceptanceRate(logMdot, p_HeRich); // Assume everything works the same way as a CO WD
     if (p_HeRich) {
         // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
+        // RTW: if this is the same function as in COWD, then it should just be written once
             double massTransferCrit = MT_LIMIT_CRIT_PIERSANTI_0 + MT_LIMIT_CRIT_PIERSANTI_1 * m_Mass;
             double massTransferStable = MT_LIMIT_STABLE_PIERSANTI_0 + MT_LIMIT_STABLE_PIERSANTI_1 * m_Mass; // Piersanti+2014 has several Flashes regimes. Here we group them into one.
             double massTransferDetonation = MT_LIMIT_DET_PIERSANTI_0 + MT_LIMIT_DET_PIERSANTI_1 * m_Mass; // Critical value for double detonation regime in Piersanti+ 2014

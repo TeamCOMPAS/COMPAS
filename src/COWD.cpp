@@ -36,6 +36,7 @@ std::tuple<double,ACCRETION_REGIME> COWD::DetermineAccretionRegime(const bool p_
 
     if (p_HeRich) {
         // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
+        // RTW: add "threshold" or something to the variable names, and log
             double massTransferCrit = MT_LIMIT_CRIT_PIERSANTI_0 + MT_LIMIT_CRIT_PIERSANTI_1 * m_Mass;
             double massTransferStable = MT_LIMIT_STABLE_PIERSANTI_0 + MT_LIMIT_STABLE_PIERSANTI_1 * m_Mass; // Piersanti+2014 has several Flashes regimes. Here we group them into one.
             double massTransferDetonation = MT_LIMIT_DET_PIERSANTI_0 + MT_LIMIT_DET_PIERSANTI_1 * m_Mass; // Critical value for double detonation regime in Piersanti+ 2014
@@ -82,6 +83,7 @@ void COWD::ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double 
             m_DoubleDetonation = true;
         }
     } else if (p_Regime == ACCRETION_REGIME::HELIUM_STABLE_BURNING) {
+        // RTW: magic numbers should be in constants.h, even if they are only used once and never changed.
         if ((utils::Compare(logMdot, MDOT_OFF_C) > 0) && (utils::Compare(m_Mass, 1.33) > 0)) { // The 1.33 Msol value in the comparison is taken from Wang, Podsiadlowski & Han (2017), sect 3.2.
             m_OffCenterIgnition = true;
         }

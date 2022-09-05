@@ -112,5 +112,6 @@ STELLAR_TYPE HeWD::EvolveToNextPhase() {
     }
 }
 
+// RTW: is this different to COWD.cpp?
 
 

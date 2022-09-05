@@ -1385,13 +1385,6 @@ const std::initializer_list<STELLAR_TYPE> COMPACT_OBJECTS = {
     STELLAR_TYPE::MASSLESS_REMNANT
 };
 
-// (convenience) initializer list for WHITE DWARFS
-const std::initializer_list<STELLAR_TYPE> WHITE_DWARFS = {
-    STELLAR_TYPE::HELIUM_WHITE_DWARF,
-    STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF,
-    STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,
-};
-
 // (convenience) initializer list for GIANTS
 const std::initializer_list<STELLAR_TYPE> GIANTS = {
     STELLAR_TYPE::FIRST_GIANT_BRANCH,
@@ -6820,7 +6813,7 @@ const std::vector<std::vector<std::vector<LoveridgeCoefficients>>> LOVERIDGE_COE
     }
 };
 
-
+// RTW: are these mutually exclusive?
 
 // enum class ACCRETION_REGIME
 // Symbolic names for WD accretion regimes
