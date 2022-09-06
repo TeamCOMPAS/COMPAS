@@ -163,8 +163,8 @@ public:
             void            CalculateLambdas(const double p_EnvMass);
 
     virtual DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                        const double p_AccretorMassRate = 0.0
-                                                        const bool   p_IsHeRich = false);
+                                                        const double p_AccretorMassRate, 
+                                                        const bool   p_IsHeRich);
 
             double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false);                                                               // JR: todo: better name?
 
@@ -199,21 +199,21 @@ public:
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
 
-    virtual std::tuple<double,ACCRETION_REGIME>    DetermineAccretionRegime(const bool p_HeRich,
-                                               const double p_DonorThermalMassLossRate)                         { return std::make_tuple(0.0, ACCRETION_REGIME::NONE); }                                // Placeholder, use inheritance
+    virtual ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
+                                                      const double p_DonorThermalMassLossRate)                  { return ACCRETION_REGIME::NONE; }                                  // Placeholder, use inheritance for WDs
 
     virtual void            ResolveShellChange(const double p_AccretedMass,
-                                           const bool p_HeRich)                                                       { }                                                                 // Default does nothing, use inheritance for WDs.
+                                               const bool p_HeRich) { }                                                                                                             // Default does nothing, use inheritance for WDs.
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 
     virtual void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
-                                                   const double p_DonorThermalMassLossRate)                     { }                                                                 // Default does nothing, only works for WDs.
+                                                   const double p_DonorThermalMassLossRate) { }                                                                                     // Default does nothing, only works for WDs.
 
     virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                         { return m_StellarType; }
 
     virtual void            ResolveMassLoss();
-
+   
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
 
             void            StashSupernovaDetails(const STELLAR_TYPE p_StellarType,

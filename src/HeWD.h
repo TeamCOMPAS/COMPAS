@@ -52,6 +52,7 @@ protected:
         m_lambdaRitter = CalculatelambdaRitter();
         m_SubChandrasekhar = false;
         m_Rejuvenate = false;
+        m_AccretionRegime = ACCRETION_REGIME::NONE;
     }
 
 

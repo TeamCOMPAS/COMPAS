@@ -96,9 +96,12 @@ protected:
     void            ResolveEnvelopeMassAtPhaseEnd(const double p_Tau) const                                     { ResolveEnvelopeMassOnPhase(p_Tau); }                                  // Same as on phase
     void            ResolveEnvelopeMassOnPhase(const double p_Tau) const { }                                                                                                            // NO-OP
 
-    void            ResolveMassLoss() { }                                                                                                                                         // NO-OP
+    void            ResolveMassLoss() { }                                                                                                                                               // NO-OP
 
     STELLAR_TYPE    ResolveSkippedPhase()                                                                       { return BaseStar::ResolveSkippedPhase(); }                             // Default to BaseStar
+                                                                                                                                                                                        //
+    void            ResolveShellChange(const double p_AccretedMass, const bool p_HeRich) { }                                                                                            // NO-OP 
+                                                                                                                                                                                        //
     STELLAR_TYPE    ResolveSupernova()                                                                          { return BaseStar::ResolveSupernova(); }                                // Default to BaseStar
 
     void            SetPulsarParameters() const { }                                                                                                                                     // NO-OP

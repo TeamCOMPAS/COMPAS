@@ -33,7 +33,7 @@ public:
 
 
     void                ResolveShellChange(const double p_AccretedMass,
-                                       const bool p_HeRich);
+                                           const bool p_HeRich);
 
 protected:
     // member variables
@@ -68,7 +68,7 @@ protected:
             double      Calculatel0Ritter() const                                   {return (m_Metallicity > 0.01) ? 1995262.3 : 31622.8; } // Luminosity constant which depends on metallicity in Ritter 1999, eq 10
 
             DBL_DBL     CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                    const double p_AccretorMassRate = 0.0,
+                                                    const double p_AccretorMassRate,
                                                     const bool   p_IsHeRich);
 
 

@@ -1910,7 +1910,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
             massLossDonor = -envMassDonor;                                                                                  // set donor mass loss to (negative of) the envelope mass
             isEnvelopeRemoved = true;
-            
         }
         else{                                                                                                           // donor has no envelope
             massLossDonor = -MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe

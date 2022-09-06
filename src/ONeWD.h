@@ -42,6 +42,7 @@ protected:
         // RTW right place?
         m_HShell = 0.0; // Initialize hydrogen shell
         m_HeShell = 0.0; // Initialize helium shell
+        m_AccretionRegime = ACCRETION_REGIME::NONE;
     }
 
 
