@@ -1902,26 +1902,30 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
         double massLossDonor;
         double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
+        bool isEnvelopeRemoved = false;
+
         if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
-            massLossDonor = -envMassDonor;
+            massLossDonor = -envMassDonor;                                                                                  // set donor mass loss to (negative of) the envelope mass
+            isEnvelopeRemoved = true;
+            
         }
         else{                                                                                                           // donor has no envelope
             massLossDonor = -MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
+            m_Donor->UpdateMinimumCoreMass();                                                                              // reset the minimum core mass following case A
         } 
-        double massGainAccretor = -massLossDonor * m_FractionAccreted;
+        double massGainAccretor = -massLossDonor * m_FractionAccreted;                                              // set accretor mass gain to mass loss * conservativeness
 
-        m_Accretor->SetMassTransferDiff(massGainAccretor);
-        m_Donor->UpdateMinimumCoreMass();
-        m_Donor->SetMassTransferDiff(massLossDonor);
+        m_Donor->SetMassTransferDiff(massLossDonor);                                                                // set new mass of donor
+        m_Accretor->SetMassTransferDiff(massGainAccretor);                                                          // set new mass of accretor
 
+        aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), massLossDonor, *m_Accretor, m_FractionAccreted);       // calculate new orbit
+        m_aMassTransferDiff = aFinal - aInitial;                                                                    // set change in orbit (semi-major axis)
+                                                                                                                    
         STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                     // donor stellar type before resolving envelope loss
-        m_Donor->ResolveEnvelopeLossAndSwitch(false);                                                               // only other interaction that adds/removes mass is winds, so it is safe to update star here - want to check if envelope is truly gone
+        if (isEnvelopeRemoved) m_Donor->ResolveEnvelopeLossAndSwitch();                                             // if this was an envelope stripping episode, resolve envelope loss
         if (m_Donor->StellarType() != stellarTypeDonor) {                                                           // stellar type change?
             (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_MT);               // yes - print (log) detailed output
         }
-
-        aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), massLossDonor, *m_Accretor, m_FractionAccreted);
-        m_aMassTransferDiff = aFinal - aInitial;                                                                        // change in orbit (semi-major axis)
         
         
         // Check if this was stable mass transfer after a CEE
