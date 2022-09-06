@@ -104,7 +104,7 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
     return (635.0 * p_Mass * PPOW(p_Metallicity, 0.4)) / PPOW(p_BaryonNumber * (p_Time + 0.1), 1.4);
 }
 
-
+// RTW : does this only apply for COWDs and ONeWDs?
 /* Calculate:
  *
  *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
@@ -115,26 +115,26 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
  * flashes, as given by appendix B of Claeys+ 2014.
  *
  *
- * DBL_DBL CalculateWDMassAcceptanceRate(const double p_LogDonorMassRate, const bool p_IsHeRich)
+ * DBL_DBL CalculateMassAcceptanceRate(const double p_LogDonorMassRate, const bool p_IsHeRich)
  *
  * @param   [IN]    p_LogDonorMassRate          Logarithm of the mass transfer rate of the donor
  * @param   [IN]    p_IsHeRich                  Material is He-rich or not
  * @return                                      Tuple containing the Maximum Mass Acceptance Rate (Msun/yr) and Retention Efficiency Parameter
  */
-DBL_DBL WhiteDwarfs::CalculateWDMassAcceptanceRate(const double p_LogDonorMassRate, const bool p_IsHeRich) {
+DBL_DBL WhiteDwarfs::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate, const bool p_IsHeRich) {
 
+    // RTW clean this up
     double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
     double fractionAccreted = 0.0;                                                          // accretion fraction - default=0.0
-    double thisMassRate;
-    double DonorMassRate = PPOW(10,p_LogDonorMassRate);
 
     if (p_IsHeRich) {
-        thisMassRate = DonorMassRate * CalculateetaHe(p_LogDonorMassRate);
+        acceptanceRate = DonorMassRate * CalculateetaHe(p_LogDonorMassRate);
     } else {
-        thisMassRate = DonorMassRate * CalculateetaHe(p_LogDonorMassRate) * CalculateetaH(p_LogDonorMassRate);
+        acceptanceRate = DonorMassRate * CalculateetaHe(p_LogDonorMassRate) * CalculateetaH(p_LogDonorMassRate);
     }
-    acceptanceRate   = thisMassRate;
     fractionAccreted = acceptanceRate / DonorMassRate;
+    m_AccretionRegime = DetermineAccretionRegime(p_DonorIsHeRich, p_DonorThermalMassLossRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
+
     return std::make_tuple(acceptanceRate, fractionAccreted);
 }
 
@@ -156,7 +156,7 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     return std::max(NEUTRON_STAR_RADIUS, 0.0115 * std::sqrt((MCH_Mass_two_thirds - 1.0/MCH_Mass_two_thirds )));
 }
 
-// RTW: why does it not matter what the WD type is? Can you accrete the He Shell if you have a H shell already?
+// RTW: this function should apply to all WDs, but it should be the normal accrete mass one
 
 /* Increase shell size after mass transfer episode. Hydrogen and helium shells are kept separately.
  *
@@ -166,16 +166,34 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
  * @param   [IN]    p_HeRich                    Material is He-rich or not
  */
 void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass, const bool p_HeRich) {
-	if (p_HeRich) {
-		m_HeShell += p_AccretedMass;
-	} else {
-		m_HShell += p_AccretedMass;
-	}
+    // RTW: Is this correct? What is the default case?
+
+    switch (m_AccretionRegime) {
+
+        case ACCRETION_REGIME::HELIUM_ACCUMULATION:
+        case ACCRETION_REGIME::HELIUM_FLASHES:
+        case ACCRETION_REGIME::HELIUM_STABLE_BURNING:
+        case ACCRETION_REGIME::HELIUM_OPT_THICK_WINDS:
+        case ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR:
+        case ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_IGNITION:
+	        m_HeShell += p_AccretedMass;
+            break;
+
+        case ACCRETION_REGIME::HYDROGEN_FLASHES:
+        case ACCRETION_REGIME::HYDROGEN_STABLE_BURNING:
+        case ACCRETION_REGIME::HYDROGEN_OPT_THICK_WINDS:
+        case ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES:
+        case ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION:
+	        m_HShell += p_AccretedMass;
+            break;
+    }
 }
 
 
 
 // * RTW : Make sure this function only gets the accretion regime, then rewrite the part that's supposed to add the mass on to take in information about whether the donor is He rich
+// RTW: this should really just be part of CalculateAccretionFraction
+//  == > also it should set the WhiteDwarfAccretionRegime
  
 /* Wraps the computation and resolution of the accretion regime a White Dwarf goes through, triggering the necessary changes.
  *
@@ -184,29 +202,24 @@ void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass, const bool p_H
  * @param   [IN]    p_DonorIsHeRich                  Whether the accreted material is helium-rich or not
  * @param   [IN]    p_DonorIsGiant                   Whether the donor star is a giant or not
  * @param   [IN]    p_DonorThermalMassLossRate       Donor thermal mass loss rate, in units of Msol / Myr
- * @param   [IN]    p_MassLostByDonor                Total mass lost by donor
  * @return                                           Mass retained by accretor, after considering the possible flahes regime and the optically-tick winds regime.
  */
 
 // This should be calculate 
-double BaseBinaryStar::CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_DonorThermalMassLossRate, const double p_MassLostByDonor) {
-    double fractionAccretedMass;
-    ACCRETION_REGIME accretionRegime;
-    std::tie(fractionAccretedMass, accretionRegime) = m_Accretor->DetermineAccretionRegime(p_DonorIsHeRich, p_DonorThermalMassLossRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
-    if (accretionRegime == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION) {
-        if (p_DonorIsGiant) {
-            m_CEDetails.CEEnow = true;
-        } else {
-            m_Flags.stellarMerger = true;
-        }
-    }
-    return fractionAccretedMass * p_MassLostByDonor;
-}
+//double BaseBinaryStar::CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_DonorThermalMassLossRate) {
+//    double fractionAccretedMass;
+//    ACCRETION_REGIME accretionRegime;
+//    std::tie(fractionAccretedMass, accretionRegime) = m_Accretor->DetermineAccretionRegime(p_DonorIsHeRich, p_DonorThermalMassLossRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
+//
+//    m_WhiteDwarfAccretionRegime = accretionRegime;
+//    return fractionAccretedMass;
+//}
+//        bool donorIsHeRich                = m_Donor->IsOneOf(He_RICH_TYPES); // Check composition of accreted material
 
 
     // RTW the function below just adds to the mass, but you need to know if the donor is He rich...
-    m_Accretor->ResolveShellChange(p_MassLostByDonor * fractionAccretedMass, p_DonorIsHeRich); // Update variable that tracks shell size (H or He shell).
-    m_Accretor->ResolveAccretionRegime(accretionRegime, p_DonorThermalMassLossRate);
+    //m_Accretor->ResolveShellChange(p_MassLostByDonor * fractionAccretedMass, p_DonorIsHeRich); // Update variable that tracks shell size (H or He shell).
+    //m_Accretor->ResolveAccretionRegime(accretionRegime, p_DonorThermalMassLossRate);
 
 //}
 

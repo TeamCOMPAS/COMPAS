@@ -28,42 +28,62 @@
  * @return                                          Tuple containing fraction of mass that should be retained and accretion regime
  */
 
-std::tuple<double,ACCRETION_REGIME> COWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate) {
+ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate) {
     double logMdot = log10(p_DonorThermalMassLossRate / MYR_TO_YEAR); // Logarithm of the accreted mass (M_sun/yr)
-    double fraction;
-    ACCRETION_REGIME regime;
-    std::tie(std::ignore, fraction) = CalculateWDMassAcceptanceRate(logMdot, p_HeRich);
+    //double fraction;
+    ACCRETION_REGIME regime; // RTW: do we want a default?
+    //std::tie(std::ignore, fraction) = CalculateWDMassAcceptanceRate(logMdot, p_HeRich);
 
     if (p_HeRich) {
         // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
         // RTW: add "threshold" or something to the variable names, and log
-            double massTransferCrit = MT_LIMIT_CRIT_PIERSANTI_0 + MT_LIMIT_CRIT_PIERSANTI_1 * m_Mass;
-            double massTransferStable = MT_LIMIT_STABLE_PIERSANTI_0 + MT_LIMIT_STABLE_PIERSANTI_1 * m_Mass; // Piersanti+2014 has several Flashes regimes. Here we group them into one.
-            double massTransferDetonation = MT_LIMIT_DET_PIERSANTI_0 + MT_LIMIT_DET_PIERSANTI_1 * m_Mass; // Critical value for double detonation regime in Piersanti+ 2014
-            if (utils::Compare(logMdot, massTransferStable) < 0) {
-                if (utils::Compare(logMdot, massTransferDetonation) > 0) {
-                    regime = ACCRETION_REGIME::HELIUM_FLASHES;
-                } else {
-                    regime = ACCRETION_REGIME::HELIUM_ACCUMULATION;
-                    }
-            } else if (utils::Compare(logMdot, massTransferCrit) > 0) {
-                regime = ACCRETION_REGIME::HELIUM_OPT_THICK_WINDS;
-            } else {
-                regime = ACCRETION_REGIME::HELIUM_STABLE_BURNING;
+        double massTransferCrit = MT_LIMIT_CRIT_PIERSANTI_0 + MT_LIMIT_CRIT_PIERSANTI_1 * m_Mass;
+        double massTransferStable = MT_LIMIT_STABLE_PIERSANTI_0 + MT_LIMIT_STABLE_PIERSANTI_1 * m_Mass; // Piersanti+2014 has several Flashes regimes. Here we group them into one.
+        double massTransferDetonation = MT_LIMIT_DET_PIERSANTI_0 + MT_LIMIT_DET_PIERSANTI_1 * m_Mass; // Critical value for double detonation regime in Piersanti+ 2014
+        if (utils::Compare(logMdot, massTransferStable) < 0) {
+            if (utils::Compare(logMdot, massTransferDetonation) > 0) {
+                regime = ACCRETION_REGIME::HELIUM_FLASHES;
+            } 
+            else {
+                regime = ACCRETION_REGIME::HELIUM_ACCUMULATION;
+                m_DoubleDetonation = true;
+                if ((utils::Compare(m_Mass, MASS_DOUBLE_DETONATION_CO) >= 0) && (utils::Compare(m_HeShell, SHELL_CRIT) >= 0)) {
+                    // RTW: TODO?
+                }
             }
-    } else {
+        } 
+        else if (utils::Compare(logMdot, massTransferCrit) > 0) {
+            regime = ACCRETION_REGIME::HELIUM_OPT_THICK_WINDS;
+        } 
+        else {
+            regime = ACCRETION_REGIME::HELIUM_STABLE_BURNING;
+            if ((utils::Compare(logMdot, MDOT_OFF_C) > 0) && (utils::Compare(m_Mass, 1.33) > 0)) { // The 1.33 Msol value in the comparison is taken from Wang, Podsiadlowski & Han (2017), sect 3.2.
+                m_OffCenterIgnition = true;
+            }
+        }
+    } 
+    else {
         // The following coefficients in massTransfer limits come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
             double massTransferCrit = MT_LIMIT_CRIT_NOMOTO_0 +  MT_LIMIT_CRIT_NOMOTO_1 * m_Mass +  MT_LIMIT_CRIT_NOMOTO_2 * m_Mass * m_Mass;
             double massTransferStable =  MT_LIMIT_STABLE_NOMOTO_0 +  MT_LIMIT_STABLE_NOMOTO_1 * m_Mass +  MT_LIMIT_STABLE_NOMOTO_2 * m_Mass * m_Mass;
             if (utils::Compare(logMdot, massTransferStable) < 0) {
                 regime = ACCRETION_REGIME::HYDROGEN_FLASHES;
-            } else if (utils::Compare(logMdot, massTransferCrit) > 0) {
+            } 
+            else if (utils::Compare(logMdot, massTransferCrit) > 0) {
                 regime = ACCRETION_REGIME::HYDROGEN_OPT_THICK_WINDS;
-            } else {
+            } 
+            else {
                 regime = ACCRETION_REGIME::HYDROGEN_STABLE_BURNING;
             }
     }
-    return std::make_tuple(fraction, regime);
+    //double logMdot = log10(p_DonorThermalMassLossRate / MYR_TO_YEAR); // Logarithm of the accreted mass (M_sun/yr)
+    //if (p_Regime == ACCRETION_REGIME::HELIUM_ACCUMULATION) {
+    //} else if (p_Regime == ACCRETION_REGIME::HELIUM_STABLE_BURNING) {
+    //}
+
+
+    //ResolveAccretionRegime(); 
+    return regime;
 }
 
 
@@ -76,19 +96,8 @@ std::tuple<double,ACCRETION_REGIME> COWD::DetermineAccretionRegime(const bool p_
  * @param   [IN]    p_DonorThermalMassLossRate      Donor thermal mass loss rate, in units of Msol / Myr
  */
 
-void COWD::ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate) {
-    double logMdot = log10(p_DonorThermalMassLossRate / MYR_TO_YEAR); // Logarithm of the accreted mass (M_sun/yr)
-    if (p_Regime == ACCRETION_REGIME::HELIUM_ACCUMULATION) {
-        if ((utils::Compare(m_Mass, MASS_DOUBLE_DETONATION_CO) >= 0) && (utils::Compare(m_HeShell, SHELL_CRIT) >= 0)) {
-            m_DoubleDetonation = true;
-        }
-    } else if (p_Regime == ACCRETION_REGIME::HELIUM_STABLE_BURNING) {
-        // RTW: magic numbers should be in constants.h, even if they are only used once and never changed.
-        if ((utils::Compare(logMdot, MDOT_OFF_C) > 0) && (utils::Compare(m_Mass, 1.33) > 0)) { // The 1.33 Msol value in the comparison is taken from Wang, Podsiadlowski & Han (2017), sect 3.2.
-            m_OffCenterIgnition = true;
-        }
-    }
-}
+//void COWD::ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate) {
+//}
 
 
 

@@ -34,9 +34,10 @@ public:
                                                                                                                                                 p_Time, 
                                                                                                                                                 p_Metallicity, 
                                                                                                                                                 WD_Baryon_Number.at(STELLAR_TYPE::HELIUM_WHITE_DWARF)); }
-    std::tuple<double,ACCRETION_REGIME> DetermineAccretionRegime(const bool p_HeRich,
-                                    const double p_DonorThermalMassLossRate);
-    void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate);
+    ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
+                                              const double p_DonorThermalMassLossRate);
+
+    //void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate);
 
 protected:
 
@@ -44,7 +45,6 @@ protected:
         m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF;                                                                                                           // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
         m_Age = 0.0;                                                                                                                                                // Set age appropriately
-        // RTW: is this the right place for this?
         m_HShell = 0.0; // Initialize Hydrogen Shell
         m_HeShell = 0.0; // Initialize Helium Shell
         m_l0Ritter = Calculatel0Ritter();

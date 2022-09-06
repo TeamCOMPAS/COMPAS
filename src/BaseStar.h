@@ -125,6 +125,7 @@ public:
             double              Temperature() const                                             { return m_Temperature; }
             double              Time() const                                                    { return m_Time; }
             double              Timescale(TIMESCALE p_Timescale) const                          { return m_Timescales[static_cast<int>(p_Timescale)]; }
+    virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::NONE; }
             double              XExponent() const                                               { return m_XExponent; }
 
 
@@ -162,7 +163,8 @@ public:
             void            CalculateLambdas(const double p_EnvMass);
 
     virtual DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                        const double p_AccretorMassRate = 0.0);
+                                                        const double p_AccretorMassRate = 0.0
+                                                        const bool   p_IsHeRich = false);
 
             double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false);                                                               // JR: todo: better name?
 

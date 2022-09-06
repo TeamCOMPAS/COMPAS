@@ -32,8 +32,6 @@ public:
                                                                                                                                         p_Metallicity, 
                                                                                                                                         WD_Baryon_Number.at(STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF)); }
     
-    std::tuple<double,ACCRETION_REGIME> DetermineAccretionRegime(const bool p_HeRich,
-                        const double p_DonorThermalMassLossRate);
 
 protected:
 

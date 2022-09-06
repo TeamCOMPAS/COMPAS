@@ -1253,6 +1253,26 @@ const COMPASUnorderedMap<SN_STATE, std::string> SN_STATE_LABEL = {
     { SN_STATE::BOTH,  "Both stars" }
 };
 
+// RTW: are these mutually exclusive? - do we want labels?
+// enum class ACCRETION_REGIME
+// Symbolic names for WD accretion regimes
+enum class ACCRETION_REGIME: int {
+    HELIUM_ACCUMULATION,
+    HELIUM_FLASHES,
+    HELIUM_STABLE_BURNING,
+    HELIUM_OPT_THICK_WINDS,
+    HYDROGEN_FLASHES,
+    HYDROGEN_STABLE_BURNING,
+    HYDROGEN_OPT_THICK_WINDS,
+    HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR,
+    HELIUM_WHITE_DWARF_HELIUM_IGNITION,
+    HELIUM_WHITE_DWARF_HYDROGEN_FLASHES,
+    HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION,
+    NONE
+};
+
+
+
 // enum class L_CONSTANTS
 // symbolic names for the Luminosity Constants
 // these must be left as default values - their order can be changed with the caveat that the sentinel "COUNT" must stay at the end
@@ -1402,6 +1422,7 @@ const std::initializer_list<STELLAR_TYPE> WHITE_DWARFS = {
 };
 
 
+// RTW : do we want to include He white dwarfs? If they are donors, is the material really He-rich in the same sense as the non-degen stars?
 // (convenience) initializer list for He rich stellar types
 const std::initializer_list<STELLAR_TYPE> He_RICH_TYPES = {
     STELLAR_TYPE::NAKED_HELIUM_STAR_MS,
@@ -6811,25 +6832,6 @@ const std::vector<std::vector<std::vector<LoveridgeCoefficients>>> LOVERIDGE_COE
             { 3,     3,    -2.63299277947934735888E-02}
         }
     }
-};
-
-// RTW: are these mutually exclusive?
-
-// enum class ACCRETION_REGIME
-// Symbolic names for WD accretion regimes
-enum class ACCRETION_REGIME: int {
-    HELIUM_ACCUMULATION,
-    HELIUM_FLASHES,
-    HELIUM_STABLE_BURNING,
-    HELIUM_OPT_THICK_WINDS,
-    HYDROGEN_FLASHES,
-    HYDROGEN_STABLE_BURNING,
-    HYDROGEN_OPT_THICK_WINDS,
-    HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR,
-    HELIUM_WHITE_DWARF_HELIUM_IGNITION,
-    HELIUM_WHITE_DWARF_HYDROGEN_FLASHES,
-    HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION,
-    NONE
 };
 
 

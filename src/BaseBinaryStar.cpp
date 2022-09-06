@@ -1847,14 +1847,16 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     // Add event to MT history of the donor
     m_Donor->UpdateMassTransferDonorHistory();
 
+    // Calculate accretion fraction 
+    bool donorIsHeRich = m_Donor->IsOneOf(He_RICH_TYPES); 
+    double accretorThermalAcceptanceRate = m_Accretor->CalculateThermalMassAcceptanceRate(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), 
+                                                                           m_Donor->Mass()) * AU_TO_RSOL);                      // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
+    std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(), 
+                                                                                        accretorThermalAcceptanceRate, donorIsHeRich);
+
     double aInitial = m_SemiMajorAxis;                                                                                          // semi-major axis in default units, AU, current timestep
     double aFinal;                                                                                                              // semi-major axis in default units, AU, after next timestep
     double jLoss    = m_JLoss;                            		                                                                // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
-
-    // Calculate accretion fraction if stable
-    // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
-    std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(),
-                                                                                        m_Accretor->CalculateThermalMassAcceptanceRate(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL));
 
     if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {       // arbitrary angular momentum loss prescription?
         jLoss = CalculateGammaAngularMomentumLoss();                                                                        // no - re-calculate angular momentum
@@ -1868,13 +1870,18 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     bool caseBBAlwaysUnstableOntoNSBH = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH;
     bool donorIsHeHGorHeGB            = m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH });
     bool accretorIsNSorBH             = m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE });
-
+    bool accretorIsWD                 = m_Accretor->IsOneOf(WHITE_DWARFS); 
 
     // Determine stability
     bool isUnstable;
     if (donorIsHeHGorHeGB && (caseBBAlwaysStable || caseBBAlwaysUnstable || (caseBBAlwaysUnstableOntoNSBH && accretorIsNSorBH))) { // Determine stability based on case BB 
         isUnstable = (caseBBAlwaysUnstable || (caseBBAlwaysUnstableOntoNSBH && accretorIsNSorBH));                                 // Already established that donor is HeHG or HeGB - need to check if new case BB prescriptions are added
     } 
+    else if (accretorIsWD && (m_Accretor->WhiteDwarfAccretionRegime() == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION)) { 
+        // RTW - check that this is the correct condition
+        isUnstable = true;
+        if (!m_Donor->IsOneOf(GIANTS)) m_Flags.stellarMerger = true;
+    }
     else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::NONE) {                                                           // Determine stability based on critical mass ratios
         // Critical mass ratio qCrit is defined as mAccretor/mDonor
         double qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate());
@@ -1892,12 +1899,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     }
     else {                                                          // Stable Mass Transfer
             
-        // Calculate accretion fraction
-        // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
-        bool accretorIsWD                 = m_Accretor->IsOneOf(WHITE_DWARFS); //To confirm that the accretor is a WD
-        bool donorIsHeRich                = m_Donor->IsOneOf(He_RICH_TYPES); // Check composition of accreted material
-        bool donorIsGiant                 = m_Donor->IsOneOf(GIANTS);
-
         m_MassTransferTrackerHistory = m_Donor==m_Star1 ? MT_TRACKING::STABLE_1_TO_2_SURV: MT_TRACKING::STABLE_2_TO_1_SURV; // record what happened - for later printing
         double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
         double massLossDonor;
@@ -1908,7 +1909,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         else{                                                                                                           // donor has no envelope
             massLossDonor = -MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
         } 
-        double massGainAccretor = - massLossDonor * m_FractionAccreted;
+        double massGainAccretor = -massLossDonor * m_FractionAccreted;
 
         m_Accretor->SetMassTransferDiff(massGainAccretor);
         m_Donor->UpdateMinimumCoreMass();

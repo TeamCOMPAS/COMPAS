@@ -35,16 +35,17 @@ public:
                                                                                                                                             p_Metallicity, 
                                                                                                                                             WD_Baryon_Number.at(STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF)); }
 
-    std::tuple<double,ACCRETION_REGIME> DetermineAccretionRegime(const bool p_HeRich,
-        const double p_DonorThermalMassLossRate);                                                                                                                                      // To check the current accretion regime and mass retention. Also activates flags for type change in some situations.
-    void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate);
+    ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
+                                              const double p_DonorThermalMassLossRate);                                                                                                                                      // To check the current accretion regime and mass retention. Also activates flags for type change in some situations.
+
+    //void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate);
 
 protected:
 
     void Initialise() {
         m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                                // Set stellar type
         CalculateTimescales();                                                                                                                                  // Initialise timescales
-        // RTW is this the right place for these?
+        // RTW is this the right place for these? - Do we want to reset them if switch from another type?
         m_HShell = 0.0; // Initialize hydrogen shell
         m_HeShell = 0.0; // Initialize helium shell
         m_DoubleDetonation = false;
