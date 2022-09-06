@@ -1494,7 +1494,6 @@ void BaseStar::CalculateLambdas(const double p_EnvMass) {
 }
 
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                              LUMINOSITY CALCULATIONS                              //
