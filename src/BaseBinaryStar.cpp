@@ -1749,13 +1749,13 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
  * Formula from M. Sluys notes "Binary evolution in a nutshell"
  *
  *
- * double CalculateZRocheLobe()
+ * double CalculateZetaRocheLobe()
  *
  * @param   [IN]    p_jLoss                     Specific angular momentum with which mass is lost during non-conservative mass transfer
  *                                              (Podsiadlowski et al. 1992, Beta: specific angular momentum of matter [2Pia^2/P])
  * @return                                      Roche Lobe response
  */
-double BaseBinaryStar::CalculateZRocheLobe(const double p_jLoss) const {
+double BaseBinaryStar::CalculateZetaRocheLobe(const double p_jLoss) const {
 
     double donorMass    = m_Donor->Mass();                  // donor mass
     double accretorMass = m_Accretor->Mass();               // accretor mass
@@ -1883,7 +1883,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     }
     else {                                                                                      // Determine stability based on zetas
 
-        m_ZetaLobe = CalculateZRocheLobe(jLoss);
+        m_ZetaLobe = CalculateZetaRocheLobe(jLoss);
         m_ZetaStar = m_Donor->CalculateZetaAdiabatic(); 
 
         isUnstable = (utils::Compare(m_ZetaStar, m_ZetaLobe) < 0);
