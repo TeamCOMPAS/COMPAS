@@ -1892,42 +1892,37 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
     // Evaluate separately for stable / unstable MT
     if (isUnstable) {                                                                           // Unstable Mass Transfer
-            m_CEDetails.CEEnow = true;
+         m_CEDetails.CEEnow = true;
     }
     else {                                                                                      // Stable MT
             
         m_MassTransferTrackerHistory = m_Donor == m_Star1                                           // record what happened - for later printing
             ? MT_TRACKING::STABLE_1_TO_2_SURV
             : MT_TRACKING::STABLE_2_TO_1_SURV; 
+
+        double massLossDonor;
         double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
-        
-        if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {    // donor has a core and an envelope
-            double mdEnvAccreted = envMassDonor * m_FractionAccreted;
-            
-            m_Donor->SetMassTransferDiff(-envMassDonor);
-            m_Accretor->SetMassTransferDiff(mdEnvAccreted);
-        
-            STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                 // donor stellar type before resolving envelope loss
-            
-            aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), -envMassDonor, *m_Accretor, m_FractionAccreted);
-            
-            m_Donor->ResolveEnvelopeLossAndSwitch();                                                // only other interaction that adds/removes mass is winds, so it is safe to update star here
-            
-            if (m_Donor->StellarType() != stellarTypeDonor) {                                                           // stellar type change?
-                (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_MT);               // yes - print (log) detailed output
-            }
+        if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
+            massLossDonor = -envMassDonor;
         }
-        else{                                                                                       // donor has no envelope
-            double dM = - MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
-            m_Donor->UpdateMinimumCoreMass();                                                           // update minimum core mass of possible MS donor
-            m_Donor->SetMassTransferDiff(dM);                                                           // mass transferred by donor
-            m_Accretor->SetMassTransferDiff(-dM * m_FractionAccreted);                                  // mass accreted by accretor
-              
-            aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), dM, *m_Accretor, m_FractionAccreted);
+        else{                                                                                                           // donor has no envelope
+            massLossDonor = -MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
+        } 
+        double massGainAccretor = -massLossDonor * m_FractionAccreted;
+
+        m_Accretor->SetMassTransferDiff(massGainAccretor);
+        m_Donor->UpdateMinimumCoreMass();
+        m_Donor->SetMassTransferDiff(massLossDonor);
+
+        STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                     // donor stellar type before resolving envelope loss
+        m_Donor->ResolveEnvelopeLossAndSwitch(false);                                                               // only other interaction that adds/removes mass is winds, so it is safe to update star here - want to check if envelope is truly gone
+        if (m_Donor->StellarType() != stellarTypeDonor) {                                                           // stellar type change?
+            (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_MT);               // yes - print (log) detailed output
         }
-               
+
+        aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), massLossDonor, *m_Accretor, m_FractionAccreted);
+        m_aMassTransferDiff = aFinal - aInitial;                                                                        // change in orbit (semi-major axis)
         
-        m_aMassTransferDiff = aFinal - aInitial;                                                    // change in orbit (semi-major axis)
         
         // Check if this was stable mass transfer after a CEE
         if (m_CEDetails.CEEcount > 0 && !m_RLOFDetails.stableRLOFPostCEE) {

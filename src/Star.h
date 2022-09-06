@@ -196,7 +196,7 @@ public:
 
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
 
-    void            ResolveEnvelopeLossAndSwitch()                                                                  { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
+    void            ResolveEnvelopeLossAndSwitch(bool p_NoCheck=true)                                               { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(p_NoCheck)); }
 
     bool            RevertState();
 
