@@ -201,7 +201,7 @@ public:
     virtual void    ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
                                            const double p_DonorThermalMassLossRate)                                 { m_Star->ResolveAccretionRegime(p_Regime, p_DonorThermalMassLossRate); }  // Used in WDs
 
-    void            ResolveEnvelopeLossAndSwitch(bool p_NoCheck = true)                                             { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(p_NoCheck)); }
+    void            ResolveEnvelopeLossAndSwitch()                                                                  { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
 
     bool            RevertState();
 
