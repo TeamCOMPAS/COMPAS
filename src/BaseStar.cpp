@@ -1333,7 +1333,7 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) {
         switch (qCritPrescription) {
             case QCRIT_PRESCRIPTION::GE20: 
             case QCRIT_PRESCRIPTION::GE20_IC:
-                qCrit = InterpolateGe2020DataObjectForEitherQCritOrZeta(qCritPrescription);   
+                qCrit = CalculateCriticalMassRatioGe2020(qCritPrescription);   
                 break;
             case QCRIT_PRESCRIPTION::CLAEYS:
                 qCrit = CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate);
