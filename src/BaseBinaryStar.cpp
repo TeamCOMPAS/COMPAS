@@ -1875,28 +1875,16 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     } 
     else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::NONE) {                                                           // Determine stability based on critical mass ratios
 
-        double qCrit = 0.0;                                                                     // Critical mass ratio is mAccretor/mDonor
-
-        switch (OPTIONS->QCritPrescription()) {
-            case QCRIT_PRESCRIPTION::GE20: 
-            case QCRIT_PRESCRIPTION::GE20_IC:
-                qCrit = m_Donor->CalculateInterpolatedQCritOrZetaGe2020();   
-                break;
-            case QCRIT_PRESCRIPTION::CLAEYS:
-                qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate());
-                break;
-            default:
-                m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                                    // set error value
-                SHOW_ERROR(m_Error);                                                             // warn that an error occurred
-        }
+        // NOTE: Critical mass ratio is defined as mAccretor/mDonor
+        double qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate());
 
         isUnstable = (m_Accretor->Mass()/m_Donor->Mass()) < qCrit;
-        m_FractionAccreted = 1;                                                                 // Accretion is assumed fully conservative for qCrit calculations
+        m_FractionAccreted = 1.0;                                                               // Accretion is assumed fully conservative for qCrit calculations
     }
     else {                                                                                      // Determine stability based on zetas
 
         m_ZetaLobe = CalculateZRocheLobe(jLoss);
-        m_ZetaStar = m_Donor->CalculateZetaAdiabatic(OPTIONS->StellarZetaPrescription()); 
+        m_ZetaStar = m_Donor->CalculateZetaAdiabatic(); 
 
         isUnstable = (utils::Compare(m_ZetaStar, m_ZetaLobe) < 0);
     }

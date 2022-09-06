@@ -147,7 +147,9 @@ public:
 
             void            CalculateBindingEnergies(const double p_CoreMass, const double p_EnvMass, const double p_Radius);
 
-    virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                 { return 0.0; }                                                     // Default is 0.0
+    virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate); 
+    virtual double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const         { return 0.0; }                                                     // Default is 0.0
+            double          CalculateCriticalMassRatioGe2020(const QCRIT_PRESCRIPTION p_qCritPrescription)      { return InterpolateGe2020DataObjectForEitherQCritOrZeta(p_qCritPrescription, ZETA_PRESCRIPTION::NONE); }
                                                                                                                                                                                          
             double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
 
@@ -157,8 +159,6 @@ public:
     virtual void            CalculateGBParams()                                                                 { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
 
     virtual double          CalculateGyrationRadius() const                                                     { return 0.0; }                                                     // Default is 0.0
-
-            double          CalculateInterpolatedQCritOrZetaGe2020();  
 
             void            CalculateLambdas()                                                                  { CalculateLambdas(m_Mass - m_CoreMass); }                          // Use class member variables
             void            CalculateLambdas(const double p_EnvMass);
@@ -193,12 +193,16 @@ public:
 
             double          CalculateTimestep();
 
-            double          CalculateZetaAdiabatic(ZETA_PRESCRIPTION p_ZetaPrescription);
-    virtual double          CalculateZetaByStellarType(ZETA_PRESCRIPTION p_ZetaPrescription)                    { return 0.0; }                                                     // Use inheritance hierarchy
+            double          CalculateZetaAdiabatic();
+    virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                               // Use inheritance hierarchy
+            double          CalculateZetaGe2020(const ZETA_PRESCRIPTION p_ZetaPrescription)                     { return InterpolateGe2020DataObjectForEitherQCritOrZeta(QCRIT_PRESCRIPTION::NONE, p_ZetaPrescription); }
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
+
+            double          InterpolateGe2020DataObjectForEitherQCritOrZeta(const QCRIT_PRESCRIPTION p_qCritPrescription = QCRIT_PRESCRIPTION::NONE, 
+                                                                                  const ZETA_PRESCRIPTION p_ZetaPrescription = ZETA_PRESCRIPTION::NONE);
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 
@@ -499,10 +503,10 @@ protected:
     virtual void                CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                             // Use class member variables
     virtual void                CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                                                              // Default is NO-OP
 
+            double              CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) const;
+
             double              CalculateZetaAdiabaticHurley2002(const double p_CoreMass) const;
             double              CalculateZetaAdiabaticSPH(const double p_CoreMass) const;
-
-            double              CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) const;
 
     virtual double              ChooseTimestep(const double p_Time) const                                               { return m_Dt; }
 

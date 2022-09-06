@@ -1250,27 +1250,27 @@ double BaseStar::FindLambdaNanjingNearestMassIndex(const double p_Mass) const {
 
 
 /*
- * Calculate the donor radial response zeta 
+ * Calculate zeta, the adiabatic donor radial response to mass loss
  *
+ * double BaseStar::CalculateZetaAdiabatic() 
  *
- * double CalculateZetaAdiabatic(ZETA_PRESCRIPTION p_ZetaPrescription)
- *
- * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
- * @return                                      Adiabatic exponent
+ * @return                                      Adiabatic exponent zeta = dlnR/dlnM
  */
-double BaseStar::CalculateZetaAdiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) { 
+double BaseStar::CalculateZetaAdiabatic() { 
                                                                                 
     double zetaStar = 0.0;
-    switch (p_ZetaPrescription) {
+    ZETA_PRESCRIPTION zetaPrescription = OPTIONS->StellarZetaPrescription();
+
+    switch (zetaPrescription) {
     
         case ZETA_PRESCRIPTION::GE20:     
         case ZETA_PRESCRIPTION::GE20_IC:  
-            zetaStar = CalculateInterpolatedQCritOrZetaGe2020();
+            zetaStar = CalculateZetaGe2020(zetaPrescription);
             break;
         case ZETA_PRESCRIPTION::SOBERMAN: 
         case ZETA_PRESCRIPTION::HURLEY:   
         case ZETA_PRESCRIPTION::ARBITRARY:
-            zetaStar = CalculateZetaByStellarType(p_ZetaPrescription);
+            zetaStar = CalculateZetaConstantsByEnvelope(zetaPrescription);
             break;
         default:
             m_Error = ERROR::UNKNOWN_ZETA_PRESCRIPTION;                                     // set error value
@@ -1317,15 +1317,54 @@ double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
 }
 
 
-/* 
- * Interpolate Ge+20 Critical Mass Ratios and Zetas
- * 
- * double BaseStar::CalculateInterpolatedQCritOrZetaGe2020()
- * 
- * @return                                      Critical mass ratio or zeta for given stellar mass / radius
- */ 
-double BaseStar::CalculateInterpolatedQCritOrZetaGe2020() {
+/*
+ * Calculate the critical mass ratio for unstable mass transfer
+ *
+ * double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) 
+ *
+ * @param   [IN]    p_AccretorIsDegenerate      Whether or not the accretor is a degenerate star
+ * @return                                      Critical mass ratio
+ */
+double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) {                                           
+    
+        double qCrit = 0.0;
+        QCRIT_PRESCRIPTION qCritPrescription = OPTIONS->QCritPrescription();
 
+        switch (qCritPrescription) {
+            case QCRIT_PRESCRIPTION::GE20: 
+            case QCRIT_PRESCRIPTION::GE20_IC:
+                qCrit = InterpolateGe2020DataObjectForEitherQCritOrZeta(qCritPrescription);   
+                break;
+            case QCRIT_PRESCRIPTION::CLAEYS:
+                qCrit = CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate);
+                break;
+            default:
+                m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                                     // set error value
+                SHOW_ERROR(m_Error);                                                             // warn that an error occurred
+        }
+        return qCrit;
+}
+
+
+/* 
+ * Interpolate Ge+20 data object containing both Critical Mass Ratios and Zetas
+ * 
+ * Function ostensibly takes two inputs, a QCRIT_PRESCRIPTION and a ZETA_PRESCRIPTION.
+ * However, exactly one of these is allowed, and whichever one is chosen must specifically
+ * be one of the GE20 prescriptions (Ge et al. 2020 model both qCrit and zeta, so it's
+ * easier to setup one interpolation and just switch the index depending on the desired output).
+ * 
+ * double BaseStar::InterpolateGe2020DataObjectForEitherQCritOrZeta( const QCRIT_PRESCRIPTION p_qCritPrescription, const ZETA_PRESCRIPTION p_ZetaPrescription) 
+ * 
+ * @return                                      Interpolated value of either the critical mass ratio or zeta for given stellar mass / radius
+ */ 
+double BaseStar::InterpolateGe2020DataObjectForEitherQCritOrZeta( const QCRIT_PRESCRIPTION p_qCritPrescription, const ZETA_PRESCRIPTION p_ZetaPrescription) {
+
+    if ((p_qCritPrescription == QCRIT_PRESCRIPTION::NONE) == (p_ZetaPrescription == ZETA_PRESCRIPTION::NONE)) {     // If both or neither are set, throw an error
+        ERROR m_Error = ERROR::UNHANDLED_EXCEPTION;                                                                 // set error value
+        SHOW_ERROR(m_Error);                                                                                        // warn that an error occurred
+    }
+    
     // Get vector of masses from GE20_QCRIT_AND_ZETA
     std::vector<double> massesFromGe20 = std::get<0>(GE20_QCRIT_AND_ZETA);
     std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>> 
