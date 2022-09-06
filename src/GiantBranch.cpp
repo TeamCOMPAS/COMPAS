@@ -927,12 +927,12 @@ double GiantBranch::CalculateMassLossRateHurley() {
  * Assumes this star is the donor; relevant accretor details are passed as parameters.
  * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
  *
- * double GiantBranch::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) 
+ * double GiantBranch::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) 
  *
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
  * @return                                      Critical mass ratio for unstable MT 
  */
-double GiantBranch::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const {
+double GiantBranch::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const {
 
     double qCrit;
                                                                                                                             
@@ -995,12 +995,12 @@ double GiantBranch::CalculateZetaConvectiveEnvelopeGiant(ZETA_PRESCRIPTION p_Zet
  * Hurley et al. 2000, eqs 97 & 98
  *
  *
- * double CalculateZetaByStellarType(ZETA_PRESCRIPTION p_ZetaPrescription)
+ * double CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)
  *
  * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
  * @return                                      mass-radius response exponent Zeta
  */
-double GiantBranch::CalculateZetaByStellarType(ZETA_PRESCRIPTION p_ZetaPrescription) {
+double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription) {
     
     double zeta = 0.0;                                              // default value
     

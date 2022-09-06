@@ -81,8 +81,8 @@ public:
     double              BindingEnergy_Nanjing() const                                                               { return m_Star->BindingEnergy_Nanjing(); }
     double              BindingEnergy_Kruckow() const                                                               { return m_Star->BindingEnergy_Kruckow(); }
     double              CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                         { return m_Star->CalculateCriticalMassRatio(p_AccretorIsDegenerate); }
+    double              CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const                 { return m_Star->CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate); }
     double              CalculateDynamicalTimescale() const                                                         { return m_Star->CalculateDynamicalTimescale(); }
-    double              CalculateInterpolatedQCritOrZetaGe2020() const                                              { return m_Star->CalculateInterpolatedQCritOrZetaGe2020(); }
     double              CalculateNuclearTimescale() const                                                           { return m_Star->CalculateNuclearTimescale(); }
     double              CalculateRadialExpansionTimescale() const                                                   { return m_Star->CalculateRadialExpansionTimescale(); }
     double              CalculateThermalTimescale() const                                                           { return m_Star->CalculateThermalTimescale(); }
@@ -179,8 +179,8 @@ public:
 
     double          CalculateTimestep()                                                                             { return m_Star->CalculateTimestep(); }
 
-    double          CalculateZetaAdiabatic(ZETA_PRESCRIPTION p_ZetaPrescription)                                    { return m_Star->CalculateZetaAdiabatic(p_ZetaPrescription); }
-    double          CalculateZetaByStellarType(ZETA_PRESCRIPTION p_ZetaPrescription)                                { return m_Star->CalculateZetaByStellarType(p_ZetaPrescription); }
+    double          CalculateZetaAdiabatic()                                                                        { return m_Star->CalculateZetaAdiabatic(); }
+    double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                          { return m_Star->CalculateZetaConstantsByEnvelope(p_ZetaPrescription); }
 
     void            ClearCurrentSNEvent()                                                                           { m_Star->ClearCurrentSNEvent(); }
 
@@ -191,6 +191,8 @@ public:
     EVOLUTION_STATUS Evolve(const long int p_Id);
 
     double          EvolveOneTimestep(const double p_Dt);
+
+    double          InterpolateGe2020DataObjectForEitherQCritOrZeta(const QCRIT_PRESCRIPTION p_qCritPrescription, const ZETA_PRESCRIPTION p_ZetaPrescription) { return m_Star->InterpolateGe2020DataObjectForEitherQCritOrZeta(p_qCritPrescription, p_ZetaPrescription); }
 
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
 

@@ -67,7 +67,7 @@ protected:
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const;
     double          CalculateCoreMassOnPhase() const                                { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                        // Use class member variables
 
-    double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const;
+    double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
 
     double          CalculateGyrationRadius() const                                 { return 0.21; }                                                                            // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
