@@ -34,7 +34,9 @@ protected:
 
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 
-    double          CalculateEddingtonCriticalRate() const                                                      { return 2.08E-3 / 1.7 * m_Radius * MYR_TO_YEAR; }       // Hurley+, 2002, Eq. (67)
+    double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                         { return 0.0; }                                                         // Should never be called...
+
+    double          CalculateEddingtonCriticalRate() const                                                      { return 2.08E-3 / 1.7 * m_Radius * MYR_TO_YEAR; }                      // Hurley+, 2002, Eq. (67)
 
     void            CalculateGBParams()                                                                         { GiantBranch::CalculateGBParams(); }                                   // Default to GiantBranch
 
@@ -87,8 +89,6 @@ protected:
 
     bool            IsSupernova() const                                                                         { return false; }                                                       // Default
 
-    bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const   { return false; }                                                       // Should never be called...
-
     void            PerturbLuminosityAndRadius() { }                                                                                                                                    // NO-OP
 
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                                 { return BaseStar::ResolveEnvelopeLoss(p_NoCheck); }                    // Default to BaseStar
@@ -96,9 +96,12 @@ protected:
     void            ResolveEnvelopeMassAtPhaseEnd(const double p_Tau) const                                     { ResolveEnvelopeMassOnPhase(p_Tau); }                                  // Same as on phase
     void            ResolveEnvelopeMassOnPhase(const double p_Tau) const { }                                                                                                            // NO-OP
 
-    void            ResolveMassLoss() { }                                                                                                                                         // NO-OP
+    void            ResolveMassLoss() { }                                                                                                                                               // NO-OP
 
     STELLAR_TYPE    ResolveSkippedPhase()                                                                       { return BaseStar::ResolveSkippedPhase(); }                             // Default to BaseStar
+                                                                                                                                                                                        //
+    void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                                 // NO-OP 
+                                                                                                                                                                                        //
     STELLAR_TYPE    ResolveSupernova()                                                                          { return BaseStar::ResolveSupernova(); }                                // Default to BaseStar
 
     void            SetPulsarParameters() const { }                                                                                                                                     // NO-OP

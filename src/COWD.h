@@ -35,9 +35,10 @@ public:
                                                                                                                                             p_Metallicity, 
                                                                                                                                             WD_Baryon_Number.at(STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF)); }
 
-    std::tuple<double,ACCRETION_REGIME> DetermineAccretionRegime(const bool p_HeRich,
-        const double p_DonorThermalMassLossRate);                                                                                                                                      // To check the current accretion regime and mass retention. Also activates flags for type change in some situations.
-    void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate);
+    ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
+                                              const double p_DonorThermalMassLossRate);                                                                                                                                      // To check the current accretion regime and mass retention. Also activates flags for type change in some situations.
+
+    //void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate);
 
 protected:
 
@@ -48,6 +49,7 @@ protected:
         m_HeShell = 0.0; // Initialize helium shell
         m_DoubleDetonation = false;
         m_OffCenterIgnition = false;
+        m_AccretionRegime = ACCRETION_REGIME::NONE;
     }
 
 
@@ -58,8 +60,10 @@ protected:
 
     STELLAR_TYPE    EvolveToNextPhase();
 
+    // RTW: Same question as in HeWD::IsSupernova(), should the condition be go SN if ! m_DoubleDetonation?
     bool            IsSupernova() const                                             { return m_DoubleDetonation; }     // Going supernova if mass and He shell are large enough
 
+    // RTW: If the SN is AIC, you can copy the code in ONeWD.h
     STELLAR_TYPE    ResolveSupernova()                                              { return GiantBranch::ResolveSupernova(); }                                 // Use GiantBranch, for now
 
     bool            ShouldEvolveOnPhase();                                                  // Evolve on phase unless mass > Chandrasekhar mass.

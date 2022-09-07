@@ -102,7 +102,7 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
     return (635.0 * p_Mass * PPOW(p_Metallicity, 0.4)) / PPOW(p_BaryonNumber * (p_Time + 0.1), 1.4);
 }
 
-
+// RTW: Does this only apply for COWDs and ONeWDs? If so, should move into COWDs.
 /* Calculate:
  *
  *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
@@ -113,26 +113,26 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
  * flashes, as given by appendix B of Claeys+ 2014.
  *
  *
- * DBL_DBL CalculateWDMassAcceptanceRate(const double p_LogDonorMassRate, const bool p_IsHeRich)
+ * DBL_DBL CalculateMassAcceptanceRate(const double p_LogDonorMassRate, const bool p_IsHeRich)
  *
  * @param   [IN]    p_LogDonorMassRate          Logarithm of the mass transfer rate of the donor
  * @param   [IN]    p_IsHeRich                  Material is He-rich or not
  * @return                                      Tuple containing the Maximum Mass Acceptance Rate (Msun/yr) and Retention Efficiency Parameter
  */
-DBL_DBL WhiteDwarfs::CalculateWDMassAcceptanceRate(const double p_LogDonorMassRate, const bool p_IsHeRich) {
+DBL_DBL WhiteDwarfs::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich) {
 
     double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
     double fractionAccreted = 0.0;                                                          // accretion fraction - default=0.0
-    double thisMassRate;
-    double DonorMassRate = PPOW(10,p_LogDonorMassRate);
+    double logDonorMassRate = log10(p_DonorMassRate);
 
     if (p_IsHeRich) {
-        thisMassRate = DonorMassRate * CalculateetaHe(p_LogDonorMassRate);
+        acceptanceRate = p_DonorMassRate * CalculateetaHe(logDonorMassRate);
     } else {
-        thisMassRate = DonorMassRate * CalculateetaHe(p_LogDonorMassRate) * CalculateetaH(p_LogDonorMassRate);
+        acceptanceRate = p_DonorMassRate * CalculateetaHe(logDonorMassRate) * CalculateetaH(logDonorMassRate); // RTW: is this right? Both He and H?
     }
-    acceptanceRate   = thisMassRate;
-    fractionAccreted = acceptanceRate / DonorMassRate;
+    fractionAccreted = acceptanceRate / p_DonorMassRate;
+    m_AccretionRegime = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
+
     return std::make_tuple(acceptanceRate, fractionAccreted);
 }
 
@@ -154,19 +154,34 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     return std::max(NEUTRON_STAR_RADIUS, 0.0115 * std::sqrt((MCH_Mass_two_thirds - 1.0/MCH_Mass_two_thirds )));
 }
 
-
-
 /* Increase shell size after mass transfer episode. Hydrogen and helium shells are kept separately.
  *
- * void ReoslveShellChange(const double p_AccretedMass, bool p_HeRich) {
+ * void ResolveShellChange(const double p_AccretedMass, bool p_HeRich) {
  *
  * @param   [IN]    p_AccretedMass              Mass accreted
  * @param   [IN]    p_HeRich                    Material is He-rich or not
  */
-void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass, const bool p_HeRich) {
-	if (p_HeRich) {
-		m_HeShell += p_AccretedMass;
-	} else {
-		m_HShell += p_AccretedMass;
-	}
+void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
+    
+    // RTW: Is this correct? Can we always assume the accretion regime is set correctly? What is the default case?
+    switch (m_AccretionRegime) {
+
+        case ACCRETION_REGIME::HELIUM_ACCUMULATION:
+        case ACCRETION_REGIME::HELIUM_FLASHES:
+        case ACCRETION_REGIME::HELIUM_STABLE_BURNING:
+        case ACCRETION_REGIME::HELIUM_OPT_THICK_WINDS:
+        case ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR:
+        case ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_IGNITION:
+	        m_HeShell += p_AccretedMass;
+            break;
+
+        case ACCRETION_REGIME::HYDROGEN_FLASHES:
+        case ACCRETION_REGIME::HYDROGEN_STABLE_BURNING:
+        case ACCRETION_REGIME::HYDROGEN_OPT_THICK_WINDS:
+        case ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES:
+        case ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION:
+	        m_HShell += p_AccretedMass;
+            break;
+    }
 }
+

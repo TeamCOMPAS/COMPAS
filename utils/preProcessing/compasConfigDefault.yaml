@@ -22,6 +22,7 @@ booleanChoices:
     --angular-momentum-conservation-during-circularisation: False
     --allow-rlof-at-birth: True # allow binaries that have one or both stars in RLOF at birth to evolve, particularly useful in the context of CHE binaries.    
     --circularise-binary-during-mass-transfer: True
+    --hmxr-binaries: False
     --mass-transfer: True    
     --retain-core-mass-during-caseA-mass-transfer: False  
     ### COMMON ENVELOPE
@@ -34,7 +35,7 @@ booleanChoices:
     --common-envelope-lambda-nanjing-use-rejuvenated-mass: False
     --revised-energy-formalism-nandez-ivanova: False
     ### SUPERNOVAE, KICKS AND REMNANTS
-    --allow-H-rich-ECSN: True
+    --allow-non-stripped-ECSN: True
     --pair-instability-supernovae: True
     --pulsational-pair-instability: True
     ### PULSAR PARAMETERS
@@ -85,8 +86,25 @@ numericalChoices:
     --semi-major-axis-min: 0.01   # [AU]
     --semi-major-axis-max: 1000.0  # [AU]
     ### MASS TRANSFER
-    --mass-transfer-fa: 0.5 # Only if using mass_transfer_accretion_efficiency_prescription = 'FIXED'
-    --mass-transfer-jloss: 1.0  # Only if using mass_transfer_angular_momentum_loss_prescription = 'FIXED'
+    --convective-envelope-temperature-threshold: 5370 # Only if using envelope-state-prescription = 'FIXED_TEMPERATURE'
+    --critical-mass-ratio-HG-degenerate-accretor: 0.21
+    --critical-mass-ratio-HG-non-degenerate-accretor: 0.25
+    --critical-mass-ratio-MS-high-mass-degenerate-accretor: 0.0
+    --critical-mass-ratio-MS-high-mass-non-degenerate-accretor: 0.625
+    --critical-mass-ratio-MS-low-mass-degenerate-accretor: 1.0
+    --critical-mass-ratio-MS-low-mass-non-degenerate-accretor: 1.44
+    --critical-mass-ratio-giant-degenerate-accretor: 0.87
+    --critical-mass-ratio-giant-non-degenerate-accretor: -1.0
+    --critical-mass-ratio-helium-HG-degenerate-accretor: 0.21
+    --critical-mass-ratio-helium-HG-non-degenerate-accretor: 0.25
+    --critical-mass-ratio-helium-MS-degenerate-accretor: 0.0
+    --critical-mass-ratio-helium-giant-degenerate-accretor: 0.0
+    --critical-mass-ratio-helium-MS-non-degenerate-accretor: 0.87
+    --critical-mass-ratio-helium-giant-non-degenerate-accretor: 1.28
+    --critical-mass-ratio-white-dwarf-degenerate-accretor: 1.6
+    --critical-mass-ratio-white-dwarf-non-degenerate-accretor: 0.0
+    --mass-transfer-fa: 0.5 # Only if using mass-transfer-accretion-efficiency-prescription = 'FIXED'
+    --mass-transfer-jloss: 1.0  # Only if using mass-transfer-angular-momentum-loss-prescription = 'FIXED'
     --mass-transfer-jloss-macleod-linear-fraction: 0.5
     --mass-transfer-thermal-limit-C: 10.0
     --zeta-adiabatic-arbitrary: 1.0E5
@@ -131,6 +149,7 @@ numericalChoices:
     --mcbur1: 1.6
     --muller-mandel-kick-multiplier-BH: 200.0  # scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution
     --muller-mandel-kick-multiplier-NS: 400.0  # scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution
+    --muller-mandel-sigma-kick: 0.3 # kick scatter when using the 'MULLERMANDEL' kick magnitude distribution
     --neutrino-mass-loss-BH-formation-value: 0.1  
     --pisn-lower-limit: 60.0  # Minimum core mass for PISN [Msol]
     --pisn-upper-limit: 135.0  # Maximum core mass for PISN [Msol]
@@ -148,6 +167,14 @@ numericalChoices:
 stringChoices:
     ### LOGISTICS
     --grid:     # grid file name (e.g. 'mygrid.txt')
+    --logfile-common-envelopes-record-types: 'BSE_Common_Envelopes'
+    --logfile-detailed-output-record-types: 'BSE_Detailed_Output'
+    --logfile-double-compact-objects-record-types: 'BSE_Double_Compact_Objects'
+    --logfile-pulsar-evolution-record-types: 'BSE_Pulsar_Evolution'
+    --logfile-rlof-parameters-record-types: 'BSE_RLOF'
+    --logfile-supernovae-record-types: 'BSE_Supernovae'
+    --logfile-switch-log: 'BSE_Switch_Log'
+    --logfile-system-parameters: 'BSE_System_Parameters'
     --mode: 'BSE'  # evolving single stars (SSE) or binaries (BSE)    
     --notes: 
     --notes-hdrs: 
@@ -168,6 +195,7 @@ stringChoices:
     --semi-major-axis-distribution: 'FLATINLOG'    
     ### MASS TRANSFER
     --case-BB-stability-prescription: 'ALWAYS_STABLE'    
+    --critical-mass-ratio-prescription: 'NONE'
     --stellar-zeta-prescription: 'SOBERMAN'    
     --mass-transfer-angular-momentum-loss-prescription: 'ISOTROPIC'
     --mass-transfer-accretion-efficiency-prescription: 'THERMAL'

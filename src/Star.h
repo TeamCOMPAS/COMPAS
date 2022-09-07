@@ -80,6 +80,7 @@ public:
     double              BindingEnergy_Loveridge() const                                                             { return m_Star->BindingEnergy_Loveridge(); }
     double              BindingEnergy_Nanjing() const                                                               { return m_Star->BindingEnergy_Nanjing(); }
     double              BindingEnergy_Kruckow() const                                                               { return m_Star->BindingEnergy_Kruckow(); }
+    double              CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                         { return m_Star->CalculateCriticalMassRatio(p_AccretorIsDegenerate); }
     double              CalculateDynamicalTimescale() const                                                         { return m_Star->CalculateDynamicalTimescale(); }
     double              CalculateNuclearTimescale() const                                                           { return m_Star->CalculateNuclearTimescale(); }
     double              CalculateRadialExpansionTimescale() const                                                   { return m_Star->CalculateRadialExpansionTimescale(); }
@@ -97,7 +98,6 @@ public:
     bool                IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
     bool                IsDegenerate() const                                                                        { return m_Star->IsDegenerate(); }
     bool                IsECSN() const                                                                              { return m_Star->IsECSN(); }
-    bool                IsMassRatioUnstable(const double p_AccretorMass, const double p_IsAccretorDegenerate) const { return m_Star->IsMassRatioUnstable(p_AccretorMass, p_IsAccretorDegenerate); }
     bool                IsOneOf(STELLAR_TYPE_LIST p_List) const                                                     { return m_Star->IsOneOf(p_List); }
     bool                IsPISN() const                                                                              { return m_Star->IsPISN(); }
     bool                IsPPISN() const                                                                             { return m_Star->IsPPISN(); }
@@ -155,7 +155,9 @@ public:
     void            CalculateLambdas()                                                                              { m_Star->CalculateLambdas(); }
     void            CalculateLambdas(const double p_EnvMass)                                                        { m_Star->CalculateLambdas(p_EnvMass); }
 
-    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)      { return m_Star->CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); }
+    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate, 
+                                                const double p_AccretorMassRate,
+                                                const bool   p_IsHeRich)                                            { return m_Star->CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate, p_IsHeRich); }
 
     double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false)        { return m_Star->CalculateMassLossValues(p_UpdateMDot, p_UpdateMDt); }
 
@@ -184,8 +186,8 @@ public:
 
     BaseStar*       Clone(const BaseStar& p_Star);
 
-    virtual std::tuple<double,ACCRETION_REGIME>    DetermineAccretionRegime(const bool p_HeRich,
-                                             const double p_DonorThermalMassLossRate)                               { return m_Star->DetermineAccretionRegime(p_HeRich, p_DonorThermalMassLossRate); }  // Used in WDs
+    ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
+                                              const double p_DonorThermalMassLossRate)                              { return m_Star->DetermineAccretionRegime(p_HeRich, p_DonorThermalMassLossRate); }  // Used in WDs
 
     ENVELOPE        DetermineEnvelopeType() const                                                                   { return m_Star->DetermineEnvelopeType(); }
 
@@ -193,14 +195,14 @@ public:
 
     double          EvolveOneTimestep(const double p_Dt);
 
-    void            ResolveShellChange(const double p_AccretedMass, const bool p_HeRich)                            { m_Star->ResolveShellChange(p_AccretedMass, p_HeRich); }  // Used in WDs
-
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
 
-    virtual void    ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
+    void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
                                            const double p_DonorThermalMassLossRate)                                 { m_Star->ResolveAccretionRegime(p_Regime, p_DonorThermalMassLossRate); }  // Used in WDs
 
     void            ResolveEnvelopeLossAndSwitch()                                                                  { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
+
+    void            ResolveShellChange(const double p_AccretedMass)                                                 { m_Star->ResolveShellChange(p_AccretedMass); }  // Used in WDs
 
     bool            RevertState();
 
@@ -239,9 +241,9 @@ public:
                                                                                                                                                          p_Stepsize,
                                                                                                                                                          p_MassGainPerTimeStep,
                                                                                                                                                          p_Epsilon);}
-    
-    void        UpdateMinimumCoreMass()                                                                             { m_Star->UpdateMinimumCoreMass(); }
 
+    void            UpdateMinimumCoreMass()                                                                         { m_Star->UpdateMinimumCoreMass(); }
+    ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                                                           { return m_Star->WhiteDwarfAccretionRegime(); }
 
 private:
 

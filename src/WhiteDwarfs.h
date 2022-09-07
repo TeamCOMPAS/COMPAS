@@ -32,8 +32,7 @@ public:
     static  double      CalculateRadiusOnPhase_Static(const double p_Mass);
 
 
-    void                ResolveShellChange(const double p_AccretedMass,
-                                       const bool p_HeRich);
+    void                ResolveShellChange(const double p_AccretedMass);
 
 protected:
     // member variables
@@ -47,11 +46,17 @@ protected:
             bool                    m_Rejuvenate;                               // Flag for evolution of HeWD back into HeMS
             bool                    m_SubChandrasekhar;                         // Flag for SubCh SN of HeWD
             double                  m_XRitter;                                  // Assumed hydrogen-mass fraction of material being accreted by He WD, as in Ritter 1999, table 2.
+            ACCRETION_REGIME        m_AccretionRegime;
+            
+            // member functions - alphabetically
+            double  CalculateAccretionRegime(const bool p_DonorIsHeRich,
+                                             const bool p_DonorIsGiant,
+                                             const double p_DonorThermalMassLossRate,
+                                             const double p_MassLostByDonor);
+        
+            double      CalculateCOCoreMassOnPhase() const                          { return m_COCoreMass; }                                                // NO-OP
 
-    // member functions - alphabetically
-            double      CalculateCOCoreMassOnPhase() const                  { return m_COCoreMass; }                                                // NO-OP
-
-            double      CalculateHeCoreMassOnPhase() const                  { return m_HeCoreMass; }                                                // NO-OP
+            double      CalculateHeCoreMassOnPhase() const                          { return m_HeCoreMass; }                                                // NO-OP
 
             double      CalculateetaH(const double p_LogMassRate);
 
@@ -59,21 +64,31 @@ protected:
 
             double      CalculateetaPTY(const double p_MassRate);
 
-            double      Calculatel0Ritter() const                                  {return (m_Metallicity > 0.01) ? 1995262.3 : 31622.8; } // Luminosity constant which depends on metallicity in Ritter 1999, eq 10
+            double      Calculatel0Ritter() const                                   {return (m_Metallicity > 0.01) ? 1995262.3 : 31622.8; } // Luminosity constant which depends on metallicity in Ritter 1999, eq 10
 
-            double      CalculateXRitter() const                                   {return (m_Metallicity > 0.01) ? 0.7 : 0.8 ; } // Assumed Hydrogen-mass fraction
+            DBL_DBL     CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                    const bool   p_IsHeRich);
+            DBL_DBL     CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                    const double p_AccretorMassRate,
+                                                    const bool   p_IsHeRich)        { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); } // Ignore the input accretion rate for WDs
 
-            double      CalculatelambdaRitter() const                              {return (m_Metallicity > 0.01) ? 8 : 5 ;  } // Exponent for the assumed core-mass and luminosity relationship in Ritter 1999
 
-            double      CalculateInitialSupernovaMass() const               { return 0.0; }
+            double      CalculateXRitter() const                                    {return (m_Metallicity > 0.01) ? 0.7 : 0.8 ; } // Assumed Hydrogen-mass fraction
 
-            DBL_DBL     CalculateWDMassAcceptanceRate(const double p_DonorMassRate,
-                                                      const bool   p_IsHeRich);
+            double      CalculatelambdaRitter() const                               {return (m_Metallicity > 0.01) ? 8 : 5 ;  } // Exponent for the assumed core-mass and luminosity relationship in Ritter 1999
 
-            double      CalculateRadiusOnPhase(const double p_Mass) const   { return CalculateRadiusOnPhase_Static(p_Mass); }
-            double      CalculateRadiusOnPhase() const                      { return CalculateRadiusOnPhase(m_Mass); }                              // Use class member variables
+            double      CalculateInitialSupernovaMass() const                       { return 0.0; }
 
-            ENVELOPE    DetermineEnvelopeType() const                       { return ENVELOPE::CONVECTIVE; }                                        // Always CONVECTIVE
+            //DBL_DBL     CalculateWDMassAcceptanceRate(const double p_DonorMassRate,
+                                                      //const double p_Accretor
+                                                      //const bool   p_IsHeRich);
+
+            double      CalculateRadiusOnPhase(const double p_Mass) const           { return CalculateRadiusOnPhase_Static(p_Mass); }
+            double      CalculateRadiusOnPhase() const                              { return CalculateRadiusOnPhase(m_Mass); }                              // Use class member variables
+
+            ENVELOPE    DetermineEnvelopeType() const                               { return ENVELOPE::CONVECTIVE; }                                        // Always CONVECTIVE
+
+    ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                           { return m_AccretionRegime; }
 
 };
 

@@ -32,8 +32,6 @@ public:
                                                                                                                                         p_Metallicity, 
                                                                                                                                         WD_Baryon_Number.at(STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF)); }
     
-    std::tuple<double,ACCRETION_REGIME> DetermineAccretionRegime(const bool p_HeRich,
-                        const double p_DonorThermalMassLossRate);
 
 protected:
 
@@ -43,6 +41,7 @@ protected:
         m_Age = 0.0;                                                                                                                                                // Set age appropriately
         m_HShell = 0.0; // Initialize hydrogen shell
         m_HeShell = 0.0; // Initialize helium shell
+        m_AccretionRegime = ACCRETION_REGIME::NONE;
     }
 
 

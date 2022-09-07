@@ -1261,7 +1261,7 @@ double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) const{
     if (utils::Compare(p_CoreMass, m_Mass) >= 0) return 0.0;    // If the object is all core, the calculation is meaningless
 
     double m = p_CoreMass / m_Mass;
-    double x = -0.3;                                            // Depends on composition, should use x from Hurley et al 2000
+    double x = BaseStar::CalculateGBRadiusXExponent();          // x from Hurley et al 2000, Eq. 47 - Depends on composition
     return -x + (2.0 * m * m * m * m * m);
 }
 
@@ -1296,7 +1296,7 @@ double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) const {
  */
 double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
     
-    double zeta = 0.0;                                              // default value
+    double zeta = 0.0;                                            // default value
     
     switch (p_ZetaPrescription) {                                 // which prescription?
         case ZETA_PRESCRIPTION::SOBERMAN:                         // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
@@ -2067,7 +2067,7 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
             break;
 
         case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION:                          // fixed fraction of mass accreted, as in StarTrack
-            fractionAccreted = OPTIONS-> MassTransferFractionAccreted();
+            fractionAccreted = OPTIONS->MassTransferFractionAccreted();
             acceptanceRate = min(p_DonorMassRate, fractionAccreted * p_DonorMassRate);
             break;
 
