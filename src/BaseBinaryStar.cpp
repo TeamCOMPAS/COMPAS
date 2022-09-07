@@ -1849,8 +1849,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
     // Calculate accretion fraction 
     bool donorIsHeRich = m_Donor->IsOneOf(He_RICH_TYPES); 
-    double accretorThermalAcceptanceRate = m_Accretor->CalculateThermalMassAcceptanceRate(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), 
-                                                                           m_Donor->Mass()) * AU_TO_RSOL);                      // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
+    double accretorThermalAcceptanceRate = m_Accretor->CalculateThermalMassAcceptanceRate(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL);   // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
     std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(), 
                                                                                         accretorThermalAcceptanceRate, donorIsHeRich);
 
@@ -1878,7 +1877,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         isUnstable = (caseBBAlwaysUnstable || (caseBBAlwaysUnstableOntoNSBH && accretorIsNSorBH));                                 // Already established that donor is HeHG or HeGB - need to check if new case BB prescriptions are added
     } 
     else if (accretorIsWD && (m_Accretor->WhiteDwarfAccretionRegime() == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION)) { 
-        // RTW - check that this is the correct condition
+        // RTW: Is this the correct condition?
         isUnstable = true;
         if (!m_Donor->IsOneOf(GIANTS)) m_Flags.stellarMerger = true;
     }

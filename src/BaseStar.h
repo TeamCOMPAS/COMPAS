@@ -163,8 +163,10 @@ public:
             void            CalculateLambdas(const double p_EnvMass);
 
     virtual DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                        const double p_AccretorMassRate); 
+    virtual DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                         const double p_AccretorMassRate, 
-                                                        const bool   p_IsHeRich);
+                                                        const bool   p_IsHeRich)                                { return CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); } // Ignore the He content for non-WDs
 
             double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false);                                                               // JR: todo: better name?
 
@@ -202,8 +204,7 @@ public:
     virtual ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
                                                       const double p_DonorThermalMassLossRate)                  { return ACCRETION_REGIME::NONE; }                                  // Placeholder, use inheritance for WDs
 
-    virtual void            ResolveShellChange(const double p_AccretedMass,
-                                               const bool p_HeRich) { }                                                                                                             // Default does nothing, use inheritance for WDs.
+    virtual void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                     // Default does nothing, use inheritance for WDs.
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 

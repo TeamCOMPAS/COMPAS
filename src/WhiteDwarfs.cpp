@@ -1,7 +1,5 @@
 #include "WhiteDwarfs.h"
 
-// RTW: eta should be capitalized. Might want to use Hydrogen and Helium instead of H and He, for readability
-
 /* Calculate eta_hydrogen from Claeys+ 2014, appendix B. We have changed the mass accretion limits for
  * Nomoto+ 2007 ones, after applying a quadratic fit to cover the low-mass end.
  *
@@ -104,7 +102,7 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
     return (635.0 * p_Mass * PPOW(p_Metallicity, 0.4)) / PPOW(p_BaryonNumber * (p_Time + 0.1), 1.4);
 }
 
-// RTW : does this only apply for COWDs and ONeWDs?
+// RTW: Does this only apply for COWDs and ONeWDs? If so, should move into COWDs.
 /* Calculate:
  *
  *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
@@ -121,19 +119,19 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
  * @param   [IN]    p_IsHeRich                  Material is He-rich or not
  * @return                                      Tuple containing the Maximum Mass Acceptance Rate (Msun/yr) and Retention Efficiency Parameter
  */
-DBL_DBL WhiteDwarfs::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate, const bool p_IsHeRich) {
+DBL_DBL WhiteDwarfs::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich) {
 
-    // RTW clean this up
     double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
     double fractionAccreted = 0.0;                                                          // accretion fraction - default=0.0
+    double logDonorMassRate = log10(p_DonorMassRate);
 
     if (p_IsHeRich) {
-        acceptanceRate = DonorMassRate * CalculateetaHe(p_LogDonorMassRate);
+        acceptanceRate = p_DonorMassRate * CalculateetaHe(logDonorMassRate);
     } else {
-        acceptanceRate = DonorMassRate * CalculateetaHe(p_LogDonorMassRate) * CalculateetaH(p_LogDonorMassRate);
+        acceptanceRate = p_DonorMassRate * CalculateetaHe(logDonorMassRate) * CalculateetaH(logDonorMassRate); // RTW: is this right? Both He and H?
     }
-    fractionAccreted = acceptanceRate / DonorMassRate;
-    m_AccretionRegime = DetermineAccretionRegime(p_DonorIsHeRich, p_DonorThermalMassLossRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
+    fractionAccreted = acceptanceRate / p_DonorMassRate;
+    m_AccretionRegime = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
 
     return std::make_tuple(acceptanceRate, fractionAccreted);
 }
@@ -156,8 +154,6 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     return std::max(NEUTRON_STAR_RADIUS, 0.0115 * std::sqrt((MCH_Mass_two_thirds - 1.0/MCH_Mass_two_thirds )));
 }
 
-// RTW: this function should apply to all WDs, but it should be the normal accrete mass one
-
 /* Increase shell size after mass transfer episode. Hydrogen and helium shells are kept separately.
  *
  * void ResolveShellChange(const double p_AccretedMass, bool p_HeRich) {
@@ -165,9 +161,9 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
  * @param   [IN]    p_AccretedMass              Mass accreted
  * @param   [IN]    p_HeRich                    Material is He-rich or not
  */
-void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass, const bool p_HeRich) {
-    // RTW: Is this correct? What is the default case?
-
+void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
+    
+    // RTW: Is this correct? Can we always assume the accretion regime is set correctly? What is the default case?
     switch (m_AccretionRegime) {
 
         case ACCRETION_REGIME::HELIUM_ACCUMULATION:
@@ -188,39 +184,4 @@ void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass, const bool p_H
             break;
     }
 }
-
-
-
-// * RTW : Make sure this function only gets the accretion regime, then rewrite the part that's supposed to add the mass on to take in information about whether the donor is He rich
-// RTW: this should really just be part of CalculateAccretionFraction
-//  == > also it should set the WhiteDwarfAccretionRegime
- 
-/* Wraps the computation and resolution of the accretion regime a White Dwarf goes through, triggering the necessary changes.
- *
- * double CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_DonorThermalMassLossRate, const double p_MassLostByDonor)
- *
- * @param   [IN]    p_DonorIsHeRich                  Whether the accreted material is helium-rich or not
- * @param   [IN]    p_DonorIsGiant                   Whether the donor star is a giant or not
- * @param   [IN]    p_DonorThermalMassLossRate       Donor thermal mass loss rate, in units of Msol / Myr
- * @return                                           Mass retained by accretor, after considering the possible flahes regime and the optically-tick winds regime.
- */
-
-// This should be calculate 
-//double BaseBinaryStar::CalculateAccretionRegime(const bool p_DonorIsHeRich, const bool p_DonorIsGiant, const double p_DonorThermalMassLossRate) {
-//    double fractionAccretedMass;
-//    ACCRETION_REGIME accretionRegime;
-//    std::tie(fractionAccretedMass, accretionRegime) = m_Accretor->DetermineAccretionRegime(p_DonorIsHeRich, p_DonorThermalMassLossRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
-//
-//    m_WhiteDwarfAccretionRegime = accretionRegime;
-//    return fractionAccretedMass;
-//}
-//        bool donorIsHeRich                = m_Donor->IsOneOf(He_RICH_TYPES); // Check composition of accreted material
-
-
-    // RTW the function below just adds to the mass, but you need to know if the donor is He rich...
-    //m_Accretor->ResolveShellChange(p_MassLostByDonor * fractionAccretedMass, p_DonorIsHeRich); // Update variable that tracks shell size (H or He shell).
-    //m_Accretor->ResolveAccretionRegime(accretionRegime, p_DonorThermalMassLossRate);
-
-//}
-
 

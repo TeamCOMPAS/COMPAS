@@ -100,7 +100,7 @@ protected:
 
     STELLAR_TYPE    ResolveSkippedPhase()                                                                       { return BaseStar::ResolveSkippedPhase(); }                             // Default to BaseStar
                                                                                                                                                                                         //
-    void            ResolveShellChange(const double p_AccretedMass, const bool p_HeRich) { }                                                                                            // NO-OP 
+    void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                                 // NO-OP 
                                                                                                                                                                                         //
     STELLAR_TYPE    ResolveSupernova()                                                                          { return BaseStar::ResolveSupernova(); }                                // Default to BaseStar
 

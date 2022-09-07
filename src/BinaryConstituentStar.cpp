@@ -478,8 +478,8 @@ void BinaryConstituentStar::InitialiseMassTransfer(const bool p_CommonEnvelope, 
  * @param   [IN]    p_SemiMajorAxis             Semi major axis of the binary (in AU)
  * @param   [IN]    p_Eccentricity              Eccentricity of the binary orbit
  */
-void BinaryConstituentStar::SetMassTransferDiff(const double p_MassTransferDiff, const bool p_IsHeRich) {
+void BinaryConstituentStar::SetMassTransferDiff(const double p_MassTransferDiff) {
     m_MassTransferDiff = p_MassTransferDiff; 
-    ResolveShellChange(p_MassTransferDiff, p_IsHeRich);       // only applies to WDs
+    ResolveShellChange(p_MassTransferDiff);       // only applies to WDs
 }
 

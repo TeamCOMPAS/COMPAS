@@ -45,7 +45,6 @@ protected:
     void Initialise() {
         m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                                // Set stellar type
         CalculateTimescales();                                                                                                                                  // Initialise timescales
-        // RTW is this the right place for these? - Do we want to reset them if switch from another type?
         m_HShell = 0.0; // Initialize hydrogen shell
         m_HeShell = 0.0; // Initialize helium shell
         m_DoubleDetonation = false;
@@ -61,9 +60,10 @@ protected:
 
     STELLAR_TYPE    EvolveToNextPhase();
 
+    // RTW: Same question as in HeWD::IsSupernova(), should the condition be go SN if ! m_DoubleDetonation?
     bool            IsSupernova() const                                             { return m_DoubleDetonation; }     // Going supernova if mass and He shell are large enough
 
-    // RTW why are we using the giantbranch version?
+    // RTW: If the SN is AIC, you can copy the code in ONeWD.h
     STELLAR_TYPE    ResolveSupernova()                                              { return GiantBranch::ResolveSupernova(); }                                 // Use GiantBranch, for now
 
     bool            ShouldEvolveOnPhase();                                                  // Evolve on phase unless mass > Chandrasekhar mass.

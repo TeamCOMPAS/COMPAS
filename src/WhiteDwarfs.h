@@ -32,8 +32,7 @@ public:
     static  double      CalculateRadiusOnPhase_Static(const double p_Mass);
 
 
-    void                ResolveShellChange(const double p_AccretedMass,
-                                           const bool p_HeRich);
+    void                ResolveShellChange(const double p_AccretedMass);
 
 protected:
     // member variables
@@ -68,8 +67,10 @@ protected:
             double      Calculatel0Ritter() const                                   {return (m_Metallicity > 0.01) ? 1995262.3 : 31622.8; } // Luminosity constant which depends on metallicity in Ritter 1999, eq 10
 
             DBL_DBL     CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                    const double p_AccretorMassRate,
                                                     const bool   p_IsHeRich);
+            DBL_DBL     CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                    const double p_AccretorMassRate,
+                                                    const bool   p_IsHeRich)        { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); } // Ignore the input accretion rate for WDs
 
 
             double      CalculateXRitter() const                                    {return (m_Metallicity > 0.01) ? 0.7 : 0.8 ; } // Assumed Hydrogen-mass fraction
@@ -87,7 +88,7 @@ protected:
 
             ENVELOPE    DetermineEnvelopeType() const                               { return ENVELOPE::CONVECTIVE; }                                        // Always CONVECTIVE
 
-    ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                           { return m_WhiteDwarfAccretionRegime; }
+    ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                           { return m_AccretionRegime; }
 
 };
 

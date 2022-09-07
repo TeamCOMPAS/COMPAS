@@ -1253,7 +1253,7 @@ const COMPASUnorderedMap<SN_STATE, std::string> SN_STATE_LABEL = {
     { SN_STATE::BOTH,  "Both stars" }
 };
 
-// RTW: are these mutually exclusive? - do we want labels?
+// RTW: Are these mutually exclusive? Should we add labels?
 // enum class ACCRETION_REGIME
 // Symbolic names for WD accretion regimes
 enum class ACCRETION_REGIME: int {
@@ -1422,7 +1422,7 @@ const std::initializer_list<STELLAR_TYPE> WHITE_DWARFS = {
 };
 
 
-// RTW : do we want to include He white dwarfs? If they are donors, is the material really He-rich in the same sense as the non-degen stars?
+// RTW: Do we want to include He white dwarfs? If they are donors, is the material really He-rich in the same sense as the non-degen stars?
 // (convenience) initializer list for He rich stellar types
 const std::initializer_list<STELLAR_TYPE> He_RICH_TYPES = {
     STELLAR_TYPE::NAKED_HELIUM_STAR_MS,

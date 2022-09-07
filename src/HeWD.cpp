@@ -1,5 +1,6 @@
 #include "HeWD.h"
 
+// RTW: TODO Header
 /* Calculate:
  *
  *     (a) Mass fraction retained after accretion episodes
@@ -24,8 +25,9 @@
  */
 
 ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate) {
-    double logMdot = log10(p_DonorThermalMassLossRate / MYR_TO_YEAR); // Logarithm of the accreted mass (M_sun/yr)
-    double fraction = 1.0;      // RTW what should the fraction be here?? Is this missing a CalculateMassAcceptance? A fraction of 1 seems very wrong...
+    double Mdot = p_DonorThermalMassLossRate / MYR_TO_YEAR; // Accreted mass rate (M_sun/yr)
+    double logMdot = log10(Mdot);                           // Logarithm of the accreted mass rate (M_sun/yr)
+    double fraction = 1.0;      // RTW: What should the fraction be here? Is this missing a CalculateMassAcceptance? A fraction of 1 seems suspiciously high
     ACCRETION_REGIME regime;
     if (p_HeRich) {
         if (utils::Compare(logMdot, HELIUM_WHITE_DWARF_MCRIT) <= 0) {
@@ -61,22 +63,9 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
         }
     }
 
-    //double Mdot = p_DonorThermalMassLossRate / MYR_TO_YEAR;
-
     return regime;
 }
 
-/* Resolve what happens when the star goes through accretion regimes that might enable a change of phase.
- * Flags are activated and the actual change happens elsewhere.
- *
- * void ResolveAccretionRegime(const int p_Regime, const double p_AccretedMass, const double p_Dt)
- *
- * @param   [IN]    p_Regime                        ACCRETION_REGIME value
- * @param   [IN]    p_DonorThermalMassLossRate      Donor thermal mass loss rate, in units of Msol / Myr
- */
-
-//void HeWD::ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate) {
-//}
 
 /*
  * Allow the evolution towards an HeMS or SN.

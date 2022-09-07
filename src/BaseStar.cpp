@@ -2029,7 +2029,6 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
 }
 
 
-// RTW clean up this header
 /*
  * Calculate:
  *
@@ -2054,7 +2053,7 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
  * @param   [IN]    p_AccretorMassRate          Thermal mass transfer rate of the accretor (this star)
  * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
  */
-DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate, const bool p_IsHeRich) {
+DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
 
     double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
     double fractionAccreted = 0.0;                                                          // accretion fraction - default  = 0.0
@@ -2068,7 +2067,7 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
             break;
 
         case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION:                          // fixed fraction of mass accreted, as in StarTrack
-            fractionAccreted = OPTIONS-> MassTransferFractionAccreted();
+            fractionAccreted = OPTIONS->MassTransferFractionAccreted();
             acceptanceRate = min(p_DonorMassRate, fractionAccreted * p_DonorMassRate);
             break;
 

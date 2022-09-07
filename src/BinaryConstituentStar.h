@@ -195,8 +195,7 @@ public:
     void            SetCompanion(BinaryConstituentStar* p_Companion)                    { m_Companion = p_Companion; }                              // this star's companion star
 
     void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
-    void            SetMassTransferDiff(const double p_MassTransferDiff,
-                                        const bool p_IsHeRich = false);                 
+    void            SetMassTransferDiff(const double p_MassTransferDiff);
 
     void            SetOrbitalEnergyPostSN(const double p_OrbitalEnergyPostSN)          { m_OrbitalEnergyPostSN = p_OrbitalEnergyPostSN; };
     void            SetOrbitalEnergyPreSN(const double p_OrbitalEnergyPreSN)            { m_OrbitalEnergyPreSN = p_OrbitalEnergyPreSN; };

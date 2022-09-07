@@ -44,13 +44,14 @@ protected:
     void Initialise() {
         m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF;                                                                                                           // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
+        // RTW: Is this the right place for these? Do we want them to reset if they switch from another type? (currently the case)
         m_Age = 0.0;                                                                                                                                                // Set age appropriately
         m_HShell = 0.0; // Initialize Hydrogen Shell
         m_HeShell = 0.0; // Initialize Helium Shell
         m_l0Ritter = Calculatel0Ritter();
         m_XRitter = CalculateXRitter();
         m_lambdaRitter = CalculatelambdaRitter();
-        m_SubChandrasekhar = false;
+        m_SubChandrasekhar = false; // RTW: Should this be true at the start?
         m_Rejuvenate = false;
         m_AccretionRegime = ACCRETION_REGIME::NONE;
     }
@@ -71,7 +72,8 @@ protected:
 
     STELLAR_TYPE    EvolveToNextPhase(); // Allow evolution, either SN or Rejuvenation
 
-    // RTW: should this be a check? Why is it returning just an attribute?
+    // RTW: Might want to rename to m_IsSubChandrasekhar for clarity. Also, should this be the opposite, as in, go SN if !m_SubChandrasekhar ?
+    // RTW: If the SN is AIC, you can copy the code in ONeWD.h
     bool    IsSupernova() const                                                           { return m_SubChandrasekhar; }     // Going supernova if mass and He shell are large enough
 
     bool    ShouldEvolveOnPhase(); // Modified so now it includes rejuvenation and Sub-Ch SN Ia
