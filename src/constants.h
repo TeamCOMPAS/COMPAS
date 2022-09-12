@@ -1254,6 +1254,7 @@ const COMPASUnorderedMap<SN_STATE, std::string> SN_STATE_LABEL = {
 };
 
 // RTW: Are these mutually exclusive? Should we add labels?
+// NRS: Yes, they are... as per how the code works you cannot accrete hydrogen and helium rich material at the same time, nor you have more than one accretion rate.
 // enum class ACCRETION_REGIME
 // Symbolic names for WD accretion regimes
 enum class ACCRETION_REGIME: int {
@@ -1270,7 +1271,20 @@ enum class ACCRETION_REGIME: int {
     HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION,
     NONE
 };
-
+const COMPASUnorderedMap<ACCRETION_REGIME, std::string> ACCRETION_REGIME_LABEL = {
+    { ACCRETION_REGIME::NONE,  "No accretion regime" },
+    { ACCRETION_REGIME::HELIUM_ACCUMULATION,  "Helium piles up without burning, full efficiency" },
+    { ACCRETION_REGIME::HELIUM_FLASHES,  "Helium ignites in flashes, partial accretion efficiency" },
+    { ACCRETION_REGIME::HELIUM_STABLE_BURNING,  "Helium is burnt without flashes, full efficiency" },
+    { ACCRETION_REGIME::HELIUM_OPT_THICK_WINDS,  "Helium is being accreted at a high rate, producing winds and limiting the accretion efficiency to a critical value" },
+    { ACCRETION_REGIME::HYDROGEN_FLASHES,  "Hydrogen ignites in flashes, partial accretion efficiency" },
+    { ACCRETION_REGIME::HYDROGEN_STABLE_BURNING,  "Hydrogen is burnt without flashes, full efficiency" },
+    { ACCRETION_REGIME::HYDROGEN_OPT_THICK_WINDS,  "Hydrogen is being accreted at a high rate, producing winds and limiting the accretion efficiency to a critical value" },
+    { ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR,  "Full accretion leads to transient, but it would not make enough radioactive Ni-56 to be classified as a SN Ia" },
+    { ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_IGNITION,  "Full accretion until material is ignited in a flash and degeneracy is lifted" },
+    { ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES,  "Unstable hydrogen flashes lead to net accretion being zero" },
+    { ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION,  "Material piles up. Depending on the companion, it could lead to a CE episode or merger" }
+};
 
 
 // enum class L_CONSTANTS

@@ -28,6 +28,11 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
     double Mdot = p_DonorThermalMassLossRate / MYR_TO_YEAR; // Accreted mass rate (M_sun/yr)
     double logMdot = log10(Mdot);                           // Logarithm of the accreted mass rate (M_sun/yr)
     double fraction = 1.0;      // RTW: What should the fraction be here? Is this missing a CalculateMassAcceptance? A fraction of 1 seems suspiciously high
+    /* NRS: the literature has not explored what happenes to HeWDs accreting as much as the COWD case. 
+     * Using the COWD prescription with ONe WDs is "okay" as they cover a similar range in mass, 
+     * but all HeWDs are low mass and the only prescriptions I could find were from StarTrack, which basically motivate all of the following.
+     * One of my side-projects is to create a better prescription, but for now this should be used in the same way as the COWD function (I see that you are not returning the fraction value)
+     */
     ACCRETION_REGIME regime;
     if (p_HeRich) {
         if (utils::Compare(logMdot, HELIUM_WHITE_DWARF_MCRIT) <= 0) {

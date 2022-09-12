@@ -103,6 +103,7 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
 }
 
 // RTW: Does this only apply for COWDs and ONeWDs? If so, should move into COWDs.
+// NRS: So far, yes. The only exeption in HeWDs (where the default is to accrete everything) is to accrete nothing when ACCRETION_REGIME is HELIUM_WHITE_DWARF_HYDROGEN_FLASHES. I want to explore this as a side project, but for now that is all we have.
 /* Calculate:
  *
  *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
@@ -128,7 +129,7 @@ DBL_DBL WhiteDwarfs::CalculateMassAcceptanceRate(const double p_DonorMassRate, c
     if (p_IsHeRich) {
         acceptanceRate = p_DonorMassRate * CalculateetaHe(logDonorMassRate);
     } else {
-        acceptanceRate = p_DonorMassRate * CalculateetaHe(logDonorMassRate) * CalculateetaH(logDonorMassRate); // RTW: is this right? Both He and H?
+        acceptanceRate = p_DonorMassRate * CalculateetaHe(logDonorMassRate) * CalculateetaH(logDonorMassRate); // RTW: is this right? Both He and H? NRS: yes, the principle behind this is to consider both hydrogen burning and helium burning (helium produced by hydrogen). Check https://ui.adsabs.harvard.edu/abs/2014A%26A...563A..83C/abstract eq. B2
     }
     fractionAccreted = acceptanceRate / p_DonorMassRate;
     m_AccretionRegime = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
@@ -164,6 +165,8 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
 void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
     
     // RTW: Is this correct? Can we always assume the accretion regime is set correctly? What is the default case?
+    // NRS: It looks ok to me. Though a future update might consider tracking hydrogen burning products (i.e which fraction of the accreted hydrogen turns into helium after a given time step).
+    // NRS: as for the default case, are you talking about the shell? or the accretion regime? The shell being used is usually the hydrogen one, but the regime directly depends on the composition of the material being accreted and its rate, so it is not clear to me if using a default would be good.
     switch (m_AccretionRegime) {
 
         case ACCRETION_REGIME::HELIUM_ACCUMULATION:

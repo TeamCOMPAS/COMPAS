@@ -45,13 +45,15 @@ protected:
         m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF;                                                                                                           // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
         // RTW: Is this the right place for these? Do we want them to reset if they switch from another type? (currently the case)
+        // NRS: Probably the Ritter values can be initialized somewhere else, as they only depend on the initial choice of metallicity.
+        // NRS: for the shells, I would argue that there is no option to come back directly to this stage after evolving.
         m_Age = 0.0;                                                                                                                                                // Set age appropriately
         m_HShell = 0.0; // Initialize Hydrogen Shell
         m_HeShell = 0.0; // Initialize Helium Shell
         m_l0Ritter = Calculatel0Ritter();
         m_XRitter = CalculateXRitter();
         m_lambdaRitter = CalculatelambdaRitter();
-        m_SubChandrasekhar = false; // RTW: Should this be true at the start?
+        m_SubChandrasekhar = false; // RTW: Should this be true at the start? NRS: Probably a confusing name, as this only flags whether there should be a SN Ia-like event at sub-Chandrasekhar mass value.
         m_Rejuvenate = false;
         m_AccretionRegime = ACCRETION_REGIME::NONE;
     }
@@ -73,6 +75,7 @@ protected:
     STELLAR_TYPE    EvolveToNextPhase(); // Allow evolution, either SN or Rejuvenation
 
     // RTW: Might want to rename to m_IsSubChandrasekhar for clarity. Also, should this be the opposite, as in, go SN if !m_SubChandrasekhar ?
+    // NRS: I agree with renaming, that is what causes confusion.
     // RTW: If the SN is AIC, you can copy the code in ONeWD.h
     bool    IsSupernova() const                                                           { return m_SubChandrasekhar; }     // Going supernova if mass and He shell are large enough
 

@@ -61,6 +61,7 @@ protected:
     STELLAR_TYPE    EvolveToNextPhase();
 
     // RTW: Same question as in HeWD::IsSupernova(), should the condition be go SN if ! m_DoubleDetonation?
+    // NRS: No, the detonation only occurs if m_DoubleDetonation is true.
     bool            IsSupernova() const                                             { return m_DoubleDetonation; }     // Going supernova if mass and He shell are large enough
 
     // RTW: If the SN is AIC, you can copy the code in ONeWD.h
