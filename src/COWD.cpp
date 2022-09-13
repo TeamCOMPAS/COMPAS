@@ -1,7 +1,5 @@
 #include "COWD.h"
 
-// RTW: Does this only apply for COWDs and ONeWDs? If so, should move into COWDs.
-// NRS: So far, yes. The only exeption in HeWDs (where the default is to accrete everything) is to accrete nothing when ACCRETION_REGIME is HELIUM_WHITE_DWARF_HYDROGEN_FLASHES. I want to explore this as a side project, but for now that is all we have.
 /* For COWDs and ONeWDs, calculate:
  *
  *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
