@@ -44,7 +44,7 @@ protected:
             double                  m_lambdaRitter;                             // Parameter from numerical calculations, see Ritter 1999, section 3. Eqs 10 and 12, as well as table 2.
             bool                    m_OffCenterIgnition;                        // Flag for CO WD evolution into ONe WD
             bool                    m_Rejuvenate;                               // Flag for evolution of HeWD back into HeMS
-            bool                    m_SubChandrasekhar;                         // Flag for SubCh SN of HeWD
+            bool                    m_IsSubChandrasekharTypeIa;                         // Flag for SubCh SN of HeWD
             double                  m_XRitter;                                  // Assumed hydrogen-mass fraction of material being accreted by He WD, as in Ritter 1999, table 2.
             ACCRETION_REGIME        m_AccretionRegime;
             

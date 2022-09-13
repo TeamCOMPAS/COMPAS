@@ -73,7 +73,7 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR; // Could lead to Sub CH SN Ia
             double massSubCh = -4e8 * Mdot + 1.34; // Minimum mass for Sub-Ch Mass detonation. Eq 62, Belczynski+ 2008.
             if (utils::Compare(m_Mass, massSubCh) >= 0 ) {
-                m_SubChandrasekhar = true;
+                m_IsSubChandrasekharTypeIa = true;
             }
         } 
         else {
@@ -114,7 +114,7 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
  */
 
 bool HeWD::ShouldEvolveOnPhase() {
-    if (m_SubChandrasekhar || m_Rejuvenate) {
+    if (m_IsSubChandrasekharTypeIa || m_Rejuvenate) {
         return false;
     } else {
         return true;
@@ -131,9 +131,16 @@ bool HeWD::ShouldEvolveOnPhase() {
 
 STELLAR_TYPE HeWD::EvolveToNextPhase() {
     if (m_Rejuvenate) {
-        return STELLAR_TYPE::NAKED_HELIUM_STAR_MS;
+        return STELLAR_TYPE::NAKED_HELIUM_STAR_MS; // RTW: do we need to 
     }
-    else {
+    else if (m_IsSubChandrasekharTypeIa) {         // Currently, assume a Type Ia from a HeWD produces no explosion and leaves a massless remnant. May want to vary in the future
+        m_Mass       = 0.0;
+        m_Radius     = 0.0;
+        m_Luminosity = 0.0;
+        m_Age        = 0.0;
+        return STELLAR_TYPE::MASSLESS_REMNANT;
+    }
+    else {                                         // RTW: does this ever occur?
         m_Mass       = 0.0;
         m_Radius     = 0.0;
         m_Luminosity = 0.0;

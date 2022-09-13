@@ -139,6 +139,7 @@ STELLAR_TYPE COWD::EvolveToNextPhase() {
         return STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }
     else {
+        // RTW: check Type 1a
         m_Mass       = 0.0;
         m_Radius     = 0.0;
         m_Luminosity = 0.0;
