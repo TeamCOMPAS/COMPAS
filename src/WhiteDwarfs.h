@@ -66,7 +66,6 @@ protected:
 
             double      Calculatel0Ritter() const                                   {return (m_Metallicity > 0.01) ? 1995262.3 : 31622.8; } // Luminosity constant which depends on metallicity in Ritter 1999, eq 10
 
-            // RTW - will this work if I leave this here as a non-virtual, but call it in the WD subclasses?
             DBL_DBL     CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                     const bool   p_IsHeRich)        { return std::make_tuple(0.0, 0.0); }                   // Should never be called
             DBL_DBL     CalculateMassAcceptanceRate(const double p_DonorMassRate,
