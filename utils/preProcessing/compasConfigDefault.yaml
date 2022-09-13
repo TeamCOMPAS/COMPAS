@@ -3,7 +3,7 @@
 booleanChoices:
     ### LOGISTICS
     --debug-to-file: False
-    --detailed-output: False # WARNING! this creates a data heavy file
+    --detailed-output: True # WARNING! this creates a data heavy file
     --enable-warnings: False    # option to enable/disable warning messages
     --errors-to-file: False    
     --evolve-unbound-systems: False
@@ -51,15 +51,15 @@ numericalChoices:
     --log-level: 0
     --maximum-evolution-time: 13700.0   # maximum physical time a system can be evolved [Myrs]
     --maximum-number-timestep-iterations: 99999
-    --number-of-systems: 10 # number of systems per batch
+    --number-of-systems: 2000000 # number of systems per batch
     --timestep-multiplier: 1    # optional multiplier relative to default time step duration
     ### STELLAR PROPERTIES
-    --cool-wind-mass-loss-multiplier: 1.0    
+    --cool-wind-mass-loss-multiplier: 0.1
     --initial-mass: # initial mass for SSE
     --initial-mass-min: 5.0 # use 5.0 for DCOs  [Msol]
     --initial-mass-max: 150.0 # stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
     --initial-mass-power: 0.0
-    --metallicity: 0.0142   # metallicity for both SSE and BSE - Solar metallicity Asplund+2010
+    #--metallicity: 0.0142   # metallicity for both SSE and BSE - Solar metallicity Asplund+2010
     --metallicity-min: 0.0001
     --metallicity-max: 0.03
     --luminous-blue-variable-multiplier: 1.5
@@ -166,16 +166,16 @@ numericalChoices:
 
 stringChoices:
     ### LOGISTICS
-    --grid:     # grid file name (e.g. 'mygrid.txt')
-    --logfile-common-envelopes-record-types: 'BSE_Common_Envelopes'
-    --logfile-detailed-output-record-types: 'BSE_Detailed_Output'
-    --logfile-double-compact-objects-record-types: 'BSE_Double_Compact_Objects'
-    --logfile-pulsar-evolution-record-types: 'BSE_Pulsar_Evolution'
-    --logfile-rlof-parameters-record-types: 'BSE_RLOF'
-    --logfile-supernovae-record-types: 'BSE_Supernovae'
-    --logfile-switch-log: 'BSE_Switch_Log'
-    --logfile-system-parameters: 'BSE_System_Parameters'
-    --mode: 'BSE'  # evolving single stars (SSE) or binaries (BSE)    
+    --grid: './notebooks/HR_fWR/grid.txt'    # grid file name (e.g. 'mygrid.txt')
+    #--logfile-common-envelopes-record-types: 'BSE_Common_Envelopes'
+    #--logfile-detailed-output-record-types: 'BSE_Detailed_Output'
+    #--logfile-double-compact-objects-record-types: 'BSE_Double_Compact_Objects'
+    #--logfile-pulsar-evolution-record-types: 'BSE_Pulsar_Evolution'
+    #--logfile-rlof-parameters-record-types: 'BSE_RLOF'
+    #--logfile-supernovae-record-types: 'BSE_Supernovae'
+    #--logfile-switch-log: 'BSE_Switch_Log'
+    #--logfile-system-parameters: 'BSE_System_Parameters'
+    --mode: 'BSE'  # evolving single stars (SSE) or binaries (BSE)
     --notes: 
     --notes-hdrs: 
     --output-container: 
@@ -185,7 +185,7 @@ stringChoices:
     --initial-mass-function: 'KROUPA'
     --luminous-blue-variable-prescription: 'HURLEY_ADD'
     --mass-loss-prescription: 'VINK'
-    --metallicity-distribution: 'ZSOLAR'
+    --metallicity-distribution: 'LOGUNIFORM'
     --pulsational-pair-instability-prescription: 'MARCHANT'
     ### BINARY PROPERTIES
     --eccentricity-distribution: 'ZERO'
