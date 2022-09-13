@@ -642,10 +642,10 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         // boolean options - alphabetically
 
         (
-            // RTW: Is 95 hard-coded? Do we want to add 'percent' to the Option-> call?
+            // RTW: Is 95 hard-coded? Do we want to add 'percent' to the Option-> call? Also, need to update the option string
             "allow-helium-ignition-at-95-percent",
             po::value<bool>(&p_Options->m_AllowHeIgnitionAt95)->default_value(p_Options->m_AllowHeIgnitionAt95)->implicit_value(true),
-            ("Allow ECSN to occur in H rich (unstripped) progenitors (default = " + std::string(p_Options->m_AllowHeIgnitionAt95? "TRUE" : "FALSE") + ")").c_str()
+            ("Allow Helium to ignite in stripped stars with M > 0.95*(Mass of He core at tip of FGB) (default = " + std::string(p_Options->m_AllowHeIgnitionAt95? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "allow-non-stripped-ECSN",

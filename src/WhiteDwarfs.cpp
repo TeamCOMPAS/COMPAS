@@ -102,42 +102,6 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
     return (635.0 * p_Mass * PPOW(p_Metallicity, 0.4)) / PPOW(p_BaryonNumber * (p_Time + 0.1), 1.4);
 }
 
-// RTW: Does this only apply for COWDs and ONeWDs? If so, should move into COWDs.
-// NRS: So far, yes. The only exeption in HeWDs (where the default is to accrete everything) is to accrete nothing when ACCRETION_REGIME is HELIUM_WHITE_DWARF_HYDROGEN_FLASHES. I want to explore this as a side project, but for now that is all we have.
-/* Calculate:
- *
- *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
- *     (b) the retention efficiency parameter
- *
- *
- * For a given mass transfer rate, this function computes the amount of mass a WD would retain after
- * flashes, as given by appendix B of Claeys+ 2014.
- *
- *
- * DBL_DBL CalculateMassAcceptanceRate(const double p_LogDonorMassRate, const bool p_IsHeRich)
- *
- * @param   [IN]    p_LogDonorMassRate          Logarithm of the mass transfer rate of the donor
- * @param   [IN]    p_IsHeRich                  Material is He-rich or not
- * @return                                      Tuple containing the Maximum Mass Acceptance Rate (Msun/yr) and Retention Efficiency Parameter
- */
-DBL_DBL WhiteDwarfs::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich) {
-
-    double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
-    double fractionAccreted = 0.0;                                                          // accretion fraction - default=0.0
-    double logDonorMassRate = log10(p_DonorMassRate);
-
-    if (p_IsHeRich) {
-        acceptanceRate = p_DonorMassRate * CalculateetaHe(logDonorMassRate);
-    } else {
-        acceptanceRate = p_DonorMassRate * CalculateetaHe(logDonorMassRate) * CalculateetaH(logDonorMassRate); // RTW: is this right? Both He and H? NRS: yes, the principle behind this is to consider both hydrogen burning and helium burning (helium produced by hydrogen). Check https://ui.adsabs.harvard.edu/abs/2014A%26A...563A..83C/abstract eq. B2
-    }
-    fractionAccreted = acceptanceRate / p_DonorMassRate;
-    m_AccretionRegime = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
-
-    return std::make_tuple(acceptanceRate, fractionAccreted);
-}
-
-
 /*
  * Calculate the radius of a white dwarf - good for all types of WD
  *
@@ -167,6 +131,7 @@ void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
     // RTW: Is this correct? Can we always assume the accretion regime is set correctly? What is the default case?
     // NRS: It looks ok to me. Though a future update might consider tracking hydrogen burning products (i.e which fraction of the accreted hydrogen turns into helium after a given time step).
     // NRS: as for the default case, are you talking about the shell? or the accretion regime? The shell being used is usually the hydrogen one, but the regime directly depends on the composition of the material being accreted and its rate, so it is not clear to me if using a default would be good.
+    // RTW: I was more thinking about just the code default. I've added a warning below, and specified that no action should be taken. Let me know if you think there is a better alternative. 
     switch (m_AccretionRegime) {
 
         case ACCRETION_REGIME::HELIUM_ACCUMULATION:
@@ -185,6 +150,9 @@ void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
         case ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION:
 	        m_HShell += p_AccretedMass;
             break;
+
+        default:
+            SHOW_WARN(ERROR::WARNING, "Accretion Regime not set for WD, no mass added to shell.");                // show warning 
     }
 }
 

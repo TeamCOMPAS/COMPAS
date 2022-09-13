@@ -1253,8 +1253,6 @@ const COMPASUnorderedMap<SN_STATE, std::string> SN_STATE_LABEL = {
     { SN_STATE::BOTH,  "Both stars" }
 };
 
-// RTW: Are these mutually exclusive? Should we add labels?
-// NRS: Yes, they are... as per how the code works you cannot accrete hydrogen and helium rich material at the same time, nor you have more than one accretion rate.
 // enum class ACCRETION_REGIME
 // Symbolic names for WD accretion regimes
 enum class ACCRETION_REGIME: int {
@@ -1271,6 +1269,7 @@ enum class ACCRETION_REGIME: int {
     HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION,
     NONE
 };
+
 const COMPASUnorderedMap<ACCRETION_REGIME, std::string> ACCRETION_REGIME_LABEL = {
     { ACCRETION_REGIME::NONE,  "No accretion regime" },
     { ACCRETION_REGIME::HELIUM_ACCUMULATION,  "Helium piles up without burning, full efficiency" },

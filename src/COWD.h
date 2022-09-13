@@ -58,6 +58,9 @@ protected:
                                                const double p_Metallicity) const    { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
     double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }        // Use class member variables
 
+    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                const bool   p_IsHeRich);  
+
     STELLAR_TYPE    EvolveToNextPhase();
 
     // RTW: Same question as in HeWD::IsSupernova(), should the condition be go SN if ! m_DoubleDetonation?

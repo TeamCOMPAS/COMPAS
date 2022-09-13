@@ -1,14 +1,45 @@
 #include "COWD.h"
 
-// RTW: TODO Header
-/* Calculate:
+// RTW: Does this only apply for COWDs and ONeWDs? If so, should move into COWDs.
+// NRS: So far, yes. The only exeption in HeWDs (where the default is to accrete everything) is to accrete nothing when ACCRETION_REGIME is HELIUM_WHITE_DWARF_HYDROGEN_FLASHES. I want to explore this as a side project, but for now that is all we have.
+/* For COWDs and ONeWDs, calculate:
  *
- *     (a) Mass fraction retained after accretion episodes
- *     (b) Accretion regime
+ *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
+ *     (b) the retention efficiency parameter
  *
  *
- * Mass retention is based on appendix B of Claeys+ 2014, but critical accretion rates have been updated using
- * Nomoto+ 2007 for hydrogen and Piersanti+ 2014 for helium. Details in CalculateWDMassAcceptanceRate().
+ * For a given mass transfer rate, this function computes the amount of mass a WD would retain after
+ * flashes, as given by appendix B of Claeys+ 2014. 
+ * https://ui.adsabs.harvard.edu/abs/2014A%26A...563A..83C/abstract 
+ *
+ *
+ * DBL_DBL CalculateMassAcceptanceRate(const double p_LogDonorMassRate, const bool p_IsHeRich)
+ *
+ * @param   [IN]    p_LogDonorMassRate          Logarithm of the mass transfer rate of the donor
+ * @param   [IN]    p_IsHeRich                  Material is He-rich or not
+ * @return                                      Tuple containing the Maximum Mass Acceptance Rate (Msun/yr) and Retention Efficiency Parameter
+ */
+DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich) {
+
+    m_AccretionRegime = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
+                                                                               
+    double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
+    double fractionAccreted = 0.0;                                                          // accretion fraction - default=0.0
+    double logDonorMassRate = log10(p_DonorMassRate);
+
+    if (p_IsHeRich) {
+        acceptanceRate = p_DonorMassRate * CalculateetaHe(logDonorMassRate);
+    } else {
+        acceptanceRate = p_DonorMassRate * CalculateetaHe(logDonorMassRate) * CalculateetaH(logDonorMassRate); 
+    }
+    fractionAccreted = acceptanceRate / p_DonorMassRate;
+
+    return std::make_tuple(acceptanceRate, fractionAccreted);
+}
+
+
+/* 
+ * Calculate the WD accretion regime based on the MT rate and whether the donor is He rich 
  *
  * The accretion regime is one of the following:
  *
@@ -22,11 +53,11 @@
  *
  * Note that we have merged the different flashes regimes from Piersanti+ 2014 into a single regime.
  *
- * std::tuple<double,int> DetermineAccretionRegime(bool p_HeRich, const double p_DonorThermalMassLossRate)
+ * ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate) 
  *
  * @param   [IN]    p_HeRich                        Whether the accreted material is helium-rich or not
  * @param   [IN]    p_DonorThermalMassLossRate      Donor thermal mass loss rate, in units of Msol / Myr
- * @return                                          Tuple containing fraction of mass that should be retained and accretion regime
+ * @return                                          Current WD accretion regime
  */
 
 ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate) {

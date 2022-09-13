@@ -68,6 +68,9 @@ protected:
                                        const double p_Metallicity) const                  { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
     double  CalculateLuminosityOnPhase() const                                            { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age, m_Metallicity); }     // Use class member variables
 
+    DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                        const bool   p_IsHeRich);  
+
     double  CalculateRadiusOnPhase(const double p_Mass) const                             { return CalculateRadiusOnPhase_Static(p_Mass); }
     double  CalculateRadiusOnPhase() const                                                { return CalculateRadiusOnPhase(m_Mass); }                                      // Use class member variables
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const        { return BaseStar::CalculateRadiusAndStellarTypeOnPhase(); }

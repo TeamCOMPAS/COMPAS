@@ -465,18 +465,14 @@ void BinaryConstituentStar::InitialiseMassTransfer(const bool p_CommonEnvelope, 
 
 
 
-/* RTW: fix this header
- * Initial calculations for mass transfer resolution
+/* 
+ * Set class member variable m_MassTransferDiff based on the mass gained or lost during MT.
  *
- * Calculates the Roche Lobe radius based on mass of both stars
- * Sets Roche Lobe flags for the star
- * Set class member variable m_MassTransferDiff = 0.0
+ * Also modify changes to the H/He shell (relevant only for WDs)
  *
- * void InitialiseMassTransfer(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity)
+ * void SetMassTransferDiff(const double p_MassTransferDiff) 
  *
- * @param   [IN]    p_CommonEnvelope            Indicates whether a common envelope event is occurring
- * @param   [IN]    p_SemiMajorAxis             Semi major axis of the binary (in AU)
- * @param   [IN]    p_Eccentricity              Eccentricity of the binary orbit
+ * @param   [IN]    p_MassTransferDiff          The amount of mass lost or gained by the star 
  */
 void BinaryConstituentStar::SetMassTransferDiff(const double p_MassTransferDiff) {
     m_MassTransferDiff = p_MassTransferDiff; 
