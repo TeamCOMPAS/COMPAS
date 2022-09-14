@@ -46,7 +46,7 @@ protected:
         CalculateTimescales();                                                                                                                                      // Initialise timescales
         // RTW: Is this the right place for these? Do we want them to reset if they switch from another type? (currently the case)
         // NRS: Probably the Ritter values can be initialized somewhere else, as they only depend on the initial choice of metallicity.
-        // NRS: for the shells, I would argue that there is no option to come back directly to this stage after evolving.
+        // NRS: for the shells, I would argue that there is no option to come back directly to this stage after evolving. The only conflict could be a COWD evolving to ONeWD.
         m_Age = 0.0;                                                                                                                                                // Set age appropriately
         m_HShell = 0.0; // Initialize Hydrogen Shell
         m_HeShell = 0.0; // Initialize Helium Shell

@@ -11,6 +11,9 @@
  * flashes, as given by appendix B of Claeys+ 2014. 
  * https://ui.adsabs.harvard.edu/abs/2014A%26A...563A..83C/abstract 
  *
+ * For the specific case of He WDs, we follow the StarTrack prescription (Belczynski+ 2008, sect 5.7.1)
+ * https://ui.adsabs.harvard.edu/abs/2008ApJS..174..223B/abstract
+ *
  *
  * DBL_DBL CalculateMassAcceptanceRate(const double p_LogDonorMassRate, const bool p_IsHeRich)
  *
