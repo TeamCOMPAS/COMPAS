@@ -44,6 +44,14 @@ booleanChoices:
 numericalChoices:
     ### LOGISTICS
     --debug-level: 0
+    --logfile-common-envelopes-record-types: -1
+    --logfile-detailed-output-record-types: -1
+    --logfile-double-compact-objects-record-types: -1
+    --logfile-pulsar-evolution-record-types: -1
+    --logfile-rlof-parameters-record-types: -1
+    --logfile-supernovae-record-types: -1
+    --logfile-switch-log: -1
+    --logfile-system-parameters: -1
     --grid-lines-to-process: 
     --grid-start-line: 0
     --hdf5-chunk-size: 100000
@@ -167,14 +175,6 @@ numericalChoices:
 stringChoices:
     ### LOGISTICS
     --grid:     # grid file name (e.g. 'mygrid.txt')
-    --logfile-common-envelopes-record-types: 'BSE_Common_Envelopes'
-    --logfile-detailed-output-record-types: 'BSE_Detailed_Output'
-    --logfile-double-compact-objects-record-types: 'BSE_Double_Compact_Objects'
-    --logfile-pulsar-evolution-record-types: 'BSE_Pulsar_Evolution'
-    --logfile-rlof-parameters-record-types: 'BSE_RLOF'
-    --logfile-supernovae-record-types: 'BSE_Supernovae'
-    --logfile-switch-log: 'BSE_Switch_Log'
-    --logfile-system-parameters: 'BSE_System_Parameters'
     --mode: 'BSE'  # evolving single stars (SSE) or binaries (BSE)    
     --notes: 
     --notes-hdrs: 
