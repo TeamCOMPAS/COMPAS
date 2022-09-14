@@ -82,11 +82,11 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
                 if (utils::Compare(Mdot, 1.64e-6) < 0) { // Accretion limit from eq 61, Belczynski+ 2008.
                     double shellCrit = -7.8e-4 * Mdot + 1.34; // Minimum shell mass of He for detonation. Eq 61, Belczynski+ 2008. This helium should not be burnt, but not implemented this yet. Ruiter+ 2014.
                     if (utils::Compare(m_HeShell, shellCrit) >= 0) {
-                        m_Rejuvenate = true;
+                        m_ShouldRejuvenate = true;
                     }
                 } 
                 else {
-                    m_Rejuvenate = true;
+                    m_ShouldRejuvenate = true;
                 }
             }
         }
@@ -112,13 +112,25 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
  *
  * @return                               Whether the WD should evolve on phase or towards an HeMS/SN.
  */
-
 bool HeWD::ShouldEvolveOnPhase() {
-    if (m_IsSubChandrasekharTypeIa || m_Rejuvenate) {
+    if (m_ShouldRejuvenate) {
         return false;
-    } else {
-        return true;
     }
+    else {
+        return !IsSupernova();
+    }
+}
+
+/*
+ * List all conditions for SN (AIC or SN Ia) for HeWD WD. 
+ * Each condition should also be a separate clause in EvolveToNextPhase.
+ *
+ * bool IsSupernova()
+ *
+ * @return                               Whether WD should undergo AIC or SN Ia
+ */
+bool HeWD::IsSupernova() const {
+    return m_IsSubChandrasekharTypeIa;                                           // Go supernova if mass and He shell are large enough
 }
 
 /*
@@ -128,24 +140,16 @@ bool HeWD::ShouldEvolveOnPhase() {
  *
  * @return                               Stellar type of the upcoming stage.
  */
-
 STELLAR_TYPE HeWD::EvolveToNextPhase() {
-    if (m_Rejuvenate) {
-        return STELLAR_TYPE::NAKED_HELIUM_STAR_MS; // RTW: do we need to 
+    if (m_ShouldRejuvenate) {
+        return STELLAR_TYPE::NAKED_HELIUM_STAR_MS; 
     }
-    else if (m_IsSubChandrasekharTypeIa) {         // Currently, assume a Type Ia from a HeWD produces no explosion and leaves a massless remnant. May want to vary in the future
-        m_Mass       = 0.0;
-        m_Radius     = 0.0;
-        m_Luminosity = 0.0;
-        m_Age        = 0.0;
-        return STELLAR_TYPE::MASSLESS_REMNANT;
+    else if (m_IsSubChandrasekharTypeIa) {         // Currently, assume a Type Ia from a HeWD is the same as other WDs. May want to vary in the future
+        return ResolveSNIa();
     }
-    else {                                         // RTW: does this ever occur?
-        m_Mass       = 0.0;
-        m_Radius     = 0.0;
-        m_Luminosity = 0.0;
-        m_Age        = 0.0;
-        return STELLAR_TYPE::MASSLESS_REMNANT;
+    else {                                         // Should not occur
+        SHOW_WARN(ERROR::WARNING, "HeWD told to evolve, but not how.");                                          // show warning
+        return ResolveAIC();
     }
 }
 

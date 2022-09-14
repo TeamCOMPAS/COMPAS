@@ -43,8 +43,8 @@ protected:
             double                  m_l0Ritter;                                 // Parameter from numerical calculations, see Ritter 1999, section 3. Eqs 10 and 12, as well as table 2. Corresponds to L0.
             double                  m_lambdaRitter;                             // Parameter from numerical calculations, see Ritter 1999, section 3. Eqs 10 and 12, as well as table 2.
             bool                    m_OffCenterIgnition;                        // Flag for CO WD evolution into ONe WD
-            bool                    m_Rejuvenate;                               // Flag for evolution of HeWD back into HeMS
-            bool                    m_IsSubChandrasekharTypeIa;                         // Flag for SubCh SN of HeWD
+            bool                    m_ShouldRejuvenate;                         // Flag for evolution of HeWD back into HeMS
+            bool                    m_IsSubChandrasekharTypeIa;                 // Flag for SubCh SN of HeWD
             double                  m_XRitter;                                  // Assumed hydrogen-mass fraction of material being accreted by He WD, as in Ritter 1999, table 2.
             ACCRETION_REGIME        m_AccretionRegime;
             
@@ -66,25 +66,31 @@ protected:
 
             double      Calculatel0Ritter() const                                   {return (m_Metallicity > 0.01) ? 1995262.3 : 31622.8; } // Luminosity constant which depends on metallicity in Ritter 1999, eq 10
 
-            DBL_DBL     CalculateMassAcceptanceRate(const double p_DonorMassRate,
+    virtual DBL_DBL     CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                     const bool   p_IsHeRich)        { return std::make_tuple(0.0, 0.0); }                   // Should never be called
             DBL_DBL     CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                     const double p_AccretorMassRate,
                                                     const bool   p_IsHeRich)        { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); } // Ignore the input accretion rate for WDs
 
+            double      CalculateXRitter() const                                    {return (m_Metallicity > 0.01) ? 0.7 : 0.8 ; }          // Assumed Hydrogen-mass fraction
 
-            double      CalculateXRitter() const                                    {return (m_Metallicity > 0.01) ? 0.7 : 0.8 ; } // Assumed Hydrogen-mass fraction
-
-            double      CalculatelambdaRitter() const                               {return (m_Metallicity > 0.01) ? 8 : 5 ;  } // Exponent for the assumed core-mass and luminosity relationship in Ritter 1999
+            double      CalculatelambdaRitter() const                               {return (m_Metallicity > 0.01) ? 8 : 5 ;  }             // Exponent for the assumed core-mass and luminosity relationship in Ritter 1999
 
             double      CalculateInitialSupernovaMass() const                       { return 0.0; }
 
             double      CalculateRadiusOnPhase(const double p_Mass) const           { return CalculateRadiusOnPhase_Static(p_Mass); }
-            double      CalculateRadiusOnPhase() const                              { return CalculateRadiusOnPhase(m_Mass); }                              // Use class member variables
+            double      CalculateRadiusOnPhase() const                              { return CalculateRadiusOnPhase(m_Mass); }              // Use class member variables
 
-            ENVELOPE    DetermineEnvelopeType() const                               { return ENVELOPE::CONVECTIVE; }                                        // Always CONVECTIVE
+            ENVELOPE    DetermineEnvelopeType() const                               { return ENVELOPE::CONVECTIVE; }                        // Always CONVECTIVE
 
-    ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                           { return m_AccretionRegime; }
+            bool        IsMassAboveEcsnThreshold() const                            { return (utils::Compare(m_Mass, MECS) > 0); }          // Mass exceeds ECSN threshold mass
+            bool        IsMassAboveChandrasekhar() const                            { return (utils::Compare(m_Mass, MCH) > 0); }           // Mass exceeds Chandrasekhar limit 
+
+            STELLAR_TYPE ResolveAIC();  
+            STELLAR_TYPE ResolveSNIa();  
+            STELLAR_TYPE ResolveSupernova()                                         { return EvolveToNextPhase(); }                         // SNe for WDs are handled internally to each WD type
+
+            ACCRETION_REGIME WhiteDwarfAccretionRegime() const                      { return m_AccretionRegime; }
 
 };
 
