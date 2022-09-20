@@ -80,6 +80,7 @@ public:
     double              BindingEnergy_Loveridge() const                                                             { return m_Star->BindingEnergy_Loveridge(); }
     double              BindingEnergy_Nanjing() const                                                               { return m_Star->BindingEnergy_Nanjing(); }
     double              BindingEnergy_Kruckow() const                                                               { return m_Star->BindingEnergy_Kruckow(); }
+    double              CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                         { return m_Star->CalculateCriticalMassRatio(p_AccretorIsDegenerate); }
     double              CalculateDynamicalTimescale() const                                                         { return m_Star->CalculateDynamicalTimescale(); }
     double              CalculateNuclearTimescale() const                                                           { return m_Star->CalculateNuclearTimescale(); }
     double              CalculateRadialExpansionTimescale() const                                                   { return m_Star->CalculateRadialExpansionTimescale(); }
@@ -97,7 +98,6 @@ public:
     bool                IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
     bool                IsDegenerate() const                                                                        { return m_Star->IsDegenerate(); }
     bool                IsECSN() const                                                                              { return m_Star->IsECSN(); }
-    bool                IsMassRatioUnstable(const double p_AccretorMass, const double p_IsAccretorDegenerate) const { return m_Star->IsMassRatioUnstable(p_AccretorMass, p_IsAccretorDegenerate); }
     bool                IsOneOf(STELLAR_TYPE_LIST p_List) const                                                     { return m_Star->IsOneOf(p_List); }
     bool                IsPISN() const                                                                              { return m_Star->IsPISN(); }
     bool                IsPPISN() const                                                                             { return m_Star->IsPPISN(); }

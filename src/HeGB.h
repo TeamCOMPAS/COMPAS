@@ -49,6 +49,7 @@ protected:
 
 
     // member functions - alphabetically
+    double      CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const ;
     double      CalculateGyrationRadius() const                                                                     { return 0.1; }                                         // Hurley et al., 2000, after eq 109 for giants. Single number approximation.
 
     double      CalculateLuminosityOnPhase(const double p_CoreMass, const double p_GBPB, const double p_GBPD) const { return CalculateLuminosityOnPhase_Static(p_CoreMass, p_GBPB, p_GBPD); }
@@ -61,8 +62,6 @@ protected:
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                                  { return CalculateRadiusAndStellarTypeOnPhase(m_Mass, m_Luminosity); }
             
     ENVELOPE    DetermineEnvelopeType() const                                                                       { return ENVELOPE::CONVECTIVE; }                        // Always CONVECTIVE
-
-    bool        IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
 };
 
 #endif // __HeGB_h__
