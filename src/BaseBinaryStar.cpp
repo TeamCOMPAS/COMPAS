@@ -1692,7 +1692,6 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
             SHOW_WARN(m_Error);                                                                                             // warn that an error occurred
     }
 
-    std::cout << "gamma= " << gamma << std::endl;
     return gamma;
 }
 
