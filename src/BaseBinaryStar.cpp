@@ -1679,10 +1679,10 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR       : {                                                // Linear interpolation on separation between accretor and L2 point
             double q = p_AccretorMass / p_DonorMass;
             // interpolate in separation between a_acc and a_L2, both normalized to units of separation a
-            double a_L2 = std::sqrt(M_SQRT2);  // roughly, coincides with CIRCUMBINARY_RING def above
-            double a_acc = 1/(1+q);
-            double a_gamma = a_acc + (a_L2 - a_acc)*OPTIONS->MassTransferJlossMacLeodLinearFraction();
-            gamma = a_gamma*a_gamma*(1+q)*(1+q)/q;
+            double aL2 = std::sqrt(M_SQRT2);  // roughly, coincides with CIRCUMBINARY_RING def above
+            double aAcc = 1/(1+q);
+            double a_gamma = aAcc + (aL2 - aAcc)*OPTIONS->MassTransferJlossMacLeodLinearFraction();
+            gamma = aGamma*aGamma*(1+q)*(1+q)/q;
             break;
         }
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY            : gamma = OPTIONS->MassTransferJloss(); break;
