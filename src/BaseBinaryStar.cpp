@@ -1654,6 +1654,7 @@ double BaseBinaryStar::CalculateRocheLobeRadius_Static(const double p_MassPrimar
  *
  * This is gamma (as in Pols's notes) or jloss (as in Belczynski et al. 2008
  * which is the fraction of specific angular momentum with which the non-accreted mass leaves the system.
+ * Macleod_linear comes from Willcox et al. (2022)
  *
  * Updates class member variable m_Error      JR: todo: revisit error handling (this could be a const function)
  * 
@@ -1675,11 +1676,14 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS                : gamma = p_AccretorMass / p_DonorMass; break;     // vicinity of the donor
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION: gamma = p_DonorMass / p_AccretorMass; break;     // vicinity of the accretor
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING    : gamma = (M_SQRT2 * (p_DonorMass + p_AccretorMass) * (p_DonorMass + p_AccretorMass)) / (p_DonorMass * p_AccretorMass); break; // Based on the assumption that a_ring ~= 2*a*, Vinciguerra+, 2020 
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR       : {                                                // Linear interpolation between accretor and L2 point
-            double gamma_ac = p_DonorMass / p_AccretorMass;
-            double gamma_L2 = 1.414 *(p_DonorMass + p_AccretorMass) * (p_DonorMass + p_AccretorMass) / (p_DonorMass * p_AccretorMass); // prefactor comes from MacLeod & Loeb 2020; this is an approximation -- see Pribulla+, https://articles.adsabs.harvard.edu/pdf/1998CoSka..28..101P 
-            gamma = OPTIONS->MassTransferJlossMacLeodLinearFraction() * (gamma_L2 - gamma_ac) + gamma_ac; 
-            break;                                                                                    
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR       : {                                                // Linear interpolation on separation between accretor and L2 point
+            double q = p_AccretorMass / p_DonorMass;
+            // interpolate in separation between a_acc and a_L2, both normalized to units of separation a
+            double aL2 = std::sqrt(M_SQRT2);  // roughly, coincides with CIRCUMBINARY_RING def above
+            double aAcc = 1/(1+q);
+            double aGamma = aAcc + (aL2 - aAcc)*OPTIONS->MassTransferJlossMacLeodLinearFraction();
+            gamma = aGamma*aGamma*(1+q)*(1+q)/q;
+            break;
         }
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY            : gamma = OPTIONS->MassTransferJloss(); break;
         default:                                                                                                            // unknown mass transfer angular momentum loss prescription - shouldn't happen
