@@ -945,6 +945,6 @@
 // 02.33.01     RTW - Sep 26, 2022   - Defect repair:
 //                                      - Fixed interpolation of MACLEOD_LINEAR gamma for specific angular momentum. Previously interpolated on the gamma value, now interpolates in orbital separation
 
-const std::string VERSION_STRING = "02.33.00";
+const std::string VERSION_STRING = "02.33.01";
 
 # endif // __changelog_h__
