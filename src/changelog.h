@@ -946,7 +946,6 @@
 //                                      - Fixed interpolation of MACLEOD_LINEAR gamma for specific angular momentum. Previously interpolated on the gamma value, now interpolates in orbital separation
 // 02.34.00     RTW - Sep 27, 2022    - Enhancement:
 //                                      - Added critical mass ratios and zetas from Ge+ 2020 for determining if MT is unstable
-
 const std::string VERSION_STRING = "02.34.00";
 
 # endif // __changelog_h__
