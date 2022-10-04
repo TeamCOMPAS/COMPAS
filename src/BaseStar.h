@@ -149,7 +149,7 @@ public:
 
     virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate); 
     virtual double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const         { return 0.0; }                                                     // Default is 0.0
-            double          CalculateCriticalMassRatioGe2020(const QCRIT_PRESCRIPTION p_qCritPrescription)      { return InterpolateGe2020DataObjectForEitherQCritOrZeta(p_qCritPrescription, ZETA_PRESCRIPTION::NONE); }
+            double          CalculateCriticalMassRatioGe20(const QCRIT_PRESCRIPTION p_qCritPrescription)        { return InterpolateGe20QCrit(p_qCritPrescription); }
                                                                                                                                                                                          
             double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
 
@@ -195,14 +195,12 @@ public:
 
             double          CalculateZetaAdiabatic();
     virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                               // Use inheritance hierarchy
-            double          CalculateZetaGe2020(const ZETA_PRESCRIPTION p_ZetaPrescription)                     { return InterpolateGe2020DataObjectForEitherQCritOrZeta(QCRIT_PRESCRIPTION::NONE, p_ZetaPrescription); }
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
 
-            double          InterpolateGe2020DataObjectForEitherQCritOrZeta(const QCRIT_PRESCRIPTION p_qCritPrescription = QCRIT_PRESCRIPTION::NONE, 
-                                                                                  const ZETA_PRESCRIPTION p_ZetaPrescription = ZETA_PRESCRIPTION::NONE);
+            double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription); 
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 

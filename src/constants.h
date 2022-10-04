@@ -842,12 +842,10 @@ const COMPASUnorderedMap<CE_LAMBDA_PRESCRIPTION, std::string> CE_LAMBDA_PRESCRIP
 
 
 // Common envelope zeta prescription
-enum class ZETA_PRESCRIPTION: int { SOBERMAN, HURLEY, GE20, GE20_IC, ARBITRARY, NONE };
+enum class ZETA_PRESCRIPTION: int { SOBERMAN, HURLEY, ARBITRARY, NONE };
 const COMPASUnorderedMap<ZETA_PRESCRIPTION, std::string> ZETA_PRESCRIPTION_LABEL = {
     { ZETA_PRESCRIPTION::SOBERMAN,  "SOBERMAN" },
     { ZETA_PRESCRIPTION::HURLEY,    "HURLEY" },
-    { ZETA_PRESCRIPTION::GE20,      "GE20" },
-    { ZETA_PRESCRIPTION::GE20_IC,   "GE20_IC" },
     { ZETA_PRESCRIPTION::ARBITRARY, "ARBITRARY" },
     { ZETA_PRESCRIPTION::NONE,      "NONE" },
 };
@@ -3796,8 +3794,8 @@ const std::map<int, COMPASUnorderedMap<AB_TCoeff, double>> A_COEFF = {
 // Subset of Table 3 in Ge et al. 2020, corresponding to the just the mass, logR, qCrit, qCritIC, zeta, and zetaIC
 // where qCrit is the critical mass ratio for adiabatic MT (qadic or qad tilde), and qCritIC is 
 // the critical mass ratio for isentropic envelopes (qadic or qad tilde). Similarly, zeta is for adiabatic MT, 
-// and zetaIC is for isentropic envelopes. (Neither are currently implemented in COMPAS, just the qCrits for now).
-// In both cases, q is mAccretor/mDonor, which was not the value given in the Ge et al. datatable, so these were inverted below.
+// and zetaIC is for isentropic envelopes. (Zetas are not used in COMPAS, they are functionally equivalent to qCrits).
+// In both cases, q is mAccretor/mDonor, which is inverted from the Ge et al. datatable.
 // First entry in the tuple is the vector of unique mass values, second entry is the 5-tuple of vectors for logR, qCrit, qCritIC, zeta, zetaIC.
 // Note that the radius may contract several times. These points have been removed to facilitate the interpolation, so logR is monotonic.
 const std::tuple< std::vector<double>, std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>>> GE20_QCRIT_AND_ZETA = {

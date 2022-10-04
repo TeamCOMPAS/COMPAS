@@ -1263,10 +1263,6 @@ double BaseStar::CalculateZetaAdiabatic() {
 
     switch (zetaPrescription) {
     
-        case ZETA_PRESCRIPTION::GE20:     
-        case ZETA_PRESCRIPTION::GE20_IC:  
-            zetaStar = CalculateZetaGe2020(zetaPrescription);
-            break;
         case ZETA_PRESCRIPTION::SOBERMAN: 
         case ZETA_PRESCRIPTION::HURLEY:   
         case ZETA_PRESCRIPTION::ARBITRARY:
@@ -1333,7 +1329,7 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) {
         switch (qCritPrescription) {
             case QCRIT_PRESCRIPTION::GE20: 
             case QCRIT_PRESCRIPTION::GE20_IC:
-                qCrit = CalculateCriticalMassRatioGe2020(qCritPrescription);   
+                qCrit = CalculateCriticalMassRatioGe20(qCritPrescription);   
                 break;
             case QCRIT_PRESCRIPTION::CLAEYS:
                 qCrit = CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate);
@@ -1347,24 +1343,18 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) {
 
 
 /* 
- * Interpolate Ge+20 data object containing both Critical Mass Ratios and Zetas
+ * Interpolate Ge+20 Critical Mass Ratios 
  * 
- * Function ostensibly takes two inputs, a QCRIT_PRESCRIPTION and a ZETA_PRESCRIPTION.
- * However, exactly one of these is allowed, and whichever one is chosen must specifically
- * be one of the GE20 prescriptions (Ge et al. 2020 model both qCrit and zeta, so it's
- * easier to setup one interpolation and just switch the index depending on the desired output).
+ * Function takes input QCRIT_PRESCRIPTION, currently either of the prescriptions for critical mass ratios
+ * from Ge et al. (2020), GE20 or GE20_IC. The first is the full adiabatic response, the second assumes
+ * artificially isentropic envelopes.
  * 
- * double BaseStar::InterpolateGe2020DataObjectForEitherQCritOrZeta( const QCRIT_PRESCRIPTION p_qCritPrescription, const ZETA_PRESCRIPTION p_ZetaPrescription) 
+ * double BaseStar::InterpolateGe20QCrit( const QCRIT_PRESCRIPTION p_qCritPrescription) 
  * 
  * @return                                      Interpolated value of either the critical mass ratio or zeta for given stellar mass / radius
  */ 
-double BaseStar::InterpolateGe2020DataObjectForEitherQCritOrZeta( const QCRIT_PRESCRIPTION p_qCritPrescription, const ZETA_PRESCRIPTION p_ZetaPrescription) {
+double BaseStar::InterpolateGe20QCrit( const QCRIT_PRESCRIPTION p_qCritPrescription) {
 
-    if ((p_qCritPrescription == QCRIT_PRESCRIPTION::NONE) == (p_ZetaPrescription == ZETA_PRESCRIPTION::NONE)) {     // If both or neither are set, throw an error
-        ERROR m_Error = ERROR::UNHANDLED_EXCEPTION;                                                                 // set error value
-        SHOW_ERROR(m_Error);                                                                                        // warn that an error occurred
-    }
-    
     // Get vector of masses from GE20_QCRIT_AND_ZETA
     std::vector<double> massesFromGe20 = std::get<0>(GE20_QCRIT_AND_ZETA);
     std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>> 
@@ -1387,33 +1377,33 @@ double BaseStar::InterpolateGe2020DataObjectForEitherQCritOrZeta( const QCRIT_PR
     std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsZetasFromGe20[lowerMassInd]);
     std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsZetasFromGe20[upperMassInd]);
 
-    // Set the param value (either qCrit or zeta, for adiabatic or isentropic model) from Ge+20 
-    std::vector<double> paramVectorLowerMass;
-    std::vector<double> paramVectorUpperMass;
+    // Get the qCrit vector for the lower and upper mass bounds 
+    std::vector<double> qCritVectorLowerMass;
+    std::vector<double> qCritVectorUpperMass;
     
     // One of the following must be set
-    if (OPTIONS->QCritPrescription() == QCRIT_PRESCRIPTION::GE20) {
-        paramVectorLowerMass     = std::get<1>(radiiQCritsZetasFromGe20[lowerMassInd]);
-        paramVectorUpperMass     = std::get<1>(radiiQCritsZetasFromGe20[upperMassInd]);
+    if (p_qCritPrescription == QCRIT_PRESCRIPTION::GE20) {
+        qCritVectorLowerMass     = std::get<1>(radiiQCritsZetasFromGe20[lowerMassInd]);
+        qCritVectorUpperMass     = std::get<1>(radiiQCritsZetasFromGe20[upperMassInd]);
     }
-    else if (OPTIONS->QCritPrescription() == QCRIT_PRESCRIPTION::GE20_IC) {
-        paramVectorLowerMass     = std::get<2>(radiiQCritsZetasFromGe20[lowerMassInd]);
-        paramVectorUpperMass     = std::get<2>(radiiQCritsZetasFromGe20[upperMassInd]);
+    else if (p_qCritPrescription == QCRIT_PRESCRIPTION::GE20_IC) {
+        qCritVectorLowerMass     = std::get<2>(radiiQCritsZetasFromGe20[lowerMassInd]);
+        qCritVectorUpperMass     = std::get<2>(radiiQCritsZetasFromGe20[upperMassInd]);
     }
-    else if (OPTIONS->StellarZetaPrescription() == ZETA_PRESCRIPTION::GE20) {
-        paramVectorLowerMass     = std::get<3>(radiiQCritsZetasFromGe20[lowerMassInd]);
-        paramVectorUpperMass     = std::get<3>(radiiQCritsZetasFromGe20[upperMassInd]);
-    }
-    else if (OPTIONS->StellarZetaPrescription() == ZETA_PRESCRIPTION::GE20_IC) {
-        paramVectorLowerMass     = std::get<4>(radiiQCritsZetasFromGe20[lowerMassInd]);
-        paramVectorUpperMass     = std::get<4>(radiiQCritsZetasFromGe20[upperMassInd]);
-    }
-    else { 
-        ERROR m_Error = ERROR::UNHANDLED_EXCEPTION;                                             // set error value
-        SHOW_ERROR(m_Error);                                                                    // warn that an error occurred
-        paramVectorLowerMass     = std::get<4>(radiiQCritsZetasFromGe20[lowerMassInd]);         // set arbitrary values 
-        paramVectorUpperMass     = std::get<4>(radiiQCritsZetasFromGe20[upperMassInd]);         // set arbitrary values 
-    }
+    //else if (OPTIONS->StellarZetaPrescription() == ZETA_PRESCRIPTION::GE20) {
+    //    qCritVectorLowerMass     = std::get<3>(radiiQCritsZetasFromGe20[lowerMassInd]);
+    //    qCritVectorUpperMass     = std::get<3>(radiiQCritsZetasFromGe20[upperMassInd]);
+    //}
+    //else if (OPTIONS->StellarZetaPrescription() == ZETA_PRESCRIPTION::GE20_IC) {
+    //    qCritVectorLowerMass     = std::get<4>(radiiQCritsZetasFromGe20[lowerMassInd]);
+    //    qCritVectorUpperMass     = std::get<4>(radiiQCritsZetasFromGe20[upperMassInd]);
+    //}
+    //else { 
+    //    ERROR m_Error = ERROR::UNHANDLED_EXCEPTION;                                             // set error value
+    //    SHOW_ERROR(m_Error);                                                                    // warn that an error occurred
+    //    qCritVectorLowerMass     = std::get<4>(radiiQCritsZetasFromGe20[lowerMassInd]);         // set arbitrary values 
+    //    qCritVectorUpperMass     = std::get<4>(radiiQCritsZetasFromGe20[upperMassInd]);         // set arbitrary values 
+    //}
 
 
     // Get vector of radii from GE20_QCRIT_AND_ZETA for both lower and upper masses
@@ -1445,10 +1435,10 @@ double BaseStar::InterpolateGe2020DataObjectForEitherQCritOrZeta( const QCRIT_PR
 
 
     // Set the 4 boundary points for the 2D interpolation
-    double valLowLow = paramVectorLowerMass[lowerRadiusLowerMassInd];
-    double valLowUpp = paramVectorLowerMass[upperRadiusLowerMassInd];
-    double valUppLow = paramVectorUpperMass[lowerRadiusUpperMassInd];
-    double valUppUpp = paramVectorUpperMass[upperRadiusUpperMassInd];
+    double qLowLow = qCritVectorLowerMass[lowerRadiusLowerMassInd];
+    double qLowUpp = qCritVectorLowerMass[upperRadiusLowerMassInd];
+    double qUppLow = qCritVectorUpperMass[lowerRadiusUpperMassInd];
+    double qUppUpp = qCritVectorUpperMass[upperRadiusUpperMassInd];
 
     double lowerMass = massesFromGe20[lowerMassInd];
     double upperMass = massesFromGe20[upperMassInd];
@@ -1459,12 +1449,12 @@ double BaseStar::InterpolateGe2020DataObjectForEitherQCritOrZeta( const QCRIT_PR
 
 
     // Interpolate on the radii first, then the masses
-    double paramLowerMass = valLowLow + (upperRadiusLowerMass - m_Radius)/(upperRadiusLowerMass - lowerRadiusLowerMass) * (valLowUpp - valLowLow);
-    double paramUpperMass = valUppLow + (upperRadiusUpperMass - m_Radius)/(upperRadiusUpperMass - lowerRadiusUpperMass) * (valUppUpp - valUppLow);
+    double qCritLowerMass = qLowLow + (upperRadiusLowerMass - m_Radius)/(upperRadiusLowerMass - lowerRadiusLowerMass) * (qLowUpp - qLowLow);
+    double qCritUpperMass = qUppLow + (upperRadiusUpperMass - m_Radius)/(upperRadiusUpperMass - lowerRadiusUpperMass) * (qUppUpp - qUppLow);
         
-    double interpolatedValue = paramLowerMass + (upperMass - m_Mass)/(upperMass - lowerMass) * (paramUpperMass - paramLowerMass);
+    double interpolatedQCrit = qCritLowerMass + (upperMass - m_Mass)/(upperMass - lowerMass) * (qCritUpperMass - qCritLowerMass);
 
-    return interpolatedValue;
+    return interpolatedQCrit;
 
 }
 
