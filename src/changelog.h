@@ -944,8 +944,9 @@
 //                                      - Cleaned up stability check functions in BaseBinaryStar.cpp for clarity, and to allow for critical mass ratios to be checked correctly
 // 02.33.01     RTW - Sep 26, 2022   - Defect repair:
 //                                      - Fixed interpolation of MACLEOD_LINEAR gamma for specific angular momentum. Previously interpolated on the gamma value, now interpolates in orbital separation
-// 02.34.00     RTW - Sep 27, 2022    - Enhancement:
-//                                      - Added critical mass ratios and zetas from Ge+ 2020 for determining if MT is unstable
+// 02.34.00     RTW - Oct 4, 2022    - Enhancement:
+//                                      - Added critical mass ratios from Ge+ 2020 for determining if MT is unstable
+
 const std::string VERSION_STRING = "02.34.00";
 
 # endif // __changelog_h__

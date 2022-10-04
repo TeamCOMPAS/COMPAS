@@ -192,7 +192,7 @@ public:
 
     double          EvolveOneTimestep(const double p_Dt);
 
-    double          InterpolateGe2020DataObjectForEitherQCritOrZeta(const QCRIT_PRESCRIPTION p_qCritPrescription, const ZETA_PRESCRIPTION p_ZetaPrescription) { return m_Star->InterpolateGe2020DataObjectForEitherQCritOrZeta(p_qCritPrescription, p_ZetaPrescription); }
+    double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription)                              { return m_Star->InterpolateGe20QCrit(p_qCritPrescription); }
 
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
 

@@ -1096,14 +1096,12 @@ Minimum semi-major axis to generate (AU). |br|
 Default = 0.01
 
 **--stellar-zeta-prescription** |br|
-Prescription for donor radial response zeta. 
-Options: { SOBERMAN, HURLEY, GE20, GE20_IC, ARBITRARY } |br|
-If any of {SOBERMAN, HURLEY, ARBITRARY}, the prescription only applies to stars with convective envelopes.
-In this case, stars with radiative envelopes take the values from ``--zeta-main-sequence`` or ``--zeta-radiative-giant-star``. |br|
+Prescription for convective donor radial response zeta. 
+Options: { SOBERMAN, HURLEY, ARBITRARY } |br|
+The prescription only applies to stars with convective envelopes.
+Stars with radiative envelopes take the values from ``--zeta-main-sequence`` or ``--zeta-radiative-giant-star``. |br|
 ``SOBERMAN`` uses zeta from Soberman, Phinney, and van den Heuvel (1997) 
 ``HURLEY`` uses zeta from Hurley, Pols, Tout (2002) 
-``GE20`` uses zeta from Ge et al. (2020) (adiabatic assumption). 
-``GE20_IC`` uses zeta from Ge et al. (2020) (isentropic assumption). 
 ``ARBITRARY`` uses fixed value set in ``--zeta-adiabatic-arbitrary`` |br|
 Default = SOBERMAN
 
