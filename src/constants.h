@@ -226,8 +226,9 @@ constexpr double G_SOLAR_YEAR                           = 3.14E7;               
 
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
-constexpr double ZSOL_ASPLUND				= 0.0142;						    // Solar Metallicity (Asplund+ 2010) used in initial condition
+constexpr double ZSOL_ASPLUND				            = 0.0142;                       						    // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
+constexpr double LSOL                                   = 3.844E33;                                                 // Solar Luminosity in erg/s
 
 constexpr double AU                                     = 149597870700.0;                                           // 1 AU (Astronomical Unit) in metres
 constexpr double KM                                     = 1000.0;                                                   // 1 km (Kilometre) in metres
@@ -463,6 +464,7 @@ constexpr double MT_LIMIT_STABLE_NOMOTO_2               = -1.2137735;
 constexpr double MT_LIMIT_CRIT_NOMOTO_0                 = -8.33017155;
 constexpr double MT_LIMIT_CRIT_NOMOTO_1                 = 2.88247131;
 constexpr double MT_LIMIT_CRIT_NOMOTO_2                 = -0.98023471;
+constexpr double Q_HYDROGEN_BURNING                     = 6.4E18 * MSOL_TO_G / (SECONDS_IN_YEAR * LSOL);            // 6.4E18 is the energy yield of H burning in erg/g as given in Nomoto+ 2007 (2007ApJ...663.1269N)
 
 // object types
 enum class OBJECT_TYPE: int { NONE, MAIN, PROFILING, UTILS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR };    //  if BASE_STAR, check STELLAR_TYPE

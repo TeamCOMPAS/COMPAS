@@ -95,7 +95,7 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
         }
     } 
     else {
-        double Mcrit = log10(m_l0Ritter * PPOW(m_Mass, m_lambdaRitter) / (m_XRitter * 6e18)); // Eq. 60 in Belczynski+ 2008. 6e18 is the energy yield of H burning in ergs/g.
+        double Mcrit = log10(m_l0Ritter * PPOW(m_Mass, m_lambdaRitter) / (m_XRitter * Q_HYDROGEN_BURNING)); // Eq. 60 in Belczynski+ 2008. 6e18 is the energy yield of H burning in ergs/g.
         if (utils::Compare(logMdot, Mcrit) <= 0) {
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES; // Flashes restrict accumulation
         } 
