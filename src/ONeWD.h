@@ -47,19 +47,17 @@ protected:
 
     // member functions
 
-            double       CalculateLuminosityOnPhase(const double p_Mass,
-                                                   const double p_Time,
-                                                   const double p_Metallicity) const    { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
+            double          CalculateLuminosityOnPhase(const double p_Mass,
+                                                       const double p_Time,
+                                                       const double p_Metallicity) const    { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
 
-            double       CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }        // Use class member variables
-            bool         IsSupernova() const                                             { return (utils::Compare(m_Mass, MECS) > 0); }                              // Going supernova if mass large enough
+            double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }        // Use class member variables
 
-            STELLAR_TYPE ResolveAIC();  
-
-            STELLAR_TYPE ResolveSupernova()                                              { return ResolveAIC(); }                                                   // WDs should not SN, but they can collapse due to accretion
-
-            bool         ShouldEvolveOnPhase() const                                     { return (utils::Compare(m_Mass, MECS) <= 0); }                             // Evolve on phase unless mass > ECSN threshold mass
-
+            // RTW: Is the condition for SN the same for COWDs and ONeWDs?
+            // What happens if an ONeWD experiences OffCenterIgnition?
+            STELLAR_TYPE    EvolveToNextPhase();
+            bool            IsSupernova() const;                                             
+            bool            ShouldEvolveOnPhase();                                                  
 };
 
 #endif // __ONeWD_h__

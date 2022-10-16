@@ -1,4 +1,5 @@
 #include "WhiteDwarfs.h"
+#include "NS.h"
 
 /* Calculate eta_hydrogen from Claeys+ 2014, appendix B. We have changed the mass accretion limits for
  * Nomoto+ 2007 ones, after applying a quadratic fit to cover the low-mass end.
@@ -119,19 +120,17 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     return std::max(NEUTRON_STAR_RADIUS, 0.0115 * std::sqrt((MCH_Mass_two_thirds - 1.0/MCH_Mass_two_thirds )));
 }
 
-/* Increase shell size after mass transfer episode. Hydrogen and helium shells are kept separately.
+/* 
+ * Increase shell size after mass transfer episode. Hydrogen and helium shells are kept separately.
+ * Only applies the full mass increase from accretion to one of the shells. Does not account for, e.g,
+ * the H layer burning and building up the He layer, which may be desired in the future. - RTW 9/14/22
  *
- * void ResolveShellChange(const double p_AccretedMass, bool p_HeRich) {
+ * void ResolveShellChange(const double p_AccretedMass)
  *
  * @param   [IN]    p_AccretedMass              Mass accreted
- * @param   [IN]    p_HeRich                    Material is He-rich or not
  */
 void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
     
-    // RTW: Is this correct? Can we always assume the accretion regime is set correctly? What is the default case?
-    // NRS: It looks ok to me. Though a future update might consider tracking hydrogen burning products (i.e which fraction of the accreted hydrogen turns into helium after a given time step).
-    // NRS: as for the default case, are you talking about the shell? or the accretion regime? The shell being used is usually the hydrogen one, but the regime directly depends on the composition of the material being accreted and its rate, so it is not clear to me if using a default would be good.
-    // RTW: I was more thinking about just the code default. I've added a warning below, and specified that no action should be taken. Let me know if you think there is a better alternative. 
     switch (m_AccretionRegime) {
 
         case ACCRETION_REGIME::HELIUM_ACCUMULATION:
@@ -155,4 +154,67 @@ void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
             SHOW_WARN(ERROR::WARNING, "Accretion Regime not set for WD, no mass added to shell.");                // show warning 
     }
 }
+
+
+/*
+ * Resolve Accretion-Induced Collapse of a WD
+ *
+ * Following Hurley et al. 2000, Section 6.2.1
+ *
+ * An AIC of a WD results in a NS, which we are 
+ * here assuming to have a low mass equal to the ECSN
+ * remnant NS mass, and no natal kick. 
+ *
+ * STELLAR_TYPE ResolveAIC() 
+ *
+ * @return                                      Stellar type of remnant (STELLAR_TYPE::NEUTRON_STAR if SN, otherwise current type)
+ */
+STELLAR_TYPE WhiteDwarfs::ResolveAIC() { 
+
+    if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
+
+    m_Mass       = MECS_REM;                                                            // defined in constants.h
+    m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
+    m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);                
+    // RTW: shouldn't these be done automatically if NS is returned?
+    
+    m_SupernovaDetails.drawnKickMagnitude = 0.0;
+    m_SupernovaDetails.kickMagnitude      = 0.0;
+
+    SetSNCurrentEvent(SN_EVENT::AIC);                                                  // AIC happening now
+    SetSNPastEvent(SN_EVENT::AIC);                                                     // ... and will be a past event
+
+    return STELLAR_TYPE::NEUTRON_STAR;
+}
+
+/*
+ * Resolve Type 1a Supernova 
+ *
+ * A Type 1a SN results in a massless remnant, which we are 
+ * here assuming to have a low mass equal to the ECSN
+ * remnant NS mass, and no natal kick. 
+ *
+ * STELLAR_TYPE ResolveSNIa() 
+ *
+ * @return                                      Stellar type of remnant (STELLAR_TYPE::MASSLESS_REMNANT if SN, otherwise current type)
+ */
+STELLAR_TYPE WhiteDwarfs::ResolveSNIa() { 
+
+    if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
+
+    m_Mass       = 0.0;
+    m_Radius     = 0.0;
+    m_Luminosity = 0.0;
+    m_Age        = 0.0;
+    
+    m_SupernovaDetails.drawnKickMagnitude = 0.0;
+    m_SupernovaDetails.kickMagnitude      = 0.0;
+
+    SetSNCurrentEvent(SN_EVENT::SNIA);                                                  // SN Type Ia happening now
+    SetSNPastEvent(SN_EVENT::SNIA);                                                     // ... and will be a past event
+
+    return STELLAR_TYPE::MASSLESS_REMNANT;
+}
+
+
 

@@ -179,7 +179,8 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
     if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {                                      // Envelope loss
         bool notIgnited = true;
         if (OPTIONS->AllowHeIgnitionAt95() && p_NoCheck) {
-            // Should this be || p_NoCheck ?
+            // RTW: This condition is messy - the NoCheck is designed to catch giants which were just fully stripped,
+            // and that same condition is desired here (and implemented correctly), but it should be cleaned up.
             double expectedMassAtHeliumIgnition = GiantBranch::CalculateCoreMassAtHeIgnition(m_Mass);
             notIgnited = utils::Compare(m_HeCoreMass, expectedMassAtHeliumIgnition * 0.95) < 0;              // modifier to allow He-core ignition within 5% of the mass at the tip of the RGB. See Han+ 2002 (2002MNRAS.336..449H, section 3.1) and D'Cruz+ 1996 (page 12).
         }

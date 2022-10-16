@@ -1877,8 +1877,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         isUnstable = (caseBBAlwaysUnstable || (caseBBAlwaysUnstableOntoNSBH && accretorIsNSorBH));                                 // Already established that donor is HeHG or HeGB - need to check if new case BB prescriptions are added
     } 
     else if (accretorIsWD && (m_Accretor->WhiteDwarfAccretionRegime() == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION)) { 
-        // RTW: Is this the correct condition?
-        // NRS: It is, but the CEE should only happen is the donor is a Giant, I'm not sure that's always the case here.
         isUnstable = true;
         if (!m_Donor->IsOneOf(GIANTS)) m_Flags.stellarMerger = true;
     }

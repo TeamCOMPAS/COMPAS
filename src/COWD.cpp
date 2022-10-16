@@ -60,7 +60,7 @@ DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
 
 ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate) {
     double logMdot = log10(p_DonorThermalMassLossRate / MYR_TO_YEAR); // Logarithm of the accreted mass (M_sun/yr)
-    ACCRETION_REGIME regime; // RTW: Do we want a default?
+    ACCRETION_REGIME regime = ACCRETION_REGIME::NONE;
 
     if (p_HeRich) {
         // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
@@ -122,9 +122,23 @@ bool COWD::ShouldEvolveOnPhase() {
         return false;
     }
     else {
-        return (m_Mass <= MCH);
+        return !IsSupernova();
     }
 }
+
+/*
+ * List all conditions for SN (AIC or SN Ia) for COWD WD. 
+ * Each condition should also be a separate clause in EvolveToNextPhase.
+ *
+ * bool IsSupernova()
+ *
+ * @return                               Whether WD should undergo AIC or SN Ia
+ */
+
+bool COWD::IsSupernova() const {
+    return m_DoubleDetonation || IsMassAboveChandrasekhar();      
+}
+
 
 /*
  * Specifies next stage, if the star changes its phase.
@@ -138,11 +152,14 @@ STELLAR_TYPE COWD::EvolveToNextPhase() {
     if (m_OffCenterIgnition) {
         return STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }
-    else {
-        m_Mass       = 0.0;
-        m_Radius     = 0.0;
-        m_Luminosity = 0.0;
-        m_Age        = 0.0;
-        return STELLAR_TYPE::MASSLESS_REMNANT;
+    else if (m_DoubleDetonation) {
+        return ResolveSNIa(); // RTW: Is this correct? 
+    }
+    else if (IsMassAboveChandrasekhar()) {
+        return ResolveSNIa(); // RTW: Is this correct? 
+    }
+    else {                                         // Should not occur
+        SHOW_WARN(ERROR::WARNING, "COWD told to evolve, but not how.");                                          // show warning
+        return ResolveAIC();
     }
 }
