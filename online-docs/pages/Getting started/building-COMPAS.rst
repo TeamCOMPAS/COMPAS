@@ -72,3 +72,17 @@ If you are using MacOS and running into linking issues with the boost libraries,
 
 In some Mac installations, the GNU C++ compiler is not installed how we might expect, so trying to compile and link with ``clang++`` might help.
 
+Installing python interface
+---------------------------
+
+For users
+```bash
+pip install compas
+```
+
+For developers
+```bash
+pip install -e .[dev]
+pre-commit install
+```
+The pre-commits will help lint py code before each commit.

@@ -18,6 +18,7 @@ specified on the command line, not the values specified in a ``grid`` file (if u
 .. toctree::
    :maxdepth: 1
 
+   python_interface
    standard-logfiles
    standard-logfiles-record-specifiers
    standard-logfiles-record-specification

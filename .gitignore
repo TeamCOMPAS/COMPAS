@@ -42,3 +42,7 @@ COMPAS
 
 Makefile-reinhold
 .gitignore
+
+# python setup files
+compas.egg-info
+!compas/
