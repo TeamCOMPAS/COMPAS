@@ -75,6 +75,8 @@ In some Mac installations, the GNU C++ compiler is not installed how we might ex
 Installing python interface
 ---------------------------
 
+Note: this python interface will still require a local build of COMPAS, as described above, to simulate binaries.
+
 For users
 ```bash
 pip install .
