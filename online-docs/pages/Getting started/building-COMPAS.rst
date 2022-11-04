@@ -77,7 +77,7 @@ Installing python interface
 
 For users
 ```bash
-pip install compas
+pip install .
 ```
 
 For developers
