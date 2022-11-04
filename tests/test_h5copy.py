@@ -10,9 +10,13 @@ class TestH5Copy(unittest.TestCase):
     def setUp(self) -> None:
         self.res_dir = os.path.join(
             os.path.dirname(__file__), "test_data", "COMPAS_Output")
+        self.init_file = os.path.join(self.res_dir, "COMPAS_Output.h5")
         self.out_dir = "copy_outdir"
-        self.new_file = os.path.join(self.out_dir, "new_COMPAS_Output.h5")
         os.makedirs(self.out_dir, exist_ok=True)
+        self.new_file = os.path.join(self.out_dir, "new_COMPAS_Output.h5")
+        shutil.copy(self.init_file, self.new_file)
+        # for some reson the copyHDF5File function doesnt work if the file doesnt exist...?
+
 
     def tearDown(self) -> None:
         if os.path.exists(self.out_dir):
