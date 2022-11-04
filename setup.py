@@ -83,6 +83,7 @@ if __name__ == "__main__":
         entry_points={
             "console_scripts": [
                 "compas_h5view= compas.h5view:main",
+                "compas_h5copy= compas.h5copy:main",
             ]
         },
     )
