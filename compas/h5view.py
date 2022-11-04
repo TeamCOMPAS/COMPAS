@@ -15,8 +15,6 @@ h5view.py [-h] [-f FILENAME_FILTER] [-r [RECURSION_DEPTH]] [-S] [-H]
                  [-V SEED_LIST [SEED_LIST ...]]
                  input [input ...]
 
-
-
 HDF5 file content viewer.
 
 positional arguments:
@@ -775,4 +773,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+  main()
