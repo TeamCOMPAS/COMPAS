@@ -1,85 +1,111 @@
 #include "WhiteDwarfs.h"
 #include "NS.h"
 
-/* Calculate eta_hydrogen from Claeys+ 2014, appendix B. We have changed the mass accretion limits for
- * Nomoto+ 2007 ones, after applying a quadratic fit to cover the low-mass end.
+/* Calculate eta_hydrogen from Claeys+ 2014, appendix B. This parameter depends 
+ * on three regimes for the mass intake rate, which here are distinguished by the 
+ * thresholds logMdotUppH and logMdotLowH. In Claeys+ 2014, the mass intake rate is
+ * \dot{M}_{tr} and the thresholds are \dot{M}_{cr,H} and \dot{M}_{cr,H}/8, respectively. 
  *
- * double CalculateEtaH(const double p_LogMassRate)
+ * However, we have used improved thresholds from Nomoto+ 2007, in which the 
+ * lower boundary is \dot{M}_{stable} and the upper boundary is \dot{M}_{RG}. 
+ * More precisely, we implemented quadratic fits to the values in Nomoto+ 2007,
+ * table 5, as described in Rodriguez+ (in prep). 
  *
- * @param   [IN]    p_LogMassRate        Logarithm of the mass transfer rate (Msun/yr)
+ * double CalculateEtaH(const double p_MassIntakeRate)
+ *
+ * @param   [IN]    p_MassIntakeRate     Mass intake rate onto the WD surface (Msun/yr)
  * @return                               eta_hydrogen, "hydrogen accretion efficiency"
  */
 
-double WhiteDwarfs::CalculateEtaH(const double p_LogMassRate) {
+double WhiteDwarfs::CalculateEtaH(const double p_MassIntakeRate) {
     double etaH = 0.0;
-    // The following coefficients in massTransfer limits come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
-    double MdotCritH = MT_LIMIT_CRIT_NOMOTO_0 +  MT_LIMIT_CRIT_NOMOTO_1 * m_Mass +  MT_LIMIT_CRIT_NOMOTO_2 * m_Mass * m_Mass;
-    double MdotLowH = MT_LIMIT_STABLE_NOMOTO_0 +  MT_LIMIT_STABLE_NOMOTO_1 * m_Mass +  MT_LIMIT_STABLE_NOMOTO_2 * m_Mass * m_Mass;
-    if (utils::Compare(p_LogMassRate, MdotCritH) >= 0) {
-        etaH = PPOW(10, MdotCritH - p_LogMassRate);
-    } else if ((utils::Compare(p_LogMassRate, MdotCritH) < 0) && (utils::Compare(p_LogMassRate, MdotLowH) >= 0)) {
+    double logMassIntakeRate = log10(p_MassIntakeRate);
+
+    // The following coefficients come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
+    double logMdotUppH = MT_LIMIT_NOMOTO_REDGIANT_0 + MT_LIMIT_NOMOTO_REDGIANT_1 *m_Mass + MT_LIMIT_NOMOTO_REDGIANT_2 *m_Mass*m_Mass; 
+    double logMdotLowH = MT_LIMIT_NOMOTO_STABLE_0   + MT_LIMIT_NOMOTO_STABLE_1   *m_Mass + MT_LIMIT_NOMOTO_STABLE_2   *m_Mass*m_Mass;
+    if (utils::Compare(logMassIntakeRate, logMdotUppH) >= 0) {
+        etaH = PPOW(10, logMdotUppH - logMassIntakeRate);
+    } else if ((utils::Compare(logMassIntakeRate, logMdotUppH) < 0) && (utils::Compare(logMassIntakeRate, logMdotLowH) >= 0)) {
         etaH = 1.0;
+    } else {   
+        etaH = 0.0;
     }
+
     return etaH;
 }
 
-/* Calculate eta_helium from Claeys+ 2014, appendix B. We have changed the mass accretion limits for
- * Piersanti+ 2014 ones. The different flashes regimes from Piersanti+ 2014 have been merged into one,
- * and the accumulation regime has been change so we can get double detonations. Finally, eta_KH04 has
- * also been updated with the accretion efficiency values from Piersanti+ 2014.
+/* Calculate eta_helium from Claeys+ 2014, appendix B. Similarly to CalculateEtaH
+ * above, this parameter depends on four regimes for the mass intake rate, distinguished
+ * here by logMdotUppHe, logMdotMidHe, and logMdotLowHe. In Claeys+ 2014, these thresholds
+ * are \dot{M}_{up}, \dot{M}_{cr,He}, and \dot{M}_{low}, respectively. 
  *
- * double CalculateEtaHe(const double p_LogMassRate)
+ * However, we have again updated the thresholds to those described in Piersanti+ 2014,
+ * table A1. The thresholds here are named by the boundaries RG/SS, SS/MF, and SF/Dt, 
+ * respectively (see text for details). Note that the different flashes regimes from 
+ * Piersanti+ 2014 have been merged into one, i.e we omit the MF/SF boundary, and 
+ * the accumulation regime has been change so we can get double detonations. Finally, 
+ * eta_KH04 has also been updated with the accretion efficiency values from Piersanti+ 2014.
  *
- * @param   [IN]    p_LogMassRate        Logarithm of the mass transfer rate (Msun/yr)
+ * double CalculateEtaHe(const double p_MassIntakeRate)
+ *
+ * @param   [IN]    p_MassIntakeRate     Mass intake rate onto the WD surface (Msun/yr)
  * @return                               eta_hydrogen, "helium accretion efficiency"
  */
 
-double WhiteDwarfs::CalculateEtaHe(const double p_LogMassRate) {
+double WhiteDwarfs::CalculateEtaHe(const double p_MassIntakeRate) {
     double etaHe = 0.0;
-    // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
-    double MdotCritHe = MT_LIMIT_CRIT_PIERSANTI_0 + MT_LIMIT_CRIT_PIERSANTI_1 * m_Mass;
-    double MdotLowHe = MT_LIMIT_STABLE_PIERSANTI_0 + MT_LIMIT_STABLE_PIERSANTI_1 * m_Mass;
-    double MdotAccumulation = MT_LIMIT_DET_PIERSANTI_0 + MT_LIMIT_DET_PIERSANTI_1 * m_Mass;
+    double logMassIntakeRate = log10(p_MassIntakeRate);
 
-    if (utils::Compare(p_LogMassRate, MdotCritHe) >= 0) {
-        etaHe = PPOW(10, MdotCritHe - p_LogMassRate);
-    } else if ((utils::Compare(p_LogMassRate, MdotCritHe) < 0) && (utils::Compare(p_LogMassRate, MdotLowHe) >= 0)) {
+    // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
+    // RTW: I swapped the Mid and Low here, need to check that this was correct!
+    double logMdotUppHe = MT_LIMIT_PIERSANTI_RG_SS_0 + MT_LIMIT_PIERSANTI_RG_SS_1 *m_Mass;
+    double logMdotMidHe = MT_LIMIT_PIERSANTI_SS_MF_0 + MT_LIMIT_PIERSANTI_SS_MF_1 *m_Mass;
+    double logMdotLowHe = MT_LIMIT_PIERSANTI_SF_Dt_0 + MT_LIMIT_PIERSANTI_SF_Dt_1 *m_Mass;
+
+    if (utils::Compare(logMassIntakeRate, logMdotUppHe) >= 0) {
+        etaHe = PPOW(10, logMdotUppHe - logMassIntakeRate);
+    } else if ((utils::Compare(logMassIntakeRate, logMdotUppHe) < 0) && (utils::Compare(logMassIntakeRate, logMdotMidHe) >= 0)) {
         etaHe = 1.0;
-    } else if ((utils::Compare(p_LogMassRate, MdotLowHe) < 0) && (utils::Compare(p_LogMassRate, MdotAccumulation) >= 0)) {
-        etaHe = CalculateEtaPTY(p_LogMassRate);
+    } else if ((utils::Compare(logMassIntakeRate, logMdotMidHe) < 0) && (utils::Compare(logMassIntakeRate, logMdotLowHe) >= 0)) {
+        etaHe = CalculateEtaPTY(p_MassIntakeRate);
     } else {
         etaHe = 1.0; // Modified so we can have double detonations
+                     // RTW what does this mean? Should this be 0.0?
     }
     return etaHe;
 }
 
 
 
-/* Calculate accretion efficiency as indicated in Piersanti+ 2014. Their recipe works
+/* Calculate accretion efficiency as indicated in Piersanti+ 2014, section A3. Their recipe works
  * for specific mass and Mdot values, so a better implementation requires interpolation and
  * extrapolation (specially towards the low-mass end). Right now, we just adopt a
  * piece-wise approach. Note that the authors also specify that this is based on the first
  * strong flash only, but we use it for all episodes.
  *
- * double CalculateEtaPTY(const double p_LogMassRate)
+ * double CalculateEtaPTY(const double p_MassIntakeRate)
  *
- * @param   [IN]    p_LogMassRate        log10 Mass transfer rate (Msun/yr)
+ * @param   [IN]    p_MassIntakeRate     Mass intake rate onto the WD surface (Msun/yr)
  * @return                               etaPTY, accretion efficency during the first stron helium flash, Piersanti+ 2014
  */
-double WhiteDwarfs::CalculateEtaPTY(const double p_LogMassRate) {
+double WhiteDwarfs::CalculateEtaPTY(const double p_MassIntakeRate) {
     double etaPTY;
-    double massRate = PPOW(10, p_LogMassRate); // The efficiency prescription uses plain mass rates, section A3 in Piersanti+ 2014.
+    double massIntakeRate        = p_MassIntakeRate;
+    double massIntakeRateSquared = p_MassIntakeRate*p_MassIntakeRate;
+    double massIntakeRateCubed   = p_MassIntakeRate*p_MassIntakeRate*p_MassIntakeRate;
+
     // Limits on each conditional statement come from masses from each model in Piersanti+ 2014. The final etaPTY value is based on table A3.
     if (utils::Compare(m_Mass, 0.6) <= 0) {
-        etaPTY = 6e-3 + 5.1e-2*massRate + 8.3e-3*PPOW(massRate, 2) - 3.317e-4*PPOW(massRate,3);
+        etaPTY = 6e-3 + 5.1e-2*massIntakeRate + 8.3e-3*massIntakeRateSquared - 3.317e-4*massIntakeRateCubed;
     } else if ((m_Mass <= 0.7) && (m_Mass > 0.6)) {
-        etaPTY = -3.5e-2 + 7.5e-2*massRate - 1.8e-3*PPOW(massRate, 2) + 3.266e-5*PPOW(massRate,3);
+        etaPTY = -3.5e-2 + 7.5e-2*massIntakeRate - 1.8e-3*massIntakeRateSquared + 3.266e-5*massIntakeRateCubed;
     } else if ((utils::Compare(m_Mass, 0.81) <= 0) && (utils::Compare(m_Mass, 0.7) > 0)) {
-        etaPTY = 9.3e-2 + 1.8e-2*massRate + 1.6e-3*PPOW(massRate, 2) - 4.111e-5*PPOW(massRate,3);
+        etaPTY = 9.3e-2 + 1.8e-2*massIntakeRate + 1.6e-3*massIntakeRateSquared - 4.111e-5*massIntakeRateCubed;
     } else if ((utils::Compare(m_Mass, 0.92) <= 0) && (utils::Compare(m_Mass, 0.81) > 0)) {
-        etaPTY = -7.59e-2 + 1.54e-2*massRate + 4e-4*PPOW(massRate, 2) - 5.905e-6*PPOW(massRate,3);
+        etaPTY = -7.59e-2 + 1.54e-2*massIntakeRate + 4e-4*massIntakeRateSquared - 5.905e-6*massIntakeRateCubed;
     } else {
-        etaPTY = -0.323 + 4.1e-2*massRate - 7e-4*PPOW(massRate, 2) + 4.733e-6*PPOW(massRate,3);
+        etaPTY = -0.323 + 4.1e-2*massIntakeRate - 7e-4*massIntakeRateSquared + 4.733e-6*massIntakeRateCubed;
     }
     return etaPTY;
 }

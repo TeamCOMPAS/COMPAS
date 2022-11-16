@@ -27,23 +27,17 @@ DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
                                                                                
     double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
     double fractionAccreted = 1.0;                                                          // accretion fraction - default=1.0
-    // RTW: I've moved the discussion on the correct fractionAccreted here.
-    // RTW: What should the fraction be here? Is this missing a CalculateMassAcceptance? A fraction of 1 seems suspiciously high                                                                                           
-    /* NRS: the literature has not explored what happenes to HeWDs accreting as much as the COWD case. 
-     * Using the COWD prescription with ONe WDs is "okay" as they cover a similar range in mass, 
-     * but all HeWDs are low mass and the only prescriptions I could find were from StarTrack, which basically motivate all of the following.
-     * One of my side-projects is to create a better prescription, but for now this should be used in the same way as the COWD function (I see that you are not returning the fraction value)
-     */
-    // RTW: I've moved around the functions for clarity. There is now a CalculateMassAcceptanceRate and a DetermineAccretionRegime in both HeWD and COWD (where ONeWD takes from COWD). 
-    // The accretion fraction should now be correctly outputed here, though I am still skeptical about setting the accretion fraction to 1. 
-    // I realize that this is currently possible for the other WD types as well, but I can't imagine that you would get fully conservative MT if,
-    // e.g, you had a giant donor losing its entire envelope on the giant's thermal timescale. 
                                                                                
     if (m_AccretionRegime == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES) { // Flashes restrict accumulation
         fractionAccreted = 0.0;
     }
 
+    // Acceptance rate is the specified fraction of the accretion rate, or Eddington limited, whichever is smaller
     acceptanceRate = p_DonorMassRate * fractionAccreted;
+    if (acceptanceRate < CalculateEddingtonCriticalRate()) {
+        acceptanceRate = CalculateEddingtonCriticalRate();
+        fractionAccreted = acceptanceRate/p_DonorMassRate;
+    }
 
     return std::make_tuple(acceptanceRate, fractionAccreted);
 }
@@ -60,19 +54,19 @@ DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
  * Hydrogen Accumulation
  * Note that we have merged the different flashes regimes from Piersanti+ 2014 into a single regime.
  *
- * ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate) 
+ * ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich, const double p_DonorMassLossRate) 
  *
- * @param   [IN]    p_HeRich                        Whether the accreted material is helium-rich or not
- * @param   [IN]    p_DonorThermalMassLossRate      Donor thermal mass loss rate, in units of Msol / Myr
- * @return                                          Current WD accretion regime
+ * @param   [IN]    p_HeRich             Whether the accreted material is helium-rich or not
+ * @param   [IN]    p_DonorMassRate      Donor mass loss rate, in units of Msol / Myr
+ * @return                               Current WD accretion regime
  */
 
-ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate) {
-    double Mdot = p_DonorThermalMassLossRate / MYR_TO_YEAR; // Accreted mass rate (M_sun/yr)
-    double logMdot = log10(Mdot);                           // Logarithm of the accreted mass rate (M_sun/yr)
+ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorMassRate) {
+    double Mdot = p_DonorMassRate / MYR_TO_YEAR;            // Accreted mass rate (M_sun/yr)
+    //double logMdot = log10(Mdot);                           // Logarithm of the accreted mass rate (M_sun/yr)
     ACCRETION_REGIME regime;
     if (p_HeRich) {
-        if (utils::Compare(logMdot, HELIUM_WHITE_DWARF_MCRIT) <= 0) {
+        if (utils::Compare(Mdot, HELIUM_WHITE_DWARF_MCRIT) <= 0) {
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR; // Could lead to Sub CH SN Ia
             double massSubCh = -4e8 * Mdot + 1.34; // Minimum mass for Sub-Ch Mass detonation. Eq 62, Belczynski+ 2008.
             if (utils::Compare(m_Mass, massSubCh) >= 0 ) {
@@ -95,8 +89,8 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
         }
     } 
     else {
-        double Mcrit = log10(m_l0Ritter * PPOW(m_Mass, m_lambdaRitter) / (m_XRitter * Q_HYDROGEN_BURNING)); // Eq. 60 in Belczynski+ 2008. 6e18 is the energy yield of H burning in ergs/g.
-        if (utils::Compare(logMdot, Mcrit) <= 0) {
+        double Mcrit = m_l0Ritter * PPOW(m_Mass, m_lambdaRitter) / (m_XRitter * Q_HYDROGEN_BURNING);        // Eq. 60 in Belczynski+ 2008. 6e18 is the energy yield of H burning in ergs/g.
+        if (utils::Compare(Mdot, Mcrit) <= 0) {
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES; // Flashes restrict accumulation
         } 
         else {

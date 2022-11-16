@@ -447,23 +447,23 @@ constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3;
 
 // Constants for WD evolution
 
-constexpr double HELIUM_WHITE_DWARF_MCRIT               = log10(2) - 8;                                             // Critical accretion rate for He WD accreting He-rich material. From Belczynski+ 2008, Mdot_crit2 in section 5.7.1.
+constexpr double HELIUM_WHITE_DWARF_MCRIT               = 2.0E-8;                                                   // Critical accretion rate for He WD accreting He-rich material. From Belczynski+ 2008, Mdot_crit2 in section 5.7.1.
 constexpr double MDOT_OFF_C                             = -5.688246139;                                             // From Wang+ 2017. Log( 2.05 x 10^-6).
 constexpr double MASS_DOUBLE_DETONATION_CO              = 0.9;                                                      // Minimum mass for detonation which would yield something similar to SN Ia. Ruiter+ 2014.
 constexpr double MASS_HELIUM_BURN                       = 0.35;                                                     // Minimum for HeMS burning
 constexpr double SHELL_CRIT                             = 0.05;                                                     // Minimum shell mass of He for detonation. Should be composed of helium (so, exclude burnt material), but not implemented yet. Ruiter+ 2014.
-constexpr double MT_LIMIT_CRIT_PIERSANTI_0              = -6.84;
-constexpr double MT_LIMIT_CRIT_PIERSANTI_1              = 1.349;
-constexpr double MT_LIMIT_STABLE_PIERSANTI_0            = -8.115;
-constexpr double MT_LIMIT_STABLE_PIERSANTI_1            = 2.29;
-constexpr double MT_LIMIT_DET_PIERSANTI_0               = -8.313;
-constexpr double MT_LIMIT_DET_PIERSANTI_1               = 1.018;
-constexpr double MT_LIMIT_STABLE_NOMOTO_0               = -9.21757267;
-constexpr double MT_LIMIT_STABLE_NOMOTO_1               = 3.57319872;
-constexpr double MT_LIMIT_STABLE_NOMOTO_2               = -1.2137735;
-constexpr double MT_LIMIT_CRIT_NOMOTO_0                 = -8.33017155;
-constexpr double MT_LIMIT_CRIT_NOMOTO_1                 = 2.88247131;
-constexpr double MT_LIMIT_CRIT_NOMOTO_2                 = -0.98023471;
+constexpr double MT_LIMIT_PIERSANTI_RG_SS_0             = -6.84;
+constexpr double MT_LIMIT_PIERSANTI_RG_SS_1             = 1.349;
+constexpr double MT_LIMIT_PIERSANTI_SS_MF_0             = -8.115;
+constexpr double MT_LIMIT_PIERSANTI_SS_MF_1             = 2.29;
+constexpr double MT_LIMIT_PIERSANTI_SF_Dt_0             = -8.313;
+constexpr double MT_LIMIT_PIERSANTI_SF_Dt_1             = 1.018;
+constexpr double MT_LIMIT_NOMOTO_REDGIANT_0             = -8.33017155;
+constexpr double MT_LIMIT_NOMOTO_REDGIANT_1             = 2.88247131;
+constexpr double MT_LIMIT_NOMOTO_REDGIANT_2             = -0.98023471;
+constexpr double MT_LIMIT_NOMOTO_STABLE_0               = -9.21757267;
+constexpr double MT_LIMIT_NOMOTO_STABLE_1               = 3.57319872;
+constexpr double MT_LIMIT_NOMOTO_STABLE_2               = -1.2137735;
 constexpr double Q_HYDROGEN_BURNING                     = 6.4E18 * MSOL_TO_G / (SECONDS_IN_YEAR * LSOL);            // 6.4E18 is the energy yield of H burning in erg/g as given in Nomoto+ 2007 (2007ApJ...663.1269N)
 
 // object types
