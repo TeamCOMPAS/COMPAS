@@ -4,13 +4,13 @@
 /* Calculate eta_hydrogen from Claeys+ 2014, appendix B. We have changed the mass accretion limits for
  * Nomoto+ 2007 ones, after applying a quadratic fit to cover the low-mass end.
  *
- * double CalculateetaH(const double p_LogMassRate)
+ * double CalculateEtaH(const double p_LogMassRate)
  *
  * @param   [IN]    p_LogMassRate        Logarithm of the mass transfer rate (Msun/yr)
  * @return                               eta_hydrogen, "hydrogen accretion efficiency"
  */
 
-double WhiteDwarfs::CalculateetaH(const double p_LogMassRate) {
+double WhiteDwarfs::CalculateEtaH(const double p_LogMassRate) {
     double etaH = 0.0;
     // The following coefficients in massTransfer limits come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
     double MdotCritH = MT_LIMIT_CRIT_NOMOTO_0 +  MT_LIMIT_CRIT_NOMOTO_1 * m_Mass +  MT_LIMIT_CRIT_NOMOTO_2 * m_Mass * m_Mass;
@@ -28,13 +28,13 @@ double WhiteDwarfs::CalculateetaH(const double p_LogMassRate) {
  * and the accumulation regime has been change so we can get double detonations. Finally, eta_KH04 has
  * also been updated with the accretion efficiency values from Piersanti+ 2014.
  *
- * double CalculateetaHe(const double p_LogMassRate)
+ * double CalculateEtaHe(const double p_LogMassRate)
  *
  * @param   [IN]    p_LogMassRate        Logarithm of the mass transfer rate (Msun/yr)
  * @return                               eta_hydrogen, "helium accretion efficiency"
  */
 
-double WhiteDwarfs::CalculateetaHe(const double p_LogMassRate) {
+double WhiteDwarfs::CalculateEtaHe(const double p_LogMassRate) {
     double etaHe = 0.0;
     // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
     double MdotCritHe = MT_LIMIT_CRIT_PIERSANTI_0 + MT_LIMIT_CRIT_PIERSANTI_1 * m_Mass;
@@ -46,7 +46,7 @@ double WhiteDwarfs::CalculateetaHe(const double p_LogMassRate) {
     } else if ((utils::Compare(p_LogMassRate, MdotCritHe) < 0) && (utils::Compare(p_LogMassRate, MdotLowHe) >= 0)) {
         etaHe = 1.0;
     } else if ((utils::Compare(p_LogMassRate, MdotLowHe) < 0) && (utils::Compare(p_LogMassRate, MdotAccumulation) >= 0)) {
-        etaHe = CalculateetaPTY(p_LogMassRate);
+        etaHe = CalculateEtaPTY(p_LogMassRate);
     } else {
         etaHe = 1.0; // Modified so we can have double detonations
     }
@@ -61,12 +61,12 @@ double WhiteDwarfs::CalculateetaHe(const double p_LogMassRate) {
  * piece-wise approach. Note that the authors also specify that this is based on the first
  * strong flash only, but we use it for all episodes.
  *
- * double CalculateetaPTY(const double p_LogMassRate)
+ * double CalculateEtaPTY(const double p_LogMassRate)
  *
  * @param   [IN]    p_LogMassRate        log10 Mass transfer rate (Msun/yr)
  * @return                               etaPTY, accretion efficency during the first stron helium flash, Piersanti+ 2014
  */
-double WhiteDwarfs::CalculateetaPTY(const double p_LogMassRate) {
+double WhiteDwarfs::CalculateEtaPTY(const double p_LogMassRate) {
     double etaPTY;
     double massRate = PPOW(10, p_LogMassRate); // The efficiency prescription uses plain mass rates, section A3 in Piersanti+ 2014.
     // Limits on each conditional statement come from masses from each model in Piersanti+ 2014. The final etaPTY value is based on table A3.

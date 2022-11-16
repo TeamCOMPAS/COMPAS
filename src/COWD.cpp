@@ -26,9 +26,9 @@ DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
     double logDonorMassRate = log10(p_DonorMassRate);
 
     if (p_IsHeRich) {
-        acceptanceRate = p_DonorMassRate * CalculateetaHe(logDonorMassRate);
+        acceptanceRate = p_DonorMassRate * CalculateEtaHe(logDonorMassRate);
     } else {
-        acceptanceRate = p_DonorMassRate * CalculateetaHe(logDonorMassRate) * CalculateetaH(logDonorMassRate); 
+        acceptanceRate = p_DonorMassRate * CalculateEtaHe(logDonorMassRate) * CalculateEtaH(logDonorMassRate); 
     }
     fractionAccreted = acceptanceRate / p_DonorMassRate;
 

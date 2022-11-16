@@ -58,11 +58,11 @@ protected:
 
             double      CalculateHeCoreMassOnPhase() const                          { return m_HeCoreMass; }                                                // NO-OP
 
-            double      CalculateetaH(const double p_LogMassRate);
+            double      CalculateEtaH(const double p_LogMassRate);
 
-            double      CalculateetaHe(const double p_LogMassRate);
+            double      CalculateEtaHe(const double p_LogMassRate);
 
-            double      CalculateetaPTY(const double p_MassRate);
+            double      CalculateEtaPTY(const double p_MassRate);
 
             double      Calculatel0Ritter() const                                   {return (m_Metallicity > 0.01) ? 1995262.3 : 31622.8; } // Luminosity constant which depends on metallicity in Ritter 1999, eq 10
 
