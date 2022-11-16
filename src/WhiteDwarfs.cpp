@@ -26,7 +26,7 @@ double WhiteDwarfs::CalculateEtaH(const double p_MassIntakeRate) {
     double logMdotLowH = MT_LIMIT_NOMOTO_STABLE_0   + MT_LIMIT_NOMOTO_STABLE_1   *m_Mass + MT_LIMIT_NOMOTO_STABLE_2   *m_Mass*m_Mass;
     if (utils::Compare(logMassIntakeRate, logMdotUppH) >= 0) {
         etaH = PPOW(10, logMdotUppH - logMassIntakeRate);
-    } else if ((utils::Compare(logMassIntakeRate, logMdotUppH) < 0) && (utils::Compare(logMassIntakeRate, logMdotLowH) >= 0)) {
+    } else if (utils::Compare(logMassIntakeRate, logMdotLowH) >= 0) {
         etaH = 1.0;
     } else {   
         etaH = 0.0;
@@ -65,13 +65,13 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassIntakeRate) {
 
     if (utils::Compare(logMassIntakeRate, logMdotUppHe) >= 0) {
         etaHe = PPOW(10, logMdotUppHe - logMassIntakeRate);
-    } else if ((utils::Compare(logMassIntakeRate, logMdotUppHe) < 0) && (utils::Compare(logMassIntakeRate, logMdotMidHe) >= 0)) {
+    } else if (utils::Compare(logMassIntakeRate, logMdotMidHe) >= 0) {
         etaHe = 1.0;
-    } else if ((utils::Compare(logMassIntakeRate, logMdotMidHe) < 0) && (utils::Compare(logMassIntakeRate, logMdotLowHe) >= 0)) {
+    } else if (utils::Compare(logMassIntakeRate, logMdotLowHe) >= 0) {
         etaHe = CalculateEtaPTY(p_MassIntakeRate);
     } else {
         etaHe = 1.0; // Modified so we can have double detonations
-                     // RTW what does this mean? Should this be 0.0?
+                     // RTW: what does this mean? Should this be 0.0?
     }
     return etaHe;
 }
@@ -98,11 +98,11 @@ double WhiteDwarfs::CalculateEtaPTY(const double p_MassIntakeRate) {
     // Limits on each conditional statement come from masses from each model in Piersanti+ 2014. The final etaPTY value is based on table A3.
     if (utils::Compare(m_Mass, 0.6) <= 0) {
         etaPTY = 6e-3 + 5.1e-2*massIntakeRate + 8.3e-3*massIntakeRateSquared - 3.317e-4*massIntakeRateCubed;
-    } else if ((m_Mass <= 0.7) && (m_Mass > 0.6)) {
+    } else if  (utils::Compare(m_Mass, 0.7) <= 0) {
         etaPTY = -3.5e-2 + 7.5e-2*massIntakeRate - 1.8e-3*massIntakeRateSquared + 3.266e-5*massIntakeRateCubed;
-    } else if ((utils::Compare(m_Mass, 0.81) <= 0) && (utils::Compare(m_Mass, 0.7) > 0)) {
+    } else if (utils::Compare(m_Mass, 0.81) <= 0) {
         etaPTY = 9.3e-2 + 1.8e-2*massIntakeRate + 1.6e-3*massIntakeRateSquared - 4.111e-5*massIntakeRateCubed;
-    } else if ((utils::Compare(m_Mass, 0.92) <= 0) && (utils::Compare(m_Mass, 0.81) > 0)) {
+    } else if (utils::Compare(m_Mass, 0.92) <= 0) { 
         etaPTY = -7.59e-2 + 1.54e-2*massIntakeRate + 4e-4*massIntakeRateSquared - 5.905e-6*massIntakeRateCubed;
     } else {
         etaPTY = -0.323 + 4.1e-2*massIntakeRate - 7e-4*massIntakeRateSquared + 4.733e-6*massIntakeRateCubed;
