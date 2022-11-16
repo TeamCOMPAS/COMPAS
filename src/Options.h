@@ -612,7 +612,7 @@ public:
             
             // member variables - alphabetically in groups (sort of...)
 
-            bool                                                m_AllowHeIgnitionAt95;                                          // Indicates whether naked He-cores can ignite within 5 percent of the canoncial mass at He-ignition
+            bool                                                m_AllowHeIgnitionAt95Percent;                                          // Indicates whether naked He-cores can ignite within 5 percent of the canoncial mass at He-ignition
             bool                                                m_AllowNonStrippedECSN;                                         // Indicates whether single stars should undergo ECSNe if they were not stripped by a companion
             bool                                                m_AllowRLOFAtBirth;                                             // Indicates whether binaries that have one or both stars in RLOF at birth are allowed to evolve
             bool                                                m_AllowTouchingAtBirth;                                         // Indicates whether binaries that are touching at birth are allowed to evolve
@@ -1122,7 +1122,7 @@ public:
 
     ADD_OPTIONS_TO_SYSPARMS                     AddOptionsToSysParms() const                                            { return m_CmdLine.optionValues.m_AddOptionsToSysParms.type; }
 
-    bool                                        AllowHeIgnitionAt95() const                                             { return OPT_VALUE("allow-helium-ignition-at-95-percent", m_AllowHeIgnitionAt95, true); }
+    bool                                        AllowHeIgnitionAt95Percent() const                                             { return OPT_VALUE("allow-helium-ignition-at-95-percent", m_AllowHeIgnitionAt95Percent, true); }
     bool                                        AllowNonStrippedECSN() const                                            { return OPT_VALUE("allow-non-stripped-ECSN", m_AllowNonStrippedECSN, true); }
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return OPT_VALUE("common-envelope-allow-main-sequence-survive", m_AllowMainSequenceStarToSurviveCommonEnvelope, true); }
     bool                                        AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() const               { return OPT_VALUE("common-envelope-allow-radiative-envelope-survive", m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope, true); }
