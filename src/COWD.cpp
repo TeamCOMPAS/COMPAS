@@ -23,12 +23,11 @@ DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
                                                                                
     double acceptanceRate   = 0.0;                                                       // Acceptance mass rate - default = 0.0
     double fractionAccreted = 0.0;                                                       // Accretion fraction - default = 0.0
-    double massIntakeRate = std::max(p_DonorMassRate, CalculateEddingtonCriticalRate()); // The incoming matter stream from the donor is Eddington limited
 
     if (p_IsHeRich) {
-        acceptanceRate = massIntakeRate * CalculateEtaHe(massIntakeRate);
+        acceptanceRate = p_DonorMassRate * CalculateEtaHe(p_DonorMassRate);
     } else {
-        acceptanceRate = massIntakeRate * CalculateEtaHe(massIntakeRate) * CalculateEtaH(massIntakeRate); 
+        acceptanceRate = p_DonorMassRate * CalculateEtaHe(p_DonorMassRate) * CalculateEtaH(p_DonorMassRate); 
     }
     fractionAccreted = acceptanceRate / p_DonorMassRate;
 

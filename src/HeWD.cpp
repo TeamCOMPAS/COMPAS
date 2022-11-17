@@ -1,17 +1,13 @@
 #include "HeWD.h"
 
-// RTW: What papers should be referenced here? Piersanti+ 2014 seems to only cover He accretion
 /* For HeWD, calculate:
  *
  *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
  *     (b) the retention efficiency parameter
  *
  *
- * For a given mass transfer rate, this function computes the amount of mass a WD would retain after
- * flashes, as given by appendix B of Claeys+ 2014. 
- * https://ui.adsabs.harvard.edu/abs/2014A%26A...563A..83C/abstract 
- *
- * For the specific case of He WDs, we follow the StarTrack prescription (Belczynski+ 2008, sect 5.7.1)
+ * For He WDs, we calculate the mass accretion rate following the 
+ * StarTrack prescription (Belczynski+ 2008, sect 5.7.1).
  * https://ui.adsabs.harvard.edu/abs/2008ApJS..174..223B/abstract
  *
  *
@@ -26,18 +22,10 @@ DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
     m_AccretionRegime = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
                                                                                
     double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
-    double fractionAccreted = 1.0;                                                          // accretion fraction - default=1.0
+    double fractionAccreted = 1.0;                                                          // accretion fraction - default = 1.0
                                                                                
     if (m_AccretionRegime == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES) { // Flashes restrict accumulation
         fractionAccreted = 0.0;
-    }
-
-    // Acceptance rate is the specified fraction of the accretion rate, or Eddington limited, whichever is smaller
-    acceptanceRate = p_DonorMassRate * fractionAccreted;
-    double eddingtonAccretionRate = CalculateEddingtonCriticalRate();
-    if (acceptanceRate < eddingtonAccretionRate) {
-        acceptanceRate = eddingtonAccretionRate;
-        fractionAccreted = acceptanceRate/p_DonorMassRate;
     }
 
     return std::make_tuple(acceptanceRate, fractionAccreted);
