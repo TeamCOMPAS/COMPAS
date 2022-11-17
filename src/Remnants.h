@@ -36,8 +36,6 @@ protected:
 
     double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                         { return 0.0; }                                                         // Should never be called...
 
-    double          CalculateEddingtonCriticalRate() const                                                      { return 2.08E-3 / 1.7 * m_Radius * MYR_TO_YEAR; }                      // Hurley+, 2002, Eq. (67)
-
     void            CalculateGBParams()                                                                         { GiantBranch::CalculateGBParams(); }                                   // Default to GiantBranch
 
     double          CalculateGyrationRadius() const                                                             { return 0.21; }                                                        // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.

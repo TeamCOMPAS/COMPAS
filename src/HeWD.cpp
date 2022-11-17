@@ -34,8 +34,9 @@ DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
 
     // Acceptance rate is the specified fraction of the accretion rate, or Eddington limited, whichever is smaller
     acceptanceRate = p_DonorMassRate * fractionAccreted;
-    if (acceptanceRate < CalculateEddingtonCriticalRate()) {
-        acceptanceRate = CalculateEddingtonCriticalRate();
+    double eddingtonAccretionRate = CalculateEddingtonCriticalRate()
+    if (acceptanceRate < eddingtonAccretionRate) {
+        acceptanceRate = eddingtonAccretionRate;
         fractionAccreted = acceptanceRate/p_DonorMassRate;
     }
 

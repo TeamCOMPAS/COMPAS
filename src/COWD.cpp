@@ -19,7 +19,7 @@
  */
 DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich) {
 
-    m_AccretionRegime = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate); // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
+    m_AccretionRegime = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate); 
                                                                                
     double acceptanceRate   = 0.0;                                                       // Acceptance mass rate - default = 0.0
     double fractionAccreted = 0.0;                                                       // Accretion fraction - default = 0.0

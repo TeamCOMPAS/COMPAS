@@ -404,7 +404,8 @@ protected:
 
     static  double              CalculateDynamicalTimescale_Static(const double p_Mass, const double p_Radius);
 
-    virtual double              CalculateEddingtonCriticalRate() const                                                  { return 2.08E-3 / 1.7 * m_Radius * MYR_TO_YEAR; }       // Hurley+, 2002, Eq. (67); should never be called...
+    // RTW TODO: generalize
+    virtual double              CalculateEddingtonCriticalRate() const                                                  { return 2.08E-3 / 1.7 * m_Radius * MYR_TO_YEAR * OPTIONS->EddingtonAccretionFactor() ; }                          // Hurley+, 2002, Eq. (67)
 
             double              CalculateGBRadiusXExponent() const;
 

@@ -38,8 +38,6 @@ public:
     ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
                                               const double p_DonorThermalMassLossRate);                                                                                                                                      // To check the current accretion regime and mass retention. Also activates flags for type change in some situations.
 
-    //void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate);
-
 protected:
 
     void Initialise() {

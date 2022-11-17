@@ -445,10 +445,10 @@ constexpr double MULLERMANDEL_KICKNS                    = 400.0;
 constexpr double MULLERMANDEL_KICKBH                    = 200.0;
 constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3; 
 
-// Constants for WD evolution
+// Constants for WD evolution // RTW: make these a bit more specific
 
 constexpr double HELIUM_WHITE_DWARF_MCRIT               = 2.0E-8;                                                   // Critical accretion rate for He WD accreting He-rich material. From Belczynski+ 2008, Mdot_crit2 in section 5.7.1.
-constexpr double MDOT_OFF_C                             = -5.688246139;                                             // From Wang+ 2017. Log( 2.05 x 10^-6).
+constexpr double MDOT_OFF_C                             = -5.688246139;                                             // From Wang+ 2017. Log( 2.05 x 10^-6). // RTW: Can we get a description of what the parameter means?
 constexpr double MASS_DOUBLE_DETONATION_CO              = 0.9;                                                      // Minimum mass for detonation which would yield something similar to SN Ia. Ruiter+ 2014.
 constexpr double MASS_HELIUM_BURN                       = 0.35;                                                     // Minimum for HeMS burning
 constexpr double SHELL_CRIT                             = 0.05;                                                     // Minimum shell mass of He for detonation. Should be composed of helium (so, exclude burnt material), but not implemented yet. Ruiter+ 2014.
@@ -538,7 +538,6 @@ enum class ERROR: int {
     GRID_OPTIONS_ERROR,                                             // grid file options error
     HIGH_TEFF_WINDS,                                                // winds being used at high temperature
     INVALID_DATA_TYPE,                                              // invalid data type
-    INVALID_EDDINGTION_FACTOR,                                      // invalid OPTION value: Eddington Accretion Factor eddingtonAccretionFactor < 0.0
     INVALID_ENVELOPE_TYPE,                                          // invalid envelope type
     INVALID_INITIAL_ATTRIBUTES,                                     // initial values of stellar or binary attributes are not valid - can't evolve star or binary
     INVALID_MASS_TRANSFER_DONOR,                                    // mass transfer from NS, BH or Massless Remnant
@@ -677,7 +676,6 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::GRID_OPTIONS_ERROR,                                    { ERROR_SCOPE::ALWAYS,              "Grid File Options error" }},
     { ERROR::HIGH_TEFF_WINDS,                                       { ERROR_SCOPE::ALWAYS,              "Winds being used at high temperature" }},
     { ERROR::INVALID_DATA_TYPE,                                     { ERROR_SCOPE::ALWAYS,              "Invalid data type" }},
-    { ERROR::INVALID_EDDINGTION_FACTOR,                             { ERROR_SCOPE::ALWAYS,              "Invalid OPTION value: Eddington Accretion Factor eddingtonAccretionFactor < 0.0" }},
     { ERROR::INVALID_ENVELOPE_TYPE,                                 { ERROR_SCOPE::ALWAYS,              "Invalid envelope type" }},
     { ERROR::INVALID_INITIAL_ATTRIBUTES,                            { ERROR_SCOPE::ALWAYS,              "Initial attributes are not valid - evolution not possible" }},
     { ERROR::INVALID_MASS_TRANSFER_DONOR,                           { ERROR_SCOPE::ALWAYS,              "Mass transfer from NS, BH, or Massless Remnant" }},
@@ -1440,7 +1438,6 @@ const std::initializer_list<STELLAR_TYPE> WHITE_DWARFS = {
 };
 
 
-// RTW: Do we want to include He white dwarfs? If they are donors, is the material really He-rich in the same sense as the non-degen stars?
 // (convenience) initializer list for He rich stellar types
 const std::initializer_list<STELLAR_TYPE> He_RICH_TYPES = {
     STELLAR_TYPE::NAKED_HELIUM_STAR_MS,

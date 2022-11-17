@@ -37,8 +37,6 @@ public:
     ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
                                               const double p_DonorThermalMassLossRate);
 
-    //void ResolveAccretionRegime(const ACCRETION_REGIME p_Regime, const double p_DonorThermalMassLossRate);
-
 protected:
 
     void Initialise() {

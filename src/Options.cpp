@@ -642,7 +642,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         // boolean options - alphabetically
 
         (
-            // RTW: Is 95 hard-coded? Do we want to add 'percent' to the Option-> call? Also, need to update the option string
             "allow-helium-ignition-at-95-percent",
             po::value<bool>(&p_Options->m_AllowHeIgnitionAt95Percent)->default_value(p_Options->m_AllowHeIgnitionAt95Percent)->implicit_value(true),
             ("Allow Helium to ignite in stripped stars with M > 0.95*(Mass of He core at tip of FGB) (default = " + std::string(p_Options->m_AllowHeIgnitionAt95Percent? "TRUE" : "FALSE") + ")").c_str()
@@ -2122,6 +2121,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_EccentricityDistributionMin < 0.0 || m_EccentricityDistributionMin > 1.0, "Minimum eccentricity (--eccentricity-min) must be between 0 and 1");
         COMPLAIN_IF(m_EccentricityDistributionMax < 0.0 || m_EccentricityDistributionMax > 1.0, "Maximum eccentricity (--eccentricity-max) must be between 0 and 1");
         COMPLAIN_IF(m_EccentricityDistributionMax <= m_EccentricityDistributionMin, "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)");
+
+        COMPLAIN_IF(m_EddingtonAccretionFactor < 0.0, "Eddington accretion factor (--eddington-accretion-factor) must be non-negative.");
 
         COMPLAIN_IF(m_GridStartLine < 0, "Grid file start line (--grid-start-line) < 0");
         COMPLAIN_IF(!DEFAULTED("grid-lines-to-process") && m_GridLinesToProcess < 1, "Grid file lines to process (--grid-lines-to-process) < 1");
