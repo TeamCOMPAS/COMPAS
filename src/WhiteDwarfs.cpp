@@ -200,9 +200,10 @@ STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
     if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
 
     m_Mass       = MECS_REM;                                                            // defined in constants.h
-    m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
-    m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);                
+    //m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
+    //m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);                
     // RTW: shouldn't these be done automatically if NS is returned?
+    // The only reason to leave these is if we want the Luminosity of the NS to reflect the WD age, instead of the new NS age (=0.0)
     
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
