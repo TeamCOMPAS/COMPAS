@@ -217,9 +217,7 @@ STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
 /*
  * Resolve Type 1a Supernova 
  *
- * A Type 1a SN results in a massless remnant, which we are 
- * here assuming to have a low mass equal to the ECSN
- * remnant NS mass, and no natal kick. 
+ * A Type 1a SN results in a massless remnant.
  *
  * STELLAR_TYPE ResolveSNIa() 
  *

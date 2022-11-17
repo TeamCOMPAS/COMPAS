@@ -445,10 +445,10 @@ constexpr double MULLERMANDEL_KICKNS                    = 400.0;
 constexpr double MULLERMANDEL_KICKBH                    = 200.0;
 constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3; 
 
-// Constants for WD evolution // RTW: make these a bit more specific
+// Constants for WD evolution // RTW: can these names be a bit more specific?
 
 constexpr double HELIUM_WHITE_DWARF_MCRIT               = 2.0E-8;                                                   // Critical accretion rate for He WD accreting He-rich material. From Belczynski+ 2008, Mdot_crit2 in section 5.7.1.
-constexpr double MDOT_OFF_C                             = -5.688246139;                                             // From Wang+ 2017. Log( 2.05 x 10^-6). // RTW: Can we get a description of what the parameter means?
+constexpr double LOG_MDOT_MIN_OFF_CENTER_IGNITION       = -5.688246139;                                             // Minimum log mass accretion rate for off center ignition in a CO WD. From Wang+ 2017. Log( 2.05 x 10^-6). 
 constexpr double MASS_DOUBLE_DETONATION_CO              = 0.9;                                                      // Minimum mass for detonation which would yield something similar to SN Ia. Ruiter+ 2014.
 constexpr double MASS_HELIUM_BURN                       = 0.35;                                                     // Minimum for HeMS burning
 constexpr double SHELL_CRIT                             = 0.05;                                                     // Minimum shell mass of He for detonation. Should be composed of helium (so, exclude burnt material), but not implemented yet. Ruiter+ 2014.

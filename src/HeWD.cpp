@@ -34,7 +34,7 @@ DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
 
     // Acceptance rate is the specified fraction of the accretion rate, or Eddington limited, whichever is smaller
     acceptanceRate = p_DonorMassRate * fractionAccreted;
-    double eddingtonAccretionRate = CalculateEddingtonCriticalRate()
+    double eddingtonAccretionRate = CalculateEddingtonCriticalRate();
     if (acceptanceRate < eddingtonAccretionRate) {
         acceptanceRate = eddingtonAccretionRate;
         fractionAccreted = acceptanceRate/p_DonorMassRate;
@@ -64,7 +64,6 @@ DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
 
 ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorMassRate) {
     double Mdot = p_DonorMassRate / MYR_TO_YEAR;            // Accreted mass rate (M_sun/yr)
-    //double logMdot = log10(Mdot);                           // Logarithm of the accreted mass rate (M_sun/yr)
     ACCRETION_REGIME regime;
     if (p_HeRich) {
         if (utils::Compare(Mdot, HELIUM_WHITE_DWARF_MCRIT) <= 0) {
