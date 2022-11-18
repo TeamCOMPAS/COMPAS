@@ -83,7 +83,7 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
         } 
         else {
             regime = ACCRETION_REGIME::HELIUM_STABLE_BURNING;
-            if ((utils::Compare(logMdot, LOG_MDOT_MIN_OFF_CENTER_IGNITION) > 0) && (utils::Compare(m_Mass, 1.33) > 0)) { // The 1.33 Msol value in the comparison is taken from Wang, Podsiadlowski & Han (2017), sect 3.2.
+            if ((utils::Compare(logMdot, LOG_MDOT_MIN_OFF_CENTER_IGNITION) > 0) && (utils::Compare(m_Mass, MASS_OFF_CENTER_IGNITION) > 0)) {
                 m_OffCenterIgnition = true;
             }
         }

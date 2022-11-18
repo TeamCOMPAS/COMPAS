@@ -1,7 +1,6 @@
 #include "HG.h"
 #include "HeMS.h"
 #include "HeWD.h"
-#include "GiantBranch.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //

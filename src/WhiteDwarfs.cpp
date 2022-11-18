@@ -60,7 +60,6 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
     double logMassTransferRate = log10(p_MassTransferRate);
 
     // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
-    // RTW: I swapped the Mid and Low here, need to check that this was correct!
     double logMdotUppHe = MT_LIMIT_PIERSANTI_RG_SS_0 + MT_LIMIT_PIERSANTI_RG_SS_1 *m_Mass;
     double logMdotMidHe = MT_LIMIT_PIERSANTI_SS_MF_0 + MT_LIMIT_PIERSANTI_SS_MF_1 *m_Mass;
     double logMdotLowHe = MT_LIMIT_PIERSANTI_SF_Dt_0 + MT_LIMIT_PIERSANTI_SF_Dt_1 *m_Mass;
