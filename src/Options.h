@@ -296,7 +296,6 @@ private:
 
         // trying to keep entries alphabetical so easier to find specific entries
 
-        "allow-helium-ignition-at-95-percent",
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation", 
@@ -612,7 +611,6 @@ public:
             
             // member variables - alphabetically in groups (sort of...)
 
-            bool                                                m_AllowHeIgnitionAt95Percent;                                          // Indicates whether naked He-cores can ignite within 5 percent of the canoncial mass at He-ignition
             bool                                                m_AllowNonStrippedECSN;                                         // Indicates whether single stars should undergo ECSNe if they were not stripped by a companion
             bool                                                m_AllowRLOFAtBirth;                                             // Indicates whether binaries that have one or both stars in RLOF at birth are allowed to evolve
             bool                                                m_AllowTouchingAtBirth;                                         // Indicates whether binaries that are touching at birth are allowed to evolve
@@ -877,6 +875,9 @@ public:
 	        double                                              m_ZetaMainSequence;
             double                                              m_ZetaRadiativeEnvelopeGiant;
 
+            // He ignition modifications
+            double                                              m_HeIgnitionPercentRGB;                                         // Indicates at what percent of the canonical He ignition mass at which a naked He-cores should ignite 
+                                                                                                                                         
 
             // Metallicity options
             double                                              m_Metallicity;                                                  // Metallicity
@@ -1122,7 +1123,6 @@ public:
 
     ADD_OPTIONS_TO_SYSPARMS                     AddOptionsToSysParms() const                                            { return m_CmdLine.optionValues.m_AddOptionsToSysParms.type; }
 
-    bool                                        AllowHeIgnitionAt95Percent() const                                             { return OPT_VALUE("allow-helium-ignition-at-95-percent", m_AllowHeIgnitionAt95Percent, true); }
     bool                                        AllowNonStrippedECSN() const                                            { return OPT_VALUE("allow-non-stripped-ECSN", m_AllowNonStrippedECSN, true); }
     bool                                        AllowMainSequenceStarToSurviveCommonEnvelope() const                    { return OPT_VALUE("common-envelope-allow-main-sequence-survive", m_AllowMainSequenceStarToSurviveCommonEnvelope, true); }
     bool                                        AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() const               { return OPT_VALUE("common-envelope-allow-radiative-envelope-survive", m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope, true); }
@@ -1197,6 +1197,9 @@ public:
 
     size_t                                      HDF5ChunkSize() const                                                   { return m_CmdLine.optionValues.m_HDF5ChunkSize; }
     size_t                                      HDF5BufferSize() const                                                  { return m_CmdLine.optionValues.m_HDF5BufferSize; }
+
+    double                                      HeIgnitionPercentRGB() const                                            { return OPT_VALUE("helium-ignition-percent-rgb", m_HeIgnitionPercentRGB, true); }
+
     bool                                        HMXRBinaries() const                                                    { return OPT_VALUE("hmxr-binaries", m_HMXRBinaries, false); }
 
     double                                      InitialMass() const                                                     { return OPT_VALUE("initial-mass", m_InitialMass, true); }
