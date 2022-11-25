@@ -464,7 +464,6 @@ void BinaryConstituentStar::InitialiseMassTransfer(const bool p_CommonEnvelope, 
 }
 
 
-
 /* 
  * Set class member variable m_MassTransferDiff based on the mass gained or lost during MT.
  *

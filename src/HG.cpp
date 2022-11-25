@@ -1123,7 +1123,7 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
         bool notIgnited = true;
         if (p_NoCheck) {
             double expectedMassAtHeliumIgnition = GiantBranch::CalculateCoreMassAtHeIgnition(m_Mass);
-            notIgnited = utils::Compare(m_HeCoreMass, expectedMassAtHeliumIgnition * OPTIONS->HeIgnitionPercentRGB()) < 0;              // modifier to allow He-core ignition at some percent of the mass at the tip of the RGB. See Han+ 2002 (2002MNRAS.336..449H, section 3.1) and D'Cruz+ 1996 (page 12).
+            notIgnited = utils::Compare(m_HeCoreMass, expectedMassAtHeliumIgnition * OPTIONS->HeIgnitionPercentRGB()/100.0) < 0;              // modifier to allow He-core ignition at some percent of the mass at the tip of the RGB. See Han+ 2002 (2002MNRAS.336..449H, section 3.1) and D'Cruz+ 1996 (page 12).
         }
 
         m_Mass       = std::min(m_CoreMass, m_Mass);

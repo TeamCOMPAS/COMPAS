@@ -1086,7 +1086,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "helium-ignition-percent-rgb",
             po::value<double>(&p_Options->m_HeIgnitionPercentRGB)->default_value(p_Options->m_HeIgnitionPercentRGB),                                                                          
-            ("Allow Helium to ignite in stripped stars with M > 0.95*(Mass of He core at tip of FGB) (default = " + std::to_string(p_Options->m_HeIgnitionPercentRGB) + ")").c_str()
+            ("Ignite Helium in stripped stars with M > X\% of the mass of He core at tip of FGB (default = " + std::to_string(p_Options->m_HeIgnitionPercentRGB) + ")").c_str()
         )
         (
             "initial-mass",                                            
