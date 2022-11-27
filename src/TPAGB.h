@@ -86,13 +86,21 @@ protected:
             STELLAR_TYPE    EvolveToNextPhase()                                                                     { return m_StellarType; }                                                                                                                                   // NO-OP
 
             bool            IsEndOfPhase() const                                                                    { return !ShouldEvolveOnPhase(); }                                                      // Phase ends when envelope loss or going supernova
-            bool            IsSupernova() const                                                                     { return (utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0); } // Going supernova if still has envelope and core mass large enough
+            bool            IsSupernova() const                                                                     {
+                
+                std::cout<<"ISSN: m_COCoreMass "<< m_COCoreMass << " m_GBParams[static_cast<int>(GBP::McSN)] " << m_GBParams[static_cast<int>(GBP::McSN)] << " m_Mass " << m_Mass << std::endl;
+                
+                return (utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0); } // Going supernova if still has envelope and core mass large enough
 
             STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
             void            ResolveHeliumFlash() { }                                                                                                                                                        // NO-OP
             STELLAR_TYPE    ResolveSkippedPhase()                                                                   { return m_StellarType; }                                                               // NO-OP
 
-            bool            ShouldEvolveOnPhase() const                                                             { return (utils::Compare(m_COCoreMass, std::min(m_GBParams[static_cast<int>(GBP::McSN)], m_Mass)) < 0); } // Evolve on TPAGB phase if envelope is not lost and not going supernova
+            bool            ShouldEvolveOnPhase() const                                                             {
+                
+                std::cout<<"SEOP: m_COCoreMass "<< m_COCoreMass << " m_GBParams[static_cast<int>(GBP::McSN)] " << m_GBParams[static_cast<int>(GBP::McSN)] << " m_Mass " << m_Mass << std::endl;
+                
+                return (utils::Compare(m_COCoreMass, std::min(m_GBParams[static_cast<int>(GBP::McSN)], m_Mass)) < 0); } // Evolve on TPAGB phase if envelope is not lost and not going supernova
             bool            ShouldSkipPhase() const                                                                 { return false; }                                                                       // Never skip TPAGB phase
 
 };
