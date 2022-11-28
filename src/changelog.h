@@ -947,8 +947,10 @@
 // 02.33.02      IM - Nov 27, 2022   - Defect repair:
 //                                      - Fixed ignored value of input radius when computing the thermal timescale, relevant if using Roche lobe radius instead (issue #853)
 //                                      - Cleaned code and comments around the use of MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE vs. C_FACTOR (issue #850)
+// 02.34.00      IM - Nov 28, 2022   - Enhancement:
+//                                      - Adding framework for Hirai & Mandel 2-stage common envelope formalism
+//                                          (placeholders for now -- will have identical results to default version)
 
-
-const std::string VERSION_STRING = "02.33.02";
+const std::string VERSION_STRING = "02.34.00";
 
 # endif // __changelog_h__

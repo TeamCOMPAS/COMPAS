@@ -307,6 +307,7 @@ private:
         "common-envelope-allow-main-sequence-survive",
         "common-envelope-alpha", 
         "common-envelope-alpha-thermal",
+        "common-envelope-formalism",
         "common-envelope-lambda",
         "common-envelope-lambda-multiplier",
         "common-envelope-lambda-prescription",
@@ -412,6 +413,7 @@ private:
         "chemically-homogeneous-evolution",
         "circularise-binary-during-mass-transfer",
         "common-envelope-allow-main-sequence-survive",
+        "common-envelope-formalism",
         "common-envelope-lambda-prescription",
         "common-envelope-mass-accretion-prescription",
 
@@ -859,8 +861,11 @@ public:
             double                                              m_CommonEnvelopeMassAccretionMax;
             double                                              m_CommonEnvelopeMassAccretionConstant;
 
+            // Common envelope formalism
+            ENUM_OPT<CE_FORMALISM>                              m_CommonEnvelopeFormalism;                                      // Formalism for CE evolution
+        
 	        // Common envelope lambda prescription
-	        ENUM_OPT<CE_LAMBDA_PRESCRIPTION>                    m_CommonEnvelopeLambdaPrescription;							    // Which prescription for CE lambda
+	        ENUM_OPT<CE_LAMBDA_PRESCRIPTION>                    m_CommonEnvelopeLambdaPrescription;							    // Prescription to use for CE lambda
 
 	        // Common envelope Nandez and Ivanova energy formalism
 	        bool                                                m_RevisedEnergyFormalismNandezIvanova;			                // Use the revised energy formalism from Nandez & Ivanova 2016 (default = false)
@@ -869,7 +874,7 @@ public:
 
 
             // Zetas
-            ENUM_OPT<ZETA_PRESCRIPTION>                         m_StellarZetaPrescription;                                 	    // Which prescription to use for calculating stellar zetas (default = SOBERMAN)
+            ENUM_OPT<ZETA_PRESCRIPTION>                         m_StellarZetaPrescription;                                 	    // Prescription to use for calculating stellar zetas (default = SOBERMAN)
 
 	        double                                              m_ZetaAdiabaticArbitrary;
 	        double                                              m_ZetaMainSequence;
@@ -1146,6 +1151,7 @@ public:
     
     double                                      CommonEnvelopeAlpha() const                                             { return OPT_VALUE("common-envelope-alpha", m_CommonEnvelopeAlpha, true); }
     double                                      CommonEnvelopeAlphaThermal() const                                      { return OPT_VALUE("common-envelope-alpha-thermal", m_CommonEnvelopeAlphaThermal, true); }
+    CE_FORMALISM                                CommonEnvelopeFormalism() const                                         { return OPT_VALUE("common-envelope-formalism", m_CommonEnvelopeFormalism.type, true); }
     double                                      CommonEnvelopeLambda() const                                            { return OPT_VALUE("common-envelope-lambda", m_CommonEnvelopeLambda, true); }
     double                                      CommonEnvelopeLambdaMultiplier() const                                  { return OPT_VALUE("common-envelope-lambda-multiplier", m_CommonEnvelopeLambdaMultiplier, true); }
     bool                                        CommonEnvelopeLambdaNanjingEnhanced() const                             { return OPT_VALUE("common-envelope-lambda-nanjing-enhanced", m_CommonEnvelopeLambdaNanjingEnhanced, true); }

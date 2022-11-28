@@ -1543,8 +1543,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_Star1->CalculateCommonEnvelopeValues();                                                                           // calculate common envelope values for star1
     m_Star2->CalculateCommonEnvelopeValues();                                                                           // calculate common envelope values for star2
 
-    double lambda1 = m_Star1->LambdaAtCEE();                                                                            // measures the central concentration of the star 1
-    double lambda2 = m_Star2->LambdaAtCEE();                                                                            // measures the central concentration of the star 2
+    double lambda1 = m_Star1->LambdaAtCEE();                                                                            // measures the envelope binding energy of star 1
+    double lambda2 = m_Star2->LambdaAtCEE();                                                                            // measures the envelope binding energy of star 2
 
     m_Star1->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 1
     m_Star2->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 2
