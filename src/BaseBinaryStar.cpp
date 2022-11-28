@@ -1856,7 +1856,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     double jLoss    = m_JLoss;                            		                                                                // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
 
     // Calculate accretion fraction if stable
-    // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
+    // This passes through the accretor's Roche lobe radius, just in case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE is used; otherwise, the radius input is ignored
     std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(),
                                                                                         m_Accretor->CalculateThermalMassAcceptanceRate(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL));
 
