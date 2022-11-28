@@ -150,11 +150,8 @@ STELLAR_TYPE COWD::EvolveToNextPhase() {
     if (m_OffCenterIgnition) {
         return STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }
-    else if (m_DoubleDetonation) {
-        return ResolveSNIa(); // RTW: Is this correct? 
-    }
-    else if (IsMassAboveChandrasekhar()) {
-        return ResolveSNIa(); // RTW: Is this correct? 
+    else if (m_DoubleDetonation || IsMassAboveChandrasekhar()) {
+        return ResolveSNIa(); 
     }
     else {                                         // Should not occur
         SHOW_WARN(ERROR::WARNING, "COWD told to evolve, but not how.");                                          // show warning
