@@ -1856,7 +1856,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     double jLoss    = m_JLoss;                            		                                                                // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
 
     // Calculate accretion fraction if stable
-    // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
+    // This passes through the accretor's Roche lobe radius, just in case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE is used; otherwise, the radius input is ignored
     std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(),
                                                                                         m_Accretor->CalculateThermalMassAcceptanceRate(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL));
 
@@ -1904,25 +1904,25 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             ? MT_TRACKING::STABLE_1_TO_2_SURV
             : MT_TRACKING::STABLE_2_TO_1_SURV; 
 
-        double massLossDonor;
+        double massDiffDonor;
         double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
         bool isEnvelopeRemoved = false;
 
-        if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
-            massLossDonor = -envMassDonor;                                                                                  // set donor mass loss to (negative of) the envelope mass
+        if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                    // donor has a core and an envelope
+            massDiffDonor = -envMassDonor;                                                                          // set donor mass loss to (negative of) the envelope mass
             isEnvelopeRemoved = true;
             
         }
-        else{                                                                                                           // donor has no envelope
-            massLossDonor = -MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
-            m_Donor->UpdateMinimumCoreMass();                                                                              // reset the minimum core mass following case A
+        else{                                                                                                       // donor has no envelope
+            massDiffDonor = -MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);           // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
+            m_Donor->UpdateMinimumCoreMass();                                                                       // reset the minimum core mass following case A
         } 
-        double massGainAccretor = -massLossDonor * m_FractionAccreted;                                              // set accretor mass gain to mass loss * conservativeness
+        double massGainAccretor = -massDiffDonor * m_FractionAccreted;                                              // set accretor mass gain to mass loss * conservativeness
 
-        m_Donor->SetMassTransferDiff(massLossDonor);                                                                // set new mass of donor
+        m_Donor->SetMassTransferDiff(massDiffDonor);                                                                // set new mass of donor
         m_Accretor->SetMassTransferDiff(massGainAccretor);                                                          // set new mass of accretor
 
-        aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), massLossDonor, *m_Accretor, m_FractionAccreted);       // calculate new orbit
+        aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), massDiffDonor, *m_Accretor, m_FractionAccreted);       // calculate new orbit
         m_aMassTransferDiff = aFinal - aInitial;                                                                    // set change in orbit (semi-major axis)
                                                                                                                     
         STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                     // donor stellar type before resolving envelope loss
