@@ -238,6 +238,10 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
     m_CEDetails.CoreMass   = CoreMass();
 
     m_CEDetails.lambda     = 0.0;                                               // default
+    
+    m_CEDetails.convectiveEnvelopeMass          = CalculateConvectiveEnvelopeMass();
+    m_CEDetails.radiativeIntershellMass         = Mass() - CoreMass() - m_CEDetails.convectiveEnvelopeMass;
+    m_CEDetails.convectiveEnvelopeBindingEnergy = 0.0;
 
     switch (OPTIONS->CommonEnvelopeLambdaPrescription()) {                      // which common envelope lambda prescription?
 
@@ -260,14 +264,20 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
             m_CEDetails.lambda        = Lambda_Kruckow();
             m_CEDetails.bindingEnergy = BindingEnergy_Kruckow();
             break;
+            
+        case CE_LAMBDA_PRESCRIPTION::DEWI:
+            m_CEDetails.lambda        = Lambda_Dewi();
+            m_CEDetails.bindingEnergy = BindingEnergy_Dewi();
+            break;
 
-        default:                                                                // unknown prescription     jR: todo: what about Dewi?
+        default:                                                                // unknown prescription
             SHOW_WARN(ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION, "Lambda = 0.0");   // show warning
     }
 
-    if (m_CEDetails.lambda < 0.00001) m_CEDetails.lambda = 0.0;                 // don't use compare here - seems like an epsilon already...  JR: todo: why the epsilon?
+    if (m_CEDetails.lambda < 0.00001) m_CEDetails.lambda = 0.0;
 
     m_CEDetails.lambda *= OPTIONS->CommonEnvelopeLambdaMultiplier();            // multiply by constant (program option, default = 1.0)
+    m_CEDetails.convectiveEnvelopeBindingEnergy = CalculateConvectiveEnvelopeBindingEnergy(CoreMass(), m_CEDetails.convectiveEnvelopeMass, Radius(), m_CEDetails.lambda);
 }
 
 

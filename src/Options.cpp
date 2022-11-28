@@ -446,6 +446,10 @@ void Options::OptionValues::Initialise() {
     m_CommonEnvelopeMassAccretionMax                                = 0.1;
     m_CommonEnvelopeMassAccretionConstant                           = 0.0;
 
+    // Common envelope formalism
+    m_CommonEnvelopeFormalism.type                                  = CE_FORMALISM::ENERGY;
+    m_CommonEnvelopeFormalism.typeString                            = CE_FORMALISM_LABEL.at(m_CommonEnvelopeFormalism.type);
+    
 	// Common envelope lambda prescription
 	m_CommonEnvelopeLambdaPrescription.type                         = CE_LAMBDA_PRESCRIPTION::NANJING;
 	m_CommonEnvelopeLambdaPrescription.typeString                   = CE_LAMBDA_PRESCRIPTION_LABEL.at(m_CommonEnvelopeLambdaPrescription.type);
@@ -1477,6 +1481,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Chemically Homogeneous Evolution (options: [NONE, OPTIMISTIC, PESSIMISTIC], default = " + p_Options->m_CheMode.typeString + ")").c_str()
         )
         (
+         "common-envelope-formalism",
+         po::value<std::string>(&p_Options->m_CommonEnvelopeFormalism.typeString)->default_value(p_Options->m_CommonEnvelopeFormalism.typeString),
+         ("Common envelope formalism (options: [ENERGY, TWO_STAGE], default = " + p_Options->m_CommonEnvelopeFormalism.typeString + ")").c_str()
+        )
+        (
             "common-envelope-lambda-prescription",                         
             po::value<std::string>(&p_Options->m_CommonEnvelopeLambdaPrescription.typeString)->default_value(p_Options->m_CommonEnvelopeLambdaPrescription.typeString),                                          
             ("CE lambda prescription (options: [LAMBDA_FIXED, LAMBDA_LOVERIDGE, LAMBDA_NANJING, LAMBDA_KRUCKOW, LAMBDA_DEWI], default = " + p_Options->m_CommonEnvelopeLambdaPrescription.typeString + ")").c_str()
@@ -1950,6 +1959,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution Option");
         }
 
+        if (!DEFAULTED("common-envelope-formalism")) {                                                                              // common envelope formalism
+            std::tie(found, m_CommonEnvelopeFormalism.type) = utils::GetMapKey(m_CommonEnvelopeFormalism.typeString, CE_FORMALISM_LABEL, m_CommonEnvelopeFormalism.type);
+            COMPLAIN_IF(!found, "Unknown CE Formalism");
+        }
+        
         if (!DEFAULTED("common-envelope-lambda-prescription")) {                                                                    // common envelope lambda prescription
             std::tie(found, m_CommonEnvelopeLambdaPrescription.type) = utils::GetMapKey(m_CommonEnvelopeLambdaPrescription.typeString, CE_LAMBDA_PRESCRIPTION_LABEL, m_CommonEnvelopeLambdaPrescription.type);
             COMPLAIN_IF(!found, "Unknown CE Lambda Prescription");
@@ -4119,6 +4133,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA                          : value = CommonEnvelopeAlpha();                                                break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA_THERMAL                  : value = CommonEnvelopeAlphaThermal();                                         break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_FORMALISM                      : value = static_cast<int>(CommonEnvelopeFormalism());                          break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA                         : value = CommonEnvelopeLambda();                                               break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_MULTIPLIER              : value = CommonEnvelopeLambdaMultiplier();                                     break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_PRESCRIPTION            : value = static_cast<int>(CommonEnvelopeLambdaPrescription());                 break;
