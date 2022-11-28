@@ -1390,28 +1390,13 @@ double BaseStar::InterpolateGe20QCrit( const QCRIT_PRESCRIPTION p_qCritPrescript
         qCritVectorLowerMass     = std::get<2>(radiiQCritsZetasFromGe20[lowerMassInd]);
         qCritVectorUpperMass     = std::get<2>(radiiQCritsZetasFromGe20[upperMassInd]);
     }
-    //else if (OPTIONS->StellarZetaPrescription() == ZETA_PRESCRIPTION::GE20) {
-    //    qCritVectorLowerMass     = std::get<3>(radiiQCritsZetasFromGe20[lowerMassInd]);
-    //    qCritVectorUpperMass     = std::get<3>(radiiQCritsZetasFromGe20[upperMassInd]);
-    //}
-    //else if (OPTIONS->StellarZetaPrescription() == ZETA_PRESCRIPTION::GE20_IC) {
-    //    qCritVectorLowerMass     = std::get<4>(radiiQCritsZetasFromGe20[lowerMassInd]);
-    //    qCritVectorUpperMass     = std::get<4>(radiiQCritsZetasFromGe20[upperMassInd]);
-    //}
-    //else { 
-    //    ERROR m_Error = ERROR::UNHANDLED_EXCEPTION;                                             // set error value
-    //    SHOW_ERROR(m_Error);                                                                    // warn that an error occurred
-    //    qCritVectorLowerMass     = std::get<4>(radiiQCritsZetasFromGe20[lowerMassInd]);         // set arbitrary values 
-    //    qCritVectorUpperMass     = std::get<4>(radiiQCritsZetasFromGe20[upperMassInd]);         // set arbitrary values 
-    //}
-
 
     // Get vector of radii from GE20_QCRIT_AND_ZETA for both lower and upper masses
     std::vector<int> indR0 = utils::binarySearch(logRadiusVectorLowerMass, log10(m_Radius));
     double lowerRadiusLowerMassInd = indR0[0];
     double upperRadiusLowerMassInd = indR0[1];
 
-    if (lowerRadiusLowerMassInd == -1) {                                                        // if radii are out of range, set to endpoints
+    if (lowerRadiusLowerMassInd == -1) {                                        // if radii are out of range, set to endpoints
         lowerRadiusLowerMassInd = 0; 
         upperRadiusLowerMassInd = 0; 
     }
@@ -1424,7 +1409,7 @@ double BaseStar::InterpolateGe20QCrit( const QCRIT_PRESCRIPTION p_qCritPrescript
     double lowerRadiusUpperMassInd = indR1[0];
     double upperRadiusUpperMassInd = indR1[1];
 
-    if (lowerRadiusUpperMassInd == -1) {                                                   // if radii are out of range, set to endpoints
+    if (lowerRadiusUpperMassInd == -1) {                                        // if radii are out of range, set to endpoints
         lowerRadiusUpperMassInd = 0; 
         upperRadiusUpperMassInd = 0; 
     }
@@ -1432,7 +1417,6 @@ double BaseStar::InterpolateGe20QCrit( const QCRIT_PRESCRIPTION p_qCritPrescript
         lowerRadiusUpperMassInd = logRadiusVectorUpperMass.size(); 
         upperRadiusUpperMassInd = logRadiusVectorUpperMass.size(); 
     }
-
 
     // Set the 4 boundary points for the 2D interpolation
     double qLowLow = qCritVectorLowerMass[lowerRadiusLowerMassInd];
@@ -1447,11 +1431,9 @@ double BaseStar::InterpolateGe20QCrit( const QCRIT_PRESCRIPTION p_qCritPrescript
     double lowerRadiusUpperMass = pow(10, logRadiusVectorUpperMass[lowerRadiusUpperMassInd]);
     double upperRadiusUpperMass = pow(10, logRadiusVectorUpperMass[upperRadiusUpperMassInd]);
 
-
     // Interpolate on the radii first, then the masses
     double qCritLowerMass = qLowLow + (upperRadiusLowerMass - m_Radius)/(upperRadiusLowerMass - lowerRadiusLowerMass) * (qLowUpp - qLowLow);
     double qCritUpperMass = qUppLow + (upperRadiusUpperMass - m_Radius)/(upperRadiusUpperMass - lowerRadiusUpperMass) * (qUppUpp - qUppLow);
-        
     double interpolatedQCrit = qCritLowerMass + (upperMass - m_Mass)/(upperMass - lowerMass) * (qCritUpperMass - qCritLowerMass);
 
     return interpolatedQCrit;
@@ -2228,10 +2210,14 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
  * @return                                      Thermal mass acceptance rate
  */
 double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) const {
-        
-    return OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
-            ? (m_Mass - m_CoreMass) / CalculateThermalTimescale(p_Radius)
-            : CalculateThermalMassLossRate();
+    
+    switch( OPTIONS->MassTransferThermallyLimitedVariation() ) {
+        case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE:
+            return (m_Mass - m_CoreMass) / CalculateThermalTimescale(p_Radius) ;            // uses provided accretor radius (should be Roche lobe radius in practice)
+        case MT_THERMALLY_LIMITED_VARIATION::C_FACTOR:
+        default:
+            return CalculateThermalMassLossRate();
+    }
 }
 
 
@@ -2623,7 +2609,7 @@ double BaseStar::CalculateNuclearTimescale_Static(const double p_Mass, const dou
  * The p_Radius parameter is to accommodate the call (of this function) in BaseBinaryStar::CalculateMassTransfer()
 */
 double BaseStar::CalculateThermalTimescale(const double p_Radius) const {   
-    return 31.4 * m_Mass * (m_Mass == m_CoreMass ? m_Mass : m_Mass - m_CoreMass) / (m_Radius * m_Luminosity); // G*Msol^2/(Lsol*Rsol) ~ 31.4 Myr (~ 30 Myr in Kalogera & Webbink)
+    return 31.4 * m_Mass * (m_Mass == m_CoreMass ? m_Mass : m_Mass - m_CoreMass) / (p_Radius * m_Luminosity); // G*Msol^2/(Lsol*Rsol) ~ 31.4 Myr (~ 30 Myr in Kalogera & Webbink)
 }
 
 
