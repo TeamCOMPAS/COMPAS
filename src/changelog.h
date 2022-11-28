@@ -950,6 +950,7 @@
 // 02.34.00      IM - Nov 28, 2022   - Enhancement:
 //                                      - Adding framework for Hirai & Mandel 2-stage common envelope formalism
 //                                          (placeholders for now -- will have identical results to default version)
+//                                      - Placed Dewi CE prescription on parity with others
 
 const std::string VERSION_STRING = "02.34.00";
 
