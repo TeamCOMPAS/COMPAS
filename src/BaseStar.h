@@ -150,7 +150,7 @@ public:
     
             double          CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda);
 
-            double          CalculateConvectiveEnvelopeMass() const                                             { return 0.0; }
+    virtual double          CalculateConvectiveEnvelopeMass() const                                             { return 0.0; }
 
     virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                 { return 0.0; }                                                     // Default is 0.0
                                                                                                                                                                                          
