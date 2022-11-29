@@ -274,7 +274,7 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
             SHOW_WARN(ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION, "Lambda = 0.0");   // show warning
     }
 
-    if (m_CEDetails.lambda < 0.00001) m_CEDetails.lambda = 0.0;
+    if (utils::Compare(m_CEDetails.lambda, 0.0) <= 0) m_CEDetails.lambda = 0.0; // force non-positive lambda to 0
 
     m_CEDetails.lambda *= OPTIONS->CommonEnvelopeLambdaMultiplier();            // multiply by constant (program option, default = 1.0)
     m_CEDetails.convectiveEnvelopeBindingEnergy = CalculateConvectiveEnvelopeBindingEnergy(CoreMass(), m_CEDetails.convectiveEnvelopeMass, Radius(), m_CEDetails.lambda);
