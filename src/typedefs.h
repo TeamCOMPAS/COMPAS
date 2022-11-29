@@ -159,6 +159,7 @@ typedef struct BindingEnergies {
 	double loveridge;                                       // Calculated using lambda = m_Lambdas.loveridge
 	double loveridgeWinds;                                  // Calculated using lambda = m_Lambdas.loveridgeWinds
 	double kruckow;                                         // Calculated using lambda = m_Lambdas.kruckow
+    double dewi;                                            // Calculated using lambda = m_Lambdas.dewi
 } BindingEnergiesT;
 
 
@@ -279,6 +280,9 @@ typedef struct StellarCEDetails {                      // Common Envelope detail
     double                 CoreMass;
     double                 HeCoreMass;
     double                 lambda;
+    double                 convectiveEnvelopeMass;              // for two-stage CE formalism
+    double                 radiativeIntershellMass;             // for two-stage CE formalism
+    double                 convectiveEnvelopeBindingEnergy;     // for two-stage CE formalism
 } StellarCEDetailsT; // was CommonEnvelopeDetailsT;
 
 

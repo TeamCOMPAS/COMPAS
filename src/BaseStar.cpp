@@ -2938,8 +2938,7 @@ void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
 
 
 /*
- *	Calculate the absolute value of the binding energy core to the envelope of the star
- *	ALEJANDRO - 08/03/2017
+ *	Calculate the absolute value of the binding energy of the envelope of the star
  *
  *
  * double CalculateBindingEnergy(const double p_CoreMass, const double p_EnvMass, const double p_Radius, const double p_Lambda)
@@ -2947,6 +2946,7 @@ void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
  * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
  * @param   [IN]    p_EnvMass                   Envelope mass of the star (Msol)
  * @param   [IN]    p_Radius                    Radius of the star (Rsol)
+ * @param   [IN]    p_Lambda                    Dimensionless parameter defining the binding energy
  * @return                                      Binding energy (erg)
  */
 double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_EnvMass, const double p_Radius, const double p_Lambda) const {
@@ -2958,7 +2958,7 @@ double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_
 	}
 	else if (utils::Compare(p_Lambda, 0.0) <= 0) {                                      // positive lambda?
         // Not necesarily zero as sometimes lambda is made 0, or maybe weird values for certain parameters of the fit. Not sure about the latter.
-//        SHOW_WARN(ERROR::LAMBDA_NOT_POSITIVE, "Binding energy = 0.0");                  // warn lambda not positive
+        SHOW_WARN(ERROR::LAMBDA_NOT_POSITIVE, "Binding energy = 0.0");                  // warn lambda not positive
 	}
 	else {                                                                              // calculate binding energy
         // convert to CGS where necessary
@@ -2993,6 +2993,21 @@ void BaseStar::CalculateBindingEnergies(const double p_CoreMass, const double p_
 	m_BindingEnergies.kruckow        = CalculateBindingEnergy(p_CoreMass, p_EnvMass, p_Radius, m_Lambdas.kruckow);
 }
 
+/*
+ * Calculate convective envelope binding energy for the two-stage Hirai & Mandel (2022) common envelope formalism
+ *
+ *
+ * double CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_lambda)
+ *
+ * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
+ * @param   [IN]    p_ConvectiveEnvelopeMass    Mass of the convective outer envelope  (Msol)
+ * @param   [IN]    p_Radius                    Radius of the star (Rsol)
+ * @param   [IN]    p_Lambda                    Dimensionless parameter defining the binding energy
+ * @return                                      Binding energy (erg)
+ */
+double BaseStar::CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda) {
+    return CalculateBindingEnergy(p_CoreMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda);
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
