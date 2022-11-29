@@ -135,7 +135,7 @@ Default = 1.0
 **--common-envelope-formalism** |br|
 CE formalism prescription. |br|
 Options: { ENERGY, TWO_STAGE } |br|
-``ENERGY`` is the standard alpha-lambda formlism; ``TWO_STAGE`` is the formalism of Hirai & Mandel (2022) |br| 
+``ENERGY`` is the standard alpha-lambda formalism; ``TWO_STAGE`` is the formalism of Hirai & Mandel (2022) |br| 
 Default = ENERGY
 
 **--common-envelope-lambda** |br|

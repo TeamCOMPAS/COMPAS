@@ -1563,13 +1563,13 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     }
     
     // Two-stage common envelope, Hirai & Mandel (2022)
-    if( OPTIONS->CommonEnvelopeFormalism() == CE_FORMALISM::TWO_STAGE ) {
-        double convectiveEnvelopeMass1 = m_Star1->CalculateConvectiveEnvelopeMass();
+    else if( OPTIONS->CommonEnvelopeFormalism() == CE_FORMALISM::TWO_STAGE ) {
+        double convectiveEnvelopeMass1  = m_Star1->CalculateConvectiveEnvelopeMass();
         double radiativeIntershellMass1 = m_MassEnv1 - convectiveEnvelopeMass1;
-        double endOfFirstStageMass1 = m_Mass1Final + radiativeIntershellMass1;
-        double convectiveEnvelopeMass2 = m_Star2->CalculateConvectiveEnvelopeMass();
+        double endOfFirstStageMass1     = m_Mass1Final + radiativeIntershellMass1;
+        double convectiveEnvelopeMass2  = m_Star2->CalculateConvectiveEnvelopeMass();
         double radiativeIntershellMass2 = m_MassEnv2 - convectiveEnvelopeMass2;
-        double endOfFirstStageMass2 = m_Mass2Final + radiativeIntershellMass2;
+        double endOfFirstStageMass2     = m_Mass2Final + radiativeIntershellMass2;
         
         // Stage 1: convective envelope removal on a dynamical timescale
         double k1            = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * convectiveEnvelopeMass1 / m_Star1->Radius();
@@ -1588,13 +1588,19 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         }
     }
     
+    else {                                                                                                              // Invalid CE formalism
+        SHOW_WARN_STATIC(ERROR::UNKNOWN_CE_FORMALISM,                                                                   // show warning
+                         "Orbital properties unchanged by CE",
+                         OBJECT_TYPE::BASE_BINARY_STAR,
+                         STELLAR_TYPE::BINARY_STAR);
+    }
+    
 
 	double rRLdfin1        = m_SemiMajorAxis * CalculateRocheLobeRadius_Static(m_Mass1Final, m_Mass2Final);             // Roche-lobe radius in AU after CEE, seen by star1
 	double rRLdfin2        = m_SemiMajorAxis * CalculateRocheLobeRadius_Static(m_Mass2Final, m_Mass1Final);             // Roche-lobe radius in AU after CEE, seen by star2
     double rRLdfin1Rsol    = rRLdfin1 * AU_TO_RSOL;                                                                     // Roche-lobe radius in Rsol after CEE, seen by star1
     double rRLdfin2Rsol    = rRLdfin2 * AU_TO_RSOL;                                                                     // Roche-lobe radius in Rsol after CEE, seen by star2
-    // We assume that a common envelope event (CEE) circularises the binary
-    m_Eccentricity      = 0.0;
+    m_Eccentricity         = 0.0;                                                                                       // We assume that a common envelope event (CEE) circularises the binary
 
     m_Star1->ResolveCommonEnvelopeAccretion(m_Mass1Final);                                                              // update star1's mass after accretion
     m_Star2->ResolveCommonEnvelopeAccretion(m_Mass2Final);                                                              // update star2's mass after accretion
