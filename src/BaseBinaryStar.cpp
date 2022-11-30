@@ -1945,24 +1945,24 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             ? MT_TRACKING::STABLE_1_TO_2_SURV
             : MT_TRACKING::STABLE_2_TO_1_SURV; 
 
-        double massLossDonor;
+        double massDiffDonor;
         double envMassDonor  = m_Donor->Mass() - m_Donor->CoreMass();
         bool isEnvelopeRemoved = false;
 
         if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                        // donor has a core and an envelope
-            massLossDonor = -envMassDonor;                                                                                  // set donor mass loss to (negative of) the envelope mass
+            massDiffDonor = -envMassDonor;                                                                                  // set donor mass loss to (negative of) the envelope mass
             isEnvelopeRemoved = true;
         }
         else{                                                                                                           // donor has no envelope
-            massLossDonor = -MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
+            massDiffDonor = -MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                  // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
             m_Donor->UpdateMinimumCoreMass();                                                                              // reset the minimum core mass following case A
         } 
-        double massGainAccretor = -massLossDonor * m_FractionAccreted;                                              // set accretor mass gain to mass loss * conservativeness
+        double massGainAccretor = -massDiffDonor * m_FractionAccreted;                                              // set accretor mass gain to mass loss * conservativeness
 
-        m_Donor->SetMassTransferDiff(massLossDonor);                                                                // set new mass of donor
+        m_Donor->SetMassTransferDiff(massDiffDonor);                                                                // set new mass of donor
         m_Accretor->SetMassTransferDiff(massGainAccretor);                                                          // set new mass of accretor
 
-        aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), massLossDonor, *m_Accretor, m_FractionAccreted);       // calculate new orbit
+        aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), massDiffDonor, *m_Accretor, m_FractionAccreted);       // calculate new orbit
         m_aMassTransferDiff = aFinal - aInitial;                                                                    // set change in orbit (semi-major axis)
                                                                                                                     
         STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                     // donor stellar type before resolving envelope loss
