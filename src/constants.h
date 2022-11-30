@@ -1199,7 +1199,7 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 // The values here for SN_EVENT are powers of 2 so that they can be used in a bit map
 // and manipulated with bit-wise logical operators
 //
-// Ordinarily we might expect that an SN event could be only one of CCSN, ECSN, PISN, PPISN, USSN, AIC, or SNIA
+// Ordinarily we might expect that an SN event could be only one of CCSN, ECSN, PISN, PPISN, USSN, AIC, SNIA, or DD
 // Note that the CCSN value here replaces the SN value in the legacy code
 // The legacy code implemented these values as boolean flags, and the SN flag was always set when
 // the uSSN flag was set (but not the converse).  In the legacy code when the ECSN flag was set 
@@ -1212,6 +1212,8 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 // time - necessary for the code flow (from the legacy code) - which we should probably one
 // day look at and rewrite).
 //
+// DD stands for double detonation
+//
 // A convenience function has been provided in utils.cpp to interpret the bit map (utils::SNEventType()).
 // Given an SN_EVENT bitmap (current or past), it returns (in priority order):
 //     
@@ -1222,6 +1224,7 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 //    SN_EVENT::USSN  iff USSN  bit is set
 //    SN_EVENT::AIC   iff AIC   bit is set
 //    SN_EVENT::SNIA  iff SNIA  bit is set
+//    SN_EVENT::DD    iff DD    bit is set
 //    SN_EVENT::NONE  otherwise
 //
 enum class SN_EVENT: int { 
@@ -1233,6 +1236,7 @@ enum class SN_EVENT: int {
     USSN         = 16,
     AIC          = 32,
     SNIA         = 64,
+    DD           = 128,
 };
 ENABLE_BITMASK_OPERATORS(SN_EVENT);
 
@@ -1245,6 +1249,7 @@ const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
     { SN_EVENT::USSN,         "Ultra Stripped Supernova" },
     { SN_EVENT::AIC,          "Accretion-Induced Collapse" }, 
     { SN_EVENT::SNIA,         "Supernova Type Ia" }, 
+    { SN_EVENT::DD,           "Double detonation" }, 
 };
 
 

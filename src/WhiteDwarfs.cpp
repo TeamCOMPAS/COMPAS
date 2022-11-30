@@ -243,4 +243,30 @@ STELLAR_TYPE WhiteDwarfs::ResolveSNIa() {
 }
 
 
+/*
+ * Resolve Double Detonation     
+ *
+ * A double detonation results in a massless remnant.
+ *
+ * STELLAR_TYPE ResolveDD() 
+ *
+ * @return                                      Stellar type of remnant (STELLAR_TYPE::MASSLESS_REMNANT if SN, otherwise current type)
+ */
+STELLAR_TYPE WhiteDwarfs::ResolveDD() { 
+
+    if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
+
+    m_Mass       = 0.0;
+    m_Radius     = 0.0;
+    m_Luminosity = 0.0;
+    m_Age        = 0.0;
+    
+    m_SupernovaDetails.drawnKickMagnitude = 0.0;
+    m_SupernovaDetails.kickMagnitude      = 0.0;
+
+    SetSNCurrentEvent(SN_EVENT::DD);                                                  // SN Type Ia happening now
+    SetSNPastEvent(SN_EVENT::DD);                                                     // ... and will be a past event
+
+    return STELLAR_TYPE::MASSLESS_REMNANT;
+}
 
