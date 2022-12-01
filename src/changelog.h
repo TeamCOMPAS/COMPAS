@@ -951,7 +951,17 @@
 //                                      - Adding framework for Hirai & Mandel 2-stage common envelope formalism
 //                                          (placeholders for now -- will have identical results to default version)
 //                                      - Placed Dewi CE prescription on parity with others
+// 02.35.00     NR,RTW - Dec 1, 2022 - Enhancement:
+//                                      - Added functionality for WDs to accrete in different regimes. 
+//                                          - This applies to each WD subtype individually, though there is some overlap between COWDs and ONeWDs.
+//                                          - Also involves tracking the WD shell mass, to account for shell burning that later increases the WD mass.
+//                                          - Includes possible instability, and merger if the donor is a giant, as well as new SN options, 
+//                                          - AIC (accretion induced collapse), SNIA (Type Ia), and DD (double detonation). 
+//                                      - Tangential but related changes:
+//                                          - Cleaned up the call to EddingtonCriticalRate, puttting it in BaseStar along with the optional prefactor.
+//                                          - Moved NS radius and luminosity calls into NS.h from elsewhere in the code.
 
-const std::string VERSION_STRING = "02.34.00";
+
+const std::string VERSION_STRING = "02.35.00";
 
 # endif // __changelog_h__
