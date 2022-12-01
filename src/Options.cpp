@@ -476,8 +476,6 @@ void Options::OptionValues::Initialise() {
     m_MetallicityDistributionMin                                    = MINIMUM_METALLICITY;
     m_MetallicityDistributionMax                                    = MAXIMUM_METALLICITY;
 
-    // Percent up the RSG Branch at which to ignite He
-    m_HeIgnitionPercentRGB                                          = 100;
 
     // Neutron star equation of state
     m_NeutronStarEquationOfState.type                               = NS_EOS::SSE;
@@ -1087,11 +1085,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Fix dimensionless kick magnitude uk to this value (default = " + std::to_string(p_Options->m_FixedUK) + ", -ve values false, +ve values true)").c_str()
         )
 
-        (
-            "helium-ignition-percent-rgb",
-            po::value<double>(&p_Options->m_HeIgnitionPercentRGB)->default_value(p_Options->m_HeIgnitionPercentRGB),                                                                          
-            ("Ignite Helium in stripped stars with M > X\% of the mass of He core at tip of FGB (default = " + std::to_string(p_Options->m_HeIgnitionPercentRGB) + ")").c_str()
-        )
         (
             "initial-mass",                                            
             po::value<double>(&p_Options->m_InitialMass)->default_value(p_Options->m_InitialMass),                                                                          

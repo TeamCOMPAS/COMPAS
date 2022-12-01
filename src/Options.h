@@ -880,9 +880,6 @@ public:
 	        double                                              m_ZetaMainSequence;
             double                                              m_ZetaRadiativeEnvelopeGiant;
 
-            // He ignition modifications
-            double                                              m_HeIgnitionPercentRGB;                                         // Indicates at what percent of the canonical He ignition mass at which a naked He-cores should ignite 
-                                                                                                                                         
 
             // Metallicity options
             double                                              m_Metallicity;                                                  // Metallicity
@@ -1203,9 +1200,6 @@ public:
 
     size_t                                      HDF5ChunkSize() const                                                   { return m_CmdLine.optionValues.m_HDF5ChunkSize; }
     size_t                                      HDF5BufferSize() const                                                  { return m_CmdLine.optionValues.m_HDF5BufferSize; }
-
-    double                                      HeIgnitionPercentRGB() const                                            { return OPT_VALUE("helium-ignition-percent-rgb", m_HeIgnitionPercentRGB, true); }
-
     bool                                        HMXRBinaries() const                                                    { return OPT_VALUE("hmxr-binaries", m_HMXRBinaries, false); }
 
     double                                      InitialMass() const                                                     { return OPT_VALUE("initial-mass", m_InitialMass, true); }

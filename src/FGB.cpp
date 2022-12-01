@@ -1,7 +1,6 @@
 #include "FGB.h"
 #include "HeMS.h"
 #include "HeWD.h"
-#include "GiantBranch.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -177,18 +176,13 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {                                      // Envelope loss
-        bool notIgnited = true;
-        if (p_NoCheck) {
-            double expectedMassAtHeliumIgnition = GiantBranch::CalculateCoreMassAtHeIgnition(m_Mass);
-            notIgnited = utils::Compare(m_HeCoreMass, expectedMassAtHeliumIgnition * OPTIONS->HeIgnitionPercentRGB()/100.0) < 0;              // modifier to allow He-core ignition at some percent of the mass at the tip of the RGB. See Han+ 2002 (2002MNRAS.336..449H, section 3.1) and D'Cruz+ 1996 (page 12).
-        }
 
         m_Mass      = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_HeCoreMass;
         m_Mass       = m_CoreMass;
         m_COCoreMass = 0.0;
         
-        if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0 && notIgnited) {                                       // Star evolves to Helium White Dwarf
+        if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {                                       // Star evolves to Helium White Dwarf
 
             stellarType  = STELLAR_TYPE::HELIUM_WHITE_DWARF;
 
