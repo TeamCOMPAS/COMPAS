@@ -127,6 +127,7 @@ bool HeWD::IsSupernova() const {
  */
 STELLAR_TYPE HeWD::EvolveToNextPhase() {
     if (m_ShouldRejuvenate) {
+        // RTW: Do we need to add other calls here, e.g to the Radius, Luminosity, Age, or Tau of the HeMS star?
         return STELLAR_TYPE::NAKED_HELIUM_STAR_MS; 
     }
     else if (m_IsSubChandrasekharTypeIa) {         // Currently, assume a Type Ia from a HeWD is the same as other WDs. May want to vary in the future
