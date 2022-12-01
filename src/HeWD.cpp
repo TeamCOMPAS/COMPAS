@@ -54,7 +54,7 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
     double Mdot = p_DonorMassRate / MYR_TO_YEAR;            // Accreted mass rate (M_sun/yr)
     ACCRETION_REGIME regime;
     if (p_HeRich) {
-        if (utils::Compare(Mdot, HELIUM_WHITE_DWARF_MCRIT) <= 0) {
+        if (utils::Compare(Mdot, HEWD_HE_MDOT_CRIT) <= 0) {
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR; // Could lead to Sub CH SN Ia
             double massSubCh = -4e8 * Mdot + 1.34; // Minimum mass for Sub-Ch Mass detonation. Eq 62, Belczynski+ 2008.
             if (utils::Compare(m_Mass, massSubCh) >= 0 ) {
@@ -63,10 +63,10 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
         } 
         else {
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_IGNITION; // Could lift degeneracy and evolve into He MS. Requires minimum mass ! on top of the shell size
-            if (utils::Compare(m_Mass, MASS_HELIUM_BURN) >= 0) {
+            if (utils::Compare(m_Mass, HEWD_MINIMUM_MASS_IGNITION) >= 0) {
                 if (utils::Compare(Mdot, 1.64e-6) < 0) { // Accretion limit from eq 61, Belczynski+ 2008.
-                    double shellCrit = -7.8e-4 * Mdot + 1.34; // Minimum shell mass of He for detonation. Eq 61, Belczynski+ 2008. This helium should not be burnt, but not implemented this yet. Ruiter+ 2014.
-                    if (utils::Compare(m_HeShell, shellCrit) >= 0) {
+                    double mCritHeShell = -7.8e-4 * Mdot + 1.34; // Minimum shell mass of He for detonation. Eq 61, Belczynski+ 2008. This helium should not be burnt, but not implemented this yet. Ruiter+ 2014.
+                    if (utils::Compare(m_HeShell, mCritHeShell) >= 0) {
                         m_ShouldRejuvenate = true;
                     }
                 } 

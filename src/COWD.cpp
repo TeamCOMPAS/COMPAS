@@ -63,9 +63,9 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
 
     if (p_HeRich) {
         // The following coefficients in logMassTransfer limits come from table A1 in Piersanti+ 2014.
-        double logMassTransferCrit       = MT_LIMIT_PIERSANTI_RG_SS_0 + MT_LIMIT_PIERSANTI_RG_SS_1 *m_Mass;
-        double logMassTransferStable     = MT_LIMIT_PIERSANTI_SS_MF_0 + MT_LIMIT_PIERSANTI_SS_MF_1 *m_Mass; // Piersanti+2014 has several Flashes regimes. Here we group them into one.
-        double logMassTransferDetonation = MT_LIMIT_PIERSANTI_SF_Dt_0 + MT_LIMIT_PIERSANTI_SF_Dt_1 *m_Mass; // Critical value for double detonation regime in Piersanti+ 2014
+        double logMassTransferCrit       = WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0   + WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1 *m_Mass;
+        double logMassTransferStable     = WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_0   + WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_1 *m_Mass; // Piersanti+2014 has several Flashes regimes. Here we group them into one.
+        double logMassTransferDetonation = WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_0   + WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_1 *m_Mass; // Critical value for double detonation regime in Piersanti+ 2014
         if (utils::Compare(logMdot, logMassTransferStable) < 0) {
             if (utils::Compare(logMdot, logMassTransferDetonation) > 0) {
                 regime = ACCRETION_REGIME::HELIUM_FLASHES;
@@ -73,7 +73,7 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
             else {
                 regime = ACCRETION_REGIME::HELIUM_ACCUMULATION;
                 m_DoubleDetonation = true;
-                if ((utils::Compare(m_Mass, MASS_DOUBLE_DETONATION_CO) >= 0) && (utils::Compare(m_HeShell, SHELL_CRIT) >= 0)) {
+                if ((utils::Compare(m_Mass, MASS_DOUBLE_DETONATION_CO) >= 0) && (utils::Compare(m_HeShell, WD_HE_SHELL_MCRIT_DETONATION) >= 0)) {
                     // RTW: TODO?
                 }
             }
@@ -83,15 +83,15 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
         } 
         else {
             regime = ACCRETION_REGIME::HELIUM_STABLE_BURNING;
-            if ((utils::Compare(logMdot, LOG_MDOT_MIN_OFF_CENTER_IGNITION) > 0) && (utils::Compare(m_Mass, MASS_OFF_CENTER_IGNITION) > 0)) {
+            if ((utils::Compare(logMdot, COWD_LOG_MDOT_MIN_OFF_CENTER_IGNITION) > 0) && (utils::Compare(m_Mass, COWD_MASS_MIN_OFF_CENTER_IGNITION) > 0)) {
                 m_OffCenterIgnition = true;
             }
         }
     } 
     else {
         // The following coefficients in logMassTransfer limits come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
-        double logMassTransferCrit   = MT_LIMIT_NOMOTO_REDGIANT_0 + MT_LIMIT_NOMOTO_REDGIANT_1 *m_Mass + MT_LIMIT_NOMOTO_REDGIANT_2 *m_Mass*m_Mass;
-        double logMassTransferStable =  MT_LIMIT_NOMOTO_STABLE_0  + MT_LIMIT_NOMOTO_STABLE_1   *m_Mass + MT_LIMIT_NOMOTO_STABLE_2   *m_Mass*m_Mass;
+        double logMassTransferCrit   = WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0 + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1 *m_Mass + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2 *m_Mass*m_Mass;
+        double logMassTransferStable =  WD_LOG_MT_LIMIT_NOMOTO_STABLE_0  + WD_LOG_MT_LIMIT_NOMOTO_STABLE_1   *m_Mass + WD_LOG_MT_LIMIT_NOMOTO_STABLE_2   *m_Mass*m_Mass;
         if (utils::Compare(logMdot, logMassTransferStable) < 0) {
             regime = ACCRETION_REGIME::HYDROGEN_FLASHES;
         } 

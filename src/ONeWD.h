@@ -53,8 +53,6 @@ protected:
 
             double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }        // Use class member variables
 
-            // RTW: Is the condition for SN the same for COWDs and ONeWDs?
-            // What happens if an ONeWD experiences OffCenterIgnition?
             STELLAR_TYPE    EvolveToNextPhase();
             bool            IsSupernova() const;                                             
             bool            ShouldEvolveOnPhase();                                                  

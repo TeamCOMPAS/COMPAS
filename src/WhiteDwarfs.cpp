@@ -22,8 +22,8 @@ double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
     double logMassTransferRate = log10(p_MassTransferRate);
 
     // The following coefficients come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
-    double logMdotUppH = MT_LIMIT_NOMOTO_REDGIANT_0 + MT_LIMIT_NOMOTO_REDGIANT_1 *m_Mass + MT_LIMIT_NOMOTO_REDGIANT_2 *m_Mass*m_Mass; 
-    double logMdotLowH = MT_LIMIT_NOMOTO_STABLE_0   + MT_LIMIT_NOMOTO_STABLE_1   *m_Mass + MT_LIMIT_NOMOTO_STABLE_2   *m_Mass*m_Mass;
+    double logMdotUppH = WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0   + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1 *m_Mass   + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2 *m_Mass*m_Mass; 
+    double logMdotLowH = WD_LOG_MT_LIMIT_NOMOTO_STABLE_0     + WD_LOG_MT_LIMIT_NOMOTO_STABLE_1   *m_Mass   + WD_LOG_MT_LIMIT_NOMOTO_STABLE_2   *m_Mass*m_Mass;
     if (utils::Compare(logMassTransferRate, logMdotUppH) >= 0) {
         etaH = PPOW(10, logMdotUppH - logMassTransferRate);
     } 
@@ -60,9 +60,9 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
     double logMassTransferRate = log10(p_MassTransferRate);
 
     // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
-    double logMdotUppHe = MT_LIMIT_PIERSANTI_RG_SS_0 + MT_LIMIT_PIERSANTI_RG_SS_1 *m_Mass;
-    double logMdotMidHe = MT_LIMIT_PIERSANTI_SS_MF_0 + MT_LIMIT_PIERSANTI_SS_MF_1 *m_Mass;
-    double logMdotLowHe = MT_LIMIT_PIERSANTI_SF_Dt_0 + MT_LIMIT_PIERSANTI_SF_Dt_1 *m_Mass;
+    double logMdotUppHe = WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0 + WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1 *m_Mass;
+    double logMdotMidHe = WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_0 + WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_1 *m_Mass;
+    double logMdotLowHe = WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_0 + WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_1 *m_Mass;
 
     if (utils::Compare(logMassTransferRate, logMdotUppHe) >= 0) {
         etaHe = PPOW(10, logMdotUppHe - logMassTransferRate);
