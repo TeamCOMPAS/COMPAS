@@ -46,6 +46,7 @@ public:
             double              BindingEnergy_Loveridge() const                                 { return m_BindingEnergies.loveridge; }
             double              BindingEnergy_LoveridgeWinds() const                            { return m_BindingEnergies.loveridgeWinds; }
             double              BindingEnergy_Kruckow() const                                   { return m_BindingEnergies.kruckow; }
+            double              BindingEnergy_Dewi() const                                      { return m_BindingEnergies.dewi; }
             bool                CHonMS() const                                                  { return m_CHE; }
             double              COCoreMass() const                                              { return m_COCoreMass; }
             double              CoreMass() const                                                { return m_CoreMass; }
@@ -146,6 +147,10 @@ public:
             void            ApplyMassTransferRejuvenationFactor()                                               { m_Age *= CalculateMassTransferRejuvenationFactor(); }             // Apply age rejuvenation factor
 
             void            CalculateBindingEnergies(const double p_CoreMass, const double p_EnvMass, const double p_Radius);
+    
+            double          CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda);
+
+    virtual double          CalculateConvectiveEnvelopeMass() const                                             { return 0.0; }
 
     virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate); 
     virtual double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const         { return 0.0; }                                                     // Default is 0.0

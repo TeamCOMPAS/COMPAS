@@ -952,7 +952,6 @@ double GiantBranch::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDe
 }
 
 
-
 /*
  * Calculate the Adiabatic Exponent (for convective-envelope giant-like stars)
  *
@@ -1022,6 +1021,27 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
     return zeta;
 }
 
+
+/*
+ * Approximates the mass of the outer convective envelope.
+ *
+ * This is needed for the Hirai & Mandel (2022) two-stage CE formalism.
+ *
+ *
+ * double GiantBranch::CalculateConvectiveEnvelopeMass()
+ *
+ * @return                                      Mass of the outer convective envelope
+ */
+double GiantBranch::CalculateConvectiveEnvelopeMass() const {
+    double convectiveEnvelopeMass = 0.0;
+    if( DetermineEnvelopeType() == ENVELOPE::CONVECTIVE ) {
+        convectiveEnvelopeMass = Mass() - CoreMass() ;                                                                      // For now, return full envelope mass as if it were convective
+    }
+    else if ( DetermineEnvelopeType() == ENVELOPE::RADIATIVE) {
+        convectiveEnvelopeMass = 0.0;                                                                                       // We probably don't need to use RADIATIVE/CONVECTIVE arbitrary boundaries like this; this is just to ensure identical results with new and old prescriptions
+    }
+    return convectiveEnvelopeMass;
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
