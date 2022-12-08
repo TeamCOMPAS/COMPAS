@@ -560,6 +560,7 @@ enum class ERROR: int {
     UNKNOWN_BINARY_PROPERTY,                                        // unknown binary property
     UNKNOWN_CASE_BB_STABILITY_PRESCRIPTION,                         // unknown case BB/BC mass transfer stability prescription
     UNKNOWN_CE_ACCRETION_PRESCRIPTION,                              // unknown common envelope accretion prescription
+    UNKNOWN_CE_FORMALISM,                                           // unknown common envelope formalism
     UNKNOWN_CE_LAMBDA_PRESCRIPTION,                                 // unknown common envelope Lambda Prescription
     UNKNOWN_DATA_TYPE,                                              // unknown data type
     UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                            // unknown envelope state prescription
@@ -700,6 +701,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_BINARY_PROPERTY,                               { ERROR_SCOPE::ALWAYS,              "Unknown binary property - property details not found" }},
     { ERROR::UNKNOWN_CASE_BB_STABILITY_PRESCRIPTION,                { ERROR_SCOPE::ALWAYS,              "Unknown case BB/BC mass transfer stability prescription" }},
     { ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown common envelope accretion prescription" }},
+    { ERROR::UNKNOWN_CE_FORMALISM,                                  { ERROR_SCOPE::ALWAYS,              "Unknown common envelope formalism" }},
     { ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown common envelope lambda prescription" }},
     { ERROR::UNKNOWN_DATA_TYPE,                                     { ERROR_SCOPE::ALWAYS,              "Unknown data type" }},
     { ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown envelope state prescription" }},
@@ -838,6 +840,14 @@ const COMPASUnorderedMap<CE_LAMBDA_PRESCRIPTION, std::string> CE_LAMBDA_PRESCRIP
     { CE_LAMBDA_PRESCRIPTION::NANJING,   "LAMBDA_NANJING" },
     { CE_LAMBDA_PRESCRIPTION::KRUCKOW,   "LAMBDA_KRUCKOW" },
     { CE_LAMBDA_PRESCRIPTION::DEWI,      "LAMBDA_DEWI" }
+};
+    
+    
+// Common Envelope Formalism
+enum class CE_FORMALISM: int { ENERGY, TWO_STAGE };
+const COMPASUnorderedMap<CE_FORMALISM, std::string> CE_FORMALISM_LABEL = {
+        { CE_FORMALISM::ENERGY,         "ENERGY" },
+        { CE_FORMALISM::TWO_STAGE,      "TWO_STAGE" }
 };
 
 
@@ -2180,6 +2190,7 @@ enum class PROGRAM_OPTION: int {
 
     COMMON_ENVELOPE_ALPHA,
     COMMON_ENVELOPE_ALPHA_THERMAL,
+    COMMON_ENVELOPE_FORMALISM,
     COMMON_ENVELOPE_LAMBDA,
     COMMON_ENVELOPE_LAMBDA_MULTIPLIER,
     COMMON_ENVELOPE_LAMBDA_PRESCRIPTION,
@@ -2391,6 +2402,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA,                            "COMMON_ENVELOPE_ALPHA" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA_THERMAL,                    "COMMON_ENVELOPE_ALPHA_THERMAL" },
+    { PROGRAM_OPTION::COMMON_ENVELOPE_FORMALISM,                        "COMMON_ENVELOPE_FORMALISM" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA,                           "COMMON_ENVELOPE_LAMBDA" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_MULTIPLIER,                "COMMON_ENVELOPE_LAMBDA_MULTIPLIER" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_PRESCRIPTION,              "COMMON_ENVELOPE_LAMBDA_PRESCRIPTION" },
@@ -2885,6 +2897,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 
     { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA,                                { TYPENAME::DOUBLE,         "CE_Alpha",                     "-",                14, 6 }},
     { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA_THERMAL,                        { TYPENAME::DOUBLE,         "CE_Alpha_Thermal",             "-",                14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_FORMALISM,                            { TYPENAME::INT,            "CE_Formalism",                 "-",                 4, 1 }},
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA,                               { TYPENAME::DOUBLE,         "CE_Lambda",                    "-",                14, 6 }},
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_MULTIPLIER,                    { TYPENAME::DOUBLE,         "CE_Lambda_Multiplier",         "-",                14, 6 }},
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_PRESCRIPTION,                  { TYPENAME::INT,            "CE_Lambda_Prscrptn",           "-",                 4, 1 }},

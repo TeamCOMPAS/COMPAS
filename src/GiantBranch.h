@@ -25,6 +25,8 @@ protected:
 
 
     // member functions - alphabetically (sort of - some are grouped by functionality)
+            double          CalculateConvectiveEnvelopeMass() const;
+
     static  double          CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB);
             double          CalculateCoreMassAtBAGB(const double p_Mass) const;
     static  double          CalculateCoreMassAtBAGB_Static(const double p_Mass, const DBL_VECTOR &p_BnCoefficients);

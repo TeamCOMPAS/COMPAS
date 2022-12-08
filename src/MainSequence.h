@@ -25,6 +25,7 @@ protected:
     double          CalculateAlphaL(const double p_Mass) const;
     double          CalculateAlphaR(const double p_Mass) const;
 
+    double          CalculateConvectiveEnvelopeMass() const                                 { return 0.0; }
     double          CalculateBetaL(const double p_Mass) const;
     double          CalculateBetaR(const double p_Mass) const;
 

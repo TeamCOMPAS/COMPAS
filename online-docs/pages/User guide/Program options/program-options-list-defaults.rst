@@ -132,6 +132,12 @@ Thermal energy contribution to the total envelope binding energy. |br|
 Defined such that :math:`\lambda = \alpha_{th} \times \lambda_{b} + (1.0 - \alpha_{th}) \times \lambda_{g}`. |br|
 Default = 1.0
 
+**--common-envelope-formalism** |br|
+CE formalism prescription. |br|
+Options: { ENERGY, TWO_STAGE } |br|
+``ENERGY`` is the standard alpha-lambda formalism; ``TWO_STAGE`` is the formalism of Hirai & Mandel (2022) |br| 
+Default = ENERGY
+
 **--common-envelope-lambda** |br|
 Common Envelope lambda. |br|
 Only used when ``--common-envelope-lambda-prescription = LAMBDA_FIXED``. |br|
@@ -1217,7 +1223,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation
 
---envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-lambda-prescription, --common-envelope-lambda, 
+--envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-formalism,
+--common-envelope-lambda-prescription, --common-envelope-lambda, 
 --common-envelope-slope-kruckow, --common-envelope-lambda-multiplier, --common-envelope-lambda-nanjing-enhanced, 
 --common-envelope-lambda-nanjing-interpolate-in-mass, --common-envelope-lambda-nanjing-interpolate-in-metallicity, 
 --common-envelope-lambda-nanjing-use_rejuvenated-mass, --common-envelope-allow-main-sequence-survive, --common-envelope-allow-radiative-envelope-survive, 
