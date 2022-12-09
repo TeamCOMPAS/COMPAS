@@ -865,22 +865,6 @@ but not both. If both are printed then the file will contain two columns with th
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **RLOF_POST_MT_TIME**
-     -
-   * - Data type:
-     - DOUBLE
-   * - COMPAS variable:
-     - BaseBinaryStar::m_RLOFDetails.propsPostMT→time
-   * - Description:
-     - Time since ZAMS (Myr) immediately after RLOF.
-   * - Header String:
-     - Time>MT
-
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
    * - :cspan:`2` **RLOF_PRE_MT_ECCENTRICITY**
      -
    * - Data type:
@@ -1085,12 +1069,28 @@ but not both. If both are printed then the file will contain two columns with th
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **RLOF_PRE_MT_TIME**
+   * - :cspan:`2` **RLOF_TIME_POST_MT**
      -
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
      - BaseBinaryStar::m_RLOFDetails.propsPreMT→time
+   * - Description:
+     - Time since ZAMS (Myr) immediately after RLOF.
+   * - Header String:
+     - Time>MT
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **RLOF_TIME_PRE_MT**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_RLOFDetails.propsPreMT→timePrev
    * - Description:
      - Time since ZAMS (Myr) at the onset of RLOF.
    * - Header String:

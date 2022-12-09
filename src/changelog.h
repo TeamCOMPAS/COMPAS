@@ -951,7 +951,9 @@
 //                                      - Adding framework for Hirai & Mandel 2-stage common envelope formalism
 //                                          (placeholders for now -- will have identical results to default version)
 //                                      - Placed Dewi CE prescription on parity with others
+// 02.34.01     RTW - Nov 30, 2022   - Defect repair:
+//                                      - Fixed Time<MT and Time>MT calls in BSE_RLOF. Previously, they were identical. Now, Time<MT correctly reflects the previous time.
 
-const std::string VERSION_STRING = "02.34.00";
+const std::string VERSION_STRING = "02.34.01";
 
 # endif // __changelog_h__
