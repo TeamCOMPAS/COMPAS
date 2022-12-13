@@ -1495,7 +1495,6 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
         m_Luminosity = HeMS::CalculateLuminosityOnPhase_Static(m_Mass, m_Tau);
         m_Radius     = HeMS::CalculateRadiusOnPhase_Static(m_Mass, m_Tau);
-
         stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                          // will evolve to an evolved helium star
     }
 
