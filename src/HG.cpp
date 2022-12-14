@@ -1120,7 +1120,7 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {                  // envelope loss
+    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                  // envelope loss
 
         m_Mass       = std::min(m_CoreMass, m_Mass);
         
@@ -1140,7 +1140,6 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
             m_Luminosity = HeMS::CalculateLuminosityAtZAMS_Static(m_Mass);
             m_Age        = 0.0;                                                 // can't use Hurley et al. 2000, eq 76 here - timescales(tHe) not calculated yet
         }
-
     }
 
     return stellarType;
