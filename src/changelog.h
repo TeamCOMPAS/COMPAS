@@ -953,7 +953,9 @@
 //                                      - Placed Dewi CE prescription on parity with others
 // 02.34.01     RTW - Nov 30, 2022   - Defect repair:
 //                                      - Fixed Time<MT and Time>MT calls in BSE_RLOF. Previously, they were identical. Now, Time<MT correctly reflects the previous time.
+// 02.34.02     JR - Nov 30, 2022    - Defect repair:
+//                                      - Fixed problem with no content in switchlog files (issue #870 - introduced in v2.32.00).
 
-const std::string VERSION_STRING = "02.34.01";
+const std::string VERSION_STRING = "02.34.02";
 
 # endif // __changelog_h__
