@@ -1,5 +1,0 @@
---initial-mass-1 2.3
---initial-mass-2 12.75
---initial-mass-1 20.3
---initial-mass-2 8
---initial-mass-2 7.0
