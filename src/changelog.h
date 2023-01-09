@@ -956,7 +956,9 @@
 // 02.34.02     JR - Nov 30, 2022    - Defect repair:
 //                                      - Fixed problem with no content in switchlog files (issue #870 - introduced in v2.32.00).
 //                                      - Changed conditional statement in HG::ResolveEnvelopeLoss() and FGB::ResolveEnvelopeLoss() to be consistent with other stellar types ('>' -> '>=').
+// 02.34.03     NRS - Jan 9, 2023    - Defect repair:
+//                                      - Fixed units for post-CEE semi-major axis in CEE logs (issue #876).
 
-const std::string VERSION_STRING = "02.34.02";
+const std::string VERSION_STRING = "02.34.03";
 
 # endif // __changelog_h__
