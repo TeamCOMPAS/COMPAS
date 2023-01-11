@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v2
         
       - name: fix
-        run: sudo apt-get install libxml2-utils
+        run: sudo apt-get update
       
       - name: Install dependencies 
         run: sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
