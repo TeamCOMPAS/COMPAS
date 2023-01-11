@@ -8,9 +8,12 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
-
+        
+      - name: fix
+        run: sudo apt-get install libxml2-utils
+      
       - name: Install dependencies 
-        run: sudo apt install g++ libboost-all-dev libgsl-dev libcurl4-openssl-dev libhdf5-serial-dev 
+        run: sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
 
       - name: Build Compas
         run: cd src && make -j $(nproc) -f Makefile
