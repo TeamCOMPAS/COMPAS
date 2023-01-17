@@ -72,9 +72,8 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
             } 
             else {
                 regime = ACCRETION_REGIME::HELIUM_ACCUMULATION;
-                m_DoubleDetonation = true;
                 if ((utils::Compare(m_Mass, MASS_DOUBLE_DETONATION_CO) >= 0) && (utils::Compare(m_HeShell, WD_HE_SHELL_MCRIT_DETONATION) >= 0)) {
-                    // RTW: TODO?
+                    m_DoubleDetonation = true;
                 }
             }
         } 
