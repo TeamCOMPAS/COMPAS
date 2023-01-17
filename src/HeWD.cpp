@@ -1,4 +1,6 @@
 #include "HeWD.h"
+#include "HeMS.h"
+
 
 /* For HeWD, calculate:
  *
@@ -127,7 +129,10 @@ bool HeWD::IsSupernova() const {
  */
 STELLAR_TYPE HeWD::EvolveToNextPhase() {
     if (m_ShouldRejuvenate) {
-        // RTW: Do we need to add other calls here, e.g to the Radius, Luminosity, Age, or Tau of the HeMS star?
+        m_CoreMass = m_Mass;
+        m_Radius = HeMS::CalculateRadiusAtZAMS_Static(m_CoreMass);
+        m_Luminosity = HeMS::CalculateLuminosityAtZAMS_Static(m_CoreMass);
+        m_Tau = 0;
         return STELLAR_TYPE::NAKED_HELIUM_STAR_MS; 
     }
     else if (m_IsSubChandrasekharTypeIa) {         // Currently, assume a Type Ia from a HeWD is the same as other WDs. May want to vary in the future
