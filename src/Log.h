@@ -990,7 +990,7 @@ private:
 
         LogfileDetailsT fileDetails = StandardLogFileDetails(p_LogFile, p_FileSuffix);                                      // get record details - open file (if necessary)
         if (fileDetails.id >= 0) {                                                                                          // file open?
-            if (((1 << (p_RecordType - 1)) & fileDetails.recordTypes) > 0) {                                                             // yes - record type enabled?
+            if (((1 << (p_RecordType - 1)) & fileDetails.recordTypes) > 0) {                                                // yes - record type enabled?
                                                                                                                             // yes - proceed
                 string logRecordString;                                                                                     // for CSV, TSV, TXT files: the record to be written to the log file
                 std::vector<COMPAS_VARIABLE_TYPE> logRecordValues;                                                          // for HDF5 files: vector of values to be written
@@ -1183,7 +1183,7 @@ public:
     template <class T>
     bool LogBSESwitchLog(const T* const p_Binary, const bool p_PrimarySwitching) {
         m_PrimarySwitching = p_PrimarySwitching;        
-        return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG)), 0, LOGFILE::BSE_SWITCH_LOG, 0U, p_Binary);
+        return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG)), 0, LOGFILE::BSE_SWITCH_LOG, 1U, p_Binary);
     }
 
     template <class T>
@@ -1211,7 +1211,7 @@ public:
                                 const SSE_SN_RECORD_TYPE p_RecordType)              { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
 
     template <class T>
-    bool LogSSESwitchLog(const T* const p_Star)                                     { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)), 0, LOGFILE::SSE_SWITCH_LOG, 0U, p_Star); }
+    bool LogSSESwitchLog(const T* const p_Star)                                     { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)), 0, LOGFILE::SSE_SWITCH_LOG, 1U, p_Star); }
 
     template <class T>
     bool LogSSESystemParameters(const T* const p_Star,
