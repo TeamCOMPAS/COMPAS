@@ -53,6 +53,9 @@ Some of the most fundamental terms are `described
 below <#terminology>`__ to assist new users.
 
 
+ *TIP:* GitHub Desktop is a free app available at https://desktop.github.com/ 
+ that provides a desktop app to visualize and simplify Github and git use. Highly recommended!
+
 
 Purpose of this document
 
