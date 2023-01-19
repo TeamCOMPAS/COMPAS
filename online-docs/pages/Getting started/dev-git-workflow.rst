@@ -198,6 +198,7 @@ collaborator, you will only have read-access to the repository.
 
 *Note:* This section is very technical.  Take a look at the section below on `Terminology, <#terminology>`__ if you get stuck!
 
+*TIP:* you can add local files to the .git/info/exclude instead of the .gitignore that is part of COMPAS dev to ignore files on your local clone
 
 
 Join as a collaborator
