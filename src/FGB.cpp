@@ -196,8 +196,6 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
             m_Mass0      = m_Mass;
             m_Age        = 0.0;
             m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);
-            // RTW: is this missing a m_Luminosity = HeMS::CalculateLuminosityAtZAMS_Static(m_Mass);
-            // that line is in HG.cpp, why is it missing here?
         }
     }
 
