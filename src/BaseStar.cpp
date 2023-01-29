@@ -50,9 +50,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Metallicity         = p_Metallicity;
 
     // Initialise metallicity dependent values
-//    m_LogMetallicityXi    = log10(m_Metallicity / ZSOL);
-//    m_LogMetallicitySigma = log10(m_Metallicity);
-//    m_LogMetallicityRho   = m_LogMetallicityXi + 1.0;
     m_Log10Metallicity    = log10(m_Metallicity);
 
 
