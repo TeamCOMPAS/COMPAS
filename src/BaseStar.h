@@ -80,6 +80,9 @@ public:
             double              Lambda_LoveridgeWinds() const                                   { return m_Lambdas.loveridgeWinds; }
             double              Lambda_Nanjing() const                                          { return m_Lambdas.nanjing; }
             bool                LBV_Phase_Flag() const                                          { return m_LBVphaseFlag; }
+            double              LogMetallicityRho() const                                       { return LogMetallicityXi() + 1.0; }            // rho in Hurley+ 2000
+            double              LogMetallicitySigma() const                                     { return m_Log10Metallicity; }                  // sigma in Hurley+ 2000
+            double              LogMetallicityXi() const                                        { return m_Log10Metallicity - LOG10_ZSOL; }     // xi in Hurley+ 2000
             double              Luminosity() const                                              { return m_Luminosity; }
             double              Mass() const                                                    { return m_Mass; }
             double              Mass0() const                                                   { return m_Mass0; }
@@ -540,10 +543,6 @@ protected:
     virtual bool                IsSupernova() const                                                                     { return false; }
 
             double              LimitTimestep(const double p_Dt);
-
-            double              LogMetallicityXi() const                                                                { return m_Log10Metallicity - LOG10_ZSOL; }
-            double              LogMetallicitySigma() const                                                             { return m_Log10Metallicity; }
-            double              LogMetallicityRho() const                                                               { return LogMetallicityXi() + 1.0; }
 
     /*
      * Perturb Luminosity and Radius
