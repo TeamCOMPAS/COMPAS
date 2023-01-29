@@ -311,10 +311,11 @@ protected:
     STELLAR_TYPE            m_StellarTypePrev;                          // Stellar type at previous timestep
 
     // Metallicity variables
-    double                  m_LogMetallicityRho;                        // logMetallicityXi + 1.0       - called rho in Hurley et al 2000
-    double                  m_LogMetallicitySigma;                      // log10(Metallicity)           - called sigma in Hurley et al 2000
-    double                  m_LogMetallicityXi;                         // log10(Metallicity / Zsol)    - called xi in Hurley et al 2000
+//    double                  m_LogMetallicityRho;                        // logMetallicityXi + 1.0       - called rho in Hurley et al 2000
+//    double                  m_LogMetallicitySigma;                      // log10(Metallicity)           - called sigma in Hurley et al 2000
+//    double                  m_LogMetallicityXi;                         // log10(Metallicity / Zsol)    - called xi in Hurley et al 2000
     double                  m_Metallicity;                              // Metallicity
+    double                  m_Log10Metallicity;                         // log10(Metallicity) - for performance
 
     // Metallicity dependent constants
     double                  m_Alpha1;                                   // alpha1 in Hurly et al. 2000, just after eq 49
@@ -542,6 +543,10 @@ protected:
     virtual bool                IsSupernova() const                                                                     { return false; }
 
             double              LimitTimestep(const double p_Dt);
+
+            double              LogMetallicityXi() const                                                                { return m_Log10Metallicity - LOG10_ZSOL; }
+            double              LogMetallicitySigma() const                                                             { return m_Log10Metallicity; }
+            double              LogMetallicityRho() const                                                               { return LogMetallicityXi() + 1.0; }
 
     /*
      * Perturb Luminosity and Radius
