@@ -12,10 +12,10 @@ jobs:
       matrix:
         os: [ubuntu-20.04]  # runners(virtual machines) to run the job on
         # TURNING OFF DIFFERENT ARCHITECTURES FOR NOW
-#        os: [ubuntu-20.04, ubuntu-18.04, macos-11]  # runners(virtual machines) to run the job on
-#        include: # add the combination to run the centos container only on ubuntu-18.04
-#          - os: ubuntu-18.04
-#            container: 'centos:7'
+        os: [ubuntu-20.04, ubuntu-18.04, macos-11]  # runners(virtual machines) to run the job on
+        include: # add the combination to run the centos container only on ubuntu-18.04
+          - os: ubuntu-18.04
+            container: 'centos:7'
 
     steps:
       - uses: actions/checkout@v2
@@ -54,15 +54,15 @@ jobs:
           nproc: 4
 
       # This step will run only on all runners
-#      - name: Install Python packages
-#        run: |
-#          python3 -m pip install -r requirements.txt
-#
-#      # This step will run on all runners
-#      # **To be investigated further** plotting script is currently failing on macos because 
-#      # for some reason it cannot recognise latex is installed
-#      - name: Run Post-Processing Python Scripts
-#        run: |
-#          cd utils/cicd-scripts
-#          chmod 755 python-scripts
-#          ./python-scripts
+      - name: Install Python packages
+        run: |
+          python3 -m pip install -r requirements.txt
+
+      # This step will run on all runners
+      # **To be investigated further** plotting script is currently failing on macos because 
+      # for some reason it cannot recognise latex is installed
+      - name: Run Post-Processing Python Scripts
+        run: |
+          cd utils/cicd-scripts
+          chmod 755 python-scripts
+          ./python-scripts
