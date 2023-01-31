@@ -10,7 +10,8 @@ jobs:
     strategy:
       fail-fast: false  #in case build failed on one of the runners, it won't stop building on other runners
       matrix:
-        os: [ubuntu-20.04, ubuntu-18.04, macos-11]  # runners(virtual machines) to run the job on
+#        os: [ubuntu-20.04, ubuntu-18.04, macos-11]  # runners(virtual machines) to run the job on
+        os: [ubuntu-20.04]  # runners(virtual machines) to run the job on
         include: # add the combination to run the centos container only on ubuntu-18.04
           - os: ubuntu-18.04
             container: 'centos:7'
