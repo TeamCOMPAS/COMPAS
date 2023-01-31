@@ -52,15 +52,15 @@ jobs:
           nproc: 4
 
       # This step will run only on all runners
-      - name: Install Python packages
-        run: |
-          python3 -m pip install -r requirements.txt
-
-      # This step will run on all runners
-      # **To be investigated further** plotting script is currently failing on macos because 
-      # for some reason it cannot recognise latex is installed
-      - name: Run Post-Processing Python Scripts
-        run: |
-          cd utils/cicd-scripts
-          chmod 755 python-scripts
-          ./python-scripts
+#      - name: Install Python packages
+#        run: |
+#          python3 -m pip install -r requirements.txt
+#
+#      # This step will run on all runners
+#      # **To be investigated further** plotting script is currently failing on macos because 
+#      # for some reason it cannot recognise latex is installed
+#      - name: Run Post-Processing Python Scripts
+#        run: |
+#          cd utils/cicd-scripts
+#          chmod 755 python-scripts
+#          ./python-scripts
