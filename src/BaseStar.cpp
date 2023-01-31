@@ -1600,7 +1600,7 @@ double BaseStar::CalculateMassLossRateKudritzkiReimers() const {
 
 
 /*
- * Calculate the mass loss rate for massive stars (L > 4000 L_sol) using the
+ * Calculate the mass-loss rate for massive stars (L > 4000 L_sol) using the
  * Nieuwenhuijzen & de Jager 1990 prescription, modified by a metallicity
  * dependent factor (Kudritzki et al 1989).
  *
@@ -1609,7 +1609,7 @@ double BaseStar::CalculateMassLossRateKudritzkiReimers() const {
  *
  * double CalculateMassLossRateNieuwenhuijzenDeJagerStatic()
  *
- * @return                                      Nieuwenhuijzen & de Jager mass loss rate for massive stars (in Msol yr^-1)
+ * @return                                      Nieuwenhuijzen & de Jager mass-loss rate for massive stars (in Msol yr^-1)
  */
 double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() const {
     double rate = 0.0;
@@ -1619,6 +1619,65 @@ double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() const {
     } else {
         rate = 0.0;
     }
+    return rate;
+}
+
+/*
+ * Calculate the Eddington factor (L/L_Edd) as required by CalculateMassLossRateBjorklund
+ * see text surrounding Equation 6 in https://arxiv.org/abs/2203.08218
+ * 
+ * double CalculateMassLossRateBjorklundEddingtonFactor()
+ *
+ * @return                                      Eddington factor
+ */
+double BaseStar::CalculateMassLossRateBjorklundEddingtonFactor() const {
+    double Gamma = 0.0;
+    double iHe = 2.0;
+    double YHe = 0.1; // Assumed constant by Bjorklund et al.
+    double kappa_e = 0.4 * (1.0 + iHe * YHe) / (1.0 + 4.0 * YHe); // cm^2/g
+    double kappa_e_SI = kappa_e / 10.0;  // m^2/kg
+    double top = kappa_e_SI * m_Luminosity * LSOL;
+    double bottom = 4.0 * M_PI * G * C * m_Mass * MSOL_TO_KG; 
+    Gamma = top / bottom;
+    return Gamma;
+}
+
+/*
+ * Calculate the mass loss rate for massive OB stars according to the prescription from Bjorklund et al. 2022
+ * See Equation 7 and surrounding text in https://arxiv.org/abs/2203.08218
+ * 
+ * This prescription is calibrated to the following ranges:
+ * 10^4.5 < L / Lsol < 10^6
+ * 15,000 < Teff / K < 50,000
+ * 15 < M / Msol < 80
+ * Z Zsol, Z_LMC = 0.5 * Zsol and Z_SMC = 0.2 * Zsol, with Zsol = 0.014 
+ *
+ * double CalculateMassLossRateBjorklund()
+ *
+ * @return                                      Bjorklund mass-loss rate for massive stars (in Msol yr^-1)
+ */
+double BaseStar::CalculateMassLossRateBjorklund() const {
+    double rate = 0.0;
+    double Gamma = CalculateMassLossRateBjorklundEddingtonFactor();
+
+    double logZ    = log10(m_Metallicity/0.014);
+    double logL    = log10(m_Luminosity/1E6);
+    double Teff    = m_Temperature * TSOL;          // Convert effective temperature to Kelvin
+    double logTeff = log10(Teff/45000.0);           
+    
+    double Meff = m_Mass * (1.0 - Gamma);
+    double logMeff = log10(Meff/45.0);
+    
+    // Constants, q depends on logTeff
+    const double constC = -5.52;
+    const double m = 2.39;
+    const double n = -1.48;
+    const double p = 2.12;
+    double q = 0.75 - (1.87 * logTeff);
+    
+    // Equation 7 in Bjorklund et al. 2022
+    double logMdot = constC + (m * logL) + (n * logMeff) + (p * logTeff) + (q * logZ);
+    rate = PPOW(10.0, logMdot);
     return rate;
 }
 
@@ -1738,22 +1797,6 @@ double BaseStar::CalculateMassLossRateWolfRayetZDependent(const double p_Mu) con
     return rate;
 }
 
-
-/*
- * Calculate the Wolf-Rayet like mass loss rate independent of WR star composition as given by Nugis & Lamers 2000
- *
- * Belczynski et al. 2010, eq 10.  We do not use this equation by default.
- *
- *
- * double CalculateMassLossRateWolfRayet3()
- *
- * @return                                      Mass loss rate (in Msol yr^{-1})
- */
-double BaseStar::CalculateMassLossRateWolfRayet3() const {
-    return exp(-5.73 + (0.88 * log(m_Mass)));
-}
-
-
 /*
  * Calculate mass loss rate for massive OB stars using the Vink et al 2001 prescription
  *
@@ -1858,6 +1901,44 @@ double BaseStar::CalculateMassLossRateVink() {
     return LBVRate + otherWindsRate;
 }
 
+/*
+ * Calculate the mass loss rate according to the updated prescription. The structure is similar to above.
+ * Mass loss rates for hot, massive OB stars are given by Bjorklund et al. 2022
+ * Mass loss rates for helium rich Wolf--Rayet stars are given by Sander (not yet implemented)
+ * Mass loss rates for red supergiants are given by Beasor and Davies (not yet implemented)
+ * Mass loss rates for luminous blue variables are still given as above
+ *
+ * double CalculateMassLossRateUpdatedPrescription()
+ * 
+ * @return                  Mass loss rate in Msol per year
+ */
+double BaseStar::CalculateMassLossRateUpdatedPrescription() {
+    m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
+
+    double LBVRate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                         // start with LBV winds (can be, and is often, 0.0)
+    double otherWindsRate = 0.0;
+
+    if (m_DominantMassLossRate != MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE || 
+        OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_ADD ) {                             // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
+
+        double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription
+        if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, add Hurley et al 2000 winds
+            otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // Apply cool wind mass loss multiplier
+        }
+        else {     
+            otherWindsRate = CalculateMassLossRateBjorklund();                                                      // For hot stars, apply Bjorklund et al. prescription
+            m_DominantMassLossRate = MASS_LOSS_TYPE::BJORKLUND;
+        }
+
+        if (utils::Compare(LBVRate, otherWindsRate) > 0) {
+            m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;                                        // set LBV dominant again in case Hurley or OB overwrote it
+        }
+
+    }
+    
+    return LBVRate + otherWindsRate;
+}
+
 
 /*
  * Calculate mass loss rate
@@ -1888,8 +1969,16 @@ double BaseStar::CalculateMassLossRate() {
                 mDot = LBVRate + otherWindsRate;
                 break;
 
-            case MASS_LOSS_PRESCRIPTION::VINK:                                                                  // VINK
+            case MASS_LOSS_PRESCRIPTION::VINK:                           // VINK mass loss prescription
                 mDot = CalculateMassLossRateVink();
+                break;
+            
+            case MASS_LOSS_PRESCRIPTION::UPDATED:                        // Updated mass loss prescription
+                mDot = CalculateMassLossRateUpdatedPrescription();
+                break;
+
+            case MASS_LOSS_PRESCRIPTION::NONE:                           // No mass loss prescription
+                mDot = 0.0;
                 break;
 
             default:                                                                                            // unknown mass loss prescription

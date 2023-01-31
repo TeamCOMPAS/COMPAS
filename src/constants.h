@@ -225,6 +225,7 @@ constexpr double G_SN                                   = G * 1.0E-9 / KG_TO_MSO
 constexpr double G_SOLAR_YEAR                           = 3.14E7;                                                   // Gravitational constant in Lsol Rsol yr Msol^-2 for calculating photon tiring limit
 
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
+constexpr double LSOL                                   = 4E26;                                                     // Solar luminosity (in W)
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
 constexpr double ZSOL_ASPLUND				= 0.0142;						    // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
@@ -985,11 +986,12 @@ const COMPASUnorderedMap<LBV_PRESCRIPTION, std::string> LBV_PRESCRIPTION_LABEL =
 };
 
 // Mass loss prescriptions
-enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, VINK };
+enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, VINK, UPDATED };
 const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
-    { MASS_LOSS_PRESCRIPTION::NONE,   "NONE" },
-    { MASS_LOSS_PRESCRIPTION::HURLEY, "HURLEY" },
-    { MASS_LOSS_PRESCRIPTION::VINK,   "VINK" }
+    { MASS_LOSS_PRESCRIPTION::NONE,    "NONE" },
+    { MASS_LOSS_PRESCRIPTION::HURLEY,  "HURLEY" },
+    { MASS_LOSS_PRESCRIPTION::VINK,    "VINK" },
+    { MASS_LOSS_PRESCRIPTION::UPDATED, "UPDATED"}
 };
 
 
@@ -1416,6 +1418,8 @@ enum class MASS_LOSS_TYPE: int {
     VASSILIADIS_WOOD,
     WOLF_RAYET_LIKE,
     VINK,
+    BJORKLUND,
+    BEASOR_DAVIES_RSG,
     LUMINOUS_BLUE_VARIABLE
 };
 

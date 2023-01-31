@@ -443,11 +443,13 @@ protected:
             double              CalculateMassLossRateLBVHurley(const double p_HD_limit_fac) const;
             double              CalculateMassLossRateLBVBelczynski() const;
             double              CalculateMassLossRateNieuwenhuijzenDeJager() const;
+            double              CalculateMassLossRateBjorklundEddingtonFactor() const;
+            double              CalculateMassLossRateBjorklund() const;
             double              CalculateMassLossRateOB(const double p_Teff);
             double              CalculateMassLossRateVassiliadisWood() const;
     virtual double              CalculateMassLossRateVink();
+    virtual double              CalculateMassLossRateUpdatedPrescription();
             double              CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const;
-            double              CalculateMassLossRateWolfRayet3() const;                                                                                                                            // JR: Never called - do we need it?
             double              CalculateMassLossRateWolfRayet(const double p_Mu) const;
 
     virtual double              CalculateMassTransferRejuvenationFactor() const;

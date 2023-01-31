@@ -1624,7 +1624,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "mass-loss-prescription",                                      
             po::value<std::string>(&p_Options->m_MassLossPrescription.typeString)->default_value(p_Options->m_MassLossPrescription.typeString),                                                                  
-            ("Mass loss prescription (options: [NONE, HURLEY, VINK], default = " + p_Options->m_MassLossPrescription.typeString + ")").c_str()
+            ("Mass loss prescription (options: [NONE, HURLEY, VINK, UPDATED], default = " + p_Options->m_MassLossPrescription.typeString + ")").c_str()
         )
         (
             "mass-ratio-distribution",                                   
