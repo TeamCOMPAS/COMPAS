@@ -888,7 +888,79 @@
 //                                      - Fix for issue # 783 - Some mergers involving a massive star were not logged properly in BSE_RLOF, whenever a jump in radius due to changing stellar type within ResolveMassChanges was much greater than the separation.
 // 02.27.09     VK - Apr 25, 2022    - Minor Enhancement:
 //                                      - Converted constant: MULLERMANDEL_SIGMAKICK into an option: --muller-mandel-sigma-kick
- 
-const std::string VERSION_STRING = "02.27.09";
+// 02.28.00     Lvs - May 11, 2022   - Enhancements:
+//                                      - Introduced new remnant mass prescription: Fryer+ 2022, adding new options --fryer-22-fmix and --fryer-22-mcrit
+// 02.29.00     RTW - May 5, 2022    - Enhancement:
+//                                      - Fix for issue # 596 - New option to allow for H rich ECSN (defaults to false). This removes non-interacting ECSN progenitors from contributing to the single pulsar population.
+// 02.30.00     RTW - May 8, 2022    - Enhancement
+//                                      - Added MACLEOD_LINEAR specific angular momentum gamma loss prescription for stable mass transfer
+// 02.31.00     IM - May 14, 2022    - Enhancement
+//                                      - Added option retain-core-mass-during-caseA-mass-transfer to preserve a larger donor core mass following case A MT, set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of its MS lifetime
+//                                      - Code and comment cleaning
+// 02.31.01     RTW - May 16, 2022   - Defect repair:
+//                                      - Fixed help string for H rich ECSN option implemented in v2.29.99
+// 02.31.02     JR - May 18, 2022    - Defect repairs:
+//                                      - Fixed STAR_PROPERTY_LABEL entries in contsants.h for INITIAL_STELLAR_TYPE and INITIAL_STELLAR_TYPE_NAME - both missing the prefix "INITIAL_".
+//                                        Only caused a problem if a user wanted to add either of those to the logfile-definitions file - but since they are in the system parameters files (SSE and BSE)
+//                                        by default encountering the problem would probably be unlikely.
+//                                      - Fixed error identifier in Log::UpdateAllLogfileRecordSpecs() - was (incorrectly) ERROR::UNKNOWN_BINARY_PROPERTY, now (correctly) ERROR::UNKNOWN_STELLAR_PROPERTY 
+// 02.31.03     RTW - May 20, 2022   - Defect repair:
+//                                      - Fixed MS+MS unstable MT not getting flagged as a CEE
+// 02.31.04     RTW - June 10, 2022  - Enhancements
+//                                      - Fixed MT_TRACKER values to be clearer and complementary to each other
+//                                      - Updated the relevant section in the detailed plotter that uses MT_TRACKER values
+//                                      - Removed end states from detailed plotter (Merger, DCO, Unbound) so that they don't over compress the rest
+// 02.31.05     RTW - July 25, 2022  - Defect repair:
+//                                      - Renamed option '--allow-H-rich-ECSN' to 'allow-non-stripped-ECSN'
+//                                      - Fixed check for non-interacting ECSN progenitors to consider MT history instead of H-richness
+// 02.31.06     RTW - Aug 2, 2022    - Enhancement:
+//                                      - Added stellar merger to default BSE_RLOF output
+// 02.31.07     IM - August 1, 2022  - Defect repair:
+//                                      - Print to DetailedOutput after merger, addresses https://github.com/TeamCOMPAS/COMPAS/issues/825
+//                                      - Ensures no ONeWDs are formed with masses above Chandrasekhar mass
+//                                      - Minor comment tweaks and a bit of defensive programming
+// 02.31.08     RTW - Aug 3, 2022    - Enhancement:
+//                                      - Added Accretion Induced Collapse (AIC) of ONeWD as another type of SN
+// 02.31.09     RTW - Aug 9, 2022    - Enhancement:
+//                                      - Max evolution time and max number of timesteps now read in from gridline as well as commandline
+// 02.31.10     RTW - Aug 12, 2022   - Enhancement:
+//                                      - Added option to set the Temperature boundary between convective/radiative giant envelopes
+// 02.32.00     JR - Aug 27, 2022    - Enhancement & minor cleanup:
+//                                      - Add 'record type' functionality to all standard log files
+//                                      - Add/rationalise calls to PrintDetailedOutput() for binary systems
+//                                          - remove m_PrintExtraDetailedOutput variable (and associated code) from BaseBinaryStar class
+//                                      - Add new option for each standard log file to allow specification of which record types to print
+//                                          - see e.g. '--logfile-detailed-output-record-types'
+//                                      - Online documentation updated for record types and new options
+//                                      - Detailed ploter changed to work with record type column (thanks RTW)
+//                                      - Added new section to online documentation: 'What's new'
+//                                          - documented record types changes in this new section
+//                                      - Minor cleanup:
+//                                          - minor formatting and typo fixes (src + docs)
+//                                          - removed IncrementOmega() function from the BaseStar and Star classes (anti-patterm and no longer used - if it ever was)
+//                                          - tidied up description of MainSequence::UpdateMinimumCoreMass()
+// 02.33.00     RTW - Aug 13, 2022   - Enhancement:
+//                                      - Added critical mass ratios from Claeys+ 2014 for determining if MT is unstable
+//                                      - Cleaned up stability check functions in BaseBinaryStar.cpp for clarity, and to allow for critical mass ratios to be checked correctly
+// 02.33.01     RTW - Sep 26, 2022   - Defect repair:
+//                                      - Fixed interpolation of MACLEOD_LINEAR gamma for specific angular momentum. Previously interpolated on the gamma value, now interpolates in orbital separation
+// 02.33.02      IM - Nov 27, 2022   - Defect repair:
+//                                      - Fixed ignored value of input radius when computing the thermal timescale, relevant if using Roche lobe radius instead (issue #853)
+//                                      - Cleaned code and comments around the use of MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE vs. C_FACTOR (issue #850)
+// 02.34.00      IM - Nov 28, 2022   - Enhancement:
+//                                      - Adding framework for Hirai & Mandel 2-stage common envelope formalism
+//                                          (placeholders for now -- will have identical results to default version)
+//                                      - Placed Dewi CE prescription on parity with others
+// 02.34.01     RTW - Nov 30, 2022   - Defect repair:
+//                                      - Fixed Time<MT and Time>MT calls in BSE_RLOF. Previously, they were identical. Now, Time<MT correctly reflects the previous time.
+// 02.34.02     JR - Nov 30, 2022    - Defect repair:
+//                                      - Fixed problem with no content in switchlog files (issue #870 - introduced in v2.32.00).
+//                                      - Changed conditional statement in HG::ResolveEnvelopeLoss() and FGB::ResolveEnvelopeLoss() to be consistent with other stellar types ('>' -> '>=').
+// 02.34.03     NRS - Jan 9, 2023    - Defect repair:
+//                                      - Fixed units for post-CEE semi-major axis in CEE logs (issue #876).
+// 02.34.04     RTW - Jan 31, 2023   - Enhancement:
+//                                      - Added SN orbit inclination angle to BSE_SUPERNOVAE output
+
+const std::string VERSION_STRING = "02.34.04";
 
 # endif // __changelog_h__

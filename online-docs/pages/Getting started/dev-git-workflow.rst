@@ -53,6 +53,9 @@ Some of the most fundamental terms are `described
 below <#terminology>`__ to assist new users.
 
 
+ *TIP:* GitHub Desktop is a free app available at https://desktop.github.com/ 
+ that provides a desktop app to visualize and simplify Github and git use. Highly recommended!
+
 
 Purpose of this document
 
@@ -195,6 +198,7 @@ collaborator, you will only have read-access to the repository.
 
 *Note:* This section is very technical.  Take a look at the section below on `Terminology, <#terminology>`__ if you get stuck!
 
+*TIP:* you can add local files to the .git/info/exclude instead of the .gitignore that is part of COMPAS dev to ignore files on your local clone
 
 
 Join as a collaborator
