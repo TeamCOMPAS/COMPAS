@@ -126,6 +126,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
+    m_MinimumCoreMass                          = 0.0;
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
@@ -135,7 +136,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_HeCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mu                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_CoreRadius                               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mdot                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_DominantMassLossRate                     = MASS_LOSS_TYPE::NONE;
 
@@ -299,6 +299,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
             case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass()-CoreMass();                                      break;
             case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
+            case ANY_STAR_PROPERTY::EXPERIENCED_AIC:                                    value = ExperiencedAIC();                                       break;
             case ANY_STAR_PROPERTY::EXPERIENCED_CCSN:                                   value = ExperiencedCCSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_ECSN:                                   value = ExperiencedECSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_PISN:                                   value = ExperiencedPISN();                                      break;
@@ -312,6 +313,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
+            case ANY_STAR_PROPERTY::IS_AIC:                                             value = IsAIC();                                                break;
             case ANY_STAR_PROPERTY::IS_CCSN:                                            value = IsCCSN();                                               break;
             case ANY_STAR_PROPERTY::IS_ECSN:                                            value = IsECSN();                                               break;
             case ANY_STAR_PROPERTY::IS_PISN:                                            value = IsPISN();                                               break;
@@ -1259,7 +1261,7 @@ double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) const{
     if (utils::Compare(p_CoreMass, m_Mass) >= 0) return 0.0;    // If the object is all core, the calculation is meaningless
 
     double m = p_CoreMass / m_Mass;
-    double x = -0.3;                                            // Depends on composition, should use x from Hurley et al 2000
+    double x = BaseStar::CalculateGBRadiusXExponent();          // x from Hurley et al 2000, Eq. 47 - Depends on composition
     return -x + (2.0 * m * m * m * m * m);
 }
 
@@ -1294,7 +1296,7 @@ double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) const {
  */
 double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
     
-    double zeta = 0.0;                                              // default value
+    double zeta = 0.0;                                            // default value
     
     switch (p_ZetaPrescription) {                                 // which prescription?
         case ZETA_PRESCRIPTION::SOBERMAN:                         // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
@@ -2085,14 +2087,18 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
  *
  * double CalculateThermalMassAcceptanceRate(const double p_Radius)
  *
- * @param   [IN]    p_Radius                    Radius of the accretor (Rsol)
+ * @param   [IN]    p_Radius                    Radius of the accretor (Rsol) [typically called with Roche Lobe radius]
  * @return                                      Thermal mass acceptance rate
  */
 double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) const {
-        
-    return OPTIONS->MassTransferThermallyLimitedVariation() == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE
-            ? (m_Mass - m_CoreMass) / CalculateThermalTimescale(p_Radius)
-            : CalculateThermalMassLossRate();
+    
+    switch( OPTIONS->MassTransferThermallyLimitedVariation() ) {
+        case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE:
+            return (m_Mass - m_CoreMass) / CalculateThermalTimescale(p_Radius) ;            // uses provided accretor radius (should be Roche lobe radius in practice)
+        case MT_THERMALLY_LIMITED_VARIATION::C_FACTOR:
+        default:
+            return CalculateThermalMassLossRate();
+    }
 }
 
 
@@ -2484,7 +2490,7 @@ double BaseStar::CalculateNuclearTimescale_Static(const double p_Mass, const dou
  * The p_Radius parameter is to accommodate the call (of this function) in BaseBinaryStar::CalculateMassTransfer()
 */
 double BaseStar::CalculateThermalTimescale(const double p_Radius) const {   
-    return 31.4 * m_Mass * (m_Mass == m_CoreMass ? m_Mass : m_Mass - m_CoreMass) / (m_Radius * m_Luminosity); // G*Msol^2/(Lsol*Rsol) ~ 31.4 Myr (~ 30 Myr in Kalogera & Webbink)
+    return 31.4 * m_Mass * (m_Mass == m_CoreMass ? m_Mass : m_Mass - m_CoreMass) / (p_Radius * m_Luminosity); // G*Msol^2/(Lsol*Rsol) ~ 31.4 Myr (~ 30 Myr in Kalogera & Webbink)
 }
 
 
@@ -2818,6 +2824,10 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
 			    sigma = OPTIONS->KickMagnitudeDistributionSigmaForUSSN();
                 break;
 
+		    case SN_EVENT::AIC:                                                                     // AIC have 0 kick 
+			    sigma = 0;
+                break;
+
 		    case SN_EVENT::CCSN:                                                                    // draw a random kick magnitude from the user selected distribution - sigma based on whether compact object is a NS or BH
 
                 switch (p_StellarType) {                                                            // which stellar type?
@@ -2928,8 +2938,7 @@ void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
 
 
 /*
- *	Calculate the absolute value of the binding energy core to the envelope of the star
- *	ALEJANDRO - 08/03/2017
+ *	Calculate the absolute value of the binding energy of the envelope of the star
  *
  *
  * double CalculateBindingEnergy(const double p_CoreMass, const double p_EnvMass, const double p_Radius, const double p_Lambda)
@@ -2937,6 +2946,7 @@ void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity) {
  * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
  * @param   [IN]    p_EnvMass                   Envelope mass of the star (Msol)
  * @param   [IN]    p_Radius                    Radius of the star (Rsol)
+ * @param   [IN]    p_Lambda                    Dimensionless parameter defining the binding energy
  * @return                                      Binding energy (erg)
  */
 double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_EnvMass, const double p_Radius, const double p_Lambda) const {
@@ -2948,7 +2958,7 @@ double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_
 	}
 	else if (utils::Compare(p_Lambda, 0.0) <= 0) {                                      // positive lambda?
         // Not necesarily zero as sometimes lambda is made 0, or maybe weird values for certain parameters of the fit. Not sure about the latter.
-//        SHOW_WARN(ERROR::LAMBDA_NOT_POSITIVE, "Binding energy = 0.0");                  // warn lambda not positive
+        SHOW_WARN(ERROR::LAMBDA_NOT_POSITIVE, "Binding energy = 0.0");                  // warn lambda not positive
 	}
 	else {                                                                              // calculate binding energy
         // convert to CGS where necessary
@@ -2983,6 +2993,21 @@ void BaseStar::CalculateBindingEnergies(const double p_CoreMass, const double p_
 	m_BindingEnergies.kruckow        = CalculateBindingEnergy(p_CoreMass, p_EnvMass, p_Radius, m_Lambdas.kruckow);
 }
 
+/*
+ * Calculate convective envelope binding energy for the two-stage Hirai & Mandel (2022) common envelope formalism
+ *
+ *
+ * double CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_lambda)
+ *
+ * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
+ * @param   [IN]    p_ConvectiveEnvelopeMass    Mass of the convective outer envelope  (Msol)
+ * @param   [IN]    p_Radius                    Radius of the star (Rsol)
+ * @param   [IN]    p_Lambda                    Dimensionless parameter defining the binding energy
+ * @return                                      Binding energy (erg)
+ */
+double BaseStar::CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda) {
+    return CalculateBindingEnergy(p_CoreMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda);
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -3167,7 +3192,7 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
     }
     else {
-        stellarType = ResolveSupernova();                                                   // handle supernova     JR: moved this to start of timestep        
+        stellarType = ResolveSupernova();                                                   // handle supernova          
         
         if (stellarType == m_StellarType) {                                                 // still on phase?
             
@@ -3345,7 +3370,3 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase() {
 
     return stellarType;
 }
-
-
-
-

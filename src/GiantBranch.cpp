@@ -1,8 +1,10 @@
 #include "GiantBranch.h"
 #include "HeMS.h"
 #include "WhiteDwarfs.h"
+#include "ONeWD.h"
 #include "NS.h"
 #include "BH.h"
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -817,7 +819,7 @@ double GiantBranch::CalculateCoreMassAtBGB_Static(const double      p_Mass,
 /*
  * Calculate the core mass at which the Asymptotic Giant Branch phase is terminated in a SN/loss of envelope
  *
- * Hurley et al. 2000, eq 75
+ * Hurley et al. 2000, eq 75 -- but note we use MECS rather than MCH
  *
  *
  * double CalculateCoreMassAtSupernova_Static(const double p_McBAGB)
@@ -918,30 +920,57 @@ double GiantBranch::CalculateMassLossRateHurley() {
 
 
 /*
- * Determines if mass transfer produces a wet merger
+ * Determines if mass transfer is unstable according to the critical mass ratio.
  *
- * According to the mass ratio limit discussed by de Mink et al. 2013 and Claeys et al. 2014
+ * See e.g de Mink et al. 2013, Claeys et al. 2014, and Ge et al. 2010, 2015, 2020 for discussions.
  *
- * Assumes this star is the donor; relevant accretor details are passed as parameters
+ * Assumes this star is the donor; relevant accretor details are passed as parameters.
+ * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
  *
+ * double GiantBranch::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) 
  *
- * bool IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate)
- *
- * @param   [IN]    p_AccretorMass              Mass of accretor in Msol
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
- * @return                                      Boolean indicating stability of mass transfer (true = unstable)
+ * @return                                      Critical mass ratio for unstable MT 
  */
-bool GiantBranch::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
+double GiantBranch::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const {
 
-    bool result = false;                                                                                                    // default is stable
-
-    if (OPTIONS->MassTransferCriticalMassRatioGiant()) {
-        result = p_AccretorIsDegenerate
-                    ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioGiantDegenerateAccretor()           // degenerate accretor
-                    : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioGiantNonDegenerateAccretor();       // non-degenerate accretor
+    double qCrit;
+                                                                                                                            
+    if (p_AccretorIsDegenerate) {                                                                                           // Degenerate accretor
+        qCrit = OPTIONS->MassTransferCriticalMassRatioGiantDegenerateAccretor();
+    }
+    else {                                                                                                                  // Non-degenerate accretor 
+        qCrit = OPTIONS->MassTransferCriticalMassRatioGiantNonDegenerateAccretor();
+        if (qCrit == -1) {                                                                                                  // Default value of -1 recalculates qCrit with the following function 
+            double coreMassRatio = m_HeCoreMass/m_Mass;
+            double x = BaseStar::CalculateGBRadiusXExponent();                                                              // x from Hurley et al 2000, Eq. 47 - Depends on composition
+            qCrit = 2.13/( 1.67 - x + 2*(coreMassRatio*coreMassRatio*coreMassRatio*coreMassRatio*coreMassRatio));           // Claeys+ 2014, Table 2
+        }
     }
 
-    return result;
+    return qCrit;
+}
+
+
+/*
+ * Approximates the mass of the outer convective envelope.
+ *
+ * This is needed for the Hirai & Mandel (2022) two-stage CE formalism.
+ *
+ *
+ * double GiantBranch::CalculateConvectiveEnvelopeMass()
+ *
+ * @return                                      Mass of the outer convective envelope
+ */
+double GiantBranch::CalculateConvectiveEnvelopeMass() const {
+    double convectiveEnvelopeMass = 0.0;
+    if( DetermineEnvelopeType() == ENVELOPE::CONVECTIVE ) {
+        convectiveEnvelopeMass = Mass() - CoreMass() ;                                                                      // For now, return full envelope mass as if it were convective
+    }
+    else if ( DetermineEnvelopeType() == ENVELOPE::RADIATIVE) {
+        convectiveEnvelopeMass = 0.0;                                                                                       // We probably don't need to use RADIATIVE/CONVECTIVE arbitrary boundaries like this; this is just to ensure identical results with new and old prescriptions
+    }
+    return convectiveEnvelopeMass;
 }
 
 
@@ -1459,6 +1488,61 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const do
 
 
 /*
+ * Calculate the remnant mass using the new Fryer prescription from 2022
+ *
+ * Fryer et al. 2022 eq. 5
+ *
+ *
+ * std::tuple<double, double> CalculateRemnantMassByFryer2022(const double p_Mass, const double p_COCoreMass)
+ *
+ * @param   [IN]    p_Mass                      Pre supernova mass in Msol
+ * @param   [IN]    p_COCoreMass                Pre supernova Carbon Oxygen (CO) core mass in Msol
+ * @return                                      Tuple containing Remnant mass in Msol and updated fraction of mass falling back onto compact object
+ */
+std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const double p_Mass, const double p_COCoreMass) {
+
+
+    double mProto;
+    double fallbackMass;
+    double baryonicRemnantMass;
+
+    double fallbackFraction         = 0.0;
+    double gravitationalRemnantMass = 0.0;
+
+    baryonicRemnantMass  = 1.2 + 0.05 * OPTIONS->Fryer22fmix() + 0.01 * pow( (p_COCoreMass/OPTIONS->Fryer22fmix()), 2.0) + exp( OPTIONS->Fryer22fmix() * (p_COCoreMass - OPTIONS->Fryer22Mcrit()) ) ;  // equation 5. 
+    baryonicRemnantMass  = std::min(baryonicRemnantMass, p_Mass);// check that baryonicRemnantMass doesn't exceed the total mass
+
+    // Now the proto mass, which is only used for the calculation of kicks, will still be calculated using the DELAYED/RAPID prescriptions from Fryer 2012
+    switch (OPTIONS->FryerSupernovaEngine()) {                                                                                     // which SN_ENGINE?
+
+        case SN_ENGINE::DELAYED:  
+        mProto           = CalculateProtoCoreMassDelayed(p_COCoreMass);
+
+        fallbackMass        = std::max(0.0, baryonicRemnantMass - mProto);                                      // fallbackMass larger than 0
+        fallbackFraction    = fallbackMass/(p_Mass - mProto);                                                   //
+        fallbackFraction    = std::max(0.0, std::min(1.0, fallbackFraction));                                   // make sure the fb fraction lies between 0-1
+        gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
+        break;
+
+        case SN_ENGINE::RAPID:  
+        mProto           = CalculateProtoCoreMassRapid();
+
+        fallbackMass        = std::max(0.0, baryonicRemnantMass - mProto);                                      // fallbackMass larger than 0
+        fallbackFraction    = fallbackMass/(p_Mass - mProto);                                                   //
+        fallbackFraction    = std::max(0.0, std::min(1.0, fallbackFraction));                                   // make sure the fb fraction lies between 0-1
+        gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
+        break;
+
+        default:                                                                                            // unknown SN_ENGINE
+        SHOW_WARN(ERROR::UNKNOWN_SN_ENGINE, "Using defaults");                                          // show warning
+    }
+                                   
+    return std::make_tuple(gravitationalRemnantMass, fallbackFraction);
+}
+
+
+
+/*
  * Calculate fallback using linear interpolation
  *
  * Belczynski et al. 2002
@@ -1540,6 +1624,12 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
             std::tie(m_Mass, m_SupernovaDetails.fallbackFraction) = CalculateRemnantMassByFryer2012(m_Mass, m_COCoreMass);
             break;
 
+
+        case REMNANT_MASS_PRESCRIPTION::FRYER2022:                                                          // Fryer 2022
+
+            std::tie(m_Mass, m_SupernovaDetails.fallbackFraction) = CalculateRemnantMassByFryer2022(m_Mass, m_COCoreMass);
+            break;
+
         case REMNANT_MASS_PRESCRIPTION::MULLER2016:                                                         // Muller 2016
 
             m_Mass = CalculateRemnantMassByMuller2016(m_Mass, m_COCoreMass);
@@ -1615,9 +1705,8 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
  *
  *
  * Short hand wavy story. The core ignites ONeMg and collapses through electron
- * capture. This core is less dense than the heavier Fe Core collapses and thus
- * people expect the neutrinos to escape easier resulting in a zero kick
- * TODO a nice reference (Nomoto 1984 for thorough discussion and a summary in Nomoto 1987)
+ * capture (e.g., Nomoto 1984 for thorough discussion and a summary in Nomoto 1987).
+ * The explosion is likely accompanied by a low natal kick
  *
  *
  * STELLAR_TYPE ResolveElectronCaptureSN()
@@ -1626,14 +1715,38 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
  */
 STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
 
-    m_Mass       = MECS_REM;                                                        // defined in constant.h
-    m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                       // neutronStarRadius in Rsol
-    m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
+    if (!m_MassTransferDonorHistory.empty() || (OPTIONS->AllowNonStrippedECSN())) {         // If progenitor has never been a MT donor, is it allowed to ECSN?
+                                                                                            // - yes
+        m_Mass       = MECS_REM;                                                            // defined in constants.h
+        m_CoreMass   = m_Mass;
+        m_HeCoreMass = m_Mass;
+        m_COCoreMass = m_Mass;
+        m_Mass0      = m_Mass;
+        m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
+        m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
+    
+        SetSNCurrentEvent(SN_EVENT::ECSN);                                                  // electron capture SN happening now
+        SetSNPastEvent(SN_EVENT::ECSN);                                                     // ... and will be a past event
+    
+        return STELLAR_TYPE::NEUTRON_STAR;
 
-    SetSNCurrentEvent(SN_EVENT::ECSN);                                              // electron capture SN happening now
-    SetSNPastEvent(SN_EVENT::ECSN);                                                 // ... and will be a past event
+    }
+    else {                                                                                  // -no, treat as ONeWD 
+        
+        if(utils::Compare(m_COCoreMass,MCH) > 0){
+            SHOW_WARN(ERROR::WHITE_DWARF_TOO_MASSIVE, "Setting mass to Chandraskhar mass.");
+        }
+        m_Mass       = std::min(m_COCoreMass,MCH);                                          // no WD masses above Chandrasekhar mass
+        m_CoreMass   = m_Mass;
+        m_HeCoreMass = m_Mass;
+        m_COCoreMass = m_Mass;
+        m_Mass0      = m_Mass;
+        m_Radius     = WhiteDwarfs::CalculateRadiusOnPhase_Static(m_Mass);                  // radius is defined equivalently for all WDs
+        m_Luminosity = ONeWD::CalculateLuminosityOnPhase_Static(m_Mass, m_Time, m_Metallicity); //Need to get the luminosity for ONeWD specifically
+    
+        return STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
 
-    return STELLAR_TYPE::NEUTRON_STAR;
+    }	    
 }
 
 

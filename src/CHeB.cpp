@@ -1403,7 +1403,7 @@ ENVELOPE CHeB::DetermineEnvelopeType() const {
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
-            envelope =  utils::Compare(Temperature() * TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            envelope =  utils::Compare(Temperature() * TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
             
         default:                                                                                    // unknown prescription - use default envelope type
@@ -1495,7 +1495,6 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
         m_Luminosity = HeMS::CalculateLuminosityOnPhase_Static(m_Mass, m_Tau);
         m_Radius     = HeMS::CalculateRadiusOnPhase_Static(m_Mass, m_Tau);
-
         stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                          // will evolve to an evolved helium star
     }
 
