@@ -5,7 +5,7 @@ Tests that the utils/h5view.py module works as expected.
 import unittest
 import os
 import h5py
-from compas_utils import h5view
+from compas_python_utils import h5view
 
 
 class TestH5view(unittest.TestCase):
