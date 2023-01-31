@@ -447,23 +447,21 @@ Binary Properties
            :widths: 35 5
            :header-rows: 0
            :class: aligned-text
-           
-           * - NO MASS TRANSFER
+
+           * - NO MASS TRANSFER 
              - = 0
-           * - STABLE FROM 1 TO 2
+           * - MASS TRANSFER STABLE STAR1 -> STAR2 
              - = 1
-           * - STABLE FROM 2 TO 1
+           * - MASS TRANSFER STABLE STAR2 -> STAR1 
              - = 2
-           * - CE FROM 1 TO 2
+           * - MASS TRANSFER COMMON ENVELOPE STAR1 -> STAR2 
              - = 3
-           * - CE FROM 2 TO 1
+           * - MASS TRANSFER COMMON ENVELOPE STAR2 -> STAR1 
              - = 4
-           * - CE DOUBLE CORE
+           * - MASS TRANSFER COMMON ENVELOPE DOUBLE CORE 
              - = 5
-           * - CE BOTH MS
+           * - MASS TRANSFER -> MERGER 
              - = 6
-           * - CE MS WITH CO
-             - = 7
 
    * - Header String:
      - MT_History
@@ -867,22 +865,6 @@ but not both. If both are printed then the file will contain two columns with th
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **RLOF_POST_MT_TIME**
-     -
-   * - Data type:
-     - DOUBLE
-   * - COMPAS variable:
-     - BaseBinaryStar::m_RLOFDetails.propsPostMT→time
-   * - Description:
-     - Time since ZAMS (Myr) immediately after RLOF.
-   * - Header String:
-     - Time>MT
-
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
    * - :cspan:`2` **RLOF_PRE_MT_ECCENTRICITY**
      -
    * - Data type:
@@ -1087,12 +1069,28 @@ but not both. If both are printed then the file will contain two columns with th
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **RLOF_PRE_MT_TIME**
+   * - :cspan:`2` **RLOF_TIME_POST_MT**
      -
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
      - BaseBinaryStar::m_RLOFDetails.propsPreMT→time
+   * - Description:
+     - Time since ZAMS (Myr) immediately after RLOF.
+   * - Header String:
+     - Time>MT
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **RLOF_TIME_PRE_MT**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_RLOFDetails.propsPreMT→timePrev
    * - Description:
      - Time since ZAMS (Myr) at the onset of RLOF.
    * - Header String:
