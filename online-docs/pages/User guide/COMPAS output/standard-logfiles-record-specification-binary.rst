@@ -1589,6 +1589,22 @@ both. If both are printed then the file will contain two columns with the same h
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **SUPERNOVA_ORBIT_INCLINATION_ANGLE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_ThetaE
+   * - Description:
+     - Indicates the inclination angle between the pre-supernova and post-supernova orbits, between [0, \ :math:`\pi`]  
+   * - Header String:
+     - Supernova_Orbit_Inclination_Angle
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **SUPERNOVA_STATE**
      -
    * - Data type:
@@ -1611,7 +1627,6 @@ both. If both are printed then the file will contain two columns with the same h
              - = 2
            * - Both stars are supernovae
              - = 3
-
    * - Header String:
      - Supernova_State
 
