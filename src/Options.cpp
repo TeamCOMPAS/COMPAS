@@ -295,7 +295,7 @@ void Options::OptionValues::Initialise() {
     // Chemically Homogeneous Evolution
     m_CheMode.type                                                  = CHE_MODE::PESSIMISTIC;
     m_CheMode.typeString                                            = CHE_MODE_LABEL.at(m_CheMode.type);
-
+    m_EnhanceCHELifetimesLuminosities                               = false;                                                // By default, don't enhance, as in Riley et al.
 
     // Supernova remnant mass prescription options
     m_RemnantMassPrescription.type                                  = REMNANT_MASS_PRESCRIPTION::FRYER2012;
@@ -736,6 +736,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "enable-warnings",                                             
             po::value<bool>(&p_Options->m_EnableWarnings)->default_value(p_Options->m_EnableWarnings)->implicit_value(true),                                                                      
             ("Display warning messages to stdout (default = " + std::string(p_Options->m_EnableWarnings ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "enhance-CHE-lifetimes-luminosities",                                             
+            po::value<bool>(&p_Options->m_EnhanceCHELifetimesLuminosities)->default_value(p_Options->m_EnhanceCHELifetimesLuminosities)->implicit_value(false),                                                                      
+            ("Whether to enhance the lifetimes and luminosities of chemically homogenously evolving (CHE) stars relative to SSE main sequence lifetimes/luminosities (default = " + std::string(p_Options->m_EnhanceCHELifetimesLuminosities ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "errors-to-file",                                              

@@ -426,6 +426,7 @@ private:
 
         "eccentricity-distribution",
         "enable-warnings",
+        "enhance-CHE-lifetimes-luminosities",
         "envelope-state-prescription",
         "errors-to-file",
         "evolve-pulsars",
@@ -729,13 +730,14 @@ public:
 
             double                                              m_MullerMandelKickBH;                                           // Multiplier for BH kicks per Mandel and Mueller, 2020
             double                                              m_MullerMandelKickNS;                                           // Multiplier for NS kicks per Mandel and Mueller, 2020
-            double                                              m_MullerMandelSigmaKick;                                           // Scatter for kicks per Mandel and Mueller, 2020
+            double                                              m_MullerMandelSigmaKick;                                        // Scatter for kicks per Mandel and Mueller, 2020
 
             // Black hole kicks
             ENUM_OPT<BLACK_HOLE_KICKS>                          m_BlackHoleKicks;                                               // Which black hole kicks mode
 
             // CHE - Chemically Homogeneous Evolution
-            ENUM_OPT<CHE_MODE>                                  m_CheMode;                                                      // Which Chemically Homogeneous Evolution mode
+            ENUM_OPT<CHE_MODE>                                  m_CheMode;                                                      // Which Chemically Homogeneous Evolution (CHE) mode
+            bool                                                m_EnhanceCHELifetimesLuminosities;                              // Whether to enhance the lifetimes and luminosities of CHE stars relative to SSE MS stars
 
             // Supernova remnant mass
             ENUM_OPT<REMNANT_MASS_PRESCRIPTION>                 m_RemnantMassPrescription;                                      // Which remnant mass prescription
@@ -1183,6 +1185,7 @@ public:
     double                                      EccentricityDistributionMin() const                                     { return OPT_VALUE("eccentricity-distribution-min", m_EccentricityDistributionMin, true); }
     double                                      EddingtonAccretionFactor() const                                        { return OPT_VALUE("eddington-accretion-factor", m_EddingtonAccretionFactor, true); }
     ENVELOPE_STATE_PRESCRIPTION                 EnvelopeStatePrescription() const                                       { return OPT_VALUE("envelope-state-prescription", m_EnvelopeStatePrescription.type, true); }
+    bool                                        EnhanceCHELifetimesLuminosities() const                                 { return OPT_VALUE("enhance-CHE-lifetimes-luminosities", m_EnhanceCHELifetimesLuminosities, false); }
     EVOLUTION_MODE                              EvolutionMode() const                                                   { return m_CmdLine.optionValues.m_EvolutionMode.type; }
     bool                                        EvolvePulsars() const                                                   { return OPT_VALUE("evolve-pulsars", m_EvolvePulsars, true); }
     bool                                        EvolveUnboundSystems() const                                            { return OPT_VALUE("evolve-unbound-systems", m_EvolveUnboundSystems, true); }

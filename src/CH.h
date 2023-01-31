@@ -40,6 +40,16 @@ protected:
     double          CalculateRadiusOnPhase() const      { return m_RZAMS; }                                                                                                         // Constant from birth
     double          CalculateRadiusAtPhaseEnd() const   { return CalculateRadiusOnPhase(); }                                                                                        // Same as on phase
 
+    // Luminosity
+    double          CalculateLogLuminosityRatio(const double p_Mass);
+    double          CalculateCHLuminosityRatio(const double p_Mass);
+    double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS);
+    double          CalculateLuminosityAtPhaseEnd(const double p_Mass);
+
+    // Lifetime
+    double          CalculateLogLifetimeRatio(const double p_Mass);
+    double          CalculateLifetimeRatio(const double p_Mass);
+
     STELLAR_TYPE    EvolveToNextPhase();
 
     bool            ShouldEvolveOnPhase() const         { return m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)] && (OPTIONS->OptimisticCHE() || m_Omega >= m_OmegaCHE); }   // Evolve on CHE phase if age in MS timescale and spinning at least as fast as CHE threshold
