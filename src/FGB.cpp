@@ -176,7 +176,7 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {                                      // Envelope loss
+    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                                      // Envelope loss
 
         m_Mass      = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_HeCoreMass;
@@ -198,7 +198,6 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
             m_Age        = 0.0;
             m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);
         }
-
     }
 
     return stellarType;

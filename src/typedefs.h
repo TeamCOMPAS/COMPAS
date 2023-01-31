@@ -16,6 +16,7 @@ typedef std::vector<STELLAR_TYPE>              STYPE_VECTOR;
 typedef struct LogfileDetails {
     int                           id;                       // logfile id
     std::string                   filename;                 // filename
+    int                           recordTypes;              // bitmap of record types to be written to the file (if 0, the file is disabled)
     ANY_PROPERTY_VECTOR           recordProperties;         // list of properties (columns) to be written to the logfile
     std::vector<TYPENAME>         propertyTypes;            // the COMPAS datatypes of the properties
     std::vector<STRING_QUALIFIER> stringTypes;              // the string type (fixed or variable length) for TYPENAME::STRING datatypes
@@ -54,7 +55,7 @@ struct KickMagnitudeParams {
 
 
 // struct for supernova events:
-// CCSN, ECSN, PISN, PPSIN, USSN
+// CCSN, ECSN, PISN, PPSIN, USSN, AIC
 
 typedef struct SNEvents {
     SN_EVENT current;                                       // Supernova event at the current timestep: NONE if no supernova event happening
@@ -158,6 +159,7 @@ typedef struct BindingEnergies {
 	double loveridge;                                       // Calculated using lambda = m_Lambdas.loveridge
 	double loveridgeWinds;                                  // Calculated using lambda = m_Lambdas.loveridgeWinds
 	double kruckow;                                         // Calculated using lambda = m_Lambdas.kruckow
+    double dewi;                                            // Calculated using lambda = m_Lambdas.dewi
 } BindingEnergiesT;
 
 
@@ -183,6 +185,7 @@ typedef struct RLOFProperties {
     unsigned int  eventCounter;
 
     double        time;
+    double        timePrev;
 
     bool          isRLOF1;
     bool          isRLOF2;
@@ -278,6 +281,9 @@ typedef struct StellarCEDetails {                      // Common Envelope detail
     double                 CoreMass;
     double                 HeCoreMass;
     double                 lambda;
+    double                 convectiveEnvelopeMass;              // for two-stage CE formalism
+    double                 radiativeIntershellMass;             // for two-stage CE formalism
+    double                 convectiveEnvelopeBindingEnergy;     // for two-stage CE formalism
 } StellarCEDetailsT; // was CommonEnvelopeDetailsT;
 
 

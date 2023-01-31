@@ -56,12 +56,14 @@ protected:
 
     // member functions - alphabetically
             double          CalculateCOCoreMassAtPhaseEnd() const                                       { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase
-            double          CalculateCOCoreMassOnPhase() const                                          { return 0.0; }                                                         // McCO(HeMS) = 0.0
+            double          CalculateCOCoreMassOnPhase() const                                          { return 0.0;  }                                                        // McCO(HeMS) = 0.0
 
             double          CalculateCoreMassAtPhaseEnd() const                                         { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
-            double          CalculateCoreMassOnPhase() const                                            { return m_COCoreMass; }                                                // Mc(HeMS) = McCOMass
+            double          CalculateCoreMassOnPhase() const                                            { return 0.0; }                                                         // Mc(HeMS) = 0.0
 
-            double          CalculateGyrationRadius() const                                             { return 0.1; }                                                         // JR: todo: Nobody seems sure about this...
+            double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const;
+
+            double          CalculateGyrationRadius() const                                             { return 0.1; }
 
             double          CalculateHeCoreMassOnPhase() const                                          { return m_Mass; }                                                      // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd() const                                       { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
@@ -113,7 +115,6 @@ protected:
             ENVELOPE        DetermineEnvelopeType() const                                               { return ENVELOPE::RADIATIVE; }                                         // Always RADIATIVE
 
             bool            IsEndOfPhase() const                                                        { return !ShouldEvolveOnPhase(); }
-            bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
             bool            IsSupernova() const                                                         { return false; }                                                       // Not here
 
             void            PerturbLuminosityAndRadius() { }                                                                                                                    // NO-OP
