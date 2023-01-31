@@ -958,7 +958,9 @@
 //                                      - Changed conditional statement in HG::ResolveEnvelopeLoss() and FGB::ResolveEnvelopeLoss() to be consistent with other stellar types ('>' -> '>=').
 // 02.34.03     NRS - Jan 9, 2023    - Defect repair:
 //                                      - Fixed units for post-CEE semi-major axis in CEE logs (issue #876).
+// 02.34.04     RTW - Jan 31, 2023   - Enhancement:
+//                                      - Added SN orbit inclination angle to BSE_SUPERNOVAE output
 
-const std::string VERSION_STRING = "02.34.03";
+const std::string VERSION_STRING = "02.34.04";
 
 # endif // __changelog_h__
