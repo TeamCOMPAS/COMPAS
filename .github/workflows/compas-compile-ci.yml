@@ -4,6 +4,9 @@ on:
   workflow_dispatch: # allow manual triggering of this workflow
   push:
     paths: ['src/**'] # only changes to src/ trigger this workflow
+  pull_request:
+    branches:
+      - dev
 
 jobs:
   compas:
