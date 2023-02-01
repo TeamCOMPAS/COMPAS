@@ -71,6 +71,7 @@ class COMPASData(object):
         
         stellar_type_1, stellar_type_2, hubble_flag, dco_seeds = \
             self.get_COMPAS_variables("BSE_Double_Compact_Objects", ["Stellar_Type(1)", "Stellar_Type(2)", "Merges_Hubble_Time", "SEED"])
+        dco_seeds = dco_seeds.flatten()
 
         if types == "CHE_BBH" or types == "NON_CHE_BBH":
             stellar_type_1_zams, stellar_type_2_zams, che_ms_1, che_ms_2, sys_seeds = \
