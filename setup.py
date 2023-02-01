@@ -10,7 +10,7 @@ if python_version < (3, 8):
     sys.exit("Python < 3.8 is not supported, aborting setup")
 
 NAME = "compas_python_utils"
-PACKAGES = find_packages(NAME)
+PACKAGES = find_packages()
 HERE = os.path.dirname(os.path.realpath(__file__))
 META_PATH = os.path.join(NAME, "__init__.py")
 CPP_VERSION_FILE = os.path.join("src", "changelog.h")
@@ -61,7 +61,7 @@ def find_version(version_file=read(CPP_VERSION_FILE)):
 
 
 if __name__ == "__main__":
-
+    print("Packages : ", PACKAGES)
 
     setup(
         name=NAME,
