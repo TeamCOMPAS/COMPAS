@@ -41,14 +41,23 @@ protected:
     double          CalculateRadiusAtPhaseEnd() const   { return CalculateRadiusOnPhase(); }                                                                                        // Same as on phase
 
     // Luminosity
-    double          CalculateLogLuminosityRatio(const double p_Mass);
-    double          CalculateCHLuminosityRatio(const double p_Mass);
-    double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS);
-    double          CalculateLuminosityAtPhaseEnd(const double p_Mass);
+    double          CalculateLogLuminosityRatio(const double p_Mass) const;
+    double          CalculateCHLuminosityRatio(const double p_Mass) const;
+
+    double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;
+    double          CalculateLuminosityAtPhaseEnd() const                                   { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                      // Use class member variables
+
+    double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const;
+    double          CalculateLuminosityOnPhase() const                                      { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0); }        // Use class member variables
 
     // Lifetime
-    double          CalculateLogLifetimeRatio(const double p_Mass);
-    double          CalculateLifetimeRatio(const double p_Mass);
+    double          CalculateLogLifetimeRatio(const double p_Mass) const;
+    double          CalculateLifetimeRatio(const double p_Mass) const;
+
+    // double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const;
+
+    void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
+    void            CalculateTimescales()                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
 
     STELLAR_TYPE    EvolveToNextPhase();
 
