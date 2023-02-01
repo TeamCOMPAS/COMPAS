@@ -3,19 +3,25 @@ import sys
 import os
 from subprocess import call
 import yaml
+import argparse
 
 # Check if we are using python 3
 python_version = sys.version_info[0]
 print("python_version =", python_version)
+
+HERE = os.path.dirname(__file__)
+DEFUALT_CONFIG_FILE = os.path.join(HERE, 'compasConfigDefault.yaml')
+
 
 class pythonProgramOptions:
     """
     A class to store and access COMPAS program options in python
     """
 
-    def __init__(self, config_file='compasConfigDefault.yaml', grid_filename=None, random_seed_filename='randomSeed.txt', output_directory=None):
+    def __init__(self, config_file=DEFUALT_CONFIG_FILE, grid_filename=None,
+                 random_seed_filename='randomSeed.txt', output_directory=None):
         # Do './COMPAS --help' to see all options
-        #-- Define variables
+        # -- Define variables
 
         # environment variable COMPAS_EXECUTABLE_PATH is used for docker runs
         # if COMPAS_EXECUTABLE_PATH is not set (== None) we assume this is an
@@ -24,20 +30,20 @@ class pythonProgramOptions:
         # inside a docker container - we have different directories inside a 
         # docker container (src, obj, bin), and the COMPAS executable resides
         # in the bin directory (rather than the src directory)
-        
+
         # Load yaml file with options
         with open(config_file) as file:
             # The FullLoader parameter handles the conversion from YAML
             # scalar values to Python the dictionary format
             config = yaml.load(file, Loader=yaml.FullLoader)
-        
+
         self.booleanChoices = config['booleanChoices']
         self.numericalChoices = config['numericalChoices']
         self.stringChoices = config['stringChoices']
         self.listChoices = config['listChoices']
-                
+
         compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH')
-        print('compas_executable_override', compas_executable_override)        
+        print('compas_executable_override', compas_executable_override)
 
         if (compas_executable_override is None):
             # Make sure you have set and exported the COMPAS_ROOT_DIR environment variable
@@ -47,13 +53,13 @@ class pythonProgramOptions:
             self.compas_executable = compas_executable_override
 
         # If random_seed_filename is specified, overwrite the random seed from the yaml file
-        if os.path.isfile(random_seed_filename): 
+        if os.path.isfile(random_seed_filename):
             self.numericalChoices['--random-seed'] = int(np.loadtxt(random_seed_filename))
 
         # If grid is specified in pythonProgramOptions(), ignore the values from yaml file
         if grid_filename:
             self.grid_filename = grid_filename
-            self.stringChoices['--grid']= self.grid_filename
+            self.stringChoices['--grid'] = self.grid_filename
         else:
             self.grid_filename = self.stringChoices['--grid']
 
@@ -65,29 +71,30 @@ class pythonProgramOptions:
         # if COMPAS_LOGS_OUTPUT_DIR_PATH is not set (== None) the current working directory
         # is used as the value for the --output-path option
         compas_logs_output_override = os.environ.get('COMPAS_LOGS_OUTPUT_DIR_PATH')
-        
+
         if (compas_logs_output_override is None):
             self.stringChoices['--output-path'] = os.getcwd()
-            self.stringChoices['--output-container'] = output_directory   # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
+            self.stringChoices[
+                '--output-container'] = output_directory  # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
         else:
             self.stringChoices['--output-path'] = compas_logs_output_override
-            self.stringChoices['--output-container'] = output_directory 
-        
-        
-        # environment variable COMPAS_INPUT_DIR_PATH is used primarily for docker runs
+            self.stringChoices['--output-container'] = output_directory
+
+            # environment variable COMPAS_INPUT_DIR_PATH is used primarily for docker runs
         # if COMPAS_INPUT_DIR_PATH is set (!= None) it is prepended to input filenames
         # (such as grid_filename and logfile_definitions)
         # if COMPAS_INPUT_DIR_PATH is not set (== None) the current working directory
         # is prepended to input filenames
         compas_input_path_override = os.environ.get('COMPAS_INPUT_DIR_PATH')
-        
+
         if self.grid_filename != None:
             if compas_input_path_override == None:
                 self.grid_filename = os.getcwd() + '/' + self.grid_filename
             else:
                 self.grid_filename = compas_input_path_override + '/' + self.grid_filename
 
-        self.logfile_definitions = self.stringChoices['--logfile-definitions']  # logfile record definitions file name (e.g. 'logdefs.txt')
+        self.logfile_definitions = self.stringChoices[
+            '--logfile-definitions']  # logfile record definitions file name (e.g. 'logdefs.txt')
 
         if self.logfile_definitions != None:
             if compas_input_path_override == None:
@@ -96,7 +103,7 @@ class pythonProgramOptions:
                 self.logfile_definitions = compas_input_path_override + '/' + self.logfile_definitions
 
         self.makeCommandString()
-                        
+
     def makeCommandString(self):
         """
         This function generates a dictionary mapping COMPAS options to their specified 
@@ -107,41 +114,43 @@ class pythonProgramOptions:
         """
 
         ### Collect all options into a dictionary mapping option name to option value
-        self.command = {'compas_executable' : self.compas_executable} 
+        self.command = {'compas_executable': self.compas_executable}
 
         for boolKey, boolVal in self.booleanChoices.items():
             if boolVal is True:
-                self.command.update({boolKey: ''}) 
+                self.command.update({boolKey: ''})
             elif boolVal is False:
                 self.command.update({boolKey: 'False'})
-                
+
         for numKey, numVal in self.numericalChoices.items():
             if not numVal == None:
-                self.command.update({numKey : str(numVal)})    
-                
+                self.command.update({numKey: str(numVal)})
+
         for strKey, strVal in self.stringChoices.items():
             if not strVal == None:
                 self.command.update({strKey: strVal})
-                
+
         for listKey, listVal in self.listChoices.items():
             if listVal:
-                self.command.update({listKey : ' '.join(map(str, listVal))})
-        
+                self.command.update({listKey: ' '.join(map(str, listVal))})
+
         # Ensure the Compas executable is first, and not repeated.
         # Options are non-ordered.
         self.shellCommand = self.command['compas_executable']
-        del self.command['compas_executable'] 
+        del self.command['compas_executable']
         for key, val in self.command.items():
             self.shellCommand += ' ' + key + ' ' + val
 
         return
-
 def main():
-    #-- Get the program options
-    myoptions = pythonProgramOptions()
+    parser = argparse.ArgumentParser(description='Run COMPAS')
+    parser.add_argument('config_file', type=str, default=DEFUALT_CONFIG_FILE)
+    args = parser.parse_args()
+    # -- Get the program options
+    myoptions = pythonProgramOptions(config_file=args.config_file)
     print(myoptions.shellCommand)
-    #-- Run exectute COMPAS shell string
-    call(myoptions.shellCommand,shell=True)
+    # -- Run exectute COMPAS shell string
+    call(myoptions.shellCommand, shell=True)
 
 
 if __name__ == "__main__":
