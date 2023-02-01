@@ -36,7 +36,9 @@ INSTALL_REQUIRES = [
     "matplotlib",
     "pandas",
     "astropy",
-    "scipy"
+    "scipy",
+    "latex",
+    "PyYAML"
 ]
 EXTRA_REQUIRE = dict(dev=[
     "pytest>=3.6",
