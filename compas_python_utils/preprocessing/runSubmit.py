@@ -1,9 +1,6 @@
 import numpy as np
-import subprocess
 import sys
 import os
-import pickle
-import itertools 
 from subprocess import call
 import yaml
 
@@ -139,9 +136,13 @@ class pythonProgramOptions:
 
         return
 
-if __name__ == "__main__":
+def main():
     #-- Get the program options
     myoptions = pythonProgramOptions()
     print(myoptions.shellCommand)
     #-- Run exectute COMPAS shell string
     call(myoptions.shellCommand,shell=True)
+
+
+if __name__ == "__main__":
+    main()
