@@ -3,6 +3,8 @@ from compas_python_utils.cosmic_integration.ClassCOMPAS import COMPASData
 
 import io
 import time
+import h5py
+from data_path import get_data_path
 from contextlib import redirect_stdout
 
 import unittest
@@ -10,13 +12,8 @@ import os
 
 
 class TestFastIntegrator(unittest.TestCase):
-    def setUp(self) -> None:
-        self.res_dir = os.path.join(
-            os.path.dirname(__file__), "test_data", "COMPAS_Output")
-        self.res_h5_file = os.path.join(self.res_dir, "COMPAS_Output.h5")
-        self.res_h5_file = "/Users/avaj0001/Documents/projects/compas_dev/quasir_compass_blocks/data/COMPAS_Output.h5"
-
     def test_fast_cosmic_integration(self):
+        self.res_h5_file = h5py.File(get_data_path(), 'r')
         trap = io.StringIO()
         with redirect_stdout(trap):
             start_time = time.time()
@@ -26,7 +23,7 @@ class TestFastIntegrator(unittest.TestCase):
                 merger_rate,
                 redshifts,
                 COMPAS,
-            ) = find_detection_rate(path=self.res_h5_file)
+            ) = find_detection_rate(path=get_data_path())
             runtime = time.time() - start_time
 
         # check that the shape of the detection rate, formation rate and merger rate are the same
