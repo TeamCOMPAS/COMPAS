@@ -8,8 +8,8 @@ ehthumbs.db
 Thumbs.db
 
 
-*.egg-info/
 # Compiled source
+*.egg-info/
 *.com
 *.class
 *.dll
@@ -23,6 +23,7 @@ Thumbs.db
 __pycache__/
 COMPAS_Output*/
 output*/
+
 COMPAS
 *.log
 *.aux

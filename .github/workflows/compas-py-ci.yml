@@ -3,9 +3,9 @@ name: COMPAS py lint and test
 
 on:
   push:
-    paths: ['utils/**', 'py_tests/**']
+    paths: ['compas_python_utils/**', 'py_tests/**']
   pull_request:
-    paths: ['utils/**', 'py_tests/**']
+    paths: ['compas_python_utils/**', 'py_tests/**']
 
 jobs:
 #  pre-commit: # COMMENTING OUT FOR NOW AS THERE WILL BE ALOT OF CHANGES
