@@ -80,6 +80,7 @@ public:
     double              BindingEnergy_Loveridge() const                                                             { return m_Star->BindingEnergy_Loveridge(); }
     double              BindingEnergy_Nanjing() const                                                               { return m_Star->BindingEnergy_Nanjing(); }
     double              BindingEnergy_Kruckow() const                                                               { return m_Star->BindingEnergy_Kruckow(); }
+    double              BindingEnergy_Dewi() const                                                                  { return m_Star->BindingEnergy_Dewi(); }
     double              CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                         { return m_Star->CalculateCriticalMassRatio(p_AccretorIsDegenerate); }
     double              CalculateDynamicalTimescale() const                                                         { return m_Star->CalculateDynamicalTimescale(); }
     double              CalculateNuclearTimescale() const                                                           { return m_Star->CalculateNuclearTimescale(); }
@@ -106,6 +107,7 @@ public:
     double              Lambda_Loveridge() const                                                                    { return m_Star->Lambda_Loveridge(); }
     double              Lambda_Nanjing() const                                                                      { return m_Star->Lambda_Nanjing(); }
     double              Lambda_Kruckow() const                                                                      { return m_Star->Lambda_Kruckow(); }
+    double              Lambda_Dewi() const                                                                         { return m_Star->Lambda_Dewi(); }
     double              Luminosity() const                                                                          { return m_Star->Luminosity(); }
     double              Mass() const                                                                                { return m_Star->Mass(); }
     double              Mass0() const                                                                               { return m_Star->Mass0(); }
@@ -148,8 +150,11 @@ public:
                                              const double p_EnvMass,
                                              const double p_Radius)                                                 { m_Star->CalculateBindingEnergies(p_CoreMass, p_EnvMass, p_Radius); }
 
+    double          CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda)
+        { return m_Star->CalculateConvectiveEnvelopeBindingEnergy(p_CoreMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda); }
+    double          CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
+    
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }
-
     double          CalculateGyrationRadius() const                                                                 { return m_Star->CalculateGyrationRadius(); }
 
     void            CalculateLambdas()                                                                              { m_Star->CalculateLambdas(); }

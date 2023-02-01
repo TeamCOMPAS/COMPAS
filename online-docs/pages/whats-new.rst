@@ -6,6 +6,10 @@ Following is an brief list of important updates to the COMPAS code.  A complete 
 
 **LATEST RELEASE** |br|
 
+**02.34.01 Dec 7, 2022**
+
+* Fixed Time<MT in BSE_RLOF, which previously was identical with Time>MT.
+
 **02.33.00 Aug 28, 2022**
 
 * Added simplified (constant per stellar type) critical mass ratios from Claeys+ 2014 for determining if MT is unstable

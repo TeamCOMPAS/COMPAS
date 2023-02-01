@@ -1,16 +1,19 @@
 name: COMPAS compile test
 
-on: [pull_request]
+on:
+  pull_request:
+    paths: ['src/**'] # only changes to src/ trigger this workflow
+  workflow_dispatch: # allow manual triggering of this workflow
 
 jobs:
   compas:
     name: Build COMPAS
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
 
       - name: Install dependencies 
-        run: sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
+        run: sudo apt-get update; sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
 
       - name: Build Compas
         run: cd src && make -j $(nproc) -f Makefile

@@ -944,7 +944,23 @@
 //                                      - Cleaned up stability check functions in BaseBinaryStar.cpp for clarity, and to allow for critical mass ratios to be checked correctly
 // 02.33.01     RTW - Sep 26, 2022   - Defect repair:
 //                                      - Fixed interpolation of MACLEOD_LINEAR gamma for specific angular momentum. Previously interpolated on the gamma value, now interpolates in orbital separation
+// 02.33.02      IM - Nov 27, 2022   - Defect repair:
+//                                      - Fixed ignored value of input radius when computing the thermal timescale, relevant if using Roche lobe radius instead (issue #853)
+//                                      - Cleaned code and comments around the use of MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE vs. C_FACTOR (issue #850)
+// 02.34.00      IM - Nov 28, 2022   - Enhancement:
+//                                      - Adding framework for Hirai & Mandel 2-stage common envelope formalism
+//                                          (placeholders for now -- will have identical results to default version)
+//                                      - Placed Dewi CE prescription on parity with others
+// 02.34.01     RTW - Nov 30, 2022   - Defect repair:
+//                                      - Fixed Time<MT and Time>MT calls in BSE_RLOF. Previously, they were identical. Now, Time<MT correctly reflects the previous time.
+// 02.34.02     JR - Nov 30, 2022    - Defect repair:
+//                                      - Fixed problem with no content in switchlog files (issue #870 - introduced in v2.32.00).
+//                                      - Changed conditional statement in HG::ResolveEnvelopeLoss() and FGB::ResolveEnvelopeLoss() to be consistent with other stellar types ('>' -> '>=').
+// 02.34.03     NRS - Jan 9, 2023    - Defect repair:
+//                                      - Fixed units for post-CEE semi-major axis in CEE logs (issue #876).
+// 02.34.04     RTW - Jan 31, 2023   - Enhancement:
+//                                      - Added SN orbit inclination angle to BSE_SUPERNOVAE output
 
-const std::string VERSION_STRING = "02.33.01";
+const std::string VERSION_STRING = "02.34.04";
 
 # endif // __changelog_h__

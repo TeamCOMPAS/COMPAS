@@ -10,7 +10,7 @@ which redirects to the underlying readthedocs page at:
     https://compas.readthedocs.io/en/latest/index.html
 
 
-The source files for the online documentation are in the 'docs' directory at:
+The source files for the online documentation are in the 'online-docs' directory at:
 
     https://github.com/TeamCOMPAS/COMPAS
 
