@@ -42,7 +42,6 @@ protected:
 
     // Luminosity
     double          CalculateLogLuminosityRatio(const double p_Mass) const;
-    double          CalculateCHLuminosityRatio(const double p_Mass) const;
 
     double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;
     double          CalculateLuminosityAtPhaseEnd() const                                   { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                      // Use class member variables
@@ -54,7 +53,7 @@ protected:
     double          CalculateLogLifetimeRatio(const double p_Mass) const;
     double          CalculateLifetimeRatio(const double p_Mass) const;
 
-    // double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const;
+    void            UpdateAgeAfterMassLoss();                                                                                                                       // Per Hurley et al. 2000, section 7.1
 
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
     void            CalculateTimescales()                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables

@@ -24,9 +24,6 @@ double CH::CalculateLogLifetimeRatio(const double p_Mass) const {
 
     double logLifetimeRatio = term1 + term2 + term3 + term4;
 
-    // Make sure we don't decrease the lifetime
-    //if (logLifetimeRatio)
-
     return logLifetimeRatio;
 }
 
@@ -89,34 +86,6 @@ double CH::CalculateLogLuminosityRatio(const double p_Mass) const {
     return logLuminosityRatio;
 }
 
-/*
- * Calculate the ratio of the luminosity of a CH star to a normal star of the same mass
- * 
- * double CalculateCHLuminosityRatio()
- * 
- * @param   [IN]    p_Mass                      Mass in Msol
- * 
- * @return                                      Ratio of luminosity of a CHE star to a normal star of the same mass
- */
-double CH::CalculateCHLuminosityRatio(const double p_Mass) const {
-    
-    // Define some variables
-    double logLuminosityRatio = 0.0;
-    double luminosityRatio    = 1.0;
-
-    // If user wants to increase CH luminosity, then calculate it
-    if (OPTIONS->EnhanceCHELifetimesLuminosities()) {        
-        logLuminosityRatio = CalculateLogLuminosityRatio(p_Mass); // log(L_CH) / log(L_MS) = x -> log(L_CH) = x * log(L_MS) -> L_CH = L_MS ** x
-
-        std::cout << "logLuminosityRatio = " << logLuminosityRatio << std::endl;
-
-        // luminosityRatio    = PPOW(10.0, logLuminosityRatio);
-
-        // std::cout << "luminosityRatio = " << luminosityRatio << std::endl;
-    }
-
-    return luminosityRatio;
-}
 
 /*
  * Calculate the luminosity of a CH star on the main sequence
@@ -133,36 +102,17 @@ double CH::CalculateCHLuminosityRatio(const double p_Mass) const {
  */
 double CH::CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const {
 
-    // std::cout << "CH::CalculateLuminosityOnPhase" << std::endl;
-
-    // if (OPTIONS->EnhanceCHELifetimesLuminosities()) {     
-    //     std::cout << "EnhanceCHELifetimesLuminosities" << std::endl;
-    //     std::cout << "CH::CalculateLuminosityOnPhase" << std::endl;
-    // }   
-
     // Firstly, calculate the standard main sequence luminosity 
     double MS_Luminosity = MainSequence::CalculateLuminosityOnPhase(p_Time, p_Mass, p_LZAMS);
-    //std::cout << "MS_Luminosity = " << MS_Luminosity << std::endl;
 
     // Then, calculate the ratio of the standard luminosity to the CHE luminosity [log(L_CH) / log(L_MS)]
     double logLuminosityRatio = CalculateLogLuminosityRatio(p_Mass);
-    //std::cout << "logLuminosityRatio = " << logLuminosityRatio << std::endl;
 
     // logLuminosityRatio is log(L_CH) / log(L_MS). Hence, log(L_CH) = log(L_MS) * logLuminosityRatio;
     double CH_logLuminosity = log10(MS_Luminosity) * logLuminosityRatio;
-    //std::cout << "CH_logLuminosity = " << CH_logLuminosity << std::endl;
 
     // Exponentiate the logLuminosity to get the luminosity L_CH = 10**log(L_CH)
     double CH_Luminosity = PPOW(10.0, CH_logLuminosity);
-    // std::cout << "CH_Luminosity" << std::endl;
-
-    // double luminosityRatio = CalculateCHLuminosityRatio(p_Mass);
-    // std::cout << "luminosityRatio = " << luminosityRatio << std::endl;
-
-    // Finally, multiply the luminosity by the ratio above to get the CH star luminosity
-    //double CH_Luminosity = MS_Luminosity * luminosityRatio;
-
-    std::cout << "CH_Luminosity = " << CH_Luminosity << std::endl;
 
     return CH_Luminosity;
 }
@@ -182,55 +132,19 @@ double CH::CalculateLuminosityAtPhaseEnd(const double p_Mass) const {
     // Firstly, calculate the luminosity at the end of the main sequence for a normal star
     double TAMS_Luminosity = MainSequence::CalculateLuminosityAtPhaseEnd(p_Mass);
 
-    // Then, calculate the ratio of the standard luminosity to the CHE luminosity
-    // double luminosityRatio = CalculateCHLuminosityRatio(p_Mass);
-
     // Then, calculate the ratio of the standard luminosity to the CHE luminosity [log(L_CH) / log(L_MS)]
     double logLuminosityRatio = CalculateLogLuminosityRatio(p_Mass);
 
     // logLuminosityRatio is log(L_CH) / log(L_MS). Hence, log(L_CH) = log(L_MS) * logLuminosityRatio;
     double CH_logLuminosity = log10(TAMS_Luminosity) * logLuminosityRatio;
-    //std::cout << "CH_logLuminosity = " << CH_logLuminosity << std::endl;
 
     // Exponentiate the logLuminosity to get the luminosity L_CH = 10**log(L_CH)
     double CH_Luminosity = PPOW(10.0, CH_logLuminosity);
-    // std::cout << "CH_Luminosity" << std::endl;
 
     // Finally, multiply the luminosity by the ratio above to get the CH star luminosity
     return CH_Luminosity;
 }
 
-// /*
-//  * Calculate lifetime of Chemically Homogeneous (CH) star on the Main Sequence
-//  * 
-//  * The main sequence lifetime is determined Hurley et al. 2000, eq 5
-//  * The ratio of the CH star lifetime to a MS star lifetime is determined
-//  * using fits to models from Szecsi et al. 2020
-//  * 
-//  * double CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB)
-//  *
-//  * @param   [IN]    p_Mass                      Mass in Msol
-//  * @param   [IN]    p_TBGB                      Lifetime to Base of Giant Branch
-//  * @return                                      Lifetime of Main Sequence in Myr
-//  */
-// double CH::CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const {
-
-//     // Firstly, calculate the lifetime of a 'normal' main sequence star
-//     double MS_lifetime = MainSequence::CalculateLifetimeOnPhase(p_Mass, p_TBGB);
-
-//     // Now, calculate the ratio of the lifetime of a CH star to a normal MS star
-//     double lifetimeRatio = CalculateLifetimeRatio(p_Mass);
-
-//     // Finally, use this to determine the CH star lifetime
-//     double CH_lifetime = MS_lifetime * lifetimeRatio;
-
-//     std::cout << "CalculateLifetimeOnPhase" << std::endl;
-//     std::cout << "lifetimeRatio = " << lifetimeRatio << std::endl;
-//     std::cout << "MS_lifetime = " << MS_lifetime << std::endl;
-//     std::cout << "CH_lifetime = " << CH_lifetime << std::endl;
-
-//     return CH_lifetime;
-// }
 
 /*
  * Calculate timescales in units of Myr
@@ -249,17 +163,10 @@ double CH::CalculateLuminosityAtPhaseEnd(const double p_Mass) const {
  */
 void CH::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
 #define timescales(x) p_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-    
-    std::cout << "CH::CalculateTimescales" << std::endl;
-    std::cout << "m_Age, m_Tau, m_Time = " << m_Age << " " << m_Tau << " " << m_Time << std::endl;
-    
+
+    // Calculate the standard lifetimes in the normal way
     timescales(tBGB)   = CalculateLifetimeToBGB(p_Mass);
-
-    std::cout << "tBGB = " << timescales(tBGB) << std::endl;
-
     timescales(tMS)    = CalculateLifetimeOnPhase(p_Mass, timescales(tBGB));
-
-    std::cout << "OG mainSequenceLifetime = " << timescales(tMS) << std::endl;
 
     // Calculate the ratio of the lifetime of a CH star to a normal MS star
     double lifetimeRatio = CalculateLifetimeRatio(p_Mass);
@@ -268,10 +175,35 @@ void CH::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
     timescales(tBGB) *= lifetimeRatio;
     timescales(tMS)  *= lifetimeRatio;
 
-    std::cout << "lifetimeRatio = " << lifetimeRatio << std::endl;
-    std::cout << "CH mainSequenceLifetime = " << timescales(tMS) << std::endl;
-
 #undef timescales
+}
+
+/*
+ * Recalculates the star's age after mass loss
+ *
+ * Hurley et al. 2000, section 7.1
+ *
+ * Modifies attribute m_Age
+ *
+ *
+ * UpdateAgeAfterMassLoss()
+ *
+ */
+void CH::UpdateAgeAfterMassLoss() {
+
+    double tMS       = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
+
+    // Recalculate tBGB and tMS
+    double tBGBprime = CalculateLifetimeToBGB(m_Mass);
+    double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass, tBGBprime);
+
+    // Calculate the ratio of the lifetime of a CH star to a normal MS star
+    double lifetimeRatio = CalculateLifetimeRatio(m_Mass);
+
+    tBGBprime *= lifetimeRatio;
+    tMSprime  *= lifetimeRatio;
+
+    m_Age *= tMSprime / tMS;
 }
 
 
