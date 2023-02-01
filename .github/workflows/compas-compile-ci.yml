@@ -3,7 +3,7 @@ name: COMPAS compile test
 on:
   workflow_dispatch: # allow manual triggering of this workflow
   push:
-    paths: ['src/**'] # only changes to src/ trigger this workflow
+    paths: ['src/**', "compas_python_utils/**"] # only changes to src/ compas_python_utils/ will trigger this workflow
   pull_request:
     branches:
       - dev
@@ -21,9 +21,11 @@ jobs:
       - name: Build COMPAS
         run: cd src && make -j $(nproc) -f Makefile
 
-      - name: Run example BBH
+      - name: Run Compas and test python post-processing scripts
         run: |
-          pip install -r requirements.txt
+          pip install .
           cd ci_tests/
           chmod 755 methods_paper_bbh.sh
           ./methods_paper_bbh.sh
+          pytest py_tests/
+          
