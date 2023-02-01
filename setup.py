@@ -28,6 +28,11 @@ INSTALL_REQUIRES = [
     "h5py",
     "argparse",
     "stroopwafel",
+    "pytest>=3.6",
+    "pre-commit",
+    "flake8",
+    "black==22.10.0",
+    "isort"
 ]
 EXTRA_REQUIRE = dict(dev=[
     "pytest>=3.6",
