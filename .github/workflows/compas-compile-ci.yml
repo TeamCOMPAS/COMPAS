@@ -1,6 +1,12 @@
 name: COMPAS compile test
 
-on: [pull_request]
+on:
+  workflow_dispatch: # allow manual triggering of this workflow
+  push:
+    paths: ['src/**'] # only changes to src/ trigger this workflow
+  pull_request:
+    branches:
+      - dev
 
 jobs:
   compas:
@@ -12,5 +18,12 @@ jobs:
       - name: Install dependencies 
         run: sudo apt-get update; sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
 
-      - name: Build Compas
+      - name: Build COMPAS
         run: cd src && make -j $(nproc) -f Makefile
+
+      - name: Run example BBH
+        run: |
+          pip install -r requirements.txt
+          cd ci_tests/
+          chmod 755 methods_paper_bbh.sh
+          ./methods_paper_bbh.sh
