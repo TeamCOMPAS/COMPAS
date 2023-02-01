@@ -24,8 +24,8 @@ jobs:
       - name: Run Compas and test python post-processing scripts
         run: |
           pip install .
-          cd ci_tests/
-          chmod 755 methods_paper_bbh.sh
-          ./methods_paper_bbh.sh
+          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+          cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
+          python3 runSubmitDemo.py
+          cd ${GITHUB_WORKSPACE}
           pytest py_tests/
-          
