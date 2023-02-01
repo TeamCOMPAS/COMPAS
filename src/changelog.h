@@ -960,7 +960,9 @@
 //                                      - Fixed units for post-CEE semi-major axis in CEE logs (issue #876).
 // 02.34.04     RTW - Jan 31, 2023   - Enhancement:
 //                                      - Added SN orbit inclination angle to BSE_SUPERNOVAE output
+// 02.34.05    JR - Jan 29, 2023    - Code cleanup:
+//                                      - Addressed issue #888 - replaced class variables m_LogMetallicityXi, m_LogMetallicitySigma, and m_LogMetallicityRho in BaseStar with getter functions.
 
-const std::string VERSION_STRING = "02.34.04";
+const std::string VERSION_STRING = "02.34.05";
 
 # endif // __changelog_h__

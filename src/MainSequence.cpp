@@ -533,7 +533,7 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
     double tHook = mu * p_TBGB;
 
     // For mass < Mhook, x > mu (i.e. for stars without a hook)
-    double x = std::max(0.95, std::min((0.95 - (0.03 * (m_LogMetallicityXi + 0.30103))), 0.99));
+    double x = std::max(0.95, std::min((0.95 - (0.03 * (LogMetallicityXi() + 0.30103))), 0.99));
 
     return std::max(tHook, (x * p_TBGB));
 
