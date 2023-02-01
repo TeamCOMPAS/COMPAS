@@ -9,8 +9,8 @@ from   astropy.cosmology import FlatLambdaCDM
 from   astropy.cosmology import WMAP9 #as cosmo
 import astropy.units as u
 
-import ClassCOMPAS
-import ClassMSSFR
+from . import ClassCOMPAS
+from . import ClassMSSFR
 import selection_effects
 import totalMassEvolvedPerZ as MPZ
 class CosmicIntegrator(object):
