@@ -208,6 +208,7 @@ public:
 
     virtual void            ResolveMassLoss();
 
+            void            SetMdot(double p_Mdot)                                                              { m_Mdot = p_Mdot; }
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
 
             void            StashSupernovaDetails(const STELLAR_TYPE p_StellarType,

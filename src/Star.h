@@ -203,6 +203,7 @@ public:
 
     void            SaveState();
 
+    void            SetMdot(double p_Mdot)                                                                          { m_Star->SetMdot(p_Mdot); }
     void            SetSNCurrentEvent(const SN_EVENT p_SNEvent)                                                     { m_Star->SetSNCurrentEvent(p_SNEvent); }
     void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                                        { m_Star->SetSNPastEvent(p_SNEvent); }
 
