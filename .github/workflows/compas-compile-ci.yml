@@ -19,4 +19,4 @@ jobs:
         run: |
           cd ci_tests/
           chmod 755 methods_paper_bbh.sh
-          ./python-scripts
+          ./methods_paper_bbh.sh
