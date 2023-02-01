@@ -951,6 +951,15 @@
 //                                      - Adding framework for Hirai & Mandel 2-stage common envelope formalism
 //                                          (placeholders for now -- will have identical results to default version)
 //                                      - Placed Dewi CE prescription on parity with others
+// 02.34.01     RTW - Nov 30, 2022   - Defect repair:
+//                                      - Fixed Time<MT and Time>MT calls in BSE_RLOF. Previously, they were identical. Now, Time<MT correctly reflects the previous time.
+// 02.34.02     JR - Nov 30, 2022    - Defect repair:
+//                                      - Fixed problem with no content in switchlog files (issue #870 - introduced in v2.32.00).
+//                                      - Changed conditional statement in HG::ResolveEnvelopeLoss() and FGB::ResolveEnvelopeLoss() to be consistent with other stellar types ('>' -> '>=').
+// 02.34.03     NRS - Jan 9, 2023    - Defect repair:
+//                                      - Fixed units for post-CEE semi-major axis in CEE logs (issue #876).
+// 02.34.04     RTW - Jan 31, 2023   - Enhancement:
+//                                      - Added SN orbit inclination angle to BSE_SUPERNOVAE output
 // 02.35.00     RTW - Dec 8, 2022    - Enhancement:
 //                                      - Added critical mass ratios from Ge+ 2020 for determining if MT is unstable
 
