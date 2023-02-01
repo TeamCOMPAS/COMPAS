@@ -61,7 +61,6 @@ def find_version(version_file=read(CPP_VERSION_FILE)):
 
 
 if __name__ == "__main__":
-    print("Packages : ", PACKAGES)
 
     setup(
         name=NAME,
@@ -76,7 +75,10 @@ if __name__ == "__main__":
         long_description=read("README.md"),
         long_description_content_type="text/markdown",
         packages=PACKAGES,
-        package_data={},
+        package_data={
+            f"{NAME}.detailed_evolution_plotter": ["van_den_heuvel_figures/*"],
+        },
+
         include_package_data=True,
         install_requires=INSTALL_REQUIRES,
         extras_require=EXTRA_REQUIRE,
@@ -85,6 +87,7 @@ if __name__ == "__main__":
         entry_points={
             "console_scripts": [
                 f"compas_h5view= {NAME}.h5view:main",
+                f"compas_plot_detailed_evolution= {NAME}.detailed_evolution_plotter.plot_detailed_evolution:main",
             ]
         },
     )

@@ -5,40 +5,44 @@
 ###################################################################
 
 import os, sys
-import math
 import numpy as np
 import h5py as h5
-import pandas as pd
-from scipy import ndimage
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker  
-from matplotlib.legend import Legend
-from matplotlib import rcParams, transforms, patches
-import matplotlib.gridspec as gridspec
+from matplotlib import rcParams
 
 compasRootDir = os.path.expandvars(os.environ['COMPAS_ROOT_DIR'])
+VAN_DEN_HEUVEL_DIR = os.path.join(
+    os.path.dirname(__file__),
+    'van_den_heuvel_figures'
+)
 
 def main():
     ### Read file and create dataframe.
     try:
-        optional_input = sys.argv[1] 
+        optional_input = sys.argv[1]
         if optional_input is not None:
             data_path = optional_input
-    except IndexError: # default
-        
-        data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
+    except IndexError:  # default
 
+        data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
+    run_main_plotter(data_path)
+
+def run_main_plotter(data_path, outdir='.'):
     Data = h5.File(data_path, 'r')
 
     ### Collect the important events in the detailed evolution
-    events = allEvents(Data).allEvents # Calculate the events here, for use in plot sizing parameters
+    events = allEvents(Data).allEvents  # Calculate the events here, for use in plot sizing parameters
     printEvolutionaryHistory(events=events)
 
     ### Produce the two plots
     makeDetailedPlots(Data, events)
-    plotVanDenHeuvel(events=events)
-    plt.savefig('vanDenHeuvelPlot.eps', bbox_inches='tight',pad_inches = 0, format='eps')
+    plotVanDenHeuvel(events=events, outdir=outdir)
+    file_path = os.path.join(outdir, 'vanDenHeuvelPlot.eps')
+    plt.savefig(file_path, bbox_inches='tight', pad_inches=0, format='eps')
     plt.show()
+
+
+
 
 
 fontparams = {
@@ -59,7 +63,7 @@ fontparams = {
 
 ####### Functions to organize and call the plotting functions 
 
-def makeDetailedPlots(Data=None, events=None):
+def makeDetailedPlots(Data=None, events=None, outdir='.'):
 
     listOfPlots = [ plotMassAttributes, plotLengthAttributes, plotStellarTypeAttributes, plotHertzsprungRussell]
 
@@ -293,7 +297,7 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, **kwargs)
 
 
 
-def plotVanDenHeuvel(events=None):
+def plotVanDenHeuvel(events=None, outdir='.'):
     # Only want events with an associated image
     events = [event for event in events if (event.eventImage is not None)]
     num_events = len(events)
@@ -574,7 +578,7 @@ class Event(object):
         on the stellar types, to get the van den Heuvel diagrams.
         """
 
-        self.imgFile = compasRootDir + 'utils/media/vanDenHeuvel_figures/{}.png'.format(image_num)
+        self.imgFile = os.path.join(VAN_DEN_HEUVEL_DIR, f'{image_num}.png')
         img = plt.imread(self.imgFile) # import image
         if rotate_image:
             img = img[:,::-1,:] # flip across y-axis
