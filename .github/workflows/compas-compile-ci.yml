@@ -17,6 +17,6 @@ jobs:
 
       - name: Run example BBH
         run: |
-          python3 -m pip install -r requirements.txt
-          cd utils/examples/methods_paper_plots/detailed_evolution 
-          python3 runSubmitDemo.py
+          cd ci_tests/
+          chmod 755 methods_paper_bbh.sh
+          ./python-scripts
