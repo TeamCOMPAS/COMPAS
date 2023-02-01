@@ -250,6 +250,7 @@ public:
     STELLAR_TYPE        StellarType2() const                        { return m_Star2->StellarType(); }
     STELLAR_TYPE        StellarType2PostCEE() const                 { return m_Star2->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
+    double              SN_OrbitInclinationAngle() const            { return m_ThetaE; }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
     double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
     double              SystemicSpeed() const                       { return m_SystemicVelocity.Magnitude(); }
