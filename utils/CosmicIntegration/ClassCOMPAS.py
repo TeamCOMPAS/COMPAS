@@ -81,7 +81,7 @@ class COMPASData(object):
 
         self.CHE_mask = np.in1d(dco_seeds, che_seeds) if types == "CHE_BBH" or types == "NON_CHE_BBH" else np.repeat(False, len(dco_seeds))
 
-        # if user wants to mask on Hubble time use the flag, otherwise just set all to True
+        # if user wants to mask on Hubble time use the flag, otherwise just set all to True, use astype(bool) to set masks to bool type
         hubble_mask = hubble_flag.astype(bool) if withinHubbleTime else np.repeat(True, len(dco_seeds))
 
         # mask on stellar types (where 14=BH and 13=NS), BHNS can be BHNS or NSBH
