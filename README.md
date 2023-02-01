@@ -38,8 +38,12 @@ archivePrefix = {arXiv},
 }
 
 
-Note that the preferred acknowledgement relies on \noopsort; to make it work, you'll have to include the following line at the start of your bibtex file:
+Note that the preferred acknowledgement relies on \noopsort and cites the paper as TEAM COMPAS; Riley et al.; to make it work, you'll have to include the following line at the start of your bibtex file:
 @PREAMBLE{ {\providecommand{\noopsort}[1]{}} }
+
+and change the author line in the bib entry to:
+
+author = {{\noopsort{Team COMPAS}}{Team COMPAS: Riley, J.} and {Agrawal}, Poojan and {Barrett}, Jim W. and {Boyett}, Kristan N.~K. and {Broekgaarden}, Floor S. and {Chattopadhyay}, Debatri and {Gaebel}, Sebastian M. and {Gittins}, Fabian and {Hirai}, Ryosuke and {Howitt}, George and {Justham}, Stephen and {Khandelwal}, Lokesh and {Kummer}, Floris and {Lau}, Mike Y.~M. and {Mandel}, Ilya and {de Mink}, Selma E. and {Neijssel}, Coenraad and {Riley}, Tim and {van Son}, Lieke and {Stevenson}, Simon and {Vigna-Gomez}, Alejandro and {Vinciguerra}, Serena and {Wagg}, Tom and {Willcox}, Reinhold}
 
 
 
