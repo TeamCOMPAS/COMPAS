@@ -5,8 +5,11 @@ name: LaTeX compile test
 
 on:
   pull_request:
+    paths: ['main/**'] # only changes to src/ trigger this workflow
   push: 
-      branches: [dev] 
+      branches: [dev]
+      paths: ['main/**']
+
 
 jobs:
   latex:

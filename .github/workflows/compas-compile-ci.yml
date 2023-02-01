@@ -1,6 +1,9 @@
 name: COMPAS compile test
 
-on: push
+on:
+  workflow_dispatch: # allow manual triggering of this workflow
+  push:
+    paths: ['src/**'] # only changes to src/ trigger this workflow
 
 jobs:
   compas:
