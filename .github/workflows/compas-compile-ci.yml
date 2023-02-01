@@ -12,11 +12,12 @@ jobs:
       - name: Install dependencies 
         run: sudo apt-get update; sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
 
-      - name: Build Compas
+      - name: Build COMPAS
         run: cd src && make -j $(nproc) -f Makefile
 
       - name: Run example BBH
         run: |
+          pip install -r requirements.txt
           cd ci_tests/
           chmod 755 methods_paper_bbh.sh
           ./methods_paper_bbh.sh
