@@ -617,7 +617,6 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME:                 value = STELLAR_TYPE_LABEL.at(RLOFDetails().propsPostMT->stellarType1);     break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE:                      value = RLOFDetails().propsPostMT->stellarType2;                            break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME:                 value = STELLAR_TYPE_LABEL.at(RLOFDetails().propsPostMT->stellarType2);     break;
-        case BINARY_PROPERTY::RLOF_POST_MT_TIME:                                    value = RLOFDetails().propsPostMT->time;                                    break;
         case BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1:     value = RLOFDetails().propsPostMT->starToRocheLobeRadiusRatio1;             break;
         case BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2:     value = RLOFDetails().propsPostMT->starToRocheLobeRadiusRatio2;             break;
         case BINARY_PROPERTY::RLOF_PRE_MT_ECCENTRICITY:                             value = RLOFDetails().propsPreMT->eccentricity;                             break;
@@ -632,10 +631,11 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME:                  value = STELLAR_TYPE_LABEL.at(RLOFDetails().propsPreMT->stellarType1);      break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE:                       value = RLOFDetails().propsPreMT->stellarType2;                             break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME:                  value = STELLAR_TYPE_LABEL.at(RLOFDetails().propsPreMT->stellarType2);      break;
-        case BINARY_PROPERTY::RLOF_PRE_MT_TIME:                                     value = RLOFDetails().propsPreMT->time;                                     break;
         case BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1:      value = RLOFDetails().propsPreMT->starToRocheLobeRadiusRatio1;              break;
         case BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2:      value = RLOFDetails().propsPreMT->starToRocheLobeRadiusRatio2;              break;
         case BINARY_PROPERTY::RLOF_SECONDARY_POST_COMMON_ENVELOPE:                  value = RLOFSecondaryPostCEE();                                             break;
+        case BINARY_PROPERTY::RLOF_TIME_POST_MT:                                    value = RLOFDetails().propsPreMT->time;                                     break;
+        case BINARY_PROPERTY::RLOF_TIME_PRE_MT:                                     value = RLOFDetails().propsPreMT->timePrev;                                 break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1:                                  value = RocheLobeRadius1();                                                 break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE:             value = RocheLobe1to2PostCEE();                                             break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE:              value = RocheLobe1to2PreCEE();                                              break;
@@ -664,6 +664,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE:              value = STELLAR_TYPE_LABEL.at(StellarType1PreCEE());                        break;
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE:             value = STELLAR_TYPE_LABEL.at(StellarType2PostCEE());                       break;
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE:              value = STELLAR_TYPE_LABEL.at(StellarType2PreCEE());                        break;
+        case BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE:                    value = SN_OrbitInclinationAngle();                                                         break;
         case BINARY_PROPERTY::SUPERNOVA_STATE:                                      value = SN_State();                                                         break;
         case BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE:                            value = SynchronizationTimescale();                                         break;
         case BINARY_PROPERTY::SYSTEMIC_SPEED:                                       value = SystemicSpeed();                                                    break;
@@ -918,6 +919,7 @@ void BaseBinaryStar::StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which) {
     rlofPropertiesToReset->eccentricity                = m_Eccentricity;
     rlofPropertiesToReset->semiMajorAxis               = m_SemiMajorAxis * AU_TO_RSOL;                               // semi-major axis - change units to Rsol
     rlofPropertiesToReset->time                        = m_Time;
+    rlofPropertiesToReset->timePrev                    = m_TimePrev;
     rlofPropertiesToReset->isRLOF1                     = m_Star1->IsRLOF();
     rlofPropertiesToReset->isRLOF2                     = m_Star2->IsRLOF();
     rlofPropertiesToReset->isCE                        = m_CEDetails.CEEnow;
@@ -1655,7 +1657,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     
     m_Star1->SetPostCEEValues();                                                                                        // squirrel away post CEE stellar values for star 1
     m_Star2->SetPostCEEValues();                                                                                        // squirrel away post CEE stellar values for star 2
-    SetPostCEEValues(m_SemiMajorAxis / AU_TO_RSOL, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                         // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
+    SetPostCEEValues(m_SemiMajorAxis * AU_TO_RSOL, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                         // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
 
     if (m_RLOFDetails.immediateRLOFPostCEE == true && !OPTIONS->AllowImmediateRLOFpostCEToSurviveCommonEnvelope()) {    // Is there immediate post-CE RLOF which is not allowed?
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;

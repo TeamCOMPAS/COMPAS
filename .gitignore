@@ -40,5 +40,3 @@ COMPAS
 
 *.vscode
 
-Makefile-reinhold
-.gitignore
