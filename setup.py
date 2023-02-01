@@ -27,6 +27,11 @@ INSTALL_REQUIRES = [
     "numpy",
     "h5py",
     "argparse",
+    "pytest>=3.6",
+    "pre-commit",
+    "flake8",
+    "black==22.10.0",
+    "isort"
 ]
 EXTRA_REQUIRE = dict(dev=[
     "pytest>=3.6",
