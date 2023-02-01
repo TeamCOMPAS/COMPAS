@@ -390,7 +390,7 @@ void NS::CalculateAndSetPulsarParameters() {
     m_AngularMomentum             = _2_PI * m_MomentOfInertia / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS) * factor;                                                              // in kg m^2 sec^-1
     //std::cout << "Mass: " << m_Mass << "(MSol) Radius: " <<  NEUTRON_STAR_RADIUS << "(RSol) I: " << m_MomentOfInertia << "g cm2" << " Spin: " << m_PulsarDetails.spinPeriod * SECONDS_IN_MS << "\n";
     //std::cout.flush();
-    (void)PrintPulsarEvolutionParameters();
+    //(void)PrintPulsarEvolutionParameters();
 }
 
 
