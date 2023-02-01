@@ -25,12 +25,13 @@ public:
 
     // member functions
 
-
 protected:
 
 
     // member functions - alphabetically
     double          CalculateCOCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
+
+    double   CalculateConvectiveEnvelopeMass() const                                            { return 0.0; }
 
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 
@@ -76,7 +77,7 @@ protected:
     double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                         { return 0.0; }                                                         // Should never be called...
 
     double          ChooseTimestep(const double p_Time) const;
-
+    
     ENVELOPE        DetermineEnvelopeType() const                                                               { return ENVELOPE::REMNANT; }                                           // Always REMNANT
 
     void            EvolveOneTimestepPreamble()                                                                 { BaseStar::EvolveOneTimestepPreamble(); }                              // Default to BaseStar

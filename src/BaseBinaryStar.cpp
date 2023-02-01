@@ -617,7 +617,6 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME:                 value = STELLAR_TYPE_LABEL.at(RLOFDetails().propsPostMT->stellarType1);     break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE:                      value = RLOFDetails().propsPostMT->stellarType2;                            break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME:                 value = STELLAR_TYPE_LABEL.at(RLOFDetails().propsPostMT->stellarType2);     break;
-        case BINARY_PROPERTY::RLOF_POST_MT_TIME:                                    value = RLOFDetails().propsPostMT->time;                                    break;
         case BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1:     value = RLOFDetails().propsPostMT->starToRocheLobeRadiusRatio1;             break;
         case BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2:     value = RLOFDetails().propsPostMT->starToRocheLobeRadiusRatio2;             break;
         case BINARY_PROPERTY::RLOF_PRE_MT_ECCENTRICITY:                             value = RLOFDetails().propsPreMT->eccentricity;                             break;
@@ -632,10 +631,11 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME:                  value = STELLAR_TYPE_LABEL.at(RLOFDetails().propsPreMT->stellarType1);      break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE:                       value = RLOFDetails().propsPreMT->stellarType2;                             break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME:                  value = STELLAR_TYPE_LABEL.at(RLOFDetails().propsPreMT->stellarType2);      break;
-        case BINARY_PROPERTY::RLOF_PRE_MT_TIME:                                     value = RLOFDetails().propsPreMT->time;                                     break;
         case BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1:      value = RLOFDetails().propsPreMT->starToRocheLobeRadiusRatio1;              break;
         case BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2:      value = RLOFDetails().propsPreMT->starToRocheLobeRadiusRatio2;              break;
         case BINARY_PROPERTY::RLOF_SECONDARY_POST_COMMON_ENVELOPE:                  value = RLOFSecondaryPostCEE();                                             break;
+        case BINARY_PROPERTY::RLOF_TIME_POST_MT:                                    value = RLOFDetails().propsPreMT->time;                                     break;
+        case BINARY_PROPERTY::RLOF_TIME_PRE_MT:                                     value = RLOFDetails().propsPreMT->timePrev;                                 break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1:                                  value = RocheLobeRadius1();                                                 break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE:             value = RocheLobe1to2PostCEE();                                             break;
         case BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE:              value = RocheLobe1to2PreCEE();                                              break;
@@ -664,6 +664,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE:              value = STELLAR_TYPE_LABEL.at(StellarType1PreCEE());                        break;
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE:             value = STELLAR_TYPE_LABEL.at(StellarType2PostCEE());                       break;
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE:              value = STELLAR_TYPE_LABEL.at(StellarType2PreCEE());                        break;
+        case BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE:                    value = SN_OrbitInclinationAngle();                                                         break;
         case BINARY_PROPERTY::SUPERNOVA_STATE:                                      value = SN_State();                                                         break;
         case BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE:                            value = SynchronizationTimescale();                                         break;
         case BINARY_PROPERTY::SYSTEMIC_SPEED:                                       value = SystemicSpeed();                                                    break;
@@ -918,6 +919,7 @@ void BaseBinaryStar::StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which) {
     rlofPropertiesToReset->eccentricity                = m_Eccentricity;
     rlofPropertiesToReset->semiMajorAxis               = m_SemiMajorAxis * AU_TO_RSOL;                               // semi-major axis - change units to Rsol
     rlofPropertiesToReset->time                        = m_Time;
+    rlofPropertiesToReset->timePrev                    = m_TimePrev;
     rlofPropertiesToReset->isRLOF1                     = m_Star1->IsRLOF();
     rlofPropertiesToReset->isRLOF2                     = m_Star2->IsRLOF();
     rlofPropertiesToReset->isCE                        = m_CEDetails.CEEnow;
@@ -1543,8 +1545,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_Star1->CalculateCommonEnvelopeValues();                                                                           // calculate common envelope values for star1
     m_Star2->CalculateCommonEnvelopeValues();                                                                           // calculate common envelope values for star2
 
-    double lambda1 = m_Star1->LambdaAtCEE();                                                                            // measures the central concentration of the star 1
-    double lambda2 = m_Star2->LambdaAtCEE();                                                                            // measures the central concentration of the star 2
+    double lambda1 = m_Star1->LambdaAtCEE();                                                                            // measures the envelope binding energy of star 1
+    double lambda2 = m_Star2->LambdaAtCEE();                                                                            // measures the envelope binding energy of star 2
 
     m_Star1->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 1
     m_Star2->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 2
@@ -1552,26 +1554,63 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     
 	// double common envelope phase prescription (Brown 1995) to calculate new semi-major axis
 	// due to the CEE as described in Belczynsky et al. 2002, eq. (12)
-    double k1            = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * m_MassEnv1 / m_Star1->Radius();
-    double k2            = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * m_MassEnv2 / m_Star2->Radius();
-    double k3            = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                          //assumes immediate circularisation at periastron at start of CE
-    double k4            = (m_Mass1Final * m_Mass2Final);
-    double aFinalRsol    = k4 / (k1 + k2 + k3);    
-    double aFinal        = aFinalRsol*RSOL_TO_AU;
-    m_SemiMajorAxis      = aFinal;
+    
+    if( OPTIONS->CommonEnvelopeFormalism() == CE_FORMALISM::ENERGY ) {
+        double k1            = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * m_MassEnv1 / m_Star1->Radius();
+        double k2            = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * m_MassEnv2 / m_Star2->Radius();
+        double k3            = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                          //assumes immediate circularisation at periastron at start of CE
+        double k4            = (m_Mass1Final * m_Mass2Final);
+        double aFinalRsol    = k4 / (k1 + k2 + k3);
+        m_SemiMajorAxis      = aFinalRsol*RSOL_TO_AU;
+    }
+    
+    // Two-stage common envelope, Hirai & Mandel (2022)
+    else if( OPTIONS->CommonEnvelopeFormalism() == CE_FORMALISM::TWO_STAGE ) {
+        double convectiveEnvelopeMass1  = m_Star1->CalculateConvectiveEnvelopeMass();
+        double radiativeIntershellMass1 = m_MassEnv1 - convectiveEnvelopeMass1;
+        double endOfFirstStageMass1     = m_Mass1Final + radiativeIntershellMass1;
+        double convectiveEnvelopeMass2  = m_Star2->CalculateConvectiveEnvelopeMass();
+        double radiativeIntershellMass2 = m_MassEnv2 - convectiveEnvelopeMass2;
+        double endOfFirstStageMass2     = m_Mass2Final + radiativeIntershellMass2;
+        
+        // Stage 1: convective envelope removal on a dynamical timescale
+        double k1            = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * convectiveEnvelopeMass1 / m_Star1->Radius();
+        double k2            = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * convectiveEnvelopeMass2 / m_Star2->Radius();
+        double k3            = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                          //assumes immediate circularisation at periastron at start of CE
+        double k4            = (endOfFirstStageMass1 * endOfFirstStageMass2);
+        double aFinalRsol    = k4 / (k1 + k2 + k3);
+        m_SemiMajorAxis      = aFinalRsol*RSOL_TO_AU;
+        
+        // Stage 2: radiative envelope removal on a thermal timescale; assumed to be fully non-conservative
+        if( utils::Compare(radiativeIntershellMass1, 0.0) > 0 ) {
+            m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass1, m_Mass1Final - endOfFirstStageMass1, *m_Star2, 0.0);
+        }
+        if( utils::Compare(radiativeIntershellMass2, 0.0) > 0 ) {
+            m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass2, m_Mass2Final - endOfFirstStageMass2, *m_Star1, 0.0);
+        }
+    }
+    
+    else {                                                                                                              // Invalid CE formalism
+        SHOW_WARN_STATIC(ERROR::UNKNOWN_CE_FORMALISM,                                                                   // show warning
+                         "Orbital properties unchanged by CE",
+                         OBJECT_TYPE::BASE_BINARY_STAR,
+                         STELLAR_TYPE::BINARY_STAR);
+    }
+    
 
-	double rRLdfin1        = aFinal * CalculateRocheLobeRadius_Static(m_Mass1Final, m_Mass2Final);                      // Roche-lobe radius in AU after CEE, seen by star1
-	double rRLdfin2        = aFinal * CalculateRocheLobeRadius_Static(m_Mass2Final, m_Mass1Final);                      // Roche-lobe radius in AU after CEE, seen by star2
+	double rRLdfin1        = m_SemiMajorAxis * CalculateRocheLobeRadius_Static(m_Mass1Final, m_Mass2Final);             // Roche-lobe radius in AU after CEE, seen by star1
+	double rRLdfin2        = m_SemiMajorAxis * CalculateRocheLobeRadius_Static(m_Mass2Final, m_Mass1Final);             // Roche-lobe radius in AU after CEE, seen by star2
     double rRLdfin1Rsol    = rRLdfin1 * AU_TO_RSOL;                                                                     // Roche-lobe radius in Rsol after CEE, seen by star1
     double rRLdfin2Rsol    = rRLdfin2 * AU_TO_RSOL;                                                                     // Roche-lobe radius in Rsol after CEE, seen by star2
-    // We assume that a common envelope event (CEE) circularises the binary
-    m_Eccentricity      = 0.0;
+    m_Eccentricity         = 0.0;                                                                                       // We assume that a common envelope event (CEE) circularises the binary
 
     m_Star1->ResolveCommonEnvelopeAccretion(m_Mass1Final);                                                              // update star1's mass after accretion
     m_Star2->ResolveCommonEnvelopeAccretion(m_Mass2Final);                                                              // update star2's mass after accretion
 
     // update stellar type after losing its envelope. Star1, Star2 or both if double CEE.
 
+    
+    
     if (isDonorMS || (!envelopeFlag1 && !envelopeFlag2)) {                                                                // stellar merger
         m_MassTransferTrackerHistory = MT_TRACKING::MERGER; 
         m_Flags.stellarMerger        = true;
@@ -1608,7 +1647,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         }
 	}
 
-    if (utils::Compare(aFinal, 0.0) <= 0 || utils::Compare(m_Star1->Radius() + m_Star2->Radius(), aFinal * AU_TO_RSOL) > 0) {
+    if (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || utils::Compare(m_Star1->Radius() + m_Star2->Radius(), m_SemiMajorAxis * AU_TO_RSOL) > 0) {
         m_Flags.stellarMerger = true;
     }
 
@@ -1618,7 +1657,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     
     m_Star1->SetPostCEEValues();                                                                                        // squirrel away post CEE stellar values for star 1
     m_Star2->SetPostCEEValues();                                                                                        // squirrel away post CEE stellar values for star 2
-    SetPostCEEValues(aFinalRsol, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                                           // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
+    SetPostCEEValues(m_SemiMajorAxis * AU_TO_RSOL, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                         // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
 
     if (m_RLOFDetails.immediateRLOFPostCEE == true && !OPTIONS->AllowImmediateRLOFpostCEToSurviveCommonEnvelope()) {    // Is there immediate post-CE RLOF which is not allowed?
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
@@ -1726,9 +1765,12 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
     double jOrb            = (massAtimesMassD / massAplusMassD) * std::sqrt(semiMajorAxis * G1 * massAplusMassD);    // orbital angular momentum
     double jLoss;                                                                                               // specific angular momentum carried away by non-conservative mass transfer
     
+    if (utils::Compare(p_DeltaMassDonor, 0.0) >= 0) {                                                           // no mass loss from donor, nothing to do here
+        return semiMajorAxis;
+    }
     int numberIterations   = fmax( floor (fabs(p_DeltaMassDonor/(MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP*massD))), 1);   // number of iterations
 
-    double dM                  = p_DeltaMassDonor / numberIterations;                                           // mass change per time step
+    double dM              = p_DeltaMassDonor / numberIterations;                                                        // mass change per time step
 
     for(int i = 0; i < numberIterations ; i++) {
         
@@ -1856,7 +1898,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     double jLoss    = m_JLoss;                            		                                                                // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
 
     // Calculate accretion fraction if stable
-    // Assume accretor radius = accretor Roche Lobe radius to calculate accretor acceptance rate
+    // This passes through the accretor's Roche lobe radius, just in case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE is used; otherwise, the radius input is ignored
     std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(),
                                                                                         m_Accretor->CalculateThermalMassAcceptanceRate(CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL));
 

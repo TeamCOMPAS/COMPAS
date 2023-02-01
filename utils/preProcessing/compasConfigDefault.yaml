@@ -202,6 +202,7 @@ stringChoices:
     --mass-transfer-rejuvenation-prescription: 'STARTRACK'
     --mass-transfer-thermal-limit-accretor: 'CFACTOR'
     ### COMMON ENVELOPE
+    --common-envelope-formalism: 'ENERGY' 
     --common-envelope-lambda-prescription: 'LAMBDA_NANJING'      # Xu & Li 2010    
     --common-envelope-mass-accretion-prescription: 'ZERO'    
     ### SUPERNOVAE, KICKS AND REMNANTS
