@@ -195,6 +195,8 @@ public:
 
     double          EvolveOneTimestep(const double p_Dt);
 
+    void            HaltWinds()                                                                                     { m_Star->HaltWinds(); }
+
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
 
     void            ResolveEnvelopeLossAndSwitch()                                                                  { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
@@ -203,7 +205,6 @@ public:
 
     void            SaveState();
 
-    void            SetMdot(double p_Mdot)                                                                          { m_Star->SetMdot(p_Mdot); }
     void            SetSNCurrentEvent(const SN_EVENT p_SNEvent)                                                     { m_Star->SetSNCurrentEvent(p_SNEvent); }
     void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                                        { m_Star->SetSNPastEvent(p_SNEvent); }
 

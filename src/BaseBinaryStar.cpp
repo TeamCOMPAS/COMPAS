@@ -1834,10 +1834,8 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
 
     // Stop mass loss due to winds if the binary is in mass transfer and set the Mdot parameters of both stars appropriately
     if (OPTIONS->UseMassTransfer() && m_MassTransfer) {                                                                         // used for halting winds when in mass transfer
-            m_Star1->SetMassLossDiff(0.0);
-            m_Star2->SetMassLossDiff(0.0);
-            m_Star1->SetMdot(0.0);
-            m_Star2->SetMdot(0.0);
+            m_Star1->HaltWinds();
+            m_Star2->HaltWinds();
     }
     else {
         if (OPTIONS->UseMassLoss()) {                                                                                           // mass loss enabled?
