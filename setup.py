@@ -27,6 +27,7 @@ INSTALL_REQUIRES = [
     "numpy",
     "h5py",
     "argparse",
+    "stroopwafel",
 ]
 EXTRA_REQUIRE = dict(dev=[
     "pytest>=3.6",
@@ -77,8 +78,8 @@ if __name__ == "__main__":
         packages=PACKAGES,
         package_data={
             f"{NAME}.detailed_evolution_plotter": ["van_den_heuvel_figures/*"],
+            f"{NAME}.cosmic_integration": ["SNR_Grid*"],
         },
-
         include_package_data=True,
         install_requires=INSTALL_REQUIRES,
         extras_require=EXTRA_REQUIRE,
@@ -87,7 +88,7 @@ if __name__ == "__main__":
         entry_points={
             "console_scripts": [
                 f"compas_h5view= {NAME}.h5view:main",
-                f"compas_plot_detailed_evolution= {NAME}.detailed_evolution_plotter.plot_detailed_evolution:main",
+                f"compas_plot_detailed_evolution={NAME}.detailed_evolution_plotter.plot_detailed_evolution:main",
             ]
         },
     )
