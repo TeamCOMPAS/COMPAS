@@ -1021,7 +1021,7 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
 
         m_Age      = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
-        HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, m_LogMetallicityXi, m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams);  // IM: order of type change and parameter updates to be revisited (e.g., why not just CalculateGBParams(m_Mass0, m_GBParams)?)
+        HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, LogMetallicityXi(), m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams);  // IM: order of type change and parameter updates to be revisited (e.g., why not just CalculateGBParams(m_Mass0, m_GBParams)?)  JR: static function has no access to class variables
         m_Luminosity = HeGB::CalculateLuminosityOnPhase_Static(m_COCoreMass, gbParams(B), gbParams(D));
 
         double R1, R2;

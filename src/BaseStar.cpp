@@ -50,9 +50,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Metallicity         = p_Metallicity;
 
     // Initialise metallicity dependent values
-    m_LogMetallicityXi    = log10(m_Metallicity / ZSOL);
-    m_LogMetallicitySigma = log10(m_Metallicity);
-    m_LogMetallicityRho   = m_LogMetallicityXi + 1.0;
+    m_Log10Metallicity    = log10(m_Metallicity);
 
 
     // Initialise coefficients, parameters and constants
@@ -90,10 +88,10 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     // calculate coefficients, constants etc.
 
-    CalculateRCoefficients(m_LogMetallicityXi, m_RCoefficients);
-    CalculateLCoefficients(m_LogMetallicityXi, m_LCoefficients);
+    CalculateRCoefficients(LogMetallicityXi(), m_RCoefficients);
+    CalculateLCoefficients(LogMetallicityXi(), m_LCoefficients);
 
-    CalculateMassCutoffs(m_Metallicity, m_LogMetallicityXi, m_MassCutoffs);
+    CalculateMassCutoffs(m_Metallicity, LogMetallicityXi(), m_MassCutoffs);
 
     CalculateAnCoefficients(m_AnCoefficients, m_LConstants, m_RConstants, m_GammaConstants);
     CalculateBnCoefficients(m_BnCoefficients);
@@ -483,8 +481,8 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
 #define GammaConstants(x) p_GammaConstants[static_cast<int>(GAMMA_CONSTANTS::x)]    // for convenience and readability - undefined at end of function
 
     double Z     = m_Metallicity;
-    double xi    = m_LogMetallicityXi;
-    double sigma = m_LogMetallicitySigma;
+    double xi    = LogMetallicityXi();
+    double sigma = LogMetallicitySigma();
 
     // pow() is slow - use multiplication
     // do these calculations once only - and esp. outside the loop
@@ -584,9 +582,9 @@ void BaseStar::CalculateBnCoefficients(DBL_VECTOR &p_BnCoefficients) {
 
 
     double Z     = m_Metallicity;
-    double xi    = m_LogMetallicityXi;
-    double sigma = m_LogMetallicitySigma;
-    double rho   = m_LogMetallicityRho;
+    double xi    = LogMetallicityXi();
+    double sigma = LogMetallicitySigma();
+    double rho   = LogMetallicityRho();
 
     // pow() is slow - use multiplication
     // do these calculations once only - and esp. outside the loop
@@ -857,7 +855,7 @@ void BaseStar::CalculateMassCutoffs(const double p_Metallicity, const double p_L
 double BaseStar::CalculateGBRadiusXExponent() const {
 
     // pow()is slow - use multiplication
-    double xi   = m_LogMetallicityXi;
+    double xi   = LogMetallicityXi();
     double xi_2 = xi * xi;
     double xi_3 = xi_2 * xi;
     double xi_4 = xi_2 * xi_2;
