@@ -32,7 +32,11 @@ INSTALL_REQUIRES = [
     "pre-commit",
     "flake8",
     "black==22.10.0",
-    "isort"
+    "isort",
+    "matplotlib",
+    "pandas",
+    "astropy",
+    "scipy"
 ]
 EXTRA_REQUIRE = dict(dev=[
     "pytest>=3.6",
