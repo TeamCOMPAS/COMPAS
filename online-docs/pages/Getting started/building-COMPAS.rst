@@ -16,6 +16,12 @@ is ``csh``, set the environment variable in `~/.cshrc` using::
 
     setenv COMPAS_ROOT_DIR ~/codes/COMPAS
     
+Tip: you can check whether you have correctly defined the environment variable and whether its been active by typing into your terminal the command:
+    ECHO $COMPAS_ROOT_DIR
+This should return the directory location of the COMPAS folder (i.e. "~/codes/COMPAS").
+
+
+    
 Now go to the COMPAS source code directory::
 
     cd $COMPAS_ROOT_DIR/src
@@ -25,7 +31,7 @@ In this directory you will find the file ``Makefile``, which you need to edit to
 If you installed the packages with Homebrew, the package files are likely to be found in /usr/local/opt (in directories gsl, boost, and hdf5 respectively),
 but if they are not found there you will need to use Homebrew to locate the files::
 
-    $ brew info boost
+    brew info boost
     boost: stable 1.72.0 (bottled), HEAD
     Collection of portable C++ source libraries
     https://www.boost.org/

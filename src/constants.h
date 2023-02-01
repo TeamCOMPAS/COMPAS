@@ -560,6 +560,7 @@ enum class ERROR: int {
     UNKNOWN_BINARY_PROPERTY,                                        // unknown binary property
     UNKNOWN_CASE_BB_STABILITY_PRESCRIPTION,                         // unknown case BB/BC mass transfer stability prescription
     UNKNOWN_CE_ACCRETION_PRESCRIPTION,                              // unknown common envelope accretion prescription
+    UNKNOWN_CE_FORMALISM,                                           // unknown common envelope formalism
     UNKNOWN_CE_LAMBDA_PRESCRIPTION,                                 // unknown common envelope Lambda Prescription
     UNKNOWN_DATA_TYPE,                                              // unknown data type
     UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                            // unknown envelope state prescription
@@ -700,6 +701,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_BINARY_PROPERTY,                               { ERROR_SCOPE::ALWAYS,              "Unknown binary property - property details not found" }},
     { ERROR::UNKNOWN_CASE_BB_STABILITY_PRESCRIPTION,                { ERROR_SCOPE::ALWAYS,              "Unknown case BB/BC mass transfer stability prescription" }},
     { ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown common envelope accretion prescription" }},
+    { ERROR::UNKNOWN_CE_FORMALISM,                                  { ERROR_SCOPE::ALWAYS,              "Unknown common envelope formalism" }},
     { ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown common envelope lambda prescription" }},
     { ERROR::UNKNOWN_DATA_TYPE,                                     { ERROR_SCOPE::ALWAYS,              "Unknown data type" }},
     { ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown envelope state prescription" }},
@@ -838,6 +840,14 @@ const COMPASUnorderedMap<CE_LAMBDA_PRESCRIPTION, std::string> CE_LAMBDA_PRESCRIP
     { CE_LAMBDA_PRESCRIPTION::NANJING,   "LAMBDA_NANJING" },
     { CE_LAMBDA_PRESCRIPTION::KRUCKOW,   "LAMBDA_KRUCKOW" },
     { CE_LAMBDA_PRESCRIPTION::DEWI,      "LAMBDA_DEWI" }
+};
+    
+    
+// Common Envelope Formalism
+enum class CE_FORMALISM: int { ENERGY, TWO_STAGE };
+const COMPASUnorderedMap<CE_FORMALISM, std::string> CE_FORMALISM_LABEL = {
+        { CE_FORMALISM::ENERGY,         "ENERGY" },
+        { CE_FORMALISM::TWO_STAGE,      "TWO_STAGE" }
 };
 
 
@@ -1966,7 +1976,6 @@ enum class BINARY_PROPERTY: int {
     RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME,
     RLOF_POST_MT_STAR2_STELLAR_TYPE,
     RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME,
-    RLOF_POST_MT_TIME,
     RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,
     RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,
     RLOF_PRE_MT_ECCENTRICITY,
@@ -1981,10 +1990,11 @@ enum class BINARY_PROPERTY: int {
     RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME,
     RLOF_PRE_MT_STAR2_STELLAR_TYPE,
     RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME,
-    RLOF_PRE_MT_TIME,
     RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,
     RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,
     RLOF_SECONDARY_POST_COMMON_ENVELOPE,
+    RLOF_TIME_POST_MT,
+    RLOF_TIME_PRE_MT,
     ROCHE_LOBE_RADIUS_1,
     ROCHE_LOBE_RADIUS_2,
     ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE,
@@ -2013,6 +2023,7 @@ enum class BINARY_PROPERTY: int {
     STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE,
     STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE,
     STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE,
+    SUPERNOVA_ORBIT_INCLINATION_ANGLE,
     SUPERNOVA_STATE,
     SYNCHRONIZATION_TIMESCALE,
     SYSTEMIC_SPEED,
@@ -2092,7 +2103,6 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME,               "RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE,                    "RLOF_POST_MT_STAR2_STELLAR_TYPE" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME,               "RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME" },
-    { BINARY_PROPERTY::RLOF_POST_MT_TIME,                                  "RLOF_POST_MT_TIME" },
     { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,   "RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1" },
     { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,   "RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2" },
     { BINARY_PROPERTY::RLOF_PRE_MT_ECCENTRICITY,                           "RLOF_PRE_MT_ECCENTRICITY" },
@@ -2107,10 +2117,11 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME,                "RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE,                     "RLOF_PRE_MT_STAR2_STELLAR_TYPE" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME,                "RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME" },
-    { BINARY_PROPERTY::RLOF_PRE_MT_TIME,                                   "RLOF_PRE_MT_TIME" },
     { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,    "RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1" },
     { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,    "RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2" },
     { BINARY_PROPERTY::RLOF_SECONDARY_POST_COMMON_ENVELOPE,                "RLOF_SECONDARY_POST_COMMON_ENVELOPE" },
+    { BINARY_PROPERTY::RLOF_TIME_POST_MT,                                  "RLOF_TIME_POST_MT" },
+    { BINARY_PROPERTY::RLOF_TIME_PRE_MT,                                   "RLOF_TIME_PRE_MT" },
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1,                                "ROCHE_LOBE_RADIUS_1" },
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE,           "ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE,            "ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE" },
@@ -2139,6 +2150,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE,            "STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE,           "STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE,            "STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE" },
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE,                  "SUPERNOVA_ORBIT_INCLINATION_ANGLE" },
     { BINARY_PROPERTY::SUPERNOVA_STATE,                                    "SUPERNOVA_STATE" },
     { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE,                          "SYNCHRONIZATION_TIMESCALE" },
     { BINARY_PROPERTY::SYSTEMIC_SPEED,                                     "SYSTEMIC_SPEED" },
@@ -2183,6 +2195,7 @@ enum class PROGRAM_OPTION: int {
 
     COMMON_ENVELOPE_ALPHA,
     COMMON_ENVELOPE_ALPHA_THERMAL,
+    COMMON_ENVELOPE_FORMALISM,
     COMMON_ENVELOPE_LAMBDA,
     COMMON_ENVELOPE_LAMBDA_MULTIPLIER,
     COMMON_ENVELOPE_LAMBDA_PRESCRIPTION,
@@ -2394,6 +2407,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA,                            "COMMON_ENVELOPE_ALPHA" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA_THERMAL,                    "COMMON_ENVELOPE_ALPHA_THERMAL" },
+    { PROGRAM_OPTION::COMMON_ENVELOPE_FORMALISM,                        "COMMON_ENVELOPE_FORMALISM" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA,                           "COMMON_ENVELOPE_LAMBDA" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_MULTIPLIER,                "COMMON_ENVELOPE_LAMBDA_MULTIPLIER" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_PRESCRIPTION,              "COMMON_ENVELOPE_LAMBDA_PRESCRIPTION" },
@@ -2802,7 +2816,6 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME,                { TYPENAME::STRING,         "Stellar_Type(1)>MT",    "-",               42, 1 }},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE,                     { TYPENAME::STELLAR_TYPE,   "Stellar_Type(2)>MT",    "-",                4, 1 }},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME,                { TYPENAME::STRING,         "Stellar_Type(2)>MT",    "-",               42, 1 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_TIME,                                   { TYPENAME::DOUBLE,         "Time>MT",              "Myr",              16, 8 }},
     { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,    { TYPENAME::DOUBLE,         "Radius(1)|RL>step",      "-",              14, 6 }},
     { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,    { TYPENAME::DOUBLE,         "Radius(2)|RL>step",      "-",              14, 6 }},
     { BINARY_PROPERTY::RLOF_PRE_MT_ECCENTRICITY,                            { TYPENAME::DOUBLE,         "Eccentricity<MT",      "-",                14, 6 }},
@@ -2817,10 +2830,11 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME,                 { TYPENAME::STRING,         "Stellar_Type(1)<MT",   "-",                42, 1 }},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE,                      { TYPENAME::STELLAR_TYPE,   "Stellar_Type(2)<MT",   "-",                 4, 1 }},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME,                 { TYPENAME::STRING,         "Stellar_Type(2)<MT",   "-",                42, 1 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_TIME,                                    { TYPENAME::DOUBLE,         "Time<MT",              "Myr",              16, 8 }},
     { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,     { TYPENAME::DOUBLE,         "Radius(1)|RL<step",      "-",              14, 6 }},
     { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,     { TYPENAME::DOUBLE,         "Radius(2)|RL<step",      "-",              14, 6 }},
     { BINARY_PROPERTY::RLOF_SECONDARY_POST_COMMON_ENVELOPE,                 { TYPENAME::BOOL,           "RLOF_Secondary>CE",    "Event",             0, 0 }},
+    { BINARY_PROPERTY::RLOF_TIME_POST_MT,                                   { TYPENAME::DOUBLE,         "Time>MT",              "Myr",              16, 8 }},
+    { BINARY_PROPERTY::RLOF_TIME_PRE_MT,                                    { TYPENAME::DOUBLE,         "Time<MT",              "Myr",              16, 8 }},
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1,                                 { TYPENAME::DOUBLE,         "RocheLobe(1)|a",       "-",                14, 6 }},
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE,            { TYPENAME::DOUBLE,         "RocheLobe(1)>CE",      "Rsol",             14, 6 }},
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE,             { TYPENAME::DOUBLE,         "RocheLobe(1)<CE",      "Rsol",             14, 6 }},
@@ -2849,6 +2863,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE,             { TYPENAME::STRING,         "Stellar_Type(1)<CE",   "-",                42, 1 }},
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE,            { TYPENAME::STRING,         "Stellar_Type(2)>CE",   "-",                42, 1 }},
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE,             { TYPENAME::STRING,         "Stellar_Type(2)<CE",   "-",                42, 1 }},
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE,                   { TYPENAME::DOUBLE,         "Supernova_Orbit_Inclination_Angle", "-",   14, 6 }},   
     { BINARY_PROPERTY::SUPERNOVA_STATE,                                     { TYPENAME::SN_STATE,       "Supernova_State",      "State",             4, 1 }},   // JR: todo: for backward compatibility
     { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE,                           { TYPENAME::DOUBLE,         "Tau_Sync",             "Myr",              16, 8 }},
     { BINARY_PROPERTY::SYSTEMIC_SPEED,                                      { TYPENAME::DOUBLE,         "SystemicSpeed",        "kms^-1",           14, 6 }},
@@ -2890,6 +2905,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 
     { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA,                                { TYPENAME::DOUBLE,         "CE_Alpha",                     "-",                14, 6 }},
     { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA_THERMAL,                        { TYPENAME::DOUBLE,         "CE_Alpha_Thermal",             "-",                14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_FORMALISM,                            { TYPENAME::INT,            "CE_Formalism",                 "-",                 4, 1 }},
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA,                               { TYPENAME::DOUBLE,         "CE_Lambda",                    "-",                14, 6 }},
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_MULTIPLIER,                    { TYPENAME::DOUBLE,         "CE_Lambda_Multiplier",         "-",                14, 6 }},
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_PRESCRIPTION,                  { TYPENAME::INT,            "CE_Lambda_Prscrptn",           "-",                 4, 1 }},
@@ -3334,6 +3350,8 @@ const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
 //
 const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
+    BINARY_PROPERTY::RLOF_TIME_POST_MT,
+    BINARY_PROPERTY::RLOF_TIME_PRE_MT,
     BINARY_PROPERTY::RLOF_POST_MT_STAR1_MASS,
     BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS,
     BINARY_PROPERTY::RLOF_POST_MT_STAR1_RADIUS,
@@ -3343,7 +3361,6 @@ const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
     BINARY_PROPERTY::RLOF_POST_MT_SEMI_MAJOR_AXIS,
     BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY,
     BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER,
-    BINARY_PROPERTY::RLOF_POST_MT_TIME,
     BINARY_PROPERTY::RLOF_POST_MT_STAR1_RLOF,
     BINARY_PROPERTY::RLOF_POST_MT_STAR2_RLOF,
     BINARY_PROPERTY::STELLAR_MERGER,
@@ -3358,7 +3375,6 @@ const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
     BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE,
     BINARY_PROPERTY::RLOF_PRE_MT_SEMI_MAJOR_AXIS,
     BINARY_PROPERTY::RLOF_PRE_MT_ECCENTRICITY,
-    BINARY_PROPERTY::RLOF_PRE_MT_TIME,
     BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RLOF,
     BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RLOF,
     BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,
@@ -3410,7 +3426,8 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::SPEED,
     COMPANION_PROPERTY::SPEED,
     BINARY_PROPERTY::SYSTEMIC_SPEED,
-    SUPERNOVA_PROPERTY::IS_HYDROGEN_POOR
+    SUPERNOVA_PROPERTY::IS_HYDROGEN_POOR,
+    BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE, 
 };
 
 
