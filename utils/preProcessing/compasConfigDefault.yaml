@@ -50,8 +50,7 @@ numericalChoices:
     --logfile-pulsar-evolution-record-types: -1
     --logfile-rlof-parameters-record-types: -1
     --logfile-supernovae-record-types: -1
-    --logfile-switch-log: -1
-    --logfile-system-parameters: -1
+    --logfile-system-parameters-record-types: -1
     --grid-lines-to-process: 
     --grid-start-line: 0
     --hdf5-chunk-size: 100000
