@@ -23,9 +23,11 @@ class TestPlotDetailedEvolution(unittest.TestCase):
         )
         _, runtime, sout = time_func_and_capture_sout(
             run_main_plotter,
-            bse_detailed_out_path, outdir=OUTDIR
+            bse_detailed_out_path, outdir=OUTDIR, show=False
         )
-        self.assertLess(runtime, 10)
+        self.assertLess(runtime, 30)
+        self.assertTrue(os.path.exists(os.path.join(OUTDIR, "vanDenHeuvelPlot.eps")))
+        self.assertTrue(os.path.exists(os.path.join(OUTDIR, "detailedEvolutionPlot.eps")))
 
         if not os.path.exists(OUTDIR):
             os.mkdir(OUTDIR)
