@@ -205,7 +205,7 @@ public:
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
     
-            void            HaltWinds()                                                                         { m_Mdot = 0.0;  m_MassLossDiff = 0.0; }    // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
+            void            HaltWinds()                                                                         { m_Mdot = 0.0; }       // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 
