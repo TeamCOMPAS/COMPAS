@@ -2027,7 +2027,7 @@ double BaseStar::CalculateMassLossRate() {
 
 /*
  * Calculate mass loss given mass loss rate - uses current timestep (m_Dt)
- * Returned mass loss is limited to 1% of current mass
+ * Returned mass loss is limited to MAXIMUM_MASS_LOSS_FRACTION (e.g., 1%) of current mass
  *
  *
  * double CalculateMassLoss_Static(const double p_Mass, const double p_Mdot, const double p_Dt)
@@ -2081,7 +2081,6 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
         }
         else {
             dt    = massLoss / (mDot * 1.0E6);                              // new timestep to match limited mass loss
-            mDot  = massLoss / (dt * 1.0E6);                                // new mass loss rate to match limited mass loss
             mass -= massLoss;                                               // new mass based on limited mass loss
 
             if (p_UpdateMDt) m_Dt = dt;                                     // update class member variable if necessary

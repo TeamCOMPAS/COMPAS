@@ -207,6 +207,8 @@ public:
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
+    
+            void            HaltWinds()                                                                         { m_Mdot = 0.0; }       // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 
             double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription); 
 

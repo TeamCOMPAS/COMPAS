@@ -198,6 +198,7 @@ public:
     double          EvolveOneTimestep(const double p_Dt);
 
     double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription)                              { return m_Star->InterpolateGe20QCrit(p_qCritPrescription); }
+    void            HaltWinds()                                                                                     { m_Star->HaltWinds(); }
 
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
 
