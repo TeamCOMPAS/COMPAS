@@ -1924,7 +1924,7 @@ double BaseStar::CalculateMassLoss_Static(const double p_Mass, const double p_Md
 
 
 /*
- * Calculate values for dt, mDot and mass assuming mass loss is applied
+ * Calculate values for dt, mDot and mass (assuming mass loss is applied)
  *
  * Class member variables m_Mdot and m_Dt are updated directly by this function if required (see paramaters)
  * Class member variables m_Mass is not updated directly by this function - the calculated mass is returned as the functional return
@@ -1937,6 +1937,9 @@ double BaseStar::CalculateMassLoss_Static(const double p_Mass, const double p_Md
  *
  *
  * double CalculateMassLossValues()                                                             // JR: todo: pick a better name for this...
+ * 
+ * @param   [IN]    p_UpdateMDot                flag specifying if m_Mdot (mass loss rate) should be updated
+ * @param   [IN]    p_UpdateMDt                 flag specifying if m_Dt (timestep) should be update
  * @return                                      calculated mass (mSol)
  */
 double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_UpdateMDt) {

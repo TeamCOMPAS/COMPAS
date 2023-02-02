@@ -1832,25 +1832,20 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
 
     m_aMassLossDiff = 0.0;                                                                                                      // initially - no change to orbit (semi-major axis) due to winds mass loss
 
-    // Halt mass loss due to winds if the binary is in mass transfer and set the Mdot parameters of both stars appropriately
+    // Halt mass loss due to winds if the binary is in mass transfer
     if (OPTIONS->UseMassTransfer() && m_MassTransfer) {
-            m_Star1->SetMassLossDiff(0.0);                                                                                      // JR would prefer to avoid a Setter for aesthetic reasons
-            m_Star2->SetMassLossDiff(0.0);
             m_Star1->HaltWinds();
             m_Star2->HaltWinds();
     }
     else {
         if (OPTIONS->UseMassLoss()) {                                                                                           // mass loss enabled?
 
-            double mWinds1 = m_Star1->CalculateMassLossValues(true);                                                            // calculate new values assuming mass loss applied
-            double mWinds2 = m_Star2->CalculateMassLossValues(true);                                                            // calculate new values assuming mass loss applied
+            double mWinds1 = m_Star1->InitialiseWindsMassLoss();                                                                // initialise winds mass loss for star1
+            double mWinds2 = m_Star1->InitialiseWindsMassLoss();                                                                // initialise winds mass loss for star2
 
             double aWinds  = m_SemiMajorAxisPrev / (2.0 - ((m_Star1->MassPrev() + m_Star2->MassPrev()) / (mWinds1 + mWinds2))); // new semi-major axis for circularlised orbit
 
-            m_Star1->SetMassLossDiff(mWinds1 - m_Star1->Mass());                                                                // JR: todo: find a better way?
-            m_Star2->SetMassLossDiff(mWinds2 - m_Star2->Mass());                                                                // JR: todo: find a better way?
-
-            m_aMassLossDiff = aWinds - m_SemiMajorAxisPrev;                                                                 // change to orbit (semi-major axis) due to winds mass loss
+            m_aMassLossDiff = aWinds - m_SemiMajorAxisPrev;                                                                     // change to orbit (semi-major axis) due to winds mass loss
         }
     }
 }
