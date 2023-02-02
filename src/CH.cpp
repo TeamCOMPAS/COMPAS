@@ -66,21 +66,26 @@ double CH::CalculateLifetimeRatio(const double p_Mass) const {
 double CH::CalculateLogLuminosityRatio(const double p_Mass) const {
     
     // Define some variables
-    double logLuminosityRatio = 0.0;
+    double logLuminosityRatio = 1.0;   // log(L_CH) / log(L_MS)
 
-    // Polynomial fits to the ratio of logL in models from Szecsi et al., derived using np.polynomial.Polynomial
-    double x = log10(p_Mass);
+    // If user wants to increase CH MS luminosity, calculate the ratio of CH to MS luminosity
+    if (OPTIONS->EnhanceCHELifetimesLuminosities()) {
 
-    double term1 =  1.8261540986808193;
-    double term2 = -1.1636822407341694 * x;
-    double term3 =  0.5876329884434304 * x * x;
-    double term4 = -0.10236336828026288 * x * x * x;
+        // Polynomial fits to the ratio of logL in models from Szecsi et al., derived using np.polynomial.Polynomial
+        double x = log10(p_Mass);
 
-    logLuminosityRatio = term1 + term2 + term3 + term4;
+        double term1 =  1.8261540986808193;
+        double term2 = -1.1636822407341694 * x;
+        double term3 =  0.5876329884434304 * x * x;
+        double term4 = -0.10236336828026288 * x * x * x;
 
-    // Make sure we don't reduce the luminosity
-    if (logLuminosityRatio < 1.0) {
-        logLuminosityRatio = 1.0;
+        logLuminosityRatio = term1 + term2 + term3 + term4;
+
+        // Make sure we don't reduce the luminosity
+        if (logLuminosityRatio < 1.0) {
+            logLuminosityRatio = 1.0;
+        }
+    
     }
 
     return logLuminosityRatio;
