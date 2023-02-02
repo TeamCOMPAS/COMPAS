@@ -960,6 +960,8 @@
 //                                      - Fixed units for post-CEE semi-major axis in CEE logs (issue #876).
 // 02.34.04     RTW - Jan 31, 2023   - Enhancement:
 //                                      - Added SN orbit inclination angle to BSE_SUPERNOVAE output
+// 02.34.05    JR - Jan 29, 2023    - Code cleanup:
+//                                      - Addressed issue #888 - replaced class variables m_LogMetallicityXi, m_LogMetallicitySigma, and m_LogMetallicityRho in BaseStar with getter functions.
 // 02.35.00     RTW - Dec 8, 2022    - Enhancement:
 //                                      - Added critical mass ratios from Ge+ 2020 for determining if MT is unstable
 
