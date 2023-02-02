@@ -472,3 +472,34 @@ void BinaryConstituentStar::InitialiseMassTransfer(const bool p_CommonEnvelope, 
     SetRocheLobeFlags(p_CommonEnvelope, p_SemiMajorAxis, p_Eccentricity);
     m_MassTransferDiff = 0.0;
 }
+
+
+/*
+ * Initialise winds mass loss
+ *
+ * Calculates dt, mDot and mass (assuming mass loss is applied)
+ * Sets m_MassLossDiff
+ * 
+ * double BinaryConstituentStar::InitialiseWindsMassLoss()
+ *
+ * @return                                      calculated mass (mSol)
+ */
+double BinaryConstituentStar::InitialiseWindsMassLoss() {
+    double mWinds  = CalculateMassLossValues(true);     // calculate new values assuming mass loss applied
+    m_MassLossDiff = mWinds - Mass();
+
+    return mWinds;                                      // return new mass (as a result of winds mass loss)
+}
+
+
+/*
+ * Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
+ *
+ * void BinaryConstituentStar::HaltWinds()
+ * 
+ */
+void BinaryConstituentStar::HaltWinds() {
+    m_MassLossDiff = 0.0;
+    Star::HaltWinds();
+}
+

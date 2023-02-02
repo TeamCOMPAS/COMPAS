@@ -191,30 +191,40 @@ public:
     double          ThermalTimescalePreCEE() const                                      { return m_CEDetails.preCEE.thermalTimescale; }
 
 
-    // setters
-    void            SetCompanion(BinaryConstituentStar* p_Companion)                    { m_Companion = p_Companion; }                              // this star's companion star
+    // setters (the aim is to remove all of these one day)
 
-    void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
-    void            SetMassTransferDiff(const double p_MassTransferDiff)                { m_MassTransferDiff = p_MassTransferDiff; }                // JR: todo: better way?  JR: todo:  sanity check?
+    void            SetMassTransferDiff(const double p_MassTransferDiff)                { m_MassTransferDiff = p_MassTransferDiff; }
 
     void            SetOrbitalEnergyPostSN(const double p_OrbitalEnergyPostSN)          { m_OrbitalEnergyPostSN = p_OrbitalEnergyPostSN; };
     void            SetOrbitalEnergyPreSN(const double p_OrbitalEnergyPreSN)            { m_OrbitalEnergyPreSN = p_OrbitalEnergyPreSN; };
 
+    // member functions
+
+    // even though they might at first glance look and act like it, these are not really setters!
+    // these functions don't allow the caller to specify a value for a class member variable - they
+    // just instruct the object to set or clear a state, and how the object does that is up to it
+    // (SetCompanion() does actually allow the caller to set the variable, and so is kind of a defacto setter, 
+    // but that's just because all we need to set a star's companion at the moment is to set the m_Companion
+    // class variable - but that could change and the caller doesn't need to know if it does)
     void            ClearRecycledNS()                                                   { m_Flags.recycledNS = false; }
     void            SetRecycledNS()                                                     { m_Flags.recycledNS = true; }
 
     void            ClearRLOFOntoNS()                                                   { m_Flags.rlofOntoNS = false; }
     void            SetRLOFOntoNS()                                                     { m_Flags.rlofOntoNS = true; }
 
+    void            SetCompanion(BinaryConstituentStar* p_Companion)                    { m_Companion = p_Companion; }                              // this star's companion star
+
+    // other member functions
+    
     void            CalculateCommonEnvelopeValues();
-
     void            CalculateOmegaTidesIndividualDiff(const double p_OrbitalAngularVelocity) { m_OmegaTidesIndividualDiff = p_OrbitalAngularVelocity - OmegaPrev(); }
-
     double          CalculateCircularisationTimescale(const double p_SemiMajorAxis);
-
     double          CalculateSynchronisationTimescale(const double p_SemiMajorAxis);
 
+    void            HaltWinds();
+
     void            InitialiseMassTransfer(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
+    double          InitialiseWindsMassLoss();
 
     void            ResolveCommonEnvelopeAccretion(const double p_FinalMass);
 
