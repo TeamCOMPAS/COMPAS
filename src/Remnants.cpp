@@ -45,27 +45,6 @@ DBL_DBL Remnants::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
 
 
 /*
- * Calculate the dominant mass loss mechanism and associated rate for the star
- * at the current evolutionary phase.
- *
- * Hurley et al. 2000, just after eq 106
- *
- * double CalculateMassLossRateHurley()
- *
- * @return                                      Mass loss rate in Msol per year
- */
-double Remnants::CalculateMassLossRateHurley() {
-    double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
-    if (utils::Compare(rateNJ, 0.0) > 0) {
-        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
-    } else {
-        m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
-    }
-    return rateNJ;
-}
-
-
-/*
  * Choose timestep for evolution
  *
  * Can obviously do this your own way

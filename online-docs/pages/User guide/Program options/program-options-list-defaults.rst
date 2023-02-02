@@ -1132,7 +1132,13 @@ Default = 1.0
 :ref:`Back to Top <options-props-top>`
 
 **--use-mass-loss** |br|
-Enable mass loss. |br|
+Enable mass loss through winds. |br|
+Note that setting this option to false can have unexpected consequences, e.g., TPAGB stars that are prevented from losing mass 
+cannot become white dwarfs, so will end up as massless remnants.  This is a useful option for testing, but this setting is not recommended
+for production. It is better to use specific wind prescription controls, such as --cool-wind-mass-loss-multiplier, 
+--luminous-blue-variable-prescription, --luminous-blue-variable-multiplier, 
+--mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier
+--cool-wind-mass-loss-multiplier. |br|
 Default = TRUE
 
 .. _options-props-V:
