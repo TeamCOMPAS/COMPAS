@@ -53,7 +53,7 @@ protected:
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                     const double p_AccretorMassRate = 0.0);
 
-    double          CalculateMassLossRateHurley();
+    double          CalculateMassLossRateHurley()                                                       { return 0.0; }
     double          CalculateMassLossRateVink()                                                                 { return 0.0; }
 
     double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                          { return GiantBranch::CalculateMomentOfInertia(p_RemnantRadius); }      // Default to GiantBranch
@@ -96,8 +96,6 @@ protected:
 
     void            ResolveEnvelopeMassAtPhaseEnd(const double p_Tau) const                                     { ResolveEnvelopeMassOnPhase(p_Tau); }                                  // Same as on phase
     void            ResolveEnvelopeMassOnPhase(const double p_Tau) const { }                                                                                                            // NO-OP
-
-    void            ResolveMassLoss() { }                                                                                                                                         // NO-OP
 
     STELLAR_TYPE    ResolveSkippedPhase()                                                                       { return BaseStar::ResolveSkippedPhase(); }                             // Default to BaseStar
     STELLAR_TYPE    ResolveSupernova()                                                                          { return BaseStar::ResolveSupernova(); }                                // Default to BaseStar

@@ -17,7 +17,7 @@
  */
 double NS::CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Time) {
     double t = std::max(p_Time, 0.1);
-    return 0.02 * p_Mass / (t * t);
+    return 0.02 * PPOW(p_Mass, 2.0/3.0) / (t * t);
 }
 
 
