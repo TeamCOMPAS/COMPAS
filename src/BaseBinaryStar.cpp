@@ -1841,7 +1841,7 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
         if (OPTIONS->UseMassLoss()) {                                                                                           // mass loss enabled?
 
             double mWinds1 = m_Star1->InitialiseWindsMassLoss();                                                                // initialise winds mass loss for star1
-            double mWinds2 = m_Star1->InitialiseWindsMassLoss();                                                                // initialise winds mass loss for star2
+            double mWinds2 = m_Star2->InitialiseWindsMassLoss();                                                                // initialise winds mass loss for star2
 
             double aWinds  = m_SemiMajorAxisPrev / (2.0 - ((m_Star1->MassPrev() + m_Star2->MassPrev()) / (mWinds1 + mWinds2))); // new semi-major axis for circularlised orbit
 
