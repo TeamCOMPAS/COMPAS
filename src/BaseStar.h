@@ -80,6 +80,9 @@ public:
             double              Lambda_LoveridgeWinds() const                                   { return m_Lambdas.loveridgeWinds; }
             double              Lambda_Nanjing() const                                          { return m_Lambdas.nanjing; }
             bool                LBV_Phase_Flag() const                                          { return m_LBVphaseFlag; }
+            double              LogMetallicityRho() const                                       { return LogMetallicityXi() + 1.0; }            // rho in Hurley+ 2000
+            double              LogMetallicitySigma() const                                     { return m_Log10Metallicity; }                  // sigma in Hurley+ 2000
+            double              LogMetallicityXi() const                                        { return m_Log10Metallicity - LOG10_ZSOL; }     // xi in Hurley+ 2000
             double              Luminosity() const                                              { return m_Luminosity; }
             double              Mass() const                                                    { return m_Mass; }
             double              Mass0() const                                                   { return m_Mass0; }
@@ -316,10 +319,8 @@ protected:
     STELLAR_TYPE            m_StellarTypePrev;                          // Stellar type at previous timestep
 
     // Metallicity variables
-    double                  m_LogMetallicityRho;                        // logMetallicityXi + 1.0       - called rho in Hurley et al 2000
-    double                  m_LogMetallicitySigma;                      // log10(Metallicity)           - called sigma in Hurley et al 2000
-    double                  m_LogMetallicityXi;                         // log10(Metallicity / Zsol)    - called xi in Hurley et al 2000
     double                  m_Metallicity;                              // Metallicity
+    double                  m_Log10Metallicity;                         // log10(Metallicity) - for performance
 
     // Metallicity dependent constants
     double                  m_Alpha1;                                   // alpha1 in Hurly et al. 2000, just after eq 49
