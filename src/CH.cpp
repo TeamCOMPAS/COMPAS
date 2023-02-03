@@ -85,7 +85,7 @@ double CH::CalculateLogLuminosityRatio(const double p_Mass) const {
         if (logLuminosityRatio < 1.0) {
             logLuminosityRatio = 1.0;
         }
-    
+
     }
 
     return logLuminosityRatio;
@@ -211,6 +211,82 @@ void CH::UpdateAgeAfterMassLoss() {
     m_Age *= tMSprime / tMS;
 }
 
+/*
+ * Calculate the weight for the OB and WR mass loss prescriptions
+ *
+ * According to the prescription described in Yoon et al. 2006 (and Szecsi et al. 2015)
+ * Use OB mass loss rates until Y1 = 0.55, WR mass loss rates above Y2 = 0.7, and 
+ * linearly interpolate for Y1 < Ys < Y2 where Ys is the surface helium fraction.
+ * Since we don't have Ys by default in our models, and detailed models show Ys
+ * rises ~linearly from 0.2 to 1.0 across the main-sequence, here we simply 
+ * use tau = t / tMS as a proxy for Ys.
+ *
+ * CalculateMassLossRateWeightOB()
+ *
+ * @param   [IN]        p_tau                Fraction of time along main sequence (use as a proxy for Ys) 
+ *
+ * @return                                   weight for OB mass loss rate
+ */
+double CH::CalculateMassLossRateWeightOB(const double p_tau){
+
+    // Define variables
+    double weight = 0.0;
+    const double y1 = 0.55;
+    const double y2 = 0.70;
+    const double weight_bot = y2 - y1;
+
+    // Calculate the weight as a function of tau according to the prescription from Yoon et al. 2006
+    if (p_tau < y1){
+        weight = 1.0;
+    }
+    else if (p_tau > y2){
+        weight = 0.0;
+    }
+    else{
+        weight = (y2 - p_tau) / weight_bot;
+    }
+
+    return weight;
+}
+
+/*
+ * Calculate the dominant mass loss mechanism and associated rate for the star at the current evolutionary phase
+ * According to Vink - based on implementation in StarTrack
+ *
+ * double CalculateMassLossRateVink()
+ *
+ * @return                                      Mass loss rate in Msol per year
+ */
+double CH::CalculateMassLossRateVink() {
+
+    // Define variables
+    double Mdot    = 0.0;
+    double Mdot_OB = 0.0;
+    double Mdot_WR = 0.0;
+    double weight  = 1.0;           // Initialised to 1.0 to allow us to use the OB mass loss rate by default
+
+    // Convert temperature to Kelvin as needed by Vink prescription
+    double teff = m_Temperature * TSOL;            
+
+    // Calculate OB mass loss rate according to the Vink et al. formalism
+    Mdot_OB = BaseStar::CalculateMassLossRateOB(teff);  
+
+    // If user wants to transition between OB and WR mass loss rates
+    if (OPTIONS->ScaleCHEMassLossWithSurfaceHeliumAbundance()){
+
+        // Calculate WR mass loss rate
+        Mdot_WR = BaseStar::CalculateMassLossRateWolfRayetZDependent(0.0);
+
+        // Calculate weight for combining these into total mass-loss rate
+        weight = CalculateMassLossRateWeightOB(m_Tau);
+
+    }
+
+    // Finally, combine each of these prescriptions according to the weight
+    Mdot = (weight * Mdot_OB) + ((1.0 - weight) * Mdot_WR);
+
+    return Mdot;
+}
 
 /*
  * Evolve a CH star to the next stellar phase

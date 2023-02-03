@@ -58,6 +58,10 @@ protected:
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
     void            CalculateTimescales()                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
 
+    // Mass loss rate
+    double          CalculateMassLossRateVink();
+    double          CalculateMassLossRateWeightOB(const double p_tau);
+
     STELLAR_TYPE    EvolveToNextPhase();
 
     bool            ShouldEvolveOnPhase() const         { return m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)] && (OPTIONS->OptimisticCHE() || m_Omega >= m_OmegaCHE); }   // Evolve on CHE phase if age in MS timescale and spinning at least as fast as CHE threshold

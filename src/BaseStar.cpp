@@ -1606,8 +1606,7 @@ double BaseStar::CalculateMassLossRateKudritzkiReimers() const {
  *
  * Hurley et al. 2000, just after eq 106
  *
- *
- * double CalculateMassLossRateNieuwenhuijzenDeJagerStatic()
+ * double CalculateMassLossRateNieuwenhuijzenDeJager()
  *
  * @return                                      Nieuwenhuijzen & de Jager mass loss rate for massive stars (in Msol yr^-1)
  */
