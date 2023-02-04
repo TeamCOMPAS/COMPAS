@@ -279,11 +279,9 @@ Default = 1.280000
 
 **--critical-mass-ratio-prescription** |br|
 Which critical mass ratio stability prescription to use (if any).
-Options: { NONE, CLAEYS, GE20, GE20_IC } |br|
+Options: { NONE, CLAEYS } |br|
 ``NONE`` defaults to the zeta prescription for stability, 
-``CLAEYS`` uses qCrit values from Claeys et al. 2014. 
-``GE20`` uses qCrit values from Ge et al. 2020 (adiabatic assumption). 
-``GE20_IC`` uses qCrit values from Ge et al. 2020 (isentropic envelope assumption). |br|
+``CLAEYS`` uses qCrit values from Claeys et al. 2014. |br|
 Default = NONE
 
 **--critical-mass-ratio-white-dwarf-degenerate-accretor** |br|
@@ -1102,13 +1100,9 @@ Minimum semi-major axis to generate (AU). |br|
 Default = 0.01
 
 **--stellar-zeta-prescription** |br|
-Prescription for convective donor radial response zeta. 
+Prescription for stellar zeta. |br|
 Options: { SOBERMAN, HURLEY, ARBITRARY } |br|
-The prescription only applies to stars with convective envelopes.
-Stars with radiative envelopes take the values from ``--zeta-main-sequence`` or ``--zeta-radiative-giant-star``. |br|
-``SOBERMAN`` uses zeta from Soberman, Phinney, and van den Heuvel (1997) 
-``HURLEY`` uses zeta from Hurley, Pols, Tout (2002) 
-``ARBITRARY`` uses fixed value set in ``--zeta-adiabatic-arbitrary`` |br|
+Use Soberman, Phinney, and van den Heuvel (1997) or Hurley, Pols, Tout (2002) or the fixed value specified via ``--zeta-adiabatic-arbitrary`` for the stellar radial response to mass loss for convective-envelope giant-like stars |br|
 Default = SOBERMAN
 
 **--store-input-files** |br|

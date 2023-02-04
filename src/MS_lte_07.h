@@ -37,7 +37,7 @@ protected:
 
 
     // member functions - alphabetically
-    double      CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const ;
+    double      CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const ;
     double      CalculateMassTransferRejuvenationFactor() const;
 
     ENVELOPE    DetermineEnvelopeType() const { return ENVELOPE::CONVECTIVE; }                      // Always CONVECTIVE

@@ -155,9 +155,7 @@ public:
 
     virtual double          CalculateConvectiveEnvelopeMass() const                                             { return 0.0; }
 
-    virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate); 
-    virtual double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const         { return 0.0; }                                                     // Default is 0.0
-            double          CalculateCriticalMassRatioGe20(const QCRIT_PRESCRIPTION p_qCritPrescription)        { return InterpolateGe20QCrit(p_qCritPrescription); }
+    virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                 { return 0.0; }                                                     // Default is 0.0
                                                                                                                                                                                          
             double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
 
@@ -201,16 +199,13 @@ public:
 
             double          CalculateTimestep();
 
-            double          CalculateZetaAdiabatic();
-    virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                               // Use inheritance hierarchy
+    virtual double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                 { return 0.0; }                                                     // Use inheritance hierarchy
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
     
             void            HaltWinds()                                                                         { m_Mdot = 0.0; }       // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
-
-            double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription); 
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 
@@ -509,10 +504,11 @@ protected:
     virtual void                CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                             // Use class member variables
     virtual void                CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                                                              // Default is NO-OP
 
-            double              CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) const;
+            double              CalculateZadiabaticHurley2002(const double p_CoreMass) const;
+            double              CalculateZadiabaticSPH(const double p_CoreMass) const;
+            double              CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription);
 
-            double              CalculateZetaAdiabaticHurley2002(const double p_CoreMass) const;
-            double              CalculateZetaAdiabaticSPH(const double p_CoreMass) const;
+            double              CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) const;
 
     virtual double              ChooseTimestep(const double p_Time) const                                               { return m_Dt; }
 
