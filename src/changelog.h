@@ -968,7 +968,9 @@
 //                                      - Removed Dutch winds for Remnants
 //                                      - Fixed typo in NS::CalculateLuminosityOnPhase_Static()
 //                                      - Minor code cleaning
+// 02.34.07     JR - Feb 02, 2023    - Code cleanup:
+//                                      - Removed some setters in BinaryConstituentStar.  Will address others later.
 
-const std::string VERSION_STRING = "02.34.06";
+const std::string VERSION_STRING = "02.34.07";
 
 # endif // __changelog_h__
