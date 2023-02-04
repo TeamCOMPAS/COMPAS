@@ -1499,7 +1499,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "critical-mass-ratio-prescription",                                 
             po::value<std::string>(&p_Options->m_QCritPrescription.typeString)->default_value(p_Options->m_QCritPrescription.typeString),
-            ("Prescription for which critical mass ratio prescription to use, if any (options: [NONE, CLAEYS, GE20, GE20_IC], default = " + p_Options->m_QCritPrescription.typeString + ")").c_str()
+            ("Prescription for which critical mass ratio prescription to use, if any (options: [NONE, CLAEYS], default = " + p_Options->m_QCritPrescription.typeString + ")").c_str()
         )
         
         (
@@ -1724,7 +1724,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "stellar-zeta-prescription",                                   
             po::value<std::string>(&p_Options->m_StellarZetaPrescription.typeString)->default_value(p_Options->m_StellarZetaPrescription.typeString),                                                            
-            ("Prescription for stellar zeta (options: [SOBERMAN, HURLEY, ARBITRARY] default = " + p_Options->m_StellarZetaPrescription.typeString + ")").c_str()
+            ("Prescription for stellar zeta (default = " + p_Options->m_StellarZetaPrescription.typeString + ")").c_str()
         )
 
 
