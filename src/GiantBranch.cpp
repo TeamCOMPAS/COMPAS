@@ -927,12 +927,12 @@ double GiantBranch::CalculateMassLossRateHurley() {
  * Assumes this star is the donor; relevant accretor details are passed as parameters.
  * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
  *
- * double GiantBranch::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) 
+ * double GiantBranch::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) 
  *
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
  * @return                                      Critical mass ratio for unstable MT 
  */
-double GiantBranch::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const {
+double GiantBranch::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const {
 
     double qCrit;
                                                                                                                             
@@ -949,76 +949,6 @@ double GiantBranch::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDe
     }
 
     return qCrit;
-}
-
-
-/*
- * Calculate the Adiabatic Exponent (for convective-envelope giant-like stars)
- *
- *
- * double CalculateZetaConvectiveEnvelopeGiant(ZETA_PRESCRIPTION p_ZetaPrescription) const
- *
- * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
- * @return                                      Adiabatic exponent
- */
-double GiantBranch::CalculateZetaConvectiveEnvelopeGiant(ZETA_PRESCRIPTION p_ZetaPrescription) {
-    
-    double zeta = 0.0;                                            // default value
-
-    switch (p_ZetaPrescription) {                                 // which prescription?
-        case ZETA_PRESCRIPTION::SOBERMAN:                         // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
-            zeta = CalculateZetaAdiabaticSPH(m_CoreMass);
-            break;
-            
-        case ZETA_PRESCRIPTION::HURLEY:                          // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
-            zeta = CalculateZetaAdiabaticHurley2002(m_CoreMass);
-            break;
-            
-        case ZETA_PRESCRIPTION::ARBITRARY:                       // ARBITRARY: user program options thermal zeta value
-            zeta = OPTIONS->ZetaAdiabaticArbitrary();
-            break;
-            
-        default:                                                    // unknown common envelope prescription - shouldn't happen
-            m_Error = ERROR::UNKNOWN_ZETA_PRESCRIPTION;          // set error value
-            SHOW_ERROR(m_Error);                                    // warn that an error occurred
-    }
-    
-    return zeta;
-}
-
-
-
-/*
- * Calculate the mass-radius response exponent Zeta
- *
- * Hurley et al. 2000, eqs 97 & 98
- *
- *
- * double CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)
- *
- * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
- * @return                                      mass-radius response exponent Zeta
- */
-double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription) {
-    
-    double zeta = 0.0;                                              // default value
-    
-    // Use ZetaRadiativeEnvelopeGiant() for radiative envelope giant-like stars, CalculateZetaAdiabatic for convective-envelope giants
-    switch (DetermineEnvelopeType()) {                           // which envelope?
-        case ENVELOPE::RADIATIVE:
-            zeta = OPTIONS->ZetaRadiativeEnvelopeGiant();
-            break;
-            
-        case ENVELOPE::CONVECTIVE:
-            zeta = CalculateZetaConvectiveEnvelopeGiant(p_ZetaPrescription);
-            break;
-            
-        default:                                                    // shouldn't happen
-            m_Error = ERROR::INVALID_TYPE_ZETA_CALCULATION;         // set error value
-            SHOW_ERROR(m_Error);                                    // warn that an error occurred
-    }
-    
-    return zeta;
 }
 
 
