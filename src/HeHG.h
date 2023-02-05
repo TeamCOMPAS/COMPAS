@@ -60,7 +60,7 @@ protected:
     static  double          CalculateCoreMass_Luminosity_B_Static()                                                 { return 4.1E4; }
     static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                              { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }   // pow() is slow - use multiplication
 
-            double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const;
+            double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                                     { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
@@ -103,7 +103,7 @@ protected:
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
             void            CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
     
-            double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                     { return HG::CalculateZeta(p_ZetaPrescription); }                       // Calculate Zetas as for HG and other giant stars (HeMS stars were an exception)
+            double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                  { return GiantBranch::CalculateZetaConstantsByEnvelope(p_ZetaPrescription); }      // Calculate Zetas as for other giant stars (HeMS stars were an exception)
 
             double          ChooseTimestep(const double p_Time) const;
 
