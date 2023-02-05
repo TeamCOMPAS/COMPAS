@@ -51,7 +51,7 @@ protected:
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                     const double p_AccretorMassRate = 0.0);
 
-    double          CalculateMassLossRateHurley();
+    double          CalculateMassLossRateHurley()                                                       { return 0.0; }
     double          CalculateMassLossRateVink()                                                                 { return 0.0; }
 
     double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                          { return GiantBranch::CalculateMomentOfInertia(p_RemnantRadius); }      // Default to GiantBranch

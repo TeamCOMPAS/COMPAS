@@ -958,7 +958,17 @@
 //                                      - Changed conditional statement in HG::ResolveEnvelopeLoss() and FGB::ResolveEnvelopeLoss() to be consistent with other stellar types ('>' -> '>=').
 // 02.34.03     NRS - Jan 9, 2023    - Defect repair:
 //                                      - Fixed units for post-CEE semi-major axis in CEE logs (issue #876).
-// 02.35.00     NR,RTW - Dec 1, 2022 - Enhancement:
+// 02.34.04     RTW - Jan 31, 2023   - Enhancement:
+//                                      - Added SN orbit inclination angle to BSE_SUPERNOVAE output
+// 02.34.05     JR - Jan 29, 2023    - Code cleanup:
+//                                      - Addressed issue #888 - replaced class variables m_LogMetallicityXi, m_LogMetallicitySigma, and m_LogMetallicityRho in BaseStar with getter functions.
+// 02.34.06     IM - Feb 1, 2023     - Bug fixes:
+//                                      - Re-enabled ResolveMassLoss() for Remnants so that Mdot is correctly reset
+//                                      - Set Mdot to 0 in BaseBinaryStar::CalculateWindsMassLoss() when winds are turned off while the binary is in mass trensfer
+//                                      - Removed Dutch winds for Remnants
+//                                      - Fixed typo in NS::CalculateLuminosityOnPhase_Static()
+//                                      - Minor code cleaning
+// 02.35.00     NR,RTW - Feb 5, 2022 - Enhancement:
 //                                      - Added functionality for WDs to accrete in different regimes. 
 //                                          - This applies to each WD subtype individually, though there is some overlap between COWDs and ONeWDs.
 //                                          - Also involves tracking the WD shell mass, to account for shell burning that later increases the WD mass.
@@ -967,7 +977,6 @@
 //                                      - Tangential but related changes:
 //                                          - Cleaned up the call to EddingtonCriticalRate, puttting it in BaseStar along with the optional prefactor.
 //                                          - Moved NS radius and luminosity calls into NS.h from elsewhere in the code.
-
 
 const std::string VERSION_STRING = "02.35.00";
 

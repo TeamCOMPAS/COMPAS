@@ -200,6 +200,8 @@ public:
 
     double          EvolveOneTimestep(const double p_Dt);
 
+    void            HaltWinds()                                                                                     { m_Star->HaltWinds(); }
+
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
 
     void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,

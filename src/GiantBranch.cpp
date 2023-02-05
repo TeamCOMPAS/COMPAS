@@ -264,7 +264,7 @@ void GiantBranch::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)
     gbParams(AHe)    = CalculateHeRateConstant_Static();
 
     gbParams(B)      = CalculateCoreMass_Luminosity_B_Static(p_Mass);
-    gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass, m_LogMetallicityXi, m_MassCutoffs);
+    gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass, LogMetallicityXi(), m_MassCutoffs);
 
     gbParams(p)      = CalculateCoreMass_Luminosity_p_Static(p_Mass, m_MassCutoffs);
     gbParams(q)      = CalculateCoreMass_Luminosity_q_Static(p_Mass, m_MassCutoffs);
