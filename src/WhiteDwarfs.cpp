@@ -74,7 +74,7 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
         etaHe = CalculateEtaPTY(p_MassTransferRate);
     } 
     else {
-        etaHe = 1.0; // Modified so we can have double detonations // RTW: what does this mean? Should this be 0.0?
+        etaHe = 1.0; // Modified so we can have double detonations 
     }
     return etaHe;
 }

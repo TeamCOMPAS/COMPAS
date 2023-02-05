@@ -38,7 +38,7 @@ bool ONeWD::IsSupernova() const {
 
 STELLAR_TYPE ONeWD::EvolveToNextPhase() {
     if (IsMassAboveEcsnThreshold()) {
-        return ResolveSNIa(); // RTW: Is this correct?
+        return ResolveAIC();
     }
     else {                                         // Should not occur
         SHOW_WARN(ERROR::WARNING, "ONeWD told to evolve, but not how.");                                          // show warning
