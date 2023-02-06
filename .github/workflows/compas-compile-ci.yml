@@ -12,13 +12,24 @@ jobs:
   compas:
     name: Build COMPAS
     runs-on: ${{ matrix.os}}
-    container: ${{matrix.container}}  # to run the job on centos 7 docker image which runs on ubuntu-18.04 machine
+    container: ${{matrix.container}}  # to r${{ matrix.os}}
+    container: ${{matrix.container}}  # to run the jon the job on centos 7 docker image which runs on ubuntu-18.04 machine
     strategy:
       fail-fast: false  #in case build failed on one of the runners, it won't stop building on other runners
       matrix:
-        #os: [ubuntu-20.04]  # runners(virtual machines) to run the job on
+        os: [ub on centos 7 docker image which runs on ubuntu-18.04 machine
+    strategy:
+      fail-fast: false  #in case build failed on one of the runners, it won't stop building on other runners
+      matrix:
+        os: [ubuntu-20.04]  # runners(virtual machines) to run the job on
         # TURNING OFF DIFFERENT ARCHITECTURES FOR NOW
-        os: [ubuntu-20.04, ubuntu-18.04, macos-11]  # runners(virtual machines) to run the job on
+#        os: [ubuntu-0.04]  # runners(virtual machines) to run the job on
+        # TURNING OFF DIFFERENT ARCHITECTURES FOR NOW
+        os: [ubuntu-200.04, ubuntu-18.04, macos-11]  # runners(virtual machines) to run the job on
+#        include: # add the combination to run the centos container only on ubuntu-18.04
+#          - os: ubuntu-18.04
+#            container: 'centos:7'
+, ubuntu-18.04, macos-11]  # runners(virtual machines) to run the job on
         include: # add the combination to run the centos container only on ubuntu-18.04
           - os: ubuntu-18.04
             container: 'centos:7'
@@ -54,33 +65,13 @@ jobs:
       # **To be investgated further** COMPAS doesn't build on Centos
       - name: Build Compas
         run: |
+          |
           cd src && make -j $(nproc) -f Makefile
           ./COMPAS -v
         env:
           nproc: 4
 
       # This step will run only on all runners
-<<<<<<< HEAD
-      - name: Install Python packages
-        run: |
-          python3 -m pip install -r requirements.txt
-
-      # This step will run on all runners
-      # **To be investigated further** plotting script is currently failing on macos because 
-      # for some reason it cannot recognise latex is installed
-      - name: Run Post-Processing Python Scripts
-        run: |
-          cd utils/cicd-scripts
-          chmod 755 python-scripts
-          ./python-scripts
-
-      - name: Run example BBH
-        run: |
-          pip install -r requirements.txt
-          cd ci_tests/
-          chmod 755 methods_paper_bbh.sh
-          ./methods_paper_bbh.sh
-=======
 #      - name: Install Python packages
 #        run: |
 #          python3 -m pip install -r requirements.txt
@@ -93,4 +84,20 @@ jobs:
 #          cd utils/cicd-scripts
 #          chmod 755 python-scripts
 #          ./python-scripts
->>>>>>> commented problem sections in compas ci workflow that were testing the python routines. need to uncomment later
+          ./COMPAS -v
+        env:
+          nproc: 4
+
+      # This step will run only on all runners
+      - name: Install Python packages
+        run: |
+          python3 -m pip install -r requirements.txt
+
+      # This step will run on all runners
+      # **To be investigated further** plotting script is currently failing on macos because 
+      # for some reason it cannot recognise latex is installed
+      - name: Run Post-Processing Python Scripts
+        run: |
+          cd utils/cicd-scripts
+          chmod 755 python-scripts
+          ./python-scripts
