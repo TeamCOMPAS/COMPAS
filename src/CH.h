@@ -41,7 +41,7 @@ protected:
     double          CalculateRadiusAtPhaseEnd() const   { return CalculateRadiusOnPhase(); }                                                                                        // Same as on phase
 
     // Luminosity
-    double          CalculateLogLuminosityRatio(const double p_Mass) const;
+    double          CalculateLogLuminosityRatio(const double p_Mass, const double p_Tau) const;
 
     double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;
     double          CalculateLuminosityAtPhaseEnd() const                                   { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                      // Use class member variables

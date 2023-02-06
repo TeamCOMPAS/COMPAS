@@ -51,7 +51,6 @@ double CH::CalculateLifetimeRatio(const double p_Mass) const {
     return lifetimeRatio;
 }
 
-
 /*
  * Calculate the ratio of the log luminosities (logL_CH / logL_MS) of a CH star and a normal star of the same mass
  *
@@ -60,10 +59,11 @@ double CH::CalculateLifetimeRatio(const double p_Mass) const {
  * double CalculateLogLuminosityRatio(const double p_Mass)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Tau                       Dimensionless main-sequence age
  *
- * @return                                      Ratio of log luminosities of a CHE star to a normal star of the same mass
+ * @return                                      Ratio of log luminosities of a CHE star to a normal star of the same mass and age
  */
-double CH::CalculateLogLuminosityRatio(const double p_Mass) const {
+double CH::CalculateLogLuminosityRatio(const double p_Mass, const double p_Tau) const {
     
     // Define some variables
     double logLuminosityRatio = 1.0;   // log(L_CH) / log(L_MS)
@@ -88,6 +88,9 @@ double CH::CalculateLogLuminosityRatio(const double p_Mass) const {
 
     }
 
+    // Make enhancement grow from 1 to logLuminosityRatio over main-sequence
+    logLuminosityRatio = 1.0 + (logLuminosityRatio - 1.0) * p_Tau * p_Tau;
+    
     return logLuminosityRatio;
 }
 
@@ -111,7 +114,7 @@ double CH::CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, 
     double MS_Luminosity = MainSequence::CalculateLuminosityOnPhase(p_Time, p_Mass, p_LZAMS);
 
     // Then, calculate the ratio of the standard luminosity to the CHE luminosity [log(L_CH) / log(L_MS)]
-    double logLuminosityRatio = CalculateLogLuminosityRatio(p_Mass);
+    double logLuminosityRatio = CalculateLogLuminosityRatio(p_Mass, m_Tau);
 
     // logLuminosityRatio is log(L_CH) / log(L_MS). Hence, log(L_CH) = log(L_MS) * logLuminosityRatio;
     double CH_logLuminosity = log10(MS_Luminosity) * logLuminosityRatio;
@@ -120,6 +123,7 @@ double CH::CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, 
     double CH_Luminosity = PPOW(10.0, CH_logLuminosity);
 
     return CH_Luminosity;
+
 }
 
 /*
@@ -138,7 +142,7 @@ double CH::CalculateLuminosityAtPhaseEnd(const double p_Mass) const {
     double TAMS_Luminosity = MainSequence::CalculateLuminosityAtPhaseEnd(p_Mass);
 
     // Then, calculate the ratio of the standard luminosity to the CHE luminosity [log(L_CH) / log(L_MS)]
-    double logLuminosityRatio = CalculateLogLuminosityRatio(p_Mass);
+    double logLuminosityRatio = CalculateLogLuminosityRatio(p_Mass, 1.0); // Tau = 1.0 at phase end by construction
 
     // logLuminosityRatio is log(L_CH) / log(L_MS). Hence, log(L_CH) = log(L_MS) * logLuminosityRatio;
     double CH_logLuminosity = log10(TAMS_Luminosity) * logLuminosityRatio;
@@ -264,7 +268,7 @@ double CH::CalculateMassLossRateVink() {
     double Mdot_OB = 0.0;
     double Mdot_WR = 0.0;
     double weight  = 1.0;           // Initialised to 1.0 to allow us to use the OB mass loss rate by default
-
+    
     // Convert temperature to Kelvin as needed by Vink prescription
     double teff = m_Temperature * TSOL;            
 
