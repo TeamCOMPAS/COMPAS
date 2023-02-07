@@ -1850,6 +1850,85 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
     return rate;
 }
 
+/*
+ * Calculate mass loss rate for massive OB stars using the Vink+Sander 2021 update
+ * https://arxiv.org/pdf/2103.12736.pdf
+ * features two bi-stability jumps, at T1 and T2
+ * offset = {"cold":-5.99,"inter":-6.688,"hot":-6.697}
+ *
+ * double CalculateMassLossRateOB(const double p_Teff)
+ *
+ * @param   [IN]    p_Teff                      Effective temperature in K
+ * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateOBVinkSander(const double p_Teff) {
+    const double zExp2001 = 0.85;
+    double zExp = 0.42;
+    double Gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
+    double charrho = -14.94 + (3.1857 * Gamma) + (zExp * log10(m_Metallicity / ZSOL)) ; 
+    double T1 = ( 61.2 + (2.59 * charrho) ) * 1000.;
+    double T2 = ( 100. + (6.0 * charrho) ) * 1000.;
+
+
+    double logL5  = log10(m_Luminosity / 1.0E5);
+    double logM30 = log10(m_Mass / 30.0);
+    double logT40 = log10(p_Teff / 40000.0);
+    double logT20 = log10(p_Teff / 20000.0);
+    double rate;
+
+
+
+    if (utils::Compare(p_Teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(p_Teff, T1) <= 0) {
+        double V         = 0.7;                                                                                 // v_inf/v_esc
+
+        double logMdotOB = -5.99                             +
+                           (2.210 * logL5) -
+                           (1.339 * logM30)        -
+                           (1.601 * log10(V / 2.0))              +
+                           (zExp2001  * log10(m_Metallicity / ZSOL)) +
+                           (1.07  * logT20);
+
+        rate = PPOW(10.0, logMdotOB);
+        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
+    }
+    else if (utils::Compare(p_Teff, T1) > 0) {
+        SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
+
+        double V         = 1.3;                                                                                 // v_inf/v_esc
+
+        double logMdotOB = -6.688 +
+                           (2.210 * logL5) -
+                           (1.339 * logM30)        -
+                           (1.601 * log10(V / 2.0))              +
+                           (zExp2001  * log10(m_Metallicity / ZSOL)) +
+                           (1.07  * logT20);
+
+        rate = PPOW(10.0, logMdotOB);
+        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
+    }
+        else if (utils::Compare(p_Teff, T2) > 0) {
+        SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
+
+        double V         = 2.6;                                                                                 // v_inf/v_esc
+
+        double logMdotOB = -6.697 +
+                           (2.194 * logL5) -
+                           (1.313 * logM30)        -
+                           (1.226 * log10(V / 2.0))              +
+                           (zExp  * log10(m_Metallicity / ZSOL)) +
+                           (0.933 * logT40)     -
+                           (10.92 * logT40 * logT40);
+
+        rate = PPOW(10.0, logMdotOB);
+        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
+    }
+    else {
+        SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                                               // too cold to use winds - show warning.
+        rate = 0.0;
+    }
+
+    return rate;
+}
 
 /*
  * Calculate the dominant mass loss mechanism and associated rate for the star
