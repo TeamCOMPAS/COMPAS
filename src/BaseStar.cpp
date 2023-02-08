@@ -1798,6 +1798,49 @@ double BaseStar::CalculateMassLossRateWolfRayetZDependent(const double p_Mu) con
 }
 
 /*
+ * Calculate the mass-loss rate for Wolf-Rayet stars according to the
+ * prescription of Sander & Vink 2020 (https://arxiv.org/abs/2009.01849)
+ * 
+ * Use the luminosity prescription given by Equation 13 (see section 3.4.1)
+ * 
+ * double CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu)
+ *
+ * @param   [IN]    p_Mu                        Small envelope parameter (see Hurley et al. 2000, eq 97 & 98)
+ *
+ * @return                                      Mass loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const {
+
+    // Define variables
+    double Mdot = 0.0;
+
+    if (utils::Compare(p_Mu, 1.0) < 0) {
+
+        // Define variables
+        double logL = log10(m_Luminosity);
+        double logZ = log10(m_Metallicity);
+
+        // Calculate alpha, L0 and Mdot10
+        double alpha = 0.32 * logZ + 1.4;         // Equation 18 in Sander & Vink 2020
+        double logL0 = -0.87 * logZ + 5.06;       // Equation 19 in Sander & Vink 2020
+        double logMdot10 = -0.75 * logZ - 4.06;   // Equation 20 in Sander & Vink 2020
+
+        if (logL < logL0){
+            Mdot = 0.0;         // No mass loss for L < L0
+        }
+        else{
+            // Equation 13 in Sander & Vink 2020
+            double logMdot = alpha * log10(logL - logL0) + 0.75 * (logL - logL0 - 1) + logMdot10;
+            Mdot = PPOW(10.0, logMdot);
+        }
+
+        Mdot *= OPTIONS->WolfRayetFactor();
+    }
+
+    return Mdot;
+}
+
+/*
  * Calculate mass loss rate for massive OB stars using the Vink et al 2001 prescription
  *
  * Vink et al. 2001, eqs 24 & 25

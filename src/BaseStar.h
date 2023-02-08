@@ -446,12 +446,14 @@ protected:
             double              CalculateMassLossRateBjorklundEddingtonFactor() const;
             double              CalculateMassLossRateBjorklund() const;
             double              CalculateMassLossRateOB(const double p_Teff);
+            double              CalculateMassLossRateOBVinkSander(const double p_Teff);
             double              CalculateMassLossRateVassiliadisWood() const;
     virtual double              CalculateMassLossRateVink();
     virtual double              CalculateMassLossRateUpdatedPrescription();
             double              CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const;
             double              CalculateMassLossRateWolfRayet(const double p_Mu) const;
-
+            double              CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const;
+    
     virtual double              CalculateMassTransferRejuvenationFactor() const;
 
             double              CalculateMaximumCoreMass(double p_Mass) const;

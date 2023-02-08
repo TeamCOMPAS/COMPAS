@@ -251,6 +251,18 @@ double HeMS::CalculateMassLossRateVink() {
     return CalculateMassLossRateWolfRayetZDependent(0.0);
 }
 
+/*
+ * Calculate the mass loss rate for helium stars in the updated prescription
+ * Uses Sander & Vink 2020 for Wolf--Rayet stars
+ * 
+ * double CalculateMassLossRateUpdatedPrescription()
+ *
+ * @return                                      Mass loss rate in Msol per year
+ */
+double HeMS::CalculateMassLossRateUpdatedPrescription() {
+    m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+    return CalculateMassLossRateWolfRayetSanderVink2020(0.0);
+}
 
 /*
  * Determines if mass transfer is unstable according to the critical mass ratio.
