@@ -363,10 +363,10 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::TIMESCALE_MS:                                       value = Timescale(TIMESCALE::tMS);                              break;
             case ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION:             value = SN_TotalMassAtCOFormation();                            break;
             case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
-            case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZadiabaticHurley2002(m_CoreMass);              break;
-            case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = CalculateZadiabaticHurley2002(m_HeCoreMass);            break;
-            case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = CalculateZadiabaticSPH(m_CoreMass);                     break;
-            case ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE:                                   value = CalculateZadiabaticSPH(m_HeCoreMass);                   break;
+            case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZetaAdiabaticHurley2002(m_CoreMass);           break;
+            case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = CalculateZetaAdiabaticHurley2002(m_HeCoreMass);         break;
+            case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = CalculateZetaAdiabaticSPH(m_CoreMass);                  break;
+            case ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE:                                   value = CalculateZetaAdiabaticSPH(m_HeCoreMass);                break;
         default:                                                                                                        // unknown property
             ok    = false;                                                                                              // that's not ok...
             value = "UNKNOWN";                                                                                          // default value
@@ -1153,6 +1153,7 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass,
 }
 
 
+
 /* 
  * Interpolate Nanjing lambda in mass for a given metallicity
  * 
@@ -1247,15 +1248,42 @@ double BaseStar::FindLambdaNanjingNearestMassIndex(const double p_Mass) const {
 
 
 /*
+ * Calculate zeta, the adiabatic donor radial response to mass loss
+ *
+ * double BaseStar::CalculateZetaAdiabatic() 
+ *
+ * @return                                      Adiabatic exponent zeta = dlnR/dlnM
+ */
+double BaseStar::CalculateZetaAdiabatic() { 
+                                                                                
+    double zetaStar = 0.0;
+    ZETA_PRESCRIPTION zetaPrescription = OPTIONS->StellarZetaPrescription();
+
+    switch (zetaPrescription) {
+    
+        case ZETA_PRESCRIPTION::SOBERMAN: 
+        case ZETA_PRESCRIPTION::HURLEY:   
+        case ZETA_PRESCRIPTION::ARBITRARY:
+            zetaStar = CalculateZetaConstantsByEnvelope(zetaPrescription);
+            break;
+        default:
+            m_Error = ERROR::UNKNOWN_ZETA_PRESCRIPTION;                                     // set error value
+            SHOW_WARN(m_Error);                                                             // warn that an error occurred
+    }
+    return zetaStar;
+}
+
+
+/*
  * Calculate the Adiabatic Exponent per Hurley et al. 2002
  *
  *
- * double CalculateZadiabaticHurley2002(const double p_CoreMass) const
+ * double CalculateZetaAdiabaticHurley2002(const double p_CoreMass) const
  *
  * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
  * @return                                      Adiabatic exponent
  */
-double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) const{
+double BaseStar::CalculateZetaAdiabaticHurley2002(const double p_CoreMass) const{
     if (utils::Compare(p_CoreMass, m_Mass) >= 0) return 0.0;    // If the object is all core, the calculation is meaningless
 
     double m = p_CoreMass / m_Mass;
@@ -1268,12 +1296,12 @@ double BaseStar::CalculateZadiabaticHurley2002(const double p_CoreMass) const{
  * Calculate the Adiabatic Exponent per Soberman, Phinney, vdHeuvel 1997
  *
  *
- * double CalculateZadiabaticSPH(const double p_CoreMass) const
+ * double CalculateZetaAdiabaticSPH(const double p_CoreMass) const
  *
  * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
  * @return                                      Adiabatic exponent
  */
-double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) const {
+double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
     if (utils::Compare(p_CoreMass, m_Mass) >= 0) return 0.0;    // If the object is all core, the calculation is meaningless (and would result in division by zero)
 
     double m           = p_CoreMass / m_Mass;                   // eq (57) Soberman, Phinney, vdHeuvel (1997)
@@ -1284,37 +1312,130 @@ double BaseStar::CalculateZadiabaticSPH(const double p_CoreMass) const {
 
 
 /*
- * Calculate the Adiabatic Exponent (for convective-envelope giant-like stars)
+ * Calculate the critical mass ratio for unstable mass transfer
  *
+ * double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) 
  *
- * double CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) const
- *
- * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
- * @return                                      Adiabatic exponent
+ * @param   [IN]    p_AccretorIsDegenerate      Whether or not the accretor is a degenerate star
+ * @return                                      Critical mass ratio
  */
-double BaseStar::CalculateZadiabatic(ZETA_PRESCRIPTION p_ZetaPrescription) {
+double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) {                                           
     
-    double zeta = 0.0;                                            // default value
+        double qCrit = 0.0;
+        QCRIT_PRESCRIPTION qCritPrescription = OPTIONS->QCritPrescription();
+
+        switch (qCritPrescription) {
+            case QCRIT_PRESCRIPTION::GE20: 
+            case QCRIT_PRESCRIPTION::GE20_IC:
+                qCrit = CalculateCriticalMassRatioGe20(qCritPrescription);   
+                break;
+            case QCRIT_PRESCRIPTION::CLAEYS:
+                qCrit = CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate);
+                break;
+            default:
+                m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                                     // set error value
+                SHOW_ERROR(m_Error);                                                             // warn that an error occurred
+        }
+        return qCrit;
+}
+
+
+/* 
+ * Interpolate Ge+20 Critical Mass Ratios 
+ * 
+ * Function takes input QCRIT_PRESCRIPTION, currently either of the prescriptions for critical mass ratios
+ * from Ge et al. (2020), GE20 or GE20_IC. The first is the full adiabatic response, the second assumes
+ * artificially isentropic envelopes.
+ * 
+ * double BaseStar::InterpolateGe20QCrit( const QCRIT_PRESCRIPTION p_qCritPrescription) 
+ * 
+ * @return                                      Interpolated value of either the critical mass ratio or zeta for given stellar mass / radius
+ */ 
+double BaseStar::InterpolateGe20QCrit( const QCRIT_PRESCRIPTION p_qCritPrescription) {
+
+    // Get vector of masses from GE20_QCRIT_AND_ZETA
+    std::vector<double> massesFromGe20 = std::get<0>(GE20_QCRIT_AND_ZETA);
+    std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>> 
+        radiiQCritsZetasFromGe20 = std::get<1>(GE20_QCRIT_AND_ZETA);
+
+    std::vector<int> ind = utils::binarySearch(massesFromGe20, m_Mass);
+    int lowerMassInd = ind[0];
+    int upperMassInd = ind[1];
+
+    if (lowerMassInd == -1) {                                                   // if masses are out of range, set to endpoints
+        lowerMassInd = 0; 
+        upperMassInd = 0;
+    } 
+    else if (upperMassInd == -1) { 
+        lowerMassInd = massesFromGe20.size(); 
+        upperMassInd = massesFromGe20.size();
+    } 
+
+    // Get vector of radii from GE20_QCRIT_AND_ZETA for the lower and upper mass indeces
+    std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsZetasFromGe20[lowerMassInd]);
+    std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsZetasFromGe20[upperMassInd]);
+
+    // Get the qCrit vector for the lower and upper mass bounds 
+    std::vector<double> qCritVectorLowerMass;
+    std::vector<double> qCritVectorUpperMass;
     
-    switch (p_ZetaPrescription) {                                 // which prescription?
-        case ZETA_PRESCRIPTION::SOBERMAN:                         // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
-            zeta = CalculateZadiabaticSPH(m_CoreMass);
-            break;
-            
-        case ZETA_PRESCRIPTION::HURLEY:                          // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
-            zeta = CalculateZadiabaticHurley2002(m_CoreMass);
-            break;
-            
-        case ZETA_PRESCRIPTION::ARBITRARY:                       // ARBITRARY: user program options thermal zeta value
-            zeta = OPTIONS->ZetaAdiabaticArbitrary();
-            break;
-            
-        default:                                                    // unknown common envelope prescription - shouldn't happen
-            m_Error = ERROR::UNKNOWN_ZETA_PRESCRIPTION;          // set error value
-            SHOW_ERROR(m_Error);                                    // warn that an error occurred
+    // One of the following must be set
+    if (p_qCritPrescription == QCRIT_PRESCRIPTION::GE20) {
+        qCritVectorLowerMass     = std::get<1>(radiiQCritsZetasFromGe20[lowerMassInd]);
+        qCritVectorUpperMass     = std::get<1>(radiiQCritsZetasFromGe20[upperMassInd]);
     }
-    
-    return zeta;
+    else if (p_qCritPrescription == QCRIT_PRESCRIPTION::GE20_IC) {
+        qCritVectorLowerMass     = std::get<2>(radiiQCritsZetasFromGe20[lowerMassInd]);
+        qCritVectorUpperMass     = std::get<2>(radiiQCritsZetasFromGe20[upperMassInd]);
+    }
+
+    // Get vector of radii from GE20_QCRIT_AND_ZETA for both lower and upper masses
+    std::vector<int> indR0 = utils::binarySearch(logRadiusVectorLowerMass, log10(m_Radius));
+    double lowerRadiusLowerMassInd = indR0[0];
+    double upperRadiusLowerMassInd = indR0[1];
+
+    if (lowerRadiusLowerMassInd == -1) {                                        // if radii are out of range, set to endpoints
+        lowerRadiusLowerMassInd = 0; 
+        upperRadiusLowerMassInd = 0; 
+    }
+    else if (upperRadiusLowerMassInd == -1) {                                                   
+        lowerRadiusLowerMassInd = logRadiusVectorLowerMass.size(); 
+        upperRadiusLowerMassInd = logRadiusVectorLowerMass.size(); 
+    }
+
+    std::vector<int> indR1 = utils::binarySearch(logRadiusVectorUpperMass, log10(m_Radius));
+    double lowerRadiusUpperMassInd = indR1[0];
+    double upperRadiusUpperMassInd = indR1[1];
+
+    if (lowerRadiusUpperMassInd == -1) {                                        // if radii are out of range, set to endpoints
+        lowerRadiusUpperMassInd = 0; 
+        upperRadiusUpperMassInd = 0; 
+    }
+    else if (upperRadiusUpperMassInd == -1) {                                                   
+        lowerRadiusUpperMassInd = logRadiusVectorUpperMass.size(); 
+        upperRadiusUpperMassInd = logRadiusVectorUpperMass.size(); 
+    }
+
+    // Set the 4 boundary points for the 2D interpolation
+    double qLowLow = qCritVectorLowerMass[lowerRadiusLowerMassInd];
+    double qLowUpp = qCritVectorLowerMass[upperRadiusLowerMassInd];
+    double qUppLow = qCritVectorUpperMass[lowerRadiusUpperMassInd];
+    double qUppUpp = qCritVectorUpperMass[upperRadiusUpperMassInd];
+
+    double lowerMass = massesFromGe20[lowerMassInd];
+    double upperMass = massesFromGe20[upperMassInd];
+    double lowerRadiusLowerMass = pow(10, logRadiusVectorLowerMass[lowerRadiusLowerMassInd]);
+    double upperRadiusLowerMass = pow(10, logRadiusVectorLowerMass[upperRadiusLowerMassInd]);
+    double lowerRadiusUpperMass = pow(10, logRadiusVectorUpperMass[lowerRadiusUpperMassInd]);
+    double upperRadiusUpperMass = pow(10, logRadiusVectorUpperMass[upperRadiusUpperMassInd]);
+
+    // Interpolate on the radii first, then the masses
+    double qCritLowerMass = qLowLow + (upperRadiusLowerMass - m_Radius)/(upperRadiusLowerMass - lowerRadiusLowerMass) * (qLowUpp - qLowLow);
+    double qCritUpperMass = qUppLow + (upperRadiusUpperMass - m_Radius)/(upperRadiusUpperMass - lowerRadiusUpperMass) * (qUppUpp - qUppLow);
+    double interpolatedQCrit = qCritLowerMass + (upperMass - m_Mass)/(upperMass - lowerMass) * (qCritUpperMass - qCritLowerMass);
+
+    return interpolatedQCrit;
+
 }
 
 
@@ -1341,8 +1462,6 @@ void BaseStar::CalculateLambdas(const double p_EnvMass) {
 	m_Lambdas.kruckowBottom  = CalculateLambdaKruckow(m_Radius, -1.0);
 	m_Lambdas.dewi           = CalculateLambdaDewi();
 }
-
-
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1908,7 +2027,7 @@ double BaseStar::CalculateMassLossRate() {
 
 /*
  * Calculate mass loss given mass loss rate - uses current timestep (m_Dt)
- * Returned mass loss is limited to 1% of current mass
+ * Returned mass loss is limited to MAXIMUM_MASS_LOSS_FRACTION (e.g., 1%) of current mass
  *
  *
  * double CalculateMassLoss_Static(const double p_Mass, const double p_Mdot, const double p_Dt)
@@ -1962,7 +2081,6 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
         }
         else {
             dt    = massLoss / (mDot * 1.0E6);                              // new timestep to match limited mass loss
-            mDot  = massLoss / (dt * 1.0E6);                                // new mass loss rate to match limited mass loss
             mass -= massLoss;                                               // new mass based on limited mass loss
 
             if (p_UpdateMDt) m_Dt = dt;                                     // update class member variable if necessary
