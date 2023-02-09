@@ -968,7 +968,9 @@
 //                                      - Removed Dutch winds for Remnants
 //                                      - Fixed typo in NS::CalculateLuminosityOnPhase_Static()
 //                                      - Minor code cleaning
-// 02.35.00     NR,RTW - Feb 5, 2022 - Enhancement:
+// 02.35.00     RTW - Dec 8, 2022    - Enhancement:
+//                                      - Added critical mass ratios from Ge+ 2020 for determining if MT is unstable
+// 02.36.00     NR,RTW - Feb 5, 2022 - Enhancement:
 //                                      - Added functionality for WDs to accrete in different regimes. 
 //                                          - This applies to each WD subtype individually, though there is some overlap between COWDs and ONeWDs.
 //                                          - Also involves tracking the WD shell mass, to account for shell burning that later increases the WD mass.
@@ -978,6 +980,6 @@
 //                                          - Cleaned up the call to EddingtonCriticalRate, puttting it in BaseStar along with the optional prefactor.
 //                                          - Moved NS radius and luminosity calls into NS.h from elsewhere in the code.
 
-const std::string VERSION_STRING = "02.35.00";
+const std::string VERSION_STRING = "02.36.00";
 
 # endif // __changelog_h__

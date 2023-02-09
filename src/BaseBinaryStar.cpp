@@ -1795,13 +1795,13 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
  * Formula from M. Sluys notes "Binary evolution in a nutshell"
  *
  *
- * double CalculateZRocheLobe()
+ * double CalculateZetaRocheLobe()
  *
  * @param   [IN]    p_jLoss                     Specific angular momentum with which mass is lost during non-conservative mass transfer
  *                                              (Podsiadlowski et al. 1992, Beta: specific angular momentum of matter [2Pia^2/P])
  * @return                                      Roche Lobe response
  */
-double BaseBinaryStar::CalculateZRocheLobe(const double p_jLoss) const {
+double BaseBinaryStar::CalculateZetaRocheLobe(const double p_jLoss) const {
 
     double donorMass    = m_Donor->Mass();                  // donor mass
     double accretorMass = m_Accretor->Mass();               // accretor mass
@@ -1909,8 +1909,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {       // arbitrary angular momentum loss prescription?
         jLoss = CalculateGammaAngularMomentumLoss();                                                                        // no - re-calculate angular momentum
     }
-    m_ZetaLobe = CalculateZRocheLobe(jLoss);
-    m_ZetaStar = m_Donor->CalculateZeta(OPTIONS->StellarZetaPrescription());
 
     // Calculate conditions for automatic (in)stability for case BB
     bool caseBBAlwaysStable           = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE;
@@ -1930,14 +1928,20 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         if (!m_Donor->IsOneOf(GIANTS)) m_Flags.stellarMerger = true;
     }
     else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::NONE) {                                                           // Determine stability based on critical mass ratios
-        // Critical mass ratio qCrit is defined as mAccretor/mDonor
+
+        // NOTE: Critical mass ratio is defined as mAccretor/mDonor
         double qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate());
+
         isUnstable = (m_Accretor->Mass()/m_Donor->Mass()) < qCrit;
+        m_FractionAccreted = 1.0;                                                               // Accretion is assumed fully conservative for qCrit calculations
     }
-    else {                                                                                                                         // Determine stability based on zetas
+    else {                                                                                      // Determine stability based on zetas
+
+        m_ZetaLobe = CalculateZetaRocheLobe(jLoss);
+        m_ZetaStar = m_Donor->CalculateZetaAdiabatic(); 
+
         isUnstable = (utils::Compare(m_ZetaStar, m_ZetaLobe) < 0);
     }
-
 
 
     // Evaluate separately for stable / unstable MT
