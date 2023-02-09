@@ -43,18 +43,19 @@ jobs:
 #          python3 runSubmitDemo.py
 #          cd ${GITHUB_WORKSPACE}
 #          pytest py_tests/
+
       # This step will run only on ubuntu-20.04
       - name: Install dependencies on ubuntu
         if: startsWith(matrix.os, 'ubuntu-20') 
         run: |
-          cd utils/cicd-scripts
+          cd misc/cicd-scripts
           chmod 755 linux-dependencies
           ./linux-dependencies
       # This step will run only on centos 7 container on ubuntu-18.04
       - name: Install dependencies on centos docker container
         if: startsWith(matrix.container, 'centos')
         run: |
-          cd utils/cicd-scripts
+          cd misc/cicd-scripts
           chmod 755 centos-dependencies
           ./centos-dependencies
       
@@ -62,7 +63,7 @@ jobs:
       - name: Install dependencies on macos
         if: startsWith(matrix.os, 'macos')
         run: |
-          cd utils/cicd-scripts
+          cd misc/cicd-scripts
           chmod 755 macos-dependencies
           ./macos-dependencies
       # This step will run only on all runners
@@ -84,7 +85,7 @@ jobs:
       - name: Run Post-Processing Python Scripts
         if: startsWith(matrix.os, 'ubuntu-20') || startsWith(matrix.os, 'ubuntu-18')
         run: |
-          cd utils/cicd-scripts
+          cd misc/cicd-scripts
           chmod 755 python-scripts
           ./python-scripts
       - name: run python scripts on macos
@@ -108,6 +109,6 @@ jobs:
           sudo tlmgr install rsfs
           eval "$(/usr/libexec/path_helper)"
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
-          cd ${GITHUB_WORKSPACE}/utils/example_plots/methods_paper_plots/detailed_evolution
+          cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
           python3 runSubmitDemo.py
           python3 plot_detailed_evolution.py
