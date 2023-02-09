@@ -34,30 +34,39 @@ double NS::CalculateLuminosityOnPhase_Static(const double p_Mass, const double p
  */
 double NS::ChooseTimestep(const double p_Time) const {
     double result;
-    result = 1;
-    return result;
-    // if (p_Time < 50.0) {
-    //     result = 0.1;
-    // }
-    // else if (p_Time <= 500) {
-    //     double slope      = (log10(500) - log10(0.1)) / (log10(500) - log10(50));
-    //     double intersect  = log10(0.1) - slope * log10(50);
-    //     double log10_step = intersect + slope * log10(p_Time);
-    //     result = pow(10, log10_step);
-    // }
-    // else {
-    //     result = 500.0;
-    // }
+    // result = 1;
+    // return result;
+    if (p_Time < 0.01) {
+        result = 0.001;
+    }
+    else if (p_Time < 0.1) {
+        result = 0.01;
+    }
+    else if (p_Time < 1) {
+        result = 0.1;
+    }
+    else if (p_Time < 10) {
+        result = 1;
+    }
+    else if (p_Time <= 500) {
+        double slope      = (log10(500) - log10(1)) / (log10(500) - log10(10));
+        double intersect  = log10(1) - slope * log10(10);
+        double log10_step = intersect + slope * log10(p_Time);
+        result = pow(10, log10_step);
+    }
+    else {
+        result = 500.0;
+    }
 
-    // //below was the Hurley+2000 discussion. 
-    // // double dtk = std::min(std::max(0.1, 10.0 * std::max(0.1, 10.0 * p_Time)), 5.0E2);
-    // // double dte = dtk;
+    //below was the Hurley+2000 discussion. 
+    // double dtk = std::min(std::max(0.1, 10.0 * std::max(0.1, 10.0 * p_Time)), 5.0E2);
+    // double dte = dtk;
 
-    // // return std::max(dte, NUCLEAR_MINIMUM_TIMESTEP);
+    // return std::max(dte, NUCLEAR_MINIMUM_TIMESTEP);
     // std::cout << "NS Time step = " << result << " at " << p_Time << "\n";
     // std::cout.flush();
 
-    // return result;
+    return result;
 }
 
 
@@ -394,6 +403,109 @@ void NS::CalculateAndSetPulsarParameters() {
 }
 
 
+
+/*
+ * Update the magnetic field and spins of neutron stars when it's deemed as an isolated pulsar. 
+ *
+ * This function is called in multiple situations in the NS::UpdateMagneticFieldAndSpin() function
+ *
+ * Modifies the following class member variables:
+ *
+ *    m_AngularMomentum
+ *    m_PulsarDetails.spinFrequency
+ *    m_PulsarDetails.magneticField
+ *    m_PulsarDetails.spinDownRate
+ *
+ *
+ * void spinDownIsolatePulsar(const double p_Stepsize)
+ *
+ * @param   [IN]    p_Stepsize                  Timestep size for integration (in seconds)
+ * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
+ */
+void NS::spinDownIsolatePulsar(const double p_Stepsize) {
+
+    //constexpr double NSRadius_IN_M = NEUTRON_STAR_RADIUS * RSOL_TO_KM * KM_TO_M ;
+    constexpr double NSRadius_IN_CM = NEUTRON_STAR_RADIUS * RSOL_TO_KM * KM_TO_CM ;
+    constexpr double NSRadius_3    = NSRadius_IN_CM * NSRadius_IN_CM * NSRadius_IN_CM;
+    constexpr double NSRadius_6    = NSRadius_3 * NSRadius_3;
+    constexpr double _8_PI_2          = 8.0 * M_PI * M_PI;
+    //constexpr double MU_0_3_C_3    = 3.0 * MU_0 * C * C * C;
+    constexpr double _3_C_3        = 3.0 * C * C * C * 1000000;
+    constexpr double unitsMoI      = G_TO_KG * CM_TO_M * CM_TO_M;
+    
+    //double mass               = m_Mass * MSOL_TO_KG;
+    double mass               = m_Mass * MSOL_TO_G;
+    double radius             = NEUTRON_STAR_RADIUS * RSOL_TO_CM;// m_Radius * RSOL * 100; // in meters
+    double initialMagField    = m_PulsarDetails.magneticField; // (in T)
+    double initialMagField_G  = initialMagField * TESLA_TO_GAUSS;
+    double initialSpinPeriod  = 2 * M_PI / m_PulsarDetails.spinFrequency;
+    double magFieldLowerLimit = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;    
+    double magFieldLowerLimit_G = magFieldLowerLimit * TESLA_TO_GAUSS;                                   
+    double momentOfInertia    = m_MomentOfInertia; //* unitsMoI;
+    double tau                = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
+
+    //std::cout << "tau:" << tau <<  " Initial Period:  " << initialSpinPeriod << " Initial Pdot: " << m_PulsarDetails.spinDownRate << "\n";// (-1 * m_PulsarDetails.spinDownRate * initialSpinPeriod / m_PulsarDetails.spinFrequency) << "\n";                                                    
+    
+    // calculate isolated decay of the magnetic field for a neutron star see Equation 6 in  arXiv:0903.3538v2       
+    //std::cout << magFieldLowerLimit << ' ' << p_Stepsize << ' ' << tau << ' ' << initialMagField << "\n";
+    //m_PulsarDetails.magneticField = magFieldLowerLimit + exp(-p_Stepsize / tau) * (initialMagField - magFieldLowerLimit);                   // pulsar magnetic field
+    m_PulsarDetails.magneticField = magFieldLowerLimit + (initialMagField - magFieldLowerLimit) * exp(-p_Stepsize / tau);
+    // calculate the spin down rate for isolated neutron stars, see Equation 6 in arxiv:1912.02415   
+    //std::cout << "for K: _8_PI_2 = " << _8_PI_2 << " NSRadius_6 = " << NSRadius_6 << " _3_C_3 = " << _3_C_3 << " MOI " << momentOfInertia << "\n";   
+    double constant_2             = (_8_PI_2 * NSRadius_6) / (_3_C_3 * momentOfInertia);
+    double term1                  = magFieldLowerLimit_G * magFieldLowerLimit_G * p_Stepsize;
+    double term2                  = tau * magFieldLowerLimit_G * ( m_PulsarDetails.magneticField * TESLA_TO_GAUSS - initialMagField_G);
+    double term3                  = (tau / 2.0) * (TESLA_TO_GAUSS * TESLA_TO_GAUSS * (m_PulsarDetails.magneticField * m_PulsarDetails.magneticField) - (initialMagField_G * initialMagField_G));
+    //double oneOverOmegaSquared    = constant_2 * (term1 - term2 - term3) + (1.0 / (m_PulsarDetails.spinFrequency * m_PulsarDetails.spinFrequency));
+    double PSquared    = 2 * constant_2 * (term1 - term2 - term3) + (initialSpinPeriod * initialSpinPeriod);
+    //double oneOverOmegaSquared    = constant_2 * (term1 - term2 - term3) + (1.0 / (initialSpinFreq * initialSpinFreq));
+    // string name00 = "MOI: ";
+    // std::cout << name00;
+    // string name0 = "B field:";
+    // std::cout << name0;
+    // std::cout << m_PulsarDetails.magneticField << "\n";
+    //string name1 = "constant_2: ";
+    // std::cout << name1;
+    // std::cout << constant_2 << "\n";
+    // string name2 = "term1: ";
+    // std::cout << name2;
+    // std::cout << term1 << "\n";
+    // string name3 = "term2: ";
+    // std::cout << name3;
+    // std::cout << term2 << "\n";
+    // string name4 = "term3: ";
+    // std::cout << name4;
+    // std::cout << term3 << "\n";
+    // string name5 = "oneOverOmegaSquared : ";
+    // std::cout << name5;
+    // std::cout << oneOverOmegaSquared  << "\n";
+    // string name6 = "Spin Frequency: ";
+    // std::cout << name6;
+    // std::cout << 1.0 / std::sqrt(oneOverOmegaSquared) << "\n";
+    // std::cout.flush();
+    double   P_f                  = std::sqrt(PSquared);
+    m_PulsarDetails.spinFrequency = 2 * M_PI / P_f;                                                                        // pulsar spin frequency
+
+    // calculate the spin down rate for isolated neutron stars, see Equation 4 in arXiv:0903.3538v2 (Our version is in SI)      
+    //double omegaDotTop           = PI_8 * m_PulsarDetails.spinFrequency * m_PulsarDetails.spinFrequency * m_PulsarDetails.spinFrequency * NSRadius_6 * m_PulsarDetails.magneticField * m_PulsarDetails.magneticField;
+    //double omegaDotBottom        = MU_0_3_C_3 * momentOfInertia;
+    double pDotTop               = constant_2 * TESLA_TO_GAUSS * TESLA_TO_GAUSS * m_PulsarDetails.magneticField * m_PulsarDetails.magneticField;
+    //double pDotBot               = _3_C_3 * momentOfInertia * P_f;
+    double pDot                  = pDotTop / P_f;// / pDotBot;
+    m_PulsarDetails.spinDownRate = -2 * M_PI * pDot / (P_f * P_f);  
+    //std::cout << "Stepsize: " << p_Stepsize << " Radius: " << m_Radius << " Period: " << P_f << " Pdot: " << pDot << " B: " << m_PulsarDetails.magneticField << "\n";
+    //std::cout.flush();
+    //m_PulsarDetails.spinDownRate = -omegaDotTop / omegaDotBottom;                                                                           // pulsar spin down rate
+
+    m_AngularMomentum            = m_PulsarDetails.spinFrequency * momentOfInertia;                                                         // angular momentum of star
+}
+
+
+
+
+
+
+
 /*
  * Update the magnetic field and spins of neutron stars
  *
@@ -427,7 +539,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
     constexpr double _8_PI_2          = 8.0 * M_PI * M_PI;
     //constexpr double MU_0_3_C_3    = 3.0 * MU_0 * C * C * C;
     constexpr double _3_C_3        = 3.0 * C * C * C * 1000000;
-    //constexpr double unitsMoI      = G_TO_KG * CM_TO_M * CM_TO_M;
+    constexpr double unitsMoI      = G_TO_KG * CM_TO_M * CM_TO_M;
     
     //double mass               = m_Mass * MSOL_TO_KG;
     double mass               = m_Mass * MSOL_TO_G;
@@ -439,87 +551,154 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
     double magFieldLowerLimit_G = magFieldLowerLimit * TESLA_TO_GAUSS;                                   
     double momentOfInertia    = m_MomentOfInertia; //* unitsMoI;
     double tau                = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
-    double kappa              = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_G;      
+    double kappa              = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_KG;      
+    double unitsG             = 100 * 100 * 100 / 1000 ; //units of G in cgs 
     //std::cout << "tau:" << tau <<  " Initial Period:  " << initialSpinPeriod << " Initial Pdot: " << m_PulsarDetails.spinDownRate << "\n";// (-1 * m_PulsarDetails.spinDownRate * initialSpinPeriod / m_PulsarDetails.spinFrequency) << "\n";                                                    
-
+    std::cout<<  "Updating pulsar parameters " << std::endl;
     if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGainPerTimeStep, 0.0) == 0 )) {
+        spinDownIsolatePulsar(p_Stepsize);
+        // std::cout<<  m_Mass << ", " << p_RecycledNS << ", " << p_MassGainPerTimeStep << std::endl;
+        // // calculate isolated decay of the magnetic field for a neutron star see Equation 6 in  arXiv:0903.3538v2       
+        // //std::cout << magFieldLowerLimit << ' ' << p_Stepsize << ' ' << tau << ' ' << initialMagField << "\n";
+        // //m_PulsarDetails.magneticField = magFieldLowerLimit + exp(-p_Stepsize / tau) * (initialMagField - magFieldLowerLimit);                   // pulsar magnetic field
+        // m_PulsarDetails.magneticField = magFieldLowerLimit + (initialMagField - magFieldLowerLimit) * exp(-p_Stepsize / tau);
+        // // calculate the spin down rate for isolated neutron stars, see Equation 6 in arxiv:1912.02415   
+        // //std::cout << "for K: _8_PI_2 = " << _8_PI_2 << " NSRadius_6 = " << NSRadius_6 << " _3_C_3 = " << _3_C_3 << " MOI " << momentOfInertia << "\n";   
+        // double constant_2             = (_8_PI_2 * NSRadius_6) / (_3_C_3 * momentOfInertia);
+        // double term1                  = magFieldLowerLimit_G * magFieldLowerLimit_G * p_Stepsize;
+        // double term2                  = tau * magFieldLowerLimit_G * ( m_PulsarDetails.magneticField * TESLA_TO_GAUSS - initialMagField_G);
+        // double term3                  = (tau / 2.0) * (TESLA_TO_GAUSS * TESLA_TO_GAUSS * (m_PulsarDetails.magneticField * m_PulsarDetails.magneticField) - (initialMagField_G * initialMagField_G));
+        // //double oneOverOmegaSquared    = constant_2 * (term1 - term2 - term3) + (1.0 / (m_PulsarDetails.spinFrequency * m_PulsarDetails.spinFrequency));
+        // double PSquared    = 2 * constant_2 * (term1 - term2 - term3) + (initialSpinPeriod * initialSpinPeriod);
+        // //double oneOverOmegaSquared    = constant_2 * (term1 - term2 - term3) + (1.0 / (initialSpinFreq * initialSpinFreq));
+        // // string name00 = "MOI: ";
+        // // std::cout << name00;
+        // // std::cout << momentOfInertia << "\n";
+        // // string name0 = "B field:";
+        // // std::cout << name0;
+        // // std::cout << m_PulsarDetails.magneticField << "\n";
+        // //string name1 = "constant_2: ";
+        // // std::cout << name1;
+        // // std::cout << constant_2 << "\n";
+        // // string name2 = "term1: ";
+        // // std::cout << name2;
+        // // std::cout << term1 << "\n";
+        // // string name3 = "term2: ";
+        // // std::cout << name3;
+        // // std::cout << term2 << "\n";
+        // // string name4 = "term3: ";
+        // // std::cout << name4;
+        // // std::cout << term3 << "\n";
+        // // string name5 = "oneOverOmegaSquared : ";
+        // // std::cout << name5;
+        // // std::cout << oneOverOmegaSquared  << "\n";
+        // // string name6 = "Spin Frequency: ";
+        // // std::cout << name6;
+        // // std::cout << 1.0 / std::sqrt(oneOverOmegaSquared) << "\n";
+        // // std::cout.flush();
+        // double   P_f                  = std::sqrt(PSquared);
+        // m_PulsarDetails.spinFrequency = 2 * M_PI / P_f;                                                                        // pulsar spin frequency
 
-        // calculate isolated decay of the magnetic field for a neutron star see Equation 6 in  arXiv:0903.3538v2       
-        //std::cout << magFieldLowerLimit << ' ' << p_Stepsize << ' ' << tau << ' ' << initialMagField << "\n";
-        //m_PulsarDetails.magneticField = magFieldLowerLimit + exp(-p_Stepsize / tau) * (initialMagField - magFieldLowerLimit);                   // pulsar magnetic field
-        m_PulsarDetails.magneticField = magFieldLowerLimit + (initialMagField - magFieldLowerLimit) * exp(-p_Stepsize / tau);
-        // calculate the spin down rate for isolated neutron stars, see Equation 6 in arxiv:1912.02415   
-        //std::cout << "for K: _8_PI_2 = " << _8_PI_2 << " NSRadius_6 = " << NSRadius_6 << " _3_C_3 = " << _3_C_3 << " MOI " << momentOfInertia << "\n";   
-        double constant_2             = (_8_PI_2 * NSRadius_6) / (_3_C_3 * momentOfInertia);
-        double term1                  = magFieldLowerLimit_G * magFieldLowerLimit_G * p_Stepsize;
-        double term2                  = tau * magFieldLowerLimit_G * ( m_PulsarDetails.magneticField * TESLA_TO_GAUSS - initialMagField_G);
-        double term3                  = (tau / 2.0) * (TESLA_TO_GAUSS * TESLA_TO_GAUSS * (m_PulsarDetails.magneticField * m_PulsarDetails.magneticField) - (initialMagField_G * initialMagField_G));
-        //double oneOverOmegaSquared    = constant_2 * (term1 - term2 - term3) + (1.0 / (m_PulsarDetails.spinFrequency * m_PulsarDetails.spinFrequency));
-        double PSquared    = 2 * constant_2 * (term1 - term2 - term3) + (initialSpinPeriod * initialSpinPeriod);
-        //double oneOverOmegaSquared    = constant_2 * (term1 - term2 - term3) + (1.0 / (initialSpinFreq * initialSpinFreq));
-        // string name00 = "MOI: ";
-        // std::cout << name00;
-        // std::cout << momentOfInertia << "\n";
-        // string name0 = "B field:";
-        // std::cout << name0;
-        // std::cout << m_PulsarDetails.magneticField << "\n";
-        //string name1 = "constant_2: ";
-        // std::cout << name1;
-        // std::cout << constant_2 << "\n";
-        // string name2 = "term1: ";
-        // std::cout << name2;
-        // std::cout << term1 << "\n";
-        // string name3 = "term2: ";
-        // std::cout << name3;
-        // std::cout << term2 << "\n";
-        // string name4 = "term3: ";
-        // std::cout << name4;
-        // std::cout << term3 << "\n";
-        // string name5 = "oneOverOmegaSquared : ";
-        // std::cout << name5;
-        // std::cout << oneOverOmegaSquared  << "\n";
-        // string name6 = "Spin Frequency: ";
-        // std::cout << name6;
-        // std::cout << 1.0 / std::sqrt(oneOverOmegaSquared) << "\n";
-        // std::cout.flush();
-        double   P_f                  = std::sqrt(PSquared);
-        m_PulsarDetails.spinFrequency = 2 * M_PI / P_f;                                                                        // pulsar spin frequency
-
-        // calculate the spin down rate for isolated neutron stars, see Equation 4 in arXiv:0903.3538v2 (Our version is in SI)      
-        //double omegaDotTop           = PI_8 * m_PulsarDetails.spinFrequency * m_PulsarDetails.spinFrequency * m_PulsarDetails.spinFrequency * NSRadius_6 * m_PulsarDetails.magneticField * m_PulsarDetails.magneticField;
-        //double omegaDotBottom        = MU_0_3_C_3 * momentOfInertia;
-        double pDotTop               = constant_2 * TESLA_TO_GAUSS * TESLA_TO_GAUSS * m_PulsarDetails.magneticField * m_PulsarDetails.magneticField;
-        //double pDotBot               = _3_C_3 * momentOfInertia * P_f;
-        double pDot                  = pDotTop / P_f;// / pDotBot;
-        m_PulsarDetails.spinDownRate = -2 * M_PI * pDot / (P_f * P_f);  
-        //std::cout << "Stepsize: " << p_Stepsize << " Radius: " << m_Radius << " Period: " << P_f << " Pdot: " << pDot << " B: " << m_PulsarDetails.magneticField << "\n";
-        //std::cout.flush();
-        //m_PulsarDetails.spinDownRate = -omegaDotTop / omegaDotBottom;                                                                           // pulsar spin down rate
+        // // calculate the spin down rate for isolated neutron stars, see Equation 4 in arXiv:0903.3538v2 (Our version is in SI)      
+        // //double omegaDotTop           = PI_8 * m_PulsarDetails.spinFrequency * m_PulsarDetails.spinFrequency * m_PulsarDetails.spinFrequency * NSRadius_6 * m_PulsarDetails.magneticField * m_PulsarDetails.magneticField;
+        // //double omegaDotBottom        = MU_0_3_C_3 * momentOfInertia;
+        // double pDotTop               = constant_2 * TESLA_TO_GAUSS * TESLA_TO_GAUSS * m_PulsarDetails.magneticField * m_PulsarDetails.magneticField;
+        // //double pDotBot               = _3_C_3 * momentOfInertia * P_f;
+        // double pDot                  = pDotTop / P_f;// / pDotBot;
+        // m_PulsarDetails.spinDownRate = -2 * M_PI * pDot / (P_f * P_f);  
+        // //std::cout << "Stepsize: " << p_Stepsize << " Radius: " << m_Radius << " Period: " << P_f << " Pdot: " << pDot << " B: " << m_PulsarDetails.magneticField << "\n";
+        // //std::cout.flush();
+        // //m_PulsarDetails.spinDownRate = -omegaDotTop / omegaDotBottom;                                                                           // pulsar spin down rate
    
-        m_AngularMomentum            = m_PulsarDetails.spinFrequency * momentOfInertia;                                                         // angular momentum of star
+        // m_AngularMomentum            = m_PulsarDetails.spinFrequency * momentOfInertia;                                                         // angular momentum of star
     }
-    else if ((p_RecycledNS || p_CommonEnvelope) && utils::Compare(p_MassGainPerTimeStep, 0.0) > 0) {
+    else if ((m_PulsarDetails.spinFrequency < 2 * M_PI * 1000.0) && (p_RecycledNS || p_CommonEnvelope) && utils::Compare(p_MassGainPerTimeStep, 0.0) > 0) {
+        std::cout<<"Recycling..." << std::endl;
+        //std::cout<< p_RecycledNS << ", " << p_MassGainPerTimeStep << std::endl;
+        double mass_kg              = m_Mass * MSOL_TO_KG; //in kg
+        double r_m                  = NEUTRON_STAR_RADIUS * RSOL_TO_KM * 1e3; //in meters
+        //double initialMagField      = m_PulsarDetails.magneticField; // (in T)
+        //double initialSpinPeriod    = 2 * M_PI / m_PulsarDetails.spinFrequency;
+        //double magFieldLowerLimit   = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) ;    
+        //double magFieldLowerLimit_G = magFieldLowerLimit;                                   
+        double MOI_SI               = m_MomentOfInertia * unitsMoI;
+        double angularMomentum_SI   = m_AngularMomentum * unitsMoI;
+        //std::cout<< MOI_SI  << ", " << angularMomentum_SI  << std::endl;
+        //double tau                  = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
+        //double kappa                = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_KG;      
+        //double unitsG               = 100 * 100 * 100 / 1000 ; //units of G in cgs 
+        // calculate accretion induced magnetic field decay for an accreting neutron star, see Equation 7 in arXiv:0903.3538v2     
+        //td::cout<< initialMagField << ", " << magFieldLowerLimit<< std::endl;
+        double newPulsarMagneticField = (initialMagField - magFieldLowerLimit) * exp(-1 * p_MassGainPerTimeStep / 1000 / kappa) + magFieldLowerLimit ;
+        
 
-        // calculate the Alfven radius for an accreting neutron star, see Equation 8 in  arXiv:0903.3538v2       
-        double mDot         = p_MassGainPerTimeStep / p_Stepsize ;
-        double p            = ((radius * radius * radius * radius * radius * radius) / (std::sqrt(mass) * mDot));
-        double q            = PPOW(p, 2.0 / 7.0);
-        double constant     = PPOW((2.0 * M_PI * M_PI) / (G * MU_0 * MU_0), 1.0 / 7.0);                                                         
-        double alfvenRadius = constant * q * PPOW(m_PulsarDetails.magneticField, 4.0 / 7.0);
-  
+        //Calculate the Alfven radius for an accreting neutron star, see Equation 8 in  arXiv:0903.3538v2
+        double mDot          =  p_MassGainPerTimeStep / 1000 / p_Stepsize ;
+        double R_M_6         =  r_m * r_m * r_m * r_m * r_m * r_m;
+        double B_4           =  newPulsarMagneticField * newPulsarMagneticField * newPulsarMagneticField * newPulsarMagneticField;
+        double R_a_top       = 8 * R_M_6 * R_M_6 * B_4;
+        double R_a_bot       = mass_kg * mDot * mDot * G;
+        double alfvenRadius  = PPOW(R_a_top / R_a_bot, 1.0/7.0);
+        //std::cout<< r_m << ", " << newPulsarMagneticField << ", "<< mDot  << ", " << alfvenRadius  << std::endl;
+        
         // calculate the difference in the keplerian angular velocity and surface angular velocity of the neutron star in m - see Equation 2 in 1994MNRAS.269..455J       
-        double keplerianVelocityAtAlfvenRadius        = std::sqrt(G * mass) / std::sqrt(alfvenRadius / 2.0);
-        double keplerianAngularVelocityAtAlfvenRadius = 2.0 * (keplerianVelocityAtAlfvenRadius / alfvenRadius);
-        double velocityDifference                     = keplerianAngularVelocityAtAlfvenRadius - m_PulsarDetails.spinFrequency;
-
-        // calculate accretion induced magnetic field decay for an accreting neutron star, see Equation 7 in arXiv:0903.3538v2       
-        m_PulsarDetails.magneticField = magFieldLowerLimit + exp(-(1.0 / kappa) * p_MassGainPerTimeStep) * (m_PulsarDetails.magneticField - magFieldLowerLimit);  // pulsar magnetic field
+        double keplerianVelocityAtAlfvenRadius          = std::sqrt(2.0 * G * mass_kg / alfvenRadius); 
+        double keplerianAngularVelocityAtAlfvenRadius   = 4.0 * M_PI * keplerianVelocityAtAlfvenRadius / alfvenRadius;
+        double velocityDifference                       = keplerianAngularVelocityAtAlfvenRadius - m_PulsarDetails.spinFrequency;
+        //std::cout<< p_RecycledNS << ", " << keplerianAngularVelocityAtAlfvenRadius << ", " << m_PulsarDetails.spinFrequency << std::endl;
 
         // calculate the change in angular momentum due to accretion, see Equation 12 in arXiv:0805.0059/ Equation 8 in arxiv:1912.02415 
-        double deltaAngularMomentum   = 0.25 * p_Epsilon * alfvenRadius * alfvenRadius * p_MassGainPerTimeStep * velocityDifference;
+        double Jdot                     =  p_Epsilon * velocityDifference * alfvenRadius * alfvenRadius * mDot ;
+        
+        angularMomentum_SI              = angularMomentum_SI + Jdot * p_Stepsize  ;
+        //std::cout << Jdot << ", " << Jdot * p_Stepsize << ", " << angularMomentum_SI << std::endl;
+        
+        if (angularMomentum_SI / MOI_SI > 0) {
+            m_PulsarDetails.magneticField   = newPulsarMagneticField  ;
+            m_PulsarDetails.spinFrequency   = angularMomentum_SI / MOI_SI;
+            m_PulsarDetails.spinDownRate    = Jdot / MOI_SI;
+            m_AngularMomentum               = angularMomentum_SI / unitsMoI;
+        } 
+        else {
+            spinDownIsolatePulsar(p_Stepsize);
+            std::cout << m_PulsarDetails.magneticField << std::endl;
+        }
+        
 
-        m_AngularMomentum             = m_AngularMomentum + deltaAngularMomentum;                                                               // angular momentum of star
-        m_PulsarDetails.spinFrequency = m_AngularMomentum / momentOfInertia;                                                                    // pulsar spin frequency
-        m_PulsarDetails.spinDownRate  = (deltaAngularMomentum / p_Stepsize) / momentOfInertia;                                                  // pulsar spin down rate
+
+        // calculate the Alfven radius for an accreting neutron star, see Equation 8 in  arXiv:0903.3538v2       
+        // double mDot         = p_MassGainPerTimeStep * MSOL_TO_G / p_Stepsize ;
+        // double p            = ((radius * radius * radius * radius * radius * radius) / (std::sqrt(mass) * mDot));
+        // double q            = PPOW(p, 2.0 / 7.0);
+        // double constant     = PPOW((2.0 * M_PI * M_PI) / (G * MU_0 * MU_0), 1.0 / 7.0);                                                         
+        // double alfvenRadius = constant * q * PPOW(m_PulsarDetails.magneticField, 4.0 / 7.0);
+        // double mDot         = p_MassGainPerTimeStep * 1000  / p_Stepsize ;
+        // double p            = ((radius * radius * radius * radius * radius * radius) / (std::sqrt(mass) * mDot));
+        // double q            = PPOW(p, 2.0 / 7.0);
+        // double constant     = PPOW(8 / G / unitsG, 1.0 / 7.0);                                                         
+        // double alfvenRadius = constant * q * PPOW(m_PulsarDetails.magneticField * TESLA_TO_GAUSS, 4.0 / 7.0);
+        
+  
+        // // calculate the difference in the keplerian angular velocity and surface angular velocity of the neutron star in m - see Equation 2 in 1994MNRAS.269..455J       
+        // double keplerianVelocityAtAlfvenRadius        = std::sqrt(G * unitsG * mass) / std::sqrt(alfvenRadius / 2.0);
+        // double keplerianAngularVelocityAtAlfvenRadius = 2.0 * M_PI * (keplerianVelocityAtAlfvenRadius / alfvenRadius);
+        // double velocityDifference                     = keplerianAngularVelocityAtAlfvenRadius - m_PulsarDetails.spinFrequency;
+
+        // //m_PulsarDetails.magneticField = magFieldLowerLimit + exp(-(1.0 / kappa) * p_MassGainPerTimeStep) * (m_PulsarDetails.magneticField - magFieldLowerLimit);  // pulsar magnetic field
+        // m_PulsarDetails.magneticField = (magFieldLowerLimit_G + exp(-(1.0 / kappa) * p_MassGainPerTimeStep * 1000 ) * (m_PulsarDetails.magneticField * TESLA_TO_GAUSS - magFieldLowerLimit_G)) * GAUSS_TO_TESLA;  // pulsar magnetic field
+
+        // std::cout<< p_RecycledNS << ", " << keplerianAngularVelocityAtAlfvenRadius << ", " << m_PulsarDetails.spinFrequency << std::endl;
+
+        // // calculate the change in angular momentum due to accretion, see Equation 12 in arXiv:0805.0059/ Equation 8 in arxiv:1912.02415 
+        // double deltaAngularMomentum   = 0.25 * p_Epsilon * alfvenRadius * alfvenRadius * mDot * velocityDifference;
+
+        // m_AngularMomentum             = m_AngularMomentum + deltaAngularMomentum * p_Stepsize;                                                  // angular momentum of star
+        // m_PulsarDetails.spinFrequency = m_AngularMomentum / momentOfInertia;                                                                    // pulsar spin frequency
+        // m_PulsarDetails.spinDownRate  = (deltaAngularMomentum / p_Stepsize) / momentOfInertia;                                                  // pulsar spin down rate
+    }
+    else if  (p_RecycledNS && utils::Compare(p_MassGainPerTimeStep, 0.0) == 0 ) {
+        std::cout << "Post-recycling evolution " << std::endl;
+        spinDownIsolatePulsar(p_Stepsize);
+
     }
 }
