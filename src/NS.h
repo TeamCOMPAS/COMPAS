@@ -82,7 +82,7 @@ protected:
             STELLAR_TYPE    EvolveToNextPhase()                                     { return STELLAR_TYPE::BLACK_HOLE; }
     
             bool            ShouldEvolveOnPhase() const                             { return (m_Mass <= OPTIONS->MaximumNeutronStarMass()); }                       // Evolve as a neutron star unless mass > maximum neutron star mass (e.g. through accretion)
-
+            void            spinDownIsolatePulsar(const double p_Stepsize);
             void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
                                                        const bool   p_RecycledNS,
                                                        const double p_Stepsize,
