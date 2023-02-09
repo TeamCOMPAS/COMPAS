@@ -279,9 +279,11 @@ Default = 1.280000
 
 **--critical-mass-ratio-prescription** |br|
 Which critical mass ratio stability prescription to use (if any).
-Options: { NONE, CLAEYS } |br|
+Options: { NONE, CLAEYS, GE20, GE20_IC } |br|
 ``NONE`` defaults to the zeta prescription for stability, 
-``CLAEYS`` uses qCrit values from Claeys et al. 2014. |br|
+``CLAEYS`` uses qCrit values from Claeys et al. 2014. 
+``GE20`` uses qCrit values from Ge et al. 2020 (adiabatic assumption). 
+``GE20_IC`` uses qCrit values from Ge et al. 2020 (isentropic envelope assumption). |br|
 Default = NONE
 
 **--critical-mass-ratio-white-dwarf-degenerate-accretor** |br|
@@ -1100,9 +1102,13 @@ Minimum semi-major axis to generate (AU). |br|
 Default = 0.01
 
 **--stellar-zeta-prescription** |br|
-Prescription for stellar zeta. |br|
+Prescription for convective donor radial response zeta. 
 Options: { SOBERMAN, HURLEY, ARBITRARY } |br|
-Use Soberman, Phinney, and van den Heuvel (1997) or Hurley, Pols, Tout (2002) or the fixed value specified via ``--zeta-adiabatic-arbitrary`` for the stellar radial response to mass loss for convective-envelope giant-like stars |br|
+The prescription only applies to stars with convective envelopes.
+Stars with radiative envelopes take the values from ``--zeta-main-sequence`` or ``--zeta-radiative-giant-star``. |br|
+``SOBERMAN`` uses zeta from Soberman, Phinney, and van den Heuvel (1997) 
+``HURLEY`` uses zeta from Hurley, Pols, Tout (2002) 
+``ARBITRARY`` uses fixed value set in ``--zeta-adiabatic-arbitrary`` |br|
 Default = SOBERMAN
 
 **--store-input-files** |br|
@@ -1126,7 +1132,13 @@ Default = 1.0
 :ref:`Back to Top <options-props-top>`
 
 **--use-mass-loss** |br|
-Enable mass loss. |br|
+Enable mass loss through winds. |br|
+Note that setting this option to false can have unexpected consequences, e.g., TPAGB stars that are prevented from losing mass 
+cannot become white dwarfs, so will end up as massless remnants.  This is a useful option for testing, but this setting is not recommended
+for production. It is better to use specific wind prescription controls, such as --cool-wind-mass-loss-multiplier, 
+--luminous-blue-variable-prescription, --luminous-blue-variable-multiplier, 
+--mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier
+--cool-wind-mass-loss-multiplier. |br|
 Default = TRUE
 
 .. _options-props-V:
