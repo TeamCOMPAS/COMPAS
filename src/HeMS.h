@@ -80,6 +80,7 @@ protected:
 
             double          CalculateMassLossRateHurley();
             double          CalculateMassLossRateVink();
+            double          CalculateMassLossRateUpdatedPrescription();
 
             double          CalculateMassTransferRejuvenationFactor() const;
 

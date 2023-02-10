@@ -452,7 +452,8 @@ protected:
     virtual double              CalculateMassLossRateUpdatedPrescription();
             double              CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const;
             double              CalculateMassLossRateWolfRayet(const double p_Mu) const;
-
+            double              CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const;
+    
     virtual double              CalculateMassTransferRejuvenationFactor() const;
 
             double              CalculateMaximumCoreMass(double p_Mass) const;
