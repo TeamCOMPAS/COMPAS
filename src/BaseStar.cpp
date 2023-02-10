@@ -1770,7 +1770,8 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
     double rate;
 
     if (utils::Compare(p_Teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(p_Teff, VINK_MASS_LOSS_BISTABILITY_TEMP) <= 0) {
-        double V         = 1.3;                                                                                 // v_inf/v_esc
+        double V         = 1.3;                                                                             // v_inf/v_esc
+        V = V * PPOW(m_Metallicity / ZSOL, OPTIONS->ScaleTerminalWindVelocityWithMetallicityPower());         // Scale Vinf with metallicity       
 
         double logMdotOB = -6.688                             +
                            (2.210 * log10(m_Luminosity / 1.0E5)) -
@@ -1785,7 +1786,8 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
     else if (utils::Compare(p_Teff, VINK_MASS_LOSS_BISTABILITY_TEMP) > 0) {
         SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
 
-        double V         = 2.6;                                                                                 // v_inf/v_esc
+        double V         = 2.6;                                                                             // v_inf/v_esc
+        V = V * PPOW(m_Metallicity / ZSOL, OPTIONS->ScaleTerminalWindVelocityWithMetallicityPower());         // Scale Vinf with metallicity       
 
         double logMdotOB = -6.697 +
                            (2.194 * log10(m_Luminosity / 1.0E5)) -

@@ -357,7 +357,7 @@ void Options::OptionValues::Initialise() {
     m_LuminousBlueVariableFactor                                    = 1.5;
     m_OverallWindMassLossMultiplier                                 = 1.0;
     m_WolfRayetFactor                                               = 1.0;
-
+    m_ScaleTerminalWindVelocityWithMetallicityPower                 = 0.0; 
 
     // Mass transfer options
     m_UseMassTransfer                                               = true;
@@ -1420,7 +1420,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<double>(&p_Options->m_RotationalFrequency2)->default_value(p_Options->m_RotationalFrequency2),                                                        
             ("Initial rotational frequency for the secondary star for BSE (Hz) (default = " + std::to_string(p_Options->m_RotationalFrequency2) + ")").c_str()
         )        
-
+        (
+            "scale-terminal-wind-velocity-with-metallicity-power",                                         
+            po::value<double>(&p_Options->m_ScaleTerminalWindVelocityWithMetallicityPower)->default_value(p_Options->m_ScaleTerminalWindVelocityWithMetallicityPower),                                                              
+            ("Power (x) with which to scale the terminal wind velocity (v_inf) with metallicity (Z) in the Vink+2001 prescription (v_inf ~ Z^x)  (default = " + std::to_string(p_Options->m_ScaleTerminalWindVelocityWithMetallicityPower) + ")").c_str()
+        )
         (
             "semi-major-axis,a",                              
             po::value<double>(&p_Options->m_SemiMajorAxis)->default_value(p_Options->m_SemiMajorAxis),                                                        
