@@ -1798,49 +1798,6 @@ double BaseStar::CalculateMassLossRateWolfRayetZDependent(const double p_Mu) con
 }
 
 /*
- * Calculate the mass-loss rate for Wolf-Rayet stars according to the
- * prescription of Sander & Vink 2020 (https://arxiv.org/abs/2009.01849)
- * 
- * Use the luminosity prescription given by Equation 13 (see section 3.4.1)
- * 
- * double CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu)
- *
- * @param   [IN]    p_Mu                        Small envelope parameter (see Hurley et al. 2000, eq 97 & 98)
- *
- * @return                                      Mass loss rate (in Msol yr^{-1})
- */
-double BaseStar::CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const {
-
-    // Define variables
-    double Mdot = 0.0;
-
-    if (utils::Compare(p_Mu, 1.0) < 0) {
-
-        // Define variables
-        double logL = log10(m_Luminosity);
-        double logZ = log10(m_Metallicity);
-
-        // Calculate alpha, L0 and Mdot10
-        double alpha = 0.32 * logZ + 1.4;         // Equation 18 in Sander & Vink 2020
-        double logL0 = -0.87 * logZ + 5.06;       // Equation 19 in Sander & Vink 2020
-        double logMdot10 = -0.75 * logZ - 4.06;   // Equation 20 in Sander & Vink 2020
-
-        if (logL < logL0){
-            Mdot = 0.0;         // No mass loss for L < L0
-        }
-        else{
-            // Equation 13 in Sander & Vink 2020
-            double logMdot = alpha * log10(logL - logL0) + 0.75 * (logL - logL0 - 1) + logMdot10;
-            Mdot = PPOW(10.0, logMdot);
-        }
-
-        Mdot *= OPTIONS->WolfRayetFactor();
-    }
-
-    return Mdot;
-}
-
-/*
  * Calculate mass loss rate for massive OB stars using the Vink et al 2001 prescription
  *
  * Vink et al. 2001, eqs 24 & 25
@@ -1904,22 +1861,19 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
  * @param   [IN]    p_Teff                      Effective temperature in K
  * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateOBVinkSander(const double p_Teff) {
+double BaseStar::CalculateMassLossRateOBVinkSander2021(const double p_Teff) {
     const double zExp2001 = 0.85;
-    double zExp = 0.42;
+    const double zExp = 0.42;
     double Gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
     double charrho = -14.94 + (3.1857 * Gamma) + (zExp * log10(m_Metallicity / ZSOL)) ; 
     double T1 = ( 61.2 + (2.59 * charrho) ) * 1000.;
     double T2 = ( 100. + (6.0 * charrho) ) * 1000.;
-
 
     double logL5  = log10(m_Luminosity / 1.0E5);
     double logM30 = log10(m_Mass / 30.0);
     double logT40 = log10(p_Teff / 40000.0);
     double logT20 = log10(p_Teff / 20000.0);
     double rate;
-
-
 
     if (utils::Compare(p_Teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(p_Teff, T1) <= 0) {
         double V         = 0.7;                                                                                 // v_inf/v_esc
