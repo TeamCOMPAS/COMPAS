@@ -184,8 +184,8 @@ Default = 0.04
 
 **--common-envelope-mass-accretion-prescription** |br|
 Assumption about whether NS/BHs can accrete mass during common envelope evolution. |br|
-``ZERO`` is no accretion; ``CONSTANT`` means a fixed amount of accretion determined by ``--common-envelope-mass-accretion-constant``; ``UNIFORM`` means a uniform random draw between ``--common-envelope-mass-accretion-min`` and ``--common-envelope-mass-accretion-max`` (Oslowski et al., 2011); and ``MACLEOD`` follows the prescription of MacLeod et al., 2015 |br|
-Options: { ZERO, CONSTANT, UNIFORM, MACLEOD } |br|
+``ZERO`` is no accretion; ``CONSTANT`` means a fixed amount of accretion determined by ``--common-envelope-mass-accretion-constant``; ``UNIFORM`` means a uniform random draw between ``--common-envelope-mass-accretion-min`` and ``--common-envelope-mass-accretion-max`` (Oslowski et al., 2011);, ``MACLEOD`` follows the prescription of MacLeod et al., 2015, and ``CHEVALIER`` follows the accretion assumptions in Chevalier et al. 1993 as in Model 2 from van Son et al. 2020 |br|
+Options: { ZERO, CONSTANT, UNIFORM, MACLEOD, CHEVALIER } |br|
 Default = ZERO
 
 **--common-envelope-recombination-energy-density** |br|
