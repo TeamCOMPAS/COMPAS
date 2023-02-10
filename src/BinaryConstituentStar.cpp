@@ -107,13 +107,14 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
  * JR: todo: flesh-out this documentation
  *
  *
- * double CalculateMassAccretedForNS(const double p_CompanionMass, const double p_CompanionRadius)
+ * double CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius)
  *
+ * @param   [IN]    p_Mass                      The mass of the accreting star (Msol)
  * @param   [IN]    p_CompanionMass             The mass of the companion star (Msol)
  * @param   [IN]    p_CompanionRadius           The radius of the companion star (Rsol)
  * @return                                      Mass accreted by the Neutron Star (Msol)
  */
-double BinaryConstituentStar::CalculateMassAccretedForNS(const double p_CompanionMass, const double p_CompanionRadius) {
+double BinaryConstituentStar::CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius) {
 
      double deltaMass;
 
@@ -144,13 +145,19 @@ double BinaryConstituentStar::CalculateMassAccretedForNS(const double p_Companio
             deltaMass = std::min(OPTIONS->CommonEnvelopeMassAccretionMax(), std::max(OPTIONS->CommonEnvelopeMassAccretionMin(), m * p_CompanionRadius + c));
             } break;
 
+        case CE_ACCRETION_PRESCRIPTION::CHEVALIER: {                                                              // CHEVALIER
+                                                                                                                  // Model 2 from van Son et al. 2020
+            deltaMass =  (p_Mass * p_CompanionMass)/(2*(p_Mass + p_CompanionMass)) ;                              // Hoyle littleton accretion rate times inspiral time
+            std::cout << "compact object accreting during CE following Chevalier 1993, " << std::endl;
+            } break;
         default:                                                                                                // unknown common envelope accretion prescription - shouldn't happen
             deltaMass = 0.0;                                                                                    // default value
-            SHOW_WARN(ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION, "NS accreted mass = 0.0");                      // warn that an error occurred
+            SHOW_WARN(ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION, "NS/BH accreted mass = 0.0");                      // warn that an error occurred
     }
 
     return deltaMass;
 }
+
 
 
 /*
@@ -281,28 +288,36 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
 }
 
 
-/*
+/* 
  * Resolve common envelope accretion
  *
- * For stellar types other than Neutron Star just set the star's mass to the parameter passed
- * For Neutron Stars calculate the mass accreted based on the companion's mass and radius
+ * For stellar types other than Black hole or Neutron Star just set the star's mass to the parameter passed
+ * For Black holes or Neutron Stars calculate the mass accreted during a CE
  *
  *
  * void ResolveCommonEnvelopeAccretion(const double p_FinalMass)
  *
- * @param   [IN]    p_FinalMass                 Mass of the star post mass transfer (Msol)
+ * @param   [IN]    p_FinalMass                 Mass of the accreting object post mass transfer (Msol)
+ * @param   [IN]    p_StellarType               Stellar type of the accreting object pre mass transfer 
  */
-void BinaryConstituentStar::ResolveCommonEnvelopeAccretion(const double p_FinalMass) {
+void BinaryConstituentStar::ResolveCommonEnvelopeAccretion(double p_FinalMass, const STELLAR_TYPE p_StellarType ) {
 
     double deltaMass;
 
-    if (IsOneOf({ STELLAR_TYPE::NEUTRON_STAR})) {           // only Neutron Star is different, so settled for this way rather than use class hierarchy...
-        deltaMass = CalculateMassAccretedForNS(m_Companion->Mass(), m_Companion->Radius());
-        m_MassTransferDiff = deltaMass;
-    }
-    else {
-        deltaMass = p_FinalMass - Mass();
-        // JR: todo: why isn't m_MassTransferDiff updated here (as it is for Neutron Stars)?
+    switch (p_StellarType) {                                                            // which stellar type?
+
+        case STELLAR_TYPE::NEUTRON_STAR:
+            deltaMass = CalculateMassAccretedForCO(Mass(), m_Companion->Mass(), m_Companion->Radius());
+            m_MassTransferDiff = deltaMass;
+            break;
+
+        case STELLAR_TYPE::BLACK_HOLE:
+            deltaMass = CalculateMassAccretedForCO(Mass(), m_Companion->Mass(), m_Companion->Radius());
+            m_MassTransferDiff = deltaMass;
+            break;
+
+        default:                                                                       
+            deltaMass = p_FinalMass - Mass();                                           // JR: todo: why isn't m_MassTransferDiff updated here (as it is for Neutron Stars)?
     }
 
     ResolveAccretion(deltaMass);
