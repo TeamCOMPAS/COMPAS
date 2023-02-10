@@ -1,12 +1,10 @@
 import os.path
-
-from compas_python_utils.detailed_evolution_plotter.plot_detailed_evolution import run_main_plotter
-from contextlib import redirect_stdout
+import unittest
 import io
-
+from contextlib import redirect_stdout
 
 from pytest_utils import get_compas_output_path, time_func_and_capture_sout
-import unittest
+from compas_python_utils.detailed_evolution_plotter.plot_detailed_evolution import run_main_plotter
 
 OUTDIR = os.path.join(os.path.dirname(__file__), "output_test")
 class TestPlotDetailedEvolution(unittest.TestCase):
