@@ -216,7 +216,7 @@ public:
 
     void            InitialiseMassTransfer(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
 
-    void            ResolveCommonEnvelopeAccretion(const double p_FinalMass);
+    void            ResolveCommonEnvelopeAccretion(const double p_FinalMass, const STELLAR_TYPE p_StellarType);
 
     void            SetPostCEEValues();
     void            SetPreCEEValues();
@@ -266,9 +266,8 @@ private:
     BinaryConstituentStar *m_Companion;
 
 
-	// member functions - alphabetically
-    double              CalculateMassAccretedForNS(const double p_CompanionMass, const double p_CompanionRadius);
-
+	// member functions - alphabetically 
+    double              CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius);
 };
 
 #endif // __BinaryConstituentStar_h__
