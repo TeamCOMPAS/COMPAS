@@ -284,6 +284,8 @@ Options: { NONE, CLAEYS, GE20, GE20_IC } |br|
 ``CLAEYS`` uses qCrit values from Claeys et al. 2014. 
 ``GE20`` uses qCrit values from Ge et al. 2020 (adiabatic assumption). 
 ``GE20_IC`` uses qCrit values from Ge et al. 2020 (isentropic envelope assumption). |br|
+Warning: if running with ``--critical-mass-ratio-prescription``, zeta's will not be computed, 
+so should not be trusted in the outputs. |br|
 Default = NONE
 
 **--critical-mass-ratio-white-dwarf-degenerate-accretor** |br|
@@ -1141,8 +1143,7 @@ Note that setting this option to false can have unexpected consequences, e.g., T
 cannot become white dwarfs, so will end up as massless remnants.  This is a useful option for testing, but this setting is not recommended
 for production. It is better to use specific wind prescription controls, such as --cool-wind-mass-loss-multiplier, 
 --luminous-blue-variable-prescription, --luminous-blue-variable-multiplier, 
---mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier
---cool-wind-mass-loss-multiplier. |br|
+--mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier . |br|
 Default = TRUE
 
 .. _options-props-V:
