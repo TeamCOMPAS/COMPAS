@@ -493,6 +493,8 @@ Default = 0.0
 Natal kick magnitude distribution. |br|
 Options: { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL } |br|
 ``ZERO`` assigns kick magnitudes of 0, ``FIXED`` always sets the magnitude to a fixed value based on supernova type, ``FLAT`` and ``MAXWELLIAN`` draw kicks from uniform or Maxwellian (e.g., Hobbs et al., 2005) distributions, respectively, ``BRAYELDRIDGE`` and ``MULLERMANDEL`` use momenum-preserving kicks from Bray & Eldrigde 2018 and Mandel & Mueller 2020, respectively, and ``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 (reduced by a factor of sqrt(3) in the latter case). |br|
+Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; 
+however, if using ``MULLERMANDEL'', it is recommended to keep them consistent by doing so for both. |br|
 Default = MAXWELLIAN
 
 **--kick-magnitude-max** |br|
@@ -1047,6 +1049,8 @@ Default = 0
 Remnant mass prescription. |br|
 Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT } |br|
 Remnant mass recipes from Hurley, Pols, Tout (2000) for ``HURLEY2000``, Belczynski et al. 2002, Fryer et al. 2012,  Fryer et al. 2022, Mueller 2016, Mandel & Mueller 2020, and Schneider et al. 2020 (with the alternative prescription for effectively single stars from the same paper in the ``SCHNEIDER2020ALT`` case) |br|
+Note that this is independent from ``--kick-magnitude-distribution`` to provide flexibility; 
+however, if using ``MULLERMANDEL'', it is recommended to keep them consistent by doing so for both. |br|
 Default = FRYER2012
 
 **--retain-core-mass-during-caseA-mass-transfer** |br|
