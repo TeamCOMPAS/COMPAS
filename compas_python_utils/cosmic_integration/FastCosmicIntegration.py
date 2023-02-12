@@ -79,7 +79,7 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
     the log-normal distribution is a special case of this log skew normal distribution distribution, and is retrieved by setting 
     the skewness to zero (alpha = 0). 
     Based on the method in Neijssel+19. Default values of mu0=0.035, muz=-0.23, sigma_0=0.39, sigma_z=0.0, alpha =0.0, 
-    retrieve the dP/dZ distribution used in Neijssel+19
+    retrieve the dP/dZ distribution used in Neijssel+19.  See van Son+2022 for skewed log normal distribution.
 
     NOTE: This assumes that metallicities in COMPAS are drawn from a flat in log distribution!
 
@@ -89,11 +89,11 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
         min_logZ_COMPAS    --> [float]          Minimum logZ value that COMPAS samples
         max_logZ_COMPAS    --> [float]          Maximum logZ value that COMPAS samples
         
-        mu0    =  0.035    --> [float]           location (mean in normal) at redshift 0
-        muz    = -0.25    --> [float]           redshift scaling/evolution of the location
+        mu0    =  0.035    --> [float]          location (mean in normal) at redshift 0
+        muz    = -0.23    --> [float]           redshift scaling/evolution of the location
         sigma_0 = 0.39     --> [float]          Scale (variance in normal) at redshift 0
         sigma_z = 0.00     --> [float]          redshift scaling of the scale (variance in normal)
-        alpha   = 0.00    --> [float]          shape (skewness, alpha = 0 retrieves normal dist)
+        alpha   = 0.00    --> [float]           shape (skewness, alpha = 0 retrieves normal dist)
 
         min_logZ           --> [float]          Minimum logZ at which to calculate dPdlogZ (influences normalization)
         max_logZ           --> [float]          Maximum logZ at which to calculate dPdlogZ (influences normalization)
@@ -118,7 +118,7 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
     mu_metallicities = np.log(mean_metallicities/2. * 1./(np.exp(0.5*sigma**2) * PHI )  ) 
 
     ##################################
-    # create a range of metallicities (thex-values, or random variables)
+    # create a range of metallicities (the x-values, or random variables)
     log_metallicities = np.arange(min_logZ, max_logZ + step_logZ, step_logZ)
     metallicities = np.exp(log_metallicities)
 
