@@ -970,8 +970,10 @@
 //                                      - Minor code cleaning
 // 02.35.00     RTW - Dec 8, 2022    - Enhancement:
 //                                      - Added critical mass ratios from Ge+ 2020 for determining if MT is unstable
+// 02.35.01     RTW - Feb 12, 2022   - Enhancement:
+//                                      - Added post-SN orbital inclination vector to the output-able BINARY_PROPERTIES (not included in output, by default). 
 
-const std::string VERSION_STRING = "02.35.00";
+const std::string VERSION_STRING = "02.35.01";
 
 
 # endif // __changelog_h__
