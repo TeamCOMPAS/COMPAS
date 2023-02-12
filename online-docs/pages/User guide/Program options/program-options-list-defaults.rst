@@ -209,72 +209,72 @@ Default = 1.0
 
 **--critical-mass-ratio-HG-degenerate-accretor** |br|
 Critical mass ratio for MT from a HG star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 0.210000
 
 **--critical-mass-ratio-HG-non-degenerate-accretor** |br|
 Critical mass ratio for MT from a HG star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 0.250000
 
 **--critical-mass-ratio-MS-high-mass-degenerate-accretor** |br|
 Critical mass ratio for MT from a MS star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 0.000000
 
 **--critical-mass-ratio-MS-high-mass-non-degenerate-accretor** |br|
 Critical mass ratio for MT from a MS star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 0.625000
 
 **--critical-mass-ratio-MS-low-mass-degenerate-accretor** |br|
 Critical mass ratio for MT from a MS star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 1.000000
 
 **--critical-mass-ratio-MS-low-mass-non-degenerate-accretor** |br|
 Critical mass ratio for MT from a MS star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 1.440000
 
 **--critical-mass-ratio-giant-degenerate-accretor** |br|
 Critical mass ratio for MT from a giant star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 0.870000
 
 **--critical-mass-ratio-giant-non-degenerate-accretor** |br|
 Critical mass ratio for MT from a giant star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default shows -1, but this translates to a function of the core mass ratio, as described in Claeys+ 2014. 
 
 **--critical-mass-ratio-helium-HG-degenerate-accretor** |br|
 Critical mass ratio for MT from a helium HG star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 0.210000
 
 **--critical-mass-ratio-helium-HG-non-degenerate-accretor** |br|
 Critical mass ratio for MT from a helium HG star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 0.250000
 
 **--critical-mass-ratio-helium-MS-degenerate-accretor** |br|
 Critical mass ratio for MT from a helium MS star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 0.000000
 
 **--critical-mass-ratio-helium-MS-non-degenerate-accretor** |br|
 Critical mass ratio for MT from a helium MS star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 0.000000
 
 **--critical-mass-ratio-helium-giant-degenerate-accretor** |br|
 Critical mass ratio for MT from a helium giant star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 0.870000
 
 **--critical-mass-ratio-helium-giant-non-degenerate-accretor** |br|
 Critical mass ratio for MT from a helium giant star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 1.280000
 
 **--critical-mass-ratio-prescription** |br|
@@ -284,16 +284,18 @@ Options: { NONE, CLAEYS, GE20, GE20_IC } |br|
 ``CLAEYS`` uses qCrit values from Claeys et al. 2014. 
 ``GE20`` uses qCrit values from Ge et al. 2020 (adiabatic assumption). 
 ``GE20_IC`` uses qCrit values from Ge et al. 2020 (isentropic envelope assumption). |br|
+Warning: if running with ``--critical-mass-ratio-prescription``, zetas will not be computed, 
+so should not be trusted in the outputs. |br|
 Default = NONE
 
 **--critical-mass-ratio-white-dwarf-degenerate-accretor** |br|
 Critical mass ratio for MT from a white dwarf to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 1.600000
 
 **--critical-mass-ratio-white-dwarf-non-degenerate-accretor** |br|
 Critical mass ratio for MT from a white dwarf to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for "--critical-mass-ratio-prescription CLAEYS", ignored otherwise. |br|
+0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default = 0.000000
 
 .. _options-props-D:
@@ -493,6 +495,8 @@ Default = 0.0
 Natal kick magnitude distribution. |br|
 Options: { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL } |br|
 ``ZERO`` assigns kick magnitudes of 0, ``FIXED`` always sets the magnitude to a fixed value based on supernova type, ``FLAT`` and ``MAXWELLIAN`` draw kicks from uniform or Maxwellian (e.g., Hobbs et al., 2005) distributions, respectively, ``BRAYELDRIDGE`` and ``MULLERMANDEL`` use momenum-preserving kicks from Bray & Eldrigde 2018 and Mandel & Mueller 2020, respectively, and ``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 (reduced by a factor of sqrt(3) in the latter case). |br|
+Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; 
+however, if using ``MULLERMANDEL``, it is recommended to keep them consistent by doing so for both. |br|
 Default = MAXWELLIAN
 
 **--kick-magnitude-max** |br|
@@ -1047,6 +1051,8 @@ Default = 0
 Remnant mass prescription. |br|
 Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT } |br|
 Remnant mass recipes from Hurley, Pols, Tout (2000) for ``HURLEY2000``, Belczynski et al. 2002, Fryer et al. 2012,  Fryer et al. 2022, Mueller 2016, Mandel & Mueller 2020, and Schneider et al. 2020 (with the alternative prescription for effectively single stars from the same paper in the ``SCHNEIDER2020ALT`` case) |br|
+Note that this is independent from ``--kick-magnitude-distribution`` to provide flexibility; 
+however, if using ``MULLERMANDEL``, it is recommended to keep them consistent by doing so for both. |br|
 Default = FRYER2012
 
 **--retain-core-mass-during-caseA-mass-transfer** |br|
@@ -1137,8 +1143,7 @@ Note that setting this option to false can have unexpected consequences, e.g., T
 cannot become white dwarfs, so will end up as massless remnants.  This is a useful option for testing, but this setting is not recommended
 for production. It is better to use specific wind prescription controls, such as --cool-wind-mass-loss-multiplier, 
 --luminous-blue-variable-prescription, --luminous-blue-variable-multiplier, 
---mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier
---cool-wind-mass-loss-multiplier. |br|
+--mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier . |br|
 Default = TRUE
 
 .. _options-props-V:
