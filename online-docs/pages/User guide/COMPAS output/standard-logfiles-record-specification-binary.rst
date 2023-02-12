@@ -1669,6 +1669,54 @@ both. If both are printed then the file will contain two columns with the same h
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **SUPERNOVA_ORBIT_INCLINATION_VECTOR_X**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.xValue()  
+   * - Description:
+     - x-component of the post-SN orbital AM in the pre-SN reference frame
+   * - Header String:
+     - SN_Orbit_Inclination_Vector_X
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.yValue()  
+   * - Description:
+     - y-component of the post-SN orbital AM in the pre-SN reference frame
+   * - Header String:
+     - SN_Orbit_Inclination_Vector_Y
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.zValue()  
+   * - Description:
+     - z-component of the post-SN orbital AM in the pre-SN reference frame
+   * - Header String:
+     - SN_Orbit_Inclination_Vector_Z
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **SUPERNOVA_STATE**
      -
    * - Data type:
