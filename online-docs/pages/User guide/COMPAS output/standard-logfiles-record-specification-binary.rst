@@ -1660,7 +1660,7 @@ both. If both are printed then the file will contain two columns with the same h
    * - Description:
      - Post-supernova systemic (centre-of-mass) velocity (\ :math:`km s^{-1}`).
    * - Header String:
-     - Systemic_Velocity
+     - SystemicSpeed
 
 .. _binary-props-T:
 
