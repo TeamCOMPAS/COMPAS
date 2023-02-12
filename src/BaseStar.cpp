@@ -1752,6 +1752,29 @@ double BaseStar::CalculateMassLossRateWolfRayet3() const {
     return exp(-5.73 + (0.88 * log(m_Mass)));
 }
 
+/*
+ * Calculate mass loss rate enhancement for rapidly rotating stars
+ *
+ * Langer 1998 (https://ui.adsabs.harvard.edu/abs/1998A%26A...329..551L/abstract) eq 3
+ * 
+ * The exponent originally comes from Bjorkman & Cassinelli 1993 (https://ui.adsabs.harvard.edu/abs/1993ApJ...409..429B/abstract),
+ * based on a fit to data from Friend & Abbott 1986 (https://ui.adsabs.harvard.edu/abs/1986ApJ...311..701F/abstract) 
+ *
+ * double CalculateMassLossRateEnhancementRotation()
+ *
+ * @return                                      Mass loss enhancement factor for rapidly rotating stars
+ */
+double BaseStar::CalculateMassLossRateEnhancementRotation() {
+
+    const double exponent = -0.43;           
+    double enhancement = 1.0;               // By default, no enhancement
+    
+    if(OPTIONS->EnableRotationallyEnhancedMassLoss()){
+        enhancement = PPOW((1.0 - m_Omega/OmegaBreak()), exponent);
+    }
+
+    return enhancement;
+}
 
 /*
  * Calculate mass loss rate for massive OB stars using the Vink et al 2001 prescription

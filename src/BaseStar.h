@@ -437,6 +437,7 @@ protected:
     static  double              CalculateMassLoss_Static(const double p_Mass, const double p_Mdot, const double p_Dt);
 
             double              CalculateMassLossRate();
+            double              CalculateMassLossRateEnhancementRotation();
     virtual double              CalculateMassLossRateHurley();
             double              CalculateMassLossRateKudritzkiReimers() const;
             double              CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescription);

@@ -343,6 +343,7 @@ void Options::OptionValues::Initialise() {
     
 
     // Mass loss options
+    m_EnableRotationallyEnhancedMassLoss                            = false;
     m_UseMassLoss                                                   = true;
     m_CheckPhotonTiringLimit                                        = false;
 
@@ -352,7 +353,7 @@ void Options::OptionValues::Initialise() {
     m_LuminousBlueVariablePrescription.type                         = LBV_PRESCRIPTION::HURLEY_ADD;
     m_LuminousBlueVariablePrescription.typeString                   = LBV_PRESCRIPTION_LABEL.at(m_LuminousBlueVariablePrescription.type);
 
-    // Wind mass loss multiplicitive constants
+    // Wind mass loss multiplicative constants
     m_CoolWindMassLossMultiplier                                    = 1.0;
     m_LuminousBlueVariableFactor                                    = 1.5;
     m_OverallWindMassLossMultiplier                                 = 1.0;
@@ -732,6 +733,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "detailed-output",                                              
             po::value<bool>(&p_Options->m_DetailedOutput)->default_value(p_Options->m_DetailedOutput)->implicit_value(true),                                                                      
             ("Print detailed output to file (default = " + std::string(p_Options->m_DetailedOutput ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "enable-rotationally-enhanced-mass-loss",                                             
+            po::value<bool>(&p_Options->m_EnableRotationallyEnhancedMassLoss)->default_value(p_Options->m_EnableRotationallyEnhancedMassLoss)->implicit_value(true),                                                                      
+            ("Enable rotationally enhanced mass loss for rapidly rotating stars following Langer 1998 (default = " + std::string(p_Options->m_EnableRotationallyEnhancedMassLoss ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "enable-warnings",                                             

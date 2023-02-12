@@ -288,6 +288,9 @@ double CH::CalculateMassLossRateVink() {
 
     // Finally, combine each of these prescriptions according to the weight
     Mdot = (weight * Mdot_OB) + ((1.0 - weight) * Mdot_WR);
+    
+    // Enhance mass loss rate due to rotation
+    Mdot *= CalculateMassLossRateEnhancementRotation();
 
     return Mdot;
 }

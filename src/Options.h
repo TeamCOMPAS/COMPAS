@@ -425,6 +425,7 @@ private:
         "detailed-output",
 
         "eccentricity-distribution",
+        "enable-rotationally-enhanced-mass-loss",
         "enable-warnings",
         "enhance-CHE-lifetimes-luminosities",
         "envelope-state-prescription",
@@ -693,6 +694,7 @@ public:
             double                                              m_OrbitalPeriodDistributionMax;                                 // Maximum initial period in days
 
             // Wind mass loss
+            bool                                                m_EnableRotationallyEnhancedMassLoss;
             double                                              m_CoolWindMassLossMultiplier;                                   // Multiplication factor to reduce cool wind mass loss rate at each timestep
             double                                              m_OverallWindMassLossMultiplier;                                // Multiplication factor to reduce the overall wind mass loss rate at each timestep
             double                                              m_ScaleTerminalWindVelocityWithMetallicityPower;                // Power with which to scale terminal wind velocity with metallicity (v_inf ~ Z^x)
@@ -1180,6 +1182,7 @@ public:
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
     bool                                        DetailedOutput() const                                                  { return m_CmdLine.optionValues.m_DetailedOutput; }
 
+    bool                                        EnableRotationallyEnhancedMassLoss() const                              { return OPT_VALUE("enable-rotationally-enhanced-mass-loss", m_EnableRotationallyEnhancedMassLoss, true); }
     bool                                        EnableWarnings() const                                                  { return m_CmdLine.optionValues.m_EnableWarnings; }
     bool                                        ErrorsToFile() const                                                    { return m_CmdLine.optionValues.m_ErrorsToFile; }
     double                                      Eccentricity() const                                                    { return OPT_VALUE("eccentricity", m_Eccentricity, true); }
