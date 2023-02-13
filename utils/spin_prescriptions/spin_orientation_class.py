@@ -30,14 +30,34 @@ class calculate_spin_orientation(object):
 
     def fixed_value_spin_orientation(self, spin_theta):   
         """
-        returns black hole spins with a fixed spin orientation 'spin_theta'
+        returns spins with a fixed spin orientation 'spin_theta'
         """
+        if (spin_theta < 0.0) or (spin_theta > 2*np.pi):
+            raise Exception('angle must be between 0 and 2 pi')
+
         M1samples = self.h5file['BSE_Double_Compact_Objects']['Mass(1)'][...].squeeze()
         
         self.theta1 = np.ones_like(a=M1samples) * spin_theta
         self.theta2 = np.ones_like(a=M1samples) * spin_theta
         
         return self.theta1, self.theta2
+    
+
+    def random_uniform_spin_orientation(self, low, high):   
+        """
+        returns spin orientations with a uniform distribution over [low, high]
+        """
+        if (low < 0.0) or (low > 2*np.pi) or (high < 0.0) or (high > 2*np.pi):
+            raise Exception('angles must be between 0 and 2 pi')
+
+
+        sample_size = len(self.h5file['BSE_Double_Compact_Objects']['Mass(1)'][...].squeeze())
+        
+        self.theta1 = np.random.uniform(low=low, high=high, size=sample_size)
+        self.theta2 = np.random.uniform(low=low, high=high, size=sample_size)
+        
+        return self.theta1, self.theta2
+
 
 
     def natal_kick_misalignment(self):
