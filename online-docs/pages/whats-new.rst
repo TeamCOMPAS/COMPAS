@@ -6,6 +6,16 @@ Following is an brief list of important updates to the COMPAS code.  A complete 
 
 **LATEST RELEASE** |br|
 
+**02.36.00 Feb 5, 2023**
+
+* Added functionality for WDs to accrete in different regimes. 
+* New SN options: SNIA (Type Ia), and DD (double detonation). 
+* Additional changes: Cleaned up the call to EddingtonCriticalRate, puttting it in BaseStar along with the optional prefactor; moved NS radius and luminosity calls into NS.h from elsewhere in the code.
+
+**02.35.00 Dec 8, 2022**
+
+* Added critical mass ratios from Ge+ 2020 for determining if MT is unstable.
+
 **02.34.01 Dec 7, 2022**
 
 * Fixed Time<MT in BSE_RLOF, which previously was identical with Time>MT.

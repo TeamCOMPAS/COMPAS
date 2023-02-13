@@ -1292,9 +1292,9 @@ namespace utils {
         if ((p_SNEvent & SN_EVENT::PISN )                   == SN_EVENT::PISN ) return SN_EVENT::PISN;
         if ((p_SNEvent & SN_EVENT::PPISN)                   == SN_EVENT::PPISN) return SN_EVENT::PPISN;
         if ((p_SNEvent & SN_EVENT::USSN )                   == SN_EVENT::USSN ) return SN_EVENT::USSN;
-        if ((p_SNEvent & SN_EVENT::AIC  )                   == SN_EVENT::AIC  ) return SN_EVENT::AIC ;
-        if ((p_SNEvent & SN_EVENT::SNIA )                   == SN_EVENT::SNIA ) return SN_EVENT::SNIA ;
-        if ((p_SNEvent & SN_EVENT::DD   )                   == SN_EVENT::DD   ) return SN_EVENT::DD ;
+        if ((p_SNEvent & SN_EVENT::AIC  )                   == SN_EVENT::AIC  ) return SN_EVENT::AIC;
+        if ((p_SNEvent & SN_EVENT::SNIA )                   == SN_EVENT::SNIA ) return SN_EVENT::SNIA;
+        if ((p_SNEvent & SN_EVENT::DD   )                   == SN_EVENT::DD   ) return SN_EVENT::DD;
 
         return SN_EVENT::NONE;
     }

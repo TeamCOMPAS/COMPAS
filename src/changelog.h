@@ -970,7 +970,7 @@
 //                                      - Minor code cleaning
 // 02.35.00     RTW - Dec 8, 2022    - Enhancement:
 //                                      - Added critical mass ratios from Ge+ 2020 for determining if MT is unstable
-// 02.36.00     NR,RTW - Feb 5, 2022 - Enhancement:
+// 02.36.00     NR,RTW - Feb 5, 2023 - Enhancement:
 //                                      - Added functionality for WDs to accrete in different regimes. 
 //                                          - This applies to each WD subtype individually, though there is some overlap between COWDs and ONeWDs.
 //                                          - Also involves tracking the WD shell mass, to account for shell burning that later increases the WD mass.

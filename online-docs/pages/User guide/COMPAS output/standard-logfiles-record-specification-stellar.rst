@@ -631,6 +631,10 @@ Following is an alphabetical list of stellar properties available for inclusion 
              - = 16
            * - AIC
              - = 32
+           * - SNIA
+             - = 64
+           * - DD
+             - = 128
 
    * -
      - (see :ref:`Supernova events/states <supernova-events-states>` for explanation).
@@ -828,6 +832,22 @@ but not both. If both are printed then the file will contain two columns with th
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **IS_DD**
+     -
+   * - Data type:
+     - BOOL
+   * - COMPAS variable:
+     - `derived from` BaseStar::m_SupernovaDetails.events.current
+   * - Description:
+     - Flag to indicate whether the star is currently a double detonation supernova.
+   * - Header Strings:
+     - DD, DD(1), DD(2), DD(SN), DD(CP)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **IS_ECSN**
      -
    * - Data type:
@@ -904,6 +924,22 @@ but not both. If both are printed then the file will contain two columns with th
      - `Applies only to constituent stars of a binary system (i.e. does not apply to` ``SSE``\ `).`
    * - Header Strings:
      - RLOF(1), RLOF(2), RLOF(SN), RLOF(CP)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **IS_SNIA**
+     -
+   * - Data type:
+     - BOOL
+   * - COMPAS variable:
+     - `derived from` BaseStar::m_SupernovaDetails.events.current
+   * - Description:
+     - Flag to indicate whether the star is currently a Type Ia supernova.
+   * - Header Strings:
+     - SNIA, SNIA(1), SNIA(2), SNIA(SN), SNIA(CP)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -2152,6 +2188,8 @@ are shown below::
         PPISN        = 8,
         USSN         = 16,
         AIC          = 32,
+        SNIA         = 64,
+        DD           = 128,
     };
 
 
@@ -2163,7 +2201,9 @@ are shown below::
         { SN EVENT::PPISN,        "Pulsational Pair Instability Supernova" },
         { SN EVENT::USSN,         "Ultra Stripped Supernova" },
         { SN EVENT::AIC,          "Accretion-Induced Collapse" },
-    };
+        { SN_EVENT::SNIA,         "Supernova Type Ia" }, 
+        { SN_EVENT::DD,           "Double detonation" },
+        };
 
 A convenience function (shown below) is provided in ``utils.cpp`` to interpret the bit map.
 
@@ -2180,6 +2220,8 @@ A convenience function (shown below) is provided in ``utils.cpp`` to interpret t
     * SN EVENT::PPISN iff PPISN bit is set
     * SN EVENT::USSN iff USSN bit is set
     * SN EVENT::AIC iff AIC bit is set
+    * SN_EVENT::SNIA  iff SNIA  bit is set
+    * SN_EVENT::DD    iff DD    bit is set
     * SN EVENT::NONE otherwise
     *
     *
@@ -2193,6 +2235,8 @@ A convenience function (shown below) is provided in ``utils.cpp`` to interpret t
         if ((p SNEvent & SN EVENT::PPISN)                   == SN EVENT::PPISN) return SN EVENT::PPISN;
         if ((p SNEvent & SN EVENT::USSN )                   == SN EVENT::USSN ) return SN EVENT::USSN;
         if ((p SNEvent & SN EVENT::AIC )                    == SN EVENT::AIC )  return SN EVENT::AIC;
+        if ((p_SNEvent & SN_EVENT::SNIA )                   == SN_EVENT::SNIA ) return SN_EVENT::SNIA;
+        if ((p_SNEvent & SN_EVENT::DD   )                   == SN_EVENT::DD   ) return SN_EVENT::DD;
 
         return SN EVENT::NONE;
     }
