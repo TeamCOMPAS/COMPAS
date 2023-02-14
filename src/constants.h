@@ -2866,9 +2866,9 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE,            { TYPENAME::STRING,         "Stellar_Type(2)>CE",   "-",                42, 1 }},
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE,             { TYPENAME::STRING,         "Stellar_Type(2)<CE",   "-",                42, 1 }},
     { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE,                   { TYPENAME::DOUBLE,         "SN_Orbit_Inclination_Angle",    "-",       14, 6 }},   
-    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_X,                { TYPENAME::DOUBLE,         "SN_Orbit_Inclination_Vector_X", "-",       14, 6 }},   
-    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y,                { TYPENAME::DOUBLE,         "SN_Orbit_Inclination_Vector_Y", "-",       14, 6 }},   
-    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z,                { TYPENAME::DOUBLE,         "SN_Orbit_Inclination_Vector_Z", "-",       14, 6 }},   
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_X,                { TYPENAME::DOUBLE,         "Orbital_AM_Vector>SN_X", "-",              14, 6 }},   
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y,                { TYPENAME::DOUBLE,         "Orbital_AM_Vector>SN_Y", "-",              14, 6 }},   
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z,                { TYPENAME::DOUBLE,         "Orbital_AM_Vector>SN_Z", "-",              14, 6 }},   
     { BINARY_PROPERTY::SUPERNOVA_STATE,                                     { TYPENAME::SN_STATE,       "Supernova_State",      "State",             4, 1 }},   // JR: todo: for backward compatibility
     { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE,                           { TYPENAME::DOUBLE,         "Tau_Sync",             "Myr",              16, 8 }},
     { BINARY_PROPERTY::SYSTEMIC_SPEED,                                      { TYPENAME::DOUBLE,         "SystemicSpeed",        "kms^-1",           14, 6 }},
