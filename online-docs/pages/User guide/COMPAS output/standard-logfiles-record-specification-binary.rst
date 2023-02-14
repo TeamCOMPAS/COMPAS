@@ -1676,9 +1676,9 @@ both. If both are printed then the file will contain two columns with the same h
    * - COMPAS variable:
      - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.xValue()  
    * - Description:
-     - x-component of the post-SN orbital AM in the pre-SN reference frame
+     - x-component of the post-SN orbital AM in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
    * - Header String:
-     - SN_Orbit_Inclination_Vector_X
+     - Orbital_AM_Vector>SN_X
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1692,9 +1692,9 @@ both. If both are printed then the file will contain two columns with the same h
    * - COMPAS variable:
      - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.yValue()  
    * - Description:
-     - y-component of the post-SN orbital AM in the pre-SN reference frame
+     - y-component of the post-SN orbital AM in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
    * - Header String:
-     - SN_Orbit_Inclination_Vector_Y
+     - Orbital_AM_Vector>SN_Y
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1708,9 +1708,9 @@ both. If both are printed then the file will contain two columns with the same h
    * - COMPAS variable:
      - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.zValue()  
    * - Description:
-     - z-component of the post-SN orbital AM in the pre-SN reference frame
+     - z-component of the post-SN orbital AM in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
    * - Header String:
-     - SN_Orbit_Inclination_Vector_Z
+     - Orbital_AM_Vector>SN_Z
 
 .. flat-table::
    :widths: 25 75 1 1
