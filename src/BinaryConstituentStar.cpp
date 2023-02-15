@@ -148,12 +148,15 @@ double BinaryConstituentStar::CalculateMassAccretedForCO(const double p_Mass, co
         case CE_ACCRETION_PRESCRIPTION::CHEVALIER: {                                                              // CHEVALIER
                                                                                                                   // Model 2 from van Son et al. 2020
             deltaMass =  (p_Mass * p_CompanionMass)/(2*(p_Mass + p_CompanionMass)) ;                              // Hoyle littleton accretion rate times inspiral time
-            std::cout << "compact object accreting during CE following Chevalier 1993, " << std::endl;
             } break;
-        default:                                                                                                // unknown common envelope accretion prescription - shouldn't happen
-            deltaMass = 0.0;                                                                                    // default value
-            SHOW_WARN(ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION, "NS/BH accreted mass = 0.0");                      // warn that an error occurred
+
+        default:                                                                                                  // unknown common envelope accretion prescription - shouldn't happen
+            deltaMass = 0.0;                                                                                      // default value
+            SHOW_WARN(ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION, "NS/BH accreted mass = 0.0");                     // warn that an error occurred
     }
+
+
+    deltaMass = std::min(m_Companion->MassPreCEE() - m_Companion->CoreMassAtCEE(), deltaMass);                    // clamp the mass accretion to be no more than the envelope of the companion pre CE
 
     return deltaMass;
 }
@@ -300,11 +303,11 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
  * @param   [IN]    p_FinalMass                 Mass of the accreting object post mass transfer (Msol)
  * @param   [IN]    p_StellarType               Stellar type of the accreting object pre mass transfer 
  */
-void BinaryConstituentStar::ResolveCommonEnvelopeAccretion(double p_FinalMass, const STELLAR_TYPE p_StellarType ) {
+void BinaryConstituentStar::ResolveCommonEnvelopeAccretion(double p_FinalMass) {
 
     double deltaMass;
 
-    switch (p_StellarType) {                                                            // which stellar type?
+    switch (StellarType() )  {                                                            // which stellar type?
 
         case STELLAR_TYPE::NEUTRON_STAR:
             deltaMass = CalculateMassAccretedForCO(Mass(), m_Companion->Mass(), m_Companion->Radius());

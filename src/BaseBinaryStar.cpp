@@ -1604,8 +1604,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     double rRLdfin2Rsol    = rRLdfin2 * AU_TO_RSOL;                                                                     // Roche-lobe radius in Rsol after CEE, seen by star2
     m_Eccentricity         = 0.0;                                                                                       // We assume that a common envelope event (CEE) circularises the binary
 
-    m_Star1->ResolveCommonEnvelopeAccretion(m_Mass1Final,m_Star1->StellarType());                                       // update star1's mass after CE accretion
-    m_Star2->ResolveCommonEnvelopeAccretion(m_Mass2Final,m_Star2->StellarType());                                       // update star2's mass after CE accretion
+    m_Star1->ResolveCommonEnvelopeAccretion(m_Mass1Final);                                                              // update star1's mass after CE accretion
+    m_Star2->ResolveCommonEnvelopeAccretion(m_Mass2Final);                                                              // update star2's mass after CE accretion
 
     // update stellar type after losing its envelope. Star1, Star2 or both if double CEE.
 
