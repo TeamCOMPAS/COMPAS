@@ -475,35 +475,34 @@ private:
     Log& operator = (Log const&) = delete;                                          // operator = does nothing, and not exposed publicly
 
     // instance variable
-    static Log          *m_Instance;                                                // pointer to the instance
+    static Log                 *m_Instance;                                         // pointer to the instance
 
 
     // member variables
-    bool                 m_Enabled;                                                 // is logging enabled?
+    bool                        m_Enabled;                                          // is logging enabled?
 
-    string               m_HDF5ContainerName;                                       // HDF5 container name
-    hid_t                m_HDF5ContainerId;                                         // HDF5 container id
-    hid_t                m_HDF5DetailedId;                                          // HDF5 detailed output id
+    string                      m_HDF5ContainerName;                                // HDF5 container name
+    hid_t                       m_HDF5ContainerId;                                  // HDF5 container id
+    hid_t                       m_HDF5DetailedId;                                   // HDF5 detailed output id
 
-    string               m_LogBasePath;                                             // base path for log files
-    string               m_LogContainerName;                                        // container (directory) name for log files
-    string               m_LogNamePrefix;                                           // prefix for log files
+    string                      m_LogBasePath;                                      // base path for log files
+    string                      m_LogContainerName;                                 // container (directory) name for log files
+    string                      m_LogNamePrefix;                                    // prefix for log files
 
-    LOGFILETYPE          m_LogfileType;                                             // logfile type
-    int                  m_LogLevel;                                                // log level
-    std::vector <string> m_LogClasses;                                              // log classes
+    LOGFILETYPE                 m_LogfileType;                                      // logfile type
+    int                         m_LogLevel;                                         // log level
+    std::vector <string>        m_LogClasses;                                       // log classes
 
-    int                  m_DbgLevel;                                                // debug level
-    std::vector <string> m_DbgClasses;                                              // debug classes
+    int                         m_DbgLevel;                                         // debug level
+    std::vector <string>        m_DbgClasses;                                       // debug classes
 
-    bool                 m_DbgToLogfile;                                            // log debug records to log file?
-    int                  m_DbgLogfileId;                                            // log file id of file to which debug statements should be written
+    bool                        m_DbgToLogfile;                                     // log debug records to log file?
+    int                         m_DbgLogfileId;                                     // log file id of file to which debug statements should be written
 
-    bool                 m_ErrToLogfile;                                            // log error records to log file?
-    int                  m_ErrLogfileId;                                            // log file id of file to which error statements should be written
+    bool                        m_ErrToLogfile;                                     // log error records to log file?
+    int                         m_ErrLogfileId;                                     // log file id of file to which error statements should be written
 
-
-    std::vector<std::tuple<string, string, string, string, TYPENAME>> m_OptionDetails;  // option details retrieved from commandline
+    std::vector<OptionDetailsT> m_OptionDetails;                                    // option details retrieved from commandline
 
 
     struct h5AttrT {                                                                // attributes of HDF5 files
