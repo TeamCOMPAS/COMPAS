@@ -6,6 +6,10 @@ Following is an brief list of important updates to the COMPAS code.  A complete 
 
 **LATEST RELEASE** |br|
 
+**02.36.00 Feb 15, 2022**
+
+* Added functionality to automatically create COMPAS YAML file - adds two new options: ``--create-YAML-file`` and ``YAML-template``. See documentation for details.  
+
 **02.34.01 Dec 7, 2022**
 
 * Fixed Time<MT in BSE_RLOF, which previously was identical with Time>MT.
@@ -18,7 +22,7 @@ Following is an brief list of important updates to the COMPAS code.  A complete 
 
 * Added 'record type' functionality to all standard log files.  **Note:** This changes default behaviour: only Detailed Output log files affected in this release
 * Added/rationalised Detailed Output records printed for binary systems
-* Added new program option for each standard log file to allow specification of which record types to print. See e.g. '--logfile-detailed-output-record-types'
+* Added new program option for each standard log file to allow specification of which record types to print. See e.g. ``--logfile-detailed-output-record-types``
 * Changed case on column header strings for switch log files (SSE and BSE. ``SWITCHING_FROM``, ``SWITCHING_TO``, and ``STAR_SWITCHING`` are now ``Switching_From``, ``Switching_To``, and ``Star_Switching`` respectively).   **Note:** This could affect post-processig code that consumes the switch log files - users should check that their code will recognise the new header strings.
 * Added new section to online documentation: 'What's new'
 
