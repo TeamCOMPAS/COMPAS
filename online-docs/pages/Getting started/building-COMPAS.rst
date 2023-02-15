@@ -16,8 +16,10 @@ is ``csh``, set the environment variable in `~/.cshrc` using::
 
     setenv COMPAS_ROOT_DIR ~/codes/COMPAS
     
-Tip: you can check whether you have correctly defined the environment variable and whether its been active by typing into your terminal the command:
+Tip: you can check whether you have correctly defined the environment variable and whether its been active by typing into your terminal the command::
+    
     ECHO $COMPAS_ROOT_DIR
+
 This should return the directory location of the COMPAS folder (i.e. "~/codes/COMPAS").
 
 
@@ -47,7 +49,7 @@ The locations given in ``Makefile`` may not match the locations of the files on 
 
 
 If you installed the packages with Homebrew, the package files are likely to be found in /usr/local/opt (in directories gsl, boost, and hdf5 respectively),
-but if they are not found there you will need to use Homebrew, or some other method, to locate the files.  e.g for boost using Homebrew::
+but if they are not found there you will need to use Homebrew, or some other method, to locate the files.  e.g. for ``boost`` using Homebrew::
 
     brew info boost
     boost: stable 1.72.0 (bottled), HEAD
@@ -57,7 +59,7 @@ but if they are not found there you will need to use Homebrew, or some other met
     ...
 
 Note the path, which in this case is `/usr/local/Cellar/boost/1.72.0` - you will use it when you build the COMPAS executable.  Repeat this for ``gsl`` and
-``hdf5``, ensuring you locat the paths to the header files and library files.
+``hdf5``, ensuring you locate the paths to the header files and library files.
  
 Assuming here that the locations of the header and library files in ``Makefile`` for ``gsl`` and ``hdf5`` are correct for your system, but the locations for
 ``boost`` are not, build the COMPAS executable (compile and link) by typing::

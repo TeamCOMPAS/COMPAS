@@ -968,11 +968,15 @@
 //                                      - Removed Dutch winds for Remnants
 //                                      - Fixed typo in NS::CalculateLuminosityOnPhase_Static()
 //                                      - Minor code cleaning
-// 02.35.00     JR - Feb 14, 2023    - Enhancement, minor defect repairs:
+// 02.35.00     RTW - Dec 8, 2022    - Enhancement:
+//                                      - Added critical mass ratios from Ge+ 2020 for determining if MT is unstable
+// 02.36.00     JR - Feb 14, 2023    - Enhancement, minor defect repairs:
 //                                      - Addressed issue #797 - implemented functionality to create YAML file.  Two new options (--create-YAML-file and --YAML-template).  See documentation for details.
+//                                      - Modifed runSubmit.py to work with new yaml file format (i.e. all options could be commented...)
 //                                      - Minor defect repairs in options code
 //                                      - Minor fixes to online documentation; also clarified make arguments
 
-const std::string VERSION_STRING = "02.35.00";
+const std::string VERSION_STRING = "02.36.00";
+
 
 # endif // __changelog_h__
