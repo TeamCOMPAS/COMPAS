@@ -968,7 +968,11 @@
 //                                      - Removed Dutch winds for Remnants
 //                                      - Fixed typo in NS::CalculateLuminosityOnPhase_Static()
 //                                      - Minor code cleaning
+// 02.35.00     JR - Feb 14, 2023    - Enhancement, minor defect repairs:
+//                                      - Addressed issue #797 - implemented functionality to create YAML file.  Two new options (--create-YAML-file and --YAML-template).  See documentation for details.
+//                                      - Minor defect repairs in options code
+//                                      - Minor fixes to online documentation; also clarified make arguments
 
-const std::string VERSION_STRING = "02.34.06";
+const std::string VERSION_STRING = "02.35.00";
 
 # endif // __changelog_h__

@@ -116,7 +116,7 @@ def makeDetailedPlots(Data=None, events=None):
     #### Finalize the boundaries, save, and show
     fig.suptitle('Detailed evolution for seed = {}'.format(Data['SEED'][()][0]), fontsize=18) 
     fig.tight_layout(h_pad=1, w_pad=1, rect= (0.08, 0.08, .98, .98), pad=0.) # (left, bottom, right, top) 
-    plt.savefig('detailedEvolutionPlot.eps', bbox_inches='tight',pad_inches = 0, format='eps')
+    plt.savefig('detailedEvolutionPlot.eps', bbox_inches='tight',pad_inches = 0, format='png')
 
 
 

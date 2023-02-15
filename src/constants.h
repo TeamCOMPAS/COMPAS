@@ -35,6 +35,7 @@ template <typename Key, typename T>
 using COMPASUnorderedMap = std::unordered_map<Key, T, HashType<Key>>;
 
 
+
 // Bitwise operators for Enum Class - |, |=, &, &=, ^, ^=, ~ only
 // from http://blog.bitwigglers.org/using-enum-classes-as-type-safe-bitmasks/
 #define ENABLE_BITMASK_OPERATORS(x)     \
@@ -209,10 +210,10 @@ constexpr double GAUSS_TO_TESLA                         = 1.0 / TESLA_TO_GAUSS; 
 // constants
 
 constexpr double _2_PI                                  = M_PI * 2;                                                 // 2PI
-constexpr double SQRT_M_2_PI                            = 0.7978845608028653558798921198687637369517;               // sqrt(2/PI)
+constexpr double SQRT_M_2_PI                            = 0.79788456080286536;                                      // sqrt(2/PI)
 constexpr double DEGREE                                 = M_PI / 180.0;                                             // 1 degree in radians
 
-constexpr double GAMMA_E                                = 0.57721566490153286060651209008240243104215933593992;     // Euler's Constant (probably don't need so many digits after the decimal point...)
+constexpr double GAMMA_E                                = 0.57721566490153286;                                      // Euler's Constant
 
 constexpr double H0                                     = 67.8;                                                     // Hubble's Constant in km s^-1 Mpc^-1  (from plank approx 67.80±0.77) CPLB: Use WMAP value
 constexpr double H0SI                                   = H0 * 1000.0 / 3.0E22;                                     // Hubble's Constant in SI units, s^-1
@@ -226,7 +227,7 @@ constexpr double G_SOLAR_YEAR                           = 3.14E7;               
 
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
-constexpr double LOG10_ZSOL                             = -1.69897;                                              // log10(ZSOL) - for performance
+constexpr double LOG10_ZSOL                             = -1.69897;                                                 // log10(ZSOL) - for performance
 constexpr double ZSOL_ASPLUND				            = 0.0142;						                            // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
 
@@ -416,12 +417,12 @@ constexpr double KROUPA_BREAK_1                         = 0.08;
 constexpr double KROUPA_BREAK_2                         = 0.5;
 
 // Some values that are really constants
-constexpr double KROUPA_BREAK_1_PLUS1_1                 = 0.1706722802578593435430149987533206236794;               // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_1);
-constexpr double KROUPA_BREAK_1_PLUS1_2                 = 2.1334035032232417942876874844165077959929;               // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_2);
+constexpr double KROUPA_BREAK_1_PLUS1_1                 = 0.17067228025785934;                                      // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_1);
+constexpr double KROUPA_BREAK_1_PLUS1_2                 = 2.13340350322324179;                                      // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_2);
 constexpr double KROUPA_BREAK_1_POWER_1_2               = 0.08;                                                     // pow(KROUPA_BREAK_1, (KROUPA_POWER_1 - KROUPA_POWER_2));
 
-constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.2311444133449162844993930691677431098761;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_2);
-constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.4622888266898325689987861383354862197522;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
+constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.23114441334491628;                                      // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_2);
+constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.46228882668983257;                                      // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
 constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_3));
 
 // Constants for the Muller and Mandel remnant mass and kick prescriptions
@@ -762,26 +763,25 @@ enum class EVOLUTION_STATUS: int {
 
 // JR: deliberately kept these messages succinct (where I could) so running status doesn't scroll off the page...
 const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL = {
-    { EVOLUTION_STATUS::DONE,                        "Simulation completed" },
-    { EVOLUTION_STATUS::CONTINUE,                    "Continue evolution" },
-    { EVOLUTION_STATUS::ERROR,                       "An error occurred" },
-    { EVOLUTION_STATUS::SSE_ERROR,                   "SSE error for one of the constituent stars" },
-    { EVOLUTION_STATUS::BINARY_ERROR,                "Error evolving binary" },
-    { EVOLUTION_STATUS::MASSLESS_REMNANT,            "Massless Remnant formed" },
-    { EVOLUTION_STATUS::STARS_TOUCHING,              "Stars touching" },
-    { EVOLUTION_STATUS::STELLAR_MERGER,              "Stars merged" },
-    { EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH,     "Stars merged at birth" },
-    { EVOLUTION_STATUS::UNBOUND,                     "Unbound binary" },
-    { EVOLUTION_STATUS::WD_WD,                       "Double White Dwarf" },
-    { EVOLUTION_STATUS::TIMES_UP,                    "Allowed time exceeded" },
-    { EVOLUTION_STATUS::STEPS_UP,                    "Allowed timesteps exceeded" },
-    { EVOLUTION_STATUS::STOPPED,                     "Evolution stopped" }
+    { EVOLUTION_STATUS::DONE,                    "Simulation completed" },
+    { EVOLUTION_STATUS::CONTINUE,                "Continue evolution" },
+    { EVOLUTION_STATUS::ERROR,                   "An error occurred" },
+    { EVOLUTION_STATUS::SSE_ERROR,               "SSE error for one of the constituent stars" },
+    { EVOLUTION_STATUS::BINARY_ERROR,            "Error evolving binary" },
+    { EVOLUTION_STATUS::MASSLESS_REMNANT,        "Massless Remnant formed" },
+    { EVOLUTION_STATUS::STARS_TOUCHING,          "Stars touching" },
+    { EVOLUTION_STATUS::STELLAR_MERGER,          "Stars merged" },
+    { EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH, "Stars merged at birth" },
+    { EVOLUTION_STATUS::UNBOUND,                 "Unbound binary" },
+    { EVOLUTION_STATUS::WD_WD,                   "Double White Dwarf" },
+    { EVOLUTION_STATUS::TIMES_UP,                "Allowed time exceeded" },
+    { EVOLUTION_STATUS::STEPS_UP,                "Allowed timesteps exceeded" },
+    { EVOLUTION_STATUS::STOPPED,                 "Evolution stopped" }
 };
 
 
 // Evolution mode (SSE or BSE)
 enum class EVOLUTION_MODE: int { SSE, BSE };
-
 const COMPASUnorderedMap<EVOLUTION_MODE, std::string> EVOLUTION_MODE_LABEL = {
     { EVOLUTION_MODE::SSE, "SSE" },
     { EVOLUTION_MODE::BSE, "BSE" }
@@ -809,10 +809,10 @@ const COMPASUnorderedMap<BRAY_ELDRIDGE_CONSTANT, double> BRAY_ELDRIDGE_CONSTANT_
 
 enum class CASE_BB_STABILITY_PRESCRIPTION: int{ ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE };
 const COMPASUnorderedMap<CASE_BB_STABILITY_PRESCRIPTION, std::string> CASE_BB_STABILITY_PRESCRIPTION_LABEL = {
-    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE,              "ALWAYS_STABLE" },
-    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH,    "ALWAYS_STABLE_ONTO_NSBH" },
-    { CASE_BB_STABILITY_PRESCRIPTION::TREAT_AS_OTHER_MT,          "TREAT_AS_OTHER_MT" },
-    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE,            "ALWAYS_UNSTABLE" }
+    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE,           "ALWAYS_STABLE" },
+    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH, "ALWAYS_STABLE_ONTO_NSBH" },
+    { CASE_BB_STABILITY_PRESCRIPTION::TREAT_AS_OTHER_MT,       "TREAT_AS_OTHER_MT" },
+    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE,         "ALWAYS_UNSTABLE" }
 };
 
 // Common Envelope Accretion Prescriptions
@@ -827,9 +827,9 @@ const COMPASUnorderedMap<CE_ACCRETION_PRESCRIPTION, std::string> CE_ACCRETION_PR
 // Envelope State Prescriptions
 enum class ENVELOPE_STATE_PRESCRIPTION: int { LEGACY, HURLEY, FIXED_TEMPERATURE };
 const COMPASUnorderedMap<ENVELOPE_STATE_PRESCRIPTION, std::string> ENVELOPE_STATE_PRESCRIPTION_LABEL = {
-    { ENVELOPE_STATE_PRESCRIPTION::LEGACY,              "LEGACY" },
-    { ENVELOPE_STATE_PRESCRIPTION::HURLEY,              "HURLEY" },
-    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE,   "FIXED_TEMPERATURE" }
+    { ENVELOPE_STATE_PRESCRIPTION::LEGACY,            "LEGACY" },
+    { ENVELOPE_STATE_PRESCRIPTION::HURLEY,            "HURLEY" },
+    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE, "FIXED_TEMPERATURE" }
 };
 
 
@@ -847,8 +847,8 @@ const COMPASUnorderedMap<CE_LAMBDA_PRESCRIPTION, std::string> CE_LAMBDA_PRESCRIP
 // Common Envelope Formalism
 enum class CE_FORMALISM: int { ENERGY, TWO_STAGE };
 const COMPASUnorderedMap<CE_FORMALISM, std::string> CE_FORMALISM_LABEL = {
-        { CE_FORMALISM::ENERGY,         "ENERGY" },
-        { CE_FORMALISM::TWO_STAGE,      "TWO_STAGE" }
+        { CE_FORMALISM::ENERGY,    "ENERGY" },
+        { CE_FORMALISM::TWO_STAGE, "TWO_STAGE" }
 };
 
 
@@ -979,10 +979,10 @@ const COMPASUnorderedMap<INITIAL_MASS_FUNCTION, std::string> INITIAL_MASS_FUNCTI
 // LBV Mass loss prescriptions
 enum class LBV_PRESCRIPTION: int { NONE, HURLEY_ADD, HURLEY, BELCZYNSKI };
 const COMPASUnorderedMap<LBV_PRESCRIPTION, std::string> LBV_PRESCRIPTION_LABEL = {
-    { LBV_PRESCRIPTION::NONE,           "NONE" },
-    { LBV_PRESCRIPTION::HURLEY_ADD,     "HURLEY_ADD" },
-    { LBV_PRESCRIPTION::HURLEY,         "HURLEY" },
-    { LBV_PRESCRIPTION::BELCZYNSKI,     "BELCZYNSKI" }
+    { LBV_PRESCRIPTION::NONE,       "NONE" },
+    { LBV_PRESCRIPTION::HURLEY_ADD, "HURLEY_ADD" },
+    { LBV_PRESCRIPTION::HURLEY,     "HURLEY" },
+    { LBV_PRESCRIPTION::BELCZYNSKI, "BELCZYNSKI" }
 };
 
 // Mass loss prescriptions
@@ -1017,8 +1017,8 @@ const COMPASUnorderedMap<MASS_TRANSFER, std::string> MASS_TRANSFER_LABEL = {
 // Mass transfer accretion efficiency prescriptions
 enum class MT_ACCRETION_EFFICIENCY_PRESCRIPTION: int { THERMALLY_LIMITED, FIXED_FRACTION};
 const COMPASUnorderedMap<MT_ACCRETION_EFFICIENCY_PRESCRIPTION, std::string> MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL = {
-    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED,     "THERMAL" },
-    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION,        "FIXED" }
+    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED, "THERMAL" },
+    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION,    "FIXED" }
 };
 
 
@@ -1112,7 +1112,7 @@ const COMPASUnorderedMap<NS_EOS, std::string> NS_EOSLabel = {
 // Orbital Period Distributions
 enum class ORBITAL_PERIOD_DISTRIBUTION: int { FLATINLOG };
 const COMPASUnorderedMap<ORBITAL_PERIOD_DISTRIBUTION, std::string> ORBITAL_PERIOD_DISTRIBUTION_LABEL = {
-    { ORBITAL_PERIOD_DISTRIBUTION::FLATINLOG,   "FLATINLOG" },
+    { ORBITAL_PERIOD_DISTRIBUTION::FLATINLOG, "FLATINLOG" },
 };
 
 
@@ -1150,14 +1150,14 @@ const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PUL
 // Remnant Mass Prescriptions
 enum class REMNANT_MASS_PRESCRIPTION: int { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT};
 const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PRESCRIPTION_LABEL = {
-    { REMNANT_MASS_PRESCRIPTION::HURLEY2000,           "HURLEY2000" },
-    { REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002,       "BELCZYNSKI2002" },
-    { REMNANT_MASS_PRESCRIPTION::FRYER2012,            "FRYER2012" },
-    { REMNANT_MASS_PRESCRIPTION::FRYER2022,            "FRYER2022" },
-    { REMNANT_MASS_PRESCRIPTION::MULLER2016,           "MULLER2016" },
-    { REMNANT_MASS_PRESCRIPTION::MULLERMANDEL,         "MULLERMANDEL" },
-    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020,        "SCHNEIDER2020" },
-    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT ,    "SCHNEIDER2020ALT" }
+    { REMNANT_MASS_PRESCRIPTION::HURLEY2000,       "HURLEY2000" },
+    { REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002,   "BELCZYNSKI2002" },
+    { REMNANT_MASS_PRESCRIPTION::FRYER2012,        "FRYER2012" },
+    { REMNANT_MASS_PRESCRIPTION::FRYER2022,        "FRYER2022" },
+    { REMNANT_MASS_PRESCRIPTION::MULLER2016,       "MULLER2016" },
+    { REMNANT_MASS_PRESCRIPTION::MULLERMANDEL,     "MULLERMANDEL" },
+    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020,    "SCHNEIDER2020" },
+    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT, "SCHNEIDER2020ALT" }
 };
 
 
@@ -1216,24 +1216,24 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 //    SN_EVENT::NONE  otherwise
 //
 enum class SN_EVENT: int { 
-    NONE         = 0, 
-    CCSN         = 1, 
-    ECSN         = 2, 
-    PISN         = 4, 
-    PPISN        = 8, 
-    USSN         = 16,
-    AIC          = 32,
+    NONE  = 0, 
+    CCSN  = 1, 
+    ECSN  = 2, 
+    PISN  = 4, 
+    PPISN = 8, 
+    USSN  = 16,
+    AIC   = 32,
 };
 ENABLE_BITMASK_OPERATORS(SN_EVENT);
 
 const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
-    { SN_EVENT::NONE,         "No Supernova" },
-    { SN_EVENT::CCSN,         "Core Collapse Supernova" },
-    { SN_EVENT::ECSN,         "Electron Capture Supernova" },
-    { SN_EVENT::PISN,         "Pair Instability Supernova" },
-    { SN_EVENT::PPISN,        "Pulsational Pair Instability Supernova" },
-    { SN_EVENT::USSN,         "Ultra Stripped Supernova" },
-    { SN_EVENT::AIC,          "Accretion-Induced Collapse" }, 
+    { SN_EVENT::NONE,  "No Supernova" },
+    { SN_EVENT::CCSN,  "Core Collapse Supernova" },
+    { SN_EVENT::ECSN,  "Electron Capture Supernova" },
+    { SN_EVENT::PISN,  "Pair Instability Supernova" },
+    { SN_EVENT::PPISN, "Pulsational Pair Instability Supernova" },
+    { SN_EVENT::USSN,  "Ultra Stripped Supernova" },
+    { SN_EVENT::AIC,   "Accretion-Induced Collapse" }, 
 };
 
 

@@ -196,7 +196,7 @@ Default = :math:`1.5 \times 10^{13}`
 Slope for the Kruckow lambda (see Kruckow et al. 2016 as implemented by Vigna-Gomez et al. 2018). |br|
 Default = −0.833333
 
-**convective-envelope-temperature-threshold** |br|
+**--convective-envelope-temperature-threshold** |br|
 Temperature [K] threshold, below which the envelopes of giants are convective. 
 Only used for --envelope-state-prescription = FIXED_TEMPERATURE, ignored otherwise. |br|
 Default = 5370
@@ -206,6 +206,10 @@ Multiplicative constant for wind mass loss of cool stars, i.e. those with temper
 VINK_MASS_LOSS_MINIMUM_TEMP (default 12500K). |br|
 Only applicable when ``--mass-loss-prescription = VINK``. |br|
 Default = 1.0
+
+**--create-YAML-file** |br|
+Creates new YAML file.  Argument is filename for new YAML file. |br|
+Default = None - name must be supplied if option is present.
 
 **--critical-mass-ratio-HG-degenerate-accretor** |br|
 Critical mass ratio for MT from a HG star to a degenerate accretor.
@@ -1153,6 +1157,13 @@ Default = 1.0
 
 .. _options-props-X:
 .. _options-props-Y:
+
+:ref:`Back to Top <options-props-top>`
+
+**--YAML-template** |br|
+Template filename for creation of YAML file (see also ``--create-YAML-file``). |br|
+Default = "" (No template file)
+
 .. _options-props-Z:
 
 :ref:`Back to Top <options-props-top>`
@@ -1172,7 +1183,7 @@ Default = 6.5
 
 
 Category listing
---------------------
+----------------
 
 Go to :ref:`the top of this page <options-props-top>` for the full alphabetical list of options with explanations and default values
 
@@ -1272,6 +1283,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --logfile-pulsar-evolution, --logfile-pulsar-evolution-record-type, --logfile-rlof-parameters, --logfile-rlof-parameters-record-types, --logfile-supernovae, 
 --logfile-supernovae-record-types, --logfile-switch-log, --logfile-system-parameters, --logfile-system-parameters-record-types, --output-container, 
 --output-path, --rlof-printing, --store-input-files, --switch-log, --hdf5-buffer-size, --hdf5-chunk-size
+
+--create-YAML-file, YAML-template
 
 :ref:`Back to Top <options-props-top>`
 

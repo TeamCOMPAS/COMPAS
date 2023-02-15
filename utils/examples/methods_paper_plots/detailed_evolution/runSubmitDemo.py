@@ -45,6 +45,7 @@ class pythonProgramOptions:
         if (compas_executable_override is None):
             # Make sure you have set and exported the COMPAS_ROOT_DIR environment variable
             git_directory = os.environ.get('COMPAS_ROOT_DIR')
+            print('<', git_directory, '>')
             self.compas_executable = os.path.join(git_directory, 'src/COMPAS')
         else:
             self.compas_executable = compas_executable_override

@@ -42,6 +42,10 @@
 /*    configured Boost to perform a case-insensitive match, so option strings can have    */
 /*    mixed case if necessary (e.g. muller-mandel-kick-multiplier-BH).                    */
 /*                                                                                        */
+/*    Where appropriate, use AllowedOptionValuesFormatted() to format the allowed values  */
+/*    for an option - doing so ensurae all allowed values are included, and will keep the */
+/*    format consistent.                                                                  */
+/*                                                                                        */
 /* 8. Add any sanity checks: constraint/range/dependency checks etc. for the new option,  */
 /*    and any affected existing options, to Options::OptionValues::CheckAndSetOptions()   */
 /*    in Options.cpp.  It is also here you can set any final values that, perhaps due to  */
@@ -49,35 +53,42 @@
 /*    Boost when the options were parsed (also see SetCalculatedOptionDefaults(); viz.    */
 /*    m_KickPhi1 etc.).                                                                   */
 /*                                                                                        */
-/* 9. Add the new option to one or more of the following vectors in Options.h, as         */
-/*    required:                                                                           */
+/* 9. If the option is a string option with multiple-choices - in that the user can       */
+/*    select from a list of possible values recorded in constants.h in an ENUM CLASS and  */
+/*    corresponding COMPASUnorderedMap labels map - then add the option to the function   */
+/*    AllowedOptionValues() here so that we can easily extract the allowed values for     */
+/*    that option.                                                                        */
 /*                                                                                        */
-/*        m_ShorthandAllowed: options for which shorthand notation is allowed             */
+/* 10. Add the new option to one or more of the following vectors in Options.h, as        */
+/*     required:                                                                          */
 /*                                                                                        */
-/*        m_GridLineExcluded: option strings that may not be specified on a grid line     */
+/*         m_ShorthandAllowed: options for which shorthand notation is allowed            */
 /*                                                                                        */
-/*        m_SSEOnly         : option strings that apply to SSE only                       */
-/*        m_BSEOnly         : option strings that apply to BSE only                       */
+/*         m_GridLineExcluded: option strings that may not be specified on a grid line    */
 /*                                                                                        */
-/*        m_RangeExcluded   : option strings for which a range may not be specified       */
-/*        m_SetExcluded     : option strings for which a set may not be specified         */
+/*         m_SSEOnly         : option strings that apply to SSE only                      */
+/*         m_BSEOnly         : option strings that apply to BSE only                      */
 /*                                                                                        */
-/*    Read the explanations for each of the vectors in Options.h to get a better idea of  */
-/*    what they are for and where the new option should go.                               */
+/*         m_RangeExcluded   : option strings for which a range may not be specified      */
+/*         m_SetExcluded     : option strings for which a set may not be specified        */
 /*                                                                                        */
-/* 10. Add the new option to the following structures in constants.h (only required if    */
+/*     Read the explanations for each of the vectors in Options.h to get a better idea of */
+/*     what they are for and where the new option should go.                              */
+/*                                                                                        */
+/* 11. Add the new option to the following structures in constants.h (only required if    */
 /*     the option is required to be available for printing in the logfiles):              */
 /*                                                                                        */
 /*        - enum class PROGRAM_OPTION                                                     */
 /*        - const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL    */
 /*        - const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL        */
 /*                                                                                        */
-/* 11. Add the new option to Options::OptionValue() - this enables selection of the       */
+/* 12. Add the new option to Options::OptionValue() - this enables selection of the       */
 /*     option value for printing in the output (log) files.  Only required if the option  */
 /*     is required to be available for printing in the logfiles.                          */
 /*                                                                                        */
+/* 13. Add the new option to the default YAML file template in yaml.h if required.        */ 
+/*                                                                                        */
 /******************************************************************************************/
-
 
 #include "Options.h"
 #include "changelog.h"
@@ -112,7 +123,7 @@ Options* Options::Instance() {
 
 #define WARNUSER(warnStr)               { std::cerr << warnStr << std::endl; }
 #define WARNUSER_IF(cond, warnStr)      { if (cond) WARNUSER(warnStr) }
-
+    
 
 /*
  * Initialise option values
@@ -159,7 +170,6 @@ void Options::OptionValues::Initialise() {
     m_ShortHelp                                                     = true;
 
     m_StoreInputFiles                                               = true;
-
 
     m_SwitchLog                                                     = false;
 
@@ -304,8 +314,8 @@ void Options::OptionValues::Initialise() {
     m_FryerSupernovaEngine.type                                     = SN_ENGINE::DELAYED;
     m_FryerSupernovaEngine.typeString                               = SN_ENGINE_LABEL.at(m_FryerSupernovaEngine.type);
 
-    m_Fryer22fmix                                                   = 0.5; //default is similar to DELAYED engine in Fryer 2012
-    m_Fryer22Mcrit                                                  = 5.75; //
+    m_Fryer22fmix                                                   = 0.5;                                                  //default is similar to DELAYED engine in Fryer 2012
+    m_Fryer22Mcrit                                                  = 5.75;
 
     m_NeutrinoMassLossAssumptionBH.type                             = NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS;
     m_NeutrinoMassLossAssumptionBH.typeString                       = NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL.at(m_NeutrinoMassLossAssumptionBH.type);
@@ -509,13 +519,13 @@ void Options::OptionValues::Initialise() {
     m_RotationalFrequency2                                          = 0.0;
 
 
-	// grids
+	// Grids
 
 	m_GridFilename                                                  = "";
     m_GridStartLine                                                 = 0;
-    m_GridLinesToProcess                                            = std::numeric_limits<std::streamsize>::max();          // effectively no limit - process to EOF
+    m_GridLinesToProcess                                            = std::numeric_limits<std::streamsize>::max();                          // effectively no limit - process to EOF
 
-    // debug and logging options
+    // Debug and logging options
 
     m_DebugLevel                                                    = 0;
     m_DebugClasses.clear();
@@ -553,6 +563,12 @@ void Options::OptionValues::Initialise() {
     m_HDF5BufferSize                                                = HDF5_DEFAULT_IO_BUFFER_SIZE;
     m_HDF5ChunkSize                                                 = HDF5_DEFAULT_CHUNK_SIZE;
 
+    // YAML file
+
+    m_YAMLfilename                                                  = "";                                                                   // no YAML file to be created
+    m_YAMLtemplate                                                  = "";                                                                   // no YAML template supplied
+
+
     po::variables_map vm;
     m_VM = vm;
 }
@@ -586,35 +602,37 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
     // create default strings for std::vector<std::string> types (too hard to do inline)
 
-    std::ostringstream ss;
-
     // debug classes
     std::string defaultDebugClasses;
-    ss << "";
-    for (auto debugClass = p_Options->m_DebugClasses.begin(); debugClass != p_Options->m_DebugClasses.end(); ++debugClass) ss << *debugClass << ",";
-    defaultDebugClasses = ss.str();
+    std::ostringstream ss1;
+    for (auto debugClass = p_Options->m_DebugClasses.begin(); debugClass != p_Options->m_DebugClasses.end(); ++debugClass) ss1 << *debugClass << ",";
+    defaultDebugClasses = ss1.str();
     if (defaultDebugClasses.length() > 0) defaultDebugClasses.erase(defaultDebugClasses.length() - 1);
+    defaultDebugClasses = "{" + defaultDebugClasses + "}";
 
     // log classes
     std::string defaultLogClasses;
-    ss << "";
-    for (auto logClass = p_Options->m_LogClasses.begin(); logClass != p_Options->m_LogClasses.end(); ++logClass) ss << *logClass << ",";
-    defaultLogClasses = ss.str();
+    std::ostringstream ss2;
+    for (auto logClass = p_Options->m_LogClasses.begin(); logClass != p_Options->m_LogClasses.end(); ++logClass) ss2 << *logClass << ",";
+    defaultLogClasses = ss2.str();
     if (defaultLogClasses.length() > 0) defaultLogClasses.erase(defaultLogClasses.length() - 1);
+    defaultLogClasses = "{" + defaultLogClasses + "}";
 
     // annotations
     std::string defaultNotes;
-    ss << "";
-    for (auto note = p_Options->m_Notes.begin(); note != p_Options->m_Notes.end(); ++note) ss << *note << ",";
-    defaultNotes = ss.str();
+    std::ostringstream ss3;
+    for (auto note = p_Options->m_Notes.begin(); note != p_Options->m_Notes.end(); ++note) ss3 << *note << ",";
+    defaultNotes = ss3.str();
     if (defaultNotes.length() > 0) defaultNotes.erase(defaultNotes.length() - 1);
+    defaultNotes = "{" + defaultNotes + "}";
 
     // annotation headers
     std::string defaultNotesHdrs;
-    ss << "";
-    for (auto noteHdr = p_Options->m_NotesHdrs.begin(); noteHdr != p_Options->m_NotesHdrs.end(); ++noteHdr) ss << *noteHdr << ",";
-    defaultNotesHdrs = ss.str();
+    std::ostringstream ss4;
+    for (auto noteHdr = p_Options->m_NotesHdrs.begin(); noteHdr != p_Options->m_NotesHdrs.end(); ++noteHdr) ss4 << *noteHdr << ",";
+    defaultNotesHdrs = ss4.str();
     if (defaultNotesHdrs.length() > 0) defaultNotesHdrs.erase(defaultNotesHdrs.length() - 1);
+    defaultNotesHdrs = "{" + defaultNotesHdrs + "}";
 
 
     // add options
@@ -717,11 +735,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<bool>(&p_Options->m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope)->default_value(p_Options->m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope)->implicit_value(true),
             ("Allow radiative envelope stars to survive common envelope evolution (default = " + std::string(p_Options->m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
         )
-        (
-            "cool-wind-mass-loss-multiplier",                           
-            po::value<double>(&p_Options->m_CoolWindMassLossMultiplier)->default_value(p_Options->m_CoolWindMassLossMultiplier),                                                                  
-            ("Multiplicative constant for wind mass loss of cool stars (default = " + std::to_string(p_Options->m_CoolWindMassLossMultiplier)+ ")").c_str()
-        )
+
         (
             "debug-to-file",                                               
             po::value<bool>(&p_Options->m_DebugToFile)->default_value(p_Options->m_DebugToFile)->implicit_value(true),                                                                            
@@ -732,6 +746,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<bool>(&p_Options->m_DetailedOutput)->default_value(p_Options->m_DetailedOutput)->implicit_value(true),                                                                      
             ("Print detailed output to file (default = " + std::string(p_Options->m_DetailedOutput ? "TRUE" : "FALSE") + ")").c_str()
         )
+
         (
             "enable-warnings",                                             
             po::value<bool>(&p_Options->m_EnableWarnings)->default_value(p_Options->m_EnableWarnings)->implicit_value(true),                                                                      
@@ -752,11 +767,19 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<bool>(&p_Options->m_EvolveUnboundSystems)->default_value(p_Options->m_EvolveUnboundSystems)->implicit_value(true),                                                          
             ("Continue evolving stars even if the binary is disrupted (default = " + std::string(p_Options->m_EvolveUnboundSystems ? "TRUE" : "FALSE") + ")").c_str()
         )
+
+        (
+            "hmxr-binaries",
+            po::value<bool>(&p_Options->m_HMXRBinaries)->default_value(p_Options->m_HMXRBinaries)->implicit_value(true),
+            ("Store HMXRB candidates in BSE_RLOF output file (default = " + std::string(p_Options->m_HMXRBinaries ? "TRUE" : "FALSE") + ")").c_str()
+        )
+
         (
             "mass-transfer",                                                
             po::value<bool>(&p_Options->m_UseMassTransfer)->default_value(p_Options->m_UseMassTransfer)->implicit_value(true),                                                                    
             ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
         )
+
         (
             "pair-instability-supernovae",                                 
             po::value<bool>(&p_Options->m_UsePairInstabilitySupernovae)->default_value(p_Options->m_UsePairInstabilitySupernovae)->implicit_value(true),                                          
@@ -777,11 +800,13 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<bool>(&p_Options->m_UsePulsationalPairInstability)->default_value(p_Options->m_UsePulsationalPairInstability)->implicit_value(true),                                        
             ("Enable mass loss due to pulsational-pair-instability (PPI) (default = " + std::string(p_Options->m_UsePulsationalPairInstability ? "TRUE" : "FALSE") + ")").c_str()
         )
+
         (
             "quiet",                                                       
             po::value<bool>(&p_Options->m_Quiet)->default_value(p_Options->m_Quiet)->implicit_value(true),                                                                                        
             ("Suppress printing (default = " + std::string(p_Options->m_Quiet ? "TRUE" : "FALSE") + ")").c_str()
         )
+
         (
             "retain-core-mass-during-caseA-mass-transfer",
             po::value<bool>(&p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->default_value(p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->implicit_value(true),
@@ -797,15 +822,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<bool>(&p_Options->m_RlofPrinting)->default_value(p_Options->m_RlofPrinting)->implicit_value(true),                                                                          
             ("Enable output parameters before/after RLOF (default = " + std::string(p_Options->m_RlofPrinting ? "TRUE" : "FALSE") + ")").c_str()
         )
+
         (
             "store-input-files",                                                
             po::value<bool>(&p_Options->m_StoreInputFiles)->default_value(p_Options->m_StoreInputFiles)->implicit_value(true),                                                                          
             ("Store input files in output container (default = " + std::string(p_Options->m_StoreInputFiles ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "hmxr-binaries",
-            po::value<bool>(&p_Options->m_HMXRBinaries)->default_value(p_Options->m_HMXRBinaries)->implicit_value(true),
-            ("Store HMXRB candidates in BSE_RLOF output file (default = " + std::string(p_Options->m_HMXRBinaries ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "switch-log",                                                
@@ -870,11 +891,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
         */
         (
-            "logfile-rlof-parameters-record-types",                                 
-            po::value<int>(&p_Options->m_LogfileRLOFParametersRecordTypes)->default_value(p_Options->m_LogfileRLOFParametersRecordTypes),                                                                      
-            ("Enabled record types for BSE RLOF Parameters logfile ( default = " + std::to_string(p_Options->m_LogfileRLOFParametersRecordTypes) + ")").c_str()
-        )
-        (
             "logfile-common-envelopes-record-types",                                
             po::value<int>(&p_Options->m_LogfileCommonEnvelopesRecordTypes)->default_value(p_Options->m_LogfileCommonEnvelopesRecordTypes),                                                                    
             ("Enabled record types for BSE Common Envelopes logfile (default = " + std::to_string(p_Options->m_LogfileCommonEnvelopesRecordTypes) + ")").c_str()
@@ -895,6 +911,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Enabled record types for Pulsar Evolution logfile (default = " + std::to_string(p_Options->m_LogfilePulsarEvolutionRecordTypes) + ")").c_str()
         )
         (
+            "logfile-rlof-parameters-record-types",                                 
+            po::value<int>(&p_Options->m_LogfileRLOFParametersRecordTypes)->default_value(p_Options->m_LogfileRLOFParametersRecordTypes),                                                                      
+            ("Enabled record types for BSE RLOF Parameters logfile ( default = " + std::to_string(p_Options->m_LogfileRLOFParametersRecordTypes) + ")").c_str()
+        )
+        (
             "logfile-supernovae-record-types",                                      
             po::value<int>(&p_Options->m_LogfileSupernovaeRecordTypes)->default_value(p_Options->m_LogfileSupernovaeRecordTypes),                                                                              
             ("Enabled record types for Supernovae logfile (default = " + std::to_string(p_Options->m_LogfileSupernovaeRecordTypes) + ")").c_str()
@@ -904,7 +925,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<int>(&p_Options->m_LogfileSystemParametersRecordTypes)->default_value(p_Options->m_LogfileSystemParametersRecordTypes),                                                                  
             ("Enabled record types for System Parameters logfile (default = " + std::to_string(p_Options->m_LogfileSystemParametersRecordTypes) + ")").c_str()
         )
-
         (
             "log-level",                                                   
             po::value<int>(&p_Options->m_LogLevel)->default_value(p_Options->m_LogLevel),                                                                                                         
@@ -976,7 +996,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<double>(&p_Options->m_ConvectiveEnvelopeTemperatureThreshold)->default_value(p_Options->m_ConvectiveEnvelopeTemperatureThreshold),                                                                  
             ("Temperature [K] threshold, below which the envelopes of giants are convective. Only used for --envelope-state-prescription = FIXED_TEMPERATURE, ignored otherwise. (default = " + std::to_string(p_Options->m_ConvectiveEnvelopeTemperatureThreshold) + ")").c_str()
         )
-
+        (
+            "cool-wind-mass-loss-multiplier",                           
+            po::value<double>(&p_Options->m_CoolWindMassLossMultiplier)->default_value(p_Options->m_CoolWindMassLossMultiplier),                                                                  
+            ("Multiplicative constant for wind mass loss of cool stars (default = " + std::to_string(p_Options->m_CoolWindMassLossMultiplier)+ ")").c_str()
+        )
         (
             "critical-mass-ratio-giant-degenerate-accretor",
             po::value<double>(&p_Options->m_MassTransferCriticalMassRatioGiantDegenerateAccretor)->default_value(p_Options->m_MassTransferCriticalMassRatioGiantDegenerateAccretor),
@@ -1083,6 +1107,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "fix-dimensionless-kick-magnitude",                            
             po::value<double>(&p_Options->m_FixedUK)->default_value(p_Options->m_FixedUK),                                                                                                        
             ("Fix dimensionless kick magnitude uk to this value (default = " + std::to_string(p_Options->m_FixedUK) + ", -ve values false, +ve values true)").c_str()
+        )
+        (
+            "fryer-22-fmix",                                        
+            po::value<double>(&p_Options->m_Fryer22fmix)->default_value(p_Options->m_Fryer22fmix),                                                                                  
+            ("paramter describing the mixing growth time when using the 'FRYER2022' remnant mass distribution (default = " + std::to_string(p_Options->m_Fryer22fmix) + ")").c_str()
+        )
+        (
+            "fryer-22-mcrit",                                        
+            po::value<double>(&p_Options->m_Fryer22Mcrit)->default_value(p_Options->m_Fryer22Mcrit),                                                                                  
+            ("Critical CO core mass for black hole formation when using the 'FRYER2022' remnant mass distribution (default = " + std::to_string(p_Options->m_Fryer22Mcrit) + ")").c_str()
         )
 
         (
@@ -1330,7 +1364,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<double>(&p_Options->m_OrbitalPeriodDistributionMin)->default_value(p_Options->m_OrbitalPeriodDistributionMin),                                                                            
             ("Minimum period, in days, to generate (default = " + std::to_string(p_Options->m_OrbitalPeriodDistributionMin) + ")").c_str()
         )
-
         (
             "overall-wind-mass-loss-multiplier",                           
             po::value<double>(&p_Options->m_OverallWindMassLossMultiplier)->default_value(p_Options->m_OverallWindMassLossMultiplier),                                                                  
@@ -1398,13 +1431,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<double>(&p_Options->m_RotationalFrequency)->default_value(p_Options->m_RotationalFrequency),                                                        
             ("Initial rotational frequency for the star for SSE (Hz) (default = " + std::to_string(p_Options->m_RotationalFrequency) + ")").c_str()
         )        
-
         (
             "rotational-frequency-1",                              
             po::value<double>(&p_Options->m_RotationalFrequency1)->default_value(p_Options->m_RotationalFrequency1),                                                        
             ("Initial rotational frequency for the primary star for BSE (Hz) (default = " + std::to_string(p_Options->m_RotationalFrequency1) + ")").c_str()
         )        
-
         (
             "rotational-frequency-2",                              
             po::value<double>(&p_Options->m_RotationalFrequency2)->default_value(p_Options->m_RotationalFrequency2),                                                        
@@ -1461,72 +1492,66 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "add-options-to-sysparms",                                            
             po::value<std::string>(&p_Options->m_AddOptionsToSysParms.typeString)->default_value(p_Options->m_AddOptionsToSysParms.typeString),                                                                              
-            ("Add program options columns to BSE/SSE SysParms file (options: [ALWAYS, GRID, NEVER], default = " + p_Options->m_AddOptionsToSysParms.typeString + ")").c_str()
+            ("Add program options columns to BSE/SSE SysParms file (" + AllowedOptionValuesFormatted("add-options-to-sysparms") + ", default = '" + p_Options->m_AddOptionsToSysParms.typeString + "')").c_str()
         )
 
         (
             "black-hole-kicks",                                            
             po::value<std::string>(&p_Options->m_BlackHoleKicks.typeString)->default_value(p_Options->m_BlackHoleKicks.typeString),                                                                              
-            ("Black hole kicks relative to NS kicks (options: [FULL, REDUCED, ZERO, FALLBACK], default = " + p_Options->m_BlackHoleKicks.typeString + ")").c_str()
+            ("Black hole kicks relative to NS kicks (" + AllowedOptionValuesFormatted("black-hole-kicks") + ", default = '" + p_Options->m_BlackHoleKicks.typeString + "')").c_str()
         )
 
         (
             "case-BB-stability-prescription",                              
             po::value<std::string>(&p_Options->m_CaseBBStabilityPrescription.typeString)->default_value(p_Options->m_CaseBBStabilityPrescription.typeString),                                                    
-            ("Case BB/BC mass transfer stability prescription (options: [ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE], default = " + p_Options->m_CaseBBStabilityPrescription.typeString + ")").c_str()
+            ("Case BB/BC mass transfer stability prescription (" + AllowedOptionValuesFormatted("case-BB-stability-prescription") + ", default = '" + p_Options->m_CaseBBStabilityPrescription.typeString + "')").c_str()
         )
         (
             "chemically-homogeneous-evolution",                            
             po::value<std::string>(&p_Options->m_CheMode.typeString)->default_value(p_Options->m_CheMode.typeString),                                                                                                    
-            ("Chemically Homogeneous Evolution (options: [NONE, OPTIMISTIC, PESSIMISTIC], default = " + p_Options->m_CheMode.typeString + ")").c_str()
+            ("Chemically Homogeneous Evolution (" + AllowedOptionValuesFormatted("chemically-homogeneous-evolution") + ", default = '" + p_Options->m_CheMode.typeString + "')").c_str()
         )
         (
-         "common-envelope-formalism",
-         po::value<std::string>(&p_Options->m_CommonEnvelopeFormalism.typeString)->default_value(p_Options->m_CommonEnvelopeFormalism.typeString),
-         ("Common envelope formalism (options: [ENERGY, TWO_STAGE], default = " + p_Options->m_CommonEnvelopeFormalism.typeString + ")").c_str()
+            "common-envelope-formalism",
+            po::value<std::string>(&p_Options->m_CommonEnvelopeFormalism.typeString)->default_value(p_Options->m_CommonEnvelopeFormalism.typeString),
+            ("Common envelope formalism (" + AllowedOptionValuesFormatted("common-envelope-formalism") + ", default = '" + p_Options->m_CommonEnvelopeFormalism.typeString + "')").c_str()
         )
         (
             "common-envelope-lambda-prescription",                         
             po::value<std::string>(&p_Options->m_CommonEnvelopeLambdaPrescription.typeString)->default_value(p_Options->m_CommonEnvelopeLambdaPrescription.typeString),                                          
-            ("CE lambda prescription (options: [LAMBDA_FIXED, LAMBDA_LOVERIDGE, LAMBDA_NANJING, LAMBDA_KRUCKOW, LAMBDA_DEWI], default = " + p_Options->m_CommonEnvelopeLambdaPrescription.typeString + ")").c_str()
+            ("CE lambda prescription (" + AllowedOptionValuesFormatted("common-envelope-lambda-prescription") + ", default = '" + p_Options->m_CommonEnvelopeLambdaPrescription.typeString + "')").c_str()
         )
         (
             "common-envelope-mass-accretion-prescription",                 
             po::value<std::string>(&p_Options->m_CommonEnvelopeMassAccretionPrescription.typeString)->default_value(p_Options->m_CommonEnvelopeMassAccretionPrescription.typeString),                            
-            ("Assumption about whether NS/BHs can accrete mass during common envelope evolution (options: [ZERO, CONSTANT, UNIFORM, MACLEOD], default = " + p_Options->m_CommonEnvelopeMassAccretionPrescription.typeString + ")").c_str()
+            ("Assumption about whether NS/BHs can accrete mass during common envelope evolution (" + AllowedOptionValuesFormatted("common-envelope-mass-accretion-prescription") + ", default = '" + p_Options->m_CommonEnvelopeMassAccretionPrescription.typeString + "')").c_str()
         )
-
+        (
+            "create-YAML-file",                           
+            po::value<std::string>(&p_Options->m_YAMLfilename)->default_value(p_Options->m_YAMLfilename),                                                                  
+            ("Create YAML file (default = " + p_Options->m_YAMLfilename + ")").c_str()
+        )
         (
             "critical-mass-ratio-prescription",                                 
             po::value<std::string>(&p_Options->m_QCritPrescription.typeString)->default_value(p_Options->m_QCritPrescription.typeString),
-            ("Prescription for which critical mass ratio prescription to use, if any (options: [NONE, CLAEYS], default = " + p_Options->m_QCritPrescription.typeString + ")").c_str()
+            ("Prescription for which critical mass ratio prescription to use, if any (" + AllowedOptionValuesFormatted("critical-mass-ratio-prescription") + ", default = '" + p_Options->m_QCritPrescription.typeString + "')").c_str()
         )
         
         (
             "eccentricity-distribution",                                 
             po::value<std::string>(&p_Options->m_EccentricityDistribution.typeString)->default_value(p_Options->m_EccentricityDistribution.typeString),                                                          
-            ("Initial eccentricity distribution (options: [ZERO, FLAT, THERMAL, GELLER+2013, DUQUENNOYMAYOR1991, SANA2012], default = " + p_Options->m_EccentricityDistribution.typeString + ")").c_str()
+            ("Initial eccentricity distribution (" + AllowedOptionValuesFormatted("eccentricity-distribution") + ", default = '" + p_Options->m_EccentricityDistribution.typeString + "')").c_str()
         )
         (
             "envelope-state-prescription",                                 
             po::value<std::string>(&p_Options->m_EnvelopeStatePrescription.typeString)->default_value(p_Options->m_EnvelopeStatePrescription.typeString),                                                        
-            ("Prescription for whether the envelope is radiative or convective (options: [LEGACY, HURLEY, FIXED_TEMPERATURE], default = " + p_Options->m_EnvelopeStatePrescription.typeString + ")").c_str()
+            ("Prescription for whether the envelope is radiative or convective (" + AllowedOptionValuesFormatted("envelope-state-prescription") + ", default = '" + p_Options->m_EnvelopeStatePrescription.typeString + "')").c_str()
         )
 
         (
             "fryer-supernova-engine",                                      
             po::value<std::string>(&p_Options->m_FryerSupernovaEngine.typeString)->default_value(p_Options->m_FryerSupernovaEngine.typeString),                                                                  
-            ("If using Fryer et al 2012 fallback prescription. (options: [DELAYED, RAPID], default = " + p_Options->m_FryerSupernovaEngine.typeString + ")").c_str()
-        )
-        (
-            "fryer-22-fmix",                                        
-            po::value<double>(&p_Options->m_Fryer22fmix)->default_value(p_Options->m_Fryer22fmix),                                                                                  
-            ("paramter describing the mixing growth time when using the 'FRYER2022' remnant mass distribution (default = " + std::to_string(p_Options->m_Fryer22fmix) + ")").c_str()
-        )
-        (
-            "fryer-22-mcrit",                                        
-            po::value<double>(&p_Options->m_Fryer22Mcrit)->default_value(p_Options->m_Fryer22Mcrit),                                                                                  
-            ("Critical CO core mass for black hole formation when using the 'FRYER2022' remnant mass distribution (default = " + std::to_string(p_Options->m_Fryer22Mcrit) + ")").c_str()
+            ("If using Fryer et al 2012 fallback prescription (" + AllowedOptionValuesFormatted("fryer-supernova-engine") + ", default = '" + p_Options->m_FryerSupernovaEngine.typeString + "')").c_str()
         )
 
         (
@@ -1538,18 +1563,18 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "initial-mass-function,i",                                     
             po::value<std::string>(&p_Options->m_InitialMassFunction.typeString)->default_value(p_Options->m_InitialMassFunction.typeString),                                                                    
-            ("Initial mass function (options: [SALPETER, POWERLAW, UNIFORM, KROUPA], default = " + p_Options->m_InitialMassFunction.typeString + ")").c_str()
+            ("Initial mass function (" + AllowedOptionValuesFormatted("initial-mass-function") + ", default = '" + p_Options->m_InitialMassFunction.typeString + "')").c_str()
         )
 
         (
             "kick-direction",                                              
             po::value<std::string>(&p_Options->m_KickDirectionDistribution.typeString)->default_value(p_Options->m_KickDirectionDistribution.typeString),                                                        
-            ("Natal kick direction distribution (options: [ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES], default = " + p_Options->m_KickDirectionDistribution.typeString + ")").c_str()
+            ("Natal kick direction distribution (" + AllowedOptionValuesFormatted("kick-direction") + ", default = '" + p_Options->m_KickDirectionDistribution.typeString + "')").c_str()
         )
         (
             "kick-magnitude-distribution",                                 
             po::value<std::string>(&p_Options->m_KickMagnitudeDistribution.typeString)->default_value(p_Options->m_KickMagnitudeDistribution.typeString),                                                        
-            ("Natal kick magnitude distribution (options: [ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL], default = " + p_Options->m_KickMagnitudeDistribution.typeString + ")").c_str()
+            ("Natal kick magnitude distribution (" + AllowedOptionValuesFormatted("kick-magnitude-distribution") + ", default = '" + p_Options->m_KickMagnitudeDistribution.typeString + "')").c_str()
         )
 
         /*
@@ -1613,70 +1638,70 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "logfile-type",                                           
             po::value<std::string>(&p_Options->m_LogfileType.typeString)->default_value(p_Options->m_LogfileType.typeString),                                                                          
-            ("File type for logfiles (options: [HDF5, CSV, TSV, TXT], default = " + p_Options->m_LogfileType.typeString + ")").c_str()
+            ("File type for logfiles (" + AllowedOptionValuesFormatted("logfile-type") + ", default = '" + p_Options->m_LogfileType.typeString + "')").c_str()
         )
-
         (
             "luminous-blue-variable-prescription",                                      
             po::value<std::string>(&p_Options->m_LuminousBlueVariablePrescription.typeString)->default_value(p_Options->m_LuminousBlueVariablePrescription.typeString),                                                                  
-            ("LBV Mass loss prescription (options: [NONE, HURLEY_ADD, HURLEY, BELCZYNSKI], default = " + p_Options->m_LuminousBlueVariablePrescription.typeString + ")").c_str()
+            ("LBV Mass loss prescription (" + AllowedOptionValuesFormatted("luminous-blue-variable-prescription") + ", default = '" + p_Options->m_LuminousBlueVariablePrescription.typeString + "')").c_str()
         )
+
         (
             "mass-loss-prescription",                                      
             po::value<std::string>(&p_Options->m_MassLossPrescription.typeString)->default_value(p_Options->m_MassLossPrescription.typeString),                                                                  
-            ("Mass loss prescription (options: [NONE, HURLEY, VINK], default = " + p_Options->m_MassLossPrescription.typeString + ")").c_str()
+            ("Mass loss prescription (" + AllowedOptionValuesFormatted("mass-loss-prescription") + ", default = '" + p_Options->m_MassLossPrescription.typeString + "')").c_str()
         )
         (
             "mass-ratio-distribution",                                   
             po::value<std::string>(&p_Options->m_MassRatioDistribution.typeString)->default_value(p_Options->m_MassRatioDistribution.typeString),                                                                
-            ("Initial mass ratio distribution for q=m2/m1 (options: [FLAT, DUQUENNOYMAYOR1991, SANA2012], default = " + p_Options->m_MassRatioDistribution.typeString + ")").c_str()
+            ("Initial mass ratio distribution for q=m2/m1 (" + AllowedOptionValuesFormatted("mass-ratio-distribution") + ", default = '" + p_Options->m_MassRatioDistribution.typeString + "')").c_str()
         )
         (
             "mass-transfer-accretion-efficiency-prescription",             
             po::value<std::string>(&p_Options->m_MassTransferAccretionEfficiencyPrescription.typeString)->default_value(p_Options->m_MassTransferAccretionEfficiencyPrescription.typeString),                    
-            ("Mass Transfer Accretion Efficiency prescription (options: [THERMAL, FIXED], default = " + p_Options->m_MassTransferAccretionEfficiencyPrescription.typeString + ")").c_str()
+            ("Mass Transfer Accretion Efficiency prescription (" + AllowedOptionValuesFormatted("mass-transfer-accretion-efficiency-prescription") + ", default = '" + p_Options->m_MassTransferAccretionEfficiencyPrescription.typeString + "')").c_str()
         )
         (
             "mass-transfer-angular-momentum-loss-prescription",            
             po::value<std::string>(&p_Options->m_MassTransferAngularMomentumLossPrescription.typeString)->default_value(p_Options->m_MassTransferAngularMomentumLossPrescription.typeString),                    
-            ("Mass Transfer Angular Momentum Loss prescription (options: [JEANS, ISOTROPIC, CIRCUMBINARY, MACLEOD_LINEAR, ARBITRARY], default = " + p_Options->m_MassTransferAngularMomentumLossPrescription.typeString + ")").c_str()
+            ("Mass Transfer Angular Momentum Loss prescription (" + AllowedOptionValuesFormatted("mass-transfer-angular-momentum-loss-prescription") + ", default = '" + p_Options->m_MassTransferAngularMomentumLossPrescription.typeString + "')").c_str()
         )
         (
             "mass-transfer-rejuvenation-prescription",                     
             po::value<std::string>(&p_Options->m_MassTransferRejuvenationPrescription.typeString)->default_value(p_Options->m_MassTransferRejuvenationPrescription.typeString),                                  
-            ("Mass Transfer Rejuvenation prescription (options: [NONE, STARTRACK], default = " + p_Options->m_MassTransferRejuvenationPrescription.typeString + ")").c_str()
+            ("Mass Transfer Rejuvenation prescription (" + AllowedOptionValuesFormatted("mass-transfer-rejuvenation-prescription") + ", default = '" + p_Options->m_MassTransferRejuvenationPrescription.typeString + "')").c_str()
         )
         (
             "mass-transfer-thermal-limit-accretor",                        
             po::value<std::string>(&p_Options->m_MassTransferThermallyLimitedVariation.typeString)->default_value(p_Options->m_MassTransferThermallyLimitedVariation.typeString),                                
-            ("Mass Transfer Thermal Accretion limit (options: [CFACTOR, ROCHELOBE], default = " + p_Options->m_MassTransferThermallyLimitedVariation.typeString + ")").c_str()
+            ("Mass Transfer Thermal Accretion limit (" + AllowedOptionValuesFormatted("mass-transfer-thermal-limit-accretor") + ", default = '" + p_Options->m_MassTransferThermallyLimitedVariation.typeString + "')").c_str()
         )
         (
             "metallicity-distribution",                                 
             po::value<std::string>(&p_Options->m_MetallicityDistribution.typeString)->default_value(p_Options->m_MetallicityDistribution.typeString),                                                          
-            ("Metallicity distribution (options: [ZSOLAR, LOGUNIFORM], default = " + p_Options->m_MetallicityDistribution.typeString + ")").c_str()
+            ("Metallicity distribution (" + AllowedOptionValuesFormatted("metallicity-distribution") + ", default = '" + p_Options->m_MetallicityDistribution.typeString + "')").c_str()
         )
         (
             "mode",                                                 
             po::value<std::string>(&p_Options->m_EvolutionMode.typeString)->default_value(p_Options->m_EvolutionMode.typeString),                                                                              
-            ("Evolution mode (options: [SSE, BSE], default = " + p_Options->m_EvolutionMode.typeString + ")").c_str()
+            ("Evolution mode (" + AllowedOptionValuesFormatted("mode") + ", default = '" + p_Options->m_EvolutionMode.typeString + "')").c_str()
         )
 
         (
             "neutrino-mass-loss-BH-formation",                             
             po::value<std::string>(&p_Options->m_NeutrinoMassLossAssumptionBH.typeString)->default_value(p_Options->m_NeutrinoMassLossAssumptionBH.typeString),                                                  
-            ("Assumption about neutrino mass loss during BH formation (options: [FIXED_FRACTION, FIXED_MASS], default = " + p_Options->m_NeutrinoMassLossAssumptionBH.typeString + ")").c_str()
+            ("Assumption about neutrino mass loss during BH formation (" + AllowedOptionValuesFormatted("neutrino-mass-loss-BH-formation") + ", default = '" + p_Options->m_NeutrinoMassLossAssumptionBH.typeString + "')").c_str()
         )
         (
             "neutron-star-equation-of-state",                              
             po::value<std::string>(&p_Options->m_NeutronStarEquationOfState.typeString)->default_value(p_Options->m_NeutronStarEquationOfState.typeString),                                                      
-            ("Neutron star equation of state to use (options: [SSE, ARP3], default = " + p_Options->m_NeutronStarEquationOfState.typeString + ")").c_str()
+            ("Neutron star equation of state to use (" + AllowedOptionValuesFormatted("neutron-star-equation-of-state") + ", default = '" + p_Options->m_NeutronStarEquationOfState.typeString + "')").c_str()
         )
 
         (
             "orbital-period-distribution",                              
             po::value<std::string>(&p_Options->m_OrbitalPeriodDistribution.typeString)->default_value(p_Options->m_OrbitalPeriodDistribution.typeString),                                                        
-            ("Initial orbital period distribution (options: [FLATINLOG], default = " + p_Options->m_OrbitalPeriodDistribution.typeString + ")").c_str()
+            ("Initial orbital period distribution (" + AllowedOptionValuesFormatted("orbital-period-distribution") + ", default = '" + p_Options->m_OrbitalPeriodDistribution.typeString + "')").c_str()
         )        
         (
             "output-container,c",                                          
@@ -1692,39 +1717,45 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "pulsar-birth-magnetic-field-distribution",                    
             po::value<std::string>(&p_Options->m_PulsarBirthMagneticFieldDistribution.typeString)->default_value(p_Options->m_PulsarBirthMagneticFieldDistribution.typeString),                                  
-            ("Pulsar Birth Magnetic Field distribution (options: [ZERO, FIXED, FLATINLOG, UNIFORM, LOGNORMAL], default = " + p_Options->m_PulsarBirthMagneticFieldDistribution.typeString + ")").c_str()
+            ("Pulsar Birth Magnetic Field distribution (" + AllowedOptionValuesFormatted("pulsar-birth-magnetic-field-distribution") + ", default = '" + p_Options->m_PulsarBirthMagneticFieldDistribution.typeString + "')").c_str()
         )
         (
             "pulsar-birth-spin-period-distribution",                       
             po::value<std::string>(&p_Options->m_PulsarBirthSpinPeriodDistribution.typeString)->default_value(p_Options->m_PulsarBirthSpinPeriodDistribution.typeString),                                        
-            ("Pulsar Birth Spin Period distribution (options: [ZERO, FIXED, UNIFORM, NORMAL], default = " + p_Options->m_PulsarBirthSpinPeriodDistribution.typeString + ")").c_str()
+            ("Pulsar Birth Spin Period distribution (" + AllowedOptionValuesFormatted("pulsar-birth-spin-period-distribution") + ", default = '" + p_Options->m_PulsarBirthSpinPeriodDistribution.typeString + "')").c_str()
         )
         (
             "pulsational-pair-instability-prescription",                   
             po::value<std::string>(&p_Options->m_PulsationalPairInstabilityPrescription.typeString)->default_value(p_Options->m_PulsationalPairInstabilityPrescription.typeString),                              
-            ("Pulsational Pair Instability prescription (options: [COMPAS, STARTRACK, MARCHANT, FARMER], default = " + p_Options->m_PulsationalPairInstabilityPrescription.typeString + ")").c_str()
+            ("Pulsational Pair Instability prescription (" + AllowedOptionValuesFormatted("pulsational-pair-instability-prescription") + ", default = '" + p_Options->m_PulsationalPairInstabilityPrescription.typeString + "')").c_str()
         )
 
         (
             "remnant-mass-prescription",                                   
             po::value<std::string>(&p_Options->m_RemnantMassPrescription.typeString)->default_value(p_Options->m_RemnantMassPrescription.typeString),                                                            
-            ("Choose remnant mass prescription (options: [HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT], default = " + p_Options->m_RemnantMassPrescription.typeString + ")").c_str()
+            ("Choose remnant mass prescription (" + AllowedOptionValuesFormatted("remnant-mass-prescription") + ", default = '" + p_Options->m_RemnantMassPrescription.typeString + "')").c_str()
         )
         (
             "rotational-velocity-distribution",                            
             po::value<std::string>(&p_Options->m_RotationalVelocityDistribution.typeString)->default_value(p_Options->m_RotationalVelocityDistribution.typeString),                                              
-            ("Initial rotational velocity distribution (options: [ZERO, HURLEY, VLTFLAMES], default = " + p_Options->m_RotationalVelocityDistribution.typeString + ")").c_str()
+            ("Initial rotational velocity distribution (" + AllowedOptionValuesFormatted("rotational-velocity-distribution") + ", default = '" + p_Options->m_RotationalVelocityDistribution.typeString + "')").c_str()
         )
 
         (
             "semi-major-axis-distribution",                              
             po::value<std::string>(&p_Options->m_SemiMajorAxisDistribution.typeString)->default_value(p_Options->m_SemiMajorAxisDistribution.typeString),                                                        
-            ("Initial semi-major axis distribution (options: [FLATINLOG, DUQUENNOYMAYOR1991, SANA2012], default = " + p_Options->m_SemiMajorAxisDistribution.typeString + ")").c_str()
+            ("Initial semi-major axis distribution (" + AllowedOptionValuesFormatted("semi-major-axis-distribution") + ", default = '" + p_Options->m_SemiMajorAxisDistribution.typeString + "')").c_str()
         )        
         (
             "stellar-zeta-prescription",                                   
             po::value<std::string>(&p_Options->m_StellarZetaPrescription.typeString)->default_value(p_Options->m_StellarZetaPrescription.typeString),                                                            
-            ("Prescription for stellar zeta (default = " + p_Options->m_StellarZetaPrescription.typeString + ")").c_str()
+            ("Prescription for stellar zeta (" + AllowedOptionValuesFormatted("stellar-zeta-prescription") + ", default = '" + p_Options->m_StellarZetaPrescription.typeString + "')").c_str()
+        )
+
+        (
+            "YAML-template",                                   
+            po::value<std::string>(&p_Options->m_YAMLtemplate)->default_value(p_Options->m_YAMLtemplate),                                                            
+            ("User-supplied YAML template filename (default = " + p_Options->m_YAMLtemplate + ")").c_str()
         )
 
 
@@ -1939,7 +1970,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         m_FixedRandomSeed  = !DEFAULTED("random-seed");                                                                             // use random seed if it is provided by the user
         m_UseFixedUK       = !DEFAULTED("fix-dimensionless-kick-magnitude") && (m_FixedUK >= 0.0);                                  // determine if user supplied a valid kick magnitude
 
-        if (!DEFAULTED("add-options_to-sysparms")) {                                                                                // add program options to BSE/SSE sysparms
+        if (!DEFAULTED("add-options-to-sysparms")) {                                                                                // add program options to BSE/SSE sysparms
             std::tie(found, m_AddOptionsToSysParms.type) = utils::GetMapKey(m_AddOptionsToSysParms.typeString, ADD_OPTIONS_TO_SYSPARMS_LABEL, m_AddOptionsToSysParms.type);
             COMPLAIN_IF(!found, "Unknown Add Options to SysParms Option");
         }
@@ -2246,6 +2277,165 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
 
 /*
+ * Build option defaults map from the boost option descriptions
+ *
+ * The map key is the option name string, and the value the default string as
+ * stored by boost.
+ * 
+ * void Options::BuildDefaultsMap(po::options_description *p_OptionsDescription)
+ * 
+ * 
+ * @param   [IN]    p_OptionsDescription        pointer to boost option descriptions object
+ */
+
+void Options::BuildDefaultsMap(po::options_description *p_OptionsDescription) {
+
+    // parse option descriptions and extract default values
+    // build default values map
+    // descriptions formatted by boost, so can make some assumptions
+    std::stringstream ss;                                                                                   // to hold option descriptions
+    ss << *p_OptionsDescription;                                                                            // capture options descriptions ...
+    std::string descriptions = ss.str();                                                                    // ... as string
+
+    size_t pos  = 0;
+    size_t prev = 0;
+    while ((pos = descriptions.find('\n', prev)) != std::string::npos) {                                    // extract individual option descriptions (split at newline)
+        std::string rec = descriptions.substr(prev, pos - prev);                                            // this option description
+        rec  = utils::trim(rec);                                                                            // trim whitespace
+        prev = pos + 1;                                                                                     // set up for next option
+
+        // have option description - parse it
+        if (rec.substr(0, 2) == "--" || (rec[0] = '-' && rec.substr(3, 4) == "[ --")) {                     // option description?
+                                                                                                            // yes
+            // strip the preamble
+            if (rec.substr(0, 2) == "--") rec = rec.substr(2, rec.length() - 2);
+            else rec = rec.substr(7, rec.length() - 7);
+
+            // parse the option details
+            // get option string - skip if not found
+            // look for default string - use "" if not found
+            size_t p = rec.find(' ');                                                                       // find end of option name string
+            if (p != std::string::npos) {                                                                   // found?
+                if (p > 0) {                                                                                // yes non-empty option string?
+                    std::string optionStr = rec.substr(0, p);                                               // yes - capture option string
+                    std::string defaultStr = "";                                                            // default default string is empty string
+                    size_t p1 = rec.find("(=", p);                                                          // look for default value container ("(=")
+                    if (p1 != std::string::npos) {                                                          // found?
+                        size_t p2 = rec.find(")", p1);                                                      // yes - look for container end container (")")
+                        if (p2 != std::string::npos) {                                                      // found?
+                            size_t len = p2 - p1 - 2;                                                       // yes - length of default value string
+                            if (len > 0) {                                                                  // non-empty string?
+                                defaultStr = rec.substr(p1 + 2, len);                                       // capture default string
+                            }
+                        }
+                    }
+                    m_optionDefaults.insert(std::pair<std::string, std::string>(optionStr, defaultStr));    // add to map
+                }
+            }
+        }
+    }
+}
+
+
+/*
+ * Get allowed values for a specified option
+ *
+ * This function pertains to string options with multiple-choices - in that the user can select from
+ * a list of possible values recorded in constants.h in an ENUM CLASS and corresponding COMPASUnorderedMap
+ * labels map.
+ * 
+ * 
+ * std::vector<std::string> Options::AllowedOptionValues(const std::string p_OptionString)
+ * 
+ * 
+ * @param   [IN]    p_OptionString              String containing option name
+ * @return                                      Vector containing allowed option value strings
+ */
+std::vector<std::string> Options::AllowedOptionValues(const std::string p_OptionString) {
+#define POPULATE_RET(mapname) for (auto& it: mapname) ret.push_back("'" + it.second + "'")  // for convenience and readability - undefined at end of function
+
+    std::vector<std::string> ret;           // initially empty
+
+    switch (_(p_OptionString.c_str())) {    // which option?
+
+        case _("add-options-to-sysparms")                           : POPULATE_RET(ADD_OPTIONS_TO_SYSPARMS_LABEL);                  break;
+        case _("black-hole-kicks")                                  : POPULATE_RET(BLACK_HOLE_KICKS_LABEL);                         break;
+        case _("case-BB-stability-prescription")                    : POPULATE_RET(CASE_BB_STABILITY_PRESCRIPTION_LABEL);           break;
+        case _("chemically-homogeneous-evolution")                  : POPULATE_RET(CHE_MODE_LABEL);                                 break;
+        case _("common-envelope-formalism")                         : POPULATE_RET(CE_FORMALISM_LABEL);                             break;
+        case _("common-envelope-lambda-prescription")               : POPULATE_RET(CE_LAMBDA_PRESCRIPTION_LABEL);                   break;
+        case _("common-envelope-mass-accretion-prescription")       : POPULATE_RET(CE_ACCRETION_PRESCRIPTION_LABEL);                break;
+        case _("critical-mass-ratio-prescription")                  : POPULATE_RET(QCRIT_PRESCRIPTION_LABEL);                       break;
+        case _("envelope-state-prescription")                       : POPULATE_RET(ENVELOPE_STATE_PRESCRIPTION_LABEL);              break;
+        case _("eccentricity-distribution")                         : POPULATE_RET(ECCENTRICITY_DISTRIBUTION_LABEL);                break;
+        case _("fryer-supernova-engine")                            : POPULATE_RET(SN_ENGINE_LABEL);                                break;
+        case _("initial-mass-function")                             : POPULATE_RET(INITIAL_MASS_FUNCTION_LABEL);                    break;
+        case _("kick-direction")                                    : POPULATE_RET(KICK_DIRECTION_DISTRIBUTION_LABEL);              break;
+        case _("kick-magnitude-distribution")                       : POPULATE_RET(KICK_MAGNITUDE_DISTRIBUTION_LABEL);              break;
+        case _("logfile-type")                                      : POPULATE_RET(LOGFILETYPELabel);                               break;
+        case _("luminous-blue-variable-prescription")               : POPULATE_RET(LBV_PRESCRIPTION_LABEL);                         break;
+        case _("mass-loss-prescription")                            : POPULATE_RET(MASS_LOSS_PRESCRIPTION_LABEL);                   break;
+        case _("mass-ratio-distribution")                           : POPULATE_RET(MASS_RATIO_DISTRIBUTION_LABEL);                  break;
+        case _("mass-transfer-accretion-efficiency-prescription")   : POPULATE_RET(MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL);     break;
+        case _("mass-transfer-angular-momentum-loss-prescription")  : POPULATE_RET(MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL);    break;
+        case _("mass-transfer-rejuvenation-prescription")           : POPULATE_RET(MT_REJUVENATION_PRESCRIPTION_LABEL);             break;
+        case _("mass-transfer-thermal-limit-accretor")              : POPULATE_RET(MT_THERMALLY_LIMITED_VARIATION_LABEL);           break;
+        case _("metallicity-distribution")                          : POPULATE_RET(METALLICITY_DISTRIBUTION_LABEL);                 break;
+        case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                           break;
+        case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);          break;
+        case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOSLabel);                                    break;
+        case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);              break;
+        case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL); break;
+        case _("pulsar-birth-spin-period-distribution")             : POPULATE_RET(PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);    break;
+        case _("pulsational-pair-instability-prescription")         : POPULATE_RET(PPI_PRESCRIPTION_LABEL);                         break;
+        case _("remnant-mass-prescription")                         : POPULATE_RET(REMNANT_MASS_PRESCRIPTION_LABEL);                break;
+        case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);         break;
+        case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);             break;
+        case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                        break;
+        default: break;
+    }
+    return ret;
+
+#undef POPULATE_RET
+}
+                
+
+/*
+ * Get formatted allowed values for a specified option
+ *
+ * See description of Options::AllowedOptionValues()
+ * 
+ * Returns string formatted with allowed option values for option specified in p_OptionString.
+ * e.g. for ligfile-type option:
+ * 
+ *         "Options: ['TXT','TSV','CSV','HDF5','NONE']"
+ * 
+ * The allowed values are listed in the order they are stored in the COMPASUnorderedMap in constants.h.
+ * We could instead list them in alphabetical order, but the assumption is that the order in constants.h
+ * was deliberate, so we'll maintain it - if that's not true then we could just sort alphabetically here.
+ * 
+ * 
+ * std::string Options::AllowedOptionValuesFormatted(const std::string p_OptionString)
+ * 
+ * 
+ * @param   [IN]    p_OptionString              String containing option name
+ * @return                                      Formatted string (see example above)
+ */
+std::string Options::AllowedOptionValuesFormatted(const std::string p_OptionString) {
+
+    std::vector<std::string> allowedValues = AllowedOptionValues(p_OptionString);   // get allowed values
+    std::string str = "Options: [";                                                 // formatted string
+    for (size_t idx = 0; idx < allowedValues.size(); idx++) {                       // for each allowed value
+        str += allowedValues[idx];                                                  // show allowed value
+        if (idx < allowedValues.size() - 1) str += ",";                             // add delimiter if necessary
+    }
+    str += "]";                                                                     // close bracket
+
+    return str;                                                                     // return foamtted string
+}
+
+
+/*
  * Determine if the user specified a value for the option
  *
  * Note that this function does not check whether the option string
@@ -2297,7 +2487,7 @@ int Options::OptionSpecified(const std::string p_OptionString) {
  * The attributes are returned as a tuple, described by typedef ATTR, containing
  * 
  *     - dataType       TYPENAME (high-level) data type of the attribute.  Will be one of {NONE, BOOL, INT, FLOAT, STRING}
- *     - defaulted      BOOL     flag to indicate if the option was specified by the user or defaulted to the defaulty value
+ *     - defaulted      BOOL     flag to indicate if the option was specified by the user or defaulted to the default value
  *     - typeStr        STRING   detailed data type returned as a string (e.g. "UNSIGNED LONG INT" etc.)
  *     - valueStr       STRING   the value of the option returned as a string (e.g. "2.3", "BSE" etc.)
  * 
@@ -2319,7 +2509,7 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
 
     if (((boost::any)p_IT->second.value()).empty()) return std::make_tuple(TYPENAME::NONE, true, "", "");   // empty option 
 
-    // determine if option values was supplied, or whether the default was used
+    // determine if option value was supplied, or whether the default was used
 
     defaulted = (p_VM[p_IT->first].defaulted() || p_IT->second.defaulted());
 
@@ -2461,35 +2651,42 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
  * per star/binary Run_Details file)
  * 
  * 
- * std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> Options::OptionDetails(const OptionsDescriptorT &p_Options)
+ * std::vector<OptionDetailsT> Options::OptionDetails(const OptionsDescriptorT &p_Options)
  * 
  * @param   [IN]    p_Options                   The options descriptor to use to build the output string
  * @return                                      Vector containing the option details for Run_Details
  */
-std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> Options::OptionDetails(const OptionsDescriptorT &p_Options) {
+std::vector<OptionDetailsT> Options::OptionDetails(const OptionsDescriptorT &p_Options) {
 
-    std::vector<std::tuple<std::string, std::string, std::string, std::string, TYPENAME>> optionDetails = {};
+    std::vector<OptionDetailsT> optionDetails = {};
 
     TYPENAME    dataType  = TYPENAME::NONE;
     std::string typeStr   = "";
     bool        defaulted = false;
     std::string valueStr  = "";
 
-    for (po::variables_map::const_iterator it = p_Options.optionValues.m_VM.begin(); it != p_Options.optionValues.m_VM.end(); it++) {                                   // for all options in the variable map
+    for (po::variables_map::const_iterator it = p_Options.optionValues.m_VM.begin(); it != p_Options.optionValues.m_VM.end(); it++) {                           // for all options in the variable map
 
-        std::tie(dataType, defaulted, typeStr, valueStr) = OptionAttributes(p_Options.optionValues.m_VM, it);                                                           // get option attributes
+        std::string optionStr = it->first;                                                                                                                      // option string
+        std::tie(dataType, defaulted, typeStr, valueStr) = OptionAttributes(p_Options.optionValues.m_VM, it);                                                   // get option attributes
+        std::vector<std::string> allowedValues = AllowedOptionValues(optionStr);                                                                                // get allowed option values if appropriate
 
-        if (valueStr == "")                                                                                                                                             // empty option?
-            optionDetails.push_back(std::make_tuple(it->first, "<EMPTY_OPTION>", "<EMPTY_OPTION>", "<EMPTY_OPTION>", TYPENAME::NONE));                                  // yes - say so
-        else                                                                                                                                                            // no
-            optionDetails.push_back(std::make_tuple(it->first, valueStr, (defaulted ? "DEFAULT_USED" : "USER_SUPPLIED"), typeStr, dataType));                           // add option details to return vector
+        std::map<std::string, std::string>::iterator mit;                                                                                                       // iterator for defaults map
+        std::string defaultStr = "";                                                                                                                            // default string - initially empty
+        mit = m_optionDefaults.find(optionStr);                                                                                                                 // find option string in map
+        if (mit != m_optionDefaults.end()) defaultStr = mit->second;                                                                                            // set default string if found, otherwise empty
+
+        if (valueStr == "")                                                                                                                                     // empty option?
+            optionDetails.push_back({it->first, "<EMPTY_OPTION>", "<EMPTY_OPTION>", "<EMPTY_OPTION>", TYPENAME::NONE, defaultStr, allowedValues});              // yes - say so
+        else                                                                                                                                                    // no
+            optionDetails.push_back({it->first, valueStr, (defaulted ? "DEFAULT_USED" : "USER_SUPPLIED"), typeStr, dataType, defaultStr, allowedValues});       // add option details to return vector
     }
   
     // add other (calculated) options
 
-    optionDetails.push_back(std::make_tuple("useFixedUK", (p_Options.optionValues.m_UseFixedUK ? "TRUE" : "FALSE"), "CALCULATED", "BOOL", TYPENAME::BOOL));             // useFixedUK
-    optionDetails.push_back(std::make_tuple("actual-output-path", p_Options.optionValues.m_OutputPath.string(), "CALCULATED", "STRING", TYPENAME::STRING));             // output-path
-    optionDetails.push_back(std::make_tuple("fixedRandomSeed", (p_Options.optionValues.m_FixedRandomSeed ? "TRUE" : "FALSE"), "CALCULATED", "BOOL", TYPENAME::BOOL));   // fixedRandomSeed
+    optionDetails.push_back({"useFixedUK", (p_Options.optionValues.m_UseFixedUK ? "TRUE" : "FALSE"), "CALCULATED", "BOOL", TYPENAME::BOOL, "", {}});            // useFixedUK
+    optionDetails.push_back({"actual-output-path", p_Options.optionValues.m_OutputPath.string(), "CALCULATED", "STRING", TYPENAME::STRING, "", {}});            // output-path
+    optionDetails.push_back({"fixedRandomSeed", (p_Options.optionValues.m_FixedRandomSeed ? "TRUE" : "FALSE"), "CALCULATED", "BOOL", TYPENAME::BOOL, "", {}});  // fixedRandomSeed
 
     return optionDetails;
 }
@@ -3431,6 +3628,8 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
             COMPLAIN(ERR_MSG(ERROR::BOOST_OPTION_CMDLINE));                                                         // no, complain - this throws an exception
         }
         else {                                                                                                      // yes, ok
+            
+            BuildDefaultsMap(&programLevelOptions);                                                                 // build option defaults map
 
             m_CmdLine.optionDescriptions.add(programLevelOptions);                                                  // commandline options - stays static throughout the life of the program
     
@@ -4158,8 +4357,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE                         : value = static_cast<int>(FryerSupernovaEngine());                             break;
 
-        case PROGRAM_OPTION::FRYER22_FMIX                                   : value = Fryer22fmix();                                       break;
-        case PROGRAM_OPTION::FRYER22_MCRIT                                  : value = Fryer22Mcrit();                                       break;
+        case PROGRAM_OPTION::FRYER22_FMIX                                   : value = Fryer22fmix();                                                        break;
+        case PROGRAM_OPTION::FRYER22_MCRIT                                  : value = Fryer22Mcrit();                                                       break;
 
         case PROGRAM_OPTION::INITIAL_MASS                                   : value = InitialMass();                                                        break;
         case PROGRAM_OPTION::INITIAL_MASS_1                                 : value = InitialMass1();                                                       break;
@@ -4249,7 +4448,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH               : value = MullerMandelKickMultiplierBH();                                       break;
         case PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS               : value = MullerMandelKickMultiplierNS();                                       break;
-        case PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK                       : value = MullerMandelSigmaKick();                                             break;
+        case PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK                       : value = MullerMandelSigmaKick();                                              break;
 
         case PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH               : value = static_cast<int>(NeutrinoMassLossAssumptionBH());                     break;
         case PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH                    : value = NeutrinoMassLossValueBH();                                            break;
