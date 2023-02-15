@@ -216,7 +216,7 @@ public:
 
     void            InitialiseMassTransfer(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
 
-    void            ResolveCommonEnvelopeAccretion(const double p_FinalMass, const STELLAR_TYPE p_StellarType);
+    void            ResolveCommonEnvelopeAccretion(const double p_FinalMass);
 
     void            SetPostCEEValues();
     void            SetPreCEEValues();
