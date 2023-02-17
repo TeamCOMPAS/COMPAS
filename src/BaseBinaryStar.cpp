@@ -395,6 +395,7 @@ void BaseBinaryStar::SetRemainingValues() {
     m_Unbound                                    = false;
 
     m_SystemicVelocity                           = Vector3d();
+    m_OrbitalAngularMomentumVector               = Vector3d();
 	m_ThetaE                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_PhiE                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_PsiE                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -664,7 +665,10 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE:              value = STELLAR_TYPE_LABEL.at(StellarType1PreCEE());                        break;
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE:             value = STELLAR_TYPE_LABEL.at(StellarType2PostCEE());                       break;
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE:              value = STELLAR_TYPE_LABEL.at(StellarType2PreCEE());                        break;
-        case BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE:                    value = SN_OrbitInclinationAngle();                                                         break;
+        case BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE:                    value = SN_OrbitInclinationAngle();                                         break;
+        case BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_X:                 value = SN_OrbitInclinationVectorX();                                       break;
+        case BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y:                 value = SN_OrbitInclinationVectorY();                                       break;
+        case BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z:                 value = SN_OrbitInclinationVectorZ();                                       break;
         case BINARY_PROPERTY::SUPERNOVA_STATE:                                      value = SN_State();                                                         break;
         case BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE:                            value = SynchronizationTimescale();                                         break;
         case BINARY_PROPERTY::SYSTEMIC_SPEED:                                       value = SystemicSpeed();                                                    break;
@@ -1277,9 +1281,11 @@ bool BaseBinaryStar::ResolveSupernova() {
 
         Vector3d orbitalAngularMomentumVector = cross(separationVectorPrev, relativeVelocityVector);                    // km^2 s^-1  - PostSN specific orbital angular momentum vector
         double   orbitalAngularMomentum = orbitalAngularMomentumVector.mag;                                             // km^2 s^-1  - PostSN specific orbital angular momentum 
+        m_OrbitalAngularMomentumVector = orbitalAngularMomentumVector/orbitalAngularMomentum;                           // set unit vector here to make printing out the inclination vector easier
 
-        Vector3d eccentricityVector = cross(relativeVelocityVector, orbitalAngularMomentumVector) / (G_SN * totalMass) - separationVectorPrev / separationPrev;                                            // --         - PostSN Laplace-Runge-Lenz vector
-        m_Eccentricity = eccentricityVector.mag;                                                                        // --         - PostSN eccentricity
+        Vector3d eccentricityVector = cross(relativeVelocityVector, orbitalAngularMomentumVector) / (G_SN * totalMass) 
+                                      - separationVectorPrev / separationPrev;                                          // PostSN Laplace-Runge-Lenz vector
+        m_Eccentricity = eccentricityVector.mag;                                                                        // PostSN eccentricity
         double eccSquared = m_Eccentricity * m_Eccentricity;                                                            // useful function of eccentricity
 
         double semiMajorAxis_km = (orbitalAngularMomentum*orbitalAngularMomentum) / (G_SN * totalMass * (1 - eccSquared));  // km         - PostSN semi-major axis
