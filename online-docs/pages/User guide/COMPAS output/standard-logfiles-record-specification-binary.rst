@@ -1676,7 +1676,7 @@ both. If both are printed then the file will contain two columns with the same h
    * - COMPAS variable:
      - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.xValue()  
    * - Description:
-     - x-component of the post-SN orbital AM in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
+     - x-component of the post-SN orbital AM unit vector in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
    * - Header String:
      - Orbital_AM_Vector>SN_X
 
@@ -1692,7 +1692,7 @@ both. If both are printed then the file will contain two columns with the same h
    * - COMPAS variable:
      - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.yValue()  
    * - Description:
-     - y-component of the post-SN orbital AM in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
+     - y-component of the post-SN orbital AM unit vector in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
    * - Header String:
      - Orbital_AM_Vector>SN_Y
 
@@ -1708,7 +1708,7 @@ both. If both are printed then the file will contain two columns with the same h
    * - COMPAS variable:
      - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.zValue()  
    * - Description:
-     - z-component of the post-SN orbital AM in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
+     - z-component of the post-SN orbital AM unit vector in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
    * - Header String:
      - Orbital_AM_Vector>SN_Z
 
