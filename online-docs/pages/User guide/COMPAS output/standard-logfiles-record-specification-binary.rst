@@ -865,6 +865,38 @@ but not both. If both are printed then the file will contain two columns with th
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_RLOFDetails.propsPostMT→starToRocheLobeRadiusRatio1
+   * - Description:
+     - Ratio of star 1 radius to its RL, at the end of the timestep.
+   * - Header String:
+     - Radius(1)|RL>step
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_RLOFDetails.propsPostMT→starToRocheLobeRadiusRatio2
+   * - Description:
+     - Ratio of star 2 radius to its RL, at the end of the timestep.
+   * - Header String:
+     - Radius(2)|RL>step
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **RLOF_PRE_MT_ECCENTRICITY**
      -
    * - Data type:
@@ -1063,6 +1095,38 @@ but not both. If both are printed then the file will contain two columns with th
 
 `Note that this property has the same header string as RLOF_PRE_MT_STAR2_STELLAR_TYPE. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_RLOFDetails.propsPreMT→starToRocheLobeRadiusRatio1
+   * - Description:
+     - Ratio of star 1 radius to its RL, at the beginning of the timestep.
+   * - Header String:
+     - Radius(1)|RL<step
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_RLOFDetails.propsPreMT→starToRocheLobeRadiusRatio2
+   * - Description:
+     - Ratio of star 2 radius to its RL, at the beginning of the timestep.
+   * - Header String:
+     - Radius(2)|RL<step
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1599,6 +1663,54 @@ both. If both are printed then the file will contain two columns with the same h
      - Indicates the inclination angle between the pre-supernova and post-supernova orbits, between [0, \ :math:`\pi`]  
    * - Header String:
      - Supernova_Orbit_Inclination_Angle
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SUPERNOVA_ORBIT_INCLINATION_VECTOR_X**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.xValue()  
+   * - Description:
+     - x-component of the post-SN orbital AM unit vector in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
+   * - Header String:
+     - Orbital_AM_Vector>SN_X
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.yValue()  
+   * - Description:
+     - y-component of the post-SN orbital AM unit vector in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
+   * - Header String:
+     - Orbital_AM_Vector>SN_Y
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.zValue()  
+   * - Description:
+     - z-component of the post-SN orbital AM unit vector in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
+   * - Header String:
+     - Orbital_AM_Vector>SN_Z
 
 .. flat-table::
    :widths: 25 75 1 1
