@@ -290,7 +290,7 @@ constexpr double NEWTON_RAPHSON_EPSILON                 = 1.0E-5;               
 
 constexpr double EPSILON_PULSAR                         = 1.0;                                                      // JR: todo: description
 
-constexpr double MIN_HMXRB_STAR_TO_ROCHE_LOBE_RADIUS_RATIO  = 0.8;                                                      // Minimum value of stellar radius | Roche Lobe radius for visible HMXRBs
+constexpr double MIN_HMXRB_STAR_TO_ROCHE_LOBE_RADIUS_RATIO  = 0.8;                                                  // Minimum value of stellar radius | Roche Lobe radius for visible HMXRBs
 
 constexpr double ADAPTIVE_RLOF_FRACTION_DONOR_GUESS     = 0.001;                                                    // Fraction of donor mass to use as guess in MassLossToFitInsideRocheLobe()
 constexpr int    ADAPTIVE_RLOF_MAX_ITERATIONS           = 50;                                                       // Maximum number of iterations in MassLossToFitInsideRocheLobe()
@@ -2812,8 +2812,8 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME,                { TYPENAME::STRING,         "Stellar_Type(1)>MT",    "-",               42, 1 }},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE,                     { TYPENAME::STELLAR_TYPE,   "Stellar_Type(2)>MT",    "-",                4, 1 }},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME,                { TYPENAME::STRING,         "Stellar_Type(2)>MT",    "-",               42, 1 }},
-    { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,    { TYPENAME::DOUBLE,         "Radius(1)|RL>step",      "-",              14, 6 }},
-    { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,    { TYPENAME::DOUBLE,         "Radius(2)|RL>step",      "-",              14, 6 }},
+    { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,    { TYPENAME::DOUBLE,         "Radius(1)|RL>step",    "-",                14, 6 }},
+    { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,    { TYPENAME::DOUBLE,         "Radius(2)|RL>step",    "-",                14, 6 }},
     { BINARY_PROPERTY::RLOF_PRE_MT_ECCENTRICITY,                            { TYPENAME::DOUBLE,         "Eccentricity<MT",      "-",                14, 6 }},
     { BINARY_PROPERTY::RLOF_PRE_MT_SEMI_MAJOR_AXIS,                         { TYPENAME::DOUBLE,         "SemiMajorAxis<MT",     "Rsol",             14, 6 }},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_MASS,                              { TYPENAME::DOUBLE,         "Mass(1)<MT",           "Msol",             14, 6 }},
@@ -2826,15 +2826,15 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME,                 { TYPENAME::STRING,         "Stellar_Type(1)<MT",   "-",                42, 1 }},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE,                      { TYPENAME::STELLAR_TYPE,   "Stellar_Type(2)<MT",   "-",                 4, 1 }},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME,                 { TYPENAME::STRING,         "Stellar_Type(2)<MT",   "-",                42, 1 }},
-    { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,     { TYPENAME::DOUBLE,         "Radius(1)|RL<step",      "-",              14, 6 }},
-    { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,     { TYPENAME::DOUBLE,         "Radius(2)|RL<step",      "-",              14, 6 }},
+    { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,     { TYPENAME::DOUBLE,         "Radius(1)|RL<step",    "-",                14, 6 }},
+    { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,     { TYPENAME::DOUBLE,         "Radius(2)|RL<step",    "-",                14, 6 }},
     { BINARY_PROPERTY::RLOF_SECONDARY_POST_COMMON_ENVELOPE,                 { TYPENAME::BOOL,           "RLOF_Secondary>CE",    "Event",             0, 0 }},
     { BINARY_PROPERTY::RLOF_TIME_POST_MT,                                   { TYPENAME::DOUBLE,         "Time>MT",              "Myr",              16, 8 }},
     { BINARY_PROPERTY::RLOF_TIME_PRE_MT,                                    { TYPENAME::DOUBLE,         "Time<MT",              "Myr",              16, 8 }},
-    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1,                                 { TYPENAME::DOUBLE,         "RocheLobe(1)|a",       "-",                14, 6 }},
+    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1,                                 { TYPENAME::DOUBLE,         "RocheLobe(1)",         "Rsol",             14, 6 }},
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE,            { TYPENAME::DOUBLE,         "RocheLobe(1)>CE",      "Rsol",             14, 6 }},
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE,             { TYPENAME::DOUBLE,         "RocheLobe(1)<CE",      "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2,                                 { TYPENAME::DOUBLE,         "RocheLobe(2)|a",       "-",                14, 6 }},
+    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2,                                 { TYPENAME::DOUBLE,         "RocheLobe(2)",         "Rsol",             14, 6 }},
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_POST_COMMON_ENVELOPE,            { TYPENAME::DOUBLE,         "RocheLobe(2)>CE",      "Rsol",             14, 6 }},
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_PRE_COMMON_ENVELOPE,             { TYPENAME::DOUBLE,         "RocheLobe(2)<CE",      "Rsol",             14, 6 }},
     { BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,                   { TYPENAME::DOUBLE,         "Radius(1)|RL",         "-",                14, 6 }},
@@ -2860,7 +2860,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE,            { TYPENAME::STRING,         "Stellar_Type(2)>CE",   "-",                42, 1 }},
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE,             { TYPENAME::STRING,         "Stellar_Type(2)<CE",   "-",                42, 1 }},
     { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE,                   { TYPENAME::DOUBLE,         "Supernova_Orbit_Inclination_Angle", "-",   14, 6 }},   
-    { BINARY_PROPERTY::SUPERNOVA_STATE,                                     { TYPENAME::SN_STATE,       "Supernova_State",      "State",             4, 1 }},   // JR: todo: for backward compatibility
+    { BINARY_PROPERTY::SUPERNOVA_STATE,                                     { TYPENAME::SN_STATE,       "Supernova_State",      "State",             4, 1 }},
     { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE,                           { TYPENAME::DOUBLE,         "Tau_Sync",             "Myr",              16, 8 }},
     { BINARY_PROPERTY::SYSTEMIC_SPEED,                                      { TYPENAME::DOUBLE,         "SystemicSpeed",        "kms^-1",           14, 6 }},
     { BINARY_PROPERTY::TIME,                                                { TYPENAME::DOUBLE,         "Time",                 "Myr",              16, 8 }},
@@ -3235,8 +3235,6 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_2_PROPERTY::RADIUS,
     BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1,
     BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2,
-    BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,
-    BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,
     STAR_1_PROPERTY::OMEGA,
     STAR_2_PROPERTY::OMEGA,
     STAR_1_PROPERTY::OMEGA_BREAK,
