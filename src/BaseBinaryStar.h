@@ -98,7 +98,7 @@ public:
         m_SynchronizationTimescale         = p_Star.m_SynchronizationTimescale;
 
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
-
+        m_OrbitalAngularMomentumVector     = p_Star.m_OrbitalAngularMomentumVector;
         m_ThetaE                           = p_Star.m_ThetaE;
         m_PhiE                             = p_Star.m_PhiE;  
         m_PsiE                             = p_Star.m_PsiE;  
@@ -251,6 +251,9 @@ public:
     STELLAR_TYPE        StellarType2PostCEE() const                 { return m_Star2->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
     double              SN_OrbitInclinationAngle() const            { return m_ThetaE; }
+    double              SN_OrbitInclinationVectorX() const          { return m_OrbitalAngularMomentumVector.xValue(); }
+    double              SN_OrbitInclinationVectorY() const          { return m_OrbitalAngularMomentumVector.yValue(); }
+    double              SN_OrbitInclinationVectorZ() const          { return m_OrbitalAngularMomentumVector.zValue(); }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
     double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
     double              SystemicSpeed() const                       { return m_SystemicVelocity.Magnitude(); }
@@ -355,6 +358,7 @@ private:
     double              m_SynchronizationTimescale;
 
     Vector3d            m_SystemicVelocity;                                                 // Systemic velocity vector, relative to ZAMS Center of Mass
+    Vector3d            m_OrbitalAngularMomentumVector;                                     // Orbital AM vector postSN, in preSN frame
     double              m_ThetaE;                                                           // Euler Theta
     double              m_PhiE;                                                             // Euler Phi                
     double              m_PsiE;                                                             // Euler Psi
