@@ -1904,7 +1904,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     // Calculate accretion fraction if stable
     // This passes the accretor's Roche lobe radius to m_Accretor->CalculateThermalMassAcceptanceRate()
     // just in case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE is used; otherwise, the radius input is ignored
-    double accretorRLradius = CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL * p_SemiMajorAxis * (1.0 - p_Eccentricity);
+    double accretorRLradius = CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL * m_SemiMajorAxis * (1.0 - m_Eccentricity);
     std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(), m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius));
 
     if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {           // arbitrary angular momentum loss prescription?
