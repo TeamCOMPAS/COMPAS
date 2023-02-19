@@ -977,6 +977,8 @@
 //                                      - Changed header string for ROCHE_LOBE_RADIUS_1 from "RocheLobe(1)|a" to "RocheLobe(1)" - ditto for ROCHE_LOBE_RADIUS_2
 //                                      - removed STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 ("Radius(1)|RL")and STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 ("Radius(2)|RL") from
 //                                        the default output for BSE_DETAILED_OUTPUT_REC (can be calulated from other values in the default output)
+//                                      - changed plot_detailed_evolution.py to accomodate the removal of STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 and 
+//                                        STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 from the default output
 //                                      - fixed minor defect in call to m_Accretor->CalculateMassAcceptanceRate() in BaseBinaryStar::CalculateMassTransfer()
 //                                        (only affected runs with mass-transfer-thermal-limit-accretor = RADIUS_TO_ROCHELOBE)
 
