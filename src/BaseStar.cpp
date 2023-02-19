@@ -2210,7 +2210,7 @@ double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) const
     
     switch( OPTIONS->MassTransferThermallyLimitedVariation() ) {
         case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE:
-            return (m_Mass - m_CoreMass) / CalculateThermalTimescale(p_Radius) ;            // uses provided accretor radius (should be Roche lobe radius in practice)
+            return (m_Mass - m_CoreMass) / CalculateThermalTimescale(p_Radius);             // uses provided accretor radius (should be Roche lobe radius in practice)
         case MT_THERMALLY_LIMITED_VARIATION::C_FACTOR:
         default:
             return CalculateThermalMassLossRate();
