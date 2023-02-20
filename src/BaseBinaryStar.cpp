@@ -1504,10 +1504,10 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     double rRLd1Rsol = periastronRsol * CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass());              // Roche-lobe radius at periastron in Rsol at the moment where CEE begins, seen by star1
     double rRLd2Rsol = periastronRsol * CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass());              // Roche-lobe radius at periastron in Rsol at the moment where CEE begins, seen by star2
     
-    bool isDonorMS = false;                                                                                               // check for main sequence donor
+    bool isDonorMS = false;                                                                                             // check for main sequence donor
     if (OPTIONS->AllowMainSequenceStarToSurviveCommonEnvelope()) {                                                      // allow main sequence stars to survive CEE?
         if (m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) {                                                                      // yes - star1 MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS?
-            isDonorMS      = isDonorMS || m_Star1->IsRLOF();                                                                // yes - donor MS?
+            isDonorMS      = isDonorMS || m_Star1->IsRLOF();                                                            // yes - donor MS?
             m_Mass1Final = m_Star1->Mass();                                                                             // set mass
             m_MassEnv1   = 0.0;                                                                                         // no envelope
         }
@@ -1517,7 +1517,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         }
 
         if (m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) {                                                                      // star2 MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS?
-            isDonorMS      = isDonorMS || m_Star2->IsRLOF();                                                                // yes - donor MS?
+            isDonorMS      = isDonorMS || m_Star2->IsRLOF();                                                            // yes - donor MS?
             m_Mass2Final = m_Star2->Mass();                                                                             // yes - set mass
             m_MassEnv2   = 0.0;                                                                                         // no envelope
         }
@@ -1562,7 +1562,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     if( OPTIONS->CommonEnvelopeFormalism() == CE_FORMALISM::ENERGY ) {
         double k1            = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * m_MassEnv1 / m_Star1->Radius();
         double k2            = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * m_MassEnv2 / m_Star2->Radius();
-        double k3            = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                          //assumes immediate circularisation at periastron at start of CE
+        double k3            = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                      //assumes immediate circularisation at periastron at start of CE
         double k4            = (m_Mass1Final * m_Mass2Final);
         double aFinalRsol    = k4 / (k1 + k2 + k3);
         m_SemiMajorAxis      = aFinalRsol*RSOL_TO_AU;
@@ -1580,7 +1580,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         // Stage 1: convective envelope removal on a dynamical timescale
         double k1            = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * convectiveEnvelopeMass1 / m_Star1->Radius();
         double k2            = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * convectiveEnvelopeMass2 / m_Star2->Radius();
-        double k3            = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                          //assumes immediate circularisation at periastron at start of CE
+        double k3            = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                      //assumes immediate circularisation at periastron at start of CE
         double k4            = (endOfFirstStageMass1 * endOfFirstStageMass2);
         double aFinalRsol    = k4 / (k1 + k2 + k3);
         m_SemiMajorAxis      = aFinalRsol*RSOL_TO_AU;
@@ -1684,7 +1684,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
  */
 double BaseBinaryStar::CalculateRocheLobeRadius_Static(const double p_MassPrimary, const double p_MassSecondary) {
     double q = p_MassPrimary / p_MassSecondary;
-    double qCubeRoot = PPOW(q, 1.0 / 3.0);                                                                           // cube roots are expensive, only compute once
+    double qCubeRoot = PPOW(q, 1.0 / 3.0);                                                                              // cube roots are expensive, only compute once
     return 0.49 / (0.6 + log(1.0 + qCubeRoot) / qCubeRoot / qCubeRoot);
 }
 
