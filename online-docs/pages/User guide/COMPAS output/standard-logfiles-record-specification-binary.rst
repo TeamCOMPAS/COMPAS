@@ -1172,7 +1172,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - COMPAS variable:
      - `calculated on demand`
    * - Description:
-     - Roche radius of the primary star (\ :math:`R_\odot`).
+     - Roche radius at peripasis of the primary star (\ :math:`R_\odot`).
    * - Header String:
      - RocheLobe(1)
 
@@ -1188,7 +1188,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - COMPAS variable:
      - `calculated on demand`
    * - Description:
-     - Roche radius of the secondary star (\ :math:`R_\odot`).
+     - Roche radius at peripasis of the secondary star (\ :math:`R_\odot`).
    * - Header String:
      - RocheLobe(2)
 
