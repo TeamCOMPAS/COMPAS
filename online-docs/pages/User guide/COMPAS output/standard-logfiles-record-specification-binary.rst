@@ -1170,11 +1170,11 @@ but not both. If both are printed then the file will contain two columns with th
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BinaryConstituentStar::m_RocheLobeRadius
+     - `calculated on demand`
    * - Description:
-     - Roche radius of the primary star (\ :math:`R_\odot`).
+     - Roche radius at peripasis of the primary star (\ :math:`R_\odot`).
    * - Header String:
-     - RocheLobe(1)|a
+     - RocheLobe(1)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1186,11 +1186,11 @@ but not both. If both are printed then the file will contain two columns with th
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BinaryConstituentStar::m_RocheLobeRadius
+     - `calculated on demand`
    * - Description:
-     - Roche radius of the secondary star (\ :math:`R_\odot`).
+     - Roche radius at peripasis of the secondary star (\ :math:`R_\odot`).
    * - Header String:
-     - RocheLobe(2)|a
+     - RocheLobe(2)
 
 .. flat-table::
    :widths: 25 75 1 1
