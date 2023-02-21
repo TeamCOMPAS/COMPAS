@@ -233,7 +233,7 @@ stringChoices:
     # drop the prefixes
     --logfile-type: 'HDF5'
     --logfile-name-prefix: 
-    --logfile-definitions:  
+    --logfile-definitions:
     --logfile-common-envelopes:
     --logfile-detailed-output: 
     --logfile-double-compact-objects: 
