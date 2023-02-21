@@ -29,11 +29,12 @@ function at the bottom of this file.
 See the original comments below for clarity.
 """
 
-
 # -*- coding: utf-8 -*-
 
 import numpy as np
 import scipy.integrate
+import argparse
+import sys
 
 def idl_tabulate(x, f, p=5) :
     def newton_cotes(x, f) :
@@ -501,17 +502,18 @@ def createParameterGridfile(gridname, nSamples, m1Min=5, m1Max=100):
 
             fwrite.write('--initial-mass-1 {} --initial-mass-2 {} --orbital-period {} --eccentricity {}\n'.format(m1, m2, P, e))
 
+def parse_args(cli_args=[]):
+    default_n = int(1e5)
+    parser = argparse.ArgumentParser(description='Generate a grid of initial conditions for a binary population')
+    parser.add_argument('--gridname', type=str, default=f'grid_moedistefano_sSamples{default_n}.txt', help='Name of the grid file to create')
+    parser.add_argument('--nSamples', type=int, default=int(1e5), help='Number of samples to create')
+    parser.add_argument('--m1Min', type=float, default=5, help='Minimum primary mass')
+    parser.add_argument('--m1Max', type=float, default=100, help='Maximum primary mass')
+    return vars(parser.parse_args(args=cli_args))
 
-
-
+def main(cli_args=sys.argv[1:]):
+    args = parse_args(cli_args)
+    createParameterGridfile(**args)
 
 if __name__ == "__main__":
-
-    # USER SET PARAMETERS
-    nSamples=1e5
-    m1Min=5 
-    m1Max=100
-
-    # LEAVE THESE 
-    gridname = 'grid_moedistefano_nSamples{}.txt'.format(int(nSamples))
-    createParameterGridfile(gridname=gridname, nSamples=nSamples, m1Min=m1Min, m1Max=m1Max)
+    main()
