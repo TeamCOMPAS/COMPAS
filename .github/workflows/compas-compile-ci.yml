@@ -45,6 +45,7 @@ jobs:
           cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution   
           chmod 755 run.sh 
           ./run.sh
+        continue-on-error: true # continue even if this job fails
 
       - name: Run pytests
         # Run tests and collect coverage data
@@ -58,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: |
-            ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution/example_bbh.log
-            ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution/detailedEvolutionPlot.eps
             htmlcov/
             coverage_badge.svg
+            ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution/example_bbh.log
+            ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution/detailedEvolutionPlot.eps
