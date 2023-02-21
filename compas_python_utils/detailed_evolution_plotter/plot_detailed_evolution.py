@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import argparse
 
-COMPAS_ROOT_DIR = os.path.expandvars(os.environ['COMPAS_ROOT_DIR'])
-VAN_DEN_HEUVEL_DIR = os.path.join(COMPAS_ROOT_DIR, 'utils/media/van_den_heuvel_figures/)
+HERE = os.path.dirname(os.path.abspath(__file__))
+VAN_DEN_HEUVEL_DIR = os.path.join(HERE, 'van_den_heuvel_figures')
 
 
 def main():
