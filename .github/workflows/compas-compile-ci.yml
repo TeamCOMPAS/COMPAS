@@ -43,8 +43,8 @@ jobs:
           python3 -m pip install .
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
           cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution   
-          echo "Run example COMPAS job"
-          python3 runSubmitDemo.py  
+          chmod 755 run.sh
+          ./run.sh
           echo "Testing COMPAS python post-processing scripts"
           cd ${GITHUB_WORKSPACE}
           pytest py_tests/

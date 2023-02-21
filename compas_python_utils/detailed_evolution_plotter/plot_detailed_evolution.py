@@ -17,7 +17,9 @@ VAN_DEN_HEUVEL_DIR = os.path.join(HERE, 'van_den_heuvel_figures')
 
 def main():
     parser = argparse.ArgumentParser(description='Plot detailed evolution of a COMPAS binary population')
-    parser.add_argument('data_path', type=str, help='Path to the COMPAS BSE_Detailed_Output file')
+    default_data_path = "./COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5"
+    parser.add_argument('data_path', type=str, default=default_data_path,
+                        help='Path to the COMPAS BSE_Detailed_Output file')
     parser.add_argument('--outdir', type=str, default='.', help='Path to the directory to save the figures')
     parser.add_argument('--dont-show', action='store_false', help='Dont show the plots')
     args = parser.parse_args()
@@ -537,7 +539,7 @@ class Event(object):
                 beta = 64 / 5 * G ** 3 * m1 * m2 * (m1 + m2) * Msunkg ** 3 / c ** 5
                 T0 = a ** 4 / 4 / beta
                 Tdelay = T0 * (1 - e ** 2) ** (7 / 2) * (
-                            1 + 0.31 * e ** 10 + 0.27 * e ** 20 + 0.2 * e ** 1000) / 3.15e7 / 1e6
+                        1 + 0.31 * e ** 10 + 0.27 * e ** 20 + 0.2 * e ** 1000) / 3.15e7 / 1e6
                 eventString = r'Double compact object ({}+{}) merging in {:.2e} Myr'.format(self.stypeName1,
                                                                                             self.stypeName2, Tdelay)
 
@@ -641,7 +643,7 @@ class allEvents(object):
         if not isMerger:  # set if a merger was flagged earlier
             isUnbound = (Data['Eccentricity'][-1] > 1 or Data['SemiMajorAxis'][-1] < 0)
             isDCO = (Data['Stellar_Type(1)'][-1] in np.arange(10, 15)) and (
-                        Data['Stellar_Type(2)'][-1] in np.arange(10, 15))  # Both stars are WDs, NSs, or BHs
+                    Data['Stellar_Type(2)'][-1] in np.arange(10, 15))  # Both stars are WDs, NSs, or BHs
 
             if isUnbound:
                 state = "Unbound"
