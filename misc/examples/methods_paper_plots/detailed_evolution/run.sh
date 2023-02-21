@@ -4,7 +4,7 @@ cat example_bbh.log
 echo "Out files:"
 ls -l
 echo "Generating detailed evolution plot"
-compas_plot_detailed_evolution "./COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5"
+compas_plot_detailed_evolution "./COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5" >> example_bbh.log
 
 
 

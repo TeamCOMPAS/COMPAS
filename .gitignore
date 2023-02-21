@@ -23,6 +23,7 @@ Thumbs.db
 __pycache__/
 COMPAS_Output*/
 output*/
+*.coverage
 
 COMPAS
 *.log
