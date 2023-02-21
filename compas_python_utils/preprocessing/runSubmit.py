@@ -10,7 +10,7 @@ python_version = sys.version_info[0]
 print("python_version =", python_version)
 
 HERE = os.path.dirname(__file__)
-DEFUALT_CONFIG_FILE = os.path.join(HERE, 'compasConfigDefault.yaml')
+DEFAULT_CONFIG_FILE = os.path.join(HERE, 'compasConfigDefault.yaml')
 
 
 class pythonProgramOptions:
@@ -18,7 +18,7 @@ class pythonProgramOptions:
     A class to store and access COMPAS program options in python
     """
 
-    def __init__(self, config_file=DEFUALT_CONFIG_FILE, grid_filename=None,
+    def __init__(self, config_file=DEFAULT_CONFIG_FILE, grid_filename=None,
                  random_seed_filename='randomSeed.txt', output_directory=None):
         # Do './COMPAS --help' to see all options
         # -- Define variables
@@ -32,6 +32,7 @@ class pythonProgramOptions:
         # in the bin directory (rather than the src directory)
 
         # Load yaml file with options
+        print('output_dir is ' + output_directory)
         with open(config_file) as file:
             # The FullLoader parameter handles the conversion from YAML
             # scalar values to Python the dictionary format
@@ -74,8 +75,7 @@ class pythonProgramOptions:
 
         if (compas_logs_output_override is None):
             self.stringChoices['--output-path'] = os.getcwd()
-            self.stringChoices[
-                '--output-container'] = output_directory  # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
+            self.stringChoices[ '--output-container'] = output_directory  # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
         else:
             self.stringChoices['--output-path'] = compas_logs_output_override
             self.stringChoices['--output-container'] = output_directory
@@ -142,15 +142,16 @@ class pythonProgramOptions:
             self.shellCommand += ' ' + key + ' ' + val
 
         return
-def main():
+
+def main(**kwargs):
     parser = argparse.ArgumentParser(description='Run COMPAS')
-    parser.add_argument('config_file', type=str, default=DEFUALT_CONFIG_FILE)
+    parser.add_argument('config_file', type=str, default=DEFAULT_CONFIG_FILE, nargs='?')
     args = parser.parse_args()
-    # -- Get the program options
-    myoptions = pythonProgramOptions(config_file=args.config_file)
+    myoptions = pythonProgramOptions(config_file=args.config_file, **kwargs)
     print(myoptions.shellCommand)
     # -- Run exectute COMPAS shell string
     call(myoptions.shellCommand, shell=True)
+    print('how now')
 
 
 if __name__ == "__main__":
