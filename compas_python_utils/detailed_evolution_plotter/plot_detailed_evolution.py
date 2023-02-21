@@ -12,11 +12,10 @@ from matplotlib import rcParams
 import argparse
 
 COMPAS_ROOT_DIR = os.path.expandvars(os.environ['COMPAS_ROOT_DIR'])
-VAN_DEN_HEUVEL_DIR = os.path.join(COMPAS_ROOT_DIR, 'utils/media/van_den_heuvel_figures/)
-
+VAN_DEN_HEUVEL_DIR = os.path.join(COMPAS_ROOT_DIR, 'compas_python_utils/detailed_evolution_plotter/van_den_heuvel_figures/')
 
 def main():
-    parser = argparse.ArgumentParser(description='Plot detailed evolution of a COMPAS binary population')
+    parser = argparse.ArgumentParser(description='Plot detailed evolution of a COMPAS binary')
     parser.add_argument('data_path', type=str, help='Path to the COMPAS BSE_Detailed_Output file')
     parser.add_argument('--outdir', type=str, default='.', help='Path to the directory to save the figures')
     parser.add_argument('--dont-show', action='store_false', help='Dont show the plots')
