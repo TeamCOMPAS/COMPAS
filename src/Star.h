@@ -73,7 +73,6 @@ public:
     STELLAR_TYPE        InitialStellarType() const                                                                  { return m_Star->InitialStellarType(); }
     STELLAR_TYPE        StellarType() const                                                                         { return m_Star->StellarType(); }
 
-
     // getters - alphabetically
     double              Age() const                                                                                 { return m_Star->Age(); }
     double              BindingEnergy_Fixed() const                                                                 { return m_Star->BindingEnergy_Fixed(); }
