@@ -143,15 +143,23 @@ class pythonProgramOptions:
 
         return
 
-def main(**kwargs):
-    parser = argparse.ArgumentParser(description='Run COMPAS')
-    parser.add_argument('config_file', type=str, default=DEFAULT_CONFIG_FILE, nargs='?')
-    args = parser.parse_args()
-    myoptions = pythonProgramOptions(config_file=args.config_file, **kwargs)
+
+def runSubmit(cli_args=[DEFUALT_CONFIG_FILE], execute=True):
+    parser = argparse.ArgumentParser(
+        description='Run COMPAS using a config yaml (for settings refer to ./COMPAS --help)'
+    )
+    parser.add_argument('config_file', type=str, default=DEFUALT_CONFIG_FILE)
+    args = parser.parse_args(cli_args)
+    # -- Get the program options
+    myoptions = pythonProgramOptions(config_file=args.config_file)
     print(myoptions.shellCommand)
-    # -- Run exectute COMPAS shell string
-    call(myoptions.shellCommand, shell=True)
-    print('how now')
+    if execute:  # Exectute COMPAS shell string
+        call(myoptions.shellCommand, shell=True)
+
+
+def main():
+    cli_args = sys.argv[1:]
+    runSubmit(cli_args=cli_args, execute=True)
 
 
 if __name__ == "__main__":
