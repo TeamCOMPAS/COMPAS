@@ -708,6 +708,7 @@ public:
 	        double                                              m_KickMagnitudeDistributionSigmaForECSN;			            // Kick magnitude sigma for ECSN in km s^-1 (default = "0" )
 	        double                                              m_KickMagnitudeDistributionSigmaForUSSN;			            // Kick magnitude sigma for USSN in km s^-1 (default = "20" )
 	        double                                              m_KickScalingFactor;								            // Arbitrary factor for scaling kicks
+	        double                                              m_KickFryerYoungKConv;								            // Enhancement factor for kicks from larger CO cores. 
 
             // Kick direction options
             ENUM_OPT<KICK_DIRECTION_DISTRIBUTION>               m_KickDirectionDistribution;                                    // Kick direction distribution
@@ -1214,6 +1215,7 @@ public:
     KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return OPT_VALUE("kick-direction", m_KickDirectionDistribution.type, true); }
     double                                      KickDirectionPower() const                                              { return OPT_VALUE("kick-direction-power", m_KickDirectionPower, true); }
     double                                      KickScalingFactor() const                                               { return OPT_VALUE("kick-scaling-factor", m_KickScalingFactor, true); }
+    double                                      KickFryerYoungKConv() const                                             { return OPT_VALUE("kick-fryer-young-k-conv", m_KickFryerYoungKConv, true); }
     KICK_MAGNITUDE_DISTRIBUTION                 KickMagnitudeDistribution() const                                       { return OPT_VALUE("kick-magnitude-distribution", m_KickMagnitudeDistribution.type, true); }
 
     double                                      KickMagnitudeDistributionMaximum() const                                { return OPT_VALUE("kick-magnitude-max", m_KickMagnitudeDistributionMaximum, true); }

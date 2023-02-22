@@ -255,6 +255,7 @@ void Options::OptionValues::Initialise() {
     m_KickMagnitudeDistributionSigmaForECSN                         = 30.0;
     m_KickMagnitudeDistributionSigmaForUSSN   	                    = 30.0;
 	m_KickScalingFactor						                        = 1.0;
+	m_KickFryerYoungKConv						                    = 5.0;
 
     // Kick direction option
     m_KickDirectionDistribution.type                                = KICK_DIRECTION_DISTRIBUTION::ISOTROPIC;
@@ -1122,6 +1123,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Power for power law kick direction distribution (default = " + std::to_string(p_Options->m_KickDirectionPower) + " = isotropic, +ve = polar, -ve = in plane)").c_str()
         )
         (
+            "kick-fryer-young-k-conv",                                         
+            po::value<double>(&p_Options->m_KickFryerYoungKConv)->default_value(p_Options->m_KickFryerYoungKConv),                                                                                    
+            ("Enhancement factor for kicks from larger CO cores when using the FRYERYOUNG2007 black hole kick prescription (default = " + std::to_string(p_Options->m_KickFryerYoungKConv) + ")").c_str()
+        )
+        (
             "kick-magnitude",                                          
             po::value<double>(&p_Options->m_KickMagnitude)->default_value(p_Options->m_KickMagnitude),                                                      
             ("The magnitude of the kick velocity, in km/s, that the star receives during the a supernova (default = " + std::to_string(p_Options->m_KickMagnitude) + ")").c_str()
@@ -1467,7 +1473,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "black-hole-kicks",                                            
             po::value<std::string>(&p_Options->m_BlackHoleKicks.typeString)->default_value(p_Options->m_BlackHoleKicks.typeString),                                                                              
-            ("Black hole kicks relative to NS kicks (options: [FULL, REDUCED, ZERO, FALLBACK], default = " + p_Options->m_BlackHoleKicks.typeString + ")").c_str()
+            ("Black hole kicks relative to NS kicks (options: [FULL, REDUCED, ZERO, FALLBACK, FRYERYOUNG2007], default = " + p_Options->m_BlackHoleKicks.typeString + ")").c_str()
         )
 
         (
@@ -4173,6 +4179,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION                    : value = static_cast<int>(KickDirectionDistribution());                        break;
         case PROGRAM_OPTION::KICK_DIRECTION_POWER                           : value = KickDirectionPower();                                                 break;
         case PROGRAM_OPTION::KICK_SCALING_FACTOR                            : value = KickScalingFactor();                                                  break;
+        case PROGRAM_OPTION::KICK_FRYERYOUNGKCONV                           : value = KickFryerYoungKConv();                                                break; 
         case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION                    : value = static_cast<int>(KickMagnitudeDistribution());                        break;
         case PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_MAXIMUM            : value = KickMagnitudeDistributionMaximum();                                   break;
 

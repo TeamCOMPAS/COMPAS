@@ -984,8 +984,10 @@
 //                                           (b) change of header strings for ROCHE_LOBE_RADIUS_1 and ROCHE_LOBE_RADIUS_2 (units already (accidentally...) correct)
 //                                      - fixed minor defect in call to m_Accretor->CalculateMassAcceptanceRate() in BaseBinaryStar::CalculateMassTransfer()
 //                                        (only affected runs with mass-transfer-thermal-limit-accretor = RADIUS_TO_ROCHELOBE)
+// 02.35.03     RTW - Feb 22, 2022   - Enhancement:
+//                                      - Added BH kick from Fryer & Young 2007, as described in Banerjee et al. 2020
 
-const std::string VERSION_STRING = "02.35.02";
+const std::string VERSION_STRING = "02.35.03";
 
 
 # endif // __changelog_h__

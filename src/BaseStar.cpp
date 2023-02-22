@@ -2707,6 +2707,10 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
             vK = p_vK * (1.0 - p_FallbackFraction);
             break;
 
+        case BLACK_HOLE_KICKS::FRYERYOUNG2007:
+            vK = p_vK * (1.0 - p_FallbackFraction) * NEUTRON_STAR_MASS / p_BlackHoleMass; 
+
+
         default:                                                    // unknown BH kick option - shouldn't happen
             vK = p_vK;                                              // return vK unchanged
             m_Error = ERROR::UNKNOWN_BH_KICK_OPTION;                // set error value
@@ -2891,19 +2895,24 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
             break;
 
         case KICK_MAGNITUDE_DISTRIBUTION::MULLER2016MAXWELLIAN: {                                // MULLER2016-MAXWELLIAN
-
             double mullerSigma = DrawRemnantKickMuller(p_COCoreMass) / std::sqrt(3.0);
 
             kickMagnitude = DrawKickMagnitudeDistributionMaxwell(mullerSigma, p_Rand);
             } break;
 
-        case  KICK_MAGNITUDE_DISTRIBUTION::MULLERMANDEL:                                          // MULLERMANDEL
+        case KICK_MAGNITUDE_DISTRIBUTION::MULLERMANDEL:                                          // MULLERMANDEL
             kickMagnitude = DrawRemnantKickMullerMandel(p_COCoreMass, p_Rand, p_RemnantMass);
             break;
 
         default:                                                                                // unknown distribution
-            SHOW_WARN(ERROR::UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION, "Using default: MAXWELL");     // show warning
+            SHOW_WARN(ERROR::UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION, "Using default: MAXWELL");    // show warning
             kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);
+    }
+
+    if (OPTIONS->BlackHoleKicks() == BLACK_HOLE_KICKS::FRYERYOUNG2007) {                        // FryerYoung2007 modifies high mass NS kicks in addition to BHs
+        if (p_COCoreMass > 3.5) {
+            kickMagnitude *= OPTIONS->KickFryerYoungKConv();
+        }
     }
 
     return kickMagnitude / OPTIONS->KickScalingFactor();

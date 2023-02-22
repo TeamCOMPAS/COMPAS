@@ -791,12 +791,13 @@ const COMPASUnorderedMap<EVOLUTION_MODE, std::string> EVOLUTION_MODE_LABEL = {
 // user specified distributions, assumptions etc.
 
 // Black Hole Kick Options
-enum class BLACK_HOLE_KICKS: int { FULL, REDUCED, ZERO, FALLBACK };
+enum class BLACK_HOLE_KICKS: int { FULL, REDUCED, ZERO, FALLBACK, FRYERYOUNG2007};
 const COMPASUnorderedMap<BLACK_HOLE_KICKS, std::string> BLACK_HOLE_KICKS_LABEL = {
-    { BLACK_HOLE_KICKS::FULL,     "FULL" },     // FULL kicks
-    { BLACK_HOLE_KICKS::REDUCED,  "REDUCED" },  // REDUCED kicks
-    { BLACK_HOLE_KICKS::ZERO,     "ZERO" },     // ZERO kicks
-    { BLACK_HOLE_KICKS::FALLBACK, "FALLBACK" }  // FALLBACK kicks
+    { BLACK_HOLE_KICKS::FULL,           "FULL" },           // FULL kicks
+    { BLACK_HOLE_KICKS::REDUCED,        "REDUCED" },        // REDUCED kicks
+    { BLACK_HOLE_KICKS::ZERO,           "ZERO" },           // ZERO kicks
+    { BLACK_HOLE_KICKS::FALLBACK,       "FALLBACK" },       // FALLBACK kicks
+    { BLACK_HOLE_KICKS::FRYERYOUNG2007, "FRYERYOUNG2007" }  // FRYERYOUNG2007 kicks
 };
 
 
@@ -2238,6 +2239,7 @@ enum class PROGRAM_OPTION: int {
 
     KICK_DIRECTION_DISTRIBUTION,
     KICK_DIRECTION_POWER,
+    KICK_FRYERYOUNGKCONV, 
     KICK_SCALING_FACTOR,
     KICK_MAGNITUDE_DISTRIBUTION,
     KICK_MAGNITUDE_DISTRIBUTION_MAXIMUM,
