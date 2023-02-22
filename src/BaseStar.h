@@ -56,7 +56,7 @@ public:
             ERROR               Error() const                                                   { return m_Error; }
             bool                ExperiencedAIC() const                                          { return (m_SupernovaDetails.events.past & SN_EVENT::AIC) == SN_EVENT::AIC; }
             bool                ExperiencedCCSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
-            bool                ExperiencedDD() const                                           { return (m_SupernovaDetails.events.past & SN_EVENT::DD) == SN_EVENT::DD; }
+            bool                ExperiencedHeSD() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
             bool                ExperiencedECSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
             bool                ExperiencedPISN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::PISN) == SN_EVENT::PISN; }
             bool                ExperiencedPPISN() const                                        { return (m_SupernovaDetails.events.past & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
@@ -66,7 +66,7 @@ public:
             double              HeCoreMass() const                                              { return m_HeCoreMass; }
             bool                IsAIC() const                                                   { return (m_SupernovaDetails.events.current & SN_EVENT::AIC) == SN_EVENT::AIC; }
             bool                IsCCSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
-            bool                IsDD() const                                                    { return (m_SupernovaDetails.events.current & SN_EVENT::DD) == SN_EVENT::DD; }
+            bool                IsHeSD() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
     virtual bool                IsDegenerate() const                                            { return false; }   // default is not degenerate - White Dwarfs, NS and BH are degenerate
             bool                IsECSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
             bool                IsOneOf(const STELLAR_TYPE_LIST p_List) const;

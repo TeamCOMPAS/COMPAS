@@ -88,7 +88,7 @@ protected:
 
             STELLAR_TYPE ResolveAIC();  
             STELLAR_TYPE ResolveSNIa();  
-            STELLAR_TYPE ResolveDD();  
+            STELLAR_TYPE ResolveHeSD();  
             STELLAR_TYPE ResolveSupernova()                                         { return EvolveToNextPhase(); }                         // SNe for WDs are handled internally to each WD type
 
             ACCRETION_REGIME WhiteDwarfAccretionRegime() const                      { return m_AccretionRegime; }

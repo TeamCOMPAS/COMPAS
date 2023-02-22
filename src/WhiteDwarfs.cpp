@@ -93,7 +93,7 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
  * @return                                 Accretion efficency during the first stron helium flash, Piersanti+ 2014
  */
 double WhiteDwarfs::CalculateEtaPTY(const double p_MassTransferRate) {
-    double etaPTY;
+    double etaPTY = 0.0;
     double massRate        = p_MassTransferRate;
 
     // Limits on each conditional statement come from masses from each model in Piersanti+ 2014. The final etaPTY value is based on table A3.
@@ -248,11 +248,11 @@ STELLAR_TYPE WhiteDwarfs::ResolveSNIa() {
  *
  * A double detonation results in a massless remnant.
  *
- * STELLAR_TYPE ResolveDD() 
+ * STELLAR_TYPE ResolveHeSD() 
  *
  * @return                                      Stellar type of remnant (STELLAR_TYPE::MASSLESS_REMNANT if SN, otherwise current type)
  */
-STELLAR_TYPE WhiteDwarfs::ResolveDD() { 
+STELLAR_TYPE WhiteDwarfs::ResolveHeSD() { 
 
     if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
 
@@ -264,8 +264,8 @@ STELLAR_TYPE WhiteDwarfs::ResolveDD() {
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
 
-    SetSNCurrentEvent(SN_EVENT::DD);                                                  // SN Type Ia happening now
-    SetSNPastEvent(SN_EVENT::DD);                                                     // ... and will be a past event
+    SetSNCurrentEvent(SN_EVENT::HeSD);                                                  // SN Type Ia (HeSD) happening now
+    SetSNPastEvent(SN_EVENT::HeSD);                                                     // ... and will be a past event
 
     return STELLAR_TYPE::MASSLESS_REMNANT;
 }

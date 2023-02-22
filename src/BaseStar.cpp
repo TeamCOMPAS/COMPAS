@@ -298,7 +298,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass()-CoreMass();                                      break;
             case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
             case ANY_STAR_PROPERTY::EXPERIENCED_AIC:                                    value = ExperiencedAIC();                                       break;
-            case ANY_STAR_PROPERTY::EXPERIENCED_DD:                                     value = ExperiencedDD();                                        break;
+            case ANY_STAR_PROPERTY::EXPERIENCED_HeSD:                                   value = ExperiencedHeSD();                                        break;
             case ANY_STAR_PROPERTY::EXPERIENCED_CCSN:                                   value = ExperiencedCCSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_ECSN:                                   value = ExperiencedECSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_PISN:                                   value = ExperiencedPISN();                                      break;
@@ -315,7 +315,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
             case ANY_STAR_PROPERTY::IS_AIC:                                             value = IsAIC();                                                break;
             case ANY_STAR_PROPERTY::IS_CCSN:                                            value = IsCCSN();                                               break;
-            case ANY_STAR_PROPERTY::IS_DD:                                              value = IsDD();                                                 break;
+            case ANY_STAR_PROPERTY::IS_HeSD:                                            value = IsHeSD();                                               break;
             case ANY_STAR_PROPERTY::IS_ECSN:                                            value = IsECSN();                                               break;
             case ANY_STAR_PROPERTY::IS_PISN:                                            value = IsPISN();                                               break;
             case ANY_STAR_PROPERTY::IS_PPISN:                                           value = IsPPISN();                                              break;
@@ -2946,7 +2946,7 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
 
 		    case SN_EVENT::AIC:                                                                     // AIC have 0 kick 
 		    case SN_EVENT::SNIA:                                                                    // SNIA have 0 kick 
-		    case SN_EVENT::DD:                                                                      // DD have 0 kick 
+		    case SN_EVENT::HeSD:                                                                    // HeSD have 0 kick 
 			    sigma = 0;
                 break;
 

@@ -1224,7 +1224,7 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 // time - necessary for the code flow (from the legacy code) - which we should probably one
 // day look at and rewrite).
 //
-// DD stands for double detonation
+// HeSD stands for helium-shell detonation
 //
 // A convenience function has been provided in utils.cpp to interpret the bit map (utils::SNEventType()).
 // Given an SN_EVENT bitmap (current or past), it returns (in priority order):
@@ -1236,7 +1236,7 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 //    SN_EVENT::USSN  iff USSN  bit is set
 //    SN_EVENT::AIC   iff AIC   bit is set
 //    SN_EVENT::SNIA  iff SNIA  bit is set
-//    SN_EVENT::DD    iff DD    bit is set
+//    SN_EVENT::HeSD  iff HeSD  bit is set
 //    SN_EVENT::NONE  otherwise
 //
 enum class SN_EVENT: int { 
@@ -1248,7 +1248,7 @@ enum class SN_EVENT: int {
     USSN         = 16,
     AIC          = 32,
     SNIA         = 64,
-    DD           = 128,
+    HeSD         = 128,
 };
 ENABLE_BITMASK_OPERATORS(SN_EVENT);
 
@@ -1261,7 +1261,7 @@ const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
     { SN_EVENT::USSN,         "Ultra Stripped Supernova" },
     { SN_EVENT::AIC,          "Accretion-Induced Collapse" }, 
     { SN_EVENT::SNIA,         "Supernova Type Ia" }, 
-    { SN_EVENT::DD,           "Double detonation" }, 
+    { SN_EVENT::HeSD,         "Helium-shell detonation" }, 
 };
 
 
@@ -1717,7 +1717,7 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     ERROR,                                           \
     EXPERIENCED_AIC,                                 \
     EXPERIENCED_CCSN,                                \
-    EXPERIENCED_DD,                                  \
+    EXPERIENCED_HeSD,                                  \
     EXPERIENCED_ECSN,                                \
     EXPERIENCED_PISN,                                \
     EXPERIENCED_PPISN,                               \
@@ -1734,7 +1734,7 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     INITIAL_STELLAR_TYPE_NAME,                       \
     IS_AIC,                                          \
     IS_CCSN,                                         \
-    IS_DD,                                           \
+    IS_HeSD,                                           \
     IS_ECSN,                                         \
     IS_HYDROGEN_POOR,                                \
     IS_PISN,                                         \
@@ -1868,7 +1868,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::ERROR,                                           "ERROR" },
     { STAR_PROPERTY::EXPERIENCED_AIC,                                 "EXPERIENCED_AIC" },
     { STAR_PROPERTY::EXPERIENCED_CCSN,                                "EXPERIENCED_CCSN" },
-    { STAR_PROPERTY::EXPERIENCED_DD,                                  "EXPERIENCED_DD" },
+    { STAR_PROPERTY::EXPERIENCED_HeSD,                                "EXPERIENCED_HeSD" },
     { STAR_PROPERTY::EXPERIENCED_ECSN,                                "EXPERIENCED_ECSN" },
     { STAR_PROPERTY::EXPERIENCED_PISN,                                "EXPERIENCED_PISN" },
     { STAR_PROPERTY::EXPERIENCED_PPISN,                               "EXPERIENCED_PPISN" },
@@ -1885,7 +1885,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                       "INITIAL_STELLAR_TYPE_NAME" },
     { STAR_PROPERTY::IS_AIC,                                          "IS_AIC" },
     { STAR_PROPERTY::IS_CCSN,                                         "IS_CCSN" },
-    { STAR_PROPERTY::IS_DD,                                           "IS_DD" },
+    { STAR_PROPERTY::IS_HeSD,                                         "IS_HeSD" },
     { STAR_PROPERTY::IS_ECSN,                                         "IS_ECSN" },
     { STAR_PROPERTY::IS_HYDROGEN_POOR,                                "IS_HYDROGEN_POOR" },
     { STAR_PROPERTY::IS_PISN,                                         "IS_PISN" },
@@ -2744,7 +2744,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::ERROR,                                             { TYPENAME::ERROR,          "Error",                "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_AIC,                                   { TYPENAME::BOOL,           "Experienced_AIC",      "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_CCSN,                                  { TYPENAME::BOOL,           "Experienced_CCSN",     "Event",             0, 0 }},
-    { ANY_STAR_PROPERTY::EXPERIENCED_DD,                                    { TYPENAME::BOOL,           "Experienced_DD",       "Event",             0, 0 }},
+    { ANY_STAR_PROPERTY::EXPERIENCED_HeSD,                                  { TYPENAME::BOOL,           "Experienced_HeSD",     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_ECSN,                                  { TYPENAME::BOOL,           "Experienced_ECSN",     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_PISN,                                  { TYPENAME::BOOL,           "Experienced_PISN",     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_PPISN,                                 { TYPENAME::BOOL,           "Experienced_PPISN",    "Event",             0, 0 }},
@@ -2761,7 +2761,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                         { TYPENAME::STRING,         "Stellar_Type@ZAMS",    "-",                42, 1 }},
     { ANY_STAR_PROPERTY::IS_AIC,                                            { TYPENAME::BOOL,           "AIC",                  "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_CCSN,                                           { TYPENAME::BOOL,           "CCSN",                 "State",             0, 0 }},
-    { ANY_STAR_PROPERTY::IS_DD,                                             { TYPENAME::BOOL,           "DD",                   "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_HeSD,                                           { TYPENAME::BOOL,           "HeSD",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_ECSN,                                           { TYPENAME::BOOL,           "ECSN",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_HYDROGEN_POOR,                                  { TYPENAME::BOOL,           "Is_Hydrogen_Poor",     "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_PISN,                                           { TYPENAME::BOOL,           "PISN",                 "State",             0, 0 }},

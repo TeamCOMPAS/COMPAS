@@ -35,15 +35,9 @@ DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
 
 
 /* 
- * Calculate the WD accretion regime based on the MT rate and whether the donor is He rich 
+ * Determine the WD accretion regime based on the MT rate and whether the donor is He rich 
  *
- * The accretion regime is one of the following:
- *
- * Helium accretion that could lead to Sub-Chandrasekhar SN
- * Helium accretion that could lead to helium ignition and rejuvenation
- * Hydrogen Flashes
- * Hydrogen Accumulation
- * Note that we have merged the different flashes regimes from Piersanti+ 2014 into a single regime.
+ * The accretion regime is one of the options listed in enum ACCRETION_REGIME (constants.h)
  *
  * ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich, const double p_DonorMassLossRate) 
  *
