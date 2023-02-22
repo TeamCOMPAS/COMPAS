@@ -1971,6 +1971,48 @@ double BaseStar::CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu)
 }
 
 /*
+ * Calculate the mass-loss rate for helium stars according to the
+ * prescription of Vink 2017 (https://ui.adsabs.harvard.edu/abs/2017A%26A...607L...8V/abstract)
+ * 
+ * See their Eq. 1 and 
+ * 
+ * double CalculateMassLossRateHeliumStarVink2017()
+ *
+ *
+ * @return                                      Mass loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateHeliumStarVink2017() const {
+
+    // Define variables
+    double logMdot = 0.0;
+
+    logMdot = -13.3 + (1.36 * log10(m_Luminosity)) + (0.61 * log10(m_Metallicity / ZSOL)); // Eq. 1.
+    
+    return PPOW(10.0, logMdot); // Mdot
+}
+
+/*
+ * Calculate the mass-loss rate for helium stars according to the
+ * prescription of Shenar et al. 2019 ()
+ * 
+ * See their Eq. 
+ * 
+ * double CalculateMassLossRateHeliumStarShenar2019()
+ *
+ *
+ * @return                                      Mass loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateHeliumStarShenar2019() const {
+
+    // Define variables
+    double logMdot = 0.0;
+
+    logMdot = 0.0; 
+
+    return PPOW(10.0, logMdot); // Mdot
+}
+
+/*
  * Calculate the dominant mass loss mechanism and associated rate for the star
  * at the current evolutionary phase.
  *
@@ -2045,8 +2087,9 @@ double BaseStar::CalculateMassLossRateUpdatedPrescription() {
             otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // Apply cool wind mass loss multiplier
         }
         else {     
-            otherWindsRate = CalculateMassLossRateBjorklund();                                                      // For hot stars, apply Bjorklund et al. prescription
-            m_DominantMassLossRate = MASS_LOSS_TYPE::BJORKLUND;
+            //otherWindsRate = CalculateMassLossRateBjorklund();                                                      // For hot stars, apply Bjorklund et al. prescription
+            //m_DominantMassLossRate = MASS_LOSS_TYPE::BJORKLUND;
+            otherWindsRate = CalculateMassLossRateOB(teff);
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {
