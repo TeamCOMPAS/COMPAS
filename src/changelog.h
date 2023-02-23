@@ -985,7 +985,7 @@
 //                                      - fixed minor defect in call to m_Accretor->CalculateMassAcceptanceRate() in BaseBinaryStar::CalculateMassTransfer()
 //                                        (only affected runs with mass-transfer-thermal-limit-accretor = RADIUS_TO_ROCHELOBE)
 // 02.35.03     RTW - Feb 22, 2022   - Enhancement:
-//                                      - Added BH kick from Fryer & Young 2007, as described in Banerjee et al. 2020
+//                                      - Added BH kick from Fryer & Young 2007, as described in Bannerjee et al. 2020
 
 const std::string VERSION_STRING = "02.35.03";
 

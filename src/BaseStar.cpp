@@ -2707,8 +2707,9 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
             vK = p_vK * (1.0 - p_FallbackFraction);
             break;
 
-        case BLACK_HOLE_KICKS::FRYERYOUNG2007:
+        case BLACK_HOLE_KICKS::FRYERYOUNG2007:                      // Using the re-scaled kick prescription from Fryer & Young 2007, as described in Bannerjee et al. 2020
             vK = p_vK * (1.0 - p_FallbackFraction) * NEUTRON_STAR_MASS / p_BlackHoleMass; 
+            break;
 
 
         default:                                                    // unknown BH kick option - shouldn't happen
@@ -2909,10 +2910,8 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
             kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);
     }
 
-    if (OPTIONS->BlackHoleKicks() == BLACK_HOLE_KICKS::FRYERYOUNG2007) {                        // FryerYoung2007 modifies high mass NS kicks in addition to BHs
-        if (p_COCoreMass > 3.5) {
-            kickMagnitude *= OPTIONS->KickFryerYoungKConv();
-        }
+    if (OPTIONS->BlackHoleKicks() == BLACK_HOLE_KICKS::FRYERYOUNG2007) && (p_COCoreMass > 3.5) { // 3.5 is threshold CO mass above which to apply the Fryer Young enhancement factor, see Bannerjee et al. 2020
+        kickMagnitude *= OPTIONS->KickFryerYoungKConv(); // FryerYoung2007 modifies high mass NS kicks in addition to BHs
     }
 
     return kickMagnitude / OPTIONS->KickScalingFactor();

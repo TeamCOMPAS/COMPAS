@@ -254,8 +254,8 @@ void Options::OptionValues::Initialise() {
     m_KickMagnitudeDistributionMaximum                              = -1.0; 
     m_KickMagnitudeDistributionSigmaForECSN                         = 30.0;
     m_KickMagnitudeDistributionSigmaForUSSN   	                    = 30.0;
-	m_KickScalingFactor						                        = 1.0;
-	m_KickFryerYoungKConv						                    = 5.0;
+    m_KickScalingFactor						                        = 1.0;
+    m_KickFryerYoungKConv						                    = 5.0;
 
     // Kick direction option
     m_KickDirectionDistribution.type                                = KICK_DIRECTION_DISTRIBUTION::ISOTROPIC;

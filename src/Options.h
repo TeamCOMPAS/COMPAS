@@ -705,10 +705,10 @@ public:
             double                                              m_KickMagnitudeDistributionSigmaCCSN_NS;                        // Kick magnitude sigma in km s^-1 for neutron stars (default = "250" )
             double                                              m_KickMagnitudeDistributionSigmaCCSN_BH;                        // Kick magnitude sigma in km s^-1 for black holes (default = "250" )
             double                                              m_KickMagnitudeDistributionMaximum;                             // Maximum kick magnitude to draw. If negative, no maximum
-	        double                                              m_KickMagnitudeDistributionSigmaForECSN;			            // Kick magnitude sigma for ECSN in km s^-1 (default = "0" )
-	        double                                              m_KickMagnitudeDistributionSigmaForUSSN;			            // Kick magnitude sigma for USSN in km s^-1 (default = "20" )
-	        double                                              m_KickScalingFactor;								            // Arbitrary factor for scaling kicks
-	        double                                              m_KickFryerYoungKConv;								            // Enhancement factor for kicks from larger CO cores. 
+            double                                              m_KickMagnitudeDistributionSigmaForECSN;                        // Kick magnitude sigma for ECSN in km s^-1 (default = "0" )
+            double                                              m_KickMagnitudeDistributionSigmaForUSSN;                        // Kick magnitude sigma for USSN in km s^-1 (default = "20" )
+            double                                              m_KickScalingFactor;                                            // Arbitrary factor for scaling kicks
+            double                                              m_KickFryerYoungKConv;                                            // Enhancement factor for kicks from larger CO cores. 
 
             // Kick direction options
             ENUM_OPT<KICK_DIRECTION_DISTRIBUTION>               m_KickDirectionDistribution;                                    // Kick direction distribution
