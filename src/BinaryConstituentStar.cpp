@@ -114,7 +114,7 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
  * @param   [IN]    p_CompanionRadius           The radius of the companion star (Rsol)
  * @return                                      Mass accreted by the Neutron Star (Msol)
  */
-double BinaryConstituentStar::CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius) {
+double BinaryConstituentStar::CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius) const {
 
      double deltaMass;
 
