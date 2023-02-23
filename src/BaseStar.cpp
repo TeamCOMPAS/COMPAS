@@ -2910,7 +2910,7 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
             kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);
     }
 
-    if (OPTIONS->BlackHoleKicks() == BLACK_HOLE_KICKS::FRYERYOUNG2007) && (p_COCoreMass > 3.5) { // 3.5 is threshold CO mass above which to apply the Fryer Young enhancement factor, see Bannerjee et al. 2020
+    if ((OPTIONS->BlackHoleKicks() == BLACK_HOLE_KICKS::FRYERYOUNG2007) && (p_COCoreMass > 3.5)) { // 3.5 is threshold CO mass above which to apply the Fryer Young enhancement factor, see Bannerjee et al. 2020
         kickMagnitude *= OPTIONS->KickFryerYoungKConv(); // FryerYoung2007 modifies high mass NS kicks in addition to BHs
     }
 
