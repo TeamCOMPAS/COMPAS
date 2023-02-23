@@ -1987,15 +1987,15 @@ double BaseStar::CalculateMassLossRateHeliumStarVink2017() const {
     double logMdot = 0.0;
 
     logMdot = -13.3 + (1.36 * log10(m_Luminosity)) + (0.61 * log10(m_Metallicity / ZSOL)); // Eq. 1.
-    
+
     return PPOW(10.0, logMdot); // Mdot
 }
 
 /*
  * Calculate the mass-loss rate for helium stars according to the
- * prescription of Shenar et al. 2019 ()
+ * prescription of Shenar et al. 2019 (https://ui.adsabs.harvard.edu/abs/2019A%26A...627A.151S/abstract)
  * 
- * See their Eq. 
+ * See their Eq. 6 and Table 5
  * 
  * double CalculateMassLossRateHeliumStarShenar2019()
  *
@@ -2006,8 +2006,18 @@ double BaseStar::CalculateMassLossRateHeliumStarShenar2019() const {
 
     // Define variables
     double logMdot = 0.0;
+    double Teff    = m_Temperature * TSOL;
 
-    logMdot = 0.0; 
+    // Fitting constants - see Table 5 in Shenar et al. 2019
+    const double C1 = -6.26;
+    const double C2 =  0.66;
+    const double C3 = -0.11;
+    const double C4 =  1.16;
+    const double C5 =  0.81;
+
+    double XHe = 0.0; // What to use for this?
+
+    logMdot = C1 + (C2 * log10(m_Luminosity)) + (C3 * log10(Teff)) + (C4 * log10(XHe)) + (C5 * log10(m_Metallicity)); 
 
     return PPOW(10.0, logMdot); // Mdot
 }
