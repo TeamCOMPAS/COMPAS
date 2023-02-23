@@ -263,15 +263,19 @@ double HeMS::CalculateMassLossRateUpdatedPrescription() {
 
     m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
 
-    // Calculate Sander & Vink 2020 mass loss rate
+    // Calculate Sander & Vink 2020 mass-loss rate
     double Mdot_SanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
 
-    // Calculate Vink 2017 mass loss rate
+    // Apply the Sander et al. 2023 temperature correction to the Sander & Vink 2020 rate
+    double Mdot_Sander2023     = CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(Mdot_SanderVink2020);
+
+    // Calculate Vink 2017 mass-loss rate
     double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
 
     // Use whichever gives the highest mass loss rate -- will typically be Vink 2017 for
     // low Mass or Luminosity, and Sander & Vink 2020 for high Mass or Luminosity
-    return std::max(Mdot_SanderVink2020, Mdot_Vink2017);
+    //return std::max(Mdot_SanderVink2020, Mdot_Vink2017);
+    return std::max(Mdot_Sander2023, Mdot_Vink2017);
 }
 
 /*

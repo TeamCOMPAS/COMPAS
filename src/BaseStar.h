@@ -453,6 +453,7 @@ protected:
             double              CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const;
             double              CalculateMassLossRateWolfRayet(const double p_Mu) const;
             double              CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const;
+            double              CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot) const;
             double              CalculateMassLossRateHeliumStarVink2017() const;
             double              CalculateMassLossRateHeliumStarShenar2019() const;
 

@@ -1971,6 +1971,42 @@ double BaseStar::CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu)
 }
 
 /*
+ * Calculate the correction to the mass-loss rates for Wolf-Rayet stars 
+ * as a function of effective temperature, according to the
+ * prescription of Sander et al. 2023 (https://arxiv.org/abs/2301.01785)
+ * 
+ * Use the correction given in Eq. 18, with the effective temperature
+ * (what they refer to as T_\star in Eq. 1) as T_eff,crit
+ * 
+ * double CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot)
+ *
+ * @param   [IN]    p_Mdot                      Uncorrected mass-loss rate (in Msol yr^{-1})
+ *
+ * @return                                      Corrected mass-loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot) const {
+
+    // Define variables
+    const double Teff_ref   = 141E3;    // Reference effective temperature in Kelvin
+    const double Teff_min   = 100E3;    // Minimum effective temperature in Kelvin to apply correction
+
+    double Teff = m_Temperature * TSOL; // Get effective temperature in Kelvin
+    double logMdot_uncorrected = log10(p_Mdot); // Uncorrected mass-loss rate
+    double logMdot_corrected = 0.0;
+    
+    // Only apply to sufficiently hot stars
+    if (Teff > Teff_min){
+        logMdot_corrected = logMdot_uncorrected - 6.0 * log10(Teff/Teff_ref);
+    }
+    else{
+        logMdot_corrected = logMdot_uncorrected;
+    }
+
+    return PPOW(10.0, logMdot_corrected);
+}
+
+
+/*
  * Calculate the mass-loss rate for helium stars according to the
  * prescription of Vink 2017 (https://ui.adsabs.harvard.edu/abs/2017A%26A...607L...8V/abstract)
  * 
