@@ -84,7 +84,7 @@ Default = FALSE
 
 **--black-hole-kicks** |br|
 Black hole kicks relative to NS kicks. |br|
-Options: { FULL, REDUCED, ZERO, FALLBACK } |br|
+Options: { FULL, REDUCED, ZERO, FALLBACK, FRYERYOUNG2007 } |br|
 Default = FALLBACK
 
 .. _options-props-C:
@@ -472,6 +472,10 @@ Default = ISOTROPIC
 **--kick-direction-power** |br|
 Power for power law kick direction distribution, where 0.0 = isotropic, +ve = polar, -ve = in plane. |br|
 Default = 0.0 (isotropic)
+
+**--kick-fryer-young-k-conv** |br|
+Enhancement factor for kicks from larger CO cores when using the FRYERYOUNG2007 black hole kick prescription. |br|
+(default = 5.000000)        
 
 **--kick-magnitude** |br|
 Value to be used as the (drawn) kick magnitude for a single star when evolving in SSE mode, should the star
