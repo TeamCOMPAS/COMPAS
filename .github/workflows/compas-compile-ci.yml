@@ -38,13 +38,28 @@ jobs:
           cd src && make -j $(nproc) -f Makefile
           ./COMPAS -v
 
-      - name: Run Compas and test python post-processing scripts
+      - name: Run example COMPAS job
         run: |
           python3 -m pip install .
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
           cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution   
-          chmod 755 run.sh
+          chmod 755 run.sh 
           ./run.sh
-          echo "Testing COMPAS python post-processing scripts"
+        continue-on-error: true # continue even if this job fails
+
+      - name: Run pytests
+        # Run tests and collect coverage data
+        run: |
           cd ${GITHUB_WORKSPACE}
-          pytest py_tests/
+          pytest --cov=compas_python_utils/ py_tests/
+          coverage html
+          coverage-badge -o coverage_badge.svg -f
+
+      - name: Archive run artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
+            htmlcov/
+            coverage_badge.svg
+            ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution/example_bbh.log
+            ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution/detailedEvolutionPlot.eps

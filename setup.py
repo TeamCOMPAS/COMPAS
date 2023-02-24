@@ -41,7 +41,7 @@ INSTALL_REQUIRES = [
     "PyYAML"
 ]
 EXTRA_REQUIRE = dict(dev=[
-    "pytest>=3.6",
+    "pytest-cov",
     "pre-commit",
     "flake8",
     "black==22.10.0",
@@ -101,6 +101,8 @@ if __name__ == "__main__":
                 f"compas_h5view= {NAME}.h5view:main",
                 f"compas_plot_detailed_evolution={NAME}.detailed_evolution_plotter.plot_detailed_evolution:main",
                 f"compas_run_submit={NAME}.preprocessing.runSubmit:main",
+                f"compas_sample_stroopwafel={NAME}.preprocessing.stroopwafelInterface:main",
+                f"compas_sample_moe_di_stefano={NAME}.preprocessing.sampleMoeDiStefano:main",
             ]
         },
     )
