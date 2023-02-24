@@ -32,7 +32,6 @@ class pythonProgramOptions:
         # in the bin directory (rather than the src directory)
 
         # Load yaml file with options
-        print('output_dir is ' + output_directory)
         with open(config_file) as file:
             # The FullLoader parameter handles the conversion from YAML
             # scalar values to Python the dictionary format
@@ -75,7 +74,8 @@ class pythonProgramOptions:
 
         if (compas_logs_output_override is None):
             self.stringChoices['--output-path'] = os.getcwd()
-            self.stringChoices[ '--output-container'] = output_directory  # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
+            self.stringChoices[
+                '--output-container'] = output_directory  # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
         else:
             self.stringChoices['--output-path'] = compas_logs_output_override
             self.stringChoices['--output-container'] = output_directory
