@@ -1903,7 +1903,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     double accretorRLradius = CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL * m_SemiMajorAxis * (1.0 - m_Eccentricity);
     bool donorIsHeRich = m_Donor->IsOneOf(He_RICH_TYPES); 
     std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(), 
-                                                                                        m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius)
+                                                                                        m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
                                                                                         donorIsHeRich);
 
     double aInitial = m_SemiMajorAxis;                                                                                          // semi-major axis in default units, AU, current timestep
