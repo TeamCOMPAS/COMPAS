@@ -4,10 +4,6 @@ import io
 from contextlib import redirect_stdout
 
 from pytest_utils import get_compas_output_path, time_func_and_capture_sout
-# BEGIN Delete later
-import sys
-sys.path.append( os.path.expandvars(os.environ['COMPAS_ROOT_DIR']))
-# END Delete later
 from compas_python_utils.detailed_evolution_plotter.plot_detailed_evolution import run_main_plotter
 
 OUTDIR = os.path.join(os.path.dirname(__file__), "output_test")
@@ -25,7 +21,7 @@ class TestPlotDetailedEvolution(unittest.TestCase):
         )
         _, runtime, sout = time_func_and_capture_sout(
             run_main_plotter,
-            bse_detailed_out_path, outdir=OUTDIR, show=True
+            bse_detailed_out_path, outdir=OUTDIR, show=False
         )
         self.assertLess(runtime, 30)
         self.assertTrue(os.path.exists(os.path.join(OUTDIR, "vanDenHeuvelPlot.eps")))
@@ -35,9 +31,3 @@ class TestPlotDetailedEvolution(unittest.TestCase):
             os.mkdir(OUTDIR)
         with open(os.path.join(OUTDIR, "test_plotter.log"), "w") as f:
             f.write(sout)
-        print('done')
-
-
-if __name__ == "__main__":
-    test = TestPlotDetailedEvolution()
-    test.test_plotter()
