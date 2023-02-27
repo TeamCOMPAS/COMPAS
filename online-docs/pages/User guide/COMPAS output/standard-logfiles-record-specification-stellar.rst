@@ -273,6 +273,23 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Header Strings:
      - Mass CO_Core@\ CO, Mass_CO_Core@CO(1), Mass_CO_Core@CO(2), Mass_CO_Core@CO(SN), Mass_CO_Core@CO(CP)
 
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **COMPONENT_SPEED**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_ComponentVelocity
+   * - Description:
+     - Velocity of single star, equal to binary's Systemic Velocity for a bound binary (\ :math:`km s^{-1}`).
+   * - Header String:
+     - ComponentSpeed    
+
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0
