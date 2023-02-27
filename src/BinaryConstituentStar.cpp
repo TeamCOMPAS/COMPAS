@@ -306,25 +306,18 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
 void BinaryConstituentStar::ResolveCommonEnvelopeAccretion(double p_FinalMass) {
 
     double deltaMass;
-
-    switch (StellarType() )  {                                                            // which stellar type?
-
-        case STELLAR_TYPE::NEUTRON_STAR:
-            deltaMass = CalculateMassAccretedForCO(Mass(), m_Companion->Mass(), m_Companion->Radius());
-            m_MassTransferDiff = deltaMass;
-            break;
-
-        case STELLAR_TYPE::BLACK_HOLE:
-            deltaMass = CalculateMassAccretedForCO(Mass(), m_Companion->Mass(), m_Companion->Radius());
-            m_MassTransferDiff = deltaMass;
-            break;
-
-        default:                                                                       
-            deltaMass = p_FinalMass - Mass();                                           // JR: todo: why isn't m_MassTransferDiff updated here (as it is for Neutron Stars)?
+    // LvS: todo: more consisten super eddington accretion during CE should also affect e.g. MS stars
+    if (IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE})) {                          
+        deltaMass = CalculateMassAccretedForCO(Mass(), m_Companion->Mass(), m_Companion->Radius());
+        m_MassTransferDiff = deltaMass;
     }
-
+    else {
+        deltaMass = p_FinalMass - Mass();
+        // JR: todo: why isn't m_MassTransferDiff updated here (as it is for Neutron Stars)?
+    }
     ResolveAccretion(deltaMass);
 }
+
 
 
 /*
