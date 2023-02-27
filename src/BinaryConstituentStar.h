@@ -245,10 +245,8 @@ private:
     bool                    m_FirstMassTransferEpisode;             // Activated for the initial Mass Transfer Episode
 
     struct FLAGS {                                                  // Miscellaneous flags
-
         bool recycledNS;                                            // Indicate whether the accretor was a recycled neutron star
         bool rlofOntoNS;                                            // Indicates whether the donor donated mass to neutron star through RLOF
-
     }                       m_Flags;
 
     double                  m_MassLossDiff;
@@ -259,15 +257,15 @@ private:
     double                  m_OrbitalEnergyPostSN;
     double                  m_OrbitalEnergyPreSN;
 
-	StellarRLOFDetailsT     m_RLOFDetails;
+    StellarRLOFDetailsT     m_RLOFDetails;
 
 
     // the companion - set by calling SetCompanion()
-    BinaryConstituentStar *m_Companion;
+    BinaryConstituentStar  *m_Companion;
 
 
 	// member functions - alphabetically 
-    double              CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius);
+    double                  CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius) const;
 };
 
 #endif // __BinaryConstituentStar_h__
