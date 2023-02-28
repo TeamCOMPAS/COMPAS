@@ -121,7 +121,7 @@ To postprocess the output, see
 
 
 Moe & DiStefano
-~~~~~~~~
+~~~~~~~~~~~~~~~
 
 To sample from the Moe & DiStefano 2017 distributions, the sampler script
 can be found in ``preProcessing/sampleMoeDiStefano.py``. As described in the 

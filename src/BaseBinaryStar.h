@@ -83,8 +83,6 @@ public:
 
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
 
-        m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
-
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
         m_RLOFDetails.propsPreMT           = p_Star.m_RLOFDetails.propsPreMT == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
         m_RLOFDetails.propsPostMT          = p_Star.m_RLOFDetails.propsPostMT == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
@@ -100,7 +98,7 @@ public:
         m_SynchronizationTimescale         = p_Star.m_SynchronizationTimescale;
 
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
-
+        m_OrbitalAngularMomentumVector     = p_Star.m_OrbitalAngularMomentumVector;
         m_ThetaE                           = p_Star.m_ThetaE;
         m_PhiE                             = p_Star.m_PhiE;  
         m_PsiE                             = p_Star.m_PsiE;  
@@ -231,8 +229,8 @@ public:
     double              RocheLobe1to2PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe1to2; }
     double              RocheLobe2to1PostCEE() const                { return m_CEDetails.postCEE.rocheLobe2to1; }
     double              RocheLobe2to1PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe2to1; }
-    double              RocheLobeRadius1() const                    { return CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass()); }
-    double              RocheLobeRadius2() const                    { return CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()); }
+    double              RocheLobeRadius1() const                    { return CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass()) * SemiMajorAxisRsol() * (1-Eccentricity()); }
+    double              RocheLobeRadius2() const                    { return CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()) * SemiMajorAxisRsol() * (1-Eccentricity()); }
     double              StarToRocheLobeRadiusRatio1() const         { return m_Star1->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
     double              StarToRocheLobeRadiusRatio2() const         { return m_Star2->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
     double              SemiMajorAxisAtDCOFormation() const         { return m_SemiMajorAxisAtDCOFormation; }
@@ -252,6 +250,10 @@ public:
     STELLAR_TYPE        StellarType2() const                        { return m_Star2->StellarType(); }
     STELLAR_TYPE        StellarType2PostCEE() const                 { return m_Star2->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
+    double              SN_OrbitInclinationAngle() const            { return m_ThetaE; }
+    double              SN_OrbitInclinationVectorX() const          { return m_OrbitalAngularMomentumVector.xValue(); }
+    double              SN_OrbitInclinationVectorY() const          { return m_OrbitalAngularMomentumVector.yValue(); }
+    double              SN_OrbitInclinationVectorZ() const          { return m_OrbitalAngularMomentumVector.zValue(); }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
     double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
     double              SystemicSpeed() const                       { return m_SystemicVelocity.Magnitude(); }
@@ -343,8 +345,6 @@ private:
 
     double              m_OrbitalVelocityPreSN;
 
-    bool                m_PrintExtraDetailedOutput;                                         // Flag to ensure that detailed output only gets printed once per timestep
-
     BinaryRLOFDetailsT  m_RLOFDetails;                                                      // RLOF details
 
     double              m_SemiMajorAxis;                                                    // Semi-major axis
@@ -358,6 +358,7 @@ private:
     double              m_SynchronizationTimescale;
 
     Vector3d            m_SystemicVelocity;                                                 // Systemic velocity vector, relative to ZAMS Center of Mass
+    Vector3d            m_OrbitalAngularMomentumVector;                                     // Orbital AM vector postSN, in preSN frame
     double              m_ThetaE;                                                           // Euler Theta
     double              m_PhiE;                                                             // Euler Phi                
     double              m_PsiE;                                                             // Euler Psi
@@ -451,7 +452,7 @@ private:
                                    const double p_Mass,
                                    const double p_SemiMajorAxis) const          { return -(G1 * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
 
-    double  CalculateZRocheLobe(const double p_jLoss) const;
+    double  CalculateZetaRocheLobe(const double p_jLoss) const;
 
     double  CalculateTimeToCoalescence(double a0, double e0, double m1, double m2) const;
 
@@ -505,14 +506,35 @@ private:
     void    UpdateSystemicVelocity(Vector3d p_newVelocity);
 
     // printing functions
-    bool PrintRLOFParameters();
-    bool PrintBinarySystemParameters() const            { return LOGGING->LogBSESystemParameters(this); }
-    bool PrintDetailedOutput(const long int p_Id) const { return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id) : true; }
-    bool PrintDoubleCompactObjects() const              { return LOGGING->LogDoubleCompactObject(this); }
-    bool PrintCommonEnvelope() const                    { return LOGGING->LogCommonEnvelope(this); }
-    bool PrintBeBinary();
-    bool PrintPulsarEvolutionParameters() const         { return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this) : true; }
-    bool PrintSupernovaDetails() const                  { return LOGGING->LogBSESupernovaDetails(this); }
+    
+    bool PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType = RLOF_RECORD_TYPE::DEFAULT);
+    
+    bool PrintBinarySystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::DEFAULT) const { 
+        return LOGGING->LogBSESystemParameters(this, p_RecordType);
+    }
+    
+    bool PrintDetailedOutput(const long int p_Id, 
+                             const BSE_DETAILED_RECORD_TYPE p_RecordType) const {
+        return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id, p_RecordType) : true;
+    }
+    
+    bool PrintDoubleCompactObjects(const DCO_RECORD_TYPE p_RecordType = DCO_RECORD_TYPE::DEFAULT) const {
+        return LOGGING->LogDoubleCompactObject(this, p_RecordType);
+    }
+    
+    bool PrintCommonEnvelope(const CE_RECORD_TYPE p_RecordType = CE_RECORD_TYPE::DEFAULT) const {
+        return LOGGING->LogCommonEnvelope(this, p_RecordType);
+    }
+    
+    bool PrintBeBinary(const BE_BINARY_RECORD_TYPE p_RecordType = BE_BINARY_RECORD_TYPE::DEFAULT);
+    
+    bool PrintPulsarEvolutionParameters(const PULSAR_RECORD_TYPE p_RecordType = PULSAR_RECORD_TYPE::DEFAULT) const {
+        return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_RecordType) : true;
+    }
+    
+    bool PrintSupernovaDetails(const BSE_SN_RECORD_TYPE p_RecordType = BSE_SN_RECORD_TYPE::DEFAULT) const {
+        return LOGGING->LogBSESupernovaDetails(this, p_RecordType);
+    }
 
     
     //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe

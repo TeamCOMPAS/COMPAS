@@ -264,7 +264,7 @@ void GiantBranch::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)
     gbParams(AHe)    = CalculateHeRateConstant_Static();
 
     gbParams(B)      = CalculateCoreMass_Luminosity_B_Static(p_Mass);
-    gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass, m_LogMetallicityXi, m_MassCutoffs);
+    gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass, LogMetallicityXi(), m_MassCutoffs);
 
     gbParams(p)      = CalculateCoreMass_Luminosity_p_Static(p_Mass, m_MassCutoffs);
     gbParams(q)      = CalculateCoreMass_Luminosity_q_Static(p_Mass, m_MassCutoffs);
@@ -819,7 +819,7 @@ double GiantBranch::CalculateCoreMassAtBGB_Static(const double      p_Mass,
 /*
  * Calculate the core mass at which the Asymptotic Giant Branch phase is terminated in a SN/loss of envelope
  *
- * Hurley et al. 2000, eq 75
+ * Hurley et al. 2000, eq 75 -- but note we use MECS rather than MCH
  *
  *
  * double CalculateCoreMassAtSupernova_Static(const double p_McBAGB)
@@ -920,30 +920,127 @@ double GiantBranch::CalculateMassLossRateHurley() {
 
 
 /*
- * Determines if mass transfer produces a wet merger
+ * Determines if mass transfer is unstable according to the critical mass ratio.
  *
- * According to the mass ratio limit discussed by de Mink et al. 2013 and Claeys et al. 2014
+ * See e.g de Mink et al. 2013, Claeys et al. 2014, and Ge et al. 2010, 2015, 2020 for discussions.
  *
- * Assumes this star is the donor; relevant accretor details are passed as parameters
+ * Assumes this star is the donor; relevant accretor details are passed as parameters.
+ * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
  *
+ * double GiantBranch::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) 
  *
- * bool IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate)
- *
- * @param   [IN]    p_AccretorMass              Mass of accretor in Msol
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
- * @return                                      Boolean indicating stability of mass transfer (true = unstable)
+ * @return                                      Critical mass ratio for unstable MT 
  */
-bool GiantBranch::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
+double GiantBranch::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const {
 
-    bool result = false;                                                                                                    // default is stable
-
-    if (OPTIONS->MassTransferCriticalMassRatioGiant()) {
-        result = p_AccretorIsDegenerate
-                    ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioGiantDegenerateAccretor()           // degenerate accretor
-                    : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioGiantNonDegenerateAccretor();       // non-degenerate accretor
+    double qCrit;
+                                                                                                                            
+    if (p_AccretorIsDegenerate) {                                                                                           // Degenerate accretor
+        qCrit = OPTIONS->MassTransferCriticalMassRatioGiantDegenerateAccretor();
+    }
+    else {                                                                                                                  // Non-degenerate accretor 
+        qCrit = OPTIONS->MassTransferCriticalMassRatioGiantNonDegenerateAccretor();
+        if (qCrit == -1) {                                                                                                  // Default value of -1 recalculates qCrit with the following function 
+            double coreMassRatio = m_HeCoreMass/m_Mass;
+            double x = BaseStar::CalculateGBRadiusXExponent();                                                              // x from Hurley et al 2000, Eq. 47 - Depends on composition
+            qCrit = 2.13/( 1.67 - x + 2*(coreMassRatio*coreMassRatio*coreMassRatio*coreMassRatio*coreMassRatio));           // Claeys+ 2014, Table 2
+        }
     }
 
-    return result;
+    return qCrit;
+}
+
+
+/*
+ * Calculate the Adiabatic Exponent (for convective-envelope giant-like stars)
+ *
+ *
+ * double CalculateZetaConvectiveEnvelopeGiant(ZETA_PRESCRIPTION p_ZetaPrescription) const
+ *
+ * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
+ * @return                                      Adiabatic exponent
+ */
+double GiantBranch::CalculateZetaConvectiveEnvelopeGiant(ZETA_PRESCRIPTION p_ZetaPrescription) {
+    
+    double zeta = 0.0;                                            // default value
+
+    switch (p_ZetaPrescription) {                                 // which prescription?
+        case ZETA_PRESCRIPTION::SOBERMAN:                         // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
+            zeta = CalculateZetaAdiabaticSPH(m_CoreMass);
+            break;
+            
+        case ZETA_PRESCRIPTION::HURLEY:                          // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
+            zeta = CalculateZetaAdiabaticHurley2002(m_CoreMass);
+            break;
+            
+        case ZETA_PRESCRIPTION::ARBITRARY:                       // ARBITRARY: user program options thermal zeta value
+            zeta = OPTIONS->ZetaAdiabaticArbitrary();
+            break;
+            
+        default:                                                    // unknown common envelope prescription - shouldn't happen
+            m_Error = ERROR::UNKNOWN_ZETA_PRESCRIPTION;          // set error value
+            SHOW_ERROR(m_Error);                                    // warn that an error occurred
+    }
+    
+    return zeta;
+}
+
+
+
+/*
+ * Calculate the mass-radius response exponent Zeta
+ *
+ * Hurley et al. 2000, eqs 97 & 98
+ *
+ *
+ * double CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)
+ *
+ * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
+ * @return                                      mass-radius response exponent Zeta
+ */
+double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription) {
+    
+    double zeta = 0.0;                                              // default value
+    
+    // Use ZetaRadiativeEnvelopeGiant() for radiative envelope giant-like stars, CalculateZetaAdiabatic for convective-envelope giants
+    switch (DetermineEnvelopeType()) {                           // which envelope?
+        case ENVELOPE::RADIATIVE:
+            zeta = OPTIONS->ZetaRadiativeEnvelopeGiant();
+            break;
+            
+        case ENVELOPE::CONVECTIVE:
+            zeta = CalculateZetaConvectiveEnvelopeGiant(p_ZetaPrescription);
+            break;
+            
+        default:                                                    // shouldn't happen
+            m_Error = ERROR::INVALID_TYPE_ZETA_CALCULATION;         // set error value
+            SHOW_ERROR(m_Error);                                    // warn that an error occurred
+    }
+    
+    return zeta;
+}
+
+
+/*
+ * Approximates the mass of the outer convective envelope.
+ *
+ * This is needed for the Hirai & Mandel (2022) two-stage CE formalism.
+ *
+ *
+ * double GiantBranch::CalculateConvectiveEnvelopeMass()
+ *
+ * @return                                      Mass of the outer convective envelope
+ */
+double GiantBranch::CalculateConvectiveEnvelopeMass() const {
+    double convectiveEnvelopeMass = 0.0;
+    if( DetermineEnvelopeType() == ENVELOPE::CONVECTIVE ) {
+        convectiveEnvelopeMass = Mass() - CoreMass() ;                                                                      // For now, return full envelope mass as if it were convective
+    }
+    else if ( DetermineEnvelopeType() == ENVELOPE::RADIATIVE) {
+        convectiveEnvelopeMass = 0.0;                                                                                       // We probably don't need to use RADIATIVE/CONVECTIVE arbitrary boundaries like this; this is just to ensure identical results with new and old prescriptions
+    }
+    return convectiveEnvelopeMass;
 }
 
 
@@ -1678,9 +1775,8 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
  *
  *
  * Short hand wavy story. The core ignites ONeMg and collapses through electron
- * capture. This core is less dense than the heavier Fe Core collapses and thus
- * people expect the neutrinos to escape easier resulting in a zero kick
- * TODO a nice reference (Nomoto 1984 for thorough discussion and a summary in Nomoto 1987)
+ * capture (e.g., Nomoto 1984 for thorough discussion and a summary in Nomoto 1987).
+ * The explosion is likely accompanied by a low natal kick
  *
  *
  * STELLAR_TYPE ResolveElectronCaptureSN()
@@ -1692,6 +1788,10 @@ STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
     if (!m_MassTransferDonorHistory.empty() || (OPTIONS->AllowNonStrippedECSN())) {         // If progenitor has never been a MT donor, is it allowed to ECSN?
                                                                                             // - yes
         m_Mass       = MECS_REM;                                                            // defined in constants.h
+        m_CoreMass   = m_Mass;
+        m_HeCoreMass = m_Mass;
+        m_COCoreMass = m_Mass;
+        m_Mass0      = m_Mass;
         m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
         m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
     
@@ -1703,7 +1803,14 @@ STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
     }
     else {                                                                                  // -no, treat as ONeWD 
         
-        m_Mass       = m_COCoreMass;                                                        
+        if(utils::Compare(m_COCoreMass,MCH) > 0){
+            SHOW_WARN(ERROR::WHITE_DWARF_TOO_MASSIVE, "Setting mass to Chandraskhar mass.");
+        }
+        m_Mass       = std::min(m_COCoreMass,MCH);                                          // no WD masses above Chandrasekhar mass
+        m_CoreMass   = m_Mass;
+        m_HeCoreMass = m_Mass;
+        m_COCoreMass = m_Mass;
+        m_Mass0      = m_Mass;
         m_Radius     = WhiteDwarfs::CalculateRadiusOnPhase_Static(m_Mass);                  // radius is defined equivalently for all WDs
         m_Luminosity = ONeWD::CalculateLuminosityOnPhase_Static(m_Mass, m_Time, m_Metallicity); //Need to get the luminosity for ONeWD specifically
     

@@ -25,6 +25,7 @@ protected:
     double          CalculateAlphaL(const double p_Mass) const;
     double          CalculateAlphaR(const double p_Mass) const;
 
+    double          CalculateConvectiveEnvelopeMass() const                                 { return 0.0; }
     double          CalculateBetaL(const double p_Mass) const;
     double          CalculateBetaR(const double p_Mass) const;
 
@@ -71,7 +72,7 @@ protected:
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
     void            CalculateTimescales()                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
 
-    double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                     { return OPTIONS->ZetaMainSequence(); }
+    double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)  { return OPTIONS->ZetaMainSequence(); }
 
     double          ChooseTimestep(const double p_Time) const;
 

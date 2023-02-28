@@ -37,11 +37,10 @@ protected:
 
 
     // member functions - alphabetically
+    double      CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const ;
     double      CalculateMassTransferRejuvenationFactor() const;
 
     ENVELOPE    DetermineEnvelopeType() const { return ENVELOPE::CONVECTIVE; }                      // Always CONVECTIVE
-
-    bool        IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
 };
 
 #endif // __MS_lte_07_h__

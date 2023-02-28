@@ -73,6 +73,8 @@ protected:
             double          CalculateCoreMassAtPhaseEnd() const                                         { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
             double          CalculateCoreMassOnPhase() const                                            { return 0.0; }                                                         // Mc(HeMS) = 0.0
 
+            double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
+
             double          CalculateGyrationRadius() const                                             { return 0.1; }
 
             double          CalculateHeCoreMassOnPhase() const                                          { return m_Mass; }                                                      // McHe(HeMS) = Mass
@@ -116,7 +118,7 @@ protected:
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
             void            CalculateTimescales()                                                       { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
     
-            double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                         { return OPTIONS->ZetaMainSequence(); }                                 // A HeMS star is treated as any other MS star for Zeta calculation purposes
+            double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)      { return OPTIONS->ZetaMainSequence(); }                                 // A HeMS star is treated as any other MS star for Zeta calculation purposes
 
             double          ChooseTimestep(const double p_Time) const;
 
@@ -125,7 +127,6 @@ protected:
             ENVELOPE        DetermineEnvelopeType() const                                               { return ENVELOPE::RADIATIVE; }                                         // Always RADIATIVE
 
             bool            IsEndOfPhase() const                                                        { return !ShouldEvolveOnPhase(); }
-            bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
             bool            IsSupernova() const                                                         { return false; }                                                       // Not here
 
             void            PerturbLuminosityAndRadius() { }                                                                                                                    // NO-OP

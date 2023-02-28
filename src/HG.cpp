@@ -919,30 +919,27 @@ double HG::CalculateMassTransferRejuvenationFactor() const {
 
 
 /*
- * Determines if mass transfer produces a wet merger
+ * Determines if mass transfer is unstable according to the critical mass ratio.
  *
- * According to the mass ratio limit discussed by de Mink et al. 2013 and Claeys et al. 2014
+ * See e.g de Mink et al. 2013, Claeys et al. 2014, and Ge et al. 2010, 2015, 2020 for discussions.
  *
- * Assumes this star is the donor; relevant accretor details are passed as parameters
+ * Assumes this star is the donor; relevant accretor details are passed as parameters.
+ * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
  *
+ * double HG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) 
  *
- * bool IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate)
- *
- * @param   [IN]    p_AccretorMass              Mass of accretor in Msol
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
- * @return                                      Boolean indicating stability of mass transfer (true = unstable)
+ * @return                                      Critical mass ratio for unstable MT 
  */
-bool HG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
+double HG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const {
 
-    bool result = false;                                                                                                    // default is stable
+    double qCrit;
 
-    if (OPTIONS->MassTransferCriticalMassRatioHG()) {
-        result = p_AccretorIsDegenerate
-                    ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGDegenerateAccretor()              // degenerate accretor
-                    : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGNonDegenerateAccretor();          // non-degenerate accretor
-    }
-
-    return result;
+    qCrit = p_AccretorIsDegenerate
+                ? OPTIONS->MassTransferCriticalMassRatioHGDegenerateAccretor()              // degenerate accretor
+                : OPTIONS->MassTransferCriticalMassRatioHGNonDegenerateAccretor();          // non-degenerate accretor
+                                                                                                                        
+    return qCrit;
 }
 
 
@@ -1000,38 +997,6 @@ void HG::UpdateAgeAfterMassLoss() {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-/*
- * Calculate the mass-radius response exponent Zeta
- *
- * Hurley et al. 2000, eqs 97 & 98
- *
- *
- * double CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)
- *
- * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
- * @return                                      mass-radius response exponent Zeta
- */
-double HG::CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) {
-    
-    double zeta = 0.0;                                              // default value
-    
-    // Use ZetaRadiativeEnvelopeGiant() for radiative envelope giant-like stars, CalculateZadiabatic for convective-envelope giants
-    switch (DetermineEnvelopeType()) {                           // which envelope?
-        case ENVELOPE::RADIATIVE:
-            zeta = OPTIONS->ZetaRadiativeEnvelopeGiant();
-            break;
-            
-        case ENVELOPE::CONVECTIVE:
-            zeta = CalculateZadiabatic(p_ZetaPrescription);
-            break;
-            
-        default:                                                    // shouldn't happen
-            m_Error = ERROR::INVALID_TYPE_ZETA_CALCULATION;         // set error value
-            SHOW_ERROR(m_Error);                                    // warn that an error occurred
-    }
-    
-    return zeta;
-}
 
 /*
  * Determine the star's envelope type.
@@ -1058,7 +1023,7 @@ ENVELOPE HG::DetermineEnvelopeType() const {
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
-            envelope =  utils::Compare(Temperature() * TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            envelope =  utils::Compare(Temperature() * TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
             
         default:                                                                                    // unknown prescription - use default envelope type
@@ -1123,7 +1088,7 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {                  // envelope loss
+    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                  // envelope loss
 
         m_Mass       = std::min(m_CoreMass, m_Mass);
         
@@ -1143,7 +1108,6 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
             m_Luminosity = HeMS::CalculateLuminosityAtZAMS_Static(m_Mass);
             m_Age        = 0.0;                                                 // can't use Hurley et al. 2000, eq 76 here - timescales(tHe) not calculated yet
         }
-
     }
 
     return stellarType;

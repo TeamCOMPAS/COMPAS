@@ -273,6 +273,23 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Header Strings:
      - Mass CO_Core@\ CO, Mass_CO_Core@CO(1), Mass_CO_Core@CO(2), Mass_CO_Core@CO(SN), Mass_CO_Core@CO(CP)
 
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **COMPONENT_SPEED**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_ComponentVelocity
+   * - Description:
+     - Velocity of single star, equal to binary's Systemic Velocity for a bound binary (\ :math:`km s^{-1}`).
+   * - Header String:
+     - ComponentSpeed    
+
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0
@@ -505,6 +522,22 @@ Following is an alphabetical list of stellar properties available for inclusion 
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **EXPERIENCED_AIC**
+     -
+   * - Data type:
+     - BOOL
+   * - COMPAS variable:
+     - `derived from` BaseStar::m_SupernovaDetails.events.past
+   * - Description:
+     - Flag to indicate whether the star underwent an accretion-induced collapse at any time prior to the current timestep.
+   * - Header Strings:
+     - Experienced_AIC, Experienced_AIC(1), Experienced_AIC(2), Experienced_AIC(SN), Experienced_AIC(CP)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **EXPERIENCED_CCSN**
      -
    * - Data type:
@@ -613,6 +646,8 @@ Following is an alphabetical list of stellar properties available for inclusion 
              - = 8
            * - USSN
              - = 16
+           * - AIC
+             - = 32
 
    * -
      - (see :ref:`Supernova events/states <supernova-events-states>` for explanation).
@@ -772,6 +807,22 @@ file, but not both. If both are printed then the file will contain two columns w
 
 `Note that this property has the same header string as INITIAL_STELLAR_TYPE. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **IS_AIC**
+     -
+   * - Data type:
+     - BOOL
+   * - COMPAS variable:
+     - `derived from` BaseStar::m_SupernovaDetails.events.current
+   * - Description:
+     - Flag to indicate whether the star is currently undergoing accretion-induced collapse
+   * - Header Strings:
+     - AIC, AIC(1), AIC(2), AIC(SN), AIC(CP)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1709,6 +1760,8 @@ same header string.`
              - = 8
            * - USSN
              - = 16
+           * - AIC
+             - = 32
    * -
      - (see :ref:`Supernova events/states <supernova-events-states>` for explanation).
    * - Header Strings:
@@ -2115,9 +2168,7 @@ are shown below::
         PISN         = 4,
         PPISN        = 8,
         USSN         = 16,
-        RUNAWAY      = 32,
-        RECYCLED NS  = 64,
-        RLOF ONTO NS = 128
+        AIC          = 32,
     };
 
 
@@ -2128,9 +2179,7 @@ are shown below::
         { SN EVENT::PISN,         "Pair Instability Supernova" },
         { SN EVENT::PPISN,        "Pulsational Pair Instability Supernova" },
         { SN EVENT::USSN,         "Ultra Stripped Supernova" },
-        { SN EVENT::RUNAWAY,      "Runaway Companion" },
-        { SN EVENT::RECYCLED NS,  "Recycled Neutron Star" },
-        { SN EVENT::RLOF ONTO NS, "Donated Mass to Neutron Star through RLOF" }
+        { SN EVENT::AIC,          "Accretion-Induced Collapse" },
     };
 
 A convenience function (shown below) is provided in ``utils.cpp`` to interpret the bit map.
@@ -2147,6 +2196,7 @@ A convenience function (shown below) is provided in ``utils.cpp`` to interpret t
     * SN EVENT::PISN iff PISN bit is set
     * SN EVENT::PPISN iff PPISN bit is set
     * SN EVENT::USSN iff USSN bit is set
+    * SN EVENT::AIC iff AIC bit is set
     * SN EVENT::NONE otherwise
     *
     *
@@ -2159,6 +2209,7 @@ A convenience function (shown below) is provided in ``utils.cpp`` to interpret t
         if ((p SNEvent & SN EVENT::PISN )                   == SN EVENT::PISN ) return SN EVENT::PISN;
         if ((p SNEvent & SN EVENT::PPISN)                   == SN EVENT::PPISN) return SN EVENT::PPISN;
         if ((p SNEvent & SN EVENT::USSN )                   == SN EVENT::USSN ) return SN EVENT::USSN;
+        if ((p SNEvent & SN EVENT::AIC )                    == SN EVENT::AIC )  return SN EVENT::AIC;
 
         return SN EVENT::NONE;
     }

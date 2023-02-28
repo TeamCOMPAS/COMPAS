@@ -911,10 +911,83 @@
 //                                      - Updated the relevant section in the detailed plotter that uses MT_TRACKER values
 //                                      - Removed end states from detailed plotter (Merger, DCO, Unbound) so that they don't over compress the rest
 // 02.31.05     RTW - July 25, 2022  - Defect repair:
+//                                      - Renamed option '--allow-H-rich-ECSN' to 'allow-non-stripped-ECSN'
 //                                      - Fixed check for non-interacting ECSN progenitors to consider MT history instead of H-richness
-// 02.31.06     RTW - July 25, 2022  - Enhancement:
+// 02.31.06     RTW - Aug 2, 2022    - Enhancement:
 //                                      - Added stellar merger to default BSE_RLOF output
+// 02.31.07     IM - August 1, 2022  - Defect repair:
+//                                      - Print to DetailedOutput after merger, addresses https://github.com/TeamCOMPAS/COMPAS/issues/825
+//                                      - Ensures no ONeWDs are formed with masses above Chandrasekhar mass
+//                                      - Minor comment tweaks and a bit of defensive programming
+// 02.31.08     RTW - Aug 3, 2022    - Enhancement:
+//                                      - Added Accretion Induced Collapse (AIC) of ONeWD as another type of SN
+// 02.31.09     RTW - Aug 9, 2022    - Enhancement:
+//                                      - Max evolution time and max number of timesteps now read in from gridline as well as commandline
+// 02.31.10     RTW - Aug 12, 2022   - Enhancement:
+//                                      - Added option to set the Temperature boundary between convective/radiative giant envelopes
+// 02.32.00     JR - Aug 27, 2022    - Enhancement & minor cleanup:
+//                                      - Add 'record type' functionality to all standard log files
+//                                      - Add/rationalise calls to PrintDetailedOutput() for binary systems
+//                                          - remove m_PrintExtraDetailedOutput variable (and associated code) from BaseBinaryStar class
+//                                      - Add new option for each standard log file to allow specification of which record types to print
+//                                          - see e.g. '--logfile-detailed-output-record-types'
+//                                      - Online documentation updated for record types and new options
+//                                      - Detailed ploter changed to work with record type column (thanks RTW)
+//                                      - Added new section to online documentation: 'What's new'
+//                                          - documented record types changes in this new section
+//                                      - Minor cleanup:
+//                                          - minor formatting and typo fixes (src + docs)
+//                                          - removed IncrementOmega() function from the BaseStar and Star classes (anti-patterm and no longer used - if it ever was)
+//                                          - tidied up description of MainSequence::UpdateMinimumCoreMass()
+// 02.33.00     RTW - Aug 13, 2022   - Enhancement:
+//                                      - Added critical mass ratios from Claeys+ 2014 for determining if MT is unstable
+//                                      - Cleaned up stability check functions in BaseBinaryStar.cpp for clarity, and to allow for critical mass ratios to be checked correctly
+// 02.33.01     RTW - Sep 26, 2022   - Defect repair:
+//                                      - Fixed interpolation of MACLEOD_LINEAR gamma for specific angular momentum. Previously interpolated on the gamma value, now interpolates in orbital separation
+// 02.33.02      IM - Nov 27, 2022   - Defect repair:
+//                                      - Fixed ignored value of input radius when computing the thermal timescale, relevant if using Roche lobe radius instead (issue #853)
+//                                      - Cleaned code and comments around the use of MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE vs. C_FACTOR (issue #850)
+// 02.34.00      IM - Nov 28, 2022   - Enhancement:
+//                                      - Adding framework for Hirai & Mandel 2-stage common envelope formalism
+//                                          (placeholders for now -- will have identical results to default version)
+//                                      - Placed Dewi CE prescription on parity with others
+// 02.34.01     RTW - Nov 30, 2022   - Defect repair:
+//                                      - Fixed Time<MT and Time>MT calls in BSE_RLOF. Previously, they were identical. Now, Time<MT correctly reflects the previous time.
+// 02.34.02     JR - Nov 30, 2022    - Defect repair:
+//                                      - Fixed problem with no content in switchlog files (issue #870 - introduced in v2.32.00).
+//                                      - Changed conditional statement in HG::ResolveEnvelopeLoss() and FGB::ResolveEnvelopeLoss() to be consistent with other stellar types ('>' -> '>=').
+// 02.34.03     NRS - Jan 9, 2023    - Defect repair:
+//                                      - Fixed units for post-CEE semi-major axis in CEE logs (issue #876).
+// 02.34.04     RTW - Jan 31, 2023   - Enhancement:
+//                                      - Added SN orbit inclination angle to BSE_SUPERNOVAE output
+// 02.34.05     JR - Jan 29, 2023    - Code cleanup:
+//                                      - Addressed issue #888 - replaced class variables m_LogMetallicityXi, m_LogMetallicitySigma, and m_LogMetallicityRho in BaseStar with getter functions.
+// 02.34.06     IM - Feb 1, 2023     - Bug fixes:
+//                                      - Re-enabled ResolveMassLoss() for Remnants so that Mdot is correctly reset
+//                                      - Set Mdot to 0 in BaseBinaryStar::CalculateWindsMassLoss() when winds are turned off while the binary is in mass trensfer
+//                                      - Removed Dutch winds for Remnants
+//                                      - Fixed typo in NS::CalculateLuminosityOnPhase_Static()
+//                                      - Minor code cleaning
+// 02.35.00     RTW - Dec 8, 2022    - Enhancement:
+//                                      - Added critical mass ratios from Ge+ 2020 for determining if MT is unstable
+// 02.35.01     RTW - Feb 12, 2022   - Enhancement:
+//                                      - Added post-SN orbital inclination vector to the output-able BINARY_PROPERTIES (not included in output, by default). 
+// 02.35.02     JR - Feb 19, 2023    - Minor change and defect repair:
+//                                      - Changed units of ROCHE_LOBE_RADIUS_1 and ROCHE_LOBE_RADIUS_2 from orbital separation to RSOL
+//                                      - Changed header string for ROCHE_LOBE_RADIUS_1 from "RocheLobe(1)|a" to "RocheLobe(1)" - ditto for ROCHE_LOBE_RADIUS_2
+//                                      - removed STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 ("Radius(1)|RL")and STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 ("Radius(2)|RL") from
+//                                        the default output for BSE_DETAILED_OUTPUT_REC (can be calulated from other values in the default output)
+//                                      - changed plot_detailed_evolution.py to accomodate the removal of STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 and 
+//                                        STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 from the default output
+//                                      - changed online documentation to reflect:
+//                                           (a) removal of STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 and STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 from the default output
+//                                           (b) change of header strings for ROCHE_LOBE_RADIUS_1 and ROCHE_LOBE_RADIUS_2 (units already (accidentally...) correct)
+//                                      - fixed minor defect in call to m_Accretor->CalculateMassAcceptanceRate() in BaseBinaryStar::CalculateMassTransfer()
+//                                        (only affected runs with mass-transfer-thermal-limit-accretor = RADIUS_TO_ROCHELOBE)
+// 02.35.03     LvS - Feb 27, 2023    - Enhancement:
+//                                      - Added mass accretion prescription during CE following model 2 from van Son + 2020
 
-const std::string VERSION_STRING = "02.31.06";
+
+const std::string VERSION_STRING = "02.35.03";
 
 # endif // __changelog_h__

@@ -25,6 +25,7 @@ def main():
         if optional_input is not None:
             data_path = optional_input
     except IndexError: # default
+        
         data_path = 'COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5'
 
     Data = h5.File(data_path, 'r')
@@ -32,7 +33,6 @@ def main():
     ### Collect the important events in the detailed evolution
     events = allEvents(Data).allEvents # Calculate the events here, for use in plot sizing parameters
     printEvolutionaryHistory(events=events)
-    events = [event for event in events if event.eventClass != 'Stype'] # want to ignore simple stellar type changes
 
     ### Produce the two plots
     makeDetailedPlots(Data, events)
@@ -151,10 +151,12 @@ def plotLengthAttributes(ax=None, Data=None, mask=None, **kwargs):
     ax.plot(Data['Time'][()][mask], Data['Radius(1)'][()][mask], linestyle='-', c='r', label='Stellar Radius 1')
     ax.plot(Data['Time'][()][mask], Data['Radius(2)'][()][mask], linestyle='-', c='b', label='Stellar Radius 2')
     # Need to mask out when the denominator is 0
-    mask1 = mask & (Data['Radius(1)|RL'][()] != 0)
-    ax.plot(Data['Time'][()][mask1], Data['Radius(1)'][()][mask1]/Data['Radius(1)|RL'][()][mask1], linestyle='--', c='r', label='Roche Radius 1')
-    mask2 = mask & (Data['Radius(2)|RL'][()] != 0)
-    ax.plot(Data['Time'][()][mask2], Data['Radius(2)'][()][mask2]/Data['Radius(2)|RL'][()][mask2], linestyle='--', c='b', label='Roche Radius 2')
+    starToRLradius1 = Data['Radius(1)'][()][mask] / Data['RocheLobe(1)'][()][mask]
+    mask1 = mask & (starToRLradius1 != 0)
+    ax.plot(Data['Time'][()][mask1], Data['Radius(1)'][()][mask1]/starToRLradius1[mask1], linestyle='--', c='r', label='Roche Radius 1')
+    starToRLradius2 = Data['Radius(2)'][()][mask] / Data['RocheLobe(2)'][()][mask]
+    mask2 = mask & (starToRLradius2 != 0)
+    ax.plot(Data['Time'][()][mask2], Data['Radius(2)'][()][mask2]/starToRLradius2[mask2], linestyle='--', c='b', label='Roche Radius 2')
 
     ax.set_ylabel(r'Radius $/ \; R_{\odot}$')
     ax.set_yscale('log')
@@ -235,6 +237,12 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, **kwargs)
     #Data['Teff(1)'][()] #K
     #Data['Luminosity(1)'][()] # Lsol
     
+    maskNoCOs = (Data['Stellar_Type(1)'][()] < 9) & (Data['Stellar_Type(2)'][()] < 9) 
+    if mask is None:
+        mask = maskNoCOs
+    else:
+        mask &= maskNoCOs
+
     ax.plot(Data['Teff(1)'][()][mask], Data['Luminosity(1)'][()][mask], linestyle='-', c='r', label='Star 1')
     ax.plot(Data['Teff(2)'][()][mask], Data['Luminosity(2)'][()][mask], linestyle='-', c='b', label='Star 2')
     ax.set_xlabel(r'Temperature [log(T/K)]')
@@ -537,7 +545,18 @@ class Event(object):
 
             elif state == "Unbound":
                 eventString = r'Unbound: {}+{}'.format(self.stypeName1, self.stypeName2)
-                image_num = None
+                if (stype1 == 13) & (stype2 < 13):
+                    image_num = 19
+                elif (stype1 < 13) & (stype2 == 13):
+                    image_num = 19
+                    rotate_image = True
+                elif (stype1 == 14) & (stype2 < 13):
+                    image_num = 20
+                elif (stype1 < 13) & (stype2 == 14):
+                    image_num = 20
+                    rotate_image = True
+                else:
+                    image_num = 23
 
             else:
                 eventString = r'Evolution ended by run duration: {}+{}'.format(self.stypeName1, self.stypeName2) 
@@ -557,7 +576,7 @@ class Event(object):
         on the stellar types, to get the van den Heuvel diagrams.
         """
 
-        self.imgFile = compasRootDir + 'utils/media/vanDenHeuvel_figures/{}.png'.format(image_num)
+        self.imgFile = os.path.join(compasRootDir, 'utils/media/vanDenHeuvel_figures/{}.png'.format(image_num))
         img = plt.imread(self.imgFile) # import image
         if rotate_image:
             img = img[:,::-1,:] # flip across y-axis

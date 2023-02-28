@@ -67,6 +67,8 @@ protected:
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const;
     double          CalculateCoreMassOnPhase() const                                { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                        // Use class member variables
 
+    double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
+
     double          CalculateGyrationRadius() const                                 { return 0.21; }                                                                            // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
     double          CalculateHeCoreMassAtPhaseEnd() const                           { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
@@ -95,8 +97,6 @@ protected:
     double          CalculateTauAtPhaseEnd() const                                  { return 1.0; }                                                                             // tau = 1.0 at end of HG
     double          CalculateTauOnPhase() const;
 
-    double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription);
-
     double          ChooseTimestep(const double p_Time) const;
 
     ENVELOPE        DetermineEnvelopeType() const;
@@ -105,7 +105,6 @@ protected:
     STELLAR_TYPE    EvolveToNextPhase();
 
     bool            IsEndOfPhase() const                                            { return !ShouldEvolveOnPhase(); }                                                          // Phase ends when age at or after Base Giant Branch MS timescale
-    bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const;
     bool            IsSupernova() const                                             { return false; }                                                                           // Not here
 
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
