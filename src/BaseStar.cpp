@@ -1903,7 +1903,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021(const double p_Teff) {
         rate = PPOW(10.0, logMdotOB);
         m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
     }
-        else if (utils::Compare(p_Teff, T2) > 0) {
+    else if (utils::Compare(p_Teff, T2) > 0) {
         SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
 
         double V         = 2.6;                                                                                 // v_inf/v_esc
