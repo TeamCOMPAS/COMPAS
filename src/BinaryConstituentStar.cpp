@@ -107,13 +107,14 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
  * JR: todo: flesh-out this documentation
  *
  *
- * double CalculateMassAccretedForNS(const double p_CompanionMass, const double p_CompanionRadius)
+ * double CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius)
  *
+ * @param   [IN]    p_Mass                      The mass of the accreting star (Msol)
  * @param   [IN]    p_CompanionMass             The mass of the companion star (Msol)
  * @param   [IN]    p_CompanionRadius           The radius of the companion star (Rsol)
  * @return                                      Mass accreted by the Neutron Star (Msol)
  */
-double BinaryConstituentStar::CalculateMassAccretedForNS(const double p_CompanionMass, const double p_CompanionRadius) {
+double BinaryConstituentStar::CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius) const {
 
      double deltaMass;
 
@@ -144,13 +145,21 @@ double BinaryConstituentStar::CalculateMassAccretedForNS(const double p_Companio
             deltaMass = std::min(OPTIONS->CommonEnvelopeMassAccretionMax(), std::max(OPTIONS->CommonEnvelopeMassAccretionMin(), m * p_CompanionRadius + c));
             } break;
 
-        default:                                                                                                // unknown common envelope accretion prescription - shouldn't happen
-            deltaMass = 0.0;                                                                                    // default value
-            SHOW_WARN(ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION, "NS accreted mass = 0.0");                      // warn that an error occurred
+        case CE_ACCRETION_PRESCRIPTION::CHEVALIER:                                                                // CHEVALIER
+                                                                                                                  // Model 2 from van Son et al. 2020
+            deltaMass = (p_Mass * p_CompanionMass) / (2.0 * (p_Mass + p_CompanionMass)) ;                         // Hoyle littleton accretion rate times inspiral time
+            break;
+
+        default:                                                                                                  // unknown common envelope accretion prescription - shouldn't happen
+            deltaMass = 0.0;                                                                                      // default value
+            SHOW_WARN(ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION, "NS/BH accreted mass = 0.0");                     // warn that an error occurred
     }
+
+    deltaMass = std::min(m_Companion->MassPreCEE() - m_Companion->CoreMassAtCEE(), deltaMass);                    // clamp the mass accretion to be no more than the envelope of the companion pre CE
 
     return deltaMass;
 }
+
 
 
 /*
@@ -281,32 +290,34 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
 }
 
 
-/*
+/* 
  * Resolve common envelope accretion
  *
- * For stellar types other than Neutron Star just set the star's mass to the parameter passed
- * For Neutron Stars calculate the mass accreted based on the companion's mass and radius
+ * For stellar types other than Black hole or Neutron Star just set the star's mass to the parameter passed
+ * For Black holes or Neutron Stars calculate the mass accreted during a CE
  *
  *
  * void ResolveCommonEnvelopeAccretion(const double p_FinalMass)
  *
- * @param   [IN]    p_FinalMass                 Mass of the star post mass transfer (Msol)
+ * @param   [IN]    p_FinalMass                 Mass of the accreting object post mass transfer (Msol)
+ * @param   [IN]    p_StellarType               Stellar type of the accreting object pre mass transfer 
  */
-void BinaryConstituentStar::ResolveCommonEnvelopeAccretion(const double p_FinalMass) {
+void BinaryConstituentStar::ResolveCommonEnvelopeAccretion(double p_FinalMass) {
 
     double deltaMass;
-
-    if (IsOneOf({ STELLAR_TYPE::NEUTRON_STAR})) {           // only Neutron Star is different, so settled for this way rather than use class hierarchy...
-        deltaMass = CalculateMassAccretedForNS(m_Companion->Mass(), m_Companion->Radius());
+    
+    // LvS: todo: more consisten super eddington accretion during CE should also affect e.g. MS stars
+    if (IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE})) {                          
+        deltaMass = CalculateMassAccretedForCO(Mass(), m_Companion->Mass(), m_Companion->Radius());
         m_MassTransferDiff = deltaMass;
     }
     else {
         deltaMass = p_FinalMass - Mass();
         // JR: todo: why isn't m_MassTransferDiff updated here (as it is for Neutron Stars)?
     }
-
     ResolveAccretion(deltaMass);
 }
+
 
 
 /*
@@ -329,32 +340,32 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
 
 	switch (DetermineEnvelopeType()) {
 
-        case ENVELOPE::CONVECTIVE: {                                                                                                    // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
+            case ENVELOPE::CONVECTIVE: {                                                                                                    // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
 
 	        double tauConv          = CalculateEddyTurnoverTimescale();
 	        double fConv            = 1.0;                                                                                              // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
-            double fConvOverTauConv = fConv / tauConv;
-            double rOverAPow8       = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;                            // use multiplication - pow() is slow
+                double fConvOverTauConv = fConv / tauConv;
+                double rOverAPow8       = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;                            // use multiplication - pow() is slow
 
 	        timescale               = 1.0 / (fConvOverTauConv * ((Mass() - CoreMass()) / Mass()) * q2 * (1.0 + q2) * rOverAPow8);
-        } break;
+            } break;
 
-        case ENVELOPE::RADIATIVE: {                                                                                                     // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
+            case ENVELOPE::RADIATIVE: {                                                                                                     // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
 
-            double rInAU                  = Radius() * RSOL_TO_AU;
-            double rInAUPow3              = rInAU * rInAU * rInAU;                                                                      // use multiplication - pow() is slow
-            double rOverAPow10            = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;    // use multiplication - pow() is slow
-            double rOverAPow21Over2       = rOverAPow10 * rOverA * std::sqrt(rOverA);                                                   // sqrt() is faster than pow()
+                double rInAU                  = Radius() * RSOL_TO_AU;
+                double rInAUPow3              = rInAU * rInAU * rInAU;                                                                      // use multiplication - pow() is slow
+                double rOverAPow10            = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;    // use multiplication - pow() is slow
+                double rOverAPow21Over2       = rOverAPow10 * rOverA * std::sqrt(rOverA);                                                   // sqrt() is faster than pow()
 
-		    double	secondOrderTidalCoeff = 1.592E-09 * PPOW(Mass(), 2.84);                                                              // aka E_2.
-		    double	freeFallFactor        = std::sqrt(G1 * Mass() / rInAUPow3);
+		double	secondOrderTidalCoeff = 1.592E-09 * PPOW(Mass(), 2.84);                                                              // aka E_2.
+		double	freeFallFactor        = std::sqrt(G1 * Mass() / rInAUPow3);
 		
-		    timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * PPOW(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
-        } break;
+		timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * PPOW(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
+            } break;
 
-        default:                                                                                                                        // all other envelope types (remnants?)
-            timescale = 0.0;
-    }
+            default:                                                                                                                        // all other envelope types (remnants?)
+                timescale = 0.0;
+        }
 
 	return timescale;
 }
@@ -382,28 +393,28 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 
 	switch (DetermineEnvelopeType()) {
 
-        case ENVELOPE::CONVECTIVE: {                                            // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
+            case ENVELOPE::CONVECTIVE: {                                            // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
 
-            double tauConv = CalculateEddyTurnoverTimescale();
-            double fConv   = 1.0;	                                            // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
-            double kOverTc = (2.0 / 21.0) * (fConv / tauConv) * ((Mass() - CoreMass()) / Mass());
+                double tauConv = CalculateEddyTurnoverTimescale();
+                double fConv   = 1.0;	                                            // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
+                double kOverTc = (2.0 / 21.0) * (fConv / tauConv) * ((Mass() - CoreMass()) / Mass());
 
-            timescale       = 1.0 / (3.0 * kOverTc * q2 * gyrationRadiusSquared_1 * rOverA_6);
+                timescale       = 1.0 / (3.0 * kOverTc * q2 * gyrationRadiusSquared_1 * rOverA_6);
             } break;
 
-        case ENVELOPE::RADIATIVE: {                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
+            case ENVELOPE::RADIATIVE: {                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
 
-            double coeff2          = 5.0 * PPOW(2.0, 5.0 / 3.0);                // JR: todo: replace this with a constant (calculated) value?
-            double e2              = 1.592E-9 * PPOW(Mass(), 2.84);             // second order tidal coefficient (a.k.a. E_2)
-            double rAU             = Radius() * RSOL_TO_AU;
-            double rAU_3           = rAU * rAU * rAU;
-            double freeFallFactor  = std::sqrt(G1 * Mass() / rAU_3);
+                double coeff2          = 5.0 * PPOW(2.0, 5.0 / 3.0);                // JR: todo: replace this with a constant (calculated) value?
+                double e2              = 1.592E-9 * PPOW(Mass(), 2.84);             // second order tidal coefficient (a.k.a. E_2)
+                double rAU             = Radius() * RSOL_TO_AU;
+                double rAU_3           = rAU * rAU * rAU;
+                double freeFallFactor  = std::sqrt(G1 * Mass() / rAU_3);
 
-		    timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * PPOW(1.0 + q2, 5.0 / 6.0) * e2 * PPOW(rOverA, 17.0 / 2.0));
+		timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * PPOW(1.0 + q2, 5.0 / 6.0) * e2 * PPOW(rOverA, 17.0 / 2.0));
             } break;
 
-        default:                                                                // all other envelope types (remnants?)
-            timescale = 1.0 / ((1.0 / 1.3E7) * PPOW(Luminosity() / Mass(), 5.0 / 7.0) * rOverA_6);
+            default:                                                                // all other envelope types (remnants?)
+                timescale = 1.0 / ((1.0 / 1.3E7) * PPOW(Luminosity() / Mass(), 5.0 / 7.0) * rOverA_6);
 	}
 
 	return timescale;
