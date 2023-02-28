@@ -1936,11 +1936,11 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021(const double p_Teff) {
  *
  * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateOBKrticka2018() {
+double BaseStar::CalculateMassLossRateOBKrticka2018() const {
 
-    double logMdotOB 
-    logMdotOB = -5.70 + 0.50 * log10(m_Metallicity / ZSOL) + (1.61 - 0.12 * log10(m_Metallicity/ZSOL)) * log10(m_Luminosity / 1.0E6)
-    return PPOW(10.0, logMdot);
+    double logMdotOB;
+    logMdotOB = -5.70 + 0.50 * log10(m_Metallicity / ZSOL) + (1.61 - 0.12 * log10(m_Metallicity/ZSOL)) * log10(m_Luminosity / 1.0E6);
+    return PPOW(10.0, logMdotOB);
 }
 
 /*
@@ -2151,7 +2151,8 @@ double BaseStar::CalculateMassLossRateUpdatedPrescription() {
         else {     
             //otherWindsRate = CalculateMassLossRateBjorklund();                                                      // For hot stars, apply Bjorklund et al. prescription
             //m_DominantMassLossRate = MASS_LOSS_TYPE::BJORKLUND;
-            otherWindsRate = CalculateMassLossRateOB(teff);
+            //otherWindsRate = CalculateMassLossRateOB(teff);
+            otherWindsRate = CalculateMassLossRateOBKrticka2018();
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {

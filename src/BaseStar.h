@@ -446,6 +446,7 @@ protected:
             double              CalculateMassLossRateBjorklundEddingtonFactor() const;
             double              CalculateMassLossRateBjorklund() const;
             double              CalculateMassLossRateOB(const double p_Teff);
+            double              CalculateMassLossRateOBKrticka2018() const;
             double              CalculateMassLossRateOBVinkSander2021(const double p_Teff);
             double              CalculateMassLossRateVassiliadisWood() const;
     virtual double              CalculateMassLossRateVink();
