@@ -1928,6 +1928,22 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021(const double p_Teff) {
 }
 
 /*
+ * Calculate mass loss rate for massive OB stars using the Krticka+ 2018 prescription
+ *
+ * https://arxiv.org/pdf/1712.03321.pdf
+ *
+ * double CalculateMassLossRateOB()
+ *
+ * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateOBKrticka2018() {
+
+    double logMdotOB 
+    logMdotOB = -5.70 + 0.50 * log10(m_Metallicity / ZSOL) + (1.61 - 0.12 * log10(m_Metallicity/ZSOL)) * log10(m_Luminosity / 1.0E6)
+    return PPOW(10.0, logMdot);
+}
+
+/*
  * Calculate the mass-loss rate for Wolf-Rayet stars according to the
  * prescription of Sander & Vink 2020 (https://arxiv.org/abs/2009.01849)
  * 
