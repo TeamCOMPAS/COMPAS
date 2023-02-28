@@ -506,7 +506,7 @@ def parse_args(cli_args=[]):
     default_n = int(1e5)
     parser = argparse.ArgumentParser(description='Generate a grid of initial conditions for a binary population')
     parser.add_argument('--gridname', type=str, default=f'grid_moedistefano_sSamples{default_n}.txt', help='Name of the grid file to create')
-    parser.add_argument('--nSamples', type=int, default=int(1e5), help='Number of samples to create')
+    parser.add_argument('--nSamples', type=int, default=default_n, help='Number of samples to create')
     parser.add_argument('--m1Min', type=float, default=5, help='Minimum primary mass')
     parser.add_argument('--m1Max', type=float, default=100, help='Maximum primary mass')
     return vars(parser.parse_args(args=cli_args))

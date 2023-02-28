@@ -144,11 +144,11 @@ class pythonProgramOptions:
         return
 
 
-def runSubmit(cli_args=[DEFUALT_CONFIG_FILE], execute=True):
+def runSubmit(cli_args=[DEFAULT_CONFIG_FILE], execute=True):
     parser = argparse.ArgumentParser(
         description='Run COMPAS using a config yaml (for settings refer to ./COMPAS --help)'
     )
-    parser.add_argument('config_file', type=str, default=DEFUALT_CONFIG_FILE)
+    parser.add_argument('config_file', type=str, default=DEFAULT_CONFIG_FILE)
     args = parser.parse_args(cli_args)
     # -- Get the program options
     myoptions = pythonProgramOptions(config_file=args.config_file)
