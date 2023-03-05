@@ -45,7 +45,7 @@ protected:
         CalculateTimescales();                                                                                                                                  // Initialise timescales
         m_HShell = 0.0; // Initialize hydrogen shell
         m_HeShell = 0.0; // Initialize helium shell
-        m_DoubleDetonation = false;
+        m_HeShellDetonation = false;
         m_OffCenterIgnition = false;
         m_AccretionRegime = ACCRETION_REGIME::NONE;
     }

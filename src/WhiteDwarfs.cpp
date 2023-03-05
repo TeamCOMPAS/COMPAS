@@ -1,6 +1,7 @@
 #include "WhiteDwarfs.h"
 #include "NS.h"
 
+
 /* Calculate eta_hydrogen from Claeys+ 2014, appendix B. This parameter depends 
  * on three regimes for the mass transfer rate, which here are distinguished by the 
  * thresholds logMdotUppH and logMdotLowH. In Claeys+ 2014, the mass transfer rate is
@@ -16,7 +17,6 @@
  * @param   [IN]    p_MassTransferRate     Mass transfer rate onto the WD surface (Msun/yr)
  * @return                                 Hydrogen accretion efficiency
  */
-
 double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
     double etaH = 0.0;
     double logMassTransferRate = log10(p_MassTransferRate);
@@ -37,6 +37,7 @@ double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
     return etaH;
 }
 
+
 /* Calculate eta_helium from Claeys+ 2014, appendix B. Similarly to CalculateEtaH
  * above, this parameter depends on four regimes for the mass transfer rate, distinguished
  * here by logMdotUppHe, logMdotMidHe, and logMdotLowHe. In Claeys+ 2014, these thresholds
@@ -54,7 +55,6 @@ double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
  * @param   [IN]    p_MassTransferRate     Mass transfer rate onto the WD surface (Msun/yr)
  * @return                                 Helium accretion efficiency
  */
-
 double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
     double etaHe = 0.0;
     double logMassTransferRate = log10(p_MassTransferRate);
@@ -78,7 +78,6 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
     }
     return etaHe;
 }
-
 
 
 /* Calculate accretion efficiency as indicated in Piersanti+ 2014, section A3. Their recipe works
@@ -134,6 +133,7 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
     return (635.0 * p_Mass * PPOW(p_Metallicity, 0.4)) / PPOW(p_BaryonNumber * (p_Time + 0.1), 1.4);
 }
 
+
 /*
  * Calculate the radius of a white dwarf - good for all types of WD
  *
@@ -150,6 +150,7 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     double MCH_Mass_two_thirds = MCH_Mass_one_third* MCH_Mass_one_third;
     return std::max(NEUTRON_STAR_RADIUS, 0.0115 * std::sqrt((MCH_Mass_two_thirds - 1.0/MCH_Mass_two_thirds )));
 }
+
 
 /* 
  * Increase shell size after mass transfer episode. Hydrogen and helium shells are kept separately.
@@ -214,6 +215,7 @@ STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
 
     return STELLAR_TYPE::NEUTRON_STAR;
 }
+
 
 /*
  * Resolve Type 1a Supernova 

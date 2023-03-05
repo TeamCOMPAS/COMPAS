@@ -37,7 +37,7 @@ public:
 protected:
     // member variables
 
-            bool                    m_DoubleDetonation;                         // Flag to initialize double detonation (i.e. as described in Wang. 2018, sect 5)
+            bool                    m_HeShellDetonation;                        // Flag to initialize He-Shell detonation (i.e. as described in Wang. 2018, sect 5 2018RAA....18...49W)
             double                  m_HeShell;                                  // Current WD He-shell size (Msol). Increases through accretion.
             double                  m_HShell;                                   // Current WD H-shell size (Msol). Increases through accretion.
             double                  m_l0Ritter;                                 // Parameter from numerical calculations, see Ritter 1999, section 3. Eqs 10 and 12, as well as table 2. Corresponds to L0.

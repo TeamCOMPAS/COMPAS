@@ -1,7 +1,6 @@
 #include "ONeWD.h"
 
 
-
 /*
  * Allow evolution to a new phase (currently, only SN)
  *
@@ -9,7 +8,6 @@
  *
  * @return                               Whether the WD should evolve on phase or towards a SN.
  */
-
 bool ONeWD::ShouldEvolveOnPhase() {
     return !IsSupernova();
 }
@@ -23,10 +21,10 @@ bool ONeWD::ShouldEvolveOnPhase() {
  *
  * @return                               Whether WD should undergo AIC or SN Ia
  */
-
 bool ONeWD::IsSupernova() const {
     return IsMassAboveEcsnThreshold();      
 }
+
 
 /*
  * Specifies next stage, if the star changes its phase.
@@ -35,7 +33,6 @@ bool ONeWD::IsSupernova() const {
  *
  * @return                               Stellar type of the upcoming stage.
  */
-
 STELLAR_TYPE ONeWD::EvolveToNextPhase() {
     if (IsMassAboveEcsnThreshold()) {
         return ResolveAIC();

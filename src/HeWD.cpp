@@ -35,7 +35,9 @@ DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
 
 
 /* 
- * Determine the WD accretion regime based on the MT rate and whether the donor is He rich 
+ * Determine the WD accretion regime based on the MT rate and whether the donor is He rich. Also,
+ * initialize Sub-Chandrasekhar SN Ia or rejuvenation (evolution into HeMS) when necessary, by 
+ * changing the value of m_IsSubChandrasekharTypeIa or m_ShouldRejuvenate (respectively). 
  *
  * The accretion regime is one of the options listed in enum ACCRETION_REGIME (constants.h)
  *
@@ -45,7 +47,6 @@ DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
  * @param   [IN]    p_DonorMassRate      Donor mass loss rate, in units of Msol / Myr
  * @return                               Current WD accretion regime
  */
-
 ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorMassRate) {
     double Mdot = p_DonorMassRate / MYR_TO_YEAR;            // Accreted mass rate (M_sun/yr)
     ACCRETION_REGIME regime;
@@ -102,6 +103,7 @@ bool HeWD::ShouldEvolveOnPhase() {
     }
 }
 
+
 /*
  * List all conditions for SN (AIC or SN Ia) for HeWD WD. 
  * Each condition should also be a separate clause in EvolveToNextPhase.
@@ -113,6 +115,7 @@ bool HeWD::ShouldEvolveOnPhase() {
 bool HeWD::IsSupernova() const {
     return m_IsSubChandrasekharTypeIa;                                           // Go supernova if mass and He shell are large enough
 }
+
 
 /*
  * Specifies next stage, if the star changes its phase.
@@ -137,5 +140,4 @@ STELLAR_TYPE HeWD::EvolveToNextPhase() {
         return ResolveAIC();
     }
 }
-
 

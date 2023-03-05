@@ -1,5 +1,6 @@
 #include "COWD.h"
 
+
 /* For COWDs and ONeWDs, calculate:
  *
  *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
@@ -36,7 +37,9 @@ DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
 
 
 /* 
- * Determine the WD accretion regime based on the MT rate and whether the donor is He rich 
+ * Determine the WD accretion regime based on the MT rate and whether the donor is He rich. Also,
+ * initialize He-Shell detonation or Off-center ignition when necessary, by changing the value
+ * of m_HeShellDetonation or m_OffCenterIgnition (respectively).
  *
  * The accretion regime is one of the options listed in enum ACCRETION_REGIME (constants.h)
  *
@@ -48,7 +51,6 @@ DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
  * @param   [IN]    p_DonorMassLossRate      Donor mass loss rate, in units of Msol / Myr
  * @return                                   Current WD accretion regime
  */
-
 ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorMassLossRate) {
     double logMdot = log10(p_DonorMassLossRate / MYR_TO_YEAR); // Logarithm of the accreted mass (M_sun/yr)
     ACCRETION_REGIME regime = ACCRETION_REGIME::NONE;
@@ -65,7 +67,7 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
             else {
                 regime = ACCRETION_REGIME::HELIUM_ACCUMULATION;
                 if ((utils::Compare(m_Mass, MASS_DOUBLE_DETONATION_CO) >= 0) && (utils::Compare(m_HeShell, WD_HE_SHELL_MCRIT_DETONATION) >= 0)) {
-                    m_DoubleDetonation = true;
+                    m_HeShellDetonation = true;
                 }
             }
         } 
@@ -97,6 +99,7 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
     return regime;
 }
 
+
 /*
  * Allow the evolution towards an ONe WD . From https://ui.adsabs.harvard.edu/abs/2017MNRAS.472.1593W/abstract around
  * the end of section 3.2. Also, allows SN.
@@ -105,7 +108,6 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
  *
  * @return                               Whether the WD should evolve on phase or towards an ONeWD/SN.
  */
-
 bool COWD::ShouldEvolveOnPhase() {
     if (m_OffCenterIgnition) {
         return false;
@@ -115,6 +117,7 @@ bool COWD::ShouldEvolveOnPhase() {
     }
 }
 
+
 /*
  * List all conditions for SN (AIC or SN Ia) for COWD WD. 
  * Each condition should also be a separate clause in EvolveToNextPhase.
@@ -123,9 +126,8 @@ bool COWD::ShouldEvolveOnPhase() {
  *
  * @return                               Whether WD should undergo AIC or SN Ia
  */
-
 bool COWD::IsSupernova() const {
-    return m_DoubleDetonation || IsMassAboveChandrasekhar();      
+    return m_HeShellDetonation || IsMassAboveChandrasekhar();      
 }
 
 
@@ -141,7 +143,7 @@ STELLAR_TYPE COWD::EvolveToNextPhase() {
     if (m_OffCenterIgnition) {
         return STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }
-    else if (m_DoubleDetonation || IsMassAboveChandrasekhar()) {
+    else if (m_HeShellDetonation || IsMassAboveChandrasekhar()) {
         return ResolveSNIa(); 
     }
     else {                                         // Should not occur
@@ -149,3 +151,4 @@ STELLAR_TYPE COWD::EvolveToNextPhase() {
         return ResolveAIC();
     }
 }
+
