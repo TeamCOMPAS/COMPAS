@@ -1144,19 +1144,17 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
 /*
  * Update effective initial mass
  *
- * Per Hurley et al. 2000, section 7.1, the effective initial mass on the HG tracks the stellar mass -- unless it would yield an unphysical decrease in the core mass
+ * Per Hurley et al. 2000, section 7.1, the effective initial mass on the HG tracks the stellar mass,
+ * unless it would yield an unphysical decrease in the core mass
  *
  *
  * void UpdateInitialMass()
  *
  */
 void HG::UpdateInitialMass() {
-
-
-
-#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-
-    if (utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhase(m_Mass, m_Age)) <= 0 ) {        // The current mass would yield a core mass larger than the current core mass -- i.e., no unphysical core mass decrease would ensue
+    // The current mass would yield a core mass larger than the current core mass
+    // i.e., no unphysical core mass decrease would ensue
+    if (utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhase(m_Mass, m_Age)) <= 0 ) {
         m_Mass0 = m_Mass;
     }
 }
