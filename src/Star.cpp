@@ -406,7 +406,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
 
     double       dt = p_Dt;
 
-    STELLAR_TYPE stellarType  = StellarType();
+    STELLAR_TYPE stellarType;
 
     bool         takeTimestep = false;
     int          retryCount   = 0;
