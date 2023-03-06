@@ -406,10 +406,11 @@ double Star::EvolveOneTimestep(const double p_Dt) {
 
     double       dt = p_Dt;
 
-    STELLAR_TYPE stellarType;
+    STELLAR_TYPE stellarType  = StellarType();
 
     bool         takeTimestep = false;
     int          retryCount   = 0;
+
 
     while (!takeTimestep) {                                                                                     // do this until a suitable timestep is found (or the maximum retry count is reached)
         
@@ -439,7 +440,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
                 else {                                                                                          // not too many retries - retry with smaller timestep
                     if (RevertState()) {                                                                        // revert to last state ok?
                         dt = dt / 2.0;                                                                          // yes - halve the timestep (limit to minimum)      JR: probably should be dt = max(dt / 2.0, minTimestep);
-                        takeTimestep = false;                                                                   // previous timestep discared - use new one
+                        takeTimestep = false;                                                                   // previous timestep discarded - use new one
                     }
                     else {                                                                                      // revert failed
                         takeTimestep = true;                                                                    // take the last timestep anyway
@@ -456,7 +457,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
 
     (void)SwitchTo(stellarType);                                                                                // switch phase if required  JR: whether this goes before or after the log record is a little problematic, but in the end probably doesn't matter too much
 
-    (void)m_Star->ResolveMassLoss();                                                                            // apply wind mass loss if required     JR: should this really be before the call to SwitchTo()?  It isn't in the original code
+    m_Star->ResolveMassLoss();                                                                                  // apply wind mass loss if required     JR: should this really be before the call to SwitchTo()?  It isn't in the original code
 
     return dt;                                                                                                  // return the timestep actually taken
 }
@@ -505,7 +506,7 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
         else {
             stepNum++;                                                              // increment step number                                                      
             dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();       // calculate new timestep
-            EvolveOneTimestep(dt);                                                  // evolve for timestep
+            (void) EvolveOneTimestep(dt);                                           // evolve for timestep
             (void)m_Star->PrintDetailedOutput(m_Id);                                // log record
         }
     }

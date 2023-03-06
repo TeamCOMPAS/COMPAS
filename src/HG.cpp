@@ -1151,7 +1151,12 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
  *
  */
 void HG::UpdateInitialMass() {
-    if (utils::Compare(m_CoreMass,HG::CalculateCoreMassOnPhase(m_Mass, m_Age)) < 0 ) {        //The current mass would yield a core mass larger than the current core mass -- i.e., no unphysical core mass decrease would ensue
+
+
+
+#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
+
+    if (utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhase(m_Mass, m_Age)) <= 0 ) {        // The current mass would yield a core mass larger than the current core mass -- i.e., no unphysical core mass decrease would ensue
         m_Mass0 = m_Mass;
     }
 }

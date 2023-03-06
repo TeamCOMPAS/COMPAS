@@ -2103,21 +2103,21 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
  * - applies mass rejuvenation factor and calculates new age
  *
  *
- * double ResolveMassLoss()
+ * void ResolveMassLoss()
  */
 void BaseStar::ResolveMassLoss() {
 
     if (OPTIONS->UseMassLoss()) {
-        m_Mass = CalculateMassLossValues(true, true);                           // calculate new values assuming mass loss applied
+        m_Mass = CalculateMassLossValues(true, true);                       // calculate new values assuming mass loss applied
         
-        m_HeCoreMass=std::min(m_HeCoreMass,m_Mass);                             // update He mass if mass loss is happening from He stars
+        m_HeCoreMass = std::min(m_HeCoreMass, m_Mass);                      // update He mass if mass loss is happening from He stars
         
-        m_COCoreMass=std::min(m_COCoreMass,m_Mass);                             // Not expected, only a precaution to avoid inconsistencies
-        m_CoreMass=std::min(m_CoreMass, m_Mass);
+        m_COCoreMass = std::min(m_COCoreMass, m_Mass);                      // Not expected, only a precaution to avoid inconsistencies
+        m_CoreMass   = std::min(m_CoreMass, m_Mass);
         
-        UpdateInitialMass();                                                    // update effective initial mass (MS, HG & HeMS)
-        UpdateAgeAfterMassLoss();                                               // update age (MS, HG & HeMS)
-        ApplyMassTransferRejuvenationFactor();                                  // apply age rejuvenation factor
+        UpdateInitialMass();                                                // yes - update effective initial mass (MS, HG & HeMS)
+        UpdateAgeAfterMassLoss();                                           // update age (MS, HG & HeMS)
+        ApplyMassTransferRejuvenationFactor();                              // apply age rejuvenation factor
     }
 }
 
@@ -2536,6 +2536,7 @@ double BaseStar::CalculateLifetimeToBGB(const double p_Mass) const {
     double m_7   = m_4 * m_2 * p_Mass;
 
     return (a[1] + (a[2] * m_4) + (a[3] * m_5_5) + m_7) / ((a[4] * m_2) + (a[5] * m_7));
+
 #undef a
 }
 
@@ -3191,7 +3192,7 @@ double BaseStar::CalculateTimestep() {
 
     // the GBParams and Timescale calculations need to be done
     // before the timestep calculation - since the binary code
-    // calls this functiom, the GBParams and Timescale functions
+    // calls this function, the GBParams and Timescale functions
     // are called here
 
     CalculateGBParams();                                                                // calculate giant branch parameters
