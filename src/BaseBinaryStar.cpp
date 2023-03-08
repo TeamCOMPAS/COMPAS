@@ -1971,8 +1971,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         } 
         double massGainAccretor = -massDiffDonor * m_FractionAccreted;                                                          // set accretor mass gain to mass loss * conservativeness
 
-        m_Donor->SetMassTransferDiff(massDiffDonor);                                                                            // set new mass of donor
-        m_Accretor->SetMassTransferDiff(massGainAccretor);                                                                      // set new mass of accretor
+        m_Donor->SetMassTransferDiffAndResolveWDShellChange(massDiffDonor);                                                                            // set new mass of donor
+        m_Accretor->SetMassTransferDiffAndResolveWDShellChange(massGainAccretor);                                                                      // set new mass of accretor
 
         aFinal = CalculateMassTransferOrbit(m_Donor->Mass(), massDiffDonor, *m_Accretor, m_FractionAccreted);                   // calculate new orbit
         m_aMassTransferDiff = aFinal - aInitial;                                                                                // set change in orbit (semi-major axis)

@@ -490,11 +490,11 @@ void BinaryConstituentStar::InitialiseMassTransfer(const bool p_CommonEnvelope, 
  *
  * Also modify changes to the H/He shell (relevant only for WDs)
  *
- * void SetMassTransferDiff(const double p_MassTransferDiff) 
+ * void SetMassTransferDiffAndResolveWDShellChange(const double p_MassTransferDiff) 
  *
  * @param   [IN]    p_MassTransferDiff          The amount of mass lost or gained by the star 
  */
-void BinaryConstituentStar::SetMassTransferDiff(const double p_MassTransferDiff) {
+void BinaryConstituentStar::SetMassTransferDiffAndResolveWDShellChange(const double p_MassTransferDiff) {
     m_MassTransferDiff = p_MassTransferDiff; 
     ResolveShellChange(p_MassTransferDiff);       // only applies to WDs
 }
