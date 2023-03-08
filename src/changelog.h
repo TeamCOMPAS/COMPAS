@@ -984,6 +984,8 @@
 //                                           (b) change of header strings for ROCHE_LOBE_RADIUS_1 and ROCHE_LOBE_RADIUS_2 (units already (accidentally...) correct)
 //                                      - fixed minor defect in call to m_Accretor->CalculateMassAcceptanceRate() in BaseBinaryStar::CalculateMassTransfer()
 //                                        (only affected runs with mass-transfer-thermal-limit-accretor = RADIUS_TO_ROCHELOBE)
+// 02.35.03     LvS - Feb 27, 2023    - Enhancement:
+//                                      - Added mass accretion prescription during CE following model 2 from van Son + 2020
 // 02.36.00     NR,RTW - Feb 5, 2023 - Enhancement:
 //                                      - Added functionality for WDs to accrete in different regimes. 
 //                                          - This applies to each WD subtype individually, though there is some overlap between COWDs and ONeWDs.
