@@ -101,7 +101,7 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
 
 
 /*
- * Allow the evolution towards an ONe WD . From https://ui.adsabs.harvard.edu/abs/2017MNRAS.472.1593W/abstract around
+ * Allow the evolution into a different stellar type, or possibly a SN. From https://ui.adsabs.harvard.edu/abs/2017MNRAS.472.1593W/abstract around
  * the end of section 3.2. Also, allows SN.
  *
  * bool ShouldEvolveOnPhase()
