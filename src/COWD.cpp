@@ -134,14 +134,18 @@ bool COWD::IsSupernova() const {
  */
 
 STELLAR_TYPE COWD::EvolveToNextPhase() {
+
+    STELLAR_TYPE stellarType;
+
     if (m_OffCenterIgnition) {
-        return STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
+        stellarType = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }
-    else if (m_HeShellDetonation || IsMassAboveChandrasekhar()) {
-        return ResolveSNIa(); 
+    else if (IsSupernova()) {
+        stellarType = ResolveSNIa(); 
     }
     else {                                         // Should not occur
         SHOW_WARN(ERROR::WARNING, "COWD told to evolve, but not how.");                                          // show warning
-        return ResolveAIC();
+        stellarType = ResolveAIC();
     }
+    return stellarType;
 }

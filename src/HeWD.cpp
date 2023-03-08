@@ -120,18 +120,22 @@ bool HeWD::IsSupernova() const {
  * @return                               Stellar type of the upcoming stage.
  */
 STELLAR_TYPE HeWD::EvolveToNextPhase() {
+
+    STELLAR_TYPE stellarType;
+
     if (m_ShouldRejuvenate) {
         m_CoreMass = m_Mass;
         m_Radius = HeMS::CalculateRadiusAtZAMS_Static(m_CoreMass);
         m_Luminosity = HeMS::CalculateLuminosityAtZAMS_Static(m_CoreMass);
         m_Tau = 0;
-        return STELLAR_TYPE::NAKED_HELIUM_STAR_MS; 
+        stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS; 
     }
-    else if (m_IsSubChandrasekharTypeIa) {         // Currently, assume a Type Ia from a HeWD is the same as other WDs. May want to vary in the future
-        return ResolveSNIa();
+    else if (IsSupernova()) {         // Currently, assume a Type Ia from a HeWD is the same as other WDs. May want to vary in the future
+        stellarType = ResolveSNIa(); 
     }
     else {                                         // Should not occur
         SHOW_WARN(ERROR::WARNING, "HeWD told to evolve, but not how.");                                          // show warning
-        return ResolveAIC();
+        stellarType = ResolveAIC();
     }
+    return stellarType;
 }
