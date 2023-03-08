@@ -95,12 +95,7 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
  * @return                               Whether the WD should evolve on phase or towards an HeMS/SN.
  */
 bool HeWD::ShouldEvolveOnPhase() {
-    if (m_ShouldRejuvenate) {
-        return false;
-    }
-    else {
-        return !IsSupernova();
-    }
+    return m_ShouldRejuvenate ? false : !IsSupernova();
 }
 
 

@@ -109,12 +109,7 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
  * @return                               Whether the WD should evolve on phase or towards an ONeWD/SN.
  */
 bool COWD::ShouldEvolveOnPhase() {
-    if (m_OffCenterIgnition) {
-        return false;
-    }
-    else {
-        return !IsSupernova();
-    }
+    return m_OffCenterIgnition ? false : !IsSupernova();
 }
 
 
