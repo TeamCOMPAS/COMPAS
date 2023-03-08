@@ -1,7 +1,7 @@
 #include "COWD.h"
 
 
-/* For COWDs and ONeWDs, calculate:
+/* For COWDs, calculate:
  *
  *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
  *     (b) the retention efficiency parameter
