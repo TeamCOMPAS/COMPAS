@@ -1,6 +1,5 @@
 #include "ONeWD.h"
 
-
 /*
  * Allow evolution to a new phase (currently, only SN)
  *

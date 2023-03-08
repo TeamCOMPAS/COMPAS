@@ -1,7 +1,6 @@
 #include "WhiteDwarfs.h"
 #include "NS.h"
 
-
 /* Calculate eta_hydrogen from Claeys+ 2014, appendix B. This parameter depends 
  * on three regimes for the mass transfer rate, which here are distinguished by the 
  * thresholds logMdotUppH and logMdotLowH. In Claeys+ 2014, the mass transfer rate is
@@ -271,4 +270,3 @@ STELLAR_TYPE WhiteDwarfs::ResolveHeSD() {
 
     return STELLAR_TYPE::MASSLESS_REMNANT;
 }
-

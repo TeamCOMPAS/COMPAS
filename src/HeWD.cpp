@@ -135,4 +135,3 @@ STELLAR_TYPE HeWD::EvolveToNextPhase() {
         return ResolveAIC();
     }
 }
-

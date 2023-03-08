@@ -1,6 +1,5 @@
 #include "COWD.h"
 
-
 /* For COWDs, calculate:
  *
  *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
@@ -146,4 +145,3 @@ STELLAR_TYPE COWD::EvolveToNextPhase() {
         return ResolveAIC();
     }
 }
-
