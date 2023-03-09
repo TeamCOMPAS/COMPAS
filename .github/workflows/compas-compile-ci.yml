@@ -40,7 +40,7 @@ jobs:
 
       - name: Run example COMPAS job
         run: |
-          python3 -m pip install .[dev]
+          python3 -m pip install -e .[dev]
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
           cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
           chmod 755 run.sh

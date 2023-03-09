@@ -38,15 +38,11 @@ INSTALL_REQUIRES = [
     "astropy",
     "scipy",
     "latex",
-    "PyYAML"
+    "PyYAML",
 ]
-EXTRA_REQUIRE = dict(dev=[
-    "pytest-cov",
-    "pre-commit",
-    "flake8",
-    "black==22.10.0",
-    "isort"
-])
+EXTRA_REQUIRE = dict(
+    dev=["pytest-cov", "pre-commit", "flake8", "black==22.10.0", "isort"]
+)
 
 
 def read(*parts):
@@ -88,6 +84,7 @@ if __name__ == "__main__":
         long_description_content_type="text/markdown",
         packages=PACKAGES,
         package_data={
+            f"{NAME}.preprocessing": ["*.txt", "*.yaml"],
             f"{NAME}.detailed_evolution_plotter": ["van_den_heuvel_figures/*"],
             f"{NAME}.cosmic_integration": ["SNR_Grid*"],
         },
