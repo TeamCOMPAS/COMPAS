@@ -27,7 +27,7 @@ jobs:
 
       # This step will run only on ubuntu-20.04 (ADD OTHER OS IF NEEDED)
       - name: Install dependencies on ubuntu
-        if: startsWith(matrix.os, 'ubuntu-20') 
+        if: startsWith(matrix.os, 'ubuntu-20')
         run: |
           cd misc/cicd-scripts
           chmod 755 linux-dependencies
@@ -42,8 +42,8 @@ jobs:
         run: |
           python3 -m pip install .[dev]
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
-          cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution   
-          chmod 755 run.sh 
+          cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
+          chmod 755 run.sh
           ./run.sh
         continue-on-error: true # continue even if this job fails
 
@@ -51,6 +51,7 @@ jobs:
         # Run tests and collect coverage data
         run: |
           cd ${GITHUB_WORKSPACE}
+          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
           pytest --cov=compas_python_utils/ py_tests/
           coverage html
           coverage-badge -o coverage_badge.svg -f
