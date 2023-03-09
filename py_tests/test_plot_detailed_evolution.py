@@ -13,7 +13,9 @@ def test_plotter(example_compas_output_path, capsys, test_archive_dir):
         os.path.dirname(data_path), "Detailed_Output/BSE_Detailed_Output_0.h5"
     )
     t0 = time.time()
-    plot_detailed_evolution.run_main_plotter(bse_detailed_out_path, outdir=test_archive_dir, show=False)
+    plot_detailed_evolution.run_main_plotter(
+        bse_detailed_out_path, outdir=test_archive_dir, show=False
+    )
     runtime = time.time() - t0
 
     sout = capsys.readouterr().out
