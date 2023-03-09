@@ -2,11 +2,10 @@ name: COMPAS compile test
 
 on:
   workflow_dispatch: # allow manual triggering of this workflow
-  push:
-    paths: ['src/**', "compas_python_utils/**"] # only changes to src/ compas_python_utils/ will trigger this workflow
   pull_request:
     branches:
       - dev
+    paths: ['src/**', "compas_python_utils/**", "py_tests/**"]
 
 jobs:
   compas:
@@ -62,4 +61,4 @@ jobs:
           path: |
             htmlcov/
             coverage_badge.svg
-            ${GITHUB_WORKSPACE}/py_tests/test_artifacts/
+            ${GITHUB_WORKSPACE}/py_tests/test_artifacts/*
