@@ -24,6 +24,7 @@ __pycache__/
 COMPAS_Output*/
 output*/
 *.coverage
+test_artifacts/
 
 COMPAS
 *.log
