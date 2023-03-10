@@ -41,7 +41,14 @@ INSTALL_REQUIRES = [
     "PyYAML",
 ]
 EXTRA_REQUIRE = dict(
-    dev=["pytest-cov", "pre-commit", "flake8", "black==22.10.0", "isort"]
+    dev=[
+        "pytest-cov",
+        "pre-commit",
+        "flake8",
+        "black==22.10.0",
+        "isort",
+        "coverage-badge",
+    ]
 )
 
 
