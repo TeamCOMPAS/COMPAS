@@ -6,9 +6,17 @@ Following is an brief list of important updates to the COMPAS code.  A complete 
 
 **LATEST RELEASE** |br|
 
-**02.36.00 Feb 15, 2022**
+**02.36.00 Mar 15, 2022**
 
 * Added functionality to automatically create COMPAS YAML file - adds two new options: ``--create-YAML-file`` and ``YAML-template``. See documentation for details.  
+
+**02.35.02 Feb 19, 2023**
+
+* Changed ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1`` and ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2`` to be the Roche lobe radius as computed at periapsis, in units of \ :math:`R_\odot`.
+* Changed header string for ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1`` from ``'RocheLobe(1)|a'`` to ``'RocheLobe(1)'`` - same change made for ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2``.
+* Removed ``BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1`` (header string ``'Radius(1)|RL'``) and ``BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2`` (header string ``'Radius(2)|RL'``) from ``BSE_DETAILED_OUTPUT_REC`` (BSE detailed output file default record).  Note that both variables are still selectable for output via the logfile-definitions file.
+
+  **Note:** These changes will affect post-processing code that consumes the affected variables - users should check their post-processing code.
 
 **02.34.01 Dec 7, 2022**
 
