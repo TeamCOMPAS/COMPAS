@@ -163,14 +163,14 @@ namespace yaml {
 
         // process the option
         // - format strings as required and populate the yaml vectors (declared above)
-        auto ProcessOption = [&] (const std::string              p_OptionStr,               // option name string
-                                  const std::string              p_ValueStr,           // option value string
-                                  const std::vector<std::string> p_AllowedStr,            // option allowed value strings
-                                  const std::string              p_DefaultStr,             // option default string
-                                  const std::string              p_CommentStr,       // comment string
-                                  const bool                     p_UserSpecified,         // user specified option value?
-                                  const TYPENAME                 p_DataType,         // short data type
-                                  const std::string              p_TypeStr) {          // detailed data type
+        auto ProcessOption = [&] (const std::string              p_OptionStr,                                               // option name string
+                                  const std::string              p_ValueStr,                                                // option value string
+                                  const std::vector<std::string> p_AllowedStr,                                              // option allowed value strings
+                                  const std::string              p_DefaultStr,                                              // option default string
+                                  const std::string              p_CommentStr,                                              // comment string
+                                  const bool                     p_UserSpecified,                                           // user specified option value?
+                                  const TYPENAME                 p_DataType,                                                // short data type
+                                  const std::string              p_TypeStr) {                                               // detailed data type
 
             // format option value/default string
             // fix floating point precision
@@ -182,10 +182,10 @@ namespace yaml {
                                      const std::string p_detailedType) {                                                    // detailed data type
                 std::stringstream ss;
                 switch (p_shortType) {
-                    case TYPENAME::FLOAT     : {       float v = std::stof(p_ValueStr);          ss << std::fixed << std::setprecision(v < 100 ? 6 : 2) << v;     } break;
-                    case TYPENAME::DOUBLE    : {      double v = std::stod(p_ValueStr);          ss << std::fixed << std::setprecision(v < 100 ? 6 : 2) << v;     } break;
-                    case TYPENAME::LONGDOUBLE: { long double v = std::stold(p_ValueStr);         ss << std::fixed << std::setprecision(v < 100 ? 6 : 2) << v;     } break;
-                    case TYPENAME::BOOL      : { std::string s = p_ValueStr; s = utils::trim(s); ss << (s == "0" || utils::Equals(s, "true") ? "True" : "False"); } break;
+                    case TYPENAME::FLOAT     : {       float v = std::stof(p_Str);          ss << std::fixed << std::setprecision(v < 100 ? 6 : 2) << v;     } break;
+                    case TYPENAME::DOUBLE    : {      double v = std::stod(p_Str);          ss << std::fixed << std::setprecision(v < 100 ? 6 : 2) << v;     } break;
+                    case TYPENAME::LONGDOUBLE: { long double v = std::stold(p_Str);         ss << std::fixed << std::setprecision(v < 100 ? 6 : 2) << v;     } break;
+                    case TYPENAME::BOOL      : { std::string s = p_Str; s = utils::trim(s); ss << (s == "1" || utils::Equals(s, "true") ? "True" : "False"); } break;
                     case TYPENAME::STRING    : {
                             bool vecType = (p_detailedType == "VECTOR<STRING>");                                            // vector of strings? 
                             size_t len = p_Str.length();                                                                    // str length
