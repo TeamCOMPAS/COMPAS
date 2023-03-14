@@ -2319,7 +2319,9 @@ void Options::BuildDefaultsMap(po::options_description *p_OptionsDescription) {
                 if (p > 0) {                                                                                // yes non-empty option string?
                     std::string optionStr = rec.substr(0, p);                                               // yes - capture option string
                     std::string defaultStr = "";                                                            // default default string is empty string
-                    size_t p1 = rec.find("(=", p);                                                          // look for default value container ("(=")
+                    size_t p1 = rec.find("[=arg(=", p);                                                     // look for implicit value container ("[=arg(=")
+                    if (p1 != std::string::npos) p = p1 + 6;                                                // skip it if found
+                    p1 = rec.find("(=", p);                                                                 // look for default value container ("(=")
                     if (p1 != std::string::npos) {                                                          // found?
                         size_t p2 = rec.find(")", p1);                                                      // yes - look for container end container (")")
                         if (p2 != std::string::npos) {                                                      // found?
