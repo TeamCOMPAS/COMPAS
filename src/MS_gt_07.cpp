@@ -61,12 +61,12 @@ double MS_gt_07::CalculateMassTransferRejuvenationFactor() const {
  * Assumes this star is the donor; relevant accretor details are passed as parameters.
  * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
  *
- * double MS_gt_07::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) 
+ * double MS_gt_07::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) 
  *
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
  * @return                                      Critical mass ratio for unstable MT 
  */
-double MS_gt_07::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const {
+double MS_gt_07::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const {
 
     double qCrit;
                                                                                                                             
