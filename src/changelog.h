@@ -960,9 +960,34 @@
 //                                      - Fixed units for post-CEE semi-major axis in CEE logs (issue #876).
 // 02.34.04     RTW - Jan 31, 2023   - Enhancement:
 //                                      - Added SN orbit inclination angle to BSE_SUPERNOVAE output
-// 02.34.05    JR - Jan 29, 2023    - Code cleanup:
+// 02.34.05     JR - Jan 29, 2023    - Code cleanup:
 //                                      - Addressed issue #888 - replaced class variables m_LogMetallicityXi, m_LogMetallicitySigma, and m_LogMetallicityRho in BaseStar with getter functions.
+// 02.34.06     IM - Feb 1, 2023     - Bug fixes:
+//                                      - Re-enabled ResolveMassLoss() for Remnants so that Mdot is correctly reset
+//                                      - Set Mdot to 0 in BaseBinaryStar::CalculateWindsMassLoss() when winds are turned off while the binary is in mass trensfer
+//                                      - Removed Dutch winds for Remnants
+//                                      - Fixed typo in NS::CalculateLuminosityOnPhase_Static()
+//                                      - Minor code cleaning
+// 02.35.00     RTW - Dec 8, 2022    - Enhancement:
+//                                      - Added critical mass ratios from Ge+ 2020 for determining if MT is unstable
+// 02.35.01     RTW - Feb 12, 2022   - Enhancement:
+//                                      - Added post-SN orbital inclination vector to the output-able BINARY_PROPERTIES (not included in output, by default). 
+// 02.35.02     JR - Feb 19, 2023    - Minor change and defect repair:
+//                                      - Changed units of ROCHE_LOBE_RADIUS_1 and ROCHE_LOBE_RADIUS_2 from orbital separation to RSOL
+//                                      - Changed header string for ROCHE_LOBE_RADIUS_1 from "RocheLobe(1)|a" to "RocheLobe(1)" - ditto for ROCHE_LOBE_RADIUS_2
+//                                      - removed STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 ("Radius(1)|RL")and STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 ("Radius(2)|RL") from
+//                                        the default output for BSE_DETAILED_OUTPUT_REC (can be calulated from other values in the default output)
+//                                      - changed plot_detailed_evolution.py to accomodate the removal of STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 and 
+//                                        STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 from the default output
+//                                      - changed online documentation to reflect:
+//                                           (a) removal of STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 and STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 from the default output
+//                                           (b) change of header strings for ROCHE_LOBE_RADIUS_1 and ROCHE_LOBE_RADIUS_2 (units already (accidentally...) correct)
+//                                      - fixed minor defect in call to m_Accretor->CalculateMassAcceptanceRate() in BaseBinaryStar::CalculateMassTransfer()
+//                                        (only affected runs with mass-transfer-thermal-limit-accretor = RADIUS_TO_ROCHELOBE)
+// 02.35.03     LvS - Feb 27, 2023    - Enhancement:
+//                                      - Added mass accretion prescription during CE following model 2 from van Son + 2020
 
-const std::string VERSION_STRING = "02.34.05";
+
+const std::string VERSION_STRING = "02.35.03";
 
 # endif // __changelog_h__

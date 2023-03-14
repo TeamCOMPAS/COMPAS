@@ -151,10 +151,12 @@ def plotLengthAttributes(ax=None, Data=None, mask=None, **kwargs):
     ax.plot(Data['Time'][()][mask], Data['Radius(1)'][()][mask], linestyle='-', c='r', label='Stellar Radius 1')
     ax.plot(Data['Time'][()][mask], Data['Radius(2)'][()][mask], linestyle='-', c='b', label='Stellar Radius 2')
     # Need to mask out when the denominator is 0
-    mask1 = mask & (Data['Radius(1)|RL'][()] != 0)
-    ax.plot(Data['Time'][()][mask1], Data['Radius(1)'][()][mask1]/Data['Radius(1)|RL'][()][mask1], linestyle='--', c='r', label='Roche Radius 1')
-    mask2 = mask & (Data['Radius(2)|RL'][()] != 0)
-    ax.plot(Data['Time'][()][mask2], Data['Radius(2)'][()][mask2]/Data['Radius(2)|RL'][()][mask2], linestyle='--', c='b', label='Roche Radius 2')
+    starToRLradius1 = Data['Radius(1)'][()][mask] / Data['RocheLobe(1)'][()][mask]
+    mask1 = mask & (starToRLradius1 != 0)
+    ax.plot(Data['Time'][()][mask1], Data['Radius(1)'][()][mask1]/starToRLradius1[mask1], linestyle='--', c='r', label='Roche Radius 1')
+    starToRLradius2 = Data['Radius(2)'][()][mask] / Data['RocheLobe(2)'][()][mask]
+    mask2 = mask & (starToRLradius2 != 0)
+    ax.plot(Data['Time'][()][mask2], Data['Radius(2)'][()][mask2]/starToRLradius2[mask2], linestyle='--', c='b', label='Roche Radius 2')
 
     ax.set_ylabel(r'Radius $/ \; R_{\odot}$')
     ax.set_yscale('log')
@@ -574,7 +576,7 @@ class Event(object):
         on the stellar types, to get the van den Heuvel diagrams.
         """
 
-        self.imgFile = compasRootDir + 'utils/media/vanDenHeuvel_figures/{}.png'.format(image_num)
+        self.imgFile = os.path.join(compasRootDir, 'utils/media/vanDenHeuvel_figures/{}.png'.format(image_num))
         img = plt.imread(self.imgFile) # import image
         if rotate_image:
             img = img[:,::-1,:] # flip across y-axis
