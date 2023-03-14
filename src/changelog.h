@@ -984,6 +984,8 @@
 //                                           (b) change of header strings for ROCHE_LOBE_RADIUS_1 and ROCHE_LOBE_RADIUS_2 (units already (accidentally...) correct)
 //                                      - fixed minor defect in call to m_Accretor->CalculateMassAcceptanceRate() in BaseBinaryStar::CalculateMassTransfer()
 //                                        (only affected runs with mass-transfer-thermal-limit-accretor = RADIUS_TO_ROCHELOBE)
+// 02.35.03     LvS - Feb 27, 2023    - Enhancement:
+//                                      - Added mass accretion prescription during CE following model 2 from van Son + 2020
 // 02.36.00     JR - Mar 15, 2023    - Enhancement, minor defect repairs:
 //                                      - Addressed issue #797 - implemented functionality to create YAML file.  Two new options (--create-YAML-file and --YAML-template).  See documentation for details.
 //                                      - Modifed runSubmit.py to work with new yaml file format (i.e. all options could be commented...)
