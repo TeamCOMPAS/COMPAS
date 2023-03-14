@@ -35,6 +35,10 @@ COMPAS
 *.synctex.gz
 *.synctex.gz(busy)
 
+#Makefiles
+src/Makefile-Robert
+src/Makefile-Robert-NT
+
 # docs html
 *_build
 
