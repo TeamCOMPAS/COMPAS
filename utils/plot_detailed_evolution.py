@@ -38,7 +38,7 @@ def main():
     makeDetailedPlots(Data, events)
     plotVanDenHeuvel(events=events)
     plt.savefig('vanDenHeuvelPlot.eps', bbox_inches='tight',pad_inches = 0, format='eps')
-    plt.show()
+    # plt.show()
 
 
 fontparams = {

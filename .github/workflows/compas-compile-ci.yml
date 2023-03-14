@@ -1,30 +1,57 @@
 name: COMPAS compile test
 
-on: [pull_request]
+on: 
+  pull_request:
+    branches: [dev]
+    paths: 
+      - 'src/**'
+      - '.github/workflows/compas-compile-ci.yml'
+      - 'utils/cicd-scripts/**'
+      - 'utils/examples/methods_paper_plots/detailed_evolution/**'
+      - 'utils/media/**'
 
 jobs:
   compas:
     name: Build COMPAS
     runs-on: ${{ matrix.os}}
-    container: ${{matrix.container}}  # to run the job on centos 7 docker image which runs on ubuntu-18.04 machine
+    # container: ${{matrix.container}}  # to run the job on centos 7 docker image which runs on ubuntu-18.04 machine
     strategy:
       fail-fast: false  #in case build failed on one of the runners, it won't stop building on other runners
       matrix:
-        os: [ubuntu-20.04]  # runners(virtual machines) to run the job on
+        os: [ubuntu-20.04, macos-12]  # runners(virtual machines) to run the job on
         # include: # add the combination to run the centos container only on ubuntu-18.04
         #   - os: ubuntu-18.04
         #     container: 'centos:7'
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+          cache: 'pip'
+        if: (startsWith(matrix.os, 'macos')) || (startsWith(matrix.os, 'ubuntu-2'))
+      
+      - name: Cache brew deps on macos
+        id: cache-homebrew-packages
+        uses: actions/cache@v3
+        if: startsWith(matrix.os, 'macos') 
+        with:
+          path: |
+            /usr/local/Homebrew
+            /usr/local/Cellar
+            /usr/local/Frameworks
+            /usr/local/bin
+            /usr/local/opt
+          key: macos-12-build-cache-${{ hashFiles('./scripts/builder_setup.sh') }}-v2
 
-      # This step will run only on ubuntu-20.04
+      # This step will run only on ubuntu
       - name: Install dependencies on ubuntu
-        if: startsWith(matrix.os, 'ubuntu-20') 
+        if: startsWith(matrix.os, 'ubuntu-2') 
         run: |
           cd utils/cicd-scripts
           chmod 755 linux-dependencies
           ./linux-dependencies
+
       # This step will run only on centos 7 container on ubuntu-18.04
       - name: Install dependencies on centos docker container
         if: startsWith(matrix.container, 'centos')
@@ -40,6 +67,15 @@ jobs:
           cd utils/cicd-scripts
           chmod 755 macos-dependencies
           ./macos-dependencies
+
+      - name: Link macos deps if it was a cache hit
+        if: startsWith(matrix.os, 'macos') && steps.cache-homebrew-packages.outputs.cache-hit == 'true'
+        run: |
+          brew link gsl
+          brew link boost
+          brew link hdf5
+          brew link texlive
+
       # This step will run only on all runners
       # **To be investgated further** COMPAS doesn't build on Centos
       - name: Build Compas
@@ -49,40 +85,14 @@ jobs:
         env:
           nproc: 4
 
-      # This step will run only on all runners
+      # This step will run on all runners
       - name: Install Python packages
         run: |
-          python3 -m pip install -r requirements.txt
+          pip install -r requirements.txt
+          
       # This step will run on all runners
-      # **To be investigated further** plotting script is currently failing on macos because 
-      # for some reason it cannot recognise latex is installed
       - name: Run Post-Processing Python Scripts
-        if: startsWith(matrix.os, 'ubuntu-20') || startsWith(matrix.os, 'ubuntu-18')
         run: |
           cd utils/cicd-scripts
           chmod 755 python-scripts
           ./python-scripts
-      - name: run python scripts on macos
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          brew install basictex
-          brew install texlive
-          eval "$(/usr/libexec/path_helper)"
-          export PATH="/usr/local/texlive:/Library/TeX/texbin:$PATH"
-          sudo tlmgr update --self
-          sudo tlmgr install dvipng
-          sudo tlmgr install texliveonfly
-          sudo tlmgr install environ
-          sudo tlmgr install adjustbox
-          sudo tlmgr install tcolorbox
-          sudo tlmgr install collectbox
-          sudo tlmgr install ucs
-          sudo tlmgr install trimspaces
-          sudo tlmgr install titling
-          sudo tlmgr install enumitem
-          sudo tlmgr install rsfs
-          eval "$(/usr/libexec/path_helper)"
-          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
-          cd ${GITHUB_WORKSPACE}/utils/example_plots/methods_paper_plots/detailed_evolution
-          python3 runSubmitDemo.py
-          python3 plot_detailed_evolution.py
