@@ -1505,6 +1505,38 @@ the other is printed in any file, but not both. If both are printed then the fil
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **PULSAR_BIRTH_PERIOD**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_PulsarDetails.birthSpinPeriod
+   * - Description:
+     - Pulsar spin period (s) at birth.
+   * - Header Strings:
+     - Pulsar_Birth_Period, Pulsar_Birth_Period(1), Pulsar_Birth_Period(2), Pulsar_Birth_Period(SN), Pulsar_Birth_Period(CP)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **PULSAR_BIRTH_SPIN_DOWN_RATE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_PulsarDetails.birthSpinDownRate
+   * - Description:
+     - Pulsar spin-down rate at birth.
+   * - Header Strings:
+     - Pulsar_Birth_Spin_Down, Pulsar_Birth_Spin_Down(1), Pulsar_Birth_Spin_Down(2), Pulsar_Birth_Spin_Down(SN), Pulsar_Birth_Spin_Down(CP)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **PULSAR_MAGNETIC_FIELD**
      -
    * - Data type:

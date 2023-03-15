@@ -207,7 +207,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_PulsarDetails.spinFrequency              = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.spinDownRate               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.birthPeriod                = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_PulsarDetails.birthSpindown              = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_PulsarDetails.birthSpinDownRate          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // Mass Transfer Donor Type History
     m_MassTransferDonorHistory                 = STYPE_VECTOR();
@@ -347,7 +347,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY:                              value = Pulsar_SpinFrequency();                                 break;
             case ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD:                                 value = Pulsar_SpinPeriod();                                    break;
             case ANY_STAR_PROPERTY::PULSAR_BIRTH_PERIOD:                                value = Pulsar_BirthPeriod();                                   break;
-            case ANY_STAR_PROPERTY::PULSAR_BIRTH_SPINDOWN:                              value = Pulsar_BirthSpindown();                                 break;
+            case ANY_STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE:                        value = Pulsar_BirthSpinDownRate();                                 break;
             case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE:                         value = CalculateRadialExpansionTimescale();                    break;
             case ANY_STAR_PROPERTY::RADIUS:                                             value = Radius();                                               break;
             case ANY_STAR_PROPERTY::RANDOM_SEED:                                        value = RandomSeed();                                           break;
