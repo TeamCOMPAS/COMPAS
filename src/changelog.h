@@ -986,8 +986,20 @@
 //                                        (only affected runs with mass-transfer-thermal-limit-accretor = RADIUS_TO_ROCHELOBE)
 // 02.35.03     LvS - Feb 27, 2023    - Enhancement:
 //                                      - Added mass accretion prescription during CE following model 2 from van Son + 2020
-
-
+// 02.35.04     YS - Mar 14, 2023     - Updates and changes to NS.cpp:
+//                                      - Added NS::ChoosTimeStep(). Detailed time step description can be found in NS.cpp
+//                                      - Added output options (not default): PULSAR_BIRTH_PERIOD and PULSAR_BIRTH_SPIN_DOWN_RATE, which output the birth spin period and period derivative of a pulsar
+//                                      - Updated codes on pulsar evolution, solving the problem of pulsars not evolving properly. This is written in cgs. 
+//                                      - Added NS::SpinDownIsolatePulsar(), describes single pulsar spinning down with magnetic braking. 
+//                                          This is later used in different situaions in NS::UpdateMagneticFieldAndSpin()
+//                                      - In BSE_Pulsar_Evolution file, it was not recording the pulsar parameters at birth. 
+//                                          Pulsar was also evolved an additional time step here with unspecificed size
+//                                          Temporary fix in place to print the first time step twice:
+//                                           (a) the first column indicates the pulsar parameters at birth, except for dT
+//                                           (b) the second column indicates the pulsar parameter after it evolves a timestep of dT
+//                                      - Another caveat:
+//                                         pulsar recycling mechanisms are not yet fully implemented, so COMPAS cannot produce MSPs for the time being.
+//                                         future updates will solve this issue. 
 const std::string VERSION_STRING = "02.35.03";
 
 # endif // __changelog_h__

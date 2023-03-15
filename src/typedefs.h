@@ -125,7 +125,7 @@ typedef struct PulsarDetails {
     double spinFrequency;                                   // Pulsar spin frequency in rads per second
     double spinDownRate;                                    // Pulsar spin down rate (Pdot, dimensionless)
     double birthPeriod;                                     // Pulsar birth period (s)
-    double birthSpindown;                                   // Pulsar birth period (s s-1)
+    double birthSpinDownRate;                               // Pulsar birth down rate(s s-1)
 } PulsarDetailsT;
 
 
