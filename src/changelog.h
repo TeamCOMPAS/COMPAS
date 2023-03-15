@@ -1000,6 +1000,6 @@
 //                                      - Another caveat:
 //                                         pulsar recycling mechanisms are not yet fully implemented, so COMPAS cannot produce MSPs for the time being.
 //                                         future updates will solve this issue. 
-const std::string VERSION_STRING = "02.35.03";
+const std::string VERSION_STRING = "02.35.04";
 
 # endif // __changelog_h__
