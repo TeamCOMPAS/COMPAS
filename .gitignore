@@ -34,11 +34,7 @@ COMPAS
 *.synctex(busy)
 *.synctex.gz
 *.synctex.gz(busy)
-.gitignore
 
-#Makefiles
-src/Makefile-Robert
-src/Makefile-Robert-NT
 
 # docs html
 *_build
