@@ -17,6 +17,7 @@
 
 #include "profiling.h"
 #include "utils.h"
+#include "yaml.h"
 #include "vector3d.h"
 #include "Options.h"
 #include "Rand.h"
@@ -634,7 +635,6 @@ std::tuple<int, int> EvolveBinaryStars() {
  */
 int main(int argc, char * argv[]) {
 
-std::cout << std::pow(10, 2/3) << ", " << std::pow(10.0, 2.0/3.0) << "\n"; exit(0);
     PROGRAM_STATUS programStatus = PROGRAM_STATUS::CONTINUE;                                        // status - initially ok
 
     RAND->Initialise();                                                                             // initialise the random number service
@@ -652,6 +652,11 @@ std::cout << std::pow(10, 2/3) << ", " << std::pow(10.0, 2.0/3.0) << "\n"; exit(
         }
         else if (OPTIONS->RequestedVersion()) {                                                     // user requested version?
             (void)utils::SplashScreen();                                                            // yes - show splash screen
+            programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
+        }
+        else if (!OPTIONS->YAMLfilename().empty()) {                                                // user requested YAML file creation?
+            (void)utils::SplashScreen();                                                            // yes - show splash screen
+            yaml::MakeYAMLfile(OPTIONS->YAMLfilename(), OPTIONS->YAMLtemplate());                   // create YAML file
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
 
@@ -675,6 +680,7 @@ std::cout << std::pow(10, 2/3) << ", " << std::pow(10.0, 2.0/3.0) << "\n"; exit(
 
             if (!LOGGING->Enabled()) programStatus = PROGRAM_STATUS::LOGGING_FAILED;                // logging failed to start
             else {   
+
                 if (!OPTIONS->GridFilename().empty()) {                                             // have grid filename?
                     ERROR error = OPTIONS->OpenGridFile(OPTIONS->GridFilename());                   // yes - open grid file
                     if (error != ERROR::NONE) {                                                     // open ok?
