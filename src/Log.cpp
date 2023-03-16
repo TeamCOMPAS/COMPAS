@@ -179,9 +179,9 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
 
                 for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                        // for each program option
                     // option
-                    TYPENAME compasType = std::get<4>(m_OptionDetails[idx]);                                            // COMPAS data type
-                    h5DataType = GetHDF5DataType(compasType, (std::get<1>(m_OptionDetails[idx])).length());             // HDF5 data type for COMPAS data type
-                    h5DatasetName = std::get<0>(m_OptionDetails[idx]);                                                  // dataset (option name)
+                    TYPENAME compasType = m_OptionDetails[idx].dataType;                                                // COMPAS data type
+                    h5DataType = GetHDF5DataType(compasType, (m_OptionDetails[idx].valueStr).length());                 // HDF5 data type for COMPAS data type
+                    h5DatasetName = m_OptionDetails[idx].optionStr;                                                     // dataset (option name)
                     h5Dset = CreateHDF5Dataset(h5Filename, h5GroupId, h5DatasetName, h5DataType, "-", chunkSize);       // create dataset
                     if (h5Dset < 0) {                                                                                   // dataset not created
                         Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                        // announce error
@@ -589,11 +589,11 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
                 try {
                     for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                                    // for eav program option
 
-                        h5DatasetName = std::get<0>(m_OptionDetails[idx]);                                                              // dataset name
-                        string strValue = std::get<1>(m_OptionDetails[idx]);                                                            // value formatted as string
+                        h5DatasetName = m_OptionDetails[idx].optionStr;                                                                 // dataset name
+                        string strValue = m_OptionDetails[idx].valueStr;                                                                // value formatted as string
 
                         dSetIdx++;                                                                                                      // incremement run details dataset
-                        TYPENAME compasType = std::get<4>(m_OptionDetails[idx]);                                                        // COMPAS datatype
+                        TYPENAME compasType = m_OptionDetails[idx].dataType;                                                            // COMPAS datatype
                         switch (compasType) {
                             case TYPENAME::INT         : m_Run_Details_H5_File.dataSets[dSetIdx].buf.push_back(std::stoi(strValue));   break;
                             case TYPENAME::LONGINT     : m_Run_Details_H5_File.dataSets[dSetIdx].buf.push_back(std::stol(strValue));   break;
@@ -626,7 +626,7 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
                             else {                                                                                                      // write succeeded
                             // Derivation
                                 dSetIdx += 1;                                                                                           // incremement dataset
-                                m_Run_Details_H5_File.dataSets[dSetIdx].buf.push_back(std::string(std::get<2>(m_OptionDetails[idx])));  // add write data to buffer
+                                m_Run_Details_H5_File.dataSets[dSetIdx].buf.push_back(m_OptionDetails[idx].sourceStr);                  // add write data to buffer
                                 if (!WriteHDF5_(m_Run_Details_H5_File, RUN_DETAILS_FILE_NAME, dSetIdx)) {                               // write to file ok?
                                     Squawk("ERROR: Error writing to HDF5 dataset with name " + h5DatasetName);                          // no - announce error
                                     ok = false;                                                                                         // fail
@@ -682,16 +682,16 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
             m_RunDetailsFile << "\n\nCOMMAND LINE OPTIONS\n--------------------\n\n";                                                   // add commandline options (all of them...)
             for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                                            // and add them to the run details file
 
-                if (utils::Equals(std::get<2>(m_OptionDetails[idx]), "CALCULATED")) continue;                                           // CALCULATED later
+                if (utils::Equals(m_OptionDetails[idx].sourceStr, "CALCULATED")) continue;                                              // CALCULATED later
 
-                m_RunDetailsFile << std::get<0>(m_OptionDetails[idx]) << " = ";                                                         // option name
+                m_RunDetailsFile << m_OptionDetails[idx].optionStr << " = ";                                                            // option name
 
-                if (std::get<1>(m_OptionDetails[idx]) == "")                                                                            // empty option?
+                if (m_OptionDetails[idx].valueStr == "")                                                                                // empty option?
                     m_RunDetailsFile << "<EMPTY_OPTION>\n";                                                                             // yes - say so
                 else                                                                                                                    // no - add option details
-                    m_RunDetailsFile << std::get<1>(m_OptionDetails[idx]) + ", "                                                        // value
-                                     << std::get<2>(m_OptionDetails[idx]) + ", "                                                        // defaulted
-                                     << std::get<3>(m_OptionDetails[idx]) << "\n";                                                      // datatype
+                    m_RunDetailsFile << m_OptionDetails[idx].valueStr + ", "                                                            // value
+                                     << m_OptionDetails[idx].sourceStr + ", "                                                           // defaulted
+                                     << m_OptionDetails[idx].typeStr << "\n";                                                           // datatype
             }
 
             // next, calculated options
@@ -699,16 +699,16 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
             m_RunDetailsFile << "\n\nOTHER PARAMETERS\n----------------\n\n";
             for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                                            // and add them to the run details file
 
-                if (!utils::Equals(std::get<2>(m_OptionDetails[idx]), "CALCULATED")) continue;                                          // only CALCULATED here
+                if (!utils::Equals(m_OptionDetails[idx].sourceStr, "CALCULATED")) continue;                                             // only CALCULATED here
 
-                m_RunDetailsFile << std::get<0>(m_OptionDetails[idx]) << " = ";                                                         // option name
+                m_RunDetailsFile << m_OptionDetails[idx].optionStr << " = ";                                                            // option name
 
-                if (std::get<1>(m_OptionDetails[idx]) == "")                                                                            // empty option?
+                if (m_OptionDetails[idx].valueStr == "")                                                                                // empty option?
                     m_RunDetailsFile << "<EMPTY_OPTION>\n";                                                                             // yes - say so
                 else                                                                                                                    // no - add option details
-                    m_RunDetailsFile << std::get<1>(m_OptionDetails[idx]) + ", "                                                        // value
-                                     << std::get<2>(m_OptionDetails[idx]) + ", "                                                        // defaulted
-                                     << std::get<3>(m_OptionDetails[idx]) << "\n";                                                      // datatype
+                    m_RunDetailsFile << m_OptionDetails[idx].valueStr + ", "                                                            // value
+                                     << m_OptionDetails[idx].sourceStr + ", "                                                           // defaulted
+                                     << m_OptionDetails[idx].typeStr << "\n";                                                           // datatype
             }
 
             m_RunDetailsFile << "Actual random seed = " << actualRandomSeed  << ", CALCULATED, UNSIGNED_LONG" << std::endl;             // actual random seed

@@ -39,6 +39,11 @@ class pythonProgramOptions:
         self.stringChoices = config['stringChoices']
         self.listChoices = config['listChoices']
                 
+        if self.booleanChoices   is None: self.booleanChoices   = {}
+        if self.numericalChoices is None: self.numericalChoices = {}
+        if self.stringChoices    is None: self.stringChoices    = {}
+        if self.listChoices      is None: self.listChoices      = {}
+
         compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH')
         print('compas_executable_override', compas_executable_override)        
 
@@ -58,7 +63,12 @@ class pythonProgramOptions:
             self.grid_filename = grid_filename
             self.stringChoices['--grid']= self.grid_filename
         else:
-            self.grid_filename = self.stringChoices['--grid']
+            if not self.stringChoices:
+                self.grid_filename = None
+            else:
+                self.grid_filename = None
+                if '--grid' in self.stringChoices:
+                    self.grid_filename = self.stringChoices['--grid']
 
         print('grid_filename', self.grid_filename)
 
@@ -90,7 +100,10 @@ class pythonProgramOptions:
             else:
                 self.grid_filename = compas_input_path_override + '/' + self.grid_filename
 
-        self.logfile_definitions = self.stringChoices['--logfile-definitions']  # logfile record definitions file name (e.g. 'logdefs.txt')
+        if '--logfile-definitions' in self.stringChoices:
+            self.logfile_definitions = self.stringChoices['--logfile-definitions']  # logfile record definitions file name (e.g. 'logdefs.txt')
+        else:
+            self.logfile_definitions = None
 
         if self.logfile_definitions != None:
             if compas_input_path_override == None:

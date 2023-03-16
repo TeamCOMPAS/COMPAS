@@ -17,6 +17,7 @@
 
 #include "profiling.h"
 #include "utils.h"
+#include "yaml.h"
 #include "vector3d.h"
 #include "Options.h"
 #include "Rand.h"
@@ -654,6 +655,11 @@ int main(int argc, char * argv[]) {
             (void)utils::SplashScreen();                                                            // yes - show splash screen
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
+        else if (!OPTIONS->YAMLfilename().empty()) {                                                // user requested YAML file creation?
+            (void)utils::SplashScreen();                                                            // yes - show splash screen
+            yaml::MakeYAMLfile(OPTIONS->YAMLfilename(), OPTIONS->YAMLtemplate());                   // create YAML file
+            programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
+        }
 
         if (programStatus == PROGRAM_STATUS::CONTINUE) {
 
@@ -675,6 +681,7 @@ int main(int argc, char * argv[]) {
 
             if (!LOGGING->Enabled()) programStatus = PROGRAM_STATUS::LOGGING_FAILED;                // logging failed to start
             else {   
+
                 if (!OPTIONS->GridFilename().empty()) {                                             // have grid filename?
                     ERROR error = OPTIONS->OpenGridFile(OPTIONS->GridFilename());                   // yes - open grid file
                     if (error != ERROR::NONE) {                                                     // open ok?

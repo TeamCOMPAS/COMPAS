@@ -10,25 +10,23 @@ via runSubmit.py
 
 To run COMPAS via a ``runSubmit.py`` file, type::
 
-    docker run                                                  \
-        --rm                                                    \
-        -it                                                     \
-        -v $(pwd)/compas-input:/app/COMPAS/config               \
-        -v $(pwd)/compas-logs:/app/COMPAS/logs                  \
-        -v $(pwd)/runSubmit.py:/app/starts/runSubmit.py   \
-        -e COMPAS_EXECUTABLE_PATH=/app/COMPAS/bin/COMPAS        \
-        -e COMPAS_INPUT_DIR_PATH=/app/COMPAS/config             \
-        -e COMPAS_LOGS_OUTPUT_DIR_PATH=/app/COMPAS/logs         \
-        teamcompas/compas                                       \
+    docker run                                                                  \
+        --rm                                                                    \
+        -it                                                                     \
+        -v $(pwd)/compas-input:/app/COMPAS/config                               \
+        -v $(pwd)/compas-logs:/app/COMPAS/logs                                  \
+        -v $(pwd)/runSubmit.py:/app/starts/runSubmit.py                         \
+        -v $(pwd)/compasConfigDefault.yaml:/app/COMPAS/compasConfigDefault.yaml \
+        -e COMPAS_EXECUTABLE_PATH=/app/COMPAS/bin/COMPAS                        \
+        -e COMPAS_INPUT_DIR_PATH=/app/COMPAS/config                             \
+        -e COMPAS_LOGS_OUTPUT_DIR_PATH=/app/COMPAS/logs                         \
+        teamcompas/compas                                                       \
         python3 /app/starts/runSubmit.py                     
 
 
-NOTE: if you decide to execute using ``runSubmit.py``, you will need 
-a ``compasConfigDefault.yaml``  file in the same directory. This file 
-can be found in the same directory as the ``runSubmit.py``, and contains
-the default COMPAS choices for stellar and binary physics. These choices
-can be changed by modifying the options availabe in the ``compasConfigDefault.yaml`` 
-file.
+NOTE: if you decide to execute using ``runSubmit.py``, you will need a ``compasConfigDefault.yaml``  file in the same directory.
+This file can be found in the same directory as the ``runSubmit.py``, and contains the default COMPAS choices for stellar and 
+binary physics. These choices can be changed by modifying the options availabe in the ``compasConfigDefault.yaml`` file.
 
 NOTE2: whem running on a MacOS with the M1 chip that runs on amd64 architecture you likely need to add the line `--platform linux/amd64` to the note above
 

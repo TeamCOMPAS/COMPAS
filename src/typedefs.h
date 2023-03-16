@@ -12,6 +12,18 @@ typedef std::initializer_list<SN_EVENT>        SN_EVENT_LIST;
 typedef std::vector<STELLAR_TYPE>              STYPE_VECTOR;
 
 
+// Option details
+typedef struct OptionDetails {
+    std::string              optionStr;                     // name string
+    std::string              valueStr;                      // value string
+    std::string              sourceStr;                     // source string (COMPAS DEFAULT or USER SUPPLIED)    
+    std::string              typeStr;                       // detailed data type (e.g. UNSIGNED LONG INT)
+    TYPENAME                 dataType;                      // short data type (e.g. INT, FLOAT, etc)
+    std::string              defaultStr;                    // default value string
+    std::vector<std::string> allowedStr;                    // vector of allowed value strings (empty for options that don't have multiple allowed values)
+} OptionDetailsT;
+
+
 // Log file details
 typedef struct LogfileDetails {
     int                           id;                       // logfile id

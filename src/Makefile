@@ -52,6 +52,7 @@ LFLAGS := -L$(GSLLIBDIR) -L$(BOOSTLIBDIR) -L$(HDF5LIBDIR) -Xlinker -rpath -Xlink
 SOURCES :=						\
 	profiling.cpp               \
 	utils.cpp                   \
+	yaml.cpp                   	\
 	vector3d.cpp                \
 								\
 	Rand.cpp                    \
