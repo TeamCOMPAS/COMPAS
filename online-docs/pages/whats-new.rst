@@ -1,10 +1,14 @@
 What's new
 ==========
 
-Following is an brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
+Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
 
 **LATEST RELEASE** |br|
+
+**02.36.00 Mar 15, 2022**
+
+* Added functionality to automatically create COMPAS YAML file - adds two new options: ``--create-YAML-file`` and ``YAML-template``. See documentation for details.  
 
 **02.35.02 Feb 19, 2023**
 
@@ -12,7 +16,7 @@ Following is an brief list of important updates to the COMPAS code.  A complete 
 * Changed header string for ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1`` from ``'RocheLobe(1)|a'`` to ``'RocheLobe(1)'`` - same change made for ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2``.
 * Removed ``BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1`` (header string ``'Radius(1)|RL'``) and ``BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2`` (header string ``'Radius(2)|RL'``) from ``BSE_DETAILED_OUTPUT_REC`` (BSE detailed output file default record).  Note that both variables are still selectable for output via the logfile-definitions file.
 
-  **Note:** These changes will affect post-processing code that consumes the affected variables - users should check their post-processing code.
+  **Note:** These changes will affect post-processing code that consumes the affected variables - users should check their post-processing code. 
 
 **02.34.01 Dec 7, 2022**
 
@@ -26,8 +30,8 @@ Following is an brief list of important updates to the COMPAS code.  A complete 
 
 * Added 'record type' functionality to all standard log files.  **Note:** This changes default behaviour: only Detailed Output log files affected in this release
 * Added/rationalised Detailed Output records printed for binary systems
-* Added new program option for each standard log file to allow specification of which record types to print. See e.g. '--logfile-detailed-output-record-types'
-* Changed case on column header strings for switch log files (SSE and BSE. ``SWITCHING_FROM``, ``SWITCHING_TO``, and ``STAR_SWITCHING`` are now ``Switching_From``, ``Switching_To``, and ``Star_Switching`` respectively).   **Note:** This could affect post-processing code that consumes the switch log files - users should check that their code will recognise the new header strings.
+* Added new program option for each standard log file to allow specification of which record types to print. See e.g. ``--logfile-detailed-output-record-types``
+* Changed case on column header strings for switch log files (SSE and BSE. ``SWITCHING_FROM``, ``SWITCHING_TO``, and ``STAR_SWITCHING`` are now ``Switching_From``, ``Switching_To``, and ``Star_Switching`` respectively).   **Note:** This could affect post-processig code that consumes the switch log files - users should check that their code will recognise the new header strings.
 * Added new section to online documentation: 'What's new'
 
 **02.31.10 Aug 12, 2022**
