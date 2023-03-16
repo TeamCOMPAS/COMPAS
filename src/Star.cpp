@@ -426,16 +426,21 @@ double Star::EvolveOneTimestep(const double p_Dt) {
         // don't take the timestep if we stepped too far
 
         takeTimestep = true;                                                                                    // flag to determine if the timestep should be taken
-        if (utils::Compare(m_Star->CalculateRadialChange(), MAXIMUM_RADIAL_CHANGE) >= 0) {                      // too much change?
+        double radialChange = m_Star->CalculateRadialChange();                                                  // radial change
+        if (utils::Compare(radialChange, MAXIMUM_RADIAL_CHANGE) >= 0) {                                         // too much change?
             if (utils::Compare(dt, minTimestep) <= 0) {                                                         // yes - already at or below minimum timestep?
                 takeTimestep = true;                                                                            // yes - just take the last timestep
-                SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                                       // announce the problem if required and plough on regardless...
+                std::ostringstream ss;
+                ss << std::scientific << std::setprecision(6) << "ST = " << static_cast<int>(StellarType()) << ", dt = " << dt << ", minTimestep = " << minTimestep << ", radialChange = " << radialChange << ", radius = " << Radius();
+                SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM, ss.str());                                             // announce the problem if required and plough on regardless...
             }
             else {                                                                                              // not at or below dynamical - reduce timestep and try again
                 retryCount++;                                                                                   // increment retry count
                 if (retryCount > MAX_TIMESTEP_RETRIES) {                                                        // too many retries?
                     takeTimestep = true;                                                                        // yes - take the last timestep anyway
-                    SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                                   // announce the problem if required and plough on regardless...
+                    std::ostringstream ss;
+                    ss << std::scientific << std::setprecision(6) << "dt = " << dt << ", minTimestep = " << minTimestep << ", radialChange = " << radialChange << ", radius = " << Radius();
+                    SHOW_WARN(ERROR::MAX_TIMESTEP_RETRIES, ss.str());                                           // announce the problem if required and plough on regardless...
                 }
                 else {                                                                                          // not too many retries - retry with smaller timestep
                     if (RevertState()) {                                                                        // revert to last state ok?
@@ -444,7 +449,9 @@ double Star::EvolveOneTimestep(const double p_Dt) {
                     }
                     else {                                                                                      // revert failed
                         takeTimestep = true;                                                                    // take the last timestep anyway
-                        SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                               // announce the problem if required and plough on regardless...
+                        std::ostringstream ss;
+                        ss << std::scientific << std::setprecision(6) << "dt = " << dt << ", minTimestep = " << minTimestep << ", radialChange = " << radialChange << ", radius = " << Radius();
+                        SHOW_WARN(ERROR::SSE_REVERT_STATE_FAILED, ss.str());                                    // announce the problem if required and plough on regardless...
                     }
                 }
             }

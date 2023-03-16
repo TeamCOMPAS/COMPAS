@@ -68,7 +68,6 @@ void GiantBranch::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timesca
     timescales(tinf1_FGB) = timescales(tBGB) + ((1.0 / (p1 * gbParams(AH) * gbParams(D))) * PPOW((gbParams(D) / LBGB), p1_p));
     timescales(tMx_FGB)   = timescales(tinf1_FGB) - ((timescales(tinf1_FGB) - timescales(tBGB)) * PPOW((LBGB / gbParams(Lx)), p1_p));
     timescales(tinf2_FGB) = timescales(tMx_FGB) + ((1.0 / (q1 * gbParams(AH) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
-
     timescales(tHeI)      = CalculateLifetimeToHeIgnition(p_Mass, timescales(tinf1_FGB), timescales(tinf2_FGB));
     timescales(tHeMS)     = HeMS::CalculateLifetimeOnPhase_Static(p_Mass);
 
@@ -765,7 +764,7 @@ double GiantBranch::CalculateCoreMassAtBAGB_Static(const double p_Mass, const DB
  * @param   [IN]    p_GBParams                  Giant Branch paramaters
  * @return                                      Core mass at the Base of the Giant Branch in Msol
  */
-double GiantBranch::CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR &p_GBParams) {
+double GiantBranch::CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR &p_GBParams) const {
 #define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]                // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 

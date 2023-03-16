@@ -1141,6 +1141,7 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
 #undef massCutoffs
 }
 
+
 /*
  * Update effective initial mass
  *
@@ -1152,8 +1153,8 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
  *
  */
 void HG::UpdateInitialMass() {
-    // The current mass would yield a core mass larger than the current core mass
-    // i.e., no unphysical core mass decrease would ensue
+    // If the current mass would yield a core mass >= the current core mass, i.e. no 
+    // unphysical core mass decrease would ensue. then update the initial mass
     if (utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhase(m_Mass, m_Age)) <= 0 ) {
         m_Mass0 = m_Mass;
     }
