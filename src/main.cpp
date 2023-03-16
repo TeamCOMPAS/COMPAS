@@ -17,6 +17,7 @@
 
 #include "profiling.h"
 #include "utils.h"
+#include "yaml.h"
 #include "vector3d.h"
 #include "Options.h"
 #include "Rand.h"
@@ -35,7 +36,6 @@ class BinaryStar;
 OBJECT_ID    ObjectId()    { return m_ObjectId; }
 OBJECT_TYPE  ObjectType()  { return OBJECT_TYPE::MAIN; }
 STELLAR_TYPE StellarType() { return STELLAR_TYPE::NONE; }
-
 
 // The following global variables support the BSE Switch Log file
 // Ideally, rather than be declared as globals, they would be in maybe the 
@@ -654,6 +654,11 @@ int main(int argc, char * argv[]) {
             (void)utils::SplashScreen();                                                            // yes - show splash screen
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
+        else if (!OPTIONS->YAMLfilename().empty()) {                                                // user requested YAML file creation?
+            (void)utils::SplashScreen();                                                            // yes - show splash screen
+            yaml::MakeYAMLfile(OPTIONS->YAMLfilename(), OPTIONS->YAMLtemplate());                   // create YAML file
+            programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
+        }
 
         if (programStatus == PROGRAM_STATUS::CONTINUE) {
 
@@ -675,6 +680,7 @@ int main(int argc, char * argv[]) {
 
             if (!LOGGING->Enabled()) programStatus = PROGRAM_STATUS::LOGGING_FAILED;                // logging failed to start
             else {   
+
                 if (!OPTIONS->GridFilename().empty()) {                                             // have grid filename?
                     ERROR error = OPTIONS->OpenGridFile(OPTIONS->GridFilename());                   // yes - open grid file
                     if (error != ERROR::NONE) {                                                     // open ok?

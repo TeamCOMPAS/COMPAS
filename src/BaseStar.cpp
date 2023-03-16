@@ -1789,7 +1789,7 @@ double BaseStar::CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescript
  * @return                                      LBV-like mass loss rate (in Msol yr^{-1})
  */
 double BaseStar::CalculateMassLossRateLBVHurley(const double p_HD_limit_factor) const {
-    return 0.1 * PPOW((p_HD_limit_factor - 1.0), 3.0) * ((m_Luminosity / 6.0E5) - 1.0);
+    return 0.1 * PPOW((p_HD_limit_factor - 1.0), 3.0) * ((m_Luminosity / LBV_LUMINOSITY_LIMIT_STARTRACK) - 1.0);
 }
 
 
@@ -3194,7 +3194,6 @@ double BaseStar::CalculateTimestep() {
     // before the timestep calculation - since the binary code
     // calls this function, the GBParams and Timescale functions
     // are called here
-
     CalculateGBParams();                                                                // calculate giant branch parameters
     CalculateTimescales();                                                              // calculate timescales
 
@@ -3242,7 +3241,6 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
     // entry points into the calculate/take timestep code that it isn't
     // always abvious where we need to do this...  A project for another
     // time.
-
     CalculateGBParams();                                                                            // calculate giant branch parameters
     CalculateTimescales();                                                                          // calculate timescales
 }

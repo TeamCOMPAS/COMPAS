@@ -986,10 +986,15 @@
 //                                        (only affected runs with mass-transfer-thermal-limit-accretor = RADIUS_TO_ROCHELOBE)
 // 02.35.03     LvS - Feb 27, 2023    - Enhancement:
 //                                      - Added mass accretion prescription during CE following model 2 from van Son + 2020
-// 02.35.04     JR - Mar 07, 2023     - Defect repair:
+// 02.36.00     JR - Mar 15, 2023     - Enhancement, minor defect repairs:
+//                                      - Addressed issue #797 - implemented functionality to create YAML file.  Two new options (--create-YAML-file and --YAML-template).  See documentation for details.
+//                                      - Modifed runSubmit.py to work with new yaml file format (i.e. all options could be commented...)
+//                                      - Minor defect repairs in options code
+//                                      - Minor fixes to online documentation; also clarified make arguments
+// 02.36.01     JR - Mar 17, 2023     - Defect repair:
 //                                      - Fix for issue #855 - changed condition in HG::UpdateInitialMass() from "<" to "<=" - refer to issue text for details
 
+const std::string VERSION_STRING = "02.36.01";
 
-const std::string VERSION_STRING = "02.35.04";
 
 # endif // __changelog_h__

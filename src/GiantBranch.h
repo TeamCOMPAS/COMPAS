@@ -30,7 +30,7 @@ protected:
     static  double          CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB);
             double          CalculateCoreMassAtBAGB(const double p_Mass) const;
     static  double          CalculateCoreMassAtBAGB_Static(const double p_Mass, const DBL_VECTOR &p_BnCoefficients);
-            double          CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR &p_GBParams);
+            double          CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR &p_GBParams) const;
     static  double          CalculateCoreMassAtBGB_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_GBParams);
             double          CalculateCoreMassAtHeIgnition(const double p_Mass) const;
     static  double          CalculateCoreMassAtSupernova_Static(const double p_McBAGB);
@@ -45,8 +45,8 @@ protected:
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const; 
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
-    static  void            CalculateGBParams_Static(const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                             { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
+    static  void            CalculateGBParams_Static(const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
 
     static  double          CalculateHRateConstant_Static(const double p_Mass);
 
@@ -60,6 +60,7 @@ protected:
                                                                    const DBL_VECTOR &p_BnCoefficients);
 
     static  double          CalculateLuminosityAtPhaseBase_Static(const double p_Mass, const DBL_VECTOR &p_AnCoefficients);
+
     static  double          CalculateLuminosityOnZAHB_Static(const double      p_Mass,
                                                              const double      p_CoreMass,
                                                              const double      p_Alpha1,
