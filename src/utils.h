@@ -4,8 +4,6 @@
 #include "constants.h"
 #include "typedefs.h"
 
-#include <algorithm> 
-
 namespace utils {
 
 
@@ -33,7 +31,6 @@ namespace utils {
 
     bool                                FileExists(const std::string& p_Filename);
     bool                                FileExists(const char *p_Filename);
-
 
     /*
      * Generic function to find an element in a vector

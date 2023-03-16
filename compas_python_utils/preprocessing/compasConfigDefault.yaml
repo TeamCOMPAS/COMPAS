@@ -1,251 +1,260 @@
-# yaml file which contains all default options from COMPAS
+##~!!~## COMPAS option values
+##~!!~## File Created Wed Feb 15 14:31:19 2023 by COMPAS v02.36.00
 
 booleanChoices:
+
     ### LOGISTICS
-    --debug-to-file: False
-    --detailed-output: False # WARNING! this creates a data heavy file
-    --enable-warnings: False    # option to enable/disable warning messages
-    --errors-to-file: False    
-    --evolve-unbound-systems: False
-    --population-data-printing: False
-    --print-bool-as-string: False
-    --quiet: False    
-    --rlof-printing: True
-    --store-input-files: True
-    --switch-log: False    
+#    --debug-to-file: False                                                # Default: False
+#    --detailed-output: False                                              # Default: False                                                                                                                                                              # WARNING! this creates a data heavy file
+#    --enable-warnings: False                                              # Default: False                                                                                                                                                              # option to enable/disable warning messages
+#    --errors-to-file: False                                               # Default: False
+#    --evolve-unbound-systems: False                                       # Default: False
+#    --population-data-printing: False                                     # Default: False
+#    --print-bool-as-string: False                                         # Default: False
+#    --quiet: False                                                        # Default: False
+#    --rlof-printing: True                                                 # Default: True
+#    --store-input-files: True                                             # Default: True
+#    --switch-log: False                                                   # Default: False
+
     ### STELLAR PROPERTIES
-    --check-photon-tiring-limit: False    
-    --use-mass-loss: True
+#    --check-photon-tiring-limit: False                                    # Default: False
+#    --use-mass-loss: True                                                 # Default: True
+
     ### BINARY PROPERTIES
-    --allow-touching-at-birth: False    # record binaries that have stars touching at birth in output files    
-    ### MASS TRANSFER  
-    --angular-momentum-conservation-during-circularisation: False
-    --allow-rlof-at-birth: True # allow binaries that have one or both stars in RLOF at birth to evolve, particularly useful in the context of CHE binaries.    
-    --circularise-binary-during-mass-transfer: True
-    --hmxr-binaries: False
-    --mass-transfer: True    
-    --retain-core-mass-during-caseA-mass-transfer: False  
+#    --allow-touching-at-birth: False                                      # Default: False                                                                                                                                                              # record binaries that have stars touching at birth in output files
+
+    ### MASS TRANSFER
+#    --angular-momentum-conservation-during-circularisation: False         # Default: False
+#    --allow-rlof-at-birth: True                                           # Default: True                                                                                                                                                               # allow binaries that have one or both stars in RLOF at birth to evolve, particularly useful in the context of CHE binaries
+#    --circularise-binary-during-mass-transfer: True                       # Default: True
+#    --hmxr-binaries: False                                                # Default: False
+#    --mass-transfer: True                                                 # Default: True
+#    --retain-core-mass-during-caseA-mass-transfer: False                  # Default: False
+
     ### COMMON ENVELOPE
-    --common-envelope-allow-immediate-RLOF-post-CE-survive: False
-    --common-envelope-allow-main-sequence-survive: True # Allow main sequence stars to survive CE. Was previously False by default
-    --common-envelope-allow-radiative-envelope-survive: False
-    --common-envelope-lambda-nanjing-enhanced: False
-    --common-envelope-lambda-nanjing-interpolate-in-mass: False
-    --common-envelope-lambda-nanjing-interpolate-in-metallicity: False
-    --common-envelope-lambda-nanjing-use-rejuvenated-mass: False
-    --revised-energy-formalism-nandez-ivanova: False
+#    --common-envelope-allow-immediate-RLOF-post-CE-survive: False         # Default: False
+#    --common-envelope-allow-main-sequence-survive: True                   # Default: True                                                                                                                                                               # Allow main sequence stars to survive CE
+#    --common-envelope-allow-radiative-envelope-survive: False             # Default: False
+#    --common-envelope-lambda-nanjing-enhanced: False                      # Default: False
+#    --common-envelope-lambda-nanjing-interpolate-in-mass: False           # Default: False
+#    --common-envelope-lambda-nanjing-interpolate-in-metallicity: False    # Default: False
+#    --common-envelope-lambda-nanjing-use-rejuvenated-mass: False          # Default: False
+#    --revised-energy-formalism-nandez-ivanova: False                      # Default: False
+
     ### SUPERNOVAE, KICKS AND REMNANTS
-    --allow-non-stripped-ECSN: True
-    --pair-instability-supernovae: True
-    --pulsational-pair-instability: True
+#    --allow-non-stripped-ECSN: True                                       # Default: True
+#    --pair-instability-supernovae: True                                   # Default: True
+#    --pulsational-pair-instability: True                                  # Default: True
+
     ### PULSAR PARAMETERS
-    --evolve-pulsars: False
+#    --evolve-pulsars: False                                               # Default: False
+
 
 numericalChoices:
+
     ### LOGISTICS
-    --debug-level: 0
-    --logfile-common-envelopes-record-types: -1
-    --logfile-detailed-output-record-types: -1
-    --logfile-double-compact-objects-record-types: -1
-    --logfile-pulsar-evolution-record-types: -1
-    --logfile-rlof-parameters-record-types: -1
-    --logfile-supernovae-record-types: -1
-    --logfile-system-parameters-record-types: -1
-    --grid-lines-to-process: 
-    --grid-start-line: 0
-    --hdf5-chunk-size: 100000
-    --hdf5-buffer-size: 1
-    --log-level: 0
-    --maximum-evolution-time: 13700.0   # maximum physical time a system can be evolved [Myrs]
-    --maximum-number-timestep-iterations: 99999
-    --number-of-systems: 10 # number of systems per batch
-    --timestep-multiplier: 1    # optional multiplier relative to default time step duration
+#    --debug-level: 0                                                      # Default: 0
+#    --logfile-common-envelopes-record-types: -1                           # Default: -1
+#    --logfile-detailed-output-record-types: -1                            # Default: -1
+#    --logfile-double-compact-objects-record-types: -1                     # Default: -1
+#    --logfile-pulsar-evolution-record-types: -1                           # Default: -1
+#    --logfile-rlof-parameters-record-types: -1                            # Default: -1
+#    --logfile-supernovae-record-types: -1                                 # Default: -1
+#    --logfile-system-parameters-record-types: -1                          # Default: -1
+#    --grid-lines-to-process: 9223372036854775807                          # Default: 9223372036854775807
+#    --grid-start-line: 0                                                  # Default: 0
+#    --hdf5-chunk-size: 100000                                             # Default: 100000
+#    --hdf5-buffer-size: 1                                                 # Default: 1
+#    --log-level: 0                                                        # Default: 0
+#    --maximum-evolution-time: 13700.00                                    # Default: 13700.00                                                                                                                                                           # maximum physical time a system can be evolved [Myr]
+#    --maximum-number-timestep-iterations: 99999                           # Default: 99999
+#    --number-of-systems: 10                                               # Default: 10                                                                                                                                                                 # number of systems per batch
+#    --timestep-multiplier: 1.000000                                       # Default: 1.000000                                                                                                                                                           # optional multiplier relative to default time step duration
+
     ### STELLAR PROPERTIES
-    --cool-wind-mass-loss-multiplier: 1.0    
-    --initial-mass: # initial mass for SSE
-    --initial-mass-min: 5.0 # use 5.0 for DCOs  [Msol]
-    --initial-mass-max: 150.0 # stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
-    --initial-mass-power: 0.0
-    --metallicity: 0.0142   # metallicity for both SSE and BSE - Solar metallicity Asplund+2010
-    --metallicity-min: 0.0001
-    --metallicity-max: 0.03
-    --luminous-blue-variable-multiplier: 1.5
-    --overall-wind-mass-loss-multiplier: 1.0
-    --random-seed: 0
-    --rotational-frequency: 0.0
-    --rotational-frequency-1: 0.0
-    --rotational-frequency-2: 0.0
-    --wolf-rayet-multiplier: 1.0
+#    --cool-wind-mass-loss-multiplier: 1.000000                            # Default: 1.000000
+#    --initial-mass: 5.000000                                              # Default: 5.000000                                                                                                                                                           # initial mass for SSE
+#    --initial-mass-min: 5.000000                                          # Default: 5.000000                                                                                                                                                           # use 5.0 for DCOs [Msol]
+#    --initial-mass-max: 150.00                                            # Default: 150.00                                                                                                                                                             # stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
+#    --initial-mass-power: 0.000000                                        # Default: 0.000000
+#    --metallicity: 0.014200                                               # Default: 0.014200                                                                                                                                                           # metallicity for both SSE and BSE - Solar metallicity Asplund+2010
+#    --metallicity-min: 0.000100                                           # Default: 0.000100
+#    --metallicity-max: 0.030000                                           # Default: 0.030000
+#    --luminous-blue-variable-multiplier: 1.500000                         # Default: 1.500000
+#    --overall-wind-mass-loss-multiplier: 1.000000                         # Default: 1.000000
+#    --random-seed: 0                                                      # Default: 0
+#    --rotational-frequency: 0.000000                                      # Default: 0.000000
+#    --rotational-frequency-1: 0.000000                                    # Default: 0.000000
+#    --rotational-frequency-2: 0.000000                                    # Default: 0.000000
+#    --wolf-rayet-multiplier: 1.000000                                     # Default: 1.000000
+
     ### BINARY PROPERTIES
-    --eccentricity:  # eccentricity for BSE
-    --eccentricity-min: 0.0
-    --eccentricity-max: 1.0
-    --initial-mass-1:  # primary initial mass for BSE
-    --initial-mass-2:  # secondary initial mass for BSE
-    --mass-ratio: 
-    --mass-ratio-min: 0.01
-    --mass-ratio-max:  1.0
-    --minimum-secondary-mass: 0.1   # Brown dwarf limit  [Msol]
-    --orbital-period:  # orbital period for BSE
-    --orbital-period-min: 1.1 # [days]
-    --orbital-period-max: 1000  # [days]    
-    --semi-major-axis:  # semi-major axis for BSE
-    --semi-major-axis-min: 0.01   # [AU]
-    --semi-major-axis-max: 1000.0  # [AU]
+#    --eccentricity: 0.000000                                              # Default: 0.000000                                                                                                                                                           # eccentricity for BSE
+#    --eccentricity-min: 0.000000                                          # Default: 0.000000
+#    --eccentricity-max: 1.000000                                          # Default: 1.000000
+#    --initial-mass-1: 5.000000                                            # Default: 5.000000                                                                                                                                                           # primary initial mass for BSE
+#    --initial-mass-2: 5.000000                                            # Default: 5.000000                                                                                                                                                           # secondary initial mass for BSE
+#    --mass-ratio: 1.000000                                                # Default: 1.000000
+#    --mass-ratio-min: 0.010000                                            # Default: 0.010000
+#    --mass-ratio-max: 1.000000                                            # Default: 1.000000
+#    --minimum-secondary-mass: 0.100000                                    # Default: 0.100000                                                                                                                                                           # Brown dwarf limit [Msol]
+#    --orbital-period: 0.100000                                            # Default: 0.100000                                                                                                                                                           # orbital period for BSE
+#    --orbital-period-min: 1.100000                                        # Default: 1.100000                                                                                                                                                           # [days]
+#    --orbital-period-max: 1000.00                                         # Default: 1000.00                                                                                                                                                            # [days]
+#    --semi-major-axis: 0.100000                                           # Default: 0.100000                                                                                                                                                           # semi-major axis for BSE
+#    --semi-major-axis-min: 0.010000                                       # Default: 0.010000                                                                                                                                                           # [AU]
+#    --semi-major-axis-max: 1000.00                                        # Default: 1000.00                                                                                                                                                            # [AU]
+
     ### MASS TRANSFER
-    --convective-envelope-temperature-threshold: 5370 # Only if using envelope-state-prescription = 'FIXED_TEMPERATURE'
-    --critical-mass-ratio-HG-degenerate-accretor: 0.21
-    --critical-mass-ratio-HG-non-degenerate-accretor: 0.25
-    --critical-mass-ratio-MS-high-mass-degenerate-accretor: 0.0
-    --critical-mass-ratio-MS-high-mass-non-degenerate-accretor: 0.625
-    --critical-mass-ratio-MS-low-mass-degenerate-accretor: 1.0
-    --critical-mass-ratio-MS-low-mass-non-degenerate-accretor: 1.44
-    --critical-mass-ratio-giant-degenerate-accretor: 0.87
-    --critical-mass-ratio-giant-non-degenerate-accretor: -1.0
-    --critical-mass-ratio-helium-HG-degenerate-accretor: 0.21
-    --critical-mass-ratio-helium-HG-non-degenerate-accretor: 0.25
-    --critical-mass-ratio-helium-MS-degenerate-accretor: 0.0
-    --critical-mass-ratio-helium-giant-degenerate-accretor: 0.0
-    --critical-mass-ratio-helium-MS-non-degenerate-accretor: 0.87
-    --critical-mass-ratio-helium-giant-non-degenerate-accretor: 1.28
-    --critical-mass-ratio-white-dwarf-degenerate-accretor: 1.6
-    --critical-mass-ratio-white-dwarf-non-degenerate-accretor: 0.0
-    --mass-transfer-fa: 0.5 # Only if using mass-transfer-accretion-efficiency-prescription = 'FIXED'
-    --mass-transfer-jloss: 1.0  # Only if using mass-transfer-angular-momentum-loss-prescription = 'FIXED'
-    --mass-transfer-jloss-macleod-linear-fraction: 0.5
-    --mass-transfer-thermal-limit-C: 10.0
-    --zeta-adiabatic-arbitrary: 1.0E5
-    --zeta-main-sequence: 2.0
-    --zeta-radiative-envelope-giant: 6.5
+#    --convective-envelope-temperature-threshold: 5370.00                  # Default: 5370.00                                                                                                                                                            # Only if using envelope-state-prescription = 'FIXED_TEMPERATURE'
+#    --critical-mass-ratio-HG-degenerate-accretor: 0.210000                # Default: 0.210000
+#    --critical-mass-ratio-HG-non-degenerate-accretor: 0.250000            # Default: 0.250000
+#    --critical-mass-ratio-MS-high-mass-degenerate-accretor: 0.000000      # Default: 0.000000
+#    --critical-mass-ratio-MS-high-mass-non-degenerate-accretor: 0.625000  # Default: 0.625000
+#    --critical-mass-ratio-MS-low-mass-degenerate-accretor: 1.000000       # Default: 1.000000
+#    --critical-mass-ratio-MS-low-mass-non-degenerate-accretor: 1.440000   # Default: 1.440000
+#    --critical-mass-ratio-giant-degenerate-accretor: 0.870000             # Default: 0.870000
+#    --critical-mass-ratio-giant-non-degenerate-accretor: -1.000000        # Default: -1.000000
+#    --critical-mass-ratio-helium-HG-degenerate-accretor: 0.210000         # Default: 0.210000
+#    --critical-mass-ratio-helium-HG-non-degenerate-accretor: 0.250000     # Default: 0.250000
+#    --critical-mass-ratio-helium-MS-degenerate-accretor: 0.000000         # Default: 0.000000
+#    --critical-mass-ratio-helium-giant-degenerate-accretor: 0.870000      # Default: 0.870000
+#    --critical-mass-ratio-helium-MS-non-degenerate-accretor: 0.000000     # Default: 0.000000
+#    --critical-mass-ratio-helium-giant-non-degenerate-accretor: 1.280000  # Default: 1.280000
+#    --critical-mass-ratio-white-dwarf-degenerate-accretor: 1.600000       # Default: 1.600000
+#    --critical-mass-ratio-white-dwarf-non-degenerate-accretor: 0.000000   # Default: 0.000000
+#    --mass-transfer-fa: 0.500000                                          # Default: 0.500000                                                                                                                                                           # Only if using mass-transfer-accretion-efficiency-prescription = 'FIXED'
+#    --mass-transfer-jloss: 1.000000                                       # Default: 1.000000                                                                                                                                                           # Only if using mass-transfer-angular-momentum-loss-prescription = 'FIXED'
+#    --mass-transfer-jloss-macleod-linear-fraction: 0.500000               # Default: 0.500000
+#    --mass-transfer-thermal-limit-C: 10.000000                            # Default: 10.000000
+#    --zeta-adiabatic-arbitrary: 10000.00                                  # Default: 10000.00
+#    --zeta-main-sequence: 2.000000                                        # Default: 2.000000
+#    --zeta-radiative-envelope-giant: 6.500000                             # Default: 6.500000
+
     ### COMMON ENVELOPE
-    --common-envelope-alpha: 1.0
-    --common-envelope-alpha-thermal: 1.0    # lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
-    --common-envelope-lambda: 0.1  # Only if using 'LAMBDA_FIXED'
-    --common-envelope-lambda-multiplier: 1.0  # Multiply common envelope lambda by some constant 
-    --common-envelope-mass-accretion-constant: 0
-    --common-envelope-mass-accretion-max: 0.10 # For 'MACLEOD+2014' [Msol]
-    --common-envelope-mass-accretion-min: 0.04 # For 'MACLEOD+2014' [Msol]   
-    --common-envelope-recombination-energy-density: 1.5E13
-    --common-envelope-slope-kruckow: -0.83333333333    
-    --maximum-mass-donor-nandez-ivanova: 2.0
+#    --common-envelope-alpha: 1.000000                                     # Default: 1.000000
+#    --common-envelope-alpha-thermal: 1.000000                             # Default: 1.000000                                                                                                                                                           # lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
+#    --common-envelope-lambda: 0.100000                                    # Default: 0.100000                                                                                                                                                           # Only if using 'LAMBDA_FIXED'
+#    --common-envelope-lambda-multiplier: 1.000000                         # Default: 1.000000                                                                                                                                                           # Multiply common envelope lambda by some constant
+#    --common-envelope-mass-accretion-constant: 0.000000                   # Default: 0.000000
+#    --common-envelope-mass-accretion-max: 0.100000                        # Default: 0.100000                                                                                                                                                           # For 'MACLEOD+2014' [Msol]
+#    --common-envelope-mass-accretion-min: 0.040000                        # Default: 0.040000                                                                                                                                                           # For 'MACLEOD+2014' [Msol]
+#    --common-envelope-recombination-energy-density: 15000000000000.00     # Default: 15000000000000.00
+#    --common-envelope-slope-kruckow: -0.833333                            # Default: -0.833333
+#    --maximum-mass-donor-nandez-ivanova: 2.000000                         # Default: 2.000000
+
     ### SUPERNOVAE, KICKS AND REMNANTS
-    --eddington-accretion-factor: 1 # multiplication Factor for eddington accretion onto NS&BH    
-    --fix-dimensionless-kick-magnitude: -1.0                       
-    --fryer-22-fmix: 0.5            # parameter describing mixing growth time when using the 'FRYER2022' remnant mass prescription
-    --fryer-22-mcrit: 5.75          # critical mass for BH formation when using the 'FRYER2022' remnant mass prescription
-    --kick-direction-power: 0.0
-    --kick-magnitude-sigma-CCSN-NS: 265.0  #  [km/s]
-    --kick-magnitude-sigma-CCSN-BH: 265.0  #  [km/s]
-    --kick-magnitude-max: -1.0
-    --kick-magnitude-random:    # (SSE) used to draw the kick magnitude for the star should it undergo a supernova event
-    --kick-magnitude:      # (SSE) (drawn) kick magnitude for the star should it undergo a supernova event [km/s]
-    --kick-magnitude-random-1:    # (BSE) used to draw the kick magnitude for the primary star should it undergo a supernova event
-    --kick-magnitude-1:  # (BSE) (drawn) kick magnitude for the primary star should it undergo a supernova event [km/s]
-    --kick-theta-1:   # (BSE) angle between the orbital plane and the 'z' axis of the supernova vector for the primary star should it undergo a supernova event [radians]
-    --kick-phi-1:    # (BSE) angle between 'x' and 'y', both in the orbital plane of the supernova vector, for the primary star should it undergo a supernova event [radians]
-    --kick-mean-anomaly-1:  # (BSE) mean anomaly at the instant of the supernova for the primary star should it undergo a supernova event - should be uniform in [0, 2pi) [radians]
-    --kick-magnitude-random-2:  # (BSE) used to draw the kick velocity for the secondary star should it undergo a supernova event
-    --kick-magnitude-2:  # (BSE) (drawn) kick magnitude for the secondary star should it undergo a supernova event [km/s]
-    --kick-theta-2:   # (BSE) angle between the orbital plane and the 'z' axis of the supernova vector for the secondary star should it undergo a supernova event [radians]
-    --kick-phi-2:      # (BSE) angle between 'x' and 'y', both in the orbital plane of the supernova vector, for the secondary star should it undergo a supernova event [radians]
-    --kick-mean-anomaly-2:   # (BSE) mean anomaly at the instant of the supernova for the secondary star should it undergo a supernova event - should be uniform in [0, 2pi) [radians]
-    --kick-magnitude-sigma-ECSN: 30.0 #  [km/s]
-    --kick-magnitude-sigma-USSN: 30.0 #  [km/s]
-    --kick-scaling-factor: 1.0
-    --maximum-neutron-star-mass: 2.5
-    --mcbur1: 1.6
-    --muller-mandel-kick-multiplier-BH: 200.0  # scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution
-    --muller-mandel-kick-multiplier-NS: 400.0  # scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution
-    --muller-mandel-sigma-kick: 0.3 # kick scatter when using the 'MULLERMANDEL' kick magnitude distribution
-    --neutrino-mass-loss-BH-formation-value: 0.1  
-    --pisn-lower-limit: 60.0  # Minimum core mass for PISN [Msol]
-    --pisn-upper-limit: 135.0  # Maximum core mass for PISN [Msol]
-    --ppi-lower-limit: 35.0   # Minimum core mass for PPI [Msol]
-    --ppi-upper-limit: 60.0   # Maximum core mass for PPI [Msol]
+#    --eddington-accretion-factor: 1.000000                                # Default: 1.000000                                                                                                                                                           # multiplication Factor for eddington accretion onto NS&BH
+#    --fix-dimensionless-kick-magnitude: -1.000000                         # Default: -1.000000
+#    --fryer-22-fmix: 0.500000                                             # Default: 0.500000                                                                                                                                                           # parameter describing mixing growth time when using the 'FRYER2022' remnant mass prescription
+#    --fryer-22-mcrit: 5.750000                                            # Default: 5.750000                                                                                                                                                           # critical mass for BH formation when using the 'FRYER2022' remnant mass prescription
+#    --kick-direction-power: 0.000000                                      # Default: 0.000000
+#    --kick-magnitude-sigma-CCSN-NS: 265.00                                # Default: 265.00                                                                                                                                                             # [km/s]
+#    --kick-magnitude-sigma-CCSN-BH: 265.00                                # Default: 265.00                                                                                                                                                             # [km/s]
+#    --kick-magnitude-max: -1.000000                                       # Default: -1.000000
+#    --kick-magnitude-random: 0.000000                                     # Default: 0.000000                                                                                                                                                           # (SSE) used to draw the kick magnitude for the star should it undergo a supernova event
+#    --kick-magnitude: 0.000000                                            # Default: 0.000000                                                                                                                                                           # (SSE) (drawn) kick magnitude for the star should it undergo a supernova event [km/s]
+#    --kick-magnitude-random-1: 0.000000                                   # Default: 0.000000                                                                                                                                                           # (BSE) used to draw the kick magnitude for the primary star should it undergo a supernova event
+#    --kick-magnitude-1: 0.000000                                          # Default: 0.000000                                                                                                                                                           # (BSE) (drawn) kick magnitude for the primary star should it undergo a supernova event [km/s]
+#    --kick-theta-1: 0.000000                                              # Default: 0.000000                                                                                                                                                           # (BSE) angle between the orbital plane and the 'z' axis of the supernova vector for the primary star should it undergo a supernova event [radians]
+#    --kick-phi-1: 0.000000                                                # Default: 0.000000                                                                                                                                                           # (BSE) angle between 'x' and 'y', both in the orbital plane of the supernova vector, for the primary star should it undergo a supernova event [radians]
+#    --kick-mean-anomaly-1: 0.000000                                       # Default: 0.000000                                                                                                                                                           # (BSE) mean anomaly at the instant of the supernova for the primary star should it undergo a supernova event - should be uniform in [0, 2pi) [radians]
+#    --kick-magnitude-random-2: 0.000000                                   # Default: 0.000000                                                                                                                                                           # (BSE) used to draw the kick velocity for the secondary star should it undergo a supernova event
+#    --kick-magnitude-2: 0.000000                                          # Default: 0.000000                                                                                                                                                           # (BSE) (drawn) kick magnitude for the secondary star should it undergo a supernova event [km/s]
+#    --kick-theta-2: 0.000000                                              # Default: 0.000000                                                                                                                                                           # (BSE) angle between the orbital plane and the 'z' axis of the supernova vector for the secondary star should it undergo a supernova event [radians]
+#    --kick-phi-2: 0.000000                                                # Default: 0.000000                                                                                                                                                           # (BSE) angle between 'x' and 'y', both in the orbital plane of the supernova vector, for the secondary star should it undergo a supernova event [radians]
+#    --kick-mean-anomaly-2: 0.000000                                       # Default: 0.000000                                                                                                                                                           # (BSE) mean anomaly at the instant of the supernova for the secondary star should it undergo a supernova event - should be uniform in [0, 2pi) [radians]
+#    --kick-magnitude-sigma-ECSN: 30.000000                                # Default: 30.000000                                                                                                                                                          # [km/s]
+#    --kick-magnitude-sigma-USSN: 30.000000                                # Default: 30.000000                                                                                                                                                          # [km/s]
+#    --kick-scaling-factor: 1.000000                                       # Default: 1.000000
+#    --maximum-neutron-star-mass: 2.500000                                 # Default: 2.500000
+#    --mcbur1: 1.600000                                                    # Default: 1.600000
+#    --muller-mandel-kick-multiplier-BH: 200.00                            # Default: 200.00                                                                                                                                                             # scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution
+#    --muller-mandel-kick-multiplier-NS: 400.00                            # Default: 400.00                                                                                                                                                             # scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution
+#    --muller-mandel-sigma-kick: 0.300000                                  # Default: 0.300000                                                                                                                                                           # kick scatter when using the 'MULLERMANDEL' kick magnitude distribution
+#    --neutrino-mass-loss-BH-formation-value: 0.100000                     # Default: 0.100000
+#    --pisn-lower-limit: 60.000000                                         # Default: 60.000000                                                                                                                                                          # Minimum core mass for PISN [Msol]
+#    --pisn-upper-limit: 135.00                                            # Default: 135.00                                                                                                                                                             # Maximum core mass for PISN [Msol]
+#    --ppi-lower-limit: 35.000000                                          # Default: 35.000000                                                                                                                                                          # Minimum core mass for PPI [Msol]
+#    --ppi-upper-limit: 60.000000                                          # Default: 60.000000                                                                                                                                                          # Maximum core mass for PPI [Msol]
+
     ### PULSAR PARAMETERS
-    --pulsar-birth-magnetic-field-distribution-min: 11.0  # [log10(B/G)]
-    --pulsar-birth-magnetic-field-distribution-max: 13.0  # [log10(B/G)]
-    --pulsar-birth-spin-period-distribution-min: 10.0   # [ms]
-    --pulsar-birth-spin-period-distribution-max: 100.0  # [ms]
-    --pulsar-magnetic-field-decay-timescale: 1000.0   # [Myr]
-    --pulsar-magnetic-field-decay-massscale: 0.025    # [Msol]
-    --pulsar-minimum-magnetic-field: 8.0  # [log10(B/G)]
+#    --pulsar-birth-magnetic-field-distribution-min: 11.000000             # Default: 11.000000                                                                                                                                                          # [log10(B/G)]
+#    --pulsar-birth-magnetic-field-distribution-max: 13.000000             # Default: 13.000000                                                                                                                                                          # [log10(B/G)]
+#    --pulsar-birth-spin-period-distribution-min: 10.000000                # Default: 10.000000                                                                                                                                                          # [ms]
+#    --pulsar-birth-spin-period-distribution-max: 100.00                   # Default: 100.00                                                                                                                                                             # [ms]
+#    --pulsar-magnetic-field-decay-timescale: 1000.00                      # Default: 1000.00                                                                                                                                                            # [Myr]
+#    --pulsar-magnetic-field-decay-massscale: 0.025000                     # Default: 0.025000                                                                                                                                                           # [Msol]
+#    --pulsar-minimum-magnetic-field: 8.000000                             # Default: 8.000000                                                                                                                                                           # [log10(B/G)]
+
 
 stringChoices:
+
     ### LOGISTICS
-    --grid:     # grid file name (e.g. 'mygrid.txt')
-    --mode: 'BSE'  # evolving single stars (SSE) or binaries (BSE)    
-    --notes: 
-    --notes-hdrs: 
-    --output-container: 
+#    --add-options-to-sysparms: 'GRID'                                     # Default: 'GRID'                        # Options: ['NEVER','GRID','ALWAYS']
+#    --grid: ''                                                            # Default: ''                                                                                                                                                                 # grid file name (e.g. 'mygrid.txt')
+#    --mode: 'BSE'                                                         # Default: 'BSE'                         # Options: ['BSE','SSE']                                                                                                             # evolving single (SSE) or binary stars (BSE)
+#    --notes: { }                                                          # Default: { }
+#    --notes-hdrs: { }                                                     # Default: { }
+#    --output-container: 'COMPAS_Output'                                   # Default: 'COMPAS_Output'
+
     ### STELLAR PROPERTIES
-    --chemically-homogeneous-evolution: 'PESSIMISTIC'      # chemically homogeneous evolution.  Options are 'NONE', 'OPTIMISTIC' and 'PESSIMISTIC'
-    --envelope-state-prescription: 'LEGACY'
-    --initial-mass-function: 'KROUPA'
-    --luminous-blue-variable-prescription: 'HURLEY_ADD'
-    --mass-loss-prescription: 'VINK'
-    --metallicity-distribution: 'ZSOLAR'
-    --pulsational-pair-instability-prescription: 'MARCHANT'
+#    --chemically-homogeneous-evolution: 'PESSIMISTIC'                     # Default: 'PESSIMISTIC'                 # Options: ['PESSIMISTIC','OPTIMISTIC','NONE']                                                                                       # chemically homogeneous evolution
+#    --envelope-state-prescription: 'LEGACY'                               # Default: 'LEGACY'                      # Options: ['FIXED_TEMPERATURE','HURLEY','LEGACY']
+#    --initial-mass-function: 'KROUPA'                                     # Default: 'KROUPA'                      # Options: ['KROUPA','UNIFORM','POWERLAW','SALPETER']
+#    --luminous-blue-variable-prescription: 'HURLEY_ADD'                   # Default: 'HURLEY_ADD'                  # Options: ['BELCZYNSKI','HURLEY','HURLEY_ADD','NONE']
+#    --mass-loss-prescription: 'VINK'                                      # Default: 'VINK'                        # Options: ['VINK','HURLEY','NONE']
+#    --metallicity-distribution: 'ZSOLAR'                                  # Default: 'ZSOLAR'                      # Options: ['LOGUNIFORM','ZSOLAR']
+#    --pulsational-pair-instability-prescription: 'MARCHANT'               # Default: 'MARCHANT'                    # Options: ['FARMER','MARCHANT','STARTRACK','COMPAS']
+
     ### BINARY PROPERTIES
-    --eccentricity-distribution: 'ZERO'
-    --mass-ratio-distribution: 'FLAT'
-    --orbital-period-distribution: 'FLATINLOG'
-    --rotational-velocity-distribution: 'ZERO'
-    --semi-major-axis-distribution: 'FLATINLOG'    
+#    --eccentricity-distribution: 'ZERO'                                   # Default: 'ZERO'                        # Options: ['SANA2012','DUQUENNOYMAYOR1991','GELLER+2013','THERMAL','FLAT','ZERO']
+#    --mass-ratio-distribution: 'FLAT'                                     # Default: 'FLAT'                        # Options: ['SANA2012','DUQUENNOYMAYOR1991','FLAT']
+#    --orbital-period-distribution: 'FLATINLOG'                            # Default: 'FLATINLOG'                   # Options: ['FLATINLOG']
+#    --rotational-velocity-distribution: 'ZERO'                            # Default: 'ZERO'                        # Options: ['VLTFLAMES','HURLEY','ZERO']
+#    --semi-major-axis-distribution: 'FLATINLOG'                           # Default: 'FLATINLOG'                   # Options: ['SANA2012','DUQUENNOYMAYOR1991','FLATINLOG']
+
     ### MASS TRANSFER
-    --case-BB-stability-prescription: 'ALWAYS_STABLE'    
-    --critical-mass-ratio-prescription: 'NONE'
-    --stellar-zeta-prescription: 'SOBERMAN'    
-    --mass-transfer-angular-momentum-loss-prescription: 'ISOTROPIC'
-    --mass-transfer-accretion-efficiency-prescription: 'THERMAL'
-    --mass-transfer-rejuvenation-prescription: 'STARTRACK'
-    --mass-transfer-thermal-limit-accretor: 'CFACTOR'
+#    --case-BB-stability-prescription: 'ALWAYS_STABLE'                     # Default: 'ALWAYS_STABLE'               # Options: ['ALWAYS_UNSTABLE','TREAT_AS_OTHER_MT','ALWAYS_STABLE_ONTO_NSBH','ALWAYS_STABLE']
+#    --critical-mass-ratio-prescription: 'NONE'                            # Default: 'NONE'                        # Options: ['GE20_IC','GE20','CLAEYS','NONE']
+#    --stellar-zeta-prescription: 'SOBERMAN'                               # Default: 'SOBERMAN'                    # Options: ['NONE','ARBITRARY','HURLEY','SOBERMAN']
+#    --mass-transfer-angular-momentum-loss-prescription: 'ISOTROPIC'       # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
+#    --mass-transfer-accretion-efficiency-prescription: 'THERMAL'          # Default: 'THERMAL'                     # Options: ['FIXED','THERMAL']
+#    --mass-transfer-rejuvenation-prescription: 'STARTRACK'                # Default: 'STARTRACK'                   # Options: ['STARTRACK','NONE']
+#    --mass-transfer-thermal-limit-accretor: 'CFACTOR'                     # Default: 'CFACTOR'                     # Options: ['ROCHELOBE','CFACTOR']
+
     ### COMMON ENVELOPE
-    --common-envelope-formalism: 'ENERGY' 
-    --common-envelope-lambda-prescription: 'LAMBDA_NANJING'      # Xu & Li 2010    
-    --common-envelope-mass-accretion-prescription: 'ZERO'    
+#    --common-envelope-formalism: 'ENERGY'                                 # Default: 'ENERGY'                      # Options: ['TWO_STAGE','ENERGY']
+#    --common-envelope-lambda-prescription: 'LAMBDA_NANJING'               # Default: 'LAMBDA_NANJING'              # Options: ['LAMBDA_DEWI','LAMBDA_KRUCKOW','LAMBDA_NANJING','LAMBDA_LOVERIDGE','LAMBDA_FIXED']                                       # Xu & Li 2010
+#    --common-envelope-mass-accretion-prescription: 'ZERO'                 # Default: 'ZERO'                        # Options: ['MACLEOD','UNIFORM','CONSTANT','ZERO']
+
     ### SUPERNOVAE, KICKS AND REMNANTS
-    --black-hole-kicks: 'FALLBACK'
-    --fryer-supernova-engine: 'DELAYED'
-    --kick-magnitude-distribution: 'MAXWELLIAN'
-    --kick-direction: 'ISOTROPIC'
-    --neutron-star-equation-of-state: 'SSE'
-    --neutrino-mass-loss-BH-formation: "FIXED_MASS"  # "FIXED_FRACTION"
-    --pulsar-birth-magnetic-field-distribution: 'ZERO'
-    --pulsar-birth-spin-period-distribution: "ZERO"
-    --remnant-mass-prescription: 'FRYER2012'    
+#    --black-hole-kicks: 'FALLBACK'                                        # Default: 'FALLBACK'                    # Options: ['FALLBACK','ZERO','REDUCED','FULL']
+#    --fryer-supernova-engine: 'DELAYED'                                   # Default: 'DELAYED'                     # Options: ['DELAYED','RAPID']
+#    --kick-magnitude-distribution: 'MAXWELLIAN'                           # Default: 'MAXWELLIAN'                  # Options: ['MULLERMANDEL','MULLER2016MAXWELLIAN','MULLER2016','BRAYELDRIDGE','MAXWELLIAN','FLAT','FIXED','ZERO']
+#    --kick-direction: 'ISOTROPIC'                                         # Default: 'ISOTROPIC'                   # Options: ['POLES','WEDGE','POWERLAW','PERPENDICULAR','INPLANE','ISOTROPIC']
+#    --neutron-star-equation-of-state: 'SSE'                               # Default: 'SSE'                         # Options: ['ARP3','SSE']
+#    --neutrino-mass-loss-BH-formation: 'FIXED_MASS'                       # Default: 'FIXED_MASS'                  # Options: ['FIXED_MASS','FIXED_FRACTION']
+#    --pulsar-birth-magnetic-field-distribution: 'ZERO'                    # Default: 'ZERO'                        # Options: ['LOGNORMAL','UNIFORM','FLATINLOG','FIXED','ZERO']
+#    --pulsar-birth-spin-period-distribution: 'ZERO'                       # Default: 'ZERO'                        # Options: ['NORMAL','UNIFORM','FIXED','ZERO']
+#    --remnant-mass-prescription: 'FRYER2012'                              # Default: 'FRYER2012'                   # Options: ['SCHNEIDER2020ALT','SCHNEIDER2020','MULLERMANDEL','MULLER2016','FRYER2022','FRYER2012','BELCZYNSKI2002','HURLEY2000']
+
     ### LOGFILES AND OUTPUTS 
-    # set the logfile names here
-    #
-    # set to None (e.g. logfile_BSE_supernovae = None) to use the default filename
-    # set to a string (e.g. logfile_BSE_supernovae = 'mySNfilename') to use that string as the filename 
-    # set to empty string (e.g. logfile_BSE_supernovae = '""') to disable logging for that file (the file will not be created)
-    #
-    # We don't really need the 'BSE' or 'SSE' prefixes any more - they were put there because
-    # prior to the implementation of the containing folder it was too hard to locate the files
-    # created by a COMPAS run - especially the detailed output files.  Now that the output
-    # files are created inside a containing folder for each run there is really no need for
-    # the prefixes - and if we don't have the prefixes we can share some of the options
-    # (e.g. specifying the supernovae filename doesn't need to have separate options for 
-    # SSE and BSE - we really just need one (we only ever run in one mode or the other))
-    #
-    # For now though, I'll leave them as is - we can change this when (if) we decide to
-    # drop the prefixes
-    --logfile-type: 'HDF5'
-    --logfile-name-prefix: 
-    --logfile-definitions:  
-    --logfile-common-envelopes:
-    --logfile-detailed-output: 
-    --logfile-double-compact-objects: 
-    --logfile-pulsar-evolution: 
-    --logfile-rlof-parameters: 
-    --logfile-supernovae:
-    --logfile-switch-log:
-    --logfile-system-parameters:
-    --output-path:
+#    --logfile-type: 'HDF5'                                                # Default: 'HDF5'                        # Options: ['TXT','TSV','CSV','HDF5','NONE']
+#    --logfile-name-prefix: ''                                             # Default: ''
+#    --logfile-definitions: ''                                             # Default: ''
+#    --logfile-common-envelopes: 'BSE_Common_Envelopes'                    # Default: 'BSE_Common_Envelopes'
+#    --logfile-detailed-output: 'BSE_Detailed_Output'                      # Default: 'BSE_Detailed_Output'
+#    --logfile-double-compact-objects: 'BSE_Double_Compact_Objects'        # Default: 'BSE_Double_Compact_Objects'
+#    --logfile-pulsar-evolution: 'BSE_Pulsar_Evolution'                    # Default: 'BSE_Pulsar_Evolution'
+#    --logfile-rlof-parameters: 'BSE_RLOF'                                 # Default: 'BSE_RLOF'
+#    --logfile-supernovae: 'BSE_Supernovae'                                # Default: 'BSE_Supernovae'
+#    --logfile-switch-log: 'BSE_Switch_Log'                                # Default: 'BSE_Switch_Log'
+#    --logfile-system-parameters: 'BSE_System_Parameters'                  # Default: 'BSE_System_Parameters'
+#    --output-path: '.'                                                    # Default: '.'
 
-## listChoices
+
 listChoices: 
-    --log-classes: []
-    --debug-classes: []
 
+#    --log-classes: { }                                                    # Default: { }
+#    --debug-classes: { }                                                  # Default: { }
