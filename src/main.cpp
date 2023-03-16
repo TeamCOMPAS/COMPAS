@@ -37,7 +37,6 @@ OBJECT_ID    ObjectId()    { return m_ObjectId; }
 OBJECT_TYPE  ObjectType()  { return OBJECT_TYPE::MAIN; }
 STELLAR_TYPE StellarType() { return STELLAR_TYPE::NONE; }
 
-
 // The following global variables support the BSE Switch Log file
 // Ideally, rather than be declared as globals, they would be in maybe the 
 // LOGGING service singleton, but the Log class knows nothing about the 

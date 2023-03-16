@@ -411,6 +411,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
     bool         takeTimestep = false;
     int          retryCount   = 0;
 
+
     while (!takeTimestep) {                                                                                     // do this until a suitable timestep is found (or the maximum retry count is reached)
         
         SaveState();                                                                                            // save the state of the star - in case we want to revert
@@ -425,25 +426,32 @@ double Star::EvolveOneTimestep(const double p_Dt) {
         // don't take the timestep if we stepped too far
 
         takeTimestep = true;                                                                                    // flag to determine if the timestep should be taken
-        if (utils::Compare(m_Star->CalculateRadialChange(), MAXIMUM_RADIAL_CHANGE) >= 0) {                      // too much change?
+        double radialChange = m_Star->CalculateRadialChange();                                                  // radial change
+        if (utils::Compare(radialChange, MAXIMUM_RADIAL_CHANGE) >= 0) {                                         // too much change?
             if (utils::Compare(dt, minTimestep) <= 0) {                                                         // yes - already at or below minimum timestep?
                 takeTimestep = true;                                                                            // yes - just take the last timestep
-                SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                                       // announce the problem if required and plough on regardless...
+                std::ostringstream ss;
+                ss << std::scientific << std::setprecision(6) << "ST = " << static_cast<int>(StellarType()) << ", dt = " << dt << ", minTimestep = " << minTimestep << ", radialChange = " << radialChange << ", radius = " << Radius();
+                SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM, ss.str());                                             // announce the problem if required and plough on regardless...
             }
             else {                                                                                              // not at or below dynamical - reduce timestep and try again
                 retryCount++;                                                                                   // increment retry count
                 if (retryCount > MAX_TIMESTEP_RETRIES) {                                                        // too many retries?
                     takeTimestep = true;                                                                        // yes - take the last timestep anyway
-                    SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                                   // announce the problem if required and plough on regardless...
+                    std::ostringstream ss;
+                    ss << std::scientific << std::setprecision(6) << "dt = " << dt << ", minTimestep = " << minTimestep << ", radialChange = " << radialChange << ", radius = " << Radius();
+                    SHOW_WARN(ERROR::MAX_TIMESTEP_RETRIES, ss.str());                                           // announce the problem if required and plough on regardless...
                 }
                 else {                                                                                          // not too many retries - retry with smaller timestep
                     if (RevertState()) {                                                                        // revert to last state ok?
                         dt = dt / 2.0;                                                                          // yes - halve the timestep (limit to minimum)      JR: probably should be dt = max(dt / 2.0, minTimestep);
-                        takeTimestep = false;                                                                   // previous timestep discared - use new one
+                        takeTimestep = false;                                                                   // previous timestep discarded - use new one
                     }
                     else {                                                                                      // revert failed
                         takeTimestep = true;                                                                    // take the last timestep anyway
-                        SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                               // announce the problem if required and plough on regardless...
+                        std::ostringstream ss;
+                        ss << std::scientific << std::setprecision(6) << "dt = " << dt << ", minTimestep = " << minTimestep << ", radialChange = " << radialChange << ", radius = " << Radius();
+                        SHOW_WARN(ERROR::SSE_REVERT_STATE_FAILED, ss.str());                                    // announce the problem if required and plough on regardless...
                     }
                 }
             }
@@ -456,7 +464,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
 
     (void)SwitchTo(stellarType);                                                                                // switch phase if required  JR: whether this goes before or after the log record is a little problematic, but in the end probably doesn't matter too much
 
-    (void)m_Star->ResolveMassLoss();                                                                            // apply wind mass loss if required     JR: should this really be before the call to SwitchTo()?  It isn't in the original code
+    m_Star->ResolveMassLoss();                                                                                  // apply wind mass loss if required     JR: should this really be before the call to SwitchTo()?  It isn't in the original code
 
     return dt;                                                                                                  // return the timestep actually taken
 }
@@ -505,7 +513,7 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
         else {
             stepNum++;                                                              // increment step number                                                      
             dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();       // calculate new timestep
-            EvolveOneTimestep(dt);                                                  // evolve for timestep
+            (void) EvolveOneTimestep(dt);                                           // evolve for timestep
             (void)m_Star->PrintDetailedOutput(m_Id);                                // log record
         }
     }

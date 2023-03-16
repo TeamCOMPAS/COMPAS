@@ -34,13 +34,15 @@ protected:
     void Initialise() {
         m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;                                                                                                                    // Set stellar type
         m_Tau = 0.0;                                                                                      // Start of phase
+
+        CalculateGBParams();
         CalculateTimescales();                                                                                                                                                              // Initialise timescales
+
         // JR: Age for HeHG is calculated before switching -
         // can get here via EvolveOneTimestep() and ResolveEnvelopeLoss(),
         // and Age is calculated differently in those cases
         
         //Update stellar properties at start of HeHG phase (since core defintion changes)
-        CalculateGBParams();
         m_COCoreMass  = CalculateCOCoreMassOnPhase();
         m_CoreMass    = CalculateCoreMassOnPhase();
         m_HeCoreMass  = CalculateHeCoreMassOnPhase();
