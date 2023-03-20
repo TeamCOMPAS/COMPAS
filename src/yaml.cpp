@@ -297,6 +297,12 @@ namespace yaml {
             if (s[23] == ' ') s[23] = '0';                                                                                  // add leading zero for day if necessary
             SET_STRINGS(s, "", "", "", "", "");                                                                             // time and version stamp record for YAML file output
 
+            SET_STRINGS("##~!!~##", "", "", "", "", "");                                                                                    // Blank header line
+            SET_STRINGS("##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has", "", "", "", "", "");   // Notice regarding commented line in default YAML                                                                            // time and version stamp record for YAML file output
+            SET_STRINGS("##~!!~## all COMPAS option entries commented so that the COMPAS default value for the", "", "", "", "", "");       // Notice regarding commented line in default YAML                                                                            // time and version stamp record for YAML file output
+            SET_STRINGS("##~!!~## option is used by default. To use a value other than the COMPAS default value,", "", "", "", "", "");     // Notice regarding commented line in default YAML                                                                            // time and version stamp record for YAML file output
+            SET_STRINGS("##~!!~## users must uncomment the entry and change the option value to the desired value.", "", "", "", "", "");   // Notice regarding commented line in default YAML                                                                            // time and version stamp record for YAML file output
+
             size_t numTemplateRecords = yamlTemplate.size();                                                                // number of records in the YAML template
 
             // create YAML content
