@@ -1673,7 +1673,7 @@ same header string.`
    * - COMPAS variable:
      - `derived from` BaseStar::m_SupernovaDetails.events.past
    * - Description:
-     - Flag to indicate whether the object was a recycled neutron star at any time prior to the current timestep (was a neutron star accreting mass).
+     - Flag to indicate whether the object was a recycled neutron star at any time prior to the current timestep (was a neutron star accrediting mass).
    * - Header Strings:
      - Recycled_NS, Recycled_NS(1), Recycled_NS(2), Recycled_NS(SN), Recycled_NS(CP)
 

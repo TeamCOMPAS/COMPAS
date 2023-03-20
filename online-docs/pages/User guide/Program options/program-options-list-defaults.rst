@@ -121,7 +121,7 @@ Default = TRUE
 
 **--common-envelope-allow-radiative-envelope-survive** |br| 
 Allow binaries with an evolved component with a radiative envelope to survive the common envelope phase. |br|
-Deafult = FALSE
+Default = FALSE
 
 **--common-envelope-alpha** |br|
 Common Envelope efficiency alpha. |br|
@@ -385,7 +385,7 @@ Options: { DELAYED, RAPID }
 Default = DELAYED
 
 **--fryer-22-fmix** |br|
-Paramter describing the mixing growth time when using the 'FRYER2022' remnant mass distribution  :cite:`Fryer2022`. |br|
+Parameter describing the mixing growth time when using the 'FRYER2022' remnant mass distribution  :cite:`Fryer2022`. |br|
 Default = 0.5, which is closest to the 'DELAYED' remnant mass prescription from :cite:`Fryer2012`. A value of 4.0 is closest to  the 'RAPID' remnant mass prescription from :cite:`Fryer2012`. |br|
 If the FALLBACK option is used for the kicks, then the proto core masses will be determined by the fryer-supernova-engine option. |br| 
 
@@ -838,7 +838,7 @@ Maximum number of timesteps to evolve binary. Evolution of the binary will stop 
 Default = 99999
 
 **--mcbur1** |br|
-Minimum core mass at base of AGB to avoid fully degnerate CO core formation (:math:`M_\odot`). |br|
+Minimum core mass at base of AGB to avoid fully degenerate CO core formation (:math:`M_\odot`). |br|
 e.g. 1.6 in :cite:`Hurley2000` presciption; 1.83 in :cite:`Fryer2012` and :doc:`Belczynski et al. (2008) <../../references>` models. |br|
 Default = 1.6
 
