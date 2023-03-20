@@ -2,6 +2,19 @@ COMPAS YAML file
 ================
 
 The COMPAS YAML file is an options configuration file for use with :doc:`runSubmit.py<./pre-processing-runSubmit>`.
+
+`YAML files <https://en.wikipedia.org/wiki/YAML>`__ are text files that use a minimal syntax, with Python-style
+indentation to indicate nesting, and a colon-centered syntax for expressing key-value pairs.
+
+The COMPAS YAML file contains entries, including **key-value** pairs, for all COMPAS options, where the **key** is the
+COMPAS option name (string), and the **value** is the required option value. A COMPAS option entry in the YAML file
+also indicates (as comments) the COMPAS default value for the option and, where applicable, the allowed values for the
+option.
+
+The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has all COMPAS option entries commented so
+that the COMPAS default value for the option is used by default. To use a value other than the COMPAS default value,
+users must uncomment the entry and change the option value to the desired value.
+
 Users can either use the default YAML file provided with the distribution (``compasConfigDefault.yaml``), or create
 a custom YAML file.
 
@@ -11,8 +24,8 @@ Creating a custom YAML file
 
 There are two ways to create a custom YAML file for COMPAS:
 
-   - modify the default YAML file ``compasConfigDefault.yaml``
-   - create, and optionally modify, a new YAML file via COMPAS
+* modify the default YAML file ``compasConfigDefault.yaml``
+* create, and optionally modify, a new YAML file via COMPAS
 
 
 Creating a YAML file via COMPAS

@@ -10,6 +10,8 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 * Added functionality to automatically create COMPAS YAML file - adds two new options: ``--create-YAML-file`` and ``YAML-template``. See documentation for details.  
 
+  **Note:** From this release, the default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has all COMPAS option entries commented so that the COMPAS default value for the option is used by default. To use a value other than the COMPAS default value, users must uncomment the entry and change the option value to the desired value.
+
 **02.35.02 Feb 19, 2023**
 
 * Changed ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1`` and ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2`` to be the Roche lobe radius as computed at periapsis, in units of \ :math:`R_\odot`.
