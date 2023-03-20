@@ -10,10 +10,7 @@ jobs:
     strategy:
       fail-fast: false  #in case build failed on one of the runners, it won't stop building on other runners
       matrix:
-        os: [ubuntu-20.04]  # runners(virtual machines) to run the job on
-        # include: # add the combination to run the centos container only on ubuntu-18.04
-        #   - os: ubuntu-18.04
-        #     container: 'centos:7'
+        os: [ubuntu-20.04, macos-11]  # runners(virtual machines) to run the job on
 
     steps:
       - uses: actions/checkout@v2
@@ -57,7 +54,7 @@ jobs:
       # **To be investigated further** plotting script is currently failing on macos because 
       # for some reason it cannot recognise latex is installed
       - name: Run Post-Processing Python Scripts
-        if: startsWith(matrix.os, 'ubuntu-20') || startsWith(matrix.os, 'ubuntu-18')
+        if: startsWith(matrix.os, 'ubuntu-20') # || startsWith(matrix.os, 'macos-11')
         run: |
           cd utils/cicd-scripts
           chmod 755 python-scripts
