@@ -65,7 +65,7 @@ class COMPASData(object):
     def setCOMPASDCOmask(
         self, types="BBH", withinHubbleTime=True, pessimistic=True, noRLOFafterCEE=True
     ):
-        # By default, we mask for BBHs that merge within a Hubble time, assumming
+        # By default, we mask for BBHs that merge within a Hubble time, assuming
         # the pessimistic CEE prescription (HG donors cannot survive a CEE) and
         # not allowing immediate RLOF post-CEE
         

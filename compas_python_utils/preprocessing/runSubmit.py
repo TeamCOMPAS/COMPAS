@@ -157,7 +157,7 @@ def runSubmit(cli_args=[DEFAULT_CONFIG_FILE], execute=True):
     # -- Get the program options
     myoptions = pythonProgramOptions(config_file=args.config_file)
     print(myoptions.shellCommand)
-    if execute:  # Exectute COMPAS shell string
+    if execute:  # Execute COMPAS shell string
         call(myoptions.shellCommand, shell=True)
 
 

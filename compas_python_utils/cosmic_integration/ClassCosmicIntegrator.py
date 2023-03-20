@@ -33,9 +33,9 @@ class CosmicIntegrator(object):
                         of the Data class
 
     -Class MSSFR: Class that calculates the metallicity Specific StarFormation rate
-                  for each inidividual object at each individual merger time of interest
+                  for each individual object at each individual merger time of interest
 
-    Each class lives in a seperate file (except cosmo which is inbuilt library astropy)
+    Each class lives in a separate file (except cosmo which is inbuilt library astropy)
 
     
     """
@@ -250,9 +250,9 @@ class CosmicIntegrator(object):
         if self.verbose:
             print("Doing the actual cosmic integration")
             print("Filling in the 2D arrays with rate per system per redshift")
-        #For each row in 2D array wich corresponds to a merger redshift
+        #For each row in 2D array which corresponds to a merger redshift
         # Get birth Age in Gyr , redshifts birth, and metallicities from COMPAS
-        #Calcultate MSSFR for that row and fill in the answer
+        #Calculate MSSFR for that row and fill in the answer
         for nr in range(int(self.nrRedshiftBins)):
             for nrZ, Z in enumerate(self.COMPAS.metallicityGrid):
                 maskZ    = self.COMPAS.metallicitySystems == Z
