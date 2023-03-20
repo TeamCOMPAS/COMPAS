@@ -187,7 +187,7 @@ Each dataset in an HDF5 files is broken into "chunks", where a chunk is defined 
 entries.  In COMPAS, all datasets are 1-d arrays (columns), so a chunk is defined as a number of values
 in the 1-d array (or column).  Chunking can be enabled or not, but if chunking is not* enabled a dataset
 cannot be resized - so if chunking is not enabled the size of the dataset must be known at the time of
-creation, and the entire datset created in one go.  That doesn't work for COMPAS - even though we know
+creation, and the entire dataset created in one go.  That doesn't work for COMPAS - even though we know
 the number of systems being evolved, we don't know the number of entries we'll have in each of the output
 log files (and therefore the HDF5 datasests if we're logging to HDF5 files).  So, we enable chunking.
  
@@ -202,10 +202,10 @@ the number of chunks in the dataset increases.  So many small chunks will degrad
  
 Chunks are the unit of IO for HDF5 files - all IO to HDF5 is performed on the basis of chunks.  This means
 that whenever dataset values are accessed (read or written (i.e. changed)), if the value is not already in
-memory, the entire chunck containing the value must be read from, or written to, the storage media - even
+memory, the entire chunk containing the value must be read from, or written to, the storage media - even
 if the dataset value being accessed is the only value in the chunk.  So few large chunks could cause 
 empty, "wasted", space in the HDF5 files (at the end of datasets) - but they could also adversely affect
-performance by causing unecessary IO traffic (although probably not much in the way we access data in COMPAS
+performance by causing unnecessary IO traffic (although probably not much in the way we access data in COMPAS
 files).
  
 HDF5 files implement a chunk cache on a per-dataset basis.  The default size of the chunk cache is 1MB, and
@@ -222,7 +222,7 @@ However, the chunk cache is really only useful for random access of the dataset.
 access in the COMPAS context (including post-creation analyses) is serial - the COMPAS code writes the
 datasets from top to bottom, and later analyses (generally) read the datasets the same way.  Caching the
 chunks for serial access just introduces overhead that costs memory (not much, to be sure: up to 32MB per 
-open dataset), and degrades performace (albeit it a tiny bit).  For that reason I disable the chunk cache
+open dataset), and degrades performance (albeit it a tiny bit).  For that reason I disable the chunk cache
 in COMPAS - so all IO to/from an HDF5 file in COMPAS is directly to/from the storage media.  (To be clear,
 post-creation analysis software can disable the cache or not when accessing HDF5 files created by COMPAS - 
 disabling the cache here does not affect how other software accesses the files post-creation).
@@ -240,7 +240,7 @@ COMPAS - though we do know the number of systems being generated, which allows u
 bound for at least some of the datasets (though not for groups such as BSE_RLOF).
  
 One thing we need to keep in mind is that when we create the HDF5 file we write each dataset of a group
-in the same iteration - this is analagous to writing a single record in (e.g.) a CSV log file (the HDF5
+in the same iteration - this is analogous to writing a single record in (e.g.) a CSV log file (the HDF5
 group corresponds to the CSV file, and the HDF5 datasets in the group correspond to the columns in the
 CSV file).  So for each iteration - typically each system evolved (though each timestep for detailed
 output files) we do as many IOs to the HDF5 file as there are datasets in the group (columns in the file).
@@ -574,7 +574,7 @@ def main():
             print('Warning: unable to disable the HDF5 dataset cache:', str(e))                                                 # show warning
 
         # open the output file - create it if necessary
-        # using low-level functions here so we can provide the propertly list
+        # using low-level functions here so we can provide the property list
         if existingOutputFile:                                                                                                  # output file exists?
             try:                                                                                                                # yes
                 outHDF5file = h5.h5f.open(fullOutFpath.encode('utf-8'), fapl = h5FileAccessPropertyList)                        # open it
