@@ -37,20 +37,17 @@ class pythonProgramOptions:
             # scalar values to Python the dictionary format
             config = yaml.load(file, Loader=yaml.FullLoader)
 
-        self.booleanChoices = config['booleanChoices']
-        self.numericalChoices = config['numericalChoices']
-        self.stringChoices = config['stringChoices']
-        self.listChoices = config['listChoices']
+        self.booleanChoices = config['booleanChoices'] if config['booleanChoices'] else {}
+        self.numericalChoices = config['numericalChoices'] if config['numericalChoices'] else {}
+        self.stringChoices = config['stringChoices'] if config['stringChoices'] else {}
+        self.listChoices = config['listChoices'] if config['listChoices'] else {}
 
-        compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH')
+        compas_executable_override = os.environ.get(
+            'COMPAS_EXECUTABLE_PATH',
+            os.path.join(os.environ.get('COMPAS_ROOT_DIR'), 'src/COMPAS')
+        )
         print('compas_executable_override', compas_executable_override)
-
-        if (compas_executable_override is None):
-            # Make sure you have set and exported the COMPAS_ROOT_DIR environment variable
-            git_directory = os.environ.get('COMPAS_ROOT_DIR')
-            self.compas_executable = os.path.join(git_directory, 'src/COMPAS')
-        else:
-            self.compas_executable = compas_executable_override
+        self.compas_executable = compas_executable_override
 
         # If random_seed_filename is specified, overwrite the random seed from the yaml file
         if os.path.isfile(random_seed_filename):
@@ -146,7 +143,7 @@ class pythonProgramOptions:
         self.shellCommand = self.command['compas_executable']
         del self.command['compas_executable']
         for key, val in self.command.items():
-            self.shellCommand += ' ' + key + ' ' + val
+            self.shellCommand += f' {key} {val}'
 
         return
 
