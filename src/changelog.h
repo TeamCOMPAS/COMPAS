@@ -991,8 +991,11 @@
 //                                      - Modifed runSubmit.py to work with new yaml file format (i.e. all options could be commented...)
 //                                      - Minor defect repairs in options code
 //                                      - Minor fixes to online documentation; also clarified make arguments
+// 02.36.01     JR - Mar 20, 2023     - Documentation:
+//                                      - Updated documentation for YAML files.
+//                                      - Modified YAML template to include notice regarding commented lines in default YAML file.
 
-const std::string VERSION_STRING = "02.36.00";
+const std::string VERSION_STRING = "02.36.01";
 
 
 # endif // __changelog_h__
