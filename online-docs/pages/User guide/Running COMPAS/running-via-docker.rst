@@ -4,7 +4,7 @@ Running COMPAS via Docker
 Docker functionality has been added to COMPAS to reduce time and effort required to set up the COMPAS deployment environment.
 
 Instead of having to install and configure several libraries and tools (e.g. ``python``/``pip``, ``numpy``, ``g++``, ``boost``, ``hdf5``) 
-which can vary considerably beween operating systems and existing toolchains, users can instead opt to install ``Docker`` and run COMPAS 
+which can vary considerably between operating systems and existing toolchains, users can instead opt to install ``Docker`` and run COMPAS 
 with a single command.
 
 This also gives users the ability to run COMPAS on cloud solutions like ``AWS EC2``\ [#f1]_ or ``Google Compute Engine``\ [#f2]_ where hundreds 

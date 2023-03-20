@@ -26,9 +26,9 @@ To run COMPAS via a ``runSubmit.py`` file, type::
 
 NOTE: if you decide to execute using ``runSubmit.py``, you will need a ``compasConfigDefault.yaml``  file in the same directory.
 This file can be found in the same directory as the ``runSubmit.py``, and contains the default COMPAS choices for stellar and 
-binary physics. These choices can be changed by modifying the options availabe in the ``compasConfigDefault.yaml`` file.
+binary physics. These choices can be changed by modifying the options available in the ``compasConfigDefault.yaml`` file.
 
-NOTE2: whem running on a MacOS with the M1 chip that runs on amd64 architecture you likely need to add the line `--platform linux/amd64` to the note above
+NOTE2: when running on a MacOS with the M1 chip that runs on amd64 architecture you likely need to add the line `--platform linux/amd64` to the note above
 
 Breaking down this command:
 
@@ -136,7 +136,7 @@ Typing::
     docker run --rm -d -v $(pwd)/compas-logs/run_2:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_03.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
     docker run --rm -d -v $(pwd)/compas-logs/run_3:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_04.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
 
-runs 4 separate instances of COMPAS, each with its own ``runSubmit.py`` file and logging directory, and all local console output supressed.
+runs 4 separate instances of COMPAS, each with its own ``runSubmit.py`` file and logging directory, and all local console output suppressed.
 
 To see the console output of detached containers to check progress, first type::
 

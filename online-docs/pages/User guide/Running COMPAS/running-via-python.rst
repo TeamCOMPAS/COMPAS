@@ -46,7 +46,7 @@ This should produce an output similar to::
     Clock time = 0.109375 CPU seconds
     Wall time  = 0000:00:00 (hhhh:mm:ss)
 
-Note that Python prints the Python version, the executes the command to run COMPAS.  The command exceuted is echoed to the stdout.  COMPAS
+Note that Python prints the Python version, the executes the command to run COMPAS.  The command executed is echoed to the stdout.  COMPAS
 then runs and produces its usual output.
 
 When using Python and a script file (such as `runSubmit.py`) to run COMPAS, care must be taken to specify program option values correctly in the ``compasConfigDefault.yaml`` file.
