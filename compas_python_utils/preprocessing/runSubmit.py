@@ -27,7 +27,7 @@ class pythonProgramOptions:
         # if COMPAS_EXECUTABLE_PATH is not set (== None) we assume this is an
         # interactive run with python3
         # if COMPAS_EXECUTABLE_PATH is set (!= None) we assume this is a run
-        # inside a docker container - we have different directories inside a 
+        # inside a docker container - we have different directories inside a
         # docker container (src, obj, bin), and the COMPAS executable resides
         # in the bin directory (rather than the src directory)
 
@@ -110,10 +110,10 @@ class pythonProgramOptions:
 
     def makeCommandString(self):
         """
-        This function generates a dictionary mapping COMPAS options to their specified 
+        This function generates a dictionary mapping COMPAS options to their specified
         values (or empty strings for boolean options). These are then combined into a string
         that can be run directly as a terminal command, or passed to the stroopwafel interface
-        where some of them may be overwritten. Options not to be included in the command 
+        where some of them may be overwritten. Options not to be included in the command
         line should be set to pythons None (except booleans, which should be set to False)
         """
 
