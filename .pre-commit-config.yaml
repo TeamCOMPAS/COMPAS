@@ -2,7 +2,7 @@ default_language_version:
     python: python3
 repos:
 -   repo: https://github.com/codespell-project/codespell
-    rev: v2.1.0
+    rev: v2.2.4
     hooks:
     -   id: codespell # Spellchecker
-        args: [-L, 'parms,hist,tHeI,Hist', --skip, '*.eps,*.svg']
+        args: [-L, nd, --ignore-words=.dictionary.txt, --skip, '*.eps,*.svg']
