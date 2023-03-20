@@ -1,35 +1,8 @@
 default_language_version:
     python: python3
 repos:
--   repo: https://github.com/ambv/black
-    rev: 22.6.0
-    hooks:
-    - id: black
-      args: [--line-length=88, --target-version=py38]
-      language_version: python3.8
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
-    hooks:
-    -   id: check-merge-conflict # prevent committing files with merge conflicts
-    -   id: flake8 # checks for flake8 errors
-        args: [exclude= '.git', max-line-length=120, --ignore=' E129 W504 W503 E203']
 -   repo: https://github.com/codespell-project/codespell
     rev: v2.1.0
     hooks:
     -   id: codespell # Spellchecker
-        args: [-L, nd]
--   repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.10.1
-    hooks:
-    -   id: isort # sort imports alphabetically and separates import into sections
-        args: [-w=88, -m=3, -tc,]
--   repo: local
-    hooks:
-    -   id: flynt # convert old .format(...) strings into "f-strings"
-        name: flynt
-        entry: flynt
-        args: [--fail-on-change]
-        types: [python]
-        language: python
-        additional_dependencies:
-            - flynt
+        args: [-L, 'parms,hist,tHeI,Hist', --skip, '*.eps,*.svg']
