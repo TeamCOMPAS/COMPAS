@@ -17,7 +17,11 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip' # caching pip dependencies
 
       - name: Install dependencies on ubuntu
         if: startsWith(matrix.os, 'ubuntu-20')
@@ -33,7 +37,7 @@ jobs:
 
       - name: Run example COMPAS job
         run: |
-          python3 -m pip install -e .[dev]
+          pip install -e .[dev]
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
           cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
           chmod 755 run.sh
@@ -49,10 +53,18 @@ jobs:
           coverage html
           coverage-badge -o coverage_badge.svg -f
 
-      - name: Archive run artifacts
+      - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
+          name: code-coverage
           path: |
             htmlcov/
             coverage_badge.svg
-            ${GITHUB_WORKSPACE}/py_tests/test_artifacts/
+
+
+      - name: Archive COMPAS run data
+        uses: actions/upload-artifact@v3
+        with:
+          name: COMPAS-run-artifacts
+          path: |
+            py_tests/test_artifacts
