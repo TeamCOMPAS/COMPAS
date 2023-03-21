@@ -5,26 +5,20 @@ on:
   pull_request:
     branches:
       - dev
-    paths: ['src/**', "compas_python_utils/**", "py_tests/**"]
+    paths: ['src/**', "compas_python_utils/**", "py_tests/**", ".github/workflows/**"]
 
 jobs:
   compas:
     name: Build COMPAS
     runs-on: ${{ matrix.os}}
-    container: ${{matrix.container}}  # to run the job on centos 7 docker image which runs on ubuntu-18.04 machine
+    container: ${{matrix.container}}
     strategy:
-      fail-fast: false  #in case build failed on one of the runners, it won't stop building on other runners
+      fail-fast: false
       matrix:
-        os: [ubuntu-20.04]  # virtual machines to run the job
-        # REPLACE WITH BELOW FOR OTHER OS
-        # os: [ubuntu-20.04, ubuntu-18.04, macos-11]
-        # include: # add the combination to run the centos container only on ubuntu-18.04
-        #   - os: ubuntu-18.04
-        #     container: 'centos:7'
+        os: [ubuntu-20.04]
     steps:
       - uses: actions/checkout@v2
 
-      # This step will run only on ubuntu-20.04 (ADD OTHER OS IF NEEDED)
       - name: Install dependencies on ubuntu
         if: startsWith(matrix.os, 'ubuntu-20')
         run: |
@@ -43,8 +37,8 @@ jobs:
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
           cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
           chmod 755 run.sh
+          cat run.sh
           ./run.sh
-        continue-on-error: true # continue even if this job fails
 
       - name: Run pytests
         # Run tests and collect coverage data
@@ -61,4 +55,4 @@ jobs:
           path: |
             htmlcov/
             coverage_badge.svg
-            ${GITHUB_WORKSPACE}/py_tests/test_artifacts/*
+            ${GITHUB_WORKSPACE}/py_tests/test_artifacts/
