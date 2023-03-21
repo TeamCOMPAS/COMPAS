@@ -1,12 +1,9 @@
 import os.path
 import time
 
-import pytest
-
 from compas_python_utils.detailed_evolution_plotter import plot_detailed_evolution
 
 
-@pytest.mark.skip("Failing -- @reinhold-willcox to fix")
 def test_plotter(example_compas_output_path, capsys, test_archive_dir):
     data_path = example_compas_output_path
     bse_detailed_out_path = os.path.join(
