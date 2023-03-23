@@ -986,6 +986,7 @@
 //                                        (only affected runs with mass-transfer-thermal-limit-accretor = RADIUS_TO_ROCHELOBE)
 // 02.35.03     LvS - Feb 27, 2023    - Enhancement:
 //                                      - Added mass accretion prescription during CE following model 2 from van Son + 2020
+<<<<<<< HEAD
 // 02.36.00     NR,RTW - Feb 5, 2023 - Enhancement:
 //                                      - Added functionality for WDs to accrete in different regimes. 
 //                                          - This applies to each WD subtype individually, though there is some overlap between COWDs and ONeWDs.
@@ -997,5 +998,18 @@
 //                                          - Moved NS radius and luminosity calls into NS.h from elsewhere in the code.
 
 const std::string VERSION_STRING = "02.36.00";
+=======
+// 02.36.00     JR - Mar 15, 2023    - Enhancement, minor defect repairs:
+//                                      - Addressed issue #797 - implemented functionality to create YAML file.  Two new options (--create-YAML-file and --YAML-template).  See documentation for details.
+//                                      - Modifed runSubmit.py to work with new yaml file format (i.e. all options could be commented...)
+//                                      - Minor defect repairs in options code
+//                                      - Minor fixes to online documentation; also clarified make arguments
+// 02.36.01     JR - Mar 20, 2023     - Documentation:
+//                                      - Updated documentation for YAML files.
+//                                      - Modified YAML template to include notice regarding commented lines in default YAML file.
+
+const std::string VERSION_STRING = "02.36.01";
+
+>>>>>>> dev
 
 # endif // __changelog_h__
