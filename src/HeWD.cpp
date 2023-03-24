@@ -130,12 +130,8 @@ STELLAR_TYPE HeWD::EvolveToNextPhase() {
         m_Tau = 0;
         stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS; 
     }
-    else if (IsSupernova()) {         // Currently, assume a Type Ia from a HeWD is the same as other WDs. May want to vary in the future
-        stellarType = ResolveSNIa(); 
-    }
-    else {                                         // Should not occur
-        SHOW_WARN(ERROR::WARNING, "HeWD told to evolve, but not how.");                                          // show warning
-        stellarType = ResolveAIC();
+    else {                                         
+        stellarType = ResolveSNIa();               // Currently, assume a Type Ia from a HeWD is the same as other WDs. May want to vary in the future
     }
     return stellarType;
 }

@@ -33,16 +33,8 @@ bool ONeWD::IsSupernova() const {
  * @return                               Stellar type of the upcoming stage.
  */
 STELLAR_TYPE ONeWD::EvolveToNextPhase() {
-
     STELLAR_TYPE stellarType;
-
-    if (IsSupernova()) {
-        stellarType = ResolveAIC();
-    }
-    else {                                         // Should not occur
-        SHOW_WARN(ERROR::WARNING, "ONeWD told to evolve, but not how.");                                          // show warning
-        stellarType = ResolveAIC();
-    }
+    stellarType = ResolveAIC();
     return stellarType;
 }
 

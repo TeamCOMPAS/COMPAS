@@ -140,12 +140,8 @@ STELLAR_TYPE COWD::EvolveToNextPhase() {
     if (m_OffCenterIgnition) {
         stellarType = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }
-    else if (IsSupernova()) {
+    else {                                         
         stellarType = ResolveSNIa(); 
-    }
-    else {                                         // Should not occur
-        SHOW_WARN(ERROR::WARNING, "COWD told to evolve, but not how.");                                          // show warning
-        stellarType = ResolveAIC();
     }
     return stellarType;
 }
