@@ -1,88 +1,70 @@
 name: COMPAS compile test
 
-on: [pull_request]
+on:
+  workflow_dispatch: # allow manual triggering of this workflow
+  pull_request:
+    branches:
+      - dev
+    paths: ['src/**', "compas_python_utils/**", "py_tests/**", ".github/workflows/**"]
 
 jobs:
   compas:
     name: Build COMPAS
     runs-on: ${{ matrix.os}}
-    container: ${{matrix.container}}  # to run the job on centos 7 docker image which runs on ubuntu-18.04 machine
+    container: ${{matrix.container}}
     strategy:
-      fail-fast: false  #in case build failed on one of the runners, it won't stop building on other runners
+      fail-fast: false
       matrix:
-        os: [ubuntu-20.04]  # runners(virtual machines) to run the job on
-        # include: # add the combination to run the centos container only on ubuntu-18.04
-        #   - os: ubuntu-18.04
-        #     container: 'centos:7'
-
+        os: [ubuntu-20.04]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip' # caching pip dependencies
 
-      # This step will run only on ubuntu-20.04
       - name: Install dependencies on ubuntu
-        if: startsWith(matrix.os, 'ubuntu-20') 
+        if: startsWith(matrix.os, 'ubuntu-20')
         run: |
-          cd utils/cicd-scripts
+          cd misc/cicd-scripts
           chmod 755 linux-dependencies
           ./linux-dependencies
-      # This step will run only on centos 7 container on ubuntu-18.04
-      - name: Install dependencies on centos docker container
-        if: startsWith(matrix.container, 'centos')
-        run: |
-          cd utils/cicd-scripts
-          chmod 755 centos-dependencies
-          ./centos-dependencies
-      
-      # This step will run only on macos
-      - name: Install dependencies on macos
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          cd utils/cicd-scripts
-          chmod 755 macos-dependencies
-          ./macos-dependencies
-      # This step will run only on all runners
-      # **To be investgated further** COMPAS doesn't build on Centos
+
       - name: Build Compas
         run: |
           cd src && make -j $(nproc) -f Makefile
           ./COMPAS -v
-        env:
-          nproc: 4
 
-      # This step will run only on all runners
-      - name: Install Python packages
+      - name: Run example COMPAS job
         run: |
-          python3 -m pip install -r requirements.txt
-      # This step will run on all runners
-      # **To be investigated further** plotting script is currently failing on macos because 
-      # for some reason it cannot recognise latex is installed
-      - name: Run Post-Processing Python Scripts
-        if: startsWith(matrix.os, 'ubuntu-20') || startsWith(matrix.os, 'ubuntu-18')
-        run: |
-          cd utils/cicd-scripts
-          chmod 755 python-scripts
-          ./python-scripts
-      - name: run python scripts on macos
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          brew install basictex
-          brew install texlive
-          eval "$(/usr/libexec/path_helper)"
-          export PATH="/usr/local/texlive:/Library/TeX/texbin:$PATH"
-          sudo tlmgr update --self
-          sudo tlmgr install dvipng
-          sudo tlmgr install texliveonfly
-          sudo tlmgr install environ
-          sudo tlmgr install adjustbox
-          sudo tlmgr install tcolorbox
-          sudo tlmgr install collectbox
-          sudo tlmgr install ucs
-          sudo tlmgr install trimspaces
-          sudo tlmgr install titling
-          sudo tlmgr install enumitem
-          sudo tlmgr install rsfs
-          eval "$(/usr/libexec/path_helper)"
+          pip install -e .[dev]
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
-          cd ${GITHUB_WORKSPACE}/utils/example_plots/methods_paper_plots/detailed_evolution
-          python3 runSubmitDemo.py
-          python3 plot_detailed_evolution.py
+          cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
+          chmod 755 run.sh
+          cat run.sh
+          ./run.sh
+
+      - name: Run pytests
+        # Run tests and collect coverage data
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+          pytest --cov=compas_python_utils/ py_tests/
+          coverage html
+          coverage-badge -o coverage_badge.svg -f
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage
+          path: |
+            htmlcov/
+            coverage_badge.svg
+
+
+      - name: Archive COMPAS run data
+        uses: actions/upload-artifact@v3
+        with:
+          name: COMPAS-run-artifacts
+          path: |
+            py_tests/test_artifacts
