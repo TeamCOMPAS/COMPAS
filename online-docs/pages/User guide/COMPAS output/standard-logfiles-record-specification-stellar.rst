@@ -650,7 +650,7 @@ Following is an alphabetical list of stellar properties available for inclusion 
              - = 32
            * - SNIA
              - = 64
-           * - DD
+           * - HeSD
              - = 128
 
    * -
@@ -849,7 +849,7 @@ but not both. If both are printed then the file will contain two columns with th
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **IS_DD**
+   * - :cspan:`2` **IS_HeSD**
      -
    * - Data type:
      - BOOL
@@ -858,7 +858,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Description:
      - Flag to indicate whether the star is currently a double detonation supernova.
    * - Header Strings:
-     - DD, DD(1), DD(2), DD(SN), DD(CP)
+     - HeSD, HeSD(1), HeSD(2), HeSD(SN), HeSD(CP)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -2206,7 +2206,7 @@ are shown below::
         USSN         = 16,
         AIC          = 32,
         SNIA         = 64,
-        DD           = 128,
+        HeSD         = 128,
     };
 
 
@@ -2219,7 +2219,7 @@ are shown below::
         { SN EVENT::USSN,         "Ultra Stripped Supernova" },
         { SN EVENT::AIC,          "Accretion-Induced Collapse" },
         { SN_EVENT::SNIA,         "Supernova Type Ia" }, 
-        { SN_EVENT::DD,           "Double detonation" },
+        { SN_EVENT::HeSD,         "Helium-shell detonation" },
         };
 
 A convenience function (shown below) is provided in ``utils.cpp`` to interpret the bit map.
@@ -2237,8 +2237,8 @@ A convenience function (shown below) is provided in ``utils.cpp`` to interpret t
     * SN EVENT::PPISN iff PPISN bit is set
     * SN EVENT::USSN iff USSN bit is set
     * SN EVENT::AIC iff AIC bit is set
-    * SN_EVENT::SNIA  iff SNIA  bit is set
-    * SN_EVENT::DD    iff DD    bit is set
+    * SN_EVENT::SNIA iff SNIA bit is set
+    * SN_EVENT::HeSD iff HeSD bit is set
     * SN EVENT::NONE otherwise
     *
     *
@@ -2253,7 +2253,7 @@ A convenience function (shown below) is provided in ``utils.cpp`` to interpret t
         if ((p SNEvent & SN EVENT::USSN )                   == SN EVENT::USSN ) return SN EVENT::USSN;
         if ((p SNEvent & SN EVENT::AIC )                    == SN EVENT::AIC )  return SN EVENT::AIC;
         if ((p_SNEvent & SN_EVENT::SNIA )                   == SN_EVENT::SNIA ) return SN_EVENT::SNIA;
-        if ((p_SNEvent & SN_EVENT::DD   )                   == SN_EVENT::DD   ) return SN_EVENT::DD;
+        if ((p_SNEvent & SN_EVENT::HeSD )                   == SN_EVENT::HeSD ) return SN_EVENT::HeSD;
 
         return SN EVENT::NONE;
     }
