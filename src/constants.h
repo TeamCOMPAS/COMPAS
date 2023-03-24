@@ -1241,7 +1241,6 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 //    SN_EVENT::NONE  otherwise
 //
 enum class SN_EVENT: int { 
-<<<<<<< HEAD
     NONE         = 0, 
     CCSN         = 1, 
     ECSN         = 2, 
@@ -1251,20 +1250,10 @@ enum class SN_EVENT: int {
     AIC          = 32,
     SNIA         = 64,
     HeSD         = 128,
-=======
-    NONE  = 0, 
-    CCSN  = 1, 
-    ECSN  = 2, 
-    PISN  = 4, 
-    PPISN = 8, 
-    USSN  = 16,
-    AIC   = 32,
->>>>>>> dev
 };
 ENABLE_BITMASK_OPERATORS(SN_EVENT);
 
 const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
-<<<<<<< HEAD
     { SN_EVENT::NONE,         "No Supernova" },
     { SN_EVENT::CCSN,         "Core Collapse Supernova" },
     { SN_EVENT::ECSN,         "Electron Capture Supernova" },
@@ -1274,15 +1263,6 @@ const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
     { SN_EVENT::AIC,          "Accretion-Induced Collapse" }, 
     { SN_EVENT::SNIA,         "Supernova Type Ia" }, 
     { SN_EVENT::HeSD,         "Helium-shell detonation" }, 
-=======
-    { SN_EVENT::NONE,  "No Supernova" },
-    { SN_EVENT::CCSN,  "Core Collapse Supernova" },
-    { SN_EVENT::ECSN,  "Electron Capture Supernova" },
-    { SN_EVENT::PISN,  "Pair Instability Supernova" },
-    { SN_EVENT::PPISN, "Pulsational Pair Instability Supernova" },
-    { SN_EVENT::USSN,  "Ultra Stripped Supernova" },
-    { SN_EVENT::AIC,   "Accretion-Induced Collapse" }, 
->>>>>>> dev
 };
 
 
