@@ -991,7 +991,7 @@
 //                                      - Modifed runSubmit.py to work with new yaml file format (i.e. all options could be commented...)
 //                                      - Minor defect repairs in options code
 //                                      - Minor fixes to online documentation; also clarified make arguments
-// 02.36.01     JR - Mar 20, 2023     - Documentation:
+// 02.36.01     JR - Mar 20, 2023    - Documentation:
 //                                      - Updated documentation for YAML files.
 //                                      - Modified YAML template to include notice regarding commented lines in default YAML file.
 // 02.37.00     NR,RTW - Mar 26, 2023 - Enhancement:
@@ -1003,7 +1003,12 @@
 //                                      - Tangential but related changes:
 //                                          - Cleaned up the call to EddingtonCriticalRate, puttting it in BaseStar along with the optional prefactor.
 //                                          - Moved NS radius and luminosity calls into NS.h from elsewhere in the code.
+// 02.37.01     JR - Mar 27, 2023    - Defect repair:
+//                                      - Updated changelog.h and whats-new.rst to correctly reflect changes to the code and version numbers after a bad fix for merge conflicts
+//                                      - Changed "DD" to "HeSD" as appropriate
+//                                      - A couple of code-cleanups
 
-const std::string VERSION_STRING = "02.37.00";
+
+const std::string VERSION_STRING = "02.37.01";
 
 # endif // __changelog_h__
