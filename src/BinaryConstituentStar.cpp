@@ -483,3 +483,19 @@ void BinaryConstituentStar::InitialiseMassTransfer(const bool p_CommonEnvelope, 
     SetRocheLobeFlags(p_CommonEnvelope, p_SemiMajorAxis, p_Eccentricity);
     m_MassTransferDiff = 0.0;
 }
+
+
+/* 
+ * Set class member variable m_MassTransferDiff based on the mass gained or lost during MT.
+ *
+ * Also modify changes to the H/He shell (relevant only for WDs)
+ *
+ * void SetMassTransferDiffAndResolveWDShellChange(const double p_MassTransferDiff) 
+ *
+ * @param   [IN]    p_MassTransferDiff          The amount of mass lost or gained by the star 
+ */
+void BinaryConstituentStar::SetMassTransferDiffAndResolveWDShellChange(const double p_MassTransferDiff) {
+    m_MassTransferDiff = p_MassTransferDiff; 
+    ResolveShellChange(p_MassTransferDiff);       // only applies to WDs
+}
+
