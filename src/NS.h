@@ -54,6 +54,9 @@ protected:
         m_CoreMass    = 0.0;
         m_Mass0       = 0.0;
         
+        m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                                                                                                   // Set the NS radius, in Rsol
+        m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);                                                                                        // Set the NS luminosity
+
         CalculateAndSetPulsarParameters();
     }
 

@@ -160,7 +160,9 @@ public:
     void            CalculateLambdas()                                                                              { m_Star->CalculateLambdas(); }
     void            CalculateLambdas(const double p_EnvMass)                                                        { m_Star->CalculateLambdas(p_EnvMass); }
 
-    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)      { return m_Star->CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); }
+    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate, 
+                                                const double p_AccretorMassRate,
+                                                const bool   p_IsHeRich)                                            { return m_Star->CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate, p_IsHeRich); }
 
     double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false)        { return m_Star->CalculateMassLossValues(p_UpdateMDot, p_UpdateMDt); }
 
@@ -190,6 +192,9 @@ public:
 
     BaseStar*       Clone(const BaseStar& p_Star);
 
+    ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
+                                              const double p_DonorThermalMassLossRate)                              { return m_Star->DetermineAccretionRegime(p_HeRich, p_DonorThermalMassLossRate); }  // Used in WDs
+
     ENVELOPE        DetermineEnvelopeType() const                                                                   { return m_Star->DetermineEnvelopeType(); }
 
     EVOLUTION_STATUS Evolve(const long int p_Id);
@@ -201,7 +206,12 @@ public:
 
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
 
+    void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
+                                           const double p_DonorThermalMassLossRate)                                 { m_Star->ResolveAccretionRegime(p_Regime, p_DonorThermalMassLossRate); }  // Used in WDs
+
     void            ResolveEnvelopeLossAndSwitch()                                                                  { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
+
+    void            ResolveShellChange(const double p_AccretedMass)                                                 { m_Star->ResolveShellChange(p_AccretedMass); }  // Used in WDs
 
     bool            RevertState();
 
@@ -240,9 +250,9 @@ public:
                                                                                                                                                          p_Stepsize,
                                                                                                                                                          p_MassGainPerTimeStep,
                                                                                                                                                          p_Epsilon);}
-    
-    void        UpdateMinimumCoreMass()                                                                             { m_Star->UpdateMinimumCoreMass(); }
 
+    void            UpdateMinimumCoreMass()                                                                         { m_Star->UpdateMinimumCoreMass(); }
+    ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                                                           { return m_Star->WhiteDwarfAccretionRegime(); }
 
 private:
 

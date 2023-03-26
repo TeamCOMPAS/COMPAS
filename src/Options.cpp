@@ -2161,6 +2161,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_EccentricityDistributionMax < 0.0 || m_EccentricityDistributionMax > 1.0, "Maximum eccentricity (--eccentricity-max) must be between 0 and 1");
         COMPLAIN_IF(m_EccentricityDistributionMax <= m_EccentricityDistributionMin, "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)");
 
+        COMPLAIN_IF(m_EddingtonAccretionFactor < 0.0, "Eddington accretion factor (--eddington-accretion-factor) must be non-negative.");
+
         COMPLAIN_IF(m_GridStartLine < 0, "Grid file start line (--grid-start-line) < 0");
         COMPLAIN_IF(!DEFAULTED("grid-lines-to-process") && m_GridLinesToProcess < 1, "Grid file lines to process (--grid-lines-to-process) < 1");
 

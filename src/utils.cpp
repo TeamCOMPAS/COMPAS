@@ -1276,6 +1276,8 @@ namespace utils {
      *    SN_EVENT::PPISN iff PPISN bit is set
      *    SN_EVENT::USSN  iff USSN  bit is set
      *    SN_EVENT::AIC   iff AIC   bit is set
+     *    SN_EVENT::SNIA  iff SNIA  bit is set
+     *    SN_EVENT::HeSD  iff HeSD  bit is set
      *    SN_EVENT::NONE  otherwise
      * 
      *
@@ -1289,7 +1291,9 @@ namespace utils {
         if ((p_SNEvent & SN_EVENT::PISN )                   == SN_EVENT::PISN ) return SN_EVENT::PISN;
         if ((p_SNEvent & SN_EVENT::PPISN)                   == SN_EVENT::PPISN) return SN_EVENT::PPISN;
         if ((p_SNEvent & SN_EVENT::USSN )                   == SN_EVENT::USSN ) return SN_EVENT::USSN;
-        if ((p_SNEvent & SN_EVENT::AIC  )                   == SN_EVENT::AIC  ) return SN_EVENT::AIC ;
+        if ((p_SNEvent & SN_EVENT::AIC  )                   == SN_EVENT::AIC  ) return SN_EVENT::AIC;
+        if ((p_SNEvent & SN_EVENT::SNIA )                   == SN_EVENT::SNIA ) return SN_EVENT::SNIA;
+        if ((p_SNEvent & SN_EVENT::HeSD   )                 == SN_EVENT::HeSD ) return SN_EVENT::HeSD;
 
         return SN_EVENT::NONE;
     }

@@ -56,19 +56,23 @@ public:
             ERROR               Error() const                                                   { return m_Error; }
             bool                ExperiencedAIC() const                                          { return (m_SupernovaDetails.events.past & SN_EVENT::AIC) == SN_EVENT::AIC; }
             bool                ExperiencedCCSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
+            bool                ExperiencedHeSD() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
             bool                ExperiencedECSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
             bool                ExperiencedPISN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::PISN) == SN_EVENT::PISN; }
             bool                ExperiencedPPISN() const                                        { return (m_SupernovaDetails.events.past & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
+            bool                ExperiencedSNIA() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::SNIA) == SN_EVENT::SNIA; }
             SN_EVENT            ExperiencedSN_Type() const                                      { return utils::SNEventType(m_SupernovaDetails.events.past); }
             bool                ExperiencedUSSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::USSN) == SN_EVENT::USSN; }
             double              HeCoreMass() const                                              { return m_HeCoreMass; }
             bool                IsAIC() const                                                   { return (m_SupernovaDetails.events.current & SN_EVENT::AIC) == SN_EVENT::AIC; }
             bool                IsCCSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
+            bool                IsHeSD() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
     virtual bool                IsDegenerate() const                                            { return false; }   // default is not degenerate - White Dwarfs, NS and BH are degenerate
             bool                IsECSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
             bool                IsOneOf(const STELLAR_TYPE_LIST p_List) const;
             bool                IsPISN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::PISN) == SN_EVENT::PISN; }
             bool                IsPPISN() const                                                 { return (m_SupernovaDetails.events.current & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
+            bool                IsSNIA() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::SNIA) == SN_EVENT::SNIA; }
             bool                IsUSSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::USSN) == SN_EVENT::USSN; }
             double              Lambda_Dewi() const                                             { return m_Lambdas.dewi; }
             double              Lambda_Fixed() const                                            { return m_Lambdas.fixed; }
@@ -129,6 +133,7 @@ public:
             double              Temperature() const                                             { return m_Temperature; }
             double              Time() const                                                    { return m_Time; }
             double              Timescale(TIMESCALE p_Timescale) const                          { return m_Timescales[static_cast<int>(p_Timescale)]; }
+    virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::NONE; }
             double              XExponent() const                                               { return m_XExponent; }
 
 
@@ -172,7 +177,10 @@ public:
             void            CalculateLambdas(const double p_EnvMass);
 
     virtual DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                        const double p_AccretorMassRate = 0.0);
+                                                        const double p_AccretorMassRate); 
+    virtual DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                        const double p_AccretorMassRate, 
+                                                        const bool   p_IsHeRich)                                { return CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); } // Ignore the He content for non-WDs
 
             double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false);                                                               // JR: todo: better name?
 
@@ -210,14 +218,22 @@ public:
     
             void            HaltWinds()                                                                         { m_Mdot = 0.0; }       // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 
+    virtual ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
+                                                      const double p_DonorThermalMassLossRate)                  { return ACCRETION_REGIME::NONE; }                                  // Placeholder, use inheritance for WDs
+
+    virtual void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                     // Default does nothing, use inheritance for WDs.
+
             double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription); 
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 
+    virtual void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
+                                                   const double p_DonorThermalMassLossRate) { }                                                                                     // Default does nothing, only works for WDs.
+
     virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                         { return m_StellarType; }
 
     virtual void            ResolveMassLoss();
-
+   
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
 
             void            StashSupernovaDetails(const STELLAR_TYPE p_StellarType,
@@ -405,7 +421,7 @@ protected:
 
     static  double              CalculateDynamicalTimescale_Static(const double p_Mass, const double p_Radius);
 
-    virtual double              CalculateEddingtonCriticalRate() const                                                  { return 2.08E-3 / 1.7 * m_Radius * MYR_TO_YEAR; }       // Hurley+, 2002, Eq. (67); should never be called...
+    virtual double              CalculateEddingtonCriticalRate() const                                                  { return 2.08E-3 / 1.7 * m_Radius * MYR_TO_YEAR * OPTIONS->EddingtonAccretionFactor() ; }                          // Hurley+, 2002, Eq. (67)
 
             double              CalculateGBRadiusXExponent() const;
 

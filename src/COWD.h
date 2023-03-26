@@ -35,12 +35,19 @@ public:
                                                                                                                                             p_Metallicity, 
                                                                                                                                             WD_Baryon_Number.at(STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF)); }
 
+    ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
+                                              const double p_DonorThermalMassLossRate);                                                                         // To check the current accretion regime and mass retention. Can also change flags related to SN events.
 
 protected:
 
     void Initialise() {
         m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                                // Set stellar type
         CalculateTimescales();                                                                                                                                  // Initialise timescales
+        m_HShell = 0.0; // Initialize hydrogen shell
+        m_HeShell = 0.0; // Initialize helium shell
+        m_HeShellDetonation = false;
+        m_OffCenterIgnition = false;
+        m_AccretionRegime = ACCRETION_REGIME::NONE;
     }
 
 
@@ -49,9 +56,12 @@ protected:
                                                const double p_Metallicity) const    { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
     double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }        // Use class member variables
 
-    STELLAR_TYPE    EvolveToNextPhase()                                             { m_Mass = m_Radius = m_Luminosity = m_Age = 0.0; return STELLAR_TYPE::MASSLESS_REMNANT; }
+    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                const bool   p_IsHeRich);  
 
-    bool            ShouldEvolveOnPhase() const                                     { return (m_Mass <= MCH); }                                                 // Evolve on phase unless mass > Chandrasekhar mass
+    STELLAR_TYPE    EvolveToNextPhase();
+    bool            IsSupernova() const;                                             
+    bool            ShouldEvolveOnPhase();                                                  
 
 };
 
