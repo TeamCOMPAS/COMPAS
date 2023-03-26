@@ -1792,8 +1792,6 @@ STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
         m_HeCoreMass = m_Mass;
         m_COCoreMass = m_Mass;
         m_Mass0      = m_Mass;
-        m_Radius     = NS::CalculateRadiusOnPhase_Static(m_Mass);                           // neutronStarRadius in Rsol
-        m_Luminosity = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);
     
         SetSNCurrentEvent(SN_EVENT::ECSN);                                                  // electron capture SN happening now
         SetSNPastEvent(SN_EVENT::ECSN);                                                     // ... and will be a past event
