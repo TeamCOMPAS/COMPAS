@@ -984,26 +984,26 @@
 //                                           (b) change of header strings for ROCHE_LOBE_RADIUS_1 and ROCHE_LOBE_RADIUS_2 (units already (accidentally...) correct)
 //                                      - fixed minor defect in call to m_Accretor->CalculateMassAcceptanceRate() in BaseBinaryStar::CalculateMassTransfer()
 //                                        (only affected runs with mass-transfer-thermal-limit-accretor = RADIUS_TO_ROCHELOBE)
-// 02.35.03     LvS - Feb 27, 2023    - Enhancement:
+// 02.35.03     LvS - Feb 27, 2023   - Enhancement:
 //                                      - Added mass accretion prescription during CE following model 2 from van Son + 2020
-// 02.36.00     NR,RTW - Feb 5, 2023 - Enhancement:
-//                                      - Added functionality for WDs to accrete in different regimes. 
-//                                          - This applies to each WD subtype individually, though there is some overlap between COWDs and ONeWDs.
-//                                          - Also involves tracking the WD shell mass, to account for shell burning that later increases the WD mass.
-//                                          - Includes possible instability, and merger if the donor is a giant, as well as new SN options, 
-//                                          - AIC (accretion induced collapse), SNIA (Type Ia), and DD (double detonation). 
-//                                      - Tangential but related changes:
-//                                          - Cleaned up the call to EddingtonCriticalRate, puttting it in BaseStar along with the optional prefactor.
-//                                          - Moved NS radius and luminosity calls into NS.h from elsewhere in the code.
-// 02.37.00     JR - Mar 15, 2023    - Enhancement, minor defect repairs:
+// 02.36.00     JR - Mar 15, 2023    - Enhancement, minor defect repairs:
 //                                      - Addressed issue #797 - implemented functionality to create YAML file.  Two new options (--create-YAML-file and --YAML-template).  See documentation for details.
 //                                      - Modifed runSubmit.py to work with new yaml file format (i.e. all options could be commented...)
 //                                      - Minor defect repairs in options code
 //                                      - Minor fixes to online documentation; also clarified make arguments
-// 02.37.01     JR - Mar 20, 2023     - Documentation:
+// 02.36.01     JR - Mar 20, 2023     - Documentation:
 //                                      - Updated documentation for YAML files.
 //                                      - Modified YAML template to include notice regarding commented lines in default YAML file.
+// 02.37.00     NR,RTW - Mar 26, 2023 - Enhancement:
+//                                      - Added functionality for WDs to accrete in different regimes. 
+//                                          - This applies to each WD subtype individually, though there is some overlap between COWDs and ONeWDs.
+//                                          - Also involves tracking the WD shell mass, to account for shell burning that later increases the WD mass.
+//                                          - Includes possible instability, and merger if the donor is a giant, as well as new SN types, 
+//                                          - AIC (accretion induced collapse), SNIA (Type Ia), and HeSD (Helium shell detonation). 
+//                                      - Tangential but related changes:
+//                                          - Cleaned up the call to EddingtonCriticalRate, puttting it in BaseStar along with the optional prefactor.
+//                                          - Moved NS radius and luminosity calls into NS.h from elsewhere in the code.
 
-const std::string VERSION_STRING = "02.37.01";
+const std::string VERSION_STRING = "02.37.00";
 
 # endif // __changelog_h__

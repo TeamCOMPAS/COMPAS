@@ -1212,7 +1212,7 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 // The values here for SN_EVENT are powers of 2 so that they can be used in a bit map
 // and manipulated with bit-wise logical operators
 //
-// Ordinarily we might expect that an SN event could be only one of CCSN, ECSN, PISN, PPISN, USSN, AIC, SNIA, or DD
+// Ordinarily we might expect that an SN event could be only one of CCSN, ECSN, PISN, PPISN, USSN, AIC, SNIA, or HeSD
 // Note that the CCSN value here replaces the SN value in the legacy code
 // The legacy code implemented these values as boolean flags, and the SN flag was always set when
 // the uSSN flag was set (but not the converse).  In the legacy code when the ECSN flag was set 
