@@ -1007,8 +1007,10 @@
 //                                      - Updated changelog.h and whats-new.rst to correctly reflect changes to the code and version numbers after a bad fix for merge conflicts
 //                                      - Changed "DD" to "HeSD" as appropriate
 //                                      - A couple of code-cleanups
+// 02.37.02     JR - Mar 27, 2023    - Defect repair:
+//                                      - Changed yaml.h to include <algorith> and <chrono> - not including them causes docker build to fail.
 
 
-const std::string VERSION_STRING = "02.37.01";
+const std::string VERSION_STRING = "02.37.02";
 
 # endif // __changelog_h__
