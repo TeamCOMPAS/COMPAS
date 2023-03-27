@@ -7,9 +7,8 @@ on:
     paths: 
       - 'src/**'
       - '.github/workflows/compas-compile-ci.yml'
-      - 'utils/cicd-scripts/**'
-      - 'utils/examples/methods_paper_plots/detailed_evolution/**'
-      - 'utils/media/**'
+      - 'misc/cicd-scripts/**'
+      - 'misc/examples/methods_paper_plots/detailed_evolution/**'
       - 'compas_python_utils/**'
       - 'py_tests/**'
 
@@ -63,7 +62,7 @@ jobs:
       - name: Install dependencies on macos
         if: startsWith(matrix.os, 'macos')
         run: |
-          cd utils/cicd-scripts
+          cd misc/cicd-scripts
           chmod 755 macos-dependencies
           ./macos-dependencies
 
