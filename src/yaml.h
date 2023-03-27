@@ -1,6 +1,9 @@
 #ifndef __yaml_h__
 #define __yaml_h__
 
+#include <algorithm>
+#include <chrono>
+
 namespace yaml {
 
 // YAML template rules (in no particular order):
