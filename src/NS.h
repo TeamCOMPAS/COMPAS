@@ -54,6 +54,9 @@ protected:
         m_CoreMass    = 0.0;
         m_Mass0       = 0.0;
         
+        m_Radius      = NS::CalculateRadiusOnPhase_Static(m_Mass);                                                                                                  // Set the NS radius, in Rsol
+        m_Luminosity  = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);                                                                                       // Set the NS luminosity
+
         CalculateAndSetPulsarParameters();
     }
 
@@ -65,7 +68,7 @@ protected:
 
             double          CalculateLuminosityOnPhase() const                      { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age); }                    // Use class member variables
 
-    double          CalculateMassLossRate()                                         { return 0.0; } // Ensure that NSs don't lose mass in winds
+            double          CalculateMassLossRate()                                 { return 0.0; }                                                                 // Ensure that NSs don't lose mass in winds
     
     static  double          CalculateMomentOfInertia_Static(const double p_Mass, const double p_Radius);
 

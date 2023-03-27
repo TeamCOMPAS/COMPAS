@@ -1,6 +1,7 @@
 name: COMPAS compile test
 
-on: 
+on:
+  workflow_dispatch: # allow manual triggering of this workflow
   pull_request:
     branches: [dev]
     paths: 
@@ -9,20 +10,17 @@ on:
       - 'utils/cicd-scripts/**'
       - 'utils/examples/methods_paper_plots/detailed_evolution/**'
       - 'utils/media/**'
+      - 'compas_python_utils/**'
+      - 'py_tests/**'
 
 jobs:
   compas:
     name: Build COMPAS
     runs-on: ${{ matrix.os}}
-    # container: ${{matrix.container}}  # to run the job on centos 7 docker image which runs on ubuntu-18.04 machine
     strategy:
-      fail-fast: false  #in case build failed on one of the runners, it won't stop building on other runners
+      fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-12]  # runners(virtual machines) to run the job on
-        # include: # add the combination to run the centos container only on ubuntu-18.04
-        #   - os: ubuntu-18.04
-        #     container: 'centos:7'
-
+        os: [ubuntu-20.04, macos-12]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -47,8 +45,9 @@ jobs:
       # This step will run only on ubuntu
       - name: Install dependencies on ubuntu
         if: startsWith(matrix.os, 'ubuntu-2') 
+
         run: |
-          cd utils/cicd-scripts
+          cd misc/cicd-scripts
           chmod 755 linux-dependencies
           ./linux-dependencies
 
@@ -77,22 +76,45 @@ jobs:
           brew link texlive
 
       # This step will run only on all runners
-      # **To be investgated further** COMPAS doesn't build on Centos
       - name: Build Compas
         run: |
           cd src && make -j $(nproc) -f Makefile
           ./COMPAS -v
-        env:
-          nproc: 4
 
-      # This step will run on all runners
-      - name: Install Python packages
+      - name: Install python + run example COMPAS job
         run: |
-          pip install -r requirements.txt
-          
-      # This step will run on all runners
-      - name: Run Post-Processing Python Scripts
+          pip install -e .[dev]
+          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+          cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
+          chmod 755 run.sh
+          cat run.sh
+          ./run.sh
+
+
+      - name: Run pytests
+        if: startsWith(matrix.os, 'ubuntu-2')
+        # Run tests and collect coverage data
         run: |
-          cd utils/cicd-scripts
-          chmod 755 python-scripts
-          ./python-scripts
+          cd ${GITHUB_WORKSPACE}
+          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+          pytest --cov=compas_python_utils/ py_tests/
+          coverage html
+          coverage-badge -o coverage_badge.svg -f
+
+      - name: Archive code coverage results
+        if: startsWith(matrix.os, 'ubuntu-2')
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage
+          path: |
+            htmlcov/
+            coverage_badge.svg
+
+
+      - name: Archive COMPAS run data
+        if: startsWith(matrix.os, 'ubuntu-2')
+        uses: actions/upload-artifact@v3
+        with:
+          name: COMPAS-run-artifacts
+          path: |
+            py_tests/test_artifacts
