@@ -26,6 +26,10 @@ Data in ``HDF5`` files are arranged in ``groups`` and ``datasets``:
 h5copy usage
 ------------
 
+TODO: use python cli to generate this help section
+TODO: write a section demoing this within python
+
+
 ::
 
     h5copy.py [-h] [-b BUFFER_SIZE] [-c CHUNK_SIZE] [-e] [-f FILENAME_FILTER]

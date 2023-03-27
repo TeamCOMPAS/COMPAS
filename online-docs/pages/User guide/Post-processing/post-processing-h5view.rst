@@ -9,6 +9,9 @@ COMPAS aware.
 h5view usage
 ------------
 
+TODO: use python cli to generate this help section
+TODO: write a section demoing this within python
+
 ::
 
     h5view.py [-h] [-f FILENAME_FILTER] [-r [RECURSION_DEPTH]] [-S] [-H]

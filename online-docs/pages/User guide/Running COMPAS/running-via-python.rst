@@ -10,6 +10,10 @@ To run COMPAS via Python using the ``runSubmit.py`` script provided, set the she
 to the parent directory of the directory in which the COMPAS executable resides, then type `python /path-to-runSubmit/runSubmit.py`. 
 For example, for Ubuntu Linux, type::
 
+TODO: use python cli to generate this help section
+TODO: write a section demoing this within python
+
+
     export COMPAS_ROOT_DIR=/path-to-dir
 
     python /path-to-runSubmit/runSubmit.py

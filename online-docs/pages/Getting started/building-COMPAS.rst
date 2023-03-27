@@ -100,3 +100,4 @@ If you are using MacOS and running into linking issues with the boost libraries,
 
 In some Mac installations, the GNU C++ compiler is not installed how we might expect, so trying to compile and link with ``clang++`` might help.
 
+TODO: add section on installing python utilities
