@@ -115,7 +115,7 @@ otherwise it will be ignored.
 The commandline option '-r' specifies whether recursion is enabled for directory processing, and if
 it is, to what depth:
 
-    if the -r option is not present, recursion is not enabled and only files in the specified working 
+    if the -r option is not present, recursion is not enabled and only files in the specified working
     directory will be candidates for copying
 
     if -r is present with no 'depth' value, recursion is enabled and the depth is not limited - that
