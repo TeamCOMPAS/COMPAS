@@ -48,6 +48,7 @@ EXTRA_REQUIRE = dict(
         "black==22.10.0",
         "isort",
         "coverage-badge",
+        "deepdiff",
     ]
 )
 
