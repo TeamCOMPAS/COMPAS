@@ -53,6 +53,8 @@ optional arguments:
     stop all copying if an error occurs (default is skip to next file and continue)
   -x EXCLUDE_GROUP [EXCLUDE_GROUP ...], --exclude EXCLUDE_GROUP [EXCLUDE_GROUP ...]
     list of input groups to be excluded (default is all groups will be copied)
+  --fraction FRACTION
+    fraction of input file binaries to copy (default is 1.0, ie all binaries will be copied)
 
 
 Note: if the -x option is specified, it should be specified at the end of the options 
