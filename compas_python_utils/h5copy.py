@@ -337,7 +337,7 @@ IO_BUFFER_SIZE = 10             # number of HDF5 chunks, minimum 1
 # Copies the contents of the file passed in 'path' parameter
 # to the open HDF5 file specified by the 'outFile' parameter
 
-def copyHDF5File(path, outFile, chunkSize = CHUNK_SIZE, bufferSize = IO_BUFFER_SIZE, excludeList = ''):
+def copyHDF5File(path, outFile, chunkSize = CHUNK_SIZE, bufferSize = IO_BUFFER_SIZE, excludeList = '', fraction=1.0):
 
     ok = False                                                                                                              # result
 
@@ -355,6 +355,11 @@ def copyHDF5File(path, outFile, chunkSize = CHUNK_SIZE, bufferSize = IO_BUFFER_S
 
                 srcGroupNames = list(srcFile.keys())                                                                        # list of groups in input file
 
+                seeds = srcFile['BSE_System_Parameters']['SEED']                                                            # seeds dataset in input file
+                if fraction < 1.0:
+                    seeds = np.random.choice(seeds, int(fraction*len(seeds)), replace=False)                                # only keep frac of seeds (randomly selected)
+
+
                 for srcGroupName in srcGroupNames:                                                                          # for each source group
 
                     if srcGroupName in excludeList: continue                                                                # skip it if required
@@ -366,6 +371,10 @@ def copyHDF5File(path, outFile, chunkSize = CHUNK_SIZE, bufferSize = IO_BUFFER_S
 
                         srcDatasetNames  = list(srcGroup.keys())                                                            # list of datasets in srcGroup in input file
                         destDatasetNames = list(destGroup.keys())                                                           # list of datasets in destGroup in output file
+
+                        if fraction < 1 and 'SEED' in srcDatasetNames:                                                       # if we are only keeping a fraction of the seeds
+                            srcSeeds = srcGroup['SEED']
+                            dataIndices = np.in1d(srcSeeds, seeds)                                                          # indices of data to copy
 
                         if len(destDatasetNames) > 0 and (len(destDatasetNames) != len(srcDatasetNames)):                   # destination group not empty and not same size as source
                             # print a warning that the group will noyt be copied, but continue 
@@ -434,6 +443,10 @@ def copyHDF5File(path, outFile, chunkSize = CHUNK_SIZE, bufferSize = IO_BUFFER_S
                                                         destEnd = destStart + srcEnd - srcStart                             # set destination end position for copy appropriately
                                                         destDataset.resize((destEnd,))                                      # resize the destination dataset appropriately
                                                         destDataset[destStart : destEnd] = srcDataset[srcStart : srcEnd]    # copy source chunk to destination chunk
+
+                                                    if fraction < 1 and srcDatasetName == 'SEED':                           # if this group has info on the binary's SEED
+                                                        destDataset[:] = destDataset[dataIndices]                           # only keep the seeds we want (default is all)
+                                                        destDataset.resize((sum(dataIndices),))
 
                                                     ok = True                                                               # all good
 
@@ -532,6 +545,7 @@ def main():
     parser.add_argument('-r', '--recursive', dest = 'recursion_depth', type = int, nargs = '?', action = 'store', default = 0, const = sys.maxsize,  help = 'recursion depth (default is no recursion)')
     parser.add_argument('-s', '--stop-on-error', dest = 'stop_on_error', action = 'store_true',  default = False, help = 'stop all copying if an error occurs (default is skip to next file and continue)')
     parser.add_argument('-x', '--exclude', dest = 'exclude_group', type = str, nargs = '+', action = 'store', default = '', help = 'list of input groups to be excluded (default is all groups will be copied)')
+    parser.add_argument('--fraction', dest='fraction', type=float, action='store', default=1., help='Fraction of seeds to be copied (default = 1.0)')
 
     # parse arguments
     args = parser.parse_args()
@@ -602,7 +616,8 @@ def main():
                                                           outFile, 
                                                           chunkSize   = args.chunk_size, 
                                                           bufferSize  = args.buffer_size, 
-                                                          excludeList = excludeList)                                            # yes - copy it
+                                                          excludeList = excludeList,
+                                                          fraction    = args.fraction)                                          # yes - copy it
                                     else:                                                                                       # no - does not match filter
                                         print('Warning:', thisPath, 'does not match file filter (', fileFilter, '): ignored')   # show warning
                                 elif os.path.isdir(thisFullPath):                                                               # not a file - directory?
