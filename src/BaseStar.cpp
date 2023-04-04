@@ -1866,8 +1866,8 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021(const double p_Teff) {
     const double zExp = 0.42;
     double Gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
     double charrho = -14.94 + (3.1857 * Gamma) + (zExp * log10(m_Metallicity / ZSOL)) ; 
-    double T2 = 20000.0; //( 61.2 + (2.59 * charrho) ) * 1000.; //higher jump first as in Vink python recipe
-    double T1 = 12500.0; //( 100. + (6.0 * charrho) ) * 1000.;
+    double T2 = ( 61.2 + (2.59 * charrho) ) * 1000.; // 25000.0; //higher jump first as in Vink python recipe
+    double T1 = ( 100. + (6.0 * charrho) ) * 1000.; // 20000.0; //has similar behavior when fixed
     //std::cout << "T1: " << T1 << std::endl; //print statements to troubleshoot
     //std::cout << "T2: " << T2 << std::endl;
     double logL5  = log10(m_Luminosity / 1.0E5);
@@ -1889,7 +1889,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021(const double p_Teff) {
         rate = PPOW(10.0, logMdotOB);
         m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
     }
-    else if (utils::Compare(p_Teff, T1) > 0) {
+    else if (utils::Compare(p_Teff, T1) > 0 && utils::Compare(p_Teff, T2) <= 0) {
         SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
 
         double V         = 1.3;                                                                                 // v_inf/v_esc
