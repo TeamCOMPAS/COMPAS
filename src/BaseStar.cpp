@@ -1866,9 +1866,10 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021(const double p_Teff) {
     const double zExp = 0.42;
     double Gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
     double charrho = -14.94 + (3.1857 * Gamma) + (zExp * log10(m_Metallicity / ZSOL)) ; 
-    double T1 = ( 61.2 + (2.59 * charrho) ) * 1000.;
-    double T2 = ( 100. + (6.0 * charrho) ) * 1000.;
-
+    double T2 = 20000.0; //( 61.2 + (2.59 * charrho) ) * 1000.; //higher jump first as in Vink python recipe
+    double T1 = 12500.0; //( 100. + (6.0 * charrho) ) * 1000.;
+    //std::cout << "T1: " << T1 << std::endl; //print statements to troubleshoot
+    //std::cout << "T2: " << T2 << std::endl;
     double logL5  = log10(m_Luminosity / 1.0E5);
     double logM30 = log10(m_Mass / 30.0);
     double logT40 = log10(p_Teff / 40000.0);
@@ -2152,7 +2153,8 @@ double BaseStar::CalculateMassLossRateUpdatedPrescription() {
             //otherWindsRate = CalculateMassLossRateBjorklund();                                                      // For hot stars, apply Bjorklund et al. prescription
             //m_DominantMassLossRate = MASS_LOSS_TYPE::BJORKLUND;
             //otherWindsRate = CalculateMassLossRateOB(teff);
-            otherWindsRate = CalculateMassLossRateOBKrticka2018();
+            //otherWindsRate = CalculateMassLossRateOBKrticka2018();
+            otherWindsRate = CalculateMassLossRateOBVinkSander2021(teff);
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {
