@@ -31,11 +31,11 @@ protected:
     // member functions - alphabetically
     double          CalculateCOCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 
-    double   CalculateConvectiveEnvelopeMass() const                                            { return 0.0; }
+    double          CalculateConvectiveEnvelopeMass() const                                            { return 0.0; }
 
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 
-    double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                         { return 0.0; }                                                         // Should never be called...
+    double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate);
 
     void            CalculateGBParams()                                                                         { GiantBranch::CalculateGBParams(); }                                   // Default to GiantBranch
 

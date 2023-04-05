@@ -1445,7 +1445,6 @@ double CHeB::ChooseTimestep(const double p_Time) const {
 }
 
 
-
 /*
  * Modify the star after it loses its envelope
  *
