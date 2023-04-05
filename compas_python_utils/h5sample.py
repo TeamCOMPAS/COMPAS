@@ -6,16 +6,17 @@ import h5py
 import numpy as np
 
 from compas_python_utils.h5view import printSummary
+from compas_python_utils.h5copy import copyHDF5File
 
 
 def sample_h5(
-    compas_h5_filepath: str,
-    output_filepath: Optional[str] = None,
-    n: Optional[int] = None,
-    frac: Optional[float] = None,
-    replace: Optional[bool] = False,
-    seed_group: Optional[str] = "BSE_System_Parameters",
-    seed_key: Optional[str] = "SEED",
+        compas_h5_filepath: str,
+        output_filepath: Optional[str] = None,
+        n: Optional[int] = None,
+        frac: Optional[float] = None,
+        replace: Optional[bool] = False,
+        seed_group: Optional[str] = "BSE_System_Parameters",
+        seed_key: Optional[str] = "SEED",
 ):
     """Sample an COMPAS h5 file.
 
@@ -60,6 +61,11 @@ def sample_h5(
 
     if frac is not None:
         n = int(frac * len(binary_seeds))
+    else:
+        frac = n / len(binary_seeds)
+
+    if n <= 0:
+        raise ValueError("n must be greater than 0.")
 
     if n > len(binary_seeds) and not replace:
         raise ValueError(
@@ -67,38 +73,43 @@ def sample_h5(
             "Set replace=True."
         )
 
-    sampled_binary_seeds = np.random.choice(binary_seeds, size=n, replace=replace)
-
-    print("Sampling {} binaries from {}.".format(n, compas_h5_filepath))
-
-    with h5py.File(output_filepath, "w") as output_h5_file:
-        with h5py.File(compas_h5_filepath, "r") as compas_h5_file:
-            for group_name, group in compas_h5_file.items():
-                output_h5_file.create_group(group_name)
-                indicies = None
-                if seed_key in group:
-                    group_seeds = group[seed_key][:]
-                    indicies = np.isin(group_seeds, sampled_binary_seeds)
-
-                for dataset_name, dataset in group.items():
-
-                    if indicies is None:  # direct copy
-                        output_h5_file[group_name].create_dataset(
-                            dataset_name, data=dataset[:]
-                        )
-                    else:  # copy the values at the sampled indicies
-                        if dataset_name == seed_key:
-                            output_h5_file[group_name].create_dataset(
-                                dataset_name, data=dataset[:][indicies]
-                            )
+    print(f"Sampling {n} ({frac * 100:.2f}%) binaries from {compas_h5_filepath}.")
 
     print("Original file summary:")
     with h5py.File(compas_h5_filepath, "r") as compas_h5_file:
         printSummary(compas_h5_filepath, compas_h5_file)
 
+    with h5py.File(output_filepath, 'w') as out_h5_file:
+        copyHDF5File(compas_h5_filepath, out_h5_file)
+        sampled_binary_seeds = np.random.choice(binary_seeds, size=n, replace=replace)
+        _sample(out_h5_file, seed_key, sampled_binary_seeds)
+
     print("Sampled file summary:")
     with h5py.File(output_filepath, "r") as output_h5_file:
         printSummary(output_filepath, output_h5_file)
+
+
+def _sample(h5_file: h5py.File, sample_key: str, sample_values: np.ndarray):
+    for group_name, group in h5_file.items():
+
+        if sample_key not in group:
+            continue  # if the group doesn't have the axis key, skip this group
+
+        group_values = group[sample_key][:]
+
+        # get group_seed index for values in sampled_binary_seeds
+        sample_idx = []
+        for i, s in enumerate(sample_values):
+            sample_idx.append(np.where(group_values == s))
+        sample_idx = np.concatenate(sample_idx).ravel()
+        new_shape = (len(sample_idx),)
+
+        for dataset_name, dataset in group.items():
+            # get dataset data at the sampled binary seed index
+            resampled_data = dataset[:][sample_idx]
+            dataset.resize(new_shape)
+            dataset[:] = resampled_data
+    return h5_file
 
 
 def main():
@@ -112,7 +123,7 @@ def main():
         "--output_filepath",
         type=str,
         help="Path to the output COMPAS h5 file. "
-        "If None, the output filepath will be the input filepath with '_sampled' appended.",
+             "If None, the output filepath will be the input filepath with '_sampled' appended.",
         default=None,
     )
     parser.add_argument(

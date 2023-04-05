@@ -14,7 +14,7 @@ def test_sample(tmp_path, example_compas_output_path):
         dict(n=100, replace=True),
         dict(frac=0.5, replace=False),
         dict(frac=1.2, replace=True),
-        dict(seed_group="BSE_Double_Compact_Objects", frac=0.1, replace=True),
+        dict(seed_group="BSE_Double_Compact_Objects", frac=2.0, replace=True),
     ]
 
     for kwg in test_kwargs:
