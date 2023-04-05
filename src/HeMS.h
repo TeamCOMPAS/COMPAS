@@ -62,6 +62,7 @@ protected:
             double          CalculateCoreMassOnPhase() const                                            { return 0.0; }                                                         // Mc(HeMS) = 0.0
 
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
+            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                    { return 0.33; }
 
             double          CalculateGyrationRadius() const                                             { return 0.1; }
 

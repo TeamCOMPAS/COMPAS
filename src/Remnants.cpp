@@ -58,3 +58,31 @@ double Remnants::ChooseTimestep(const double p_Time) const {
 
     return std::max(dte, NUCLEAR_MINIMUM_TIMESTEP);
 }
+
+/*
+ * Calculate the critical mass ratio for unstable mass transfer
+ *
+ * double Remnants::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) 
+ *
+ * @param   [IN]    p_AccretorIsDegenerate      Whether or not the accretor is a degenerate star
+ * @return                                      Critical mass ratio
+ */
+double Remnants::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) {                                           
+    
+        double qCrit = 0.0;
+        QCRIT_PRESCRIPTION qCritPrescription = OPTIONS->QCritPrescription();
+
+        switch (qCritPrescription) {
+            case QCRIT_PRESCRIPTION::GE20: 
+            case QCRIT_PRESCRIPTION::GE20_IC:
+            case QCRIT_PRESCRIPTION::CLAEYS:
+                break;
+            case QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK:
+                qCrit = 1.6; 
+                break;
+            default:
+                m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                                     // set error value
+                SHOW_ERROR(m_Error);                                                             // warn that an error occurred
+        }
+        return qCrit;
+}

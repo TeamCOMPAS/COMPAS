@@ -7,7 +7,7 @@
  *
  * @return                               Whether the WD should evolve on phase or towards a SN.
  */
-bool ONeWD::ShouldEvolveOnPhase() {
+bool ONeWD::ShouldEvolveOnPhase() const {
     return !IsSupernova();
 }
 

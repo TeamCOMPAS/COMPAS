@@ -1336,6 +1336,9 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) {
             case QCRIT_PRESCRIPTION::CLAEYS:
                 qCrit = CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate);
                 break;
+            case QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK:
+                qCrit = CalculateCriticalMassRatioHurleyHjellmingWebbink();
+                break;
             default:
                 m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                                     // set error value
                 SHOW_ERROR(m_Error);                                                             // warn that an error occurred
