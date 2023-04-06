@@ -1,4 +1,8 @@
-"""Sample an COMPAS h5 file."""
+"""Module to sample an COMPAS h5 file.
+
+This allows users to sample a COMPAS h5 file to contain a smaller set of systems,
+or upsample a COMPAS h5 file (sample with replacements) to contain a larger set of systems.
+"""
 import argparse
 from typing import Optional, List
 import sys
@@ -115,7 +119,7 @@ def _sample(h5_file: h5py.File, sample_key: str, sample_values: np.ndarray):
     return h5_file
 
 
-def parse_args(args: List[str]) -> argparse.Namespace:
+def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Sample an COMPAS h5 file.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -162,7 +166,11 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         help="Key to get binary seed list to sample from.",
         default="SEED",
     )
-    return parser.parse_args(args)
+    return parser
+
+
+def parse_args(args: List[str]) -> argparse.Namespace:
+    return create_parser().parse_args(args)
 
 
 def main():  # pragma: no cover
