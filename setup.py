@@ -51,6 +51,7 @@ EXTRA_REQUIRE = dict(
         "sphinx-math-dollar",
         "sphinxcontrib.bibtex",
         "linuxdoc",
+        "ipython"
     ],
     dev=[
         "pytest-cov",
