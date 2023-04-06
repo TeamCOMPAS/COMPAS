@@ -26,8 +26,14 @@ Data in ``HDF5`` files are arranged in ``groups`` and ``datasets``:
 h5copy usage
 ------------
 
-TODO: use python cli to generate this help section
-TODO: write a section demoing this within python
+.. automodule:: compas_python_utils.h5copy
+
+
+.. argparse::
+   :module: compas_python_utils.h5copy
+   :func: create_parser
+   :prog: compas_h5copy
+
 
 
 ::

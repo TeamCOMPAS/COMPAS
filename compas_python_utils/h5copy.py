@@ -514,27 +514,46 @@ def processDirectory(path,
     return ok
 
 
+def create_parser():
+    # setup argument parser
+    formatter = lambda prog: argparse.HelpFormatter(prog, max_help_position=4, width=90)
+    parser = argparse.ArgumentParser(description='HDF5 file copier.', formatter_class=formatter)
+
+    # define arguments
+    parser.add_argument(
+        'inputPaths', metavar='input', type=str, nargs='+', help='input directory and/or file name(s)')
+    parser.add_argument(
+        '-b', '--buffer-size', dest='buffer_size', type=int, action='store', default=IO_BUFFER_SIZE,
+                        help='IO buffer size (number of HDF5 chunks, default = ' + str(IO_BUFFER_SIZE) + ')')
+    parser.add_argument(
+        '-c', '--chunk-size', dest='chunk_size', type=int, action='store', default=CHUNK_SIZE,
+                        help='HDF5 output file dataset chunk size (default = ' + str(CHUNK_SIZE) + ')')
+    parser.add_argument(
+        '-e', '--erase-output', dest='erase_ouput', action='store_true', default=False,
+                        help='erase existing output file before copying input files (default = False)')
+    parser.add_argument(
+        '-f', '--filter', dest='filename_filter', type=str, action='store', default='*',
+                        help='input filename filter (default = *)')
+    parser.add_argument(
+        '-o', '--output', dest='output_fileName', type=str, action='store', default='h5out.h5',
+                        help='output file name (default = h5out.h5)')
+    parser.add_argument(
+        '-r', '--recursive', dest='recursion_depth', type=int, nargs='?', action='store', default=0,
+                        const=sys.maxsize, help='recursion depth (default is no recursion)')
+    parser.add_argument(
+        '-s', '--stop-on-error', dest='stop_on_error', action='store_true', default=False,
+                        help='stop all copying if an error occurs (default is skip to next file and continue)')
+    parser.add_argument(
+        '-x', '--exclude', dest='exclude_group', type=str, nargs='+', action='store', default='',
+                        help='list of input groups to be excluded (default is all groups will be copied)')
+    return parser
+
 def main():
 
     ok = True
 
-    # setup argument parser
-    formatter = lambda prog: argparse.HelpFormatter(prog, max_help_position = 4, width = 90)
-    parser = argparse.ArgumentParser(description = 'HDF5 file copier.', formatter_class = formatter)
-
-    # define arguments
-    parser.add_argument('inputPaths', metavar = 'input', type = str, nargs = '+', help = 'input directory and/or file name(s)')
-    parser.add_argument('-b', '--buffer-size', dest = 'buffer_size', type = int, action = 'store',  default = IO_BUFFER_SIZE, help = 'IO buffer size (number of HDF5 chunks, default = ' + str(IO_BUFFER_SIZE) + ')')
-    parser.add_argument('-c', '--chunk-size', dest = 'chunk_size', type = int, action = 'store',  default = CHUNK_SIZE, help = 'HDF5 output file dataset chunk size (default = ' + str(CHUNK_SIZE) + ')')
-    parser.add_argument('-e', '--erase-output', dest = 'erase_ouput', action = 'store_true',  default = False, help = 'erase existing output file before copying input files (default = False)')
-    parser.add_argument('-f', '--filter', dest = 'filename_filter', type = str, action = 'store',  default = '*', help = 'input filename filter (default = *)')
-    parser.add_argument('-o', '--output', dest = 'output_fileName', type = str, action = 'store',  default = 'h5out.h5', help = 'output file name (default = h5out.h5)')
-    parser.add_argument('-r', '--recursive', dest = 'recursion_depth', type = int, nargs = '?', action = 'store', default = 0, const = sys.maxsize,  help = 'recursion depth (default is no recursion)')
-    parser.add_argument('-s', '--stop-on-error', dest = 'stop_on_error', action = 'store_true',  default = False, help = 'stop all copying if an error occurs (default is skip to next file and continue)')
-    parser.add_argument('-x', '--exclude', dest = 'exclude_group', type = str, nargs = '+', action = 'store', default = '', help = 'list of input groups to be excluded (default is all groups will be copied)')
-
     # parse arguments
-    args = parser.parse_args()
+    args = create_parser().parse_args()
 
     # output filename
     outFname = args.output_fileName
