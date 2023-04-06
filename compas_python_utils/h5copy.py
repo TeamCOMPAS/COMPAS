@@ -55,8 +55,8 @@ optional arguments:
     list of input groups to be excluded (default is all groups will be copied)
 
 
-Note: if the -x option is specified, it should be specified at the end of the options
-      list (i.e. the list of input files can't follow the -x option or the list of input
+Note: if the -x option is specified, it should be specified at the end of the options 
+      list (i.e. the list of input files can't follow the -x option or the list of input 
       files will be subsumed by the list of groups to be excluded)
 
 
@@ -95,8 +95,8 @@ When appending data:
        datasets within the group) will only be copied if the number of datasets in the input
        file group matches the number of datasets in the output file group.  If there is a mismatch
        a warning will be issued and the group will not be copied (but the file copy will continue,
-       just as though the group had been excluded)
-
+       just as though the group had been excluded) 
+   
    (b) if a dataset in an input file does not exist in the output file, the dataset will be created,
        otherwise the data copied will be appended to the existing dataset.
 
@@ -115,17 +115,17 @@ otherwise it will be ignored.
 The commandline option '-r' specifies whether recursion is enabled for directory processing, and if
 it is, to what depth:
 
-    if the -r option is not present, recursion is not enabled and only files in the specified working
+    if the -r option is not present, recursion is not enabled and only files in the specified working 
     directory will be candidates for copying
 
     if -r is present with no 'depth' value, recursion is enabled and the depth is not limited - that
-    is, all files in the specified working directory, and all files in all directories below the
+    is, all files in the specified working directory, and all files in all directories below the 
     specified working directory, will be candidates for copying
-
+    
     if -r is present with a specified 'depth' value, recursion is enabled and the depth is limited to
-    the depth specified - that is, all files in the specified working directory, and all files in all
+    the depth specified - that is, all files in the specified working directory, and all files in all 
     directories 'depth' levels below the specified working directory, will be candidates for copying
-
+    
 
 Input filename filter
 ---------------------
@@ -170,7 +170,7 @@ either change the code or tell me how to improve it and I'll change it.  Most of
 is just a brain dump of my reading/research over the past week or so, and it could very well
 be based on my misunderstanding of what I have read - so uf anyone notices something I've
 misunderstood please let me know so I can improve the code.)
-
+ 
 
 Data in HDF5 files are arranged in groups and datasets.
 
@@ -190,55 +190,55 @@ cannot be resized - so if chunking is not enabled the size of the dataset must b
 creation, and the entire datset created in one go.  That doesn't work for COMPAS - even though we know
 the number of systems being evolved, we don't know the number of entries we'll have in each of the output
 log files (and therefore the HDF5 datasests if we're logging to HDF5 files).  So, we enable chunking.
-
+ 
 Chunking can improve, or degrade, performance depending upon how it is implemented - mostly related to
 the chunk size chosen.
-
+ 
 Datasets are stored inside an HDF5 file as a number of chunks - the chunks are not guaranteed (not even
 likely) to be contiguous in the file or on the storage media (HDD, SSD etc.).  Chunks are mapped/indexed
-in the HDF5 file using a B-tree, and the size of the B-tree, and therefore the traversal time, depends
+in the HDF5 file using a B-tree, and the size of the B-tree, and therefore the traversal time, depends 
 directly upon the number of chunks allocated for a dataset - so the access time for a chunk increases as
 the number of chunks in the dataset increases.  So many small chunks will degrade performance.
-
+ 
 Chunks are the unit of IO for HDF5 files - all IO to HDF5 is performed on the basis of chunks.  This means
 that whenever dataset values are accessed (read or written (i.e. changed)), if the value is not already in
 memory, the entire chunck containing the value must be read from, or written to, the storage media - even
-if the dataset value being accessed is the only value in the chunk.  So few large chunks could cause
+if the dataset value being accessed is the only value in the chunk.  So few large chunks could cause 
 empty, "wasted", space in the HDF5 files (at the end of datasets) - but they could also adversely affect
 performance by causing unecessary IO traffic (although probably not much in the way we access data in COMPAS
 files).
-
+ 
 HDF5 files implement a chunk cache on a per-dataset basis.  The default size of the chunk cache is 1MB, and
 its maximum size is 32MB.  The purpose of the chunk cache is to reduce storage media IO - even with SSDs,
 memory access is way faster than storage media access, so the more of the file data that can be kept in
 memory and maipulated there, the better.  Assuming the datatype of a particular dataset is DOUBLE, and
 therefore consumes 8 bytes of storage space, at its maximum size the chunk cache for that dataset could hold
-4,000,000 values - so a single chuck with 4,000,000 values, two chunks with 2,000,000 values, four with
+4,000,000 values - so a single chuck with 4,000,000 values, two chunks with 2,000,000 values, four with 
 1,000,000, and so on.  Caching a single chunk defeats the purpose of the cache, so chunk sizes somewhat less
 that 4,000,000 would be most appropriate if the chunk cache is to be utilised.  Chunks too big to fit in the
 cache simply bypass the cache and are read from, or written to, the storage media directly.
-
+ 
 However, the chunk cache is really only useful for random access of the dataset.  Most, if not all, of the
 access in the COMPAS context (including post-creation analyses) is serial - the COMPAS code writes the
 datasets from top to bottom, and later analyses (generally) read the datasets the same way.  Caching the
-chunks for serial access just introduces overhead that costs memory (not much, to be sure: up to 32MB per
+chunks for serial access just introduces overhead that costs memory (not much, to be sure: up to 32MB per 
 open dataset), and degrades performace (albeit it a tiny bit).  For that reason I disable the chunk cache
 in COMPAS - so all IO to/from an HDF5 file in COMPAS is directly to/from the storage media.  (To be clear,
-post-creation analysis software can disable the cache or not when accessing HDF5 files created by COMPAS -
+post-creation analysis software can disable the cache or not when accessing HDF5 files created by COMPAS - 
 disabling the cache here does not affect how other software accesses the files post-creation).
-
+ 
 So many small chunks is not so good, and neither is just a few very large chunks.  So what's the optimum
 chunk size?  It depends upon several things, and probably the most important of those are the final size
 of the dataset and the access pattern.
-
-As mentioned above, we tend to access datasets serially, and generally from to to bottom, so larger chunks
-would seem appropriate, but not so large that we generate HDF5 files with lots of unused space.  However,
+ 
+As mentioned above, we tend to access datasets serially, and generally from to to bottom, so larger chunks 
+would seem appropriate, but not so large that we generate HDF5 files with lots of unused space.  However, 
 disk space, even SSD space, is cheap, so trading space against performance is probably a good trade.
-
+ 
 Also as mentioned above, we don't know the final size of (most of) the datasets when creating the HDF5 in
 COMPAS - though we do know the number of systems being generated, which allows us to determine an upper
 bound for at least some of the datasets (though not for groups such as BSE_RLOF).
-
+ 
 One thing we need to keep in mind is that when we create the HDF5 file we write each dataset of a group
 in the same iteration - this is analagous to writing a single record in (e.g.) a CSV log file (the HDF5
 group corresponds to the CSV file, and the HDF5 datasets in the group correspond to the columns in the
@@ -246,15 +246,15 @@ CSV file).  So for each iteration - typically each system evolved (though each t
 output files) we do as many IOs to the HDF5 file as there are datasets in the group (columns in the file).
 We are not bound to reading or writing a single chunk at a time - but we are bound to reading or writing
 an integral multiple of whole chunks at a time.
-
+ 
 We want to reduce the number of storage media accesses when writing (or later reading) the HDF5 files, so
 larger chunk sizes are appropriate, but not so large that we create excessively large HDF5 files that have
 lots of unused space (bearing in mind the trade-off mentioned above), especially when were evolving just
 a few systems (rather than millions).
-
+ 
 To really optimise IO performance for HDF5 files we'd choose chunk sizes that are close to multiples of
 storage media block sizes, but I chose not to go down that rathole...
-
+ 
 Based on everything written above, and some tests, I've chosen a default chunk size of 100,000 (dataset
 entries) for all datasets (HDF5_DEFAULT_CHUNK_SIZE in constants.h) for the COMPAS C++ code.  This clearly
 trades performance against storage space.  For the (current) default logfile record specifications, per-binary
@@ -262,12 +262,12 @@ logfile space is about 1K bytes, so in the very worst case we will waste some sp
 HDF5 output file, but the performance gain, especially for post-creation analyses, is significant.  Ensuring
 the number of systems evolved is an integral multiple of this fixed chunk size will minimise storage space waste.
 
-I have chosen a minimum chunk size of 1000 (HDF5_MINIMUM_CHUNK_SIZE in constants.h) for the COMPAS C++ code.
-If the number of systems being evolved is >= HDF5_MINIMUM_CHUNK_SIZE the chunk size used will be the value of
-the hdf5-chunk-size program option (either HDF5_DEFAULT_CHUNK_SIZE or a value specified by the user), but if
+I have chosen a minimum chunk size of 1000 (HDF5_MINIMUM_CHUNK_SIZE in constants.h) for the COMPAS C++ code.  
+If the number of systems being evolved is >= HDF5_MINIMUM_CHUNK_SIZE the chunk size used will be the value of 
+the hdf5-chunk-size program option (either HDF5_DEFAULT_CHUNK_SIZE or a value specified by the user), but if 
 the number of systems being evolved is < HDF5_MINIMUM_CHUNK_SIZE the chunk size used will be HDF5_MINIMUM_CHUNK_SIZE.
 This is just so we don't waste too much storage space when running small tests - and if they are that small
-performance is probably not going to be much of an issue, so no real trade-off against storage space.
+performance is probably not going to be much of an issue, so no real trade-off against storage space.  
 
 The chunk size chosen for the COMPAS C++ code determines the chunk size of the logfiles produced by the COMPAS
 C++ code.  If those files are only ever given to this program as input files, their chunk size only matters
@@ -282,7 +282,7 @@ Writing to the output HDF5 file is buffered here - we buffer a number of chunks 
 the buffer to the file when the buffer fills (or a partial buffer upon file close if the buffer is not full).
 This IO buffering is not HDF5 or filesystem buffering - this is a an internal implementation here to improve
 performance.  The IO buffer size is also an option (both here and in t he COMPAS C++ code).
-
+ 
 Users should bear in mind that the combination of HDF5 chunk size and HDF5 IO buffer size affect performance,
 storage space, and memory usage - so they may need to experiment to find a balance that suits their needs.
 
@@ -342,7 +342,7 @@ def copyHDF5File(path, outFile, chunkSize = CHUNK_SIZE, bufferSize = IO_BUFFER_S
     ok = False                                                                                                              # result
 
     outFname = os.path.abspath(outFile.filename)                                                                            # fully-qualified output filename
-
+    
     try:
         with h5.File(path, 'r') as srcFile:                                                                                 # open the input HDF5 file
 
@@ -358,7 +358,7 @@ def copyHDF5File(path, outFile, chunkSize = CHUNK_SIZE, bufferSize = IO_BUFFER_S
                 for srcGroupName in srcGroupNames:                                                                          # for each source group
 
                     if srcGroupName in excludeList: continue                                                                # skip it if required
-
+                    
                     srcGroup = srcFile[srcGroupName]                                                                        # source group
 
                     try:
@@ -368,7 +368,7 @@ def copyHDF5File(path, outFile, chunkSize = CHUNK_SIZE, bufferSize = IO_BUFFER_S
                         destDatasetNames = list(destGroup.keys())                                                           # list of datasets in destGroup in output file
 
                         if len(destDatasetNames) > 0 and (len(destDatasetNames) != len(srcDatasetNames)):                   # destination group not empty and not same size as source
-                            # print a warning that the group will noyt be copied, but continue
+                            # print a warning that the group will noyt be copied, but continue 
                             # (just as though this group is an excluded group)
                             print('Dataset count mismatch between source and destination for group', srcGroupName, 'in files', srcFname, 'and', outFname)
                             print('WARNING: Group', srcGroupName, 'from file', srcFname, 'not copied to', outFname)
@@ -460,14 +460,14 @@ def copyHDF5File(path, outFile, chunkSize = CHUNK_SIZE, bufferSize = IO_BUFFER_S
 # Processes file and directories in directory specified by 'path' parameter
 # Recursion is controlled by 'recursive' and 'depth' parameters
 
-def processDirectory(path,
-                     outFile,
-                     recursive   = 0,
-                     fileFilter  = '*.h5',
-                     stopOnError = False,
-                     depth       = 0,
-                     chunkSize   = CHUNK_SIZE,
-                     bufferSize  = IO_BUFFER_SIZE,
+def processDirectory(path, 
+                     outFile, 
+                     recursive   = 0, 
+                     fileFilter  = '*.h5', 
+                     stopOnError = False, 
+                     depth       = 0, 
+                     chunkSize   = CHUNK_SIZE, 
+                     bufferSize  = IO_BUFFER_SIZE, 
                      excludeList = ''):
 
     ok = True                                                                                                       # result
@@ -481,9 +481,9 @@ def processDirectory(path,
 
             for filename in filenames:                                                                              # for each filename
                 if fnmatch(filename, fileFilter):                                                                   # filename matches filter?
-                    ok = copyHDF5File(absDirpath + '/' + filename,
-                                      outFile,
-                                      chunkSize   = chunkSize,
+                    ok = copyHDF5File(absDirpath + '/' + filename, 
+                                      outFile, 
+                                      chunkSize   = chunkSize, 
                                       bufferSize  = bufferSize,
                                       excludeList = excludeList)                                                    # yes - copy the file
 
@@ -495,13 +495,13 @@ def processDirectory(path,
                 depth += 1                                                                                          # increment recursion depth
 
                 for dirname in dirnames:                                                                            # for each directory
-                    processDirectory(absDirpath + '/' + dirname,
-                                     outFile,
-                                     recursive   = recursive,
-                                     fileFilter  = fileFilter,
-                                     stopOnError = stopOnError,
-                                     depth       = depth,
-                                     chunkSize   = chunkSize,
+                    processDirectory(absDirpath + '/' + dirname, 
+                                     outFile, 
+                                     recursive   = recursive, 
+                                     fileFilter  = fileFilter, 
+                                     stopOnError = stopOnError, 
+                                     depth       = depth, 
+                                     chunkSize   = chunkSize, 
                                      bufferSize  = bufferSize,
                                      excludeList = excludeList)                                                     # process the directory
 
@@ -598,10 +598,10 @@ def main():
                             if os.path.exists(thisFullPath):                                                                    # path exists?
                                 if os.path.isfile(thisFullPath):                                                                # yes - is it a file?
                                     if fnmatch(thisPath, fileFilter):                                                           # yes - filename matches filter?
-                                        ok = copyHDF5File(thisFullPath,
-                                                          outFile,
-                                                          chunkSize   = args.chunk_size,
-                                                          bufferSize  = args.buffer_size,
+                                        ok = copyHDF5File(thisFullPath, 
+                                                          outFile, 
+                                                          chunkSize   = args.chunk_size, 
+                                                          bufferSize  = args.buffer_size, 
                                                           excludeList = excludeList)                                            # yes - copy it
                                     else:                                                                                       # no - does not match filter
                                         print('Warning:', thisPath, 'does not match file filter (', fileFilter, '): ignored')   # show warning
