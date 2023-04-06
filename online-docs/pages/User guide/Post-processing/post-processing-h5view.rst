@@ -9,8 +9,14 @@ COMPAS aware.
 h5view usage
 ------------
 
-TODO: use python cli to generate this help section
-TODO: write a section demoing this within python
+.. automodule:: compas_python_utils.h5view
+
+
+.. argparse::
+   :module: compas_python_utils.h5view
+   :func: create_parser
+   :prog: compas_h5view
+
 
 ::
 

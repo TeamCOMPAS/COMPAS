@@ -711,25 +711,35 @@ def processDirectory(path,
     return ok
 
 
-def main():
-
+def create_parser():
     # setup argument parser
-    formatter = lambda prog: argparse.HelpFormatter(prog, max_help_position = 4, width = 90)
-    parser = argparse.ArgumentParser(description = 'HDF5 file content viewer.', formatter_class = formatter)
+    formatter = lambda prog: argparse.HelpFormatter(prog, max_help_position=4, width=90)
+    parser = argparse.ArgumentParser(description='HDF5 file content viewer.', formatter_class=formatter)
 
     # define arguments
-    parser.add_argument('inputPaths', metavar = 'input', type = str, nargs = '+', help = 'input directory and/or file name(s)')
-    parser.add_argument('-f', '--filter', dest = 'filename_filter', type = str, action = 'store',  default = '*', help = 'input filename filter (default = *)')
-    parser.add_argument('-r', '--recursive', dest = 'recursion_depth', type = int, nargs = '?', action = 'store', default = 0, const = sys.maxsize,  help = 'recursion depth (default is no recursion)')
-    parser.add_argument('-S', '--summary', dest = 'summary', action = 'store_true',  default = False, help = 'display summary output for HDF5 file (default is not to display summary)')
-    parser.add_argument('-H', '--headers', dest = 'headers', action = 'store_true',  default = False, help = 'display file headers for HDF5 file (default is not to display headers)')
-    parser.add_argument('-C', '--contents', dest = 'contents', type = int, nargs = '?', action = 'store', default = 0, const = sys.maxsize, help = 'display file contents for HDF5 file: argument is number of entries (+ve from top, -ve from bottom) (default is not to display contents)')
-    parser.add_argument('-s', '--stop-on-error', dest = 'stop_on_error', action = 'store_true',  default = False, help = 'stop all copying if an error occurs (default is skip to next file and continue)')
-    parser.add_argument('-x', '--exclude', dest = 'exclude_group', type = str, nargs = '+', action = 'store', default = '', help = 'list of input groups to be excluded (default is all groups will be copied)')
-    parser.add_argument('-V', '--seeds', dest = 'seed_list', type = int, nargs = '+', action = 'store', default = [], help = 'list of seeds to be printed (for content printing) (default is print all seeds)')
+    parser.add_argument('inputPaths', metavar='input', type=str, nargs='+', help='input directory and/or file name(s)')
+    parser.add_argument('-f', '--filter', dest='filename_filter', type=str, action='store', default='*',
+                        help='input filename filter (default = *)')
+    parser.add_argument('-r', '--recursive', dest='recursion_depth', type=int, nargs='?', action='store', default=0,
+                        const=sys.maxsize, help='recursion depth (default is no recursion)')
+    parser.add_argument('-S', '--summary', dest='summary', action='store_true', default=False,
+                        help='display summary output for HDF5 file (default is not to display summary)')
+    parser.add_argument('-H', '--headers', dest='headers', action='store_true', default=False,
+                        help='display file headers for HDF5 file (default is not to display headers)')
+    parser.add_argument('-C', '--contents', dest='contents', type=int, nargs='?', action='store', default=0,
+                        const=sys.maxsize,
+                        help='display file contents for HDF5 file: argument is number of entries (+ve from top, -ve from bottom) (default is not to display contents)')
+    parser.add_argument('-s', '--stop-on-error', dest='stop_on_error', action='store_true', default=False,
+                        help='stop all copying if an error occurs (default is skip to next file and continue)')
+    parser.add_argument('-x', '--exclude', dest='exclude_group', type=str, nargs='+', action='store', default='',
+                        help='list of input groups to be excluded (default is all groups will be copied)')
+    parser.add_argument('-V', '--seeds', dest='seed_list', type=int, nargs='+', action='store', default=[],
+                        help='list of seeds to be printed (for content printing) (default is print all seeds)')
+    return parser
 
+def main():
     # parse arguments
-    args = parser.parse_args()
+    args = create_parser().parse_args()
 
     fileFilter = args.filename_filter + '.h5'                                                               # add file extension to filter
 
