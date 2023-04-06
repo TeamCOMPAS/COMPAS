@@ -39,12 +39,6 @@ INSTALL_REQUIRES = [
     "scipy",
     "latex",
     "PyYAML",
-    "matplotlib.sphinxext.plot_directive",
-    "sphinx.ext.mathjax",
-    "sphinx.ext.intersphinx",
-    "matplotlib.sphinxext.plot_directive",
-    "IPython.sphinxext.ipython_console_highlighting",
-    "IPython.sphinxext.ipython_directive",
 ]
 EXTRA_REQUIRE = dict(
     docs=[
@@ -56,7 +50,7 @@ EXTRA_REQUIRE = dict(
         "sphinx-argparse",
         "sphinx-math-dollar",
         "sphinxcontrib.bibtex",
-        "linuxdoc"
+        "linuxdoc",
     ],
     dev=[
         "pytest-cov",
