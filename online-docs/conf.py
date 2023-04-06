@@ -50,7 +50,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.viewcode",
-    "sphinxarg.ext",
+    # "sphinxarg.ext",
     "sphinx_tabs.tabs",
 ]
 
