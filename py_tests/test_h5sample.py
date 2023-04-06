@@ -1,5 +1,7 @@
 import os
 
+import pytest
+
 from conftest import get_compas_data
 from deepdiff import DeepDiff
 
@@ -28,5 +30,12 @@ def test_sample(tmp_path, example_compas_output_path):
         new_data = get_compas_data(new_file)
         diff = DeepDiff(init_data, new_data)
         assert (
-            len(diff) > 0
-        ), f"The sampled file is the same as the original:\n{init_data}\n{new_data}"
+                len(diff) > 0
+        ), f"The sampled file is the same as the original when using kwgs: {kwg}"
+
+
+def test_argparser(capsys):
+    with pytest.raises(SystemExit):
+        h5sample.parse_args(["-h"])
+    output = capsys.readouterr().out
+    assert "Sample an COMPAS h5 file" in output
