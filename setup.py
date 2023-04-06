@@ -41,6 +41,17 @@ INSTALL_REQUIRES = [
     "PyYAML",
 ]
 EXTRA_REQUIRE = dict(
+    docs=[
+        "sphinx",
+        "numpydoc",
+        "nbsphinx",
+        "sphinx_rtd_theme",
+        "sphinx-tabs",
+        "sphinx-argparse",
+        "sphinx-math-dollar",
+        "sphinxcontrib.bibtex",
+        "linuxdoc"
+    ],
     dev=[
         "pytest-cov",
         "pre-commit",
@@ -77,7 +88,6 @@ def find_version(version_file=read(CPP_VERSION_FILE)):
 
 
 if __name__ == "__main__":
-
     setup(
         name=NAME,
         version=find_meta("version"),

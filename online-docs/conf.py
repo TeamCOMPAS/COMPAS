@@ -46,11 +46,11 @@ extensions = [
     'IPython.sphinxext.ipython_console_highlighting',
     'IPython.sphinxext.ipython_directive',
     "sphinx.ext.autodoc",
-    # "numpydoc",
+    "numpydoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.viewcode",
-    # "sphinxarg.ext",
+    "sphinxarg.ext",
     "sphinx_tabs.tabs",
 ]
 
