@@ -1,6 +1,6 @@
 """Sample an COMPAS h5 file."""
 import argparse
-from typing import List, Optional, Tuple, Union
+from typing import Optional
 
 import h5py
 import numpy as np
@@ -42,6 +42,8 @@ def sample_h5(
     ------
     ValueError
         Must specify either n or frac.
+        n must be greater than 0.
+        Cannot sample without replacement more than the number of binaries. Set replace=True.
 
     Returns
     -------
