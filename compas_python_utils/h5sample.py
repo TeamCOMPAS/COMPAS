@@ -1,6 +1,7 @@
 """Sample an COMPAS h5 file."""
 import argparse
-from typing import Optional
+from typing import Optional, List
+import sys
 
 import h5py
 import numpy as np
@@ -114,8 +115,11 @@ def _sample(h5_file: h5py.File, sample_key: str, sample_values: np.ndarray):
     return h5_file
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Sample an COMPAS h5 file.")
+def parse_args(args: List[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Sample an COMPAS h5 file.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
     parser.add_argument(
         "compas_h5_filepath",
         type=str,
@@ -158,7 +162,11 @@ def main():
         help="Key to get binary seed list to sample from.",
         default="SEED",
     )
-    args = parser.parse_args()
+    return parser.parse_args(args)
+
+
+def main():  # pragma: no cover
+    args = parse_args(sys.argv[1:])
     sample_h5(
         args.compas_h5_filepath,
         output_filepath=args.output_filepath,
@@ -170,5 +178,5 @@ def main():
     )
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

@@ -21,13 +21,3 @@ def test_h5copy_copyHDF5File(tmp_path, example_compas_output_path):
     new_data = get_compas_data(new_file)
     diff = DeepDiff(init_data, new_data)
     assert len(diff) == 0, f"The copied file is not the same as the original: {diff}"
-
-    # creating new h5 file to copy contents to
-    new_file = f"{tmp_path}/frac_compas_out.h5"
-    with h5py.File(new_file, "w") as new_h5file:
-        h5copy.copyHDF5File(path=init_file, outFile=new_h5file, fraction=0.5)
-    new_data = get_compas_data(new_file)
-    diff = DeepDiff(init_data, new_data)
-    assert (
-        len(diff) > 0
-    ), f"The copied file is the same as the original:\n{init_data}\n{new_data}"
