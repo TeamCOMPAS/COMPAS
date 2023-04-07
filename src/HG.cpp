@@ -880,7 +880,9 @@ double HG::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) co
 /*
  * Calculate core mass on the Hertzsprung Gap without accounting for previous core mass
  *
- * Hurley et al. 2000, eq 30
+ * This ignores the previous core mass constraint (see section 7 of Hurley et al. 2000) when computing the expected core mass,
+ * and just follows eq. 30.  This is useful for asking what the core mass would be for the given mass without considering
+ * that the core mass should not be allowed to drop -- used, e.g., in HG::UpdateInitialMass().
  *
  *
  * double CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(const double p_Mass, const double p_Time)
