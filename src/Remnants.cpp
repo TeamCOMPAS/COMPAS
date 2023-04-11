@@ -59,6 +59,7 @@ double Remnants::ChooseTimestep(const double p_Time) const {
     return std::max(dte, NUCLEAR_MINIMUM_TIMESTEP);
 }
 
+
 /*
  * Calculate the critical mass ratio for unstable mass transfer
  *
