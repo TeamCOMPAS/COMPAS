@@ -860,7 +860,8 @@ double HG::CalculateCoreMassAtPhaseEnd(const double p_Mass) const {
 /*
  * Calculate core mass on the Hertzsprung Gap
  *
- * Hurley et al. 2000, eq 30
+ *  If the star is losing mass, choose core mass as the maximum of the core mass
+ *  at the previous time-step and the value given by Hurley et al. 2000, eq 30 (see Section 7)
  *
  *
  * double CalculateCoreMassOnPhase(const double p_Mass, const double p_Time)
@@ -870,19 +871,37 @@ double HG::CalculateCoreMassAtPhaseEnd(const double p_Mass) const {
  * @return                                      Core mass on the Hertzsprung Gap in Msol
  */
 double HG::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const {
-#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
+    return std::max(HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(p_Mass, p_Time), m_CoreMass);
+
+}
+
+
+/*
+ * Calculate core mass on the Hertzsprung Gap without accounting for previous core mass
+ *
+ * This ignores the previous core mass constraint (see section 7 of Hurley et al. 2000) when computing the expected core mass,
+ * and just follows eq. 30.  This is useful for asking what the core mass would be for the given mass without considering
+ * that the core mass should not be allowed to drop -- used, e.g., in HG::UpdateInitialMass().
+ *
+ *
+ * double CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(const double p_Mass, const double p_Time)
+ *
+ * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Time                      Time after ZAMS in Myr (tBGB <= time <= tHeI)
+ * @return                                      Core mass on the Hertzsprung Gap in Msol
+ */
+double HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(const double p_Mass, const double p_Time) const {
+#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
+    
     double McEHG = CalculateCoreMassAtPhaseEnd(p_Mass);
     double rhoHG = CalculateRho(p_Mass);
     double tau   = (p_Time - timescales(tMS)) / (timescales(tBGB) - timescales(tMS));
-
-    // If the star is losing mass, choose core mass as the maximum of the core mass
-    // at the previous time-step and the value given by Hurley et al. 2000, eq 30
-    return std::max((((1.0 - tau) * rhoHG) + tau) * McEHG, m_CoreMass);
-
+    
+    return (((1.0 - tau) * rhoHG) + tau) * McEHG;
+    
 #undef timescales
 }
-
 
 /*
  * Calculate rejuvenation factor for stellar age based on mass lost/gained during mass transfer
@@ -980,10 +999,10 @@ double HG::CalculateTauOnPhase() const {
 void HG::UpdateAgeAfterMassLoss() {
 
     double tBGB      = m_Timescales[static_cast<int>(TIMESCALE::tBGB)];
-    double tBGBprime = CalculateLifetimeToBGB(m_Mass);
+    double tBGBprime = CalculateLifetimeToBGB(m_Mass0);
 
     double tMS       = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
-    double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass, tBGBprime);
+    double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass0, tBGBprime);
 
     m_Age = tMSprime + (((tBGBprime - tMSprime) / (tBGB - tMS)) * (m_Age - tMS));
 }
@@ -1150,7 +1169,7 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
  *
  */
 void HG::UpdateInitialMass() {
-    if (utils::Compare(m_CoreMass,HG::CalculateCoreMassOnPhase(m_Mass, m_Age)) < 0 ) {        //The current mass would yield a core mass larger than the current core mass -- i.e., no unphysical core mass decrease would ensue
+    if (utils::Compare(m_CoreMass,HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass, m_Age)) < 0 ) {        //The current mass would yield a core mass larger than the current core mass -- i.e., no unphysical core mass decrease would ensue
         m_Mass0 = m_Mass;
     }
 }
