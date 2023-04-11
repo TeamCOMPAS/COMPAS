@@ -1009,8 +1009,10 @@
 //                                      - A couple of code-cleanups
 // 02.37.02     JR - Mar 27, 2023    - Defect repair:
 //                                      - Changed yaml.h to include <algorithm> and <chrono> - not including them causes docker build to fail.
+// 02.37.03     IM - Apr 8, 2023     - Defect repair:
+//                                      - Resolved issue #855 by using Mass0 rather than Mass to determine ages and timescales
 
 
-const std::string VERSION_STRING = "02.37.02";
+const std::string VERSION_STRING = "02.37.03";
 
 # endif // __changelog_h__
