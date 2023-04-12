@@ -35,6 +35,7 @@ template <typename Key, typename T>
 using COMPASUnorderedMap = std::unordered_map<Key, T, HashType<Key>>;
 
 
+
 // Bitwise operators for Enum Class - |, |=, &, &=, ^, ^=, ~ only
 // from http://blog.bitwigglers.org/using-enum-classes-as-type-safe-bitmasks/
 #define ENABLE_BITMASK_OPERATORS(x)     \
@@ -209,10 +210,10 @@ constexpr double GAUSS_TO_TESLA                         = 1.0 / TESLA_TO_GAUSS; 
 // constants
 
 constexpr double _2_PI                                  = M_PI * 2;                                                 // 2PI
-constexpr double SQRT_M_2_PI                            = 0.7978845608028653558798921198687637369517;               // sqrt(2/PI)
+constexpr double SQRT_M_2_PI                            = 0.79788456080286536;                                      // sqrt(2/PI)
 constexpr double DEGREE                                 = M_PI / 180.0;                                             // 1 degree in radians
 
-constexpr double GAMMA_E                                = 0.57721566490153286060651209008240243104215933593992;     // Euler's Constant (probably don't need so many digits after the decimal point...)
+constexpr double GAMMA_E                                = 0.57721566490153286;                                      // Euler's Constant
 
 constexpr double H0                                     = 67.8;                                                     // Hubble's Constant in km s^-1 Mpc^-1  (from plank approx 67.80±0.77) CPLB: Use WMAP value
 constexpr double H0SI                                   = H0 * 1000.0 / 3.0E22;                                     // Hubble's Constant in SI units, s^-1
@@ -226,9 +227,10 @@ constexpr double G_SOLAR_YEAR                           = 3.14E7;               
 
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
-constexpr double LOG10_ZSOL                             = -1.69897;                                              // log10(ZSOL) - for performance
+constexpr double LOG10_ZSOL                             = -1.69897;                                                 // log10(ZSOL) - for performance
 constexpr double ZSOL_ASPLUND				            = 0.0142;						                            // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
+constexpr double LSOL                                   = 3.844E33;                                                 // Solar Luminosity in erg/s
 
 constexpr double AU                                     = 149597870700.0;                                           // 1 AU (Astronomical Unit) in metres
 constexpr double KM                                     = 1000.0;                                                   // 1 km (Kilometre) in metres
@@ -416,12 +418,12 @@ constexpr double KROUPA_BREAK_1                         = 0.08;
 constexpr double KROUPA_BREAK_2                         = 0.5;
 
 // Some values that are really constants
-constexpr double KROUPA_BREAK_1_PLUS1_1                 = 0.1706722802578593435430149987533206236794;               // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_1);
-constexpr double KROUPA_BREAK_1_PLUS1_2                 = 2.1334035032232417942876874844165077959929;               // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_2);
+constexpr double KROUPA_BREAK_1_PLUS1_1                 = 0.17067228025785934;                                      // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_1);
+constexpr double KROUPA_BREAK_1_PLUS1_2                 = 2.13340350322324179;                                      // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_2);
 constexpr double KROUPA_BREAK_1_POWER_1_2               = 0.08;                                                     // pow(KROUPA_BREAK_1, (KROUPA_POWER_1 - KROUPA_POWER_2));
 
-constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.2311444133449162844993930691677431098761;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_2);
-constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.4622888266898325689987861383354862197522;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
+constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.23114441334491628;                                      // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_2);
+constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.46228882668983257;                                      // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
 constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_3));
 
 // Constants for the Muller and Mandel remnant mass and kick prescriptions
@@ -445,7 +447,27 @@ constexpr double MULLERMANDEL_KICKNS                    = 400.0;
 constexpr double MULLERMANDEL_KICKBH                    = 200.0;
 constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3; 
 
+// Constants for WD evolution 
 
+constexpr double COWD_LOG_MDOT_MIN_OFF_CENTER_IGNITION  = -5.688246139;                                             // Minimum log mass accretion rate for off center ignition in a CO WD. From Wang+ 2017. Log( 2.05 x 10^-6). 
+constexpr double COWD_MASS_MIN_OFF_CENTER_IGNITION      = 1.33;                                                     // Minimum mass required for off center ignition, as shown in Wang, Podsiadlowski & Han (2017), sect 3.2.
+constexpr double HEWD_HE_MDOT_CRIT                      = 2.0E-8;                                                   // Critical accretion rate for He WD accreting He-rich material. From Belczynski+ 2008, Mdot_crit2 in section 5.7.1.
+constexpr double HEWD_MINIMUM_MASS_IGNITION             = 0.35;                                                     // Minimum mass for HeMS burning
+constexpr double MASS_DOUBLE_DETONATION_CO              = 0.9;                                                      // Minimum mass for detonation which would yield something similar to SN Ia. Ruiter+ 2014.
+constexpr double Q_HYDROGEN_BURNING                     = 6.4E18 * MSOL_TO_G / (SECONDS_IN_YEAR * LSOL);            // 6.4E18 is the energy yield of H burning in erg/g as given in Nomoto+ 2007 (2007ApJ...663.1269N)
+constexpr double WD_HE_SHELL_MCRIT_DETONATION           = 0.05;                                                     // Minimum shell mass of He for detonation. Should be composed of helium (so, exclude burnt material), but not implemented yet. Ruiter+ 2014.
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0      = -6.84;
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1      = 1.349;
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_0      = -8.115;
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_1      = 2.29;
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_0      = -8.313;
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_1      = 1.018;
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0      = -8.33017155;
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1      = 2.88247131;
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2      = -0.98023471;
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_0        = -9.21757267;
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_1        = 3.57319872;
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_2        = -1.2137735;
 
 // object types
 enum class OBJECT_TYPE: int { NONE, MAIN, PROFILING, UTILS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR };    //  if BASE_STAR, check STELLAR_TYPE
@@ -519,7 +541,6 @@ enum class ERROR: int {
     GRID_OPTIONS_ERROR,                                             // grid file options error
     HIGH_TEFF_WINDS,                                                // winds being used at high temperature
     INVALID_DATA_TYPE,                                              // invalid data type
-    INVALID_EDDINGTION_FACTOR,                                      // invalid OPTION value: Eddington Accretion Factor eddingtonAccretionFactor < 0.0
     INVALID_ENVELOPE_TYPE,                                          // invalid envelope type
     INVALID_INITIAL_ATTRIBUTES,                                     // initial values of stellar or binary attributes are not valid - can't evolve star or binary
     INVALID_MASS_TRANSFER_DONOR,                                    // mass transfer from NS, BH or Massless Remnant
@@ -659,7 +680,6 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::GRID_OPTIONS_ERROR,                                    { ERROR_SCOPE::ALWAYS,              "Grid File Options error" }},
     { ERROR::HIGH_TEFF_WINDS,                                       { ERROR_SCOPE::ALWAYS,              "Winds being used at high temperature" }},
     { ERROR::INVALID_DATA_TYPE,                                     { ERROR_SCOPE::ALWAYS,              "Invalid data type" }},
-    { ERROR::INVALID_EDDINGTION_FACTOR,                             { ERROR_SCOPE::ALWAYS,              "Invalid OPTION value: Eddington Accretion Factor eddingtonAccretionFactor < 0.0" }},
     { ERROR::INVALID_ENVELOPE_TYPE,                                 { ERROR_SCOPE::ALWAYS,              "Invalid envelope type" }},
     { ERROR::INVALID_INITIAL_ATTRIBUTES,                            { ERROR_SCOPE::ALWAYS,              "Initial attributes are not valid - evolution not possible" }},
     { ERROR::INVALID_MASS_TRANSFER_DONOR,                           { ERROR_SCOPE::ALWAYS,              "Mass transfer from NS, BH, or Massless Remnant" }},
@@ -762,26 +782,25 @@ enum class EVOLUTION_STATUS: int {
 
 // JR: deliberately kept these messages succinct (where I could) so running status doesn't scroll off the page...
 const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL = {
-    { EVOLUTION_STATUS::DONE,                        "Simulation completed" },
-    { EVOLUTION_STATUS::CONTINUE,                    "Continue evolution" },
-    { EVOLUTION_STATUS::ERROR,                       "An error occurred" },
-    { EVOLUTION_STATUS::SSE_ERROR,                   "SSE error for one of the constituent stars" },
-    { EVOLUTION_STATUS::BINARY_ERROR,                "Error evolving binary" },
-    { EVOLUTION_STATUS::MASSLESS_REMNANT,            "Massless Remnant formed" },
-    { EVOLUTION_STATUS::STARS_TOUCHING,              "Stars touching" },
-    { EVOLUTION_STATUS::STELLAR_MERGER,              "Stars merged" },
-    { EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH,     "Stars merged at birth" },
-    { EVOLUTION_STATUS::UNBOUND,                     "Unbound binary" },
-    { EVOLUTION_STATUS::WD_WD,                       "Double White Dwarf" },
-    { EVOLUTION_STATUS::TIMES_UP,                    "Allowed time exceeded" },
-    { EVOLUTION_STATUS::STEPS_UP,                    "Allowed timesteps exceeded" },
-    { EVOLUTION_STATUS::STOPPED,                     "Evolution stopped" }
+    { EVOLUTION_STATUS::DONE,                    "Simulation completed" },
+    { EVOLUTION_STATUS::CONTINUE,                "Continue evolution" },
+    { EVOLUTION_STATUS::ERROR,                   "An error occurred" },
+    { EVOLUTION_STATUS::SSE_ERROR,               "SSE error for one of the constituent stars" },
+    { EVOLUTION_STATUS::BINARY_ERROR,            "Error evolving binary" },
+    { EVOLUTION_STATUS::MASSLESS_REMNANT,        "Massless Remnant formed" },
+    { EVOLUTION_STATUS::STARS_TOUCHING,          "Stars touching" },
+    { EVOLUTION_STATUS::STELLAR_MERGER,          "Stars merged" },
+    { EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH, "Stars merged at birth" },
+    { EVOLUTION_STATUS::UNBOUND,                 "Unbound binary" },
+    { EVOLUTION_STATUS::WD_WD,                   "Double White Dwarf" },
+    { EVOLUTION_STATUS::TIMES_UP,                "Allowed time exceeded" },
+    { EVOLUTION_STATUS::STEPS_UP,                "Allowed timesteps exceeded" },
+    { EVOLUTION_STATUS::STOPPED,                 "Evolution stopped" }
 };
 
 
 // Evolution mode (SSE or BSE)
 enum class EVOLUTION_MODE: int { SSE, BSE };
-
 const COMPASUnorderedMap<EVOLUTION_MODE, std::string> EVOLUTION_MODE_LABEL = {
     { EVOLUTION_MODE::SSE, "SSE" },
     { EVOLUTION_MODE::BSE, "BSE" }
@@ -809,10 +828,10 @@ const COMPASUnorderedMap<BRAY_ELDRIDGE_CONSTANT, double> BRAY_ELDRIDGE_CONSTANT_
 
 enum class CASE_BB_STABILITY_PRESCRIPTION: int{ ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE };
 const COMPASUnorderedMap<CASE_BB_STABILITY_PRESCRIPTION, std::string> CASE_BB_STABILITY_PRESCRIPTION_LABEL = {
-    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE,              "ALWAYS_STABLE" },
-    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH,    "ALWAYS_STABLE_ONTO_NSBH" },
-    { CASE_BB_STABILITY_PRESCRIPTION::TREAT_AS_OTHER_MT,          "TREAT_AS_OTHER_MT" },
-    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE,            "ALWAYS_UNSTABLE" }
+    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE,           "ALWAYS_STABLE" },
+    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH, "ALWAYS_STABLE_ONTO_NSBH" },
+    { CASE_BB_STABILITY_PRESCRIPTION::TREAT_AS_OTHER_MT,       "TREAT_AS_OTHER_MT" },
+    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE,         "ALWAYS_UNSTABLE" }
 };
 
 // Common Envelope Accretion Prescriptions
@@ -828,9 +847,9 @@ const COMPASUnorderedMap<CE_ACCRETION_PRESCRIPTION, std::string> CE_ACCRETION_PR
 // Envelope State Prescriptions
 enum class ENVELOPE_STATE_PRESCRIPTION: int { LEGACY, HURLEY, FIXED_TEMPERATURE };
 const COMPASUnorderedMap<ENVELOPE_STATE_PRESCRIPTION, std::string> ENVELOPE_STATE_PRESCRIPTION_LABEL = {
-    { ENVELOPE_STATE_PRESCRIPTION::LEGACY,              "LEGACY" },
-    { ENVELOPE_STATE_PRESCRIPTION::HURLEY,              "HURLEY" },
-    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE,   "FIXED_TEMPERATURE" }
+    { ENVELOPE_STATE_PRESCRIPTION::LEGACY,            "LEGACY" },
+    { ENVELOPE_STATE_PRESCRIPTION::HURLEY,            "HURLEY" },
+    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE, "FIXED_TEMPERATURE" }
 };
 
 
@@ -848,8 +867,8 @@ const COMPASUnorderedMap<CE_LAMBDA_PRESCRIPTION, std::string> CE_LAMBDA_PRESCRIP
 // Common Envelope Formalism
 enum class CE_FORMALISM: int { ENERGY, TWO_STAGE };
 const COMPASUnorderedMap<CE_FORMALISM, std::string> CE_FORMALISM_LABEL = {
-        { CE_FORMALISM::ENERGY,         "ENERGY" },
-        { CE_FORMALISM::TWO_STAGE,      "TWO_STAGE" }
+        { CE_FORMALISM::ENERGY,    "ENERGY" },
+        { CE_FORMALISM::TWO_STAGE, "TWO_STAGE" }
 };
 
 
@@ -981,10 +1000,10 @@ const COMPASUnorderedMap<INITIAL_MASS_FUNCTION, std::string> INITIAL_MASS_FUNCTI
 // LBV Mass loss prescriptions
 enum class LBV_PRESCRIPTION: int { NONE, HURLEY_ADD, HURLEY, BELCZYNSKI };
 const COMPASUnorderedMap<LBV_PRESCRIPTION, std::string> LBV_PRESCRIPTION_LABEL = {
-    { LBV_PRESCRIPTION::NONE,           "NONE" },
-    { LBV_PRESCRIPTION::HURLEY_ADD,     "HURLEY_ADD" },
-    { LBV_PRESCRIPTION::HURLEY,         "HURLEY" },
-    { LBV_PRESCRIPTION::BELCZYNSKI,     "BELCZYNSKI" }
+    { LBV_PRESCRIPTION::NONE,       "NONE" },
+    { LBV_PRESCRIPTION::HURLEY_ADD, "HURLEY_ADD" },
+    { LBV_PRESCRIPTION::HURLEY,     "HURLEY" },
+    { LBV_PRESCRIPTION::BELCZYNSKI, "BELCZYNSKI" }
 };
 
 // Mass loss prescriptions
@@ -1019,8 +1038,8 @@ const COMPASUnorderedMap<MASS_TRANSFER, std::string> MASS_TRANSFER_LABEL = {
 // Mass transfer accretion efficiency prescriptions
 enum class MT_ACCRETION_EFFICIENCY_PRESCRIPTION: int { THERMALLY_LIMITED, FIXED_FRACTION};
 const COMPASUnorderedMap<MT_ACCRETION_EFFICIENCY_PRESCRIPTION, std::string> MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL = {
-    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED,     "THERMAL" },
-    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION,        "FIXED" }
+    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED, "THERMAL" },
+    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION,    "FIXED" }
 };
 
 
@@ -1114,7 +1133,7 @@ const COMPASUnorderedMap<NS_EOS, std::string> NS_EOSLabel = {
 // Orbital Period Distributions
 enum class ORBITAL_PERIOD_DISTRIBUTION: int { FLATINLOG };
 const COMPASUnorderedMap<ORBITAL_PERIOD_DISTRIBUTION, std::string> ORBITAL_PERIOD_DISTRIBUTION_LABEL = {
-    { ORBITAL_PERIOD_DISTRIBUTION::FLATINLOG,   "FLATINLOG" },
+    { ORBITAL_PERIOD_DISTRIBUTION::FLATINLOG, "FLATINLOG" },
 };
 
 
@@ -1152,14 +1171,14 @@ const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PUL
 // Remnant Mass Prescriptions
 enum class REMNANT_MASS_PRESCRIPTION: int { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT};
 const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PRESCRIPTION_LABEL = {
-    { REMNANT_MASS_PRESCRIPTION::HURLEY2000,           "HURLEY2000" },
-    { REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002,       "BELCZYNSKI2002" },
-    { REMNANT_MASS_PRESCRIPTION::FRYER2012,            "FRYER2012" },
-    { REMNANT_MASS_PRESCRIPTION::FRYER2022,            "FRYER2022" },
-    { REMNANT_MASS_PRESCRIPTION::MULLER2016,           "MULLER2016" },
-    { REMNANT_MASS_PRESCRIPTION::MULLERMANDEL,         "MULLERMANDEL" },
-    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020,        "SCHNEIDER2020" },
-    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT ,    "SCHNEIDER2020ALT" }
+    { REMNANT_MASS_PRESCRIPTION::HURLEY2000,       "HURLEY2000" },
+    { REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002,   "BELCZYNSKI2002" },
+    { REMNANT_MASS_PRESCRIPTION::FRYER2012,        "FRYER2012" },
+    { REMNANT_MASS_PRESCRIPTION::FRYER2022,        "FRYER2022" },
+    { REMNANT_MASS_PRESCRIPTION::MULLER2016,       "MULLER2016" },
+    { REMNANT_MASS_PRESCRIPTION::MULLERMANDEL,     "MULLERMANDEL" },
+    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020,    "SCHNEIDER2020" },
+    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT, "SCHNEIDER2020ALT" }
 };
 
 
@@ -1193,7 +1212,7 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 // The values here for SN_EVENT are powers of 2 so that they can be used in a bit map
 // and manipulated with bit-wise logical operators
 //
-// Ordinarily we might expect that an SN event could be only one of CCSN, ECSN, PISN, PPISN, USSN, or AIC
+// Ordinarily we might expect that an SN event could be only one of CCSN, ECSN, PISN, PPISN, USSN, AIC, SNIA, or HeSD
 // Note that the CCSN value here replaces the SN value in the legacy code
 // The legacy code implemented these values as boolean flags, and the SN flag was always set when
 // the uSSN flag was set (but not the converse).  In the legacy code when the ECSN flag was set 
@@ -1206,6 +1225,8 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 // time - necessary for the code flow (from the legacy code) - which we should probably one
 // day look at and rewrite).
 //
+// HeSD stands for helium-shell detonation
+//
 // A convenience function has been provided in utils.cpp to interpret the bit map (utils::SNEventType()).
 // Given an SN_EVENT bitmap (current or past), it returns (in priority order):
 //     
@@ -1215,6 +1236,8 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 //    SN_EVENT::PPISN iff PPISN bit is set
 //    SN_EVENT::USSN  iff USSN  bit is set
 //    SN_EVENT::AIC   iff AIC   bit is set
+//    SN_EVENT::SNIA  iff SNIA  bit is set
+//    SN_EVENT::HeSD  iff HeSD  bit is set
 //    SN_EVENT::NONE  otherwise
 //
 enum class SN_EVENT: int { 
@@ -1225,6 +1248,8 @@ enum class SN_EVENT: int {
     PPISN        = 8, 
     USSN         = 16,
     AIC          = 32,
+    SNIA         = 64,
+    HeSD         = 128,
 };
 ENABLE_BITMASK_OPERATORS(SN_EVENT);
 
@@ -1236,6 +1261,8 @@ const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
     { SN_EVENT::PPISN,        "Pulsational Pair Instability Supernova" },
     { SN_EVENT::USSN,         "Ultra Stripped Supernova" },
     { SN_EVENT::AIC,          "Accretion-Induced Collapse" }, 
+    { SN_EVENT::SNIA,         "Supernova Type Ia" }, 
+    { SN_EVENT::HeSD,         "Helium-shell detonation" }, 
 };
 
 
@@ -1247,6 +1274,39 @@ const COMPASUnorderedMap<SN_STATE, std::string> SN_STATE_LABEL = {
     { SN_STATE::STAR2, "Star2 only" },
     { SN_STATE::BOTH,  "Both stars" }
 };
+
+// enum class ACCRETION_REGIME
+// Symbolic names for WD accretion regimes
+enum class ACCRETION_REGIME: int {
+    HELIUM_ACCUMULATION,
+    HELIUM_FLASHES,
+    HELIUM_STABLE_BURNING,
+    HELIUM_OPT_THICK_WINDS,
+    HYDROGEN_FLASHES,
+    HYDROGEN_STABLE_BURNING,
+    HYDROGEN_OPT_THICK_WINDS,
+    HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR,
+    HELIUM_WHITE_DWARF_HELIUM_IGNITION,
+    HELIUM_WHITE_DWARF_HYDROGEN_FLASHES,
+    HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION,
+    NONE
+};
+
+const COMPASUnorderedMap<ACCRETION_REGIME, std::string> ACCRETION_REGIME_LABEL = {
+    { ACCRETION_REGIME::NONE,  "No accretion regime" },
+    { ACCRETION_REGIME::HELIUM_ACCUMULATION,  "Helium piles up without burning, full efficiency" },
+    { ACCRETION_REGIME::HELIUM_FLASHES,  "Helium ignites in flashes, partial accretion efficiency" },
+    { ACCRETION_REGIME::HELIUM_STABLE_BURNING,  "Helium is burnt without flashes, full efficiency" },
+    { ACCRETION_REGIME::HELIUM_OPT_THICK_WINDS,  "Helium is being accreted at a high rate, producing winds and limiting the accretion efficiency to a critical value" },
+    { ACCRETION_REGIME::HYDROGEN_FLASHES,  "Hydrogen ignites in flashes, partial accretion efficiency" },
+    { ACCRETION_REGIME::HYDROGEN_STABLE_BURNING,  "Hydrogen is burnt without flashes, full efficiency" },
+    { ACCRETION_REGIME::HYDROGEN_OPT_THICK_WINDS,  "Hydrogen is being accreted at a high rate, producing winds and limiting the accretion efficiency to a critical value" },
+    { ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR,  "Full accretion leads to transient, but it would not make enough radioactive Ni-56 to be classified as a SN Ia" },
+    { ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_IGNITION,  "Full accretion until material is ignited in a flash and degeneracy is lifted" },
+    { ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES,  "Unstable hydrogen flashes lead to net accretion being zero" },
+    { ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION,  "Material piles up. Depending on the companion, it could lead to a CE episode or merger" }
+};
+
 
 // enum class L_CONSTANTS
 // symbolic names for the Luminosity Constants
@@ -1380,12 +1440,31 @@ const std::initializer_list<STELLAR_TYPE> COMPACT_OBJECTS = {
     STELLAR_TYPE::MASSLESS_REMNANT
 };
 
+// (convenience) initializer list for GIANTS
+const std::initializer_list<STELLAR_TYPE> GIANTS = {
+    STELLAR_TYPE::FIRST_GIANT_BRANCH,
+    STELLAR_TYPE::CORE_HELIUM_BURNING,
+    STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,
+    STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH
+};
+
+
 // (convenience) initializer list for WHITE DWARFS
 const std::initializer_list<STELLAR_TYPE> WHITE_DWARFS = {
     STELLAR_TYPE::HELIUM_WHITE_DWARF,
     STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF,
-    STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,
+    STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF
 };
+
+
+// (convenience) initializer list for He rich stellar types
+const std::initializer_list<STELLAR_TYPE> He_RICH_TYPES = {
+    STELLAR_TYPE::NAKED_HELIUM_STAR_MS,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH,
+    STELLAR_TYPE::HELIUM_WHITE_DWARF
+};
+
 
 // White Dwarf Effective Baryon Number
 // unordered_map - key is integer stellar type (from enum class ST above)
@@ -1637,12 +1716,14 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     ECCENTRIC_ANOMALY,                               \
     ENV_MASS,                                        \
     ERROR,                                           \
-    EXPERIENCED_AIC,                                \
+    EXPERIENCED_AIC,                                 \
     EXPERIENCED_CCSN,                                \
+    EXPERIENCED_HeSD,                                  \
     EXPERIENCED_ECSN,                                \
     EXPERIENCED_PISN,                                \
     EXPERIENCED_PPISN,                               \
     EXPERIENCED_RLOF,                                \
+    EXPERIENCED_SNIA,                                \
     EXPERIENCED_SN_TYPE,                             \
     EXPERIENCED_USSN,                                \
     FALLBACK_FRACTION,                               \
@@ -1654,11 +1735,13 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     INITIAL_STELLAR_TYPE_NAME,                       \
     IS_AIC,                                          \
     IS_CCSN,                                         \
+    IS_HeSD,                                           \
     IS_ECSN,                                         \
     IS_HYDROGEN_POOR,                                \
     IS_PISN,                                         \
     IS_PPISN,                                        \
     IS_RLOF,                                         \
+    IS_SNIA,                                         \
     IS_USSN,                                         \
     KICK_MAGNITUDE,                                  \
     LAMBDA_AT_COMMON_ENVELOPE,                       \
@@ -1788,10 +1871,12 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::ERROR,                                           "ERROR" },
     { STAR_PROPERTY::EXPERIENCED_AIC,                                 "EXPERIENCED_AIC" },
     { STAR_PROPERTY::EXPERIENCED_CCSN,                                "EXPERIENCED_CCSN" },
+    { STAR_PROPERTY::EXPERIENCED_HeSD,                                "EXPERIENCED_HeSD" },
     { STAR_PROPERTY::EXPERIENCED_ECSN,                                "EXPERIENCED_ECSN" },
     { STAR_PROPERTY::EXPERIENCED_PISN,                                "EXPERIENCED_PISN" },
     { STAR_PROPERTY::EXPERIENCED_PPISN,                               "EXPERIENCED_PPISN" },
     { STAR_PROPERTY::EXPERIENCED_RLOF,                                "EXPERIENCED_RLOF" },
+    { STAR_PROPERTY::EXPERIENCED_SNIA,                                "EXPERIENCED_SNIA" },
     { STAR_PROPERTY::EXPERIENCED_SN_TYPE,                             "EXPERIENCED_SN_TYPE" },
     { STAR_PROPERTY::EXPERIENCED_USSN,                                "EXPERIENCED_USSN" },
     { STAR_PROPERTY::FALLBACK_FRACTION,                               "FALLBACK_FRACTION" },
@@ -1803,11 +1888,13 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                       "INITIAL_STELLAR_TYPE_NAME" },
     { STAR_PROPERTY::IS_AIC,                                          "IS_AIC" },
     { STAR_PROPERTY::IS_CCSN,                                         "IS_CCSN" },
+    { STAR_PROPERTY::IS_HeSD,                                         "IS_HeSD" },
     { STAR_PROPERTY::IS_ECSN,                                         "IS_ECSN" },
     { STAR_PROPERTY::IS_HYDROGEN_POOR,                                "IS_HYDROGEN_POOR" },
     { STAR_PROPERTY::IS_PISN,                                         "IS_PISN" },
     { STAR_PROPERTY::IS_PPISN,                                        "IS_PPISN" },
     { STAR_PROPERTY::IS_RLOF,                                         "IS_RLOF" },
+    { STAR_PROPERTY::IS_SNIA,                                         "IS_SNIA" },
     { STAR_PROPERTY::IS_USSN,                                         "IS_USSN" },
     { STAR_PROPERTY::KICK_MAGNITUDE,                                  "KICK_MAGNITUDE" },
     { STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                       "LAMBDA_AT_COMMON_ENVELOPE" },
@@ -2668,10 +2755,12 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::ERROR,                                             { TYPENAME::ERROR,          "Error",                "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_AIC,                                   { TYPENAME::BOOL,           "Experienced_AIC",      "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_CCSN,                                  { TYPENAME::BOOL,           "Experienced_CCSN",     "Event",             0, 0 }},
+    { ANY_STAR_PROPERTY::EXPERIENCED_HeSD,                                  { TYPENAME::BOOL,           "Experienced_HeSD",     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_ECSN,                                  { TYPENAME::BOOL,           "Experienced_ECSN",     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_PISN,                                  { TYPENAME::BOOL,           "Experienced_PISN",     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_PPISN,                                 { TYPENAME::BOOL,           "Experienced_PPISN",    "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_RLOF,                                  { TYPENAME::BOOL,           "Experienced_RLOF",     "Event",             0, 0 }},
+    { ANY_STAR_PROPERTY::EXPERIENCED_SNIA,                                  { TYPENAME::BOOL,           "Experienced_SNIA",     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_SN_TYPE,                               { TYPENAME::SN_EVENT,       "Experienced_SN_Type",  "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_USSN,                                  { TYPENAME::BOOL,           "Experienced_USSN",     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::FALLBACK_FRACTION,                                 { TYPENAME::DOUBLE,         "Fallback_Fraction",    "-",                14, 6 }},
@@ -2683,11 +2772,13 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                         { TYPENAME::STRING,         "Stellar_Type@ZAMS",    "-",                42, 1 }},
     { ANY_STAR_PROPERTY::IS_AIC,                                            { TYPENAME::BOOL,           "AIC",                  "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_CCSN,                                           { TYPENAME::BOOL,           "CCSN",                 "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_HeSD,                                           { TYPENAME::BOOL,           "HeSD",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_ECSN,                                           { TYPENAME::BOOL,           "ECSN",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_HYDROGEN_POOR,                                  { TYPENAME::BOOL,           "Is_Hydrogen_Poor",     "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_PISN,                                           { TYPENAME::BOOL,           "PISN",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_PPISN,                                          { TYPENAME::BOOL,           "PPISN",                "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_RLOF,                                           { TYPENAME::BOOL,           "RLOF",                 "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_SNIA,                                           { TYPENAME::BOOL,           "SNIA",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_USSN,                                           { TYPENAME::BOOL,           "USSN",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::KICK_MAGNITUDE,                                    { TYPENAME::DOUBLE,         "Applied_Kick_Magnitude","kms^-1",          14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                         { TYPENAME::DOUBLE,         "Lambda@CE",            "-",                14, 6 }},
@@ -6871,5 +6962,7 @@ const std::vector<std::vector<std::vector<LoveridgeCoefficients>>> LOVERIDGE_COE
         }
     }
 };
+
+
 
 #endif // __constants_h__

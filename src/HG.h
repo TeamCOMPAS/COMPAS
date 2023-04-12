@@ -66,6 +66,7 @@ protected:
     double          CalculateCoreMassAtPhaseEnd() const                             { return CalculateCoreMassAtPhaseEnd(m_Mass0); }                                            // Use class member variables
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const;
     double          CalculateCoreMassOnPhase() const                                { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                        // Use class member variables
+    double          CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(const double p_Mass, const double p_Time) const;                                                           //  Ignore previous core mass constraint when computing expected core mass
 
     double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
 
