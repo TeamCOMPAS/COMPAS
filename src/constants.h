@@ -335,7 +335,8 @@ enum class DCO_RECORD_TYPE: unsigned int {                                      
 };
 
 enum class PULSAR_RECORD_TYPE: unsigned int {                                                                       // BSE_PULSAR_EVOLUTION file record type
-    DEFAULT = 1                                                                                                     // 1 - default BSE_PULSAR_EVOLUTION file record type
+    DEFAULT = 1,                                                                                                    //  1 - record describes the initial state of the binary
+    POST_BINARY_TIMESTEP,                                                                                           //  3 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
 };
 
 enum class RLOF_RECORD_TYPE: unsigned int {                                                                         // BSE_RLOF_PARAMETERS file record type
