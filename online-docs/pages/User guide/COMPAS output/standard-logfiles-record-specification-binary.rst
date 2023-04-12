@@ -1406,9 +1406,9 @@ not both. If both are printed then the file will contain two columns with the sa
    * - COMPAS variable:
      - BaseBinaryStar::m_SemiMajorAxis
    * - Description:
-     - Semi-major axis at ZAMS (AU).
+     - Semi-major axis (AU).
    * - Header String:
-     - SemiMajorAxis@\ ZAMS
+     - SemiMajorAxis
 
 `Note that this property has the same header string as SEMI_MAJOR_AXIS_RSOL. It is expected that one or the other is printed in any file, but not both. 
 If both are printed then the file will contain two columns with the same header string.`
@@ -1425,9 +1425,9 @@ If both are printed then the file will contain two columns with the same header 
    * - COMPAS variable:
      - `derived from` BaseBinaryStar::m_SemiMajorAxis
    * - Description:
-     - Semi-major axis at ZAMS (\ :math:`R_\odot`).
+     - Semi-major axis (\ :math:`R_\odot`).
    * - Header String:
-     - SemiMajorAxis@\ ZAMS
+     - SemiMajorAxis
 
 `Note that this property has the same header string as SEMI_MAJOR_AXIS. It is expected that one or the other is printed in any file, but not both. If both 
 are printed then the file will contain two columns with the same header string.`

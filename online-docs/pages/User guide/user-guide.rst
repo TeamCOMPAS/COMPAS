@@ -13,7 +13,7 @@ This section contains the basic user guide for COMPAS.
    ./random-seed
    ./Running COMPAS/running-compas
    ./COMPAS output/output
+   ./Pre-processing/pre-processing
    ./Post-processing/post-processing
    ./Tutorial/example-compas-run
-   ./sampling
    ./docker

@@ -37,8 +37,6 @@ protected:
 
     double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                         { return 0.0; }                                                         // Should never be called...
 
-    double          CalculateEddingtonCriticalRate() const                                                      { return 2.08E-3 / 1.7 * m_Radius * MYR_TO_YEAR; }                      // Hurley+, 2002, Eq. (67)
-
     void            CalculateGBParams()                                                                         { GiantBranch::CalculateGBParams(); }                                   // Default to GiantBranch
 
     double          CalculateGyrationRadius() const                                                             { return 0.21; }                                                        // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
@@ -97,7 +95,12 @@ protected:
     void            ResolveEnvelopeMassAtPhaseEnd(const double p_Tau) const                                     { ResolveEnvelopeMassOnPhase(p_Tau); }                                  // Same as on phase
     void            ResolveEnvelopeMassOnPhase(const double p_Tau) const { }                                                                                                            // NO-OP
 
+    void            ResolveMassLoss() { }                                                                                                                                               // NO-OP
+
     STELLAR_TYPE    ResolveSkippedPhase()                                                                       { return BaseStar::ResolveSkippedPhase(); }                             // Default to BaseStar
+                                                                                                                                                                                        //
+    void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                                 // NO-OP 
+                                                                                                                                                                                        //
     STELLAR_TYPE    ResolveSupernova()                                                                          { return BaseStar::ResolveSupernova(); }                                // Default to BaseStar
 
     void            SetPulsarParameters() const { }                                                                                                                                     // NO-OP

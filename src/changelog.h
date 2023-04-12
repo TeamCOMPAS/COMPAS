@@ -984,22 +984,35 @@
 //                                           (b) change of header strings for ROCHE_LOBE_RADIUS_1 and ROCHE_LOBE_RADIUS_2 (units already (accidentally...) correct)
 //                                      - fixed minor defect in call to m_Accretor->CalculateMassAcceptanceRate() in BaseBinaryStar::CalculateMassTransfer()
 //                                        (only affected runs with mass-transfer-thermal-limit-accretor = RADIUS_TO_ROCHELOBE)
-// 02.35.03     LvS - Feb 27, 2023    - Enhancement:
+// 02.35.03     LvS - Feb 27, 2023   - Enhancement:
 //                                      - Added mass accretion prescription during CE following model 2 from van Son + 2020
-// 02.35.04     YS - Mar 14, 2023     - Updates and changes to NS.cpp:
-//                                      - Added NS::ChoosTimeStep(). Detailed time step description can be found in NS.cpp
-//                                      - Added output options (not default): PULSAR_BIRTH_PERIOD and PULSAR_BIRTH_SPIN_DOWN_RATE, which output the birth spin period and period derivative of a pulsar
-//                                      - Updated codes on pulsar evolution, solving the problem of pulsars not evolving properly. This is written in cgs. 
-//                                      - Added NS::SpinDownIsolatePulsar(), describes single pulsar spinning down with magnetic braking. 
-//                                          This is later used in different situaions in NS::UpdateMagneticFieldAndSpin()
-//                                      - In BSE_Pulsar_Evolution file, it was not recording the pulsar parameters at birth. 
-//                                          Pulsar was also evolved an additional time step here with unspecificed size
-//                                          Temporary fix in place to print the first time step twice:
-//                                           (a) the first column indicates the pulsar parameters at birth, except for dT
-//                                           (b) the second column indicates the pulsar parameter after it evolves a timestep of dT
-//                                      - Another caveat:
-//                                         pulsar recycling mechanisms are not yet fully implemented, so COMPAS cannot produce MSPs for the time being.
-//                                         future updates will solve this issue. 
-const std::string VERSION_STRING = "02.35.04";
+// 02.36.00     JR - Mar 15, 2023    - Enhancement, minor defect repairs:
+//                                      - Addressed issue #797 - implemented functionality to create YAML file.  Two new options (--create-YAML-file and --YAML-template).  See documentation for details.
+//                                      - Modifed runSubmit.py to work with new yaml file format (i.e. all options could be commented...)
+//                                      - Minor defect repairs in options code
+//                                      - Minor fixes to online documentation; also clarified make arguments
+// 02.36.01     JR - Mar 20, 2023    - Documentation:
+//                                      - Updated documentation for YAML files.
+//                                      - Modified YAML template to include notice regarding commented lines in default YAML file.
+// 02.37.00     NR,RTW - Mar 26, 2023 - Enhancement:
+//                                      - Added functionality for WDs to accrete in different regimes. 
+//                                          - This applies to each WD subtype individually, though there is some overlap between COWDs and ONeWDs.
+//                                          - Also involves tracking the WD shell mass, to account for shell burning that later increases the WD mass.
+//                                          - Includes possible instability, and merger if the donor is a giant, as well as new SN types, 
+//                                          - AIC (accretion induced collapse), SNIA (Type Ia), and HeSD (Helium shell detonation). 
+//                                      - Tangential but related changes:
+//                                          - Cleaned up the call to EddingtonCriticalRate, puttting it in BaseStar along with the optional prefactor.
+//                                          - Moved NS radius and luminosity calls into NS.h from elsewhere in the code.
+// 02.37.01     JR - Mar 27, 2023    - Defect repair:
+//                                      - Updated changelog.h and whats-new.rst to correctly reflect changes to the code and version numbers after a bad fix for merge conflicts
+//                                      - Changed "DD" to "HeSD" as appropriate
+//                                      - A couple of code-cleanups
+// 02.37.02     JR - Mar 27, 2023    - Defect repair:
+//                                      - Changed yaml.h to include <algorithm> and <chrono> - not including them causes docker build to fail.
+// 02.37.03     IM - Apr 8, 2023     - Defect repair:
+//                                      - Resolved issue #855 by using Mass0 rather than Mass to determine ages and timescales
+
+
+const std::string VERSION_STRING = "02.35.03";
 
 # endif // __changelog_h__

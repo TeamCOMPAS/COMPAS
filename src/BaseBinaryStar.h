@@ -405,7 +405,6 @@ private:
     void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
     void    SetRemainingValues();
 
-
     double  CalculateAngularMomentum(const double p_SemiMajorAxis,
                                      const double p_Eccentricity,
                                      const double p_Star1Mass,

@@ -30,12 +30,7 @@ DBL_DBL Remnants::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
     double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
     double fractionAccreted = 0.0;                                                          // accretion fraction - default=0.0
 
-    if (utils::Compare(OPTIONS->EddingtonAccretionFactor(), 0.0) < 0) {
-        m_Error = ERROR::INVALID_EDDINGTION_FACTOR;                                         // set error value
-        SHOW_WARN(m_Error);                                                                 // warn that an error occurred
-    }
-
-    double thisMassRate = CalculateEddingtonCriticalRate() * OPTIONS->EddingtonAccretionFactor();
+    double thisMassRate = CalculateEddingtonCriticalRate(); 
 
     acceptanceRate   = std::min(thisMassRate, p_DonorMassRate);
     fractionAccreted = acceptanceRate / p_DonorMassRate;
