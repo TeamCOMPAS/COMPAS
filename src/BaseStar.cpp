@@ -2092,6 +2092,13 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
 
         if (p_UpdateMDot) m_Mdot = mDot;                                    // update class member variable if necessary
     }
+    
+    // Special treatment of envelope ejection for convective envelope stars exceeding threshold luminosity to mass ratio
+    if ( EnvelopeShouldBeExpelledByPulsations() ) {
+        double envelopeMass = m_Mass - m_CoreMass;
+        mass -= envelopeMass;
+        if (p_UpdateMDot)   m_Mdot = envelopeMass/CalculateDynamicalTimescale();
+    }
 
     return mass;
 }

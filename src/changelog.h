@@ -1011,8 +1011,11 @@
 //                                      - Changed yaml.h to include <algorithm> and <chrono> - not including them causes docker build to fail.
 // 02.37.03     IM - Apr 8, 2023     - Defect repair:
 //                                      - Resolved issue #855 by using Mass0 rather than Mass to determine ages and timescales
+// 02.38.01     IM - Apr 16, 2023    - Enhancement:
+//                                      - Added option to eject the convective envelope by pulsations (ExpelConvectiveEnvelopeAboveLuminosityThreshold)
+//                                          if log10(m_Luminosity/m_Mass) exceeds LuminosityToMassThreshold
 
 
-const std::string VERSION_STRING = "02.37.03";
+const std::string VERSION_STRING = "02.38.01";
 
 # endif // __changelog_h__

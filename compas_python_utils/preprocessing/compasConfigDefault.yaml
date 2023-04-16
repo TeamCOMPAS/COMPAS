@@ -19,6 +19,7 @@ booleanChoices:
     ### STELLAR PROPERTIES
 #    --check-photon-tiring-limit: False                                    # Default: False
 #    --use-mass-loss: True                                                 # Default: True
+#    --expel-convective-envelope-above-luminosity-threshold: False	   # Default: False
 
     ### BINARY PROPERTIES
 #    --allow-touching-at-birth: False                                      # Default: False                                                                                                                                                              # record binaries that have stars touching at birth in output files
@@ -77,6 +78,7 @@ numericalChoices:
 #    --initial-mass-min: 5.000000                                          # Default: 5.000000                                                                                                                                                           # use 5.0 for DCOs [Msol]
 #    --initial-mass-max: 150.00                                            # Default: 150.00                                                                                                                                                             # stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
 #    --initial-mass-power: 0.000000                                        # Default: 0.000000
+#    --luminosity-to-mass-threshold					   # Default: 4.2
 #    --metallicity: 0.014200                                               # Default: 0.014200                                                                                                                                                           # metallicity for both SSE and BSE - Solar metallicity Asplund+2010
 #    --metallicity-min: 0.000100                                           # Default: 0.000100
 #    --metallicity-max: 0.030000                                           # Default: 0.030000
