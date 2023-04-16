@@ -104,12 +104,13 @@ protected:
     double          CalculateTauOnPhase() const;
 
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
-    void            CalculateTimescales()                                       { CalculateTimescales(m_Mass0, m_Timescales); }                                 // Use class member variables
+    void            CalculateTimescales()                                       { CalculateTimescales(m_Mass0, m_Timescales); }                        // Use class member variables
 
     double          ChooseTimestep(const double p_Time) const;
 
     ENVELOPE        DetermineEnvelopeType() const;
 
+    bool            EnvelopeShouldBeExpelledByPulsations() const { return ( OPTIONS->ExpelConvectiveEnvelopeAboveLuminosityThreshold() && DetermineEnvelopeType() == ENVELOPE::CONVECTIVE && utils::Compare( log10(m_Luminosity/m_Mass), OPTIONS->LuminosityToMassThreshold() ) >= 0 ) ; }                             // Envelope of convective star with luminosity to mass ratio beyond threshold should be expelled
     STELLAR_TYPE    EvolveToNextPhase();
 
     bool            IsEndOfPhase() const                                        { return !ShouldEvolveOnPhase(); }                                              // Phase ends when age at or after He Burning

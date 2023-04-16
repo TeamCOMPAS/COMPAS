@@ -216,6 +216,8 @@ public:
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
     
+            bool            EnvelopeShouldBeExpelledByPulsations() const                                        { return false; }       // Default is that there is no envelope expulsion by pulsations
+    
             void            HaltWinds()                                                                         { m_Mdot = 0.0; }       // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 
     virtual ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,

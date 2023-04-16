@@ -1372,7 +1372,7 @@ bool CHeB::ShouldEvolveOnPhase() const {
     bool beforeEndOfHeBurning = (m_Age < (m_Timescales[static_cast<int>(TIMESCALE::tHeI)] + m_Timescales[static_cast<int>(TIMESCALE::tHe)]));
     bool coreIsNotTooMassive = (m_HeCoreMass < m_Mass);
     // Evolve on CHeB phase if age after He Ign and while He Burning and He core mass does not exceed total mass (could happen due to mass loss)
-    return (afterHeIgnition && beforeEndOfHeBurning && coreIsNotTooMassive);
+    return (afterHeIgnition && beforeEndOfHeBurning && coreIsNotTooMassive && !EnvelopeShouldBeExpelledByPulsations());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1475,7 +1475,7 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                     // Envelope loss
+    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0 || EnvelopeShouldBeExpelledByPulsations() ) {                     // Envelope loss
 
         m_Mass       = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_Mass;
