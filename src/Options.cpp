@@ -356,7 +356,7 @@ void Options::OptionValues::Initialise() {
     m_CheckPhotonTiringLimit                                        = false;
     
     m_ExpelConvectiveEnvelopeAboveLuminosityThreshold               = false;
-    m_LuminosityToMassThreshold                                     = 4.2;      // Podisadlowski, private communication
+    m_LuminosityToMassThreshold                                     = 4.2;      // Podsiadlowski, private communication
 
     m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::VINK;
     m_MassLossPrescription.typeString                               = MASS_LOSS_PRESCRIPTION_LABEL.at(m_MassLossPrescription.type);
