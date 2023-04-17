@@ -14,7 +14,7 @@ booleanChoices:
 #    --quiet: False                                                        # Default: False
 #    --rlof-printing: True                                                 # Default: True
 #    --store-input-files: True                                             # Default: True
-#    --switch-log: False                                                   # Default: False
+    --switch-log: False                                                   # Default: False
 
     ### STELLAR PROPERTIES
 #    --check-photon-tiring-limit: False                                    # Default: False
