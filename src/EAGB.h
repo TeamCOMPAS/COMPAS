@@ -90,7 +90,6 @@ protected:
 
     ENVELOPE        DetermineEnvelopeType() const                                                   { return ENVELOPE::CONVECTIVE; }                                    // Always CONVECTIVE
 
-    bool            EnvelopeShouldBeExpelledByPulsations() const                                    { return false; }                                                   // Default is that there is no envelope expulsion by pulsations
     STELLAR_TYPE    EvolveToNextPhase();
 
     bool            IsEndOfPhase() const                                                            { return !ShouldEvolveOnPhase(); }                                  // Phase ends when age at or after DU timescale, and no TPAGB
