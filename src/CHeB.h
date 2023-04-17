@@ -110,7 +110,6 @@ protected:
 
     ENVELOPE        DetermineEnvelopeType() const;
 
-    bool            EnvelopeShouldBeExpelledByPulsations() const { return ( OPTIONS->ExpelConvectiveEnvelopeAboveLuminosityThreshold() && DetermineEnvelopeType() == ENVELOPE::CONVECTIVE && utils::Compare( log10(m_Luminosity/m_Mass), OPTIONS->LuminosityToMassThreshold() ) >= 0 ) ; }                             // Envelope of convective star with luminosity to mass ratio beyond threshold should be expelled
     STELLAR_TYPE    EvolveToNextPhase();
 
     bool            IsEndOfPhase() const                                        { return !ShouldEvolveOnPhase(); }                                              // Phase ends when age at or after He Burning
@@ -119,6 +118,7 @@ protected:
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
     void            ResolveHeliumFlash() {  }                                                                                                                   // NO-OP
 
+    bool            ShouldEnvelopeBeExpelledByPulsations() const { return ( OPTIONS->ExpelConvectiveEnvelopeAboveLuminosityThreshold() && DetermineEnvelopeType() == ENVELOPE::CONVECTIVE && utils::Compare( log10(m_Luminosity/m_Mass), OPTIONS->LuminosityToMassThreshold() ) >= 0 ) ; }                             // Envelope of convective star with luminosity to mass ratio beyond threshold should be expelled
     bool            ShouldEvolveOnPhase() const;
     bool            ShouldSkipPhase() const                                     { return false; }                                                               // Never skip CHeB phase
 

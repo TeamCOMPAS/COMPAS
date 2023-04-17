@@ -411,7 +411,7 @@ bool HeHG::ShouldEvolveOnPhase() const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
     double McMax = CalculateMaximumCoreMass(m_Mass);
-    return utils::Compare(m_COCoreMass, McMax) <= 0 || utils::Compare(McMax, gbParams(McSN)) >= 0;    // Evolve on HeHG phase if McCO <= McMax or McMax >= McSN
+    return ((utils::Compare(m_COCoreMass, McMax) <= 0 || utils::Compare(McMax, gbParams(McSN)) >= 0) && !ShouldEnvelopeBeExpelledByPulsations());    // Evolve on HeHG phase if McCO <= McMax or McMax >= McSN and envelope is not ejected by pulsations
 
 #undef gbParams
 }
@@ -444,7 +444,9 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
     
-    if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) >= 0) {        // Envelope lost - determine what type of star to form
+    if(ShouldEnvelopeBeExpelledByPulsations())          { m_EnvelopeJustExpelledByPulsations = true; }
+    
+    if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {        // Envelope lost - determine what type of star to form
 
         m_Mass      = std::min(m_COCoreMass, m_Mass);
         m_CoreMass  = m_Mass;
