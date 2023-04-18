@@ -53,6 +53,7 @@ public:
             int                 DominantMassLossRate() const                                    { return static_cast<int>(m_DominantMassLossRate); }
             double              Dt() const                                                      { return m_Dt; }
             double              DtPrev() const                                                  { return m_DtPrev; }
+            bool                EnvelopeJustExpelledByPulsations() const                        { return m_EnvelopeJustExpelledByPulsations; }
             ERROR               Error() const                                                   { return m_Error; }
             bool                ExperiencedAIC() const                                          { return (m_SupernovaDetails.events.past & SN_EVENT::AIC) == SN_EVENT::AIC; }
             bool                ExperiencedCCSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
@@ -221,6 +222,8 @@ public:
     virtual ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
                                                       const double p_DonorThermalMassLossRate)                  { return ACCRETION_REGIME::NONE; }                                  // Placeholder, use inheritance for WDs
 
+            void            ResetEnvelopeExpulsationByPulsations()                                              { m_EnvelopeJustExpelledByPulsations = false; }
+
     virtual void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                     // Default does nothing, use inheritance for WDs.
 
             double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription); 
@@ -235,6 +238,8 @@ public:
     virtual void            ResolveMassLoss();
    
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
+    
+            bool            ShouldEnvelopeBeExpelledByPulsations() const                                        { return false; }       // Default is that there is no envelope expulsion by pulsations
 
             void            StashSupernovaDetails(const STELLAR_TYPE p_StellarType,
                                                   const SSE_SN_RECORD_TYPE p_RecordType = SSE_SN_RECORD_TYPE::DEFAULT) { LOGGING->StashSSESupernovaDetails(this, p_StellarType, p_RecordType); }
@@ -313,6 +318,7 @@ protected:
     double                  m_COCoreMass;                               // Current CO core mass (Msol)
     double                  m_CoreMass;                                 // Current core mass (Msol)
     double                  m_Dt;                                       // Current timestep (myrs)
+    bool                    m_EnvelopeJustExpelledByPulsations;         // Flag to know if the convective envelope has just been expelled by pulsations
     double                  m_HeCoreMass;                               // Current He core mass (Msol)
     bool                    m_LBVphaseFlag;                             // Flag to know if the star satisfied the conditions, at any point in its evolution, to be considered a Luminous Blue Variable (LBV)
     double                  m_Luminosity;                               // Current luminosity (Lsol)
@@ -553,6 +559,7 @@ protected:
                                                     const double p_RemnantMass) const;
 
             double              CalculateLambdaNanjing() const;
+    
     virtual void                EvolveOneTimestepPreamble() { };                                                                                                                                    // Default is NO-OP
 
             STELLAR_TYPE        EvolveOnPhase();
@@ -587,7 +594,6 @@ protected:
     virtual void                PerturbLuminosityAndRadius() { }                                                                                                                                    // NO-OP
     virtual void                PerturbLuminosityAndRadiusAtPhaseEnd()                                                  { PerturbLuminosityAndRadiusOnPhase(); }                                    // Same as on phase
     virtual void                PerturbLuminosityAndRadiusOnPhase()                                                     { PerturbLuminosityAndRadius(); }
-
             STELLAR_TYPE        ResolveEndOfPhase();
     virtual void                ResolveHeliumFlash() { }
     virtual STELLAR_TYPE        ResolveSkippedPhase()                                                                   { return EvolveToNextPhase(); }                                             // Default is evolve to next phase

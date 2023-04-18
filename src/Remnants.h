@@ -105,6 +105,7 @@ protected:
 
     void            SetPulsarParameters() const { }                                                                                                                                     // NO-OP
 
+    bool            ShouldEnvelopeBeExpelledByPulsations() const                                    { return false; }                                                       // No envelope to lose by pulsations
     bool            ShouldEvolveOnPhase() const                                                                 { return true; }                                                        // Default
     bool            ShouldSkipPhase() const                                                                     { return false; }                                                       // Don't skip WD phase
 
