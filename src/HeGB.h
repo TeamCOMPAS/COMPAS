@@ -50,7 +50,7 @@ protected:
 
     // member functions - alphabetically
     double      CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const ;
-    double      CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                            { return 1.28; }
+    double      CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                            { return 1.28; }                                        // From BSE. See Hurley et al. 2002 sect. 2.6.1
 
     double      CalculateGyrationRadius() const                                                                     { return 0.1; }                                         // Hurley et al., 2000, after eq 109 for giants. Single number approximation.
 

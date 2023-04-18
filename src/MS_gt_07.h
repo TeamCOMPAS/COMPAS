@@ -39,7 +39,7 @@ protected:
     // member functions - alphabetically
 
     double      CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const ;
-    double      CalculateCriticalMassRatioHurleyHjellmingWebbink() const                      { return 0.33; }
+    double      CalculateCriticalMassRatioHurleyHjellmingWebbink() const                      { return 0.33; }                                          // From BSE. See Hurley et al. 2002 sect. 2.6.1
     double      CalculateMassLossRateHurley();
     double      CalculateMassTransferRejuvenationFactor() const;
 

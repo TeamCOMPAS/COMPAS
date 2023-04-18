@@ -35,7 +35,7 @@ protected:
 
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 
-    double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate);
+    double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                         { return 0.0; }                                                         // Should never be called...
 
     void            CalculateGBParams()                                                                         { GiantBranch::CalculateGBParams(); }                                   // Default to GiantBranch
 
