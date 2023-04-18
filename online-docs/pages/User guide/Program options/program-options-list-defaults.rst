@@ -754,7 +754,7 @@ No LBV winds for ``NONE``,  Hurley, Pols, Tout (2000) LBV winds only for ``HURLE
 Default = HURLEY_ADD
 
 **--luminosity-to-mass-threshold** |br|
-Treshold log_10(Luminosity/Mass) (in solar units) above which, if the option ``expel-convective-envelope-above-luminosity-threshold`` is set to TRUE, pulsations eject the convective envelope |br|
+Threshold log_10(Luminosity/Mass) (in solar units) above which, if the option ``expel-convective-envelope-above-luminosity-threshold`` is set to TRUE, pulsations eject the convective envelope |br|
 Default = 4.2
 
 .. _options-props-M:
