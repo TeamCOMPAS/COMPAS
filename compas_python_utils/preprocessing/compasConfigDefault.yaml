@@ -1,5 +1,10 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Wed Feb 15 14:31:19 2023 by COMPAS v02.36.00
+##~!!~## File Created Tue Apr 18 10:45:08 2023 by COMPAS v02.38.01
+##~!!~##
+##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
+##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
+##~!!~## option is used by default. To use a value other than the COMPAS default value,
+##~!!~## users must uncomment the entry and change the option value to the desired value.
 
 booleanChoices:
 
@@ -19,7 +24,7 @@ booleanChoices:
     ### STELLAR PROPERTIES
 #    --check-photon-tiring-limit: False                                    # Default: False
 #    --use-mass-loss: True                                                 # Default: True
-#    --expel-convective-envelope-above-luminosity-threshold: False	   # Default: False
+#    --expel-convective-envelope-above-luminosity-threshold: False         # Default: False
 
     ### BINARY PROPERTIES
 #    --allow-touching-at-birth: False                                      # Default: False                                                                                                                                                              # record binaries that have stars touching at birth in output files
@@ -78,7 +83,7 @@ numericalChoices:
 #    --initial-mass-min: 5.000000                                          # Default: 5.000000                                                                                                                                                           # use 5.0 for DCOs [Msol]
 #    --initial-mass-max: 150.00                                            # Default: 150.00                                                                                                                                                             # stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
 #    --initial-mass-power: 0.000000                                        # Default: 0.000000
-#    --luminosity-to-mass-threshold: 4.2				   # Default: 4.2
+#    --luminosity-to-mass-threshold: 4.200000                              # Default: 4.200000
 #    --metallicity: 0.014200                                               # Default: 0.014200                                                                                                                                                           # metallicity for both SSE and BSE - Solar metallicity Asplund+2010
 #    --metallicity-min: 0.000100                                           # Default: 0.000100
 #    --metallicity-max: 0.030000                                           # Default: 0.030000
@@ -228,7 +233,7 @@ stringChoices:
     ### COMMON ENVELOPE
 #    --common-envelope-formalism: 'ENERGY'                                 # Default: 'ENERGY'                      # Options: ['TWO_STAGE','ENERGY']
 #    --common-envelope-lambda-prescription: 'LAMBDA_NANJING'               # Default: 'LAMBDA_NANJING'              # Options: ['LAMBDA_DEWI','LAMBDA_KRUCKOW','LAMBDA_NANJING','LAMBDA_LOVERIDGE','LAMBDA_FIXED']                                       # Xu & Li 2010
-#    --common-envelope-mass-accretion-prescription: 'ZERO'                 # Default: 'ZERO'                        # Options: ['MACLEOD','UNIFORM','CONSTANT','ZERO']
+#    --common-envelope-mass-accretion-prescription: 'ZERO'                 # Default: 'ZERO'                        # Options: ['CHEVALIER','MACLEOD','UNIFORM','CONSTANT','ZERO']
 
     ### SUPERNOVAE, KICKS AND REMNANTS
 #    --black-hole-kicks: 'FALLBACK'                                        # Default: 'FALLBACK'                    # Options: ['FALLBACK','ZERO','REDUCED','FULL']
