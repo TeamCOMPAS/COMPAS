@@ -38,7 +38,7 @@ protected:
 
     // member functions - alphabetically
     double      CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const ;
-    double      CalculateCriticalMassRatioHurleyHjellmingWebbink() const                      { return 1.44; }
+    double      CalculateCriticalMassRatioHurleyHjellmingWebbink() const                      { return 1.44; }                                      // From BSE. See Hurley et al. 2002 sect. 2.6.1
     double      CalculateMassTransferRejuvenationFactor() const;
 
     ENVELOPE    DetermineEnvelopeType() const                                                 { return ENVELOPE::CONVECTIVE; }                      // Always CONVECTIVE
