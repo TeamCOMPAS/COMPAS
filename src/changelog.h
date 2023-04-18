@@ -1011,7 +1011,7 @@
 //                                      - Changed yaml.h to include <algorithm> and <chrono> - not including them causes docker build to fail.
 // 02.37.03     IM - Apr 8, 2023     - Defect repair:
 //                                      - Resolved issue #855 by using Mass0 rather than Mass to determine ages and timescales
-// 02.37.03     NR - Apr 11, 2023    - Defect repair:
+// 02.37.04     NR - Apr 18, 2023    - Defect repair:
 //                                      - Added missing const in WD files which was generating warnings when compiling.
 //                                   - Enhancement:
 //                                      - Added QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK based on Hurley+ 2002 and its corresponding documentation.
