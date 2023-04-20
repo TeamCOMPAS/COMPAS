@@ -6,6 +6,10 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.38.03 Apr 20, 2023**
+
+* Changed some of the default options, see issue # 957 and PR # 961 for explanations *
+
 **02.37.00 Mar 26, 2023**
 
 * Added functionality for WDs to accrete in different regimes. 

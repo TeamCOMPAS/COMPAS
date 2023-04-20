@@ -146,7 +146,7 @@ void Options::OptionValues::Initialise() {
 
     // flags
 
-    m_AllowNonStrippedECSN                                          = true;
+    m_AllowNonStrippedECSN                                          = false;
     m_AllowRLOFAtBirth                                              = true;
     m_AllowTouchingAtBirth                                          = false;
 
@@ -159,7 +159,7 @@ void Options::OptionValues::Initialise() {
     m_HMXRBinaries                                                  = false;
 
     m_EvolvePulsars                                                 = false;
-	m_EvolveUnboundSystems                                          = false;
+	m_EvolveUnboundSystems                                          = true;
 
     m_DetailedOutput                                                = false;
     m_PopulationDataPrinting                                        = false;
@@ -257,7 +257,7 @@ void Options::OptionValues::Initialise() {
     m_EccentricityDistributionMax                                   = 1.0;
 
     // Kick options
-    m_KickMagnitudeDistribution.type                                = KICK_MAGNITUDE_DISTRIBUTION::MAXWELLIAN;
+    m_KickMagnitudeDistribution.type                                = KICK_MAGNITUDE_DISTRIBUTION::MULLERMANDEL;
     m_KickMagnitudeDistribution.typeString                          = KICK_MAGNITUDE_DISTRIBUTION_LABEL.at(m_KickMagnitudeDistribution.type);
     m_KickMagnitudeDistributionSigmaCCSN_NS                         = 265;
     m_KickMagnitudeDistributionSigmaCCSN_BH                         = 265;
@@ -308,7 +308,7 @@ void Options::OptionValues::Initialise() {
 
 
     // Supernova remnant mass prescription options
-    m_RemnantMassPrescription.type                                  = REMNANT_MASS_PRESCRIPTION::FRYER2012;
+    m_RemnantMassPrescription.type                                  = REMNANT_MASS_PRESCRIPTION::MULLERMANDEL;
     m_RemnantMassPrescription.typeString                            = REMNANT_MASS_PRESCRIPTION_LABEL.at(m_RemnantMassPrescription.type);
 
     m_FryerSupernovaEngine.type                                     = SN_ENGINE::DELAYED;
@@ -368,14 +368,14 @@ void Options::OptionValues::Initialise() {
     m_CoolWindMassLossMultiplier                                    = 1.0;
     m_LuminousBlueVariableFactor                                    = 1.5;
     m_OverallWindMassLossMultiplier                                 = 1.0;
-    m_WolfRayetFactor                                               = 1.0;
+    m_WolfRayetFactor                                               = 0.1;
 
 
     // Mass transfer options
     m_UseMassTransfer                                               = true;
 	m_CirculariseBinaryDuringMassTransfer         	                = true;
 	m_AngularMomentumConservationDuringCircularisation              = false;
-    m_RetainCoreMassDuringCaseAMassTransfer                         = false;
+    m_RetainCoreMassDuringCaseAMassTransfer                         = true;
     m_ConvectiveEnvelopeTemperatureThreshold                        = CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI;
 
     // Case BB/BC mass transfer stability prescription
