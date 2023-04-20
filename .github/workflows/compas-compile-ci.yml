@@ -21,14 +21,14 @@ jobs:
         os: [ubuntu-20.04]
     steps:
       - uses: actions/checkout@v3
-      - uses: r-lib/actions/setup-tinytex@v2
-      - name: add TeX deps
-        run: |
-          tlmgr install cm-super
-          tlmgr install type1cm
-          tlmgr install underscore
-          tlmgr install dvipng
-          tlmgr install psfrag
+#      - uses: r-lib/actions/setup-tinytex@v2
+#      - name: add TeX deps
+#        run: |
+#          tlmgr install cm-super
+#          tlmgr install type1cm
+#          tlmgr install underscore
+#          tlmgr install dvipng
+#          tlmgr install psfrag
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
