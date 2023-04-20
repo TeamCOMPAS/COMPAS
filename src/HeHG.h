@@ -61,6 +61,7 @@ protected:
     static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                              { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }   // pow() is slow - use multiplication
 
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
+            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return 1.28; }                                                        // From BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                                     { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
