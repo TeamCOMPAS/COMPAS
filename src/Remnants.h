@@ -31,7 +31,7 @@ protected:
     // member functions - alphabetically
     double          CalculateCOCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 
-    double   CalculateConvectiveEnvelopeMass() const                                            { return 0.0; }
+    double          CalculateConvectiveEnvelopeMass() const                                            { return 0.0; }
 
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 

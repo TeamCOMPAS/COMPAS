@@ -953,6 +953,26 @@ double GiantBranch::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDe
 
 
 /*
+ * Determines if mass transfer is unstable according to the critical mass ratio.
+ *
+ * See Hurley et al. 2002 sect. 2.6.1.
+ *
+ * Assumes this star is the donor.
+ * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
+ *
+ * double GiantBranch::CalculateCriticalMassRatioHurleyHjellmingWebbink() 
+ *
+ * @return                                      Critical mass ratio for unstable MT 
+ */
+double GiantBranch::CalculateCriticalMassRatioHurleyHjellmingWebbink() const {
+    
+    double qCrit = 0.362 + 1.0 / (3.0 * (1.0 - CoreMass() / Mass())); // Defined as mDonor/mAccretor in Hurley et al. 2002, equation found after eq. 57 (no label)
+    
+    return 1.0 / qCrit;
+}
+
+
+/*
  * Calculate the Adiabatic Exponent (for convective-envelope giant-like stars)
  *
  *
