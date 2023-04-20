@@ -1011,21 +1011,18 @@
 //                                      - Changed yaml.h to include <algorithm> and <chrono> - not including them causes docker build to fail.
 // 02.37.03     IM - Apr 8, 2023     - Defect repair:
 //                                      - Resolved issue #855 by using Mass0 rather than Mass to determine ages and timescales
-// 02.37.04     YS - Apr 12, 2023     - Updates and changes to NS.cpp:
-//                                      - Added NS::ChoosTimeStep(). Detailed time step description and reasoning can be found in NS.cpp
-//                                      - Added output options (not default): PULSAR_BIRTH_PERIOD and PULSAR_BIRTH_SPIN_DOWN_RATE, which output the birth spin period and period derivative of a pulsar
-//                                      - Updated codes on pulsar evolution, solving the problem of pulsars not evolving properly. This is written in cgs. 
-//                                      - Added NS::SpinDownIsolatePulsar(), describes single pulsar spinning down with magnetic braking. 
-//                                          This is later used in different situaions in NS::UpdateMagneticFieldAndSpin()
-//                                      - In BSE_Pulsar_Evolution file, it was not recording the pulsar parameters at birth. 
-//                                          Pulsar was also evolved an additional time step here with unspecificed size
-//                                          Fix to this problem is done with setting PULSAR_RECORD_TYPE:
-//                                           (a) if record_type = 1 (DEFAULT), it is the initial values of pulsar set at birth
-//                                           (b) if record_type = 2 (POST_BINARY_TIMESTEP), it is the normal pulsar evolution
-//                                      - Another caveat:
-//                                         pulsar recycling mechanisms are not yet fully implemented, so COMPAS cannot produce MSPs for the time being.
-//                                         future updates will solve this issue. 
+// 02.38.01     IM - Apr 16, 2023    - Enhancement:
+//                                      - Added option to eject the convective envelope by pulsations (ExpelConvectiveEnvelopeAboveLuminosityThreshold)
+//                                          if log10(m_Luminosity/m_Mass) exceeds LuminosityToMassThreshold
+// 02.38.02     NR - Apr 20, 2023    - Defect repair:
+//                                      - Added missing const in WD files which was generating warnings when compiling.
+//                                   - Enhancement:
+//                                      - Added QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK based on Hurley+ 2002 and its corresponding documentation.
+// 02.38.03     IM - Apr 20, 2023    - Enhancement:
+//                                      - Updated defaults following #957
 
-const std::string VERSION_STRING = "02.37.04";
+
+const std::string VERSION_STRING = "02.38.03";
+
 
 # endif // __changelog_h__

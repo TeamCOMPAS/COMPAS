@@ -82,12 +82,14 @@ public:
     double              BindingEnergy_Dewi() const                                                                  { return m_Star->BindingEnergy_Dewi(); }
     double              CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                         { return m_Star->CalculateCriticalMassRatio(p_AccretorIsDegenerate); }
     double              CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const                 { return m_Star->CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate); }
+    double              CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                    { return m_Star->CalculateCriticalMassRatioHurleyHjellmingWebbink(); }
     double              CalculateDynamicalTimescale() const                                                         { return m_Star->CalculateDynamicalTimescale(); }
     double              CalculateNuclearTimescale() const                                                           { return m_Star->CalculateNuclearTimescale(); }
     double              CalculateRadialExpansionTimescale() const                                                   { return m_Star->CalculateRadialExpansionTimescale(); }
     double              CalculateThermalTimescale() const                                                           { return m_Star->CalculateThermalTimescale(); }
     double              COCoreMass() const                                                                          { return m_Star->COCoreMass(); }
     double              CoreMass() const                                                                            { return m_Star->CoreMass(); }
+    bool                EnvelopeJustExpelledByPulsations() const                                                    { return m_Star->EnvelopeJustExpelledByPulsations(); }
     bool                ExperiencedAIC() const                                                                      { return m_Star->ExperiencedAIC(); }
     bool                ExperiencedCCSN() const                                                                     { return m_Star->ExperiencedCCSN(); }
     bool                ExperiencedECSN() const                                                                     { return m_Star->ExperiencedECSN(); }
@@ -140,6 +142,7 @@ public:
 
     void                UpdateMassTransferDonorHistory()                                                            { m_Star->UpdateMassTransferDonorHistory(); }
 
+    void                ResetEnvelopeExpulsationByPulsations()                                                      { m_Star->ResetEnvelopeExpulsationByPulsations(); }
 
     // member functions - alphabetically
     STELLAR_TYPE    AgeOneTimestep(const double p_Dt, bool p_Switch = true);

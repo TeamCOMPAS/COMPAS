@@ -444,7 +444,7 @@ constexpr double MULLERMANDEL_MUBH                    	= 0.8;
 constexpr double MULLERMANDEL_SIGMABH                   = 0.5;
 constexpr double MULLERMANDEL_MINNS                     = 1.13;
 constexpr double MULLERMANDEL_MAXNS                     = 2.0;
-constexpr double MULLERMANDEL_KICKNS                    = 400.0;
+constexpr double MULLERMANDEL_KICKNS                    = 520.0;                                                    // As calibrated by Kapil+ 2023
 constexpr double MULLERMANDEL_KICKBH                    = 200.0;
 constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3; 
 
@@ -883,12 +883,13 @@ const COMPASUnorderedMap<ZETA_PRESCRIPTION, std::string> ZETA_PRESCRIPTION_LABEL
 };
 
 // Critical Mass Ratio prescription
-enum class QCRIT_PRESCRIPTION: int { NONE, CLAEYS, GE20, GE20_IC};
+enum class QCRIT_PRESCRIPTION: int { NONE, CLAEYS, GE20, GE20_IC, HURLEY_HJELLMING_WEBBINK};
 const COMPASUnorderedMap<QCRIT_PRESCRIPTION, std::string> QCRIT_PRESCRIPTION_LABEL = {
     { QCRIT_PRESCRIPTION::NONE,    "NONE" },
     { QCRIT_PRESCRIPTION::CLAEYS,  "CLAEYS" },
     { QCRIT_PRESCRIPTION::GE20,    "GE20" },
     { QCRIT_PRESCRIPTION::GE20_IC, "GE20_IC" },
+    { QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK, "HURLEY_HJELLMING_WEBBINK" },
 };
 
 

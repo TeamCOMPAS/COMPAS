@@ -141,6 +141,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     m_MinimumLuminosityOnPhase                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_LBVphaseFlag                             = false;
+    m_EnvelopeJustExpelledByPulsations         = false;
 
     // Previous timestep attributes
     m_StellarTypePrev                          = m_StellarType;
@@ -1339,6 +1340,9 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) {
                 break;
             case QCRIT_PRESCRIPTION::CLAEYS:
                 qCrit = CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate);
+                break;
+            case QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK:
+                qCrit = CalculateCriticalMassRatioHurleyHjellmingWebbink();
                 break;
             default:
                 m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                                     // set error value
