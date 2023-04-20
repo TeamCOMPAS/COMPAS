@@ -1014,8 +1014,10 @@
 // 02.38.01     IM - Apr 16, 2023    - Enhancement:
 //                                      - Added option to eject the convective envelope by pulsations (ExpelConvectiveEnvelopeAboveLuminosityThreshold)
 //                                          if log10(m_Luminosity/m_Mass) exceeds LuminosityToMassThreshold
+// 02.38.03     IM - Apr 20, 2024    - Enhancement:
+//                                      - Updated defaults following #957
 
 
-const std::string VERSION_STRING = "02.38.01";
+const std::string VERSION_STRING = "02.38.03";
 
 # endif // __changelog_h__
