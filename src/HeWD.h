@@ -72,7 +72,7 @@ protected:
 
     STELLAR_TYPE    EvolveToNextPhase();                                                                                                                                          // Allow evolution, either SN or Rejuvenation
     bool            IsSupernova() const;                                                           
-    bool            ShouldEvolveOnPhase();              
+    bool            ShouldEvolveOnPhase() const;              
 
 };
 
