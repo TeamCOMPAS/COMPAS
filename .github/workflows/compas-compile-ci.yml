@@ -32,6 +32,8 @@ jobs:
           cd misc/cicd-scripts
           chmod 755 linux-dependencies
           ./linux-dependencies
+          echo "checking latex:"
+          which latex
 
       - name: Build Compas
         run: |
