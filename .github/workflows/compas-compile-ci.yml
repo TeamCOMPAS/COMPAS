@@ -21,14 +21,6 @@ jobs:
         os: [ubuntu-20.04]
     steps:
       - uses: actions/checkout@v3
-#      - uses: r-lib/actions/setup-tinytex@v2
-#      - name: add TeX deps
-#        run: |
-#          tlmgr install cm-super
-#          tlmgr install type1cm
-#          tlmgr install underscore
-#          tlmgr install dvipng
-#          tlmgr install psfrag
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
@@ -40,13 +32,6 @@ jobs:
           cd misc/cicd-scripts
           chmod 755 linux-dependencies
           ./linux-dependencies
-
-      - name: quick plot test
-        run: |
-          pip install latex
-          pip install matplotlib
-          python -c "import matplotlib.pyplot as plt; plt.rcParams['text.usetex'] = True; plt.plot([1,2,3,4]); plt.xlabel(r'\$x\$'); plt.savefig('test.png')"
-
 
       - name: Build Compas
         run: |
