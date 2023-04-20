@@ -21,7 +21,7 @@ jobs:
         os: [ubuntu-20.04]
     steps:
       - uses: actions/checkout@v3
-      - uses: r-lib/actions/setup-tinytex@master
+      - uses: r-lib/actions/setup-tinytex@v2
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
