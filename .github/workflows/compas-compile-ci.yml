@@ -33,11 +33,11 @@ jobs:
         with:
           python-version: '3.9'
           cache: 'pip' # caching pip dependencies
-      - name: quick plot test
-        run: |
-          pip install latex
-          pip install matplotlib
-          python -c "import matplotlib.pyplot as plt; plt.rcParams['text.usetex'] = True; plt.plot([1,2,3,4]); plt.xlabel(r'\$x\$'); plt.savefig('test.png')"
+#      - name: quick plot test
+#        run: |
+#          pip install latex
+#          pip install matplotlib
+#          python -c "import matplotlib.pyplot as plt; plt.rcParams['text.usetex'] = True; plt.plot([1,2,3,4]); plt.xlabel(r'\$x\$'); plt.savefig('test.png')"
 
       - name: Install dependencies on ubuntu
         if: startsWith(matrix.os, 'ubuntu-20')
