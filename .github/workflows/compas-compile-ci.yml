@@ -26,6 +26,7 @@ jobs:
         run: |
           tlmgr install cm-super
           tlmgr install type1cm
+          tlmgr install underscore
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
