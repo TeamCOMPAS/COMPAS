@@ -11,7 +11,7 @@ sudo apt-get install -y     \
           xindy                     \
           dvipng                    \
           cm-super
-sudo apt install texlive-latex-extra
+sudo apt install texlive-latex-extra --fix-missing
 latex --version
 sudo apt update && sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev
 sudo apt-get install gcc libpq-dev -y
