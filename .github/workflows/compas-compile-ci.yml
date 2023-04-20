@@ -2,10 +2,13 @@ name: COMPAS compile test
 
 on:
   workflow_dispatch: # allow manual triggering of this workflow
-  pull_request:
+  pull_request: # run workflow when PRs made to dev (if following files changed)
     branches:
       - dev
     paths: ['src/**', "compas_python_utils/**", "py_tests/**", ".github/workflows/**"]
+  push: # always run workflow on push to the following branch
+    branches:
+      - dev
 
 jobs:
   compas:
