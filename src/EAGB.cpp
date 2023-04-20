@@ -1000,7 +1000,9 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_HeCoreMass, m_Mass) >= 0) {              // Envelope lost, form an evolved naked helium giant
+    if(ShouldEnvelopeBeExpelledByPulsations())          { m_EnvelopeJustExpelledByPulsations = true; }
+
+    if (p_NoCheck || utils::Compare(m_HeCoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {              // Envelope lost, form an evolved naked helium giant
 
         m_Mass     = std::min(m_HeCoreMass, m_Mass);
         m_HeCoreMass  = m_Mass;
@@ -1079,7 +1081,7 @@ bool EAGB::ShouldEvolveOnPhase() const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
 	double tDU = CalculateLifetimeTo2ndDredgeUp(timescales(tinf1_FAGB), timescales(tinf2_FAGB));
-    return (utils::Compare(m_Age, tDU) < 0 || utils::Compare(gbParams(McBAGB), MCBUR2) >= 0);
+    return ((utils::Compare(m_Age, tDU) < 0 || utils::Compare(gbParams(McBAGB), MCBUR2) >= 0) && !ShouldEnvelopeBeExpelledByPulsations());
 
 #undef gbParams
 #undef timescales

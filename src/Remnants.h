@@ -31,7 +31,7 @@ protected:
     // member functions - alphabetically
     double          CalculateCOCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 
-    double   CalculateConvectiveEnvelopeMass() const                                            { return 0.0; }
+    double          CalculateConvectiveEnvelopeMass() const                                            { return 0.0; }
 
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 
@@ -105,6 +105,7 @@ protected:
 
     void            SetPulsarParameters() const { }                                                                                                                                     // NO-OP
 
+    bool            ShouldEnvelopeBeExpelledByPulsations() const                                    { return false; }                                                       // No envelope to lose by pulsations
     bool            ShouldEvolveOnPhase() const                                                                 { return true; }                                                        // Default
     bool            ShouldSkipPhase() const                                                                     { return false; }                                                       // Don't skip WD phase
 

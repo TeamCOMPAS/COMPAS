@@ -55,7 +55,7 @@ protected:
 
             STELLAR_TYPE    EvolveToNextPhase();
             bool            IsSupernova() const;                                             
-            bool            ShouldEvolveOnPhase();                                                  
+            bool            ShouldEvolveOnPhase() const;                                                  
 };
 
 #endif // __ONeWD_h__

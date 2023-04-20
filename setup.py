@@ -41,6 +41,18 @@ INSTALL_REQUIRES = [
     "PyYAML",
 ]
 EXTRA_REQUIRE = dict(
+    docs=[
+        "sphinx",
+        "numpydoc",
+        "nbsphinx",
+        "sphinx_rtd_theme",
+        "sphinx-tabs",
+        "sphinx-argparse",
+        "sphinx-math-dollar",
+        "sphinxcontrib.bibtex",
+        "linuxdoc",
+        "ipython"
+    ],
     dev=[
         "pytest-cov",
         "pre-commit",
@@ -48,6 +60,7 @@ EXTRA_REQUIRE = dict(
         "black==22.10.0",
         "isort",
         "coverage-badge",
+        "deepdiff",
     ]
 )
 
@@ -76,7 +89,6 @@ def find_version(version_file=read(CPP_VERSION_FILE)):
 
 
 if __name__ == "__main__":
-
     setup(
         name=NAME,
         version=find_meta("version"),
@@ -103,6 +115,7 @@ if __name__ == "__main__":
         entry_points={
             "console_scripts": [
                 f"compas_h5view= {NAME}.h5view:main",
+                f"compas_h5sample= {NAME}.h5sample:main",
                 f"compas_plot_detailed_evolution={NAME}.detailed_evolution_plotter.plot_detailed_evolution:main",
                 f"compas_run_submit={NAME}.preprocessing.runSubmit:main",
                 f"compas_sample_stroopwafel={NAME}.preprocessing.stroopwafelInterface:main",

@@ -1372,7 +1372,7 @@ bool CHeB::ShouldEvolveOnPhase() const {
     bool beforeEndOfHeBurning = (m_Age < (m_Timescales[static_cast<int>(TIMESCALE::tHeI)] + m_Timescales[static_cast<int>(TIMESCALE::tHe)]));
     bool coreIsNotTooMassive = (m_HeCoreMass < m_Mass);
     // Evolve on CHeB phase if age after He Ign and while He Burning and He core mass does not exceed total mass (could happen due to mass loss)
-    return (afterHeIgnition && beforeEndOfHeBurning && coreIsNotTooMassive);
+    return (afterHeIgnition && beforeEndOfHeBurning && coreIsNotTooMassive && !ShouldEnvelopeBeExpelledByPulsations());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1445,7 +1445,6 @@ double CHeB::ChooseTimestep(const double p_Time) const {
 }
 
 
-
 /*
  * Modify the star after it loses its envelope
  *
@@ -1474,8 +1473,10 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     STELLAR_TYPE stellarType = m_StellarType;
+    
+    if(ShouldEnvelopeBeExpelledByPulsations())          { m_EnvelopeJustExpelledByPulsations = true; }
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                     // Envelope loss
+    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations ) {                     // Envelope loss
 
         m_Mass       = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_Mass;

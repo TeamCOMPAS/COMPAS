@@ -146,7 +146,7 @@ void Options::OptionValues::Initialise() {
 
     // flags
 
-    m_AllowNonStrippedECSN                                          = true;
+    m_AllowNonStrippedECSN                                          = false;
     m_AllowRLOFAtBirth                                              = true;
     m_AllowTouchingAtBirth                                          = false;
 
@@ -159,7 +159,7 @@ void Options::OptionValues::Initialise() {
     m_HMXRBinaries                                                  = false;
 
     m_EvolvePulsars                                                 = false;
-	m_EvolveUnboundSystems                                          = false;
+	m_EvolveUnboundSystems                                          = true;
 
     m_DetailedOutput                                                = false;
     m_PopulationDataPrinting                                        = false;
@@ -257,7 +257,7 @@ void Options::OptionValues::Initialise() {
     m_EccentricityDistributionMax                                   = 1.0;
 
     // Kick options
-    m_KickMagnitudeDistribution.type                                = KICK_MAGNITUDE_DISTRIBUTION::MAXWELLIAN;
+    m_KickMagnitudeDistribution.type                                = KICK_MAGNITUDE_DISTRIBUTION::MULLERMANDEL;
     m_KickMagnitudeDistribution.typeString                          = KICK_MAGNITUDE_DISTRIBUTION_LABEL.at(m_KickMagnitudeDistribution.type);
     m_KickMagnitudeDistributionSigmaCCSN_NS                         = 265;
     m_KickMagnitudeDistributionSigmaCCSN_BH                         = 265;
@@ -308,7 +308,7 @@ void Options::OptionValues::Initialise() {
 
 
     // Supernova remnant mass prescription options
-    m_RemnantMassPrescription.type                                  = REMNANT_MASS_PRESCRIPTION::FRYER2012;
+    m_RemnantMassPrescription.type                                  = REMNANT_MASS_PRESCRIPTION::MULLERMANDEL;
     m_RemnantMassPrescription.typeString                            = REMNANT_MASS_PRESCRIPTION_LABEL.at(m_RemnantMassPrescription.type);
 
     m_FryerSupernovaEngine.type                                     = SN_ENGINE::DELAYED;
@@ -354,6 +354,9 @@ void Options::OptionValues::Initialise() {
     // Mass loss options
     m_UseMassLoss                                                   = true;
     m_CheckPhotonTiringLimit                                        = false;
+    
+    m_ExpelConvectiveEnvelopeAboveLuminosityThreshold               = false;
+    m_LuminosityToMassThreshold                                     = 4.2;      // Podsiadlowski, private communication
 
     m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::VINK;
     m_MassLossPrescription.typeString                               = MASS_LOSS_PRESCRIPTION_LABEL.at(m_MassLossPrescription.type);
@@ -365,14 +368,14 @@ void Options::OptionValues::Initialise() {
     m_CoolWindMassLossMultiplier                                    = 1.0;
     m_LuminousBlueVariableFactor                                    = 1.5;
     m_OverallWindMassLossMultiplier                                 = 1.0;
-    m_WolfRayetFactor                                               = 1.0;
+    m_WolfRayetFactor                                               = 0.1;
 
 
     // Mass transfer options
     m_UseMassTransfer                                               = true;
 	m_CirculariseBinaryDuringMassTransfer         	                = true;
 	m_AngularMomentumConservationDuringCircularisation              = false;
-    m_RetainCoreMassDuringCaseAMassTransfer                         = false;
+    m_RetainCoreMassDuringCaseAMassTransfer                         = true;
     m_ConvectiveEnvelopeTemperatureThreshold                        = CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI;
 
     // Case BB/BC mass transfer stability prescription
@@ -766,6 +769,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "evolve-unbound-systems",                                      
             po::value<bool>(&p_Options->m_EvolveUnboundSystems)->default_value(p_Options->m_EvolveUnboundSystems)->implicit_value(true),                                                          
             ("Continue evolving stars even if the binary is disrupted (default = " + std::string(p_Options->m_EvolveUnboundSystems ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "expel-convective-envelope-above-luminosity-threshold",
+            po::value<bool>(&p_Options->m_ExpelConvectiveEnvelopeAboveLuminosityThreshold)->default_value(p_Options->m_ExpelConvectiveEnvelopeAboveLuminosityThreshold)->implicit_value(true),
+            ("Expel convective envelope if luminosity to mass ratio exceeds threshold given by m_LuminosityToMassThreshold  (default = " + std::string(p_Options->m_ExpelConvectiveEnvelopeAboveLuminosityThreshold ? "TRUE" : "FALSE") + ")").c_str()
         )
 
         (
@@ -1246,6 +1254,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "Polar angle, in rad, of the supernova vector, for the secondary star (default = drawn from kick direction distribution)"
         )
 
+        (
+            "luminosity-to-mass-threshold",
+            po::value<double>(&p_Options->m_LuminosityToMassThreshold)->default_value(p_Options->m_LuminosityToMassThreshold),
+            ("Threshold value of log_10(L/M) above which the convective envelope is expelled in a pulsation (default = " + std::to_string(p_Options->m_LuminosityToMassThreshold) + ")").c_str()
+        )
+        
         (
             "luminous-blue-variable-multiplier",                           
             po::value<double>(&p_Options->m_LuminousBlueVariableFactor)->default_value(p_Options->m_LuminousBlueVariableFactor),                                                                  
