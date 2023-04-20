@@ -1011,12 +1011,15 @@
 //                                      - Changed yaml.h to include <algorithm> and <chrono> - not including them causes docker build to fail.
 // 02.37.03     IM - Apr 8, 2023     - Defect repair:
 //                                      - Resolved issue #855 by using Mass0 rather than Mass to determine ages and timescales
-// 02.37.04     NR - Apr 18, 2023    - Defect repair:
+// 02.38.01     IM - Apr 16, 2023    - Enhancement:
+//                                      - Added option to eject the convective envelope by pulsations (ExpelConvectiveEnvelopeAboveLuminosityThreshold)
+//                                          if log10(m_Luminosity/m_Mass) exceeds LuminosityToMassThreshold
+// 02.38.02     NR - Apr 20, 2023    - Defect repair:
 //                                      - Added missing const in WD files which was generating warnings when compiling.
 //                                   - Enhancement:
 //                                      - Added QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK based on Hurley+ 2002 and its corresponding documentation.
 
 
-const std::string VERSION_STRING = "02.37.04";
+const std::string VERSION_STRING = "02.38.02";
 
 # endif // __changelog_h__

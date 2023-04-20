@@ -354,6 +354,9 @@ void Options::OptionValues::Initialise() {
     // Mass loss options
     m_UseMassLoss                                                   = true;
     m_CheckPhotonTiringLimit                                        = false;
+    
+    m_ExpelConvectiveEnvelopeAboveLuminosityThreshold               = false;
+    m_LuminosityToMassThreshold                                     = 4.2;      // Podsiadlowski, private communication
 
     m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::VINK;
     m_MassLossPrescription.typeString                               = MASS_LOSS_PRESCRIPTION_LABEL.at(m_MassLossPrescription.type);
@@ -766,6 +769,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "evolve-unbound-systems",                                      
             po::value<bool>(&p_Options->m_EvolveUnboundSystems)->default_value(p_Options->m_EvolveUnboundSystems)->implicit_value(true),                                                          
             ("Continue evolving stars even if the binary is disrupted (default = " + std::string(p_Options->m_EvolveUnboundSystems ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "expel-convective-envelope-above-luminosity-threshold",
+            po::value<bool>(&p_Options->m_ExpelConvectiveEnvelopeAboveLuminosityThreshold)->default_value(p_Options->m_ExpelConvectiveEnvelopeAboveLuminosityThreshold)->implicit_value(true),
+            ("Expel convective envelope if luminosity to mass ratio exceeds threshold given by m_LuminosityToMassThreshold  (default = " + std::string(p_Options->m_ExpelConvectiveEnvelopeAboveLuminosityThreshold ? "TRUE" : "FALSE") + ")").c_str()
         )
 
         (
@@ -1246,6 +1254,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "Polar angle, in rad, of the supernova vector, for the secondary star (default = drawn from kick direction distribution)"
         )
 
+        (
+            "luminosity-to-mass-threshold",
+            po::value<double>(&p_Options->m_LuminosityToMassThreshold)->default_value(p_Options->m_LuminosityToMassThreshold),
+            ("Threshold value of log_10(L/M) above which the convective envelope is expelled in a pulsation (default = " + std::to_string(p_Options->m_LuminosityToMassThreshold) + ")").c_str()
+        )
+        
         (
             "luminous-blue-variable-multiplier",                           
             po::value<double>(&p_Options->m_LuminousBlueVariableFactor)->default_value(p_Options->m_LuminousBlueVariableFactor),                                                                  

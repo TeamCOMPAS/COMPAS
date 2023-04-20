@@ -122,6 +122,7 @@ protected:
             void            ResolveHeliumFlash() { }                                                                                                                                        // NO-OP
             STELLAR_TYPE    ResolveSkippedPhase()                                                                   { return m_StellarType; }                                               // NO-OP
 
+            bool            ShouldEnvelopeBeExpelledByPulsations() const { return CHeB::ShouldEnvelopeBeExpelledByPulsations(); }                             // Envelope of convective star with luminosity to mass ratio beyond threshold should be expelled
             bool            ShouldEvolveOnPhase() const;
             bool            ShouldSkipPhase() const                                                                 { return false; }                                                       // Never skip HeMS phase
 

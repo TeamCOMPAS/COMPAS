@@ -89,6 +89,7 @@ public:
     double              CalculateThermalTimescale() const                                                           { return m_Star->CalculateThermalTimescale(); }
     double              COCoreMass() const                                                                          { return m_Star->COCoreMass(); }
     double              CoreMass() const                                                                            { return m_Star->CoreMass(); }
+    bool                EnvelopeJustExpelledByPulsations() const                                                    { return m_Star->EnvelopeJustExpelledByPulsations(); }
     bool                ExperiencedAIC() const                                                                      { return m_Star->ExperiencedAIC(); }
     bool                ExperiencedCCSN() const                                                                     { return m_Star->ExperiencedCCSN(); }
     bool                ExperiencedECSN() const                                                                     { return m_Star->ExperiencedECSN(); }
@@ -141,6 +142,7 @@ public:
 
     void                UpdateMassTransferDonorHistory()                                                            { m_Star->UpdateMassTransferDonorHistory(); }
 
+    void                ResetEnvelopeExpulsationByPulsations()                                                      { m_Star->ResetEnvelopeExpulsationByPulsations(); }
 
     // member functions - alphabetically
     STELLAR_TYPE    AgeOneTimestep(const double p_Dt, bool p_Switch = true);
