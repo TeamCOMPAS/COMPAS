@@ -67,7 +67,7 @@ protected:
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau) const;
     double          CalculateCoreMassOnPhase() const                            { return CalculateCoreMassOnPhase(m_Mass0, m_Tau); }                            // Use class member variables
 
-    double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const    { return 0.33; }                                                                // From BSE. See Hurley et al. 2002 sect. 2.6.1
+    double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const    { return 0.33; }                                                                // As coded in BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
 
     double          CalculateHeCoreMassAtPhaseEnd() const                       { return m_CoreMass; }
 
