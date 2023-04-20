@@ -32,7 +32,9 @@ jobs:
           cd misc/cicd-scripts
           chmod 755 linux-dependencies
           ./linux-dependencies
-          echo "checking latex:"
+          echo "Running which python"
+          which python
+          echo "Running which latex"
           which latex
 
       - name: Build Compas
@@ -42,6 +44,7 @@ jobs:
 
       - name: Run example COMPAS job
         run: |
+          pip install --upgrade pip
           pip install -e .[dev]
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
           cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
