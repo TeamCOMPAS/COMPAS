@@ -359,9 +359,12 @@ Options: { LEGACY, HURLEY, FIXED_TEMPERATURE } |br|
 ``LEGACY`` refers to the model used in Stevenson et al., 2017; ``HURLEY`` refers to the model of Hurley, Pols, Tout, 2002; and ``FIXED_TEMPERATURE`` assumes that a deep convective envelope developes only when the temperature drops below ``CONVECTIVE_BOUNDARY_TEMPERATURE`` (Klencki et al., 2020) |br|
 Default = LEGACY
 
-
 **--errors-to-file** |br|
 Write error messages to file. |br|
+Default = FALSE
+
+**--expel-convective-envelope-above-luminosity-threshold** |br|
+Expel convective envelope in a pulsation if the luminosity to mass ratio exceeds the threshold given by ``--luminosity-to-mass-threshold`` |br|
 Default = FALSE
 
 **--evolve-pulsars** |br|
@@ -750,6 +753,10 @@ Luminous blue variable mass loss prescription. |br|
 Options: { NONE, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
 No LBV winds for ``NONE``,  Hurley, Pols, Tout (2000) LBV winds only for ``HURLEY`` LBV stars (or in addition to other winds for ``HURLEY_ADD``, Belzcynski et al. 2010 winds for ``BELCZYNSKI`` |br|
 Default = HURLEY_ADD
+
+**--luminosity-to-mass-threshold** |br|
+Threshold log_10(Luminosity/Mass) (in solar units) above which, if the option ``expel-convective-envelope-above-luminosity-threshold`` is set to TRUE, pulsations eject the convective envelope |br|
+Default = 4.2
 
 .. _options-props-M:
 
@@ -1222,8 +1229,9 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Stellar evolution and winds**
 
---use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --luminous-blue-variable-multiplier, 
---mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier
+--use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, 
+--luminous-blue-variable-multiplier, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
+--expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold
 
 --chemically-homogeneous-evolution
 

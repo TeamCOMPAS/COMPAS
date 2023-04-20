@@ -11,6 +11,7 @@ human-readable, we provide some tools to help with processing the ``HDF5`` log f
    post-processing-hdf5-info.rst 
    Copying and concatenating: h5copy.py <post-processing-h5copy>
    View summary, header details, and contents: h5view.py <post-processing-h5view>
+   Sample from output: h5sample.py <post-processing-h5sample>
 
 .. rubric:: Footnotes
 

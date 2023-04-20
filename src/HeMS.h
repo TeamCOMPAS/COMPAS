@@ -126,6 +126,7 @@ protected:
 
             void            SetSNHydrogenContent()                                                      { m_SupernovaDetails.isHydrogenPoor = true; }                           // Always true
 
+            bool            ShouldEnvelopeBeExpelledByPulsations() const                                    { return false; }                                                       // No envelope to lose by pulsations
             bool            ShouldEvolveOnPhase() const                                                 { return (utils::Compare(m_Tau, 0.0) >= 0 && utils::Compare(m_Tau, 1.0) < 0); } // Evolve on HeMS phase if 0 <= tau < 1.0
             bool            ShouldSkipPhase() const                                                     { return false; }                                                       // Never skip HeMS phase
 
