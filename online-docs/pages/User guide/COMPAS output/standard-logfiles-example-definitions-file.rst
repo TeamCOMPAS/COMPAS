@@ -20,7 +20,7 @@ This file (``COMPAS_Output_Definitions.txt``) is also delivered as part of the C
     
     # SSE Parameters
     
-    # start with the default SSE Parameters specification and add ENV_MASSf
+    # start with the default SSE Parameters specification and add ENV_MASS
     
     sse_sysparms_rec += { STAR_PROPERTY::ENV_MASS }
     
