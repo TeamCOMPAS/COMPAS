@@ -1018,8 +1018,11 @@
 //                                      - Added missing const in WD files which was generating warnings when compiling.
 //                                   - Enhancement:
 //                                      - Added QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK based on Hurley+ 2002 and its corresponding documentation.
+// 02.38.03     IM - Apr 20, 2023    - Enhancement:
+//                                      - Updated defaults following #957
 
 
-const std::string VERSION_STRING = "02.38.02";
+const std::string VERSION_STRING = "02.38.03";
+
 
 # endif // __changelog_h__
