@@ -1046,6 +1046,7 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  * Approximates the mass of the outer convective envelope.
  *
  * This is needed for the Hirai & Mandel (2022) two-stage CE formalism.
+ * Follows the fits of Picker, Hirai, Mandel (2023).
  *
  *
  * double GiantBranch::CalculateConvectiveEnvelopeMass()
@@ -1053,13 +1054,19 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  * @return                                      Mass of the outer convective envelope
  */
 double GiantBranch::CalculateConvectiveEnvelopeMass() const {
-    double convectiveEnvelopeMass = 0.0;
-    if( DetermineEnvelopeType() == ENVELOPE::CONVECTIVE ) {
-        convectiveEnvelopeMass = Mass() - CoreMass() ;                                                                      // For now, return full envelope mass as if it were convective
-    }
-    else if ( DetermineEnvelopeType() == ENVELOPE::RADIATIVE) {
-        convectiveEnvelopeMass = 0.0;                                                                                       // We probably don't need to use RADIATIVE/CONVECTIVE arbitrary boundaries like this; this is just to ensure identical results with new and old prescriptions
-    }
+    
+    double log10Z = log10 (m_Metallicity);
+    HG clone = *this;                                                                                                       //create an HG star clone to query its core mass just after TAMS
+    double log10Ltams = log10 (clone.Luminosity());
+    double Mcorefinal = CalculateCoreMassAtBAGB(m_Mass);
+    double Mconvmax = m_Mass - 1.1 * Mcorefinal;
+    double b1 = 14.4 * log10Z * log10Z + 57.4 * log10Z + 95.7;
+    double a2 = -16.9 * log10Z * log10Z - 81.9 * log10Z - 47.9;
+    double b2 = 184.0 * log10Z * log10Z + 872.2 * log10Z + 370.0;
+    double c2 = -660.1 * log10Z * log10Z - 3482.0 * log10Z + 1489.0;
+    double Tnorm = a2 * log10Ltams * log10Ltams + b2 * log10Ltams + c2;
+    double convectiveEnvelopeMass = Mconvmax / (1+exp(b1*(m_Temperature*TSOL-Tnorm)/Tnorm));
+    
     return convectiveEnvelopeMass;
 }
 
