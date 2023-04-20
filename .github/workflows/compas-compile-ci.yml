@@ -28,6 +28,7 @@ jobs:
           tlmgr install type1cm
           tlmgr install underscore
           tlmgr install dvipng
+          tlmgr install psfrag
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
