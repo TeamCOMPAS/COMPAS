@@ -25,7 +25,7 @@ jobs:
       - name: add TeX deps
         run: |
           tlmgr install cm-super
-          tlmgr install fix-cm
+          tlmgr install type1cm
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
