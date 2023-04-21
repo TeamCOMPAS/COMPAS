@@ -1066,7 +1066,7 @@ double GiantBranch::CalculateConvectiveEnvelopeMass() const {
     double c2 = -660.1 * log10Z * log10Z - 3482.0 * log10Z + 1489.0;
     double Tnorm = a2 * log10Ltams * log10Ltams + b2 * log10Ltams + c2;
     double convectiveEnvelopeMass = Mconvmax / (1+exp(b1*(m_Temperature*TSOL-Tnorm)/Tnorm));
-    convectiveEnvelopeMass=std::max(std::min(convectiveEnvelopeMass, m_Mass-m_CoreMass) ,0);                                 // Ensure that convective envelope mass is limited to [0, envelope mass]
+    convectiveEnvelopeMass = std::max(std::min(convectiveEnvelopeMass, (m_Mass - m_CoreMass)), 0.0);                        // Ensure that convective envelope mass is limited to [0, envelope mass]
     
     return convectiveEnvelopeMass;
 }
