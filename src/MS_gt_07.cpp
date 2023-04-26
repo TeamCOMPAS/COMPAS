@@ -77,7 +77,6 @@ double MS_gt_07::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegen
     return qCrit;
 }
 
-
 /*
  * Determine the star's envelope type.
  *
