@@ -65,7 +65,6 @@ jobs:
             htmlcov/
             coverage_badge.svg
 
-
       - name: Archive COMPAS run data
         uses: actions/upload-artifact@v3
         with:
