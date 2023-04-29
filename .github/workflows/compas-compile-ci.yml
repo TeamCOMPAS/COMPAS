@@ -2,10 +2,13 @@ name: COMPAS compile test
 
 on:
   workflow_dispatch: # allow manual triggering of this workflow
-  pull_request:
+  pull_request: # run workflow when PRs made to dev (if following files changed)
     branches:
       - dev
     paths: ['src/**', "compas_python_utils/**", "py_tests/**", ".github/workflows/**"]
+  push: # always run workflow on push to the following branch
+    branches:
+      - dev
 
 jobs:
   compas:
@@ -37,6 +40,7 @@ jobs:
 
       - name: Run example COMPAS job
         run: |
+          pip install --upgrade pip
           pip install -e .[dev]
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
           cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
@@ -60,7 +64,6 @@ jobs:
           path: |
             htmlcov/
             coverage_badge.svg
-
 
       - name: Archive COMPAS run data
         uses: actions/upload-artifact@v3
