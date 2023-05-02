@@ -169,7 +169,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_BindingEnergies.loveridgeWinds           = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_BindingEnergies.kruckow                  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    // Supernova detais
+    // Supernova details
 
     m_SupernovaDetails.initialKickParameters   = p_KickParameters;
 
@@ -406,7 +406,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
  * functional return is a tuple: std::tuple<bool, COMPAS_VARIABLE_TYPE>.  This type
  * is COMPAS_VARIABLE by typedef.
  *
- * The bool returned indicates whether the property value was retireved ok: true = yes, fales = no
+ * The bool returned indicates whether the property value was retrieved ok: true = yes, fales = no
  * The COMPAS_VARIABLE_TYPE variable returned is a boost variant variable, the value of which is the
  * value of the underlying primitive variable.
  *
@@ -1379,7 +1379,7 @@ double BaseStar::InterpolateGe20QCrit( const QCRIT_PRESCRIPTION p_qCritPrescript
         upperMassInd = massesFromGe20.size();
     } 
 
-    // Get vector of radii from GE20_QCRIT_AND_ZETA for the lower and upper mass indeces
+    // Get vector of radii from GE20_QCRIT_AND_ZETA for the lower and upper mass indices
     std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsZetasFromGe20[lowerMassInd]);
     std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsZetasFromGe20[upperMassInd]);
 
@@ -2053,7 +2053,7 @@ double BaseStar::CalculateMassLoss_Static(const double p_Mass, const double p_Md
 /*
  * Calculate values for dt, mDot and mass assuming mass loss is applied
  *
- * Class member variables m_Mdot and m_Dt are updated directly by this function if required (see paramaters)
+ * Class member variables m_Mdot and m_Dt are updated directly by this function if required (see parameters)
  * Class member variables m_Mass is not updated directly by this function - the calculated mass is returned as the functional return
  *
  * - calculates (and limits) mass loss
@@ -2390,7 +2390,7 @@ double BaseStar::CalculateOStarRotationalVelocity_Static(const double p_Xmin, co
 
 
 /*
- * Calculate the inital rotational velocity (in km s^-1 ) of a star with ZAMS mass MZAMS
+ * Calculate the initial rotational velocity (in km s^-1 ) of a star with ZAMS mass MZAMS
  *
  * Distribution used is determined by program option "rotationalVelocityDistribution"
  *
@@ -3083,7 +3083,7 @@ double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_
         SHOW_WARN(ERROR::RADIUS_NOT_POSITIVE, "Binding energy = 0.0");                  // warn radius not positive
 	}
 	else if (utils::Compare(p_Lambda, 0.0) <= 0) {                                      // positive lambda?
-        // Not necesarily zero as sometimes lambda is made 0, or maybe weird values for certain parameters of the fit. Not sure about the latter.
+        // Not necessarily zero as sometimes lambda is made 0, or maybe weird values for certain parameters of the fit. Not sure about the latter.
         SHOW_WARN(ERROR::LAMBDA_NOT_POSITIVE, "Binding energy = 0.0");                  // warn lambda not positive
 	}
 	else {                                                                              // calculate binding energy
@@ -3246,10 +3246,10 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
     // calls this UpdateAttributesAndAgeOneTimestep, the GBParams and
     // Timescale functions are called here.
     //
-    // JR: todo: we should revisit where and how often we recalulate
+    // JR: todo: we should revisit where and how often we recalculate
     // GBParams and Timescales.  The problem is that there are multiple
     // entry points into the calculate/take timestep code that it isn't
-    // always abvious where we need to do this...  A project for another
+    // always obvious where we need to do this...  A project for another
     // time.
 
     CalculateGBParams();                                                                            // calculate giant branch parameters

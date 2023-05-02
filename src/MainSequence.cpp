@@ -103,7 +103,7 @@ double MainSequence::CalculateBetaL(const double p_Mass) const {
 
 
 /*
- * Calcluate the luminosity alpha constant alpha_L
+ * Calculate the luminosity alpha constant alpha_L
  *
  * Hurley et al. 2000, eqs 19a & 19b
  *
@@ -576,7 +576,7 @@ void MainSequence::UpdateAgeAfterMassLoss() {
  *
  * The original fits from de Mink+2013 were made for MS stars a Z=0.02.
  *
- * Uses class member variables instaed of passing in parameters
+ * Uses class member variables instead of passing in parameters
  *
  *
  * double CalculateGyrationRadius()
