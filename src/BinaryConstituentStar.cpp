@@ -109,7 +109,7 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
  *
  * double CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius)
  *
- * @param   [IN]    p_Mass                      The mass of the accreting star (Msol)
+ * @param   [IN]    p_Mass                      The mass of the accrediting star (Msol)
  * @param   [IN]    p_CompanionMass             The mass of the companion star (Msol)
  * @param   [IN]    p_CompanionRadius           The radius of the companion star (Rsol)
  * @return                                      Mass accreted by the Neutron Star (Msol)
@@ -128,7 +128,7 @@ double BinaryConstituentStar::CalculateMassAccretedForCO(const double p_Mass, co
             deltaMass = OPTIONS->CommonEnvelopeMassAccretionConstant();                                         // use program option
             break;
 
-        case CE_ACCRETION_PRESCRIPTION::UNIFORM:                                                                // UNIFROM
+        case CE_ACCRETION_PRESCRIPTION::UNIFORM:                                                                // UNIFORM
             deltaMass = RAND->Random(OPTIONS->CommonEnvelopeMassAccretionMin(), OPTIONS->CommonEnvelopeMassAccretionMax()); // uniform random distribution - Oslowski+ (2011)
             break;
 
@@ -299,14 +299,14 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
  *
  * void ResolveCommonEnvelopeAccretion(const double p_FinalMass)
  *
- * @param   [IN]    p_FinalMass                 Mass of the accreting object post mass transfer (Msol)
- * @param   [IN]    p_StellarType               Stellar type of the accreting object pre mass transfer 
+ * @param   [IN]    p_FinalMass                 Mass of the accrediting object post mass transfer (Msol)
+ * @param   [IN]    p_StellarType               Stellar type of the accrediting object pre mass transfer 
  */
 void BinaryConstituentStar::ResolveCommonEnvelopeAccretion(double p_FinalMass) {
 
     double deltaMass;
     
-    // LvS: todo: more consisten super eddington accretion during CE should also affect e.g. MS stars
+    // LvS: todo: more consistent super eddington accretion during CE should also affect e.g. MS stars
     if (IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE})) {                          
         deltaMass = CalculateMassAccretedForCO(Mass(), m_Companion->Mass(), m_Companion->Radius());
         m_MassTransferDiff = deltaMass;
