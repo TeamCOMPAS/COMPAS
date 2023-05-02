@@ -62,6 +62,7 @@ protected:
             double          CalculateCoreMassOnPhase() const                                            { return 0.0; }                                                         // Mc(HeMS) = 0.0
 
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
+            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                    { return 0.33; }                                                        // As coded in BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
 
             double          CalculateGyrationRadius() const                                             { return 0.1; }
 
@@ -125,6 +126,7 @@ protected:
 
             void            SetSNHydrogenContent()                                                      { m_SupernovaDetails.isHydrogenPoor = true; }                           // Always true
 
+            bool            ShouldEnvelopeBeExpelledByPulsations() const                                    { return false; }                                                       // No envelope to lose by pulsations
             bool            ShouldEvolveOnPhase() const                                                 { return (utils::Compare(m_Tau, 0.0) >= 0 && utils::Compare(m_Tau, 1.0) < 0); } // Evolve on HeMS phase if 0 <= tau < 1.0
             bool            ShouldSkipPhase() const                                                     { return false; }                                                       // Never skip HeMS phase
 

@@ -92,7 +92,7 @@ protected:
             void            ResolveHeliumFlash() { }                                                                                                                                                        // NO-OP
             STELLAR_TYPE    ResolveSkippedPhase()                                                                   { return m_StellarType; }                                                               // NO-OP
 
-            bool            ShouldEvolveOnPhase() const                                                             { return (utils::Compare(m_COCoreMass, std::min(m_GBParams[static_cast<int>(GBP::McSN)], m_Mass)) < 0); } // Evolve on TPAGB phase if envelope is not lost and not going supernova
+            bool            ShouldEvolveOnPhase() const                                                             { return ((utils::Compare(m_COCoreMass, std::min(m_GBParams[static_cast<int>(GBP::McSN)], m_Mass)) < 0) && !ShouldEnvelopeBeExpelledByPulsations()); } // Evolve on TPAGB phase if envelope is not lost and not going supernova
             bool            ShouldSkipPhase() const                                                                 { return false; }                                                                       // Never skip TPAGB phase
 
 };

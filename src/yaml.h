@@ -1,13 +1,21 @@
 #ifndef __yaml_h__
 #define __yaml_h__
 
+#include <algorithm>
+#include <chrono>
+
 namespace yaml {
 
 // YAML template rules (in no particular order):
 //
-//  1. The following two records will be automatically written to the start of YAML file:
+//  1. The following records will be automatically written to the start of YAML file:
 //         ##~!!~## COMPAS option values
 //         ##~!!~## Created at ddd MMM DD HH:MM:SS YYYY by COMPAS vxx.yy.zz
+//         ##~!!~## 
+//         ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
+//         ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
+//         ##~!!~## option is used by default. To use a value other than the COMPAS default value,
+//         ##~!!~## users must uncomment the entry and change the option value to the desired value.
 //
 //  2. Lines in the template beginning with "##~!!~##"" will not be preserved (these are assumed to be COMPAS generated headers, and will be rewritten by COMPAS).
 //  3. Leading '#' characters on option definition lines in the template will not be preserved (but they may be rewritten by COMPAS).
@@ -26,31 +34,36 @@ namespace yaml {
 //
 // 0001     ##~!!~## COMPAS option values
 // 0002     ##~!!~## File Created Tue Feb 14 13:09:06 2023 by COMPAS v02.34.06
-// 0003
-// 0004     # first comment
-// 0005
-// 0006     booleanChoices:
-// 0007         ### BINARY PROPERTIES
-// 0008     #    --allow-touching-at-birth          # Default: False                                        # second comment
-// 0009
-// 0010         ### STELLAR PROPERTIES
-// 0011         --mass-loss-prescription: 'HURLEY'  # Default: 'VINK'  # Options: ['VINK','HURLEY','NONE']    third comment
+// 0003     ##~!!~## 
+// 0004     ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
+// 0005     ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
+// 0006     ##~!!~## option is used by default. To use a value other than the COMPAS default value,
+// 0007     ##~!!~## users must uncomment the entry and change the option value to the desired value.
+// 0008
+// 0009     # first comment
+// 0010
+// 0011     booleanChoices:
+// 0012         ### BINARY PROPERTIES
+// 0013     #    --allow-touching-at-birth          # Default: False                                        # second comment
+// 0014
+// 0015         ### STELLAR PROPERTIES
+// 0016         --mass-loss-prescription: 'HURLEY'  # Default: 'VINK'  # Options: ['VINK','HURLEY','NONE']    third comment
 //
-// Lines 0001 and 0002 will not be preserved (but will be replaced by new COMPAS headers).
-// The blank line at line 0003 will be preserved.
-// The comment "first comment" (on line 0004) will be preserved.
-// The blank line at line 0005 will be preserved.
-// The header "booleanChoices:" on line 0006 will be preserved.
-// The header "### BINARY PROPERTIES" on line 0007 will be preserved.
-// The leading '#' on line 0008 will not be preserved (but may be rewritten by COMPAS if the option is set to default).
-// The string beginning with "# Default: " and extending to the next '#' on line 0008 will not be preserved (but will be replaced by COMPAS).
-// The comment "second comment" on line 0008 will be preserved.
-// The blank line at line 0009 will be preserved.
-// The header "### STELLAR PROPERTIES" on line 0010 will be preserved.
-// The string beginning with "# Default: " and extending to the next '#' on line 0011 will not be preserved (but will be replaced by COMPAS).
+// Lines 0001 - 0007 will not be preserved (but will be replaced by new COMPAS headers).
+// The blank line at line 0008 will be preserved.
+// The comment "first comment" (on line 0009) will be preserved.
+// The blank line at line 0010 will be preserved.
+// The header "booleanChoices:" on line 0011 will be preserved.
+// The header "### BINARY PROPERTIES" on line 0012 will be preserved.
+// The leading '#' on line 0013 will not be preserved (but may be rewritten by COMPAS if the option is set to default).
+// The string beginning with "# Default: " and extending to the next '#' on line 0013 will not be preserved (but will be replaced by COMPAS).
+// The comment "second comment" on line 0013 will be preserved.
+// The blank line at line 0014 will be preserved.
+// The header "### STELLAR PROPERTIES" on line 0015 will be preserved.
+// The string beginning with "# Default: " and extending to the next '#' on line 0016 will not be preserved (but will be replaced by COMPAS).
 // The string beginning with "# Options: " and extending to the next '#' (or, in this case because there is no subsequent #, the end of the 
-// line) on line 0011 will not be preserved (but will be replaced by COMPAS).
-// The comment "third comment" on line 0011 will not be preserved - there is no "# " prefix, so it will be subsumed by the "# Options: " string
+// line) on line 0016 will not be preserved (but will be replaced by COMPAS).
+// The comment "third comment" on line 0016 will not be preserved - there is no "# " prefix, so it will be subsumed by the "# Options: " string
 // (which extends from "# Options: " to the end of the line).
 
 
@@ -77,6 +90,7 @@ namespace yaml {
             "    ### STELLAR PROPERTIES",
             "    --check-photon-tiring-limit",
             "    --use-mass-loss",
+            "    --expel-convective-envelope-above-luminosity-threshold",
             "",
             "    ### BINARY PROPERTIES",
             "    --allow-touching-at-birth                                       # record binaries that have stars touching at birth in output files",
@@ -135,6 +149,7 @@ namespace yaml {
             "    --initial-mass-min                                              # use 5.0 for DCOs [Msol]",
             "    --initial-mass-max                                              # stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]",
             "    --initial-mass-power",
+            "    --luminosity-to-mass-threshold",
             "    --metallicity                                                   # metallicity for both SSE and BSE - Solar metallicity Asplund+2010",
             "    --metallicity-min",
             "    --metallicity-max",

@@ -67,6 +67,8 @@ protected:
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau) const;
     double          CalculateCoreMassOnPhase() const                            { return CalculateCoreMassOnPhase(m_Mass0, m_Tau); }                            // Use class member variables
 
+    double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const    { return 0.33; }                                                                // As coded in BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
+
     double          CalculateHeCoreMassAtPhaseEnd() const                       { return m_CoreMass; }
 
     double          CalculateGyrationRadius() const                             { return 0.21; }                                                                // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
@@ -104,7 +106,7 @@ protected:
     double          CalculateTauOnPhase() const;
 
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
-    void            CalculateTimescales()                                       { CalculateTimescales(m_Mass0, m_Timescales); }                                 // Use class member variables
+    void            CalculateTimescales()                                       { CalculateTimescales(m_Mass0, m_Timescales); }                        // Use class member variables
 
     double          ChooseTimestep(const double p_Time) const;
 
@@ -118,6 +120,7 @@ protected:
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
     void            ResolveHeliumFlash() {  }                                                                                                                   // NO-OP
 
+    bool            ShouldEnvelopeBeExpelledByPulsations() const { return ( OPTIONS->ExpelConvectiveEnvelopeAboveLuminosityThreshold() && DetermineEnvelopeType() == ENVELOPE::CONVECTIVE && utils::Compare( log10(m_Luminosity/m_Mass), OPTIONS->LuminosityToMassThreshold() ) >= 0 ) ; }                             // Envelope of convective star with luminosity to mass ratio beyond threshold should be expelled
     bool            ShouldEvolveOnPhase() const;
     bool            ShouldSkipPhase() const                                     { return false; }                                                               // Never skip CHeB phase
 

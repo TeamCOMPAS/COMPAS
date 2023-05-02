@@ -15,6 +15,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../compas_python_utils/'))
 
 
 # -- Project information -----------------------------------------------------
@@ -43,7 +44,14 @@ extensions = [
     'nbsphinx',
     'matplotlib.sphinxext.plot_directive',
     'IPython.sphinxext.ipython_console_highlighting',
-    'IPython.sphinxext.ipython_directive'
+    'IPython.sphinxext.ipython_directive',
+    "sphinx.ext.autodoc",
+    "numpydoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.autosectionlabel",
+    "sphinx.ext.viewcode",
+    "sphinxarg.ext",
+    "sphinx_tabs.tabs",
 ]
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None),

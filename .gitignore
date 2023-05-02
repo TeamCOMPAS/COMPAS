@@ -42,6 +42,5 @@ COMPAS
 
 # docs html
 *_build
-
 *.vscode
 

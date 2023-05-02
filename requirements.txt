@@ -16,6 +16,11 @@ sphinxcontrib.bibtex
 
 linuxdoc==20210324
 
+
+numpydoc
+sphinx-tabs
+sphinx-argparse
+
 nbsphinx
 
 ipykernel

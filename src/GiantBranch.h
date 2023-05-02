@@ -43,6 +43,7 @@ protected:
     static  double          CalculateCoreMass_Luminosity_Mx_Static(const DBL_VECTOR &p_GBParams);
 
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const; 
+            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const; 
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
     static  void            CalculateGBParams_Static(const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
