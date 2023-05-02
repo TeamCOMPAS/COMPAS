@@ -229,7 +229,7 @@ class calculate_spin(object):
         
         m_, c_ = -5./3, 0.5 # from Qin + 2018 
 
-        # if BH & formed second and tight enought at WR-BH phase, calculate spin with Qin+18 approximation for systems that have spin 1 
+        # if BH & formed second and tight enough at WR-BH phase, calculate spin with Qin+18 approximation for systems that have spin 1 
         maskGiveSpin1 = ((self.st1==14) & (self.M1formedSecond==1) &  (np.log10(self.PeriodPreSN2) < -0.3))
         maskGiveSpin2 = ((self.st2==14) & (self.M2formedSecond==1) &  (np.log10(self.PeriodPreSN2) < -0.3))
         # the systems above have maximum spin
@@ -256,7 +256,7 @@ class calculate_spin(object):
         it either returns (Geneva:) b, m_1, m_2, a_low,  or (MESA:) a_1, b_1, m_1, a_2 and b_2
         """
         
-        # return coeffiecients from paragraphs below equation 3 and 4 in Belczysnki et al. (2020) 
+        # return coefficients from paragraphs below equation 3 and 4 in Belczysnki et al. (2020) 
         if metallicity_range >= 0.010:
             return [2.258, 16.0, 24.2, 0.13] if prescription_name=='Geneva' else  [-0.0016, 0.115, np.inf, np.inf, np.inf]
 
@@ -547,7 +547,7 @@ class calculate_spin_olderCOMPASdata(object):
         
         m_, c_ = -5./3, 0.5 # from Qin + 2018 
 
-        # if BH & formed second and tight enought at WR-BH phase, calculate spin with Qin+18 approximation for systems that have spin 1 
+        # if BH & formed second and tight enough at WR-BH phase, calculate spin with Qin+18 approximation for systems that have spin 1 
         maskGiveSpin1 = ((self.st1==14) & (self.M1formedSecond==1) &  (np.log10(self.PeriodPreSN2) < -0.3))
         maskGiveSpin2 = ((self.st2==14) & (self.M2formedSecond==1) &  (np.log10(self.PeriodPreSN2) < -0.3))
         # the systems above have maximum spin
@@ -574,7 +574,7 @@ class calculate_spin_olderCOMPASdata(object):
         it either returns (Geneva:) b, m_1, m_2, a_low,  or (MESA:) a_1, b_1, m_1, a_2 and b_2
         """
         
-        # return coeffiecients from paragraphs below equation 3 and 4 in Belczysnki et al. (2020) 
+        # return coefficients from paragraphs below equation 3 and 4 in Belczysnki et al. (2020) 
         if metallicity_range >= 0.010:
             return [2.258, 16.0, 24.2, 0.13] if prescription_name=='Geneva' else  [-0.0016, 0.115, np.inf, np.inf, np.inf]
 
