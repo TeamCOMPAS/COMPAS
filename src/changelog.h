@@ -57,7 +57,7 @@
 //                                   Changed minor version number - should have been done at last release - we'll grant the '--version' option minor release status...
 // 02.03.01      JR - Nov 04, 2019 - Defect repair:
 //                                       removed erroneous initialisation of m_CEDetails.alpha from BaseBinaryStar::SetRemainingCommonValues()
-//                                       (CE Alpha was alwas being initialised to 0.0 regardless of program options)
+//                                       (CE Alpha was always being initialised to 0.0 regardless of program options)
 // 02.03.02      JR - Nov 25, 2019 - Defect repairs:
 //                                       added check for active log file before closing in Log::Stop()
 //                                       added CH stars to MAIN_SEQUENCE and ALL_MAIN_SEQUENCE initializer_lists defined in constants.h
@@ -98,7 +98,7 @@
 //                                       set M = McBAGB for EAGB & TPAGB only (was being set for all types >= TPAGB)
 //                                       added extra print detailed in BaseBinaryStar:Evolve() - sometimes missing a switch type in detailed output if only 1 timestep
 //                                       swapped heading strings for ANY_STAR_PROPERTY::IS_ECSN and ANY_STAR_PROPERTY::IS_USSN (now correct)
-//                                       removed condition in BaseBinaryStar::EvaluateSupernovae().  ResolveSupernova() is now called for all stellar types (not sure what I was thinking orginally. I'm sure I had a good reason - or maybe I was just tired...)
+//                                       removed condition in BaseBinaryStar::EvaluateSupernovae().  ResolveSupernova() is now called for all stellar types (not sure what I was thinking originally. I'm sure I had a good reason - or maybe I was just tired...)
 //                                       changed name of GiantBranch::CalculateProtoCoreMass() to GiantBranch::CalculateProtoCoreMassDelayed() and changed calls to the function
 //                                       swapped order of calculations of ePrime (CalculateOrbitalEccentricityPostSupernova()) and m_SemiMajorAxisPrime (CalculateSemiMajorAxisPostSupernova()) in BaseBinaryStar::ResolveSupernova().  Improper order was causing wrong value of m_SeminMajorAxisPrime to be used in calculation of ePrime
 //                                       set m_Disbound = true appropriately in BaseBinaryStar::Evolve() (note: m_Disbound will change name to m_Unbound soon...)
@@ -108,7 +108,7 @@
 //                                       added ResolveSupernova() to ONeWD.h - ONeWD stars were previously not checking for SN
 //                                       fixed BaseBinaryStar::InitialiseMassTransfer() - star1 was being updated instead of star2 for CH + CH stars when CHE enabled
 // 02.04.01      JR - Dec 23, 2019 - Defect repairs:
-//                                       Removed SN_EVENT::SN - all occurences of SN_EVENT::SN replaced by SN_EVENT::CCSN.
+//                                       Removed SN_EVENT::SN - all occurrences of SN_EVENT::SN replaced by SN_EVENT::CCSN.
 //                                           The current SN event ("Is"), and past SN event ("Experienced") are now bit maps (implemented as Enum Classes).  Each can have any of the values: CCSN, ECSN, PISN, PPSIN, USSN, RUNAWAY, RECYCLED_NS, and RLOF_ONTO_NS.  See definition of SN_EVENT Enum Class in constants.h for implementation and explanation.  
 //                                       Updated variables selectable for printing:
 //                                           Added ANY_STAR_PROPERTY::SN_TYPE (STAR_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY (should always be SN_EVENT::NONE for companion star))
@@ -125,7 +125,7 @@
 //                                       Changed initialisation function for HeGB stars (HeGB::Initialise() in HeGB.h) to NOT recalculate m_Age if evolving from HeHG -> HeGB 
 //                                       Removed initialisation of m_Age (to 0.0) from COWD::Initialise() in COWD.h
 //                                   Changed behaviour:  
-//                                       Changed binary star "disbound" flag to "unbound" flag.  Changed all occurences of "disbound" to "unbound".  Changed "unbound" header flag to "Unbound"
+//                                       Changed binary star "disbound" flag to "unbound" flag.  Changed all occurrences of "disbound" to "unbound".  Changed "unbound" header flag to "Unbound"
 // 02.04.02      JR - Jan 06, 2020 - Defect repairs:
 //                                       Added IsPISN() & IsPPISN() to IsSNEvent()
 //                                       Fixed check for SN event at top of BaseBinaryStar::ResolveSupenova()
@@ -198,7 +198,7 @@
 //                                       - removed commented RLOF printing lines in constant.h (somehow that was lost in some out of sync git merges...)
 //                                       - removed commented options no longer used from Options.h and Options.cpp
 //                                       - fixed units headers in constants.h - there are now no blank units headers, so SPACE delimited files now parse ok (multiple spaces should be treated as a single space)
-//                                       - changed file extention for TAB delimited files to 'tsv'
+//                                       - changed file extension for TAB delimited files to 'tsv'
 //                                       - removed "useImportanceSampling" option - not used in code
 //                                       - fixed typo in zeta-calculation-every-timestep option in Options.cpp
 //                                       - removed redundant OPTIONS->MassTransferCriticalMassRatioHeliumGiant() from qcritflag if statement in BaseBinaryStar::CalculateMassTransfer()
@@ -250,7 +250,7 @@
 //                                      - fixed issue #161 Splashscreen printed twice - now only prints once
 //                                      - fixed issue #162 OPTIONS->UseFixedUK() always returns FALSE.  Now returns TRUE if user supplies a fixed kick velocity via --fix-dimensionless-kick-velocity command line option
 // 02.08.03      JR - Mar 28, 2020 - Defect repairs:
-//                                      - fixed typo in BaseBinaryStar::ResolveCommonEnvelopeEvent() when calculating circularisation timescale in the case where star2 is the donor: star1Copy was errorneously used instead of star2Copy; changed to star2Copy
+//                                      - fixed typo in BaseBinaryStar::ResolveCommonEnvelopeEvent() when calculating circularisation timescale in the case where star2 is the donor: star1Copy was erroneously used instead of star2Copy; changed to star2Copy
 //                                      - changed circularisation timescale of binary to be minimum of constituent stars circularisation timescales, clamped to (0.0, infinity)
 // 02.09.00      JR - Mar 30, 2020 - Minor enhancements:
 //                                      - tightened the conditions under which we allow over-contact binaries - enabling CHE is no longer a sufficient condition after this change: the allow-rlof-at-birth option must also be specified (ussue #164)
@@ -379,7 +379,7 @@
 // 									    - Changed OrbitalVelocity to OrbitalAngularVelocity where that parameter was misnamed
 // 									    - Changed Pre/PostSNeOrbitalVelocity to OrbitalVelocityPre/PostSN for consistency
 // 									    - Added and updated physical conversion constants for clarity (e.g MSOL to MSOL_TO_KG)
-// 									    - Removed ID from output files, it is confusing and superceeded by SEED
+// 									    - Removed ID from output files, it is confusing and superseded by SEED
 // 									    - Removed 'Total' from TotalOrbital(Energy/AngularMomentum)
 // 									    - Typos
 // 02.13.10     IM - Aug 21, 2020   - Enhancement:
@@ -439,7 +439,7 @@
 //                                      - Issue #12 - Move enhancement STROOPWAFEL from Legacy COMPAS to new COMPAS
 //                                      - Issue #18 - double check STROOPWAFEL works in newCOMPAS
 //                                      - Issue #154 - Test compatibility of CompasHPC and BSE_Grid.txt
-//                                      - Added in combined functionaltiy of Stroopwafel and pythonSubmit, with support for HPC runs
+//                                      - Added in combined functionality of Stroopwafel and pythonSubmit, with support for HPC runs
 // 02.15.08     IM - Sep 14, 2020   - Defect repair:
 //                                      - Issue #375 Error in Hurley remnant mass calculation
 // 02.15.09     RTW - Oct 1, 2020   - Code cleanup:
@@ -562,7 +562,7 @@
 //                                          - replaced header string suffixes '_1', '_2', '_SN', and '_CP' with '(1)', '(2)', '(SN)', and '(CP)' respectively
 //                                          - now header strings ending in '(1)' indicate the value is for Star_1, '(2) for Star_2, '(SN)' for the supernova, and '(CP)' the companion
 //                                      - Issue #351
-//                                          - moved flags RECYCLED_NS and RLOF_ONTO_NS fron SN_EVENT enum - now flags in BinaryConstiuentStar class
+//                                          - moved flags RECYCLED_NS and RLOF_ONTO_NS from SN_EVENT enum - now flags in BinaryConstiuentStar class
 //                                          - removed RUNAWAY flag from SN_EVENT enum - removed entirely from code (not required)
 //                                      - Issue #362
 //                                          - changed header strings for RZAMS (radius at ZAMS) to 'Radius@ZAMS' - now consistent with MZAMS (mass at ZAMS - 'Mass@ZAMS')
@@ -672,7 +672,7 @@
 // 02.18.03     SS - Jan 19, 2021   - Enhancement:
 // 									    - Added check for neutron star mass against maximum neutron star mass. 
 //									      If a neutron star exceeds this mass it should collapse to a black hole. 
-//                                        This can be relevant for neutron stars accreting, e.g. during common envelope evolution
+//                                        This can be relevant for neutron stars accrediting, e.g. during common envelope evolution
 // 02.18.04     IM - Jan 28, 2021   - Enhancement:
 //                                      - NS to BH collapse preserves mass (see discussion in #514)
 //                                      - Fixed comment typo
@@ -737,10 +737,10 @@
 //
 //                                      - Defect Repairs:
 //                                          - fixed issue #548 - HDF5 detailed output files not created when random-seed specified in a grid file
-//                                          - fixed defect where records in HDF5 output files would be duplicated if the number of systems exceeded the HDF5 chunck size
+//                                          - fixed defect where records in HDF5 output files would be duplicated if the number of systems exceeded the HDF5 chunk size
 //                                            being used (the default chunk size is 100000 - that might explain why this problem hasn't been reported)
 //
-//                                      Modified h5view.py (in postProcessing/Folders/H5/PythonScripts) to handle detailed ouput files
+//                                      Modified h5view.py (in postProcessing/Folders/H5/PythonScripts) to handle detailed output files
 // 02.19.02     LVS - May 04, 2021   - Defect Repairs:
 //                                      - Avoid possibility of exceeding total mass in Farmer PPISN prescription
 // 02.19.03     TW - May 18, 2021    - Enhancement:
@@ -857,8 +857,8 @@
 //                                      - Cleaned / updated ResolveEnvelopeLoss
 //                                      - Fixed issue with masses and types of remnants formed from stripped HG stars
 // 02.26.02     RTW - Dec 17, 2021   - Defect repair, Code cleanup:
-//                                      - Changed all occurences of PPOW(base, 1.0/3.0) with std::cbrt, as the former could not handle negative bases
-//                                      - Changed all occurences of sqrt with std::sqrt for consistency with the above change
+//                                      - Changed all occurrences of PPOW(base, 1.0/3.0) with std::cbrt, as the former could not handle negative bases
+//                                      - Changed all occurrences of sqrt with std::sqrt for consistency with the above change
 // 02.26.03     IM - Jan 10, 2022    - Defect repair, code cleanup:
 //                                      - Cleaned up treatment of HG donors having CONVECTIVE envelopes in LEGACY; fixed an issues with CEs from HG donors introduced in 02.25.01 
 // 02.27.00     ML - Jan 12, 2022    - Enhancements:
@@ -873,7 +873,7 @@
 // 02.27.03     JR - Feb 8, 2022     - Defect repair:
 //                                      - Fix for issue # 745 - logfile definition records not updated correctly when using logfile-definitions file (see issue for details)
 // 02.27.04     RTW - Feb 15, 2022   - Defect repair:
-//                                      - Fix for issue # 761 - USSNe not occuring. See issue for details.
+//                                      - Fix for issue # 761 - USSNe not occurring. See issue for details.
 // 02.27.05     IRS - Feb 17, 2022   - Enhancements:
 //                                      - Add function HasOnlyOneOf, which returns true if a binary has only one component in the list of stellar types passed, and false if neither or both are in the list
 //                                      - Add function IsHMXRBinary, which returns true if HasOnlyOneOf(Black hole, Neutron star) and the companion radius is > 80% of the Roche Lobe radius
@@ -976,8 +976,8 @@
 //                                      - Changed units of ROCHE_LOBE_RADIUS_1 and ROCHE_LOBE_RADIUS_2 from orbital separation to RSOL
 //                                      - Changed header string for ROCHE_LOBE_RADIUS_1 from "RocheLobe(1)|a" to "RocheLobe(1)" - ditto for ROCHE_LOBE_RADIUS_2
 //                                      - removed STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 ("Radius(1)|RL")and STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 ("Radius(2)|RL") from
-//                                        the default output for BSE_DETAILED_OUTPUT_REC (can be calulated from other values in the default output)
-//                                      - changed plot_detailed_evolution.py to accomodate the removal of STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 and 
+//                                        the default output for BSE_DETAILED_OUTPUT_REC (can be calculated from other values in the default output)
+//                                      - changed plot_detailed_evolution.py to accommodate the removal of STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 and 
 //                                        STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 from the default output
 //                                      - changed online documentation to reflect:
 //                                           (a) removal of STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 and STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 from the default output
@@ -988,7 +988,7 @@
 //                                      - Added mass accretion prescription during CE following model 2 from van Son + 2020
 // 02.36.00     JR - Mar 15, 2023    - Enhancement, minor defect repairs:
 //                                      - Addressed issue #797 - implemented functionality to create YAML file.  Two new options (--create-YAML-file and --YAML-template).  See documentation for details.
-//                                      - Modifed runSubmit.py to work with new yaml file format (i.e. all options could be commented...)
+//                                      - Modified runSubmit.py to work with new yaml file format (i.e. all options could be commented...)
 //                                      - Minor defect repairs in options code
 //                                      - Minor fixes to online documentation; also clarified make arguments
 // 02.36.01     JR - Mar 20, 2023    - Documentation:
