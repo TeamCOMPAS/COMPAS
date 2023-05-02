@@ -1,5 +1,10 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Wed Feb 15 14:31:19 2023 by COMPAS v02.36.00
+##~!!~## File Created Thu Apr 20 14:21:04 2023 by COMPAS v02.38.03
+##~!!~##
+##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
+##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
+##~!!~## option is used by default. To use a value other than the COMPAS default value,
+##~!!~## users must uncomment the entry and change the option value to the desired value.
 
 booleanChoices:
 
@@ -8,7 +13,7 @@ booleanChoices:
 #    --detailed-output: False                                              # Default: False                                                                                                                                                              # WARNING! this creates a data heavy file
 #    --enable-warnings: False                                              # Default: False                                                                                                                                                              # option to enable/disable warning messages
 #    --errors-to-file: False                                               # Default: False
-#    --evolve-unbound-systems: False                                       # Default: False
+#    --evolve-unbound-systems: True                                        # Default: True
 #    --population-data-printing: False                                     # Default: False
 #    --print-bool-as-string: False                                         # Default: False
 #    --quiet: False                                                        # Default: False
@@ -19,6 +24,7 @@ booleanChoices:
     ### STELLAR PROPERTIES
 #    --check-photon-tiring-limit: False                                    # Default: False
 #    --use-mass-loss: True                                                 # Default: True
+#    --expel-convective-envelope-above-luminosity-threshold: False         # Default: False
 
     ### BINARY PROPERTIES
 #    --allow-touching-at-birth: False                                      # Default: False                                                                                                                                                              # record binaries that have stars touching at birth in output files
@@ -29,7 +35,7 @@ booleanChoices:
 #    --circularise-binary-during-mass-transfer: True                       # Default: True
 #    --hmxr-binaries: False                                                # Default: False
 #    --mass-transfer: True                                                 # Default: True
-#    --retain-core-mass-during-caseA-mass-transfer: False                  # Default: False
+#    --retain-core-mass-during-caseA-mass-transfer: True                   # Default: True
 
     ### COMMON ENVELOPE
 #    --common-envelope-allow-immediate-RLOF-post-CE-survive: False         # Default: False
@@ -42,7 +48,7 @@ booleanChoices:
 #    --revised-energy-formalism-nandez-ivanova: False                      # Default: False
 
     ### SUPERNOVAE, KICKS AND REMNANTS
-#    --allow-non-stripped-ECSN: True                                       # Default: True
+#    --allow-non-stripped-ECSN: False                                      # Default: False
 #    --pair-instability-supernovae: True                                   # Default: True
 #    --pulsational-pair-instability: True                                  # Default: True
 
@@ -77,6 +83,7 @@ numericalChoices:
 #    --initial-mass-min: 5.000000                                          # Default: 5.000000                                                                                                                                                           # use 5.0 for DCOs [Msol]
 #    --initial-mass-max: 150.00                                            # Default: 150.00                                                                                                                                                             # stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
 #    --initial-mass-power: 0.000000                                        # Default: 0.000000
+#    --luminosity-to-mass-threshold: 4.200000                              # Default: 4.200000
 #    --metallicity: 0.014200                                               # Default: 0.014200                                                                                                                                                           # metallicity for both SSE and BSE - Solar metallicity Asplund+2010
 #    --metallicity-min: 0.000100                                           # Default: 0.000100
 #    --metallicity-max: 0.030000                                           # Default: 0.030000
@@ -86,7 +93,7 @@ numericalChoices:
 #    --rotational-frequency: 0.000000                                      # Default: 0.000000
 #    --rotational-frequency-1: 0.000000                                    # Default: 0.000000
 #    --rotational-frequency-2: 0.000000                                    # Default: 0.000000
-#    --wolf-rayet-multiplier: 1.000000                                     # Default: 1.000000
+#    --wolf-rayet-multiplier: 0.100000                                     # Default: 0.100000
 
     ### BINARY PROPERTIES
 #    --eccentricity: 0.000000                                              # Default: 0.000000                                                                                                                                                           # eccentricity for BSE
@@ -170,7 +177,7 @@ numericalChoices:
 #    --maximum-neutron-star-mass: 2.500000                                 # Default: 2.500000
 #    --mcbur1: 1.600000                                                    # Default: 1.600000
 #    --muller-mandel-kick-multiplier-BH: 200.00                            # Default: 200.00                                                                                                                                                             # scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution
-#    --muller-mandel-kick-multiplier-NS: 400.00                            # Default: 400.00                                                                                                                                                             # scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution
+#    --muller-mandel-kick-multiplier-NS: 520.00                            # Default: 520.00                                                                                                                                                             # scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution
 #    --muller-mandel-sigma-kick: 0.300000                                  # Default: 0.300000                                                                                                                                                           # kick scatter when using the 'MULLERMANDEL' kick magnitude distribution
 #    --neutrino-mass-loss-BH-formation-value: 0.100000                     # Default: 0.100000
 #    --pisn-lower-limit: 60.000000                                         # Default: 60.000000                                                                                                                                                          # Minimum core mass for PISN [Msol]
@@ -226,18 +233,18 @@ stringChoices:
     ### COMMON ENVELOPE
 #    --common-envelope-formalism: 'ENERGY'                                 # Default: 'ENERGY'                      # Options: ['TWO_STAGE','ENERGY']
 #    --common-envelope-lambda-prescription: 'LAMBDA_NANJING'               # Default: 'LAMBDA_NANJING'              # Options: ['LAMBDA_DEWI','LAMBDA_KRUCKOW','LAMBDA_NANJING','LAMBDA_LOVERIDGE','LAMBDA_FIXED']                                       # Xu & Li 2010
-#    --common-envelope-mass-accretion-prescription: 'ZERO'                 # Default: 'ZERO'                        # Options: ['MACLEOD','UNIFORM','CONSTANT','ZERO']
+#    --common-envelope-mass-accretion-prescription: 'ZERO'                 # Default: 'ZERO'                        # Options: ['CHEVALIER','MACLEOD','UNIFORM','CONSTANT','ZERO']
 
     ### SUPERNOVAE, KICKS AND REMNANTS
 #    --black-hole-kicks: 'FALLBACK'                                        # Default: 'FALLBACK'                    # Options: ['FALLBACK','ZERO','REDUCED','FULL']
 #    --fryer-supernova-engine: 'DELAYED'                                   # Default: 'DELAYED'                     # Options: ['DELAYED','RAPID']
-#    --kick-magnitude-distribution: 'MAXWELLIAN'                           # Default: 'MAXWELLIAN'                  # Options: ['MULLERMANDEL','MULLER2016MAXWELLIAN','MULLER2016','BRAYELDRIDGE','MAXWELLIAN','FLAT','FIXED','ZERO']
+#    --kick-magnitude-distribution: 'MULLERMANDEL'                         # Default: 'MULLERMANDEL'                # Options: ['MULLERMANDEL','MULLER2016MAXWELLIAN','MULLER2016','BRAYELDRIDGE','MAXWELLIAN','FLAT','FIXED','ZERO']
 #    --kick-direction: 'ISOTROPIC'                                         # Default: 'ISOTROPIC'                   # Options: ['POLES','WEDGE','POWERLAW','PERPENDICULAR','INPLANE','ISOTROPIC']
 #    --neutron-star-equation-of-state: 'SSE'                               # Default: 'SSE'                         # Options: ['ARP3','SSE']
 #    --neutrino-mass-loss-BH-formation: 'FIXED_MASS'                       # Default: 'FIXED_MASS'                  # Options: ['FIXED_MASS','FIXED_FRACTION']
 #    --pulsar-birth-magnetic-field-distribution: 'ZERO'                    # Default: 'ZERO'                        # Options: ['LOGNORMAL','UNIFORM','FLATINLOG','FIXED','ZERO']
 #    --pulsar-birth-spin-period-distribution: 'ZERO'                       # Default: 'ZERO'                        # Options: ['NORMAL','UNIFORM','FIXED','ZERO']
-#    --remnant-mass-prescription: 'FRYER2012'                              # Default: 'FRYER2012'                   # Options: ['SCHNEIDER2020ALT','SCHNEIDER2020','MULLERMANDEL','MULLER2016','FRYER2022','FRYER2012','BELCZYNSKI2002','HURLEY2000']
+#    --remnant-mass-prescription: 'MULLERMANDEL'                           # Default: 'MULLERMANDEL'                # Options: ['SCHNEIDER2020ALT','SCHNEIDER2020','MULLERMANDEL','MULLER2016','FRYER2022','FRYER2012','BELCZYNSKI2002','HURLEY2000']
 
     ### LOGFILES AND OUTPUTS 
 #    --logfile-type: 'HDF5'                                                # Default: 'HDF5'                        # Options: ['TXT','TSV','CSV','HDF5','NONE']

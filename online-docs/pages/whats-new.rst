@@ -6,9 +6,24 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.38.03 Apr 20, 2023**
+
+* Changed some of the default options, see issue # 957 and PR # 961 for explanations *
+
+**02.37.00 Mar 26, 2023**
+
+* Added functionality for WDs to accrete in different regimes. 
+* New supernova types: SNIA (Type Ia), and HeSD (Helium shell detonation). 
+
 **02.36.00 Mar 15, 2022**
 
 * Added functionality to automatically create COMPAS YAML file - adds two new options: ``--create-YAML-file`` and ``YAML-template``. See documentation for details.  
+
+  **Note:** From this release, the default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has all COMPAS option entries commented so that the COMPAS default value for the option is used by default. To use a value other than the COMPAS default value, users must uncomment the entry and change the option value to the desired value.
+
+**02.35.03 Feb 27, 2023**
+
+Added mass accretion prescription during CE ``CHEVALIER`` for option ``--common-envelope-mass-accretion-prescription``, following model 2 from van Son + 2020
 
 **02.35.02 Feb 19, 2023**
 
@@ -17,6 +32,10 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 * Removed ``BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1`` (header string ``'Radius(1)|RL'``) and ``BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2`` (header string ``'Radius(2)|RL'``) from ``BSE_DETAILED_OUTPUT_REC`` (BSE detailed output file default record).  Note that both variables are still selectable for output via the logfile-definitions file.
 
   **Note:** These changes will affect post-processing code that consumes the affected variables - users should check their post-processing code. 
+
+**02.35.00 Dec 8, 2022**
+
+* Added critical mass ratios from Ge+ 2020 for determining if MT is unstable.
 
 **02.34.01 Dec 7, 2022**
 
