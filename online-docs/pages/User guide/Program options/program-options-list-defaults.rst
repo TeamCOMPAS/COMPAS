@@ -288,7 +288,7 @@ Options: { NONE, CLAEYS, GE20, GE20_IC, HURLEY_HJELLMING_WEBBINK } |br|
 ``CLAEYS`` uses qCrit values from Claeys et al. 2014. 
 ``GE20`` uses qCrit values from Ge et al. 2020 (adiabatic assumption). 
 ``GE20_IC`` uses qCrit values from Ge et al. 2020 (isentropic envelope assumption).
-``HURLEY_HJELLMING_WEBBINK`` uses qCrit values from Hurley et al. 2002 (Hjellming & Webbink 1987 for mass tranfer from a giant primary). |br|
+``HURLEY_HJELLMING_WEBBINK`` uses qCrit values from Hurley et al. 2002 (Hjellming & Webbink 1987 for mass transfer from a giant primary). |br|
 Warning: if running with ``--critical-mass-ratio-prescription``, zetas will not be computed, 
 so should not be trusted in the outputs. |br|
 Default = NONE
