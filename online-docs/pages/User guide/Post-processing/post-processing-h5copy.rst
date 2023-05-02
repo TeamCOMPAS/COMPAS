@@ -6,6 +6,17 @@ If the output file is an existing ``HDF5`` file, the user can specify whether th
 begins, or whether the copied data should be appended to the existing data. If multiple files are given as input files, the 
 resultant ``HDF5`` file is the concatenation of the input files.
 
+Use this program either with:
+```bash
+python /path/to/h5copy.py [options]
+```
+
+or, if you have installed the COMPAS python utilities:
+```bash
+compas_h5copy [options]
+```
+
+
 
 Some nomenclature
 -----------------
