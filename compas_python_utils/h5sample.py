@@ -9,6 +9,7 @@ import sys
 
 import h5py
 import numpy as np
+from tqdm.auto import tqdm
 
 from compas_python_utils.h5view import printSummary
 from compas_python_utils.h5copy import copyHDF5File
@@ -80,7 +81,10 @@ def sample_h5(
             "Set replace=True."
         )
 
-    print(f"Sampling {n} ({frac * 100:.2f}%) binaries from {compas_h5_filepath}.")
+    print(
+        f"Sampling {len(binary_seeds)}->{n} ({frac * 100:.2f}%) binaries from "
+        f"{compas_h5_filepath} [{seed_group}][{seed_key}].\n"
+    )
 
     print("Original file summary:")
     with h5py.File(compas_h5_filepath, "r") as compas_h5_file:
@@ -97,6 +101,7 @@ def sample_h5(
 
 
 def _sample(h5_file: h5py.File, sample_key: str, sample_values: np.ndarray):
+    print("Setting sampled seeds for groups:")
     for group_name, group in h5_file.items():
 
         if sample_key not in group:
@@ -106,8 +111,8 @@ def _sample(h5_file: h5py.File, sample_key: str, sample_values: np.ndarray):
 
         # get group_seed index for values in sampled_binary_seeds
         sample_idx = []
-        for i, s in enumerate(sample_values):
-            sample_idx.append(np.where(group_values == s))
+        for s in tqdm(sample_values, desc=f"{group_name}"):
+            sample_idx.append(np.where(group_values == s)[0])
         sample_idx = np.concatenate(sample_idx).ravel()
         new_shape = (len(sample_idx),)
 
