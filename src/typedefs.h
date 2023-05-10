@@ -135,9 +135,9 @@ typedef struct PulsarDetails {
     double magneticField;                                   // Pulsar magnetic field strength (G)
     double spinPeriod;                                      // Pulsar spin period (ms)
     double spinFrequency;                                   // Pulsar spin frequency in rads per second
-    double spinDownRate;                                    // Pulsar spin down rate (Pdot, dimensionless)
+    double spinDownRate;                                    // Pulsar spin down rate as time derivative of spin frequency (fdot, rad s^-2)
     double birthPeriod;                                     // Pulsar birth period (s)
-    double birthSpinDownRate;                               // Pulsar birth down rate(s s-1)
+    double birthSpinDownRate;                               // Pulsar birth down rate as Pdot (s s^-1)
 } PulsarDetailsT;
 
 
