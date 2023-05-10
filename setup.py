@@ -115,6 +115,7 @@ if __name__ == "__main__":
         entry_points={
             "console_scripts": [
                 f"compas_h5view= {NAME}.h5view:main",
+                f"compas_h5copy= {NAME}.h5copy:main",
                 f"compas_h5sample= {NAME}.h5sample:main",
                 f"compas_plot_detailed_evolution={NAME}.detailed_evolution_plotter.plot_detailed_evolution:main",
                 f"compas_run_submit={NAME}.preprocessing.runSubmit:main",

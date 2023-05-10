@@ -1020,20 +1020,8 @@
 //                                      - Added QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK based on Hurley+ 2002 and its corresponding documentation.
 // 02.38.03     IM - Apr 20, 2023    - Enhancement:
 //                                      - Updated defaults following #957
-// 02.38.04     YS - Apr 12, 2023     - Updates and changes to NS.cpp:
-//                                      - Added NS::ChoosTimeStep(). Detailed time step description and reasoning can be found in NS.cpp
-//                                      - Added output options (not default): PULSAR_BIRTH_PERIOD and PULSAR_BIRTH_SPIN_DOWN_RATE, which output the birth spin period and period derivative of a pulsar
-//                                      - Updated codes on pulsar evolution, solving the problem of pulsars not evolving properly. This is written in cgs. 
-//                                      - Added NS::SpinDownIsolatePulsar(), describes single pulsar spinning down with magnetic braking. 
-//                                          This is later used in different situaions in NS::UpdateMagneticFieldAndSpin()
-//                                      - In BSE_Pulsar_Evolution file, it was not recording the pulsar parameters at birth. 
-//                                          Pulsar was also evolved an additional time step here with unspecificed size
-//                                          Fix to this problem is done with setting PULSAR_RECORD_TYPE:
-//                                           (a) if record_type = 1 (DEFAULT), it is the initial values of pulsar set at birth
-//                                           (b) if record_type = 2 (POST_BINARY_TIMESTEP), it is the normal pulsar evolution
-//                                      - Another caveat:
-//                                         pulsar recycling mechanisms are not yet fully implemented, so COMPAS cannot produce MSPs for the time being.
-//                                         future updates will solve this issue. 
+// 02.38.04     IM - Apr 20, 2023    - Enhancement:
+//                                      - Included Picker et al. (2023, in prep.) fits for the convective envelope mass in the TWO_STAGE common envelope treatment
 
 const std::string VERSION_STRING = "02.38.04";
 
