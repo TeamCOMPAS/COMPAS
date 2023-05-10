@@ -368,7 +368,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
     }
     else if ((p_RecycledNS || p_CommonEnvelope) && utils::Compare(p_MassGainPerTimeStep, 0.0) > 0) {
 
-        // calculate the Alfven radius for an accrediting neutron star, see Equation 8 in  arXiv:0903.3538v2       
+        // calculate the Alfven radius for an accreting neutron star, see Equation 8 in  arXiv:0903.3538v2       
         double mDot         = p_MassGainPerTimeStep / p_Stepsize ;
         double p            = ((radius * radius * radius * radius * radius * radius) / (std::sqrt(mass) * mDot));
         double q            = PPOW(p, 2.0 / 7.0);
@@ -380,7 +380,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         double keplerianAngularVelocityAtAlfvenRadius = 2.0 * (keplerianVelocityAtAlfvenRadius / alfvenRadius);
         double velocityDifference                     = keplerianAngularVelocityAtAlfvenRadius - m_PulsarDetails.spinFrequency;
 
-        // calculate accretion induced magnetic field decay for an accrediting neutron star, see Equation 7 in arXiv:0903.3538v2       
+        // calculate accretion induced magnetic field decay for an accreting neutron star, see Equation 7 in arXiv:0903.3538v2       
         m_PulsarDetails.magneticField = magFieldLowerLimit + exp(-(1.0 / kappa) * p_MassGainPerTimeStep) * (m_PulsarDetails.magneticField - magFieldLowerLimit);  // pulsar magnetic field
 
         // calculate the change in angular momentum due to accretion, see Equation 12 in arXiv:0805.0059/ Equation 8 in arxiv:1912.02415 
