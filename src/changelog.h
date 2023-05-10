@@ -1022,8 +1022,22 @@
 //                                      - Updated defaults following #957
 // 02.38.04     IM - Apr 20, 2023    - Enhancement:
 //                                      - Included Picker et al. (2023, in prep.) fits for the convective envelope mass in the TWO_STAGE common envelope treatment
+// 02.38.05     YS - May 10, 2023     - Updates and changes to NS.cpp:
+//                                      - Added NS::ChooseTimeStep(). Detailed time step description and reasoning can be found in NS.cpp
+//                                      - Added output options (not default): PULSAR_BIRTH_PERIOD and PULSAR_BIRTH_SPIN_DOWN_RATE, which output the birth spin period and period derivative of a pulsar
+//                                      - Updated codes on pulsar evolution, solving the problem of pulsars not evolving properly. This is written in cgs. 
+//                                      - Added NS::SpinDownIsolatedPulsar(), describes single pulsar spinning down with magnetic braking. 
+//                                          This is later used in NS::UpdateMagneticFieldAndSpin()
+//                                      - m_PulsarDetails.spinDownRate was described as Pdot (s s^-1), when it is in fact f-dot(rad s^-2). This is now corrected. 
+//                                      - In BSE_Pulsar_Evolution file, the pulsar parameters at birth were not recorded. 
+//                                          Pulsar was also evolved an additional time step here with unspecificed size.
+//                                          Fix to this problem is done by setting the PULSAR_RECORD_TYPE:
+//                                           (a) if record_type = 1 (DEFAULT), these are the initial values of the pulsar set at birth
+//                                           (b) if record_type = 3 (POST_BINARY_TIMESTEP), these describe normal pulsar evolution
+//                                      - Another caveat:
+//                                         pulsar recycling mechanisms are not yet fully implemented, so COMPAS cannot produce MSPs for the time being; more updates to come.
 
-const std::string VERSION_STRING = "02.38.04";
+const std::string VERSION_STRING = "02.38.05";
 
 
 # endif // __changelog_h__

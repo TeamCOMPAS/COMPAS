@@ -335,7 +335,8 @@ enum class DCO_RECORD_TYPE: unsigned int {                                      
 };
 
 enum class PULSAR_RECORD_TYPE: unsigned int {                                                                       // BSE_PULSAR_EVOLUTION file record type
-    DEFAULT = 1                                                                                                     // 1 - default BSE_PULSAR_EVOLUTION file record type
+    DEFAULT = 1,                                                                                                    //  1 - record describes the initial state of the binary
+    POST_BINARY_TIMESTEP                                                                                            //  3 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
 };
 
 enum class RLOF_RECORD_TYPE: unsigned int {                                                                         // BSE_RLOF_PARAMETERS file record type
@@ -1778,6 +1779,8 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     ORBITAL_ENERGY_PRE_SUPERNOVA,                    \
     PULSAR_MAGNETIC_FIELD,                           \
     PULSAR_SPIN_DOWN_RATE,                           \
+    PULSAR_BIRTH_PERIOD,                             \
+    PULSAR_BIRTH_SPIN_DOWN_RATE,                     \
     PULSAR_SPIN_FREQUENCY,                           \
     PULSAR_SPIN_PERIOD,                              \
     RADIAL_EXPANSION_TIMESCALE,                      \
@@ -1929,6 +1932,8 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA,                    "ORBITAL_ENERGY_PRE_SUPERNOVA" },
     { STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,                           "PULSAR_MAGNETIC_FIELD" },
     { STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE,                           "PULSAR_SPIN_DOWN_RATE" },
+    { STAR_PROPERTY::PULSAR_BIRTH_PERIOD,                             "PULSAR_BIRTH_PERIOD" },
+    { STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,                     "PULSAR_BIRTH_SPIN_DOWN_RATE" },
     { STAR_PROPERTY::PULSAR_SPIN_FREQUENCY,                           "PULSAR_SPIN_FREQUENCY" },
     { STAR_PROPERTY::PULSAR_SPIN_PERIOD,                              "PULSAR_SPIN_PERIOD" },
     { STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE,                      "RADIAL_EXPANSION_TIMESCALE" },
@@ -2810,6 +2815,8 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA,                      { TYPENAME::DOUBLE,         "Orbital_Energy<SN",    "Msol^2AU^-1",      14, 6 }},
     { ANY_STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,                             { TYPENAME::DOUBLE,         "Pulsar_Mag_Field",     "Tesla",            14, 6 }},
     { ANY_STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE,                             { TYPENAME::DOUBLE,         "Pulsar_Spin_Down",     "rad/s^2",          14, 6 }},
+    { ANY_STAR_PROPERTY::PULSAR_BIRTH_PERIOD,                               { TYPENAME::DOUBLE,         "Pulsar_Birth_Period",  "s",                14, 6 }},
+    { ANY_STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,                       { TYPENAME::DOUBLE,         "Pulsar_Birth_Spin_Down", "s/s",            14, 6 }},//Unit of period derivative is second per second. 
     { ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY,                             { TYPENAME::DOUBLE,         "Pulsar_Spin_Freq",     "rad/s",            14, 6 }},
     { ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD,                                { TYPENAME::DOUBLE,         "Pulsar_Spin_Period",   "ms",               14, 6 }},
     { ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE,                        { TYPENAME::DOUBLE,         "Tau_Radial",           "Myr",              16, 8 }},
@@ -3384,6 +3391,10 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_2_PROPERTY::PULSAR_SPIN_FREQUENCY,
     STAR_1_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_2_PROPERTY::PULSAR_SPIN_DOWN_RATE,
+    STAR_1_PROPERTY::PULSAR_BIRTH_PERIOD,
+    STAR_2_PROPERTY::PULSAR_BIRTH_PERIOD,
+    STAR_1_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
+    STAR_2_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
     STAR_1_PROPERTY::RADIAL_EXPANSION_TIMESCALE,
     STAR_2_PROPERTY::RADIAL_EXPANSION_TIMESCALE
 };
@@ -3427,6 +3438,10 @@ const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
     STAR_2_PROPERTY::PULSAR_SPIN_FREQUENCY,
     STAR_1_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_2_PROPERTY::PULSAR_SPIN_DOWN_RATE,
+    STAR_1_PROPERTY::PULSAR_BIRTH_PERIOD,
+    STAR_2_PROPERTY::PULSAR_BIRTH_PERIOD,
+    STAR_1_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
+    STAR_2_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
     BINARY_PROPERTY::TIME,
     BINARY_PROPERTY::DT
 };
