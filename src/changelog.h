@@ -1026,7 +1026,7 @@
 //                                      - Added NS::ChoosTimeStep(). Detailed time step description and reasoning can be found in NS.cpp
 //                                      - Added output options (not default): PULSAR_BIRTH_PERIOD and PULSAR_BIRTH_SPIN_DOWN_RATE, which output the birth spin period and period derivative of a pulsar
 //                                      - Updated codes on pulsar evolution, solving the problem of pulsars not evolving properly. This is written in cgs. 
-//                                      - Added NS::SpinDownIsolatePulsar(), describes single pulsar spinning down with magnetic braking. 
+//                                      - Added NS::SpinDownIsolatedPulsar(), describes single pulsar spinning down with magnetic braking. 
 //                                          This is later used in different situaions in NS::UpdateMagneticFieldAndSpin()
 //                                      - m_PulsarDetails.spinDownRate was described as Pdot (s s^-1), when it is in fact f-dot(rad s^-2). This is now corrected. 
 //                                      - In BSE_Pulsar_Evolution file, it was not recording the pulsar parameters at birth. 
