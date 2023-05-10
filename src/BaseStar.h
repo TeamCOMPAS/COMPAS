@@ -108,6 +108,8 @@ public:
             double              Pulsar_SpinPeriod() const                                       { return m_PulsarDetails.spinPeriod; }
             double              Pulsar_SpinFrequency() const                                    { return m_PulsarDetails.spinFrequency; }
             double              Pulsar_SpinDownRate() const                                     { return m_PulsarDetails.spinDownRate; }
+            double              Pulsar_BirthPeriod() const                                      { return m_PulsarDetails.birthPeriod; }
+            double              Pulsar_BirthSpinDownRate() const                                { return m_PulsarDetails.birthSpinDownRate; }
             double              Radius() const                                                  { return m_Radius; }
             double              RadiusPrev() const                                              { return m_RadiusPrev; }
             unsigned long int   RandomSeed() const                                              { return m_RandomSeed; }
