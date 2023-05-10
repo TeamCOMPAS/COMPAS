@@ -79,8 +79,7 @@ protected:
     static  double          CalculateSpinDownRate_Static(const double p_Omega,
                                                          const double p_MomentOfInteria,
                                                          const double p_MagField,
-                                                         const double p_Radius,
-                                                         double const p_Alpha);
+                                                         const double p_Radius);
 
             double          ChooseTimestep(const double p_Time) const;
 

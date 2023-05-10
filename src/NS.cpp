@@ -339,7 +339,7 @@ void NS::CalculateAndSetPulsarParameters() {
     m_MomentOfInertia                 = CalculateMomentOfInertia_Static(m_Mass, m_Radius * RSOL_TO_KM) ;                                                                           // in CGS g cm^2
 	// Note we convert neutronStarMomentOfInertia from CGS to SI here
 	constexpr double factor           = G_TO_KG * CM_TO_M * CM_TO_M;
-    m_PulsarDetails.spinDownRate      = CalculateSpinDownRate_Static(m_PulsarDetails.spinFrequency, m_MomentOfInertia, m_PulsarDetails.magneticField,  m_Radius * RSOL_TO_KM, 1.0);   // sin(alpha) = 1.0
+    m_PulsarDetails.spinDownRate      = CalculateSpinDownRate_Static(m_PulsarDetails.spinFrequency, m_MomentOfInertia, m_PulsarDetails.magneticField,  m_Radius * RSOL_TO_KM);  
     m_PulsarDetails.birthSpinDownRate = m_PulsarDetails.spinDownRate; 
     m_AngularMomentum                 = _2_PI * m_MomentOfInertia / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS) * factor;                                                              // in kg m^2 sec^-1
 
