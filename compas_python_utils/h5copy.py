@@ -520,7 +520,7 @@ def main():
 
     # setup argument parser
     formatter = lambda prog: argparse.HelpFormatter(prog, max_help_position = 4, width = 90)
-    parser = argparse.ArgumentParser(description = 'HDF5 file copier.', formatter_class = formatter)
+    parser = argparse.ArgumentParser(prog="compas_h5copy",  description = 'HDF5 file copier.', formatter_class = formatter)
 
     # define arguments
     parser.add_argument('inputPaths', metavar = 'input', type = str, nargs = '+', help = 'input directory and/or file name(s)')

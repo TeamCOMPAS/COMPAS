@@ -1,7 +1,7 @@
 import os
 
+import numpy as np
 import pytest
-
 from conftest import get_compas_data
 from deepdiff import DeepDiff
 
@@ -10,6 +10,7 @@ from compas_python_utils import h5sample
 
 def test_sample(tmp_path, example_compas_output_path):
     """Test that h5sample can sample a file"""
+    np.random.seed(0)
     init_file = example_compas_output_path
 
     test_kwargs = [
@@ -30,7 +31,7 @@ def test_sample(tmp_path, example_compas_output_path):
         new_data = get_compas_data(new_file)
         diff = DeepDiff(init_data, new_data)
         assert (
-                len(diff) > 0
+            len(diff) > 0
         ), f"The sampled file is the same as the original when using kwgs: {kwg}"
 
 
