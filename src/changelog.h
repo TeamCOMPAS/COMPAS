@@ -672,7 +672,7 @@
 // 02.18.03     SS - Jan 19, 2021   - Enhancement:
 // 									    - Added check for neutron star mass against maximum neutron star mass. 
 //									      If a neutron star exceeds this mass it should collapse to a black hole. 
-//                                        This can be relevant for neutron stars accrediting, e.g. during common envelope evolution
+//                                        This can be relevant for neutron stars accreting, e.g. during common envelope evolution
 // 02.18.04     IM - Jan 28, 2021   - Enhancement:
 //                                      - NS to BH collapse preserves mass (see discussion in #514)
 //                                      - Fixed comment typo
