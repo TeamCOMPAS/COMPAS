@@ -432,13 +432,13 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
     double kappa              = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_KG;     
   
     if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGainPerTimeStep, 0.0) == 0 )) {
-        //This is the ''classical'' isolated pulsars
+        //These are the ''classical'' isolated pulsars
         SpinDownIsolatedPulsar(p_Stepsize);
     }
     else if ((m_PulsarDetails.spinFrequency < 2.0 * M_PI * 1000.0) && (p_RecycledNS || p_CommonEnvelope) && utils::Compare(p_MassGainPerTimeStep, 0.0) > 0) {
         //This part of the code does pulsar recycling through acretion
         //Recycling happens for pulsar with spin period larger than 1 ms and in a binary system with mass transfer
-        //The pulsar being recycled should either have a common envolope, or has started the recycling process in previous time steps.
+        //The pulsar being recycled is either in a common envolope, or should have started the recycling process in previous time steps.
         double mass_kg              = m_Mass * MSOL_TO_KG; //in kg
         double r_m                  = m_Radius * RSOL_TO_KM * 1000.0; //in meters
         
