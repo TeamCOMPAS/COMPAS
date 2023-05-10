@@ -50,9 +50,8 @@ double NS::ChooseTimestep(const double p_Time) const {
         result = 1.0;
     }
     else if (p_Time < 500.0) {
-        double slope      = (log10(500.0) - log10(1.0)) / (log10(500.0) - log10(10.0));
-        double intersect  = log10(1.0) - slope * log10(10.0);
-        double log10_step = intersect + slope * log10(p_Time);
+        double slope      = log10(500.0)  / (log10(500.0) - 1.0);
+        double log10_step = slope * (log10(p_Time) - 1.0);
         result = PPOW(10.0, log10_step);
     }
     else {
@@ -296,17 +295,17 @@ double NS::CalculateMomentOfInertia_Static(const double p_Mass, const double p_R
  * See Equation 2 in https://arxiv.org/pdf/1912.02415.pdf
  *
  * This is changed to the form of calculating spindown with P and Pdot, then convert to OmegaDot and to be recorded in the output file.
+ * Evolution of the inclination between pulsar magnetic and rotational axes will be considered in a future version. 
  *
- * double CalculateSpinDownRate_Static(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius, double const p_Alpha)
+ * double CalculateSpinDownRate_Static(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius)
  *
  * @param   [IN]    p_Omega                     Pulsar spin frequency. 
  * @param   [IN]    p_MomentOfInteria           Moment of Interia of the Neutron Star in kg m^2
  * @param   [IN]    p_MagField                  Magnetic field in Tesla
  * @param   [IN]    p_Radius                    Radius of the Neutron Star in metres
- * @param   [IN]    p_Alpha                     value of sin(alpha), where alpha is value of the inclination between pulsar magnetic and rotational axes.
  * @return                                      Spin down rate (spin frequency derivative) of an isolated Neutron Star in s^(-2)
  */
-double NS::CalculateSpinDownRate_Static(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius, double const p_Alpha) {
+double NS::CalculateSpinDownRate_Static(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius) {
 
    // pow() is slow - use multiplication
 
@@ -360,11 +359,11 @@ void NS::CalculateAndSetPulsarParameters() {
  *    m_PulsarDetails.spinDownRate
  *
  *
- * void SpinDownIsolatePulsar(const double p_Stepsize)
+ * void SpinDownIsolatedPulsar(const double p_Stepsize)
  *
  * @param   [IN]    p_Stepsize                  Timestep size for integration (in seconds)
  */
-void NS::SpinDownIsolatePulsar(const double p_Stepsize) {
+void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     
     double NSRadius_IN_CM = m_Radius * RSOL_TO_KM * KM_TO_CM ;
     double NSRadius_3     = NSRadius_IN_CM * NSRadius_IN_CM * NSRadius_IN_CM;
@@ -434,10 +433,12 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
   
     if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGainPerTimeStep, 0.0) == 0 )) {
         //This is the ''classical'' isolated pulsars
-        SpinDownIsolatePulsar(p_Stepsize);
+        SpinDownIsolatedPulsar(p_Stepsize);
     }
     else if ((m_PulsarDetails.spinFrequency < 2.0 * M_PI * 1000.0) && (p_RecycledNS || p_CommonEnvelope) && utils::Compare(p_MassGainPerTimeStep, 0.0) > 0) {
-        //This is partially recycling the pulsars in a CE system 
+        //This part of the code does pulsar recycling through acretion
+        //Recycling happens for pulsar with spin period larger than 1 ms and in a binary system with mass transfer
+        //The pulsar being recycled should either have a common envolope, or has started the recycling process in previous time steps.
         double mass_kg              = m_Mass * MSOL_TO_KG; //in kg
         double r_m                  = m_Radius * RSOL_TO_KM * 1000.0; //in meters
         
@@ -472,11 +473,11 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             m_AngularMomentum               = angularMomentum_SI / unitsMoI;
         } 
         else {
-            SpinDownIsolatePulsar(p_Stepsize);
+            SpinDownIsolatedPulsar(p_Stepsize);
         }        
     }
-    else if  (p_RecycledNS && utils::Compare(p_MassGainPerTimeStep, 0.0) == 0 ) {
-        //After recycling is completed, pulsar keeps evolving as an isolated pulsar. 
-        SpinDownIsolatePulsar(p_Stepsize);
+    else  {
+        //In all other conditions, treat the pulsar as isolated. 
+        SpinDownIsolatedPulsar(p_Stepsize);
     }
 }
