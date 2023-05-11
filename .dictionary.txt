@@ -9,3 +9,6 @@ NWO
 nd
 lamda
 bject
+accreting
+accrete
+accreted
