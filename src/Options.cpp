@@ -351,6 +351,9 @@ void Options::OptionValues::Initialise() {
     m_LuminousBlueVariablePrescription.type                         = LBV_PRESCRIPTION::HURLEY_ADD;
     m_LuminousBlueVariablePrescription.typeString                   = LBV_PRESCRIPTION_LABEL.at(m_LuminousBlueVariablePrescription.type);
 
+    m_VeryMassiveStarMassLoss.type                                  = VERY_MASSIVE_STAR_MASS_LOSS::NONE;
+    m_VeryMassiveStarMassLoss.typeString                            = VERY_MASSIVE_STAR_MASS_LOSS_LABEL.at(m_VeryMassiveStarMassLoss.type);
+
     // Wind mass loss multiplicitive constants
     m_CoolWindMassLossMultiplier                                    = 1.0;
     m_LuminousBlueVariableFactor                                    = 1.5;
@@ -1725,6 +1728,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "stellar-zeta-prescription",                                   
             po::value<std::string>(&p_Options->m_StellarZetaPrescription.typeString)->default_value(p_Options->m_StellarZetaPrescription.typeString),                                                            
             ("Prescription for stellar zeta (default = " + p_Options->m_StellarZetaPrescription.typeString + ")").c_str()
+        )
+        (
+            "very-massive-star-mass-loss",                                      
+            po::value<std::string>(&p_Options->m_VeryMassiveStarMassLoss)->default_value(p_Options->m_VeryMassiveStarMassLoss.typeString),                                                                  
+            ("Very massive star mass loss prescription (options: [NONE, VINK2011, BESTENLEHNER2020], default = " + p_Options->m_VeryMassiveStarMassLoss.typeString + ")").c_str()
         )
 
 

@@ -1940,8 +1940,85 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021(const double p_Teff) {
 double BaseStar::CalculateMassLossRateOBKrticka2018() const {
 
     double logMdotOB;
-    logMdotOB = -5.70 + 0.50 * log10(m_Metallicity / ZSOL) + (1.61 - 0.12 * log10(m_Metallicity/ZSOL)) * log10(m_Luminosity / 1.0E6);
+    logMdotOB = -5.70 + 0.50 * log10(m_Metallicity / ZSOL) + (1.61 - 0.12 * log10(m_Metallicity / ZSOL)) * log10(m_Luminosity / 1.0E6);
     return PPOW(10.0, logMdotOB);
+}
+
+/*
+ * Calculate mass loss rate for very massive (>100 Msol) OB stars using the Bestenlehner 2020 prescription
+ *
+ * https://arxiv.org/pdf/2002.05168.pdf
+ *
+ * double CalculateMassLossRateBestenlehner2020()
+ *
+ * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateOBBestenlehner2020() const {
+
+    double gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;; // Eddington Parameter, not metallicity specific as in the publication
+    const double alpha = 0.39; // CAK force multiplier
+    double logMdotZero = -4.78; // from substituting LogMdotTrans and Gamma_e trans into eq 12. 
+    double logMdot; 
+    logMdot = logMdotZero + ( (1. / alpha) + 0.5 ) * log10(gamma) - ( ( (1 - alpha) / alpha ) + 2) * log10(1 - gamma);
+    return PPOW(10.0, logMdot);
+}
+
+/*
+ * Calculate mass loss rate for very massive (>100 Msol) OB stars using a fit to the Vink 2011 mass loss rates
+ *
+ * 
+ *
+ * double CalculateMassLossRateVink2011()
+ *
+ * @return                                      Mass loss rate for very massive stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateOBVink2011() const {
+    double rate;
+    double Gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
+    double logMdotdiff;
+    if (utils::Compare(Gamma, 0.5) > 0) {  // Ensure that the perscription isn't extrapolated to low gamma
+        logMdotdiff = 0.04468 + (0.3091 * Gamma) + (0.2434 * Gamma * Gamma);
+    }
+    else {
+        SHOW_WARN(ERROR::LOW_GAMMA, "Mass Loss Rate = 0.0");                                   // gamma extrapolated outside fit range
+        rate = 0.0;
+    }
+    double rate2001 = CalculateMassLossRateOB();
+    double rate = PPOW(10.0, logMdotdiff) + rate2001;
+    return rate;
+}
+
+/*
+ * Calculate mass loss for very massive MS stars, >100Msol.
+ *
+ * 
+ * 
+ *  
+ * double CalculateMassLossRateVeryMassive(const VERY_MASSIVE_STAR_MASS_LOSS)
+ *
+ * @return                                     mass loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateVeryMassive() {
+    double rate = 0.0;                                                      
+                                                                                           
+    // m_DominantMassLossRate = MASS_LOSS_TYPE::VERY_MASSIVE;
+    
+    switch (p_LBV_prescription) {                                                                                           // decide which prescription to use
+        case VERY_MASSIVE_STAR_MASS_LOSS::NONE:
+            rate = 0.0;
+            break;
+        case VERY_MASSIVE_STAR_MASS_LOSS::BESTENLEHNER2020:
+            rate = CalculateMassLossRateOBBestenlehner2020();
+            break;
+        case VERY_MASSIVE_STAR_MASS_LOSS::VINK2011:
+            rate = CalculateMassLossRateOBVink2011();
+            break;
+        default:
+            SHOW_WARN(ERROR::UNKNOWN_PRESCRIPTION, "Using default value VINK2011");
+            rate = CalculateMassLossRateOBVink2011();
+            break;
+    }
+    return rate;
 }
 
 /*
@@ -2148,6 +2225,10 @@ double BaseStar::CalculateMassLossRateUpdatedPrescription() {
         double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription
         if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, add Hurley et al 2000 winds
             otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // Apply cool wind mass loss multiplier
+        }
+        else if (utils::Compare(m_MZAMS, 100.0) >= 0 && 
+        OPTIONS->VeryMassiveStarMassLoss() != VERY_MASSIVE_STAR_MASS_LOSS::NONE) {
+            otherWindsRate = CalculateMassLossRateOBBestenlehner2020();                                             // massive MS, >100 Msol. Alternately could use Luminosity threshold                             
         }
         else {     
             //otherWindsRate = CalculateMassLossRateBjorklund();                                                      // For hot stars, apply Bjorklund et al. prescription

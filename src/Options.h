@@ -783,6 +783,7 @@ public:
             ENUM_OPT<LBV_PRESCRIPTION>                          m_LuminousBlueVariablePrescription;                             // Which LBV mass loss prescription to use
             double                                              m_LuminousBlueVariableFactor;                                   // Multiplicitive factor for luminous blue variable (LBV) mass loss rates when using Belczynski’s prescription
             double                                              m_WolfRayetFactor;                                              // Multiplicitive factor for Wolf-Rayet (WR) wind mass loss rates
+            ENUM_OPT<VERY_MASSIVE_STAR_MASS_LOSS>               m_VeryMassiveStarMassLoss;                                      // Which mass loss perscription for M > 100 Msol        
 
             // Mass transfer options
             bool                                                m_UseMassTransfer;                                              // Whether to use mass transfer (default = true)
@@ -1428,6 +1429,7 @@ public:
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
 
+    VERY_MASSIVE_STAR_MASS_LOSS                 VeryMassiveStarMassLoss() const                                         { return OPT_VALUE("very-massive-star-mass-loss", m_VeryMassiveStarMassLoss.type, true); }
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
 
     double                                      ZetaRadiativeEnvelopeGiant() const                                      { return OPT_VALUE("zeta-radiative-envelope-giant", m_ZetaRadiativeEnvelopeGiant, true); }
