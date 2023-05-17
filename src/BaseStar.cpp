@@ -1998,7 +1998,7 @@ double BaseStar::CalculateMassLossRateOBVink2011() const {
  *
  * @return                                     mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateVeryMassive(const VERY_MASSIVE_STAR_MASS_LOSS) {
+double BaseStar::CalculateMassLossRateVeryMassive(const VERY_MASSIVE_STAR_MASS_LOSS p_very_massive_star_mass_loss) {
     double rate = 0.0;                                                      
                                                                                            
     // m_DominantMassLossRate = MASS_LOSS_TYPE::VERY_MASSIVE;
