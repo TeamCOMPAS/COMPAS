@@ -1972,7 +1972,7 @@ double BaseStar::CalculateMassLossRateOBBestenlehner2020() const {
  *
  * @return                                      Mass loss rate for very massive stars in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateOBVink2011() const {
+double BaseStar::CalculateMassLossRateOBVink2011() {
     double rate;
     double Gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
     double logMdotdiff;
@@ -1983,8 +1983,10 @@ double BaseStar::CalculateMassLossRateOBVink2011() const {
         SHOW_WARN(ERROR::LOW_GAMMA, "Mass Loss Rate = 0.0");                                   // gamma extrapolated outside fit range
         rate = 0.0;
     }
-    double rate2001 = CalculateMassLossRateOB();
-    double rate = PPOW(10.0, logMdotdiff) + rate2001;
+    double teff = m_Temperature * TSOL;
+    
+    double rate2001 = CalculateMassLossRateOB(teff);
+    rate = PPOW(10.0, logMdotdiff) + rate2001;
     return rate;
 }
 
@@ -2003,7 +2005,7 @@ double BaseStar::CalculateMassLossRateVeryMassive(const VERY_MASSIVE_STAR_MASS_L
                                                                                            
     // m_DominantMassLossRate = MASS_LOSS_TYPE::VERY_MASSIVE;
     
-    switch (p_LBV_prescription) {                                                                                           // decide which prescription to use
+    switch (p_very_massive_star_mass_loss) {                                                                                           // decide which prescription to use
         case VERY_MASSIVE_STAR_MASS_LOSS::NONE:
             rate = 0.0;
             break;
@@ -2014,7 +2016,7 @@ double BaseStar::CalculateMassLossRateVeryMassive(const VERY_MASSIVE_STAR_MASS_L
             rate = CalculateMassLossRateOBVink2011();
             break;
         default:
-            SHOW_WARN(ERROR::UNKNOWN_PRESCRIPTION, "Using default value VINK2011");
+            SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using default value VINK2011");
             rate = CalculateMassLossRateOBVink2011();
             break;
     }
@@ -2228,7 +2230,7 @@ double BaseStar::CalculateMassLossRateUpdatedPrescription() {
         }
         else if (utils::Compare(m_MZAMS, 100.0) >= 0 && 
         OPTIONS->VeryMassiveStarMassLoss() != VERY_MASSIVE_STAR_MASS_LOSS::NONE) {
-            otherWindsRate = CalculateMassLossRateVeryMassive();                                             // massive MS, >100 Msol. Alternately could use Luminosity threshold                             
+            otherWindsRate = CalculateMassLossRateVeryMassive(OPTIONS->VeryMassiveStarMassLoss());                                             // massive MS, >100 Msol. Alternately could use Luminosity threshold                             
         }
         else {     
             //otherWindsRate = CalculateMassLossRateBjorklund();                                                      // For hot stars, apply Bjorklund et al. prescription

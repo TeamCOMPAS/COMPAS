@@ -1731,7 +1731,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
         (
             "very-massive-star-mass-loss",                                      
-            po::value<std::string>(&p_Options->m_VeryMassiveStarMassLoss)->default_value(p_Options->m_VeryMassiveStarMassLoss.typeString),                                                                  
+            po::value<std::string>(&p_Options->m_VeryMassiveStarMassLoss.typeString)->default_value(p_Options->m_VeryMassiveStarMassLoss.typeString),                                                                  
             ("Very massive star mass loss prescription (options: [NONE, VINK2011, BESTENLEHNER2020], default = " + p_Options->m_VeryMassiveStarMassLoss.typeString + ")").c_str()
         )
 
@@ -2118,6 +2118,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (!DEFAULTED("stellar-zeta-prescription")) {                                                                              // common envelope zeta prescription
             std::tie(found, m_StellarZetaPrescription.type) = utils::GetMapKey(m_StellarZetaPrescription.typeString, ZETA_PRESCRIPTION_LABEL, m_StellarZetaPrescription.type);
             COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
+        }
+
+        if (!DEFAULTED("very-massive-star-mass-loss")) {                                                                    // very massive mass loss prescription
+            std::tie(found, m_VeryMassiveStarMassLoss.type) = utils::GetMapKey(m_VeryMassiveStarMassLoss.typeString, VERY_MASSIVE_STAR_MASS_LOSS_LABEL, m_VeryMassiveStarMassLoss.type);
+            COMPLAIN_IF(!found, "Unknown Very Massive Mass Loss Prescription");
         }
 
         // constraint/value/range checks - alphabetically (where possible)

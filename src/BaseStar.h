@@ -448,7 +448,7 @@ protected:
             double              CalculateMassLossRateOB(const double p_Teff);
             double              CalculateMassLossRateOBBestenlehner2020() const;
             double              CalculateMassLossRateOBKrticka2018() const;
-            double              CalculateMassLossRateOBVink2011() const;
+            double              CalculateMassLossRateOBVink2011();
             double              CalculateMassLossRateOBVinkSander2021(const double p_Teff);
             double              CalculateMassLossRateVassiliadisWood() const;
             double              CalculateMassLossRateVeryMassive(const VERY_MASSIVE_STAR_MASS_LOSS p_very_massive_star_mass_loss);

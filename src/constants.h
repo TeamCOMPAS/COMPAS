@@ -531,6 +531,7 @@ enum class ERROR: int {
     INVALID_VALUE_FOR_BOOLEAN_OPTION,                               // invalid valuse specified for boolean option
     LAMBDA_NOT_POSITIVE,                                            // lambda is <= 0.0 - invalid
     LOW_TEFF_WINDS,                                                 // winds being used at low temperature
+    LOW_GAMMA,                                                      // very massive perscription being extrapolated to low gamma (<0.5)
     MASS_NOT_POSITIVE_ONCE,                                         // mass is <= 0.0 - invalid
     MAXIMUM_MASS_LOST,                                              // (WARNING) maximum mass lost during mass loss calculations
     MISSING_VALUE,                                                  // missing value (e.g. for program option)
@@ -671,6 +672,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::INVALID_VALUE_FOR_BOOLEAN_OPTION,                      { ERROR_SCOPE::ALWAYS,              "Invalid value specified for BOOLEAN option" }},
     { ERROR::LAMBDA_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Lambda <= 0.0" }},
     { ERROR::LOW_TEFF_WINDS,                                        { ERROR_SCOPE::ALWAYS,              "Winds being used at low temperature" }},
+    { ERROR::LOW_GAMMA,                                             { ERROR_SCOPE::ALWAYS,              "Very massive perscription being extrapolated to low gamma (<0.5)" }},
     { ERROR::MASS_NOT_POSITIVE_ONCE,                                { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Mass <= 0.0" }},
     { ERROR::MAXIMUM_MASS_LOST,                                     { ERROR_SCOPE::ALWAYS,              "Maximum mass lost during mass loss calculations" }},
     { ERROR::MISSING_VALUE,                                         { ERROR_SCOPE::ALWAYS,              "Missing value" }},
@@ -983,6 +985,14 @@ const COMPASUnorderedMap<LBV_PRESCRIPTION, std::string> LBV_PRESCRIPTION_LABEL =
     { LBV_PRESCRIPTION::HURLEY_ADD,     "HURLEY_ADD" },
     { LBV_PRESCRIPTION::HURLEY,         "HURLEY" },
     { LBV_PRESCRIPTION::BELCZYNSKI,     "BELCZYNSKI" }
+};
+
+// Very Massive Mass loss prescriptions
+enum class VERY_MASSIVE_STAR_MASS_LOSS: int { NONE, VINK2011, BESTENLEHNER2020};
+const COMPASUnorderedMap<VERY_MASSIVE_STAR_MASS_LOSS, std::string> VERY_MASSIVE_STAR_MASS_LOSS_LABEL = {
+    { VERY_MASSIVE_STAR_MASS_LOSS::NONE,           "NONE" },
+    { VERY_MASSIVE_STAR_MASS_LOSS::VINK2011,     "VINK2011" },
+    { VERY_MASSIVE_STAR_MASS_LOSS::BESTENLEHNER2020,         "BESTENLEHNER2020" },
 };
 
 // Mass loss prescriptions
