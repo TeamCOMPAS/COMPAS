@@ -13,6 +13,21 @@ import warnings
 import astropy.units as u
 import argparse
 
+from line_profiler_pycharm import profile
+
+import sys
+from loguru import logger
+
+logger.remove(0)
+logger.add(
+    sys.stdout,
+    format="|<blue>COMPAS-SUR</>|{time:DD/MM HH:mm:ss}|{level}| {message} ",
+    colorize=True,
+    level="DEBUG",
+)
+
+
+
 def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10.0):
     """ 
         Given limits on the redshift, create an array of redshifts, times, distances and volumes
@@ -307,6 +322,7 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
 
     return detection_probability
 
+@profile
 def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weight_column=None,
                         merges_hubble_time=True, pessimistic_CEE=True, no_RLOF_after_CEE=True,
                         max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10,
@@ -413,17 +429,37 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
         warnings.warn("SNR step is greater than 1.0, large step sizes can produce unpredictable results", stacklevel=2)
 
     # start by getting the necessary data from the COMPAS file
+    t = []
+    t.append(time.time())
     COMPAS = ClassCOMPAS.COMPASData(path, Mlower=m1_min, Mupper=m1_max, m2_min=m2_min, binaryFraction=fbin, suppress_reminder=True)
+    t.append(time.time())
+    logger.debug(f"Time: {t[-1]-t[-2]:.2f}  ")
+
     COMPAS.setCOMPASDCOmask(types=dco_type, withinHubbleTime=merges_hubble_time, pessimistic=pessimistic_CEE, noRLOFafterCEE=no_RLOF_after_CEE)
+    t.append(time.time())
+    logger.debug(f"Time: {t[-1]-t[-2]:.2f}  ")
+
     COMPAS.setCOMPASData()
+    t.append(time.time())
+    logger.debug(f"Time: {t[-1]-t[-2]:.2f}  ")
+
     COMPAS.set_sw_weights(weight_column)
+    t.append(time.time())
+    logger.debug(f"Time: {t[-1]-t[-2]:.2f}  ")
+
+
     m1=COMPAS.get_COMPAS_variables("BSE_System_Parameters","Mass@ZAMS(1)");
     m2=COMPAS.get_COMPAS_variables("BSE_System_Parameters","Mass@ZAMS(2)");
     if use_sampled_mass_ranges:
         COMPAS.Mlower=min(m1[m1!=m2])*u.Msun    # the m1!=m2 ensures we don't include masses set equal through RLOF at ZAMS
         COMPAS.Mupper=max(m1)*u.Msun
         COMPAS.m2_min=min(m2)*u.Msun
+    t.append(time.time())
+    logger.debug(f"Time: {t[-1]-t[-2]:.2f}  ")
+
     COMPAS.find_star_forming_mass_per_binary_sampling()
+    t.append(time.time())
+    logger.debug(f"Time: {t[-1]-t[-2]:.2f}  ")
 
 
     # compute the chirp masses and symmetric mass ratios only for systems of interest
@@ -442,7 +478,7 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
 
     # Calculate the representative SF mass
     Average_SF_mass_needed = (COMPAS.mass_evolved_per_binary * COMPAS.n_systems)
-    print('Average_SF_mass_needed = ', Average_SF_mass_needed) # print this, because it might come in handy to know when writing up results :)
+    logger.debug('Average_SF_mass_needed = ', Average_SF_mass_needed) # print this, because it might come in handy to know when writing up results :)
     n_formed = sfr / Average_SF_mass_needed # Divide the star formation rate density by the representative SF mass
 
 
@@ -457,25 +493,31 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
         dPdlogZ = 1
         p_draw_metallicity = 1
 
-
+    t.append(time.time())
     # calculate the formation and merger rates using what we computed above
     formation_rate, merger_rate = find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF, n_formed, dPdlogZ,
                                                                     metallicities, p_draw_metallicity, COMPAS.metallicitySystems,
                                                                     COMPAS.delayTimes, COMPAS.sw_weights)
+    t.append(time.time())
+    logger.debug(f"Time: {t[-1]-t[-2]:.2f}  merger rate")
 
     # create lookup tables for the SNR at 1Mpc as a function of the masses and the probability of detection as a function of SNR
     snr_grid_at_1Mpc, detection_probability_from_snr = compute_snr_and_detection_grids(sensitivity, snr_threshold, Mc_max, Mc_step,
                                                                                     eta_max, eta_step, snr_max, snr_step)
 
+    t.append(time.time())
     # use lookup tables to find the probability of detecting each binary at each redshift
     detection_probability = find_detection_probability(chirp_masses, etas, redshifts, distances, n_redshifts_detection, n_binaries,
                                                         snr_grid_at_1Mpc, detection_probability_from_snr, Mc_step, eta_step, snr_step)
+
 
     # finally, compute the detection rate using Neijssel+19 Eq. 2
     detection_rate = np.zeros(shape=(n_binaries, n_redshifts_detection))
     detection_rate = merger_rate[:, :n_redshifts_detection] * detection_probability \
                     * shell_volumes[:n_redshifts_detection] / (1 + redshifts[:n_redshifts_detection])
 
+    t.append(time.time())
+    logger.debug(f"Time: {t[-1]-t[-2]:.2f}  det rate")
     
     if(merger_output_filename!=None): # Store merger rates in an output text file if specified
         with open(path+merger_output_filename, 'w') as output:
@@ -485,6 +527,9 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
                 for j in range(n_binaries):
                     if(merger_rate[j][i]>0):
                         output.write(f'{COMPAS.mass1[j]:.5f}\t{COMPAS.mass2[j]:.5f}\t{redshifts[i]:.5f}\t{merger_rate[j][i]:.10f}\n')
+
+    t.append(time.time())
+    logger.debug(f"Time: {t[-1]-t[0]:.2f}  total")
     return detection_rate, formation_rate, merger_rate, redshifts, COMPAS
 
 
@@ -836,4 +881,6 @@ if __name__ == "__main__":
     print('CI took ', end_CI - start_CI, 's')
     print('Appending rates took ', end_append - start_append, 's')
     print('plot took ', end_plot - start_plot, 's')
+
+
 
