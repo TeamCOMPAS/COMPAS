@@ -7,22 +7,23 @@ import astropy.units as u
 
 from line_profiler_pycharm import profile
 
+
 class COMPASData(object):
     def __init__(
-        self,
-        path=None,
-        lazyData=True,
-        Mlower=None,
-        Mupper=None,
-        m2_min=None,
-        binaryFraction=None,
-        suppress_reminder=False,
+            self,
+            path=None,
+            lazyData=True,
+            Mlower=None,
+            Mupper=None,
+            m2_min=None,
+            binaryFraction=None,
+            suppress_reminder=False,
     ):
         self.path = path
         if self.path is None:
             print("Template COMPASData object created with no data path")
         elif not os.path.isfile(path):
-            raise ValueError( "h5 file not found. Wrong path given? {}".format(path))
+            raise ValueError("h5 file not found. Wrong path given? {}".format(path))
 
         # Crucial values to be able to calculate MSSFR
         self.metallicityGrid = None
@@ -54,10 +55,10 @@ class COMPASData(object):
         # Needed to recover true solar mass evolved
         self.Mlower = Mlower  # Msun
         self.Mupper = Mupper  # Msun
-        self.m2_min = m2_min # Msun
+        self.m2_min = m2_min  # Msun
         self.binaryFraction = binaryFraction
         self.totalMassEvolvedPerZ = None  # Msun
-        self.mass_evolved_per_binary = None # Msun
+        self.mass_evolved_per_binary = None  # Msun
 
         if not suppress_reminder:
             print("ClassCOMPAS: Remember to self.setCOMPASDCOmask()")
@@ -65,24 +66,29 @@ class COMPASData(object):
             print("          and optionally self.setGridAndMassEvolved() if using a metallicity grid")
 
     def setCOMPASDCOmask(
-        self, types="BBH", withinHubbleTime=True, pessimistic=True, noRLOFafterCEE=True
+            self, types="BBH", withinHubbleTime=True, pessimistic=True, noRLOFafterCEE=True
     ):
         # By default, we mask for BBHs that merge within a Hubble time, assumming
         # the pessimistic CEE prescription (HG donors cannot survive a CEE) and
         # not allowing immediate RLOF post-CEE
 
         stellar_type_1, stellar_type_2, hubble_flag, dco_seeds = \
-            self.get_COMPAS_variables("BSE_Double_Compact_Objects", ["Stellar_Type(1)", "Stellar_Type(2)", "Merges_Hubble_Time", "SEED"])
+            self.get_COMPAS_variables("BSE_Double_Compact_Objects",
+                                      ["Stellar_Type(1)", "Stellar_Type(2)", "Merges_Hubble_Time", "SEED"])
         dco_seeds = dco_seeds.flatten()
 
         if types == "CHE_BBH" or types == "NON_CHE_BBH":
             stellar_type_1_zams, stellar_type_2_zams, che_ms_1, che_ms_2, sys_seeds = \
-                self.get_COMPAS_variables("BSE_System_Parameters", ["Stellar_Type@ZAMS(1)", "Stellar_Type@ZAMS(2)", "CH_on_MS(1)", "CH_on_MS(2)", "SEED"])
+                self.get_COMPAS_variables("BSE_System_Parameters",
+                                          ["Stellar_Type@ZAMS(1)", "Stellar_Type@ZAMS(2)", "CH_on_MS(1)", "CH_on_MS(2)",
+                                           "SEED"])
 
-            che_mask  = np.logical_and.reduce((stellar_type_1_zams == 16, stellar_type_2_zams == 16, che_ms_1 == True, che_ms_2 == True))
+            che_mask = np.logical_and.reduce(
+                (stellar_type_1_zams == 16, stellar_type_2_zams == 16, che_ms_1 == True, che_ms_2 == True))
             che_seeds = sys_seeds[()][che_mask]
 
-        self.CHE_mask = np.in1d(dco_seeds, che_seeds) if types == "CHE_BBH" or types == "NON_CHE_BBH" else np.repeat(False, len(dco_seeds))
+        self.CHE_mask = np.in1d(dco_seeds, che_seeds) if types == "CHE_BBH" or types == "NON_CHE_BBH" else np.repeat(
+            False, len(dco_seeds))
 
         # if user wants to mask on Hubble time use the flag, otherwise just set all to True, use astype(bool) to set masks to bool type
         hubble_mask = hubble_flag.astype(bool) if withinHubbleTime else np.repeat(True, len(dco_seeds))
@@ -91,11 +97,15 @@ class COMPASData(object):
         type_masks = {
             "all": np.repeat(True, len(dco_seeds)),
             "BBH": np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14),
-            "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13), np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14)),
+            "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13),
+                                  np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14)),
             "BNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),
         }
-        type_masks["CHE_BBH"]     = np.logical_and(self.CHE_mask, type_masks["BBH"]) if types == "CHE_BBH" else np.repeat(False, len(dco_seeds))
-        type_masks["NON_CHE_BBH"] = np.logical_and(np.logical_not(self.CHE_mask), type_masks["BBH"]) if types == "NON_CHE_BBH" else np.repeat(True, len(dco_seeds))
+        type_masks["CHE_BBH"] = np.logical_and(self.CHE_mask, type_masks["BBH"]) if types == "CHE_BBH" else np.repeat(
+            False, len(dco_seeds))
+        type_masks["NON_CHE_BBH"] = np.logical_and(np.logical_not(self.CHE_mask),
+                                                   type_masks["BBH"]) if types == "NON_CHE_BBH" else np.repeat(True,
+                                                                                                               len(dco_seeds))
 
         # if the user wants to make RLOF or optimistic CEs
         if noRLOFafterCEE or pessimistic:
@@ -107,7 +117,8 @@ class COMPASData(object):
 
             # if masking on RLOF, get flag and match seeds to dco seeds
             if noRLOFafterCEE:
-                rlof_flag = self.get_COMPAS_variables("BSE_Common_Envelopes", "Immediate_RLOF>CE")[dco_from_ce].astype(bool)
+                rlof_flag = self.get_COMPAS_variables("BSE_Common_Envelopes", "Immediate_RLOF>CE")[dco_from_ce].astype(
+                    bool)
                 rlof_seeds = np.unique(dco_ce_seeds[rlof_flag])
                 rlof_mask = np.logical_not(np.in1d(dco_seeds, rlof_seeds))
             else:
@@ -115,7 +126,8 @@ class COMPASData(object):
 
             # if masking on pessimistic CE, get flag and match seeds to dco seeds
             if pessimistic:
-                pessimistic_flag = self.get_COMPAS_variables("BSE_Common_Envelopes", "Optimistic_CE")[dco_from_ce].astype(bool)
+                pessimistic_flag = self.get_COMPAS_variables("BSE_Common_Envelopes", "Optimistic_CE")[
+                    dco_from_ce].astype(bool)
                 pessimistic_seeds = np.unique(dco_ce_seeds[pessimistic_flag])
                 pessimistic_mask = np.logical_not(np.in1d(dco_seeds, pessimistic_seeds))
             else:
@@ -159,7 +171,8 @@ class COMPASData(object):
     def setCOMPASData(self):
 
         primary_masses, secondary_masses, formation_times, coalescence_times, dco_seeds = \
-            self.get_COMPAS_variables("BSE_Double_Compact_Objects", ["Mass(1)", "Mass(2)", "Time", "Coalescence_Time", "SEED"])
+            self.get_COMPAS_variables("BSE_Double_Compact_Objects",
+                                      ["Mass(1)", "Mass(2)", "Time", "Coalescence_Time", "SEED"])
 
         initial_seeds, initial_Z = self.get_COMPAS_variables("BSE_System_Parameters", ["SEED", "Metallicity@ZAMS(1)"])
 
@@ -227,7 +240,8 @@ class COMPASData(object):
 
     @profile
     def find_star_forming_mass_per_binary_sampling(self, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3,
-            primary_mass_inverse_CDF=None, mass_ratio_inverse_CDF=None, SAMPLES=20000000):
+                                                   primary_mass_inverse_CDF=None, mass_ratio_inverse_CDF=None,
+                                                   SAMPLES=20000000):
         """
             Calculate the star forming mass evolved for each binary in the file.
             This function does this by sampling from the IMF and mass ratio distributions
@@ -243,7 +257,8 @@ class COMPASData(object):
         """
         # if primary mass inverse CDF is None, assume the Kroupa IMF
         if primary_mass_inverse_CDF is None:
-            primary_mass_inverse_CDF = lambda U: inverse_CDF_IMF(U, m1=m1, m2=m2, m3=m3, m4=m4, a12=a12, a23=a23, a34=a34)
+            primary_mass_inverse_CDF = lambda U: inverse_CDF_IMF(U, m1=m1, m2=m2, m3=m3, m4=m4, a12=a12, a23=a23,
+                                                                 a34=a34)
 
         # if mass ratio inverse CDF function is None, assume uniform
         if mass_ratio_inverse_CDF is None:
@@ -279,95 +294,57 @@ class COMPASData(object):
         # find the average star forming mass evolved per binary in the Universe
         self.mass_evolved_per_binary = average_mass_COMPAS / f_mass_sampled
 
+
 # ============================================== #
 # Initial Mass Function PDF, CDF and inverse CDF #
 # ============================================== #
 
-@profile
-def CDF_IMF(m, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
-    """
-        Calculate the fraction of stellar mass between 0 and m for a three part broken power law.
-        Default values follow Kroupa (2001)
-            F(m) ~ int_0^m zeta(m) dm
-        
-        Args:
-            m       --> [float, list of floats] mass or masses at which to evaluate
-            mi      --> [float]                 masses at which to transition the slope
-            aij     --> [float]                 slope of the IMF between mi and mj
-            
-        Returns:
-            zeta(m) --> [float, list of floats] value or values of the IMF at m
 
-        NOTE: this is implemented recursively, probably not the most efficient if you're using this
-                intensively but I'm not and it looks prettier so I'm being lazy ¯\_(ツ)_/¯ 
-    """
+def CDF_IMF(m, bounds, slopes, norms):
+    if m <= bounds[0]:
+        return 0
+    elif m <= bounds[1]:
+        return powerlaw_cdf(m, bounds[0], norms[0], slopes[0])
+    elif m <= bounds[2]:
+        previous_cdf = powerlaw_cdf(bounds[1], bounds[0], norms[0], slopes[0])
+        current_cdf = powerlaw_cdf(m, bounds[1], norms[1], slopes[1])
+        return previous_cdf + current_cdf
+    elif m <= bounds[3]:
+        return 1
 
-    b1, b2, b3  = __compute_imf_normalisation_constants(m1, m2, m3, m4, a12, a23, a34)
 
-    if isinstance(m, float):
-        if m <= m1:
-            return 0
-        elif m <= m2:
-            return b1 / (1 - a12) * (m**(1 - a12) - m1**(1 - a12))
-        elif m <= m3:
-            return CDF_IMF(m2) + b2 / (1 - a23) * (m**(1 - a23) - m2**(1 - a23))
-        elif m <= m4:
-            return CDF_IMF(m3) + b3 / (1 - a34) * (m**(1 - a34) - m3**(1 - a34))
-        else:
-            return 0
-    else:
-        CDF = np.zeros(len(m))
-        CDF[np.logical_and(m >= m1, m < m2)] = b1 / (1 - a12) * (m[np.logical_and(m >= m1, m < m2)]**(1 - a12) - m1**(1 - a12))
-        CDF[np.logical_and(m >= m2, m < m3)] = CDF_IMF(m2) + b2 / (1 - a23) * (m[np.logical_and(m >= m2, m < m3)]**(1 - a23) - m2**(1 - a23))
-        CDF[np.logical_and(m >= m3, m < m4)] = CDF_IMF(m3) + b3 / (1 - a34) * (m[np.logical_and(m >= m3, m < m4)]**(1 - a34) - m3**(1 - a34))
-        CDF[m >= m4] = np.ones(len(m[m >= m4]))
-        return CDF
+def inverse_CDF_IMF(U, bounds=[0.01, 0.08, 0.5, 200], slopes=[0.3, 1.3, 2.3]):
+    norms = get_normalisation_constants(bounds, slopes)
 
-def inverse_CDF_IMF(U, m1=0.01, m2=0.08, m3=0.5, m4=200, a12=0.3, a23=1.3, a34=2.3):
-    """ 
-        Calculate the inverse CDF for a three part broken power law.
-        Default values follow Kroupa (2001)
-        
-        Args:
-            U       --> [float, list of floats] A uniform random variable on [0, 1]
-            mi      --> [float]                 masses at which to transition the slope
-            aij     --> [float]                 slope of the IMF between mi and mj
-            
-        Returns:
-            zeta(m) --> [float, list of floats] value or values of the IMF at m
-
-        NOTE: this is implemented recursively, probably not the most efficient if you're using this intensively but I'm not so I'm being lazy ¯\_(ツ)_/¯ 
-    """
-    b1, b2, b3  = __compute_imf_normalisation_constants(m1, m2, m3, m4, a12, a23, a34)
-
-    # find the probabilities at which the gradient changes
-    F1, F2, F3, F4 = CDF_IMF(np.array([m1, m2, m3, m4]), m1=0.01, m2=0.08, m3=0.5, m4=200, a12=0.3, a23=1.3, a34=2.3)
-
+    F = [CDF_IMF(b, bounds=bounds, slopes=slopes, norms=norms) for b in bounds]
     masses = np.zeros(len(U))
-    rng1 = np.logical_and(F1 < U, U <= F2)
-    rng2 = np.logical_and(F2 < U, U <= F3)
-    rng3 = np.logical_and(F3 < U, U <= F4)
-
-    masses[rng1] = __get_mass_from_imf(a12, b1, U[rng1], F1, m1)
-    masses[rng2] = __get_mass_from_imf(a23, b2, U[rng2], F2, m2)
-    masses[rng3] = __get_mass_from_imf(a34, b3, U[rng3], F3, m3)
-    masses[rng2] = np.power((1 - a23) / b2 * (U[np.logical_and(U > F2, U <= F3)] - F2) + m2**(1 - a23), 1 / (1 - a23))
-    masses[rng3] = np.power((1 - a34) / b3 * (U[np.logical_and(U > F3, U <= F4)] - F3) + m3**(1 - a34), 1 / (1 - a34))
+    for i in range(len(U)):
+        masses[i] = 0
+        for j in range(len(F)-1):
+            if F[j] < U[i] <= F[j+1]:
+                masses[i] = generate_mass_from_inv_cdf(slopes[j], norms[j], U[i], F[j], bounds[j])
     return masses
 
 
-def __get_mass_from_imf(a, b, U, F, m):
+def powerlaw_cdf(x, x0, b, a, ):
+    return b / (1 - a) * (x ** (1 - a) - x0 ** (1 - a))
+
+
+def get_normalisation_constants(bounds, slopes):
+    m1, m2, m3, m4 = bounds[0], bounds[1], bounds[2], bounds[3]
+    a1, a2, a3 = slopes[0], slopes[1], slopes[2]
+    b1 = 1 / (
+            (m2 ** (1 - a1) - m1 ** (1 - a1)) / (1 - a1)
+            + m2 ** (-(a1 - a2)) * (m3 ** (1 - a2) - m2 ** (1 - a2)) / (1 - a2)
+            + m2 ** (-(a1 - a2)) * m3 ** (-(a2 - a3)) * (m4 ** (1 - a3) - m3 ** (1 - a3)) / (1 - a3)
+    )
+    b2 = b1 * m2 ** (-(a1 - a2))
+    b3 = b2 * m3 ** (-(a2 - a3))
+    return [b1, b2, b3]
+
+
+def generate_mass_from_inv_cdf(a, b, U, F, m):
     return np.power(
         (1 - a) / b * (U - F) + m ** (1 - a),
         1 / (1 - a)
     )
-
-def __compute_imf_normalisation_constants(m1, m2, m3, m4, a12, a23, a34):
-    b1 = 1 / (
-                (m2**(1 - a12) - m1**(1 - a12)) / (1 - a12)
-                + m2**(-(a12 - a23)) * (m3**(1 - a23) - m2**(1 - a23)) / (1 - a23)
-                + m2**(-(a12 - a23)) * m3**(-(a23 - a34)) * (m4**(1 - a34) - m3**(1 - a34)) / (1 - a34)
-                )
-    b2 = b1 * m2**(-(a12 - a23))
-    b3 = b2 * m3**(-(a23 - a34))
-    return b1, b2, b3

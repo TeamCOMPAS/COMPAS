@@ -84,7 +84,7 @@ def find_sfr(redshifts, a = 0.01, b =2.77, c = 2.90, d = 4.70):
     sfr = a * ((1+redshifts)**b) / (1 + ((1+redshifts)/c)**d) * u.Msun / u.yr / u.Mpc**3
     return sfr.to(u.Msun / u.yr / u.Gpc**3).value
 
-
+@profile
 def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
                                   mu0=0.035, muz=-0.23, sigma_0=0.39, sigma_z=0.0, alpha =0.0,
                                   min_logZ  =-12.0, max_logZ  =0.0, step_logZ = 0.01):
@@ -155,7 +155,7 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
 
 
 
-
+@profile
 def find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF, n_formed, dPdlogZ, metallicities, p_draw_metallicity,
                                     COMPAS_metallicites, COMPAS_delay_times, COMPAS_weights=None):
     """

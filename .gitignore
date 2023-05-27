@@ -6,7 +6,7 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
-
+pytest.pclprof
 
 # Compiled source
 *.egg-info/

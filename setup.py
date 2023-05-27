@@ -2,6 +2,8 @@ import codecs
 import os
 import re
 import sys
+import pybind11
+from pybind11.setup_helpers import Pybind11Extension, build_ext
 
 from setuptools import find_packages, setup
 
@@ -89,6 +91,20 @@ def find_version(version_file=read(CPP_VERSION_FILE)):
     raise RuntimeError("Unable to find version string.")
 
 
+class BuildExt(build_ext):
+    def build_extension(self, ext):
+        build_ext.build_extension(self, ext)
+
+
+ext_modules = [
+    Pybind11Extension(
+        "compas_python_utils.cdriver",
+        ["compas_python_utils/cosmic_integration/cdriver.cpp"],
+        include_dirs=["compas_python_utils/cosmic_integration/lib/include"],
+        language="c++",
+    ),
+]
+
 if __name__ == "__main__":
     setup(
         name=NAME,
@@ -124,4 +140,6 @@ if __name__ == "__main__":
                 f"compas_sample_moe_di_stefano={NAME}.preprocessing.sampleMoeDiStefano:main",
             ]
         },
+        ext_modules=ext_modules,
+        cmdclass={"build_ext": BuildExt},
     )

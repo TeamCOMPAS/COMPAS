@@ -51,15 +51,12 @@ def test_imf():
     import numpy as np
     import time
 
-
-    U = np.random.uniform(size=2000000)
+    np.random.seed(0)
+    U = np.random.uniform(size=200000)
 
     t0 = time.time()
     masses =    imf.inverse_imf(U)
     print(time.time() - t0)
-
-
-
 
     hist, bins = np.histogram(masses, bins=np.geomspace(min(masses), max(masses), 100))
     hist = hist / np.sum(hist)
@@ -74,6 +71,8 @@ def test_imf():
     print(time.time() - t0)
 
     hist, bins = np.histogram(masses, bins=np.geomspace(min(masses), max(masses), 100))
+
+
     hist = hist / np.sum(hist)
     ax2 = plt.gca().twinx()
     ax2.plot(bins[:-1], hist, color="red", ls="--")
@@ -83,3 +82,11 @@ def test_imf():
 
 
 
+
+from compas_python_utils.cosmic_integration.ClassCOMPAS import u
+
+
+def test_c():
+    from compas_python_utils import cdriver
+    vals = cdriver.sample_from_imf(100) * u.Msun
+    print(vals)
