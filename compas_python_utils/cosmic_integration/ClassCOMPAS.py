@@ -5,6 +5,8 @@ import os
 from . import totalMassEvolvedPerZ as MPZ
 import astropy.units as u
 
+from line_profiler_pycharm import profile
+
 class COMPASData(object):
     def __init__(
         self,
@@ -223,6 +225,7 @@ class COMPASData(object):
         if column_name is not None:
             self.sw_weights = self.get_COMPAS_variables("BSE_Double_Compact_Objects", column_name)[self.DCOmask]
 
+    @profile
     def find_star_forming_mass_per_binary_sampling(self, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3,
             primary_mass_inverse_CDF=None, mass_ratio_inverse_CDF=None, SAMPLES=20000000):
         """
@@ -280,7 +283,7 @@ class COMPASData(object):
 # Initial Mass Function PDF, CDF and inverse CDF #
 # ============================================== #
 
-
+@profile
 def CDF_IMF(m, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
     """
         Calculate the fraction of stellar mass between 0 and m for a three part broken power law.
