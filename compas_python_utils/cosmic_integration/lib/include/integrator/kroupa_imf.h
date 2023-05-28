@@ -44,18 +44,15 @@ double* inverse_CDF_IMF(double* U, int n) {
     for (int j = 0; j < 4; j++) {
         F[j] = CDF_IMF(bounds[j], bounds, slopes, norms);
     }
-    std::cout << "F: " << F[0] << " " << F[1] << " " << F[2] << " " << F[3] << std::endl;
 
     double* masses = new double[n];
     for (int i = 0; i < (int)n; i++) {
         masses[i] = 0;
         for (int j = 0; j < 3; j++) {
-
-            std::cout << "Checking " << F[j] << " < " << U[i] << " < " << F[j+1] << std::endl;
-            if (F[j] < U[i] && U[i] <= F[j+1]) {
+            bool in_range = (F[j] < U[i] && U[i] <= F[j+1]);
+            if (in_range) {
                 masses[i] = generate_mass_from_inv_cdf(slopes[j], norms[j], U[i], F[j], bounds[j]);
             }
-            std::cout << "Mass: " << masses[i] << std::endl;
         }
     }
     return masses;
@@ -81,7 +78,6 @@ double* get_normalisation_constants(double* bounds, double* slopes) {
 
 double generate_mass_from_inv_cdf(double a, double b, double U, double F, double m) {
     double v = pow((1 - a) / b * (U - F) + pow(m, 1 - a), 1 / (1 - a));
-    std::cout << "MASS " << m << std::endl;
     return v;
 }
 

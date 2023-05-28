@@ -1,15 +1,15 @@
 from compas_python_utils.cosmic_integration import FastCosmicIntegration
 from compas_python_utils.cosmic_integration.ClassCOMPAS import COMPASData, CDF_IMF, inverse_CDF_IMF
-
-import imf
-
+from compas_python_utils import cdriver
+import matplotlib.pyplot as plt
+import numpy as np
 import time
 import os
 
 
 def test_fast_cosmic_integration(example_compas_output_path, capsys, test_archive_dir):
     """Test that fast cosmic integration works"""
-    example_compas_output_path = "/home/avaj040/Documents/projects/data/COMPAS_data/jeff_data/h5out_5M.h5"
+    # example_compas_output_path = "/home/avaj040/Documents/projects/data/COMPAS_data/jeff_data/h5out_5M.h5"
 
     t0 = time.time()
     (
@@ -41,52 +41,32 @@ def test_fast_cosmic_integration(example_compas_output_path, capsys, test_archiv
     # check that the COMPAS object is a COMPASData object
     assert isinstance(COMPAS, COMPASData)
 
-    # write logs from run to file in OUTDIR
-    assert False
 
-
-def test_imf():
+def test_imf(test_archive_dir):
     """Test that the imf is correctly calculated"""
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import time
-
     np.random.seed(0)
-    U = np.random.uniform(size=200000)
+    N, bins = 300000, 30
+    U = np.random.uniform(size=N)
 
     t0 = time.time()
-    masses =    imf.inverse_imf(U)
-    print(time.time() - t0)
+    masses_py = inverse_CDF_IMF(U)
+    time_py = time.time() - t0
+    hist_py, bins = np.histogram(masses_py, bins=np.geomspace(min(masses_py), max(masses_py), bins))
+    hist_py = hist_py / np.sum(hist_py)
 
-    hist, bins = np.histogram(masses, bins=np.geomspace(min(masses), max(masses), 100))
-    hist = hist / np.sum(hist)
-    plt.plot(bins[:-1], hist)
+    t0 = time.time()
+    masses_c = cdriver.sample_from_imf(N)
+    time_c = time.time() - t0
+    hist_c, _ = np.histogram(masses_c, bins=bins)
+    hist_c = hist_c / np.sum(hist_c)
+
+    plt.plot(bins[:-1], hist_py, color="red", ls="--", label=f'python ({time_py:.3E}s)')
+    plt.plot(bins[:-1], hist_c, color="blue", ls="-", alpha=0.5, label=f'c ({time_c:.3E}s)')
     plt.xscale("log")
-
-    mmax = 200
-
-    # twin axis
-    t0 = time.time()
-    masses = inverse_CDF_IMF(U)
-    print(time.time() - t0)
-
-    hist, bins = np.histogram(masses, bins=np.geomspace(min(masses), max(masses), 100))
+    plt.xlabel("Mass")
+    plt.ylabel("PDF")
+    plt.legend()
+    plt.savefig(f"{test_archive_dir}/test_imf.png")
 
 
-    hist = hist / np.sum(hist)
-    ax2 = plt.gca().twinx()
-    ax2.plot(bins[:-1], hist, color="red", ls="--")
-    ax2.set_xscale("log")
-    plt.show()
-    assert False
-
-
-
-
-from compas_python_utils.cosmic_integration.ClassCOMPAS import u
-
-
-def test_c():
-    from compas_python_utils import cdriver
-    vals = cdriver.sample_from_imf(100) * u.Msun
-    print(vals)
+    assert np.allclose(hist_py, hist_c, rtol=1e-2, atol=1e-2)

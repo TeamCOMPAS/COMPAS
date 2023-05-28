@@ -239,7 +239,7 @@ class COMPASData(object):
             self.sw_weights = self.get_COMPAS_variables("BSE_Double_Compact_Objects", column_name)[self.DCOmask]
 
     @profile
-    def find_star_forming_mass_per_binary_sampling(self, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3,
+    def find_star_forming_mass_per_binary_sampling(self,
                                                    primary_mass_inverse_CDF=None, mass_ratio_inverse_CDF=None,
                                                    SAMPLES=20000000):
         """
@@ -257,8 +257,7 @@ class COMPASData(object):
         """
         # if primary mass inverse CDF is None, assume the Kroupa IMF
         if primary_mass_inverse_CDF is None:
-            primary_mass_inverse_CDF = lambda U: inverse_CDF_IMF(U, m1=m1, m2=m2, m3=m3, m4=m4, a12=a12, a23=a23,
-                                                                 a34=a34)
+            primary_mass_inverse_CDF = lambda U: inverse_CDF_IMF(U)
 
         # if mass ratio inverse CDF function is None, assume uniform
         if mass_ratio_inverse_CDF is None:
