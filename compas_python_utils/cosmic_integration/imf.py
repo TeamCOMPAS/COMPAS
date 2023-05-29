@@ -9,7 +9,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "imf_data")
 AVG_STAR_FORMING_MASS_PER_BINARY_CACHE = os.path.join(DATA_DIR, "star_forming_mass_per_binary_cache.csv")
 
 
-def plot_kroupa_imf_pdf(bins=30, fig=None, label="Kroupa IMF", n=int(1e6)):
+def plot_kroupa_imf_pdf(bins=30, fig=None, n=int(1e6), plot_kwgs={}):
     """Plot the imf pdf"""
     kroupa_masses = cdriver.sample_from_imf(n)
 
@@ -22,11 +22,10 @@ def plot_kroupa_imf_pdf(bins=30, fig=None, label="Kroupa IMF", n=int(1e6)):
     if fig is None:
         fig = plt.figure()
 
-    plt.plot(mass_bins[:-1], kroupa_pdf, label=label)
+    plt.plot(mass_bins[:-1], kroupa_pdf, **plot_kwgs)
     plt.xscale("log")
-    plt.yscale("log")
     plt.xlabel(r"Mass [M$_\odot$]")
-    plt.ylabel("PDF")
+    plt.ylabel("PDF(mass)")
     return fig
 
 
