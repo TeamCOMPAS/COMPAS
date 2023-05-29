@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
+import warnings
+
 import numpy as np
 import h5py as h5
 import os
 from . import totalMassEvolvedPerZ as MPZ
 import astropy.units as u
-
-from line_profiler_pycharm import profile
+from compas_python_utils.cdriver import sample_from_imf
+from .imf import get_star_forming_mass_per_binary
+from . import conversion_functions
 
 
 class COMPASData(object):
@@ -64,6 +67,37 @@ class COMPASData(object):
             print("ClassCOMPAS: Remember to self.setCOMPASDCOmask()")
             print("                    then self.setCOMPASData()")
             print("          and optionally self.setGridAndMassEvolved() if using a metallicity grid")
+
+    @classmethod
+    def from_hdf5(
+        cls, path, dco_type="BBH",  weight_column=None,
+        merges_hubble_time=True, pessimistic_CEE=True, no_RLOF_after_CEE=True,
+        use_sampled_mass_ranges=True, m1_min=5 * u.Msun, m1_max=150 * u.Msun, m2_min=0.1 * u.Msun, fbin=0.7,
+    ) -> "COMPASData":
+        COMPAS = cls(
+            path, lazyData=True, Mlower=m1_min, Mupper=m1_max, m2_min=m2_min,binaryFraction=fbin, suppress_reminder=True)
+
+        COMPAS.setCOMPASDCOmask(
+            types=dco_type, withinHubbleTime=merges_hubble_time,
+            pessimistic=pessimistic_CEE, noRLOFafterCEE=no_RLOF_after_CEE)
+
+        COMPAS.setCOMPASData()
+
+        COMPAS.set_sw_weights(weight_column)
+
+        m1 = COMPAS.get_COMPAS_variables("BSE_System_Parameters", "Mass@ZAMS(1)")
+        m2 = COMPAS.get_COMPAS_variables("BSE_System_Parameters", "Mass@ZAMS(2)")
+        if use_sampled_mass_ranges:
+            COMPAS.Mlower = np.min(
+                m1[m1 != m2]) * u.Msun  # the m1!=m2 ensures we don't include masses set equal through RLOF at ZAMS
+            COMPAS.Mupper = np.max(m1) * u.Msun
+            COMPAS.m2_min = np.min(m2) * u.Msun
+
+        COMPAS.mass_evolved_per_binary = get_star_forming_mass_per_binary(
+            Mlower=COMPAS.Mlower, Mupper=COMPAS.Mupper,
+            m2_min=COMPAS.m2_min, binaryFraction=COMPAS.binaryFraction
+        )
+        return COMPAS
 
     def setCOMPASDCOmask(
             self, types="BBH", withinHubbleTime=True, pessimistic=True, noRLOFafterCEE=True
@@ -238,112 +272,217 @@ class COMPASData(object):
         if column_name is not None:
             self.sw_weights = self.get_COMPAS_variables("BSE_Double_Compact_Objects", column_name)[self.DCOmask]
 
-    @profile
-    def find_star_forming_mass_per_binary_sampling(self,
-                                                   primary_mass_inverse_CDF=None, mass_ratio_inverse_CDF=None,
-                                                   SAMPLES=20000000):
-        """
-            Calculate the star forming mass evolved for each binary in the file.
-            This function does this by sampling from the IMF and mass ratio distributions
+    @property
+    def chirp_mass(self):
+        if not hasattr(self, "_chirp_mass"):
+            self._chirp_mass = conversion_functions.chirp_mass(self.mass1, self.mass2)
+        return self._chirp_mass
 
-            Args:
-                mi                       --> [float]    masses at which to transition the slope of the IMF (ignored if primary_mass_inverse_CDF is not None)
-                aij                      --> [float]    slope of the IMF between mi and mj (ignored if primary_mass_inverse_CDF is not None)
-                primary_mass_inverse_CDF --> [function] a function that computes the inverse CDF functoin for the primary mass distribution
-                                                        this defaults to the Kroupa IMF (which can be varied using mi, aij)
-                mass_ratio_inverse_CDF   --> [function] a function that computes the inverse CDF function for the mass ratio distribution
-                                                        this defaults to assuming a uniform mass ratio on [0, 1]
-                SAMPLES                  --> [int]      number of samples to draw when creating a mock universe
-        """
-        # if primary mass inverse CDF is None, assume the Kroupa IMF
-        if primary_mass_inverse_CDF is None:
-            primary_mass_inverse_CDF = lambda U: inverse_CDF_IMF(U)
+    @property
+    def eta(self):
+        if not hasattr(self, "_eta"):
+            self._eta = conversion_functions.eta(self.mass1, self.mass2)
+        return self._eta
 
-        # if mass ratio inverse CDF function is None, assume uniform
-        if mass_ratio_inverse_CDF is None:
-            mass_ratio_inverse_CDF = lambda q: q
+    @property
+    def n_binaries(self):
+        if not hasattr(self, "_n_binaries"):
+            self._n_binaries = len(self.mass1)
+        return self._n_binaries
 
-        # randomly sample a large number of masses from IMF, mass ratios from supplied function, binary for boolean
-        primary_mass = primary_mass_inverse_CDF(np.random.rand(SAMPLES)) * u.Msun
-        mass_ratio = mass_ratio_inverse_CDF(np.random.rand(SAMPLES))
-        binary = np.random.rand(SAMPLES)
+    def __repr__(self):
+        return f"<CompasData {self.path} ({self.n_binaries:,}/{self.n_systems:,} binaries)>"
 
-        # only fbin fraction of stars have a secondary (in a binary)
-        binary_mask = binary < self.binaryFraction
+    def __str__(self):
+        return self.__repr__()
 
-        # assign each a random secondary mass, default 0 because single stars have m2=0 (surprisingly :P)
-        secondary_mass = np.zeros(SAMPLES) * u.Msun
-        secondary_mass[binary_mask] = primary_mass[binary_mask] * mass_ratio[binary_mask]
 
-        # find the total mass of the whole population
-        total_mass = np.sum(primary_mass) + np.sum(secondary_mass)
+def find_star_forming_mass_per_binary_sampling(binaryFraction=0.7, Mlower=5 * u.Msun, Mupper=150 * u.Msun, m2_min=0.1 * u.Msun, SAMPLES=int(1e7)):
+    """
+        Calculate the star forming mass evolved for each binary.
+        This function does this by sampling from the Kroupa IMF and a uniform mass ratio distribution.
 
-        # apply the COMPAS cuts on primary and secondary mass
-        primary_mask = np.logical_and(primary_mass >= self.Mlower, primary_mass <= self.Mupper)
-        secondary_mask = secondary_mass > self.m2_min
-        full_mask = np.logical_and(primary_mask, secondary_mask)
+        Args:
+            SAMPLES:int
+                Number of samples to draw when creating a mock universe
+                Set to 1e7 by default (results in +/-1% accuracy for default values)
 
-        # find the total mass with COMPAS cuts
-        total_mass_COMPAS = np.sum(primary_mass[full_mask]) + np.sum(secondary_mass[full_mask])
+        Returns:
+            star_forming_mass_per_binary:float
+                The star forming mass evolved for each binary in the file
+    """
+    warnings.warn(
+        "This is deprecated, please use the compas_python_utils.cdriver.compute_star_forming_mass_per_binary instead. "
+        "This will be deleted in future versions of compas_python_utils."
+    )
 
-        # use the totals to find the ratio and return the average mass as well
-        f_mass_sampled = total_mass_COMPAS / total_mass
-        average_mass_COMPAS = total_mass_COMPAS / len(primary_mass[full_mask])
 
-        # find the average star forming mass evolved per binary in the Universe
-        self.mass_evolved_per_binary = average_mass_COMPAS / f_mass_sampled
+    primary_mass = sample_from_imf(SAMPLES) * u.Msun
+    mass_ratio = np.random.uniform(0, 1, SAMPLES)
+    binary = np.random.rand(SAMPLES)
+
+    # only fbin fraction of stars have a secondary (in a binary)
+    binary_mask = binary < binaryFraction
+
+    # assign each a random secondary mass, default 0 because single stars have m2=0 (surprisingly :P)
+    secondary_mass = np.zeros(SAMPLES) * u.Msun
+    secondary_mass[binary_mask] = primary_mass[binary_mask] * mass_ratio[binary_mask]
+
+    # find the total mass of the whole population
+    total_mass = np.sum(primary_mass) + np.sum(secondary_mass)
+
+    # apply the COMPAS cuts on primary and secondary mass
+    primary_mask = np.logical_and(primary_mass >= Mlower, primary_mass <= Mupper)
+    secondary_mask = secondary_mass > m2_min
+    full_mask = np.logical_and(primary_mask, secondary_mask)
+
+    # find the total mass with COMPAS cuts
+    total_mass_COMPAS = np.sum(primary_mass[full_mask]) + np.sum(secondary_mass[full_mask])
+
+    # use the totals to find the ratio and return the average mass as well
+    f_mass_sampled = total_mass_COMPAS / total_mass
+    average_mass_COMPAS = total_mass_COMPAS / len(primary_mass[full_mask])
+
+    # find the average star forming mass evolved per binary in the Universe
+    average_mass_evolved_per_binary = average_mass_COMPAS / f_mass_sampled
+    return average_mass_evolved_per_binary
+
 
 
 # ============================================== #
 # Initial Mass Function PDF, CDF and inverse CDF #
 # ============================================== #
 
+def IMF(m, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
+    """
+        Calculate the fraction of stellar mass between m and m + dm for a three part broken power law.
+        Default values follow Kroupa (2001)
+            zeta(m) ~ m^(-a_ij)
 
-def CDF_IMF(m, bounds, slopes, norms):
-    if m <= bounds[0]:
-        return 0
-    elif m <= bounds[1]:
-        return powerlaw_cdf(m, bounds[0], norms[0], slopes[0])
-    elif m <= bounds[2]:
-        previous_cdf = powerlaw_cdf(bounds[1], bounds[0], norms[0], slopes[0])
-        current_cdf = powerlaw_cdf(m, bounds[1], norms[1], slopes[1])
-        return previous_cdf + current_cdf
-    elif m <= bounds[3]:
-        return 1
+        Args:
+            m       --> [float, list of floats] mass or masses at which to evaluate
+            mi      --> [float]                 masses at which to transition the slope
+            aij     --> [float]                 slope of the IMF between mi and mj
 
+        Returns:
+            zeta(m) --> [float, list of floats] value or values of the IMF at m
+    """
 
-def inverse_CDF_IMF(U, bounds=[0.01, 0.08, 0.5, 200], slopes=[0.3, 1.3, 2.3]):
-    norms = get_normalisation_constants(bounds, slopes)
-
-    F = [CDF_IMF(b, bounds=bounds, slopes=slopes, norms=norms) for b in bounds]
-    masses = np.zeros(len(U))
-    for i in range(len(U)):
-        masses[i] = 0
-        for j in range(len(F)-1):
-            if F[j] < U[i] <= F[j+1]:
-                masses[i] = generate_mass_from_inv_cdf(slopes[j], norms[j], U[i], F[j], bounds[j])
-    return masses
-
-
-def powerlaw_cdf(x, x0, b, a, ):
-    return b / (1 - a) * (x ** (1 - a) - x0 ** (1 - a))
-
-
-def get_normalisation_constants(bounds, slopes):
-    m1, m2, m3, m4 = bounds[0], bounds[1], bounds[2], bounds[3]
-    a1, a2, a3 = slopes[0], slopes[1], slopes[2]
+    # calculate normalisation constants that ensure the IMF is continuous
     b1 = 1 / (
-            (m2 ** (1 - a1) - m1 ** (1 - a1)) / (1 - a1)
-            + m2 ** (-(a1 - a2)) * (m3 ** (1 - a2) - m2 ** (1 - a2)) / (1 - a2)
-            + m2 ** (-(a1 - a2)) * m3 ** (-(a2 - a3)) * (m4 ** (1 - a3) - m3 ** (1 - a3)) / (1 - a3)
+            (m2 ** (1 - a12) - m1 ** (1 - a12)) / (1 - a12) \
+            + m2 ** (-(a12 - a23)) * (m3 ** (1 - a23) - m2 ** (1 - a23)) / (1 - a23) \
+            + m2 ** (-(a12 - a23)) * m3 ** (-(a23 - a34)) * (m4 ** (1 - a34) - m3 ** (1 - a34)) / (1 - a34)
     )
-    b2 = b1 * m2 ** (-(a1 - a2))
-    b3 = b2 * m3 ** (-(a2 - a3))
-    return [b1, b2, b3]
+    b2 = b1 * m2 ** (-(a12 - a23))
+    b3 = b2 * m3 ** (-(a23 - a34))
+
+    # evaluate IMF either at a point or for a list of points
+    if isinstance(m, float):
+        if m < m1:
+            return 0
+        elif m < m2:
+            return b1 * m ** (-a12)
+        elif m < m3:
+            return b2 * m ** (-a23)
+        elif m < m4:
+            return b3 * m ** (-a34)
+        else:
+            return 0
+    else:
+        imf_vals = np.zeros(len(m))
+        imf_vals[np.logical_and(m >= m1, m < m2)] = b1 * m[np.logical_and(m >= m1, m < m2)] ** (-a12)
+        imf_vals[np.logical_and(m >= m2, m < m3)] = b2 * m[np.logical_and(m >= m2, m < m3)] ** (-a23)
+        imf_vals[np.logical_and(m >= m3, m < m4)] = b3 * m[np.logical_and(m >= m3, m < m4)] ** (-a34)
+        return imf_vals
 
 
-def generate_mass_from_inv_cdf(a, b, U, F, m):
-    return np.power(
-        (1 - a) / b * (U - F) + m ** (1 - a),
-        1 / (1 - a)
+def CDF_IMF(m, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
+    """
+        Calculate the fraction of stellar mass between 0 and m for a three part broken power law.
+        Default values follow Kroupa (2001)
+            F(m) ~ int_0^m zeta(m) dm
+
+        Args:
+            m       --> [float, list of floats] mass or masses at which to evaluate
+            mi      --> [float]                 masses at which to transition the slope
+            aij     --> [float]                 slope of the IMF between mi and mj
+
+        Returns:
+            zeta(m) --> [float, list of floats] value or values of the IMF at m
+
+        NOTE: this is implemented recursively, probably not the most efficient if you're using this
+                intensively but I'm not and it looks prettier so I'm being lazy ¯\_(ツ)_/¯
+    """
+
+    # calculate normalisation constants that ensure the IMF is continuous
+    b1 = 1 / (
+            (m2 ** (1 - a12) - m1 ** (1 - a12)) / (1 - a12) \
+            + m2 ** (-(a12 - a23)) * (m3 ** (1 - a23) - m2 ** (1 - a23)) / (1 - a23) \
+            + m2 ** (-(a12 - a23)) * m3 ** (-(a23 - a34)) * (m4 ** (1 - a34) - m3 ** (1 - a34)) / (1 - a34)
     )
+    b2 = b1 * m2 ** (-(a12 - a23))
+    b3 = b2 * m3 ** (-(a23 - a34))
+
+    if isinstance(m, float):
+        if m <= m1:
+            return 0
+        elif m <= m2:
+            return b1 / (1 - a12) * (m ** (1 - a12) - m1 ** (1 - a12))
+        elif m <= m3:
+            return CDF_IMF(m2) + b2 / (1 - a23) * (m ** (1 - a23) - m2 ** (1 - a23))
+        elif m <= m4:
+            return CDF_IMF(m3) + b3 / (1 - a34) * (m ** (1 - a34) - m3 ** (1 - a34))
+        else:
+            return 0
+    else:
+        CDF = np.zeros(len(m))
+        CDF[np.logical_and(m >= m1, m < m2)] = b1 / (1 - a12) * (
+                    m[np.logical_and(m >= m1, m < m2)] ** (1 - a12) - m1 ** (1 - a12))
+        CDF[np.logical_and(m >= m2, m < m3)] = CDF_IMF(m2) + b2 / (1 - a23) * (
+                    m[np.logical_and(m >= m2, m < m3)] ** (1 - a23) - m2 ** (1 - a23))
+        CDF[np.logical_and(m >= m3, m < m4)] = CDF_IMF(m3) + b3 / (1 - a34) * (
+                    m[np.logical_and(m >= m3, m < m4)] ** (1 - a34) - m3 ** (1 - a34))
+        CDF[m >= m4] = np.ones(len(m[m >= m4]))
+        return CDF
+
+
+def inverse_CDF_IMF(U, m1=0.01, m2=0.08, m3=0.5, m4=200, a12=0.3, a23=1.3, a34=2.3):
+    """
+        Calculate the inverse CDF for a three part broken power law.
+        Default values follow Kroupa (2001)
+
+        Args:
+            U       --> [float, list of floats] A uniform random variable on [0, 1]
+            mi      --> [float]                 masses at which to transition the slope
+            aij     --> [float]                 slope of the IMF between mi and mj
+
+        Returns:
+            zeta(m) --> [float, list of floats] value or values of the IMF at m
+
+        NOTE: this is implemented recursively, probably not the most efficient if you're using this intensively but I'm not so I'm being lazy ¯\_(ツ)_/¯
+    """
+    warnings.warn(
+        "This is deprecated, please use the compas_python_utils.cdriver.sample_from_imf instead."
+        "This will be deleted in future versions of compas_python_utils."
+    )
+    # calculate normalisation constants that ensure the IMF is continuous
+    b1 = 1 / (
+            (m2 ** (1 - a12) - m1 ** (1 - a12)) / (1 - a12) \
+            + m2 ** (-(a12 - a23)) * (m3 ** (1 - a23) - m2 ** (1 - a23)) / (1 - a23) \
+            + m2 ** (-(a12 - a23)) * m3 ** (-(a23 - a34)) * (m4 ** (1 - a34) - m3 ** (1 - a34)) / (1 - a34)
+    )
+    b2 = b1 * m2 ** (-(a12 - a23))
+    b3 = b2 * m3 ** (-(a23 - a34))
+
+    # find the probabilities at which the gradient changes
+    F1, F2, F3, F4 = CDF_IMF(np.array([m1, m2, m3, m4]), m1=0.01, m2=0.08, m3=0.5, m4=200, a12=0.3, a23=1.3, a34=2.3)
+
+    masses = np.zeros(len(U))
+    masses[np.logical_and(U > F1, U <= F2)] = np.power(
+        (1 - a12) / b1 * (U[np.logical_and(U > F1, U <= F2)] - F1) + m1 ** (1 - a12), 1 / (1 - a12))
+    masses[np.logical_and(U > F2, U <= F3)] = np.power(
+        (1 - a23) / b2 * (U[np.logical_and(U > F2, U <= F3)] - F2) + m2 ** (1 - a23), 1 / (1 - a23))
+    masses[np.logical_and(U > F3, U <= F4)] = np.power(
+        (1 - a34) / b3 * (U[np.logical_and(U > F3, U <= F4)] - F3) + m3 ** (1 - a34), 1 / (1 - a34))
+    return masses

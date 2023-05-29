@@ -1,13 +1,10 @@
 #include <integrator/integrator.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <iostream>
 
 
 namespace py = pybind11;
 
-
-namespace cdriver {
 
 
 py::array_t<double> sample_from_imf(int n)
@@ -26,11 +23,14 @@ py::array_t<double> sample_from_imf(int n)
     return array;
 }
 
-} // namespace cdriver
 
+
+// Binding code for python
 PYBIND11_MODULE(cdriver, m) {
   m.doc() = R"doc(
     The computation engine for cosmic integrator
 )doc";
-  m.def("sample_from_imf", &cdriver::sample_from_imf, py::arg("n"));
+  m.def("sample_from_imf", &sample_from_imf, py::arg("n"));
+  m.def("compute_star_forming_mass_per_binary", &integrator::kroupa_imf::compute_star_forming_mass_per_binary,
+  py::arg("binaryFraction"), py::arg("Mlower"), py::arg("Mupper"), py::arg("m2_min"), py::arg("n"));
 }
