@@ -1,14 +1,25 @@
 import numpy as np
 from scipy.integrate import quad
 import h5py as h5       # for reading in data
+import functools
 
+@functools.lru_cache()
+def __get_imf_normalisation_values(m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
+    b1 = 1 / (
+            (m2 ** (1 - a12) - m1 ** (1 - a12)) / (1 - a12)
+            + m2 ** (-(a12 - a23)) * (m3 ** (1 - a23) - m2 ** (1 - a23)) / (1 - a23)
+            + m2 ** (-(a12 - a23)) * m3 ** (-(a23 - a34)) * (m4 ** (1 - a34) - m3 ** (1 - a34)) / (1 - a34)
+    )
+    b2 = b1 * m2 ** (-(a12 - a23))
+    b3 = b2 * m3 ** (-(a23 - a34))
+    return b1, b2, b3
 
+@np.vectorize
 def IMF(m, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
     """Calculate the fraction of stellar mass between m and m + dm for a three part broken power law.
-    
+
     Default values follow Kroupa (2001)
             zeta(m) ~ m^(-a_ij)
-
     Parameters
     ----------
     m : `float` or `np.ndarray`
@@ -17,39 +28,23 @@ def IMF(m, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
         masses at which to transition the slope
     aij : float, optional
         slope of the IMF between mi and mj
-
     Returns
     -------
     imf_vals
         IMF evaluated at the given masses
     """
     # calculate normalisation constants that ensure the IMF is continuous
-    b1 = 1 / ( 
-                (m2**(1 - a12) - m1**(1 - a12)) / (1 - a12) \
-                + m2**(-(a12 - a23)) * (m3**(1 - a23) - m2**(1 - a23)) / (1 - a23) \
-                + m2**(-(a12 - a23)) * m3**(-(a23 - a34)) * (m4**(1 - a34) - m3**(1 - a34)) / (1 - a34)
-             )
-    b2 = b1 * m2**(-(a12 - a23))
-    b3 = b2 * m3**(-(a23 - a34))
-    
+    b1, b2, b3 = __get_imf_normalisation_values(m1, m2, m3, m4, a12, a23, a34)
+
     # evaluate IMF either at a point or for a list of points
-    if isinstance(m, float):
-        if m < m1:
-            return 0
-        elif m < m2:
-            return b1 * m**(-a12)
-        elif m < m3:
-            return b2 * m**(-a23)
-        elif m < m4:
-            return b3 * m**(-a34)
-        else:
-            return 0
+    if m1 <= m < m2:
+        return b1 * m ** (-a12)
+    elif m2 <= m < m3:
+        return b2 * m ** (-a23)
+    elif m3 <= m < m4:
+        return b3 * m ** (-a34)
     else:
-        imf_vals = np.zeros(len(m))
-        imf_vals[np.logical_and(m >= m1, m < m2)] = b1 * m[np.logical_and(m >= m1, m < m2)]**(-a12)
-        imf_vals[np.logical_and(m >= m2, m < m3)] = b2 * m[np.logical_and(m >= m2, m < m3)]**(-a23)
-        imf_vals[np.logical_and(m >= m3, m < m4)] = b3 * m[np.logical_and(m >= m3, m < m4)]**(-a34)
-        return imf_vals
+        return 0.0
 
 
 def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin, mass_ratio_pdf_function=lambda q: 1,
