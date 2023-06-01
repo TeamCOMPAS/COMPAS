@@ -130,3 +130,28 @@ def totalMassEvolvedPerZ(path, Mlower, Mupper, m2_low, binaryFraction, mass_rati
     totalMassEvolvedPerMetallicity = MassEvolvedPerZ / fraction
 
     return multiplicationFactor, totalMassEvolvedPerMetallicity
+
+
+def analytical_star_forming_mass_per_binary_using_kroupa_imf(
+        m1_max, m1_min, m2_min, fbin=1., imf_mass_bounds=[0.01,0.08,0.5,200]
+):
+    """
+    Analytical computation of the mass of stars formed per binary star formed within the
+    [m1 min, m1 max] and [m2 min, ..] rage,
+    using the Kroupa IMF:
+
+        p(M) \propto M^-0.3 for M between m1 and m2
+        p(M) \propto M^-1.3 for M between m2 and m3;
+        p(M) = alpha * M^-2.3 for M between m3 and m4;
+
+    @Ilya Mandel's derivation
+    """
+    m1, m2, m3, m4 = imf_mass_bounds
+    alpha = (-(m4**(-1.3)-m3**(-1.3))/1.3 - (m3**(-0.3)-m2**(-0.3))/(m3*0.3) + (m2**0.7-m1**0.7)/(m2*m3*0.7))**(-1)
+    # average mass of stars (average mass of all binaries is a factor of 1.5 larger)
+    m_avg = alpha * (-(m4**(-0.3)-m3**(-0.3))/0.3 + (m3**0.7-m2**0.7)/(m3*0.7) + (m2**1.7-m1**1.7)/(m2*m3*1.7))
+    # fraction of binaries that COMPAS simulates
+    fint = -alpha / 1.3 * (m1_max ** (-1.3) - m1_min ** (-1.3)) + alpha * m2_min / 2.3 * (m1_max ** (-2.3) - m1_min ** (-2.3))
+    # mass represented by each binary simulated by COMPAS
+    m_rep = (1/fint) * m_avg * (1.5 + (1-fbin)/fbin)
+    return m_rep
