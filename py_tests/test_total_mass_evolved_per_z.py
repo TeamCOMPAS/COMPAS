@@ -1,5 +1,5 @@
 from compas_python_utils.cosmic_integration.totalMassEvolvedPerZ import (
-    IMF, get_COMPAS_fraction
+    IMF, get_COMPAS_fraction, analytical_star_forming_mass_per_binary_using_kroupa_imf
 )
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,6 +18,7 @@ def test_imf(test_archive_dir):
     for mi in m_breaks:
         plt.axvline(mi, zorder=-10, color='gray', alpha=0.2)
     plt.xscale("log")
+    plt.yscale("log")
     plt.xlabel(r"Mass [M$_{\odot}]$")
     plt.ylabel("IMF")
     plt.savefig(f"{test_archive_dir}/IMF.png")
@@ -35,3 +36,13 @@ def test_compas_fraction():
         m1_low=0.01, m1_upp=100, m2_low=0, f_bin=0.5,
         m1=0.01, m2=0.08, m3=0.5, m4=200
     )) < 1
+
+
+def test_analytical_function():
+    default_case = analytical_star_forming_mass_per_binary_using_kroupa_imf(
+        m1_max=150,
+        m1_min = 5,
+        m2_min= 0.1,
+        fbin=1
+    )
+    assert 79.0 < default_case < 79.2
