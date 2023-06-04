@@ -35,19 +35,19 @@ public:
                                                                                                                                             p_Metallicity, 
                                                                                                                                             WD_Baryon_Number.at(STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF)); }
 
-    ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
+    ACCRETION_REGIME DetermineAccretionRegime(const bool   p_HeRich,
                                               const double p_DonorThermalMassLossRate);                                                                         // To check the current accretion regime and mass retention. Can also change flags related to SN events.
 
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                                // Set stellar type
+        m_StellarType       = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                          // Set stellar type
         CalculateTimescales();                                                                                                                                  // Initialise timescales
-        m_HShell = 0.0; // Initialize hydrogen shell
-        m_HeShell = 0.0; // Initialize helium shell
+        m_HShell            = 0.0;                                                                                                                              // Initialize hydrogen shell
+        m_HeShell           = 0.0;                                                                                                                              // Initialize helium shell
         m_HeShellDetonation = false;
         m_OffCenterIgnition = false;
-        m_AccretionRegime = ACCRETION_REGIME::NONE;
+        m_AccretionRegime   = ACCRETION_REGIME::NONE;
     }
 
 
@@ -58,10 +58,13 @@ protected:
 
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                 const bool   p_IsHeRich);  
+    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                const double p_AccretorMassRate,
+                                                const bool   p_IsHeRich)            { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); }        // Ignore the input accretion rate for WDs
 
     STELLAR_TYPE    EvolveToNextPhase();
-    bool            IsSupernova() const;                                             
-    bool            ShouldEvolveOnPhase() const;                                                  
+    bool            IsSupernova() const                                             { return m_HeShellDetonation || IsMassAboveChandrasekhar(); };                                             
+    bool            ShouldEvolveOnPhase() const                                     { return m_OffCenterIgnition ? false : !IsSupernova(); };                   // From https://ui.adsabs.harvard.edu/abs/2017MNRAS.472.1593W/abstract around the end of section 3.2. Also, allows SN.                                               
 
 };
 
