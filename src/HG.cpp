@@ -928,7 +928,7 @@ double HG::CalculateMassTransferRejuvenationFactor() const {
             }
             break;
 
-        default:                                                        // unknow prescription - use default Hurley et al. 2000 prescription = 1.0
+        default:                                                        // unknown prescription - use default Hurley et al. 2000 prescription = 1.0
             SHOW_WARN(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION);     // show warning
     }
 
@@ -1098,7 +1098,7 @@ double HG::ChooseTimestep(const double p_Time) const {
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
- * @return                                      Stellar Type to which star shoule evolve after losing envelope
+ * @return                                      Stellar Type to which star should evolve after losing envelope
  */
 STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]              // for convenience and readability - undefined at end of function

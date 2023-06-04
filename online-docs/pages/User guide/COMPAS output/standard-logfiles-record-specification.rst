@@ -8,7 +8,7 @@ or rebuild the COMPAS executable.
 The syntax of the definitions file is fairly simple. The definitions file is expected to contain zero or more log file record specifications, as 
 explained below.
 
-Complete lists of available properties selectable for inclusion (or exclusion) from COMPAS log file are availabe:
+Complete lists of available properties selectable for inclusion (or exclusion) from COMPAS log file are available:
 
 
 .. toctree::

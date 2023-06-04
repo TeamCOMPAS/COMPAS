@@ -58,7 +58,7 @@ in the ``stroopwafelInterface.py``.
 
 The lines below ``userunSubmit`` represent stroopwafel inputs.
 These are treated as
-defaults, but can be overriden by command-line arguments to
+defaults, but can be overridden by command-line arguments to
 stroopwafel.
 See ``python3 stroopwafelInterface.py --help``.
 
@@ -74,7 +74,7 @@ CPUs you have available.
 
 ``num_per_core`` is the number of systems to run on a core at a given
 time. This translates to the number of systems in a single batch file.
-This is more relevent for adaptive importance sampling.
+This is more relevant for adaptive importance sampling.
 
 ``mc_only`` specifies if you would like to do naive MC sampling only.
 Currently, this option must be set to True
@@ -98,7 +98,7 @@ Sampled parameters will be combined into grid files which COMPAS then
 reads in.
 Users should choose which parameters they would like to be sampled
 over, as well as
-the relevent distributions.
+the relevant distributions.
 
 See the `COMPAS
 Documentation <https://github.com/TeamCOMPAS/COMPAS/blob/Documentation/COMPAS_Documentation.pdf>`__

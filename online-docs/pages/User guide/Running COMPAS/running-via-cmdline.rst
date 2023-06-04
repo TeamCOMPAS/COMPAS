@@ -3,7 +3,7 @@ Running COMPAS from the command line
 
 COMPAS is a command-line application.  Interaction with COMPAS is entirely through the terminal and shell - there is no
 visual or graphical user interface (GUI).  COMPAS interacts with the user by accepting input via the keyboard, and providing
-ouput by writing plain text to the terminal. COMPAS reads input files where necessary: a ``grid`` file (see :doc:`../grid-files`),
+output by writing plain text to the terminal. COMPAS reads input files where necessary: a ``grid`` file (see :doc:`../grid-files`),
 and a log file definitions file (see :doc:`../COMPAS output/standard-logfiles-record-specification`), and produces output files
 (see :doc:`../COMPAS output/output`), but these are not interactive.
 

@@ -156,7 +156,7 @@ def find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF,
     if COMPAS_weights is None:
         COMPAS_weights = np.ones(n_binaries)
 
-    # initalise rates to zero
+    # initialise rates to zero
     n_redshifts = len(redshifts)
     redshift_step = redshifts[1] - redshifts[0]
     formation_rate = np.zeros(shape=(n_binaries, n_redshifts))
@@ -165,7 +165,7 @@ def find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF,
     # interpolate times and redshifts for conversion
     times_to_redshifts = interp1d(times, redshifts)
 
-    # make note of the first time at which star formation occured
+    # make note of the first time at which star formation occurred
     age_first_sfr = time_first_SF
 
     # go through each binary in the COMPAS data
@@ -301,7 +301,7 @@ def find_detection_rate(path, dco_type="BBH", weight_column=None,
                         snr_max=1000.0, snr_step=0.1):
     """
         The main function of this file. Finds the detection rate, formation rate and merger rate for each
-        binary in a COMPAS file at a series of redshifts defined by intput. Also returns relevant COMPAS
+        binary in a COMPAS file at a series of redshifts defined by input. Also returns relevant COMPAS
         data.
         NOTE: This code assumes that assumes that metallicities in COMPAS are drawn from a flat in log distribution
         Args:
@@ -545,7 +545,7 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
             save_merger_rate      = binned_merger_rate
             save_detection_rate   = binned_detection_rate
         else: 
-            #  To avoid huge filesizes, we don't really wan't All the data, 
+            #  To avoid huge filesizes, we don't really want All the data, 
             # so we're going to save up to some redshift
             z_index = np.digitize(maxz, redshifts) -1
 
@@ -560,7 +560,7 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
         print('save_redshifts', save_redshifts)
 
         #################################################
-        # Write the rates as a seperate dataset
+        # Write the rates as a separate dataset
         # re-arrange your list of rate parameters
         DCO_to_rate_mask     = COMPAS.DCOmask #save this bool for easy conversion between Double_Compact_Objects, and CI weights
         rate_data_list       = [DCO['SEED'][DCO_to_rate_mask], DCO_to_rate_mask , save_redshifts,  save_merger_rate, merger_rate[:,0], save_detection_rate]
@@ -672,7 +672,7 @@ def plot_rates(save_dir, formation_rate, merger_rate, detection_rate, redshifts,
 
     axes[1,1].hist(chirp_masses, weights=detection_rate_by_binary, bins=25, range=(0, 50))
     axes[1,1].set_xlabel(r'Chirp mass, $\mathcal{M}_c$', fontsize=fs)
-    axes[1,1].set_ylabel(r'Mass distrbution of detections $[\rm \frac{\mathrm{d}N}{\mathrm{d}\mathcal{M}_c \mathrm{d}yr}]$', fontsize=fs)
+    axes[1,1].set_ylabel(r'Mass distribution of detections $[\rm \frac{\mathrm{d}N}{\mathrm{d}\mathcal{M}_c \mathrm{d}yr}]$', fontsize=fs)
 
     #########################
     #Plotvalues

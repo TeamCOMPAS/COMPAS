@@ -71,7 +71,7 @@ import sys
 fileLoc    = '/Users/lieke/Downloads/output/'
 filename   = 'COMPAS_Output_reduced.h5'
 ######################################
-##PLOT setttings
+##PLOT settings
 plt.rc('font', family='serif')
 
 from matplotlib import rc

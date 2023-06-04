@@ -330,8 +330,8 @@ private:
 
     double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
 
-    double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
-    double              m_Mass2Final;                                                       // Star2 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
+    double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we assume it loses all of its envelope)
+    double              m_Mass2Final;                                                       // Star2 mass in Msol after losing its envelope (in this case, we assume it loses all of its envelope)
 
     double              m_MassEnv1;                                                         // Star1 envelope mass in Msol
     double              m_MassEnv2;                                                         // Star2 envelope mass in Msol
@@ -400,7 +400,7 @@ private:
     // CalculateAngularMomentum - the actual function takes 10 parameters because of the various calling permutations
     //                          - various signatures are defined here - they just assemble the parameters as required
     //                            and call the actual function
-    // JR: todo: note in the orginal code the binary orbital velicity was passed in as a parameter but never used - I removed it
+    // JR: todo: note in the original code the binary orbital velicity was passed in as a parameter but never used - I removed it
 
     void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
     void    SetRemainingValues();
@@ -595,7 +595,7 @@ private:
         double factor = ADAPTIVE_RLOF_SEARCH_FACTOR;                            // Size of search steps
         
         const boost::uintmax_t maxit = ADAPTIVE_RLOF_MAX_ITERATIONS;            // Limit to maximum iterations.
-        boost::uintmax_t it = maxit;                                            // Initally our chosen max iterations, but updated with actual.
+        boost::uintmax_t it = maxit;                                            // Initially our chosen max iterations, but updated with actual.
         bool is_rising = true;                                                  // So if result with guess is too low, then try increasing guess.
         int digits = std::numeric_limits<double>::digits;                       // Maximum possible binary digits accuracy for type T.
 
