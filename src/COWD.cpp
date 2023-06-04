@@ -24,11 +24,8 @@ DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
     double acceptanceRate   = 0.0;                                                       // Acceptance mass rate - default = 0.0
     double fractionAccreted = 0.0;                                                       // Accretion fraction - default = 0.0
 
-    if (p_IsHeRich) {
-        acceptanceRate = p_DonorMassRate * CalculateEtaHe(p_DonorMassRate);
-    } else {
-        acceptanceRate = p_DonorMassRate * CalculateEtaHe(p_DonorMassRate) * CalculateEtaH(p_DonorMassRate); 
-    }
+    acceptanceRate = p_DonorMassRate * CalculateEtaHe(p_DonorMassRate);
+    if (!p_IsHeRich) acceptanceRate *= CalculateEtaH(p_DonorMassRate);
     fractionAccreted = acceptanceRate / p_DonorMassRate;
 
     return std::make_tuple(acceptanceRate, fractionAccreted);
@@ -51,14 +48,15 @@ DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
  * @return                                   Current WD accretion regime
  */
 ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorMassLossRate) {
-    double logMdot = log10(p_DonorMassLossRate / MYR_TO_YEAR); // Logarithm of the accreted mass (M_sun/yr)
+
+    double logMdot          = log10(p_DonorMassLossRate / MYR_TO_YEAR);                                                     // Logarithm of the accreted mass (M_sun/yr)
     ACCRETION_REGIME regime = ACCRETION_REGIME::NONE;
 
     if (p_HeRich) {
         // The following coefficients in logMassTransfer limits come from table A1 in Piersanti+ 2014.
-        double logMassTransferCrit       = WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0   + WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1 *m_Mass;
-        double logMassTransferStable     = WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_0   + WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_1 *m_Mass; // Piersanti+2014 has several Flashes regimes. Here we group them into one.
-        double logMassTransferDetonation = WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_0   + WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_1 *m_Mass; // Critical value for double detonation regime in Piersanti+ 2014
+        double logMassTransferCrit       = WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0 + WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1 * m_Mass;
+        double logMassTransferStable     = WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_0 + WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_1 * m_Mass;  // Piersanti+2014 has several Flashes regimes. Here we group them into one.
+        double logMassTransferDetonation = WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_0 + WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_1 * m_Mass;  // Critical value for double detonation regime in Piersanti+ 2014
         if (utils::Compare(logMdot, logMassTransferStable) < 0) {
             if (utils::Compare(logMdot, logMassTransferDetonation) > 0) {
                 regime = ACCRETION_REGIME::HELIUM_FLASHES;
@@ -66,7 +64,7 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
             else {
                 regime = ACCRETION_REGIME::HELIUM_ACCUMULATION;
                 if ((utils::Compare(m_Mass, MASS_DOUBLE_DETONATION_CO) >= 0) && (utils::Compare(m_HeShell, WD_HE_SHELL_MCRIT_DETONATION) >= 0)) {
-                    m_HeShellDetonation = true;
+                    m_HeShellDetonation = true;                                                                             // JR: Question: should this be set false if the condition is not satisfied?
                 }
             }
         } 
@@ -76,14 +74,16 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
         else {
             regime = ACCRETION_REGIME::HELIUM_STABLE_BURNING;
             if ((utils::Compare(logMdot, COWD_LOG_MDOT_MIN_OFF_CENTER_IGNITION) > 0) && (utils::Compare(m_Mass, COWD_MASS_MIN_OFF_CENTER_IGNITION) > 0)) {
-                m_OffCenterIgnition = true;
+                m_OffCenterIgnition = true;                                                                                 // JR: Question: should this be set false if the condition is not satisfied?
             }
         }
     } 
     else {
         // The following coefficients in logMassTransfer limits come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
-        double logMassTransferCrit   = WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0 + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1 *m_Mass + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2 *m_Mass*m_Mass;
-        double logMassTransferStable =  WD_LOG_MT_LIMIT_NOMOTO_STABLE_0  + WD_LOG_MT_LIMIT_NOMOTO_STABLE_1   *m_Mass + WD_LOG_MT_LIMIT_NOMOTO_STABLE_2   *m_Mass*m_Mass;
+        double m_Mass_2 = m_Mass * m_Mass;
+        double logMassTransferCrit   = WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0 + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1 * m_Mass + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2 * m_Mass_2;
+        double logMassTransferStable = WD_LOG_MT_LIMIT_NOMOTO_STABLE_0   + WD_LOG_MT_LIMIT_NOMOTO_STABLE_1   * m_Mass + WD_LOG_MT_LIMIT_NOMOTO_STABLE_2   * m_Mass_2;
+
         if (utils::Compare(logMdot, logMassTransferStable) < 0) {
             regime = ACCRETION_REGIME::HYDROGEN_FLASHES;
         } 
@@ -96,32 +96,6 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
     }
 
     return regime;
-}
-
-
-/*
- * Allow the evolution into a different stellar type, or possibly a SN. From https://ui.adsabs.harvard.edu/abs/2017MNRAS.472.1593W/abstract around
- * the end of section 3.2. Also, allows SN.
- *
- * bool ShouldEvolveOnPhase()
- *
- * @return                               Whether the WD should evolve on phase or towards an ONeWD/SN.
- */
-bool COWD::ShouldEvolveOnPhase() const {
-    return m_OffCenterIgnition ? false : !IsSupernova();
-}
-
-
-/*
- * List all conditions for SN (AIC or SN Ia) for COWD WD. 
- * Each condition should also be a separate clause in EvolveToNextPhase.
- *
- * bool IsSupernova()
- *
- * @return                               Whether WD should undergo AIC or SN Ia
- */
-bool COWD::IsSupernova() const {
-    return m_HeShellDetonation || IsMassAboveChandrasekhar();      
 }
 
 
