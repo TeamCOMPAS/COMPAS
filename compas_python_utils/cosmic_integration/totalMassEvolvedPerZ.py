@@ -118,7 +118,7 @@ def createSampleUniverse(binaryFraction=1., x1=0.01, x2=0.08, x3=0.5, x4=200, a1
     #Binary fraction is easier, since we draw between 0-1, every draw with 
     #value above binary fraction = single star and every value below is binary
     #for a single star we set M2=0 Msun.
-    #Note that we assume that the binary Fraction is mass indepent
+    #Note that we assume that the binary Fraction is mass independent
     #Future work to implenet Max Moe ps and qs options
     maskBinary = drawBinary < binaryFraction  #booleans
 

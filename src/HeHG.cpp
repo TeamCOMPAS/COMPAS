@@ -252,7 +252,7 @@ double HeHG::CalculateMassTransferRejuvenationFactor() const {
             }
             break;
 
-        default:                                                        // unknow prescription - use default Hurley et al. 2000 prescription = 1.0
+        default:                                                        // unknown prescription - use default Hurley et al. 2000 prescription = 1.0
             SHOW_WARN(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION);     // show warning
     }
 

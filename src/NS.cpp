@@ -418,7 +418,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
  *                                 const double p_Epsilon)
  *
  * @param   [IN]    p_CommonEnvelope            Indicates whether there there is a common envelope - true or false
- * @param   [IN]    p_RecycledNS                Indicates whether this star is/was a recyled neutron star - true or false
+ * @param   [IN]    p_RecycledNS                Indicates whether this star is/was a recycled neutron star - true or false
  * @param   [IN]    p_Stepsize                  Timestep size for integration (in seconds)
  * @param   [IN]    p_MassGainPerTimeStep       Mass loss from the secondary for each iteration (in kg)
  * @param   [IN]    p_Epsilon                   Uncertainty due to mass loss

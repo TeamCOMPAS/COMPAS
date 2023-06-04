@@ -388,7 +388,7 @@ protected:
     DBL_VECTOR              m_RConstants;                               // Radius constants
 
     // Binding energies, Lambdas and Zetas
-    BindingEnergiesT        m_BindingEnergies;                          // Binding enery values
+    BindingEnergiesT        m_BindingEnergies;                          // Binding energy values
     LambdasT                m_Lambdas;                                  // Lambda values
 
     // Stellar details squirrelled away...
@@ -399,7 +399,7 @@ protected:
     Vector3d                m_ComponentVelocity;                        // Isolated star velocity vector (binary's center-of-mass velocity for bound binary)
 
     // Star mass transfer history 
-    STYPE_VECTOR            m_MassTransferDonorHistory;                 // List of MT donor stellar types - mostly relevent for binary stars
+    STYPE_VECTOR            m_MassTransferDonorHistory;                 // List of MT donor stellar types - mostly relevant for binary stars
 
     // member functions - alphabetically
             void                AgeOneTimestepPreamble(const double p_DeltaTime);

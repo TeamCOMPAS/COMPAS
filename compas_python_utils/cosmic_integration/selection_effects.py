@@ -226,7 +226,7 @@ class Interpolator:
         # Find the indices of the next higher element in the axis
         # this ensures mass_axis[i-1] < m1 < mass_axis[i]
         # Edge cases are covered by the assertions, which ensure no pair are on
-        # the outer bondary.
+        # the outer boundary.
         i, j = np.searchsorted(self.mass_axis, [m1, m2])
         m1_selection = self.mass_axis[[i-1, i-1, i, i]]
         m2_selection = self.mass_axis[[j-1, j, j-1, j]]
