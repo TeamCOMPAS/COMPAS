@@ -221,7 +221,7 @@ def getEventHistory(h5file, exclude_null=False):
     if numMtSeeds < 1 and numSnSeeds < 1: return []                         # no events - return empty history
 
     returnedSeeds = []                                                      # array of seeds - will only contain seeds that have events (of any type)
-    returnedEvents = []                                                     # array of events - same size as returnedSeeds (icludes event times)
+    returnedEvents = []                                                     # array of events - same size as returnedSeeds (includes event times)
 
     eventOrdering = ['MT', 'SN']                                            # order of preference for simultaneous events
 

@@ -27,7 +27,7 @@ Data in ``HDF5`` files are arranged in ``groups`` and ``datasets``:
 Each dataset in an ``HDF5`` file is broken into `chunks`, where a chunk is defined as a number of dataset entries. In COMPAS,
 all datasets are 1-d arrays (columns), so a chunk is defined as a number of values in the 1-d array (or column). Chunking can 
 be enabled or not, but if chunking is not enabled a dataset cannot be resized - so if chunking is not enabled the size of the 
-dataset must be known at the time of creation, and the entire datset created in one go. That doesn't work for COMPAS - even 
+dataset must be known at the time of creation, and the entire dataset created in one go. That doesn't work for COMPAS - even 
 though we know the number of systems being evolved, we don't know the number of entries we'll have in each of the output log 
 files (and therefore the ``HDF5`` datasests if we're logging to ``HDF5`` files).  So, we enable chunking.
  
@@ -43,7 +43,7 @@ degrade performance.
 whenever dataset values are accessed (read or written (i.e. changed)), if the value is not already in memory, the entire chunk
 containing the value must be read from, or written to, the storage media - even if the dataset value being accessed is the only
 value in the chunk. So few large chunks could cause empty, "wasted", space in the ``HDF5`` files (at the end of datasets) - but
-they could also adversely affect performance by causing unecessary IO traffic (although probably not much in the way we access 
+they could also adversely affect performance by causing unnecessary IO traffic (although probably not much in the way we access 
 data in COMPAS files).
  
 ``HDF5`` files implement a chunk cache on a per-dataset basis. The default size of the chunk cache is $\small{1MB}$, and its 
@@ -58,7 +58,7 @@ utilised. Chunks too big to fit in the cache simply bypass the cache and are rea
 However, the chunk cache is really only useful for random access of the dataset. Most, if not all, of the access in the COMPAS 
 context (including post-creation analyses) is serial - the COMPAS code writes the datasets from top to bottom, and later analyses
 (generally) read the datasets the same way. Caching the chunks for serial access just introduces overhead that costs memory (not 
-much, to be sure: up to $\small{32MB}$ per open dataset), and degrades performace (albeit it a tiny bit). For that reason we disable
+much, to be sure: up to $\small{32MB}$ per open dataset), and degrades performance (albeit it a tiny bit). For that reason we disable
 the chunk cache in COMPAS - so all IO to/from an ``HDF5`` file in COMPAS is directly to/from the storage media. (To be clear, 
 post-creation analysis software can disable the cache or not when accessing ``HDF5`` files created by COMPAS - disabling the cache
 here does not affect how other software accesses the files post-creation).
@@ -75,7 +75,7 @@ know the number of systems being generated, which allows us to determine an uppe
 not for groups such as `BSE_RLOF`).
  
 One thing we need to keep in mind is that when we create the ``HDF5`` file we write each dataset of a group in the same 
-iteration - this is analagous to writing a single record in (e.g.) a ``CSV`` log file (the ``HDF5 group`` corresponds to the ``CSV``
+iteration - this is analogous to writing a single record in (e.g.) a ``CSV`` log file (the ``HDF5 group`` corresponds to the ``CSV``
 file, and the ``HDF5 datasets`` in the group correspond to the columns in the ``CSV`` file). So for each iteration - typically each
 system evolved (though each timestep for detailed output files) we do as many IOs to the ``HDF5`` file as there are datasets in the
 group (columns in the file). We are not bound to reading or writing a single chunk at a time - but we are bound to reading or writing

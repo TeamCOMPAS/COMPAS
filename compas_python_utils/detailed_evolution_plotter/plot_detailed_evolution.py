@@ -672,7 +672,7 @@ class allEvents(object):
 
 def printEvolutionaryHistory(Data=None, events=None):
     """
-    This function prints a synopsys of the evolutionary history to the command line; it can eventually include cartoons as well.
+    This function prints a synopsis of the evolutionary history to the command line; it can eventually include cartoons as well.
     """
     if events != None:
         Data = events[0].Data

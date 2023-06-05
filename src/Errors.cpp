@@ -20,7 +20,7 @@
  *    FIRST_IN_OBJECT_TYPE : The error will be printed only on the first time it is encountered anywhere in objects of
  *                           the same type (e.g. Binary Star objects)
  *    FIRST_IN_STELLAR_TYPE: The error will be printed only on the first time it is encountered anywhere in objects of
- *                           the same stellar type (e.g. HeWD Star obejcts)
+ *                           the same stellar type (e.g. HeWD Star objects)
  *    FIRST_IN_OBJECT_ID   : The error will be printed only on the first time it is encountered anywhere in an object
  *    FIRST_IN_FUNCTION    : The error will be printed only on the first time it is encountered anywhere in a function of
  *                           an object (i.e. will print twice if encountered in the same function name in different objects)
@@ -82,7 +82,7 @@ Errors* Errors::Instance() {
  * Prints the error/warning message if appropriate
  *
  * Checks the scope of the error number, and if necessary (i.e. the scope is not NEVER and not ALWAYS),
- * checks whether the error meets the criteria for being printed.  If it does, this function retreives
+ * checks whether the error meets the criteria for being printed.  If it does, this function retrieves
  * the associated error message from the catalog, formats the error or warning string, and prints the
  * message.
  *
@@ -101,7 +101,7 @@ Errors* Errors::Instance() {
  * @param   [IN]    p_ObjectId                  The object id of the calling object
  * @param   [IN]    p_ObjectType                The object type of the calling object
  * @param   [IN]    p_StellarType               The stellar type of the calling object (will be "NONE" if not a star-type object)
- * @param   [IN]    p_FuncName                  The nmae of the calling function
+ * @param   [IN]    p_FuncName                  The name of the calling function
  * @return                                      Boolean indicating if the error/warning was printed: true = yes, false = no
  */
 bool Errors::ShowIt(const std::string  p_Prefix,
