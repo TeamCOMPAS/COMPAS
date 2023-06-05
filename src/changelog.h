@@ -1030,7 +1030,7 @@
 //                                          This is later used in NS::UpdateMagneticFieldAndSpin()
 //                                      - m_PulsarDetails.spinDownRate was described as Pdot (s s^-1), when it is in fact f-dot(rad s^-2). This is now corrected. 
 //                                      - In BSE_Pulsar_Evolution file, the pulsar parameters at birth were not recorded. 
-//                                          Pulsar was also evolved an additional time step here with unspecificed size.
+//                                          Pulsar was also evolved an additional time step here with unspecified size.
 //                                          Fix to this problem is done by setting the PULSAR_RECORD_TYPE:
 //                                           (a) if record_type = 1 (DEFAULT), these are the initial values of the pulsar set at birth
 //                                           (b) if record_type = 3 (POST_BINARY_TIMESTEP), these describe normal pulsar evolution
@@ -1043,7 +1043,7 @@
 //                                      - Fix for issue #958 - evolving unbound systems that contain two compact objects.  Also added BINARY_PROPERTY::UNBOUND 
 //                                        to BSE Detailed Output file default record.
 //                                      - Changed makefile to be POSIX compliant for .o suffix rule.  No need to change docker Makefile - it is already POSIX compliant.
-//                                         - since GNU Make 4.3 a warning is issued for suffix rules that include prequisites - in our case the .o rule on line 125:
+//                                         - since GNU Make 4.3 a warning is issued for suffix rules that include prerequisites - in our case the .o rule on line 125:
 //                                           "Makefile:125: warning: ignoring prerequisites on suffix rule definition" - and in future releases it will become an error.
 
 const std::string VERSION_STRING = "02.38.07";
