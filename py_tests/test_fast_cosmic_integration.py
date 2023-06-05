@@ -7,6 +7,8 @@ import os
 
 def test_fast_cosmic_integration(example_compas_output_path, capsys, test_archive_dir):
     """Test that fast cosmic integration works"""
+
+    example_compas_output_path = "/Users/avaj0001/Documents/projects/compas_dev/quasir_compass_blocks/data/COMPAS_Output.h5"
     t0 = time.time()
     (
         detection_rate,
