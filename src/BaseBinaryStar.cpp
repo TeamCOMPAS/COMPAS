@@ -2472,8 +2472,18 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 else if (HasStarsTouching()) {                                                                                              // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                     evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                     // yes - stop evolution
                 }
-                else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                 // binary is unbound and we don't want unbound systems?
-                    evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                            // stop evolution
+                else if (IsUnbound()) {                                                                                                     // binary is unbound?
+                    m_Flags.mergesInHubbleTime = false;                                                                                     // yes - won't merge in a Hubble time
+
+                    if (IsDCO()) {                                                                                                          // DCO (has two COs)?
+                        if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                                           // DCO not yet evaluated
+                            m_DCOFormationTime = m_Time;                                                                                    // set the DCO formation time
+                        }
+                    }
+
+                    if (!OPTIONS->EvolveUnboundSystems() || IsDCO()) {                                                                      // should we evolve unbound systems?
+                        evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                        // no - stop evolution
+                    }
                 }
                 
                 if (m_Error != ERROR::NONE) evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;                                               // error in binary evolution
@@ -2500,12 +2510,18 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                     // check for problems
                     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
-                             if (m_Error != ERROR::NONE)                                       evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR; // error in binary evolution
-                        else if (IsWDandWD())                                                  evolutionStatus = EVOLUTION_STATUS::WD_WD;   // do not evolve double WD systems for now
-                        else if (IsDCO() && m_Time>(m_DCOFormationTime + m_TimeToCoalescence) && !IsUnbound()){
-                            evolutionStatus = EVOLUTION_STATUS::STOPPED; // evolution time exceeds DCO merger time
-                        } 
-                        else if (m_Time > OPTIONS->MaxEvolutionTime())                         evolutionStatus = EVOLUTION_STATUS::TIMES_UP;// evolution time exceeds maximum
+                        if (m_Error != ERROR::NONE) {                                                                                       // error in binary evolution?
+                            evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;                                                               // yes - stop evolution
+                        }
+                        else if (IsWDandWD()) {                                                                                             // double WD?
+                            evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                                      // yes - do not evolve double WD systems for now
+                        }
+                        else if (IsDCO() && m_Time > (m_DCOFormationTime + m_TimeToCoalescence) && !IsUnbound()) {                          // evolution time exceeds DCO merger time?
+                            evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                    // yes - stop evolution
+                        }
+                        else if (m_Time > OPTIONS->MaxEvolutionTime()) {                                                                    // evolution time exceeds maximum?
+                            evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                                                   // yes - stop evolution
+                        }
                     }
                 }
             }
