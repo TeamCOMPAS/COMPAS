@@ -97,7 +97,7 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin, mass_ratio_pdf_function=l
         
         # return total mass of binary stars that have m2 above the cut
         return f_bin * (1 - f_below_m2low) * (primary_mass + expected_secondary_mass)
-    
+
     compas_mass = quad(compas_integral, m1_low, m1_upp, args=(m2_low, f_bin, m1, m2, m3, m4, a12, a23, a34))[0]
     return compas_mass / full_mass
 
@@ -132,8 +132,18 @@ def totalMassEvolvedPerZ(path, Mlower, Mupper, m2_low, binaryFraction, mass_rati
     return multiplicationFactor, totalMassEvolvedPerMetallicity
 
 
+def star_forming_mass_per_binary(
+        Mlower, Mupper, m2_low, binaryFraction, mass_ratio_pdf_function=lambda q: 1,
+        m1=0.01, m2=0.08, m3=0.5, m4=200., a12=-0.3, a23=-1.3, a34=-2.3):
+    fraction = get_COMPAS_fraction(m1_low=Mlower, m1_upp=Mupper, m2_low=m2_low, f_bin=binaryFraction,
+                                   mass_ratio_pdf_function=mass_ratio_pdf_function,
+                                   m1=m1, m2=m2, m3=m3, m4=m4, a12=a12, a23=a23, a34=a34)
+    # TODO: @Tom how do we get the total mass of stars formed?
+    total_mass = 0
+    return fraction * total_mass
+
 def analytical_star_forming_mass_per_binary_using_kroupa_imf(
-        m1_max, m1_min, m2_min, fbin=1., imf_mass_bounds=[0.01,0.08,0.5,200]
+        m1_min, m1_max, m2_min, fbin=1., imf_mass_bounds=[0.01,0.08,0.5,200]
 ):
     """
     Analytical computation of the mass of stars formed per binary star formed within the
@@ -147,6 +157,7 @@ def analytical_star_forming_mass_per_binary_using_kroupa_imf(
     @Ilya Mandel's derivation
     """
     m1, m2, m3, m4 = imf_mass_bounds
+    assert m1_min >= m3, f"m1_min ({m1_min}) must be larger than IMF break m3 ({m3})"
     alpha = (-(m4**(-1.3)-m3**(-1.3))/1.3 - (m3**(-0.3)-m2**(-0.3))/(m3*0.3) + (m2**0.7-m1**0.7)/(m2*m3*0.7))**(-1)
     # average mass of stars (average mass of all binaries is a factor of 1.5 larger)
     m_avg = alpha * (-(m4**(-0.3)-m3**(-0.3))/0.3 + (m3**0.7-m2**0.7)/(m3*0.7) + (m2**1.7-m1**1.7)/(m2*m3*1.7))
