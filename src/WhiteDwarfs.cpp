@@ -69,7 +69,7 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
     if (utils::Compare(logMassTransferRate, logMdotUppHe) >= 0) {
         etaHe = PPOW(10, logMdotUppHe - logMassTransferRate);
     } 
-    else if (utils::Compare(logMassTransferRate, logMdotMidHe) >= 0) {  // JR: do we need this since it's the deault?  Or may it change here?  Or just here for clarity?
+    else if (utils::Compare(logMassTransferRate, logMdotMidHe) >= 0) {  // JR: do we need this since it's the default?  Or may it change here?  Or just here for clarity?
         etaHe = 1.0;
     } 
     else if (utils::Compare(logMassTransferRate, logMdotLowHe) >= 0) {
