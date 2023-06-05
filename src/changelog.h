@@ -1039,8 +1039,14 @@
 // 02.38.06     JR - Jun 04, 2023    - Defect repair:
 //                                      - Fixed "hides overloaded virtual function" warnings.
 //                                      - Added "-Woverloaded-virtual" to compiler flags to enable warnings for g++ on linux systems.
+// 02.38.07     JR - Jun 04, 2023    - Defect repair:
+//                                      - Fix for issue #958 - evolving unbound systems that contain two compact objects.  Also added BINARY_PROPERTY::UNBOUND 
+//                                        to BSE Detailed Output file default record.
+//                                      - Changed makefile to be POSIX compliant for .o suffix rule.  No need to change docker Makefile - it is already POSIX compliant.
+//                                         - since GNU Make 4.3 a warning is issued for suffix rules that include prequisites - in our case the .o rule on line 125:
+//                                           "Makefile:125: warning: ignoring prerequisites on suffix rule definition" - and in future releases it will become an error.
 
-const std::string VERSION_STRING = "02.38.06";
+const std::string VERSION_STRING = "02.38.07";
 
 
 # endif // __changelog_h__
