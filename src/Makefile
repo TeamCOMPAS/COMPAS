@@ -121,7 +121,7 @@ $(EXE)_STATIC: $(OBJI)
 	@echo $(OBJI)
 	$(CPP) $(OBJI) $(LFLAGS) -static -o $@
 
-.cpp.o: $(SOURCES) $(INCL) Makefile
+%.o: %.cpp
 	$(CPP) $(CXXFLAGS) $(ICFLAGS) -c $?
 
 .phony: clean static fast staticfast

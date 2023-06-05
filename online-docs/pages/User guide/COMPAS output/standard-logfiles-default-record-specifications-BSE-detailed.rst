@@ -7,6 +7,7 @@ Default record definition for the BSE Detailed Output log file::
         BINARY_PROPERTY::RANDOM_SEED,
         BINARY_PROPERTY::DT,
         BINARY_PROPERTY::TIME,
+        BINARY_PROPERTY::UNBOUND,
         BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,
         BINARY_PROPERTY::ECCENTRICITY,
         STAR_1_PROPERTY::MZAMS,
