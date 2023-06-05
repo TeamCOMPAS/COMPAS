@@ -26,7 +26,7 @@ def test_run_submit(tmp_path, capsys):
 def _make_tmp_ini(tmp_path) -> str:
     """
     Make a temporary ini file for testing
-    uncomment all defualt options to ensure they can be parsed
+    uncomment all default options to ensure they can be parsed
     """
     with open(DEFAULT_CONFIG_FILE, "r") as f:
         lines = f.read()

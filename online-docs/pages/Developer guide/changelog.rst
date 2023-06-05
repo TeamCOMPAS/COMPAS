@@ -34,7 +34,7 @@ COMPAS version number
 ---------------------
 
 Currently the COMPAS version number is set manually whenever changes are made to the code.  A planned enhancement is to have the v ersion number
-increment automaticall whenever a github pull request is mmerged.
+increment automatically whenever a github pull request is mmerged.
 
 The version number is formatted as: 
 
@@ -49,7 +49,7 @@ The `defect` number will increment whenever defect repairs are made to COMPAS.
 `major` and `minor` (and `significant`) are somewhat subjective terms. Some guidance on what constitures a `major` release vs a `minor` release is
 given below. `defect` releases are releases that repair known defects.
 
-The COMPAS version string is recorded towards the end of the change log file, and should be incremented whenver a change is made to the code::
+The COMPAS version string is recorded towards the end of the change log file, and should be incremented whenever a change is made to the code::
 
     const std::string VERSION_STRING = "02.22.00";
 

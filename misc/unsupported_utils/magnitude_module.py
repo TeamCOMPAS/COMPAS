@@ -245,7 +245,7 @@ def getStarRadius(lum, temp):
 
 def integrate(array, stepSize):
     '''
-    Returns the left-hand riemann sum of a function in an interval (approximate definte integral), given a step size
+    Returns the left-hand riemann sum of a function in an interval (approximate definite integral), given a step size
     
         Parameters:
             array (1D array): An array with the values of your function at a certain interval (units: anything)
