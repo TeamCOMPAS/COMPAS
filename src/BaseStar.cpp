@@ -1976,17 +1976,17 @@ double BaseStar::CalculateMassLossRateOBVink2011() {
     double rate;
     double Gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
     double logMdotdiff;
+    double teff = m_Temperature * TSOL;
+    double rate2001 = CalculateMassLossRateOB(teff);
     if (utils::Compare(Gamma, 0.5) > 0) {  // Ensure that the perscription isn't extrapolated to low gamma
         logMdotdiff = 0.04468 + (0.3091 * Gamma) + (0.2434 * Gamma * Gamma);
     }
     else {
         SHOW_WARN(ERROR::LOW_GAMMA, "Mass Loss Rate = 0.0");                                   // gamma extrapolated outside fit range
-        rate = 0.0;
+        rate = rate2001;
     }
-    double teff = m_Temperature * TSOL;
-    
-    double rate2001 = CalculateMassLossRateOB(teff);
-    rate = PPOW(10.0, logMdotdiff) + rate2001;
+
+    rate = PPOW(10.0, (logMdotdiff + log10(rate2001)));
     return rate;
 }
 
