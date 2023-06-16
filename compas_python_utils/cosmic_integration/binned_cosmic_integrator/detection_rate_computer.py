@@ -6,6 +6,7 @@ from .bbh_population import BBHPopulation
 from .cosmological_model import CosmologicalModel
 from .snr_grid import SNRGrid
 from .gpu_utils import xp
+from .bin_2d_data import bin_2d_data
 
 
 def compute_binned_detection_rates(
@@ -80,6 +81,11 @@ def _find_merger_rates(
         chirp_mass_bins: xp.array,
         redshift_bins: xp.array,
 ) -> xp.ndarray:
+    """
+    Compute the detection rate matrix for a given BBH population and cosmological model.
+    :return:
+        np.ndarray of shape (len(chirp_mass_bins), len(redshift_bins))
+    """
     n_binaries = len(COMPAS_Mc)
     # sort the COMPAS data by chirp mass
     sorted_idx = xp.argsort(COMPAS_Mc)
@@ -90,24 +96,17 @@ def _find_merger_rates(
 
     # Create empty arrays to store the results
     formation_rate = xp.zeros(len(redshifts))
-    idx_max_z = xp.digitize(max_detectable_redshift, redshifts)
+    idx_max_z = xp.digitize(max_detectable_redshift, redshifts, right=True)
     merger_rate = xp.zeros(idx_max_z)
     detection_probability = xp.zeros(idx_max_z)
-
-    # FIXME: use actual bins
-    chirp_mass_bins = COMPAS_Mc
-    redshift_bins = redshifts[:idx_max_z]
-
-
-    det_matrix = xp.zeros(shape=(len(chirp_mass_bins), len(redshift_bins)))
+    det_matrix = xp.zeros(shape=(len(chirp_mass_bins), idx_max_z))
 
     # create time->redshift interpolator
     times_to_redshifts = interp1d(times, redshifts)
 
-
-
     # go through each binary in the COMPAS data
     for i in trange(n_binaries, desc='Computing detection rates'):
+        mc_bin_idx = xp.digitize(COMPAS_Mc[i], chirp_mass_bins, right=True)
         # calculate formation rate (see Neijssel+19 Section 4) - note this uses dPdlogZ for *closest* metallicity
         observed_metallicity_mask = xp.digitize(COMPAS_metallicites[i], metallicities)
         formation_rate[:] = n_formed * dPdlogZ[:, observed_metallicity_mask] / p_draw_metallicity
@@ -144,5 +143,10 @@ def _find_merger_rates(
         idx = xp.clip(xp.digitize(snrs, snr_bins), 0, len(snr_bins) - 1)
         detection_probability[:] = detection_probability_from_snr[idx]
 
-        det_matrix[i, :] = merger_rate * detection_probability * comoving_vol[:idx_max_z]
-    return det_matrix, chirp_mass_bins, redshift_bins
+        # add the detection rate to the detection matrix
+        det_matrix[mc_bin_idx, :] += merger_rate * detection_probability * comoving_vol[:idx_max_z]
+
+    # bin the detection matrix in redshift
+    det_matrix = bin_2d_data(det_matrix, redshifts[:idx_max_z], redshift_bins, axis=1)
+
+    return det_matrix

@@ -171,7 +171,7 @@ def plot_snr_grid(
         extent=[m1.min(), m1.max(), m2.min(), m2.max()],
         aspect="auto",
         origin="lower",
-        cmap="viridis",
+        cmap=CMAP,
         vmin=snr_threshold,
     )
     ax.set_xlabel(r"$m_1$ [$M_{\odot}$]")

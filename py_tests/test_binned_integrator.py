@@ -44,16 +44,32 @@ def test_conversions():
 def test_binned_cosmic_integration(example_compas_output_path,  test_archive_dir,):
     example_compas_output_path = "/Users/avaj0001/Documents/projects/compas_dev/quasir_compass_blocks/data/COMPAS_Output.h5"
     test_archive_dir = 'out_plots'
-    detection_matrix = DetectionMatrix.from_compas_output(example_compas_output_path, outdir=test_archive_dir, save_plots=True)
+
+    detection_matrix = DetectionMatrix.from_compas_output(
+        example_compas_output_path, outdir=test_archive_dir, save_plots=True,
+        chirp_mass_bins=None, redshift_bins=None,
+    )
     assert detection_matrix.rate_matrix.shape == (len(detection_matrix.chirp_mass_bins), len(detection_matrix.redshift_bins))
     detection_matrix.save()
     det_matrix_fn = glob.glob(f'{test_archive_dir}/*.h5')[0]
-    det_matrix_2 = DetectionMatrix.from_h5(det_matrix_fn)
-    assert np.allclose(detection_matrix.rate_matrix, det_matrix_2.rate_matrix)
+    loaded_det_matrix = DetectionMatrix.from_h5(det_matrix_fn)
+    assert np.allclose(detection_matrix.rate_matrix, loaded_det_matrix.rate_matrix)
+    loaded_det_matrix.bin_data(mc_bins=50, z_bins=100)
+    fig = loaded_det_matrix.plot()
+    fig.suptitle("Binning after FastCosmicIntegrator")
+    fig.savefig(os.path.join(test_archive_dir, "binned_detection_matrix_plot.png"))
 
-    det_matrix_2.bin_data()
-    fig = det_matrix_2.plot()
-    fig.show()
+    detection_matrix = DetectionMatrix.from_compas_output(
+        example_compas_output_path, outdir=test_archive_dir, save_plots=False,
+        chirp_mass_bins=50, redshift_bins=100,
+    )
+    assert np.allclose(detection_matrix.rate_matrix, loaded_det_matrix.rate_matrix)
+    fig = detection_matrix.plot()
+    fig.suptitle("Binning during FastCosmicIntegrator")
+    fig.savefig(os.path.join(test_archive_dir, "binned_detection_matrix_plot_v2.png"))
+
+
+
 
 
 
