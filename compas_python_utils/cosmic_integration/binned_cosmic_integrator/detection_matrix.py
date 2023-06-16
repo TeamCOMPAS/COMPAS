@@ -37,8 +37,8 @@ class DetectionMatrix:
             compas_path: str,
             cosmological_parameters: Dict = dict(aSF=0.01, dSF=4.70, mu_z=-.23, sigma_z=0),
             max_detectable_redshift: float = 1.0,
-            chirp_mass_bins: int = 100,
-            redshift_bins: int = 100,
+            chirp_mass_bins: int = None,
+            redshift_bins: int = None,
             outdir: str = None,
             save_plots: bool = False,
     ) -> "DetectionMatrix":
@@ -60,7 +60,7 @@ class DetectionMatrix:
         elif isinstance(redshift_bins, int):
             redshift_bins = xp.linspace(0, max_detectable_redshift, redshift_bins)
 
-        rate_matrix, chirp_mass_bins, redshift_bins = compute_binned_detection_rates(
+        rate_matrix = compute_binned_detection_rates(
             bbh_population, cosmological_model, snr_grid,
             max_detectable_redshift=max_detectable_redshift,
             chirp_mass_bins=chirp_mass_bins,
@@ -113,7 +113,7 @@ class DetectionMatrix:
     def plot(self):
         return plot_detection_rate_matrix(self.rate_matrix, self.chirp_mass_bins, self.redshift_bins)
 
-    def bin_data(self, mc_bins=100, z_bins=100):
+    def bin_data(self, mc_bins=50, z_bins=100):
         """Allows users to bin data in post-processing"""
         binned_data = self.rate_matrix.copy()
         mc = self.chirp_mass_bins
@@ -130,9 +130,9 @@ class DetectionMatrix:
         binned_data = bin_2d_data(binned_data, z, z_bins, axis=1)
 
         # get bin centers
-        mc = 0.5 * (mc_bins[1:] + mc_bins[:-1])
-        z = 0.5 * (z_bins[1:] + z_bins[:-1])
+        # mc_bins = 0.5 * (mc_bins[1:] + mc_bins[:-1])
+        # z_bins = 0.5 * (z_bins[1:] + z_bins[:-1])
 
         self.rate_matrix = binned_data
-        self.chirp_mass_bins = mc
-        self.redshift_bins = z
+        self.chirp_mass_bins = mc_bins
+        self.redshift_bins = z_bins
