@@ -42,9 +42,6 @@ def test_conversions():
     assert np.isclose(m2_new, m2)
 
 def test_binned_cosmic_integration(example_compas_output_path,  test_archive_dir,):
-    example_compas_output_path = "/Users/avaj0001/Documents/projects/compas_dev/quasir_compass_blocks/data/COMPAS_Output.h5"
-    test_archive_dir = 'out_plots'
-
     detection_matrix = DetectionMatrix.from_compas_output(
         example_compas_output_path, outdir=test_archive_dir, save_plots=True,
         chirp_mass_bins=None, redshift_bins=None,
