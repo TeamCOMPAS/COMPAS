@@ -10,6 +10,7 @@ from .gpu_utils import xp
 from .detection_rate_computer import compute_binned_detection_rates
 from .io import recursively_load_dict_contents_from_group, recursively_save_dict_contents_to_group
 from .plotting import plot_detection_rate_matrix
+from .bin_2d_data import bin_2d_data
 
 
 class DetectionMatrix:
@@ -111,3 +112,27 @@ class DetectionMatrix:
 
     def plot(self):
         return plot_detection_rate_matrix(self.rate_matrix, self.chirp_mass_bins, self.redshift_bins)
+
+    def bin_data(self, mc_bins=100, z_bins=100):
+        """Allows users to bin data in post-processing"""
+        binned_data = self.rate_matrix.copy()
+        mc = self.chirp_mass_bins
+        z = self.redshift_bins
+
+        # new bins
+        if isinstance(mc_bins, int):
+            mc_bins = np.linspace(3, 40, mc_bins)
+        if isinstance(z_bins, int):
+            z_bins = np.linspace(0, 1, z_bins)
+
+        # bin rate data
+        binned_data = bin_2d_data(binned_data, mc, mc_bins, axis=0)
+        binned_data = bin_2d_data(binned_data, z, z_bins, axis=1)
+
+        # get bin centers
+        mc = 0.5 * (mc_bins[1:] + mc_bins[:-1])
+        z = 0.5 * (z_bins[1:] + z_bins[:-1])
+
+        self.rate_matrix = binned_data
+        self.chirp_mass_bins = mc
+        self.redshift_bins = z

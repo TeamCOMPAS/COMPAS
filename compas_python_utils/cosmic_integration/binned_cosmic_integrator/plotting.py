@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from typing import List
 from .conversions import m1_m2_to_eta_chirp_mass
 
+CMAP = 'inferno'
+
 def plot_detection_rate_matrix(
         detection_rate: np.ndarray,
         chirp_masses: np.array,
@@ -44,7 +46,7 @@ def plot_detection_rate_matrix(
         zz,
         mcc,
         rate2d,
-        cmap='viridis',
+        cmap=CMAP,
         norm="linear",
         vmax=quantiles[max_q],
         vmin=quantiles[min_q],
@@ -128,7 +130,7 @@ def plot_sfr_and_metallicity(
 
     ax = axes[1]
     dPdlogZ = dPdlogZ / np.max(dPdlogZ)
-    im = ax.imshow(dPdlogZ, extent=[*redshift_range, *logZ_range], aspect="auto")
+    im = ax.imshow(dPdlogZ, extent=[*redshift_range, *logZ_range], aspect="auto", cmap=CMAP)
     ax.set_xlabel("Redshift")
     ax.set_ylabel("logZ")
     cbar = fig.colorbar(im, ax=ax)
@@ -184,7 +186,7 @@ def plot_snr_grid(
         extent=[eta.min(), eta.max(), mc.min(), mc.max()],
         aspect="auto",
         origin="lower",
-        cmap="viridis",
+        cmap=CMAP,
         vmin=snr_threshold,
     )
     ax.set_xlabel(r"$\eta$")
