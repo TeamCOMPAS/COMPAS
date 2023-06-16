@@ -2,9 +2,10 @@ from compas_python_utils.cosmic_integration.binned_cosmic_integrator.cosmologica
 from compas_python_utils.cosmic_integration.binned_cosmic_integrator.bbh_population import BBHPopulation
 from compas_python_utils.cosmic_integration.binned_cosmic_integrator.snr_grid import SNRGrid
 from compas_python_utils.cosmic_integration.binned_cosmic_integrator.conversions import *
-from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binned_cosmic_integrator import binned_detection_rates_from_compas_output, plot_detection_rate_matrix
+from compas_python_utils.cosmic_integration.binned_cosmic_integrator import DetectionMatrix
 import numpy as np
 import os
+import glob
 
 
 def test_cosmological_models(test_archive_dir):
@@ -41,8 +42,16 @@ def test_conversions():
     assert np.isclose(m2_new, m2)
 
 def test_binned_cosmic_integration(example_compas_output_path,  test_archive_dir,):
-    # example_compas_output_path = "/Users/avaj0001/Documents/projects/compas_dev/quasir_compass_blocks/data/COMPAS_Output.h5"
-    rate, mc, z = binned_detection_rates_from_compas_output(example_compas_output_path)
-    fig = plot_detection_rate_matrix(rate, mc, z)
-    fig.show()
+    example_compas_output_path = "/Users/avaj0001/Documents/projects/compas_dev/quasir_compass_blocks/data/COMPAS_Output.h5"
+    test_archive_dir = 'out_plots'
+    detection_matrix = DetectionMatrix.from_compas_output(example_compas_output_path, outdir=test_archive_dir, save_plots=True)
+    assert detection_matrix.rate_matrix.shape == (len(detection_matrix.chirp_mass_bins), len(detection_matrix.redshift_bins))
+    detection_matrix.save()
+    det_matrix_fn = glob.glob(f'{test_archive_dir}/*.h5')[0]
+    det_matrix_2 = DetectionMatrix.from_h5(det_matrix_fn)
+    assert np.allclose(detection_matrix.rate_matrix, det_matrix_2.rate_matrix)
+
+
+
+
 
