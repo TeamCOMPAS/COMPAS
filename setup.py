@@ -61,7 +61,8 @@ EXTRA_REQUIRE = dict(
         "isort",
         "coverage-badge",
         "deepdiff",
-    ]
+    ],
+    gpu=["cupy"],
 )
 
 

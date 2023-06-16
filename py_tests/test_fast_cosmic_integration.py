@@ -5,7 +5,7 @@ import time
 import os
 
 
-def test_fast_cosmic_integration(example_compas_output_path, capsys, test_archive_dir):
+def test_fast_cosmic_integration(example_compas_output_path,  test_archive_dir,): #  capsys,
     """Test that fast cosmic integration works"""
 
     example_compas_output_path = "/Users/avaj0001/Documents/projects/compas_dev/quasir_compass_blocks/data/COMPAS_Output.h5"
@@ -19,14 +19,14 @@ def test_fast_cosmic_integration(example_compas_output_path, capsys, test_archiv
     ) = FastCosmicIntegration.find_detection_rate(
         path=example_compas_output_path,
     )
-    sout = capsys.readouterr().out
     runtime = time.time() - t0
-
-    logfname = os.path.join(test_archive_dir, "test_fast_cosmic_integration.log")
-    with open(logfname, "w") as f:
-        f.write(sout)
-
     assert runtime < 10
+
+    # logfname = os.path.join(test_archive_dir, "test_fast_cosmic_integration.log")
+    # with open(logfname, "w") as f:
+    #     sout = capsys.readouterr().out
+    #     f.write(sout)
+
 
     # check that the shape of the detection rate, formation rate and merger rate are the same
     num_rows = [detection_rate.shape[0], formation_rate.shape[0], merger_rate.shape[0]]
