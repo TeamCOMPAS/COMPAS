@@ -51,6 +51,10 @@ def test_binned_cosmic_integration(example_compas_output_path,  test_archive_dir
     det_matrix_2 = DetectionMatrix.from_h5(det_matrix_fn)
     assert np.allclose(detection_matrix.rate_matrix, det_matrix_2.rate_matrix)
 
+    det_matrix_2.bin_data()
+    fig = det_matrix_2.plot()
+    fig.show()
+
 
 
 
