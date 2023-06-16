@@ -1,8 +1,7 @@
-import matplotlib.pyplot as plt
 from .gpu_utils import xp
 
 from ..FastCosmicIntegration import find_sfr, find_metallicity_distribution, calculate_redshift_related_params
-
+from .plotting import plot_sfr_and_metallicity
 MAX_REDSHIFT = 10.0
 REDSHIFT_STEP = 0.001
 REDSHIFT_FIRST_STAR_FORMATION = 10.0
@@ -62,44 +61,13 @@ class CosmologicalModel:
         self.p_draw_metallicity = p_draw_metallicity
 
     def plot(self):
-        fig, axes = plt.subplots(3, 1, figsize=(5, 8))
-        ax = axes[0]
-        ax.plot(self.redshift, self.sfr, label="SFR")
-        ax.set_xlabel("Redshift")
-        ax.set_ylabel(r"SFR [$M_{\odot}/\rm{yr}/\rm{Mpc}^3$]")
-        ax.set_yscale("log")
-        ax.set_xlim(0, MAX_REDSHIFT)
-        textstr = self.sf_string.replace(" ", "\n")
-        ax.text(0.05, 0.4, textstr, transform=ax.transAxes, fontsize=14,
-                verticalalignment='top', horizontalalignment='left')
-
-        ax = axes[1]
-        dPdlogZ = self.dPdlogZ / xp.max(self.dPdlogZ)
-        im = ax.imshow(dPdlogZ, extent=[0, MAX_REDSHIFT, MIN_LOG_METALLICITY, MAX_LOG_METALLICITY], aspect="auto")
-        ax.set_xlabel("Redshift")
-        ax.set_ylabel("logZ")
-        cbar = fig.colorbar(im, ax=ax)
-        cbar.set_label(r"$\frac{dP}{d\log Z}$", rotation=0, labelpad=-10)
-        # set the color bar ticks to be 0 and 1 and label them min and max
-        cbar.set_ticks([0, 1])
-        cbar.set_ticklabels([r"min", r"max"])
-        textstr = self.metallicity_string.replace(";", "\n")
-        textstr = textstr.replace("N", "\mathcal{N}")
-        textstr = f"${textstr}$"
-        props = dict(boxstyle='round', facecolor='white', alpha=0.5)
-        ax.text(0.05, 0.95, textstr, transform=ax.transAxes, fontsize=14,
-                verticalalignment='top', horizontalalignment='left', bbox=props)
-
-        ax = axes[2]
-        # plot the probability of drawing a metallicity
-        ps = [self.p_draw_metallicity] * len(self.metallicities)
-        ax.fill_between(self.metallicities, ps, 0, alpha=0.5)
-        ax.set_ylim(0, 1)
-        ax.set_xlabel("logZ")
-        ax.set_ylabel("p(Z)")
-        # fig.tight_layout(rect=[0, 0, 0.9, 1])
-        fig.tight_layout()
-        return fig
+        return plot_sfr_and_metallicity(
+            self.redshift, self.sfr, self.metallicities, self.dPdlogZ,
+            self.p_draw_metallicity,
+            metallicity_label=self.metallicity_string, sf_label=self.sf_string,
+            redshift_range=[0, MAX_REDSHIFT],
+            logZ_range=[MIN_LOG_METALLICITY, MAX_LOG_METALLICITY],
+        )
 
     @property
     def sf_string(self):
@@ -110,6 +78,12 @@ class CosmologicalModel:
         n0 = f"N_0({self.mu_0:.3f}, {self.sigma_0:.3f})"
         nz = f"N_z({self.mu_z:.3f}, {self.sigma_z:.3f})"
         return f"{n0};{nz}"
+
+    @property
+    def label(self):
+        fmt = "{:.3f}"
+        s = "_".join([fmt]*6).format(self.aSF, self.bSF, self.cSF, self.dSF, self.mu_0, self.mu_z)
+        return f"cosmo_{s}"
 
     def __repr__(self):
         return f"CosmologicalModel({self.sf_string}, {self.metallicity_string})"
