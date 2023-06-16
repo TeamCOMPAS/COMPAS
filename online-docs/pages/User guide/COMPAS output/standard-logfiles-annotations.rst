@@ -75,7 +75,7 @@ In the example above, annotations 1, 2, 4, and those beyond annotation 5 have be
 they are specified in this manner on a grid line they will default to the correspodning annotation specified on the command line; if
 they are specified in this manner on the command line they will default to the COMPAS default annotation (the empty string).  In the
 example above, if the number of annotations expected, as defined by the number of annotation headers specified via the ``--notes-hdrs``
-program option is more than 5, then anotations beyond annotation 5 (the last annotation actually specified by the user) will default
+program option is more than 5, then annotations beyond annotation 5 (the last annotation actually specified by the user) will default
 in the same manner as described above.
 
 Spaces in annotation header strings and annotation strings need to be enclosed in quotes, or the shell parser will parse them as 
@@ -109,7 +109,7 @@ Compile-time configuration
 The property specifier ``PROGRAM_OPTION::NOTES`` is available to be included in any of the default log file record specifiers in
 ``constants.h``.  If the property specifier ``PROGRAM_OPTION::NOTES`` is included in a default log file record specifier:
 
-    - a column will be included in the log file for each of the annotation header strings specfied by the user (via the ``notes-hdrs``
+    - a column will be included in the log file for each of the annotation header strings specified by the user (via the ``notes-hdrs``
       program option), with each column having the respective header string specified by the user
     - each record in the log file will include an annotation string for each annotation column, the contents of which is determined by
       what the user specified using the ``--notes`` program option.

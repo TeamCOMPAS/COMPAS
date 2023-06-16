@@ -289,7 +289,7 @@ void BaseBinaryStar::SetRemainingValues() {
 
         // star 1
         if (utils::Compare(m_Star1->Omega(), m_Star1->OmegaCHE()) >= 0) {                                                                               // star 1 CH?
-            if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not alread Chemically Homogeneous
+            if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not already Chemically Homogeneous
         }
         else if (m_Star1->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
             if (m_Star1->StellarType() != STELLAR_TYPE::MS_LTE_07) (void)m_Star1->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                              // MS <= 0.7 Msol - switch if necessary
@@ -300,7 +300,7 @@ void BaseBinaryStar::SetRemainingValues() {
 
         // star 2
         if (utils::Compare(m_Star1->Omega(), m_Star2->OmegaCHE()) >= 0) {                                                                               // star 2 CH?
-            if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not alread Chemically Homogeneous
+            if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not already Chemically Homogeneous
         }
         else if (m_Star2->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
             if (m_Star2->StellarType() != STELLAR_TYPE::MS_LTE_07) (void)m_Star2->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                              // MS <= 0.0 Msol - switch if necessary
@@ -712,7 +712,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
  * functional return is a tuple: std::tuple<bool, COMPAS_VARIABLE_TYPE>.  This type
  * is COMPAS_VARIABLE by typedef.
  *
- * The bool returned indicates whether the property value was retireved ok: true = yes, fales = no
+ * The bool returned indicates whether the property value was retrieved ok: true = yes, fales = no
  * The COMPAS_VARIABLE_TYPE variable returned is a boost variant variable, the value of which is the
  * value of the underlying primitive variable.
  *
@@ -910,7 +910,7 @@ void BaseBinaryStar::StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which) {
                              m_RLOFDetails.propsPreMT  :
                              m_RLOFDetails.propsPostMT ;
 
-    // update properites for appropriate timestep
+    // update properties for appropriate timestep
     rlofPropertiesToReset->id                          = m_ObjectId;
     rlofPropertiesToReset->mass1                       = m_Star1->Mass();
     rlofPropertiesToReset->mass2                       = m_Star2->Mass();
@@ -948,7 +948,7 @@ void BaseBinaryStar::StashBeBinaryProperties() {
     BeBinaryPropertiesT* tmp;
     tmp                             = m_BeBinaryDetails.previousProps;                                              // save pointer to existing previous props
     m_BeBinaryDetails.previousProps = m_BeBinaryDetails.currentProps;                                               // existing current props become new previous props (values will be preserved)
-    m_BeBinaryDetails.currentProps  = tmp;                                                                          // new current props points at existing prevous (values will be replaced)
+    m_BeBinaryDetails.currentProps  = tmp;                                                                          // new current props points at existing previous (values will be replaced)
 
     // now save (new) current
     m_BeBinaryDetails.currentProps->id            = m_ObjectId;                                                      // object id
@@ -1397,7 +1397,7 @@ bool BaseBinaryStar::ResolveSupernova() {
                 }
             }
 
-            // Note: There is some evidence for evolution of periapsis in mass transfering binaries (see e.g Dosopoulou & Kalogera 2016, 2018). 
+            // Note: There is some evidence for evolution of periapsis in mass transferring binaries (see e.g Dosopoulou & Kalogera 2016, 2018). 
             // This should be investigated in more depth, but until then, we assume that the periapsis *may* evolve, 
             // and accordingly randomize the angle of periapsis around the new orbital angular momentum, (i.e, Psi)
             // - RTW 15/05/20
@@ -1902,7 +1902,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     // just in case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE is used; otherwise, the radius input is ignored
     double accretorRLradius = CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL * m_SemiMajorAxis * (1.0 - m_Eccentricity);
     bool donorIsHeRich = m_Donor->IsOneOf(He_RICH_TYPES); 
-    std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(), 
+    std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(),
                                                                                         m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
                                                                                         donorIsHeRich);
 
@@ -2372,7 +2372,7 @@ void BaseBinaryStar::EvolveOneTimestepPreamble(const double p_Dt) {
 
 
 /*
- * Evolve the binary a single timestep - timestep is provided    JR: todo: fix this documetation - this is for SSE version
+ * Evolve the binary a single timestep - timestep is provided    JR: todo: fix this documentation - this is for SSE version
  *
  * Each individual star is aged for the same timestep
  *
@@ -2472,8 +2472,18 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 else if (HasStarsTouching()) {                                                                                              // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                     evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                     // yes - stop evolution
                 }
-                else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                                 // binary is unbound and we don't want unbound systems?
-                    evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                            // stop evolution
+                else if (IsUnbound()) {                                                                                                     // binary is unbound?
+                    m_Flags.mergesInHubbleTime = false;                                                                                     // yes - won't merge in a Hubble time
+
+                    if (IsDCO()) {                                                                                                          // DCO (has two COs)?
+                        if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                                           // DCO not yet evaluated
+                            m_DCOFormationTime = m_Time;                                                                                    // set the DCO formation time
+                        }
+                    }
+
+                    if (!OPTIONS->EvolveUnboundSystems() || IsDCO()) {                                                                      // should we evolve unbound systems?
+                        evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                        // no - stop evolution
+                    }
                 }
                 
                 if (m_Error != ERROR::NONE) evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;                                               // error in binary evolution
@@ -2500,12 +2510,18 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                     // check for problems
                     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
-                             if (m_Error != ERROR::NONE)                                       evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR; // error in binary evolution
-                        else if (IsWDandWD())                                                  evolutionStatus = EVOLUTION_STATUS::WD_WD;   // do not evolve double WD systems for now
-                        else if (IsDCO() && m_Time>(m_DCOFormationTime + m_TimeToCoalescence) && !IsUnbound()){
-                            evolutionStatus = EVOLUTION_STATUS::STOPPED; // evolution time exceeds DCO merger time
-                        } 
-                        else if (m_Time > OPTIONS->MaxEvolutionTime())                         evolutionStatus = EVOLUTION_STATUS::TIMES_UP;// evolution time exceeds maximum
+                        if (m_Error != ERROR::NONE) {                                                                                       // error in binary evolution?
+                            evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;                                                               // yes - stop evolution
+                        }
+                        else if (IsWDandWD()) {                                                                                             // double WD?
+                            evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                                      // yes - do not evolve double WD systems for now
+                        }
+                        else if (IsDCO() && m_Time > (m_DCOFormationTime + m_TimeToCoalescence) && !IsUnbound()) {                          // evolution time exceeds DCO merger time?
+                            evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                    // yes - stop evolution
+                        }
+                        else if (m_Time > OPTIONS->MaxEvolutionTime()) {                                                                    // evolution time exceeds maximum?
+                            evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                                                   // yes - stop evolution
+                        }
                     }
                 }
             }

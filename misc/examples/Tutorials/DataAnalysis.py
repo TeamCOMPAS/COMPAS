@@ -77,9 +77,9 @@ print(list(Data.keys()))
 #
 # Brief description of the categories:
 # - 'BSE_System_Parameters': Initial state of the binary
-# - 'BSE_RLOF': Any mass transfer events that occured within the binary
+# - 'BSE_RLOF': Any mass transfer events that occurred within the binary
 # - 'BSE_Common_Envelopes': If any of the mass transfer events were unstable, details will be included here.
-# - 'BSE_Supernovae': Parameters and outcome of any supernovae that occured in the binary
+# - 'BSE_Supernovae': Parameters and outcome of any supernovae that occurred in the binary
 # - 'BSE_Double_Compact_Objects': Includes key information of all binaries which end their lives as an intact pair of compact obects (either neutron stars or black holes)
 # - 'Run_Details': Information on the input settings supplied to the Compas run
 #
@@ -133,7 +133,7 @@ for ii, seed in enumerate(seeds):
 #
 # There is also an optional argument `exclude_null` which defaults to False. If True, it will skip systems which undergo no events of interest (which may speed up large runs).
 
-# A useful function that builds off of `getEventHistory` is `getEventStrings`, which collects the event information into a succint string, which may be easier to read (once you get used to the syntax).
+# A useful function that builds off of `getEventHistory` is `getEventStrings`, which collects the event information into a succinct string, which may be easier to read (once you get used to the syntax).
 #
 # The syntax for the event strings takes the following convention:
 #     
@@ -173,7 +173,7 @@ def calculateTotalMassesNaive(pathData=None):
     
     totalMasses = []
     
-    # Retrive the categories
+    # Retrieve the categories
     SPs = Data['BSE_System_Parameters']
     DCs = Data['BSE_Double_Compact_Objects']
     
@@ -233,7 +233,7 @@ mTotalAllSystems  = np.add(m1Zams, m2Zams)
 
 # +
 # Create a boolean array from the total mass array which is True
-# if the total mass of the corrresponding system is less than 40. 
+# if the total mass of the corresponding system is less than 40. 
 
 maskMTotLessThan40 = (mTotalAllSystems <= 40)
 # -
@@ -273,7 +273,7 @@ print(mask)
 print(seedsDC)
 print(seedsSP[mask])
 print(m1Zams[mask])
-print("The occurence rate of DCOs is {}/{}".format(sum(mask), len(mask)))
+print("The occurrence rate of DCOs is {}/{}".format(sum(mask), len(mask)))
 # -
 
 printCompasDetails(DCs, [1636090389, 1636091089, 1636091116])
@@ -286,7 +286,7 @@ def calculateTotalMassesOptimized(pathData=None):
     
     totalMasses = []
         
-    # Retrive the categories
+    # Retrieve the categories
     SPs = Data['BSE_System_Parameters']
     DCs = Data['BSE_Double_Compact_Objects']
     
@@ -374,7 +374,7 @@ nrDNSs = len(mTotDNS)
 print('%s seconds for all %s DNS systems.' %(timeDiffDNS, nrDNSs)) 
 # -
 
-# The `printCompasDetails` function can also optionally take a mask as argument. This is especially useful for those output categories which have multiple events for a single seed. Using both seeds and mask inputs can help to extract a specifc type of event from several for the given seeds.
+# The `printCompasDetails` function can also optionally take a mask as argument. This is especially useful for those output categories which have multiple events for a single seed. Using both seeds and mask inputs can help to extract a specific type of event from several for the given seeds.
 #
 # The mask array must have the same length as the data arrays for the given category.
 
@@ -390,11 +390,11 @@ printCompasDetails(MTs, 1636090318, mask=maskCEE)
 
 # ## Example 2
 #
-# The previous example uses the fact that both SystemParameters and DoubleCompactObjects only print at most one line per system. However, as mentioned above, events such as supernovae or common envelopes might happen multiple times to a given system, and as a result there would be multiple occurences of a given seed in the relevant file. 
+# The previous example uses the fact that both SystemParameters and DoubleCompactObjects only print at most one line per system. However, as mentioned above, events such as supernovae or common envelopes might happen multiple times to a given system, and as a result there would be multiple occurrences of a given seed in the relevant file. 
 #
 # To account for this, we will need to modify the previous method. Consider again the 4 seeds of the previous example. Both 2 and 4 formed a DCO and hence both stars in these binaries went SN. Seeds 1 and 3 are low mass stars hence they did not go SN. (Note that we do not specify the companion masses for any of these systems, but for simplicity we assume that the companions to 1 and 3 are also sufficiently low mass to not produce a supernova). The SN file prints one line per SN and therefore seeds 2 and 4 appear twice each.
 #
-# Imagine you want the primary masses of systems that experienced at any point a core collapse supernova (CCSN). We'll reuse our mock data, with additional information about the types of SN which occured in each star. Here, PPISN refers to Pulsational Pair Instability Supernovae.
+# Imagine you want the primary masses of systems that experienced at any point a core collapse supernova (CCSN). We'll reuse our mock data, with additional information about the types of SN which occurred in each star. Here, PPISN refers to Pulsational Pair Instability Supernovae.
 
 printCompasDetails(SNe)
 
@@ -423,7 +423,7 @@ seedsCCSN, countsCCSN = np.unique(seedsSN[maskCCSN], return_counts=True)
 # Seeds with 2 CCSNe will have a countsCCSN value of 2
 seedsDoubleCCSN = seedsCCSN[countsCCSN == 2]
 
-# Make a mask for SPs using the seeds aquired above
+# Make a mask for SPs using the seeds acquired above
 maskDoubleCcsnSP = np.in1d(seedsSP, seedsDoubleCCSN)
 m1ZamsDoubleCcsn = m1Zams[maskDoubleCcsnSP]
 
@@ -439,7 +439,7 @@ Data.close()
 #
 # *Disclaimer:*
 #
-# There are many ways to make the same plot in matplotlib and there are many ways to bin your data. Often, there is no "best" way to display data in a plot, and the message conveyed can be heavily dependent on the context of the data as well as asthetic plotting decisions.
+# There are many ways to make the same plot in matplotlib and there are many ways to bin your data. Often, there is no "best" way to display data in a plot, and the message conveyed can be heavily dependent on the context of the data as well as aesthetic plotting decisions.
 #
 # For example, in histograms, as we discuss below, the relatively subjective choice of bin size can significantly affect the interpretation of the results. It is important to be aware of when and how we make these choices and to try to reduce any unintended bias.
 #

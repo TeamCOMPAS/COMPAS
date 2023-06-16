@@ -215,7 +215,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
  *
  * Set application logging parameters, including debug classes and levels.
  *
- * Calls to Say(), Put() and Debug() (especially via the macros provided) specify loggging and debug levels respectively.
+ * Calls to Say(), Put() and Debug() (especially via the macros provided) specify logging and debug levels respectively.
  * Only calls which specify classes == enabled classes and levels <= enabled level will be actioned.  That is, calls to
  * Say(), Put() or Debug() that specify classes that are not enabled or levels above the respective application level will
  * be ignored.  In this way logging and, in particular, debugging statements can be made throughout the code and activated
@@ -455,7 +455,7 @@ void Log::Start(const string              p_LogBasePath,
  *
  * void Stop()
  *
- * @param   [IN]    p_ObjectStats               Tuple containg the number of objects requested and the number created
+ * @param   [IN]    p_ObjectStats               Tuple containing the number of objects requested and the number created
  *                                                 - the number requested is a calculated number: it could just be the number the user requested,
  *                                                   but if a grid file or ranges/sets are used, the number will be calculated.  Furthermore,
  *                                                   the number will be -1 if the simulation was stopped before all grid file entries (or
@@ -811,7 +811,7 @@ int Log::Open(const string p_LogFileName, const bool p_Append, const bool p_Time
                 h5FileId  = m_HDF5DetailedId;                                                                       // yes - use detailed file id
                 h5GroupId = h5FileId;                                                                               // no group for detailed file - just use the file id
             }
-            else {                                                                                                  // no, not detailed ouput file
+            else {                                                                                                  // no, not detailed output file
                 h5FileId    = m_HDF5ContainerId;                                                                    // container file id
                 h5GroupName = m_LogNamePrefix + p_LogFileName;                                                      // HDF5 file group name
 
@@ -1522,7 +1522,7 @@ bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> 
  * bool Put(const id p_LogfileId, const string p_LogClass, const int p_LogLevel, const string p_LogStr)
  *
  * @param   [IN]    p_LogfileId                 The id of the log file to which the log string should be written
- * @param   [IN]    p_LogClass                  Class to determine if string sould be written
+ * @param   [IN]    p_LogClass                  Class to determine if string should be written
  * @param   [IN]    p_LogLevel                  Level to determine if string should be written
  * @param   [IN]    p_LogStr                    The string to be written
  * @return                                      Boolean indicating whether record was written successfully
@@ -1554,7 +1554,7 @@ bool Log::Put(const int p_LogfileId, const string p_LogClass, const int p_LogLev
  * bool Put(const id p_LogfileId, const string p_LogClass, const int p_LogLevel, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues)
  *
  * @param   [IN]    p_LogfileId                 The id of the log file to which the log record values should be written
- * @param   [IN]    p_LogClass                  Class to determine if log record values sould be written
+ * @param   [IN]    p_LogClass                  Class to determine if log record values should be written
  * @param   [IN]    p_LogLevel                  Level to determine if log record values should be written
  * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE_TYPE values to be written
  * @return                                      Boolean indicating whether log record values were written successfully
@@ -1881,7 +1881,7 @@ PROPERTY_DETAILS Log::ProgramOptionDetails(const PROGRAM_OPTION p_Property, cons
  *
  * The content of the header strings is a combination of the property details and the suffix string supplied.
  * The final field width for the property is determined here, and is calculated based upon the widths of the
- * header deatils and the configured field withd of the property (part of the property details passed as a
+ * header details and the configured field withd of the property (part of the property details passed as a
  * parameter).
  *
  * The strings formatted are:
@@ -1943,10 +1943,10 @@ STR_STR_STR_STR Log::FormatFieldHeaders(const PROPERTY_DETAILS p_PropertyDetails
 
 
 /*
- * Find a value in the LOGFILE_DESCRIPTOR map and return the key if found, otherwise defaut value
+ * Find a value in the LOGFILE_DESCRIPTOR map and return the key if found, otherwise default value
  *
  * This function looks for the passed string value in the LOGFILE_DESCRIPTOR map, and if the string
- * is found returns the key correspoding to the value found.  If the value is not found the default
+ * is found returns the key corresponding to the value found.  If the value is not found the default
  * value LOGFILE::NONE is returned.
  *
  * The string comparison is case-insensitive.
@@ -1966,10 +1966,10 @@ std::tuple<bool, LOGFILE> Log::GetLogfileDescriptorKey(const string p_Value) {
 
 
 /*
- * Find a value in the m_OpenStandardLogFileIds map and return the key if found, otherwise defaut value
+ * Find a value in the m_OpenStandardLogFileIds map and return the key if found, otherwise default value
  *
  * This function looks for the file id value in the m_OpenStandardLogFileIds map, and if the id is found
- * returns the key correspoding to the id found.  If the value is not found the default value LOGFILE::NONE
+ * returns the key corresponding to the id found.  If the value is not found the default value LOGFILE::NONE
  * is returned.
  *
  *
@@ -2294,7 +2294,7 @@ hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWid
  */
 hid_t Log::CreateHDF5Dataset(const string p_Filename, const hid_t p_GroupId, const string p_DatasetName, const hid_t p_H5DataType, const string p_UnitsStr, const size_t p_HDF5ChunkSize) {
 
-    hid_t h5Dset = -1;                                                                                              // datset id - return value
+    hid_t h5Dset = -1;                                                                                              // dataset id - return value
 
     // create a 1-d HDF5 dataspace
     hsize_t h5Dims[1]    = {0};                                                                                     // initially 0, but...
@@ -2622,7 +2622,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                         for (auto iter = fileDetails.recordProperties.begin(); iter != fileDetails.recordProperties.end();) {                   // for each property to be included in the log record
 
-                            T_ANY_PROPERTY property = *iter;                                                                                    // this record proerty
+                            T_ANY_PROPERTY property = *iter;                                                                                    // this record property
 
                             string headerStr = "";
                             string unitsStr  = "";
@@ -2754,7 +2754,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fileDetails.hdrStrings.push_back("Star_Switching");                                                                 // append header string for field
                             fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accomodates header string)
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accommodates header string)
                         }
 
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG || p_Logfile == LOGFILE::SSE_SWITCH_LOG) {                                     // BSE Switch Log or SSE Switch Log
@@ -2770,8 +2770,8 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
 
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append fromat string for field (size accomodates header string)
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accomodates header string)
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accommodates header string)
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accommodates header string)
                         }
 
                         // we add the record type column to the end of the log record here for all logfiles
@@ -2787,7 +2787,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fileDetails.hdrStrings.push_back("Record_Type");                                                                    // append header string for field
                             fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field - "INT" is good enough
-                            fileDetails.fmtStrings.push_back("10.1");                                                                           // append format string for field (size accomodates header string)
+                            fileDetails.fmtStrings.push_back("10.1");                                                                           // append format string for field (size accommodates header string)
                         }
                     }
 
@@ -3182,7 +3182,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
             for (auto const& newProperty: newProps) {                                                                   // for each property in newProps
                 ANY_PROPERTY_TYPE newPropertyType = boost::apply_visitor(VariantPropertyType(), newProperty);           // new property type
                 if (addPropertyType == newPropertyType) {                                                               // props same property type?
-                    switch (addPropertyType) {                                                                          // yes - which propert type?
+                    switch (addPropertyType) {                                                                          // yes - which property type?
                         case ANY_PROPERTY_TYPE::T_STAR_PROPERTY     : isAlready = boost::get<STAR_PROPERTY>(addProperty)      == boost::get<STAR_PROPERTY>(newProperty);      break; // STAR_PROPERTY
                         case ANY_PROPERTY_TYPE::T_STAR_1_PROPERTY   : isAlready = boost::get<STAR_1_PROPERTY>(addProperty)    == boost::get<STAR_1_PROPERTY>(newProperty);    break; // STAR_1_PROPERTY
                         case ANY_PROPERTY_TYPE::T_STAR_2_PROPERTY   : isAlready = boost::get<STAR_2_PROPERTY>(addProperty)    == boost::get<STAR_2_PROPERTY>(newProperty);    break; // STAR_2_PROPERTY
@@ -3242,7 +3242,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  * on the user specifications in the file.  Default record definitions are defined
  * in constants.h - the user specifications in the definitions file can use the
  * defaults as a base and add or subtract from the defaults, or the user specifications
- * can specify completley new definitions.
+ * can specify completely new definitions.
  *
  * The parser here is not very sophisticated - the syntax of the definitions file is
  * fairly simple.  The definitions file is expected to contain zero or more logfile
@@ -3350,7 +3350,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
         SAY("");
         SAY(ERR_MSG(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS));                                                                 // announce error
         SAY(ERR_MSG(ERROR::FILE_DOES_NOT_EXIST) + ": " + filename);                                                             // file does not exist - show warning, and ...
-        return false;                                                                                                           // ... bail/bale out
+        return false;                                                                                                           // ... bail out
 	}
 
     std::ifstream defFile;
@@ -3359,7 +3359,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
         SAY("");
         SAY(ERR_MSG(ERROR::BAD_LOGFILE_RECORD_SPECIFICATIONS));                                                                 // announce error
         SAY(ERR_MSG(ERROR::FILE_OPEN_ERROR) + ": " + filename);                                                                 // failed - show warning, and ...
-        return false;                                                                                                           // ... bail/bale out
+        return false;                                                                                                           // ... bail out
     }
 
     ERROR       error = ERROR::NONE;                                                                                            // initially no error
@@ -3377,7 +3377,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
 
     // read and parse the file records
 
-    TOKEN_TYPE expecting            = TOKEN_TYPE::LOGFILE_RECORD_NAME;                                                          // token type we're expecting to see - initally a logfile record name
+    TOKEN_TYPE expecting            = TOKEN_TYPE::LOGFILE_RECORD_NAME;                                                          // token type we're expecting to see - initially a logfile record name
     LOGFILE currentLogfile          = LOGFILE::NONE;                                                                            // the logfile definition being modified
     LOGFILE_TYPE currentLogfileType = LOGFILE_TYPE::NONE;                                                                       // the type of the logfile definition being modified (STELLAR or BINARY)
 
