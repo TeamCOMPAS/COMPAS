@@ -762,7 +762,7 @@ double GiantBranch::CalculateCoreMassAtBAGB_Static(const double p_Mass, const DB
  * double CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR &p_GBParams)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
- * @param   [IN]    p_GBParams                  Giant Branch paramaters
+ * @param   [IN]    p_GBParams                  Giant Branch parameters
  * @return                                      Core mass at the Base of the Giant Branch in Msol
  */
 double GiantBranch::CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR &p_GBParams) {
@@ -795,7 +795,7 @@ double GiantBranch::CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_MassCutoffs               Mass cutoffs
  * @param   [IN]    p_AnCoefficients            a(n) coefficients
- * @param   [IN]    p_GBParams                  Giant Branch paramaters
+ * @param   [IN]    p_GBParams                  Giant Branch parameters
  * @return                                      Core mass at the Base of the Giant Branch in Msol
  */
 double GiantBranch::CalculateCoreMassAtBGB_Static(const double      p_Mass, 

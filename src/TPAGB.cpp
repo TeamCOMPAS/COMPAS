@@ -887,7 +887,7 @@ double TPAGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time)
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
- * @return                                      Stellar Type to which star shoule evolve after losing envelope
+ * @return                                      Stellar Type to which star should evolve after losing envelope
  */
 STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function

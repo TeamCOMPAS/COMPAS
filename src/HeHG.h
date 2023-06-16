@@ -39,7 +39,7 @@ protected:
         // can get here via EvolveOneTimestep() and ResolveEnvelopeLoss(),
         // and Age is calculated differently in those cases
         
-        //Update stellar properties at start of HeHG phase (since core defintion changes)
+        //Update stellar properties at start of HeHG phase (since core definition changes)
         CalculateGBParams();
         m_COCoreMass  = CalculateCOCoreMassOnPhase();
         m_CoreMass    = CalculateCoreMassOnPhase();

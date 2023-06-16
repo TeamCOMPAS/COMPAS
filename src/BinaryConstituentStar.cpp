@@ -128,7 +128,7 @@ double BinaryConstituentStar::CalculateMassAccretedForCO(const double p_Mass, co
             deltaMass = OPTIONS->CommonEnvelopeMassAccretionConstant();                                         // use program option
             break;
 
-        case CE_ACCRETION_PRESCRIPTION::UNIFORM:                                                                // UNIFROM
+        case CE_ACCRETION_PRESCRIPTION::UNIFORM:                                                                // UNIFORM
             deltaMass = RAND->Random(OPTIONS->CommonEnvelopeMassAccretionMin(), OPTIONS->CommonEnvelopeMassAccretionMax()); // uniform random distribution - Oslowski+ (2011)
             break;
 
@@ -306,7 +306,7 @@ void BinaryConstituentStar::ResolveCommonEnvelopeAccretion(double p_FinalMass) {
 
     double deltaMass;
     
-    // LvS: todo: more consisten super eddington accretion during CE should also affect e.g. MS stars
+    // LvS: todo: more consistent super eddington accretion during CE should also affect e.g. MS stars
     if (IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE})) {                          
         deltaMass = CalculateMassAccretedForCO(Mass(), m_Companion->Mass(), m_Companion->Radius());
         m_MassTransferDiff = deltaMass;

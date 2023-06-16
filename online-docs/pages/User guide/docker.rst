@@ -5,7 +5,7 @@ Docker has been added to COMPAS to reduce time and effort required to
 set up the COMPAS deployment environment.
 
 Instead of having to install and configure several libraries and tools
-(e.g. python/pip, numpy, g++, boost) which can vary considerably beween
+(e.g. python/pip, numpy, g++, boost) which can vary considerably between
 operating systems and existing toolchains, users can instead opt to
 install Docker and run COMPAS with a single command.
 
@@ -115,7 +115,7 @@ NOTE: if you decide to execute using ``runSubmit.py``, you will need
 a ``compasConfigDefault.yaml``  file in the same directory. This file 
 can be find in the same directory as the ``runSubmit.py``, and contains
 the default COMPAS choices for stellar and binary physics. These choices
-can be changed by modifying the options availabe in the ``compasConfigDefault.yaml`` 
+can be changed by modifying the options available in the ``compasConfigDefault.yaml`` 
 file.
 
 ``-e VAR_NAME=value``
@@ -178,7 +178,7 @@ anything after the given start command is passed to that command, in
 this case, the flag to set the number of binaries
 
 ``--outputPath /app/COMPAS/logs``
-same as above, anthing after the start command is given to that start
+same as above, anything after the start command is given to that start
 command, here it forces logs to go to the directory that is mapped to
 the host machine
 
@@ -227,7 +227,7 @@ You could copy/paste the following into the terminal...
 
 ...which would run 4 separate instances of COMPAS, each with its own
 ``runSubmit.py`` file and logging directory, and all console output
-supressed.
+suppressed.
 
 You may want to check the console output to see how far into the run
 COMPAS is.

@@ -68,7 +68,7 @@ class pythonProgramOptions:
 
     #-- option to make a grid of hyperparameter values at which to produce populations.
     #-- If this is set to true, it will divide the number_of_binaries parameter equally
-    #-- amoungst the grid points (as closely as possible). See the hyperparameterGrid method below
+    #-- amongst the grid points (as closely as possible). See the hyperparameterGrid method below
     #-- for more details. If this is set to True, some hyperparameter values defined in this method'gridOutputs/'+str(i)
     #-- will be overwritten
     hyperparameterGrid = False
@@ -779,6 +779,6 @@ if __name__ == "__main__":
     #-- Convert options into a shell string
     shellCommand = combineCommandLineOptionsDictIntoShellCommand(commandOptions)
 
-    #-- Run exectute COMPAS shell string
+    #-- Run execute COMPAS shell string
     print(shellCommand)
     call(shellCommand,shell=True)

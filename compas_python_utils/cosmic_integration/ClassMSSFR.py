@@ -28,7 +28,7 @@ class MSSFR(object):
 
     The entire GSMF is the mass in all stars in all galaxies. Hence the fraction of the GSMF
     is the fraction of the stellar mass in all galaxies at that time. 
-    We assume that the average cosmic SFR spreads evenly amongs all the galaxy stellar mass.
+    We assume that the average cosmic SFR spreads evenly among all the galaxy stellar mass.
     Meaning a galaxy with a stellar mass twice that of another galaxy, has twice
     the SFR. Hence this method does not include local star burts (SMC/LMC for example)
     
@@ -197,7 +197,7 @@ class MSSFR(object):
         The entire GSMF is the mass in all stars in all galaxies.
         Hence the fraction of the GSMF is the fraction of the stellar
         mass in all galaxies at that time. We assume that the 
-        average cosmic SFR spreads evenly amongs all the galaxy stellar mass.
+        average cosmic SFR spreads evenly among all the galaxy stellar mass.
         Meaning a galaxy with a stellar mass twice that of another galaxy, has twice
         the SFR. Hence this method does not include local star burts (SMC/LMC for example)
         
@@ -243,7 +243,7 @@ class MSSFR(object):
                               "Langer et al. +offset (2006)\n"+\
                               "Apologies but I will now break")
         
-        #To integrate the schechter fuction we need to know
+        #To integrate the schechter function we need to know
         #- alpha which governs the power law slope
         #- phi for the normalization (in case of the double schechter)
         #- Mc which determines the location of the turnover
@@ -330,7 +330,7 @@ class MSSFR(object):
         #Ignoring phi fit since we do not use the implicit SFR values
         phi1 = np.ones(len(a1))
         #This fudge makes the schechter function solvable with gamma functions
-        #This happpens at redshifts above 7. Else a <-2 makes Gamma(a+2)=Nan
+        #This happens at redshifts above 7. Else a <-2 makes Gamma(a+2)=Nan
         #In reality this means that we alter the fraction
         a1[a1<-1.99]=-1.99
         return logMc, phi1, a1

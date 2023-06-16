@@ -190,7 +190,7 @@ COMPASData.setGridAndMassEvolved()
 #         self.metallicityGrid     = np.unique(metallicities)
 
 # In principle you could instead overwrite this with your own metallicity grid. However
-# remember to reassign the metallicities of each DCO and the amount of solar mass evolved per metallicity. However, we leave it at that for now. You can acces the grid by printing
+# remember to reassign the metallicities of each DCO and the amount of solar mass evolved per metallicity. However, we leave it at that for now. You can access the grid by printing
 
 print(COMPASData.metallicityGrid)
 
@@ -395,7 +395,7 @@ MSSFR.SFRprescription = 'Neijssel et al. (2019)'
 #
 # ###  2.3.1 Mass metallicity and galaxy stellar mass function
 #
-# The first combines a densitity distribution of galaxy stellar masses (GSMF) 
+# The first combines a density distribution of galaxy stellar masses (GSMF) 
 # with a mass metallicity relation (MZ) relation in order to create a metallicity density function.
 # In our code instead we translate from metallicity to mass to solve the integral hence we use the inverse
 # ZM functions. The original MZ functions are still in the source code for plotting/testing purposes
@@ -984,7 +984,7 @@ print(P)
 # # 4. Rate at single redshift
 #
 # Here we show how to calculate the merger rate density of systems
-# merging at a single redshift z. By now we assume you understand the indiviual pipelines of;
+# merging at a single redshift z. By now we assume you understand the individual pipelines of;
 #
 # ClassCOMPAS:
 #
@@ -1072,7 +1072,7 @@ ageBirth[maskUnreal] = -1
 #
 # We set the unphysical systems to -1. This because later when we loop over redshifts the number of possible systems can vary. However I want to fill in the rates in a predefined 2D array of fixed shape (nr systems, nr of redshift bins). Hence I assume the largest array (size of nr of DCOs) and set the rate to zero in case.  Note that the MSSFR script also depends on the mask of systems being unreal of -1. (see returnMSSFR())
 #
-# To recover the redshift it is a bit tricky. Astropy can quicly
+# To recover the redshift it is a bit tricky. Astropy can quickly
 # calculate the age from redshift, but the inverse is more difficult.
 # In the code we use look up the nearest value in a dense precalculated table.
 # Here we use a older method to calculate (for credits see source code classCosmicintegrator) which is considerably slower. 
@@ -1088,7 +1088,10 @@ for nr, age in enumerate(ageBirth):
 
 nDCOs = len(COMPAS.delayTimes)
 nMerg = np.sum(ageBirth!=-1)
-print("Number of DCOs: {}\nNumber of merging DCOs: {}".format(nDCOs, nMerg))
+print(
+    "Number of DCOs: {}\n"
+    "Number of merging DCOs: {}".format(nDCOs, nMerg)
+)
 # -
 
 
@@ -1125,7 +1128,7 @@ binsM = np.linspace(0,30,100)
 dM    = np.diff(binsM)
 center= (binsM[1:]+binsM[:-1])/2.
 
-#remember that the reight is essentially a weight per system
+#remember that the right is essentially a weight per system
 
 y , _     = np.histogram(chirpMasses, bins=binsM, \
                      weights=ratePerSystem)
@@ -1311,7 +1314,7 @@ CI.setBirthTimesAnd2Darrays()
 
 # ## 5.2 Calculate and plot
 
-# everthing is set so now so calculate :)
+# everything is set so now so calculate :)
 CI.cosmologicalIntegration()
 
 # It stores the results in several different 2D arrays, below is directly copied from source code
@@ -1759,7 +1762,7 @@ axes[1,0].set_ylabel(r'Cumulative detection rate $[\rm \frac{\mathrm{d}N}{\mathr
 
 axes[1,1].hist(chirp_masses, weights=detection_rate_by_binary, bins=25, range=(0, 50))
 axes[1,1].set_xlabel(r'Chirp mass, $\mathcal{M}_c$', fontsize=fs)
-axes[1,1].set_ylabel(r'Mass distrbution of detections $[\rm \frac{\mathrm{d}N}{\mathrm{d}\mathcal{M}_c \mathrm{d}yr}]$', fontsize=fs)
+axes[1,1].set_ylabel(r'Mass distribution of detections $[\rm \frac{\mathrm{d}N}{\mathrm{d}\mathcal{M}_c \mathrm{d}yr}]$', fontsize=fs)
 
 #########################
 #Plotvalues
@@ -1820,7 +1823,7 @@ ax.text(0.05,0.8,
 
 # ax.hist(chirp_masses, weights=detection_rate_by_binary, bins=25, range=(0, 50))
 ax.set_xlabel(r'Chirp mass, $\mathcal{M}_c$ $\mathrm{[M_{\odot}]}$', fontsize=30)
-ax.set_ylabel(r'Mass distrbution of detections $[\rm \frac{\mathrm{d}N}{\mathrm{d}\mathcal{M}_c \mathrm{d}yr}]$', fontsize=30)
+ax.set_ylabel(r'Mass distribution of detections $[\rm \frac{\mathrm{d}N}{\mathrm{d}\mathcal{M}_c \mathrm{d}yr}]$', fontsize=30)
 plt.rc('xtick', labelsize=25)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=25)    # fontsize of the tick labels
 

@@ -109,7 +109,7 @@ def printAllColumnsInH5(pathToData):
         print('Filename = %s' %(File))
         print('----------------------')
 
-        #Everytime you see Xr*' '
+        #Every time you see Xr*' '
         #It means I add X spaces to line it
         print('\t   column name%sunit%slength'%(29*' ',16*' '))
         print('\t   '+'-----------------'*4)

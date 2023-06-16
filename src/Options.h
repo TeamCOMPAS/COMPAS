@@ -40,12 +40,12 @@ const std::string NOT_PROVIDED = std::to_string(255);
 //
 // Getter functions return the value of the class member variable - the class
 // member variable is set to a value depending upon the value of the corresponding
-// option enetered by the user.
+// option entered by the user.
 // 
 // Since users now specify grid line values using options, getter functions need to
 // know which option value to return - the one specified on the commandline (if in
 // fact the option was specified on the commandline), or the one specified on the
-// grid line (if in fact the option was sepcified on the grid line).
+// grid line (if in fact the option was specified on the grid line).
 //
 // The general idea is to use the value specified by the user on the grid line (if
 // the use actually specified the option on the grid line) in preference to the
@@ -815,7 +815,7 @@ public:
 
             ENUM_OPT<MT_ACCRETION_EFFICIENCY_PRESCRIPTION>      m_MassTransferAccretionEfficiencyPrescription;                  // Which accretion efficiency prescription
 
-            double                                              m_MassTransferFractionAccreted;                                 // In mass transfer, ammount of mass transferred that is accreted. 1 for conservative, 0 for fully-non conservative.
+            double                                              m_MassTransferFractionAccreted;                                 // In mass transfer, amount of mass transferred that is accreted. 1 for conservative, 0 for fully-non conservative.
             double                                              m_MassTransferCParameter;                                       // Detailed model parameter used in mass transfer
             double                                              m_EddingtonAccretionFactor;                                     // Multiplication factor for eddington accretion for NS & BH
                                                                                                                                 // i.e. >1 is super-eddington
@@ -1013,7 +1013,7 @@ public:
 
     // complex option values are values for options that the user has supplied as ranges or sets
     //
-    // complex option valies are described by a tuple containing:
+    // complex option values are described by a tuple containing:
     //
     //     optionName       (std::string)               the name of the option
     //     complexValue     (RangeOrSetDescriptorT)     the complex option value - a RANGE or a SET

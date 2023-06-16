@@ -28,7 +28,7 @@ the COMPAS executable name:
     Specifies the `lib` directory for the HDF5 library.  The default value is '/usr/lib/x86_64-linux-gnu/hdf5/serial'
     
     **EXE** |br|
-    Specifies the name of the COMPAS exectuable to be built.  The default is 'COMPAS'
+    Specifies the name of the COMPAS executable to be built.  The default is 'COMPAS'
 
 
 For example, typing::

@@ -1,18 +1,8 @@
-# file: .pre-commit-config.yaml
-# lints the .py files to use flake8 compliant 'black' formatting (and sorts imports)
-
+default_language_version:
+    python: python3
 repos:
--   repo: https://github.com/ambv/black
-    rev: 22.3.0
+-   repo: https://github.com/codespell-project/codespell
+    rev: v2.2.4
     hooks:
-    - id: black
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.0.0
-    hooks:
-    - id: flake8
-    - id: requirements-txt-fixer
-    - id: trailing-whitespace
--   repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.10.1
-    hooks:
-    - id: isort
+    -   id: codespell # Spellchecker
+        args: [-L, nd, --ignore-words=.dictionary.txt, --skip, '*.eps,*.svg,*.ipynb,./misc/*,paper.md,./online-docs/index.rst']
