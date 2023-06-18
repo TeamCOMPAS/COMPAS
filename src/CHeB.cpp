@@ -1063,7 +1063,7 @@ double CHeB::CalculateRadiusAtBluePhaseStart(const double p_Mass) const {
         Rx = GiantBranch::CalculateRadiusOnPhase(p_Mass, luminosity);
     }
     else {
-        Rx = CalculateRadiusAtHeIgnition(p_Mass);
+        Rx = CalculateRadiusAtHeIgnition();
     }
 
     return Rx;
@@ -1304,7 +1304,7 @@ double CHeB::CalculateBluePhaseFBL(const double p_Mass) {
     double top   = ((b[24] * p_Mass) + (PPOW((b[25] * p_Mass), b[26]) * m_b28)) / (b[27] + m_b28);
 
     // Might be that we are supposed to use min(RmHe, Rx=RHeI)
-    double RHeI = CalculateRadiusAtHeIgnition(p_Mass);
+    double RHeI = CalculateRadiusAtHeIgnition();
     double LHeI = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
 
     top = std::min(top, RHeI);

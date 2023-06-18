@@ -89,10 +89,8 @@ protected:
 
     double          CalculateRadialExtentConvectiveEnvelope() const;
 
-    double          CalculateRadiusAtPhaseEnd(const double p_Mass) const;
-    double          CalculateRadiusAtPhaseEnd() const                               { return CalculateRadiusAtPhaseEnd(m_Mass); }                                               // Use class member variables
-    double          CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS) const;
-    double          CalculateRadiusOnPhase() const                                  { return CalculateRadiusOnPhase(m_Mass, m_Tau, m_RZAMS0); }                                 // Use class member variables
+    double          CalculateRadiusAtPhaseEnd() const;
+    double          CalculateRadiusOnPhase() const;
 
     double          CalculateRho(const double p_Mass) const;
 

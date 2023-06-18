@@ -755,17 +755,16 @@ double HG::CalculateLuminosityOnPhase(const double p_Age, const double p_Mass) c
  * Hurley et al. 2000, eqs 7 & 8
  *
  *
- * double CalculateRadiusAtPhaseEnd(const double p_Mass)
+ * double CalculateRadiusAtPhaseEnd()
  *
- * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Radius at the end of the Hertzsprung Gap in Rsol
  */
-double HG::CalculateRadiusAtPhaseEnd(const double p_Mass) const {
+double HG::CalculateRadiusAtPhaseEnd() {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    return (utils::Compare(p_Mass, massCutoffs(MFGB)) < 0)
-            ? GiantBranch::CalculateRadiusOnPhase(p_Mass, GiantBranch::CalculateLuminosityAtPhaseBase_Static(p_Mass, m_AnCoefficients))
-            : GiantBranch::CalculateRadiusAtHeIgnition(p_Mass);
+    return (utils::Compare(m_Mass0, massCutoffs(MFGB)) < 0)
+            ? GiantBranch::CalculateRadiusOnPhase_Static(m_Mass,  GiantBranch::CalculateLuminosityAtPhaseBase_Static(m_Mass0, m_AnCoefficients), m_BnCoefficients)
+            : GiantBranch::CalculateRadiusAtHeIgnition();
 
 #undef massCutoffs
 }
@@ -777,19 +776,16 @@ double HG::CalculateRadiusAtPhaseEnd(const double p_Mass) const {
  * Hurley et al. 2000, eq 27
  *
  *
- * double CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS)
+ * double CalculateRadiusOnPhase(const double p_Tau, const double p_RZAMS)
  *
- * @param   [IN]    p_Mass                      Mass in Msol
- * @param   [IN]    p_Tau                       Relative age
- * @param   [IN]    p_RZAMS                     Zero Age Main Sequence (ZAMS) Radius
  * @return                                      Radius on the Hertzsprung Gap in Rsol
  */
-double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS) const {
+double HG::CalculateRadiusOnPhase() const {
 
-    double RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
-    double REHG = CalculateRadiusAtPhaseEnd(p_Mass);
+    double RTMS = MainSequence::CalculateRadiusAtPhaseEnd();
+    double REHG = CalculateRadiusAtPhaseEnd();
 
-    return RTMS * PPOW((REHG / RTMS), p_Tau);
+    return RTMS * PPOW((REHG / RTMS), m_Tau);
 }
 
 

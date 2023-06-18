@@ -369,31 +369,29 @@ double MainSequence::CalculateDeltaR(const double p_Mass) const {
  * Hurley et al. 2000, eqs 9a & 9b
  *
  *
- * double CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_RZAMS)
+ * double CalculateRadiusAtPhaseEnd()
  *
- * @param   [IN]    p_Mass                      Stellar mass (Msol)
- * @param   [IN]    p_RZAMS                     Zero Age Main Sequence (ZAMS) Radius
  * @return                                      Radius at the end of the Main Sequence in Rsol
  */
-double MainSequence::CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_RZAMS) const {
+double MainSequence::CalculateRadiusAtPhaseEnd() const {
 #define a m_AnCoefficients    // for convenience and readability - undefined at end of function
 
     double RTMS;
     double mAsterisk = a[17] + 0.1;
 
-    if (utils::Compare(p_Mass, a[17]) <= 0) {
-        RTMS = (a[18] + (a[19] * PPOW(p_Mass, a[21]))) / (a[20] + PPOW(p_Mass, a[22]));
+    if (utils::Compare(m_Mass, a[17]) <= 0) {
+        RTMS = (a[18] + (a[19] * PPOW(m_Mass, a[21]))) / (a[20] + PPOW(m_Mass, a[22]));
 
-        if (utils::Compare(p_Mass, 0.5) < 0) {
-            RTMS = std::max(RTMS, 1.5 * p_RZAMS);
+        if (utils::Compare(m_Mass, 0.5) < 0) {
+            RTMS = std::max(RTMS, 1.5 * m_RZAMS);
         }
     }
-    else if (utils::Compare(p_Mass, mAsterisk) >= 0) {
+    else if (utils::Compare(m_Mass, mAsterisk) >= 0) {
         // pow() is slow - use multiplication
-        double m_3 = p_Mass * p_Mass * p_Mass;
-        double m_5 = m_3 * p_Mass * p_Mass;
+        double m_3 = m_Mass * m_Mass * m_Mass;
+        double m_5 = m_3 * m_Mass * m_Mass;
 
-        RTMS = ((C_COEFF.at(1) * m_3) + (a[23] * PPOW(p_Mass, a[26])) + (a[24] * PPOW(p_Mass, a[26] + 1.5))) / (a[25] + m_5);
+        RTMS = ((C_COEFF.at(1) * m_3) + (a[23] * PPOW(m_Mass, a[26])) + (a[24] * PPOW(m_Mass, a[26] + 1.5))) / (a[25] + m_5);
     }
     else{   // for stars with masses between a17, a17 + 0.1 interpolate between the end points (y = mx + c)
 
@@ -407,7 +405,7 @@ double MainSequence::CalculateRadiusAtPhaseEnd(const double p_Mass, const double
         double gradient  = (y2 - y1) / 0.1;
         double intercept = y1 - (gradient * a[17]);
 
-        RTMS = (gradient * p_Mass) + intercept;
+        RTMS = (gradient * m_Mass) + intercept;
     }
 
     return RTMS;
@@ -435,7 +433,7 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
 
     const double epsilon = 0.01;
 
-    double RTMS   = CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
+    double RTMS   = CalculateRadiusAtPhaseEnd();
     double alphaR = CalculateAlphaR(p_Mass);
     double betaR  = CalculateBetaR(p_Mass);
     double deltaR = CalculateDeltaR(p_Mass);

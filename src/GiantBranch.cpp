@@ -626,32 +626,32 @@ double GiantBranch::CalculateRadiusOnZAHB_Static(const double      p_Mass,
  * Hurley et al. 2000, eq 50
  *
  *
- * double CalculateRadiusAtHeIgnition(const double p_Mass)
+ * double CalculateRadiusAtHeIgnition() const
  *
- * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Radius at Helium Ignition in Rsol
  */
-double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
+double GiantBranch::CalculateRadiusAtHeIgnition() const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     double RHeI = 0.0;                                                  // Radius at Helium Ignition
 
-    double LHeI      = CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
-    double RmHe      = CHeB::CalculateMinimumRadiusOnPhase_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
-    double RGB_LHeI  = CalculateRadiusOnPhase(p_Mass, LHeI);
+    double LHeI      = CalculateLuminosityAtHeIgnition_Static(m_Mass0, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
+    double RmHe      = CHeB::CalculateMinimumRadiusOnPhase_Static(m_Mass0, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
+    double RGB_LHeI  = CalculateRadiusOnPhase(m_Mass, LHeI);
 
-    if (utils::Compare(p_Mass, massCutoffs(MFGB)) <= 0) {
+    if (utils::Compare(m_Mass0, massCutoffs(MFGB)) <= 0) {
         RHeI = RGB_LHeI;
     }
-    else if (utils::Compare(p_Mass, std::max(massCutoffs(MFGB), 12.0)) >= 0) {
-        double RAGB_LHeI = EAGB::CalculateRadiusOnPhase_Static(p_Mass, LHeI, massCutoffs(MHeF), m_BnCoefficients);
+    else if (utils::Compare(m_Mass0, std::max(massCutoffs(MFGB), 12.0)) >= 0) {
+        double RAGB_LHeI = EAGB::CalculateRadiusOnPhase_Static(m_Mass, LHeI, massCutoffs(MHeF), m_BnCoefficients);
         RHeI             = std::min(RmHe, RAGB_LHeI);                        // Hurley et al. 2000, eq 55
     }
     else {
-        double mu = log10(p_Mass / 12.0) / log10(massCutoffs(MFGB) / 12.0);
+        double mu = log10(m_Mass0 / 12.0) / log10(massCutoffs(MFGB) / 12.0);
         RHeI      = RmHe * PPOW((RGB_LHeI / RmHe), mu);
     }
 
+    //ILYA: test in hrdiag line 203?
     return RHeI;
 
 #undef massCutoffs
