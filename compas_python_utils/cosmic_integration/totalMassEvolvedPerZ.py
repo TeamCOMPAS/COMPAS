@@ -118,6 +118,9 @@ def retrieveMassEvolvedPerZ(path):
 
 def totalMassEvolvedPerZ(path, Mlower, Mupper, m2_low, binaryFraction, mass_ratio_pdf_function=lambda q: 1,
                          m1=0.01, m2=0.08, m3=0.5, m4=200., a12=-0.3, a23=-1.3, a34=-2.3):
+    """
+    Calculate the total mass evolved per metallicity as a function of redshift in a COMPAS simulation.
+    """
 
     # calculate the fraction of mass in the COMPAS simulation vs. the real population without sample cuts
     fraction = get_COMPAS_fraction(m1_low=Mlower, m1_upp=Mupper, m2_low=m2_low, f_bin=binaryFraction,
@@ -133,17 +136,14 @@ def totalMassEvolvedPerZ(path, Mlower, Mupper, m2_low, binaryFraction, mass_rati
 
 
 def star_forming_mass_per_binary(
+        path,
         Mlower, Mupper, m2_low, binaryFraction, mass_ratio_pdf_function=lambda q: 1,
         m1=0.01, m2=0.08, m3=0.5, m4=200., a12=-0.3, a23=-1.3, a34=-2.3):
-    fraction = get_COMPAS_fraction(m1_low=Mlower, m1_upp=Mupper, m2_low=m2_low, f_bin=binaryFraction,
-                                   mass_ratio_pdf_function=mass_ratio_pdf_function,
-                                   m1=m1, m2=m2, m3=m3, m4=m4, a12=a12, a23=a23, a34=a34)
-    # TODO: @Tom how do we get the total mass of stars formed?
-    raise NotImplementedError(
-        "Need to implement a function to get the total mass of stars formed in the COMPAS simulation"
-    )
-    total_mass = 0
-    return fraction * total_mass
+    """
+    Calculate the total mass of stars formed per binary star formed within the COMPAS simulation.
+    """
+    _, mass_per_metallicity = totalMassEvolvedPerZ(**locals())
+    return np.sum(mass_per_metallicity)
 
 def analytical_star_forming_mass_per_binary_using_kroupa_imf(
         m1_min, m1_max, m2_min, fbin=1., imf_mass_bounds=[0.01,0.08,0.5,200]
