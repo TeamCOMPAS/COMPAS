@@ -67,8 +67,10 @@ def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output
     assert numerical > 0
     assert analytical > 0
 
+    print(numerical, analytical, numerical / analytical)
+
     # TODO: Make this test pass
-    # assert np.isclose(numerical, analytical, rtol=0.01)
+    assert np.isclose(numerical, analytical, rtol=0.01)
 
 
 @pytest.fixture
@@ -91,9 +93,9 @@ def fake_compas_output(tmpdir)->str:
             "Metallicity@ZAMS(1)", data=np.linspace(0, 1, n_systems)
         )
         f["BSE_System_Parameters"].create_dataset(
-            "Mass@ZAMS(1)", data=np.random.uniform(3, 300, n_systems)
+            "Mass@ZAMS(1)", data=np.random.uniform(3, 150, n_systems)
         )
         f["BSE_System_Parameters"].create_dataset(
-            "Mass@ZAMS(2)", data=np.random.uniform(3, 300, n_systems)
+            "Mass@ZAMS(2)", data=np.random.uniform(3, 150, n_systems)
         )
     return compas_path
