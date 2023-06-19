@@ -39,8 +39,7 @@ INSTALL_REQUIRES = [
     "scipy",
     "latex",
     "PyYAML",
-    "cached-interpolate",
-    'loguru'
+    "tqdm",
 ]
 EXTRA_REQUIRE = dict(
     docs=[

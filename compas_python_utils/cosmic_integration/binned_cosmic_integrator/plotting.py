@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from corner import corner
 from typing import List
+
 from .conversions import m1_m2_to_eta_chirp_mass
 
 CMAP = 'inferno'
@@ -105,7 +107,7 @@ def plot_detection_rate_matrix(
     for spine in cbar_ax.spines.values():
         spine.set_edgecolor("white")
 
-    fig.tight_layout()
+    fig.subplots_adjust(hspace=0, wspace=0)
     return fig
 
 
@@ -205,3 +207,36 @@ def plot_snr_grid(
     ax.set_ylim(bottom=pdet_at_thresh, top=1)
     fig.tight_layout()
     return plt.gcf()
+
+def plot_bbh_population(
+        data: np.ndarray, params: List[str]) -> plt.Figure:
+    n_sys = len(data)
+    # mask each columns' 99% data
+    mask = np.array([True]*len(data))
+    for i in range(data.shape[1]):
+        mask_up = data[:,i] < np.quantile(data[:,i], 0.995)
+        mask_down = data[:,i] > np.quantile(data[:,i], 0.005)
+        mask *= mask_up * mask_down
+    fig = corner(
+        data[mask],
+        bins=25,
+        labels=params,
+        color="tab:orange",
+        max_n_ticks=3,
+        plot_datapoints=False,
+        plot_density=True,
+        plot_contours=False,
+        fill_contours=False,
+        pcolor_kwargs=dict(edgecolors="tab:gray",alpha=1, linewidths=0.05),
+    )
+    axes = fig.get_axes()
+    # for the diagonal axes
+    for i in range(len(params)):
+        ax = axes[i * (len(params) + 1)]
+        ax.set_title(params[i])
+        for splines in ax.spines.values():
+            splines.set_visible(False)
+        ax.spines["bottom"].set_visible(True)
+
+    fig.suptitle(f"BBH Population ({n_sys:,} BBHs)")
+    return fig
