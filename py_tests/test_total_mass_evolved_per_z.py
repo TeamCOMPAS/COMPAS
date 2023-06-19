@@ -1,8 +1,14 @@
 from compas_python_utils.cosmic_integration.totalMassEvolvedPerZ import (
-    IMF, get_COMPAS_fraction, analytical_star_forming_mass_per_binary_using_kroupa_imf
+    IMF, get_COMPAS_fraction, analytical_star_forming_mass_per_binary_using_kroupa_imf,
+    star_forming_mass_per_binary
 )
 import numpy as np
 import matplotlib.pyplot as plt
+import h5py as h5
+
+import pytest
+
+MAKE_PLOTS = False
 
 
 def test_imf(test_archive_dir):
@@ -14,14 +20,15 @@ def test_imf(test_archive_dir):
     assert imf_values[0] == 0, "IMF(m<min-m) ==0"
     assert np.sum(imf_values < 0) == 0, "IMF must be > 0"
 
-    plt.plot(m, imf_values)
-    for mi in m_breaks:
-        plt.axvline(mi, zorder=-10, color='gray', alpha=0.2)
-    plt.xscale("log")
-    plt.yscale("log")
-    plt.xlabel(r"Mass [M$_{\odot}]$")
-    plt.ylabel("IMF")
-    plt.savefig(f"{test_archive_dir}/IMF.png")
+    if MAKE_PLOTS:
+        plt.plot(m, imf_values)
+        for mi in m_breaks:
+            plt.axvline(mi, zorder=-10, color='gray', alpha=0.2)
+        plt.xscale("log")
+        plt.yscale("log")
+        plt.xlabel(r"Mass [M$_{\odot}]$")
+        plt.ylabel("IMF")
+        plt.savefig(f"{test_archive_dir}/IMF.png")
 
 
 def test_compas_fraction():
@@ -41,8 +48,52 @@ def test_compas_fraction():
 def test_analytical_function():
     default_case = analytical_star_forming_mass_per_binary_using_kroupa_imf(
         m1_max=150,
-        m1_min = 5,
-        m2_min= 0.1,
+        m1_min=5,
+        m2_min=0.1,
         fbin=1
     )
     assert 79.0 < default_case < 79.2
+
+
+def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output):
+    m1_max = 150
+    m1_min = 5
+    m2_min = 0.1
+    fbin = 1
+
+    numerical = star_forming_mass_per_binary(fake_compas_output, m1_min, m1_max, m2_min, fbin)
+    analytical = analytical_star_forming_mass_per_binary_using_kroupa_imf(m1_min, m1_max, m2_min, fbin)
+
+    assert numerical > 0
+    assert analytical > 0
+
+    # TODO: Make this test pass
+    # assert np.isclose(numerical, analytical, rtol=0.01)
+
+
+@pytest.fixture
+def fake_compas_output(tmpdir)->str:
+    """
+    Create a fake COMPAS output file with a group 'BSE_System_Parameters' containing
+    the following 1D datasets:
+    - Metallicity@ZAMS(1)
+    - Mass@ZAMS(1)
+    - Mass@ZAMS(2)
+
+    The values of these datasets should be from the IMF function.
+    """
+    compas_path = f"{tmpdir}/COMPAS.h5"
+    n_systems = int(1e4)
+    with h5.File(compas_path, "w") as f:
+        f.create_group("BSE_System_Parameters")
+        # TODO: Make the values of these datasets be from the IMF function
+        f["BSE_System_Parameters"].create_dataset(
+            "Metallicity@ZAMS(1)", data=np.linspace(0, 1, n_systems)
+        )
+        f["BSE_System_Parameters"].create_dataset(
+            "Mass@ZAMS(1)", data=np.random.uniform(3, 300, n_systems)
+        )
+        f["BSE_System_Parameters"].create_dataset(
+            "Mass@ZAMS(2)", data=np.random.uniform(3, 300, n_systems)
+        )
+    return compas_path

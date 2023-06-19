@@ -148,7 +148,7 @@ namespace profiling {
      * Gathers profiling statistics for calls to std::pow(base, exponent),
      * and returns the valued of std::pow(base, exponent)
      * 
-     * Statistics gathered/recored are:
+     * Statistics gathered/recorded are:
      * 
      *    - minimum value of 'base'
      *    - maximum value of 'base'

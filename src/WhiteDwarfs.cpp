@@ -17,21 +17,22 @@
  * @return                                 Hydrogen accretion efficiency
  */
 double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
-    double etaH = 0.0;
+
+    double etaH = 0.0;                                      // default return value
+
     double logMassTransferRate = log10(p_MassTransferRate);
+    double m_Mass_2            = m_Mass * m_Mass;
 
     // The following coefficients come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
-    double logMdotUppH = WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0   + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1 *m_Mass   + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2 *m_Mass*m_Mass; 
-    double logMdotLowH = WD_LOG_MT_LIMIT_NOMOTO_STABLE_0     + WD_LOG_MT_LIMIT_NOMOTO_STABLE_1   *m_Mass   + WD_LOG_MT_LIMIT_NOMOTO_STABLE_2   *m_Mass*m_Mass;
+    double logMdotUppH = WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0 + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1 * m_Mass + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2 * m_Mass_2; 
+    double logMdotLowH = WD_LOG_MT_LIMIT_NOMOTO_STABLE_0   + WD_LOG_MT_LIMIT_NOMOTO_STABLE_1   * m_Mass + WD_LOG_MT_LIMIT_NOMOTO_STABLE_2   * m_Mass_2;
+    
     if (utils::Compare(logMassTransferRate, logMdotUppH) >= 0) {
         etaH = PPOW(10, logMdotUppH - logMassTransferRate);
     } 
     else if (utils::Compare(logMassTransferRate, logMdotLowH) >= 0) {
         etaH = 1.0;
     } 
-    else {   
-        etaH = 0.0;
-    }
 
     return etaH;
 }
@@ -55,26 +56,26 @@ double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
  * @return                                 Helium accretion efficiency
  */
 double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
-    double etaHe = 0.0;
+
+    double etaHe = 1.0;                                     // default return value - so we can have double detonations
+    
     double logMassTransferRate = log10(p_MassTransferRate);
 
     // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
-    double logMdotUppHe = WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0 + WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1 *m_Mass;
-    double logMdotMidHe = WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_0 + WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_1 *m_Mass;
-    double logMdotLowHe = WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_0 + WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_1 *m_Mass;
+    double logMdotUppHe = WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0 + WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1 * m_Mass;
+    double logMdotMidHe = WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_0 + WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_1 * m_Mass;
+    double logMdotLowHe = WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_0 + WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_1 * m_Mass;
 
     if (utils::Compare(logMassTransferRate, logMdotUppHe) >= 0) {
         etaHe = PPOW(10, logMdotUppHe - logMassTransferRate);
     } 
-    else if (utils::Compare(logMassTransferRate, logMdotMidHe) >= 0) {
+    else if (utils::Compare(logMassTransferRate, logMdotMidHe) >= 0) {  // JR: do we need this since it's the default?  Or may it change here?  Or just here for clarity?
         etaHe = 1.0;
     } 
     else if (utils::Compare(logMassTransferRate, logMdotLowHe) >= 0) {
         etaHe = CalculateEtaPTY(p_MassTransferRate);
     } 
-    else {
-        etaHe = 1.0; // Modified so we can have double detonations 
-    }
+
     return etaHe;
 }
 
@@ -88,28 +89,33 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
  * double CalculateEtaPTY(const double p_MassTransferRate)
  *
  * @param   [IN]    p_MassTransferRate     Mass transfer rate onto the WD surface (Msun/yr)
- * @return                                 Accretion efficency during the first stron helium flash, Piersanti+ 2014
+ * @return                                 Accretion efficiency during the first stron helium flash, Piersanti+ 2014
  */
 double WhiteDwarfs::CalculateEtaPTY(const double p_MassTransferRate) {
-    double etaPTY = 0.0;
-    double massRate        = p_MassTransferRate;
+
+    double etaPTY = 0.0;                        // default return value
+
+    double massRate   = p_MassTransferRate;
+    double massRate_2 = massRate * massRate;
+    double massRate_3 = massRate_2 * massRate;
 
     // Limits on each conditional statement come from masses from each model in Piersanti+ 2014. The final etaPTY value is based on table A3.
     if (utils::Compare(m_Mass, 0.6) <= 0) {
-        etaPTY = 6e-3       + 5.1e-2*massRate      + 8.3e-3*massRate*massRate   - 3.317e-4*massRate*massRate*massRate;
+        etaPTY = 6.0e-3   + 5.1e-2  * massRate + 8.3e-3 * massRate_2 - 3.317e-4 * massRate_3;
     } 
     else if  (utils::Compare(m_Mass, 0.7) <= 0) {
-        etaPTY = -3.5e-2    + 7.5e-2*massRate      - 1.8e-3*massRate*massRate   + 3.266e-5*massRate*massRate*massRate;
+        etaPTY = -3.5e-2  + 7.5e-2  * massRate - 1.8e-3 * massRate_2 + 3.266e-5 * massRate_3;
     } 
     else if (utils::Compare(m_Mass, 0.81) <= 0) {
-        etaPTY = 9.3e-2     + 1.8e-2*massRate      + 1.6e-3*massRate*massRate   - 4.111e-5*massRate*massRate*massRate;
+        etaPTY = 9.3e-2   + 1.8e-2  * massRate + 1.6e-3 * massRate_2 - 4.111e-5 * massRate_3;
     } 
     else if (utils::Compare(m_Mass, 0.92) <= 0) { 
-        etaPTY = -7.59e-2   + 1.54e-2*massRate     + 4e-4*massRate*massRate     - 5.905e-6*massRate*massRate*massRate;
+        etaPTY = -7.59e-2 + 1.54e-2 * massRate + 4.0e-4 * massRate_2 - 5.905e-6 * massRate_3;
     } 
     else {
-        etaPTY = -0.323     + 4.1e-2*massRate      - 7e-4*massRate*massRate     + 4.733e-6*massRate*massRate*massRate;
+        etaPTY = -0.323   + 4.1e-2  * massRate - 7.0e-4 * massRate_2 + 4.733e-6 * massRate_3;
     }
+
     return etaPTY;
 }
 
@@ -146,8 +152,8 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
  */
 double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     double MCH_Mass_one_third  = std::cbrt(MCH / p_Mass); 
-    double MCH_Mass_two_thirds = MCH_Mass_one_third* MCH_Mass_one_third;
-    return std::max(NEUTRON_STAR_RADIUS, 0.0115 * std::sqrt((MCH_Mass_two_thirds - 1.0/MCH_Mass_two_thirds )));
+    double MCH_Mass_two_thirds = MCH_Mass_one_third * MCH_Mass_one_third;
+    return std::max(NEUTRON_STAR_RADIUS, 0.0115 * std::sqrt((MCH_Mass_two_thirds - 1.0 / MCH_Mass_two_thirds)));
 }
 
 
@@ -182,7 +188,7 @@ void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
             break;
 
         default:
-            SHOW_WARN(ERROR::WARNING, "Accretion Regime not set for WD, no mass added to shell.");                // show warning 
+            SHOW_WARN(ERROR::WARNING, "Accretion Regime not set for WD, no mass added to shell.");  // show warning 
     }
 }
 
@@ -204,13 +210,13 @@ STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
 
     if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
 
-    m_Mass       = MECS_REM;                                                            // defined in constants.h
+    m_Mass                                = MECS_REM;                                   // defined in constants.h
     
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
 
-    SetSNCurrentEvent(SN_EVENT::AIC);                                                  // AIC happening now
-    SetSNPastEvent(SN_EVENT::AIC);                                                     // ... and will be a past event
+    SetSNCurrentEvent(SN_EVENT::AIC);                                                   // AIC happening now
+    SetSNPastEvent(SN_EVENT::AIC);                                                      // ... and will be a past event
 
     return STELLAR_TYPE::NEUTRON_STAR;
 }

@@ -175,7 +175,7 @@ namespace yaml {
             // format option value/default string
             // fix floating point precision
             // fix bool for python (0/true, 1/false -> True, False)
-            // add '' for string options if not alreay present
+            // add '' for string options if not already present
             // not all data types need to be formatted - some just pass through
             auto FormatString = [&] (const std::string p_Str,                                                               // string to be formatted
                                      const TYPENAME    p_shortType,                                                         // short data type

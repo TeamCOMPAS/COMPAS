@@ -180,10 +180,10 @@ public:
             void            CalculateLambdas()                                                                  { CalculateLambdas(m_Mass - m_CoreMass); }                          // Use class member variables
             void            CalculateLambdas(const double p_EnvMass);
 
-    virtual DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
+            DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                         const double p_AccretorMassRate); 
     virtual DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                        const double p_AccretorMassRate, 
+                                                        const double p_AccretorMassRate,
                                                         const bool   p_IsHeRich)                                { return CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); } // Ignore the He content for non-WDs
 
             double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false);                                                               // JR: todo: better name?
@@ -388,7 +388,7 @@ protected:
     DBL_VECTOR              m_RConstants;                               // Radius constants
 
     // Binding energies, Lambdas and Zetas
-    BindingEnergiesT        m_BindingEnergies;                          // Binding enery values
+    BindingEnergiesT        m_BindingEnergies;                          // Binding energy values
     LambdasT                m_Lambdas;                                  // Lambda values
 
     // Stellar details squirrelled away...
@@ -399,7 +399,7 @@ protected:
     Vector3d                m_ComponentVelocity;                        // Isolated star velocity vector (binary's center-of-mass velocity for bound binary)
 
     // Star mass transfer history 
-    STYPE_VECTOR            m_MassTransferDonorHistory;                 // List of MT donor stellar types - mostly relevent for binary stars
+    STYPE_VECTOR            m_MassTransferDonorHistory;                 // List of MT donor stellar types - mostly relevant for binary stars
 
     // member functions - alphabetically
             void                AgeOneTimestepPreamble(const double p_DeltaTime);

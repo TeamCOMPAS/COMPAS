@@ -158,5 +158,5 @@ if __name__ == "__main__":
     print(myoptions.shellCommand)
     with open('runSubOptions.txt', 'w') as fwrite:
         fwrite.write(myoptions.shellCommand)
-    #-- Run exectute COMPAS shell string
+    #-- Run execute COMPAS shell string
     call(myoptions.shellCommand,shell=True)
