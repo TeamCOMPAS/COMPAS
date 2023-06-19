@@ -139,6 +139,9 @@ def star_forming_mass_per_binary(
                                    mass_ratio_pdf_function=mass_ratio_pdf_function,
                                    m1=m1, m2=m2, m3=m3, m4=m4, a12=a12, a23=a23, a34=a34)
     # TODO: @Tom how do we get the total mass of stars formed?
+    raise NotImplementedError(
+        "Need to implement a function to get the total mass of stars formed in the COMPAS simulation"
+    )
     total_mass = 0
     return fraction * total_mass
 
