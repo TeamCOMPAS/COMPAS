@@ -39,7 +39,7 @@ protected:
         CalculateTimescales();                                                                                                                                                  // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];                                                                                                                 // Set age appropriately
         
-        //Update stellar properties at start of HG phase (since core defintion changes)
+        //Update stellar properties at start of HG phase (since core definition changes)
         CalculateGBParams();
         
         //update effective "initial" mass m_Mass0 so that the core mass is at least equal to the minimum core mass (only relevant if RetainCoreMassDuringCaseAMassTransfer() ) but no more than total mass
@@ -156,7 +156,7 @@ protected:
         double factor = ADAPTIVE_MASS0_SEARCH_FACTOR;                           // Size of search steps
         
         const boost::uintmax_t maxit = ADAPTIVE_MASS0_MAX_ITERATIONS;            // Limit to maximum iterations.
-        boost::uintmax_t it = maxit;                                            // Initally our chosen max iterations, but updated with actual.
+        boost::uintmax_t it = maxit;                                            // Initially our chosen max iterations, but updated with actual.
         bool is_rising = true;                                                  // So if result with guess is too low, then try increasing guess.
         int digits = std::numeric_limits<double>::digits;                       // Maximum possible binary digits accuracy for type T.
         

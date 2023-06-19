@@ -5,7 +5,7 @@ TeamCOMPAS welcomes the active involvement of colleagues and others interested i
 the COMPAS software. We hope this Developer Guide helps anyone interested in contributing to the COMPAS software. We expect
 this guide to be a living document and improve along with the improvements made to the software.
 
-This guide covers the C++ COMPAS population synthesis code.  Post-processing code (Python scrpts) are not (yet) covered
+This guide covers the C++ COMPAS population synthesis code.  Post-processing code (Python scripts) are not (yet) covered
 by this guide.
 
 

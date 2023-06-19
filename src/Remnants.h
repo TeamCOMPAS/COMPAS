@@ -31,13 +31,14 @@ protected:
     // member functions - alphabetically
     double          CalculateCOCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 
-    double          CalculateConvectiveEnvelopeMass() const                                            { return 0.0; }
+    double          CalculateConvectiveEnvelopeMass() const                                                     { return 0.0; }
 
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 
-    double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                         { return 0.0; }                                                         // Should never be called...
+    double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate)                               { return 0.0; }                                                         // Should never be called...
 
-    void            CalculateGBParams()                                                                         { GiantBranch::CalculateGBParams(); }                                   // Default to GiantBranch
+    void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)                              { GiantBranch::CalculateGBParams(p_Mass, p_GBParams); }                 // Default to GiantBranch  
+    void            CalculateGBParams()                                                                         { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
 
     double          CalculateGyrationRadius() const                                                             { return 0.21; }                                                        // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
@@ -46,12 +47,15 @@ protected:
     double          CalculateInitialSupernovaMass() const                                                       { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
 
     double          CalculateLambdaDewi() const                                                                 { return BaseStar::CalculateLambdaDewi(); }                             // Not supported - use BaseStar
-    double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const               { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }                  // Not supported - use BaseStar (0.0 are dummy values)      JR: todo: check this (type 10 not mentioned as not supported in original code)
+    double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const      { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }         // Not supported - use BaseStar (0.0 are dummy values)      JR: todo: check this (type 10 not mentioned as not supported in original code)
 
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                    const double p_AccretorMassRate = 0.0);
+                                                const double p_AccretorMassRate);
+    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                const double p_AccretorMassRate,
+                                                const bool   p_IsHeRich)                                        { return CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); } // Ignore the He content for non-WDs
 
-    double          CalculateMassLossRateHurley()                                                       { return 0.0; }
+    double          CalculateMassLossRateHurley()                                                               { return 0.0; }
     double          CalculateMassLossRateVink()                                                                 { return 0.0; }
 
     double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                          { return GiantBranch::CalculateMomentOfInertia(p_RemnantRadius); }      // Default to GiantBranch
@@ -66,6 +70,7 @@ protected:
     double          CalculateTauOnPhase() const                                                                 { return m_Tau; }                                                       // NO-OP
    
     double          CalculateThermalTimescale(const double p_Radius = 1.0) const                                { return CalculateDynamicalTimescale(); }                               // Parameter is ignored
+    double          CalculateThermalTimescale() const                                                           { return CalculateThermalTimescale(m_Radius); }                         // Use inheritance hierarchy
 
     double          CalculateThermalMassLossRate() const                                                        { return BaseStar::CalculateThermalMassLossRate(); }                    // Set thermal mass gain rate to be effectively infinite, using dynamical timescale (in practice, will be Eddington limited), avoid division by zero
 
@@ -105,7 +110,7 @@ protected:
 
     void            SetPulsarParameters() const { }                                                                                                                                     // NO-OP
 
-    bool            ShouldEnvelopeBeExpelledByPulsations() const                                    { return false; }                                                       // No envelope to lose by pulsations
+    bool            ShouldEnvelopeBeExpelledByPulsations() const                                                { return false; }                                                       // No envelope to lose by pulsations
     bool            ShouldEvolveOnPhase() const                                                                 { return true; }                                                        // Default
     bool            ShouldSkipPhase() const                                                                     { return false; }                                                       // Don't skip WD phase
 

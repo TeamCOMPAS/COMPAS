@@ -74,7 +74,7 @@ Contents information displays, for each COMPAS file in the HDF5 file:
    The contents display can be limited in two ways:
 
       (a) The --contents option takes and optional argument: an integer number of rows to display.
-          The argement to --contents can be positive or negative: a positive value indicates that
+          The argument to --contents can be positive or negative: a positive value indicates that
           the number of rows specified by the argument should be displayed from the start of the file;
           a negative value indicates that the number of fows specified by the (absolute value of the)
           argument should be displayed from the end of the file.  The +ve and -ve arguments to the
@@ -138,7 +138,7 @@ def getDataType(dType = ''):
 # For each COMPAS file (group) in the HDF5 file, prints:
 #
 #    - COMPAS filename
-#    - Number of columns in the file (datsets in the group)
+#    - Number of columns in the file (datasets in the group)
 #    - Maximum number of entries of any column (entries per column should be equal)
 
 def printSummary(h5name = None, h5file = None, excludeList = ''):

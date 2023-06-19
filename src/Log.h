@@ -100,7 +100,7 @@ using std::string;
  * entries ("chunks" and "chunking" are HDF5 terms).  In COMPAS, all datasets are 1-d arrays (columns), so
  * a chunk is defined as a number of values in the 1-d array (or column).  Chunking can be enabled or not, 
  * but if chunking is not* enabled a dataset cannot be resized - so if chunking is not enabled the size of 
- * the dataset must be known at the time of creation, and the entire datset created in one go.  That doesn't 
+ * the dataset must be known at the time of creation, and the entire dataset created in one go.  That doesn't 
  * work for COMPAS - even though we know the number of systems being evolved, we don't know the number of 
  * entries we'll have in each of the output log files (and therefore the HDF5 datasests if we're logging to 
  * HDF5 files).  So, we enable chunking.
@@ -119,7 +119,7 @@ using std::string;
  * memory, the entire chunk containing the value must be read from, or written to, the storage media - even
  * if the dataset value being accessed is the only value in the chunk.  So few large chunks could cause 
  * empty, "wasted", space in the HDF5 files (at the end of datasets) - but they could also adversely affect
- * performance by causing unecessary IO traffic (although probably not much in the way we access data in COMPAS
+ * performance by causing unnecessary IO traffic (although probably not much in the way we access data in COMPAS
  * files).
  * 
  * HDF5 files implement a chunk cache on a per-dataset basis.  The default size of the chunk cache is 1MB, and
@@ -136,7 +136,7 @@ using std::string;
  * access in the COMPAS context (including post-creation analyses) is serial - the COMPAS code writes the
  * datasets from top to bottom, and later analyses (generally) read the datasets the same way.  Caching the
  * chunks for serial access just introduces overhead that costs memory (not much, to be sure: up to 32MB per 
- * open dataset), and degrades performace (albeit it a tiny bit).  For that reason I disable the chunk cache
+ * open dataset), and degrades performance (albeit it a tiny bit).  For that reason I disable the chunk cache
  * in COMPAS - so all IO to/from an HDF5 file in COMPAS is directly to/from the storage media.  (To be clear,
  * post-creation analysis software can disable the cache or not when accessing HDF5 files created by COMPAS - 
  * disabling the cache here does not affect how other software accesses the files post-creation).
@@ -154,7 +154,7 @@ using std::string;
  * bound for at least some of the datasets (though not for groups such as BSE_RLOF).
  * 
  * One thing we need to keep in mind is that when we create the HDF5 file we write each dataset of a group
- * in the same iteration - this is analagous to writing a single record in (e.g.) a CSV log file (the HDF5
+ * in the same iteration - this is analogous to writing a single record in (e.g.) a CSV log file (the HDF5
  * group corresponds to the CSV file, and the HDF5 datasets in the group correspond to the columns in the
  * CSV file).  So for each iteration - typically each system evolved (though each timestep for detailed
  * output files) we do as many IOs to the HDF5 file as there are datasets in the group (columns in the file).
@@ -191,7 +191,7 @@ using std::string;
  * IO to HDF5 files is buffered in COMPAS - we buffer a number of chunks for each open dataset and write the
  * buffer to the file when the buffer fills (or a partial buffer upon file close if the buffer is not full).
  * This IO buffering is not HDF5 or filesystem buffering - this is a COMPAS-internal implementation to improve
- * performance.  We could do the same for the outher logfile types one day, but I suspect HDF5 is mostly
+ * performance.  We could do the same for the other logfile types one day, but I suspect HDF5 is mostly
  * what people will use - and since each record written to a logfile of type other than HDF5 includes values
  * for all columns in the file, there are fewer IO operations to logfiles of type other than HDF5 (1 per system
  * being evolved) and so IO to logfiles of type other than HDF5 has a far less significant impact on performance
@@ -296,7 +296,7 @@ using std::string;
  * default to the correspodning annotation specified on the command line; if they are specified in 
  * this manner on the command line they will default to the COMPAS default annotation (the empty 
  * string).  If the number of annotations expected, as defined by the number of annotation headers 
- * specified via the --notes-hdrs program option is more than 5, then anotations beyond annotation 5
+ * specified via the --notes-hdrs program option is more than 5, then annotations beyond annotation 5
  * (the last annotation actually specified by the user) will default in the same manner as described
  * above.
  * 
@@ -325,7 +325,7 @@ using std::string;
  * type property is of type LOGRECORDTYPE, which is a typedef for unsigned int (unsigned int allows up to 
  * 4294967296 different integer record types (per standard log file - that should be plenty...).
  * 
- * The record type property can be used to idenitify and filter records within a standard log file.  The
+ * The record type property can be used to identify and filter records within a standard log file.  The
  * functionality was introduced primarily to support different types of records in the detailed output files
  * (BSE and SSE), but could be useful for other log files.
  *
@@ -457,10 +457,10 @@ private:
         m_Logfiles.empty();                                                         // default is no log files
         m_OpenStandardLogFileIds = {};                                              // no open COMPAS standard log files
 
-        m_ObjectIdSwitching = -1L;                                                  // object id of Star object swithcing stellar type - default none
+        m_ObjectIdSwitching = -1L;                                                  // object id of Star object switching stellar type - default none
         m_TypeSwitchingFrom = STELLAR_TYPE::NONE;                                   // stellar type from which Star object is switching - default NONE
         m_TypeSwitchingTo   = STELLAR_TYPE::NONE;                                   // stellar type to which Star object is switching - default NONE
-        m_PrimarySwitching  = false;                                                // Star swithcing is primary star of binary - default false
+        m_PrimarySwitching  = false;                                                // Star switching is primary star of binary - default false
 
         m_SSESupernovae_DelayedWrite.logRecordType       = 0;                       // delayed log record type for SSE_Supernovae file - initially 0 (set later)
         m_SSESupernovae_DelayedWrite.logRecordString     = "";                      // delayed log record (string) for SSE_Supernovae file - initially empty
@@ -569,7 +569,7 @@ private:
     // associated file
     //
     // the default value for each boolean in the vector is FALSE, and the value is only used if the
-    // logfile record specification include PROGRAM_OPTION::NOTES.  The defauts are updated in
+    // logfile record specification include PROGRAM_OPTION::NOTES.  The defaults are updated in
     // Log::Start(): if PROGRAM_OPTION::NOTES is included in the default record specification for
     // a logfile, the *_Notes defaults are set to TRUE.  This is so Log::UpdateAllLogfileRecordSpecs()
     // has the right defaults when processing any log definitions file.
@@ -617,7 +617,7 @@ private:
         std::vector<bool>                 logFileAnnotations;                       // logfile annotations vector
     };
 
-    delayedWriteDetailsT m_SSESupernovae_DelayedWrite;                              // SSE_Supernovae delayed write detials    
+    delayedWriteDetailsT m_SSESupernovae_DelayedWrite;                              // SSE_Supernovae delayed write details    
     
   
     // the following block of variables support the run details file

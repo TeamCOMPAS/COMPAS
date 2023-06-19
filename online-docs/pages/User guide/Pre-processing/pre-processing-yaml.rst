@@ -104,7 +104,7 @@ COMPAS uses the following rules (listed in no particular order) when it creates 
     - Blank lines in the template will be preserved.
     - Option values in the template will not be preserved (but they may be rewritten by COMPAS).
     - Option values written by COMPAS will be the option default values unless COMPAS was run with command-line options set - if the user executed COMPAS and specified options on the command line, the user-specified values will be written to the YAML file, and those option records in the YAML file will not be commented.
-    - Options present in the template that are not valid COMPAS options will be ignored and not writte to the YAML file.
+    - Options present in the template that are not valid COMPAS options will be ignored and not written to the YAML file.
     - Any COMPAS options that are not present in the template will be written in alphabetical order at the end of the YAML file.
 
 In the following example template:

@@ -77,7 +77,7 @@ other logfile types, as individual files (in this case, ``HDF5`` files), in the 
 
 Each file described above is created as a `group` within the ``HDF5`` file, with the name of the group set to the name of the file
 (e.g. "BSE_System_Parameters"). Each column in the files described above is created as a `dataset` within its corresponding group in the
-``HDF5`` file, with the name of the datset set to the column header as described above (e.g. "Mass(1)"). Each dataset in an ``HDF5`` file
+``HDF5`` file, with the name of the dataset set to the column header as described above (e.g. "Mass(1)"). Each dataset in an ``HDF5`` file
 is typed, and the dataset data types are set to the column data types as described above. The column units described above are attached to
 their corresponding datasets in the ``HDF5`` file as `attributes`.
 
