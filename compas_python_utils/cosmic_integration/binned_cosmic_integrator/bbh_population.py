@@ -1,9 +1,12 @@
+import numpy as np
+
 from .gpu_utils import xp
 import h5py as h5
 from typing import List, Optional
 
 from ..totalMassEvolvedPerZ import analytical_star_forming_mass_per_binary_using_kroupa_imf
 from .conversions import m1_m2_to_chirp_mass, m1_m2_to_eta
+from .plotting import plot_bbh_population
 
 
 class BBHPopulation(object):
@@ -15,6 +18,29 @@ class BBHPopulation(object):
             m2_min=0.1,
             binary_fraction=0.7,
     ):
+        """
+        Loads the BBH population from COMPAS output.
+        Requires the COMPAS output to contain the following datasets:
+        Size N (number of systems)
+        - BSE_System_Parameters/SEED
+        - BSE_System_Parameters/Metallicity@ZAMS(1)
+
+        Size N_CE (number of CE events) < N
+        - BSE_Common_Envelopes/SEED
+        - BSE_Common_Envelopes/Immediate_RLOF>CE
+        - BSE_Common_Envelopes/Optimistic_CE
+
+        Size N_BBH (number of BBHs) < N
+        - BSE_Double_Compact_Objects/SEED
+        - BSE_Double_Compact_Objects/Mass(1)
+        - BSE_Double_Compact_Objects/Mass(2)
+        - BSE_Double_Compact_Objects/Time
+        - BSE_Double_Compact_Objects/Coalescence_Time
+        - BSE_Double_Compact_Objects/Stellar_Type(1)
+        - BSE_Double_Compact_Objects/Stellar_Type(2)
+        - BSE_Double_Compact_Objects/Merges_Hubble_Time
+
+        """
         self.path = path
         self.m1_min = m1_min
         self.m1_max = m1_max
@@ -34,7 +60,6 @@ class BBHPopulation(object):
             ["Mass(1)", "Mass(2)", "Time", "Coalescence_Time", "SEED"],
             mask=mask
         )
-        self.n_bbh = len(m1)
         self.t_delay = t_form + t_merge
         self.m1 = m1
         self.m2 = m2
@@ -43,8 +68,6 @@ class BBHPopulation(object):
         dco_mask = xp.in1d(all_seeds, dco_seeds)
         self.n_systems = len(all_seeds)
         self.z_zams = z_zams[dco_mask]
-
-
 
     @property
     def avg_sf_mass_needed(self):
@@ -98,6 +121,22 @@ class BBHPopulation(object):
         del optimistic_ce_flag, optimistic_ce_seeds
 
         return bbh_mask * hubble_mask * mask_out_with_rlof_seeds * mask_out_optimistic_ce_seeds
+
+    @property
+    def label(self):
+        return f"n{self.n_bbh}_bbh_population"
+
+    @property
+    def n_bbh(self):
+        return len(self.m1)
+
+    def plot(self):
+        return plot_bbh_population(
+            data=xp.asarray([self.m1, self.m2, self.chirp_mass, np.log(self.z_zams), np.log(self.t_delay)]).T,
+            params=[
+                r"$m_1\ [M_{\odot}]$", r"$m_2\ [M_{\odot}]$", r"$\mathcal{M}_{\rm chirp}\ [M_{\odot}]$",
+                r"$\ln z_{\rm ZAMS}$", r"$\ln t_{\rm delay}\ [\ln {\rm Myr}]$",
+            ])
 
 
 def _load_data(path: str, group: str, var_names: List[str], mask: Optional[xp.ndarray] = None):

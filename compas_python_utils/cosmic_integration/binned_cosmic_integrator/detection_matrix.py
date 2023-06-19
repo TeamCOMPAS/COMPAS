@@ -80,6 +80,7 @@ class DetectionMatrix:
             detection_matrix.plot().savefig(f"{outdir}/plot_{detection_matrix.label}.png")
             cosmological_model.plot().savefig(f"{outdir}/plot_{cosmological_model.label}.png")
             snr_grid.plot().savefig(f"{outdir}/plot_{snr_grid.label}.png")
+            bbh_population.plot().savefig(f"{outdir}/plot_{bbh_population.label}.png")
         return detection_matrix
 
     @classmethod

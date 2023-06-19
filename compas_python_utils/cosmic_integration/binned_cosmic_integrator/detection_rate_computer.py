@@ -107,8 +107,12 @@ def _find_merger_rates(
     # go through each binary in the COMPAS data
     for i in trange(n_binaries, desc='Computing detection rates'):
         mc_bin_idx = xp.digitize(COMPAS_Mc[i], chirp_mass_bins, right=True)
+        if mc_bin_idx == len(chirp_mass_bins):
+            # skip binaries with chirp mass above the highest bin
+            continue
+
         # calculate formation rate (see Neijssel+19 Section 4) - note this uses dPdlogZ for *closest* metallicity
-        observed_metallicity_mask = xp.digitize(COMPAS_metallicites[i], metallicities)
+        observed_metallicity_mask = xp.digitize(COMPAS_metallicites[i], metallicities, right=True)
         formation_rate[:] = n_formed * dPdlogZ[:, observed_metallicity_mask] / p_draw_metallicity
 
         # calculate the time at which the binary formed if it merges at this redshift
@@ -117,7 +121,7 @@ def _find_merger_rates(
         # we have only calculated formation rate up to z=max(redshifts),
         # so we need to only find merger rates for formation times at z<max(redshifts)
         # first locate the index above which the binary would have formed before z=max(redshifts)
-        idx_earliest_tform = xp.digitize(time_first_SF, time_of_formation)
+        idx_earliest_tform = xp.digitize(time_first_SF, time_of_formation, right=True)
         if idx_earliest_tform > idx_max_z:
             idx_earliest_tform = idx_max_z + 1
 
@@ -126,7 +130,7 @@ def _find_merger_rates(
         if will_merge:
             # work out the redshift at the time of formation
             z_of_formation = times_to_redshifts(time_of_formation[:idx_earliest_tform - 1])
-            z_of_formation_index = xp.digitize(z_of_formation, redshifts)
+            z_of_formation_index = xp.digitize(z_of_formation, redshifts, right=True)
             # set the merger rate at z (with z<10) to the formation rate at z_form
             if idx_earliest_tform > idx_max_z:
                 idx_earliest_tform = idx_max_z + 1
@@ -135,12 +139,12 @@ def _find_merger_rates(
             merger_rate[:] = 0
 
         # get bin indices for Mc and eta
-        eta_index = xp.digitize(COMPAS_eta[i], snr_eta_bins)
-        Mc_index = xp.digitize(COMPAS_Mc[i] * (1 + redshifts[:idx_max_z]), snr_Mc_bins)
+        eta_index = xp.digitize(COMPAS_eta[i], snr_eta_bins, right=True)
+        Mc_index = xp.digitize(COMPAS_Mc[i] * (1 + redshifts[:idx_max_z]), snr_Mc_bins, right=True)
 
         # lookup SNRs using the eta and Mc indices
         snrs = snr_grid_at_1Mpc[eta_index, Mc_index] / distances[:idx_max_z]
-        idx = xp.clip(xp.digitize(snrs, snr_bins), 0, len(snr_bins) - 1)
+        idx = xp.clip(xp.digitize(snrs, snr_bins, right=True), 0, len(snr_bins) - 1)
         detection_probability[:] = detection_probability_from_snr[idx]
 
         # add the detection rate to the detection matrix

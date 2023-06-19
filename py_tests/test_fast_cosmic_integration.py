@@ -5,7 +5,7 @@ import time
 import os
 
 
-def test_fast_cosmic_integration(example_compas_output_path,  test_archive_dir,): #  capsys,
+def test_fast_cosmic_integration(example_compas_output_path,  test_archive_dir, capsys):
     """Test that fast cosmic integration works"""
     t0 = time.time()
     (
@@ -20,10 +20,11 @@ def test_fast_cosmic_integration(example_compas_output_path,  test_archive_dir,)
     runtime = time.time() - t0
     assert runtime < 10
 
-    # logfname = os.path.join(test_archive_dir, "test_fast_cosmic_integration.log")
-    # with open(logfname, "w") as f:
-    #     sout = capsys.readouterr().out
-    #     f.write(sout)
+    # write logs from run to file in OUTDIR
+    logfname = os.path.join(test_archive_dir, "test_fast_cosmic_integration.log")
+    with open(logfname, "w") as f:
+        sout = capsys.readouterr().out
+        f.write(sout)
 
 
     # check that the shape of the detection rate, formation rate and merger rate are the same
@@ -37,4 +38,3 @@ def test_fast_cosmic_integration(example_compas_output_path,  test_archive_dir,)
     # check that the COMPAS object is a COMPASData object
     assert isinstance(COMPAS, COMPASData)
 
-    # write logs from run to file in OUTDIR
