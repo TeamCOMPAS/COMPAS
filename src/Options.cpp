@@ -158,8 +158,9 @@ void Options::OptionValues::Initialise() {
 	m_BeBinaries                                                    = false;
     m_HMXRBinaries                                                  = false;
 
+    m_EvolveDoubleWhiteDwarfs                                       = false;
     m_EvolvePulsars                                                 = false;
-	m_EvolveUnboundSystems                                          = true;
+	m_EvolveUnboundSystems                                          = false;
 
     m_DetailedOutput                                                = false;
     m_PopulationDataPrinting                                        = false;
@@ -759,6 +760,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "errors-to-file",                                              
             po::value<bool>(&p_Options->m_ErrorsToFile)->default_value(p_Options->m_ErrorsToFile)->implicit_value(true),                                                                          
             ("Write error messages to file (default = " + std::string(p_Options->m_ErrorsToFile ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "evolve-double-white-dwarfs",                                              
+            po::value<bool>(&p_Options->m_EvolveDoubleWhiteDwarfs)->default_value(p_Options->m_EvolveDoubleWhiteDwarfs)->implicit_value(true),                                                                        
+            ("Evolve pulsars (default = " + std::string(p_Options->m_EvolveDoubleWhiteDwarfs ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "evolve-pulsars",                                              
