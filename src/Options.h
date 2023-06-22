@@ -438,7 +438,7 @@ private:
         "enable-warnings",
         "envelope-state-prescription",
         "errors-to-file",
-        "evovle-double-white-dwarfs"
+        "evolve-double-white-dwarfs"
         "evolve-pulsars",
         "evolve-unbound-systems",
 
