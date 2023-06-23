@@ -377,7 +377,7 @@ Default = FALSE
 
 **--evolve-unbound-systems** |br|
 Continue evolving stars even if the binary is disrupted. |br|
-Default = FALSE
+Default = TRUE
 
 .. _options-props-F:
 
