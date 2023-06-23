@@ -159,7 +159,7 @@ void Options::OptionValues::Initialise() {
     m_HMXRBinaries                                                  = false;
 
     m_EvolveDoubleWhiteDwarfs                                       = false;
-    m_EvolvePulsars                                                 = false;
+    m_EvolvePulsars                                                 = true;
 	m_EvolveUnboundSystems                                          = false;
 
     m_DetailedOutput                                                = false;
