@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Thu Apr 20 14:21:04 2023 by COMPAS v02.38.03
+##~!!~## File Created Mon Jun 26 10:54:22 2023 by COMPAS v02.38.08
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -54,6 +54,9 @@ booleanChoices:
 
     ### PULSAR PARAMETERS
 #    --evolve-pulsars: False                                               # Default: False
+
+   ### WHITE DWARF PARAMETERS
+#    --evolve-double-white-dwarfs: False                                   # Default: False
 
 
 numericalChoices:
@@ -223,7 +226,7 @@ stringChoices:
 
     ### MASS TRANSFER
 #    --case-BB-stability-prescription: 'ALWAYS_STABLE'                     # Default: 'ALWAYS_STABLE'               # Options: ['ALWAYS_UNSTABLE','TREAT_AS_OTHER_MT','ALWAYS_STABLE_ONTO_NSBH','ALWAYS_STABLE']
-#    --critical-mass-ratio-prescription: 'NONE'                            # Default: 'NONE'                        # Options: ['GE20_IC','GE20','CLAEYS','NONE']
+#    --critical-mass-ratio-prescription: 'NONE'                            # Default: 'NONE'                        # Options: ['HURLEY_HJELLMING_WEBBINK','GE20_IC','GE20','CLAEYS','NONE']
 #    --stellar-zeta-prescription: 'SOBERMAN'                               # Default: 'SOBERMAN'                    # Options: ['NONE','ARBITRARY','HURLEY','SOBERMAN']
 #    --mass-transfer-angular-momentum-loss-prescription: 'ISOTROPIC'       # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
 #    --mass-transfer-accretion-efficiency-prescription: 'THERMAL'          # Default: 'THERMAL'                     # Options: ['FIXED','THERMAL']
