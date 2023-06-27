@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.integrate import quad
-import h5py as h5       # for reading in data
+from scipy.interpolate import interp1d
+import h5py as h5
 import functools
 
 @functools.lru_cache()
@@ -19,6 +20,9 @@ def IMF(m, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
     """Calculate the fraction of stellar mass between m and m + dm for a three part broken power law.
 
     Default values follow Kroupa (2001)
+    https://arxiv.org/abs/astro-ph/0009005
+    Equation 1-2
+
             zeta(m) ~ m^(-a_ij)
     Parameters
     ----------
@@ -45,6 +49,7 @@ def IMF(m, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
         return b3 * m ** (-a34)
     else:
         return 0.0
+
 
 
 def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin, mass_ratio_pdf_function=lambda q: 1,
@@ -117,7 +122,7 @@ def retrieveMassEvolvedPerZ(path):
 
 
 def totalMassEvolvedPerZ(path, Mlower, Mupper, m2_low, binaryFraction, mass_ratio_pdf_function=lambda q: 1,
-                         m1=0.01, m2=0.08, m3=0.5, m4=200., a12=-0.3, a23=-1.3, a34=-2.3):
+                         m1=0.01, m2=0.08, m3=0.5, m4=200., a12=0.3, a23=1.3, a34=2.3):
     """
     Calculate the total mass evolved per metallicity as a function of redshift in a COMPAS simulation.
     """
@@ -145,6 +150,37 @@ def star_forming_mass_per_binary(
     _, mass_per_metallicity = totalMassEvolvedPerZ(**locals())
     return np.sum(mass_per_metallicity)
 
+
+def inverse_sample_IMF(
+        n_samples = int(1e5),
+        m_min=0.01, m_max=200,
+        m1=0.01, m2=0.08, m3=0.5, m4=200., a12=0.3, a23=1.3, a34=2.3,
+        cdf_pts=int(1e4)
+        ):
+    m = np.geomspace(m_min, m_max, cdf_pts)
+    imf_values = IMF(m, m1, m2, m3, m4, a12, a23, a34)
+    cumulative = np.cumsum(imf_values)
+    cumulative -= cumulative.min()
+    f = interp1d(cumulative/cumulative.max(), m)
+    return f(np.random.random(n_samples))
+
+def draw_samples_from_kroupa_imf(
+        Mlower, Mupper, m2_low,
+        m1=0.01, m2=0.08, m3=0.5, m4=200., a12=0.3, a23=1.3, a34=2.3,
+        n_samples = int(1e5)
+):
+    """
+    Draw samples from the Kroupa IMF
+    """
+    m1_samples = inverse_sample_IMF(n_samples=n_samples,
+        m_min=Mlower, m_max=Mupper,
+        m1=m1, m2=m2, m3=m3, m4=m4, a12=a12, a23=a23, a34=a34
+    )
+    m2_samples = m1_samples * np.random.random(n_samples)
+    mask = (Mlower < m1_samples) & (m1_samples <= Mupper) & (m2_low < m2_samples)
+    return m1_samples[mask] , m2_samples[mask]
+
+
 def analytical_star_forming_mass_per_binary_using_kroupa_imf(
         m1_min, m1_max, m2_min, fbin=1., imf_mass_bounds=[0.01,0.08,0.5,200]
 ):
@@ -160,7 +196,8 @@ def analytical_star_forming_mass_per_binary_using_kroupa_imf(
     @Ilya Mandel's derivation
     """
     m1, m2, m3, m4 = imf_mass_bounds
-    assert m1_min >= m3, f"m1_min ({m1_min}) must be larger than IMF break m3 ({m3})"
+    if m1_min < m3:
+        raise ValueError(f"This analytical derivation requires IMF break m3  < m1_min ({m3} !< {m1_min})")
     alpha = (-(m4**(-1.3)-m3**(-1.3))/1.3 - (m3**(-0.3)-m2**(-0.3))/(m3*0.3) + (m2**0.7-m1**0.7)/(m2*m3*0.7))**(-1)
     # average mass of stars (average mass of all binaries is a factor of 1.5 larger)
     m_avg = alpha * (-(m4**(-0.3)-m3**(-0.3))/0.3 + (m3**0.7-m2**0.7)/(m3*0.7) + (m2**1.7-m1**1.7)/(m2*m3*1.7))
