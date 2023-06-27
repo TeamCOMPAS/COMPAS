@@ -60,6 +60,7 @@ def test_analytical_function():
 
 
 def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output, tmpdir, test_archive_dir):
+    np.random.seed(42)
     m1_max = M1_MAX
     m1_min = M1_MIN
     m2_min = M2_MIN
