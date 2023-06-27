@@ -5,7 +5,6 @@ from compas_python_utils.cosmic_integration.totalMassEvolvedPerZ import (
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py as h5
-from tqdm.auto import trange
 
 import pytest
 
@@ -111,12 +110,14 @@ def generate_fake_result(tmpdir, n_samples):
 
 
 
-def plot_star_forming_mass_per_binary_comparison(tmpdir, analytical, m1_min, m1_max, m2_min, fbin):
+def plot_star_forming_mass_per_binary_comparison(
+        tmpdir, analytical, m1_min, m1_max, m2_min, fbin,
+        nreps = 5, nsamps = 5
+):
     plt.axhline(analytical, color='tab:blue', label="analytical", ls='--')
-    n_samps = np.geomspace(1e3, 5e4, 20)
+    n_samps = np.geomspace(1e3, 5e4, nsamps)
     numerical_vals = []
-    nreps = 30
-    for _ in trange(nreps):
+    for _ in range(nreps):
         vals = np.zeros(len(n_samps))
         for i, n in enumerate(n_samps):
             res = generate_fake_result(tmpdir, n_samples=int(n))
