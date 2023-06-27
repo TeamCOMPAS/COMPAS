@@ -8,7 +8,7 @@ import h5py as h5
 
 import pytest
 
-MAKE_PLOTS = True
+MAKE_PLOTS = False
 
 
 M1_MIN = 5
