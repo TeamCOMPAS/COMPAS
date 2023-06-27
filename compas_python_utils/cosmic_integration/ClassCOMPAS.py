@@ -3,7 +3,6 @@ import numpy as np
 import h5py as h5
 import os
 from . import totalMassEvolvedPerZ as MPZ
-import astropy.units as u
 
 
 class COMPASData(object):
