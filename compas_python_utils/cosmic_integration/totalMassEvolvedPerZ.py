@@ -135,6 +135,7 @@ def totalMassEvolvedPerZ(path, Mlower, Mupper, m2_low, binaryFraction, mass_rati
 
     # get the mass evolved for each metallicity bin and convert to a total mass using the fraction
     MassEvolvedPerZ = retrieveMassEvolvedPerZ(path)
+
     totalMassEvolvedPerMetallicity = MassEvolvedPerZ / fraction
 
     return multiplicationFactor, totalMassEvolvedPerMetallicity
@@ -143,12 +144,22 @@ def totalMassEvolvedPerZ(path, Mlower, Mupper, m2_low, binaryFraction, mass_rati
 def star_forming_mass_per_binary(
         path,
         Mlower, Mupper, m2_low, binaryFraction, mass_ratio_pdf_function=lambda q: 1,
-        m1=0.01, m2=0.08, m3=0.5, m4=200., a12=-0.3, a23=-1.3, a34=-2.3):
+        m1=0.01, m2=0.08, m3=0.5, m4=200., a12=0.3, a23=1.3, a34=2.3):
     """
     Calculate the total mass of stars formed per binary star formed within the COMPAS simulation.
     """
-    _, mass_per_metallicity = totalMassEvolvedPerZ(**locals())
-    return np.sum(mass_per_metallicity)
+    multiplicationFactor, _ = totalMassEvolvedPerZ(**locals())
+
+    # get the total mass in COMPAS and number of binaries
+    with h5.File(path, 'r') as f:
+        allSystems = f['BSE_System_Parameters']
+        m1s = (allSystems['Mass@ZAMS(1)'])[()]
+        m2s = (allSystems['Mass@ZAMS(2)'])[()]
+        n_binaries = len(m1s)
+        total_star_forming_mass_in_COMPAS = sum(m1s) + sum(m2s)
+
+    total_star_forming_mass = total_star_forming_mass_in_COMPAS * multiplicationFactor
+    return total_star_forming_mass / n_binaries
 
 
 def inverse_sample_IMF(
@@ -157,7 +168,7 @@ def inverse_sample_IMF(
         m1=0.01, m2=0.08, m3=0.5, m4=200., a12=0.3, a23=1.3, a34=2.3,
         cdf_pts=int(1e4)
         ):
-    m = np.geomspace(m_min, m_max, cdf_pts)
+    m = np.linspace(m_min, m_max, cdf_pts)
     imf_values = IMF(m, m1, m2, m3, m4, a12, a23, a34)
     cumulative = np.cumsum(imf_values)
     cumulative -= cumulative.min()
