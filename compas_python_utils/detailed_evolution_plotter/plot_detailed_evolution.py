@@ -342,7 +342,7 @@ def getStellarTypes(Data):
 
     # List of Hurley stellar types
     stellarTypes = [r'MS$<0.7M_\odot$', r'MS$\geq0.7M_\odot$', 'HG', 'FGB', 'CHeB', 'EAGB', 'TPAGB', 'HeMS', 'HeHG',
-                    'HeGB', 'HeWD', 'COWD', 'ONeWD', 'NS', 'BH', 'MR']
+                    'HeGB', 'HeWD', 'COWD', 'ONeWD', 'NS', 'BH', 'MR', 'CHE']
 
     useTypes = np.unique(np.append(Data['Stellar_Type(1)'][()], Data['Stellar_Type(2)'][()]))
     if (0 in useTypes) != (1 in useTypes):  # XOR
