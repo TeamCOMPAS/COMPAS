@@ -331,6 +331,7 @@ private:
         "eccentricity-distribution",
         "eccentricity-max",
         "eccentricity-min",
+        "evolve-double-white-dwarfs",
         "evolve-pulsars",
         "evolve-unbound-systems",
 
@@ -437,6 +438,7 @@ private:
         "enable-warnings",
         "envelope-state-prescription",
         "errors-to-file",
+        "evolve-double-white-dwarfs"
         "evolve-pulsars",
         "evolve-unbound-systems",
 
@@ -642,6 +644,7 @@ public:
 
 	        bool                                                m_BeBinaries;													// Flag if we want to print BeBinaries (main.cpp)
             bool                                                m_HMXRBinaries;                                                 // Flag if we want to store HMXRBs in RLOF output file
+            bool                                                m_EvolveDoubleWhiteDwarfs;                                      // Whether to evolve double white dwarfs or not
             bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
 	        bool                                                m_EvolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
 
@@ -1210,6 +1213,7 @@ public:
     double                                      EddingtonAccretionFactor() const                                        { return OPT_VALUE("eddington-accretion-factor", m_EddingtonAccretionFactor, true); }
     ENVELOPE_STATE_PRESCRIPTION                 EnvelopeStatePrescription() const                                       { return OPT_VALUE("envelope-state-prescription", m_EnvelopeStatePrescription.type, true); }
     EVOLUTION_MODE                              EvolutionMode() const                                                   { return m_CmdLine.optionValues.m_EvolutionMode.type; }
+    bool                                        EvolveDoubleWhiteDwarfs() const                                         { return OPT_VALUE("evolve-double-white-dwarfs", m_EvolveDoubleWhiteDwarfs, true); }
     bool                                        EvolvePulsars() const                                                   { return OPT_VALUE("evolve-pulsars", m_EvolvePulsars, true); }
     bool                                        EvolveUnboundSystems() const                                            { return OPT_VALUE("evolve-unbound-systems", m_EvolveUnboundSystems, true); }
     bool                                        ExpelConvectiveEnvelopeAboveLuminosityThreshold() const                 { return OPT_VALUE("expel-convective-envelope-above-luminosity-threshold", m_ExpelConvectiveEnvelopeAboveLuminosityThreshold, true); }
