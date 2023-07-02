@@ -1045,8 +1045,12 @@
 //                                      - Changed makefile to be POSIX compliant for .o suffix rule.  No need to change docker Makefile - it is already POSIX compliant.
 //                                         - since GNU Make 4.3 a warning is issued for suffix rules that include prerequisites - in our case the .o rule on line 125:
 //                                           "Makefile:125: warning: ignoring prerequisites on suffix rule definition" - and in future releases it will become an error.
+// 02.38.08     NRS - Jun 22, 2023    - Defect repair:
+//                                      - Changed documentation to  match default value of m_EvolveUnboundSystems (TRUE).
+//                                    - Enhancement:
+//                                      - Added --evolve-double-white-dwarfs option to allow evolution of DWD systems (FALSE by default).
 
-const std::string VERSION_STRING = "02.38.07";
+const std::string VERSION_STRING = "02.38.08";
 
 
 # endif // __changelog_h__
