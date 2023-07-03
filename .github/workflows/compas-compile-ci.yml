@@ -53,6 +53,7 @@ jobs:
         run: |
           cd ${GITHUB_WORKSPACE}
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+          jupyter-kernelspec list
           pytest --cov=compas_python_utils/ py_tests/ -m 'not webtest'
           pytest --cov=compas_python_utils/ --cov-append py_tests/ -m webtest 
           coverage html
