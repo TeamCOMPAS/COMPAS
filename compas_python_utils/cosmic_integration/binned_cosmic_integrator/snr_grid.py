@@ -25,7 +25,7 @@ class SNRGrid:
         self.chirp_mass = xp.arange(MC_STEP, MC_MAX + MC_STEP, MC_STEP)
         self.eta = xp.arange(ETA_STEP, ETA_MAX + ETA_STEP, ETA_STEP)
         self.m1, self.m2 = chirp_mass_eta_to_m1_m2(*xp.meshgrid(self.chirp_mass, self.eta))
-        # TODO: SNRIterpolator can be GPU-ized
+        # TODO: SNRInterpolator can be GPU-ized
         self.snr_grid_at_1Mpc = SNRinterpolator(sensitivity)(self.m1, self.m2)
         self.snr = xp.arange(SNR_STEP, SNR_MAX + SNR_STEP, SNR_STEP)
         self.pdetection = detection_probability_from_snr(self.snr, SNR_THRESHOLD)

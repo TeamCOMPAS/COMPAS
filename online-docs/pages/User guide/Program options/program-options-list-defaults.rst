@@ -367,13 +367,17 @@ Default = FALSE
 Expel convective envelope in a pulsation if the luminosity to mass ratio exceeds the threshold given by ``--luminosity-to-mass-threshold`` |br|
 Default = FALSE
 
+**--evolve-double-white-dwarfs** |br|
+Continue evolving double white dwarf systems after their formation. |br|
+Default = FALSE
+
 **--evolve-pulsars** |br|
 Evolve pulsar properties of Neutron Stars. |br|
 Default = FALSE
 
 **--evolve-unbound-systems** |br|
 Continue evolving stars even if the binary is disrupted. |br|
-Default = FALSE
+Default = TRUE
 
 .. _options-props-F:
 
@@ -1290,8 +1294,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Administrative**
 
---mode, --number-of-systems, --evolve-pulsars, --evolve-unbound-systems, --maximum-evolution-time, --maximum-number-timestep-iterations, --random-seed, 
---timestep-multiplier
+--mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-pulsars, --evolve-unbound-systems, --maximum-evolution-time, --maximum-number-timestep-iterations,
+--random-seed, --timestep-multiplier
 
 --grid, --grid-start-line, --grid-lines-to-process
 

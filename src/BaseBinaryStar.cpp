@@ -2513,8 +2513,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                         if (m_Error != ERROR::NONE) {                                                                                       // error in binary evolution?
                             evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;                                                               // yes - stop evolution
                         }
-                        else if (IsWDandWD()) {                                                                                             // double WD?
-                            evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                                      // yes - do not evolve double WD systems for now
+                        else if (!OPTIONS->EvolveDoubleWhiteDwarfs() && IsWDandWD()) {                                                      // double WD and their evolution is not enabled?
+                            evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                                      // yes - do not evolve double WD systems
                         }
                         else if (IsDCO() && m_Time > (m_DCOFormationTime + m_TimeToCoalescence) && !IsUnbound()) {                          // evolution time exceeds DCO merger time?
                             evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                    // yes - stop evolution

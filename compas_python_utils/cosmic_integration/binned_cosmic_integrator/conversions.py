@@ -12,6 +12,7 @@ def m1_m2_to_eta(m1, m2):
 def m1_m2_to_eta_chirp_mass(m1, m2):
     return m1_m2_to_eta(m1, m2), m1_m2_to_chirp_mass(m1, m2)
 
+
 def chirp_mass_eta_to_total_mass(chirp_mass, eta):
     return chirp_mass / eta ** (3 / 5)
 
