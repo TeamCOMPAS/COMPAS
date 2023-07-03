@@ -53,7 +53,8 @@ jobs:
         run: |
           cd ${GITHUB_WORKSPACE}
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
-          pytest --cov=compas_python_utils/ py_tests/
+          pytest --cov=compas_python_utils/ py_tests/ -m 'not webtest'
+          pytest --cov=compas_python_utils/ --cov-append py_tests/ -m webtest 
           coverage html
           coverage-badge -o coverage_badge.svg -f
 

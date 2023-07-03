@@ -63,6 +63,10 @@ EXTRA_REQUIRE = dict(
         "isort",
         "coverage-badge",
         "deepdiff",
+        "jupytext",
+        "jupyter-autotime",
+        "memory_profiler",
+        "nbconvert"
     ],
     gpu=["cupy"],
 )

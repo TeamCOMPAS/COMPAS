@@ -36,7 +36,6 @@ matplotlib>=3.3.2
 latex
 PyYAML
 
-
 # The following are listed in the 'extensions []' block in conf.py
 # Readthedocs doesn't want them here, but they are required if you want
 # to build the html files locally

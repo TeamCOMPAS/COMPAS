@@ -2,10 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from corner import corner
 from typing import List
-
+import warnings
 from .conversions import m1_m2_to_eta_chirp_mass
+import logging
 
 CMAP = 'inferno'
+
 
 def plot_detection_rate_matrix(
         detection_rate: np.ndarray,
@@ -15,6 +17,7 @@ def plot_detection_rate_matrix(
     """
     Plot the detection rate matrix as a 2D heatmap with marginal histograms.
     """
+    warnings.filterwarnings("ignore")
     assert detection_rate.shape == (len(chirp_masses), len(redshifts))
     z, mc, rate2d = redshifts, chirp_masses, detection_rate
     low_mc, high_mc = np.min(mc), np.max(mc)
@@ -113,12 +116,12 @@ def plot_detection_rate_matrix(
 
 def plot_sfr_and_metallicity(
         redshift: np.array, sfr: np.array,
-        metallicities:np.array, dPdlogZ: np.ndarray,
+        metallicities: np.array, dPdlogZ: np.ndarray,
         p_draw_metallicity: np.array,
         metallicity_label: str,
         sf_label: str,
         redshift_range: List, logZ_range: List,
-)-> plt.Figure:
+) -> plt.Figure:
     fig, axes = plt.subplots(3, 1, figsize=(5, 8))
     ax = axes[0]
     ax.plot(redshift, sfr, label="SFR")
@@ -126,8 +129,8 @@ def plot_sfr_and_metallicity(
     ax.set_ylabel(r"SFR [$M_{\odot}/\rm{yr}/\rm{Mpc}^3$]")
     ax.set_yscale("log")
     ax.set_xlim(*redshift_range)
-    textstr = sf_label.replace(" ", "\n")
-    ax.text(0.05, 0.4, textstr, transform=ax.transAxes, fontsize=14,
+    txt = sf_label.replace(" ", "\n")
+    ax.text(0.05, 0.5, txt, transform=ax.transAxes, fontsize=14,
             verticalalignment='top', horizontalalignment='left')
 
     ax = axes[1]
@@ -140,11 +143,11 @@ def plot_sfr_and_metallicity(
     # set the color bar ticks to be 0 and 1 and label them min and max
     cbar.set_ticks([0, 1])
     cbar.set_ticklabels([r"min", r"max"])
-    textstr = metallicity_label.replace(";", "\n")
-    textstr = textstr.replace("N", "\mathcal{N}")
-    textstr = f"${textstr}$"
+    txt = metallicity_label.split(";")
+    txt = [t.replace("N", "\mathcal{N}") for t in txt]
+    txt = "\n".join([f"${t}$" for t in txt])
     props = dict(boxstyle='round', facecolor='white', alpha=0.5)
-    ax.text(0.05, 0.95, textstr, transform=ax.transAxes, fontsize=14,
+    ax.text(0.05, 0.95, txt, transform=ax.transAxes, fontsize=14,
             verticalalignment='top', horizontalalignment='left', bbox=props)
 
     ax = axes[2]
@@ -154,18 +157,18 @@ def plot_sfr_and_metallicity(
     ax.set_ylim(0, 1)
     ax.set_xlabel("logZ")
     ax.set_ylabel("p(Z)")
-    # fig.tight_layout(rect=[0, 0, 0.9, 1])
     fig.tight_layout()
     return fig
 
+
 def plot_snr_grid(
-    snr_grid_at_1Mpc: np.ndarray,
-    m1: np.array,
-    m2: np.array,
-    snr:np.array,
-    pdetection:np.array,
-    snr_threshold:float,
-)-> plt.Figure:
+        snr_grid_at_1Mpc: np.ndarray,
+        m1: np.array,
+        m2: np.array,
+        snr: np.array,
+        pdetection: np.array,
+        snr_threshold: float,
+) -> plt.Figure:
     fig, axes = plt.subplots(3, 1, figsize=(5, 9))
     ax = axes[0]
     im = ax.imshow(
@@ -208,15 +211,17 @@ def plot_snr_grid(
     fig.tight_layout()
     return plt.gcf()
 
+
 def plot_bbh_population(
-        data: np.ndarray, params: List[str]) -> plt.Figure:
+        data: np.ndarray, params: List[str]
+) -> plt.Figure:
     n_sys = len(data)
-    # mask each columns' 99% data
-    mask = np.array([True]*len(data))
+    # mask out the outliers
+    mask = np.array([True] * len(data))
     for i in range(data.shape[1]):
-        mask_up = data[:,i] < np.quantile(data[:,i], 0.995)
-        mask_down = data[:,i] > np.quantile(data[:,i], 0.005)
-        mask *= mask_up * mask_down
+        mask_up = data[:, i] < np.quantile(data[:, i], 0.975)
+        mask_down = data[:, i] > np.quantile(data[:, i], 0.025)
+        mask = mask & mask_up & mask_down
     fig = corner(
         data[mask],
         bins=25,
@@ -227,7 +232,8 @@ def plot_bbh_population(
         plot_density=True,
         plot_contours=False,
         fill_contours=False,
-        pcolor_kwargs=dict(edgecolors="tab:gray",alpha=1, linewidths=0.05),
+        pcolor_kwargs=dict(edgecolors="tab:gray", alpha=1, linewidths=0.05),
+        quiet=True,
     )
     axes = fig.get_axes()
     # for the diagonal axes
