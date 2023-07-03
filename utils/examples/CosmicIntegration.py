@@ -142,10 +142,19 @@ detection_matrix = DetectionMatrix.from_compas_output(
     )
 fig = detection_matrix.plot()
 
-# If you want you can also do the integration without binning the detection rates (this is not recommended for large data sets).
+# The integration can be executed without binning the detection rates (this is not recommended for large data sets for memory reasons).
+#
+# #### GPU usage
+# If you have a CUDA-enabled GPU, the cosmic-integrator will automatically use it to speed up the calculation. To check if your GPU is used, you can run the following
+
+# +
+from compas_python_utils.cosmic_integration.binned_cosmic_integrator.gpu_utils import gpu_available
+
+print(f"GPU available: {gpu_available}")
+# -
 
 # ## Acknowledgements
-# If you use the cosmic-integration tools, please cite:
+# If you use the cosmic-integration code, please cite:
 #
 # ```bib
 #
@@ -185,3 +194,7 @@ fig = detection_matrix.plot()
 #       adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 # }
 # ```
+
+# #### Older version of Cosmic-integrator
+#
+# The cosmic-integrator code has undergone a major overhaul in 2023. If you would like to use the previous version, you can find it [here](https://github.com/TeamCOMPAS/COMPAS/tree/8af87e8e84568da11133deae034e23aee92c68e9). Please let the COMPAS team know that you are using this version, so we can know that there is still interest in this version.
