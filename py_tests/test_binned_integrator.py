@@ -6,38 +6,7 @@ from compas_python_utils.cosmic_integration.binned_cosmic_integrator import Dete
 import numpy as np
 import os
 import glob
-import h5py
-import pytest
 
-@pytest.fixture
-def fake_bbh_compas_output_file(tmpdir)->str:
-    """
-    Create a fake COMPAS output file the properties required for the BBHPopulation class.
-    """
-    compas_path = os.path.join(tmpdir, "fake_compas_output.h5")
-    SYS_PARAM = "BSE_System_Parameters"
-    DCO = "BSE_Double_Compact_Objects"
-    CE = "BSE_Common_Envelopes"
-    with h5py.File(compas_path, "w") as f:
-        n_systems = 2000
-        f.create_group(SYS_PARAM)
-        f.create_group(DCO)
-        f.create_group(CE)
-        f[SYS_PARAM].create_dataset("SEED", data=np.arange(n_systems))
-        f[SYS_PARAM].create_dataset("Metallicity@ZAMS(1)", data=np.random.uniform(1e-4, 1e-2, size=n_systems))
-        f[CE].create_dataset("SEED", data=np.arange(n_systems))
-        f[CE].create_dataset("Immediate_RLOF>CE", data=np.array([False]*n_systems))
-        f[CE].create_dataset("Optimistic_CE", data=np.array([False] * n_systems))
-        n_bbh = 1500
-        f[DCO].create_dataset("SEED", data=np.arange(n_bbh))
-        f[DCO].create_dataset("Mass(1)", data=np.random.uniform(5, 50, size=n_bbh))
-        f[DCO].create_dataset("Mass(2)", data=np.random.uniform(5, 50, size=n_bbh))
-        f[DCO].create_dataset("Time", data=np.random.uniform(4, 13.8, size=n_bbh))
-        f[DCO].create_dataset("Coalescence_Time", data=np.random.uniform(0, 14000, size=n_bbh))
-        f[DCO].create_dataset("Stellar_Type(1)", data=np.array([14]*n_bbh))
-        f[DCO].create_dataset("Stellar_Type(2)", data=np.array([14] * n_bbh))
-        f[DCO].create_dataset("Merges_Hubble_Time", data=np.array([True] * n_bbh))
-    return compas_path
 
 
 def test_cosmological_models(test_archive_dir):
@@ -49,8 +18,8 @@ def test_cosmological_models(test_archive_dir):
     assert os.path.exists(fn)
 
 
-def test_bbh_population(fake_bbh_compas_output_file):
-    population = BBHPopulation(fake_bbh_compas_output_file)
+def test_bbh_population(fake_compas_output):
+    population = BBHPopulation(fake_compas_output)
     assert population.n_bbh > 2
     assert population.n_systems >= population.n_bbh
     assert population.mass_evolved_per_binary > 0
@@ -73,9 +42,9 @@ def test_conversions():
     assert np.isclose(m1_new, m1)
     assert np.isclose(m2_new, m2)
 
-def test_binned_cosmic_integration(fake_bbh_compas_output_file,  test_archive_dir,):
+def test_binned_cosmic_integration(fake_compas_output,  test_archive_dir,):
     detection_matrix = DetectionMatrix.from_compas_output(
-        fake_bbh_compas_output_file, outdir=test_archive_dir, save_plots=True,
+        fake_compas_output, outdir=test_archive_dir, save_plots=True,
         chirp_mass_bins=None, redshift_bins=None,
     )
     assert detection_matrix.rate_matrix.shape == (len(detection_matrix.chirp_mass_bins), len(detection_matrix.redshift_bins))
@@ -89,7 +58,7 @@ def test_binned_cosmic_integration(fake_bbh_compas_output_file,  test_archive_di
     fig.savefig(os.path.join(test_archive_dir, "binned_detection_matrix_plot.png"))
 
     detection_matrix = DetectionMatrix.from_compas_output(
-        fake_bbh_compas_output_file, outdir=test_archive_dir, save_plots=False,
+        fake_compas_output, outdir=test_archive_dir, save_plots=False,
         chirp_mass_bins=50, redshift_bins=100,
     )
     assert np.allclose(detection_matrix.rate_matrix, loaded_det_matrix.rate_matrix)

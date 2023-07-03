@@ -1,21 +1,29 @@
 import numpy as np
+import h5py
 
 from .gpu_utils import xp
 import h5py as h5
 from typing import List, Optional
 
-from ..totalMassEvolvedPerZ import analytical_star_forming_mass_per_binary_using_kroupa_imf
+from ..totalMassEvolvedPerZ import (
+    analytical_star_forming_mass_per_binary_using_kroupa_imf,
+    draw_samples_from_kroupa_imf)
 from .conversions import m1_m2_to_chirp_mass, m1_m2_to_eta
 from .plotting import plot_bbh_population
+
+# Default values for BBH population
+M1_MIN = 5
+M1_MAX = 150
+M2_MIN = 0.1
 
 
 class BBHPopulation(object):
     def __init__(
             self,
             path=None,
-            m1_min=5,
-            m1_max=150,
-            m2_min=0.1,
+            m1_min=M1_MIN,
+            m1_max=M1_MAX,
+            m2_min=M2_MIN,
             binary_fraction=0.7,
     ):
         """
@@ -149,3 +157,55 @@ def _load_data(path: str, group: str, var_names: List[str], mask: Optional[xp.nd
         for i in range(len(data)):  # not using list comprehension to avoid copying data
             data[i] = data[i][mask]
     return data
+
+
+def generate_mock_bbh_population_file(
+        filename: str = "", n_systems: int = 2000, frac_bbh: float = 0.7, m1_min: float = M1_MIN,
+        m1_max: float = M1_MAX, m2_min: float = M2_MIN,
+):
+    """Generate a mock BBH population file with the given number of systems and BBHs.
+
+    Args:
+        filename: The filename of the mock population file.
+        n_systems: The number of systems in the population.
+        frac_bbh: The fraction of systems that are BBHs.
+        m1_min: The minimum mass of the primary star in solar masses.
+        m1_max: The maximum mass of the primary star in solar masses.
+        m2_min: The minimum mass of the secondary star in solar masses.
+
+    Returns: filename
+    """
+    if filename == "":
+        filename = f"bbh_mock_population.h5"
+
+    m1, m2 = draw_samples_from_kroupa_imf(
+        n_samples=n_systems, Mlower=m1_min, Mupper=m1_max, m2_low=m2_min)
+    n_systems = len(m1)
+
+    # draw BBH masses
+    mask = np.random.uniform(size=n_systems) < frac_bbh
+    n_bbh = np.sum(mask)
+
+    SYS_PARAM = "BSE_System_Parameters"
+    DCO = "BSE_Double_Compact_Objects"
+    CE = "BSE_Common_Envelopes"
+    with h5py.File(filename, "w") as f:
+        f.create_group(SYS_PARAM)
+        f.create_group(DCO)
+        f.create_group(CE)
+        f[SYS_PARAM].create_dataset("SEED", data=np.arange(n_systems))
+        f[SYS_PARAM].create_dataset("Metallicity@ZAMS(1)", data=np.random.uniform(1e-4, 1e-2, size=n_systems))
+        f[SYS_PARAM].create_dataset("Mass@ZAMS(1)", data=m1)
+        f[SYS_PARAM].create_dataset("Mass@ZAMS(2)", data=m2)
+        f[CE].create_dataset("SEED", data=np.arange(n_systems))
+        f[CE].create_dataset("Immediate_RLOF>CE", data=np.array([False] * n_systems))
+        f[CE].create_dataset("Optimistic_CE", data=np.array([False] * n_systems))
+        f[DCO].create_dataset("SEED", data=np.arange(n_bbh))
+        f[DCO].create_dataset("Mass(1)", data=m1[mask])
+        f[DCO].create_dataset("Mass(2)", data=m2[mask])
+        f[DCO].create_dataset("Time", data=np.random.uniform(4, 13.8, size=n_bbh))
+        f[DCO].create_dataset("Coalescence_Time", data=np.random.uniform(0, 14000, size=n_bbh))
+        f[DCO].create_dataset("Stellar_Type(1)", data=np.array([14] * n_bbh))
+        f[DCO].create_dataset("Stellar_Type(2)", data=np.array([14] * n_bbh))
+        f[DCO].create_dataset("Merges_Hubble_Time", data=np.array([True] * n_bbh))
+    return filename

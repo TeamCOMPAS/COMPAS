@@ -7,6 +7,7 @@ from .conversions import m1_m2_to_eta_chirp_mass
 
 CMAP = 'inferno'
 
+
 def plot_detection_rate_matrix(
         detection_rate: np.ndarray,
         chirp_masses: np.array,
@@ -113,12 +114,12 @@ def plot_detection_rate_matrix(
 
 def plot_sfr_and_metallicity(
         redshift: np.array, sfr: np.array,
-        metallicities:np.array, dPdlogZ: np.ndarray,
+        metallicities: np.array, dPdlogZ: np.ndarray,
         p_draw_metallicity: np.array,
         metallicity_label: str,
         sf_label: str,
         redshift_range: List, logZ_range: List,
-)-> plt.Figure:
+) -> plt.Figure:
     fig, axes = plt.subplots(3, 1, figsize=(5, 8))
     ax = axes[0]
     ax.plot(redshift, sfr, label="SFR")
@@ -158,14 +159,15 @@ def plot_sfr_and_metallicity(
     fig.tight_layout()
     return fig
 
+
 def plot_snr_grid(
-    snr_grid_at_1Mpc: np.ndarray,
-    m1: np.array,
-    m2: np.array,
-    snr:np.array,
-    pdetection:np.array,
-    snr_threshold:float,
-)-> plt.Figure:
+        snr_grid_at_1Mpc: np.ndarray,
+        m1: np.array,
+        m2: np.array,
+        snr: np.array,
+        pdetection: np.array,
+        snr_threshold: float,
+) -> plt.Figure:
     fig, axes = plt.subplots(3, 1, figsize=(5, 9))
     ax = axes[0]
     im = ax.imshow(
@@ -208,14 +210,15 @@ def plot_snr_grid(
     fig.tight_layout()
     return plt.gcf()
 
+
 def plot_bbh_population(
         data: np.ndarray, params: List[str]) -> plt.Figure:
     n_sys = len(data)
     # mask each columns' 99% data
-    mask = np.array([True]*len(data))
+    mask = np.array([True] * len(data))
     for i in range(data.shape[1]):
-        mask_up = data[:,i] < np.quantile(data[:,i], 0.995)
-        mask_down = data[:,i] > np.quantile(data[:,i], 0.005)
+        mask_up = data[:, i] < np.quantile(data[:, i], 0.995)
+        mask_down = data[:, i] > np.quantile(data[:, i], 0.005)
         mask *= mask_up * mask_down
     fig = corner(
         data[mask],
@@ -227,7 +230,7 @@ def plot_bbh_population(
         plot_density=True,
         plot_contours=False,
         fill_contours=False,
-        pcolor_kwargs=dict(edgecolors="tab:gray",alpha=1, linewidths=0.05),
+        pcolor_kwargs=dict(edgecolors="tab:gray", alpha=1, linewidths=0.05),
     )
     axes = fig.get_axes()
     # for the diagonal axes

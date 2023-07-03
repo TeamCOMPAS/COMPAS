@@ -20,7 +20,7 @@ def compute_binned_detection_rates(
     """
     Compute the detection rate matrix for a given BBH population and cosmological model.
 
-    If the GPU is available, this function will move the np.ndarray objects to the GPU and perform the computation there.
+    If the GPU is available, this function moves the np.ndarray objects to the GPU and perform the computation there.
     If the GPU is not available, this function will perform the computation on the CPU.
 
     """
