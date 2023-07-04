@@ -24,8 +24,8 @@ Creating a custom YAML file
 
 There are two ways to create a custom YAML file for COMPAS:
 
-* modify the default YAML file ``compasConfigDefault.yaml``
-* create, and optionally modify, a new YAML file via COMPAS
+    * modify the default YAML file ``compasConfigDefault.yaml``
+    * create, and optionally modify, a new YAML file via COMPAS
 
 
 Creating a YAML file via COMPAS
