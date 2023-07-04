@@ -9,21 +9,21 @@
 #include <fstream>
 
 // the defaults size of the boost list that handles variant types is 20 - so only 20 variant types are allowed
-// we've exceeded that nuber - we're at 21 currently - so the size of the boost list needs to be increased
+// we've exceeded that number - we're at 21 currently - so the size of the boost list needs to be increased
 // we have to set the size of the list before we include the boost headers - otherwise boost redefines it
 // boost only recognises values of 20, 30, 40, & 50: for now we set it to 30. 
 #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
   
 #if !defined(BOOST_MPL_LIMIT_LIST_SIZE)
     #if defined(BOOST_MPL_LIST_HPP_INCLUDED)
-      # error "BOOST_MPL_LIMIT_LIST_SIZE must be set to accomodate the size of COMPAS_VARIABLE_TYPE before the including the Boost headers"
+      # error "BOOST_MPL_LIMIT_LIST_SIZE must be set to accommodate the size of COMPAS_VARIABLE_TYPE before the including the Boost headers"
     #endif
 
     #define BOOST_MPL_LIMIT_LIST_SIZE 30
 
 #elif BOOST_MPL_LIMIT_LIST_SIZE < 30
     #if defined(BOOST_MPL_LIST_HPP_INCLUDED)
-      # error "BOOST_MPL_LIMIT_LIST_SIZE must be set before the including the Boost headers"
+      # error "BOOST_MPL_LIMIT_LIST_SIZE must be set to accommodate the size of COMPAS_VARIABLE_TYPE before the including the Boost headers"
     #else
       # error "BOOST_MPL_LIMIT_LIST_SIZE value is too low"
     #endif
