@@ -36,6 +36,8 @@ public:
 
         m_Error                            = p_Star.m_Error;
 
+        m_EvolutionStatus                  = p_Star.m_EvolutionStatus;
+
         m_RandomSeed                       = p_Star.m_RandomSeed;
 
         m_BeBinaryDetails                  = p_Star.m_BeBinaryDetails;
@@ -187,6 +189,7 @@ public:
     double              EccentricityPreSN() const                   { return m_EccentricityPreSN; }
     double              EccentricityPreCEE() const                  { return m_CEDetails.preCEE.eccentricity; }
     ERROR               Error() const                               { return m_Error; }
+    EVOLUTION_STATUS    EvolutionStatus() const                     { return m_EvolutionStatus; }
     double              FractionAccreted() const                    { return m_FractionAccreted; }
     bool                HasOnlyOneOf(STELLAR_TYPE_LIST p_List) const;
     bool                HasOneOf(STELLAR_TYPE_LIST p_List) const;
@@ -292,6 +295,8 @@ private:
     ERROR m_Error;                                                                          // Records most recent error encountered for this binary
 
     // member variables - alphabetical in groups (sort of...)
+
+    EVOLUTION_STATUS    m_EvolutionStatus;                                                  // Records the status of the evolution of the star
 
     unsigned long int   m_RandomSeed;                                                       // Random seed for this binary
 

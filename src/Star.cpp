@@ -473,7 +473,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
  */
 EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
 
-    EVOLUTION_STATUS status = EVOLUTION_STATUS::CONTINUE;
+    EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
     m_Id = p_Id;                                                                    // store the id
 
@@ -488,19 +488,19 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
     // we should be more rigorous in checking/setting error conditions, and stop the evolution for catastrophic errors
 
     int stepNum = 0;
-    while (status == EVOLUTION_STATUS::CONTINUE) {
+    while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {
     
         if (m_Star->Time() > OPTIONS->MaxEvolutionTime()) {
-            status = EVOLUTION_STATUS::TIMES_UP;                                    // out of time...
+            evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                    // out of time...
         }
         else if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) {
-            status = EVOLUTION_STATUS::STEPS_UP;                                    // out of steps...
+            evolutionStatus = EVOLUTION_STATUS::STEPS_UP;                                    // out of steps...
         }
         else if (!m_Star->IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07, STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, STELLAR_TYPE::HERTZSPRUNG_GAP,
                                     STELLAR_TYPE::FIRST_GIANT_BRANCH, STELLAR_TYPE::CORE_HELIUM_BURNING, STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH, STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
                                     STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
 
-            status = EVOLUTION_STATUS::DONE;                                        // we're done
+            evolutionStatus = EVOLUTION_STATUS::DONE;                                        // we're done
         }
         else {
             stepNum++;                                                              // increment step number                                                      
@@ -510,7 +510,9 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
         }
     }
 
+    m_Star->SetEvolutionStatus(evolutionStatus);                                    // set evolution final outcome for star
+
     (void)m_Star->PrintSystemParameters();                                          // log system parameters
 
-    return status;
+    return evolutionStatus;
 }

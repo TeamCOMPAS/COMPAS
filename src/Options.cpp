@@ -2605,7 +2605,7 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
 
     else if (((boost::any)p_IT->second.value()).type() == typeid(long long             )) { dataType = TYPENAME::LONGLONGINT;  typeStr = "LONG_LONG";              valueStr = std::to_string(p_VM[p_IT->first].as<long long             >()); }
     else if (((boost::any)p_IT->second.value()).type() == typeid(signed long long      )) { dataType = TYPENAME::LONGLONGINT;  typeStr = "SIGNED_LONG_LONG";       valueStr = std::to_string(p_VM[p_IT->first].as<signed long long      >()); }
-    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned long long    )) { dataType = TYPENAME::LONGLONGINT;  typeStr = "UNSIGNED_LONG_LONG";     valueStr = std::to_string(p_VM[p_IT->first].as<unsigned long long    >()); }
+    else if (((boost::any)p_IT->second.value()).type() == typeid(unsigned long long    )) { dataType = TYPENAME::ULONGLONGINT;  typeStr = "UNSIGNED_LONG_LONG";     valueStr = std::to_string(p_VM[p_IT->first].as<unsigned long long    >()); }
 
     else if (((boost::any)p_IT->second.value()).type() == typeid(long long int         )) { dataType = TYPENAME::LONGLONGINT;  typeStr = "LONG_LONG_INT";          valueStr = std::to_string(p_VM[p_IT->first].as<long long int         >()); }
     else if (((boost::any)p_IT->second.value()).type() == typeid(signed long long int  )) { dataType = TYPENAME::LONGLONGINT;  typeStr = "SIGNED_LONG_LONG_INT";   valueStr = std::to_string(p_VM[p_IT->first].as<signed long long int  >()); }
@@ -2895,7 +2895,6 @@ std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandO
                             else {                                                                                          // non-null parameter
                                 size_t start = 0;                                                                           // start position
                                 size_t pos   = 0;                                                                           // current position
-                                size_t idx   = 0;                                                                           // vector index of parameter
                                 while (start < argString.length() && pos != std::string::npos) {                            // comma found before the end of the string?
                                                                                                                             // yes
                                     pos = argString.find(",", start);                                                       // next comma
@@ -2913,7 +2912,6 @@ std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandO
                                         }
                                     }
                                     start = pos + 1;                                                                        // next start
-                                    idx++;                                                                                  // next vector index
                                 }
 
                                 if (argString[argString.length() - 1] == ',') {                                             // trailing comma in shorthand values?
@@ -4160,7 +4158,7 @@ int Options::ApplyNextGridLine() {
                     }
                     else {                                                                          // not eof - some other error
                         m_Gridfile.error = ERROR::FILE_READ_ERROR;                                  // record error
-                        status = -1;                                                                // set error status
+                        status = -2;                                                                // set error status
                     }
                     done = true;                                                                    // we're done
                 }
