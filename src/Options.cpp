@@ -354,6 +354,9 @@ void Options::OptionValues::Initialise() {
     m_VeryMassiveStarMassLoss.type                                  = VERY_MASSIVE_STAR_MASS_LOSS::NONE;
     m_VeryMassiveStarMassLoss.typeString                            = VERY_MASSIVE_STAR_MASS_LOSS_LABEL.at(m_VeryMassiveStarMassLoss.type);
 
+    m_RSGMassLoss.type                                              = RSG_MASS_LOSS::NJ90;
+    m_RSGMassLoss.typeString                                        = RSG_MASS_LOSS_LABEL.at(m_RSGMassLoss.type);
+
     // Wind mass loss multiplicitive constants
     m_CoolWindMassLossMultiplier                                    = 1.0;
     m_LuminousBlueVariableFactor                                    = 1.5;
@@ -1718,7 +1721,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_RotationalVelocityDistribution.typeString)->default_value(p_Options->m_RotationalVelocityDistribution.typeString),                                              
             ("Initial rotational velocity distribution (options: [ZERO, HURLEY, VLTFLAMES], default = " + p_Options->m_RotationalVelocityDistribution.typeString + ")").c_str()
         )
-
+        (
+            "RSG-mass-loss",                                      
+            po::value<std::string>(&p_Options->m_RSGMassLoss.typeString)->default_value(p_Options->m_RSGMassLoss.typeString),                                                                  
+            ("RSG mass loss prescription (options: [NONE, BEASOR2020, KEE2021, NJ90], default = " + p_Options->m_RSGMassLoss.typeString + ")").c_str()
+        )
         (
             "semi-major-axis-distribution",                              
             po::value<std::string>(&p_Options->m_SemiMajorAxisDistribution.typeString)->default_value(p_Options->m_SemiMajorAxisDistribution.typeString),                                                        
@@ -2108,6 +2115,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (!DEFAULTED("rotational-velocity-distribution")) {                                                                       // rotational velocity distribution
             std::tie(found, m_RotationalVelocityDistribution.type) = utils::GetMapKey(m_RotationalVelocityDistribution.typeString, ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL, m_RotationalVelocityDistribution.type);
             COMPLAIN_IF(!found, "Unknown Rotational Velocity Distribution");
+        }
+
+        if (!DEFAULTED("RSG-mass-loss")) {                                                                    // RSG mass loss prescription
+            std::tie(found, m_RSGMassLoss.type) = utils::GetMapKey(m_RSGMassLoss.typeString, RSG_MASS_LOSS_LABEL, m_RSGMassLoss.type);
+            COMPLAIN_IF(!found, "Unknown RSG Mass Loss Prescription");
         }
 
         if (!DEFAULTED("semi-major-axis-distribution")) {                                                                           // semi-major axis distribution

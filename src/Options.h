@@ -506,6 +506,7 @@ private:
         "revised-energy-formalism-nandez-ivanova",
         "rlof-printing",
         "rotational-velocity-distribution",
+        "RSG-mass-loss",
 
         "semi-major-axis-distribution",
         "stellar-zeta-prescription",
@@ -513,7 +514,7 @@ private:
         "switch-log",
 
         "use-mass-loss",
-
+        "very-massive-star-mass-loss",
         "version", "v"
     };
     
@@ -784,6 +785,7 @@ public:
             double                                              m_LuminousBlueVariableFactor;                                   // Multiplicitive factor for luminous blue variable (LBV) mass loss rates when using Belczynski’s prescription
             double                                              m_WolfRayetFactor;                                              // Multiplicitive factor for Wolf-Rayet (WR) wind mass loss rates
             ENUM_OPT<VERY_MASSIVE_STAR_MASS_LOSS>               m_VeryMassiveStarMassLoss;                                      // Which mass loss perscription for M > 100 Msol        
+            ENUM_OPT<RSG_MASS_LOSS>                             m_RSGMassLoss;                                                  // Which mass loss perscription for RSG       
 
             // Mass transfer options
             bool                                                m_UseMassTransfer;                                              // Whether to use mass transfer (default = true)
@@ -1400,7 +1402,8 @@ public:
     double                                      RotationalFrequency() const                                             { return OPT_VALUE("rotational-frequency", m_RotationalFrequency, true); }
     double                                      RotationalFrequency1() const                                            { return OPT_VALUE("rotational-frequency-1", m_RotationalFrequency1, true); }
     double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
-   
+    RSG_MASS_LOSS                               RSGMassLoss() const                                                     { return OPT_VALUE("RSG-mass-loss", m_RSGMassLoss.type, true); }
+
     double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis, true); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }
     double                                      SemiMajorAxisDistributionMax() const                                    { return OPT_VALUE("semi-major-axis-max", m_SemiMajorAxisDistributionMax, true); }

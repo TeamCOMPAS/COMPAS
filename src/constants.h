@@ -995,6 +995,15 @@ const COMPASUnorderedMap<VERY_MASSIVE_STAR_MASS_LOSS, std::string> VERY_MASSIVE_
     { VERY_MASSIVE_STAR_MASS_LOSS::BESTENLEHNER2020,         "BESTENLEHNER2020" },
 };
 
+// RSG Mass loss prescriptions
+enum class RSG_MASS_LOSS: int { NONE, BEASOR2020, KEE2021, NJ90};
+const COMPASUnorderedMap<RSG_MASS_LOSS, std::string> RSG_MASS_LOSS_LABEL = {
+    { RSG_MASS_LOSS::NONE,           "NONE" },
+    { RSG_MASS_LOSS::BEASOR2020,     "BEASOR2020" },
+    { RSG_MASS_LOSS::KEE2021,        "KEE2021" },
+    { RSG_MASS_LOSS::NJ90,           "NJ90" },
+};
+
 // Mass loss prescriptions
 enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, VINK, UPDATED };
 const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
@@ -1378,6 +1387,13 @@ const std::initializer_list<STELLAR_TYPE> ALL_HERTZSPRUNG_GAP = {
     STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP
 };
 
+// (convenience) initializer list for ALL HELIUM BURNING 
+const std::initializer_list<STELLAR_TYPE> ALL_HELIUM_BURNING = {
+    STELLAR_TYPE::CORE_HELIUM_BURNING,
+    STELLAR_TYPE::FIRST_GIANT_BRANCH,
+    STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,
+    STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH
+};
 
 // (convenience) initializer list for COMPACT OBJECTS
 const std::initializer_list<STELLAR_TYPE> COMPACT_OBJECTS = {
