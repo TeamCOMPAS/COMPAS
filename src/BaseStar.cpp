@@ -2075,23 +2075,23 @@ double BaseStar::CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss) {
  *
  * 
  * 
- * double CalculateMassLossRateVeryMassive(const VERY_MASSIVE_STAR_MASS_LOSS)
+ * double CalculateMassLossRateVMS(const VMS_MASS_LOSS)
  *
  * @return                                     mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateVeryMassive(const VERY_MASSIVE_STAR_MASS_LOSS p_very_massive_star_mass_loss) {
+double BaseStar::CalculateMassLossRateVMS(const VMS_MASS_LOSS p_VMS_mass_loss) {
     double rate = 0.0;                                                      
                                                                                            
-    // m_DominantMassLossRate = MASS_LOSS_TYPE::VERY_MASSIVE;
+    // m_DominantMassLossRate = MASS_LOSS_TYPE::VMS;
     
-    switch (p_very_massive_star_mass_loss) {                                                                                           // decide which prescription to use
-        case VERY_MASSIVE_STAR_MASS_LOSS::NONE:
+    switch (p_VMS_mass_loss) {                                                                                           // decide which prescription to use
+        case VMS_MASS_LOSS::NONE:
             rate = 0.0;
             break;
-        case VERY_MASSIVE_STAR_MASS_LOSS::BESTENLEHNER2020:
+        case VMS_MASS_LOSS::BESTENLEHNER2020:
             rate = CalculateMassLossRateOBBestenlehner2020();
             break;
-        case VERY_MASSIVE_STAR_MASS_LOSS::VINK2011:
+        case VMS_MASS_LOSS::VINK2011:
             rate = CalculateMassLossRateOBVink2011();
             break;
         default:
@@ -2308,15 +2308,14 @@ double BaseStar::CalculateMassLossRateUpdatedPrescription() {
         if ((utils::Compare(teff, 8000.0) < 0) && (utils::Compare(m_MZAMS, 8.0) >= 0) && 
         IsOneOf(ALL_HELIUM_BURNING) && (OPTIONS->RSGMassLoss() != RSG_MASS_LOSS::NONE)) {         // RSG criteria, below 8kK, above 8Msol, and core helium burning (CHeB, FGB, EAGB, TPAGB) 
             otherWindsRate = CalculateMassLossRateRSG(OPTIONS->RSGMassLoss()); 
-        }                                                                       // change to Kelvin so it can be compared with values as stated in Vink prescription
-        else if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, add Hurley et al 2000 winds
+        }                                                                      
+        else if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, add Hurley et al 2000 winds (NJ90)
             otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // Apply cool wind mass loss multiplier
-        }
+        }                                                                                            // change to Kelvin so it can be compared with values as stated in Vink prescription
         else if (utils::Compare(m_MZAMS, 100.0) >= 0 && 
-        OPTIONS->VeryMassiveStarMassLoss() != VERY_MASSIVE_STAR_MASS_LOSS::NONE) {
-            otherWindsRate = CalculateMassLossRateVeryMassive(OPTIONS->VeryMassiveStarMassLoss());                    // massive MS, >100 Msol. Alternately could use Luminosity threshold                             
+        OPTIONS->VMSMassLoss() != VMS_MASS_LOSS::NONE) {
+            otherWindsRate = CalculateMassLossRateVMS(OPTIONS->VMSMassLoss());                    // massive MS, >100 Msol. Alternately could use Luminosity or Gamma and Mass threshold                             
         }
-
 
         else {     
             //otherWindsRate = CalculateMassLossRateBjorklund();                                                      // For hot stars, apply Bjorklund et al. prescription

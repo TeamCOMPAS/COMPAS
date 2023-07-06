@@ -351,8 +351,8 @@ void Options::OptionValues::Initialise() {
     m_LuminousBlueVariablePrescription.type                         = LBV_PRESCRIPTION::HURLEY_ADD;
     m_LuminousBlueVariablePrescription.typeString                   = LBV_PRESCRIPTION_LABEL.at(m_LuminousBlueVariablePrescription.type);
 
-    m_VeryMassiveStarMassLoss.type                                  = VERY_MASSIVE_STAR_MASS_LOSS::NONE;
-    m_VeryMassiveStarMassLoss.typeString                            = VERY_MASSIVE_STAR_MASS_LOSS_LABEL.at(m_VeryMassiveStarMassLoss.type);
+    m_VMSMassLoss.type                                  = VMS_MASS_LOSS::NONE;
+    m_VMSMassLoss.typeString                            = VMS_MASS_LOSS_LABEL.at(m_VMSMassLoss.type);
 
     m_RSGMassLoss.type                                              = RSG_MASS_LOSS::NJ90;
     m_RSGMassLoss.typeString                                        = RSG_MASS_LOSS_LABEL.at(m_RSGMassLoss.type);
@@ -1737,9 +1737,9 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Prescription for stellar zeta (default = " + p_Options->m_StellarZetaPrescription.typeString + ")").c_str()
         )
         (
-            "very-massive-star-mass-loss",                                      
-            po::value<std::string>(&p_Options->m_VeryMassiveStarMassLoss.typeString)->default_value(p_Options->m_VeryMassiveStarMassLoss.typeString),                                                                  
-            ("Very massive star mass loss prescription (options: [NONE, VINK2011, BESTENLEHNER2020], default = " + p_Options->m_VeryMassiveStarMassLoss.typeString + ")").c_str()
+            "VMS-mass-loss",                                      
+            po::value<std::string>(&p_Options->m_VMSMassLoss.typeString)->default_value(p_Options->m_VMSMassLoss.typeString),                                                                  
+            ("Very massive star mass loss prescription (options: [NONE, VINK2011, BESTENLEHNER2020], default = " + p_Options->m_VMSMassLoss.typeString + ")").c_str()
         )
 
 
@@ -2132,8 +2132,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
         }
 
-        if (!DEFAULTED("very-massive-star-mass-loss")) {                                                                    // very massive mass loss prescription
-            std::tie(found, m_VeryMassiveStarMassLoss.type) = utils::GetMapKey(m_VeryMassiveStarMassLoss.typeString, VERY_MASSIVE_STAR_MASS_LOSS_LABEL, m_VeryMassiveStarMassLoss.type);
+        if (!DEFAULTED("VMS-mass-loss")) {                                                                    // very massive mass loss prescription
+            std::tie(found, m_VMSMassLoss.type) = utils::GetMapKey(m_VMSMassLoss.typeString, VMS_MASS_LOSS_LABEL, m_VMSMassLoss.type);
             COMPLAIN_IF(!found, "Unknown Very Massive Mass Loss Prescription");
         }
 

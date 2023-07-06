@@ -454,7 +454,7 @@ protected:
             double              CalculateMassLossRateRSGBeasor2020() const;
             double              CalculateMassLossRateRSGKee2021() const;
             double              CalculateMassLossRateVassiliadisWood() const;
-            double              CalculateMassLossRateVeryMassive(const VERY_MASSIVE_STAR_MASS_LOSS p_very_massive_star_mass_loss);
+            double              CalculateMassLossRateVMS(const VMS_MASS_LOSS p_VMS_mass_loss);
     virtual double              CalculateMassLossRateVink();
     virtual double              CalculateMassLossRateUpdatedPrescription();
             double              CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const;
