@@ -2,12 +2,12 @@
 #include <gsl/gsl_roots.h>
 #include <gsl/gsl_cdf.h>
 
-// boost includes
-#include <boost/math/distributions.hpp>
-
 #include "Rand.h"
 #include "BaseStar.h"
 #include "vector3d.h"
+
+// boost includes
+#include <boost/math/distributions.hpp>
 
 using std::max;
 using std::min;
@@ -42,6 +42,8 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Error               = ERROR::NONE;                                                            // clear error flag
 
     m_CHE                 = false;                                                                  // initially
+
+    m_EvolutionStatus     = EVOLUTION_STATUS::CONTINUE;                                             // initially
     
     // Initialise member variables from input parameters
     // (kick parameters initialised below - see m_SupernovaDetails)
@@ -300,8 +302,9 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
             case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass()-CoreMass();                                      break;
             case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
+            case ANY_STAR_PROPERTY::EVOL_STATUS:                                        value = EvolutionStatus();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_AIC:                                    value = ExperiencedAIC();                                       break;
-            case ANY_STAR_PROPERTY::EXPERIENCED_HeSD:                                   value = ExperiencedHeSD();                                        break;
+            case ANY_STAR_PROPERTY::EXPERIENCED_HeSD:                                   value = ExperiencedHeSD();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_CCSN:                                   value = ExperiencedCCSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_ECSN:                                   value = ExperiencedECSN();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_PISN:                                   value = ExperiencedPISN();                                      break;
