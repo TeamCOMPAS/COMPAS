@@ -4128,7 +4128,8 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
  * int ApplyNextGridLine()
  * 
  * @return                                      Int result:
- *                                                  -1: Error reading grid file record (error value in grid file struct)
+ *                                                  -2: Error reading grid file record: file read error (error value in grid file struct)
+ *                                                  -1: Error reading grid file record: unexpected end of file (error value in grid file struct)
  *                                                   0: No record to read - end of file
  *                                                   1: Grid file record read and applied ok
  */
