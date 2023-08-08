@@ -33,7 +33,7 @@ INSTALL_REQUIRES = [
     "flake8",
     "black==22.10.0",
     "isort",
-    "matplotlib",
+    "matplotlib>=3.6.0",
     "pandas",
     "astropy",
     "scipy",

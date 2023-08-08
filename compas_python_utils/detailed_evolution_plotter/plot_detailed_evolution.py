@@ -12,8 +12,8 @@ from matplotlib import rcParams
 import matplotlib as mpl
 import argparse
 
-COMPAS_ROOT_DIR = os.path.expandvars(os.environ['COMPAS_ROOT_DIR'])
-VAN_DEN_HEUVEL_DIR = os.path.join(COMPAS_ROOT_DIR, 'compas_python_utils/detailed_evolution_plotter/van_den_heuvel_figures/')
+DIR = os.path.dirname(os.path.realpath(__file__))
+VAN_DEN_HEUVEL_DIR = os.path.join(DIR, 'van_den_heuvel_figures')
 
 def plot_with_latex_fallback(func):
     def wrapper(*args, **kwargs):
