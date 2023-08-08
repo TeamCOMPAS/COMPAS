@@ -1045,11 +1045,11 @@
 //                                      - Changed makefile to be POSIX compliant for .o suffix rule.  No need to change docker Makefile - it is already POSIX compliant.
 //                                         - since GNU Make 4.3 a warning is issued for suffix rules that include prerequisites - in our case the .o rule on line 125:
 //                                           "Makefile:125: warning: ignoring prerequisites on suffix rule definition" - and in future releases it will become an error.
-// 02.38.08     NRS - Jun 22, 2023    - Defect repair:
+// 02.38.08     NRS - Jun 22, 2023   - Defect repair:
 //                                      - Changed documentation to  match default value of m_EvolveUnboundSystems (TRUE).
-//                                    - Enhancement:
+//                                   - Enhancement:
 //                                      - Added --evolve-double-white-dwarfs option to allow evolution of DWD systems (FALSE by default).
-// 02.38.07     JR - Jul 04, 2023    - Enhancement, a little code cleanup:
+// 02.39.00     JR - Jul 04, 2023    - Enhancement, a little code cleanup:
 //                                      - Record and expose m_EvolutionStatus for both BaseStar and BaseBinaryStar as a variable available for selection
 //                                        for printing.  m_EvolutionStatus records the final evolution status - the reason evolution was stopped.  This was
 //                                        already printed to the console for each star or binary, and is now available to be recorded in the log files.
