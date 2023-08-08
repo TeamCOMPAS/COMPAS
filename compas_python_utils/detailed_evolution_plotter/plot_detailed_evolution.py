@@ -9,12 +9,28 @@ import numpy as np
 import h5py as h5
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
+import matplotlib as mpl
 import argparse
 
 COMPAS_ROOT_DIR = os.path.expandvars(os.environ['COMPAS_ROOT_DIR'])
 VAN_DEN_HEUVEL_DIR = os.path.join(COMPAS_ROOT_DIR, 'compas_python_utils/detailed_evolution_plotter/van_den_heuvel_figures/')
 
+def plot_with_latex_fallback(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except mpl.backend_bases.RendererNotFoundError:
+            # Handle Renderer not found error
+            print("RendererNotFoundError caught. Please ensure a valid backend is set.")
+        except Exception as e:
+            if "LaTeX" in str(e):
+                print("LaTeX error caught. Falling back to non-LaTeX rendering.")
+                mpl.rcParams.update({'text.usetex': False})
+                return func(*args, **kwargs)
+            else:
+                raise e
 
+    return wrapper
 
 def main():
     parser = argparse.ArgumentParser(description='Plot detailed evolution of a COMPAS binary')
@@ -25,6 +41,7 @@ def main():
     parser.add_argument('--dont-show', action='store_false', help='Dont show the plots')
     args = parser.parse_args()
     run_main_plotter(args.data_path, outdir=args.outdir, show=args.dont_show)
+
 
 
 def run_main_plotter(data_path, outdir='.', show=True):
@@ -58,6 +75,7 @@ fontparams = {
 
 ####### Functions to organize and call the plotting functions
 
+@plot_with_latex_fallback
 def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
     listOfPlots = [plotMassAttributes, plotLengthAttributes, plotStellarTypeAttributes, plotHertzsprungRussell]
 
@@ -122,6 +140,7 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
 ######## Plotting functions
 
 
+@plot_with_latex_fallback
 def plotMassAttributes(ax=None, Data=None, mask=None, **kwargs):
     ### Plot mass attributes
     # Create new column for total mass
@@ -138,7 +157,7 @@ def plotMassAttributes(ax=None, Data=None, mask=None, **kwargs):
 
     return ax.get_legend_handles_labels()
 
-
+@plot_with_latex_fallback
 def plotLengthAttributes(ax=None, Data=None, mask=None, **kwargs):
     ### Plot radius attributes
     ax.plot(Data['Time'][()][mask], Data['SemiMajorAxis'][()][mask], linestyle='-', c='k', label='Semi-Major Axis')
@@ -159,7 +178,7 @@ def plotLengthAttributes(ax=None, Data=None, mask=None, **kwargs):
 
     return ax.get_legend_handles_labels()
 
-
+@plot_with_latex_fallback
 def plotEccentricity(ax=None, Data=None, mask=None, **kwargs):
     ### Plot eccentricity
     ax.plot(Data['Time'][()], Data['Eccentricity'][()], linestyle='-', c='k')  # , label= 'Eccentricity')
@@ -170,7 +189,7 @@ def plotEccentricity(ax=None, Data=None, mask=None, **kwargs):
 
     return None, None
 
-
+@plot_with_latex_fallback
 def plotStellarTypeAttributes(ax=None, Data=None, mask=None, **kwargs):
     ### Plot stellar types
     stellarTypes, useTypes, typeNameMap = getStellarTypes(Data)
@@ -190,7 +209,7 @@ def plotStellarTypeAttributes(ax=None, Data=None, mask=None, **kwargs):
 
     return ax.get_legend_handles_labels()
 
-
+@plot_with_latex_fallback
 def plotStellarTypeAttributesAndEccentricity(ax=None, Data=None, mask=None, **kwargs):
     ax1 = ax
     ax2 = ax.twinx()
@@ -226,7 +245,7 @@ def plotStellarTypeAttributesAndEccentricity(ax=None, Data=None, mask=None, **kw
 
     return handles, labels
 
-
+@plot_with_latex_fallback
 def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, **kwargs):
     ### Plot HR diagram: L vs Teff
 
@@ -293,6 +312,7 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, **kwargs)
     return ax.get_legend_handles_labels()
 
 
+@plot_with_latex_fallback
 def plotVanDenHeuvel(events=None, outdir='.'):
     # Only want events with an associated image
     events = [event for event in events if (event.eventImage is not None)]
