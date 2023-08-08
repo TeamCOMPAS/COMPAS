@@ -19,9 +19,6 @@ def plot_with_latex_fallback(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except mpl.backend_bases.RendererNotFoundError:
-            # Handle Renderer not found error
-            print("RendererNotFoundError caught. Please ensure a valid backend is set.")
         except Exception as e:
             if "LaTeX" in str(e):
                 print("LaTeX error caught. Falling back to non-LaTeX rendering.")
