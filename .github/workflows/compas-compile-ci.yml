@@ -53,6 +53,7 @@ jobs:
         run: |
           cd ${GITHUB_WORKSPACE}
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+          sudo apt-get install -y cm-super
           pytest --cov=compas_python_utils/ py_tests/
           coverage html
           coverage-badge -o coverage_badge.svg -f
