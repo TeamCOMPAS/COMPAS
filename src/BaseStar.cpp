@@ -1961,6 +1961,39 @@ double BaseStar::CalculateMassLossRateRSGBeasor2020() const {
 }
 
 /*
+ * Calculate mass loss rate for RSG stars using the Decin2023 prescription
+ * 
+ *  https://arxiv.org/pdf/2303.09385.pdf eq 6.
+ *
+ * double CalculateMassLossRateRSGDecin2023()
+ *
+ * @return                                      Mass loss rate for RSG stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateRSGDecin2023() const {
+
+    double logMdot;
+    logMdot = -20.63 - 0.16 * m_MZAMS + 3.47 * log10(m_Luminosity);
+    return PPOW(10.0, logMdot);
+}
+
+/*
+ * Calculate mass loss rate for RSG stars using the Yang 2023 prescription
+ *  Third order polynomial in log Luminosity.
+ *  https://arxiv.org/pdf/2303.09385.pdf eq 6.
+ *
+ * double CalculateMassLossRateRSGYang2023()
+ *
+ * @return                                      Mass loss rate for RSG stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateRSGYang2023() const {
+
+    double logMdot;
+    double logL = log10(m_Luminosity);
+    logMdot = 0.45 * logL * logL * logL - 5.26 * logL * logL + 20.93 * logL - 34.56;
+    return PPOW(10.0, logMdot);
+}
+
+/*
  * Calculate mass loss rate for RSG stars using the Kee + 2021 prescription
  *
  * check units again
@@ -1980,7 +2013,7 @@ double BaseStar::CalculateMassLossRateRSGKee2021() const {
     double Rpmod = G * (m_Mass * MSOL_TO_KG) * (1 - gamma) / (2. * (cs * cs) + (vturb * vturb)); // modified parker radius, in m
     double rho  = (4. / 3.) * (Rpmod/(kappa * (m_Radius * RSOL_TO_KM * KM_TO_M) * (m_Radius * RSOL_TO_KM * KM_TO_M))) * ( exp(- (2 * Rpmod / (m_Radius * RSOL_TO_KM * KM_TO_M)) + (3. / 2.))) / (1 - exp(-2. * Rpmod / m_Radius));
     double MdotAnalytical = 4 * M_PI * rho * sqrt (cs * cs + vturb * vturb) * Rpmod * Rpmod ; // in kg/s
-    double factor = pow(((vturb / 17000.) / (vesc / 60000.)), 1.30) ; // non-isothermal correction factor
+    double factor = PPOW(((vturb / 17000.) / (vesc / 60000.)), 1.30) ; // non-isothermal correction factor
 
     Mdot = log10(factor * MdotAnalytical * SECONDS_IN_YEAR / MSOL_TO_KG);  //change this line
     return Mdot;
@@ -2034,6 +2067,34 @@ double BaseStar::CalculateMassLossRateOBVink2011() {
 }
 
 /*
+ * Calculate mass loss rate for very massive stars using the Sabhahit 2023 prescription
+ *
+ * 
+ *
+ * double CalculateMassLossRateVMSSabhahit2023()
+ *
+ * @return                                      Mass loss rate in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateVMSSabhahit2023() {
+
+    double gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass; // Eddington Parameter, should we use the one dependent on Xs?
+    double teff = m_Temperature * TSOL;
+    double Mswitch = PPOW(m_Metallicity, - 1.574) * 0.0615 + 18.10; //obtained from a powerlaw fit to table 2, given teff=45kK
+    double Lswitch = - 1.91 * log10(m_Metallicity) + 2.36; //loglinear fits to table 2
+    double Mdotswitch = - 1.86 * log10(m_Metallicity) - 8.90;
+    double gammaswitch = 7.66E-5 * 0.325 * Lswitch / Mswitch;
+    double Mdot; 
+    if (utils::Compare(gamma, gammaswitch) > 0) {
+        Mdot = Mdotswitch * PPOW((m_Luminosity / Lswitch) , 4.77) * PPOW((m_Mass/Mswitch) , -3.99);
+    }
+    else {
+        Mdot = CalculateMassLossRateOB(teff);
+    }
+    
+    return Mdot;
+}
+
+/*
  * Calculate mass loss for RSG stars (Red Supergiant). 
  * Switches perscription based on program options. 
  *
@@ -2055,6 +2116,12 @@ double BaseStar::CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss) {
         case RSG_MASS_LOSS::BEASOR2020:
             rate = CalculateMassLossRateRSGBeasor2020();
             break;
+        case RSG_MASS_LOSS::DECIN2023:
+            rate = CalculateMassLossRateRSGDecin2023();
+            break;
+        case RSG_MASS_LOSS::YANG2023:
+            rate = CalculateMassLossRateRSGYang2023();
+            break;            
         case RSG_MASS_LOSS::KEE2021:
             rate = CalculateMassLossRateRSGKee2021();
             break;
@@ -2062,7 +2129,7 @@ double BaseStar::CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss) {
             rate = CalculateMassLossRateNieuwenhuijzenDeJager();
             break;
         default:
-            SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using default value");
+            SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using default value NJ90");
             rate = CalculateMassLossRateNieuwenhuijzenDeJager();
             break;
     }
@@ -2093,6 +2160,9 @@ double BaseStar::CalculateMassLossRateVMS(const VMS_MASS_LOSS p_VMS_mass_loss) {
             break;
         case VMS_MASS_LOSS::VINK2011:
             rate = CalculateMassLossRateOBVink2011();
+            break;
+        case VMS_MASS_LOSS::SABHAHIT2023:
+            rate = CalculateMassLossRateVMSSabhahit2023();
             break;
         default:
             SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using default value VINK2011");

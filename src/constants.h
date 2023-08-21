@@ -988,18 +988,21 @@ const COMPASUnorderedMap<LBV_PRESCRIPTION, std::string> LBV_PRESCRIPTION_LABEL =
 };
 
 // Very Massive Mass loss prescriptions
-enum class VMS_MASS_LOSS: int { NONE, VINK2011, BESTENLEHNER2020};
+enum class VMS_MASS_LOSS: int { NONE, VINK2011, BESTENLEHNER2020, SABHAHIT2023};
 const COMPASUnorderedMap<VMS_MASS_LOSS, std::string> VMS_MASS_LOSS_LABEL = {
     { VMS_MASS_LOSS::NONE,           "NONE" },
     { VMS_MASS_LOSS::VINK2011,     "VINK2011" },
     { VMS_MASS_LOSS::BESTENLEHNER2020,         "BESTENLEHNER2020" },
+    { VMS_MASS_LOSS::SABHAHIT2023,         "SABHAHIT2023" },
 };
 
 // RSG Mass loss prescriptions
-enum class RSG_MASS_LOSS: int { NONE, BEASOR2020, KEE2021, NJ90};
+enum class RSG_MASS_LOSS: int { NONE, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90};
 const COMPASUnorderedMap<RSG_MASS_LOSS, std::string> RSG_MASS_LOSS_LABEL = {
     { RSG_MASS_LOSS::NONE,           "NONE" },
     { RSG_MASS_LOSS::BEASOR2020,     "BEASOR2020" },
+    { RSG_MASS_LOSS::DECIN2023,     "DECIN2023" },
+    { RSG_MASS_LOSS::YANG2023,     "YANG2023" },
     { RSG_MASS_LOSS::KEE2021,        "KEE2021" },
     { RSG_MASS_LOSS::NJ90,           "NJ90" },
 };

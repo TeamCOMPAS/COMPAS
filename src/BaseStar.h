@@ -452,9 +452,12 @@ protected:
             double              CalculateMassLossRateOBVinkSander2021(const double p_Teff);
             double              CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss);
             double              CalculateMassLossRateRSGBeasor2020() const;
+            double              CalculateMassLossRateRSGDecin2023() const;
+            double              CalculateMassLossRateRSGYang2023() const;
             double              CalculateMassLossRateRSGKee2021() const;
             double              CalculateMassLossRateVassiliadisWood() const;
             double              CalculateMassLossRateVMS(const VMS_MASS_LOSS p_VMS_mass_loss);
+            double              CalculateMassLossRateVMSSabhahit2023();
     virtual double              CalculateMassLossRateVink();
     virtual double              CalculateMassLossRateUpdatedPrescription();
             double              CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const;

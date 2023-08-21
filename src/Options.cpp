@@ -1724,7 +1724,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "RSG-mass-loss",                                      
             po::value<std::string>(&p_Options->m_RSGMassLoss.typeString)->default_value(p_Options->m_RSGMassLoss.typeString),                                                                  
-            ("RSG mass loss prescription (options: [NONE, BEASOR2020, KEE2021, NJ90], default = " + p_Options->m_RSGMassLoss.typeString + ")").c_str()
+            ("RSG mass loss prescription (options: [NONE, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90], default = " + p_Options->m_RSGMassLoss.typeString + ")").c_str()
         )
         (
             "semi-major-axis-distribution",                              
@@ -1739,7 +1739,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "VMS-mass-loss",                                      
             po::value<std::string>(&p_Options->m_VMSMassLoss.typeString)->default_value(p_Options->m_VMSMassLoss.typeString),                                                                  
-            ("Very massive star mass loss prescription (options: [NONE, VINK2011, BESTENLEHNER2020], default = " + p_Options->m_VMSMassLoss.typeString + ")").c_str()
+            ("Very massive star mass loss prescription (options: [NONE, VINK2011, BESTENLEHNER2020, SABHAHIT2023], default = " + p_Options->m_VMSMassLoss.typeString + ")").c_str()
         )
 
 
