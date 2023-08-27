@@ -16,9 +16,8 @@ sphinx:
   builder: html
   configuration: online-docs/conf.py
 
-# Additionally build PDF documentation
+# Build only html documentation (specificall, don't build PDF!)
 formats: []
-#   - pdf
 
 # Set the version of Python and other tools you might need
 python:
