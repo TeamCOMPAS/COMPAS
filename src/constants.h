@@ -987,6 +987,16 @@ const COMPASUnorderedMap<LBV_PRESCRIPTION, std::string> LBV_PRESCRIPTION_LABEL =
     { LBV_PRESCRIPTION::BELCZYNSKI,     "BELCZYNSKI" }
 };
 
+// OB (main sequence) Mass loss prescriptions
+enum class OB_MASS_LOSS: int { NONE, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018};
+const COMPASUnorderedMap<OB_MASS_LOSS, std::string> OB_MASS_LOSS_LABEL = {
+    { OB_MASS_LOSS::NONE,           "NONE" },
+    { OB_MASS_LOSS::VINK2001,     "VINK2001" },
+    { OB_MASS_LOSS::VINK2021,     "VINK2021" },
+    { OB_MASS_LOSS::BJORKLUND2022,         "BJORKLUND2022" },
+    { OB_MASS_LOSS::KRTICKA2018,         "KRTICKA2018" },
+};
+
 // Very Massive Mass loss prescriptions
 enum class VMS_MASS_LOSS: int { NONE, VINK2011, BESTENLEHNER2020, SABHAHIT2023};
 const COMPASUnorderedMap<VMS_MASS_LOSS, std::string> VMS_MASS_LOSS_LABEL = {
@@ -1447,8 +1457,9 @@ enum class MASS_LOSS_TYPE: int {
     VASSILIADIS_WOOD,
     WOLF_RAYET_LIKE,
     VINK,
-    BJORKLUND,
-    BEASOR_DAVIES_RSG,
+    OB,
+    VERY_MASSIVE,
+    RED_SUPER_GIANT,
     LUMINOUS_BLUE_VARIABLE
 };
 

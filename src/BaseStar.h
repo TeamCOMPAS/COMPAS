@@ -444,11 +444,10 @@ protected:
             double              CalculateMassLossRateLBVBelczynski() const;
             double              CalculateMassLossRateNieuwenhuijzenDeJager() const;
             double              CalculateMassLossRateBjorklundEddingtonFactor() const;
-            double              CalculateMassLossRateBjorklund() const;
-            double              CalculateMassLossRateOB(const double p_Teff);
-            double              CalculateMassLossRateOBBestenlehner2020() const;
+            double              CalculateMassLossRateOB(OB_MASS_LOSS p_OB_mass_loss);
+            double              CalculateMassLossRateOBBjorklund2022() const;
+            double              CalculateMassLossRateOBVink2001(const double p_Teff);
             double              CalculateMassLossRateOBKrticka2018() const;
-            double              CalculateMassLossRateOBVink2011();
             double              CalculateMassLossRateOBVinkSander2021(const double p_Teff);
             double              CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss);
             double              CalculateMassLossRateRSGBeasor2020() const;
@@ -457,7 +456,9 @@ protected:
             double              CalculateMassLossRateRSGKee2021() const;
             double              CalculateMassLossRateVassiliadisWood() const;
             double              CalculateMassLossRateVMS(const VMS_MASS_LOSS p_VMS_mass_loss);
+            double              CalculateMassLossRateVMSBestenlehner2020() const;
             double              CalculateMassLossRateVMSSabhahit2023();
+            double              CalculateMassLossRateVMSVink2011();
     virtual double              CalculateMassLossRateVink();
     virtual double              CalculateMassLossRateUpdatedPrescription();
             double              CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const;

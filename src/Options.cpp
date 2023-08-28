@@ -351,8 +351,11 @@ void Options::OptionValues::Initialise() {
     m_LuminousBlueVariablePrescription.type                         = LBV_PRESCRIPTION::HURLEY_ADD;
     m_LuminousBlueVariablePrescription.typeString                   = LBV_PRESCRIPTION_LABEL.at(m_LuminousBlueVariablePrescription.type);
 
-    m_VMSMassLoss.type                                  = VMS_MASS_LOSS::NONE;
-    m_VMSMassLoss.typeString                            = VMS_MASS_LOSS_LABEL.at(m_VMSMassLoss.type);
+    m_OBMassLoss.type                                              = OB_MASS_LOSS::NONE;
+    m_OBMassLoss.typeString                                        = OB_MASS_LOSS_LABEL.at(m_OBMassLoss.type);
+
+    m_VMSMassLoss.type                                              = VMS_MASS_LOSS::NONE;
+    m_VMSMassLoss.typeString                                        = VMS_MASS_LOSS_LABEL.at(m_VMSMassLoss.type);
 
     m_RSGMassLoss.type                                              = RSG_MASS_LOSS::NJ90;
     m_RSGMassLoss.typeString                                        = RSG_MASS_LOSS_LABEL.at(m_RSGMassLoss.type);
@@ -1680,6 +1683,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "OB-mass-loss",                                      
+            po::value<std::string>(&p_Options->m_OBMassLoss.typeString)->default_value(p_Options->m_OBMassLoss.typeString),                                                                  
+            ("OB mass loss prescription (options: [NONE, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018], default = " + p_Options->m_OBMassLoss.typeString + ")").c_str()
+        )
+        (
             "orbital-period-distribution",                              
             po::value<std::string>(&p_Options->m_OrbitalPeriodDistribution.typeString)->default_value(p_Options->m_OrbitalPeriodDistribution.typeString),                                                        
             ("Initial orbital period distribution (options: [FLATINLOG], default = " + p_Options->m_OrbitalPeriodDistribution.typeString + ")").c_str()
@@ -2090,6 +2098,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (!DEFAULTED("neutron-star-equation-of-state")) {                                                                         // neutron star equation of state
             std::tie(found, m_NeutronStarEquationOfState.type) = utils::GetMapKey(m_NeutronStarEquationOfState.typeString, NS_EOSLabel, m_NeutronStarEquationOfState.type);
             COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
+        }
+
+        if (!DEFAULTED("OB-mass-loss")) {                                                                    // OB (main sequence) loss prescription
+            std::tie(found, m_OBMassLoss.type) = utils::GetMapKey(m_OBMassLoss.typeString, OB_MASS_LOSS_LABEL, m_OBMassLoss.type);
+            COMPLAIN_IF(!found, "Unknown OB Mass Loss Prescription");
         }
 
         if (!DEFAULTED("pulsar-birth-magnetic-field-distribution")) {                                                               // pulsar birth magnetic field distribution

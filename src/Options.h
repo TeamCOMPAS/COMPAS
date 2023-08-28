@@ -784,7 +784,8 @@ public:
             ENUM_OPT<LBV_PRESCRIPTION>                          m_LuminousBlueVariablePrescription;                             // Which LBV mass loss prescription to use
             double                                              m_LuminousBlueVariableFactor;                                   // Multiplicitive factor for luminous blue variable (LBV) mass loss rates when using Belczynski’s prescription
             double                                              m_WolfRayetFactor;                                              // Multiplicitive factor for Wolf-Rayet (WR) wind mass loss rates
-            ENUM_OPT<VMS_MASS_LOSS>               m_VMSMassLoss;                                      // Which mass loss perscription for M > 100 Msol        
+            ENUM_OPT<OB_MASS_LOSS>                              m_OBMassLoss; 
+            ENUM_OPT<VMS_MASS_LOSS>                             m_VMSMassLoss;                                      // Which mass loss perscription for M > 100 Msol        
             ENUM_OPT<RSG_MASS_LOSS>                             m_RSGMassLoss;                                                  // Which mass loss perscription for RSG       
 
             // Mass transfer options
@@ -1346,6 +1347,9 @@ public:
     std::vector<std::string>                    NotesHdrs() const                                                       { return m_CmdLine.optionValues.m_NotesHdrs; }
  
     size_t                                      nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
+    
+    OB_MASS_LOSS                                OBMassLoss() const                                                      { return OPT_VALUE("OB-mass-loss", m_OBMassLoss.type, true); }
+
     bool                                        OptimisticCHE() const                                                   { CHE_MODE che = OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); return che == CHE_MODE::OPTIMISTIC; }
 
     double                                      OrbitalPeriod() const                                                   { return OPT_VALUE("orbital-period", m_OrbitalPeriod, true); }
@@ -1432,7 +1436,7 @@ public:
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
 
-    VMS_MASS_LOSS                               VMSMassLoss() const                                         { return OPT_VALUE("VMS-mass-loss", m_VMSMassLoss.type, true); }
+    VMS_MASS_LOSS                               VMSMassLoss() const                                                     { return OPT_VALUE("VMS-mass-loss", m_VMSMassLoss.type, true); }
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
 
     double                                      ZetaRadiativeEnvelopeGiant() const                                      { return OPT_VALUE("zeta-radiative-envelope-giant", m_ZetaRadiativeEnvelopeGiant, true); }
