@@ -2300,7 +2300,7 @@ A convenience function (shown below) is provided in ``utils.cpp`` to interpret t
     * SN EVENT::PPISN iff PPISN bit is set
     * SN EVENT::USSN iff USSN bit is set
     * SN EVENT::AIC iff AIC bit is set
-    * SN_EVENT::SNIA iff SNIA bit is set
+    * SN_EVENT::SNIA iff SNIA bit is set and HeSD bit is not set
     * SN_EVENT::HeSD iff HeSD bit is set
     * SN EVENT::NONE otherwise
     *
@@ -2315,7 +2315,7 @@ A convenience function (shown below) is provided in ``utils.cpp`` to interpret t
         if ((p SNEvent & SN EVENT::PPISN)                   == SN EVENT::PPISN) return SN EVENT::PPISN;
         if ((p SNEvent & SN EVENT::USSN )                   == SN EVENT::USSN ) return SN EVENT::USSN;
         if ((p SNEvent & SN EVENT::AIC )                    == SN EVENT::AIC )  return SN EVENT::AIC;
-        if ((p_SNEvent & SN_EVENT::SNIA )                   == SN_EVENT::SNIA ) return SN_EVENT::SNIA;
+        if ((p_SNEvent & (SN_EVENT::SNIA | SN EVENT::HeSD)) == SN_EVENT::SNIA ) return SN_EVENT::SNIA;
         if ((p_SNEvent & SN_EVENT::HeSD )                   == SN_EVENT::HeSD ) return SN_EVENT::HeSD;
 
         return SN EVENT::NONE;
