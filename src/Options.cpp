@@ -360,6 +360,9 @@ void Options::OptionValues::Initialise() {
     m_RSGMassLoss.type                                              = RSG_MASS_LOSS::NJ90;
     m_RSGMassLoss.typeString                                        = RSG_MASS_LOSS_LABEL.at(m_RSGMassLoss.type);
 
+    m_WRMassLoss.type                                              = WR_MASS_LOSS::BELCZYNSKI2010;
+    m_WRMassLoss.typeString                                        = WR_MASS_LOSS_LABEL.at(m_WRMassLoss.type);
+
     // Wind mass loss multiplicitive constants
     m_CoolWindMassLossMultiplier                                    = 1.0;
     m_LuminousBlueVariableFactor                                    = 1.5;
@@ -1749,7 +1752,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_VMSMassLoss.typeString)->default_value(p_Options->m_VMSMassLoss.typeString),                                                                  
             ("Very massive star mass loss prescription (options: [NONE, VINK2011, BESTENLEHNER2020, SABHAHIT2023], default = " + p_Options->m_VMSMassLoss.typeString + ")").c_str()
         )
-
+        (
+            "WR-mass-loss",                                      
+            po::value<std::string>(&p_Options->m_WRMassLoss.typeString)->default_value(p_Options->m_WRMassLoss.typeString),                                                                  
+            ("WR mass loss prescription (options: [BELCZYNSKI2010, SANDERVINK, SHENAR19], default = " + p_Options->m_WRMassLoss.typeString + ")").c_str()
+        )
 
         // vector (list) options - alphabetically
 
@@ -2148,6 +2155,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (!DEFAULTED("VMS-mass-loss")) {                                                                    // very massive mass loss prescription
             std::tie(found, m_VMSMassLoss.type) = utils::GetMapKey(m_VMSMassLoss.typeString, VMS_MASS_LOSS_LABEL, m_VMSMassLoss.type);
             COMPLAIN_IF(!found, "Unknown Very Massive Mass Loss Prescription");
+        }
+
+        if (!DEFAULTED("WR-mass-loss")) {                                                                    // WR mass loss prescription
+            std::tie(found, m_WRMassLoss.type) = utils::GetMapKey(m_WRMassLoss.typeString, WR_MASS_LOSS_LABEL, m_WRMassLoss.type);
+            COMPLAIN_IF(!found, "Unknown WR Mass Loss Prescription");
         }
 
         // constraint/value/range checks - alphabetically (where possible)

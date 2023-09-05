@@ -515,7 +515,8 @@ private:
 
         "use-mass-loss",
         "VMS-mass-loss",
-        "version", "v"
+        "version", "v",
+        "WR-mass-loss"
     };
     
     std::vector<std::string> m_SetExcluded = {
@@ -785,8 +786,9 @@ public:
             double                                              m_LuminousBlueVariableFactor;                                   // Multiplicitive factor for luminous blue variable (LBV) mass loss rates when using Belczynski’s prescription
             double                                              m_WolfRayetFactor;                                              // Multiplicitive factor for Wolf-Rayet (WR) wind mass loss rates
             ENUM_OPT<OB_MASS_LOSS>                              m_OBMassLoss; 
-            ENUM_OPT<VMS_MASS_LOSS>                             m_VMSMassLoss;                                      // Which mass loss perscription for M > 100 Msol        
-            ENUM_OPT<RSG_MASS_LOSS>                             m_RSGMassLoss;                                                  // Which mass loss perscription for RSG       
+            ENUM_OPT<VMS_MASS_LOSS>                             m_VMSMassLoss;                                                  // Which mass loss perscription for M > 100 Msol        
+            ENUM_OPT<RSG_MASS_LOSS>                             m_RSGMassLoss;                                                  // Which mass loss perscription to use for RSG       
+            ENUM_OPT<WR_MASS_LOSS>                              m_WRMassLoss;                                                   // Which mass loss perscription to use for WR       
 
             // Mass transfer options
             bool                                                m_UseMassTransfer;                                              // Whether to use mass transfer (default = true)
@@ -1438,6 +1440,7 @@ public:
 
     VMS_MASS_LOSS                               VMSMassLoss() const                                                     { return OPT_VALUE("VMS-mass-loss", m_VMSMassLoss.type, true); }
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
+    WR_MASS_LOSS                                WRMassLoss() const                                                      { return OPT_VALUE("WR-mass-loss", m_WRMassLoss.type, true); }
 
     double                                      ZetaRadiativeEnvelopeGiant() const                                      { return OPT_VALUE("zeta-radiative-envelope-giant", m_ZetaRadiativeEnvelopeGiant, true); }
     double                                      ZetaMainSequence() const                                                { return OPT_VALUE("zeta-main-sequence", m_ZetaMainSequence, true); }

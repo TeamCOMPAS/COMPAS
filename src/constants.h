@@ -1017,6 +1017,14 @@ const COMPASUnorderedMap<RSG_MASS_LOSS, std::string> RSG_MASS_LOSS_LABEL = {
     { RSG_MASS_LOSS::NJ90,           "NJ90" },
 };
 
+// WR Mass loss prescriptions
+enum class WR_MASS_LOSS: int { BELCZYNSKI2010, SANDERVINK, SHENAR19 };
+const COMPASUnorderedMap<WR_MASS_LOSS, std::string> WR_MASS_LOSS_LABEL = {
+    { WR_MASS_LOSS::BELCZYNSKI2010,     "BELCZYNSKI2010" },
+    { WR_MASS_LOSS::SANDERVINK,         "SANDERVINK" },
+    { WR_MASS_LOSS::SHENAR19,           "SHENAR19" },
+};
+
 // Mass loss prescriptions
 enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, VINK, UPDATED };
 const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
@@ -1025,7 +1033,6 @@ const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIP
     { MASS_LOSS_PRESCRIPTION::VINK,    "VINK" },
     { MASS_LOSS_PRESCRIPTION::UPDATED, "UPDATED"}
 };
-
 
 // Mass ratio distribution
 enum class MASS_RATIO_DISTRIBUTION: int { FLAT, DUQUENNOYMAYOR1991, SANA2012 };

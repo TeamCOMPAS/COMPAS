@@ -1956,7 +1956,7 @@ double BaseStar::CalculateMassLossRateOBKrticka2018() const {
 double BaseStar::CalculateMassLossRateRSGBeasor2020() const {
 
     double logMdot;
-    logMdot = (-26.4 - 0.23 * log10(m_MZAMS)) + (4.8 * log10(m_Luminosity));
+    logMdot = (-26.4 - 0.23 * m_MZAMS) + (4.8 * log10(m_Luminosity));
     
     return PPOW(10.0, logMdot);
 }
@@ -2335,13 +2335,21 @@ double BaseStar::CalculateMassLossRateHeliumStarShenar2019() const {
     double Teff    = m_Temperature * TSOL;
 
     // Fitting constants - see Table 5 in Shenar et al. 2019
-    const double C1 = -6.26;
-    const double C2 =  0.66;
-    const double C3 = -0.11;
-    const double C4 =  1.16;
-    const double C5 =  0.81;
+    // For H-rich WR stars
+    // const double C1 = -6.26;
+    // const double C2 =  0.66;
+    // const double C3 = -0.11;
+    // const double C4 =  1.16;
+    // const double C5 =  0.81;
 
-    double XHe = 0.0; // What to use for this?
+    // For H-poor WR stars (X_H < 0.05)
+    const double C1 = -7.99;
+    const double C2 =  0.97;
+    const double C3 = -0.07;
+    const double C4 =  0.0;
+    const double C5 = -0.89;
+
+    double XHe = 1.0; // What to use for this?
 
     logMdot = C1 + (C2 * log10(m_Luminosity)) + (C3 * log10(Teff)) + (C4 * log10(XHe)) + (C5 * log10(m_Metallicity)); 
 
