@@ -2342,18 +2342,28 @@ double BaseStar::CalculateMassLossRateHeliumStarShenar2019() const {
     // const double C4 =  1.16;
     // const double C5 =  0.81;
 
-    // For H-poor WR stars (X_H < 0.05)
+    // For H-poor WR stars (X_H < 0.05) - make based on stellar type?
     const double C1 = -7.99;
     const double C2 =  0.97;
     const double C3 = -0.07;
     const double C4 =  0.0;
-    const double C5 = -0.89;
+    const double C5 =  0.89;
 
     double XHe = 1.0; // What to use for this?
 
     logMdot = C1 + (C2 * log10(m_Luminosity)) + (C3 * log10(Teff)) + (C4 * log10(XHe)) + (C5 * log10(m_Metallicity)); 
 
-    return PPOW(10.0, logMdot); // Mdot
+    double Mdot = PPOW(10.0, logMdot); // Mdot
+
+    // Debugging - to be removed
+    // std::cout << "Mass: " << m_Mass << std::endl;
+    // std::cout << "log10(Luminosity): " << log10(m_Luminosity) << std::endl;
+    // std::cout << "logMdot: " << logMdot << std::endl;
+    // std::cout << "Mdot: " << Mdot << std::endl;
+    // std::cout << "Teff: " << Teff << std::endl;
+    // std::cout << "Metallicity: " << m_Metallicity << std::endl;
+
+    return Mdot;
 }
 
 /*
