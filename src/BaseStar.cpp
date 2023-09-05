@@ -2439,15 +2439,14 @@ double BaseStar::CalculateMassLossRateUpdatedPrescription() {
         double teff = m_Temperature * TSOL;
 
         if ((utils::Compare(teff, 8000.0) < 0) && (utils::Compare(m_MZAMS, 8.0) >= 0) && 
-        IsOneOf(ALL_HELIUM_BURNING) && (OPTIONS->RSGMassLoss() != RSG_MASS_LOSS::NONE)) {         // RSG criteria, below 8kK, above 8Msol, and core helium burning (CHeB, FGB, EAGB, TPAGB) 
+        IsOneOf(ALL_HELIUM_BURNING)) {         // RSG criteria, below 8kK, above 8Msol, and core helium burning (CHeB, FGB, EAGB, TPAGB) 
             otherWindsRate = CalculateMassLossRateRSG(OPTIONS->RSGMassLoss()); 
             m_DominantMassLossRate = MASS_LOSS_TYPE::RED_SUPER_GIANT;
         }                                                                      
         else if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, add Hurley et al 2000 winds (NJ90)
             otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // Apply cool wind mass loss multiplier
         }                                                                                            // change to Kelvin so it can be compared with values as stated in Vink prescription
-        else if (utils::Compare(m_MZAMS, 100.0) >= 0 &&          // REPLACE WITH A FUNCTION DETERMINING SWITCHING POINT BASED ON PERSCRIPTION
-        OPTIONS->VMSMassLoss() != VMS_MASS_LOSS::NONE) {
+        else if (utils::Compare(m_MZAMS, 100.0) >= 0) {
             otherWindsRate = CalculateMassLossRateVMS(OPTIONS->VMSMassLoss());        
             m_DominantMassLossRate = MASS_LOSS_TYPE::VERY_MASSIVE;                    // massive MS, >100 Msol. Alternately could use Luminosity or Gamma and Mass threshold                             
         }
