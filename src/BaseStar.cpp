@@ -1948,6 +1948,9 @@ double BaseStar::CalculateMassLossRateOBKrticka2018() const {
  * Calculate mass loss rate for RSG stars using the Beasor+2020 prescription
  *
  * https://arxiv.org/pdf/2001.07222.pdf eq 4.
+ * 
+ * fit corrected slightly in Decin 2023, eq E.1 
+ * https://arxiv.org/pdf/2303.09385.pdf
  *
  * double CalculateMassLossRateRSGBeasor2020()
  *
@@ -1956,7 +1959,7 @@ double BaseStar::CalculateMassLossRateOBKrticka2018() const {
 double BaseStar::CalculateMassLossRateRSGBeasor2020() const {
 
     double logMdot;
-    logMdot = (-26.4 - 0.23 * m_MZAMS) + (4.8 * log10(m_Luminosity));
+    logMdot = (-26.5 - 0.22 * m_MZAMS) + (4.8 * log10(m_Luminosity));
     
     return PPOW(10.0, logMdot);
 }
