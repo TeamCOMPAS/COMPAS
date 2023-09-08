@@ -1861,6 +1861,10 @@ same header string.`
              - = 16
            * - AIC
              - = 32
+           * - SNIA
+             - = 64
+           * - HeSD
+             - = 128
    * -
      - (see :ref:`Supernova events/states <supernova-events-states>` for explanation).
    * - Header Strings:
