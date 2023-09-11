@@ -17,13 +17,15 @@
 #include <typeindex>
 #include <iterator>
 
+#include "constants.h"
+
 #include <boost/algorithm/string.hpp>   // Boost string manipulation
 #include <boost/program_options.hpp>    // Boost command line options tools
 #include <boost/filesystem.hpp>         // Boost filesystem tools for handling paths etc.
 
 #include <boost/any.hpp>
 
-#include "constants.h"
+//#include "constants.h"
 #include "typedefs.h"
 #include "profiling.h"
 #include "utils.h"

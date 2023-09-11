@@ -249,6 +249,57 @@ Binary Properties
    * - Header String:
      - Error
 
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **EVOLUTION_STATUS**
+     -
+   * - Data type:
+     - INT
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_EvolutionStatus
+   * - Description:
+     - Final evolution status (reason binary evolution was stopped). Will be printed as one of:
+
+        .. list-table::
+           :widths: 35 5
+           :header-rows: 0
+           :class: aligned-text
+
+           * - Simulation completed 
+             - = 1
+           * - Evolution stopped because an error occurred 
+             - = 2
+           * - Allowed time exceeded 
+             - = 3
+           * - Allowed timesteps exceeded 
+             - = 4
+           * - SSE error for one of the constituent stars 
+             - = 5
+           * - Error evolving binary 
+             - = 6
+           * - Time exceeded DCO merger time 
+             - = 7
+           * - Stars touching 
+             - = 8
+           * - Stars merged 
+             - = 9
+           * - Stars merged at birth 
+             - = 10
+           * - DCO formed 
+             - = 11
+           * - Double White Dwarf formed 
+             - = 12
+           * - Massless Remnant formed 
+             - = 13
+           * - Unbound binary 
+             - = 14
+                  
+   * - Header Strings:
+     - Evolution_Status
+
 .. _binary-props-F:
 
 .. _binary-props-G:

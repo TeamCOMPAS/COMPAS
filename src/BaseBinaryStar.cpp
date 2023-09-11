@@ -239,6 +239,8 @@ void BaseBinaryStar::SetInitialValues(const unsigned long int p_Seed, const long
     m_RandomSeed  = p_Seed;
     m_Id          = p_Id;
 
+    m_EvolutionStatus = EVOLUTION_STATUS::CONTINUE;
+
     if (OPTIONS->PopulationDataPrinting()) {                                                            // user wants to see details of binary?
         SAY("Using supplied random seed " << m_RandomSeed << " for Binary Star id = " << m_ObjectId);   // yes - show them
     }
@@ -583,6 +585,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA:                           value = EccentricityPreSN();                                                break;
         case BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE:                     value = EccentricityPreCEE();                                               break;
         case BINARY_PROPERTY::ERROR:                                                value = Error();                                                            break;
+        case BINARY_PROPERTY::EVOL_STATUS:                                          value = EvolutionStatus();                                                  break;
         case BINARY_PROPERTY::ID:                                                   value = ObjectId();                                                         break;
         case BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE:                  value = ImmediateRLOFPostCEE();                                             break;
         case BINARY_PROPERTY::MASS_1_POST_COMMON_ENVELOPE:                          value = Mass1PostCEE();                                                     break;
@@ -2502,9 +2505,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                             m_DCOFormationTime = m_Time;                                                                                    // set the DCO formation time
                         }
 
-                        if (!(OPTIONS->EvolvePulsars() && HasOneOf({ STELLAR_TYPE::NEUTRON_STAR }))) {
-                            if (!OPTIONS->Quiet()) SAY(ERR_MSG(ERROR::BINARY_EVOLUTION_STOPPED) << ": Double compact object");              // announce that we're stopping evolution
-                            evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                    // stop evolving
+                        if (!(OPTIONS->EvolvePulsars() && HasOneOf({ STELLAR_TYPE::NEUTRON_STAR }))) {                                      // evolve pulsar?
+                            evolutionStatus = EVOLUTION_STATUS::DCO;                                                                        // no - have DCO - stop evolving
                         }
                     }
 
@@ -2517,7 +2519,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                             evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                                      // yes - do not evolve double WD systems
                         }
                         else if (IsDCO() && m_Time > (m_DCOFormationTime + m_TimeToCoalescence) && !IsUnbound()) {                          // evolution time exceeds DCO merger time?
-                            evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                                    // yes - stop evolution
+                            evolutionStatus = EVOLUTION_STATUS::DCO_MERGER_TIME;                                                            // yes - stop evolution
                         }
                         else if (m_Time > OPTIONS->MaxEvolutionTime()) {                                                                    // evolution time exceeds maximum?
                             evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                                                   // yes - stop evolution
@@ -2539,11 +2541,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 stepNum++;                                                                                                                  // increment stepNum
             }
         }
-
-        if (evolutionStatus == EVOLUTION_STATUS::STEPS_UP) {                                                                                // stopped because max timesteps reached?
-            SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED);                                                                                    // show error
-        }
     }
+
+    m_EvolutionStatus = evolutionStatus;
 
     (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::FINAL_STATE);                                                                 // print (log) detailed output: this is the final state of the binary
 
