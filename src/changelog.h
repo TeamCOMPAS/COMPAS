@@ -1055,8 +1055,10 @@
 //                                        already printed to the console for each star or binary, and is now available to be recorded in the log files.
 //                                      - Add 'Evolution_Status' column to both SSE and BSE default system parameters records, and record m_EvolutionStatus there. 
 //                                      - Fixed a few typos, a little code cleanup.
+// 02.39.01     LC - Sep 01, 2023    - Defect repair:
+//                                      - Fix for issue #945 - made HeSD SN types a sub-class of SNIA types.
 
-const std::string VERSION_STRING = "02.39.00";
+const std::string VERSION_STRING = "02.39.01";
 
 
 # endif // __changelog_h__
