@@ -2,6 +2,7 @@ import numpy as np
 import os
 from typing import Dict
 import h5py as h5
+from tqdm.auto import trange
 
 from .bbh_population import BBHPopulation
 from .cosmological_model import CosmologicalModel
@@ -21,7 +22,10 @@ class DetectionMatrix:
             rate_matrix: np.ndarray,
             chirp_mass_bins: np.array,
             redshift_bins: np.array,
-            outdir: str
+            n_systems: int,
+            n_bbh: int,
+            outdir: str = None,
+            bootstrapped_rate_matrices: np.ndarray = None
     ):
         self.compas_path = compas_path
         self.cosmological_parameters = cosmological_parameters
@@ -29,7 +33,21 @@ class DetectionMatrix:
         self.chirp_mass_bins = chirp_mass_bins
         self.redshift_bins = redshift_bins
         self.outdir = outdir
-        os.makedirs(self.outdir, exist_ok=True)
+        self.bootstrapped_rate_matrices = bootstrapped_rate_matrices
+        self.n_systems = n_systems
+        self.n_bbh = n_bbh
+
+    @property
+    def outdir(self):
+        if not os.path.exists(self._outdir):
+            os.makedirs(self._outdir, exist_ok=True)
+        return self._outdir
+
+    @outdir.setter
+    def outdir(self, outdir):
+        self._outdir = outdir
+        if outdir is None:
+            self._outdir = 'detection_matrix'
 
     @classmethod
     def from_compas_output(
@@ -41,9 +59,10 @@ class DetectionMatrix:
             redshift_bins: int = None,
             outdir: str = None,
             save_plots: bool = False,
+            n_bootstrapped_matrices: int = 0,
     ) -> "DetectionMatrix":
-        outdir = 'detection_matrix' if outdir is None else outdir
-        bbh_population = BBHPopulation(compas_path)
+
+        bbh_population = BBHPopulation.from_compas_h5(compas_path)
         cosmological_model = CosmologicalModel(**cosmological_parameters)
         snr_grid = SNRGrid()
 
@@ -67,21 +86,29 @@ class DetectionMatrix:
             redshift_bins=redshift_bins,
         )
 
-        detection_matrix = cls(
+        mycls = cls(
             compas_path=os.path.abspath(compas_path),
             cosmological_parameters=cosmological_parameters,
             rate_matrix=rate_matrix,
             chirp_mass_bins=chirp_mass_bins,
             redshift_bins=redshift_bins,
-            outdir=outdir
+            outdir=outdir,
+            n_systems=bbh_population.n_systems,
+            n_bbh=bbh_population.n_bbh,
         )
 
+        if n_bootstrapped_matrices > 0:
+            mycls.compute_bootstrapped_rate_matrices(
+                bbh_population, cosmological_model, snr_grid,
+                n_bootstrapped_matrices
+            )
+
         if save_plots:
-            detection_matrix.plot().savefig(f"{outdir}/plot_{detection_matrix.label}.png")
+            mycls.plot().savefig(f"{outdir}/plot_{mycls.label}.png")
             cosmological_model.plot().savefig(f"{outdir}/plot_{cosmological_model.label}.png")
             snr_grid.plot().savefig(f"{outdir}/plot_{snr_grid.label}.png")
             bbh_population.plot().savefig(f"{outdir}/plot_{bbh_population.label}.png")
-        return detection_matrix
+        return mycls
 
     @classmethod
     def from_h5(cls, path) -> "DetectionMatrix":
@@ -98,8 +125,11 @@ class DetectionMatrix:
             compas_path=self.compas_path,
             cosmological_parameters=self.cosmological_parameters,
             rate_matrix=self.rate_matrix,
+            bootstrapped_rate_matrices=self.bootstrapped_rate_matrices,
             chirp_mass_bins=self.chirp_mass_bins,
             redshift_bins=self.redshift_bins,
+            n_systems=self.n_systems,
+            n_bbh=self.n_bbh,
         )
 
     @property
@@ -112,7 +142,26 @@ class DetectionMatrix:
         return "_".join([f"{k}_{v:.4f}" for k, v in self.cosmological_parameters.items()])
 
     def plot(self):
-        return plot_detection_rate_matrix(self.rate_matrix, self.chirp_mass_bins, self.redshift_bins)
+        fig = plot_detection_rate_matrix(self.rate_matrix, self.chirp_mass_bins, self.redshift_bins)
+        title = f"N BBH / N systems: {self.n_bbh:,}/{self.n_systems:,}"
+        fig.suptitle(title)
+        return fig
+
+    def plot_bootstrapped_uncertainty(self):
+        unc = np.std(self.bootstrapped_rate_matrices, axis=0)
+        n_dets = np.sum(self.bootstrapped_rate_matrices, axis=(1, 2))
+        n_det_unc, n_det_mean = np.std(n_dets), np.mean(n_dets)
+        n_bootstraps = self.bootstrapped_rate_matrices.shape[0]
+        annotation = f"N bootstraps: {n_bootstraps:}\n" \
+                     f"N det: {n_det_mean:.2f} $\pm$ {n_det_unc:.2f} / yr"
+        fig = plot_detection_rate_matrix(
+            unc, self.chirp_mass_bins, self.redshift_bins, normalise=False,
+            annotation=annotation
+        )
+        axs = fig.get_axes()
+        fig.delaxes(axs[1])
+        fig.delaxes(axs[2])
+        return fig
 
     def bin_data(self, mc_bins=50, z_bins=100):
         """Allows users to bin data in post-processing"""
@@ -137,3 +186,21 @@ class DetectionMatrix:
         self.rate_matrix = binned_data
         self.chirp_mass_bins = mc_bins
         self.redshift_bins = z_bins
+
+    def compute_bootstrapped_rate_matrices(
+            self, bbh_population: BBHPopulation, cosmological_model: CosmologicalModel,
+            snr_grid: SNRGrid, n_bootstraps=10):
+        """Computes bootstrapped rate matrices"""
+        self.bootstrapped_rate_matrices = np.zeros((n_bootstraps, *self.rate_matrix.shape))
+        for i in trange(n_bootstraps, desc="Bootstrapping rate matrices"):
+            boostrap_bbh = bbh_population.bootstrap_population()
+            self.bootstrapped_rate_matrices[i] = compute_binned_detection_rates(
+                bbh_population=boostrap_bbh, cosmological_model=cosmological_model, snr_grid=snr_grid,
+                chirp_mass_bins=self.chirp_mass_bins,
+                redshift_bins=self.redshift_bins,
+                verbose=False
+            )
+
+    @property
+    def merger_rate(self):
+        return np.sum(self.rate_matrix)
