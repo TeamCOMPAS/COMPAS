@@ -144,6 +144,7 @@ public:
 
     void                ResetEnvelopeExpulsationByPulsations()                                                      { m_Star->ResetEnvelopeExpulsationByPulsations(); }
 
+
     // member functions - alphabetically
     STELLAR_TYPE    AgeOneTimestep(const double p_Dt, bool p_Switch = true);
 
@@ -153,8 +154,10 @@ public:
                                              const double p_EnvMass,
                                              const double p_Radius)                                                 { m_Star->CalculateBindingEnergies(p_CoreMass, p_EnvMass, p_Radius); }
 
-    double          CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda)
-        { return m_Star->CalculateConvectiveEnvelopeBindingEnergy(p_CoreMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda); }
+    double          CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass,
+                                                             const double p_ConvectiveEnvelopeMass,
+                                                             const double p_Radius,
+                                                             const double p_Lambda)                                 { return m_Star->CalculateConvectiveEnvelopeBindingEnergy(p_CoreMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda); }
     double          CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
     
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }
@@ -255,16 +258,16 @@ public:
                                                                                                                                                          p_Epsilon);}
 
     void            UpdateMinimumCoreMass()                                                                         { m_Star->UpdateMinimumCoreMass(); }
-    ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                                                           { return m_Star->WhiteDwarfAccretionRegime(); }
+    ACCRETION_REGIME WhiteDwarfAccretionRegime() const                                                              { return m_Star->WhiteDwarfAccretionRegime(); }
 
 private:
 
-    OBJECT_ID   m_ObjectId;                                                                                     // instantiated object's unique object id
-    OBJECT_TYPE m_ObjectType;                                                                                   // instantiated object's object type
-    long int    m_Id;                                                                                           // Id used to name output files - uses p_Id as passed (usually the step number of multiple single stars being produced)
+    OBJECT_ID        m_ObjectId;                // instantiated object's unique object id
+    OBJECT_TYPE      m_ObjectType;              // instantiated object's object type
+    long int         m_Id;                      // id used to name output files - uses p_Id as passed (usually the step number of multiple single stars being produced)
 
-    BaseStar   *m_Star;                                                                                         // pointer to current star
-    BaseStar   *m_SaveStar;                                                                                     // pointer to saved star
+    BaseStar        *m_Star;                    // pointer to current star
+    BaseStar        *m_SaveStar;                // pointer to saved star
 
 };
 
