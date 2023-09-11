@@ -55,7 +55,7 @@ compas_fname = generate_mock_bbh_population_file(
     "mock_compas_data.h5", n_systems=int(1e4), frac_bbh=1,
     m1_min=m1_min, m1_max=m1_max, m2_min=m2_min
 )
-bbh_population = BBHPopulation(compas_fname, m1_min=m1_min, m1_max=m1_max, m2_min=m2_min)
+bbh_population = BBHPopulation.from_compas_h5(compas_fname, m1_min=m1_min, m1_max=m1_max, m2_min=m2_min)
 fig = bbh_population.plot()
 # -
 
@@ -143,7 +143,19 @@ fig = detection_matrix.plot()
 
 # The integration can be executed without binning the detection rates (this is not recommended for large data sets for memory reasons).
 #
-# #### GPU usage
+
+# ## Bootstrapping
+#
+# You may want to generate $N$ detection-rate matrices using bootstrap samples from the original BBH population. This can be done with: 
+
+detection_matrix.compute_bootstrapped_rate_matrices(
+    bbh_population, cosmological_model=cosmological_model, snr_grid=snr_grid,
+    n_bootstraps=5
+)
+fig = detection_matrix.plot_bootstrapped_uncertainty()
+
+#
+# ## GPU usage
 # If you have a CUDA-enabled GPU, the cosmic-integrator will automatically use it to speed up the calculation. To check if your GPU is used, you can run the following
 
 # +

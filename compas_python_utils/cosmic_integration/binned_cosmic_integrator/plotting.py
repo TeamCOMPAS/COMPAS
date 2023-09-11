@@ -1,10 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from corner import corner
-from typing import List
+from typing import List, Tuple
 import warnings
 from .conversions import m1_m2_to_eta_chirp_mass
-import logging
 
 CMAP = 'inferno'
 
@@ -13,6 +12,8 @@ def plot_detection_rate_matrix(
         detection_rate: np.ndarray,
         chirp_masses: np.array,
         redshifts: np.array,
+        normalise: bool = True,
+        annotation: str = None,
 ) -> plt.Figure:
     """
     Plot the detection rate matrix as a 2D heatmap with marginal histograms.
@@ -22,19 +23,22 @@ def plot_detection_rate_matrix(
     z, mc, rate2d = redshifts, chirp_masses, detection_rate
     low_mc, high_mc = np.min(mc), np.max(mc)
     low_z, high_z = np.min(z), np.max(z)
-    n_events_per_year = np.nansum(detection_rate)
+
     chirp_mass_rate = np.sum(detection_rate, axis=1)
     redshift_rate = np.sum(detection_rate, axis=0)
-    rate2d = np.exp(np.log(rate2d) - np.max(np.log(rate2d)))
-    rate2d = rate2d / np.max(rate2d)
-    quantiles = {
-        '1sig': np.quantile(rate2d, [0.997])[0],
-        '2sig': np.quantile(rate2d, [0.95])[0],
-        '3sig': np.quantile(rate2d, [0.68])[0]
-    }
-    min_q, max_q = '3sig', '2sig'
-    rate2d[rate2d < quantiles[min_q]] = quantiles[min_q]
-    rate2d[rate2d > quantiles[max_q]] = quantiles[max_q]
+    norm_kwgs = dict()
+    if normalise:
+        rate2d = np.exp(np.log(rate2d) - np.max(np.log(rate2d)))
+        rate2d = rate2d / np.max(rate2d)
+        quantiles = {
+            '1σ': np.quantile(rate2d, [0.997])[0],
+            '2σ': np.quantile(rate2d, [0.95])[0],
+            '3σ': np.quantile(rate2d, [0.68])[0]
+        }
+        min_q, max_q = '3σ', '2σ'
+        rate2d[rate2d < quantiles[min_q]] = quantiles[min_q]
+        rate2d[rate2d > quantiles[max_q]] = quantiles[max_q]
+        norm_kwgs = dict(vmax=quantiles[max_q], vmin=quantiles[min_q])
 
     mc_range = [low_mc, high_mc]
     z_range = [low_z, high_z]
@@ -53,16 +57,18 @@ def plot_detection_rate_matrix(
         rate2d,
         cmap=CMAP,
         norm="linear",
-        vmax=quantiles[max_q],
-        vmin=quantiles[min_q],
+        **norm_kwgs
     )
 
     ax_2d.set_xlabel("Redshift")
     ax_2d.set_ylabel("Chirp mass ($M_{\odot}$)")
     ax_2d.set_facecolor("black")
-    annote = f"Grid: {rate2d.T.shape}\nN det: {n_events_per_year:.2f}/yr"
+
+    if annotation is None:
+        n_events_per_year = np.nansum(detection_rate)
+        annotation = f"Grid: {rate2d.T.shape}\nN det: {n_events_per_year:.2f}/yr"
     ax_2d.annotate(
-        annote,
+        annotation,
         xy=(1, 0),
         xycoords="axes fraction",
         xytext=(-5, 5),
@@ -103,8 +109,9 @@ def plot_detection_rate_matrix(
     )
     cbar_ax.tick_params(labelsize=8, length=0)
     cbar_ax.yaxis.set_ticks_position("left")
-    cbar_ax.set_yticklabels([min_q, max_q])
-    cbar_ax.set_yticks([quantiles[min_q], quantiles[max_q]])
+    if normalise:
+        cbar_ax.set_yticklabels([min_q, max_q])
+        cbar_ax.set_yticks([quantiles[min_q], quantiles[max_q]])
 
     # set all cbar_ax spline color to white
     for spine in cbar_ax.spines.values():

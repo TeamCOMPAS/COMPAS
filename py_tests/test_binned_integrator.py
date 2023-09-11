@@ -19,7 +19,7 @@ def test_cosmological_models(test_archive_dir):
 
 
 def test_bbh_population(fake_compas_output):
-    population = BBHPopulation(fake_compas_output)
+    population = BBHPopulation.from_compas_h5(fake_compas_output)
     assert population.n_bbh > 2
     assert population.n_systems >= population.n_bbh
     assert population.mass_evolved_per_binary > 0
@@ -45,7 +45,7 @@ def test_conversions():
 def test_binned_cosmic_integration(fake_compas_output,  test_archive_dir,):
     detection_matrix = DetectionMatrix.from_compas_output(
         fake_compas_output, outdir=test_archive_dir, save_plots=True,
-        chirp_mass_bins=None, redshift_bins=None,
+        chirp_mass_bins=None, redshift_bins=None, n_bootstrapped_matrices=1
     )
     assert detection_matrix.rate_matrix.shape == (len(detection_matrix.chirp_mass_bins), len(detection_matrix.redshift_bins))
     detection_matrix.save()

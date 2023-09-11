@@ -18,8 +18,40 @@ M2_MIN = 0.1
 
 
 class BBHPopulation(object):
+
     def __init__(
             self,
+            m1,
+            m2,
+            t_delay,
+            z_zams,
+            n_systems,
+            m1_min=M1_MIN,
+            m1_max=M1_MAX,
+            m2_min=M2_MIN,
+            binary_fraction=0.7,
+    ):
+        self.m1_min = m1_min
+        self.m1_max = m1_max
+        self.m2_min = m2_min
+        self.binaryFraction = binary_fraction
+        self.mass_evolved_per_binary = analytical_star_forming_mass_per_binary_using_kroupa_imf(
+            m1_max=self.m1_max,
+            m1_min=self.m1_min,
+            m2_min=self.m2_min,
+            fbin=self.binaryFraction,
+        )
+        self.m1 = m1
+        self.m2 = m2
+        self.t_delay = t_delay
+        self.z_zams = z_zams
+        self.n_systems = n_systems
+
+
+
+    @classmethod
+    def from_compas_h5(
+            cls,
             path=None,
             m1_min=M1_MIN,
             m1_max=M1_MAX,
@@ -49,33 +81,25 @@ class BBHPopulation(object):
         - BSE_Double_Compact_Objects/Merges_Hubble_Time
 
         """
-        self.path = path
-        self.m1_min = m1_min
-        self.m1_max = m1_max
-        self.m2_min = m2_min
-        self.binaryFraction = binary_fraction
-
-        self.mass_evolved_per_binary = analytical_star_forming_mass_per_binary_using_kroupa_imf(
-            m1_max=self.m1_max,
-            m1_min=self.m1_min,
-            m2_min=self.m2_min,
-            fbin=self.binaryFraction,
-        )
-
-        mask = self.generate_mask(self.path)
+        mask = BBHPopulation.__generate_mask(path)
         m1, m2, t_form, t_merge, dco_seeds = _load_data(
-            self.path, "BSE_Double_Compact_Objects",
+            path, "BSE_Double_Compact_Objects",
             ["Mass(1)", "Mass(2)", "Time", "Coalescence_Time", "SEED"],
             mask=mask
         )
-        self.t_delay = t_form + t_merge
-        self.m1 = m1
-        self.m2 = m2
-
-        all_seeds, z_zams = _load_data(self.path, "BSE_System_Parameters", ["SEED", "Metallicity@ZAMS(1)"])
+        all_seeds, z_zams = _load_data(path, "BSE_System_Parameters", ["SEED", "Metallicity@ZAMS(1)"])
         dco_mask = xp.in1d(all_seeds, dco_seeds)
-        self.n_systems = len(all_seeds)
-        self.z_zams = z_zams[dco_mask]
+        return cls(
+            m1_min = m1_min,
+            m1_max = m1_max,
+            m2_min = m2_min,
+            binary_fraction = binary_fraction,
+            m1 = m1,
+            m2 = m2,
+            t_delay = t_form + t_merge,
+            z_zams = z_zams[dco_mask],
+            n_systems = len(all_seeds),
+        )
 
     @property
     def avg_sf_mass_needed(self):
@@ -94,13 +118,13 @@ class BBHPopulation(object):
         return self._eta
 
     def __repr__(self):
-        return f"<BBHPopulation {self.path} ({self.n_bbh:,} BBH /{self.n_systems:,} systems)>"
+        return f"<BBHPopulation ({self.n_bbh:,} BBH /{self.n_systems:,} systems)>"
 
     def __str__(self):
         return self.__repr__()
 
     @staticmethod
-    def generate_mask(path):
+    def __generate_mask(path):
         type_1, type_2, hubble_mask, dco_seeds = _load_data(
             path, "BSE_Double_Compact_Objects",
             ["Stellar_Type(1)", "Stellar_Type(2)", "Merges_Hubble_Time", "SEED"]
@@ -145,6 +169,23 @@ class BBHPopulation(object):
                 r"$m_1\ [M_{\odot}]$", r"$m_2\ [M_{\odot}]$", r"$\mathcal{M}_{\rm chirp}\ [M_{\odot}]$",
                 r"$\ln z_{\rm ZAMS}$", r"$\ln t_{\rm delay}\ [\ln {\rm Myr}]$",
             ])
+
+
+    def bootstrap_population(self):
+        """Artificially generate a new population by drawing from the original population with replacement"""
+        n_bbh = np.random.poisson(self.n_bbh)
+        idx = np.random.choice(np.arange(self.n_bbh), size=n_bbh, replace=True)
+        return BBHPopulation(
+            m1=self.m1[idx],
+            m2=self.m2[idx],
+            t_delay=self.t_delay[idx],
+            z_zams=self.z_zams[idx],
+            n_systems=self.n_systems,
+            m1_min=self.m1_min,
+            m1_max=self.m1_max,
+            m2_min=self.m2_min,
+            binary_fraction=self.binaryFraction,
+        )
 
 
 def _load_data(path: str, group: str, var_names: List[str], mask: Optional[xp.ndarray] = None):

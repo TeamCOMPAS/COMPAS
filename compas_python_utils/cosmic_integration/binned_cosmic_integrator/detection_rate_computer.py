@@ -16,6 +16,7 @@ def compute_binned_detection_rates(
         chirp_mass_bins: np.ndarray,
         redshift_bins: np.ndarray,
         max_detectable_redshift: float = 1.0,
+        verbose=True
 ) -> np.ndarray:
     """
     Compute the detection rate matrix for a given BBH population and cosmological model.
@@ -51,6 +52,7 @@ def compute_binned_detection_rates(
         max_detectable_redshift=max_detectable_redshift,
         redshift_bins=redshift_bins,
         chirp_mass_bins=chirp_mass_bins,
+        verbose=verbose
     )
 
 
@@ -80,6 +82,8 @@ def _find_merger_rates(
         # binning parameters
         chirp_mass_bins: xp.array,
         redshift_bins: xp.array,
+        #
+        verbose: bool = True
 ) -> xp.ndarray:
     """
     Compute the detection rate matrix for a given BBH population and cosmological model.
@@ -105,7 +109,11 @@ def _find_merger_rates(
     times_to_redshifts = interp1d(times, redshifts)
 
     # go through each binary in the COMPAS data
-    for i in trange(n_binaries, desc='Computing detection rates'):
+    for i in trange(
+            n_binaries,
+            desc='Computing detection rates',
+            disable=not verbose
+    ):
         mc_bin_idx = xp.digitize(COMPAS_Mc[i], chirp_mass_bins, right=True)
         if mc_bin_idx == len(chirp_mass_bins):
             # skip binaries with chirp mass above the highest bin
