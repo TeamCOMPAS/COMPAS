@@ -7,6 +7,10 @@
 #       format_name: light
 #       format_version: '1.5'
 #       jupytext_version: 1.14.7
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
 # ---
 
 # %matplotlib inline
@@ -27,8 +31,6 @@
 # **The cosmic-integration code predicts the merger rate of DCOs along a grid of redshifts and chirp-masses, assuming a model for the MSSFR.**
 # This tutorial covers how to use the COMPAS Cosmic Integration python tools (see [Neijssel et al. 2020](https://arxiv.org/abs/1906.08136) for derivations). 
 #
-#
-
 #
 
 # ## Load COMPAS BBHs
@@ -75,7 +77,8 @@ fig = bbh_population.plot()
 # The universe evolved over time and as such the star formation rate and the metallicity of the starforming gas change. The metallicity-specific star formation rate (MSSFR) determines the amount of star formation that went into forming a system born at redshift z, in a metallicity bin dZ.
 #
 # A schematic picture of how the MSSFR is constructed is given in Figure 10 of the COMPAS methods paper and added below (note that SFRD stands for Star Formation Rate Distribution, which is the same as the MSSFR).
-# ![https://raw.githubusercontent.com/TeamCOMPAS/COMPAS/dev/misc/examples/Tutorials/SFRD_cartoon.png](SFRD_cartoon.png)
+#
+# ![https://raw.githubusercontent.com/TeamCOMPAS/COMPAS/dev/misc/examples/Tutorials/SFRD_cartoon.png](https://raw.githubusercontent.com/TeamCOMPAS/COMPAS/dev/misc/examples/Tutorials/SFRD_cartoon.png)
 #
 # In the Cosmic-integrator code, this can be done by using the `CosmologicalModel` class (the parameters are taken from [Neijssel et al. 2020](https://arxiv.org/abs/1906.08136)):
 #

@@ -66,7 +66,7 @@ EXTRA_REQUIRE = dict(
         "jupytext",
         "jupyter-autotime",
         "memory_profiler",
-        "nbconvert"
+        "nbconvert",
         "ipykernel",
     ],
     gpu=["cupy"],
