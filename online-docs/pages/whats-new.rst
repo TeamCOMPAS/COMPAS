@@ -6,16 +6,20 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.39.00 Jul 4, 2023**
+
+* Added 'Evolution_Status' columns to both SSE and BSE default system parameters records - records final status of evolution (reason evolution stopped).
+
 **02.38.03 Apr 20, 2023**
 
-* Changed some of the default options, see issue # 957 and PR # 961 for explanations *
+* Changed some of the default options, see issue # 957 and PR # 961 for explanations
 
 **02.37.00 Mar 26, 2023**
 
 * Added functionality for WDs to accrete in different regimes. 
 * New supernova types: SNIA (Type Ia), and HeSD (Helium shell detonation). 
 
-**02.36.00 Mar 15, 2022**
+**02.36.00 Mar 15, 2023**
 
 * Added functionality to automatically create COMPAS YAML file - adds two new options: ``--create-YAML-file`` and ``YAML-template``. See documentation for details.  
 

@@ -12,6 +12,7 @@
 #include <iostream>
 #include <iomanip>
 
+
 #include "constants.h"
 #include "typedefs.h"
 
@@ -139,18 +140,28 @@ std::tuple<int, int> EvolveSingleStars() {
                 gridLineVariation = 0;                                                                              // yes - first variation of this grid line
                 int gridResult = OPTIONS->ApplyNextGridLine();                                                      // set options according to specified values in grid file              
                 switch (gridResult) {                                                                               // handle result of grid file read
-                    case -1: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                    // read error - stop evolution
+                    case -1:                                                                                        // error - unexpected end of file grid file read
+                    case -2: {                                                                                      // error - read error for grid file
+                        ERROR error = gridResult == -1 ? ERROR::UNEXPECTED_END_OF_FILE : ERROR::FILE_READ_ERROR;    // set error
+                        SHOW_ERROR(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'");                 // show error
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // stop evolution
+                    } break;
                     case  0: {                                                                                      // end of file
                         doneGridLine = true;                                                                        // flag we're done with this grid line
                         doneGridFile = true;                                                                        // flag we're done with the grid file
                         ERROR error = OPTIONS->RewindGridFile();                                                    // ready for next commandline options variation
                         if (error != ERROR::NONE) {                                                                 // rewind ok?
                             SHOW_ERROR(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'");             // no - show error (should never happen here - should be picked up at file open)
-                            evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // stop evolution
+                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // stop evolution
                         }
                         } break;
-                    case  1: processingGridLine = true; break;                                                      // grid record read - not done yet...
-                    default: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                    // problem - stop evolution
+                    case  1:                                                                                        // grid line read
+                        processingGridLine = true;                                                                  // not done yet...
+                        break;
+                    default:                                                                
+                        SHOW_ERROR(ERROR::ERROR, "Accessing grid file '" + OPTIONS->GridFilename() + "'");          // unexpected error - show error
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // stop evolution
+                        break;
                 }
             }
             else {                                                                                                  // no, not using a grid file
@@ -198,7 +209,7 @@ std::tuple<int, int> EvolveSingleStars() {
                     randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;              // random seed               
                     if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
                         SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                       // no - show error
-                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // and stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // and stop evolution
                     }
                 }
                 else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                       // no - user specified a random seed on the commandline?
@@ -206,7 +217,7 @@ std::tuple<int, int> EvolveSingleStars() {
                     randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index;                           // random seed               
                     if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
                         SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                        // no - show error
-                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // and stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // and stop evolution
                     }
                 }
                 else {                                                                                              // no
@@ -214,7 +225,7 @@ std::tuple<int, int> EvolveSingleStars() {
                     randomSeed = RAND->DefaultSeed() + (unsigned long int)index;                                    // random seed               
                     if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
                         SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                        // no - show error
-                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // and stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // and stop evolution
                     }
                 }
 
@@ -291,7 +302,7 @@ std::tuple<int, int> EvolveSingleStars() {
 
                     if (!LOGGING->CloseStandardFile(LOGFILE::SSE_DETAILED_OUTPUT)) {                                // close SSE detailed output file
                         SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                          // close failed - show warning
-                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                // this will cause problems later - stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // this will cause problems later - stop evolution
                     }
 
                     ERRORS->Clean();                                                                                // clean the dynamic error catalog
@@ -302,8 +313,8 @@ std::tuple<int, int> EvolveSingleStars() {
                         gridLineVariation++;                                                                        // yes - increment grid line variation number
                         int optionsStatus = OPTIONS->AdvanceGridLineOptionValues();                                 // apply next grid file options (ranges/sets)
                         if (optionsStatus < 0) {                                                                    // ok?
-                            evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // no - stop evolution
-                            SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                   // show error
+                            SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                   // no - show error
+                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // and stop evolution
                         }
                         else if (optionsStatus == 0) {                                                              // end of grid file options variations?
                             doneGridLine = true;                                                                    // yes - we're done
@@ -318,8 +329,8 @@ std::tuple<int, int> EvolveSingleStars() {
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                        // ok?
             int optionsStatus = OPTIONS->AdvanceCmdLineOptionValues();                                              // yes - apply next commandline options (ranges/sets)
             if (optionsStatus < 0) {                                                                                // ok?
-                evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                        // no - stop evolution
-                SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                                // show error
+                SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                                // no - show error
+                evolutionStatus = EVOLUTION_STATUS::ERROR;                                                          // and stop evolution
             }
             else if (optionsStatus == 0) {                                                                          // end of options variations?
                 if (usingGrid || OPTIONS->CommandLineGrid() || (!usingGrid && index >= OPTIONS->nObjectsToEvolve())) { // created required number of stars?
@@ -416,18 +427,28 @@ std::tuple<int, int> EvolveBinaryStars() {
                 gridLineVariation = 0;                                                                          // yes - first variation of this grid line
                 int gridResult = OPTIONS->ApplyNextGridLine();                                                  // yes - set options according to specified values in grid file              
                 switch (gridResult) {                                                                           // handle result of grid file read
-                    case -1: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                // read error - stop evolution
+                    case -1:                                                                                    // error - unexpected end of file grid file read
+                    case -2: {                                                                                  // error - read error for grid file
+                        ERROR error = gridResult == -1 ? ERROR::UNEXPECTED_END_OF_FILE : ERROR::FILE_READ_ERROR;// set error
+                        SHOW_ERROR(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'");             // show error
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // stop evolution
+                    } break;
                     case  0: {                                                                                  // end of file
                         doneGridLine = true;                                                                    // flag we're done with this grid line
                         doneGridFile = true;                                                                    // flag we're done with the grid file
                         ERROR error = OPTIONS->RewindGridFile();                                                // ready for next commandline options variation
                         if (error != ERROR::NONE) {                                                             // rewind ok?
                             SHOW_ERROR(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'");         // no - show error (should never happen here - should be picked up at file open)
-                            evolutionStatus = EVOLUTION_STATUS::STOPPED;                                        // stop evolution
+                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                          // stop evolution
                         }
                     } break;
-                    case  1: processingGridLine = true; break;                                                  // grid record read - not done yet...
-                    default: evolutionStatus = EVOLUTION_STATUS::STOPPED; break;                                // problem - stop evolution
+                    case  1:                                                                                    // grid line read
+                        processingGridLine = true;                                                              // not done yet...
+                        break;
+                    default:                                                                
+                        SHOW_ERROR(ERROR::ERROR, "Accessing grid file '" + OPTIONS->GridFilename() + "'");      // unexpected error - show error
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // stop evolution
+                        break;
                 }
             }
             else {                                                                                              // no, not using a grid file
@@ -483,7 +504,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                     randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;          // random seed               
                     if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                   // ok?
                         SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                   // no - show error
-                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // and stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // and stop evolution
                     }
                 }
                 else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                   // no - user specified a random seed on the commandline?
@@ -491,7 +512,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                     randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed               
                     if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                   // ok?
                         SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                    // no - show error
-                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // and stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // and stop evolution
                     }
                 }
                 else {                                                                                          // no
@@ -499,7 +520,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                     randomSeed = RAND->DefaultSeed() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed               
                     if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                   // ok?
                         SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                    // no - show error
-                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // and stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // and stop evolution
                     }
                 }
 
@@ -543,7 +564,7 @@ std::tuple<int, int> EvolveBinaryStars() {
 
                     if (!LOGGING->CloseStandardFile(LOGFILE::BSE_DETAILED_OUTPUT)) {                            // close detailed output file if necessary
                         SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                      // close failed - show warning
-                        evolutionStatus = EVOLUTION_STATUS::STOPPED;                                            // this will cause problems later - stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // this will cause problems later - stop evolution
                     }
 
                     ERRORS->Clean();                                                                            // clean the dynamic error catalog
@@ -552,8 +573,8 @@ std::tuple<int, int> EvolveBinaryStars() {
                         gridLineVariation++;                                                                    // yes - increment grid line variation number
                         int optionsStatus = OPTIONS->AdvanceGridLineOptionValues();                             // apply next grid file options (ranges/sets)
                         if (optionsStatus < 0) {                                                                // ok?
-                            evolutionStatus = EVOLUTION_STATUS::STOPPED;                                        // no - stop evolution
-                            SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                               // show error
+                            SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                               // no - show error
+                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                          // and stop evolution
                         }
                         else if (optionsStatus == 0) {                                                          // end of grid file options variations?
                             doneGridLine = true;                                                                // yes - we're done
@@ -570,8 +591,8 @@ std::tuple<int, int> EvolveBinaryStars() {
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                    // ok?
             int optionsStatus = OPTIONS->AdvanceCmdLineOptionValues();                                          // apply next commandline options (ranges/sets)
             if (optionsStatus < 0) {                                                                            // ok?
-                evolutionStatus = EVOLUTION_STATUS::STOPPED;                                                    // no - stop evolution
-                SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                            // show error
+                SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                            // no - show error
+                evolutionStatus = EVOLUTION_STATUS::ERROR;                                                      // and stop evolution
             }
             else if (optionsStatus == 0) {                                                                      // end of options variations?
                 if (usingGrid || OPTIONS->CommandLineGrid() || (!usingGrid && index >= OPTIONS->nObjectsToEvolve())) { // created required number of stars?

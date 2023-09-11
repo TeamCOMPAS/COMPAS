@@ -55,6 +55,7 @@ public:
             double              DtPrev() const                                                  { return m_DtPrev; }
             bool                EnvelopeJustExpelledByPulsations() const                        { return m_EnvelopeJustExpelledByPulsations; }
             ERROR               Error() const                                                   { return m_Error; }
+            EVOLUTION_STATUS    EvolutionStatus() const                                         { return m_EvolutionStatus; }
             bool                ExperiencedAIC() const                                          { return (m_SupernovaDetails.events.past & SN_EVENT::AIC) == SN_EVENT::AIC; }
             bool                ExperiencedCCSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
             bool                ExperiencedHeSD() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
@@ -147,11 +148,10 @@ public:
             void                SetSNCurrentEvent(SN_EVENT p_SNEvent)                           { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
             void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep
             
+            void                SetEvolutionStatus(EVOLUTION_STATUS p_EvolutionStatus)          { m_EvolutionStatus = p_EvolutionStatus; }                                          // Set evolution status (typically final outcome) for star
             void                UpdateComponentVelocity(const Vector3d p_newVelocity);	
 
             void                UpdateMassTransferDonorHistory();
-
-
 
 
     // member functions - alphabetically
@@ -295,11 +295,13 @@ protected:
     STELLAR_TYPE            m_StellarType;                              // Stellar type defined in Hurley et al. 2000
 
     ERROR                   m_Error;                                    // Records most recent error encountered for this star
-
+        
     // member variables - alphabetical in groups
 
     bool                    m_CHE;                                      // CHE flag - true if the star spent entire MS as a CH star; false if evolved CH->MS
 
+    EVOLUTION_STATUS        m_EvolutionStatus;                          // Status of evolution for this star (typically final outcome e.g. DONE, TIMES_UP, etc.)
+    
     // Stellar variables
     unsigned long int       m_RandomSeed;                               // Seeds the random number generator for this star
 

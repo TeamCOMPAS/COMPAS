@@ -1312,13 +1312,14 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
             for (size_t i = 0; i < bufSize; i++) {
                 int v = 0;
                 switch (p_H5file.dataSets[p_DataSetIdx].dataType) {
-                    case TYPENAME::INT         : v = static_cast<int>(boost::get<int>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
-                    case TYPENAME::ERROR       : v = static_cast<int>(boost::get<ERROR>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
-                    case TYPENAME::STELLAR_TYPE: v = static_cast<int>(boost::get<STELLAR_TYPE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
-                    case TYPENAME::MT_CASE     : v = static_cast<int>(boost::get<MT_CASE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
-                    case TYPENAME::MT_TRACKING : v = static_cast<int>(boost::get<MT_TRACKING>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
-                    case TYPENAME::SN_EVENT    : v = static_cast<int>(boost::get<SN_EVENT>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
-                    case TYPENAME::SN_STATE    : v = static_cast<int>(boost::get<SN_STATE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
+                    case TYPENAME::INT             : v = static_cast<int>(boost::get<int>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
+                    case TYPENAME::ERROR           : v = static_cast<int>(boost::get<ERROR>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
+                    case TYPENAME::STELLAR_TYPE    : v = static_cast<int>(boost::get<STELLAR_TYPE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
+                    case TYPENAME::MT_CASE         : v = static_cast<int>(boost::get<MT_CASE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
+                    case TYPENAME::MT_TRACKING     : v = static_cast<int>(boost::get<MT_TRACKING>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
+                    case TYPENAME::SN_EVENT        : v = static_cast<int>(boost::get<SN_EVENT>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
+                    case TYPENAME::SN_STATE        : v = static_cast<int>(boost::get<SN_STATE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
+                    case TYPENAME::EVOLUTION_STATUS: v = static_cast<int>(boost::get<EVOLUTION_STATUS>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     default: 
                         Squawk("ERROR: Unable to format data to write to HDF5 group for log file " + p_H5filename);         // announce error
                         ok = -1;                                                                                            // fail
@@ -2236,22 +2237,23 @@ hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWid
     hid_t h5DataType = -1;                                                                                          // HDF5 datatype - return value
 
     switch (p_COMPASdatatype) {                                                                                     // which COMPAS datatype?
-        case TYPENAME::SHORTINT    : h5DataType = H5T_NATIVE_SHORT; break;
-        case TYPENAME::INT         : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::LONGINT     : h5DataType = H5T_NATIVE_LONG; break;
-        case TYPENAME::USHORTINT   : h5DataType = H5T_NATIVE_USHORT; break;
-        case TYPENAME::UINT        : h5DataType = H5T_NATIVE_UINT; break;
-        case TYPENAME::ULONGINT    : h5DataType = H5T_NATIVE_ULONG; break;
-        case TYPENAME::FLOAT       : h5DataType = H5T_NATIVE_FLOAT; break;
-        case TYPENAME::DOUBLE      : h5DataType = H5T_NATIVE_DOUBLE; break;
-        case TYPENAME::LONGDOUBLE  : h5DataType = H5T_NATIVE_LDOUBLE; break;
-        case TYPENAME::OBJECT_ID   : h5DataType = H5T_NATIVE_ULONG; break;
-        case TYPENAME::ERROR       : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::STELLAR_TYPE: h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::MT_CASE     : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::MT_TRACKING : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::SN_EVENT    : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::SN_STATE    : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SHORTINT        : h5DataType = H5T_NATIVE_SHORT; break;
+        case TYPENAME::INT             : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::LONGINT         : h5DataType = H5T_NATIVE_LONG; break;
+        case TYPENAME::USHORTINT       : h5DataType = H5T_NATIVE_USHORT; break;
+        case TYPENAME::UINT            : h5DataType = H5T_NATIVE_UINT; break;
+        case TYPENAME::ULONGINT        : h5DataType = H5T_NATIVE_ULONG; break;
+        case TYPENAME::FLOAT           : h5DataType = H5T_NATIVE_FLOAT; break;
+        case TYPENAME::DOUBLE          : h5DataType = H5T_NATIVE_DOUBLE; break;
+        case TYPENAME::LONGDOUBLE      : h5DataType = H5T_NATIVE_LDOUBLE; break;
+        case TYPENAME::OBJECT_ID       : h5DataType = H5T_NATIVE_ULONG; break;
+        case TYPENAME::ERROR           : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::STELLAR_TYPE    : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MT_CASE         : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MT_TRACKING     : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SN_EVENT        : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SN_STATE        : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::EVOLUTION_STATUS: h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::STRING: {
             hid_t h5DType = H5Tcopy(H5T_C_S1);                                                                      // HDF5 c-string datatype
             size_t size = p_StringQualifier == STRING_QUALIFIER::FIXED_LENGTH ? p_FieldWidth + 1 : H5T_VARIABLE;    // size is dependent upon string type (fixed or variable length)
