@@ -19,6 +19,6 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
   mkdir -p notebooks
-	cp ../utils/Tutorial/*.ipynb notebooks/
+	cp ../utils/examples/CosmicIntegration.ipynb notebooks/
 	cp ../utils/Tutorial/Tutorial_reproduce_CHE_paper_teaching_demo_example/*.ipynb notebooks/
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
