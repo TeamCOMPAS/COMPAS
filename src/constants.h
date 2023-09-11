@@ -1262,7 +1262,7 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 //    SN_EVENT::PPISN iff PPISN bit is set
 //    SN_EVENT::USSN  iff USSN  bit is set
 //    SN_EVENT::AIC   iff AIC   bit is set
-//    SN_EVENT::SNIA  iff SNIA  bit is set
+//    SN_EVENT::SNIA  iff SNIA  bit is set and HeSD bit is not set
 //    SN_EVENT::HeSD  iff HeSD  bit is set
 //    SN_EVENT::NONE  otherwise
 //
