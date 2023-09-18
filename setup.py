@@ -39,6 +39,8 @@ INSTALL_REQUIRES = [
     "scipy",
     "latex",
     "PyYAML",
+    "tqdm",
+    "corner"
 ]
 EXTRA_REQUIRE = dict(
     docs=[
@@ -61,7 +63,13 @@ EXTRA_REQUIRE = dict(
         "isort",
         "coverage-badge",
         "deepdiff",
-    ]
+        "jupytext",
+        "jupyter-autotime",
+        "memory_profiler",
+        "nbconvert",
+        "ipykernel",
+    ],
+    gpu=["cupy"],
 )
 
 

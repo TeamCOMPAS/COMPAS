@@ -1,7 +1,9 @@
 from compas_python_utils.cosmic_integration.totalMassEvolvedPerZ import (
     IMF, get_COMPAS_fraction, analytical_star_forming_mass_per_binary_using_kroupa_imf,
-    star_forming_mass_per_binary, draw_samples_from_kroupa_imf, inverse_sample_IMF,
+    star_forming_mass_per_binary, inverse_sample_IMF,
 )
+from compas_python_utils.cosmic_integration.binned_cosmic_integrator.bbh_population import \
+    generate_mock_bbh_population_file
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py as h5
@@ -10,10 +12,10 @@ import pytest
 
 MAKE_PLOTS = False
 
-
 M1_MIN = 5
 M1_MAX = 150
 M2_MIN = 0.1
+
 
 def test_imf(test_archive_dir):
     mmin, mmax = 0.01, 200
@@ -77,42 +79,9 @@ def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output
         fig.savefig(f"{test_archive_dir}/analytical_vs_numerical.png")
 
 
-@pytest.fixture
-def fake_compas_output(tmpdir)->str:
-    return generate_fake_result(tmpdir, n_samples=int(1e4))
-
-
-def generate_fake_result(tmpdir, n_samples):
-    """
-    Create a fake COMPAS output file with a group 'BSE_System_Parameters' containing
-    the following 1D datasets:
-    - Metallicity@ZAMS(1)
-    - Mass@ZAMS(1)
-    - Mass@ZAMS(2)
-
-    The values of these datasets should be from the IMF function.
-    """
-    compas_path = f"{tmpdir}/COMPAS.h5"
-    m1, m2 = draw_samples_from_kroupa_imf(
-        n_samples=n_samples, Mlower=M1_MIN, Mupper=M1_MAX, m2_low=M2_MIN)
-    with h5.File(compas_path, "w") as f:
-        f.create_group("BSE_System_Parameters")
-        f["BSE_System_Parameters"].create_dataset(
-            "Metallicity@ZAMS(1)", data=np.linspace(0, 1, len(m1))
-        )
-        f["BSE_System_Parameters"].create_dataset(
-            "Mass@ZAMS(1)", data=m1
-        )
-        f["BSE_System_Parameters"].create_dataset(
-            "Mass@ZAMS(2)", data=m2
-        )
-    return compas_path
-
-
-
 def plot_star_forming_mass_per_binary_comparison(
         tmpdir, analytical, m1_min, m1_max, m2_min, fbin,
-        nreps = 5, nsamps = 5
+        nreps=5, nsamps=5
 ):
     plt.axhline(analytical, color='tab:blue', label="analytical", ls='--')
     n_samps = np.geomspace(1e3, 5e4, nsamps)
@@ -120,8 +89,9 @@ def plot_star_forming_mass_per_binary_comparison(
     for _ in range(nreps):
         vals = np.zeros(len(n_samps))
         for i, n in enumerate(n_samps):
-            res = generate_fake_result(tmpdir, n_samples=int(n))
-            vals[i] = (star_forming_mass_per_binary(res, m1_min, m1_max, m2_min, fbin))
+            fname = f"{tmpdir}/test_{i}.h5"
+            generate_mock_bbh_population_file(tmpdir, n_systems=int(n))
+            vals[i] = (star_forming_mass_per_binary(fname, m1_min, m1_max, m2_min, fbin))
         numerical_vals.append(vals)
 
     # plot the upper and lower bounds of the numerical values
@@ -139,6 +109,7 @@ def plot_star_forming_mass_per_binary_comparison(
     plt.xlim(min(n_samps), max(n_samps))
     plt.legend()
     return plt.gcf()
+
 
 def plot_imf(m_breaks, imf_vals, imf_samples, mmin, mmax, ms):
     for mi in m_breaks:

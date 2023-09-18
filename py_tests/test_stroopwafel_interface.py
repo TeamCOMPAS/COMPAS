@@ -1,5 +1,3 @@
-import unittest
-from compas_python_utils.preprocessing import stroopwafelInterface
 import pytest
 
 
