@@ -1951,6 +1951,8 @@ double BaseStar::CalculateMassLossRateOBKrticka2018() const {
  * 
  * fit corrected slightly in Decin 2023, eq E.1 
  * https://arxiv.org/pdf/2303.09385.pdf
+ * 
+ * corrected again by Beasor+2023, https://ui.adsabs.harvard.edu/abs/2023MNRAS.524.2460B/abstract
  *
  * double CalculateMassLossRateRSGBeasor2020()
  *
@@ -1959,7 +1961,8 @@ double BaseStar::CalculateMassLossRateOBKrticka2018() const {
 double BaseStar::CalculateMassLossRateRSGBeasor2020() const {
 
     double logMdot;
-    logMdot = (-26.5 - 0.22 * m_MZAMS) + (4.8 * log10(m_Luminosity));
+    //logMdot = (-26.5 - 0.22 * m_MZAMS) + (4.8 * log10(m_Luminosity)); //Decin correction
+    logMdot = (-21.5 - 0.15 * m_MZAMS) + (3.6 * log10(m_Luminosity)); //Further correction by Beasor+
     
     return PPOW(10.0, logMdot);
 }
