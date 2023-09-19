@@ -2014,11 +2014,11 @@ double BaseStar::CalculateMassLossRateRSGKee2021() const {
     double gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
     const double vturb = 1.5E4; // turbulent velocity, m/s, for a typical RSG
     double vesc = sqrt(G * (m_Mass * MSOL_TO_KG) / (m_Radius * RSOL_TO_KM * KM_TO_M));// m/s, not vesc,eff
-    const double kappa = 1.0E4; // m^2/kg,  0.001; // optical depth, cm^2/g, for a typical RSG
+    const double kappa = 1.0E-3; // m^2/kg,  0.01 cm^/g in paper; // optical depth, cm^2/g, for a typical RSG. fixed?
     const double cs = 5.4E3; // m/s, sound speed
     double Rpmod = G * (m_Mass * MSOL_TO_KG) * (1 - gamma) / (2. * (cs * cs) + (vturb * vturb)); // modified parker radius, in m
-    double rho  = (4. / 3.) * (Rpmod/(kappa * (m_Radius * RSOL_TO_KM * KM_TO_M) * (m_Radius * RSOL_TO_KM * KM_TO_M))) * ( exp(- (2 * Rpmod / (m_Radius * RSOL_TO_KM * KM_TO_M)) + (3. / 2.))) / (1 - exp(-2. * Rpmod / m_Radius));
-    double MdotAnalytical = 4 * M_PI * rho * sqrt (cs * cs + vturb * vturb) * Rpmod * Rpmod ; // in kg/s
+    double rho  = (4. / 3.) * (Rpmod/(kappa * (m_Radius * RSOL_TO_KM * KM_TO_M) * (m_Radius * RSOL_TO_KM * KM_TO_M))) * ( exp(- (2. * Rpmod / (m_Radius * RSOL_TO_KM * KM_TO_M)) + (3. / 2.))) / (1. - exp(-2. * Rpmod / m_Radius));
+    double MdotAnalytical = 4. * M_PI * rho * sqrt (cs * cs + vturb * vturb) * Rpmod * Rpmod ; // in kg/s
     double factor = PPOW(((vturb / 17000.) / (vesc / 60000.)), 1.30) ; // non-isothermal correction factor
 
     Mdot = log10(factor * MdotAnalytical * SECONDS_IN_YEAR / MSOL_TO_KG);  //change this line
@@ -2026,6 +2026,30 @@ double BaseStar::CalculateMassLossRateRSGKee2021() const {
     return Mdot;
 }
 
+/*
+ *  Calculate mass loss rate for RSG stars using the Vink and Sabhahit 2023 prescription
+ *  A kinked function of L and M
+ *  https://arxiv.org/pdf/2309.08657.pdf eqs 1 and 2
+ *
+ * double CalculateMassLossRateRSGVinkSabhahit2023()
+ *
+ * @return                                      Mass loss rate for RSG stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateRSGVinkSabhahit2023() const {
+    double logLkink = 4.6;
+    double logMdot;
+    double logL = log10(m_Luminosity);
+    double logM = log10(m_Mass);
+
+    if (utils::Compare(logL, logLkink) < 0) {
+        logMdot = -8. + 0.7 * logL - 0.7 * logM;
+    }
+    else if (utils::Compare(logL, logLkink) >= 0) {
+        logMdot = -24. + 4.77 * logL - 3.99 * logM;
+    }
+    
+    return PPOW(10.0, logMdot);
+}
 
 /*
  * Calculate mass loss rate for very massive (>100 Msol) OB stars using the Bestenlehner 2020 prescription
@@ -2161,6 +2185,9 @@ double BaseStar::CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss) {
         case RSG_MASS_LOSS::NONE:                     
             rate = 0.0;
             break;
+        case RSG_MASS_LOSS::VINKSABHAHIT2023:
+            rate = CalculateMassLossRateRSGVinkSabhahit2023();
+            break;            
         case RSG_MASS_LOSS::BEASOR2020:
             rate = CalculateMassLossRateRSGBeasor2020();
             break;

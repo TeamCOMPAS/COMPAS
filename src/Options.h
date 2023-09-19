@@ -487,6 +487,7 @@ private:
         "neutrino-mass-loss-BH-formation",
         "neutron-star-equation-of-state",
 
+        "OB-mass-loss",
         "orbital-period-distribution",
         "output-container", "c",
         "outputPath", "o",
