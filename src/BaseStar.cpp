@@ -2005,7 +2005,7 @@ double BaseStar::CalculateMassLossRateRSGYang2023() const {
 /*
  * Calculate mass loss rate for RSG stars using the Kee + 2021 prescription
  *
- * check units again
+ * https://arxiv.org/pdf/2101.03070.pdf eqs 5, 13, 14, 25. 
  *
  * double CalculateMassLossRateRSGKee2021()
  *
@@ -2021,8 +2021,8 @@ double BaseStar::CalculateMassLossRateRSGKee2021() const {
     const double OPACITY_CGS_TO_SI = 0.1; // cm^2 g^-1 to m^2 kg^-1
     const double kappa = 0.01 * OPACITY_CGS_TO_SI; // Given after Eq. 16 
 
-    double teff = TSOL * m_Temperature;
-    //double R_SI = m_Radius * RSOL_TO_KM * KM_TO_M;
+    double teff = TSOL * m_Temperature; // in K
+    //double R_SI = m_Radius * RSOL_TO_KM * KM_TO_M; // Instead, use Boltzmann law:
     double R_SI = sqrt((m_Luminosity * LSOL) / (4.0 * M_PI * sigma * PPOW(teff, 4.0)));
     double M_SI = m_Mass * MSOL_TO_KG;
     double cs = sqrt(k_b * teff / m_h);
