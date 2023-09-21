@@ -2014,17 +2014,28 @@ double BaseStar::CalculateMassLossRateRSGYang2023() const {
 double BaseStar::CalculateMassLossRateRSGKee2021() const {
 
     double Mdot;
-    double gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
     const double vturb = 1.5E4; // turbulent velocity, m/s, for a typical RSG
-    double vesc = sqrt(G * (m_Mass * MSOL_TO_KG) / (m_Radius * RSOL_TO_KM * KM_TO_M));// m/s, not vesc,eff
-    const double kappa = 1.0E-3; // m^2/kg,  0.01 cm^/g in paper; // optical depth, cm^2/g, for a typical RSG. fixed?
-    const double cs = 5.4E3; // m/s, sound speed
-    double Rpmod = G * (m_Mass * MSOL_TO_KG) * (1 - gamma) / (2. * (cs * cs) + (vturb * vturb)); // modified parker radius, in m
-    double rho  = (4. / 3.) * (Rpmod/(kappa * (m_Radius * RSOL_TO_KM * KM_TO_M) * (m_Radius * RSOL_TO_KM * KM_TO_M))) * ( exp(- (2. * Rpmod / (m_Radius * RSOL_TO_KM * KM_TO_M)) + (3. / 2.))) / (1. - exp(-2. * Rpmod / m_Radius));
-    double MdotAnalytical = 4. * M_PI * rho * sqrt (cs * cs + vturb * vturb) * Rpmod * Rpmod ; // in kg/s
+    const double k_b = 1.38E-23; // Boltzmann Constant in J K^-1
+    const double sigma = 5.67E-8; // Stefan Boltzmann constant W m^-2 K^-4
+    const double m_h = 1.67E-27; // mass of hydrogen in Kg
+    const double OPACITY_CGS_TO_SI = 0.1; // cm^2 g^-1 to m^2 kg^-1
+    const double kappa = 0.01 * OPACITY_CGS_TO_SI; // Given after Eq. 16 
+
+    double teff = TSOL * m_Temperature;
+    //double R_SI = m_Radius * RSOL_TO_KM * KM_TO_M;
+    double R_SI = sqrt((m_Luminosity * LSOL) / (4.0 * M_PI * sigma * PPOW(teff, 4.0)));
+    double M_SI = m_Mass * MSOL_TO_KG;
+    double cs = sqrt(k_b * teff / m_h);
+    double gamma = (kappa * m_Luminosity * LSOL) / (4.0 * M_PI * G * C * M_SI);
+    double vesc = sqrt(2.0 * G * (M_SI) / (R_SI));// m/s, not vesc,eff
+
+    double Rpmod = G * (M_SI) * (1.0 - gamma) / (2. * ((cs * cs) + (vturb * vturb))); // modified parker radius, in m
+    double rho  = (4.0 / 3.0) * (Rpmod / (kappa * (R_SI) * (R_SI))) * 
+                    ( exp(- (2.0 * Rpmod / (R_SI)) + (3.0 / 2.0))) / (1.0 - exp(-2.0 * Rpmod / (R_SI)));
+    double MdotAnalytical = 4.0 * M_PI * rho * sqrt(cs * cs + vturb * vturb) * Rpmod * Rpmod; // in kg/s
     double factor = PPOW(((vturb / 17000.) / (vesc / 60000.)), 1.30) ; // non-isothermal correction factor
 
-    Mdot = log10(factor * MdotAnalytical * SECONDS_IN_YEAR / MSOL_TO_KG);  //change this line
+    Mdot = factor * MdotAnalytical * SECONDS_IN_YEAR / MSOL_TO_KG;  
     
     return Mdot;
 }
@@ -2179,11 +2190,11 @@ double BaseStar::CalculateMassLossRateOB(OB_MASS_LOSS p_OB_mass_loss) {
  *
  * @return                                     mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss) {
+double BaseStar::CalculateMassLossRateRSG(RSG_MASS_LOSS p_RSG_mass_loss) {
     double rate = 0.0;                                                      
                                                                                            
     // m_DominantMassLossRate = MASS_LOSS_TYPE::RSG;
-    
+    // double teff = m_Temperature * TSOL; 
     switch (p_RSG_mass_loss) {                                                                                           // decide which prescription to use
         case RSG_MASS_LOSS::NONE:                     
             rate = 0.0;

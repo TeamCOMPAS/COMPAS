@@ -449,7 +449,7 @@ protected:
             double              CalculateMassLossRateOBVink2001(const double p_Teff);
             double              CalculateMassLossRateOBKrticka2018() const;
             double              CalculateMassLossRateOBVinkSander2021(const double p_Teff);
-            double              CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss);
+            double              CalculateMassLossRateRSG(RSG_MASS_LOSS p_RSG_mass_loss);
             double              CalculateMassLossRateRSGVinkSabhahit2023() const;
             double              CalculateMassLossRateRSGBeasor2020() const;
             double              CalculateMassLossRateRSGDecin2023() const;
