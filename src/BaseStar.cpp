@@ -2038,7 +2038,7 @@ double BaseStar::CalculateMassLossRateRSGKee2021() const {
     Mdot = factor * MdotAnalytical * SECONDS_IN_YEAR / MSOL_TO_KG;  
     
     return Mdot;
-}
+}   
 
 /*
  *  Calculate mass loss rate for RSG stars using the Vink and Sabhahit 2023 prescription
@@ -2482,7 +2482,7 @@ double BaseStar::CalculateMassLossRateUpdatedPrescription() {
 
         double teff = m_Temperature * TSOL;
 
-        if ((utils::Compare(teff, 8000.0) < 0) && (utils::Compare(m_MZAMS, 8.0) >= 0) && 
+        if ((utils::Compare(teff, RSG_MAXIMUM_TEMP) < 0) && (utils::Compare(m_MZAMS, 8.0) >= 0) && 
         IsOneOf(ALL_HELIUM_BURNING)) {         // RSG criteria, below 8kK, above 8Msol, and core helium burning (CHeB, FGB, EAGB, TPAGB) 
             otherWindsRate = CalculateMassLossRateRSG(OPTIONS->RSGMassLoss()); 
             m_DominantMassLossRate = MASS_LOSS_TYPE::RED_SUPER_GIANT;
@@ -2490,7 +2490,7 @@ double BaseStar::CalculateMassLossRateUpdatedPrescription() {
         else if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, add Hurley et al 2000 winds (NJ90)
             otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // Apply cool wind mass loss multiplier
         }                                                                                            // change to Kelvin so it can be compared with values as stated in Vink prescription
-        else if (utils::Compare(m_MZAMS, 100.0) >= 0) {
+        else if (utils::Compare(m_MZAMS, VERY_MASSIVE_MINIMUM_MASS) >= 0) {
             otherWindsRate = CalculateMassLossRateVMS(OPTIONS->VMSMassLoss());        
             m_DominantMassLossRate = MASS_LOSS_TYPE::VERY_MASSIVE;                    // massive MS, >100 Msol. Alternately could use Luminosity or Gamma and Mass threshold                             
         }

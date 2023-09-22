@@ -260,8 +260,11 @@ constexpr double NJ_MINIMUM_LUMINOSITY                  = 4.0E3;                
 constexpr double VINK_MASS_LOSS_MINIMUM_TEMP            = 1.25E4;                                                   // Minimum temperature in K for Vink mass loss rates to be applied
 constexpr double VINK_MASS_LOSS_BISTABILITY_TEMP        = 2.5E4;                                                    // Temperature in K for bistability jump in Vink mass loss (assumed to be 25000K following Belczysnki+2010)
 constexpr double VINK_MASS_LOSS_MAXIMUM_TEMP            = 5.0E4;                                                    // Maximum temperature in K for Vink mass loss rates to be applied (show warning above this)
+constexpr double VERY_MASSIVE_MINIMUM_MASS              = 100.0;                                                    // Minimum mass for applying Very Massive (VMS) mass rates to be applied
+constexpr double RSG_MAXIMUM_TEMP                       = 8.0E3;                                                    // Upper temperature in K for Red Supergiant (RSG) mass loss rates to be applied
 constexpr double LBV_LUMINOSITY_LIMIT_STARTRACK         = 6.0E5;                                                    // STARTRACK LBV luminosity limit
-constexpr double LBV_LUMINOSITY_LIMIT_VANBEVEREN        = 3.0E5;                                                    // VANBEVEREN LBV luminosity limit
+constexpr double LBV_LUMINOSITY_LIMIT_VANBEVEREN        = 3.0E5;
+                                                    // VANBEVEREN LBV luminosity limit
 
 constexpr double CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI = 5.37E3;                                               // Threshold temperature for the star to develop a convective envelope, in Kelvin (10^3.73 K, from Belczynski+, 2008)
 
