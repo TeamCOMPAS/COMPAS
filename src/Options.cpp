@@ -1780,7 +1780,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "RSG-mass-loss",                                      
             po::value<std::string>(&p_Options->m_RSGMassLoss.typeString)->default_value(p_Options->m_RSGMassLoss.typeString),                                                                  
-            ("RSG mass loss prescription (options: [NONE, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90], default = " + p_Options->m_RSGMassLoss.typeString + ")").c_str()
+            ("RSG mass loss prescription (options: [NONE, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90], default = " + p_Options->m_RSGMassLoss.typeString + ")").c_str()
         )
 
         (
@@ -2213,7 +2213,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             std::tie(found, m_WRMassLoss.type) = utils::GetMapKey(m_WRMassLoss.typeString, WR_MASS_LOSS_LABEL, m_WRMassLoss.type);
             COMPLAIN_IF(!found, "Unknown WR Mass Loss Prescription");
         }
-        
+
         // constraint/value/range checks - alphabetically (where possible)
 
         COMPLAIN_IF(m_CommonEnvelopeAlpha < 0.0, "CE alpha (--common-envelope-alpha) < 0");
