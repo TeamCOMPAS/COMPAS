@@ -365,6 +365,18 @@ void Options::OptionValues::Initialise() {
     m_LuminousBlueVariablePrescription.type                         = LBV_PRESCRIPTION::HURLEY_ADD;
     m_LuminousBlueVariablePrescription.typeString                   = LBV_PRESCRIPTION_LABEL.at(m_LuminousBlueVariablePrescription.type);
 
+    m_OBMassLoss.type                                              = OB_MASS_LOSS::NONE;
+    m_OBMassLoss.typeString                                        = OB_MASS_LOSS_LABEL.at(m_OBMassLoss.type);
+
+    m_VMSMassLoss.type                                              = VMS_MASS_LOSS::NONE;
+    m_VMSMassLoss.typeString                                        = VMS_MASS_LOSS_LABEL.at(m_VMSMassLoss.type);
+
+    m_RSGMassLoss.type                                              = RSG_MASS_LOSS::NJ90;
+    m_RSGMassLoss.typeString                                        = RSG_MASS_LOSS_LABEL.at(m_RSGMassLoss.type);
+
+    m_WRMassLoss.type                                              = WR_MASS_LOSS::BELCZYNSKI2010;
+    m_WRMassLoss.typeString                                        = WR_MASS_LOSS_LABEL.at(m_WRMassLoss.type);
+
     // Wind mass loss multiplicitive constants
     m_CoolWindMassLossMultiplier                                    = 1.0;
     m_LuminousBlueVariableFactor                                    = 1.5;
@@ -1719,6 +1731,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "OB-mass-loss",                                      
+            po::value<std::string>(&p_Options->m_OBMassLoss.typeString)->default_value(p_Options->m_OBMassLoss.typeString),                                                                  
+            ("OB mass loss prescription (options: [NONE, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018], default = " + p_Options->m_OBMassLoss.typeString + ")").c_str()
+        )
+        (
             "orbital-period-distribution",                              
             po::value<std::string>(&p_Options->m_OrbitalPeriodDistribution.typeString)->default_value(p_Options->m_OrbitalPeriodDistribution.typeString),                                                        
             ("Initial orbital period distribution (" + AllowedOptionValuesFormatted("orbital-period-distribution") + ", default = '" + p_Options->m_OrbitalPeriodDistribution.typeString + "')").c_str()
@@ -1760,6 +1777,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_RotationalVelocityDistribution.typeString)->default_value(p_Options->m_RotationalVelocityDistribution.typeString),                                              
             ("Initial rotational velocity distribution (" + AllowedOptionValuesFormatted("rotational-velocity-distribution") + ", default = '" + p_Options->m_RotationalVelocityDistribution.typeString + "')").c_str()
         )
+        (
+            "RSG-mass-loss",                                      
+            po::value<std::string>(&p_Options->m_RSGMassLoss.typeString)->default_value(p_Options->m_RSGMassLoss.typeString),                                                                  
+            ("RSG mass loss prescription (options: [NONE, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90], default = " + p_Options->m_RSGMassLoss.typeString + ")").c_str()
+        )
 
         (
             "semi-major-axis-distribution",                              
@@ -1777,7 +1799,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_YAMLtemplate)->default_value(p_Options->m_YAMLtemplate),                                                            
             ("User-supplied YAML template filename (default = " + p_Options->m_YAMLtemplate + ")").c_str()
         )
-
+        (
+            "VMS-mass-loss",                                      
+            po::value<std::string>(&p_Options->m_VMSMassLoss.typeString)->default_value(p_Options->m_VMSMassLoss.typeString),                                                                  
+            ("Very massive star mass loss prescription (options: [NONE, VINK2011, BESTENLEHNER2020, SABHAHIT2023], default = " + p_Options->m_VMSMassLoss.typeString + ")").c_str()
+        )
+        (
+            "WR-mass-loss",                                      
+            po::value<std::string>(&p_Options->m_WRMassLoss.typeString)->default_value(p_Options->m_WRMassLoss.typeString),                                                                  
+            ("WR mass loss prescription (options: [BELCZYNSKI2010, SANDERVINK, SHENAR19], default = " + p_Options->m_WRMassLoss.typeString + ")").c_str()
+        )
 
         // vector (list) options - alphabetically
 
@@ -2128,6 +2159,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
         }
 
+        if (!DEFAULTED("OB-mass-loss")) {                                                                    // OB (main sequence) loss prescription
+            std::tie(found, m_OBMassLoss.type) = utils::GetMapKey(m_OBMassLoss.typeString, OB_MASS_LOSS_LABEL, m_OBMassLoss.type);
+            COMPLAIN_IF(!found, "Unknown OB Mass Loss Prescription");
+        }
+
         if (!DEFAULTED("pulsar-birth-magnetic-field-distribution")) {                                                               // pulsar birth magnetic field distribution
             std::tie(found, m_PulsarBirthMagneticFieldDistribution.type) = utils::GetMapKey(m_PulsarBirthMagneticFieldDistribution.typeString, PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL, m_PulsarBirthMagneticFieldDistribution.type);
             COMPLAIN_IF(!found, "Unknown Pulsar Birth Magnetic Field Distribution");
@@ -2153,6 +2189,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Rotational Velocity Distribution");
         }
 
+        if (!DEFAULTED("RSG-mass-loss")) {                                                                    // RSG mass loss prescription
+            std::tie(found, m_RSGMassLoss.type) = utils::GetMapKey(m_RSGMassLoss.typeString, RSG_MASS_LOSS_LABEL, m_RSGMassLoss.type);
+            COMPLAIN_IF(!found, "Unknown RSG Mass Loss Prescription");
+        }
+
         if (!DEFAULTED("semi-major-axis-distribution")) {                                                                           // semi-major axis distribution
             std::tie(found, m_SemiMajorAxisDistribution.type) = utils::GetMapKey(m_SemiMajorAxisDistribution.typeString, SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL, m_SemiMajorAxisDistribution.type);
             COMPLAIN_IF(!found, "Unknown Semi-Major Axis Distribution");
@@ -2163,6 +2204,16 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
         }
 
+        if (!DEFAULTED("VMS-mass-loss")) {                                                                    // very massive mass loss prescription
+            std::tie(found, m_VMSMassLoss.type) = utils::GetMapKey(m_VMSMassLoss.typeString, VMS_MASS_LOSS_LABEL, m_VMSMassLoss.type);
+            COMPLAIN_IF(!found, "Unknown Very Massive Mass Loss Prescription");
+        }
+
+        if (!DEFAULTED("WR-mass-loss")) {                                                                    // WR mass loss prescription
+            std::tie(found, m_WRMassLoss.type) = utils::GetMapKey(m_WRMassLoss.typeString, WR_MASS_LOSS_LABEL, m_WRMassLoss.type);
+            COMPLAIN_IF(!found, "Unknown WR Mass Loss Prescription");
+        }
+        
         // constraint/value/range checks - alphabetically (where possible)
 
         COMPLAIN_IF(m_CommonEnvelopeAlpha < 0.0, "CE alpha (--common-envelope-alpha) < 0");

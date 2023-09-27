@@ -1732,7 +1732,7 @@ double BaseStar::CalculateMassLossRateKudritzkiReimers() const {
 
 
 /*
- * Calculate the mass loss rate for massive stars (L > 4000 L_sol) using the
+ * Calculate the mass-loss rate for massive stars (L > 4000 L_sol) using the
  * Nieuwenhuijzen & de Jager 1990 prescription, modified by a metallicity
  * dependent factor (Kudritzki et al 1989).
  *
@@ -1741,7 +1741,7 @@ double BaseStar::CalculateMassLossRateKudritzkiReimers() const {
  *
  * double CalculateMassLossRateNieuwenhuijzenDeJagerStatic()
  *
- * @return                                      Nieuwenhuijzen & de Jager mass loss rate for massive stars (in Msol yr^-1)
+ * @return                                      Nieuwenhuijzen & de Jager mass-loss rate for massive stars (in Msol yr^-1)
  */
 double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() const {
     double rate = 0.0;
@@ -1753,6 +1753,66 @@ double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() const {
     }
     return rate;
 }
+
+/*
+ * Calculate the Eddington factor (L/L_Edd) as required by CalculateMassLossRateBjorklund
+ * see text surrounding Equation 6 in https://arxiv.org/abs/2203.08218
+ * 
+ * double CalculateMassLossRateBjorklundEddingtonFactor()
+ *
+ * @return                                      Eddington factor
+ */
+double BaseStar::CalculateMassLossRateBjorklundEddingtonFactor() const {
+    double Gamma = 0.0;
+    double iHe = 2.0;
+    double YHe = 0.1; // Assumed constant by Bjorklund et al.
+    double kappa_e = 0.4 * (1.0 + iHe * YHe) / (1.0 + 4.0 * YHe); // cm^2/g
+    double kappa_e_SI = kappa_e / 10.0;  // m^2/kg
+    double top = kappa_e_SI * m_Luminosity * LSOL;
+    double bottom = 4.0 * M_PI * G * C * m_Mass * MSOL_TO_KG; 
+    Gamma = top / bottom;
+    return Gamma;
+}
+
+/*
+ * Calculate the mass loss rate for massive OB stars according to the prescription from Bjorklund et al. 2022
+ * See Equation 7 and surrounding text in https://arxiv.org/abs/2203.08218
+ * 
+ * This prescription is calibrated to the following ranges:
+ * 10^4.5 < L / Lsol < 10^6
+ * 15,000 < Teff / K < 50,000
+ * 15 < M / Msol < 80
+ * Z Zsol, Z_LMC = 0.5 * Zsol and Z_SMC = 0.2 * Zsol, with Zsol = 0.014 
+ *
+ * double CalculateMassLossRateBjorklund()
+ *
+ * @return                                      Bjorklund mass-loss rate for massive stars (in Msol yr^-1)
+ */
+double BaseStar::CalculateMassLossRateOBBjorklund2022() const {
+    double rate = 0.0;
+    double Gamma = CalculateMassLossRateBjorklundEddingtonFactor();
+
+    double logZ    = log10(m_Metallicity/0.014);
+    double logL    = log10(m_Luminosity/1E6);
+    double Teff    = m_Temperature * TSOL;          // Convert effective temperature to Kelvin
+    double logTeff = log10(Teff/45000.0);           
+
+    double Meff = m_Mass * (1.0 - Gamma);
+    double logMeff = log10(Meff/45.0);
+
+    // Constants, q depends on logTeff
+    const double constC = -5.52;
+    const double m = 2.39;
+    const double n = -1.48;
+    const double p = 2.12;
+    double q = 0.75 - (1.87 * logTeff);
+
+    // Equation 7 in Bjorklund et al. 2022
+    double logMdot = constC + (m * logL) + (n * logMeff) + (p * logTeff) + (q * logZ);
+    rate = PPOW(10.0, logMdot);
+    return rate;
+}
+
 
 /*
  * Calculate LBV-like mass loss rate for stars beyond the Humphreys-Davidson limit (Humphreys & Davidson 1994)
@@ -1870,22 +1930,6 @@ double BaseStar::CalculateMassLossRateWolfRayetZDependent(const double p_Mu) con
     return rate;
 }
 
-
-/*
- * Calculate the Wolf-Rayet like mass loss rate independent of WR star composition as given by Nugis & Lamers 2000
- *
- * Belczynski et al. 2010, eq 10.  We do not use this equation by default.
- *
- *
- * double CalculateMassLossRateWolfRayet3()
- *
- * @return                                      Mass loss rate (in Msol yr^{-1})
- */
-double BaseStar::CalculateMassLossRateWolfRayet3() const {
-    return exp(-5.73 + (0.88 * log(m_Mass)));
-}
-
-
 /*
  * Calculate mass loss rate for massive OB stars using the Vink et al 2001 prescription
  *
@@ -1893,12 +1937,12 @@ double BaseStar::CalculateMassLossRateWolfRayet3() const {
  * Belczynski et al. 2010, eqs 6 & 7
  *
  *
- * double CalculateMassLossRateOB(const double p_Teff)
+ * double CalculateMassLossRateOBVink2001(const double p_Teff)
  *
  * @param   [IN]    p_Teff                      Effective temperature in K
  * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
+double BaseStar::CalculateMassLossRateOBVink2001(const double p_Teff) {
 
     double rate;
 
@@ -1939,6 +1983,565 @@ double BaseStar::CalculateMassLossRateOB(const double p_Teff) {
     return rate;
 }
 
+/*
+ * Calculate mass loss rate for massive OB stars using the Vink+Sander 2021 update
+ * https://arxiv.org/pdf/2103.12736.pdf
+ * features two bi-stability jumps, at T1 and T2
+ * offset = {"cold":-5.99,"inter":-6.688,"hot":-6.697}
+ *
+ * double CalculateMassLossRateOBVink2021(const double p_Teff)
+ *
+ * @param   [IN]    p_Teff                      Effective temperature in K
+ * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateOBVinkSander2021(const double p_Teff) {
+    const double zExp2001 = 0.85;
+    const double zExp = 0.42;
+    double Gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
+    double charrho = -14.94 + (3.1857 * Gamma) + (zExp * log10(m_Metallicity / ZSOL)) ; 
+    double T2 = ( 61.2 + (2.59 * charrho) ) * 1000.; // 25000.0; //higher jump first as in Vink python recipe
+    double T1 = ( 100. + (6.0 * charrho) ) * 1000.; // 20000.0; //has similar behavior when fixed
+    //std::cout << "T1: " << T1 << std::endl; //print statements to troubleshoot
+    //std::cout << "T2: " << T2 << std::endl;
+    double logL5  = log10(m_Luminosity / 1.0E5);
+    double logM30 = log10(m_Mass / 30.0);
+    double logT40 = log10(p_Teff / 40000.0);
+    double logT20 = log10(p_Teff / 20000.0);
+    double rate;
+
+    if (utils::Compare(p_Teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(p_Teff, T1) <= 0) {
+        double V         = 0.7;                                                                                 // v_inf/v_esc
+
+        double logMdotOB = -5.99                             +
+                           (2.210 * logL5) -
+                           (1.339 * logM30)        -
+                           (1.601 * log10(V / 2.0))              +
+                           (zExp2001  * log10(m_Metallicity / ZSOL)) +
+                           (1.07  * logT20);
+
+        rate = PPOW(10.0, logMdotOB);
+        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
+    }
+    else if (utils::Compare(p_Teff, T1) > 0 && utils::Compare(p_Teff, T2) <= 0) {
+        SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
+
+        double V         = 1.3;                                                                                 // v_inf/v_esc
+
+        double logMdotOB = -6.688 +
+                           (2.210 * logL5) -
+                           (1.339 * logM30)        -
+                           (1.601 * log10(V / 2.0))              +
+                           (zExp2001  * log10(m_Metallicity / ZSOL)) +
+                           (1.07  * logT20);
+
+        rate = PPOW(10.0, logMdotOB);
+        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
+    }
+    else if (utils::Compare(p_Teff, T2) > 0) {
+        SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
+
+        double V         = 2.6;                                                                                 // v_inf/v_esc
+
+        double logMdotOB = -6.697 +
+                           (2.194 * logL5) -
+                           (1.313 * logM30)        -
+                           (1.226 * log10(V / 2.0))              +
+                           (zExp  * log10(m_Metallicity / ZSOL)) +
+                           (0.933 * logT40)     -
+                           (10.92 * logT40 * logT40);
+
+        rate = PPOW(10.0, logMdotOB);
+        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
+    }
+    else {
+        SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                                               // too cold to use winds - show warning.
+        rate = 0.0;
+    }
+
+    return rate;
+}
+
+/*
+ * Calculate mass loss rate for massive OB stars using the Krticka+ 2018 prescription
+ *
+ * https://arxiv.org/pdf/1712.03321.pdf
+ *
+ * double CalculateMassLossRateOBKrticka()
+ *
+ * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateOBKrticka2018() const {
+
+    double logMdot;
+    logMdot = -5.70 + 0.50 * log10(m_Metallicity / ZSOL) + (1.61 - 0.12 * log10(m_Metallicity / ZSOL)) * log10(m_Luminosity / 1.0E6);
+    return PPOW(10.0, logMdot);
+}
+
+/*
+ * Calculate mass loss rate for RSG stars using the Beasor+2020 prescription
+ *
+ * https://arxiv.org/pdf/2001.07222.pdf eq 4.
+ * 
+ * fit corrected slightly in Decin 2023, eq E.1 
+ * https://arxiv.org/pdf/2303.09385.pdf
+ * 
+ * corrected again by Beasor+2023, https://ui.adsabs.harvard.edu/abs/2023MNRAS.524.2460B/abstract
+ *
+ * double CalculateMassLossRateRSGBeasor2020()
+ *
+ * @return                                      Mass loss rate for RSG stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateRSGBeasor2020() const {
+
+    double logMdot;
+    //logMdot = (-26.5 - 0.22 * m_MZAMS) + (4.8 * log10(m_Luminosity)); //Decin correction
+    logMdot = (-21.5 - 0.15 * m_MZAMS) + (3.6 * log10(m_Luminosity)); //Further correction by Beasor+
+
+    return PPOW(10.0, logMdot);
+}
+
+/*
+ * Calculate mass loss rate for RSG stars using the Decin2023 prescription
+ * 
+ *  https://arxiv.org/pdf/2303.09385.pdf eq 6.
+ *
+ * double CalculateMassLossRateRSGDecin2023()
+ *
+ * @return                                      Mass loss rate for RSG stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateRSGDecin2023() const {
+
+    double logMdot;
+    logMdot = -20.63 - 0.16 * m_MZAMS + 3.47 * log10(m_Luminosity);
+
+    return PPOW(10.0, logMdot);
+}
+
+/*
+ * Calculate mass loss rate for RSG stars using the Yang 2023 prescription
+ *  Third order polynomial in log Luminosity.
+ *  https://arxiv.org/pdf/2303.09385.pdf eq 6.
+ *
+ * double CalculateMassLossRateRSGYang2023()
+ *
+ * @return                                      Mass loss rate for RSG stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateRSGYang2023() const {
+
+    double logMdot;
+    double logL = log10(m_Luminosity);
+    logMdot = 0.45 * logL * logL * logL - 5.26 * logL * logL + 20.93 * logL - 34.56;
+
+    return PPOW(10.0, logMdot);
+}
+
+/*
+ * Calculate mass loss rate for RSG stars using the Kee + 2021 prescription
+ *
+ * https://arxiv.org/pdf/2101.03070.pdf eqs 5, 13, 14, 25. 
+ *
+ * double CalculateMassLossRateRSGKee2021()
+ *
+ * @return                                      Mass loss rate for RSG stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateRSGKee2021() const {
+
+    double Mdot;
+    const double vturb = 1.5E4; // turbulent velocity, m/s, for a typical RSG
+    const double k_b = 1.38E-23; // Boltzmann Constant in J K^-1
+    const double sigma = 5.67E-8; // Stefan Boltzmann constant W m^-2 K^-4
+    const double m_h = 1.67E-27; // mass of hydrogen in Kg
+    const double OPACITY_CGS_TO_SI = 0.1; // cm^2 g^-1 to m^2 kg^-1
+    const double kappa = 0.01 * OPACITY_CGS_TO_SI; // Given after Eq. 16 
+
+    double teff = TSOL * m_Temperature; // in K
+    //double R_SI = m_Radius * RSOL_TO_KM * KM_TO_M; // Instead, use Boltzmann law:
+    double R_SI = sqrt((m_Luminosity * LSOLW) / (4.0 * M_PI * sigma * PPOW(teff, 4.0)));
+    double M_SI = m_Mass * MSOL_TO_KG;
+    double cs = sqrt(k_b * teff / m_h);
+    double gamma = (kappa * m_Luminosity * LSOLW) / (4.0 * M_PI * G * C * M_SI);
+    double vesc = sqrt(2.0 * G * (M_SI) / (R_SI));// m/s, not vesc,eff
+
+    double Rpmod = G * (M_SI) * (1.0 - gamma) / (2. * ((cs * cs) + (vturb * vturb))); // modified parker radius, in m
+    double rho  = (4.0 / 3.0) * (Rpmod / (kappa * (R_SI) * (R_SI))) * 
+                    ( exp(- (2.0 * Rpmod / (R_SI)) + (3.0 / 2.0))) / (1.0 - exp(-2.0 * Rpmod / (R_SI)));
+    double MdotAnalytical = 4.0 * M_PI * rho * sqrt(cs * cs + vturb * vturb) * Rpmod * Rpmod; // in kg/s
+    double factor = PPOW(((vturb / 17000.) / (vesc / 60000.)), 1.30) ; // non-isothermal correction factor
+
+    Mdot = factor * MdotAnalytical * SECONDS_IN_YEAR / MSOL_TO_KG;  
+
+    return Mdot;
+}   
+
+/*
+ *  Calculate mass loss rate for RSG stars using the Vink and Sabhahit 2023 prescription
+ *  A kinked function of L and M
+ *  https://arxiv.org/pdf/2309.08657.pdf eqs 1 and 2
+ *
+ * double CalculateMassLossRateRSGVinkSabhahit2023()
+ *
+ * @return                                      Mass loss rate for RSG stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateRSGVinkSabhahit2023() const {
+    double logLkink = 4.6;
+    double logMdot;
+    double logL = log10(m_Luminosity);
+    double logM = log10(m_Mass);
+
+    if (utils::Compare(logL, logLkink) < 0) {
+        logMdot = -8. + 0.7 * logL - 0.7 * logM;
+    }
+    else if (utils::Compare(logL, logLkink) >= 0) {
+        logMdot = -24. + 4.77 * logL - 3.99 * logM;
+    }
+
+    return PPOW(10.0, logMdot);
+}
+
+/*
+ * Calculate mass loss rate for very massive (>100 Msol) OB stars using the Bestenlehner 2020 prescription
+ *
+ * https://arxiv.org/pdf/2002.05168.pdf
+ *
+ * double CalculateMassLossRateVMSBestenlehner2020()
+ *
+ * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateVMSBestenlehner2020() const {
+
+    double gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass; // Eddington Parameter, not metallicity specific as in the publication
+    const double alpha = 0.39; // CAK force multiplier
+    double logMdotZero = -4.78; // from substituting LogMdotTrans and Gamma_e trans into eq 12. 
+    double logMdot; 
+    logMdot = logMdotZero + ( (1. / alpha) + 0.5 ) * log10(gamma) - ( ( (1 - alpha) / alpha ) + 2) * log10(1 - gamma);
+
+    return PPOW(10.0, logMdot);
+}
+
+/*
+ * Calculate mass loss rate for very massive (>100 Msol) OB stars using a fit to the Vink 2011 mass loss rates
+ *
+ * 
+ *
+ * double CalculateMassLossRateVMSVink2011()
+ *
+ * @return                                      Mass loss rate for very massive stars in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateVMSVink2011() {
+    double rate;
+    double Gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
+    double logMdotdiff;
+    double teff = m_Temperature * TSOL;
+    double rate2001 = CalculateMassLossRateOBVink2001(teff);
+    if (utils::Compare(Gamma, 0.5) > 0) {  // Ensure that the perscription isn't extrapolated to low gamma
+        logMdotdiff = 0.04468 + (0.3091 * Gamma) + (0.2434 * Gamma * Gamma);
+    }
+    else {
+        SHOW_WARN(ERROR::LOW_GAMMA, "Mass Loss Rate defaulting to Vink2001, low Gamma");                                   // gamma extrapolated outside fit range, default to Vink2001
+        rate = rate2001;
+    }
+
+    rate = PPOW(10.0, (logMdotdiff + log10(rate2001)));
+
+    return rate;
+}
+
+/*
+ * Calculate mass loss rate for very massive stars using the Sabhahit 2023 prescription
+ *
+ * 
+ *
+ * double CalculateMassLossRateVMSSabhahit2023()
+ *
+ * @return                                      Mass loss rate in Msol yr^-1
+ */
+double BaseStar::CalculateMassLossRateVMSSabhahit2023() {
+
+    double gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass; // Eddington Parameter, should we use the one dependent on Xs?
+    double teff = m_Temperature * TSOL;    
+    double Mswitch = PPOW(m_Metallicity, - 1.574) * 0.0615 + 18.10; //obtained from a powerlaw fit to table 2, given teff=45kK
+    double Lswitch = PPOW(10, (- 1.91 * log10(m_Metallicity) + 2.36)); //loglinear fits to table 2
+    double Mdotswitch = PPOW(10, (- 1.86 * log10(m_Metallicity) - 8.90));
+    double gammaswitch = 7.66E-5 * 0.325 * Lswitch / Mswitch;
+    double Mdot; 
+    if (utils::Compare(gamma, gammaswitch) > 0) {
+        Mdot = Mdotswitch * PPOW((m_Luminosity / Lswitch) , 4.77) * PPOW((m_Mass/Mswitch) , -3.99);
+    }
+    else {
+        Mdot = CalculateMassLossRateOBVink2001(teff);
+    }
+
+    return Mdot;
+}
+
+/*
+ * Calculate mass loss for main sequence stars. 
+ * Switches perscription based on program options. 
+ *
+ * 
+ * 
+ * double CalculateMassLossRateOB(const OB_MASS_LOSS)
+ *
+ * @return                                     mass loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateOB(OB_MASS_LOSS p_OB_mass_loss) {
+    double rate = 0.0;                                                      
+
+    m_DominantMassLossRate = MASS_LOSS_TYPE::OB;
+    double teff = m_Temperature * TSOL; 
+    switch (p_OB_mass_loss) {                                                                                           // decide which prescription to use
+        case OB_MASS_LOSS::NONE:
+            rate = 0.0;
+            break;
+        case OB_MASS_LOSS::VINK2001:
+            rate = CalculateMassLossRateOBVink2001(teff);
+            break;
+        case OB_MASS_LOSS::VINK2021:
+            rate = CalculateMassLossRateOBVinkSander2021(teff);
+            break;
+        case OB_MASS_LOSS::BJORKLUND2022:
+            rate = CalculateMassLossRateOBBjorklund2022();
+            break;
+        case OB_MASS_LOSS::KRTICKA2018:
+            rate = CalculateMassLossRateOBKrticka2018();
+            break;
+        default:
+            SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using default value VINK2021");
+            rate = CalculateMassLossRateOBVinkSander2021(teff);
+            break;
+    }
+    return rate;
+}
+
+/*
+ * Calculate mass loss for RSG stars (Red Supergiant). 
+ * Switches perscription based on program options. 
+ *
+ * 
+ * 
+ * double CalculateMassLossRateRSG(const RSG_MASS_LOSS)
+ *
+ * @return                                     mass loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateRSG(RSG_MASS_LOSS p_RSG_mass_loss) {
+    double rate = 0.0;                                                      
+
+    // m_DominantMassLossRate = MASS_LOSS_TYPE::RSG;
+    // double teff = m_Temperature * TSOL; 
+    switch (p_RSG_mass_loss) {                                                                                           // decide which prescription to use
+        case RSG_MASS_LOSS::NONE:                     
+            rate = 0.0;
+            break;
+        case RSG_MASS_LOSS::VINKSABHAHIT2023:
+            rate = CalculateMassLossRateRSGVinkSabhahit2023();
+            break;            
+        case RSG_MASS_LOSS::BEASOR2020:
+            rate = CalculateMassLossRateRSGBeasor2020();
+            break;
+        case RSG_MASS_LOSS::DECIN2023:
+            rate = CalculateMassLossRateRSGDecin2023();
+            break;
+        case RSG_MASS_LOSS::YANG2023:
+            rate = CalculateMassLossRateRSGYang2023();
+            break;            
+        case RSG_MASS_LOSS::KEE2021:
+            rate = CalculateMassLossRateRSGKee2021();
+            break;
+        case RSG_MASS_LOSS::NJ90:
+            rate = CalculateMassLossRateNieuwenhuijzenDeJager();
+            break;
+        default:
+            SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using default value NJ90");
+            rate = CalculateMassLossRateNieuwenhuijzenDeJager();
+            break;
+    }
+    return rate;
+}
+
+/*
+ * Calculate mass loss for very massive MS stars, >100Msol. 
+ * Switches perscription based on program options. 
+ *
+ * 
+ * 
+ * double CalculateMassLossRateVMS(const VMS_MASS_LOSS)
+ *
+ * @return                                     mass loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateVMS(const VMS_MASS_LOSS p_VMS_mass_loss) {
+    double rate = 0.0;                                                      
+
+    // m_DominantMassLossRate = MASS_LOSS_TYPE::VMS;
+
+    switch (p_VMS_mass_loss) {                                                                                           // decide which prescription to use
+        case VMS_MASS_LOSS::NONE:
+            rate = 0.0;
+            break;
+        case VMS_MASS_LOSS::BESTENLEHNER2020:
+            rate = CalculateMassLossRateVMSBestenlehner2020();
+            break;
+        case VMS_MASS_LOSS::VINK2011:
+            rate = CalculateMassLossRateVMSVink2011();
+            break;
+        case VMS_MASS_LOSS::SABHAHIT2023:
+            rate = CalculateMassLossRateVMSSabhahit2023();
+            break;
+        default:
+            SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using default value VINK2011");
+            rate = CalculateMassLossRateVMSVink2011();
+            break;
+    }
+    return rate;
+}
+
+/*
+ * Calculate the mass-loss rate for Wolf-Rayet stars according to the
+ * prescription of Sander & Vink 2020 (https://arxiv.org/abs/2009.01849)
+ * 
+ * Use the luminosity prescription given by Equation 13 (see section 3.4.1)
+ * 
+ * double CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu)
+ *
+ * @param   [IN]    p_Mu                        Small envelope parameter (see Hurley et al. 2000, eq 97 & 98)
+ *
+ * @return                                      Mass loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const {
+
+    // Define variables
+    double Mdot = 0.0;
+
+    if (utils::Compare(p_Mu, 1.0) < 0) {
+
+        // Define variables
+        double logL = log10(m_Luminosity);
+        double logZ = log10(m_Metallicity / ZSOL); 
+
+        // Calculate alpha, L0 and Mdot10
+        double alpha = 0.32 * logZ + 1.4;         // Equation 18 in Sander & Vink 2020
+        double logL0 = -0.87 * logZ + 5.06;       // Equation 19 in Sander & Vink 2020
+        double logMdot10 = -0.75 * logZ - 4.06;   // Equation 20 in Sander & Vink 2020
+
+        if (logL < logL0){
+            Mdot = 0.0;         // No mass loss for L < L0
+        }
+        else{
+            // Equation 13 in Sander & Vink 2020
+            double logMdot = alpha * log10(logL - logL0) + 0.75 * (logL - logL0 - 1) + logMdot10;
+            Mdot = PPOW(10.0, logMdot);
+        }
+
+        Mdot *= OPTIONS->WolfRayetFactor();
+    }
+
+    return Mdot;
+}
+
+/*
+ * Calculate the correction to the mass-loss rates for Wolf-Rayet stars 
+ * as a function of effective temperature, according to the
+ * prescription of Sander et al. 2023 (https://arxiv.org/abs/2301.01785)
+ * 
+ * Use the correction given in Eq. 18, with the effective temperature
+ * (what they refer to as T_\star in Eq. 1) as T_eff,crit
+ * 
+ * double CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot)
+ *
+ * @param   [IN]    p_Mdot                      Uncorrected mass-loss rate (in Msol yr^{-1})
+ *
+ * @return                                      Corrected mass-loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot) const {
+
+    // Define variables
+    const double Teff_ref   = 141E3;    // Reference effective temperature in Kelvin
+    const double Teff_min   = 100E3;    // Minimum effective temperature in Kelvin to apply correction
+
+    double Teff = m_Temperature * TSOL; // Get effective temperature in Kelvin
+    double logMdot_uncorrected = log10(p_Mdot); // Uncorrected mass-loss rate
+    double logMdot_corrected = 0.0;
+
+    // Only apply to sufficiently hot stars
+    if (Teff > Teff_min){
+        logMdot_corrected = logMdot_uncorrected - 6.0 * log10(Teff/Teff_ref);
+    }
+    else{
+        logMdot_corrected = logMdot_uncorrected;
+    }
+
+    return PPOW(10.0, logMdot_corrected);
+}
+
+
+/*
+ * Calculate the mass-loss rate for helium stars according to the
+ * prescription of Vink 2017 (https://ui.adsabs.harvard.edu/abs/2017A%26A...607L...8V/abstract)
+ * 
+ * See their Eq. 1 and 
+ * 
+ * double CalculateMassLossRateHeliumStarVink2017()
+ *
+ *
+ * @return                                      Mass loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateHeliumStarVink2017() const {
+
+    // Define variables
+    double logMdot = 0.0;
+
+    logMdot = -13.3 + (1.36 * log10(m_Luminosity)) + (0.61 * log10(m_Metallicity / ZSOL)); // Eq. 1.
+
+    return PPOW(10.0, logMdot); // Mdot
+}
+
+/*
+ * Calculate the mass-loss rate for helium stars according to the
+ * prescription of Shenar et al. 2019 (https://ui.adsabs.harvard.edu/abs/2019A%26A...627A.151S/abstract)
+ * 
+ * See their Eq. 6 and Table 5
+ * 
+ * double CalculateMassLossRateHeliumStarShenar2019()
+ *
+ *
+ * @return                                      Mass loss rate (in Msol yr^{-1})
+ */
+double BaseStar::CalculateMassLossRateHeliumStarShenar2019() const {
+
+    // Define variables
+    double logMdot = 0.0;
+    double Teff    = m_Temperature * TSOL;
+
+    // Fitting constants - see Table 5 in Shenar et al. 2019
+    // For H-rich WR stars
+    // const double C1 = -6.26;
+    // const double C2 =  0.66;
+    // const double C3 = -0.11;
+    // const double C4 =  1.16;
+    // const double C5 =  0.81;
+
+    // For H-poor WR stars (X_H < 0.05) - make based on stellar type?
+    const double C1 = -7.99;
+    const double C2 =  0.97;
+    const double C3 = -0.07;
+    const double C4 =  0.0;
+    const double C5 =  0.89;
+
+    double XHe = 1.0; // What to use for this?
+
+    logMdot = C1 + (C2 * log10(m_Luminosity)) + (C3 * log10(Teff)) + (C4 * log10(XHe)) + (C5 * log10(m_Metallicity)); 
+
+    double Mdot = PPOW(10.0, logMdot); // Mdot
+
+    // Debugging - to be removed
+    // std::cout << "Mass: " << m_Mass << std::endl;
+    // std::cout << "log10(Luminosity): " << log10(m_Luminosity) << std::endl;
+    // std::cout << "logMdot: " << logMdot << std::endl;
+    // std::cout << "Mdot: " << Mdot << std::endl;
+    // std::cout << "Teff: " << Teff << std::endl;
+    // std::cout << "Metallicity: " << m_Metallicity << std::endl;
+
+    return Mdot;
+}
 
 /*
  * Calculate the dominant mass loss mechanism and associated rate for the star
@@ -1977,7 +2580,7 @@ double BaseStar::CalculateMassLossRateVink() {
             otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // Apply cool wind mass loss multiplier
         }
         else  {                                                                                                     // hot stars, add Vink et al. 2001 winds (ignoring bistability jump)
-            otherWindsRate = CalculateMassLossRateOB(teff);
+            otherWindsRate = CalculateMassLossRateOBVink2001(teff);
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {
@@ -1990,6 +2593,54 @@ double BaseStar::CalculateMassLossRateVink() {
     return LBVRate + otherWindsRate;
 }
 
+/*
+ * Calculate the mass loss rate according to the updated prescription. The structure is similar to above.
+ * Mass loss rates for hot, massive OB stars are given by Bjorklund et al. 2022
+ * Mass loss rates for helium rich Wolf--Rayet stars are given by Sander (not yet implemented)
+ * Mass loss rates for red supergiants are given by Beasor and Davies (not yet implemented)
+ * Mass loss rates for luminous blue variables are still given as above
+ *
+ * double CalculateMassLossRateUpdatedPrescription()
+ * 
+ * @return                  Mass loss rate in Msol per year
+ */
+double BaseStar::CalculateMassLossRateUpdatedPrescription() {
+    m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
+
+    double LBVRate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                         // start with LBV winds (can be, and is often, 0.0)
+    double otherWindsRate = 0.0;
+
+    if (m_DominantMassLossRate != MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE || 
+        OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_ADD ) {                             // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
+
+        double teff = m_Temperature * TSOL;
+
+        if ((utils::Compare(teff, RSG_MAXIMUM_TEMP) < 0) && (utils::Compare(m_MZAMS, 8.0) >= 0) && 
+        IsOneOf(GIANTS)) {         // RSG criteria, below 8kK, above 8Msol, and core helium burning giant(CHeB, FGB, EAGB, TPAGB) 
+            otherWindsRate = CalculateMassLossRateRSG(OPTIONS->RSGMassLoss()); 
+            m_DominantMassLossRate = MASS_LOSS_TYPE::RED_SUPER_GIANT;
+        }                                                                      
+        else if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, add Hurley et al 2000 winds (NJ90)
+            otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // Apply cool wind mass loss multiplier
+        }                                                                                            // change to Kelvin so it can be compared with values as stated in Vink prescription
+        else if (utils::Compare(m_MZAMS, VERY_MASSIVE_MINIMUM_MASS) >= 0) {
+            otherWindsRate = CalculateMassLossRateVMS(OPTIONS->VMSMassLoss());        
+            m_DominantMassLossRate = MASS_LOSS_TYPE::VERY_MASSIVE;                    // massive MS, >100 Msol. Alternately could use Luminosity or Gamma and Mass threshold                             
+        }
+
+        else {     
+            otherWindsRate = CalculateMassLossRateOB(OPTIONS->OBMassLoss());
+            m_DominantMassLossRate = MASS_LOSS_TYPE::OB;
+        }
+
+        if (utils::Compare(LBVRate, otherWindsRate) > 0) {
+            m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;                                        // set LBV dominant again in case Hurley or OB overwrote it
+        }
+
+    }
+
+    return LBVRate + otherWindsRate;
+}
 
 /*
  * Calculate mass loss rate
@@ -2020,11 +2671,19 @@ double BaseStar::CalculateMassLossRate() {
                 mDot = LBVRate + otherWindsRate;
                 break;
 
-            case MASS_LOSS_PRESCRIPTION::VINK:                                                                  // VINK
+            case MASS_LOSS_PRESCRIPTION::VINK:                                                                  // VINK mass-loss perscription
                 mDot = CalculateMassLossRateVink();
                 break;
 
-            default:                                                                                            // unknown mass loss prescription
+            case MASS_LOSS_PRESCRIPTION::UPDATED:                        // Updated mass loss prescription
+                mDot = CalculateMassLossRateUpdatedPrescription();
+                break;
+
+            case MASS_LOSS_PRESCRIPTION::NONE:                           // No mass loss prescription
+                mDot = 0.0;
+                break;
+
+            default:                                                                                            // unknown mass-loss prescription
                 SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using HURLEY");                               // show warning
                 LBVRate = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
                 otherWindsRate = CalculateMassLossRateHurley();

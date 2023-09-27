@@ -478,12 +478,31 @@ protected:
             double              CalculateMassLossRateLBVHurley(const double p_HD_limit_fac) const;
             double              CalculateMassLossRateLBVBelczynski() const;
             double              CalculateMassLossRateNieuwenhuijzenDeJager() const;
-            double              CalculateMassLossRateOB(const double p_Teff);
+            double              CalculateMassLossRateBjorklundEddingtonFactor() const;
+            double              CalculateMassLossRateOB(OB_MASS_LOSS p_OB_mass_loss);
+            double              CalculateMassLossRateOBBjorklund2022() const;
+            double              CalculateMassLossRateOBVink2001(const double p_Teff);
+            double              CalculateMassLossRateOBKrticka2018() const;
+            double              CalculateMassLossRateOBVinkSander2021(const double p_Teff);
+            double              CalculateMassLossRateRSG(RSG_MASS_LOSS p_RSG_mass_loss);
+            double              CalculateMassLossRateRSGVinkSabhahit2023() const;
+            double              CalculateMassLossRateRSGBeasor2020() const;
+            double              CalculateMassLossRateRSGDecin2023() const;
+            double              CalculateMassLossRateRSGYang2023() const;
+            double              CalculateMassLossRateRSGKee2021() const;
             double              CalculateMassLossRateVassiliadisWood() const;
+            double              CalculateMassLossRateVMS(const VMS_MASS_LOSS p_VMS_mass_loss);
+            double              CalculateMassLossRateVMSBestenlehner2020() const;
+            double              CalculateMassLossRateVMSSabhahit2023();
+            double              CalculateMassLossRateVMSVink2011();
     virtual double              CalculateMassLossRateVink();
+    virtual double              CalculateMassLossRateUpdatedPrescription();
             double              CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const;
-            double              CalculateMassLossRateWolfRayet3() const;                                                                                                                            // JR: Never called - do we need it?
             double              CalculateMassLossRateWolfRayet(const double p_Mu) const;
+            double              CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const;
+            double              CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot) const;
+            double              CalculateMassLossRateHeliumStarVink2017() const;
+            double              CalculateMassLossRateHeliumStarShenar2019() const;
 
     virtual double              CalculateMassTransferRejuvenationFactor() const;
 
