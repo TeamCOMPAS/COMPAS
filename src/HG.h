@@ -127,20 +127,20 @@ protected:
     {
         Mass0YieldsDesiredCoreMassFunctor(HG *p_Star, double p_DesiredCoreMass, ERROR *p_Error)
         {
-            m_Star             = p_Star;
-            m_DesiredCoreMass  = p_DesiredCoreMass;
-            m_Error            = p_Error;
+            m_Star            = p_Star;
+            m_DesiredCoreMass = p_DesiredCoreMass;
+            m_Error           = p_Error;
         }
         T operator()(double const& guessMass0)
         {
-            HG * copy = new HG(*m_Star, false);
+            HG *copy = new HG(*m_Star, false);
             copy->UpdateAttributesAndAgeOneTimestep(0.0, guessMass0 - copy->Mass0(), 0.0, true);
-            double coreMassEstimate=copy->CalculateCoreMassOnPhase(guessMass0, copy->Age());
+            double coreMassEstimate = copy->CalculateCoreMassOnPhase(guessMass0, copy->Age());
             delete copy; copy = nullptr;
             return (coreMassEstimate - m_DesiredCoreMass);
         }
     private:
-        HG *m_Star;
+        HG    *m_Star;
         double m_DesiredCoreMass;
         ERROR *m_Error;
     };
@@ -155,7 +155,7 @@ protected:
         double guess  = p_Star->Mass();                                         // Rough guess at solution
         double factor = ADAPTIVE_MASS0_SEARCH_FACTOR;                           // Size of search steps
         
-        const boost::uintmax_t maxit = ADAPTIVE_MASS0_MAX_ITERATIONS;            // Limit to maximum iterations.
+        const boost::uintmax_t maxit = ADAPTIVE_MASS0_MAX_ITERATIONS;           // Limit to maximum iterations.
         boost::uintmax_t it = maxit;                                            // Initially our chosen max iterations, but updated with actual.
         bool is_rising = true;                                                  // So if result with guess is too low, then try increasing guess.
         int digits = std::numeric_limits<double>::digits;                       // Maximum possible binary digits accuracy for type T.
@@ -175,11 +175,11 @@ protected:
             if (error != ERROR::NONE) SHOW_WARN(error);
         }
         catch(exception& e) {
-            SHOW_ERROR(ERROR::TOO_MANY_MASS0_ITERATIONS, e.what());              // Catch generic boost root finding error
+            SHOW_ERROR(ERROR::TOO_MANY_MASS0_ITERATIONS, e.what());             // Catch generic boost root finding error
         }
         SHOW_WARN_IF(it>=maxit, ERROR::TOO_MANY_MASS0_ITERATIONS);
         
-        return root.first + (root.second - root.first)/2;                       // Midway between brackets is our result, if necessary we could return the result as an interval here.
+        return root.first + (root.second - root.first) / 2.0;                   // Midway between brackets is our result, if necessary we could return the result as an interval here.
     }
 };
 

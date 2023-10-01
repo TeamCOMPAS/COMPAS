@@ -232,6 +232,7 @@ constexpr double GAUSS_TO_TESLA                         = 1.0 / TESLA_TO_GAUSS; 
 // constants
 
 constexpr double _2_PI                                  = M_PI * 2;                                                 // 2PI
+constexpr double PI_2                                   = M_PI * M_PI;                                              // PI squared
 constexpr double SQRT_M_2_PI                            = 0.79788456080286536;                                      // sqrt(2/PI)
 constexpr double DEGREE                                 = M_PI / 180.0;                                             // 1 degree in radians
 
@@ -243,7 +244,7 @@ constexpr double HUBBLE_TIME                            = 1 / H0SI;             
 
 constexpr double G                                      = 6.67E-11;                                                 // Gravitational constant in m^3 kg^-1 s^-2 (more accurately known as G M_sol)
 constexpr double G_CGS                                  = 6.6743E-8;                                                // Gravitational constant in cm^3 g^-1 s^-2
-constexpr double G1                                     = 4.0 * M_PI * M_PI;                                        // Gravitational constant in AU^3 Msol^-1 yr^-2
+constexpr double G1                                     = 4.0 * PI_2;                                               // Gravitational constant in AU^3 Msol^-1 yr^-2
 constexpr double G_SN                                   = G * 1.0E-9 / KG_TO_MSOL;                                  // Gravitational constant in km^3 Msol^-1 s^-2, for use in the ResolveSupernova() function
 constexpr double G_SOLAR_YEAR                           = 3.14E7;                                                   // Gravitational constant in Lsol Rsol yr Msol^-2 for calculating photon tiring limit
 
@@ -1795,6 +1796,7 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     MDOT,                                            \
     MEAN_ANOMALY,                                    \
     METALLICITY,                                     \
+    MOMENT_OF_INERTIA,                               \
     MZAMS,                                           \
     NUCLEAR_TIMESCALE,                               \
     NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE,          \
@@ -1949,6 +1951,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::MDOT,                                            "MDOT" },
     { STAR_PROPERTY::MEAN_ANOMALY,                                    "MEAN_ANOMALY" },
     { STAR_PROPERTY::METALLICITY,                                     "METALLICITY" },
+    { STAR_PROPERTY::MOMENT_OF_INERTIA,                               "MOMENT_OF_INERTIA"},
     { STAR_PROPERTY::MZAMS,                                           "MZAMS" },
     { STAR_PROPERTY::NUCLEAR_TIMESCALE,                               "NUCLEAR_TIMESCALE" },
     { STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE,          "NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE" },
@@ -2835,6 +2838,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,                       { TYPENAME::STRING,           "MT_Donor_Hist",                   "-",                16, 1 }}, 
     { ANY_STAR_PROPERTY::MDOT,                                              { TYPENAME::DOUBLE,           "Mdot",                            "Msol yr^-1",       14, 6 }},
     { ANY_STAR_PROPERTY::METALLICITY,                                       { TYPENAME::DOUBLE,           "Metallicity@ZAMS",                "-",                14, 6 }},
+    { ANY_STAR_PROPERTY::MOMENT_OF_INERTIA,                                 { TYPENAME::DOUBLE,           "Moment_Of_Inertia",               "Msol Rsol^2",      14, 6 }},
     { ANY_STAR_PROPERTY::MZAMS,                                             { TYPENAME::DOUBLE,           "Mass@ZAMS",                       "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE,                                 { TYPENAME::DOUBLE,           "Tau_Nuclear",                     "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE,            { TYPENAME::DOUBLE,           "Tau_Nuclear>CE",                  "Myr",              16, 8 }},
