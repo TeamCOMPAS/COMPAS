@@ -2213,17 +2213,17 @@ void BaseBinaryStar::CalculateEnergyAndAngularMomentum() {
     if (m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) return;
 
     // Calculate orbital energy and angular momentum
-    m_OrbitalEnergyPrev                = m_OrbitalEnergy;
-    m_OrbitalAngularMomentumPrev       = m_OrbitalAngularMomentum;
+    m_OrbitalEnergyPrev          = m_OrbitalEnergy;
+    m_OrbitalAngularMomentumPrev = m_OrbitalAngularMomentum;
 
-    double totalMass                        = m_Star1->Mass() + m_Star2->Mass();
-    double reducedMass                      = (m_Star1->Mass() * m_Star2->Mass()) / totalMass;
-    m_OrbitalEnergy                    = CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxis);
-    m_OrbitalAngularMomentum           = CalculateOrbitalAngularMomentum(reducedMass, totalMass, m_SemiMajorAxis);
+    double totalMass             = m_Star1->Mass() + m_Star2->Mass();
+    double reducedMass           = (m_Star1->Mass() * m_Star2->Mass()) / totalMass;
+    m_OrbitalEnergy              = CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxis);
+    m_OrbitalAngularMomentum     = CalculateOrbitalAngularMomentum(reducedMass, totalMass, m_SemiMajorAxis);
 
     // Calculate total energy and angular momentum using regular conservation of energy, especially useful for checking tides and rotational effects
-    m_TotalEnergy                 = CalculateTotalEnergy();
-    m_TotalAngularMomentum        = CalculateAngularMomentum();
+    m_TotalEnergy                = CalculateTotalEnergy();
+    m_TotalAngularMomentum       = CalculateAngularMomentum();
 }
 
 
@@ -2320,7 +2320,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) - immediate event
         (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                             // print (log) detailed output
         if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-            (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::DEFAULT);                                                                         // print (log) pulsar evolution parameters 
+            (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::DEFAULT);                                          // print (log) pulsar evolution parameters 
         }
     }
     else {
@@ -2341,7 +2341,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) if mass changes are responsible for a supernova
         (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                             // print (log) detailed output
         if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-            (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::DEFAULT);                                                                         // print (log) pulsar evolution parameters 
+            (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::DEFAULT);                                          // print (log) pulsar evolution parameters 
         }
     }
 
@@ -2350,6 +2350,10 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     m_SemiMajorAxisPrev = m_SemiMajorAxis;
 
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
+
+    // naive tides calculations - if required
+    // circularise and synchronise the binary
+    
 
     m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star1
     m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star2

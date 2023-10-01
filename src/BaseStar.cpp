@@ -111,9 +111,12 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_TZAMS                                    = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
 
     m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
+
     m_OmegaZAMS                                = p_RotationalFrequency >= 0.0                           // valid rotational frequency passed in?
                                                     ? p_RotationalFrequency                             // yes - use it
                                                     : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
+
+    m_MomentOfInertiaZAMS                      = CalculateMomentOfInertia();
 
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
     m_RZAMS0                                   = m_RZAMS;
@@ -140,6 +143,8 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_DominantMassLossRate                     = MASS_LOSS_TYPE::NONE;
 
     m_Omega                                    = m_OmegaZAMS;
+    m_MomentOfInertia                          = m_MomentOfInertiaZAMS;
+    m_AngularMomentum                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_MinimumLuminosityOnPhase                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_LBVphaseFlag                             = false;
@@ -2457,7 +2462,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) const {
  * Hurley et al. 2000, eq 108
  *
  *
- * double CalculateRotationalAngularFrequency(const double p_MZAMS, const double p_RZAMS)
+ * double CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS)
  *
  * @param   [IN]    p_MZAMS                     Zero age main sequence mass in Msol
  * @param   [IN]    p_RZAMS                     Zero age main sequence radius in Rsol
@@ -3242,10 +3247,11 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
 
     // record some current values before they are (possibly) changed by evolution
     if (p_DeltaTime > 0.0) {                                                                        // don't use utils::Compare() here
-        m_StellarTypePrev = m_StellarType;
-        m_DtPrev          = m_Dt;
-        m_MassPrev        = m_Mass;
-        m_RadiusPrev      = m_Radius;
+        m_StellarTypePrev     = m_StellarType;
+        m_DtPrev              = m_Dt;
+        m_MassPrev            = m_Mass;
+        m_RadiusPrev          = m_Radius;
+        m_OmegaPrev           = m_Omega;
     }
 
     // the GBParams and Timescale calculations need to be done
@@ -3438,21 +3444,21 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
 
     if (ShouldEvolveOnPhase()) {                                                    // Evolve timestep on phase
 
-        m_Tau         = CalculateTauOnPhase();
+        m_Tau             = CalculateTauOnPhase();
 
-        m_COCoreMass  = CalculateCOCoreMassOnPhase();
-        m_CoreMass    = CalculateCoreMassOnPhase();
-        m_HeCoreMass  = CalculateHeCoreMassOnPhase();
+        m_COCoreMass      = CalculateCOCoreMassOnPhase();
+        m_CoreMass        = CalculateCoreMassOnPhase();
+        m_HeCoreMass      = CalculateHeCoreMassOnPhase();
         
-        m_Luminosity  = CalculateLuminosityOnPhase();
+        m_Luminosity      = CalculateLuminosityOnPhase();
 
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // Radius and possibly new stellar type
 
-        m_Mu          = CalculatePerturbationMuOnPhase();
+        m_Mu              = CalculatePerturbationMuOnPhase();
 
         PerturbLuminosityAndRadiusOnPhase();
 
-        m_Temperature = CalculateTemperatureOnPhase();
+        m_Temperature     = CalculateTemperatureOnPhase();
 
         STELLAR_TYPE thisStellarType = ResolveEnvelopeLoss();                       // Resolve envelope loss if it occurs - possibly new stellar type
         if (thisStellarType != m_StellarType) {                                     // thisStellarType overrides stellarType (from CalculateRadiusAndStellarTypeOnPhase())

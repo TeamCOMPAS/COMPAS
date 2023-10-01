@@ -543,9 +543,93 @@ private:
     
     //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
     template <class T>
-    struct RadiusEqualsRocheLobeFunctor
+    struct RadiusEqualsRocheLobeFunctor {
+        RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, ERROR *p_Error, double p_FractionAccreted) {
+            m_Binary           = p_Binary;
+            m_Donor            = p_Donor;
+            m_Accretor         = p_Accretor;
+            m_Error            = p_Error;
+            m_FractionAccreted = p_FractionAccreted;
+        }
+        T operator()(double const& dM) {
+
+            if (dM >= m_Donor->Mass()) {            // Can't remove more than the donor's mass
+                *m_Error = ERROR::TOO_MANY_RLOF_ITERATIONS;
+                return m_Donor->Radius();
+            }
+
+            double donorMass    = m_Donor->Mass();
+            double accretorMass = m_Accretor->Mass();
+
+            BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
+            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -dM , *m_Accretor, m_FractionAccreted);
+            double RLRadius      = semiMajorAxis * (1 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - dM, accretorMass + (m_Binary->FractionAccreted() * dM)) * AU_TO_RSOL;
+            
+            (void)donorCopy->UpdateAttributes(-dM, -dM*donorCopy->Mass0()/donorCopy->Mass());
+            
+            // Modify donor Mass0 and Age for MS (including HeMS) and HG stars
+            donorCopy->UpdateInitialMass();         // update initial mass (MS, HG & HeMS)  
+            donorCopy->UpdateAgeAfterMassLoss();    // update age (MS, HG & HeMS)
+            
+            (void)donorCopy->AgeOneTimestep(0.0);   // recalculate radius of star - don't age - just update values
+            
+            double thisRadiusAfterMassLoss = donorCopy->Radius();
+            
+            delete donorCopy; donorCopy = nullptr;
+            
+            return (RLRadius - thisRadiusAfterMassLoss);
+        }
+    private:
+        BaseBinaryStar        *m_Binary;
+        BinaryConstituentStar *m_Donor;
+        BinaryConstituentStar *m_Accretor;
+        ERROR                 *m_Error;
+        double                 m_FractionAccreted;
+    };
+    
+  
+    //Root solver to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
+    double MassLossToFitInsideRocheLobe(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted) {
+
+        using namespace std;                                                    // Help ADL of std functions.
+        using namespace boost::math::tools;                                     // For bracket_and_solve_root.
+        
+        double guess  = ADAPTIVE_RLOF_FRACTION_DONOR_GUESS * p_Donor->Mass();   // Rough guess at solution
+        double factor = ADAPTIVE_RLOF_SEARCH_FACTOR;                            // Size of search steps
+        
+        const boost::uintmax_t maxit = ADAPTIVE_RLOF_MAX_ITERATIONS;            // Limit to maximum iterations.
+        boost::uintmax_t it = maxit;                                            // Initially our chosen max iterations, but updated with actual.
+        bool is_rising = true;                                                  // So if result with guess is too low, then try increasing guess.
+        int digits = std::numeric_limits<double>::digits;                       // Maximum possible binary digits accuracy for type T.
+
+        // Some fraction of digits is used to control how accurate to try to make the result.
+        int get_digits = digits - 5;                                            // We have to have a non-zero interval at each step, so
+
+        // maximum accuracy is digits - 1.  But we also have to
+        // allow for inaccuracy in f(x), otherwise the last few
+        // iterations just thrash around.
+        eps_tolerance<double> tol(get_digits);                                  // Set the tolerance.
+        
+        std::pair<double, double> root(0.0, 0.0);
+        try {
+            ERROR error = ERROR::NONE;
+            root = bracket_and_solve_root(RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor, &error, p_FractionAccreted), guess, factor, is_rising, tol, it);
+            if (error != ERROR::NONE) SHOW_WARN(error);
+        }
+        catch(exception& e) {
+            SHOW_ERROR(ERROR::TOO_MANY_RLOF_ITERATIONS, e.what());              // Catch generic boost root finding error
+        }
+        SHOW_WARN_IF(it>=maxit, ERROR::TOO_MANY_RLOF_ITERATIONS);
+        
+        return root.first + (root.second - root.first) / 2.0;                   // Midway between brackets is our result, if necessary we could return the result as an interval here.
+    }
+
+    
+    //Functor for the boost root finder to determine rotational frequency
+    template <class T>
+    struct OmegaFunctor
     {
-        RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, ERROR *p_Error, double p_FractionAccreted)
+        OmegaFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, ERROR *p_Error, double p_FractionAccreted)
         {
             m_Binary           = p_Binary;
             m_Donor            = p_Donor;
@@ -579,7 +663,25 @@ private:
             
             delete donorCopy; donorCopy = nullptr;
             
-            return (RLRadius-thisRadiusAfterMassLoss);
+            return (RLRadius - thisRadiusAfterMassLoss);
+
+
+
+
+
+            //A = I_1_final + I_2_final
+
+            //one_e_init = 1.0 - e_init
+
+            //B = -((I_1_init * omega_1_init) + (I_2_init * omega_2_init) + std::sqrt(G * M1_init * M1_init * M2_init * M2_init * a_init * one_e_init * one_e_init / (M1_init + M2_init)))
+
+            //C = PPOW(G, 2.0 / 3.0) * (M1 * M2) / PPOW((M1 + M2), 1.0 / 3.0)
+
+            //x = PPOW(omega_final, 1.0 / 3.0)
+
+            //return Ax^4 + Bx + C
+
+
         }
     private:
         BaseBinaryStar *m_Binary;
@@ -588,12 +690,14 @@ private:
         ERROR *m_Error;
         double m_FractionAccreted;
     };
+
     
-  
-    //Root solver to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
-    double MassLossToFitInsideRocheLobe(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor, double p_FractionAccreted)
-    {
-        using namespace std;                                                    // Help ADL of std functions.
+    /*
+    //Root solver to determine rotational frequency
+    double Omega(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted) {
+
+        std::cout << "MassLossToFitInsideRocheLobe() @ start\n";
+        //using namespace std;                                                    // Help ADL of std functions.
         using namespace boost::math::tools;                                     // For bracket_and_solve_root.
         
         double guess  = ADAPTIVE_RLOF_FRACTION_DONOR_GUESS * p_Donor->Mass();   // Rough guess at solution
@@ -612,20 +716,40 @@ private:
         // iterations just thrash around.
         eps_tolerance<double> tol(get_digits);                                  // Set the tolerance.
         
-        std::pair<double, double> root;
+
+        double I1init = m_Star1->CalculateMomentOfInertia();
+        double I2init = m_Star2->CalculateMomentOfInertia();
+
+        double omega1init = m_Star1->Omega();
+        double omega2init = m_Star2->Omega();
+
+        double eInit = m_Eccentricity;
+
+        double m1Init = m_Star1->Mass();
+        double m2Init = m_Star2->Mass();
+
+            M1 
+            M2 
+
+        std::pair<double, double> root(0.0, 0.0);
         try {
             ERROR error = ERROR::NONE;
+            std::cout << "MassLossToFitInsideRocheLobe() @ call bracket_and_solve_root()\n";
             root = bracket_and_solve_root(RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor, &error, p_FractionAccreted), guess, factor, is_rising, tol, it);
+            std::cout << "MassLossToFitInsideRocheLobe() @ return from bracket_and_solve_root()\n";
             if (error != ERROR::NONE) SHOW_WARN(error);
         }
         catch(exception& e) {
             SHOW_ERROR(ERROR::TOO_MANY_RLOF_ITERATIONS, e.what());              // Catch generic boost root finding error
-            m_Donor->Radius();
         }
         SHOW_WARN_IF(it>=maxit, ERROR::TOO_MANY_RLOF_ITERATIONS);
         
-        return root.first + (root.second - root.first)/2;                       // Midway between brackets is our result, if necessary we could return the result as an interval here.
+        std::cout << "MassLossToFitInsideRocheLobe() @ return: " << root.first + (root.second - root.first) / 2.0 << " <--------------\n";
+        return root.first + (root.second - root.first) / 2.0;                   // Midway between brackets is our result, if necessary we could return the result as an interval here.
     }
+    */
+
+
 };
 
 #endif // __BaseBinaryStar_h__

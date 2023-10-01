@@ -98,6 +98,7 @@ public:
             std::string         MassTransferDonorHistoryString() const;
             double              Mdot() const                                                    { return m_Mdot; }
             double              Metallicity() const                                             { return m_Metallicity; }
+            double              MomentOfInertia() const                                         { return m_MomentOfInertia; }
             double              MZAMS() const                                                   { return m_MZAMS; }
             double              Omega() const                                                   { return m_Omega; }
             double              OmegaCHE() const                                                { return m_OmegaCHE; }
@@ -195,7 +196,7 @@ public:
     
             double          CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) const;
 
-            double          CalculateRadialChange() const                                                       { return (utils::Compare(m_RadiusPrev,0)<=0)? 0 : std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; }                    // Return fractional radial change (if previous radius is negative or zero, return 0 to avoid NaN
+            double          CalculateRadialChange() const                                                       { return (utils::Compare(m_RadiusPrev,0)<=0)? 0 : std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; } // Return fractional radial change (if previous radius is negative or zero, return 0 to avoid NaN
 
             double          CalculateRadialExpansionTimescale() const                                           { return CalculateRadialExpansionTimescale_Static(m_StellarType, m_StellarTypePrev, m_Radius, m_RadiusPrev, m_DtPrev); } // Use class member variables
     
@@ -214,13 +215,13 @@ public:
             double          CalculateTimestep();
 
             double          CalculateZetaAdiabatic();
-    virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                               // Use inheritance hierarchy
+    virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                                     // Use inheritance hierarchy
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
     
-            void            HaltWinds()                                                                         { m_Mdot = 0.0; }       // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
+            void            HaltWinds()                                                                         { m_Mdot = 0.0; }                                                   // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 
     virtual ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
                                                       const double p_DonorThermalMassLossRate)                  { return ACCRETION_REGIME::NONE; }                                  // Placeholder, use inheritance for WDs
@@ -242,12 +243,12 @@ public:
    
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
     
-            bool            ShouldEnvelopeBeExpelledByPulsations() const                                        { return false; }       // Default is that there is no envelope expulsion by pulsations
+            bool            ShouldEnvelopeBeExpelledByPulsations() const                                        { return false; }                                                   // Default is that there is no envelope expulsion by pulsations
 
             void            StashSupernovaDetails(const STELLAR_TYPE p_StellarType,
                                                   const SSE_SN_RECORD_TYPE p_RecordType = SSE_SN_RECORD_TYPE::DEFAULT) { LOGGING->StashSSESupernovaDetails(this, p_StellarType, p_RecordType); }
 
-    virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                             // Default is NO-OP
+    virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
 
             STELLAR_TYPE    UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
                                                               const double p_DeltaMass0,
@@ -312,6 +313,8 @@ protected:
     double                  m_OmegaCHE;                                 // Minimum angular frequency at which CHE will occur (calculated at ZAMS)
     double                  m_RZAMS;                                    // ZAMS Radius
     double                  m_TZAMS;                                    // ZAMS Temperature
+    double                  m_MomentOfInertiaZAMS;                      // ZAMS moment of inertia (Msol Rsol^2)
+
 
     // Effective Zero Age Main Sequence
     double                  m_LZAMS0;                                   // Effective ZAMS Luminosity
@@ -334,7 +337,9 @@ protected:
     double                  m_Mdot;                                     // Current mass loss rate (Msol per ?)
     MASS_LOSS_TYPE          m_DominantMassLossRate;                     // Current dominant mass loss rate
     double                  m_Mu;                                       // Current small envelope parameter mu
-    double                  m_Omega;                                    // Current angular frequency (yr-1)
+    double                  m_Omega;                                    // Current angular frequency (yr^-1)
+    double                  m_MomentOfInertia;                          // Current moment of inertia (Msol Rsol^2)
+    double                  m_AngularMomentum;                          // Current angular momentum
     double                  m_Radius;                                   // Current radius (Rsol)
     double                  m_Tau;                                      // Relative time
     double                  m_Temperature;                              // Current temperature (Tsol)
@@ -343,7 +348,7 @@ protected:
     // Previous timestep variables
     double                  m_DtPrev;                                   // Previous timestep
     double                  m_MassPrev;                                 // Previous mass (Msol)
-    double                  m_OmegaPrev;                                // Previous angular frequency (yr-1)
+    double                  m_OmegaPrev;                                // Previous angular frequency (yr^-1)
     double                  m_RadiusPrev;                               // Previous radius (Rsol)
     STELLAR_TYPE            m_StellarTypePrev;                          // Stellar type at previous timestep
 

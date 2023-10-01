@@ -43,6 +43,9 @@ public:
 
 protected:
 
+    double m_MomentOfInertia_CGS;                                                                                                                                   // MoI in CGS - only required in NS class
+
+    
     void Initialise() {
         m_StellarType = STELLAR_TYPE::NEUTRON_STAR;                                                                                                                 // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
@@ -60,38 +63,34 @@ protected:
         CalculateAndSetPulsarParameters();
     }
 
-    double m_MomentOfInertia;                                                                                                                                       // in CGS g cm^2
-    double m_AngularMomentum;                                                                                                                                       // Current angular momentum in (Msol AU^2 yr-1)
-    
+
     // member functions - alphabetically
-            void            CalculateAndSetPulsarParameters();
+    void            CalculateAndSetPulsarParameters();
 
-            double          CalculateLuminosityOnPhase() const                      { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age); }                    // Use class member variables
+    double          CalculateLuminosityOnPhase() const                                  { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age); }                // Use class member variables
 
-            double          CalculateMassLossRate()                                 { return 0.0; }                                                                 // Ensure that NSs don't lose mass in winds
+    double          CalculateMassLossRate()                                             { return 0.0; }                                                             // Ensure that NSs don't lose mass in winds
     
-    static  double          CalculateMomentOfInertia_Static(const double p_Mass, const double p_Radius);
+    double          CalculateMomentOfInertiaCGS() const;                                                                                                            // MoI in CGS
+    double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const  { return CalculateMomentOfInertiaCGS() / MSOL_TO_G / RSOL_TO_CM / RSOL_TO_CM; } // MoI (default is solar units)
 
-    static  double          CalculatePulsarBirthMagneticField_Static();
+    double          CalculatePulsarBirthMagneticField();
 
-            double          CalculateRadiusOnPhase() const                          { return CalculateRadiusOnPhase_Static(m_Mass); }                               // Use class member variables - returns radius in Rsol
+    double          CalculateRadiusOnPhase() const                                      { return CalculateRadiusOnPhase_Static(m_Mass); }                           // Use class member variables - returns radius in Rsol
 
-    static  double          CalculateSpinDownRate_Static(const double p_Omega,
-                                                         const double p_MomentOfInteria,
-                                                         const double p_MagField,
-                                                         const double p_Radius);
+    double          CalculateSpinDownRate(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius) const;
 
-            double          ChooseTimestep(const double p_Time) const;
+    double          ChooseTimestep(const double p_Time) const;
 
-            STELLAR_TYPE    EvolveToNextPhase()                                     { return STELLAR_TYPE::BLACK_HOLE; }
+    STELLAR_TYPE    EvolveToNextPhase()                                                 { return STELLAR_TYPE::BLACK_HOLE; }
     
-            bool            ShouldEvolveOnPhase() const                             { return (m_Mass <= OPTIONS->MaximumNeutronStarMass()); }                       // Evolve as a neutron star unless mass > maximum neutron star mass (e.g. through accretion)
-            void            SpinDownIsolatedPulsar(const double p_Stepsize);
-            void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
-                                                       const bool   p_RecycledNS,
-                                                       const double p_Stepsize,
-                                                       const double p_MassGainPerTimeStep,
-                                                       const double p_Epsilon);
+    bool            ShouldEvolveOnPhase() const                                         { return (m_Mass <= OPTIONS->MaximumNeutronStarMass()); }                   // Evolve as a neutron star unless mass > maximum neutron star mass (e.g. through accretion)
+    void            SpinDownIsolatedPulsar(const double p_Stepsize);
+    void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
+                                               const bool   p_RecycledNS,
+                                               const double p_Stepsize,
+                                               const double p_MassGainPerTimeStep,
+                                               const double p_Epsilon);
 
 };
 
