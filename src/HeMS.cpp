@@ -251,6 +251,57 @@ double HeMS::CalculateMassLossRateVink() {
     return CalculateMassLossRateWolfRayetZDependent(0.0);
 }
 
+/*
+ * Calculate the mass loss rate for helium stars in the updated prescription
+ * Uses Sander & Vink 2020 for Wolf--Rayet stars
+ * 
+ * double CalculateMassLossRateUpdatedPrescription()
+ *
+ * @return                                      Mass loss rate in Msol per year
+ */
+double HeMS::CalculateMassLossRateUpdatedPrescription() {
+
+    m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+
+    double MdotWR = 0.0;
+
+    if(OPTIONS->WRMassLoss() == WR_MASS_LOSS::SANDERVINK){
+
+        // Calculate Sander & Vink 2020 mass-loss rate
+        double Mdot_SanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
+
+        // Apply the Sander et al. 2023 temperature correction to the Sander & Vink 2020 rate
+        double Mdot_Sander2023     = CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(Mdot_SanderVink2020);
+
+        // Calculate Vink 2017 mass-loss rate
+        double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
+
+        // Use whichever gives the highest mass loss rate -- will typically be Vink 2017 for
+        // low Mass or Luminosity, and Sander & Vink 2020 for high Mass or Luminosity
+        //return std::max(Mdot_SanderVink2020, Mdot_Vink2017);
+
+        MdotWR = std::max(Mdot_Sander2023, Mdot_Vink2017);
+
+    }
+    else if(OPTIONS->WRMassLoss() == WR_MASS_LOSS::SHENAR19){
+
+        // Mass loss rate for WR stars from Shenar+ 2019
+        double Mdot_Shenar2019 = CalculateMassLossRateHeliumStarShenar2019();
+
+        // Calculate Vink 2017 mass-loss rate
+        double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
+
+        // Apply a minimum of Vink 2017 mass-loss rate to avoid extrapolating to low luminosity
+        MdotWR = std::max(Mdot_Shenar2019, Mdot_Vink2017);
+
+    }
+    else{
+        MdotWR = CalculateMassLossRateVink();
+    }
+
+    return MdotWR;
+
+}
 
 /*
  * Determines if mass transfer is unstable according to the critical mass ratio.

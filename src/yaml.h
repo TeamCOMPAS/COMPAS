@@ -280,10 +280,10 @@ namespace yaml {
             "    --initial-mass-function",
             "    --luminous-blue-variable-prescription",
             "    --mass-loss-prescription",
-            "    --OB-mass-loss: 'NONE'                                                # Default: 'NONE'"
-            "    --RSG-mass-loss: 'NJ90'                                               # Default: 'NJ90'"
-            "    --VMS-mass-loss: 'NONE'                                               # Default: 'NONE'"
-            "    --WR-mass-loss: 'BELCZYNSKI2010'                                      # Default: 'BELCZYNSKI2010'"
+            "    --OB-mass-loss"
+            "    --RSG-mass-loss"
+            "    --VMS-mass-loss"
+            "    --WR-mass-loss"
             "    --metallicity-distribution",
             "    --pulsational-pair-instability-prescription",
             "",

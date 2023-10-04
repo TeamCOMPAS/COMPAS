@@ -494,7 +494,7 @@ protected:
             double              CalculateMassLossRateVMS(const VMS_MASS_LOSS p_VMS_mass_loss);
             double              CalculateMassLossRateVMSBestenlehner2020() const;
             double              CalculateMassLossRateVMSSabhahit2023();
-            double              CalculateMassLossRateVMSVink2011();
+            double              CalculateMassLossRateVMSVink2011() const;
     virtual double              CalculateMassLossRateVink();
     virtual double              CalculateMassLossRateUpdatedPrescription();
             double              CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const;
