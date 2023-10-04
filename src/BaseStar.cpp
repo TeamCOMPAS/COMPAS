@@ -2233,7 +2233,7 @@ double BaseStar::CalculateMassLossRateVMSVink2011() {
     double logMdotdiff;
     double teff = m_Temperature * TSOL;
     double rate2001 = CalculateMassLossRateOBVink2001(teff);
-    if (utils::Compare(Gamma, 0.5) > 0) {  // Ensure that the perscription isn't extrapolated to low gamma
+    if (utils::Compare(Gamma, 0.5) > 0) {  // Ensure that the prescription isn't extrapolated to low gamma
         logMdotdiff = 0.04468 + (0.3091 * Gamma) + (0.2434 * Gamma * Gamma);
     }
     else {
@@ -2276,7 +2276,7 @@ double BaseStar::CalculateMassLossRateVMSSabhahit2023() {
 
 /*
  * Calculate mass loss for main sequence stars. 
- * Switches perscription based on program options. 
+ * Switches prescription based on program options. 
  *
  * 
  * 
@@ -2315,7 +2315,7 @@ double BaseStar::CalculateMassLossRateOB(OB_MASS_LOSS p_OB_mass_loss) {
 
 /*
  * Calculate mass loss for RSG stars (Red Supergiant). 
- * Switches perscription based on program options. 
+ * Switches prescription based on program options. 
  *
  * 
  * 
@@ -2360,7 +2360,7 @@ double BaseStar::CalculateMassLossRateRSG(RSG_MASS_LOSS p_RSG_mass_loss) {
 
 /*
  * Calculate mass loss for very massive MS stars, >100Msol. 
- * Switches perscription based on program options. 
+ * Switches prescription based on program options. 
  *
  * 
  * 
@@ -2671,7 +2671,7 @@ double BaseStar::CalculateMassLossRate() {
                 mDot = LBVRate + otherWindsRate;
                 break;
 
-            case MASS_LOSS_PRESCRIPTION::VINK:                                                                  // VINK mass-loss perscription
+            case MASS_LOSS_PRESCRIPTION::VINK:                                                                  // VINK mass-loss prescription
                 mDot = CalculateMassLossRateVink();
                 break;
 
