@@ -253,7 +253,7 @@ constexpr double LOG10_ZSOL                             = -1.69897;             
 constexpr double ZSOL_ASPLUND				            = 0.0142;						                            // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
 constexpr double LSOL                                   = 3.844E33;                                                 // Solar Luminosity in erg/s
-constexpr double LSOLW                                  = 4E26;                                                     // Solar luminosity (in W)
+constexpr double LSOLW                                  = 4.0E26;                                                     // Solar luminosity (in W)
 
 constexpr double AU                                     = 149597870700.0;                                           // 1 AU (Astronomical Unit) in metres
 constexpr double KM                                     = 1000.0;                                                   // 1 km (Kilometre) in metres
