@@ -809,9 +809,9 @@ public:
             double                                              m_LuminousBlueVariableFactor;                                   // Multiplicitive factor for luminous blue variable (LBV) mass loss rates when using Belczynski’s prescription
             double                                              m_WolfRayetFactor;                                              // Multiplicitive factor for Wolf-Rayet (WR) wind mass loss rates
             ENUM_OPT<OB_MASS_LOSS>                              m_OBMassLoss; 
-            ENUM_OPT<VMS_MASS_LOSS>                             m_VMSMassLoss;                                                  // Which mass loss perscription for M > 100 Msol        
-            ENUM_OPT<RSG_MASS_LOSS>                             m_RSGMassLoss;                                                  // Which mass loss perscription to use for RSG       
-            ENUM_OPT<WR_MASS_LOSS>                              m_WRMassLoss;                                                   // Which mass loss perscription to use for WR       
+            ENUM_OPT<VMS_MASS_LOSS>                             m_VMSMassLoss;                                                  // Which mass loss prescription for M > 100 Msol        
+            ENUM_OPT<RSG_MASS_LOSS>                             m_RSGMassLoss;                                                  // Which mass loss prescription to use for RSG       
+            ENUM_OPT<WR_MASS_LOSS>                              m_WRMassLoss;                                                   // Which mass loss prescription to use for WR       
 
 
             // Mass transfer options

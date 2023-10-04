@@ -936,7 +936,7 @@ Default = 10
 :ref:`Back to Top <options-props-top>`
 
 **--OB-mass-loss** |br|
-Main sequence mass loss perscription. |br|
+Main sequence mass loss prescription. |br|
 Options: { NONE, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018 } |br|
 NONE turns off mass loss for main sequence stars. Also available are Vink (2001, previous default), Vink (2021), Bjorklund (2022), and Krticka (2018).   |br|
 Default = NONE
@@ -1108,7 +1108,7 @@ Options: { ZERO, HURLEY, VLTFLAMES } |br|
 Default = ZERO
 
 **--RSG-mass-loss** |br|
-Red supergiant mass loss perscription. |br|
+Red supergiant mass loss prescription. |br|
 Options: { NONE, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
 NONE turns off mass loss for giant (CHeB, FGB, AGB, TPAGB stellar types) stars below the RSG_MAXIMUM_TEMP. Also available are Vink and Sabhahit (2023), Beasor et al. (2020), Decin et al. (2023), Yang et al. (2023), Kee et. al (2021), and Nieuwenhuijzen and de Jager (1990, previous default).   |br|
 Default = NJ90
@@ -1182,7 +1182,7 @@ Default = TRUE
 Prints COMPAS version string.
 
 **--VMS-mass-loss** |br|
-Very massive main sequence mass loss perscription. |br|
+Very massive main sequence mass loss prescription. |br|
 Options: { NONE, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
 Applied above the VERY_MASSIVE_MINIMUM_MASS (100 Msol by default). NONE turns off mass loss. Also available are Vink (2011), Bestenlehner (2020), and Sabhahit (2023).   |br|
 Default = NONE
@@ -1197,7 +1197,7 @@ Multiplicative constant for Wolf Rayet winds. Note that wind mass loss will also
 Default = 1.0
 
 **--WR-mass-loss** |br|
-Wolf-Rayet mass loss perscription. |br|
+Wolf-Rayet mass loss prescription. |br|
 Options: { BELCZYNSKI2010, SANDERVINK, SHENAR19 } |br|
 Selects between Belczynski (2010), Sander and Vink (2021 updated), and Shenar (2019).   |br|
 Default = BELCZYNSKI2010
