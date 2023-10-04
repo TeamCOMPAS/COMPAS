@@ -2111,7 +2111,7 @@ double BaseStar::CalculateMassLossRateRSGBeasor2020() const {
  */
 double BaseStar::CalculateMassLossRateRSGDecin2023() const {
 
-    return PPOW(m_Luminosity, -20.63 - 0.16 * m_MZAMS + 3.47);
+    return PPOW(10.0, -20.63 - 0.16 * m_MZAMS + 3.47 * log10(m_Luminosity));
 }
 
 /*
