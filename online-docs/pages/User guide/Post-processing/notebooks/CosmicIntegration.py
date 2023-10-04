@@ -18,7 +18,7 @@
 # %load_ext memory_profiler
 # %load_ext autotime
 
-# # Introduction
+# # Cosmic Integration
 #
 # The duration from the birth of the binary until the merger as a double compact object (DCO) can range from a few million years (lifetime of the stars) to more than 100 giga years depending on the evolution of the system.
 #
@@ -52,7 +52,7 @@ m1_max = 150
 m2_min = 0.1
 
 compas_fname = generate_mock_bbh_population_file(
-    "mock_compas_data.h5", n_systems=int(1e4), frac_bbh=1,
+    "../../utils/examples/mock_compas_data.h5", n_systems=int(1e4), frac_bbh=1,
     m1_min=m1_min, m1_max=m1_max, m2_min=m2_min
 )
 bbh_population = BBHPopulation.from_compas_h5(compas_fname, m1_min=m1_min, m1_max=m1_max, m2_min=m2_min)
