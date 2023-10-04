@@ -1733,7 +1733,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "OB-mass-loss",                                      
             po::value<std::string>(&p_Options->m_OBMassLoss.typeString)->default_value(p_Options->m_OBMassLoss.typeString),                                                                  
-            ("OB mass loss prescription (" + AllowedOptionValuesFormatted("OB-mass-loss") + ", default = '" + p_Options->m_OBMassLoss.typeString + ")").c_str()
+            ("OB mass loss prescription (" + AllowedOptionValuesFormatted("OB-mass-loss") + ", default = '" + p_Options->m_OBMassLoss.typeString + "')").c_str()
         )
         (
             "orbital-period-distribution",                              
@@ -1780,7 +1780,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "RSG-mass-loss",                                      
             po::value<std::string>(&p_Options->m_RSGMassLoss.typeString)->default_value(p_Options->m_RSGMassLoss.typeString),                                                                  
-            ("RSG mass loss prescription (" + AllowedOptionValuesFormatted("RSG-mass-loss") + ", default = '" + p_Options->m_RSGMassLoss.typeString + ")").c_str()
+            ("RSG mass loss prescription (" + AllowedOptionValuesFormatted("RSG-mass-loss") + ", default = '" + p_Options->m_RSGMassLoss.typeString + "')").c_str()
         )
 
         (
@@ -1802,12 +1802,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "VMS-mass-loss",                                      
             po::value<std::string>(&p_Options->m_VMSMassLoss.typeString)->default_value(p_Options->m_VMSMassLoss.typeString),                                                                  
-            ("Very massive star mass loss prescription (" + AllowedOptionValuesFormatted("VMS-mass-loss") + ", default = '" + p_Options->m_VMSMassLoss.typeString + ")").c_str()
+            ("Very massive star mass loss prescription (" + AllowedOptionValuesFormatted("VMS-mass-loss") + ", default = '" + p_Options->m_VMSMassLoss.typeString + "')").c_str()
         )
         (
             "WR-mass-loss",                                      
             po::value<std::string>(&p_Options->m_WRMassLoss.typeString)->default_value(p_Options->m_WRMassLoss.typeString),                                                                  
-            ("WR mass loss prescription (" + AllowedOptionValuesFormatted("WR-mass-loss") + ", default = '" + p_Options->m_WRMassLoss.typeString + ")").c_str()
+            ("WR mass loss prescription (" + AllowedOptionValuesFormatted("WR-mass-loss") + ", default = '" + p_Options->m_WRMassLoss.typeString + "')").c_str()
         )
 
         // vector (list) options - alphabetically
