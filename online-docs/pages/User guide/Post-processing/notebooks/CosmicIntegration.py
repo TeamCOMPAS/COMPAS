@@ -52,7 +52,7 @@ m1_max = 150
 m2_min = 0.1
 
 compas_fname = generate_mock_bbh_population_file(
-    "../../utils/examples/mock_compas_data.h5", n_systems=int(1e4), frac_bbh=1,
+    "mock_compas_data.h5", n_systems=int(1e4), frac_bbh=1,
     m1_min=m1_min, m1_max=m1_max, m2_min=m2_min
 )
 bbh_population = BBHPopulation.from_compas_h5(compas_fname, m1_min=m1_min, m1_max=m1_max, m2_min=m2_min)
