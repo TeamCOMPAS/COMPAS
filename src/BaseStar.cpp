@@ -1937,16 +1937,17 @@ double BaseStar::CalculateMassLossRateWolfRayetZDependent(const double p_Mu) con
  * Belczynski et al. 2010, eqs 6 & 7
  *
  *
- * double CalculateMassLossRateOBVink2001(const double p_Teff)
+ * double CalculateMassLossRateOBVink2001(const double prescription)
  *
- * @param   [IN]    p_Teff                      Effective temperature in K
+ * @param   [IN]    prescription                      Effective temperature in K
  * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateOBVink2001(const double p_Teff) {
+double BaseStar::CalculateMassLossRateOBVink2001() {
 
     double rate;
+    double teff = m_Temperature * TSOL;  
 
-    if (utils::Compare(p_Teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(p_Teff, VINK_MASS_LOSS_BISTABILITY_TEMP) <= 0) {
+    if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(teff, VINK_MASS_LOSS_BISTABILITY_TEMP) <= 0) {
         double V         = 1.3;                                                                                 // v_inf/v_esc
 
         double logMdotOB = -6.688                             +
@@ -1954,13 +1955,13 @@ double BaseStar::CalculateMassLossRateOBVink2001(const double p_Teff) {
                            (1.339 * log10(m_Mass / 30.0))        -
                            (1.601 * log10(V / 2.0))              +
                            (0.85  * log10(m_Metallicity / ZSOL)) +
-                           (1.07  * log10(p_Teff / 20000.0));
+                           (1.07  * log10(teff / 20000.0));
 
         rate = PPOW(10.0, logMdotOB);
         m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
     }
-    else if (utils::Compare(p_Teff, VINK_MASS_LOSS_BISTABILITY_TEMP) > 0) {
-        SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
+    else if (utils::Compare(teff, VINK_MASS_LOSS_BISTABILITY_TEMP) > 0) {
+        SHOW_WARN_IF(utils::Compare(teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
 
         double V         = 2.6;                                                                                 // v_inf/v_esc
 
@@ -1969,8 +1970,8 @@ double BaseStar::CalculateMassLossRateOBVink2001(const double p_Teff) {
                            (1.313 * log10(m_Mass / 30.0))        -
                            (1.226 * log10(V / 2.0))              +
                            (0.85  * log10(m_Metallicity / ZSOL)) +
-                           (0.933 * log10(p_Teff / 40000.0))     -
-                           (10.92 * log10(p_Teff / 40000.0) * log10(p_Teff/40000.0));
+                           (0.933 * log10(teff / 40000.0))     -
+                           (10.92 * log10(teff / 40000.0) * log10(teff/40000.0));
 
         rate = PPOW(10.0, logMdotOB);
         m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
@@ -1989,14 +1990,15 @@ double BaseStar::CalculateMassLossRateOBVink2001(const double p_Teff) {
  * features two bi-stability jumps, at T1 and T2
  * offset = {"cold":-5.99,"inter":-6.688,"hot":-6.697}
  *
- * double CalculateMassLossRateOBVinkSander2021(const double p_Teff)
+ * double CalculateMassLossRateOBVinkSander2021(const double prescription)
  *
- * @param   [IN]    p_Teff                      Effective temperature in K
+ * @param   [IN]    prescription                      Effective temperature in K
  * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateOBVinkSander2021(const double p_Teff) {
+double BaseStar::CalculateMassLossRateOBVinkSander2021() {
     const double zExp2001 = 0.85;
     const double zExp = 0.42;
+    double teff = m_Temperature * TSOL;  
     double Gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
     double charrho = -14.94 + (3.1857 * Gamma) + (zExp * log10(m_Metallicity / ZSOL)) ; 
     double T2 = ( 61.2 + (2.59 * charrho) ) * 1000.;                                                            // typically around 25000.0, higher jump first as in Vink python recipe
@@ -2004,11 +2006,11 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021(const double p_Teff) {
 
     double logL5  = log10(m_Luminosity / 1.0E5);
     double logM30 = log10(m_Mass / 30.0);
-    double logT40 = log10(p_Teff / 40000.0);
-    double logT20 = log10(p_Teff / 20000.0);
+    double logT40 = log10(teff / 40000.0);
+    double logT20 = log10(teff / 20000.0);
     double rate;
 
-    if (utils::Compare(p_Teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(p_Teff, T1) <= 0) {
+    if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(teff, T1) <= 0) {
         double V         = 0.7;                                                                                 // v_inf/v_esc
 
         double logMdotOB = -5.99 +
@@ -2021,8 +2023,8 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021(const double p_Teff) {
         rate = PPOW(10.0, logMdotOB);
         m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
     }
-    else if (utils::Compare(p_Teff, T1) > 0 && utils::Compare(p_Teff, T2) <= 0) {
-        SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
+    else if (utils::Compare(teff, T1) > 0 && utils::Compare(teff, T2) <= 0) {
+        SHOW_WARN_IF(utils::Compare(teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
 
         double V         = 1.3;                                                                                 // v_inf/v_esc
 
@@ -2036,8 +2038,8 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021(const double p_Teff) {
         rate = PPOW(10.0, logMdotOB);
         m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
     }
-    else if (utils::Compare(p_Teff, T2) > 0) {
-        SHOW_WARN_IF(utils::Compare(p_Teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
+    else if (utils::Compare(teff, T2) > 0) {
+        SHOW_WARN_IF(utils::Compare(teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
 
         double V         = 2.6;                                                                                 // v_inf/v_esc
 
@@ -2224,10 +2226,11 @@ double BaseStar::CalculateMassLossRateVMSBestenlehner2020() const {
  *
  * @return                                      Mass loss rate for very massive stars in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateVMSVink2011() const {
+double BaseStar::CalculateMassLossRateVMSVink2011() {
     double rate;
     double Gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
     double logMdotdiff;
+    double rate2001 = CalculateMassLossRateOBVink2001();
 
     if (utils::Compare(Gamma, 0.5) > 0) {                                                                                  // Ensure that the prescription isn't extrapolated to low gamma
         logMdotdiff = 0.04468 + (0.3091 * Gamma) + (0.2434 * Gamma * Gamma);
@@ -2235,8 +2238,6 @@ double BaseStar::CalculateMassLossRateVMSVink2011() const {
     }
     else {
         SHOW_WARN(ERROR::LOW_GAMMA, "Mass Loss Rate defaulting to Vink2001, low Gamma");                                   // gamma extrapolated outside fit range, default to Vink2001
-        double teff = m_Temperature * TSOL;
-        double rate2001 = CalculateMassLossRateOBVink2001(teff);
         rate = rate2001;
     }
 
@@ -2252,7 +2253,7 @@ double BaseStar::CalculateMassLossRateVMSVink2011() const {
  *
  * @return                                      Mass loss rate in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateVMSSabhahit2023() const {
+double BaseStar::CalculateMassLossRateVMSSabhahit2023() {
 
     double gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;                                                     // Eddington Parameter, independent of surface composition
     double teff = m_Temperature * TSOL;    
@@ -2265,7 +2266,7 @@ double BaseStar::CalculateMassLossRateVMSSabhahit2023() const {
         Mdot = Mdotswitch * PPOW((m_Luminosity / Lswitch) , 4.77) * PPOW((m_Mass/Mswitch) , -3.99);
     }
     else {
-        Mdot = CalculateMassLossRateOBVink2001(teff);
+        Mdot = CalculateMassLossRateOBVink2001();
     }
 
     return Mdot;
@@ -2281,20 +2282,20 @@ double BaseStar::CalculateMassLossRateVMSSabhahit2023() const {
  *
  * @return                                     mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateOB(const OB_MASS_LOSS p_OB_mass_loss) const {
+double BaseStar::CalculateMassLossRateOB(const OB_MASS_LOSS p_OB_mass_loss) {
     double rate = 0.0;                                                      
 
     m_DominantMassLossRate = MASS_LOSS_TYPE::OB;
-    double teff = m_Temperature * TSOL; 
+    
     switch (p_OB_mass_loss) {                                                                                           // decide which prescription to use
         case OB_MASS_LOSS::NONE:
             rate = 0.0;
             break;
         case OB_MASS_LOSS::VINK2001:
-            rate = CalculateMassLossRateOBVink2001(teff);
+            rate = CalculateMassLossRateOBVink2001();
             break;
         case OB_MASS_LOSS::VINK2021:
-            rate = CalculateMassLossRateOBVinkSander2021(teff);
+            rate = CalculateMassLossRateOBVinkSander2021();
             break;
         case OB_MASS_LOSS::BJORKLUND2022:
             rate = CalculateMassLossRateOBBjorklund2022();
@@ -2304,7 +2305,7 @@ double BaseStar::CalculateMassLossRateOB(const OB_MASS_LOSS p_OB_mass_loss) cons
             break;
         default:
             SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using default value VINK2021");
-            rate = CalculateMassLossRateOBVinkSander2021(teff);
+            rate = CalculateMassLossRateOBVinkSander2021();
             break;
     }
     return rate;
@@ -2320,7 +2321,7 @@ double BaseStar::CalculateMassLossRateOB(const OB_MASS_LOSS p_OB_mass_loss) cons
  *
  * @return                                     mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss) const {
+double BaseStar::CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss) {
     double rate = 0.0;                                                      
 
     switch (p_RSG_mass_loss) {                                                                                           // decide which prescription to use
@@ -2363,7 +2364,7 @@ double BaseStar::CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss) c
  *
  * @return                                     mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateVMS(const VMS_MASS_LOSS p_VMS_mass_loss) const {
+double BaseStar::CalculateMassLossRateVMS(const VMS_MASS_LOSS p_VMS_mass_loss) {
     double rate = 0.0;                                                      
 
     switch (p_VMS_mass_loss) {                                                                                           // decide which prescription to use
@@ -2565,7 +2566,7 @@ double BaseStar::CalculateMassLossRateVink() {
             otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // Apply cool wind mass loss multiplier
         }
         else  {                                                                                                     // hot stars, add Vink et al. 2001 winds (ignoring bistability jump)
-            otherWindsRate = CalculateMassLossRateOBVink2001(teff);
+            otherWindsRate = CalculateMassLossRateOBVink2001();
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {
@@ -2595,10 +2596,10 @@ double BaseStar::CalculateMassLossRateUpdatedPrescription() {
     double LBVRate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                         // start with LBV winds (can be, and is often, 0.0)
     double otherWindsRate = 0.0;
 
+    double teff = TSOL * m_Temperature;    
     if (m_DominantMassLossRate != MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE || 
         OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_ADD ) {                             // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
 
-        double teff = m_Temperature * TSOL;
 
         if ((utils::Compare(teff, RSG_MAXIMUM_TEMP) < 0) && (utils::Compare(m_MZAMS, 8.0) >= 0) && 
         IsOneOf(GIANTS)) {         // RSG criteria, below 8kK, above 8Msol, and core helium burning giant(CHeB, FGB, EAGB, TPAGB) 
