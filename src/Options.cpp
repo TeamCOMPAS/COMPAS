@@ -2459,14 +2459,18 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                           break;
         case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);          break;
         case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOSLabel);                                    break;
+        case _("OB-mass-loss")                                      : POPULATE_RET(OB_MASS_LOSS_LABEL);                             break;
         case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);              break;
         case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL); break;
         case _("pulsar-birth-spin-period-distribution")             : POPULATE_RET(PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);    break;
         case _("pulsational-pair-instability-prescription")         : POPULATE_RET(PPI_PRESCRIPTION_LABEL);                         break;
+        case _("RSG-mass-loss")                                     : POPULATE_RET(RSG_MASS_LOSS_LABEL);                            break;
         case _("remnant-mass-prescription")                         : POPULATE_RET(REMNANT_MASS_PRESCRIPTION_LABEL);                break;
         case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);         break;
         case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);             break;
         case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                        break;
+        case _("VMS-mass-loss")                                     : POPULATE_RET(VMS_MASS_LOSS_LABEL);                            break;
+        case _("WR-mass-loss")                                      : POPULATE_RET(WR_MASS_LOSS_LABEL);                             break;
         default: break;
     }
     return ret;
