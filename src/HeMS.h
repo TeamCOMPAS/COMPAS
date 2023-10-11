@@ -81,7 +81,9 @@ protected:
 
             double          CalculateMassLossRateHurley();
             double          CalculateMassLossRateVink();
-
+            double          CalculateMassLossRateUpdatedPrescription();
+            double          CalculateMassLossRateWolfRayetShenar2019() const;
+            
             double          CalculateMassTransferRejuvenationFactor() const;
 
             double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                      { return MainSequence::CalculateMomentOfInertia(p_RemnantRadius); }             // Use MainSequence
