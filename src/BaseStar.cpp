@@ -2489,40 +2489,32 @@ double BaseStar::CalculateMassLossRateHeliumStarVink2017() const {
 }
 
 /*
- * Calculate the mass-loss rate for helium stars according to the
+ * Calculate the mass-loss rate for Wolf--Rayet stars according to the
  * prescription of Shenar et al. 2019 (https://ui.adsabs.harvard.edu/abs/2019A%26A...627A.151S/abstract)
  * 
  * See their Eq. 6 and Table 5
  * 
- * double CalculateMassLossRateHeliumStarShenar2019()
+ * We use the fitting coefficients for hydrogen rich WR stars (e.g., WNh)
+ * The C4 (X_He) term is = 0 and is omitted
+ * 
+ * double CalculateMassLossRateWolfRayetShenar2019()
  *
  *
  * @return                                      Mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateHeliumStarShenar2019() const {
+double BaseStar::CalculateMassLossRateWolfRayetShenar2019() const {
 
     // Define variables
     double logMdot = 0.0;
     double Teff    = m_Temperature * TSOL;
 
-    // Fitting constants - see Table 5 in Shenar et al. 2019
-    // For H-rich WR stars
-    // const double C1 = -6.26;
-    // const double C2 =  0.66;
-    // const double C3 = -0.11;
-    // const double C4 =  1.16;
-    // const double C5 =  0.81;
+    // For H-rich WR stars (X_H > 0.4)
+    const double C1 = -6.78;
+    const double C2 =  0.66;
+    const double C3 = -0.12;
+    const double C5 =  0.74;
 
-    // For H-poor WR stars (X_H < 0.05) - make based on stellar type?
-    const double C1 = -7.99;
-    const double C2 =  0.97;
-    const double C3 = -0.07;
-    const double C4 =  0.0;
-    const double C5 =  0.89;
-
-    double XHe = 1.0; // What to use for this?
-
-    logMdot = C1 + (C2 * log10(m_Luminosity)) + (C3 * log10(Teff)) + (C4 * log10(XHe)) + (C5 * log10(m_Metallicity)); 
+    logMdot = C1 + (C2 * log10(m_Luminosity)) + (C3 * log10(Teff)) + (C5 * log10(m_Metallicity)); 
 
     double Mdot = PPOW(10.0, logMdot); // Mdot
 

@@ -252,6 +252,41 @@ double HeMS::CalculateMassLossRateVink() {
 }
 
 /*
+ * Calculate the mass-loss rate for Wolf--Rayet stars according to the
+ * prescription of Shenar et al. 2019 (https://ui.adsabs.harvard.edu/abs/2019A%26A...627A.151S/abstract)
+ * 
+ * See their Eq. 6 and Table 5
+ * 
+ * We use the fitting coefficients for hydrogen poor WR stars 
+ * The C4 (X_He) term is = 0 and is omitted
+ * 
+ * double CalculateMassLossRateWolfRayetShenar2019()
+ *
+ *
+ * @return                                      Mass loss rate (in Msol yr^{-1})
+ */
+double HeMS::CalculateMassLossRateWolfRayetShenar2019() const {
+
+    // Define variables
+    double logMdot = 0.0;
+    double Teff    = m_Temperature * TSOL;
+
+    // For H-poor WR stars (X_H < 0.05)
+    const double C1 = -7.99;
+    const double C2 =  0.97;
+    const double C3 = -0.07;
+    const double C4 =  0.0;
+    const double C5 =  0.89;
+
+    logMdot = C1 + (C2 * log10(m_Luminosity)) + (C3 * log10(Teff)) + (C5 * log10(m_Metallicity)); 
+
+    double Mdot = PPOW(10.0, logMdot); // Mdot
+
+    return Mdot;
+}
+
+
+/*
  * Calculate the mass loss rate for helium stars in the updated prescription
  * Uses Sander & Vink 2020 for Wolf--Rayet stars
  * 
@@ -278,7 +313,6 @@ double HeMS::CalculateMassLossRateUpdatedPrescription() {
 
         // Use whichever gives the highest mass loss rate -- will typically be Vink 2017 for
         // low Mass or Luminosity, and Sander & Vink 2020 for high Mass or Luminosity
-        //return std::max(Mdot_SanderVink2020, Mdot_Vink2017);
 
         MdotWR = std::max(Mdot_Sander2023, Mdot_Vink2017);
 
@@ -286,7 +320,7 @@ double HeMS::CalculateMassLossRateUpdatedPrescription() {
     else if(OPTIONS->WRMassLoss() == WR_MASS_LOSS::SHENAR19){
 
         // Mass loss rate for WR stars from Shenar+ 2019
-        double Mdot_Shenar2019 = CalculateMassLossRateHeliumStarShenar2019();
+        double Mdot_Shenar2019 = CalculateMassLossRateWolfRayetShenar2019();
 
         // Calculate Vink 2017 mass-loss rate
         double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();

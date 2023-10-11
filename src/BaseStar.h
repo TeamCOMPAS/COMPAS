@@ -502,7 +502,7 @@ protected:
             double              CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const;
             double              CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot) const;
             double              CalculateMassLossRateHeliumStarVink2017() const;
-            double              CalculateMassLossRateHeliumStarShenar2019() const;
+            double              CalculateMassLossRateWolfRayetShenar2019() const;
 
     virtual double              CalculateMassTransferRejuvenationFactor() const;
 
