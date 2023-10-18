@@ -1942,7 +1942,7 @@ double BaseStar::CalculateMassLossRateWolfRayetZDependent(const double p_Mu) con
  * @param   [IN]    prescription                      Effective temperature in K
  * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateOBVink2001() {
+double BaseStar::CalculateMassLossRateOBVink2001() const {
 
     double rate;
     double teff = m_Temperature * TSOL;  
@@ -1958,7 +1958,7 @@ double BaseStar::CalculateMassLossRateOBVink2001() {
                            (1.07  * log10(teff / 20000.0));
 
         rate = PPOW(10.0, logMdotOB);
-        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
+
     }
     else if (utils::Compare(teff, VINK_MASS_LOSS_BISTABILITY_TEMP) > 0) {
         SHOW_WARN_IF(utils::Compare(teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
@@ -1974,7 +1974,7 @@ double BaseStar::CalculateMassLossRateOBVink2001() {
                            (10.92 * log10(teff / 40000.0) * log10(teff/40000.0));
 
         rate = PPOW(10.0, logMdotOB);
-        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
+
     }
     else {
         SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                                               // too cold to use winds - show warning.
@@ -1995,7 +1995,7 @@ double BaseStar::CalculateMassLossRateOBVink2001() {
  * @param   [IN]    prescription                      Effective temperature in K
  * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateOBVinkSander2021() {
+double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
     const double zExp2001 = 0.85;
     const double zExp = 0.42;
     double teff = m_Temperature * TSOL;  
@@ -2021,7 +2021,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() {
                            (1.07  * logT20);
 
         rate = PPOW(10.0, logMdotOB);
-        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
+
     }
     else if (utils::Compare(teff, T1) > 0 && utils::Compare(teff, T2) <= 0) {
         SHOW_WARN_IF(utils::Compare(teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
@@ -2036,7 +2036,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() {
                            (1.07  * logT20);
 
         rate = PPOW(10.0, logMdotOB);
-        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
+
     }
     else if (utils::Compare(teff, T2) > 0) {
         SHOW_WARN_IF(utils::Compare(teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);          // show warning if winds being used outside comfort zone
@@ -2052,7 +2052,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() {
                            (10.92 * logT40 * logT40);
 
         rate = PPOW(10.0, logMdotOB);
-        m_DominantMassLossRate = MASS_LOSS_TYPE::VINK;
+
     }
     else {
         SHOW_WARN(ERROR::LOW_TEFF_WINDS, "Mass Loss Rate = 0.0");                                               // too cold to use winds - show warning.
@@ -2226,7 +2226,7 @@ double BaseStar::CalculateMassLossRateVMSBestenlehner2020() const {
  *
  * @return                                      Mass loss rate for very massive stars in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateVMSVink2011() {
+double BaseStar::CalculateMassLossRateVMSVink2011() const {
     double rate;
     double Gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
     double logMdotdiff;
@@ -2253,7 +2253,7 @@ double BaseStar::CalculateMassLossRateVMSVink2011() {
  *
  * @return                                      Mass loss rate in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateVMSSabhahit2023() {
+double BaseStar::CalculateMassLossRateVMSSabhahit2023() const {
 
     double gamma = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;                                                     // Eddington Parameter, independent of surface composition
     double teff = m_Temperature * TSOL;    
@@ -2538,13 +2538,13 @@ double BaseStar::CalculateMassLossRateHurley() {
 
 /*
  * Calculate the dominant mass loss mechanism and associated rate for the star at the current evolutionary phase
- * According to Vink - based on implementation in StarTrack
+ * According to Vink - based on implementation in StarTrack 
  *
- * double CalculateMassLossRateVink()
+ * double CalculateMassLossRateBelczynski2010()
  *
  * @return                                      Mass loss rate in Msol per year
  */
-double BaseStar::CalculateMassLossRateVink() {
+double BaseStar::CalculateMassLossRateBelczynski2010() {
     m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;                                                                  // reset dominant mass loss rate
 
     double LBVRate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                         // start with LBV winds (can be, and is often, 0.0)
@@ -2578,11 +2578,11 @@ double BaseStar::CalculateMassLossRateVink() {
  * Mass loss rates for red supergiants are given by Beasor and Davies (not yet implemented)
  * Mass loss rates for luminous blue variables are still given as above
  *
- * double CalculateMassLossRateUpdatedPrescription()
+ * double CalculateMassLossRateFlexible2023()
  * 
  * @return                  Mass loss rate in Msol per year
  */
-double BaseStar::CalculateMassLossRateUpdatedPrescription() {
+double BaseStar::CalculateMassLossRateFlexible2023() {
     m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
 
     double LBVRate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                         // start with LBV winds (can be, and is often, 0.0)
@@ -2649,15 +2649,15 @@ double BaseStar::CalculateMassLossRate() {
                 mDot = LBVRate + otherWindsRate;
                 break;
 
-            case MASS_LOSS_PRESCRIPTION::VINK:                                                                  // VINK mass-loss prescription
-                mDot = CalculateMassLossRateVink();
+            case MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010:                                                        // formerly named VINK mass-loss prescription
+                mDot = CalculateMassLossRateBelczynski2010();
                 break;
 
-            case MASS_LOSS_PRESCRIPTION::UPDATED:                        // Updated mass loss prescription
-                mDot = CalculateMassLossRateUpdatedPrescription();
+            case MASS_LOSS_PRESCRIPTION::FLEXIBLE2023:                                                          // Updated mass loss prescription
+                mDot = CalculateMassLossRateFlexible2023();
                 break;
 
-            case MASS_LOSS_PRESCRIPTION::NONE:                           // No mass loss prescription
+            case MASS_LOSS_PRESCRIPTION::NONE:                                                                  // No mass loss prescription
                 mDot = 0.0;
                 break;
 

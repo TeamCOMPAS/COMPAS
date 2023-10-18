@@ -481,9 +481,9 @@ protected:
             double              CalculateMassLossRateBjorklundEddingtonFactor() const;
             double              CalculateMassLossRateOB(const OB_MASS_LOSS p_OB_mass_loss);
             double              CalculateMassLossRateOBBjorklund2022() const;
-            double              CalculateMassLossRateOBVink2001();
+            double              CalculateMassLossRateOBVink2001() const;
             double              CalculateMassLossRateOBKrticka2018() const;
-            double              CalculateMassLossRateOBVinkSander2021();
+            double              CalculateMassLossRateOBVinkSander2021() const;
             double              CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss);
             double              CalculateMassLossRateRSGVinkSabhahit2023() const;
             double              CalculateMassLossRateRSGBeasor2020() const;
@@ -493,10 +493,10 @@ protected:
             double              CalculateMassLossRateVassiliadisWood() const;
             double              CalculateMassLossRateVMS(const VMS_MASS_LOSS p_VMS_mass_loss);
             double              CalculateMassLossRateVMSBestenlehner2020() const;
-            double              CalculateMassLossRateVMSSabhahit2023();
-            double              CalculateMassLossRateVMSVink2011();
-    virtual double              CalculateMassLossRateVink();
-    virtual double              CalculateMassLossRateUpdatedPrescription();
+            double              CalculateMassLossRateVMSSabhahit2023() const;
+            double              CalculateMassLossRateVMSVink2011() const;
+    virtual double              CalculateMassLossRateBelczynski2010();
+    virtual double              CalculateMassLossRateFlexible2023();
             double              CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const;
             double              CalculateMassLossRateWolfRayet(const double p_Mu) const;
             double              CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const;
