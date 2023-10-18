@@ -242,11 +242,11 @@ double HeMS::CalculateMassLossRateHurley() {
  *
  * According to Vink - based on implementation in StarTrack
  *
- * double CalculateMassLossRateVink()
+ * double CalculateMassLossRateBelczynski2010()
  *
  * @return                                      Mass loss rate in Msol per year
  */
-double HeMS::CalculateMassLossRateVink() {
+double HeMS::CalculateMassLossRateBelczynski2010() {
     m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
     return CalculateMassLossRateWolfRayetZDependent(0.0);
 }
@@ -330,7 +330,7 @@ double HeMS::CalculateMassLossRateUpdatedPrescription() {
 
     }
     else{
-        MdotWR = CalculateMassLossRateVink();
+        MdotWR = CalculateMassLossRateBelczynski2010();
     }
 
     return MdotWR;

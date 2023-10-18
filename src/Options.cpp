@@ -359,19 +359,19 @@ void Options::OptionValues::Initialise() {
     m_ExpelConvectiveEnvelopeAboveLuminosityThreshold               = false;
     m_LuminosityToMassThreshold                                     = 4.2;      // Podsiadlowski, private communication
 
-    m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::VINK;
+    m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::FLEXIBLE2023;
     m_MassLossPrescription.typeString                               = MASS_LOSS_PRESCRIPTION_LABEL.at(m_MassLossPrescription.type);
 
     m_LuminousBlueVariablePrescription.type                         = LBV_PRESCRIPTION::HURLEY_ADD;
     m_LuminousBlueVariablePrescription.typeString                   = LBV_PRESCRIPTION_LABEL.at(m_LuminousBlueVariablePrescription.type);
 
-    m_OBMassLoss.type                                              = OB_MASS_LOSS::NONE;
+    m_OBMassLoss.type                                              = OB_MASS_LOSS::VINK2021;
     m_OBMassLoss.typeString                                        = OB_MASS_LOSS_LABEL.at(m_OBMassLoss.type);
 
-    m_VMSMassLoss.type                                              = VMS_MASS_LOSS::NONE;
+    m_VMSMassLoss.type                                              = VMS_MASS_LOSS::SABHAHIT2023;
     m_VMSMassLoss.typeString                                        = VMS_MASS_LOSS_LABEL.at(m_VMSMassLoss.type);
 
-    m_RSGMassLoss.type                                              = RSG_MASS_LOSS::NJ90;
+    m_RSGMassLoss.type                                              = RSG_MASS_LOSS::DECIN2023;
     m_RSGMassLoss.typeString                                        = RSG_MASS_LOSS_LABEL.at(m_RSGMassLoss.type);
 
     m_WRMassLoss.type                                              = WR_MASS_LOSS::BELCZYNSKI2010;

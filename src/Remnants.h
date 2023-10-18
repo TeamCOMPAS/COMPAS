@@ -56,7 +56,7 @@ protected:
                                                 const bool   p_IsHeRich)                                        { return CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); } // Ignore the He content for non-WDs
 
     double          CalculateMassLossRateHurley()                                                               { return 0.0; }
-    double          CalculateMassLossRateVink()                                                                 { return 0.0; }
+    double          CalculateMassLossRateBelczynski2010()                                                                 { return 0.0; }
 
     double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                          { return GiantBranch::CalculateMomentOfInertia(p_RemnantRadius); }      // Default to GiantBranch
     double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const                        { return GiantBranch::CalculateMomentOfInertiaAU(p_RemnantRadius); }    // Default to GiantBranch

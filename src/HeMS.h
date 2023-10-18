@@ -80,7 +80,7 @@ protected:
             double          CalculateLuminosityOnPhase() const                                                      { return CalculateLuminosityOnPhase(m_Mass, m_Tau); }                           // Use class member variables
 
             double          CalculateMassLossRateHurley();
-            double          CalculateMassLossRateVink();
+            double          CalculateMassLossRateBelczynski2010();
             double          CalculateMassLossRateUpdatedPrescription();
             double          CalculateMassLossRateWolfRayetShenar2019() const;
             
