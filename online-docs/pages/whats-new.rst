@@ -6,6 +6,14 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.40.00 Oct 20, 2023**
+
+* Added ``FLEXIBLE2023`` as a new default, and ``BELCZYNSKI2010`` as a replacement for the previous ``VINK`` mass loss prescription. The following new sub-wrappers are overridden when selecting ``BELCZYNSKI2010``:
+* Added ``--OB-mass-loss`` program option, with default ``VINK2021``
+* Added ``--RSG-mass-loss`` program option, with default ``DECIN2023``
+* Added ``--VMS-mass-loss`` program option, with default ``SABHAHIT2023``
+* Added ``--WR-mass-loss`` program option, with default ``BELCZYNSKI2010``
+
 **02.39.00 Jul 4, 2023**
 
 * Added 'Evolution_Status' columns to both SSE and BSE default system parameters records - records final status of evolution (reason evolution stopped).

@@ -300,7 +300,7 @@ double HeMS::CalculateMassLossRateFlexible2023() {
 
     double MdotWR = 0.0;
 
-    if(OPTIONS->WRMassLoss() == WR_MASS_LOSS::SANDERVINK){
+    if(OPTIONS->WRMassLoss() == WR_MASS_LOSS::SANDERVINK2023){
 
         // Calculate Sander & Vink 2020 mass-loss rate
         double Mdot_SanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
@@ -317,7 +317,7 @@ double HeMS::CalculateMassLossRateFlexible2023() {
         MdotWR = std::max(Mdot_Sander2023, Mdot_Vink2017);
 
     }
-    else if(OPTIONS->WRMassLoss() == WR_MASS_LOSS::SHENAR19){
+    else if(OPTIONS->WRMassLoss() == WR_MASS_LOSS::SHENAR2019){
 
         // Mass loss rate for WR stars from Shenar+ 2019
         double Mdot_Shenar2019 = CalculateMassLossRateWolfRayetShenar2019();

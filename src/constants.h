@@ -1069,11 +1069,11 @@ const COMPASUnorderedMap<RSG_MASS_LOSS, std::string> RSG_MASS_LOSS_LABEL = {
 };
 
 // WR Mass loss prescriptions
-enum class WR_MASS_LOSS: int { BELCZYNSKI2010, SANDERVINK, SHENAR19 };
+enum class WR_MASS_LOSS: int { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 };
 const COMPASUnorderedMap<WR_MASS_LOSS, std::string> WR_MASS_LOSS_LABEL = {
     { WR_MASS_LOSS::BELCZYNSKI2010,     "BELCZYNSKI2010" },
-    { WR_MASS_LOSS::SANDERVINK,         "SANDERVINK" },
-    { WR_MASS_LOSS::SHENAR19,           "SHENAR19" },
+    { WR_MASS_LOSS::SANDERVINK2023,         "SANDERVINK2023" },
+    { WR_MASS_LOSS::SHENAR2019,           "SHENAR2019" },
 };
 
 // Mass loss prescriptions
