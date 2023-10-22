@@ -374,7 +374,7 @@ void Options::OptionValues::Initialise() {
     m_RSGMassLoss.type                                              = RSG_MASS_LOSS::DECIN2023;
     m_RSGMassLoss.typeString                                        = RSG_MASS_LOSS_LABEL.at(m_RSGMassLoss.type);
 
-    m_WRMassLoss.type                                              = WR_MASS_LOSS::BELCZYNSKI2010;
+    m_WRMassLoss.type                                              = WR_MASS_LOSS::SANDERVINK2023;
     m_WRMassLoss.typeString                                        = WR_MASS_LOSS_LABEL.at(m_WRMassLoss.type);
 
     // Wind mass loss multiplicitive constants

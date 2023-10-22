@@ -12,7 +12,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 * Added ``--OB-mass-loss`` program option, applying to main sequence stars, with default ``VINK2021``, and options ``NONE``, ``VINK2001`` (previous default), ``BJORKLUND2022``, and ``KRTICKA2018``.
 * Added ``--RSG-mass-loss`` program option, applying to stars below 8kK in giant branch stellar types, with default ``DECIN2023``, and options ``NONE``, ``VINISABHAHIT2023``, ``BEASOR2020``, ``YANG2023``, ``KEE2021``, ``NJ90`` (previous default).
 * Added ``--VMS-mass-loss`` program option, applying to stars over 100 Msol, with default ``SABHAHIT2023``, and options ``NONE``, ``VINK2011``, and ``BESTENLEHNER2020``.
-* Added ``--WR-mass-loss`` program option, with default ``BELCZYNSKI2010``, and options ``SANDERVINK2023``, and ``SHENAR2019``.
+* Added ``--WR-mass-loss`` program option, with default ``SANDERVINK2023``, and options ``BELCZYNSKI2010``, and ``SHENAR2019``.
 
 **02.39.00 Jul 4, 2023**
 
