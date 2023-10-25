@@ -3,6 +3,8 @@ from typing import Any, Dict
 
 import h5py
 import pytest
+from compas_python_utils.cosmic_integration.binned_cosmic_integrator.bbh_population import \
+    generate_mock_bbh_population_file
 
 HERE = os.path.dirname(__file__)
 DETAILED_EVOLUTION_PATH = os.path.join(
@@ -49,3 +51,12 @@ def get_compas_data(path: str) -> Dict[str, Any]:
             if "SEED" in f[group]:
                 data[f"{group}_SEED"] = f[group]["SEED"][:]
     return data
+
+
+@pytest.fixture
+def fake_compas_output(tmpdir) -> str:
+    fname = f"{tmpdir}/COMPAS_mock_output.h5"
+    generate_mock_bbh_population_file(
+        filename=fname,
+    )
+    return fname
