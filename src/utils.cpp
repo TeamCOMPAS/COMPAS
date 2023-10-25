@@ -168,26 +168,53 @@ namespace utils {
     /*
      * Compare floating-point numbers with tolerance
      *
-     * Absolute and relative tolerance can be different - see constants.h
-     * Set relative tolerance = 0.0 to always use absolute
-     * Set absolute tolerance = 0.0 to always use relative
-     * Set both to zero for no tolerance - or #undef COMPARE_WITH_TOLERANCE for performance
+     * For comparisons using the global tolerance values (FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE):
+     *    - Absolute and relative tolerance can be different - see constants.h
+     *    - Set relative tolerance = 0.0 to always use absolute
+     *    - Set absolute tolerance = 0.0 to always use relative
+     *    - Set both to zero for no tolerance - or #undef COMPARE_GLOBAL_TOLERANCE for performance
      *
+     * If p_Tolerance is > 0.0 it will be used in preference to the global tolerance values
+     * If p_Tolerance is > 0.0, then p_Absolute determines if p_tolerance should be treated as an absolute
+     * torelace (p_Absolute = true), or a relative tolerance (p_Absolete = false).
+     * 
      *
      * int Compare(const double p_X, const double p_Y)
      *
      * @param   [IN]    p_X                 Floating-point value to be compared
      * @param   [IN]    p_Y                 Floating-point value to be compared
+     * @param   [IN]    p_Tolerance         Floating-point tolerance value - if > 0.0 supersedes global tolerance
+     * @param   [IN]    p_Absolute          Boolean indicatin whether p_Tolerance should be treated as absolute tolerance (true) or relative tolerance (false)
      * @return                              Integer indicating result of comparison:
      *                                         -1 indicates p_X is less than p_Y
      *                                          0 indicates equality
      *                                          1 indicates p_X is greater than p_Y
      */
-    int Compare(const double p_X, const double p_Y) {
-    #ifdef COMPARE_WITH_TOLERANCE
-        return (std::abs(p_X - p_Y) <= std::max(FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE * std::max(std::abs(p_X), fabs(p_Y)))) ? 0 : (p_X < p_Y ? -1 : 1);
+    int Compare(const double p_X, const double p_Y, const double p_Tolerance, const bool p_Absolute) {
+    #ifdef COMPARE_GLOBAL_TOLERANCE
+        if (p_Tolerance > 0.0) {                                                                                                // use tolerance passed?
+            if (p_Absolute) {                                                                                                   // yes - absolute tolerance?
+                return (std::abs(p_X - p_Y) <= p_Tolerance) ? 0 : (p_X < p_Y ? -1 : 1);                                         // yes
+            }
+            else {                                                                                                              // no - relative tolerance
+                return (std::abs(p_X - p_Y) <= p_Tolerance * std::max(std::abs(p_X), fabs(p_Y))) ? 0 : (p_X < p_Y ? -1 : 1);
+            }
+        }
+        else {                                                                                                                  // use global tolerance
+            return (std::abs(p_X - p_Y) <= std::max(FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE * std::max(std::abs(p_X), fabs(p_Y)))) ? 0 : (p_X < p_Y ? -1 : 1);
+        }
     #else
-        return (p_X == p_Y) ? 0 : (p_X < p_Y ? -1 : 1);
+        if (p_Tolerance > 0.0) {                                                                                                // use tolerance passed?
+            if (p_Absolute) {                                                                                                   // yes - absolute tolerance?
+                return (std::abs(p_X - p_Y) <= p_Tolerance) ? 0 : (p_X < p_Y ? -1 : 1);                                         // yes
+            }
+            else {                                                                                                              // no - relative tolerance
+                return (std::abs(p_X - p_Y) <= p_Tolerance * std::max(std::abs(p_X), fabs(p_Y))) ? 0 : (p_X < p_Y ? -1 : 1);
+            }
+        }
+        else {                                                                                                                  // no tolerance
+            return (p_X == p_Y) ? 0 : (p_X < p_Y ? -1 : 1);
+        }
     #endif
     }
 

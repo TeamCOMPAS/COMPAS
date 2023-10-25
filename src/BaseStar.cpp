@@ -116,8 +116,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
                                                     ? p_RotationalFrequency                             // yes - use it
                                                     : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
 
-    m_MomentOfInertiaZAMS                      = CalculateMomentOfInertia();
-
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
     m_RZAMS0                                   = m_RZAMS;
     m_LZAMS0                                   = m_LZAMS;
@@ -143,7 +141,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_DominantMassLossRate                     = MASS_LOSS_TYPE::NONE;
 
     m_Omega                                    = m_OmegaZAMS;
-    m_MomentOfInertia                          = m_MomentOfInertiaZAMS;
     m_AngularMomentum                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_MinimumLuminosityOnPhase                 = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -156,7 +153,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_RadiusPrev                               = m_RZAMS;
     m_DtPrev                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaPrev                                = m_OmegaZAMS;
-
+    
     // Lambdas
 	m_Lambdas.dewi                             = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_Lambdas.fixed                            = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -2449,7 +2446,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) const {
             break;
 
         default:                                                                        // unknown rorational velocity prescription
-            SHOW_WARN(ERROR::UNKNOWN_VROT_PRESCRIPTION, "Using default vRot = 0.0");     // show warning
+            SHOW_WARN(ERROR::UNKNOWN_VROT_PRESCRIPTION, "Using default vRot = 0.0");    // show warning
     }
     return vRot;
 }
@@ -2470,7 +2467,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) const {
  */
 double BaseStar::CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) const {
     double vRot = CalculateRotationalVelocity(p_MZAMS);
-    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_RZAMS;    // Hurley et al. 2000, eq 108       JR: todo: added check for vRot = 0
+    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_RZAMS;               // Hurley et al. 2000, eq 108
 }
 
 
@@ -2521,7 +2518,7 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
     }
 
     // calculate omegaCHE(M, Z)
-    return (1.0 / ((0.09 * log(p_Metallicity / 0.004)) + 1.0) * omegaZ004) * SECONDS_IN_YEAR;   // in rads/yr
+    return (1.0 / ((0.09 * log(p_Metallicity / 0.004)) + 1.0) * omegaZ004) * SECONDS_IN_YEAR;       // in rads/yr
 
 #undef massCutoffs
 }
@@ -3251,7 +3248,6 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
         m_DtPrev              = m_Dt;
         m_MassPrev            = m_Mass;
         m_RadiusPrev          = m_Radius;
-        m_OmegaPrev           = m_Omega;
     }
 
     // the GBParams and Timescale calculations need to be done

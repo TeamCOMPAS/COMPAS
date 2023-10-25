@@ -333,6 +333,7 @@ private:
         "eccentricity-distribution",
         "eccentricity-max",
         "eccentricity-min",
+        "enable-tides",
         "evolve-double-white-dwarfs",
         "evolve-pulsars",
         "evolve-unbound-systems",
@@ -437,6 +438,7 @@ private:
         "detailed-output",
 
         "eccentricity-distribution",
+        "enable-tides",
         "enable-warnings",
         "envelope-state-prescription",
         "errors-to-file",
@@ -896,6 +898,10 @@ public:
 	        double                                              m_CommonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 erg/g)
 
 
+            // Tides
+            bool                                                m_EnableTides;                                                   // Whether to enable tides (default = False)
+
+
             // Zetas
             ENUM_OPT<ZETA_PRESCRIPTION>                         m_StellarZetaPrescription;                                 	    // Prescription to use for calculating stellar zetas (default = SOBERMAN)
 
@@ -1206,6 +1212,7 @@ public:
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
     bool                                        DetailedOutput() const                                                  { return m_CmdLine.optionValues.m_DetailedOutput; }
 
+    bool                                        EnableTides() const                                                     { return OPT_VALUE("enable-tides", m_EnableTides, true); }
     bool                                        EnableWarnings() const                                                  { return m_CmdLine.optionValues.m_EnableWarnings; }
     bool                                        ErrorsToFile() const                                                    { return m_CmdLine.optionValues.m_ErrorsToFile; }
     double                                      Eccentricity() const                                                    { return OPT_VALUE("eccentricity", m_Eccentricity, true); }

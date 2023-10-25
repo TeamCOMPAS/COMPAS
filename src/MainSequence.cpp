@@ -598,7 +598,7 @@ double MainSequence::CalculateGyrationRadius() const {
 	     if ((utils::Compare(log10M, 0.2) > 0)) CUpper = -1.5;                                      // log10(M) > 0.2
 	else if ((utils::Compare(log10M, 0.0) > 0)) CUpper = -2.5 + (5.0 * log10M);                     // 0.2 <= log10(M) > 0.0 (de Mink doesn't include '=' - we assume it to be here (and for log10(M) <= 0.0))
 
-    double k0 = cLower+ std::min(0.21, std::max(0.09 - (0.27 * log10M), 0.037 + (0.033 * log10M))); // gyration radius squared for ZAMS stars
+    double k0 = cLower + std::min(0.21, std::max(0.09 - (0.27 * log10M), 0.037 + (0.033 * log10M)));// gyration radius squared for ZAMS stars
 
     double radiusRatio = m_Radius / m_RZAMS;
 
