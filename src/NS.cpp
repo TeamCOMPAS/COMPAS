@@ -1,5 +1,4 @@
 #include "Rand.h"
-
 #include "NS.h"
 
 
@@ -7,6 +6,8 @@
  * Calculate the luminosity of a Neutron Star
  *
  * Hurley et al. 2000, eq 93
+ *
+ * Called (indirectly) from GiantBranch, so must be static.
  *
  *
  * double CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Time)
@@ -25,10 +26,8 @@ double NS::CalculateLuminosityOnPhase_Static(const double p_Mass, const double p
  * Choose timestep for Pulsar Evolution
  *
  * Pulsars evolve very fast when they are first born, and evolve slower as they age.
- * Hence, timestep is chosen to be small when pulsar is young,
- * and is slowly increased as the pulsar ages.
- *
- * Can change it to a choice that suits your simulation.
+ * Hence, timestep is chosen to be small when pulsar is young, and is slowly increased
+ * as the pulsar ages.
  *
  * double ChooseTimestep(const double p_Time)
  *
@@ -36,7 +35,8 @@ double NS::CalculateLuminosityOnPhase_Static(const double p_Mass, const double p
  * @return                                      Suggested timestep (dt)
  */
 double NS::ChooseTimestep(const double p_Time) const {
-    double result;
+    double result = 500.0;                                                                                                      // default value
+
     if (p_Time < 0.01) {
         result = 0.001;
     }
@@ -50,13 +50,11 @@ double NS::ChooseTimestep(const double p_Time) const {
         result = 1.0;
     }
     else if (p_Time < 500.0) {
-        double slope      = log10(500.0)  / (log10(500.0) - 1.0);
+        double slope      = 1.58859191006;                                                                                      // 1.58859191006 = log10(500.0) / (log10(500.0) - 1.0)
         double log10_step = slope * (log10(p_Time) - 1.0);
         result = PPOW(10.0, log10_step);
     }
-    else {
-        result = 500.0;
-    }
+
     return result;
 }
 
@@ -74,13 +72,13 @@ double NS::CalculateRadiusOnPhaseInKM_Static(const double p_Mass) {
 
     double radius;
 
-    switch (OPTIONS->NeutronStarEquationOfState()) {                                                    // which equation-of-state?
+    switch (OPTIONS->NeutronStarEquationOfState()) {                                                                            // which equation-of-state?
 
-        case NS_EOS::SSE:                                                                               // SSE
+        case NS_EOS::SSE:                                                                                                       // SSE
             radius = 10.0;
             break;
 
-        case NS_EOS::ARP3: {                                                                            // ARP3
+        case NS_EOS::ARP3: {                                                                                                    // ARP3
 
             // We don't extrapolate so masses outside table just set to extreme values
 
@@ -105,13 +103,14 @@ double NS::CalculateRadiusOnPhaseInKM_Static(const double p_Mass) {
             }
         } break;
 
-        default:                                                                                        // unknown equation-of-state
-            SHOW_WARN_STATIC(ERROR::UNKNOWN_NS_EOS,                                                     // show warning
+        default:                                                                                                                // unknown equation-of-state
+            SHOW_WARN_STATIC(ERROR::UNKNOWN_NS_EOS,                                                                             // show warning
                              "Using default NS radius = 10.0",
                              OBJECT_TYPE::BASE_STAR,
                              STELLAR_TYPE::NEUTRON_STAR);
             radius = 10.0;
 	}
+
 	return radius;
 }
 
@@ -119,16 +118,18 @@ double NS::CalculateRadiusOnPhaseInKM_Static(const double p_Mass) {
 /*
  * Calculate core collapse Supernova parameters
  *
- *
+ * Called from GiantBranch, so must be static.
+ * 
+ * 
  * DBL_DBL_DBL CalculateCoreCollapseSNParams_Static(const double p_Mass)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Tuple containing Luminosity, Radius and Temperature of Neutron Star
  */
 DBL_DBL_DBL NS::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
-    double luminosity  = CalculateLuminosityOnPhase_Static(p_Mass, 0.0);                    // Luminosity of Neutron Star as it cools
-    double radius      = CalculateRadiusOnPhase_Static(p_Mass);                             // Radius of Neutron Star in Rsol
-    double temperature = BaseStar::CalculateTemperatureOnPhase_Static(luminosity, radius);  // Temperature of NS
+    double luminosity  = CalculateLuminosityOnPhase_Static(p_Mass, 0.0);                                                        // Luminosity of Neutron Star as it cools
+    double radius      = CalculateRadiusOnPhase_Static(p_Mass);                                                                 // Radius of Neutron Star in Rsol
+    double temperature = BaseStar::CalculateTemperatureOnPhase_Static(luminosity, radius);                                      // Temperature of NS
 
     return std::make_tuple(luminosity, radius, temperature);
 }
@@ -138,30 +139,30 @@ DBL_DBL_DBL NS::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
  * Calculate the spin period of a Pulsar at birth according to selected distribution (by commandline option)
  *
  *
- * double CalculatePulsarBirthSpinPeriod_Static()
+ * double CalculatePulsarBirthSpinPeriod()
  *
  * @return                                      Birth spin period of Pulsar in ms
  */
-double NS::CalculatePulsarBirthSpinPeriod_Static() {
+double NS::CalculatePulsarBirthSpinPeriod() {
 
 	double pSpin;
 
-    switch (OPTIONS->PulsarBirthSpinPeriodDistribution()) {                                                                 // which distribution?
+    switch (OPTIONS->PulsarBirthSpinPeriodDistribution()) {                                                                     // which distribution?
 
-        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::ZERO:                                                                   // ZERO
+        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::ZERO:                                                                       // ZERO
             pSpin = 0.0;
             break;
 
-        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::FIXED:                                                                  // FIXED  constant value as used in default model in Oslowski et al 2011 https://arxiv.org/abs/0903.3538
-            SHOW_WARN_STATIC(ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                                      // show warning
+        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::FIXED:                                                                      // FIXED  constant value as used in default model in Oslowski et al 2011 https://arxiv.org/abs/0903.3538
+            SHOW_WARN_STATIC(ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                                          // show warning
                              "Using spin = 0.0",
                              OBJECT_TYPE::BASE_STAR,
                              STELLAR_TYPE::NEUTRON_STAR);
             pSpin = 0.0;
             break;
 
-        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM: {                                                              // UNIFORM distribution between minimum and maximum value as in Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (default Pmin = and Pmax = )
-                                                                                                                            // and also Kiel et al 2008 https://arxiv.org/abs/0805.0059 (default Pmin = 10 ms and Pmax 100 ms, section 3.4)
+        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM: {                                                                  // UNIFORM distribution between minimum and maximum value as in Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (default Pmin = and Pmax = )
+                                                                                                                                // and also Kiel et al 2008 https://arxiv.org/abs/0805.0059 (default Pmin = 10 ms and Pmax 100 ms, section 3.4)
 
             double maximum = OPTIONS->PulsarBirthSpinPeriodDistributionMax();
             double minimum = OPTIONS->PulsarBirthSpinPeriodDistributionMin();
@@ -169,7 +170,7 @@ double NS::CalculatePulsarBirthSpinPeriod_Static() {
             pSpin = minimum + (RAND->Random() * (maximum - minimum));
             } break;
 
-        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL: {                                                               // NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
+        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL: {                                                                   // NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
 
             // Values hard-coded for now, can make them options if necessary
             // pulsarBirthSpinPeriodDistributionFaucherGiguereKaspi2006Mean = 300.0;
@@ -182,8 +183,8 @@ double NS::CalculatePulsarBirthSpinPeriod_Static() {
 
             } break;
 
-        default:                                                                                                            // unknown distribution
-            SHOW_WARN_STATIC(ERROR::UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                                          // show warning
+        default:                                                                                                                // unknown distribution
+            SHOW_WARN_STATIC(ERROR::UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                                              // show warning
                              "Using spin = 0.0",
                              OBJECT_TYPE::BASE_STAR,
                              STELLAR_TYPE::NEUTRON_STAR);
@@ -207,21 +208,21 @@ double NS::CalculatePulsarBirthMagneticField() {
 
 	double log10B;
 
-    switch (OPTIONS->PulsarBirthMagneticFieldDistribution()) {                                                          // which distribution?
+    switch (OPTIONS->PulsarBirthMagneticFieldDistribution()) {                                                                  // which distribution?
 
-        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO:                                                            // ZERO
+        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO:                                                                    // ZERO
             log10B = 0.0;
             break;
 
-        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FIXED:                                                           // FIXED - set to a fixed constant value
-            SHOW_WARN_STATIC(ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,                               // show warning
+        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FIXED:                                                                   // FIXED - set to a fixed constant value
+            SHOW_WARN_STATIC(ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,                                       // show warning
                              "Using 0.0",
                              OBJECT_TYPE::BASE_STAR,
                              STELLAR_TYPE::NEUTRON_STAR);
             log10B = 0.0;
             break;
 
-        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLATINLOG: {                                                     // FLAT IN LOG distribution from Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (log10B0min = , log10B0max = )
+        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLATINLOG: {                                                             // FLAT IN LOG distribution from Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (log10B0min = , log10B0max = )
 
             double maximum = OPTIONS->PulsarBirthMagneticFieldDistributionMax();
             double minimum = OPTIONS->PulsarBirthMagneticFieldDistributionMin();
@@ -230,7 +231,7 @@ double NS::CalculatePulsarBirthMagneticField() {
 
             } break;
 
-        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::UNIFORM: {                                                       // UNIFORM flat distribution used in Kiel et al 2008 https://arxiv.org/abs/0805.0059 (log10B0min = 11, log10B0max = 13.5 see section 3.4 and Table 1.)
+        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::UNIFORM: {                                                               // UNIFORM flat distribution used in Kiel et al 2008 https://arxiv.org/abs/0805.0059 (log10B0min = 11, log10B0max = 13.5 see section 3.4 and Table 1.)
             
       
             double maximum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMax());
@@ -239,7 +240,7 @@ double NS::CalculatePulsarBirthMagneticField() {
             log10B = log10(minimum + (RAND->Random() * (maximum - minimum)));
             } break;
 
-        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL: {                                                     // LOG NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
+        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL: {                                                             // LOG NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
 
             // Values hard-coded for now, can make them options if necessary
             // pulsarBirthMagneticFieldDistributionFaucherGiguereKaspi2006Mean = 12.65
@@ -251,8 +252,8 @@ double NS::CalculatePulsarBirthMagneticField() {
             log10B = RAND->RandomGaussian(sigma) + mean;
             } break;
 
-        default:                                                                                                        // unknown distribution
-            SHOW_WARN_STATIC(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,                                   // show warning
+        default:                                                                                                                // unknown distribution
+            SHOW_WARN_STATIC(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,                                           // show warning
                              "Using 0.0",
                              OBJECT_TYPE::BASE_STAR,
                              STELLAR_TYPE::NEUTRON_STAR);
@@ -311,18 +312,18 @@ double NS::CalculateSpinDownRate(const double p_Omega, const double p_MomentOfIn
 
    // pow() is slow - use multiplication
 
-   double period            = _2_PI / p_Omega;                                                      // convert frequency to period
-   double cgsRadius         = p_Radius * KM_TO_CM;                                                  // radius in cm
+   double period            = _2_PI / p_Omega;                                                                                  // convert frequency to period
+   double cgsRadius         = p_Radius * KM_TO_CM;                                                                              // radius in cm
    double radius_6          = cgsRadius * cgsRadius * cgsRadius * cgsRadius * cgsRadius * cgsRadius;
-   double cgsMagField       = p_MagField * TESLA_TO_GAUSS;                                          // B field in G
+   double cgsMagField       = p_MagField * TESLA_TO_GAUSS;                                                                      // B field in G
    double magField_2        = cgsMagField * cgsMagField;
    constexpr double _8_PI_2 = 8.0 * PI_2;
    constexpr double _3_C_3  = 3.0 * (C * 100.0) * (C * 100.0) * (C * 100.0);
    double pDotTop           = _8_PI_2 * radius_6 * magField_2;
    double pDotBottom        = _3_C_3 * p_MomentOfInteria * period;
-   double pDot              = pDotTop / pDotBottom;                                                 // period derivative 
+   double pDot              = pDotTop / pDotBottom;                                                                             // period derivative 
    
-   return(-pDot * p_Omega / period);                                                                // convert period derivative to frequency derivative, which is what is recorded in the output
+   return(-pDot * p_Omega / period);                                                                                            // convert period derivative to frequency derivative, which is what is recorded in the output
 }
 
 
@@ -345,7 +346,7 @@ double NS::CalculateSpinDownRate(const double p_Omega, const double p_MomentOfIn
 void NS::CalculateAndSetPulsarParameters() {
 
     m_PulsarDetails.magneticField     = PPOW(10.0, CalculatePulsarBirthMagneticField()) * GAUSS_TO_TESLA;                       // magnetic field in Gauss -> convert to Tesla
-    m_PulsarDetails.spinPeriod        = CalculatePulsarBirthSpinPeriod_Static();                                                // spin period in ms
+    m_PulsarDetails.spinPeriod        = CalculatePulsarBirthSpinPeriod();                                                       // spin period in ms
     m_PulsarDetails.spinFrequency     = _2_PI / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS);
     m_PulsarDetails.birthPeriod       = m_PulsarDetails.spinPeriod / 1000.0;                                                    // convert from ms to s 
     
@@ -384,7 +385,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     constexpr double _8_PI_2      = 8.0 * PI_2;
     constexpr double _3_C_3       = 3.0 * C * C * C * 1000000.0;
     
-    double initialMagField        = m_PulsarDetails.magneticField;                                                          // (in T)
+    double initialMagField        = m_PulsarDetails.magneticField;                                                              // (in T)
     double initialMagField_G      = initialMagField * TESLA_TO_GAUSS;
     double initialSpinPeriod      = PI_2 / m_PulsarDetails.spinFrequency;
     double magFieldLowerLimit     = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;    
@@ -393,7 +394,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
 
     // calculate isolated decay of the magnetic field for a neutron star
     // see Equation 6 in  arXiv:0903.3538v2       
-    m_PulsarDetails.magneticField = magFieldLowerLimit + (initialMagField - magFieldLowerLimit) * exp(-p_Stepsize / tau);   // update pulsar magnetic field in SI. 
+    m_PulsarDetails.magneticField = magFieldLowerLimit + (initialMagField - magFieldLowerLimit) * exp(-p_Stepsize / tau);       // update pulsar magnetic field in SI. 
     
     // calculate the spin down rate for isolated neutron stars
     // see Equation 6 in arxiv:1912.02415
@@ -405,7 +406,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     double Psquared               = 2 * constant2 * (term1 - term2 - term3) + (initialSpinPeriod * initialSpinPeriod);
     
     double P_f                    = std::sqrt(Psquared);
-    m_PulsarDetails.spinFrequency = _2_PI / P_f;                                                                            // pulsar spin frequency
+    m_PulsarDetails.spinFrequency = _2_PI / P_f;                                                                                // pulsar spin frequency
 
     // calculate the spin down rate for isolated neutron stars
     // see Equation 4 in arXiv:0903.3538v2 (Our version is in cgs)      
@@ -413,7 +414,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     double pDot                   = pDotTop / P_f;
     m_PulsarDetails.spinDownRate  = -_2_PI * pDot / (P_f * P_f);  
 
-    m_AngularMomentum             = m_PulsarDetails.spinFrequency * m_MomentOfInertia_CGS;                                  // angular momentum of star
+    m_AngularMomentum             = m_PulsarDetails.spinFrequency * m_MomentOfInertia_CGS;                                      // angular momentum of star
 }
 
 
@@ -443,9 +444,9 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
  */
 void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_RecycledNS, const double p_Stepsize, const double p_MassGainPerTimeStep, const double p_Epsilon) {
 
-    constexpr double unitsMoI = G_TO_KG * CM_TO_M * CM_TO_M;
+    constexpr double unitsMoI = G_TO_KG * CM_TO_M * CM_TO_M;                                                                    // converts CGS -> SI
 
-    double initialMagField    = m_PulsarDetails.magneticField;                                                          // (in T)
+    double initialMagField    = m_PulsarDetails.magneticField;                                                                  // (in T)
     double magFieldLowerLimit = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;    
     double kappa              = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_KG;     
   
@@ -453,13 +454,14 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         // these are the ''classical'' isolated pulsars
         SpinDownIsolatedPulsar(p_Stepsize);
     }
-    else if (utils::Compare(m_PulsarDetails.spinFrequency, _2_PI * 1000.0) < 0 && (p_RecycledNS || p_CommonEnvelope) && utils::Compare(p_MassGainPerTimeStep, 0.0) > 0) {
+    else if (utils::Compare(m_PulsarDetails.spinFrequency, _2_PI * 1000.0) < 0 && 
+             (p_RecycledNS || p_CommonEnvelope) && utils::Compare(p_MassGainPerTimeStep, 0.0) > 0) {
         
         // his part of the code does pulsar recycling through acretion
         // recycling happens for pulsar with spin period larger than 1 ms and in a binary system with mass transfer
         // the pulsar being recycled is either in a common envolope, or should have started the recycling process in previous time steps.
-        double mass_kg                = m_Mass * MSOL_TO_KG;                                                            // in kg
-        double r_m                    = m_Radius * RSOL_TO_KM * 1000.0;                                                 // in metres
+        double mass_kg                = m_Mass * MSOL_TO_KG;                                                                    // in kg
+        double r_m                    = m_Radius * RSOL_TO_KM * 1000.0;                                                         // in metres
         
         double MoI_SI                 = m_MomentOfInertia_CGS * unitsMoI;
         double angularMomentum_SI     = m_AngularMomentum * unitsMoI;

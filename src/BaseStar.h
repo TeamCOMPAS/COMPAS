@@ -98,7 +98,6 @@ public:
             std::string         MassTransferDonorHistoryString() const;
             double              Mdot() const                                                    { return m_Mdot; }
             double              Metallicity() const                                             { return m_Metallicity; }
-            double              MomentOfInertia() const                                         { return m_MomentOfInertia; }
             double              MZAMS() const                                                   { return m_MZAMS; }
             double              Omega() const                                                   { return m_Omega; }
             double              OmegaCHE() const                                                { return m_OmegaCHE; }
@@ -313,7 +312,6 @@ protected:
     double                  m_OmegaCHE;                                 // Minimum angular frequency at which CHE will occur (calculated at ZAMS)
     double                  m_RZAMS;                                    // ZAMS Radius
     double                  m_TZAMS;                                    // ZAMS Temperature
-    double                  m_MomentOfInertiaZAMS;                      // ZAMS moment of inertia (Msol Rsol^2)
 
 
     // Effective Zero Age Main Sequence
@@ -338,7 +336,6 @@ protected:
     MASS_LOSS_TYPE          m_DominantMassLossRate;                     // Current dominant mass loss rate
     double                  m_Mu;                                       // Current small envelope parameter mu
     double                  m_Omega;                                    // Current angular frequency (yr^-1)
-    double                  m_MomentOfInertia;                          // Current moment of inertia (Msol Rsol^2)
     double                  m_AngularMomentum;                          // Current angular momentum
     double                  m_Radius;                                   // Current radius (Rsol)
     double                  m_Tau;                                      // Relative time
@@ -421,8 +418,6 @@ protected:
                                                         DBL_VECTOR &p_LConstants,
                                                         DBL_VECTOR &p_RConstants,
                                                         DBL_VECTOR &p_GammaConstants);
-
-    virtual void                CalculateAndSetPulsarParameters() { }                                                                                                                               // NO-OP for most stellar types
 
             double              CalculateBindingEnergy(const double p_CoreMass, const double p_EnvMass, const double p_Radius, const double p_Lambda) const;
 
