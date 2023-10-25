@@ -1057,8 +1057,10 @@
 //                                      - Fixed a few typos, a little code cleanup.
 // 02.39.01     LC - Sep 01, 2023    - Defect repair:
 //                                      - Fix for issue #945 - made HeSD SN types a sub-class of SNIA types.
+// 02.40.00     JR - Oct 25, 2023    - Enhancement, a little cleanup:
+//                                      - Added naive tides implementation.  Functionality enabled with new option `--enable-tides`.  Default is no tides.
 
-const std::string VERSION_STRING = "02.39.01";
+const std::string VERSION_STRING = "02.40.00";
 
 
 # endif // __changelog_h__

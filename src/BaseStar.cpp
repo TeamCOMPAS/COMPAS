@@ -111,6 +111,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_TZAMS                                    = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
 
     m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
+
     m_OmegaZAMS                                = p_RotationalFrequency >= 0.0                           // valid rotational frequency passed in?
                                                     ? p_RotationalFrequency                             // yes - use it
                                                     : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
@@ -140,6 +141,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_DominantMassLossRate                     = MASS_LOSS_TYPE::NONE;
 
     m_Omega                                    = m_OmegaZAMS;
+    m_AngularMomentum                          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_MinimumLuminosityOnPhase                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_LBVphaseFlag                             = false;
@@ -151,7 +153,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_RadiusPrev                               = m_RZAMS;
     m_DtPrev                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaPrev                                = m_OmegaZAMS;
-
+    
     // Lambdas
 	m_Lambdas.dewi                             = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_Lambdas.fixed                            = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -2444,7 +2446,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) const {
             break;
 
         default:                                                                        // unknown rorational velocity prescription
-            SHOW_WARN(ERROR::UNKNOWN_VROT_PRESCRIPTION, "Using default vRot = 0.0");     // show warning
+            SHOW_WARN(ERROR::UNKNOWN_VROT_PRESCRIPTION, "Using default vRot = 0.0");    // show warning
     }
     return vRot;
 }
@@ -2457,7 +2459,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) const {
  * Hurley et al. 2000, eq 108
  *
  *
- * double CalculateRotationalAngularFrequency(const double p_MZAMS, const double p_RZAMS)
+ * double CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS)
  *
  * @param   [IN]    p_MZAMS                     Zero age main sequence mass in Msol
  * @param   [IN]    p_RZAMS                     Zero age main sequence radius in Rsol
@@ -2465,7 +2467,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) const {
  */
 double BaseStar::CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) const {
     double vRot = CalculateRotationalVelocity(p_MZAMS);
-    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_RZAMS;    // Hurley et al. 2000, eq 108       JR: todo: added check for vRot = 0
+    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_RZAMS;               // Hurley et al. 2000, eq 108
 }
 
 
@@ -2516,7 +2518,7 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
     }
 
     // calculate omegaCHE(M, Z)
-    return (1.0 / ((0.09 * log(p_Metallicity / 0.004)) + 1.0) * omegaZ004) * SECONDS_IN_YEAR;   // in rads/yr
+    return (1.0 / ((0.09 * log(p_Metallicity / 0.004)) + 1.0) * omegaZ004) * SECONDS_IN_YEAR;       // in rads/yr
 
 #undef massCutoffs
 }
@@ -3242,10 +3244,10 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
 
     // record some current values before they are (possibly) changed by evolution
     if (p_DeltaTime > 0.0) {                                                                        // don't use utils::Compare() here
-        m_StellarTypePrev = m_StellarType;
-        m_DtPrev          = m_Dt;
-        m_MassPrev        = m_Mass;
-        m_RadiusPrev      = m_Radius;
+        m_StellarTypePrev     = m_StellarType;
+        m_DtPrev              = m_Dt;
+        m_MassPrev            = m_Mass;
+        m_RadiusPrev          = m_Radius;
     }
 
     // the GBParams and Timescale calculations need to be done
@@ -3438,21 +3440,21 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
 
     if (ShouldEvolveOnPhase()) {                                                    // Evolve timestep on phase
 
-        m_Tau         = CalculateTauOnPhase();
+        m_Tau             = CalculateTauOnPhase();
 
-        m_COCoreMass  = CalculateCOCoreMassOnPhase();
-        m_CoreMass    = CalculateCoreMassOnPhase();
-        m_HeCoreMass  = CalculateHeCoreMassOnPhase();
+        m_COCoreMass      = CalculateCOCoreMassOnPhase();
+        m_CoreMass        = CalculateCoreMassOnPhase();
+        m_HeCoreMass      = CalculateHeCoreMassOnPhase();
         
-        m_Luminosity  = CalculateLuminosityOnPhase();
+        m_Luminosity      = CalculateLuminosityOnPhase();
 
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // Radius and possibly new stellar type
 
-        m_Mu          = CalculatePerturbationMuOnPhase();
+        m_Mu              = CalculatePerturbationMuOnPhase();
 
         PerturbLuminosityAndRadiusOnPhase();
 
-        m_Temperature = CalculateTemperatureOnPhase();
+        m_Temperature     = CalculateTemperatureOnPhase();
 
         STELLAR_TYPE thisStellarType = ResolveEnvelopeLoss();                       // Resolve envelope loss if it occurs - possibly new stellar type
         if (thisStellarType != m_StellarType) {                                     // thisStellarType overrides stellarType (from CalculateRadiusAndStellarTypeOnPhase())

@@ -168,26 +168,53 @@ namespace utils {
     /*
      * Compare floating-point numbers with tolerance
      *
-     * Absolute and relative tolerance can be different - see constants.h
-     * Set relative tolerance = 0.0 to always use absolute
-     * Set absolute tolerance = 0.0 to always use relative
-     * Set both to zero for no tolerance - or #undef COMPARE_WITH_TOLERANCE for performance
+     * For comparisons using the global tolerance values (FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE):
+     *    - Absolute and relative tolerance can be different - see constants.h
+     *    - Set relative tolerance = 0.0 to always use absolute
+     *    - Set absolute tolerance = 0.0 to always use relative
+     *    - Set both to zero for no tolerance - or #undef COMPARE_GLOBAL_TOLERANCE for performance
      *
+     * If p_Tolerance is > 0.0 it will be used in preference to the global tolerance values
+     * If p_Tolerance is > 0.0, then p_Absolute determines if p_tolerance should be treated as an absolute
+     * torelace (p_Absolute = true), or a relative tolerance (p_Absolete = false).
+     * 
      *
      * int Compare(const double p_X, const double p_Y)
      *
      * @param   [IN]    p_X                 Floating-point value to be compared
      * @param   [IN]    p_Y                 Floating-point value to be compared
+     * @param   [IN]    p_Tolerance         Floating-point tolerance value - if > 0.0 supersedes global tolerance
+     * @param   [IN]    p_Absolute          Boolean indicatin whether p_Tolerance should be treated as absolute tolerance (true) or relative tolerance (false)
      * @return                              Integer indicating result of comparison:
      *                                         -1 indicates p_X is less than p_Y
      *                                          0 indicates equality
      *                                          1 indicates p_X is greater than p_Y
      */
-    int Compare(const double p_X, const double p_Y) {
-    #ifdef COMPARE_WITH_TOLERANCE
-        return (std::abs(p_X - p_Y) <= std::max(FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE * std::max(std::abs(p_X), fabs(p_Y)))) ? 0 : (p_X < p_Y ? -1 : 1);
+    int Compare(const double p_X, const double p_Y, const double p_Tolerance, const bool p_Absolute) {
+    #ifdef COMPARE_GLOBAL_TOLERANCE
+        if (p_Tolerance > 0.0) {                                                                                                // use tolerance passed?
+            if (p_Absolute) {                                                                                                   // yes - absolute tolerance?
+                return (std::abs(p_X - p_Y) <= p_Tolerance) ? 0 : (p_X < p_Y ? -1 : 1);                                         // yes
+            }
+            else {                                                                                                              // no - relative tolerance
+                return (std::abs(p_X - p_Y) <= p_Tolerance * std::max(std::abs(p_X), fabs(p_Y))) ? 0 : (p_X < p_Y ? -1 : 1);
+            }
+        }
+        else {                                                                                                                  // use global tolerance
+            return (std::abs(p_X - p_Y) <= std::max(FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE * std::max(std::abs(p_X), fabs(p_Y)))) ? 0 : (p_X < p_Y ? -1 : 1);
+        }
     #else
-        return (p_X == p_Y) ? 0 : (p_X < p_Y ? -1 : 1);
+        if (p_Tolerance > 0.0) {                                                                                                // use tolerance passed?
+            if (p_Absolute) {                                                                                                   // yes - absolute tolerance?
+                return (std::abs(p_X - p_Y) <= p_Tolerance) ? 0 : (p_X < p_Y ? -1 : 1);                                         // yes
+            }
+            else {                                                                                                              // no - relative tolerance
+                return (std::abs(p_X - p_Y) <= p_Tolerance * std::max(std::abs(p_X), fabs(p_Y))) ? 0 : (p_X < p_Y ? -1 : 1);
+            }
+        }
+        else {                                                                                                                  // no tolerance
+            return (p_X == p_Y) ? 0 : (p_X < p_Y ? -1 : 1);
+        }
     #endif
     }
 
@@ -205,10 +232,9 @@ namespace utils {
      */
     double ConvertPeriodInDaysToSemiMajorAxisInAU(const double p_Mass1, const double p_Mass2, const double p_Period) {
 
-        double a_cubed_SI_top    = G * ((p_Mass1 * MSOL_TO_KG) + (p_Mass2 * MSOL_TO_KG)) * p_Period * p_Period * SECONDS_IN_DAY * SECONDS_IN_DAY;
-        double a_cubed_SI_bottom = 4.0 * M_PI * M_PI;
-        double a_cubed_SI        = a_cubed_SI_top / a_cubed_SI_bottom;
-        double a_SI              = std::cbrt(a_cubed_SI); 
+        double a_cubed_SI_top = G * ((p_Mass1 * MSOL_TO_KG) + (p_Mass2 * MSOL_TO_KG)) * p_Period * p_Period * SECONDS_IN_DAY * SECONDS_IN_DAY;
+        double a_cubed_SI     = a_cubed_SI_top / G1;
+        double a_SI           = std::cbrt(a_cubed_SI); 
 
         return a_SI / AU;
     }
@@ -883,7 +909,7 @@ namespace utils {
                 // Sampling function taken from binpop.f in NBODY6
 
                 do {
-                    eccentricity = 0.23 * std::sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.38;
+                    eccentricity = 0.23 * std::sqrt(-2.0 * log(RAND->Random())) * cos(_2_PI * RAND->Random()) + 0.38;
                 } while (eccentricity < p_Min || eccentricity > p_Max);                                 // JR: don't use utils::Compare() here
                 break;
 
@@ -892,7 +918,7 @@ namespace utils {
                 // Sampling function taken from binpop.f in NBODY6
 
                 do {
-                    eccentricity = 0.15 * std::sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.3;
+                    eccentricity = 0.15 * std::sqrt(-2.0 * log(RAND->Random())) * cos(_2_PI * RAND->Random()) + 0.3;
                 } while (eccentricity < p_Min or eccentricity > p_Max);                                 // JR: don't use utils::Compare() here
                 break;
 
@@ -1100,7 +1126,7 @@ namespace utils {
             case MASS_RATIO_DISTRIBUTION::DUQUENNOYMAYOR1991:                                                   // mass ratio distribution from Duquennoy & Mayor (1991) (http://adsabs.harvard.edu/abs/1991A%26A...248..485D)
 
                 do {                                                                                            // JR: todo: catch non-convergence?
-                    q = 0.42 * std::sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 0.23;
+                    q = 0.42 * std::sqrt(-2.0 * log(RAND->Random())) * cos(_2_PI * RAND->Random()) + 0.23;
                 } while (q < p_Min || q > p_Max);                                                               // JR: don't use utils::Compare() here
                 break;
 
@@ -1238,7 +1264,7 @@ namespace utils {
 
                 // Make sure that the drawn semi-major axis is in the range specified by the user
                 do {                                                                                                    // JR: todo: catch for non-convergence?
-                    double periodInDays = PPOW(10.0, 2.3 * std::sqrt(-2.0 * log(RAND->Random())) * cos(2.0 * M_PI * RAND->Random()) + 4.8);
+                    double periodInDays = PPOW(10.0, 2.3 * std::sqrt(-2.0 * log(RAND->Random())) * cos(_2_PI * RAND->Random()) + 4.8);
                     semiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);      // convert period in days to semi-major axis in AU
                 } while (semiMajorAxis < p_AdistMin || semiMajorAxis > p_AdistMax);                                     // JR: don't use utils::Compare() here
                 break;
