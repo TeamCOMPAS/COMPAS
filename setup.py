@@ -39,6 +39,8 @@ INSTALL_REQUIRES = [
     "scipy",
     "latex",
     "PyYAML",
+    "tqdm",
+    "corner"
 ]
 EXTRA_REQUIRE = dict(
     docs=[
@@ -61,7 +63,13 @@ EXTRA_REQUIRE = dict(
         "isort",
         "coverage-badge",
         "deepdiff",
-    ]
+        "jupytext",
+        "jupyter-autotime",
+        "memory_profiler",
+        "nbconvert",
+        "ipykernel",
+    ],
+    gpu=["cupy"],
 )
 
 
@@ -121,6 +129,7 @@ if __name__ == "__main__":
                 f"compas_run_submit={NAME}.preprocessing.runSubmit:main",
                 f"compas_sample_stroopwafel={NAME}.preprocessing.stroopwafelInterface:main",
                 f"compas_sample_moe_di_stefano={NAME}.preprocessing.sampleMoeDiStefano:main",
+                f"compas_fast_cosmic_integrator={NAME}.cosmic_integration.FastCosmicIntegration:main",
             ]
         },
     )

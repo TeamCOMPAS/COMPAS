@@ -44,3 +44,5 @@ COMPAS
 *_build
 *.vscode
 
+/utils/examples/*.ipynb
+/utils/examples/*.h5
