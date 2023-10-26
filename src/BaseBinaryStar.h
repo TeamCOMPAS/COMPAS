@@ -658,12 +658,13 @@ private:
         boost::math::tools::eps_tolerance<double> tol(get_digits);                                          // tolerance
         
         // define functor
-        // function: ax + bx^(1/3) + c = 0
-        double a = p_I1 + p_I2;
+        // function: (I_1 + I_2) Omega + L(Omega) - p_Ltot = 0
+        //    where L(Omega) = b*Omega(-1/3)
+        double a = p_I1 + p_I2;                                                                             // I_1 + I_2
         double b = PPOW(G1, 2.0 / 3.0) * p_M1 * p_M2 / std::cbrt(p_M1 + p_M2);
         double c = -p_Ltot;
 
-        auto func = [this, a, b, c](double x) -> double { return (a * x) + (b / std::cbrt(x)) + c; };       // functor
+        auto func = [a, b, c](double x) -> double { return (a * x) + (b / std::cbrt(x)) + c; };             // functor
 
         // find root
         double factor  = TIDES_OMEGA_SEARCH_FACTOR;                                                         // size of search steps
