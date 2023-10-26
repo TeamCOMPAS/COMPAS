@@ -2317,7 +2317,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
 
         if (utils::Compare(m_Omega, 0.0) == 0) {
-            m_Omega = std::sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); 
+            m_Omega = OrbitalAngularVelocity(); 
         }
 
         m_Omega = OmegaAfterSynchronisation(m_Star1->Mass(), 
