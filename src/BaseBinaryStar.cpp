@@ -2313,16 +2313,26 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         */
 
         // find omega assuming synchronisation
-        // rough guess is (m_Star1->Omega() + m_Star2->Omega()) / 2.0
+        // use current value of m_Omega as best guess for root
+        // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
+
+        if (utils::Compare(m_Omega, 0.0) == 0) {
+            m_Omega = std::sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); 
+        }
+
         m_Omega = OmegaAfterSynchronisation(m_Star1->Mass(), 
                                             m_Star2->Mass(), 
                                             m_Star1->CalculateMomentOfInertiaAU(), 
                                             m_Star2->CalculateMomentOfInertiaAU(), 
-                                            m_TotalAngularMomentum, 
-                                            (m_Star1->Omega() + m_Star2->Omega()) / 2.0);
+                                            m_TotalAngularMomentum,
+                                            m_Omega); 
             
+        //std::cout << "m_Omega returned               = " << m_Omega << "\n";
+
         if (m_Omega > 0.0) {                                                                                                // root found?
                                                                                                                             // yes
+            //std::cout << "Root found: " << m_Omega << "\n";
+
             m_Star1->SetOmega(m_Omega);                                                                                     // synchronise star 1
             m_Star2->SetOmega(m_Omega);                                                                                     // synchronise star 2
 
@@ -2334,6 +2344,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
             m_EccentricityPrev  = m_Eccentricity;
             m_SemiMajorAxisPrev = m_SemiMajorAxis;
         }
+        //else std::cout << "No root found\n";
 
         /*
         std::cout << "Total angular momentum after  = " << m_TotalAngularMomentum << "\n";
