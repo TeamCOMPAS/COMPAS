@@ -229,6 +229,9 @@ constexpr double JOULES_TO_ERG                          = 1.0E7;                
 constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
 constexpr double GAUSS_TO_TESLA                         = 1.0 / TESLA_TO_GAUSS;                                     // convert Gauss to Tesla
 
+// opacity
+constexpr double OPACITY_CGS_TO_SI                      = 0.1;                                                      // cm^2 g^-1 to m^2 kg^-1
+
 // constants
 
 constexpr double _2_PI                                  = M_PI * 2;                                                 // 2PI
@@ -1040,49 +1043,49 @@ const COMPASUnorderedMap<LBV_PRESCRIPTION, std::string> LBV_PRESCRIPTION_LABEL =
 // OB (main sequence) Mass loss prescriptions
 enum class OB_MASS_LOSS: int { NONE, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018};
 const COMPASUnorderedMap<OB_MASS_LOSS, std::string> OB_MASS_LOSS_LABEL = {
-    { OB_MASS_LOSS::NONE,           "NONE" },
-    { OB_MASS_LOSS::VINK2001,     "VINK2001" },
-    { OB_MASS_LOSS::VINK2021,     "VINK2021" },
-    { OB_MASS_LOSS::BJORKLUND2022,         "BJORKLUND2022" },
-    { OB_MASS_LOSS::KRTICKA2018,         "KRTICKA2018" },
+    { OB_MASS_LOSS::NONE,          "NONE" },
+    { OB_MASS_LOSS::VINK2001,      "VINK2001" },
+    { OB_MASS_LOSS::VINK2021,      "VINK2021" },
+    { OB_MASS_LOSS::BJORKLUND2022, "BJORKLUND2022" },
+    { OB_MASS_LOSS::KRTICKA2018,   "KRTICKA2018" },
 };
 
 // Very Massive Mass loss prescriptions
 enum class VMS_MASS_LOSS: int { NONE, VINK2011, BESTENLEHNER2020, SABHAHIT2023};
 const COMPASUnorderedMap<VMS_MASS_LOSS, std::string> VMS_MASS_LOSS_LABEL = {
-    { VMS_MASS_LOSS::NONE,           "NONE" },
-    { VMS_MASS_LOSS::VINK2011,     "VINK2011" },
-    { VMS_MASS_LOSS::BESTENLEHNER2020,         "BESTENLEHNER2020" },
-    { VMS_MASS_LOSS::SABHAHIT2023,         "SABHAHIT2023" },
+    { VMS_MASS_LOSS::NONE,             "NONE" },
+    { VMS_MASS_LOSS::VINK2011,         "VINK2011" },
+    { VMS_MASS_LOSS::BESTENLEHNER2020, "BESTENLEHNER2020" },
+    { VMS_MASS_LOSS::SABHAHIT2023,     "SABHAHIT2023" },
 };
 
 // RSG Mass loss prescriptions
 enum class RSG_MASS_LOSS: int { NONE, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90};
 const COMPASUnorderedMap<RSG_MASS_LOSS, std::string> RSG_MASS_LOSS_LABEL = {
-    { RSG_MASS_LOSS::NONE,           "NONE" },
-    { RSG_MASS_LOSS::VINKSABHAHIT2023,     "VINKSABHAHIT2023" },
-    { RSG_MASS_LOSS::BEASOR2020,     "BEASOR2020" },
-    { RSG_MASS_LOSS::DECIN2023,     "DECIN2023" },
-    { RSG_MASS_LOSS::YANG2023,     "YANG2023" },
-    { RSG_MASS_LOSS::KEE2021,        "KEE2021" },
-    { RSG_MASS_LOSS::NJ90,           "NJ90" },
+    { RSG_MASS_LOSS::NONE,             "NONE" },
+    { RSG_MASS_LOSS::VINKSABHAHIT2023, "VINKSABHAHIT2023" },
+    { RSG_MASS_LOSS::BEASOR2020,       "BEASOR2020" },
+    { RSG_MASS_LOSS::DECIN2023,        "DECIN2023" },
+    { RSG_MASS_LOSS::YANG2023,         "YANG2023" },
+    { RSG_MASS_LOSS::KEE2021,          "KEE2021" },
+    { RSG_MASS_LOSS::NJ90,             "NJ90" },
 };
 
 // WR Mass loss prescriptions
 enum class WR_MASS_LOSS: int { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 };
 const COMPASUnorderedMap<WR_MASS_LOSS, std::string> WR_MASS_LOSS_LABEL = {
-    { WR_MASS_LOSS::BELCZYNSKI2010,     "BELCZYNSKI2010" },
-    { WR_MASS_LOSS::SANDERVINK2023,         "SANDERVINK2023" },
-    { WR_MASS_LOSS::SHENAR2019,           "SHENAR2019" },
+    { WR_MASS_LOSS::BELCZYNSKI2010, "BELCZYNSKI2010" },
+    { WR_MASS_LOSS::SANDERVINK2023, "SANDERVINK2023" },
+    { WR_MASS_LOSS::SHENAR2019,     "SHENAR2019" },
 };
 
 // Mass loss prescriptions
 enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, BELCZYNSKI2010, FLEXIBLE2023 };
 const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
-    { MASS_LOSS_PRESCRIPTION::NONE,   "NONE" },
-    { MASS_LOSS_PRESCRIPTION::HURLEY, "HURLEY" },
-    { MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010,   "BELCZYNSKI2010" },
-    { MASS_LOSS_PRESCRIPTION::FLEXIBLE2023, "FLEXIBLE2023"}
+    { MASS_LOSS_PRESCRIPTION::NONE,           "NONE" },
+    { MASS_LOSS_PRESCRIPTION::HURLEY,         "HURLEY" },
+    { MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010, "BELCZYNSKI2010" },
+    { MASS_LOSS_PRESCRIPTION::FLEXIBLE2023,   "FLEXIBLE2023"}
 };
 
 
