@@ -267,7 +267,6 @@ double HeMS::CalculateMassLossRateBelczynski2010() {
  */
 double HeMS::CalculateMassLossRateWolfRayetShenar2019() const {
 
-    // Define variables
     double logMdot = 0.0;
     double Teff    = m_Temperature * TSOL;
 
@@ -275,14 +274,11 @@ double HeMS::CalculateMassLossRateWolfRayetShenar2019() const {
     const double C1 = -7.99;
     const double C2 =  0.97;
     const double C3 = -0.07;
-    const double C4 =  0.0;
     const double C5 =  0.89;
 
-    logMdot = C1 + (C2 * log10(m_Luminosity)) + (C3 * log10(Teff)) + (C5 * log10(m_Metallicity)); 
+    logMdot = C1 + (C2 * log10(m_Luminosity)) + (C3 * log10(Teff)) + (C5 * m_Log10Metallicity); 
 
-    double Mdot = PPOW(10.0, logMdot); // Mdot
-
-    return Mdot;
+    return PPOW(10.0, logMdot); // Mdot
 }
 
 
