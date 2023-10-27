@@ -8,24 +8,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
+    - uses: actions/setup-python@v4
       with:
         python-version: 3.8
+    - uses: pre-commit/action@v3.0.0
+    
+    # - uses: actions/checkout@v4
 
-    - name: Cache pip packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+    # - name: Set up Python 3.8
+    #   uses: actions/setup-python@v2
+    #   with:
+    #     python-version: 3.8
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install .[dev]
+    # - name: Cache pip packages
+    #   uses: actions/cache@v2
+    #   with:
+    #     path: ~/.cache/pip
+    #     key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-pip-
 
-    - name: pre-commit
-      run: pre-commit run --all-files --verbose --show-diff-on-failure
+    # - name: Install dependencies
+    #   run: |
+    #     python -m pip install --upgrade pip
+    #     pip install .[dev]
+
+    # - name: pre-commit
+    #   run: pre-commit run --all-files --verbose --show-diff-on-failure
