@@ -1259,7 +1259,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, 
 --luminous-blue-variable-multiplier, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
---expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold
+--expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold,
+--OB-mass-loss, --RSG-mass-loss, --VMS-mass-loss, --WR-mass-loss
 
 --chemically-homogeneous-evolution
 
