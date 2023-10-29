@@ -453,9 +453,10 @@ private:
     void    CalculateWindsMassLoss();
     void    InitialiseMassTransfer();
 
-    double  CalculateOrbitalAngularMomentum(const double p_Mu,
-                                            const double p_Mass,
-                                            const double p_SemiMajorAxis) const { return p_Mu * std::sqrt(G1 * p_Mass * p_SemiMajorAxis); }
+    double  CalculateOrbitalAngularMomentum(const double p_Star1Mass,
+                                            const double p_Star2Mass,
+                                            const double p_SemiMajorAxis,
+                                            const double p_Eccentricity) const  { return ((p_Star1Mass * p_Star2Mass) / (p_Star1Mass + p_Star2Mass)) * std::sqrt(G1 * (p_Star1Mass + p_Star2Mass) * p_SemiMajorAxis * (1.0 - (p_Eccentricity * p_Eccentricity))); }
 
     double  CalculateOrbitalEnergy(const double p_Mu,
                                    const double p_Mass,

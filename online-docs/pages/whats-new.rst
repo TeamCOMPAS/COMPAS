@@ -6,6 +6,11 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.30.00 Oct 30, 2023**
+
+* Added a naive tides implementation.
+* Added program option ``enable-tides`` to enable the tides implementation (default is ``false``).
+
 **02.39.00 Jul 4, 2023**
 
 * Added 'Evolution_Status' columns to both SSE and BSE default system parameters records - records final status of evolution (reason evolution stopped).
