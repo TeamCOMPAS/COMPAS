@@ -1954,11 +1954,11 @@ double BaseStar::CalculateMassLossRateOBVink2001() const {
     if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(teff, VINK_MASS_LOSS_BISTABILITY_TEMP) <= 0) {
         double V         = 1.3;                                                                                 // v_inf/v_esc
 
-        double logMdotOB = -6.688                             +
+        double logMdotOB = -6.688 +
                            (2.210 * log10(m_Luminosity / 1.0E5)) -
-                           (1.339 * log10(m_Mass / 30.0))        -
-                           (1.601 * log10(V / 2.0))              +
-                           (0.85  * log10(m_Metallicity / ZSOL)) +
+                           (1.339 * log10(m_Mass / 30.0)) -
+                           (1.601 * log10(V / 2.0)) +
+                           (0.85  * LogMetallicityXi()) +
                            (1.07  * log10(teff / 20000.0));
 
         rate = PPOW(10.0, logMdotOB);
@@ -1971,10 +1971,10 @@ double BaseStar::CalculateMassLossRateOBVink2001() const {
 
         double logMdotOB = -6.697 +
                            (2.194 * log10(m_Luminosity / 1.0E5)) -
-                           (1.313 * log10(m_Mass / 30.0))        -
-                           (1.226 * log10(V / 2.0))              +
-                           (0.85  * log10(m_Metallicity / ZSOL)) +
-                           (0.933 * log10(teff / 40000.0))     -
+                           (1.313 * log10(m_Mass / 30.0)) -
+                           (1.226 * log10(V / 2.0)) +
+                           (0.85  * LogMetallicityXi()) +
+                           (0.933 * log10(teff / 40000.0)) -
                            (10.92 * log10(teff / 40000.0) * log10(teff/40000.0));
 
         rate = PPOW(10.0, logMdotOB);
@@ -2008,7 +2008,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
 
     double teff    = m_Temperature * TSOL;  
     double Gamma   = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
-    double charrho = -14.94 + (3.1857 * Gamma) + (zExp * log10(m_Metallicity / ZSOL)); 
+    double charrho = -14.94 + (3.1857 * Gamma) + (zExp * LogMetallicityXi()); 
     double T2      = ( 61.2 + (2.59 * charrho) ) * 1000.0;                                                      // typically around 25000.0, higher jump first as in Vink python recipe
     double T1      = ( 100.0 + (6.0 * charrho) ) * 1000.0;                                                      // typically around 20000.0, has similar behavior when fixed
 
@@ -2024,7 +2024,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
                            (2.210 * logL5) -
                            (1.339 * logM30) -
                            (1.601 * log10(V / 2.0)) +
-                           (zExp2001 * log10(m_Metallicity / ZSOL)) +
+                           (zExp2001 * LogMetallicityXi()) +
                            (1.07  * logT20);
 
         rate = PPOW(10.0, logMdotOB);
@@ -2037,7 +2037,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
                            (2.210 * logL5) -
                            (1.339 * logM30) -
                            (1.601 * log10(V / 2.0)) +
-                           (zExp2001  * log10(m_Metallicity / ZSOL)) +
+                           (zExp2001  * LogMetallicityXi()) +
                            (1.07  * logT20);
 
         rate = PPOW(10.0, logMdotOB);
@@ -2050,7 +2050,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
                            (2.194 * logL5) -
                            (1.313 * logM30) -
                            (1.226 * log10(V / 2.0)) +
-                           (zExp  * log10(m_Metallicity / ZSOL)) +
+                           (zExp  * LogMetallicityXi()) +
                            (0.933 * logT40) -
                            (10.92 * logT40 * logT40);
 
@@ -2484,7 +2484,7 @@ double BaseStar::CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(c
  */
 double BaseStar::CalculateMassLossRateHeliumStarVink2017() const {
 
-    double logMdot = -13.3 + (1.36 * log10(m_Luminosity)) + (0.61 * log10(m_Metallicity / ZSOL));   // Eq. 1.
+    double logMdot = -13.3 + (1.36 * log10(m_Luminosity)) + (0.61 * LogMetallicityXi());   // Eq. 1.
 
     return PPOW(10.0, logMdot);
 }
