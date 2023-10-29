@@ -175,8 +175,8 @@ namespace utils {
      *    - Set both to zero for no tolerance - or #undef COMPARE_GLOBAL_TOLERANCE for performance
      *
      * If p_Tolerance is > 0.0 it will be used in preference to the global tolerance values
-     * If p_Tolerance is > 0.0, then p_Absolute determines if p_tolerance should be treated as an absolute
-     * torelace (p_Absolute = true), or a relative tolerance (p_Absolete = false).
+     * If p_Tolerance is > 0.0, then p_Absolute determines if p_Tolerance should be treated as an absolute
+     * tolerance (p_Absolute = true), or a relative tolerance (p_Absolute = false).
      * 
      *
      * int Compare(const double p_X, const double p_Y)
@@ -184,7 +184,7 @@ namespace utils {
      * @param   [IN]    p_X                 Floating-point value to be compared
      * @param   [IN]    p_Y                 Floating-point value to be compared
      * @param   [IN]    p_Tolerance         Floating-point tolerance value - if > 0.0 supersedes global tolerance
-     * @param   [IN]    p_Absolute          Boolean indicatin whether p_Tolerance should be treated as absolute tolerance (true) or relative tolerance (false)
+     * @param   [IN]    p_Absolute          Boolean indicating whether p_Tolerance should be treated as absolute tolerance (true) or relative tolerance (false)
      * @return                              Integer indicating result of comparison:
      *                                         -1 indicates p_X is less than p_Y
      *                                          0 indicates equality
@@ -1444,7 +1444,9 @@ namespace utils {
                                    VERSION_STRING + 
                                    "\nCompact Object Mergers: Population Astrophysics and Statistics"
                                    "\nby Team COMPAS (http://compas.science/index.html)"
-                                   "\nA binary star simulator\n";
+                                   "\nA binary star simulator\n"
+                                   "\nGo to https://compas.readthedocs.io/en/latest/index.html for the online documentation"
+                                   "\nCheck https://compas.readthedocs.io/en/latest/pages/whats-new.html to see what's new in the latest release\n";
 
         if (p_Print) std::cout << splashString << std::endl;    // print the splash string if required
 

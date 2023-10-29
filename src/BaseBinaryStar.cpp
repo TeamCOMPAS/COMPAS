@@ -189,7 +189,7 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
                         ? new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2, OPTIONS->RotationalFrequency2() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
                         : new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2);                                 // no - let it be calculated
         
-            starToRocheLobeRadiusRatio1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass1, mass2));   //eccentricity already zero
+            starToRocheLobeRadiusRatio1 = (m_Star1->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass1, mass2)); //eccentricity already zero
             starToRocheLobeRadiusRatio2 = (m_Star2->Radius() * RSOL_TO_AU) / (m_SemiMajorAxis * CalculateRocheLobeRadius_Static(mass2, mass1));
         }
 
@@ -241,8 +241,8 @@ void BaseBinaryStar::SetInitialValues(const unsigned long int p_Seed, const long
 
     m_EvolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
-    if (OPTIONS->PopulationDataPrinting()) {                                                            // user wants to see details of binary?
-        SAY("Using supplied random seed " << m_RandomSeed << " for Binary Star id = " << m_ObjectId);   // yes - show them
+    if (OPTIONS->PopulationDataPrinting()) {                                                                                            // user wants to see details of binary?
+        SAY("Using supplied random seed " << m_RandomSeed << " for Binary Star id = " << m_ObjectId);                                   // yes - show them
     }
 }
 
@@ -282,12 +282,14 @@ void BaseBinaryStar::SetRemainingValues() {
     
     m_Omega                       = 0.0;
 
-    if (OPTIONS->CHEMode() != CHE_MODE::NONE) {                                                                                                    // CHE enabled?
+    if (OPTIONS->CHEMode() != CHE_MODE::NONE) {                                                                                                         // CHE enabled?
 
         // CHE enabled, update rotational frequency for constituent stars - assume tidally locked
 
-        m_Star1->SetOmega(OrbitalAngularVelocity());
-        m_Star2->SetOmega(OrbitalAngularVelocity());
+        double omega = OrbitalAngularVelocity();                                                                                                        // orbital angular velocity
+
+        m_Star1->SetOmega(omega);
+        m_Star2->SetOmega(omega);
 
         // check for CHE
         //
@@ -320,6 +322,9 @@ void BaseBinaryStar::SetRemainingValues() {
         else {
             if (m_Star2->StellarType() != STELLAR_TYPE::MS_GT_07) (void)m_Star2->SwitchTo(STELLAR_TYPE::MS_GT_07, true);                                // MS > 0.7 Msol - switch if necessary
         }
+
+        // if both stars evolving as chemically homegeneous stars set m_Omega for binary
+        if (HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS})) m_Omega = omega;
     }
 
 	double totalMass 					             = m_Star1->Mass() + m_Star2->Mass();
@@ -327,7 +332,7 @@ void BaseBinaryStar::SetRemainingValues() {
 	m_OrbitalEnergy 			                     = CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxis);
 	m_OrbitalEnergyPrev 			                 = m_OrbitalEnergy;
 
-	m_OrbitalAngularMomentum 	                     = CalculateOrbitalAngularMomentum(reducedMass, totalMass, m_SemiMajorAxis);
+	m_OrbitalAngularMomentum 	                     = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
 	m_OrbitalAngularMomentumPrev 	                 = m_OrbitalAngularMomentum;
 
     m_Time                                           = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1604,8 +1609,12 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     }
 
     // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
-    if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star1->SetOmega(OrbitalAngularVelocity());
-    if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star2->SetOmega(OrbitalAngularVelocity());
+    double omega = OrbitalAngularVelocity();                                                                            // orbital angular velocity
+    if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star1->SetOmega(omega);
+    if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star2->SetOmega(omega);
+
+    // if both stars evolving as chemically homegeneous stars set m_Omega for binary
+    if (HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS})) m_Omega = omega;
     
     m_Star1->SetPostCEEValues();                                                                                        // squirrel away post CEE stellar values for star 1
     m_Star2->SetPostCEEValues();                                                                                        // squirrel away post CEE stellar values for star 2
@@ -2137,7 +2146,8 @@ double BaseBinaryStar::CalculateAngularMomentum(const double p_SemiMajorAxis,
 
 	double Is1  = ks1 * m1 * R1 * R1;
 	double Is2  = ks2 * m2 * R2 * R2;
-    double Jorb = ((m1 * m2) / (m1 + m2)) * std::sqrt(G1 * (m1 + m2) * p_SemiMajorAxis * (1.0 - (p_Eccentricity * p_Eccentricity)));
+
+    double Jorb = CalculateOrbitalAngularMomentum(m1, m2, p_SemiMajorAxis, p_Eccentricity);
 
 	return (Is1 * w1) + (Is2 * w2) + Jorb;
 }
@@ -2161,10 +2171,11 @@ void BaseBinaryStar::CalculateEnergyAndAngularMomentum() {
     m_OrbitalAngularMomentumPrev = m_OrbitalAngularMomentum;
     m_TotalAngularMomentumPrev   = m_TotalAngularMomentum;
 
-    double totalMass             = m_Star1->Mass() + m_Star2->Mass();
-    double reducedMass           = (m_Star1->Mass() * m_Star2->Mass()) / totalMass;
+	double totalMass             = m_Star1->Mass() + m_Star2->Mass();
+	double reducedMass           = (m_Star1->Mass() * m_Star2->Mass()) / totalMass;
+
     m_OrbitalEnergy              = CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxis);
-    m_OrbitalAngularMomentum     = CalculateOrbitalAngularMomentum(reducedMass, totalMass, m_SemiMajorAxis);
+    m_OrbitalAngularMomentum     = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
 
     // Calculate total energy and angular momentum using regular conservation of energy, especially useful for checking tides and rotational effects
     m_TotalEnergy                = CalculateTotalEnergy();
@@ -2214,8 +2225,12 @@ void BaseBinaryStar::ResolveMassChanges() {
     }
 
     // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked
-    if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star1->SetOmega(OrbitalAngularVelocity());
-    if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star2->SetOmega(OrbitalAngularVelocity());
+    double omega = OrbitalAngularVelocity();                                                           // orbital angular velocity
+    if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star1->SetOmega(omega);
+    if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star2->SetOmega(omega);
+
+    // if both stars evolving as chemically homegeneous stars set m_Omega for binary
+    if (HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS})) m_Omega = omega;
 
     CalculateEnergyAndAngularMomentum();                                                                // perform energy and angular momentum calculations
 
@@ -2294,24 +2309,6 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     if (OPTIONS->EnableTides() && !m_Unbound) {
 
-        /*
-        std::cout << "\nTime                           = " << m_Time << "\n";
-        std::cout << "Total angular momentum before  = " << m_TotalAngularMomentum << "\n";
-        std::cout << "Semi-major axis before         = " << m_SemiMajorAxis << "\n";
-        std::cout << "Eccentricity before            = " << m_Eccentricity << "\n";
-        std::cout << "Omega (star1) before           = " << m_Star1->Omega() << "\n";
-        std::cout << "Omega (star2) before           = " << m_Star2->Omega() << "\n";
-        std::cout << "Omega (binary) before          = " << m_Omega << "\n";
-        std::cout << "MoI (star1) before             = " << m_Star1->CalculateMomentOfInertia() << "\n";
-        std::cout << "MoI (star2) before             = " << m_Star2->CalculateMomentOfInertia() << "\n";
-        std::cout << "Mass (star1) before            = " << m_Star1->Mass() << "\n";
-        std::cout << "Mass (star2) before            = " << m_Star2->Mass() << "\n";
-        std::cout << "Radius (star1) before          = " << m_Star1->Radius() << "\n";
-        std::cout << "Radius (star2) before          = " << m_Star2->Radius() << "\n";
-        std::cout << "Gyration radius (star1) before = " << m_Star1->CalculateGyrationRadius() << "\n";
-        std::cout << "Gyration radius (star2) before = " << m_Star2->CalculateGyrationRadius() << "\n";
-        */
-
         // find omega assuming synchronisation
         // use current value of m_Omega as best guess for root
         // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
@@ -2326,12 +2323,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
                                             m_Star2->CalculateMomentOfInertiaAU(), 
                                             m_TotalAngularMomentum,
                                             m_Omega); 
-            
-        //std::cout << "m_Omega returned               = " << m_Omega << "\n";
 
         if (m_Omega > 0.0) {                                                                                                // root found?
-                                                                                                                            // yes
-            //std::cout << "Root found: " << m_Omega << "\n";
 
             m_Star1->SetOmega(m_Omega);                                                                                     // synchronise star 1
             m_Star2->SetOmega(m_Omega);                                                                                     // synchronise star 2
@@ -2344,24 +2337,6 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
             m_EccentricityPrev  = m_Eccentricity;
             m_SemiMajorAxisPrev = m_SemiMajorAxis;
         }
-        //else std::cout << "No root found\n";
-
-        /*
-        std::cout << "Total angular momentum after  = " << m_TotalAngularMomentum << "\n";
-        std::cout << "Semi-major axis after         = " << m_SemiMajorAxis << "\n";
-        std::cout << "Eccentricity after            = " << m_Eccentricity << "\n";
-        std::cout << "Omega (star1) after           = " << m_Star1->Omega() << "\n";
-        std::cout << "Omega (star2) after           = " << m_Star2->Omega() << "\n";
-        std::cout << "Omega (binary) after          = " << m_Omega << "\n";
-        std::cout << "MoI (star1) after             = " << m_Star1->CalculateMomentOfInertia() << "\n";
-        std::cout << "MoI (star2) after             = " << m_Star2->CalculateMomentOfInertia() << "\n";
-        std::cout << "Mass (star1) after            = " << m_Star1->Mass() << "\n";
-        std::cout << "Mass (star2) after            = " << m_Star2->Mass() << "\n";
-        std::cout << "Radius (star1) after          = " << m_Star1->Radius() << "\n";
-        std::cout << "Radius (star2) after          = " << m_Star2->Radius() << "\n";
-        std::cout << "Gyration radius (star1) after = " << m_Star1->CalculateGyrationRadius() << "\n";
-        std::cout << "Gyration radius (star2) after = " << m_Star2->CalculateGyrationRadius() << "\n";
-        */
     }
 
     m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star1
