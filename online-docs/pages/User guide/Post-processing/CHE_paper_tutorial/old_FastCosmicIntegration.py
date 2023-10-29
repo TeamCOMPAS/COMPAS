@@ -7,8 +7,8 @@ from astropy.cosmology import WMAP9 as cosmology
 import scipy
 from scipy.interpolate import interp1d
 from scipy.stats import norm as NormDist
-import old_ClassCOMPAS
-import old_selection_effects
+import old_ClassCOMPAS as ClassCOMPAS
+import old_selection_effects as selection_effects
 import warnings
 import astropy.units as u
 import argparse
