@@ -7,8 +7,8 @@ from astropy.cosmology import WMAP9 as cosmology
 import scipy
 from scipy.interpolate import interp1d
 from scipy.stats import norm as NormDist
-from . import ClassCOMPAS
-from . import selection_effects
+from compas_python_utils.cosmic_integration import ClassCOMPAS
+from compas_python_utils.cosmic_integration import selection_effects
 import warnings
 import astropy.units as u
 import argparse
@@ -748,65 +748,97 @@ def plot_rates(save_dir, formation_rate, merger_rate, detection_rate, redshifts,
 
 
 
-
-##################################################################
-### 
-### Run it!
-###
-##################################################################
-if __name__ == "__main__":
-
-    #####################################
-    # Define command line options for the most commonly varied options
+def parse_cli_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--path", dest= 'path',  help="Path to the COMPAS file that contains the output",type=str, default = "COMPAS_Output.h5")
+    parser.add_argument("--path", dest='path', help="Path to the COMPAS file that contains the output", type=str,
+                        default="COMPAS_Output.h5")
     # For what DCO would you like the rate?  options: ALL, BHBH, BHNS NSNS
-    parser.add_argument("--dco_type", dest= 'dco_type',  help="Which DCO type you used to calculate rates, one of: ['all', 'BBH', 'BHNS', 'BNS'] ",type=str, default = "BBH")
-    parser.add_argument("--weight", dest= 'weight_column',  help="Name of column w AIS sampling weights, i.e. 'mixture_weight'(leave as None for unweighted samples) ",type=str, default = None)
+    parser.add_argument("--dco_type", dest='dco_type',
+                        help="Which DCO type you used to calculate rates, one of: ['all', 'BBH', 'BHNS', 'BNS'] ",
+                        type=str, default="BBH")
+    parser.add_argument("--weight", dest='weight_column',
+                        help="Name of column w AIS sampling weights, i.e. 'mixture_weight'(leave as None for unweighted samples) ",
+                        type=str, default=None)
 
     # Options for the redshift evolution and detector sensitivity
-    parser.add_argument("--maxz", dest= 'max_redshift',  help="Maximum redshift to use in array",type=float, default=10)
-    parser.add_argument("--zSF", dest= 'z_first_SF',  help="redshift of first star formation",type=float, default=10)
-    parser.add_argument("--maxzdet", dest= 'max_redshift_detection',  help="Maximum redshift to calculate detection rates",type=float, default=1)
-    parser.add_argument("--zstep", dest= 'redshift_step',  help="size of step to take in redshift",type=float, default=0.001)
-    parser.add_argument("--sens", dest= 'sensitivity',  help="Which detector sensitivity to use: one of ['design', 'O1', 'O3']",type=str, default = "O3")
-    parser.add_argument("--snr", dest= 'snr_threshold',  help="What SNR threshold required for a detection",type=float, default=8)
+    parser.add_argument("--maxz", dest='max_redshift', help="Maximum redshift to use in array", type=float, default=10)
+    parser.add_argument("--zSF", dest='z_first_SF', help="redshift of first star formation", type=float, default=10)
+    parser.add_argument("--maxzdet", dest='max_redshift_detection',
+                        help="Maximum redshift to calculate detection rates", type=float, default=1)
+    parser.add_argument("--zstep", dest='redshift_step', help="size of step to take in redshift", type=float,
+                        default=0.001)
+    parser.add_argument("--sens", dest='sensitivity',
+                        help="Which detector sensitivity to use: one of ['design', 'O1', 'O3']", type=str, default="O3")
+    parser.add_argument("--snr", dest='snr_threshold', help="What SNR threshold required for a detection", type=float,
+                        default=8)
 
     # Parameters to calculate the representing SF mass (make sure these match YOUR simulation!)
-    parser.add_argument("--m1min", dest= 'm1_min',  help="Minimum primary mass sampled by COMPAS",type=float, default=5.) 
-    parser.add_argument("--m1max", dest= 'm1_max',  help="Maximum primary mass sampled by COMPAS",type=float, default=150.) 
-    parser.add_argument("--m2min", dest= 'm2_min',  help="Minimum secondary mass sampled by COMPAS",type=float, default=0.1) 
-    parser.add_argument("--fbin", dest= 'fbin',  help="Binary fraction used by COMPAS",type=float, default=0.7) 
+    parser.add_argument("--m1min", dest='m1_min', help="Minimum primary mass sampled by COMPAS", type=float, default=5.)
+    parser.add_argument("--m1max", dest='m1_max', help="Maximum primary mass sampled by COMPAS", type=float,
+                        default=150.)
+    parser.add_argument("--m2min", dest='m2_min', help="Minimum secondary mass sampled by COMPAS", type=float,
+                        default=0.1)
+    parser.add_argument("--fbin", dest='fbin', help="Binary fraction used by COMPAS", type=float, default=0.7)
 
     # Parameters determining dP/dZ and SFR(z), default options from Neijssel 2019
-    parser.add_argument("--mu0", dest= 'mu0',  help="mean metallicity at redshhift 0",type=float, default=0.035)
-    parser.add_argument("--muz", dest= 'muz',  help="redshift evolution of mean metallicity, dPdlogZ",type=float, default=-0.23)
-    parser.add_argument("--sigma0", dest= 'sigma0',  help="variance in metallicity density distribution, dPdlogZ",type=float, default=0.39)
-    parser.add_argument("--sigmaz", dest= 'sigmaz',  help="redshift evolution of variance, dPdlogZ",type=float, default=0.0)
-    parser.add_argument("--alpha", dest= 'alpha',  help="skewness of mtallicity density distribution, dPdlogZ",type=float, default=0.0)
-    parser.add_argument("--aSF", dest= 'aSF',  help="Parameter for shape of SFR(z)",type=float, default=0.01) 
-    parser.add_argument("--bSF", dest= 'bSF',  help="Parameter for shape of SFR(z)",type=float, default=2.77)
-    parser.add_argument("--cSF", dest= 'cSF',  help="Parameter for shape of SFR(z)",type=float, default=2.90)
-    parser.add_argument("--dSF", dest= 'dSF',  help="Parameter for shape of SFR(z)",type=float, default=4.70)
- 
-     # Options for the redshift evolution and detector sensitivity
-    parser.add_argument("--dontAppend", dest= 'append_rates',  help="Prevent the script from appending your rates to the hdf5 file.", action='store_false', default=True)
-    parser.add_argument("--delete", dest= 'delete_rates',  help="Delete the rate group from your hdf5 output file (groupname based on dP/dZ parameters)", action='store_true', default=False)
+    parser.add_argument("--mu0", dest='mu0', help="mean metallicity at redshhift 0", type=float, default=0.035)
+    parser.add_argument("--muz", dest='muz', help="redshift evolution of mean metallicity, dPdlogZ", type=float,
+                        default=-0.23)
+    parser.add_argument("--sigma0", dest='sigma0', help="variance in metallicity density distribution, dPdlogZ",
+                        type=float, default=0.39)
+    parser.add_argument("--sigmaz", dest='sigmaz', help="redshift evolution of variance, dPdlogZ", type=float,
+                        default=0.0)
+    parser.add_argument("--alpha", dest='alpha', help="skewness of mtallicity density distribution, dPdlogZ",
+                        type=float, default=0.0)
+    parser.add_argument("--aSF", dest='aSF', help="Parameter for shape of SFR(z)", type=float, default=0.01)
+    parser.add_argument("--bSF", dest='bSF', help="Parameter for shape of SFR(z)", type=float, default=2.77)
+    parser.add_argument("--cSF", dest='cSF', help="Parameter for shape of SFR(z)", type=float, default=2.90)
+    parser.add_argument("--dSF", dest='dSF', help="Parameter for shape of SFR(z)", type=float, default=4.70)
+
+    # Options for the redshift evolution and detector sensitivity
+    parser.add_argument("--dontAppend", dest='append_rates',
+                        help="Prevent the script from appending your rates to the hdf5 file.", action='store_false',
+                        default=True)
+    parser.add_argument("--delete", dest='delete_rates',
+                        help="Delete the rate group from your hdf5 output file (groupname based on dP/dZ parameters)",
+                        action='store_true', default=False)
 
     args = parser.parse_args()
+    return args
+
+
+def main():
+    # Define command line options for the most commonly varied options
+    args = parse_cli_args()
 
     #####################################
     # Run the cosmic integration
     start_CI = time.time()
-    detection_rate, formation_rate, merger_rate, redshifts, COMPAS = find_detection_rate(args.path, dco_type=args.dco_type, weight_column=args.weight_column,
-                            max_redshift=args.max_redshift, max_redshift_detection=args.max_redshift_detection, redshift_step=args.redshift_step, z_first_SF= args.z_first_SF,
-                            m1_min=args.m1_min*u.Msun, m1_max=args.m1_max*u.Msun, m2_min=args.m2_min*u.Msun, fbin=args.fbin,
-                            aSF = args.aSF, bSF = args.bSF, cSF = args.cSF, dSF = args.dSF, 
-                            mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha, 
-                            sensitivity=args.sensitivity, snr_threshold=args.snr_threshold, 
-                            min_logZ=-12.0, max_logZ=0.0, step_logZ=0.01,
-                            Mc_max=300.0, Mc_step=0.1, eta_max=0.25, eta_step=0.01,
-                            snr_max=1000.0, snr_step=0.1)
+    detection_rate, formation_rate, merger_rate, redshifts, COMPAS = find_detection_rate(
+        args.path,
+        dco_type=args.dco_type,
+        weight_column=args.weight_column,
+        max_redshift=args.max_redshift,
+        max_redshift_detection=args.max_redshift_detection,
+        redshift_step=args.redshift_step,
+        z_first_SF=args.z_first_SF,
+        m1_min=args.m1_min * u.Msun,
+        m1_max=args.m1_max * u.Msun,
+        m2_min=args.m2_min * u.Msun,
+        fbin=args.fbin,
+        aSF=args.aSF, bSF=args.bSF,
+        cSF=args.cSF, dSF=args.dSF,
+        mu0=args.mu0, muz=args.muz,
+        sigma0=args.sigma0,
+        sigmaz=args.sigmaz,
+        alpha=args.alpha,
+        sensitivity=args.sensitivity,
+        snr_threshold=args.snr_threshold,
+        min_logZ=-12.0, max_logZ=0.0,
+        step_logZ=0.01,
+        Mc_max=300.0, Mc_step=0.1,
+        eta_max=0.25, eta_step=0.01,
+        snr_max=1000.0, snr_step=0.1)
     end_CI = time.time()
 
     #####################################
@@ -815,25 +847,35 @@ if __name__ == "__main__":
     if args.append_rates:
         n_redshifts_detection = int(args.max_redshift_detection / args.redshift_step)
         append_rates(args.path, detection_rate, formation_rate, merger_rate, redshifts, COMPAS, n_redshifts_detection,
-            maxz=args.max_redshift_detection, sensitivity=args.sensitivity, dco_type=args.dco_type, mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha,
-            append_binned_by_z = False, redshift_binsize=0.05)
+                     maxz=args.max_redshift_detection, sensitivity=args.sensitivity, dco_type=args.dco_type,
+                     mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha,
+                     append_binned_by_z=False, redshift_binsize=0.05)
 
     # or just delete this group if your hdf5 file is getting too big
     if args.delete_rates:
-        delete_rates(args.path, mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha, append_binned_by_z=False)
+        delete_rates(args.path, mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha,
+                     append_binned_by_z=False)
 
     end_append = time.time()
-
-
 
     #####################################
     # Plot your result
     start_plot = time.time()
-    chirp_masses = (COMPAS.mass1*COMPAS.mass2)**(3./5.) / (COMPAS.mass1 + COMPAS.mass2)**(1./5.)
-    plot_rates(args.path, formation_rate, merger_rate, detection_rate, redshifts, chirp_masses, show_plot = False, mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha)
+    chirp_masses = (COMPAS.mass1 * COMPAS.mass2) ** (3. / 5.) / (COMPAS.mass1 + COMPAS.mass2) ** (1. / 5.)
+    plot_rates(args.path, formation_rate, merger_rate, detection_rate, redshifts, chirp_masses, show_plot=False,
+               mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha)
     end_plot = time.time()
 
     print('CI took ', end_CI - start_CI, 's')
     print('Appending rates took ', end_append - start_append, 's')
     print('plot took ', end_plot - start_plot, 's')
+
+
+##################################################################
+### 
+### Run it!
+###
+##################################################################
+if __name__ == "__main__":
+    main()
 
