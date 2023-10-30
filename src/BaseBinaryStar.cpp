@@ -323,7 +323,7 @@ void BaseBinaryStar::SetRemainingValues() {
             if (m_Star2->StellarType() != STELLAR_TYPE::MS_GT_07) (void)m_Star2->SwitchTo(STELLAR_TYPE::MS_GT_07, true);                                // MS > 0.7 Msol - switch if necessary
         }
 
-        // if both stars evolving as chemically homegeneous stars set m_Omega for binary
+        // if both stars evolving as chemically homogeneous stars set m_Omega for binary
         if (HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS})) m_Omega = omega;
     }
 
@@ -1613,7 +1613,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star1->SetOmega(omega);
     if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star2->SetOmega(omega);
 
-    // if both stars evolving as chemically homegeneous stars set m_Omega for binary
+    // if both stars evolving as chemically homogeneous stars set m_Omega for binary
     if (HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS})) m_Omega = omega;
     
     m_Star1->SetPostCEEValues();                                                                                        // squirrel away post CEE stellar values for star 1
@@ -2229,7 +2229,7 @@ void BaseBinaryStar::ResolveMassChanges() {
     if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star1->SetOmega(omega);
     if (OPTIONS->CHEMode() != CHE_MODE::NONE) m_Star2->SetOmega(omega);
 
-    // if both stars evolving as chemically homegeneous stars set m_Omega for binary
+    // if both stars evolving as chemically homogeneous stars set m_Omega for binary
     if (HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS})) m_Omega = omega;
 
     CalculateEnergyAndAngularMomentum();                                                                // perform energy and angular momentum calculations
