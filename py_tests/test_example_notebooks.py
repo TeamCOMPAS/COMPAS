@@ -7,16 +7,20 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 import pytest
 
 HERE = os.path.dirname(__file__)
-EXAMPLE_DIR = os.path.join(HERE, "../utils/examples")
+NB_DIR = os.path.join(HERE, "../online-docs/pages/User guide/Post-processing/notebooks/")
+
+EXAMPLE_NB = [
+    os.path.join(NB_DIR, "CosmicIntegration.py"),
+    # add others here
+]
 
 
 @pytest.mark.webtest
 def test_run_examples():
     """Test that all examples run without error"""
-    example_py_files = glob.glob(os.path.join(EXAMPLE_DIR, "*.py"))
-    for example_py_file in tqdm(example_py_files, desc="Running examples"):
+    for example_py_file in tqdm(EXAMPLE_NB, desc="Running examples"):
         ipynb = __convert_to_ipynb(example_py_file)
-        success = __execute_ipynb(ipynb, execute_dir=EXAMPLE_DIR)
+        success = __execute_ipynb(ipynb, execute_dir=NB_DIR)
         if not success:
             os.remove(ipynb)
             assert False, f"{example_py_file} failed to run"
