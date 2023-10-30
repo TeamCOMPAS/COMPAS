@@ -641,8 +641,8 @@ private:
      *
      * @param   [IN]    p_M1                        Mass of star 1
      * @param   [IN]    p_M2                        Mass of star 2
-     * @param   [IN]    p_I1                        Moment of intertia of star 1
-     * @param   [IN]    p_I2                        Moment of intertia of star 1
+     * @param   [IN]    p_I1                        Moment of inertia of star 1
+     * @param   [IN]    p_I2                        Moment of inertia of star 1
      * @param   [IN]    p_Ltot                      Total angular momentum for binary
      * @param   [IN]    p_Guess                     Initial guess for value of root
      * @return                                      Root found: will be -1.0 if no real root found
