@@ -18,7 +18,7 @@
 # %load_ext memory_profiler
 # %load_ext autotime
 
-# # Introduction
+# # Cosmic Integration
 #
 # The duration from the birth of the binary until the merger as a double compact object (DCO) can range from a few million years (lifetime of the stars) to more than 100 giga years depending on the evolution of the system.
 #
