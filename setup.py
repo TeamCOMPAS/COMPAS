@@ -129,6 +129,7 @@ if __name__ == "__main__":
                 f"compas_run_submit={NAME}.preprocessing.runSubmit:main",
                 f"compas_sample_stroopwafel={NAME}.preprocessing.stroopwafelInterface:main",
                 f"compas_sample_moe_di_stefano={NAME}.preprocessing.sampleMoeDiStefano:main",
+                f"compas_fast_cosmic_integrator={NAME}.cosmic_integration.FastCosmicIntegration:main",
             ]
         },
     )
