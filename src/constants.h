@@ -2587,7 +2587,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::KICK_MAGNITUDE,                                   "KICK_MAGNITUDE" },
     { PROGRAM_OPTION::KICK_MAGNITUDE_1,                                 "KICK_MAGNITUDE_1" },
     { PROGRAM_OPTION::KICK_MAGNITUDE_2,                                 "KICK_MAGNITUDE_2" },
-    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE,                          "ROCKET_KICK_MAGNITUDE" },
+    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE,                            "ROCKET_KICK_MAGNITUDE" },
 
     { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM,                            "KICK_MAGNITUDE_RANDOM" },
     { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_1,                          "KICK_MAGNITUDE_RANDOM_1" },
@@ -2861,6 +2861,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::RANDOM_SEED,                                       { TYPENAME::ULONGINT,         "SEED",                            "-",                12, 1 }},
     { ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR,                             { TYPENAME::BOOL,             "Recycled_NS",                     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::RLOF_ONTO_NS,                                      { TYPENAME::BOOL,             "RLOF->NS",                        "Event",             0, 0 }},
+    { ANY_STAR_PROPERTY::ROCKET_KICK_MAGNITUDE,                             { TYPENAME::DOUBLE,           "Rocket_Kick_Magnitude",           "kms^-1",           14, 6 }},
     { ANY_STAR_PROPERTY::RZAMS,                                             { TYPENAME::DOUBLE,           "Radius@ZAMS",                     "Rsol",             14, 6 }},
     { ANY_STAR_PROPERTY::SN_TYPE,                                           { TYPENAME::SN_EVENT,         "SN_Type",                         "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::SPEED,                                             { TYPENAME::DOUBLE,           "ComponentSpeed",                  "kms^-1",           14, 6 }},
@@ -3095,6 +3096,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::KICK_MAGNITUDE,                                           { TYPENAME::DOUBLE,     "Kick_Magnitude",                         "kms^-1",    14, 6 }},
     { PROGRAM_OPTION::KICK_MAGNITUDE_1,                                         { TYPENAME::DOUBLE,     "Kick_Magnitude(1)",                      "kms^-1",    14, 6 }},
     { PROGRAM_OPTION::KICK_MAGNITUDE_2,                                         { TYPENAME::DOUBLE,     "Kick_Magnitude(2)",                      "kms^-1",    14, 6 }},
+    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE,                                    { TYPENAME::DOUBLE,     "Rocket_Kick_Magnitude",                  "kms^-1",    14, 6 }},
 
     { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM,                                    { TYPENAME::DOUBLE,     "Kick_Magnitude_Random",                  "-",         14, 6 }},
     { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_1,                                  { TYPENAME::DOUBLE,     "Kick_Magnitude_Random(1)",               "-",         14, 6 }},
