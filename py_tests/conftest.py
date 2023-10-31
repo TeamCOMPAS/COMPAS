@@ -7,7 +7,10 @@ from compas_python_utils.cosmic_integration.binned_cosmic_integrator.bbh_populat
     generate_mock_bbh_population_file
 
 HERE = os.path.dirname(__file__)
-TEST_CONFIG_DIR = os.path.join(HERE, "test_data")
+DETAILED_EVOLUTION_PATH = os.path.join(
+    HERE, "../misc/examples/methods_paper_plots/detailed_evolution"
+)
+
 TEST_ARCHIVE_DIR = os.path.join(HERE, "test_artifacts")
 
 
@@ -18,12 +21,12 @@ def example_compas_output_path(clean=False):
     (This is a fixture so it can passed as a parameter to other tests)
     """
     compas_data_path = os.path.join(
-        TEST_CONFIG_DIR, "COMPAS_Output/COMPAS_Output.h5"
+        DETAILED_EVOLUTION_PATH, "COMPAS_Output/COMPAS_Output.h5"
     )
 
     if not os.path.exists(compas_data_path) or clean:  # Check if path exists
         curr_dir = os.getcwd()
-        os.chdir(TEST_CONFIG_DIR)
+        os.chdir(DETAILED_EVOLUTION_PATH)
         os.system("python runSubmitDemo.py")
         os.chdir(curr_dir)
         print("Generated COMPAS test data")

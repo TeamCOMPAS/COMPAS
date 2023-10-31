@@ -183,7 +183,7 @@ stringChoices:
     --envelope-state-prescription: 'LEGACY'
     --initial-mass-function: 'KROUPA'
     --luminous-blue-variable-prescription: 'HURLEY_ADD'
-    --mass-loss-prescription: 'VINK'
+    --mass-loss-prescription: 'FLEXIBLE2023'
     --metallicity-distribution: 'ZSOLAR'
     --pulsational-pair-instability-prescription: 'MARCHANT'
     ### BINARY PROPERTIES
