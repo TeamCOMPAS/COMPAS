@@ -397,7 +397,7 @@ void BaseBinaryStar::SetRemainingValues() {
     m_Unbound                                    = false;
 
     m_SystemicVelocity                           = Vector3d();
-    m_NormalizedOrbitalAngularMomentumVector               = Vector3d();
+    m_NormalizedOrbitalAngularMomentumVector     = Vector3d();
 	m_ThetaE                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_PhiE                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_PsiE                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1197,7 +1197,6 @@ bool BaseBinaryStar::ResolveSupernova() {
     
     // Define the rocket kick vector - will be 0 if unused. 
     Vector3d rocketKickVector = m_Supernova->SN_RocketKickMagnitude() * Vector3d(0.0, 0.0, 1.0);                        // The rocket is aligned with the NS, which should be aligned with the pre-SN orbit. Defined here in case the system is already unbound.
-        
     // Check if the system is already unbound
     if (IsUnbound()) {                                                                                                  // Is system already unbound?
 
@@ -1307,7 +1306,6 @@ bool BaseBinaryStar::ResolveSupernova() {
         /////////////////////////////////////////////////////////////////////////////////////////
          
         UpdateSystemicVelocity(centerOfMassVelocity.RotateVector(m_ThetaE, m_PhiE, m_PsiE));                            // Update the system velocity with the new center of mass velocity
-        double totalMass = m_Supernova->Mass() + m_Companion->Mass();                                                   // Total Mass 
         double reducedMass = m_Supernova->Mass() * m_Companion->Mass() / totalMass;                                     // Reduced Mass
         m_Supernova->SetOrbitalEnergyPostSN(CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxis));           // Orbital energy
 
@@ -1415,7 +1413,7 @@ bool BaseBinaryStar::ResolveSupernova() {
         }
         
         // Account for possible neutrino rocket - see Hirai+ 202?
-        if resolveNeutrinoRocketMechanism() {
+        if (ShouldResolveNeutrinoRocketMechanism()) {
 
             if (IsUnbound()) {                                                                                                  // Is system unbound? 
                 m_Supernova->UpdateComponentVelocity(rocketKickVector.RotateVector(m_ThetaE, m_PhiE, m_PsiE));              // yes - simply update the component velocity
@@ -1430,13 +1428,13 @@ bool BaseBinaryStar::ResolveSupernova() {
                 Vector3d D_support = normalizedAngularMomentumVectorPreRocket - eccentricityVectorPreRocket;
 
                 double theta_rotation = 3*rocketKickVector.mag/(2*averageOrbitalVelocityPreRocket);
-                Vector3d B_prime = B.RotateVector( 0.0, 0.0, theta_rotation );                   // want cosTheta = 1, and either cosPhi or cosPsi
-                Vector3d D_prime = D.RotateVector( 0.0, 0.0, theta_rotation );                   // want cosTheta = 1, and either cosPhi or cosPsi
+                Vector3d B_prime = B_support.RotateVector( 0.0, 0.0, theta_rotation );                   // want cosTheta = 1, and either cosPhi or cosPsi
+                Vector3d D_prime = D_support.RotateVector( 0.0, 0.0, theta_rotation );                   // want cosTheta = 1, and either cosPhi or cosPsi
 
                 Vector3d normalizedAngularMomentumVectorPostRocket = 0.5 * (B_prime + D_prime);
                 Vector3d eccentricityVectorPostRocket = 0.5 * (B_prime - D_prime);
 
-                m_NormalizedOrbitalAngularMomentumVector = normalizedAngularMomentumVectorPostRocket.mag ;                 
+                m_NormalizedOrbitalAngularMomentumVector = normalizedAngularMomentumVectorPostRocket ;                 
                 m_Eccentricity = eccentricityVectorPostRocket.mag;                                                        
 
                 UpdateSystemicVelocity(rocketKickVector.RotateVector(m_ThetaE, m_PhiE, m_PsiE));                            

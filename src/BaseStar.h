@@ -124,6 +124,7 @@ public:
             double              SN_HeCoreMassAtCOFormation() const                              { return m_SupernovaDetails.HeCoreMassAtCOFormation; }
             bool                SN_IsHydrogenPoor() const                                       { return m_SupernovaDetails.isHydrogenPoor; }
             double              SN_KickMagnitude() const                                        { return m_SupernovaDetails.kickMagnitude; }
+            double              SN_RocketKickMagnitude() const                                  { return m_SupernovaDetails.rocketKickMagnitude; }
             double              SN_MeanAnomaly() const                                          { return m_SupernovaDetails.meanAnomaly; }
             double              SN_Phi() const                                                  { return m_SupernovaDetails.phi; }
             double              SN_TotalMassAtCOFormation() const                               { return m_SupernovaDetails.totalMassAtCOFormation; }
@@ -131,7 +132,6 @@ public:
             double              SN_Theta() const                                                { return m_SupernovaDetails.theta; }
             SN_EVENT            SN_Type() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current); }
             double              SN_KickMagnitudeRandom() const                                  { return m_SupernovaDetails.kickMagnitudeRandom; }
-            double              SN_RocketKickMagnitude() const                                  { return m_SupernovaDetails.rocketKickMagnitude; }
             double              Speed() const                                                   { return m_ComponentVelocity.Magnitude(); }
             COMPAS_VARIABLE     StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
             double              Tau() const                                                     { return m_Tau; }

@@ -1773,6 +1773,7 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     IS_SNIA,                                         \
     IS_USSN,                                         \
     KICK_MAGNITUDE,                                  \
+    ROCKET_KICK_MAGNITUDE,                           \
     LAMBDA_AT_COMMON_ENVELOPE,                       \
     LAMBDA_DEWI,                                     \
     LAMBDA_FIXED,                                    \
@@ -1927,6 +1928,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::IS_SNIA,                                         "IS_SNIA" },
     { STAR_PROPERTY::IS_USSN,                                         "IS_USSN" },
     { STAR_PROPERTY::KICK_MAGNITUDE,                                  "KICK_MAGNITUDE" },
+    { STAR_PROPERTY::ROCKET_KICK_MAGNITUDE,                           "ROCKET_KICK_MAGNITUDE" },
     { STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                       "LAMBDA_AT_COMMON_ENVELOPE" },
     { STAR_PROPERTY::LAMBDA_DEWI,                                     "LAMBDA_DEWI" },
     { STAR_PROPERTY::LAMBDA_FIXED,                                    "LAMBDA_FIXED" },
@@ -2374,6 +2376,8 @@ enum class PROGRAM_OPTION: int {
     KICK_MAGNITUDE,
     KICK_MAGNITUDE_1,
     KICK_MAGNITUDE_2,
+    ROCKET_KICK_MAGNITUDE_1,
+    ROCKET_KICK_MAGNITUDE_2,
 
     KICK_MAGNITUDE_RANDOM,
     KICK_MAGNITUDE_RANDOM_1,
@@ -2584,6 +2588,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::KICK_MAGNITUDE,                                   "KICK_MAGNITUDE" },
     { PROGRAM_OPTION::KICK_MAGNITUDE_1,                                 "KICK_MAGNITUDE_1" },
     { PROGRAM_OPTION::KICK_MAGNITUDE_2,                                 "KICK_MAGNITUDE_2" },
+    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1,                          "ROCKET_KICK_MAGNITUDE_1" },
+    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_2,                          "ROCKET_KICK_MAGNITUDE_2" },
 
     { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM,                            "KICK_MAGNITUDE_RANDOM" },
     { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_1,                          "KICK_MAGNITUDE_RANDOM_1" },

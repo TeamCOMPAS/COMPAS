@@ -540,6 +540,9 @@ private:
         return LOGGING->LogBSESupernovaDetails(this, p_RecordType);
     }
 
+    bool ShouldResolveNeutrinoRocketMechanism() const { 
+        return (m_Star1->SN_RocketKickMagnitude() > 0) || (m_Star2->SN_RocketKickMagnitude() > 0) ;
+    }
     
     //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
     template <class T>

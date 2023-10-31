@@ -91,9 +91,6 @@ typedef struct KickParameters {
     bool   magnitudeSpecified;                              // SSE and BSE
     double magnitude;                                       // SSE and BSE
 
-    bool   rocketMagnitudeSpecified;                        // SSE and BSE
-    double rocketmagnitude;                                 // SSE and BSE
-
     bool   phiSpecified;                                    // BSE only
     double phi;                                             // BSE only
 
