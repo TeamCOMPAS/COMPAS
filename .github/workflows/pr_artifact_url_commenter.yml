@@ -5,7 +5,7 @@ on:
     types:
       - completed
     workflows:
-      - 'COMPAS compile test'
+      - 'Build COMPAS'
 
 jobs:
   comment:
