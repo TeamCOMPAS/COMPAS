@@ -173,7 +173,7 @@ numericalChoices:
 
 stringChoices:
     ### LOGISTICS
-    --grid: 'Grid_demo.txt'    # grid file name (e.g. 'mygrid.txt')
+    --grid: 'bbh_grid.txt'    # grid file name (e.g. 'mygrid.txt')
     --mode: 'BSE'  # evolving single stars (SSE) or binaries (BSE)    
     --notes: 
     --notes-hdrs: 
@@ -183,7 +183,7 @@ stringChoices:
     --envelope-state-prescription: 'LEGACY'
     --initial-mass-function: 'KROUPA'
     --luminous-blue-variable-prescription: 'HURLEY_ADD'
-    --mass-loss-prescription: 'VINK'
+    --mass-loss-prescription: 'FLEXIBLE2023'
     --metallicity-distribution: 'ZSOLAR'
     --pulsational-pair-instability-prescription: 'MARCHANT'
     ### BINARY PROPERTIES
