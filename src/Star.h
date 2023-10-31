@@ -227,6 +227,7 @@ public:
     void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                                        { m_Star->SetSNPastEvent(p_SNEvent); }
 
     double     	    SN_KickMagnitude()       									                                    { return m_Star->SN_KickMagnitude() ; }
+    double     	    SN_RocketKickMagnitude()       									                                { return m_Star->SN_RocketKickMagnitude() ; }
 
     STELLAR_TYPE    SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
 
