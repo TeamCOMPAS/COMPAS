@@ -44,8 +44,8 @@ jobs:
           pip install -e .[dev]
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
           cd ${GITHUB_WORKSPACE}/py_tests/test_data/
-          echo "Run example COMPAS job using the config py_tests/test_data/fiducial_bbh_configs.yaml"
-          compas_run_submit fiducial_bbh_configs.yaml > example_bbh.log
+          echo "Run example COMPAS job using the config py_tests/test_data/fiducial_bbh_config.yaml"
+          compas_run_submit fiducial_bbh_config.yaml > example_bbh.log
           cat example_bbh.log
           echo "Generating detailed evolution plot"
           compas_plot_detailed_evolution "./COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5" --dont-show >> example_bbh.log
