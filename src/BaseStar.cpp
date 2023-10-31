@@ -2571,6 +2571,7 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
         }
         else  {                                                                                                     // hot stars, add Vink et al. 2001 winds (ignoring bistability jump)
             otherWindsRate = CalculateMassLossRateOBVink2001();
+            m_DominantMassLossRate = MASS_LOSS_TYPE::OB;
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {
