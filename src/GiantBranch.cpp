@@ -2061,10 +2061,9 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         }
             
     	CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
-        // RTW - come back to this
-        //if ( utils::IsOneOf(stellarType, { STELLAR_TYPE::BLACK_HOLE })) {
-        //    m_SupernovaDetails.KickParameters.rocketMagnitude = 0.0;
-        //}
+        if ( utils::IsOneOf(stellarType, { STELLAR_TYPE::BLACK_HOLE })) {
+            m_SupernovaDetails.rocketKickMagnitude = 0.0;
+        }
 
         // stash SN details for later printing to the SSE Supernova log
         // can't print it now because we may revert state (in Star::EvolveOneTimestep())
