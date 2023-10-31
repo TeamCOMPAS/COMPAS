@@ -344,12 +344,16 @@ private:
         "kick-magnitude-2",
         "kick-magnitude-random-1",
         "kick-magnitude-random-2",
+        "rocket-kick-magnitude-1",
+        "rocket-kick-magnitude-2",
         "kick-mean-anomaly-1",
         "kick-mean-anomaly-2",
         "kick-phi-1",
         "kick-phi-2",
         "kick-theta-1",
         "kick-theta-2",
+        "rocket-kick-magnitude-1",
+        "rocket-kick-magnitude-2",
 
         //"logfile-be-binaries",
         //"logfile-be-binaries-record-types",
@@ -740,6 +744,8 @@ public:
             double                                              m_KickMagnitudeRandom;                                          // Random number U(0,1) for choosing the supernova kick magnitude - SSE
             double                                              m_KickMagnitudeRandom1;                                         // Random number U(0,1) for choosing the supernova kick magnitude - BSE primary star
             double                                              m_KickMagnitudeRandom2;                                         // Random number U(0,1) for choosing the supernova kick magnitude - BSE secondary star
+            double                                              m_RocketKickMagnitude1;                                         // Rocket kick magnitude - BSE primary star
+            double                                              m_RocketKickMagnitude2;                                         // Rocket kick magnitude - BSE secondary star
             double                                              m_KickMeanAnomaly1;                                             // Mean anomaly at instantaneous time of the SN - uniform in [0, 2pi] - BSE primary star
             double                                              m_KickMeanAnomaly2;                                             // Mean anomaly at instantaneous time of the SN - uniform in [0, 2pi] - BSE secondary star
             double                                              m_KickPhi1;                                                     // Angle between 'x' and 'y', both in the orbital plane of supernovae vector (rad) - BSE primary star
@@ -1259,6 +1265,8 @@ public:
     double                                      KickMagnitude() const                                                   { return OPT_VALUE("kick-magnitude", m_KickMagnitude, true); }
     double                                      KickMagnitude1() const                                                  { return OPT_VALUE("kick-magnitude-1", m_KickMagnitude1, true); }
     double                                      KickMagnitude2() const                                                  { return OPT_VALUE("kick-magnitude-2", m_KickMagnitude2, true); }
+    double                                      RocketKickMagnitude1() const                                            { return OPT_VALUE("rocket-kick-magnitude-1", m_RocketKickMagnitude1, true); }
+    double                                      RocketKickMagnitude2() const                                            { return OPT_VALUE("rocket-kick-magnitude-2", m_RocketKickMagnitude2, true); }
 
     double                                      KickMagnitudeRandom() const                                             { return OPT_VALUE("kick-magnitude-random", m_KickMagnitudeRandom, false); }
     double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, false); }
