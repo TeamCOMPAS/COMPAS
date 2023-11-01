@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Tue Oct 31 17:40:53 2023 by COMPAS v02.40.00
+##~!!~## File Created Wed Nov  1 11:22:29 2023 by COMPAS v02.40.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -214,6 +214,11 @@ stringChoices:
 #    --initial-mass-function: 'KROUPA'                                     # Default: 'KROUPA'                      # Options: ['KROUPA','UNIFORM','POWERLAW','SALPETER']
 #    --luminous-blue-variable-prescription: 'HURLEY_ADD'                   # Default: 'HURLEY_ADD'                  # Options: ['BELCZYNSKI','HURLEY','HURLEY_ADD','NONE']
 #    --mass-loss-prescription: 'FLEXIBLE2023'                              # Default: 'FLEXIBLE2023'                # Options: ['FLEXIBLE2023','BELCZYNSKI2010','HURLEY','NONE']
+#    --OB-mass-loss: 'VINK2021'                                            # Default: 'VINK2021'                    # Options: ['KRTICKA2018','BJORKLUND2022','VINK2021','VINK2001','NONE']
+#    --RSG-mass-loss: 'DECIN2023'                                          # Default: 'DECIN2023'                   # Options: ['NJ90','KEE2021','YANG2023','DECIN2023','BEASOR2020','VINKSABHAHIT2023','NONE']
+#    --VMS-mass-loss: 'SABHAHIT2023'                                       # Default: 'SABHAHIT2023'                # Options: ['SABHAHIT2023','BESTENLEHNER2020','VINK2011','NONE']
+#    --WR-mass-loss: 'SANDERVINK2023'                                      # Default: 'SANDERVINK2023'              # Options: ['SHENAR2019','SANDERVINK2023','BELCZYNSKI2010']
+#    --metallicity-distribution: 'ZSOLAR'                                  # Default: 'ZSOLAR'                      # Options: ['LOGUNIFORM','ZSOLAR']
 #    --pulsational-pair-instability-prescription: 'MARCHANT'               # Default: 'MARCHANT'                    # Options: ['FARMER','MARCHANT','STARTRACK','COMPAS']
 
     ### BINARY PROPERTIES
@@ -267,11 +272,3 @@ listChoices:
 
 #    --log-classes: { }                                                    # Default: { }
 #    --debug-classes: { }                                                  # Default: { }
-
-
-### Additional COMPAS options not found in YAML template ###
-#    --OB-mass-loss: 'VINK2021'                                            # Default: 'VINK2021'                    # Options: ['KRTICKA2018','BJORKLUND2022','VINK2021','VINK2001','NONE']
-#    --RSG-mass-loss: 'DECIN2023'                                          # Default: 'DECIN2023'                   # Options: ['NJ90','KEE2021','YANG2023','DECIN2023','BEASOR2020','VINKSABHAHIT2023','NONE']
-#    --VMS-mass-loss: 'SABHAHIT2023'                                       # Default: 'SABHAHIT2023'                # Options: ['SABHAHIT2023','BESTENLEHNER2020','VINK2011','NONE']
-#    --WR-mass-loss: 'SANDERVINK2023'                                      # Default: 'SANDERVINK2023'              # Options: ['SHENAR2019','SANDERVINK2023','BELCZYNSKI2010']
-#    --metallicity-distribution: 'ZSOLAR'                                  # Default: 'ZSOLAR'                      # Options: ['LOGUNIFORM','ZSOLAR']

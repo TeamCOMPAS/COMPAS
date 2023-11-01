@@ -381,7 +381,7 @@ void Options::OptionValues::Initialise() {
     m_CoolWindMassLossMultiplier                                    = 1.0;
     m_LuminousBlueVariableFactor                                    = 1.5;
     m_OverallWindMassLossMultiplier                                 = 1.0;
-    m_WolfRayetFactor                                               = 0.1;
+    m_WolfRayetFactor                                               = 1.0;
 
 
     // Mass transfer options
