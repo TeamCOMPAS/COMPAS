@@ -96,7 +96,7 @@ numericalChoices:
 #    --rotational-frequency: 0.000000                                      # Default: 0.000000
 #    --rotational-frequency-1: 0.000000                                    # Default: 0.000000
 #    --rotational-frequency-2: 0.000000                                    # Default: 0.000000
-#    --wolf-rayet-multiplier: 0.100000                                     # Default: 0.100000
+#    --wolf-rayet-multiplier: 1.000000                                     # Default: 1.000000
 
     ### BINARY PROPERTIES
 #    --eccentricity: 0.000000                                              # Default: 0.000000                                                                                                                                                           # eccentricity for BSE
