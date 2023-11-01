@@ -220,17 +220,15 @@ double HeMS::CalculateMassLossRateHurley() {
     double rateKR = CalculateMassLossRateKudritzkiReimers();
     double rateWR = CalculateMassLossRateWolfRayet(0.0); // use mu=0.0 for Helium stars
     double dominantRate;
-
+    m_DominantMassLossRate = MASS_LOSS_TYPE::GB;
     if (utils::Compare(rateNJ, rateKR) > 0) {
         dominantRate = rateNJ;
-        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
     } else {
         dominantRate = rateKR;
-        m_DominantMassLossRate = MASS_LOSS_TYPE::KUDRITZKI_REIMERS;
     }
     if (utils::Compare(rateWR, dominantRate) > 0) {
         dominantRate = rateWR;
-        m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
     }
 
     return dominantRate;
@@ -247,7 +245,7 @@ double HeMS::CalculateMassLossRateHurley() {
  * @return                                      Mass loss rate in Msol per year
  */
 double HeMS::CalculateMassLossRateBelczynski2010() {
-    m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+    m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
     return CalculateMassLossRateWolfRayetZDependent(0.0);
 }
 
@@ -292,7 +290,7 @@ double HeMS::CalculateMassLossRateWolfRayetShenar2019() const {
  */
 double HeMS::CalculateMassLossRateFlexible2023() {
 
-    m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+    m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
 
     double MdotWR = 0.0;
 
