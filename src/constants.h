@@ -1566,15 +1566,12 @@ enum class MASS_CUTOFF: int {
 // Symbolic names for mass loss rate type
 enum class MASS_LOSS_TYPE: int {
     NONE,
-    NIEUWENHUIJZEN_DE_JAGER,
-    KUDRITZKI_REIMERS,
-    VASSILIADIS_WOOD,
-    WOLF_RAYET_LIKE,
-    VINK,
     OB,
-    VERY_MASSIVE,
-    RED_SUPER_GIANT,
-    LUMINOUS_BLUE_VARIABLE
+    VMS,
+    GB,
+    RSG,
+    WR,
+    LBV
 };
 
 

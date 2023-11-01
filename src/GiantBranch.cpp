@@ -902,17 +902,15 @@ double GiantBranch::CalculateMassLossRateHurley() {
     double rateKR = CalculateMassLossRateKudritzkiReimers();
     double rateWR = CalculateMassLossRateWolfRayet(m_Mu);
     double dominantRate;
-
+    m_DominantMassLossRate = MASS_LOSS_TYPE::GB;
     if (utils::Compare(rateNJ, rateKR) > 0) {
         dominantRate = rateNJ;
-        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
     } else {
         dominantRate = rateKR;
-        m_DominantMassLossRate = MASS_LOSS_TYPE::KUDRITZKI_REIMERS;
     }
     if (utils::Compare(rateWR, dominantRate) > 0) {
         dominantRate = rateWR;
-        m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
     }
 
     return dominantRate;

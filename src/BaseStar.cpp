@@ -1829,7 +1829,7 @@ double BaseStar::CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_Prescript
     double HD_limit_factor = m_Radius * std::sqrt(m_Luminosity) * 1.0E-5;                                                       // calculate factor by which the star is above the HD limit
     if ((utils::Compare(m_Luminosity, LBV_LUMINOSITY_LIMIT_STARTRACK) > 0) && (utils::Compare(HD_limit_factor, 1.0) > 0)) {     // check if luminous blue variable
 		m_LBVphaseFlag = true;                                                                                                  // mark the star as LBV
-        m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;
         
         switch (p_LBV_Prescription) {                                                                                           // decide which LBV prescription to use
             case LBV_PRESCRIPTION::NONE:
@@ -2562,7 +2562,7 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
     double LBVRate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                         // start with LBV winds (can be, and is often, 0.0)
     double otherWindsRate = 0.0;
 
-    if (m_DominantMassLossRate != MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE || 
+    if (m_DominantMassLossRate != MASS_LOSS_TYPE::LBV || 
         OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_ADD ) {                             // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
 
         double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription
@@ -2575,7 +2575,7 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {
-            m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;                                        // set LBV dominant again in case Hurley or OB overwrote it
+            m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;                                        // set LBV dominant again in case Hurley or OB overwrote it
         }
     }
 
@@ -2605,21 +2605,21 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
 
     double teff            = TSOL * m_Temperature;    
 
-    if (m_DominantMassLossRate != MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE || 
+    if (m_DominantMassLossRate != MASS_LOSS_TYPE::LBV || 
         OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_ADD ) {                             // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
 
 
         if ((utils::Compare(teff, RSG_MAXIMUM_TEMP) < 0) && (utils::Compare(m_MZAMS, 8.0) >= 0) && 
         IsOneOf(GIANTS)) {                                                                                          // RSG criteria, below 8kK, above 8Msol, and core helium burning giant(CHeB, FGB, EAGB, TPAGB) 
             otherWindsRate         = CalculateMassLossRateRSG(OPTIONS->RSGMassLoss()); 
-            m_DominantMassLossRate = MASS_LOSS_TYPE::RED_SUPER_GIANT;
+            m_DominantMassLossRate = MASS_LOSS_TYPE::RSG;
         }                                                                      
         else if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                           // cool stars, add Hurley et al 2000 winds (NJ90)
             otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // apply cool wind mass loss multiplier
         }                                                                                                           // change to Kelvin so it can be compared with values as stated in Vink prescription
         else if (utils::Compare(m_MZAMS, VERY_MASSIVE_MINIMUM_MASS) >= 0) {
             otherWindsRate         = CalculateMassLossRateVMS(OPTIONS->VMSMassLoss());        
-            m_DominantMassLossRate = MASS_LOSS_TYPE::VERY_MASSIVE;                                                  // massive MS, >100 Msol. Alternately could use Luminosity or Gamma and Mass threshold                             
+            m_DominantMassLossRate = MASS_LOSS_TYPE::VMS;                                                  // massive MS, >100 Msol. Alternately could use Luminosity or Gamma and Mass threshold                             
         }
 
         else {     
@@ -2628,7 +2628,7 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {
-            m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;                                        // set LBV dominant again in case Hurley or OB overwrote it
+            m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;                                        // set LBV dominant again in case Hurley or OB overwrote it
         }
 
     }
@@ -2662,7 +2662,7 @@ double BaseStar::CalculateMassLossRate() {
                 LBVRate        = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
                 otherWindsRate = CalculateMassLossRateHurley();
                 if (utils::Compare(LBVRate, otherWindsRate) > 0) {
-                    m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;
+                    m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;
                 }
                 mDot = LBVRate + otherWindsRate;
                 break;
@@ -2684,7 +2684,7 @@ double BaseStar::CalculateMassLossRate() {
                 LBVRate        = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
                 otherWindsRate = CalculateMassLossRateHurley();
                 if (utils::Compare(LBVRate, otherWindsRate) > 0) {
-                    m_DominantMassLossRate = MASS_LOSS_TYPE::LUMINOUS_BLUE_VARIABLE;
+                    m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;
                 }
                 mDot = LBVRate + otherWindsRate;                                                                // use HURLEY
         }
