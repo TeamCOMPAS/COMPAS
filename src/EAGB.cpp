@@ -877,20 +877,22 @@ double EAGB::CalculateMassLossRateHurley() {
     double rateVW = CalculateMassLossRateVassiliadisWood();
     double rateWR = CalculateMassLossRateWolfRayet(m_Mu);
     double dominantRate;
-    m_DominantMassLossRate = MASS_LOSS_TYPE::GB;
 
     if (utils::Compare(rateNJ, rateKR) > 0) {
+        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
         dominantRate = rateNJ;
     } else {
+        m_DominantMassLossRate = MASS_LOSS_TYPE::KUDRITZKI_REIMERS;
         dominantRate = rateKR;
     }
 
     if (utils::Compare(rateVW, dominantRate) > 0) {
+        m_DominantMassLossRate = MASS_LOSS_TYPE::VASSILIADIS_WOOD;
         dominantRate = rateVW;
     }
 
     if (utils::Compare(rateWR, dominantRate) > 0) {
-        m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
         dominantRate = rateWR;
     }
     return dominantRate;
