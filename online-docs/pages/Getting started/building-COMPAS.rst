@@ -18,7 +18,7 @@ is ``csh``, set the environment variable in `~/.cshrc` using::
     
 Tip: you can check whether you have correctly defined the environment variable and whether its been active by typing into your terminal the command::
     
-    ECHO $COMPAS_ROOT_DIR
+    echo $COMPAS_ROOT_DIR
 
 This should return the directory location of the COMPAS folder (i.e. "~/codes/COMPAS").
 
