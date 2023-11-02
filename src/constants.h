@@ -2376,7 +2376,8 @@ enum class PROGRAM_OPTION: int {
     KICK_MAGNITUDE,
     KICK_MAGNITUDE_1,
     KICK_MAGNITUDE_2,
-    ROCKET_KICK_MAGNITUDE,
+    ROCKET_KICK_MAGNITUDE_1,
+    ROCKET_KICK_MAGNITUDE_2,
 
     KICK_MAGNITUDE_RANDOM,
     KICK_MAGNITUDE_RANDOM_1,
@@ -2587,7 +2588,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::KICK_MAGNITUDE,                                   "KICK_MAGNITUDE" },
     { PROGRAM_OPTION::KICK_MAGNITUDE_1,                                 "KICK_MAGNITUDE_1" },
     { PROGRAM_OPTION::KICK_MAGNITUDE_2,                                 "KICK_MAGNITUDE_2" },
-    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE,                            "ROCKET_KICK_MAGNITUDE" },
+    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1,                          "ROCKET_KICK_MAGNITUDE_1" },
+    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_2,                          "ROCKET_KICK_MAGNITUDE_2" },
 
     { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM,                            "KICK_MAGNITUDE_RANDOM" },
     { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_1,                          "KICK_MAGNITUDE_RANDOM_1" },
@@ -3096,7 +3098,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::KICK_MAGNITUDE,                                           { TYPENAME::DOUBLE,     "Kick_Magnitude",                         "kms^-1",    14, 6 }},
     { PROGRAM_OPTION::KICK_MAGNITUDE_1,                                         { TYPENAME::DOUBLE,     "Kick_Magnitude(1)",                      "kms^-1",    14, 6 }},
     { PROGRAM_OPTION::KICK_MAGNITUDE_2,                                         { TYPENAME::DOUBLE,     "Kick_Magnitude(2)",                      "kms^-1",    14, 6 }},
-    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE,                                    { TYPENAME::DOUBLE,     "Rocket_Kick_Magnitude",                  "kms^-1",    14, 6 }},
+    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1,                                  { TYPENAME::DOUBLE,     "Rocket_Kick_Magnitude(1)",               "kms^-1",    14, 6 }},
+    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_2,                                  { TYPENAME::DOUBLE,     "Rocket_Kick_Magnitude(2)",               "kms^-1",    14, 6 }},
 
     { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM,                                    { TYPENAME::DOUBLE,     "Kick_Magnitude_Random",                  "-",         14, 6 }},
     { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_1,                                  { TYPENAME::DOUBLE,     "Kick_Magnitude_Random(1)",               "-",         14, 6 }},

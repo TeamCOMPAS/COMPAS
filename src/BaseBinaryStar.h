@@ -541,7 +541,7 @@ private:
     }
 
     bool ShouldResolveNeutrinoRocketMechanism() const { 
-        return OPTIONS->RocketKickMagnitude() > 0;
+        return (OPTIONS->RocketKickMagnitude1() > 0) || (OPTIONS->RocketKickMagnitude1() > 0);
     }
     
     //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe

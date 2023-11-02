@@ -350,7 +350,8 @@ private:
         "kick-phi-2",
         "kick-theta-1",
         "kick-theta-2",
-        "rocket-kick-magnitude",
+        "rocket-kick-magnitude-1",
+        "rocket-kick-magnitude-2",
 
         //"logfile-be-binaries",
         //"logfile-be-binaries-record-types",
@@ -747,7 +748,8 @@ public:
             double                                              m_KickPhi2;                                                     // Angle between 'x' and 'y', both in the orbital plane of supernovae vector (rad) - BSE secondary star
             double                                              m_KickTheta1;                                                   // Angle between the orbital plane and the 'z' axis of supernovae vector (rad) - BSE primary star
             double                                              m_KickTheta2;                                                   // Angle between the orbital plane and the 'z' axis of supernovae vector (rad) - BSE secondar star
-            double                                              m_RocketKickMagnitude;                                          // Rocket kick magnitude - only for neutron stars
+            double                                              m_RocketKickMagnitude1;                                         // Rocket kick magnitude 1 - only for neutron stars
+            double                                              m_RocketKickMagnitude2;                                         // Rocket kick magnitude 1 - only for neutron stars
 
             double                                              m_MullerMandelKickBH;                                           // Multiplier for BH kicks per Mandel and Mueller, 2020
             double                                              m_MullerMandelKickNS;                                           // Multiplier for NS kicks per Mandel and Mueller, 2020
@@ -1261,7 +1263,8 @@ public:
     double                                      KickMagnitude() const                                                   { return OPT_VALUE("kick-magnitude", m_KickMagnitude, true); }
     double                                      KickMagnitude1() const                                                  { return OPT_VALUE("kick-magnitude-1", m_KickMagnitude1, true); }
     double                                      KickMagnitude2() const                                                  { return OPT_VALUE("kick-magnitude-2", m_KickMagnitude2, true); }
-    double                                      RocketKickMagnitude() const                                             { return OPT_VALUE("rocket-kick-magnitude", m_RocketKickMagnitude, true); }
+    double                                      RocketKickMagnitude1() const                                            { return OPT_VALUE("rocket-kick-magnitude-1", m_RocketKickMagnitude1, true); }
+    double                                      RocketKickMagnitude2() const                                            { return OPT_VALUE("rocket-kick-magnitude-2", m_RocketKickMagnitude2, true); }
 
     double                                      KickMagnitudeRandom() const                                             { return OPT_VALUE("kick-magnitude-random", m_KickMagnitudeRandom, false); }
     double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, false); }
