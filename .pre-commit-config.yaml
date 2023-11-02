@@ -5,4 +5,4 @@ repos:
     rev: v2.2.4
     hooks:
     -   id: codespell # Spellchecker
-        args: [-L, nd, --ignore-words=.dictionary.txt, --skip, '*.eps,*.svg,*.ipynb,./misc/*,paper.md,./online-docs/index.rst']
+        args: [--ignore-words=.dictionary.txt, --skip, '*.eps,*.svg,*.ipynb,./misc/*,paper.md,./online-docs/index.rst']
