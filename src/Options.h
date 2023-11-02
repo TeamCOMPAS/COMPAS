@@ -500,6 +500,7 @@ private:
         "neutrino-mass-loss-BH-formation",
         "neutron-star-equation-of-state",
 
+        "OB-mass-loss",
         "orbital-period-distribution",
         "output-container", "c",
         "outputPath", "o",
@@ -514,6 +515,7 @@ private:
 
         "quiet", 
 
+        "RSG-mass-loss",
         "random-seed",
         "remnant-mass-prescription",
         "revised-energy-formalism-nandez-ivanova",
@@ -527,7 +529,10 @@ private:
 
         "use-mass-loss",
 
+        "VMS-mass-loss",
         "version", "v",
+
+        "WR-mass-loss"
 
         "yaml-template"
     };
@@ -803,6 +808,11 @@ public:
             ENUM_OPT<LBV_PRESCRIPTION>                          m_LuminousBlueVariablePrescription;                             // Which LBV mass loss prescription to use
             double                                              m_LuminousBlueVariableFactor;                                   // Multiplicitive factor for luminous blue variable (LBV) mass loss rates when using Belczynski’s prescription
             double                                              m_WolfRayetFactor;                                              // Multiplicitive factor for Wolf-Rayet (WR) wind mass loss rates
+            ENUM_OPT<OB_MASS_LOSS>                              m_OBMassLoss; 
+            ENUM_OPT<VMS_MASS_LOSS>                             m_VMSMassLoss;                                                  // Which mass loss prescription for M > 100 Msol        
+            ENUM_OPT<RSG_MASS_LOSS>                             m_RSGMassLoss;                                                  // Which mass loss prescription to use for RSG       
+            ENUM_OPT<WR_MASS_LOSS>                              m_WRMassLoss;                                                   // Which mass loss prescription to use for WR       
+
 
             // Mass transfer options
             bool                                                m_UseMassTransfer;                                              // Whether to use mass transfer (default = true)
@@ -1378,6 +1388,7 @@ public:
     std::vector<std::string>                    NotesHdrs() const                                                       { return m_CmdLine.optionValues.m_NotesHdrs; }
  
     size_t                                      nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
+    OB_MASS_LOSS                                OBMassLoss() const                                                      { return OPT_VALUE("OB-mass-loss", m_OBMassLoss.type, true); }
     bool                                        OptimisticCHE() const                                                   { CHE_MODE che = OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); return che == CHE_MODE::OPTIMISTIC; }
 
     double                                      OrbitalPeriod() const                                                   { return OPT_VALUE("orbital-period", m_OrbitalPeriod, true); }
@@ -1434,7 +1445,8 @@ public:
     double                                      RotationalFrequency() const                                             { return OPT_VALUE("rotational-frequency", m_RotationalFrequency, true); }
     double                                      RotationalFrequency1() const                                            { return OPT_VALUE("rotational-frequency-1", m_RotationalFrequency1, true); }
     double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
-   
+    RSG_MASS_LOSS                               RSGMassLoss() const                                                     { return OPT_VALUE("RSG-mass-loss", m_RSGMassLoss.type, true); }
+
     double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis, true); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }
     double                                      SemiMajorAxisDistributionMax() const                                    { return OPT_VALUE("semi-major-axis-max", m_SemiMajorAxisDistributionMax, true); }
@@ -1463,7 +1475,9 @@ public:
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
 
+    VMS_MASS_LOSS                               VMSMassLoss() const                                                     { return OPT_VALUE("VMS-mass-loss", m_VMSMassLoss.type, true); }
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
+    WR_MASS_LOSS                                WRMassLoss() const                                                      { return OPT_VALUE("WR-mass-loss", m_WRMassLoss.type, true); }
 
     std::string                                 YAMLfilename() const                                                    { return m_CmdLine.optionValues.m_YAMLfilename; }
     std::string                                 YAMLtemplate() const                                                    { return m_CmdLine.optionValues.m_YAMLtemplate; }

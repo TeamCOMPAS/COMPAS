@@ -1057,8 +1057,14 @@
 //                                      - Fixed a few typos, a little code cleanup.
 // 02.39.01     LC - Sep 01, 2023    - Defect repair:
 //                                      - Fix for issue #945 - made HeSD SN types a sub-class of SNIA types.
+// 02.40.00     JDM - Sep 29, 2023   - Enhancement:
+//                                      - Added 'FLEXIBLE2023' option to --mass-loss-prescription. Recover previous defaults via 'BELCZYNSKI2010' option. this applies the following prescriptions:
+//                                          - Added --OB-mass-loss program option.
+//                                          - Added --RSG-mass-loss.
+//                                          - Added --VMS-mass-loss.
+//                                          - Added --WR-mass-loss.
 
-const std::string VERSION_STRING = "02.39.01";
+const std::string VERSION_STRING = "02.40.00";
 
 
 # endif // __changelog_h__
