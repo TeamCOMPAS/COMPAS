@@ -3,7 +3,6 @@ import h5py  as h5
 import os
 import time
 import matplotlib.pyplot as plt
-from astropy.cosmology import WMAP9 as cosmology
 import scipy
 from scipy.interpolate import interp1d
 from scipy.stats import norm as NormDist
@@ -12,6 +11,7 @@ from compas_python_utils.cosmic_integration import selection_effects
 import warnings
 import astropy.units as u
 import argparse
+import importlib
 
 def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10.0):
     """ 
@@ -802,6 +802,8 @@ def parse_cli_args():
     parser.add_argument("--delete", dest='delete_rates',
                         help="Delete the rate group from your hdf5 output file (groupname based on dP/dZ parameters)",
                         action='store_true', default=False)
+    parser.add_argument("--cosmology", dest='Cosmology', help="Cosmology that is used for cosmic integration", 
+                        type=str, default="Planck18")
 
     args = parser.parse_args()
     return args
@@ -810,6 +812,13 @@ def parse_cli_args():
 def main():
     # Define command line options for the most commonly varied options
     args = parse_cli_args()
+    
+    # Set cosmology
+    if args.Cosmology == "Planck18":
+        print("USING PLANCK18 AS COSMOLOGY! If working with TNG data, you may want to use Planck15 instead.")
+    else:
+        print("Using %s as cosmology!"%args.Cosmology)
+    cosmology = getattr(importlib.import_module('astropy.cosmology'), args.Cosmology)
 
     #####################################
     # Run the cosmic integration
