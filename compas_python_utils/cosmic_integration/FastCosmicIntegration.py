@@ -804,25 +804,27 @@ def parse_cli_args():
     parser.add_argument("--delete", dest='delete_rates',
                         help="Delete the rate group from your hdf5 output file (groupname based on dP/dZ parameters)",
                         action='store_true', default=False)
-    parser.add_argument("--cosmology", dest='Cosmology', help="Cosmology that is used for cosmic integration using the astropy.cosmology class: one of ['Planck13', 'Planck15', 'Planck18', 'WMAP1', 'WMAP3', 'WMAP5', 'WMAP9']", 
+    parser.add_argument("--cosmology_name", dest='cosmology_name', help="Cosmology that is used for cosmic integration using the astropy.cosmology class: one of ['Planck13', 'Planck15', 'Planck18', 'WMAP1', 'WMAP3', 'WMAP5', 'WMAP9']", 
                         type=str, default="Planck18")
 
     args = parser.parse_args()
     return args
+
+def set_cosmology(cosmology_name="Planck18"):
+    # Set cosmology using astropy, print a warning if TNG fit is used with Planck18 cosmology (since TNG uses Planck15)
+    if .cosmology_name == "Planck18": print("USING PLANCK18 AS COSMOLOGY! If working with TNG fit, you may want to use Planck15 instead for self-consistency.")
+    else: print("Using %s as cosmology!"%cosmology_name)
+
+    return getattr(importlib.import_module('astropy.cosmology'), cosmology_name)
+
 
 
 def main():
     # Define command line options for the most commonly varied options
     args = parse_cli_args()
     
-    # Set cosmology
-    if args.Cosmology == "Planck18":
-        print("USING PLANCK18 AS COSMOLOGY! If working with TNG data, you may want to use Planck15 instead.")
-    else:
-        print("Using %s as cosmology!"%args.Cosmology)
-    print('getting here ')
-    print(args.Cosmology)
-    cosmology = getattr(importlib.import_module('astropy.cosmology'), args.Cosmology)
+    cosmology = set_cosmology(Cosmology=args.cosmology_name)
+
 
     #####################################
     # Run the cosmic integration
