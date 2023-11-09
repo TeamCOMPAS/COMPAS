@@ -804,7 +804,7 @@ def parse_cli_args():
     parser.add_argument("--delete", dest='delete_rates',
                         help="Delete the rate group from your hdf5 output file (groupname based on dP/dZ parameters)",
                         action='store_true', default=False)
-    parser.add_argument("--cosmology", dest='Cosmology', help="Cosmology that is used for cosmic integration", 
+    parser.add_argument("--cosmology", dest='Cosmology', help="Cosmology that is used for cosmic integration using the astropy.cosmology class: one of ['Planck13', 'Planck15', 'Planck18', 'WMAP1', 'WMAP3', 'WMAP5', 'WMAP9']", 
                         type=str, default="Planck18")
 
     args = parser.parse_args()
