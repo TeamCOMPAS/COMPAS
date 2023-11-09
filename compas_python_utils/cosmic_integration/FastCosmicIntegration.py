@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import scipy
 from scipy.interpolate import interp1d
 from scipy.stats import norm as NormDist
-from compas_python_utils.cosmic_integration import ClassCOMPAS
-from compas_python_utils.cosmic_integration import selection_effects
+import ClassCOMPAS 
+import selection_effects
 import warnings
 import astropy.units as u
 import argparse
