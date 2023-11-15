@@ -358,7 +358,7 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
                 double rOverAPow21Over2       = rOverAPow10 * rOverA * std::sqrt(rOverA);                                                   // sqrt() is faster than pow()
 
 		double	secondOrderTidalCoeff = 1.592E-09 * PPOW(Mass(), 2.84);                                                              // aka E_2.
-		double	freeFallFactor        = std::sqrt(G1 * Mass() / rInAUPow3);
+		double	freeFallFactor        = std::sqrt(G_AU_Msol_yr * Mass() / rInAUPow3);
 		
 		timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * PPOW(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
             } break;
@@ -408,7 +408,7 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
                 double e2              = 1.592E-9 * PPOW(Mass(), 2.84);             // second order tidal coefficient (a.k.a. E_2)
                 double rAU             = Radius() * RSOL_TO_AU;
                 double rAU_3           = rAU * rAU * rAU;
-                double freeFallFactor  = std::sqrt(G1 * Mass() / rAU_3);
+                double freeFallFactor  = std::sqrt(G_AU_Msol_yr * Mass() / rAU_3);
 
 		timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * PPOW(1.0 + q2, 5.0 / 6.0) * e2 * PPOW(rOverA, 17.0 / 2.0));
             } break;

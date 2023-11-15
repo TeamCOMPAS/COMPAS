@@ -220,7 +220,7 @@ public:
     bool                MergesInHubbleTime() const                  { return m_Flags.mergesInHubbleTime; }
     double              Omega() const                               { return m_Omega; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
-    double              OrbitalAngularVelocity() const              { return std::sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
+    double              OrbitalAngularVelocity() const              { return std::sqrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
     double              Periastron() const                          { return m_SemiMajorAxis * (1.0 - m_Eccentricity); }
     double              PeriastronRsol() const                      { return Periastron() * AU_TO_RSOL; }
@@ -456,11 +456,11 @@ private:
     double  CalculateOrbitalAngularMomentum(const double p_Star1Mass,
                                             const double p_Star2Mass,
                                             const double p_SemiMajorAxis,
-                                            const double p_Eccentricity) const  { return ((p_Star1Mass * p_Star2Mass) / (p_Star1Mass + p_Star2Mass)) * std::sqrt(G1 * (p_Star1Mass + p_Star2Mass) * p_SemiMajorAxis * (1.0 - (p_Eccentricity * p_Eccentricity))); }
+                                            const double p_Eccentricity) const  { return ((p_Star1Mass * p_Star2Mass) / (p_Star1Mass + p_Star2Mass)) * std::sqrt(G_AU_Msol_yr * (p_Star1Mass + p_Star2Mass) * p_SemiMajorAxis * (1.0 - (p_Eccentricity * p_Eccentricity))); }
 
     double  CalculateOrbitalEnergy(const double p_Mu,
                                    const double p_Mass,
-                                   const double p_SemiMajorAxis) const          { return -(G1 * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
+                                   const double p_SemiMajorAxis) const          { return -(G_AU_Msol_yr * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
 
     double  CalculateZetaRocheLobe(const double p_jLoss) const;
 
@@ -662,7 +662,7 @@ private:
         // function: (I_1 + I_2) Omega + L(Omega) - p_Ltot = 0
         //    where L(Omega) = b*Omega(-1/3)
         double a = p_I1 + p_I2;                                                                             // I_1 + I_2
-        double b = PPOW(G1, 2.0 / 3.0) * p_M1 * p_M2 / std::cbrt(p_M1 + p_M2);
+        double b = PPOW(G_AU_Msol_yr, 2.0 / 3.0) * p_M1 * p_M2 / std::cbrt(p_M1 + p_M2);
         double c = -p_Ltot;
 
         auto func = [a, b, c](double x) -> double { return (a * x) + (b / std::cbrt(x)) + c; };             // functor
