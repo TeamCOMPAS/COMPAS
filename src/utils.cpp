@@ -233,7 +233,7 @@ namespace utils {
     double ConvertPeriodInDaysToSemiMajorAxisInAU(const double p_Mass1, const double p_Mass2, const double p_Period) {
 
         double a_cubed_SI_top = G * ((p_Mass1 * MSOL_TO_KG) + (p_Mass2 * MSOL_TO_KG)) * p_Period * p_Period * SECONDS_IN_DAY * SECONDS_IN_DAY;
-        double a_cubed_SI     = a_cubed_SI_top / G1;
+        double a_cubed_SI     = a_cubed_SI_top / G_AU_Msol_yr;
         double a_SI           = std::cbrt(a_cubed_SI); 
 
         return a_SI / AU;
