@@ -191,7 +191,6 @@ namespace utils {
      *                                          1 indicates p_X is greater than p_Y
      */
     int Compare(const double p_X, const double p_Y, const double p_Tolerance, const bool p_Absolute) {
-    #ifdef COMPARE_GLOBAL_TOLERANCE
         if (p_Tolerance > 0.0) {                                                                                                // use tolerance passed?
             if (p_Absolute) {                                                                                                   // yes - absolute tolerance?
                 return (fabs(p_X - p_Y) <= p_Tolerance) ? 0 : (p_X < p_Y ? -1 : 1);                                             // yes
@@ -201,21 +200,12 @@ namespace utils {
             }
         }
         else {                                                                                                                  // use global tolerance
+    #ifdef COMPARE_GLOBAL_TOLERANCE
             return (fabs(p_X - p_Y) <= std::max(FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE * std::max(fabs(p_X), fabs(p_Y)))) ? 0 : (p_X < p_Y ? -1 : 1);
-        }
     #else
-        if (p_Tolerance > 0.0) {                                                                                                // use tolerance passed?
-            if (p_Absolute) {                                                                                                   // yes - absolute tolerance?
-                return (fabs(p_X - p_Y) <= p_Tolerance) ? 0 : (p_X < p_Y ? -1 : 1);                                             // yes
-            }
-            else {                                                                                                              // no - relative tolerance
-                return (fabs(p_X - p_Y) <= p_Tolerance * std::max(fabs(p_X), fabs(p_Y))) ? 0 : (p_X < p_Y ? -1 : 1);
-            }
-        }
-        else {                                                                                                                  // no tolerance
             return (p_X == p_Y) ? 0 : (p_X < p_Y ? -1 : 1);
-        }
     #endif
+        }
     }
 
 
