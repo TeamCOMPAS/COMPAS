@@ -1220,7 +1220,7 @@ bool BaseBinaryStar::ResolveSupernova() {
         double aPrev_2                            = aPrev * aPrev;
         double aPrev_3                            = aPrev_2 * aPrev;
 
-        double omega                              = std::sqrt(G_SN * totalMassPrev / aPrev_3);                                  // rad/s - Keplerian orbital frequency
+        double omega                              = std::sqrt(G_km_Msol_s * totalMassPrev / aPrev_3);                           // rad/s - Keplerian orbital frequency
 
         Vector3d separationVectorPrev             = Vector3d(aPrev * (cosEccAnomaly - eccentricityPrev),            
                                                              aPrev * (sinEccAnomaly) * sqrt1MinusEccPrevSquared,
@@ -1234,7 +1234,8 @@ bool BaseBinaryStar::ResolveSupernova() {
 
         Vector3d orbitalAngularMomentumVectorPrev = cross(separationVectorPrev, relativeVelocityVectorPrev);                    // km^2 s^-1 - Specific orbital angular momentum vector 
 
-        Vector3d eccentricityVectorPrev           = cross(relativeVelocityVectorPrev, orbitalAngularMomentumVectorPrev) / (G_SN * totalMassPrev) - separationVectorPrev.hat; // -- - Laplace-Runge-Lenz vector (magnitude = eccentricity)
+        Vector3d eccentricityVectorPrev           = cross(relativeVelocityVectorPrev, orbitalAngularMomentumVectorPrev) / 
+                                                    (G_km_Msol_s * totalMassPrev) - separationVectorPrev.hat;                   // -- - Laplace-Runge-Lenz vector (magnitude = eccentricity)
 
         m_OrbitalVelocityPreSN                    = relativeVelocityVectorPrev.mag;                                             // km/s - Set the Pre-SN orbital velocity and 
         m_uK                                      = m_Supernova->SN_KickMagnitude() / m_OrbitalVelocityPreSN;                   // -- - Dimensionless kick magnitude
@@ -1268,11 +1269,12 @@ bool BaseBinaryStar::ResolveSupernova() {
         m_OrbitalAngularMomentumVector        = orbitalAngularMomentumVector / orbitalAngularMomentum;                          // set unit vector here to make printing out the inclination vector easier
 
         Vector3d eccentricityVector           = cross(relativeVelocityVector, orbitalAngularMomentumVector) / 
-                                                (G_SN * totalMass) - separationVectorPrev / separationPrev;                     // PostSN Laplace-Runge-Lenz vector
+                                                (G_km_Msol_s * totalMass) - separationVectorPrev / separationPrev;              // PostSN Laplace-Runge-Lenz vector
         m_Eccentricity                        = eccentricityVector.mag;                                                         // PostSN eccentricity
         double eccSquared                     = m_Eccentricity * m_Eccentricity;                                                // useful function of eccentricity
 
-        double semiMajorAxis_km               = (orbitalAngularMomentum * orbitalAngularMomentum) / (G_SN * totalMass * (1.0 - eccSquared)); // km - PostSN semi-major axis
+        double semiMajorAxis_km               = (orbitalAngularMomentum * orbitalAngularMomentum) / 
+                                                (G_km_Msol_s * totalMass * (1.0 - eccSquared));                                 // km - PostSN semi-major axis
         m_SemiMajorAxis                       = semiMajorAxis_km * KM_TO_AU;                                                    // AU - PostSN semi-major axis 
 
         // Note: similar to above,
@@ -1288,7 +1290,7 @@ bool BaseBinaryStar::ResolveSupernova() {
             m_Unbound = true;
 
             // Calculate the asymptotic Center of Mass velocity 
-            double   relativeVelocityAtInfinity = (G_SN*totalMass/orbitalAngularMomentum) * std::sqrt(eccSquared - 1.0);
+            double   relativeVelocityAtInfinity = (G_km_Msol_s*totalMass/orbitalAngularMomentum) * std::sqrt(eccSquared - 1.0);
             Vector3d relativeVelocityVectorAtInfinity = relativeVelocityAtInfinity 
                                                         * (-1.0 * (eccentricityVector.hat / m_Eccentricity) 
                                                         + std::sqrt(1.0 - 1.0 / eccSquared) * cross(orbitalAngularMomentumVector.hat, eccentricityVector.hat));
@@ -1722,7 +1724,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
     double massD           = p_DonorMass;                                                                                       // donor mass
     double massAtimesMassD = massA * massD;                                                                                     // accretor mass * donor mass
     double massAplusMassD  = massA + massD;                                                                                     // accretor mass + donor mass
-    double jOrb            = (massAtimesMassD / massAplusMassD) * std::sqrt(semiMajorAxis * G1 * massAplusMassD);               // orbital angular momentum
+    double jOrb            = (massAtimesMassD / massAplusMassD) * std::sqrt(semiMajorAxis * G_AU_Msol_yr * massAplusMassD);     // orbital angular momentum
     double jLoss;                                                                                                               // specific angular momentum carried away by non-conservative mass transfer
     
     if (utils::Compare(p_DeltaMassDonor, 0.0) < 0) {                                                                            // mass loss from donor?
@@ -2088,7 +2090,7 @@ double BaseBinaryStar::CalculateTotalEnergy(const double p_SemiMajorAxis,
 	double 	Is1  = ks1 * m1 * R1 * R1 * RSOL_TO_AU_2;
 	double 	Is2  = ks2 * m2 * R2 * R2 * RSOL_TO_AU_2;
 
-	return (0.5 * Is1 * w1 * w1) + (0.5 * Is2 * w2 * w2) - (0.5 * G1 * m1 * m2 / p_SemiMajorAxis);
+	return (0.5 * Is1 * w1 * w1) + (0.5 * Is2 * w2 * w2) - (0.5 * G_AU_Msol_yr * m1 * m2 / p_SemiMajorAxis);
 }
 
 
@@ -2329,7 +2331,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
             m_Star1->SetOmega(m_Omega);                                                                                     // synchronise star 1
             m_Star2->SetOmega(m_Omega);                                                                                     // synchronise star 2
 
-            m_SemiMajorAxis        = std::cbrt(G1) * std::cbrt((m_Star1->Mass() + m_Star2->Mass())) / PPOW(m_Omega, 2.0 / 3.0); // re-calculate semi-major axis
+            m_SemiMajorAxis        = std::cbrt(G_AU_Msol_yr) * std::cbrt((m_Star1->Mass() + m_Star2->Mass())) / 
+                                     PPOW(m_Omega, 2.0 / 3.0);                                                              // re-calculate semi-major axis
             m_Eccentricity         = 0.0;                                                                                   // circularise
             m_TotalAngularMomentum = CalculateAngularMomentum();                                                            // re-calculate total angular momentum
 
