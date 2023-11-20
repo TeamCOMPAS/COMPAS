@@ -6,7 +6,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
-**02.30.00 Oct 30, 2023**
+**02.41.00 Nov 02, 2023**
 
 * Added a naive tides implementation.
 * Added program option ``enable-tides`` to enable the tides implementation (default is ``false``).
