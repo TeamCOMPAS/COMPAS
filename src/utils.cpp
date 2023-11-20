@@ -231,7 +231,7 @@ namespace utils {
      * @return                              Semi-major axis in AU
      */
     double ConvertPeriodInDaysToSemiMajorAxisInAU(const double p_Mass1, const double p_Mass2, const double p_Period) {
-        return return std::cbrt((p_Mass1 + m_Mass2) * p_Period * p_Period / DAYS_IN_YEAR / DAYS_IN_YEAR);
+        return std::cbrt((p_Mass1 + p_Mass2) * p_Period * p_Period / DAYS_IN_YEAR / DAYS_IN_YEAR);
     }
 
 
