@@ -678,7 +678,7 @@ private:
         catch(std::exception& e) {                                                                          // catch generic boost root finding error
             root.first  = -1.0;                                                                             // set error return
             root.second = -1.0;
-            if (it < maxit) {                                                                               // too many iterations?
+            if (it < maxit) {                                                                               // not too many iterations?
                 SHOW_ERROR(ERROR::ROOT_FINDER_FAILED, e.what());                                            // no - some other error - show it
             }
         }

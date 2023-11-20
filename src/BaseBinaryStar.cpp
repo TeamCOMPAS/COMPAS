@@ -313,7 +313,7 @@ void BaseBinaryStar::SetRemainingValues() {
         }
 
         // star 2
-        if (utils::Compare(m_Star1->Omega(), m_Star2->OmegaCHE()) >= 0) {                                                                               // star 2 CH?
+        if (utils::Compare(m_Star2->Omega(), m_Star2->OmegaCHE()) >= 0) {                                                                               // star 2 CH?
             if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not already Chemically Homogeneous
         }
         else if (m_Star2->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
@@ -1290,7 +1290,7 @@ bool BaseBinaryStar::ResolveSupernova() {
             m_Unbound = true;
 
             // Calculate the asymptotic Center of Mass velocity 
-            double   relativeVelocityAtInfinity = (G_km_Msol_s*totalMass/orbitalAngularMomentum) * std::sqrt(eccSquared - 1.0);
+            double   relativeVelocityAtInfinity       = (G_km_Msol_s*totalMass/orbitalAngularMomentum) * std::sqrt(eccSquared - 1.0);
             Vector3d relativeVelocityVectorAtInfinity = relativeVelocityAtInfinity 
                                                         * (-1.0 * (eccentricityVector.hat / m_Eccentricity) 
                                                         + std::sqrt(1.0 - 1.0 / eccSquared) * cross(orbitalAngularMomentumVector.hat, eccentricityVector.hat));
@@ -1520,7 +1520,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     if( OPTIONS->CommonEnvelopeFormalism() == CE_FORMALISM::ENERGY ) {
         double k1         = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * m_MassEnv1 / m_Star1->Radius();
         double k2         = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * m_MassEnv2 / m_Star2->Radius();
-        double k3         = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                         //assumes immediate circularisation at periastron at start of CE
+        double k3         = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                         // assumes immediate circularisation at periastron at start of CE
         double k4         = (m_Mass1Final * m_Mass2Final);
         double aFinalRsol = k4 / (k1 + k2 + k3);
         m_SemiMajorAxis   = aFinalRsol * RSOL_TO_AU;
@@ -1538,7 +1538,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         // Stage 1: convective envelope removal on a dynamical timescale; assumes lambda = 1.5, motivated by bottom panel of Figure 3 of Hirai & Mandel 2022, including internal energy
         double k1         = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (1.5 * alphaCE)) * m_Star1->Mass() * convectiveEnvelopeMass1 / m_Star1->Radius();
         double k2         = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (1.5 * alphaCE)) * m_Star2->Mass() * convectiveEnvelopeMass2 / m_Star2->Radius();
-        double k3         = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                         //assumes immediate circularisation at periastron at start of CE
+        double k3         = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                         // assumes immediate circularisation at periastron at start of CE
         double k4         = (endOfFirstStageMass1 * endOfFirstStageMass2);
         double aFinalRsol = k4 / (k1 + k2 + k3);
         m_SemiMajorAxis   = aFinalRsol*RSOL_TO_AU;
@@ -2264,50 +2264,50 @@ void BaseBinaryStar::ResolveMassChanges() {
  */
 void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
-    CalculateMassTransfer(p_Dt);                                                                                                // calculate mass transfer if necessary
+    CalculateMassTransfer(p_Dt);                                                                                        // calculate mass transfer if necessary
 
-    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_MT);                                                         // print (log) detailed output
+    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_MT);                                                 // print (log) detailed output
 
-    CalculateWindsMassLoss();                                                                                                   // calculate mass loss dues to winds
+    CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds
 
-    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_WINDS);                                                      // print (log) detailed output
+    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_WINDS);                                              // print (log) detailed output
 
-    if ((m_CEDetails.CEEnow || StellarMerger()) &&                                                                              // CEE or merger?
-        !(OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {                          // yes - avoid CEE if CH+CH
+    if ((m_CEDetails.CEEnow || StellarMerger()) &&                                                                      // CEE or merger?
+        !(OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {                  // yes - avoid CEE if CH+CH
 
-        ResolveCommonEnvelopeEvent();                                                                                           // resolve CEE - immediate event
-        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_CEE);                                                    // print (log) detailed output
+        ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
+        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_CEE);                                            // print (log) detailed output
     }
     else if (m_Star1->IsSNevent() || m_Star2->IsSNevent()) {
-        EvaluateSupernovae();                                                                                                   // evaluate supernovae (both stars) - immediate event
-        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                                     // print (log) detailed output
+        EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) - immediate event
+        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                             // print (log) detailed output
         if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-            (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::DEFAULT);                                                  // print (log) pulsar evolution parameters 
+            (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::DEFAULT);                                          // print (log) pulsar evolution parameters 
         }
     }
     else {
-        ResolveMassChanges();                                                                                                   // apply mass loss and mass transfer as necessary
-        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_MASS_RESOLUTION);                                        // print (log) detailed output
+        ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
+        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_MASS_RESOLUTION);                                // print (log) detailed output
 
-        if (HasStarsTouching()) {                                                                                               // if stars emerged from mass transfer as touching, it's a merger
+        if (HasStarsTouching()) {                                                                                       // if stars emerged from mass transfer as touching, it's a merger
             m_Flags.stellarMerger = true;
 		
             // Set Roche lobe flags for both stars so that they show correct RLOF status
-            m_Star1->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                                    // set Roche lobe flags for star1
-            m_Star2->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                                    // set Roche lobe flags for star2
-            (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_MASS_RESOLUTION_MERGER);                             // print (log) detailed output
+            m_Star1->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star1
+            m_Star2->SetRocheLobeFlags(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                            // set Roche lobe flags for star2
+            (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_MASS_RESOLUTION_MERGER);                     // print (log) detailed output
         }
     }
 
     if ((m_Star1->IsSNevent() || m_Star2->IsSNevent())) {
-        EvaluateSupernovae();                                                                                                   // evaluate supernovae (both stars) if mass changes are responsible for a supernova
-        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                                     // print (log) detailed output
+        EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) if mass changes are responsible for a supernova
+        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                             // print (log) detailed output
         if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-            (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::DEFAULT);                                                  // print (log) pulsar evolution parameters 
+            (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::DEFAULT);                                          // print (log) pulsar evolution parameters 
         }
     }
 
-    CalculateEnergyAndAngularMomentum();                                                                                        // perform energy and angular momentum calculations
+    CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
 
     if (OPTIONS->EnableTides() && !m_Unbound) {
 
@@ -2326,19 +2326,45 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
                                             m_TotalAngularMomentum,
                                             m_Omega); 
 
-        if (m_Omega > 0.0) {                                                                                                // root found?
+        if (m_Omega >= 0.0) {                                                                                           // root found?
 
-            m_Star1->SetOmega(m_Omega);                                                                                     // synchronise star 1
-            m_Star2->SetOmega(m_Omega);                                                                                     // synchronise star 2
+            m_Star1->SetOmega(m_Omega);                                                                                 // synchronise star 1
+            m_Star2->SetOmega(m_Omega);                                                                                 // synchronise star 2
 
-            m_SemiMajorAxis        = std::cbrt(G_AU_Msol_yr) * std::cbrt((m_Star1->Mass() + m_Star2->Mass())) / 
-                                     PPOW(m_Omega, 2.0 / 3.0);                                                              // re-calculate semi-major axis
-            m_Eccentricity         = 0.0;                                                                                   // circularise
-            m_TotalAngularMomentum = CalculateAngularMomentum();                                                            // re-calculate total angular momentum
+            m_SemiMajorAxis        = std::cbrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / m_Omega / m_Omega); // re-calculate semi-major axis
+            m_Eccentricity         = 0.0;                                                                               // circularise
+            m_TotalAngularMomentum = CalculateAngularMomentum();                                                        // re-calculate total angular momentum
 
             // assign new values to "previous" values, for following timestep
             m_EccentricityPrev  = m_Eccentricity;
             m_SemiMajorAxisPrev = m_SemiMajorAxis;
+        }
+        else {                                                                                                          // no (real) root found
+
+            // no real root found - push the binary to a common envelope
+            // place the constiuent star closest to RLOF at RLOF and use that to
+            // calculate semi-major axis, then use that to calculate m_Omega
+
+            double ratio1 = m_Star1->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Star1->Mass());                      // star 1 ratio of radius to Roche lobe radius
+            double ratio2 = m_Star2->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Star2->Mass());                      // star 2 ratio of radius to Roche lobe radius
+
+            double radius;
+            double mass1;
+            double mass2;
+            if (ratio1 >= ratio2) {                                                                                     // star 1 closer to RLOF than star 2 (or same)?
+                radius = m_Star1->Radius();                                                                             // yes - use star 1 to calculate semi-major axis at RLOF
+                mass1  = m_Star1->Mass();
+                mass2  = m_Star2->Mass();
+            }
+            else {                                                                                                      // no - star 2 closer to RLOF than star 1
+                radius = m_Star2->Radius();                                                                             // use star 2 to calculate semi-major axis at RLOF
+                mass1  = m_Star2->Mass();
+                mass2  = m_Star1->Mass();
+            }
+            
+            m_Eccentricity  = 0.0;                                                                                      // assume circular
+            m_SemiMajorAxis = radius * RSOL_TO_AU / CalculateRocheLobeRadius_Static(mass1, mass2);                      // new semi-major axis - should tip into CE
+            m_Omega         = OrbitalAngularVelocity();                                                                 // m_Omega at new semi-major axis
         }
     }
 

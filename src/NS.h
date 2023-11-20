@@ -60,6 +60,7 @@ protected:
         CalculateAndSetPulsarParameters();
     }
 
+    double m_AngularMomentum_CGS;                                                                                                                                   // Current angular momentum in CGS - only required in NS class
     double m_MomentOfInertia_CGS;                                                                                                                                   // MoI in CGS - only required in NS class
 
 
