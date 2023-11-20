@@ -194,22 +194,22 @@ namespace utils {
     #ifdef COMPARE_GLOBAL_TOLERANCE
         if (p_Tolerance > 0.0) {                                                                                                // use tolerance passed?
             if (p_Absolute) {                                                                                                   // yes - absolute tolerance?
-                return (std::abs(p_X - p_Y) <= p_Tolerance) ? 0 : (p_X < p_Y ? -1 : 1);                                         // yes
+                return (fabs(p_X - p_Y) <= p_Tolerance) ? 0 : (p_X < p_Y ? -1 : 1);                                             // yes
             }
             else {                                                                                                              // no - relative tolerance
-                return (std::abs(p_X - p_Y) <= p_Tolerance * std::max(std::abs(p_X), fabs(p_Y))) ? 0 : (p_X < p_Y ? -1 : 1);
+                return (fabs(p_X - p_Y) <= p_Tolerance * std::max(fabs(p_X), fabs(p_Y))) ? 0 : (p_X < p_Y ? -1 : 1);
             }
         }
         else {                                                                                                                  // use global tolerance
-            return (std::abs(p_X - p_Y) <= std::max(FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE * std::max(std::abs(p_X), fabs(p_Y)))) ? 0 : (p_X < p_Y ? -1 : 1);
+            return (fabs(p_X - p_Y) <= std::max(FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE * std::max(fabs(p_X), fabs(p_Y)))) ? 0 : (p_X < p_Y ? -1 : 1);
         }
     #else
         if (p_Tolerance > 0.0) {                                                                                                // use tolerance passed?
             if (p_Absolute) {                                                                                                   // yes - absolute tolerance?
-                return (std::abs(p_X - p_Y) <= p_Tolerance) ? 0 : (p_X < p_Y ? -1 : 1);                                         // yes
+                return (fabs(p_X - p_Y) <= p_Tolerance) ? 0 : (p_X < p_Y ? -1 : 1);                                             // yes
             }
             else {                                                                                                              // no - relative tolerance
-                return (std::abs(p_X - p_Y) <= p_Tolerance * std::max(std::abs(p_X), fabs(p_Y))) ? 0 : (p_X < p_Y ? -1 : 1);
+                return (fabs(p_X - p_Y) <= p_Tolerance * std::max(fabs(p_X), fabs(p_Y))) ? 0 : (p_X < p_Y ? -1 : 1);
             }
         }
         else {                                                                                                                  // no tolerance
@@ -231,12 +231,7 @@ namespace utils {
      * @return                              Semi-major axis in AU
      */
     double ConvertPeriodInDaysToSemiMajorAxisInAU(const double p_Mass1, const double p_Mass2, const double p_Period) {
-
-        double a_cubed_SI_top = G * ((p_Mass1 * MSOL_TO_KG) + (p_Mass2 * MSOL_TO_KG)) * p_Period * p_Period * SECONDS_IN_DAY * SECONDS_IN_DAY;
-        double a_cubed_SI     = a_cubed_SI_top / G_AU_Msol_yr;
-        double a_SI           = std::cbrt(a_cubed_SI); 
-
-        return a_SI / AU;
+        return return std::cbrt((p_Mass1 + m_Mass2) * p_Period * p_Period / DAYS_IN_YEAR / DAYS_IN_YEAR);
     }
 
 

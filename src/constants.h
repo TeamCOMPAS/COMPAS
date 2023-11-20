@@ -216,7 +216,9 @@ constexpr double KM_TO_AU                               = 1.0 / AU_TO_KM;       
 
 // time
 constexpr double SECONDS_IN_YEAR                        = 31556926.0;                                               // number of second in 1 year
-constexpr double SECONDS_IN_DAY                         = SECONDS_IN_YEAR * 4.0 / 1461.0;                           // number of second in 1 day
+constexpr double DAYS_IN_QUAD                           = 1461.0;                                                   // number of days in any 4-year period
+constexpr double DAYS_IN_YEAR                           = DAYS_IN_QUAD / 4.0;                                       // mean days per year (given DAYS_IN_QUAD)
+constexpr double SECONDS_IN_DAY                         = SECONDS_IN_YEAR / DAYS_IN_YEAR;                           // number of second in 1 day
 constexpr double SECONDS_IN_MS                          = 1.0E-3;                                                   // number of second in 1 millisecond
 constexpr double SECONDS_IN_MYR                         = 31556926.0 * 1.0E6;                                       // number of second in 1 Myr
 constexpr double MYR_TO_YEAR                            = 1.0E6;                                                    // convert Myr to year
@@ -229,9 +231,12 @@ constexpr double JOULES_TO_ERG                          = 1.0E7;                
 constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
 constexpr double GAUSS_TO_TESLA                         = 1.0 / TESLA_TO_GAUSS;                                     // convert Gauss to Tesla
 
+// systems
+constexpr double CGS_SI                                 = G_TO_KG * CM_TO_M * CM_TO_M;                              // convert CGS to SI
+
 // constants
 
-constexpr double _2_PI                                  = M_PI * 2;                                                 // 2PI
+constexpr double _2_PI                                  = M_PI * 2.0;                                               // 2PI
 constexpr double PI_2                                   = M_PI * M_PI;                                              // PI squared
 constexpr double SQRT_M_2_PI                            = 0.79788456080286536;                                      // sqrt(2/PI)
 constexpr double DEGREE                                 = M_PI / 180.0;                                             // 1 degree in radians
@@ -315,7 +320,7 @@ constexpr double NEWTON_RAPHSON_EPSILON                 = 1.0E-5;               
 
 constexpr double EPSILON_PULSAR                         = 1.0;                                                      // JR: todo: description
 
-constexpr double MIN_HMXRB_STAR_TO_ROCHE_LOBE_RADIUS_RATIO  = 0.8;                                                  // Minimum value of stellar radius | Roche Lobe radius for visible HMXRBs
+constexpr double MIN_HMXRB_STAR_TO_ROCHE_LOBE_RADIUS_RATIO = 0.8;                                                   // Minimum value of stellar radius | Roche Lobe radius for visible HMXRBs
 
 constexpr double ADAPTIVE_RLOF_FRACTION_DONOR_GUESS     = 0.001;                                                    // Fraction of donor mass to use as guess in BaseBinaryStar::MassLossToFitInsideRocheLobe()
 constexpr int    ADAPTIVE_RLOF_MAX_ITERATIONS           = 50;                                                       // Maximum number of iterations in BaseBinaryStar::MassLossToFitInsideRocheLobe()
