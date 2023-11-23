@@ -229,6 +229,9 @@ constexpr double JOULES_TO_ERG                          = 1.0E7;                
 constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
 constexpr double GAUSS_TO_TESLA                         = 1.0 / TESLA_TO_GAUSS;                                     // convert Gauss to Tesla
 
+// opacity
+constexpr double OPACITY_CGS_TO_SI                      = 0.1;                                                      // cm^2 g^-1 to m^2 kg^-1
+
 // constants
 
 constexpr double _2_PI                                  = M_PI * 2;                                                 // 2PI
@@ -250,9 +253,10 @@ constexpr double G_SOLAR_YEAR                           = 3.14E7;               
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
 constexpr double LOG10_ZSOL                             = -1.69897;                                                 // log10(ZSOL) - for performance
-constexpr double ZSOL_ASPLUND				            = 0.0142;						                            // Solar Metallicity (Asplund+ 2010) used in initial condition
+constexpr double ZSOL_ASPLUND				                    = 0.0142;						                                        // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
 constexpr double LSOL                                   = 3.844E33;                                                 // Solar Luminosity in erg/s
+constexpr double LSOLW                                  = 3.844E26;                                                 // Solar luminosity (in W)
 
 constexpr double AU                                     = 149597870700.0;                                           // 1 AU (Astronomical Unit) in metres
 constexpr double KM                                     = 1000.0;                                                   // 1 km (Kilometre) in metres
@@ -282,6 +286,8 @@ constexpr double MCBUR2					                = 2.25;							                      
 
 constexpr double NJ_MINIMUM_LUMINOSITY                  = 4.0E3;                                                    // Minimum luminosity in Lsun needed for Nieuwenhuijzen & de Jager wind mass loss
 constexpr double VINK_MASS_LOSS_MINIMUM_TEMP            = 1.25E4;                                                   // Minimum temperature in K for Vink mass loss rates to be applied
+constexpr double VERY_MASSIVE_MINIMUM_MASS              = 100.0;                                                    // Minimum mass for applying Very Massive (VMS) mass rates to be applied
+constexpr double RSG_MAXIMUM_TEMP                       = 8.0E3;                                                    // Upper temperature in K for Red Supergiant (RSG) mass loss rates to be applied
 constexpr double VINK_MASS_LOSS_BISTABILITY_TEMP        = 2.5E4;                                                    // Temperature in K for bistability jump in Vink mass loss (assumed to be 25000K following Belczysnki+2010)
 constexpr double VINK_MASS_LOSS_MAXIMUM_TEMP            = 5.0E4;                                                    // Maximum temperature in K for Vink mass loss rates to be applied (show warning above this)
 constexpr double LBV_LUMINOSITY_LIMIT_STARTRACK         = 6.0E5;                                                    // STARTRACK LBV luminosity limit
@@ -574,6 +580,7 @@ enum class ERROR: int {
     INVALID_TYPE_ZETA_CALCULATION,                                  // invalid stellar type for Zeta calculation
     INVALID_VALUE_FOR_BOOLEAN_OPTION,                               // invalid values specified for boolean option
     LAMBDA_NOT_POSITIVE,                                            // lambda is <= 0.0 - invalid
+    LOW_GAMMA,                                                      // very massive mass-loss prescription being extrapolated to low gamma (<0.5)
     LOW_TEFF_WINDS,                                                 // winds being used at low temperature
     MASS_NOT_POSITIVE_ONCE,                                         // mass is <= 0.0 - invalid
     MAXIMUM_MASS_LOST,                                              // (WARNING) maximum mass lost during mass loss calculations
@@ -713,6 +720,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::INVALID_TYPE_ZETA_CALCULATION,                         { ERROR_SCOPE::ALWAYS,              "Invalid stellar type for Zeta calculation" }},
     { ERROR::INVALID_VALUE_FOR_BOOLEAN_OPTION,                      { ERROR_SCOPE::ALWAYS,              "Invalid value specified for BOOLEAN option" }},
     { ERROR::LAMBDA_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Lambda <= 0.0" }},
+    { ERROR::LOW_GAMMA,                                             { ERROR_SCOPE::ALWAYS,              "Very massive prescription being extrapolated to low gamma (<0.5)" }},
     { ERROR::LOW_TEFF_WINDS,                                        { ERROR_SCOPE::ALWAYS,              "Winds being used at low temperature" }},
     { ERROR::MASS_NOT_POSITIVE_ONCE,                                { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Mass <= 0.0" }},
     { ERROR::MAXIMUM_MASS_LOST,                                     { ERROR_SCOPE::ALWAYS,              "Maximum mass lost during mass loss calculations" }},
@@ -1032,12 +1040,52 @@ const COMPASUnorderedMap<LBV_PRESCRIPTION, std::string> LBV_PRESCRIPTION_LABEL =
     { LBV_PRESCRIPTION::BELCZYNSKI, "BELCZYNSKI" }
 };
 
+// OB (main sequence) Mass loss prescriptions
+enum class OB_MASS_LOSS: int { NONE, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018};
+const COMPASUnorderedMap<OB_MASS_LOSS, std::string> OB_MASS_LOSS_LABEL = {
+    { OB_MASS_LOSS::NONE,          "NONE" },
+    { OB_MASS_LOSS::VINK2001,      "VINK2001" },
+    { OB_MASS_LOSS::VINK2021,      "VINK2021" },
+    { OB_MASS_LOSS::BJORKLUND2022, "BJORKLUND2022" },
+    { OB_MASS_LOSS::KRTICKA2018,   "KRTICKA2018" },
+};
+
+// Very Massive Mass loss prescriptions
+enum class VMS_MASS_LOSS: int { NONE, VINK2011, BESTENLEHNER2020, SABHAHIT2023};
+const COMPASUnorderedMap<VMS_MASS_LOSS, std::string> VMS_MASS_LOSS_LABEL = {
+    { VMS_MASS_LOSS::NONE,             "NONE" },
+    { VMS_MASS_LOSS::VINK2011,         "VINK2011" },
+    { VMS_MASS_LOSS::BESTENLEHNER2020, "BESTENLEHNER2020" },
+    { VMS_MASS_LOSS::SABHAHIT2023,     "SABHAHIT2023" },
+};
+
+// RSG Mass loss prescriptions
+enum class RSG_MASS_LOSS: int { NONE, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90};
+const COMPASUnorderedMap<RSG_MASS_LOSS, std::string> RSG_MASS_LOSS_LABEL = {
+    { RSG_MASS_LOSS::NONE,             "NONE" },
+    { RSG_MASS_LOSS::VINKSABHAHIT2023, "VINKSABHAHIT2023" },
+    { RSG_MASS_LOSS::BEASOR2020,       "BEASOR2020" },
+    { RSG_MASS_LOSS::DECIN2023,        "DECIN2023" },
+    { RSG_MASS_LOSS::YANG2023,         "YANG2023" },
+    { RSG_MASS_LOSS::KEE2021,          "KEE2021" },
+    { RSG_MASS_LOSS::NJ90,             "NJ90" },
+};
+
+// WR Mass loss prescriptions
+enum class WR_MASS_LOSS: int { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 };
+const COMPASUnorderedMap<WR_MASS_LOSS, std::string> WR_MASS_LOSS_LABEL = {
+    { WR_MASS_LOSS::BELCZYNSKI2010, "BELCZYNSKI2010" },
+    { WR_MASS_LOSS::SANDERVINK2023, "SANDERVINK2023" },
+    { WR_MASS_LOSS::SHENAR2019,     "SHENAR2019" },
+};
+
 // Mass loss prescriptions
-enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, VINK };
+enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, BELCZYNSKI2010, FLEXIBLE2023 };
 const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
-    { MASS_LOSS_PRESCRIPTION::NONE,   "NONE" },
-    { MASS_LOSS_PRESCRIPTION::HURLEY, "HURLEY" },
-    { MASS_LOSS_PRESCRIPTION::VINK,   "VINK" }
+    { MASS_LOSS_PRESCRIPTION::NONE,           "NONE" },
+    { MASS_LOSS_PRESCRIPTION::HURLEY,         "HURLEY" },
+    { MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010, "BELCZYNSKI2010" },
+    { MASS_LOSS_PRESCRIPTION::FLEXIBLE2023,   "FLEXIBLE2023"}
 };
 
 
@@ -1455,7 +1503,6 @@ const std::initializer_list<STELLAR_TYPE> ALL_HERTZSPRUNG_GAP = {
     STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP
 };
 
-
 // (convenience) initializer list for COMPACT OBJECTS
 const std::initializer_list<STELLAR_TYPE> COMPACT_OBJECTS = {
     STELLAR_TYPE::HELIUM_WHITE_DWARF,
@@ -1519,12 +1566,12 @@ enum class MASS_CUTOFF: int {
 // Symbolic names for mass loss rate type
 enum class MASS_LOSS_TYPE: int {
     NONE,
-    NIEUWENHUIJZEN_DE_JAGER,
-    KUDRITZKI_REIMERS,
-    VASSILIADIS_WOOD,
-    WOLF_RAYET_LIKE,
-    VINK,
-    LUMINOUS_BLUE_VARIABLE
+    OB,
+    VMS,
+    GB,
+    RSG,
+    WR,
+    LBV
 };
 
 
