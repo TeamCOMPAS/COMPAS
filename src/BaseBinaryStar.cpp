@@ -1416,13 +1416,16 @@ bool BaseBinaryStar::ResolveSupernova() {
         if (ShouldResolveNeutrinoRocketMechanism()) {
 
             if (IsUnbound()) {                                                                                                  // Is system unbound? 
-                m_Supernova->UpdateComponentVelocity(rocketKickVector.RotateVector(m_ThetaE, m_PhiE, m_PsiE));              // yes - simply update the component velocity
+                m_Supernova->UpdateComponentVelocity(rocketKickVector.RotateVector(m_ThetaE, m_PhiE, m_PsiE));                  // yes - simply update the component velocity
             } else {                                                                                                            // no - need to update the eccentricity and system velocity
 
                 Vector3d eccentricityVectorPreRocket = eccentricityVector;                                                      // defined earlier
-                double averageOrbitalVelocityPreRocket = std::sqrt( -2*m_OrbitalEnergy/reducedMass);                            // average orbital velocity post-SN
-                double k_grav = 
-                Vector3d amVectorNormalizedByCircularAmPreRocket = orbitalAngularMomentumVector // RTW;
+                double averageOrbitalVelocityPreRocket = std::sqrt( -2*m_OrbitalEnergy/reducedMass);                            // AU/yr - average orbital velocity post-SN
+                double k_grav = averageOrbitalVelocityPreRocket*averageOrbitalVelocityPreRocket
+                       * reducedMass * m_SemiMajorAxis;                                                                         // AU^3 * Msol / yr^2
+                // RTW this is the specific orbital angular momentum! Check units!
+                Vector3d amVectorNormalizedByCircularAmPreRocket = orbitalAngularMomentumVector 
+                                                                   * averageOrbitalVelocityPreRocket / k_grav ;                 // RTW
                     
                 // Using B and D support vectors
                 Vector3d B_support = normalizedAngularMomentumVectorPreRocket + eccentricityVectorPreRocket;
