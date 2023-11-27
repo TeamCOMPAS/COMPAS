@@ -177,10 +177,10 @@ extern OBJECT_ID globalObjectId;                                                
 //
 // I've added _2_PI and SQRT_M_2_PI below
 
-#undef COMPARE_WITH_TOLERANCE // define/undef this to compare floats with/without tolerance (see FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE and Compare() function)
+#undef COMPARE_GLOBAL_TOLERANCE // define/undef this to compare floats with/without tolerance (see FLOAT_TOLERANCE_ABSOLUTE, FLOAT_TOLERANCE_RELATIVE and Compare() function)
 
-constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000005;                                                // Absolute tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
-constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0000005;                                                // Relative tolerance for floating-point comparisons if COMPARE_WITH_TOLERANCE is defined
+constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000005;                                                // Absolute tolerance for floating-point comparisons if COMPARE_GLOBAL_TOLERANCE is defined
+constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0000005;                                                // Relative tolerance for floating-point comparisons if COMPARE_GLOBAL_TOLERANCE is defined
 
 
 // initialisation constants
@@ -216,7 +216,9 @@ constexpr double KM_TO_AU                               = 1.0 / AU_TO_KM;       
 
 // time
 constexpr double SECONDS_IN_YEAR                        = 31556926.0;                                               // number of second in 1 year
-constexpr double SECONDS_IN_DAY                         = SECONDS_IN_YEAR * 4.0 / 1461.0;                           // number of second in 1 day
+constexpr double DAYS_IN_QUAD                           = 1461.0;                                                   // number of days in any 4-year period
+constexpr double DAYS_IN_YEAR                           = DAYS_IN_QUAD / 4.0;                                       // mean days per year (given DAYS_IN_QUAD)
+constexpr double SECONDS_IN_DAY                         = SECONDS_IN_YEAR / DAYS_IN_YEAR;                           // number of second in 1 day
 constexpr double SECONDS_IN_MS                          = 1.0E-3;                                                   // number of second in 1 millisecond
 constexpr double SECONDS_IN_MYR                         = 31556926.0 * 1.0E6;                                       // number of second in 1 Myr
 constexpr double MYR_TO_YEAR                            = 1.0E6;                                                    // convert Myr to year
@@ -229,12 +231,13 @@ constexpr double JOULES_TO_ERG                          = 1.0E7;                
 constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
 constexpr double GAUSS_TO_TESLA                         = 1.0 / TESLA_TO_GAUSS;                                     // convert Gauss to Tesla
 
-// opacity
-constexpr double OPACITY_CGS_TO_SI                      = 0.1;                                                      // cm^2 g^-1 to m^2 kg^-1
+// systems
+constexpr double CGS_SI                                 = G_TO_KG * CM_TO_M * CM_TO_M;                              // convert CGS to SI
 
 // constants
 
-constexpr double _2_PI                                  = M_PI * 2;                                                 // 2PI
+constexpr double _2_PI                                  = M_PI * 2.0;                                               // 2PI
+constexpr double PI_2                                   = M_PI * M_PI;                                              // PI squared
 constexpr double SQRT_M_2_PI                            = 0.79788456080286536;                                      // sqrt(2/PI)
 constexpr double DEGREE                                 = M_PI / 180.0;                                             // 1 degree in radians
 
@@ -246,17 +249,16 @@ constexpr double HUBBLE_TIME                            = 1 / H0SI;             
 
 constexpr double G                                      = 6.67E-11;                                                 // Gravitational constant in m^3 kg^-1 s^-2 (more accurately known as G M_sol)
 constexpr double G_CGS                                  = 6.6743E-8;                                                // Gravitational constant in cm^3 g^-1 s^-2
-constexpr double G1                                     = 4.0 * M_PI * M_PI;                                        // Gravitational constant in AU^3 Msol^-1 yr^-2
-constexpr double G_SN                                   = G * 1.0E-9 / KG_TO_MSOL;                                  // Gravitational constant in km^3 Msol^-1 s^-2, for use in the ResolveSupernova() function
+constexpr double G_AU_Msol_yr                           = 4.0 * PI_2;                                               // Gravitational constant in AU^3 Msol^-1 yr^-2
+constexpr double G_km_Msol_s                            = G * 1.0E-9 / KG_TO_MSOL;                                  // Gravitational constant in km^3 Msol^-1 s^-2
 constexpr double G_SOLAR_YEAR                           = 3.14E7;                                                   // Gravitational constant in Lsol Rsol yr Msol^-2 for calculating photon tiring limit
 
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
 constexpr double LOG10_ZSOL                             = -1.69897;                                                 // log10(ZSOL) - for performance
-constexpr double ZSOL_ASPLUND				                    = 0.0142;						                                        // Solar Metallicity (Asplund+ 2010) used in initial condition
+constexpr double ZSOL_ASPLUND				            = 0.0142;						                            // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
 constexpr double LSOL                                   = 3.844E33;                                                 // Solar Luminosity in erg/s
-constexpr double LSOLW                                  = 3.844E26;                                                 // Solar luminosity (in W)
 
 constexpr double AU                                     = 149597870700.0;                                           // 1 AU (Astronomical Unit) in metres
 constexpr double KM                                     = 1000.0;                                                   // 1 km (Kilometre) in metres
@@ -286,8 +288,6 @@ constexpr double MCBUR2					                = 2.25;							                      
 
 constexpr double NJ_MINIMUM_LUMINOSITY                  = 4.0E3;                                                    // Minimum luminosity in Lsun needed for Nieuwenhuijzen & de Jager wind mass loss
 constexpr double VINK_MASS_LOSS_MINIMUM_TEMP            = 1.25E4;                                                   // Minimum temperature in K for Vink mass loss rates to be applied
-constexpr double VERY_MASSIVE_MINIMUM_MASS              = 100.0;                                                    // Minimum mass for applying Very Massive (VMS) mass rates to be applied
-constexpr double RSG_MAXIMUM_TEMP                       = 8.0E3;                                                    // Upper temperature in K for Red Supergiant (RSG) mass loss rates to be applied
 constexpr double VINK_MASS_LOSS_BISTABILITY_TEMP        = 2.5E4;                                                    // Temperature in K for bistability jump in Vink mass loss (assumed to be 25000K following Belczysnki+2010)
 constexpr double VINK_MASS_LOSS_MAXIMUM_TEMP            = 5.0E4;                                                    // Maximum temperature in K for Vink mass loss rates to be applied (show warning above this)
 constexpr double LBV_LUMINOSITY_LIMIT_STARTRACK         = 6.0E5;                                                    // STARTRACK LBV luminosity limit
@@ -320,17 +320,20 @@ constexpr double NEWTON_RAPHSON_EPSILON                 = 1.0E-5;               
 
 constexpr double EPSILON_PULSAR                         = 1.0;                                                      // JR: todo: description
 
-constexpr double MIN_HMXRB_STAR_TO_ROCHE_LOBE_RADIUS_RATIO  = 0.8;                                                  // Minimum value of stellar radius | Roche Lobe radius for visible HMXRBs
+constexpr double MIN_HMXRB_STAR_TO_ROCHE_LOBE_RADIUS_RATIO = 0.8;                                                   // Minimum value of stellar radius | Roche Lobe radius for visible HMXRBs
 
-constexpr double ADAPTIVE_RLOF_FRACTION_DONOR_GUESS     = 0.001;                                                    // Fraction of donor mass to use as guess in MassLossToFitInsideRocheLobe()
-constexpr int    ADAPTIVE_RLOF_MAX_ITERATIONS           = 50;                                                       // Maximum number of iterations in MassLossToFitInsideRocheLobe()
-constexpr double ADAPTIVE_RLOF_SEARCH_FACTOR            = 2.0;                                                      // Search factor in MassLossToFitInsideRocheLobe()
-constexpr int    ADAPTIVE_MASS0_MAX_ITERATIONS          = 50;                                                       // Maximum number of iterations in Mass0ToMatchDesiredCoreMass()
-constexpr double ADAPTIVE_MASS0_SEARCH_FACTOR           = 2.0;                                                      // Search factor in Mass0ToMatchDesiredCoreMass()
+constexpr double ADAPTIVE_RLOF_FRACTION_DONOR_GUESS     = 0.001;                                                    // Fraction of donor mass to use as guess in BaseBinaryStar::MassLossToFitInsideRocheLobe()
+constexpr int    ADAPTIVE_RLOF_MAX_ITERATIONS           = 50;                                                       // Maximum number of iterations in BaseBinaryStar::MassLossToFitInsideRocheLobe()
+constexpr double ADAPTIVE_RLOF_SEARCH_FACTOR            = 2.0;                                                      // Search factor in BaseBinaryStar::MassLossToFitInsideRocheLobe()
+constexpr int    ADAPTIVE_MASS0_MAX_ITERATIONS          = 50;                                                       // Maximum number of iterations in HG::Mass0ToMatchDesiredCoreMass()
+constexpr double ADAPTIVE_MASS0_SEARCH_FACTOR           = 2.0;                                                      // Search factor in HG::Mass0ToMatchDesiredCoreMass()
 constexpr double FARMER_PPISN_UPP_LIM_LIN_REGIME        = 38.0;                                                     // Maximum CO core mass to result in the linear remnant mass regime of the FARMER PPISN prescription
 constexpr double FARMER_PPISN_UPP_LIM_QUAD_REGIME       = 60.0;                                                     // Maximum CO core mass to result in the quadratic remnant mass regime of the FARMER PPISN prescription
 constexpr double FARMER_PPISN_UPP_LIM_INSTABILLITY      = 140.0;                                                    // Maximum CO core mass to result in PI (upper edge of PISN gap) from FARMER PPISN prescription
 constexpr double STARTRACK_PPISN_HE_CORE_MASS           = 45.0;                                                     // Helium core mass remaining following PPISN as assumed in StarTrack (Belczynski et al. 2017 https://arxiv.org/abs/1607.03116)
+
+constexpr int    TIDES_OMEGA_MAX_ITERATIONS             = 1000;                                                     // Maximum number of iterations in BaseBinaryStar::OmegaAfterCircularisation()
+constexpr double TIDES_OMEGA_SEARCH_FACTOR              = 1.1;                                                      // Search factor in BaseBinaryStar::OmegaAfterCircularisation()
 
 
 // logging constants
@@ -580,7 +583,6 @@ enum class ERROR: int {
     INVALID_TYPE_ZETA_CALCULATION,                                  // invalid stellar type for Zeta calculation
     INVALID_VALUE_FOR_BOOLEAN_OPTION,                               // invalid values specified for boolean option
     LAMBDA_NOT_POSITIVE,                                            // lambda is <= 0.0 - invalid
-    LOW_GAMMA,                                                      // very massive mass-loss prescription being extrapolated to low gamma (<0.5)
     LOW_TEFF_WINDS,                                                 // winds being used at low temperature
     MASS_NOT_POSITIVE_ONCE,                                         // mass is <= 0.0 - invalid
     MAXIMUM_MASS_LOST,                                              // (WARNING) maximum mass lost during mass loss calculations
@@ -597,11 +599,13 @@ enum class ERROR: int {
     RADIUS_NOT_POSITIVE,                                            // radius is <= 0.0 - invalid
     RADIUS_NOT_POSITIVE_ONCE,                                       // radius is <= 0.0 - invalid
     RESOLVE_SUPERNOVA_IMPROPERLY_CALLED,                            // ResolveSupernova() called, but m_Supernova->IsSNevent() is false
+    ROOT_FINDER_FAILED,                                             // root finder threw an exception
     STELLAR_EVOLUTION_STOPPED,                                      // evolution of current star stopped
     STELLAR_SIMULATION_STOPPED,                                     // stellar simulation stopped
     SUGGEST_HELP,                                                   // suggest using --help
     TIMESTEP_BELOW_MINIMUM,                                         // timestep too small - below minimum
     TOO_MANY_MASS0_ITERATIONS,                                      // too many iterations in MASS0 root finder
+    TOO_MANY_OMEGA_ITERATIONS,                                      // too many iterations in OMEGA root finder
     TOO_MANY_RLOF_ITERATIONS,                                       // too many iterations in RLOF root finder
     UNEXPECTED_END_OF_FILE,                                         // unexpected end of file
     UNEXPECTED_LOG_FILE_TYPE,                                       // unexpected log file type
@@ -720,7 +724,6 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::INVALID_TYPE_ZETA_CALCULATION,                         { ERROR_SCOPE::ALWAYS,              "Invalid stellar type for Zeta calculation" }},
     { ERROR::INVALID_VALUE_FOR_BOOLEAN_OPTION,                      { ERROR_SCOPE::ALWAYS,              "Invalid value specified for BOOLEAN option" }},
     { ERROR::LAMBDA_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Lambda <= 0.0" }},
-    { ERROR::LOW_GAMMA,                                             { ERROR_SCOPE::ALWAYS,              "Very massive prescription being extrapolated to low gamma (<0.5)" }},
     { ERROR::LOW_TEFF_WINDS,                                        { ERROR_SCOPE::ALWAYS,              "Winds being used at low temperature" }},
     { ERROR::MASS_NOT_POSITIVE_ONCE,                                { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Mass <= 0.0" }},
     { ERROR::MAXIMUM_MASS_LOST,                                     { ERROR_SCOPE::ALWAYS,              "Maximum mass lost during mass loss calculations" }},
@@ -738,11 +741,13 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::RADIUS_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Radius <= 0.0" }},
     { ERROR::RADIUS_NOT_POSITIVE_ONCE,                              { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Radius <= 0.0" }},
     { ERROR::RESOLVE_SUPERNOVA_IMPROPERLY_CALLED,                   { ERROR_SCOPE::ALWAYS,              "ResolveSupernova() called, but m_Supernova->IsSNevent() is false" }},
+    { ERROR::ROOT_FINDER_FAILED,                                    { ERROR_SCOPE::ALWAYS,              "Exception encountered in root finder" }},
     { ERROR::STELLAR_EVOLUTION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Evolution of current star stopped" }},
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
     { ERROR::SUGGEST_HELP,                                          { ERROR_SCOPE::ALWAYS,              "Use option '-h' (or '--help') to see (descriptions of) available options" }},
     { ERROR::TIMESTEP_BELOW_MINIMUM,                                { ERROR_SCOPE::ALWAYS,              "Timestep below minimum - timestep taken" }},
     { ERROR::TOO_MANY_MASS0_ITERATIONS,                             { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when looking for effective initial mass Mass_0 to match desired stellar core of HG star following case A mass transfer" }},
+    { ERROR::TOO_MANY_OMEGA_ITERATIONS,                             { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when looking for omega when circularising and synchronising for tides" }},
     { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::UNEXPECTED_END_OF_FILE,                                { ERROR_SCOPE::ALWAYS,              "Unexpected end of file" }},
     { ERROR::UNEXPECTED_LOG_FILE_TYPE,                              { ERROR_SCOPE::ALWAYS,              "Unexpected log file type" }},
@@ -1040,52 +1045,12 @@ const COMPASUnorderedMap<LBV_PRESCRIPTION, std::string> LBV_PRESCRIPTION_LABEL =
     { LBV_PRESCRIPTION::BELCZYNSKI, "BELCZYNSKI" }
 };
 
-// OB (main sequence) Mass loss prescriptions
-enum class OB_MASS_LOSS: int { NONE, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018};
-const COMPASUnorderedMap<OB_MASS_LOSS, std::string> OB_MASS_LOSS_LABEL = {
-    { OB_MASS_LOSS::NONE,          "NONE" },
-    { OB_MASS_LOSS::VINK2001,      "VINK2001" },
-    { OB_MASS_LOSS::VINK2021,      "VINK2021" },
-    { OB_MASS_LOSS::BJORKLUND2022, "BJORKLUND2022" },
-    { OB_MASS_LOSS::KRTICKA2018,   "KRTICKA2018" },
-};
-
-// Very Massive Mass loss prescriptions
-enum class VMS_MASS_LOSS: int { NONE, VINK2011, BESTENLEHNER2020, SABHAHIT2023};
-const COMPASUnorderedMap<VMS_MASS_LOSS, std::string> VMS_MASS_LOSS_LABEL = {
-    { VMS_MASS_LOSS::NONE,             "NONE" },
-    { VMS_MASS_LOSS::VINK2011,         "VINK2011" },
-    { VMS_MASS_LOSS::BESTENLEHNER2020, "BESTENLEHNER2020" },
-    { VMS_MASS_LOSS::SABHAHIT2023,     "SABHAHIT2023" },
-};
-
-// RSG Mass loss prescriptions
-enum class RSG_MASS_LOSS: int { NONE, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90};
-const COMPASUnorderedMap<RSG_MASS_LOSS, std::string> RSG_MASS_LOSS_LABEL = {
-    { RSG_MASS_LOSS::NONE,             "NONE" },
-    { RSG_MASS_LOSS::VINKSABHAHIT2023, "VINKSABHAHIT2023" },
-    { RSG_MASS_LOSS::BEASOR2020,       "BEASOR2020" },
-    { RSG_MASS_LOSS::DECIN2023,        "DECIN2023" },
-    { RSG_MASS_LOSS::YANG2023,         "YANG2023" },
-    { RSG_MASS_LOSS::KEE2021,          "KEE2021" },
-    { RSG_MASS_LOSS::NJ90,             "NJ90" },
-};
-
-// WR Mass loss prescriptions
-enum class WR_MASS_LOSS: int { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 };
-const COMPASUnorderedMap<WR_MASS_LOSS, std::string> WR_MASS_LOSS_LABEL = {
-    { WR_MASS_LOSS::BELCZYNSKI2010, "BELCZYNSKI2010" },
-    { WR_MASS_LOSS::SANDERVINK2023, "SANDERVINK2023" },
-    { WR_MASS_LOSS::SHENAR2019,     "SHENAR2019" },
-};
-
 // Mass loss prescriptions
-enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, BELCZYNSKI2010, FLEXIBLE2023 };
+enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, VINK };
 const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
-    { MASS_LOSS_PRESCRIPTION::NONE,           "NONE" },
-    { MASS_LOSS_PRESCRIPTION::HURLEY,         "HURLEY" },
-    { MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010, "BELCZYNSKI2010" },
-    { MASS_LOSS_PRESCRIPTION::FLEXIBLE2023,   "FLEXIBLE2023"}
+    { MASS_LOSS_PRESCRIPTION::NONE,   "NONE" },
+    { MASS_LOSS_PRESCRIPTION::HURLEY, "HURLEY" },
+    { MASS_LOSS_PRESCRIPTION::VINK,   "VINK" }
 };
 
 
@@ -1503,6 +1468,7 @@ const std::initializer_list<STELLAR_TYPE> ALL_HERTZSPRUNG_GAP = {
     STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP
 };
 
+
 // (convenience) initializer list for COMPACT OBJECTS
 const std::initializer_list<STELLAR_TYPE> COMPACT_OBJECTS = {
     STELLAR_TYPE::HELIUM_WHITE_DWARF,
@@ -1566,12 +1532,12 @@ enum class MASS_CUTOFF: int {
 // Symbolic names for mass loss rate type
 enum class MASS_LOSS_TYPE: int {
     NONE,
-    OB,
-    VMS,
-    GB,
-    RSG,
-    WR,
-    LBV
+    NIEUWENHUIJZEN_DE_JAGER,
+    KUDRITZKI_REIMERS,
+    VASSILIADIS_WOOD,
+    WOLF_RAYET_LIKE,
+    VINK,
+    LUMINOUS_BLUE_VARIABLE
 };
 
 
@@ -1842,6 +1808,7 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     MDOT,                                            \
     MEAN_ANOMALY,                                    \
     METALLICITY,                                     \
+    MOMENT_OF_INERTIA,                               \
     MZAMS,                                           \
     NUCLEAR_TIMESCALE,                               \
     NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE,          \
@@ -1996,6 +1963,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::MDOT,                                            "MDOT" },
     { STAR_PROPERTY::MEAN_ANOMALY,                                    "MEAN_ANOMALY" },
     { STAR_PROPERTY::METALLICITY,                                     "METALLICITY" },
+    { STAR_PROPERTY::MOMENT_OF_INERTIA,                               "MOMENT_OF_INERTIA"},
     { STAR_PROPERTY::MZAMS,                                           "MZAMS" },
     { STAR_PROPERTY::NUCLEAR_TIMESCALE,                               "NUCLEAR_TIMESCALE" },
     { STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE,          "NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE" },
@@ -2808,7 +2776,7 @@ typedef std::tuple<TYPENAME, std::string, std::string, int, int> PROPERTY_DETAIL
 // STAR_PROPERTIES_LABEL
 const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::AGE,                                               { TYPENAME::DOUBLE,           "Age",                             "Myr",              16, 8 }},
-    { ANY_STAR_PROPERTY::ANGULAR_MOMENTUM,                                  { TYPENAME::DOUBLE,           "Ang_Momentum",                    "Msol*AU^2*yr^-1",  14, 6 }},
+    { ANY_STAR_PROPERTY::ANGULAR_MOMENTUM,                                  { TYPENAME::DOUBLE,           "Ang_Momentum",                    "Msol AU^2 yr^-1",  14, 6 }},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,           "Binding_Energy@CE",               "erg",              14, 6 }},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_FIXED,                              { TYPENAME::DOUBLE,           "BE_Fixed",                        "erg",              14, 6 }},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_NANJING,                            { TYPENAME::DOUBLE,           "BE_Nanjing",                      "erg",              14, 6 }},
@@ -2882,6 +2850,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,                       { TYPENAME::STRING,           "MT_Donor_Hist",                   "-",                16, 1 }}, 
     { ANY_STAR_PROPERTY::MDOT,                                              { TYPENAME::DOUBLE,           "Mdot",                            "Msol yr^-1",       14, 6 }},
     { ANY_STAR_PROPERTY::METALLICITY,                                       { TYPENAME::DOUBLE,           "Metallicity@ZAMS",                "-",                14, 6 }},
+    { ANY_STAR_PROPERTY::MOMENT_OF_INERTIA,                                 { TYPENAME::DOUBLE,           "Moment_Of_Inertia",               "Msol Rsol^2",      14, 6 }},
     { ANY_STAR_PROPERTY::MZAMS,                                             { TYPENAME::DOUBLE,           "Mass@ZAMS",                       "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE,                                 { TYPENAME::DOUBLE,           "Tau_Nuclear",                     "Myr",              16, 8 }},
     { ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE,            { TYPENAME::DOUBLE,           "Tau_Nuclear>CE",                  "Myr",              16, 8 }},
@@ -3053,8 +3022,8 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::SYSTEMIC_SPEED,                                      { TYPENAME::DOUBLE,           "SystemicSpeed",              "kms^-1",          14, 6 }},
     { BINARY_PROPERTY::TIME,                                                { TYPENAME::DOUBLE,           "Time",                       "Myr",             16, 8 }},
     { BINARY_PROPERTY::TIME_TO_COALESCENCE,                                 { TYPENAME::DOUBLE,           "Coalescence_Time",           "Myr",             16, 8 }},
-    { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,                              { TYPENAME::DOUBLE,           "Ang_Momentum_Total",         "Msol*AU^2*yr^-1", 14, 6 }},
-    { BINARY_PROPERTY::TOTAL_ENERGY,                                        { TYPENAME::DOUBLE,           "Energy_Total",               "Msol*AU^2*yr^-2", 14, 6 }},
+    { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,                              { TYPENAME::DOUBLE,           "Ang_Momentum_Total",         "Msol AU^2 yr^-1", 14, 6 }},
+    { BINARY_PROPERTY::TOTAL_ENERGY,                                        { TYPENAME::DOUBLE,           "Energy_Total",               "Msol AU^2 yr^-2", 14, 6 }},
     { BINARY_PROPERTY::UNBOUND,                                             { TYPENAME::BOOL,             "Unbound",                    "State",            0, 0 }},
     { BINARY_PROPERTY::ZETA_LOBE,                                           { TYPENAME::DOUBLE,           "Zeta_Lobe",                  "-",               14, 6 }},
     { BINARY_PROPERTY::ZETA_STAR,                                           { TYPENAME::DOUBLE,           "Zeta_Star",                  "-",               14, 6 }}
