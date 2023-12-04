@@ -235,7 +235,7 @@ def getEventHistory(h5file, exclude_null=False):
         
     iorder = np.argsort(seedsToIterate)
     returnedSeeds = [None] * np.size(seedsToIterate)                        # array of seeds - will only contain seeds that have events (of any type)
-    returnedEvents = [None] * np.size(seedsToIterate)                       # array of events - same size as returnedSeeds (icludes event times)
+    returnedEvents = [None] * np.size(seedsToIterate)                       # array of events - same size as returnedSeeds (includes event times)
 
     for count, ind in enumerate(iorder):
         seed = seedsToIterate[ind]
