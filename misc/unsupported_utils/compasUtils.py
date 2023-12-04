@@ -4,11 +4,11 @@ import pandas as pd
 
 
 ########################################################################
-### 
-### Function to print the data from a given COMPAS HDF5 group 
-### in a readable pandas template
-### 
-########################################################################
+# ## 
+# ## Function to print the data from a given COMPAS HDF5 group 
+# ## in a readable pandas template
+# ## 
+# #######################################################################
 
 def printCompasDetails(data, *seeds, mask=()):
     """
@@ -64,10 +64,10 @@ def printCompasDetails(data, *seeds, mask=()):
 
 
 ########################################################################
-### 
-### Get event histories of MT data, SN data, and combined MT, SN data
-### 
-########################################################################
+# ## 
+# ## Get event histories of MT data, SN data, and combined MT, SN data
+# ## 
+# #######################################################################
 
 def getMtEvents(MT):                                     
     """
@@ -229,12 +229,13 @@ def getEventHistory(h5file, exclude_null=False):
     else:
         seedsToIterate = allSeeds
         
-    iorder = np.argsort(seedsToIterate)
-    returnedSeeds = [None] * np.size(seedsToIterate)                        # array of seeds - will only contain seeds that have events (of any type)
-    returnedEvents = [None] * np.size(seedsToIterate)                       # array of events - same size as returnedSeeds (includes event times)
+    idxOrdered = np.argsort(seedsToIterate)
+    # set arrays of dummy value -1 
+    returnedSeeds = np.empty(seedsToIterate.shape)                          # array of seeds - will only contain seeds that have events (of any type)
+    returnedEvents = np.empty(seedsToIterate.shape)                         # array of seeds - will only contain seeds that have events (of any type)
 
-    for count, ind in enumerate(iorder):
-        seed = seedsToIterate[ind]
+    for idx in idxOrdered:
+        seed = seedsToIterate[idx]
         seedEvents = []                                                     # initialise the events for the seed being processed
 
         # Collect any MT events for this seed, add the time of the event and the event type
@@ -251,8 +252,8 @@ def getEventHistory(h5file, exclude_null=False):
 
         seedEvents.sort(key=lambda ev:(ev[1], eventOrdering.index(ev[0])))  # sort the events by time and event type (MT before SN if at the same time)
 
-        returnedSeeds[ind] = seed                                           # record the seed in the seeds array being returned
-        returnedEvents[ind] = seedEvents                                    # record the events for this seed in the events array being returned
+        returnedSeeds[idx] = seed                                           # record the seed in the seeds array being returned
+        returnedEvents[idx] = seedEvents                                    # record the events for this seed in the events array being returned
 
     return returnedSeeds, returnedEvents                                    # see above for details
 
