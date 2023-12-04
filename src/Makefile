@@ -40,7 +40,7 @@ ifneq ($(filter staticfast,$(MAKECMDGOALS)),)
 endif
 
 
-CXXFLAGS := -std=c++11 -Wall $(OPTFLAGS)
+CXXFLAGS := -std=c++11 -Wall -Woverloaded-virtual $(OPTFLAGS)
 ICFLAGS := -I$(GSLINCDIR) -I$(BOOSTINCDIR) -I$(HDF5INCDIR) -I.
 
 LIBS := -lm -lz -ldl -lpthread
@@ -52,6 +52,7 @@ LFLAGS := -L$(GSLLIBDIR) -L$(BOOSTLIBDIR) -L$(HDF5LIBDIR) -Xlinker -rpath -Xlink
 SOURCES :=						\
 	profiling.cpp               \
 	utils.cpp                   \
+	yaml.cpp                   	\
 	vector3d.cpp                \
 								\
 	Rand.cpp                    \
@@ -120,7 +121,7 @@ $(EXE)_STATIC: $(OBJI)
 	@echo $(OBJI)
 	$(CPP) $(OBJI) $(LFLAGS) -static -o $@
 
-.cpp.o: $(SOURCES) $(INCL) Makefile
+%.o: %.cpp
 	$(CPP) $(CXXFLAGS) $(ICFLAGS) -c $?
 
 .phony: clean static fast staticfast

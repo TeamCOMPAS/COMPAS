@@ -3,7 +3,6 @@
 #include "HeWD.h"
 
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                              LUMINOSITY CALCULATIONS                              //
@@ -29,7 +28,7 @@ double FGB::CalculateLuminosityOnPhase(const double p_Time) const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
     // The following declarations are for convenience and readability
-    // (could be changed to #defines if performence is an issue - but the optimiser should optimise this away)
+    // (could be changed to #defines if performance is an issue - but the optimiser should optimise this away)
     double AH  = gbParams(AH);
     double B   = gbParams(B);
     double D   = gbParams(D);
@@ -168,7 +167,7 @@ double FGB::ChooseTimestep(const double p_Time) const {
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
- * @return                                      Stellar Type to which star shoule evolve after losing envelope
+ * @return                                      Stellar Type to which star should evolve after losing envelope
  */
 STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]                                  // for convenience and readability - undefined at end of function
@@ -176,15 +175,17 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {                                      // Envelope loss
+    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                                      // Envelope loss
 
+        m_Mass      = std::min(m_CoreMass, m_Mass);
+        m_CoreMass   = m_HeCoreMass;
+        m_Mass       = m_CoreMass;
+        m_COCoreMass = 0.0;
+        
         if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {                                       // Star evolves to Helium White Dwarf
 
             stellarType  = STELLAR_TYPE::HELIUM_WHITE_DWARF;
 
-            m_CoreMass   = m_HeCoreMass;
-            m_Mass       = m_CoreMass;
-            m_COCoreMass = 0.0;
             m_Age        = 0.0;
             m_Radius     = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
         }
@@ -192,15 +193,10 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
             stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;
 
-            m_CoreMass   = m_HeCoreMass;
-            m_Mass       = m_CoreMass;
             m_Mass0      = m_Mass;
-            m_COCoreMass = 0.0;
             m_Age        = 0.0;
-//            m_Age        = ((m_Age - timescales(tHeI)) / timescales(tHe)) * timescales(tHeMS);       // JR: see Hurley et al. 2000, eq 76 and following discussion
             m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);
         }
-
     }
 
     return stellarType;
@@ -223,7 +219,7 @@ void FGB::ResolveHeliumFlash() {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
     if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {               // Helium flash if initial mass < Helium Flash cutoff
-        m_Mass0 = m_Mass;                                               // for LM star at ZAHB (end of GB/begining of CHeB) due to helium flash when doing mass loss
+        m_Mass0 = m_Mass;                                               // for LM star at ZAHB (end of GB/beginning of CHeB) due to helium flash when doing mass loss
     }
 
 #undef massCutoffs

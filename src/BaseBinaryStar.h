@@ -36,6 +36,8 @@ public:
 
         m_Error                            = p_Star.m_Error;
 
+        m_EvolutionStatus                  = p_Star.m_EvolutionStatus;
+
         m_RandomSeed                       = p_Star.m_RandomSeed;
 
         m_BeBinaryDetails                  = p_Star.m_BeBinaryDetails;
@@ -83,8 +85,6 @@ public:
 
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
 
-        m_PrintExtraDetailedOutput         = p_Star.m_PrintExtraDetailedOutput;
-
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
         m_RLOFDetails.propsPreMT           = p_Star.m_RLOFDetails.propsPreMT == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
         m_RLOFDetails.propsPostMT          = p_Star.m_RLOFDetails.propsPostMT == &(p_Star.m_RLOFDetails.props1) ? &(m_RLOFDetails.props1) : &(m_RLOFDetails.props2);
@@ -100,7 +100,7 @@ public:
         m_SynchronizationTimescale         = p_Star.m_SynchronizationTimescale;
 
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
-
+        m_OrbitalAngularMomentumVector     = p_Star.m_OrbitalAngularMomentumVector;
         m_ThetaE                           = p_Star.m_ThetaE;
         m_PhiE                             = p_Star.m_PhiE;  
         m_PsiE                             = p_Star.m_PsiE;  
@@ -175,10 +175,10 @@ public:
 
     // getters - alphabetically
     BeBinaryDetailsT    BeBinaryDetails() const                     { return m_BeBinaryDetails; }
-	bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
+    bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
     unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
-	double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
-	unsigned int        CommonEnvelopeEventCount() const            { return m_CEDetails.CEEcount; }
+    double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
+    unsigned int        CommonEnvelopeEventCount() const            { return m_CEDetails.CEEcount; }
     bool                Unbound() const                             { return m_Unbound; }
     bool                DoubleCoreCE() const                        { return m_CEDetails.doubleCoreCE; }
     double              Dt() const                                  { return m_Dt; }
@@ -189,7 +189,9 @@ public:
     double              EccentricityPreSN() const                   { return m_EccentricityPreSN; }
     double              EccentricityPreCEE() const                  { return m_CEDetails.preCEE.eccentricity; }
     ERROR               Error() const                               { return m_Error; }
+    EVOLUTION_STATUS    EvolutionStatus() const                     { return m_EvolutionStatus; }
     double              FractionAccreted() const                    { return m_FractionAccreted; }
+    bool                HasOnlyOneOf(STELLAR_TYPE_LIST p_List) const;
     bool                HasOneOf(STELLAR_TYPE_LIST p_List) const;
     bool                HasStarsTouching() const                    { return (utils::Compare(m_SemiMajorAxis, 0.0) > 0) && (m_SemiMajorAxis <= RSOL_TO_AU * (m_Star1->Radius() + m_Star2->Radius())); }
     bool                HasTwoOf(STELLAR_TYPE_LIST p_List) const;
@@ -197,6 +199,7 @@ public:
     STELLAR_TYPE        InitialStellarType1() const                 { return m_Star1->InitialStellarType(); }
     STELLAR_TYPE        InitialStellarType2() const                 { return m_Star2->InitialStellarType(); }
     bool                IsBeBinary() const                          { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07}); }
+    bool                IsHMXRBinary() const;
     bool                IsBHandBH() const                           { return HasTwoOf({STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsDCO() const                               { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsNSandBH() const                           { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::BLACK_HOLE}); }
@@ -218,21 +221,21 @@ public:
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
     double              Periastron() const                          { return m_SemiMajorAxis * (1.0-m_Eccentricity); }
     double              PeriastronRsol() const                      { return Periastron() * AU_TO_RSOL; }
-	double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
-	double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
-	double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
-	double              Radius2PreCEE() const                       { return m_Star2->RadiusPreCEE(); }
-	unsigned long int   RandomSeed() const                          { return m_RandomSeed; }
-	BinaryRLOFDetailsT  RLOFDetails() const                         { return m_RLOFDetails; }
+    double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
+    double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
+    double              Radius1PreCEE() const                       { return m_Star1->RadiusPreCEE(); }
+    double              Radius2PreCEE() const                       { return m_Star2->RadiusPreCEE(); }
+    unsigned long int   RandomSeed() const                          { return m_RandomSeed; }
+    BinaryRLOFDetailsT  RLOFDetails() const                         { return m_RLOFDetails; }
     bool                RLOFSecondaryPostCEE() const                { return m_Star2->RLOFPostCEE(); }
     double              RocheLobe1to2PostCEE() const                { return m_CEDetails.postCEE.rocheLobe1to2; }
     double              RocheLobe1to2PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe1to2; }
     double              RocheLobe2to1PostCEE() const                { return m_CEDetails.postCEE.rocheLobe2to1; }
     double              RocheLobe2to1PreCEE() const                 { return m_CEDetails.preCEE.rocheLobe2to1; }
-    double              RocheLobeRadius1() const                    { return CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass()); }
-    double              RocheLobeRadius2() const                    { return CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()); }
-    double              RocheLobeTracker1() const                   { return m_Star1->RocheLobeTracker(m_SemiMajorAxis, m_Eccentricity); }
-    double              RocheLobeTracker2() const                   { return m_Star2->RocheLobeTracker(m_SemiMajorAxis, m_Eccentricity); }
+    double              RocheLobeRadius1() const                    { return CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass()) * SemiMajorAxisRsol() * (1-Eccentricity()); }
+    double              RocheLobeRadius2() const                    { return CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()) * SemiMajorAxisRsol() * (1-Eccentricity()); }
+    double              StarToRocheLobeRadiusRatio1() const         { return m_Star1->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
+    double              StarToRocheLobeRadiusRatio2() const         { return m_Star2->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
     double              SemiMajorAxisAtDCOFormation() const         { return m_SemiMajorAxisAtDCOFormation; }
     double              SemiMajorAxisInitial() const                { return m_SemiMajorAxisInitial; }
     double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
@@ -250,6 +253,10 @@ public:
     STELLAR_TYPE        StellarType2() const                        { return m_Star2->StellarType(); }
     STELLAR_TYPE        StellarType2PostCEE() const                 { return m_Star2->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
+    double              SN_OrbitInclinationAngle() const            { return m_ThetaE; }
+    double              SN_OrbitInclinationVectorX() const          { return m_OrbitalAngularMomentumVector.xValue(); }
+    double              SN_OrbitInclinationVectorY() const          { return m_OrbitalAngularMomentumVector.yValue(); }
+    double              SN_OrbitInclinationVectorZ() const          { return m_OrbitalAngularMomentumVector.zValue(); }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
     double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
     double              SystemicSpeed() const                       { return m_SystemicVelocity.Magnitude(); }
@@ -289,6 +296,8 @@ private:
 
     // member variables - alphabetical in groups (sort of...)
 
+    EVOLUTION_STATUS    m_EvolutionStatus;                                                  // Records the status of the evolution of the star
+
     unsigned long int   m_RandomSeed;                                                       // Random seed for this binary
 
     BeBinaryDetailsT    m_BeBinaryDetails;                                                  // BeBinary details
@@ -326,8 +335,8 @@ private:
 
     double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
 
-    double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
-    double              m_Mass2Final;                                                       // Star2 mass in Msol after losing its envelope (in this case, we asume it loses all of its envelope)
+    double              m_Mass1Final;                                                       // Star1 mass in Msol after losing its envelope (in this case, we assume it loses all of its envelope)
+    double              m_Mass2Final;                                                       // Star2 mass in Msol after losing its envelope (in this case, we assume it loses all of its envelope)
 
     double              m_MassEnv1;                                                         // Star1 envelope mass in Msol
     double              m_MassEnv2;                                                         // Star2 envelope mass in Msol
@@ -340,8 +349,6 @@ private:
     MT_TRACKING         m_MassTransferTrackerHistory;
 
     double              m_OrbitalVelocityPreSN;
-
-    bool                m_PrintExtraDetailedOutput;                                         // Flag to ensure that detailed output only gets printed once per timestep
 
     BinaryRLOFDetailsT  m_RLOFDetails;                                                      // RLOF details
 
@@ -356,6 +363,7 @@ private:
     double              m_SynchronizationTimescale;
 
     Vector3d            m_SystemicVelocity;                                                 // Systemic velocity vector, relative to ZAMS Center of Mass
+    Vector3d            m_OrbitalAngularMomentumVector;                                     // Orbital AM vector postSN, in preSN frame
     double              m_ThetaE;                                                           // Euler Theta
     double              m_PhiE;                                                             // Euler Phi                
     double              m_PsiE;                                                             // Euler Psi
@@ -397,11 +405,10 @@ private:
     // CalculateAngularMomentum - the actual function takes 10 parameters because of the various calling permutations
     //                          - various signatures are defined here - they just assemble the parameters as required
     //                            and call the actual function
-    // JR: todo: note in the orginal code the binary orbital velicity was passed in as a parameter but never used - I removed it
+    // JR: todo: note in the original code the binary orbital velicity was passed in as a parameter but never used - I removed it
 
     void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
     void    SetRemainingValues();
-
 
     double  CalculateAngularMomentum(const double p_SemiMajorAxis,
                                      const double p_Eccentricity,
@@ -435,7 +442,6 @@ private:
 
     double  CalculateMassTransferOrbit(const double                 p_DonorMass, 
                                        const double                 p_DeltaMassDonor, 
-                                       const double                 p_ThermalRateDonor, 
                                              BinaryConstituentStar& p_Accretor, 
                                        const double                 p_FractionAccreted);
 
@@ -450,7 +456,7 @@ private:
                                    const double p_Mass,
                                    const double p_SemiMajorAxis) const          { return -(G1 * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
 
-    double  CalculateZRocheLobe(const double p_jLoss) const;
+    double  CalculateZetaRocheLobe(const double p_jLoss) const;
 
     double  CalculateTimeToCoalescence(double a0, double e0, double m1, double m2) const;
 
@@ -504,14 +510,35 @@ private:
     void    UpdateSystemicVelocity(Vector3d p_newVelocity);
 
     // printing functions
-    bool PrintRLOFParameters();
-    bool PrintBinarySystemParameters() const            { return LOGGING->LogBSESystemParameters(this); }
-    bool PrintDetailedOutput(const long int p_Id) const { return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id) : true; }
-    bool PrintDoubleCompactObjects() const              { return LOGGING->LogDoubleCompactObject(this); }
-    bool PrintCommonEnvelope() const                    { return LOGGING->LogCommonEnvelope(this); }
-    bool PrintBeBinary();
-    bool PrintPulsarEvolutionParameters() const         { return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this) : true; }
-    bool PrintSupernovaDetails() const                  { return LOGGING->LogBSESupernovaDetails(this); }
+    
+    bool PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType = RLOF_RECORD_TYPE::DEFAULT);
+    
+    bool PrintBinarySystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::DEFAULT) const { 
+        return LOGGING->LogBSESystemParameters(this, p_RecordType);
+    }
+    
+    bool PrintDetailedOutput(const long int p_Id, 
+                             const BSE_DETAILED_RECORD_TYPE p_RecordType) const {
+        return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id, p_RecordType) : true;
+    }
+    
+    bool PrintDoubleCompactObjects(const DCO_RECORD_TYPE p_RecordType = DCO_RECORD_TYPE::DEFAULT) const {
+        return LOGGING->LogDoubleCompactObject(this, p_RecordType);
+    }
+    
+    bool PrintCommonEnvelope(const CE_RECORD_TYPE p_RecordType = CE_RECORD_TYPE::DEFAULT) const {
+        return LOGGING->LogCommonEnvelope(this, p_RecordType);
+    }
+    
+    bool PrintBeBinary(const BE_BINARY_RECORD_TYPE p_RecordType = BE_BINARY_RECORD_TYPE::DEFAULT);
+    
+    bool PrintPulsarEvolutionParameters(const PULSAR_RECORD_TYPE p_RecordType = PULSAR_RECORD_TYPE::DEFAULT) const {
+        return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_RecordType) : true;
+    }
+    
+    bool PrintSupernovaDetails(const BSE_SN_RECORD_TYPE p_RecordType = BSE_SN_RECORD_TYPE::DEFAULT) const {
+        return LOGGING->LogBSESupernovaDetails(this, p_RecordType);
+    }
 
     
     //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
@@ -537,7 +564,7 @@ private:
             double accretorMass = m_Accretor->Mass();
 
             BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
-            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -dM , donorCopy->CalculateThermalMassLossRate(), *m_Accretor, m_FractionAccreted);
+            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -dM , *m_Accretor, m_FractionAccreted);
             double RLRadius      = semiMajorAxis * (1 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - dM, accretorMass + (m_Binary->FractionAccreted() * dM)) * AU_TO_RSOL;
             
             (void)donorCopy->UpdateAttributes(-dM, -dM*donorCopy->Mass0()/donorCopy->Mass());
@@ -573,7 +600,7 @@ private:
         double factor = ADAPTIVE_RLOF_SEARCH_FACTOR;                            // Size of search steps
         
         const boost::uintmax_t maxit = ADAPTIVE_RLOF_MAX_ITERATIONS;            // Limit to maximum iterations.
-        boost::uintmax_t it = maxit;                                            // Initally our chosen max iterations, but updated with actual.
+        boost::uintmax_t it = maxit;                                            // Initially our chosen max iterations, but updated with actual.
         bool is_rising = true;                                                  // So if result with guess is too low, then try increasing guess.
         int digits = std::numeric_limits<double>::digits;                       // Maximum possible binary digits accuracy for type T.
 

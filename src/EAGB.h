@@ -51,6 +51,8 @@ protected:
     double          CalculateCoreMassAtPhaseEnd() const                                             { return m_GBParams[static_cast<int>(GBP::McDU)]; }                 // Mc(EAGB) = McDU at phase end (Hurley et al. 2000, section 5.4)
     double          CalculateCoreMassOnPhase() const                                                { return m_GBParams[static_cast<int>(GBP::McBAGB)]; }               // Mc(EAGB) = McHe(EAGB) = McBAGB on phase (Hurley et al. 2000, section 5.4)
 
+    double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                        { return GiantBranch::CalculateCriticalMassRatioHurleyHjellmingWebbink(); }
+
     double          CalculateGyrationRadius() const                                                 { return 0.1; }                                                     // Hurley et al., 2000, after eq 109 for giants. Single number approximation.   JR: todo: should this be in constants.h?
 
     double          CalculateHeCoreMassAtPhaseEnd() const                                           { return CalculateHeCoreMassOnPhase(); }                            // Same as on phase
@@ -58,7 +60,8 @@ protected:
 
     double          CalculateInitialSupernovaMass() const                                           { return m_GBParams[static_cast<int>(GBP::McBAGB)]; }               // For EAGB & TPAGB we use the mass at Base Asymptotic Giant Branch to determine SN type
 
-    double          CalculateLambdaNanjing() const;
+    double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
+    double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const;
 
     double          CalculateLifetimeTo2ndDredgeUp(const double p_Tinf1_FAGB, const double p_Tinf2_FAGB) const;
 

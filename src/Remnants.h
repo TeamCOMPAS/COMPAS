@@ -25,18 +25,20 @@ public:
 
     // member functions
 
-
 protected:
 
 
     // member functions - alphabetically
     double          CalculateCOCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 
+    double          CalculateConvectiveEnvelopeMass() const                                                     { return 0.0; }
+
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 
-    double          CalculateEddingtonCriticalRate() const                                                      { return 2.08E-3 / 1.7 * m_Radius * MYR_TO_YEAR; }       // Hurley+, 2002, Eq. (67)
+    double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate)                               { return 0.0; }                                                         // Should never be called...
 
-    void            CalculateGBParams()                                                                         { GiantBranch::CalculateGBParams(); }                                   // Default to GiantBranch
+    void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)                              { GiantBranch::CalculateGBParams(p_Mass, p_GBParams); }                 // Default to GiantBranch  
+    void            CalculateGBParams()                                                                         { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
 
     double          CalculateGyrationRadius() const                                                             { return 0.21; }                                                        // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
@@ -45,13 +47,16 @@ protected:
     double          CalculateInitialSupernovaMass() const                                                       { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
 
     double          CalculateLambdaDewi() const                                                                 { return BaseStar::CalculateLambdaDewi(); }                             // Not supported - use BaseStar
-    double          CalculateLambdaNanjing() const                                                              { return BaseStar::CalculateLambdaNanjing(); }                          // Not supported - use BaseStar     JR: todo: check this (type 10 not mentioned as not supported in original code)
+    double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const      { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }         // Not supported - use BaseStar (0.0 are dummy values)      JR: todo: check this (type 10 not mentioned as not supported in original code)
 
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                    const double p_AccretorMassRate = 0.0);
+                                                const double p_AccretorMassRate);
+    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                const double p_AccretorMassRate,
+                                                const bool   p_IsHeRich)                                        { return CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); } // Ignore the He content for non-WDs
 
-    double          CalculateMassLossRateHurley();
-    double          CalculateMassLossRateVink()                                                                 { return 0.0; }
+    double          CalculateMassLossRateHurley()                                                               { return 0.0; }
+    double          CalculateMassLossRateBelczynski2010()                                                                 { return 0.0; }
 
     double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                          { return GiantBranch::CalculateMomentOfInertia(p_RemnantRadius); }      // Default to GiantBranch
     double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const                        { return GiantBranch::CalculateMomentOfInertiaAU(p_RemnantRadius); }    // Default to GiantBranch
@@ -65,16 +70,17 @@ protected:
     double          CalculateTauOnPhase() const                                                                 { return m_Tau; }                                                       // NO-OP
    
     double          CalculateThermalTimescale(const double p_Radius = 1.0) const                                { return CalculateDynamicalTimescale(); }                               // Parameter is ignored
+    double          CalculateThermalTimescale() const                                                           { return CalculateThermalTimescale(m_Radius); }                         // Use inheritance hierarchy
 
     double          CalculateThermalMassLossRate() const                                                        { return BaseStar::CalculateThermalMassLossRate(); }                    // Set thermal mass gain rate to be effectively infinite, using dynamical timescale (in practice, will be Eddington limited), avoid division by zero
 
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales)                          { return TPAGB::CalculateTimescales(p_Mass, p_Timescales); }            // Use TPAGB
     void            CalculateTimescales()                                                                       { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
 
-    double          CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)                                         { return 0.0; }                                                         // Should never be called...
+    double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                      { return 0.0; }                                                         // Should never be called...
 
     double          ChooseTimestep(const double p_Time) const;
-
+    
     ENVELOPE        DetermineEnvelopeType() const                                                               { return ENVELOPE::REMNANT; }                                           // Always REMNANT
 
     void            EvolveOneTimestepPreamble()                                                                 { BaseStar::EvolveOneTimestepPreamble(); }                              // Default to BaseStar
@@ -87,8 +93,6 @@ protected:
 
     bool            IsSupernova() const                                                                         { return false; }                                                       // Default
 
-    bool            IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const   { return false; }                                                       // Should never be called...
-
     void            PerturbLuminosityAndRadius() { }                                                                                                                                    // NO-OP
 
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                                 { return BaseStar::ResolveEnvelopeLoss(p_NoCheck); }                    // Default to BaseStar
@@ -96,13 +100,17 @@ protected:
     void            ResolveEnvelopeMassAtPhaseEnd(const double p_Tau) const                                     { ResolveEnvelopeMassOnPhase(p_Tau); }                                  // Same as on phase
     void            ResolveEnvelopeMassOnPhase(const double p_Tau) const { }                                                                                                            // NO-OP
 
-    void            ResolveMassLoss() { }                                                                                                                                         // NO-OP
+    void            ResolveMassLoss() { }                                                                                                                                               // NO-OP
 
     STELLAR_TYPE    ResolveSkippedPhase()                                                                       { return BaseStar::ResolveSkippedPhase(); }                             // Default to BaseStar
+                                                                                                                                                                                        //
+    void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                                 // NO-OP 
+                                                                                                                                                                                        //
     STELLAR_TYPE    ResolveSupernova()                                                                          { return BaseStar::ResolveSupernova(); }                                // Default to BaseStar
 
     void            SetPulsarParameters() const { }                                                                                                                                     // NO-OP
 
+    bool            ShouldEnvelopeBeExpelledByPulsations() const                                                { return false; }                                                       // No envelope to lose by pulsations
     bool            ShouldEvolveOnPhase() const                                                                 { return true; }                                                        // Default
     bool            ShouldSkipPhase() const                                                                     { return false; }                                                       // Don't skip WD phase
 

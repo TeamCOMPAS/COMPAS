@@ -54,6 +54,9 @@ protected:
         m_CoreMass    = 0.0;
         m_Mass0       = 0.0;
         
+        m_Radius      = NS::CalculateRadiusOnPhase_Static(m_Mass);                                                                                                  // Set the NS radius, in Rsol
+        m_Luminosity  = NS::CalculateLuminosityOnPhase_Static(m_Mass, m_Age);                                                                                       // Set the NS luminosity
+
         CalculateAndSetPulsarParameters();
     }
 
@@ -65,6 +68,8 @@ protected:
 
             double          CalculateLuminosityOnPhase() const                      { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age); }                    // Use class member variables
 
+            double          CalculateMassLossRate()                                 { return 0.0; }                                                                 // Ensure that NSs don't lose mass in winds
+    
     static  double          CalculateMomentOfInertia_Static(const double p_Mass, const double p_Radius);
 
     static  double          CalculatePulsarBirthMagneticField_Static();
@@ -74,17 +79,20 @@ protected:
     static  double          CalculateSpinDownRate_Static(const double p_Omega,
                                                          const double p_MomentOfInteria,
                                                          const double p_MagField,
-                                                         const double p_Radius,
-                                                         double const p_Alpha);
+                                                         const double p_Radius);
+
+            double          ChooseTimestep(const double p_Time) const;
+
             STELLAR_TYPE    EvolveToNextPhase()                                     { return STELLAR_TYPE::BLACK_HOLE; }
     
             bool            ShouldEvolveOnPhase() const                             { return (m_Mass <= OPTIONS->MaximumNeutronStarMass()); }                       // Evolve as a neutron star unless mass > maximum neutron star mass (e.g. through accretion)
-
+            void            SpinDownIsolatedPulsar(const double p_Stepsize);
             void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
                                                        const bool   p_RecycledNS,
                                                        const double p_Stepsize,
                                                        const double p_MassGainPerTimeStep,
                                                        const double p_Epsilon);
+
 };
 
 #endif // __NS_h__

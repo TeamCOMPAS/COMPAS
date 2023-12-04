@@ -252,7 +252,7 @@ double HeHG::CalculateMassTransferRejuvenationFactor() const {
             }
             break;
 
-        default:                                                        // unknow prescription - use default Hurley et al. 2000 prescription = 1.0
+        default:                                                        // unknown prescription - use default Hurley et al. 2000 prescription = 1.0
             SHOW_WARN(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION);     // show warning
     }
 
@@ -292,11 +292,11 @@ double HeHG::CalculatePerturbationMu() const {
  * This function good for HeHG and HeGB stars (for Helium stars: always use Natasha's fit)
  *
  *
- * double CalculateLambdaNanjing()
+ * double CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity)
  *
  * @return                                      Nanjing lambda for use in common envelope
  */
-double HeHG::CalculateLambdaNanjing() const {
+double HeHG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
 
     double rMin = 0.25;                              // minimum considered radius: Natasha       JR: todo: should this be in constants.h?
 	double rMax = 120.0;                             // maximum considered radius: Natasha       JR: todo: should this be in constants.h?
@@ -325,17 +325,20 @@ double HeHG::CalculateLambdaNanjing() const {
  */
 ENVELOPE HeHG::DetermineEnvelopeType() const {
     
-    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                       // default envelope type  is CONVECTIVE
+    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type is RADIATIVE
     
-    switch (OPTIONS->EnvelopeStatePrescription()) {                                                 // which envelope prescription?
+    switch (OPTIONS->EnvelopeStatePrescription()) {                                                  // which envelope prescription?
             
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
+            envelope = ENVELOPE::RADIATIVE;                                                          // default treatment
+            break;
+            
         case ENVELOPE_STATE_PRESCRIPTION::HURLEY: // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG, but we approximate it as already convective here
             envelope = ENVELOPE::CONVECTIVE;
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
-            envelope =  utils::Compare(Temperature() *  TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            envelope =  utils::Compare(Temperature() *  TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
             
         default:                                                                                    // unknown prescription - use default envelope type
@@ -347,30 +350,27 @@ ENVELOPE HeHG::DetermineEnvelopeType() const {
 
 
 /*
- * Determines if mass transfer produces a wet merger
+ * Determines if mass transfer is unstable according to the critical mass ratio.
  *
- * According to the mass ratio limit discussed by de Mink et al. 2013 and Claeys et al. 2014
+ * See e.g de Mink et al. 2013, Claeys et al. 2014, and Ge et al. 2010, 2015, 2020 for discussions.
  *
- * Assumes this star is the donor; relevant accretor details are passed as parameters
+ * Assumes this star is the donor; relevant accretor details are passed as parameters.
+ * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
  *
+ * double HeHG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) 
  *
- * bool IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate)
- *
- * @param   [IN]    p_AccretorMass              Mass of accretor in Msol
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
- * @return                                      Boolean indicating stability of mass transfer (true = unstable)
+ * @return                                      Critical mass ratio for unstable MT 
  */
-bool HeHG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
+double HeHG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const {
 
-    bool result = false;                                                                                                    // default is stable
-
-    if (OPTIONS->MassTransferCriticalMassRatioHeliumHG()) {
-        result = p_AccretorIsDegenerate
-                    ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHeliumHGDegenerateAccretor()        // degenerate accretor
-                    : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor();    // non-degenerate accretor
-    }
-
-    return result;
+    double qCrit;
+                                                                                                                            
+    qCrit = p_AccretorIsDegenerate
+                ? OPTIONS->MassTransferCriticalMassRatioHeliumHGDegenerateAccretor()        // degenerate accretor
+                : OPTIONS->MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor();    // non-degenerate accretor
+                                                                                                                        
+    return qCrit;
 }
 
 /*
@@ -411,7 +411,7 @@ bool HeHG::ShouldEvolveOnPhase() const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
     double McMax = CalculateMaximumCoreMass(m_Mass);
-    return utils::Compare(m_COCoreMass, McMax) <= 0 || utils::Compare(McMax, gbParams(McSN)) >= 0;    // Evolve on HeHG phase if McCO <= McMax or McMax >= McSN
+    return ((utils::Compare(m_COCoreMass, McMax) <= 0 || utils::Compare(McMax, gbParams(McSN)) >= 0) && !ShouldEnvelopeBeExpelledByPulsations());    // Evolve on HeHG phase if McCO <= McMax or McMax >= McSN and envelope is not ejected by pulsations
 
 #undef gbParams
 }
@@ -444,17 +444,21 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
     
-    if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) >= 0) {        // Envelope lost - determine what type of star to form
+    if(ShouldEnvelopeBeExpelledByPulsations())          { m_EnvelopeJustExpelledByPulsations = true; }
+    
+    if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {        // Envelope lost - determine what type of star to form
 
+        m_Mass      = std::min(m_COCoreMass, m_Mass);
         m_CoreMass  = m_Mass;
         m_HeCoreMass= m_Mass;
         m_COCoreMass= m_Mass;
         m_Mass0     = m_Mass;
         m_Radius    = COWD::CalculateRadiusOnPhase_Static(m_Mass);
         m_Age       = 0.0;
-        stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
+        if (!IsSupernova()) {
+            stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;         //Note that this uses the CO core mass, rather than the core mass at base of AGB or He mass at He star birth suggested by Hurley+, 2000
+        }
     }
-    IsSupernova();
     return stellarType;
 }
 

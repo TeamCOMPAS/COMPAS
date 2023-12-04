@@ -1,4 +1,5 @@
 #include "MainSequence.h"
+#include "HG.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -27,8 +28,6 @@ void MainSequence::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timesc
 #define timescales(x) p_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     timescales(tBGB)   = CalculateLifetimeToBGB(p_Mass);
     timescales(tMS)    = CalculateLifetimeOnPhase(p_Mass, timescales(tBGB));
-    timescales(tMcMax) = 0.0;                                       // JR: todo: this is never used - is it actually needed?
-
 #undef timescales
 }
 
@@ -104,7 +103,7 @@ double MainSequence::CalculateBetaL(const double p_Mass) const {
 
 
 /*
- * Calcluate the luminosity alpha constant alpha_L
+ * Calculate the luminosity alpha constant alpha_L
  *
  * Hurley et al. 2000, eqs 19a & 19b
  *
@@ -534,7 +533,7 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
     double tHook = mu * p_TBGB;
 
     // For mass < Mhook, x > mu (i.e. for stars without a hook)
-    double x = std::max(0.95, std::min((0.95 - (0.03 * (m_LogMetallicityXi + 0.30103))), 0.99));
+    double x = std::max(0.95, std::min((0.95 - (0.03 * (LogMetallicityXi() + 0.30103))), 0.99));
 
     return std::max(tHook, (x * p_TBGB));
 
@@ -577,7 +576,7 @@ void MainSequence::UpdateAgeAfterMassLoss() {
  *
  * The original fits from de Mink+2013 were made for MS stars a Z=0.02.
  *
- * Uses class member variables instaed of passing in parameters
+ * Uses class member variables instead of passing in parameters
  *
  *
  * double CalculateGyrationRadius()
@@ -683,7 +682,29 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
     if (p_NoCheck || utils::Compare(m_Mass, 0.0) <= 0) {
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
         m_Radius = 0.0;   // massless remnant
+        m_Mass = 0.0;
     }
     
     return stellarType;
+}
+
+/*
+ * Update the minimum core mass of a main sequence star that loses mass through Case A mass transfer by
+ * setting it equal to the core mass of a TAMS star, scaled by the fractional age.
+ * 
+ * The minimum core mass of the star is updated only if the retain-core-mass-during-caseA-mass-transfer
+ * option is specified, otherwise it is left unchanged.
+ *
+ *
+ * STELLAR_TYPE UpdateMinimumCoreMass()
+ *
+ */
+void MainSequence::UpdateMinimumCoreMass()
+{
+    if (OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
+        double fractionalAge=CalculateTauOnPhase();
+        HG clone = *this;                               //create an HG star clone to query its core mass just after TAMS
+        double TAMSCoreMass = clone.CoreMass();
+        m_MinimumCoreMass = std::max(m_MinimumCoreMass, fractionalAge * TAMSCoreMass);
+    }
 }

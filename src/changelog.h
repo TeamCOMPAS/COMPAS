@@ -57,7 +57,7 @@
 //                                   Changed minor version number - should have been done at last release - we'll grant the '--version' option minor release status...
 // 02.03.01      JR - Nov 04, 2019 - Defect repair:
 //                                       removed erroneous initialisation of m_CEDetails.alpha from BaseBinaryStar::SetRemainingCommonValues()
-//                                       (CE Alpha was alwas being initialised to 0.0 regardless of program options)
+//                                       (CE Alpha was always being initialised to 0.0 regardless of program options)
 // 02.03.02      JR - Nov 25, 2019 - Defect repairs:
 //                                       added check for active log file before closing in Log::Stop()
 //                                       added CH stars to MAIN_SEQUENCE and ALL_MAIN_SEQUENCE initializer_lists defined in constants.h
@@ -98,7 +98,7 @@
 //                                       set M = McBAGB for EAGB & TPAGB only (was being set for all types >= TPAGB)
 //                                       added extra print detailed in BaseBinaryStar:Evolve() - sometimes missing a switch type in detailed output if only 1 timestep
 //                                       swapped heading strings for ANY_STAR_PROPERTY::IS_ECSN and ANY_STAR_PROPERTY::IS_USSN (now correct)
-//                                       removed condition in BaseBinaryStar::EvaluateSupernovae().  ResolveSupernova() is now called for all stellar types (not sure what I was thinking orginally. I'm sure I had a good reason - or maybe I was just tired...)
+//                                       removed condition in BaseBinaryStar::EvaluateSupernovae().  ResolveSupernova() is now called for all stellar types (not sure what I was thinking originally. I'm sure I had a good reason - or maybe I was just tired...)
 //                                       changed name of GiantBranch::CalculateProtoCoreMass() to GiantBranch::CalculateProtoCoreMassDelayed() and changed calls to the function
 //                                       swapped order of calculations of ePrime (CalculateOrbitalEccentricityPostSupernova()) and m_SemiMajorAxisPrime (CalculateSemiMajorAxisPostSupernova()) in BaseBinaryStar::ResolveSupernova().  Improper order was causing wrong value of m_SeminMajorAxisPrime to be used in calculation of ePrime
 //                                       set m_Disbound = true appropriately in BaseBinaryStar::Evolve() (note: m_Disbound will change name to m_Unbound soon...)
@@ -108,7 +108,7 @@
 //                                       added ResolveSupernova() to ONeWD.h - ONeWD stars were previously not checking for SN
 //                                       fixed BaseBinaryStar::InitialiseMassTransfer() - star1 was being updated instead of star2 for CH + CH stars when CHE enabled
 // 02.04.01      JR - Dec 23, 2019 - Defect repairs:
-//                                       Removed SN_EVENT::SN - all occurences of SN_EVENT::SN replaced by SN_EVENT::CCSN.
+//                                       Removed SN_EVENT::SN - all occurrences of SN_EVENT::SN replaced by SN_EVENT::CCSN.
 //                                           The current SN event ("Is"), and past SN event ("Experienced") are now bit maps (implemented as Enum Classes).  Each can have any of the values: CCSN, ECSN, PISN, PPSIN, USSN, RUNAWAY, RECYCLED_NS, and RLOF_ONTO_NS.  See definition of SN_EVENT Enum Class in constants.h for implementation and explanation.  
 //                                       Updated variables selectable for printing:
 //                                           Added ANY_STAR_PROPERTY::SN_TYPE (STAR_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY (should always be SN_EVENT::NONE for companion star))
@@ -125,7 +125,7 @@
 //                                       Changed initialisation function for HeGB stars (HeGB::Initialise() in HeGB.h) to NOT recalculate m_Age if evolving from HeHG -> HeGB 
 //                                       Removed initialisation of m_Age (to 0.0) from COWD::Initialise() in COWD.h
 //                                   Changed behaviour:  
-//                                       Changed binary star "disbound" flag to "unbound" flag.  Changed all occurences of "disbound" to "unbound".  Changed "unbound" header flag to "Unbound"
+//                                       Changed binary star "disbound" flag to "unbound" flag.  Changed all occurrences of "disbound" to "unbound".  Changed "unbound" header flag to "Unbound"
 // 02.04.02      JR - Jan 06, 2020 - Defect repairs:
 //                                       Added IsPISN() & IsPPISN() to IsSNEvent()
 //                                       Fixed check for SN event at top of BaseBinaryStar::ResolveSupenova()
@@ -198,7 +198,7 @@
 //                                       - removed commented RLOF printing lines in constant.h (somehow that was lost in some out of sync git merges...)
 //                                       - removed commented options no longer used from Options.h and Options.cpp
 //                                       - fixed units headers in constants.h - there are now no blank units headers, so SPACE delimited files now parse ok (multiple spaces should be treated as a single space)
-//                                       - changed file extention for TAB delimited files to 'tsv'
+//                                       - changed file extension for TAB delimited files to 'tsv'
 //                                       - removed "useImportanceSampling" option - not used in code
 //                                       - fixed typo in zeta-calculation-every-timestep option in Options.cpp
 //                                       - removed redundant OPTIONS->MassTransferCriticalMassRatioHeliumGiant() from qcritflag if statement in BaseBinaryStar::CalculateMassTransfer()
@@ -250,7 +250,7 @@
 //                                      - fixed issue #161 Splashscreen printed twice - now only prints once
 //                                      - fixed issue #162 OPTIONS->UseFixedUK() always returns FALSE.  Now returns TRUE if user supplies a fixed kick velocity via --fix-dimensionless-kick-velocity command line option
 // 02.08.03      JR - Mar 28, 2020 - Defect repairs:
-//                                      - fixed typo in BaseBinaryStar::ResolveCommonEnvelopeEvent() when calculating circularisation timescale in the case where star2 is the donor: star1Copy was errorneously used instead of star2Copy; changed to star2Copy
+//                                      - fixed typo in BaseBinaryStar::ResolveCommonEnvelopeEvent() when calculating circularisation timescale in the case where star2 is the donor: star1Copy was erroneously used instead of star2Copy; changed to star2Copy
 //                                      - changed circularisation timescale of binary to be minimum of constituent stars circularisation timescales, clamped to (0.0, infinity)
 // 02.09.00      JR - Mar 30, 2020 - Minor enhancements:
 //                                      - tightened the conditions under which we allow over-contact binaries - enabling CHE is no longer a sufficient condition after this change: the allow-rlof-at-birth option must also be specified (ussue #164)
@@ -379,13 +379,13 @@
 // 									    - Changed OrbitalVelocity to OrbitalAngularVelocity where that parameter was misnamed
 // 									    - Changed Pre/PostSNeOrbitalVelocity to OrbitalVelocityPre/PostSN for consistency
 // 									    - Added and updated physical conversion constants for clarity (e.g MSOL to MSOL_TO_KG)
-// 									    - Removed ID from output files, it is confusing and superceeded by SEED
+// 									    - Removed ID from output files, it is confusing and superseded by SEED
 // 									    - Removed 'Total' from TotalOrbital(Energy/AngularMomentum)
 // 									    - Typos
 // 02.13.10     IM - Aug 21, 2020   - Enhancement:
 //                                      - Added caseBBStabilityPrescription in lieu of forceCaseBBBCStabilityFlag and alwaysStableCaseBBBCFlag to give more options for case BB/BC MT stability (issue #32)
 // 02.13.11     IM - Aug 22, 2020   - Enhancement:
-//                                      - Removed several stored options (e.g., m_OrbitalAngularVelocity, m_RocheLobeTracker, etc.) to recompute them on an as-needed basis
+//                                      - Removed several stored options (e.g., m_OrbitalAngularVelocity, m_StarToRocheLobeRadiusRatio, etc.) to recompute them on an as-needed basis
 //                                      - Removed some inf values in detailed outputs
 //                                      - Slight speed-ups where feasible
 //                                      - Shift various calculations to only be performed when needed, at printing, and give consistent values there (e.g., OmegaBreak, which was never updated previously)
@@ -439,7 +439,7 @@
 //                                      - Issue #12 - Move enhancement STROOPWAFEL from Legacy COMPAS to new COMPAS
 //                                      - Issue #18 - double check STROOPWAFEL works in newCOMPAS
 //                                      - Issue #154 - Test compatibility of CompasHPC and BSE_Grid.txt
-//                                      - Added in combined functionaltiy of Stroopwafel and pythonSubmit, with support for HPC runs
+//                                      - Added in combined functionality of Stroopwafel and pythonSubmit, with support for HPC runs
 // 02.15.08     IM - Sep 14, 2020   - Defect repair:
 //                                      - Issue #375 Error in Hurley remnant mass calculation
 // 02.15.09     RTW - Oct 1, 2020   - Code cleanup:
@@ -562,7 +562,7 @@
 //                                          - replaced header string suffixes '_1', '_2', '_SN', and '_CP' with '(1)', '(2)', '(SN)', and '(CP)' respectively
 //                                          - now header strings ending in '(1)' indicate the value is for Star_1, '(2) for Star_2, '(SN)' for the supernova, and '(CP)' the companion
 //                                      - Issue #351
-//                                          - moved flags RECYCLED_NS and RLOF_ONTO_NS fron SN_EVENT enum - now flags in BinaryConstiuentStar class
+//                                          - moved flags RECYCLED_NS and RLOF_ONTO_NS from SN_EVENT enum - now flags in BinaryConstiuentStar class
 //                                          - removed RUNAWAY flag from SN_EVENT enum - removed entirely from code (not required)
 //                                      - Issue #362
 //                                          - changed header strings for RZAMS (radius at ZAMS) to 'Radius@ZAMS' - now consistent with MZAMS (mass at ZAMS - 'Mass@ZAMS')
@@ -737,10 +737,10 @@
 //
 //                                      - Defect Repairs:
 //                                          - fixed issue #548 - HDF5 detailed output files not created when random-seed specified in a grid file
-//                                          - fixed defect where records in HDF5 output files would be duplicated if the number of systems exceeded the HDF5 chunck size
+//                                          - fixed defect where records in HDF5 output files would be duplicated if the number of systems exceeded the HDF5 chunk size
 //                                            being used (the default chunk size is 100000 - that might explain why this problem hasn't been reported)
 //
-//                                      Modified h5view.py (in postProcessing/Folders/H5/PythonScripts) to handle detailed ouput files
+//                                      Modified h5view.py (in postProcessing/Folders/H5/PythonScripts) to handle detailed output files
 // 02.19.02     LVS - May 04, 2021   - Defect Repairs:
 //                                      - Avoid possibility of exceeding total mass in Farmer PPISN prescription
 // 02.19.03     TW - May 18, 2021    - Enhancement:
@@ -857,9 +857,214 @@
 //                                      - Cleaned / updated ResolveEnvelopeLoss
 //                                      - Fixed issue with masses and types of remnants formed from stripped HG stars
 // 02.26.02     RTW - Dec 17, 2021   - Defect repair, Code cleanup:
-//                                      - Changed all occurences of PPOW(base, 1.0/3.0) with std::cbrt, as the former could not handle negative bases
-//                                      - Changed all occurences of sqrt with std::sqrt for consistency with the above change
+//                                      - Changed all occurrences of PPOW(base, 1.0/3.0) with std::cbrt, as the former could not handle negative bases
+//                                      - Changed all occurrences of sqrt with std::sqrt for consistency with the above change
+// 02.26.03     IM - Jan 10, 2022    - Defect repair, code cleanup:
+//                                      - Cleaned up treatment of HG donors having CONVECTIVE envelopes in LEGACY; fixed an issues with CEs from HG donors introduced in 02.25.01 
+// 02.27.00     ML - Jan 12, 2022    - Enhancements:
+//                                      - Add enhanced Nanjing lambda option that continuously extrapolates beyond radial range
+//                                      - Add Nanjing lambda option to switch between calculation using rejuvenated mass and true birth mass
+//                                      - Add Nanjing lambda mass and metallicity interpolation options
+//                                      - No change in default behaviour
+// 02.27.01     IM - Feb 3, 2022     - Defect repair:
+//                                      - Fixed condition for envelope type when using ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE (previously, almost all envelopes were incorrecctly declared radiative)
+// 02.27.02     IM - Feb 3, 2022     - Defect repair:
+//                                      - Fixed mass change on forced envelope loss in response to issue # 743
+// 02.27.03     JR - Feb 8, 2022     - Defect repair:
+//                                      - Fix for issue # 745 - logfile definition records not updated correctly when using logfile-definitions file (see issue for details)
+// 02.27.04     RTW - Feb 15, 2022   - Defect repair:
+//                                      - Fix for issue # 761 - USSNe not occurring. See issue for details.
+// 02.27.05     IRS - Feb 17, 2022   - Enhancements:
+//                                      - Add function HasOnlyOneOf, which returns true if a binary has only one component in the list of stellar types passed, and false if neither or both are in the list
+//                                      - Add function IsHMXRBinary, which returns true if HasOnlyOneOf(Black hole, Neutron star) and the companion radius is > 80% of the Roche Lobe radius
+//                                      - Add flag --hmxr-binaries, which tells COMPAS to store binaries in BSE_RLOF output file if IsHMXRBinary
+//                                      - Add columns for pre- and post-timestep ratio of stars to Roche Lobe radius to BSE_RLOF output file (addressing issue #746)
+//                                      - Changed variables named rocheLobeTracker, roche_lobe_tracker etc. to starToRocheLobeRadiusRatio, star_to_roche_lobe_radius_ratio, etc. for clarity
+// 02.27.06     SS - Apr 5, 2022     -  Defect repair:
+//                                      - Fixed StarTrack PPISN prescription, previously it was doing the same thing as the COMPAS PPISN prescription.
+// 02.27.07     RTW - Apr 5, 2022    - Defect repair:
+//                                      - Fix for issue # 773 - ONeWD not forming due to incorrect mass comparison in TPAGB. 
+// 02.27.08     RTW - Apr 12, 2022   - Defect repair:
+//                                      - Fix for issue # 783 - Some mergers involving a massive star were not logged properly in BSE_RLOF, whenever a jump in radius due to changing stellar type within ResolveMassChanges was much greater than the separation.
+// 02.27.09     VK - Apr 25, 2022    - Minor Enhancement:
+//                                      - Converted constant: MULLERMANDEL_SIGMAKICK into an option: --muller-mandel-sigma-kick
+// 02.28.00     Lvs - May 11, 2022   - Enhancements:
+//                                      - Introduced new remnant mass prescription: Fryer+ 2022, adding new options --fryer-22-fmix and --fryer-22-mcrit
+// 02.29.00     RTW - May 5, 2022    - Enhancement:
+//                                      - Fix for issue # 596 - New option to allow for H rich ECSN (defaults to false). This removes non-interacting ECSN progenitors from contributing to the single pulsar population.
+// 02.30.00     RTW - May 8, 2022    - Enhancement
+//                                      - Added MACLEOD_LINEAR specific angular momentum gamma loss prescription for stable mass transfer
+// 02.31.00     IM - May 14, 2022    - Enhancement
+//                                      - Added option retain-core-mass-during-caseA-mass-transfer to preserve a larger donor core mass following case A MT, set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of its MS lifetime
+//                                      - Code and comment cleaning
+// 02.31.01     RTW - May 16, 2022   - Defect repair:
+//                                      - Fixed help string for H rich ECSN option implemented in v2.29.99
+// 02.31.02     JR - May 18, 2022    - Defect repairs:
+//                                      - Fixed STAR_PROPERTY_LABEL entries in contsants.h for INITIAL_STELLAR_TYPE and INITIAL_STELLAR_TYPE_NAME - both missing the prefix "INITIAL_".
+//                                        Only caused a problem if a user wanted to add either of those to the logfile-definitions file - but since they are in the system parameters files (SSE and BSE)
+//                                        by default encountering the problem would probably be unlikely.
+//                                      - Fixed error identifier in Log::UpdateAllLogfileRecordSpecs() - was (incorrectly) ERROR::UNKNOWN_BINARY_PROPERTY, now (correctly) ERROR::UNKNOWN_STELLAR_PROPERTY 
+// 02.31.03     RTW - May 20, 2022   - Defect repair:
+//                                      - Fixed MS+MS unstable MT not getting flagged as a CEE
+// 02.31.04     RTW - June 10, 2022  - Enhancements
+//                                      - Fixed MT_TRACKER values to be clearer and complementary to each other
+//                                      - Updated the relevant section in the detailed plotter that uses MT_TRACKER values
+//                                      - Removed end states from detailed plotter (Merger, DCO, Unbound) so that they don't over compress the rest
+// 02.31.05     RTW - July 25, 2022  - Defect repair:
+//                                      - Renamed option '--allow-H-rich-ECSN' to 'allow-non-stripped-ECSN'
+//                                      - Fixed check for non-interacting ECSN progenitors to consider MT history instead of H-richness
+// 02.31.06     RTW - Aug 2, 2022    - Enhancement:
+//                                      - Added stellar merger to default BSE_RLOF output
+// 02.31.07     IM - August 1, 2022  - Defect repair:
+//                                      - Print to DetailedOutput after merger, addresses https://github.com/TeamCOMPAS/COMPAS/issues/825
+//                                      - Ensures no ONeWDs are formed with masses above Chandrasekhar mass
+//                                      - Minor comment tweaks and a bit of defensive programming
+// 02.31.08     RTW - Aug 3, 2022    - Enhancement:
+//                                      - Added Accretion Induced Collapse (AIC) of ONeWD as another type of SN
+// 02.31.09     RTW - Aug 9, 2022    - Enhancement:
+//                                      - Max evolution time and max number of timesteps now read in from gridline as well as commandline
+// 02.31.10     RTW - Aug 12, 2022   - Enhancement:
+//                                      - Added option to set the Temperature boundary between convective/radiative giant envelopes
+// 02.32.00     JR - Aug 27, 2022    - Enhancement & minor cleanup:
+//                                      - Add 'record type' functionality to all standard log files
+//                                      - Add/rationalise calls to PrintDetailedOutput() for binary systems
+//                                          - remove m_PrintExtraDetailedOutput variable (and associated code) from BaseBinaryStar class
+//                                      - Add new option for each standard log file to allow specification of which record types to print
+//                                          - see e.g. '--logfile-detailed-output-record-types'
+//                                      - Online documentation updated for record types and new options
+//                                      - Detailed ploter changed to work with record type column (thanks RTW)
+//                                      - Added new section to online documentation: 'What's new'
+//                                          - documented record types changes in this new section
+//                                      - Minor cleanup:
+//                                          - minor formatting and typo fixes (src + docs)
+//                                          - removed IncrementOmega() function from the BaseStar and Star classes (anti-patterm and no longer used - if it ever was)
+//                                          - tidied up description of MainSequence::UpdateMinimumCoreMass()
+// 02.33.00     RTW - Aug 13, 2022   - Enhancement:
+//                                      - Added critical mass ratios from Claeys+ 2014 for determining if MT is unstable
+//                                      - Cleaned up stability check functions in BaseBinaryStar.cpp for clarity, and to allow for critical mass ratios to be checked correctly
+// 02.33.01     RTW - Sep 26, 2022   - Defect repair:
+//                                      - Fixed interpolation of MACLEOD_LINEAR gamma for specific angular momentum. Previously interpolated on the gamma value, now interpolates in orbital separation
+// 02.33.02      IM - Nov 27, 2022   - Defect repair:
+//                                      - Fixed ignored value of input radius when computing the thermal timescale, relevant if using Roche lobe radius instead (issue #853)
+//                                      - Cleaned code and comments around the use of MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE vs. C_FACTOR (issue #850)
+// 02.34.00      IM - Nov 28, 2022   - Enhancement:
+//                                      - Adding framework for Hirai & Mandel 2-stage common envelope formalism
+//                                          (placeholders for now -- will have identical results to default version)
+//                                      - Placed Dewi CE prescription on parity with others
+// 02.34.01     RTW - Nov 30, 2022   - Defect repair:
+//                                      - Fixed Time<MT and Time>MT calls in BSE_RLOF. Previously, they were identical. Now, Time<MT correctly reflects the previous time.
+// 02.34.02     JR - Nov 30, 2022    - Defect repair:
+//                                      - Fixed problem with no content in switchlog files (issue #870 - introduced in v2.32.00).
+//                                      - Changed conditional statement in HG::ResolveEnvelopeLoss() and FGB::ResolveEnvelopeLoss() to be consistent with other stellar types ('>' -> '>=').
+// 02.34.03     NRS - Jan 9, 2023    - Defect repair:
+//                                      - Fixed units for post-CEE semi-major axis in CEE logs (issue #876).
+// 02.34.04     RTW - Jan 31, 2023   - Enhancement:
+//                                      - Added SN orbit inclination angle to BSE_SUPERNOVAE output
+// 02.34.05     JR - Jan 29, 2023    - Code cleanup:
+//                                      - Addressed issue #888 - replaced class variables m_LogMetallicityXi, m_LogMetallicitySigma, and m_LogMetallicityRho in BaseStar with getter functions.
+// 02.34.06     IM - Feb 1, 2023     - Bug fixes:
+//                                      - Re-enabled ResolveMassLoss() for Remnants so that Mdot is correctly reset
+//                                      - Set Mdot to 0 in BaseBinaryStar::CalculateWindsMassLoss() when winds are turned off while the binary is in mass trensfer
+//                                      - Removed Dutch winds for Remnants
+//                                      - Fixed typo in NS::CalculateLuminosityOnPhase_Static()
+//                                      - Minor code cleaning
+// 02.35.00     RTW - Dec 8, 2022    - Enhancement:
+//                                      - Added critical mass ratios from Ge+ 2020 for determining if MT is unstable
+// 02.35.01     RTW - Feb 12, 2022   - Enhancement:
+//                                      - Added post-SN orbital inclination vector to the output-able BINARY_PROPERTIES (not included in output, by default). 
+// 02.35.02     JR - Feb 19, 2023    - Minor change and defect repair:
+//                                      - Changed units of ROCHE_LOBE_RADIUS_1 and ROCHE_LOBE_RADIUS_2 from orbital separation to RSOL
+//                                      - Changed header string for ROCHE_LOBE_RADIUS_1 from "RocheLobe(1)|a" to "RocheLobe(1)" - ditto for ROCHE_LOBE_RADIUS_2
+//                                      - removed STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 ("Radius(1)|RL")and STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 ("Radius(2)|RL") from
+//                                        the default output for BSE_DETAILED_OUTPUT_REC (can be calculated from other values in the default output)
+//                                      - changed plot_detailed_evolution.py to accommodate the removal of STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 and 
+//                                        STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 from the default output
+//                                      - changed online documentation to reflect:
+//                                           (a) removal of STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1 and STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2 from the default output
+//                                           (b) change of header strings for ROCHE_LOBE_RADIUS_1 and ROCHE_LOBE_RADIUS_2 (units already (accidentally...) correct)
+//                                      - fixed minor defect in call to m_Accretor->CalculateMassAcceptanceRate() in BaseBinaryStar::CalculateMassTransfer()
+//                                        (only affected runs with mass-transfer-thermal-limit-accretor = RADIUS_TO_ROCHELOBE)
+// 02.35.03     LvS - Feb 27, 2023   - Enhancement:
+//                                      - Added mass accretion prescription during CE following model 2 from van Son + 2020
+// 02.36.00     JR - Mar 15, 2023    - Enhancement, minor defect repairs:
+//                                      - Addressed issue #797 - implemented functionality to create YAML file.  Two new options (--create-YAML-file and --YAML-template).  See documentation for details.
+//                                      - Modified runSubmit.py to work with new yaml file format (i.e. all options could be commented...)
+//                                      - Minor defect repairs in options code
+//                                      - Minor fixes to online documentation; also clarified make arguments
+// 02.36.01     JR - Mar 20, 2023    - Documentation:
+//                                      - Updated documentation for YAML files.
+//                                      - Modified YAML template to include notice regarding commented lines in default YAML file.
+// 02.37.00     NR,RTW - Mar 26, 2023 - Enhancement:
+//                                      - Added functionality for WDs to accrete in different regimes. 
+//                                          - This applies to each WD subtype individually, though there is some overlap between COWDs and ONeWDs.
+//                                          - Also involves tracking the WD shell mass, to account for shell burning that later increases the WD mass.
+//                                          - Includes possible instability, and merger if the donor is a giant, as well as new SN types, 
+//                                          - AIC (accretion induced collapse), SNIA (Type Ia), and HeSD (Helium shell detonation). 
+//                                      - Tangential but related changes:
+//                                          - Cleaned up the call to EddingtonCriticalRate, puttting it in BaseStar along with the optional prefactor.
+//                                          - Moved NS radius and luminosity calls into NS.h from elsewhere in the code.
+// 02.37.01     JR - Mar 27, 2023    - Defect repair:
+//                                      - Updated changelog.h and whats-new.rst to correctly reflect changes to the code and version numbers after a bad fix for merge conflicts
+//                                      - Changed "DD" to "HeSD" as appropriate
+//                                      - A couple of code-cleanups
+// 02.37.02     JR - Mar 27, 2023    - Defect repair:
+//                                      - Changed yaml.h to include <algorithm> and <chrono> - not including them causes docker build to fail.
+// 02.37.03     IM - Apr 8, 2023     - Defect repair:
+//                                      - Resolved issue #855 by using Mass0 rather than Mass to determine ages and timescales
+// 02.38.01     IM - Apr 16, 2023    - Enhancement:
+//                                      - Added option to eject the convective envelope by pulsations (ExpelConvectiveEnvelopeAboveLuminosityThreshold)
+//                                          if log10(m_Luminosity/m_Mass) exceeds LuminosityToMassThreshold
+// 02.38.02     NR - Apr 20, 2023    - Defect repair:
+//                                      - Added missing const in WD files which was generating warnings when compiling.
+//                                   - Enhancement:
+//                                      - Added QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK based on Hurley+ 2002 and its corresponding documentation.
+// 02.38.03     IM - Apr 20, 2023    - Enhancement:
+//                                      - Updated defaults following #957
+// 02.38.04     IM - Apr 20, 2023    - Enhancement:
+//                                      - Included Picker et al. (2023, in prep.) fits for the convective envelope mass in the TWO_STAGE common envelope treatment
+// 02.38.05     YS - May 10, 2023    - Updates and changes to NS.cpp:
+//                                      - Added NS::ChooseTimeStep(). Detailed time step description and reasoning can be found in NS.cpp
+//                                      - Added output options (not default): PULSAR_BIRTH_PERIOD and PULSAR_BIRTH_SPIN_DOWN_RATE, which output the birth spin period and period derivative of a pulsar
+//                                      - Updated codes on pulsar evolution, solving the problem of pulsars not evolving properly. This is written in cgs. 
+//                                      - Added NS::SpinDownIsolatedPulsar(), describes single pulsar spinning down with magnetic braking. 
+//                                          This is later used in NS::UpdateMagneticFieldAndSpin()
+//                                      - m_PulsarDetails.spinDownRate was described as Pdot (s s^-1), when it is in fact f-dot(rad s^-2). This is now corrected. 
+//                                      - In BSE_Pulsar_Evolution file, the pulsar parameters at birth were not recorded. 
+//                                          Pulsar was also evolved an additional time step here with unspecified size.
+//                                          Fix to this problem is done by setting the PULSAR_RECORD_TYPE:
+//                                           (a) if record_type = 1 (DEFAULT), these are the initial values of the pulsar set at birth
+//                                           (b) if record_type = 3 (POST_BINARY_TIMESTEP), these describe normal pulsar evolution
+//                                      - Another caveat:
+//                                         pulsar recycling mechanisms are not yet fully implemented, so COMPAS cannot produce MSPs for the time being; more updates to come.
+// 02.38.06     JR - Jun 04, 2023    - Defect repair:
+//                                      - Fixed "hides overloaded virtual function" warnings.
+//                                      - Added "-Woverloaded-virtual" to compiler flags to enable warnings for g++ on linux systems.
+// 02.38.07     JR - Jun 04, 2023    - Defect repair:
+//                                      - Fix for issue #958 - evolving unbound systems that contain two compact objects.  Also added BINARY_PROPERTY::UNBOUND 
+//                                        to BSE Detailed Output file default record.
+//                                      - Changed makefile to be POSIX compliant for .o suffix rule.  No need to change docker Makefile - it is already POSIX compliant.
+//                                         - since GNU Make 4.3 a warning is issued for suffix rules that include prerequisites - in our case the .o rule on line 125:
+//                                           "Makefile:125: warning: ignoring prerequisites on suffix rule definition" - and in future releases it will become an error.
+// 02.38.08     NRS - Jun 22, 2023   - Defect repair:
+//                                      - Changed documentation to  match default value of m_EvolveUnboundSystems (TRUE).
+//                                   - Enhancement:
+//                                      - Added --evolve-double-white-dwarfs option to allow evolution of DWD systems (FALSE by default).
+// 02.39.00     JR - Jul 04, 2023    - Enhancement, a little code cleanup:
+//                                      - Record and expose m_EvolutionStatus for both BaseStar and BaseBinaryStar as a variable available for selection
+//                                        for printing.  m_EvolutionStatus records the final evolution status - the reason evolution was stopped.  This was
+//                                        already printed to the console for each star or binary, and is now available to be recorded in the log files.
+//                                      - Add 'Evolution_Status' column to both SSE and BSE default system parameters records, and record m_EvolutionStatus there. 
+//                                      - Fixed a few typos, a little code cleanup.
+// 02.39.01     LC - Sep 01, 2023    - Defect repair:
+//                                      - Fix for issue #945 - made HeSD SN types a sub-class of SNIA types.
+// 02.40.00     JDM - Sep 29, 2023   - Enhancement:
+//                                      - Added 'FLEXIBLE2023' option to --mass-loss-prescription. Recover previous defaults via 'BELCZYNSKI2010' option. this applies the following prescriptions:
+//                                          - Added --OB-mass-loss program option.
+//                                          - Added --RSG-mass-loss.
+//                                          - Added --VMS-mass-loss.
+//                                          - Added --WR-mass-loss.
 
-const std::string VERSION_STRING = "02.26.02";
+const std::string VERSION_STRING = "02.40.00";
+
 
 # endif // __changelog_h__

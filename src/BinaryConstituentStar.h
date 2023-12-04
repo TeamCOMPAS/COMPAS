@@ -157,7 +157,7 @@ public:
     double          HeCoreMassAtCEE() const                                             { return m_CEDetails.HeCoreMass; }
 
     bool            IsRLOF() const                                                      { return m_RLOFDetails.isRLOF; }
-    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN(); }
+    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN() || IsAIC(); }
 
     double          LambdaAtCEE() const                                                 { return m_CEDetails.lambda; }
     double          LuminosityPostCEE() const                                           { return m_CEDetails.postCEE.luminosity; }
@@ -180,7 +180,7 @@ public:
     double          RadiusPostCEE() const                                               { return m_CEDetails.postCEE.radius; }
     double          RadiusPreCEE() const                                                { return m_CEDetails.preCEE.radius; }
     bool            RLOFPostCEE() const                                                 { return m_RLOFDetails.RLOFPostCEE; }
-    double          RocheLobeTracker(const double p_SemiMajorAxis, const double p_Eccentricity);
+    double          StarToRocheLobeRadiusRatio(const double p_SemiMajorAxis, const double p_Eccentricity);
 
     STELLAR_TYPE    StellarTypePostCEE() const                                          { return m_CEDetails.postCEE.stellarType; }
     STELLAR_TYPE    StellarTypePreCEE() const                                           { return m_CEDetails.preCEE.stellarType; }
@@ -195,7 +195,7 @@ public:
     void            SetCompanion(BinaryConstituentStar* p_Companion)                    { m_Companion = p_Companion; }                              // this star's companion star
 
     void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
-    void            SetMassTransferDiff(const double p_MassTransferDiff)                { m_MassTransferDiff = p_MassTransferDiff; }                // JR: todo: better way?  JR: todo:  sanity check?
+    void            SetMassTransferDiffAndResolveWDShellChange(const double p_MassTransferDiff);
 
     void            SetOrbitalEnergyPostSN(const double p_OrbitalEnergyPostSN)          { m_OrbitalEnergyPostSN = p_OrbitalEnergyPostSN; };
     void            SetOrbitalEnergyPreSN(const double p_OrbitalEnergyPreSN)            { m_OrbitalEnergyPreSN = p_OrbitalEnergyPreSN; };
@@ -221,6 +221,8 @@ public:
     void            SetPostCEEValues();
     void            SetPreCEEValues();
 
+    void            SetRocheLobeFlags(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
+
     COMPAS_VARIABLE StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
 
     void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
@@ -243,10 +245,8 @@ private:
     bool                    m_FirstMassTransferEpisode;             // Activated for the initial Mass Transfer Episode
 
     struct FLAGS {                                                  // Miscellaneous flags
-
         bool recycledNS;                                            // Indicate whether the accretor was a recycled neutron star
         bool rlofOntoNS;                                            // Indicates whether the donor donated mass to neutron star through RLOF
-
     }                       m_Flags;
 
     double                  m_MassLossDiff;
@@ -257,18 +257,15 @@ private:
     double                  m_OrbitalEnergyPostSN;
     double                  m_OrbitalEnergyPreSN;
 
-	StellarRLOFDetailsT     m_RLOFDetails;
+    StellarRLOFDetailsT     m_RLOFDetails;
 
 
     // the companion - set by calling SetCompanion()
-    BinaryConstituentStar *m_Companion;
+    BinaryConstituentStar  *m_Companion;
 
 
-	// member functions - alphabetically
-    double              CalculateMassAccretedForNS(const double p_CompanionMass, const double p_CompanionRadius);
-
-    void                SetRocheLobeFlags(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
-
+	// member functions - alphabetically 
+    double                  CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius) const;
 };
 
 #endif // __BinaryConstituentStar_h__

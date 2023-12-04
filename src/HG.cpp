@@ -2,7 +2,6 @@
 #include "HeMS.h"
 #include "HeWD.h"
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                     COEFFICIENT AND CONSTANT CALCULATIONS ETC.                    //
@@ -69,6 +68,300 @@ double HG::CalculateLambdaDewi() const {
 
 
 /*
+ * Calculate the common envelope lambda parameter using the enhanced "Nanjing" prescription
+ * from X.-J. Xu and X.-D. Li arXiv:1004.4957 (v1, 28Apr2010)
+ *
+ * This function good for HG and FGB stars.
+ *
+ *
+ * double CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
+ *
+ * @return                                      Nanjing lambda for use in common envelope
+ */
+double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const {
+
+	DBL_VECTOR maxBG    = {};                                                           // [0] = maxB, [1] = maxG
+	DBL_VECTOR lambdaBG = {};                                                           // [0] = lambdaB, [1] = lambdaG
+	DBL_VECTOR a        = {};                                                           // 0..5 a_coefficients
+	DBL_VECTOR b        = {};                                                           // 0..5 b_coefficients
+    double     Rmax     = std::numeric_limits<double>::max();                           // Upper R limit to applicability of Nanjing polynomials.
+
+    switch(p_Zind) {
+        // Pop. I metallicity
+        case 1:
+            switch(p_MassInd) {
+                case 0: {
+                    maxBG = { 2.5, 1.5 };
+                    Rmax = 200.0;
+                    double R_in = std::min(Rmax, m_Radius);
+                    if (utils::Compare(R_in, 2.7) > 0) {
+                        lambdaBG = { 2.33 - (R_in * 9.18E-03), 1.12 - (R_in * 4.59E-03) };
+                    }
+                    else {
+                        a = {  8.35897, -18.89048, 10.47651, 0.99352, 0.0, 0.0 };
+                        b = { 17.58328, -34.84355, 10.70536, 8.49042, 0.0, 0.0 };
+                    }
+                    break;
+                }
+                case 1:
+                    maxBG = { 4.0, 2.0 };
+                    Rmax = 340.0;
+                    a = { 2.05363, -0.00685, -3.42739E-04, 3.93987E-06, -1.18237E-08, 0.0 };
+                    b = { 1.07658, -0.01041, -4.90553E-05, 1.13528E-06, -3.91609E-09, 0.0 };
+                    break;
+                case 2:
+                    Rmax = 400.0;
+                    maxBG = { 2.5, 1.5 };
+                    a     = { 2.40831, -0.42459, 0.03431, -9.26879E-04, 8.24522E-06, 0.0 };
+                    b     = { 1.30705, -0.22924, 0.01847, -5.06216E-04, 4.57098E-06, 0.0 };
+                    break;
+                case 3:
+                    Rmax = 410.0;
+                    maxBG = { 2.5, 1.5 };
+                    a     = { 1.8186 , -0.17464, 0.00828, -1.31727E-04, 7.08329E-07, 0.0 };
+                    b     = { 1.02183, -0.1024 , 0.00493, -8.16343E-05, 4.55426E-07, 0.0 };
+                    break;
+                case 4:
+                    maxBG = { 1000.0, 8.0 };
+                    Rmax = 430.0;
+                    a = { 1.52581, -0.08125, 0.00219, -2.0527E-05 , 6.79169E-08, 0.0 };
+                    b = { 0.85723, -0.04922, 0.00137, -1.36163E-05, 4.68683E-08, 0.0 };
+                    break;
+                case 5:
+                    maxBG = { 25.5, 5.0 };
+                    Rmax = 440.0;
+                    a = { 1.41601, -0.04965, 8.51527E-04, -5.54384E-06, 1.32336E-08, 0.0 };
+                    b = { 0.78428, -0.02959, 5.2013E-04 , -3.45172E-06, 8.17248E-09, 0.0 };
+                    break;
+                case 6:
+                    maxBG = { 9.0, 3.0 };
+                    Rmax = 420.0;
+                    a = { 1.38344, -0.04093, 5.78952E-04, -3.19227E-06, 6.40902E-09, 0.0 };
+                    b = { 0.76009, -0.02412, 3.47104E-04, -1.92347E-06, 3.79609E-09, 0.0 };
+                    break;
+                case 7:
+                    maxBG = { 7.0, 3.0 };
+                    Rmax = 490.0;
+                    a = { 1.35516, -0.03414, 4.02065E-04, -1.85931E-06, 3.08832E-09, 0.0 };
+                    b = { 0.73826, -0.01995, 2.37842E-04, -1.09803E-06, 1.79044E-09, 0.0 };
+                    break;
+                case 8:
+                    maxBG = { 4.0, 2.0 };
+                    Rmax = 530.0;
+                    a = { 1.32549, -0.02845, 2.79097E-04, -1.07254E-06, 1.46801E-09, 0.0 };
+                    b = { 0.71571, -0.01657, 1.64607E-04, -6.31935E-07, 8.52082E-10, 0.0 };
+                    break;
+                case 9:
+                    Rmax = 600.0;
+                    maxBG = { 1.0, 0.6 };
+                    a     = { 1.29312, -0.02371, 1.93764E-04, -6.19576E-07, 7.04227E-10, 0.0 };
+                    b     = { 0.69245, -0.01398, 1.17256E-04, -3.81487E-07, 4.35818E-10, 0.0 };
+                    break;
+                case 10:
+                    maxBG = { 1.5, 1.0 };
+                    Rmax = 850.0;
+                    if (utils::Compare(m_Radius, 0.0) > 0 && utils::Compare(m_Radius, 350.0) <= 0) {
+                        a = { 1.28593, -0.02209, 1.79764E-04, -6.21556E-07, 7.59444E-10, 0.0 };
+                        b = { 0.68544, -0.01394, 1.20845E-04, -4.29071E-07, 5.29169E-10, 0.0 };
+                    }
+                    else if (utils::Compare(m_Radius, 350.0) > 0 && utils::Compare(m_Radius, 600.0) <= 0) {
+                        a = { -11.99537,  0.0992, -2.8981E-04,  3.62751E-07, -1.65585E-10, 0.0 };
+                        b = {   0.46156, -0.0066,  3.9625E-05, -9.98667E-08, -8.84134E-11, 0.0 };
+                    }
+                    else {
+                        a = { -58.03732, 0.23633, -3.20535E-04, 1.45129E-07, 0.0, 0.0 };
+                        b = { -15.11672, 0.06331, -8.81542E-05, 4.0982E-08 , 0.0, 0.0 };
+                    }
+                    break;
+                case 11:
+                    maxBG = { 1.5, 1.0 };
+                    Rmax = 1000.0;
+                    if (utils::Compare(m_Radius, 190.0) > 0 && utils::Compare(m_Radius, 600.0) < 0) lambdaBG = { 0.15, 0.15 };
+                    else {
+                        a = { 1.39332, -0.0318 , 3.95917E-04, -2.23132E-06, 4.50831E-09, 0.0 };
+                        b = { 0.78215, -0.02326, 3.25984E-04, -1.94991E-06, 4.08044E-09, 0.0 };
+                    }
+                    break;
+                case 12:
+                    maxBG = { 1.5, 1.0 };
+                    Rmax = 1050.0;
+                    if (utils::Compare(m_Radius, 120.0) > 0 && utils::Compare(m_Radius, 170.0) < 0) lambdaBG = { 0.2, 0.2 };
+                    else {
+                        a = { 1.43177, -0.03533, 5.11128E-04, -3.57633E-06, 9.36778E-09, 0.0 };
+                        b = { 0.85384, -0.03086, 5.50878E-04, -4.37671E-06, 1.25075E-08, 0.0 };
+                    }
+                    break;
+                case 13: {
+                    maxBG = { 1.5, 1.0 };
+                    Rmax = 1200.0;
+                    double R_in = std::min(Rmax, m_Radius);
+                    lambdaBG = { 1.2 * exp(-R_in / 90.0), 0.55 * exp(-R_in / 160.0) };
+                    break;
+                }
+                case 14:
+                    maxBG = { 1.0, 0.5 };
+                    a     = { 0.31321, -7.50384E-04, 5.38545E-07, -1.16946E-10, 0.0, 0.0 };
+                    b     = { 0.159  , -3.94451E-04, 2.88452E-07, -6.35132E-11, 0.0, 0.0 };
+                    break;
+                case 15:
+                    maxBG = { 1.0, 0.5 };
+                    a     = { 0.376 , -0.0018 , 2.81083E-06, -1.67386E-09, 3.35056E-13, 0.0 };
+                    b     = { 0.2466, -0.00121, 1.89029E-06, -1.12066E-09, 2.2258E-13 , 0.0 };
+                    break;
+                }
+                break;
+
+        // Pop. II metallicity
+        case 0:
+            switch(p_MassInd) {
+                case 0: {
+                    maxBG = { 2.0, 1.5 };
+                    Rmax = 160.0;
+                    double R_in = std::min(Rmax, m_Radius);
+                    if (utils::Compare(R_in, 12.0)  > 0) {
+                        lambdaBG = { 1.8 * exp(-R_in / 80.0), exp(-R_in / 45.0) };
+                    }
+                    else {
+                        a = { 0.24012, -0.01907, 6.09529E-04, -8.17819E-06, 4.83789E-08, -1.04568E-10 };
+                        b = { 0.15504, -0.01238, 3.96633E-04, -5.3329E-06 , 3.16052E-08, -6.84288E-11 };
+                    }
+                    break;
+                }
+                case 1:
+                    maxBG = { 4.0, 2.0 };
+                    Rmax = 350.0;
+                    if (utils::Compare(m_Radius, 22.0) > 0 && utils::Compare(m_Radius, 87.0) < 0) lambdaBG = { 1.95, 0.85 };
+                    else {
+                        a = { 2.56108, -0.75562, 0.1027 , -0.00495, 8.05436E-05, 0.0 };
+                        b = { 1.41896, -0.4266 , 0.05792, -0.00281, 4.61E-05   , 0.0 };
+                    }
+                    break;
+                case 2:
+                    maxBG = { 600.0, 2.0 };
+                    Rmax = 400.0;
+                    a = { 1.7814 , -0.17138, 0.00754, -9.02652E-05, 0.0, 0.0 };
+                    b = { 0.99218, -0.10082, 0.00451, -5.53632E-05, 0.0, 0.0 };
+                    break;
+                case 3:
+                    maxBG = { 600.0, 2.0 };
+                    Rmax = 410.0;
+                    a = { 1.65914, -0.10398, 0.0029 , -2.24862E-05, 0.0, 0.0 };
+                    b = { 0.92172, -0.06187, 0.00177, -1.42677E-05, 0.0, 0.0 };
+                    break;
+                case 4:
+                    maxBG = { 10.0, 3.0 };
+                    Rmax = 320.0;
+                    a = { 1.58701, -0.06897, 0.00129    , -6.99399E-06, 0.0, 0.0 };
+                    b = { 0.87647, -0.04103, 7.91444E-04, -4.41644E-06, 0.0, 0.0 };
+                    break;
+                case 5:
+                    maxBG = { 4.0, 1.5 };
+                    Rmax = 330.0;
+                    a = { 1.527  , -0.04738, 6.1373E-04 , -2.36835E-06, 0.0, 0.0 };
+                    b = { 0.83636, -0.02806, 3.73346E-04, -1.47016E-06, 0.0, 0.0 };
+                    break;
+                case 6:
+                    maxBG = { 2.5, 1.0 };
+                    Rmax = 360.0;
+                    a = { 1.49995, -0.03921, 4.2327E-04, -1.37646E-06, 0.0, 0.0 };
+                    b = { 0.81688, -0.02324, 2.5804E-04, -8.54696E-07, 0.0, 0.0 };
+                    break;
+                case 7:
+                    maxBG = { 2.0, 1.0 };
+                    Rmax = 400.0;
+                    a = { 1.46826, -0.03184, 2.85622E-04, -7.91228E-07, 0.0, 0.0 };
+                    b = { 0.79396, -0.01903, 1.77574E-04, -5.04262E-07, 0.0, 0.0 };
+                    break;
+                case 8:
+                    maxBG = { 1.6, 1.0 };
+                    Rmax = 440.0;
+                    a = { 1.49196, -0.03247, 3.08066E-04, -9.53247E-07, 0.0, 0.0 };
+                    b = { 0.805  , -0.02   , 2.01872E-04, -6.4295E-07 , 0.0, 0.0 };
+                    break;
+                case 9: {
+                    maxBG = { 1.6, 1.0 };
+                    Rmax = 500.0;
+                    double R_in = std::min(Rmax, m_Radius);
+                    lambdaBG = { 1.75 * exp(-R_in / 35.0), 0.9 * exp(-R_in /35.0) };
+                    break;
+                }
+                case 10:
+                    maxBG = { 1.6, 1.0 };
+                    Rmax = 600.0;
+                    a = { 1.63634, -0.04646, 7.49351E-04, -5.23622E-06, 0.0, 0.0 };
+                    b = { 1.17934, -0.08481, 0.00329    , -4.69096E-05, 0.0, 0.0 };
+                    break;
+                case 11:
+                    maxBG = { 1.6, 1.0 };
+                    Rmax = 650.0;
+                    a = { 1.45573, -0.00937, -0.00131,  3.07004E-05, 0.0, 0.0 };
+                    b = { 1.19526, -0.08503,  0.00324, -4.58919E-05, 0.0, 0.0 };
+                    break;
+                case 12:
+                    maxBG = { 1.5, 1.0 };
+                    Rmax = 750.0;
+                    a = { 1.33378,  0.01274, -0.00234,  4.6036E-05 , 0.0, 0.0 };
+                    b = { 1.17731, -0.07834,  0.00275, -3.58108E-05, 0.0, 0.0 };
+                    break;
+                case 13:
+                    maxBG = { 1.5, 1.0 };
+                    Rmax = 900.0;
+                    a = { 1.27138,  0.00538, -0.0012 ,  1.80776E-05, 0.0, 0.0 };
+                    b = { 1.07496, -0.05737,  0.00153, -1.49005E-05, 0.0, 0.0 };
+                    break;
+                case 14:
+                    maxBG = { 20.0, 3.0 };
+                    a     = { 0.821  , -0.00669, 1.57665E-05, -1.3427E-08 , 3.74204E-12, 0.0 };
+                    b     = { 0.49287, -0.00439, 1.06766E-05, -9.22015E-09, 2.58926E-12, 0.0 };
+                    break;
+                case 15:
+                    maxBG = { 4.0, 2.0 };
+                    a     = { 1.25332, -0.02065, 1.3107E-04 , -3.67006E-07, 4.58792E-10, -2.09069E-13 };
+                    b     = { 0.81716, -0.01436, 9.31143E-05, -2.6539E-07 , 3.30773E-10, -1.51207E-13 };
+                    break;
+            }
+            break;
+        }
+
+    if (lambdaBG.empty()) {
+        if ( (p_Zind == 1) && (p_MassInd == 0) ) {                        // Pop. I metallicity and M = 1 Msun
+            double x  = (m_Mass - m_CoreMass) / m_Mass;
+            double x2 = x * x;
+            double x3 = x2 * x;
+            double x4 = x2 * x2;
+            double x5 = x3 * x2;
+
+            double y1 = a[0] + (a[1] * x) + (a[2] * x2) + (a[3] * x3) + (a[4] * x4) + (a[5] * x5);
+            double y2 = b[0] + (b[1] * x) + (b[2] * x2) + (b[3] * x3) + (b[4] * x4) + (b[5] * x5);
+
+            lambdaBG = { 1.0 / y1, 1.0 / y2 };
+        }
+        else {
+            double x  = std::min(m_Radius, Rmax);
+            double x2 = x * x;
+            double x3 = x2 * x;
+            double x4 = x2 * x2;
+            double x5 = x3 * x2;
+
+            double y1 = a[0] + (a[1] * x) + (a[2] * x2) + (a[3] * x3) + (a[4] * x4) + (a[5] * x5);
+            double y2 = b[0] + (b[1] * x) + (b[2] * x2) + (b[3] * x3) + (b[4] * x4) + (b[5] * x5);
+
+            lambdaBG = { y1, y2 };
+        }
+    }
+
+    // Limit lambda to some 'reasonable' range
+    lambdaBG[1] = std::min( std::max(0.05, lambdaBG[1]), std::min(1.0, maxBG[1]) );         // clamp lambda G to [0.05, min(1,maxG)]
+    lambdaBG[0] = std::max( std::min(lambdaBG[0],maxBG[0]), std::max(0.05, lambdaBG[1]) );  // clamp lambda B to [ max(0.05,lambdaG), maxB]
+
+    // Calculate lambda as some combination of lambda_b and lambda_g by
+    // lambda = alpha_th • lambda_b    +  (1-alpha_th) • lambda_g
+    // STARTRACK uses alpha_th = 1/2
+    return (OPTIONS->CommonEnvelopeAlphaThermal() * lambdaBG[0]) + ((1.0 - OPTIONS->CommonEnvelopeAlphaThermal()) * lambdaBG[1]);
+}
+
+
+/*
  * Calculate the common envelope lambda parameter using the "Nanjing" prescription
  * from X.-J. Xu and X.-D. Li arXiv:1004.4957 (v1, 28Apr2010) as implemented in STARTRACK
  *
@@ -85,19 +378,19 @@ double HG::CalculateLambdaDewi() const {
  * This function good for HG and FGB stars.
  *
  *
- * double CalculateLambdaNanjing()
+ * double CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity)
  *
  * @return                                      Nanjing lambda for use in common envelope
  */
-double HG::CalculateLambdaNanjing() const {
+double HG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
 
 	DBL_VECTOR maxBG    = {};                                                           // [0] = maxB, [1] = maxG
 	DBL_VECTOR lambdaBG = {};                                                           // [0] = lambdaB, [1] = lambdaG
 	DBL_VECTOR a        = {};                                                           // 0..5 a_coefficients
 	DBL_VECTOR b        = {};                                                           // 0..5 b_coefficients
 
-    if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0) {                     // Z>0.5 Zsun: popI
-        if (utils::Compare(m_MZAMS, 1.5) < 0) {
+    if (utils::Compare(p_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0) {                     // Z>0.5 Zsun: popI
+        if (utils::Compare(p_Mass, 1.5) < 0) {
             maxBG = { 2.5, 1.5 };
                  if (utils::Compare(m_Radius, 200.0) > 0) lambdaBG = { 0.05, 0.05 };
             else if (utils::Compare(m_Radius, 2.7  ) > 0) lambdaBG = { 2.33 - (m_Radius * 9.18E-03), 1.12 - (m_Radius * 4.59E-03) };
@@ -106,7 +399,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 17.58328, -34.84355, 10.70536, 8.49042, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 2.5) < 0) {
+        else if (utils::Compare(p_Mass, 2.5) < 0) {
             maxBG = { 4.0, 2.0 };
             if (utils::Compare(m_Radius, 340.0) > 0) lambdaBG = { 3.589970, 0.514132 };
             else {
@@ -114,7 +407,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 1.07658, -0.01041, -4.90553E-05, 1.13528E-06, -3.91609E-09, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 3.5) < 0) {
+        else if (utils::Compare(p_Mass, 3.5) < 0) {
             maxBG = { 500.0, 10.0 };
             if (utils::Compare(m_Radius, 400.0) > 0) lambdaBG = { 116.935557, 0.848808 };
             else {
@@ -123,7 +416,7 @@ double HG::CalculateLambdaNanjing() const {
                 b     = { 1.30705, -0.22924, 0.01847, -5.06216E-04, 4.57098E-06, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 4.5) < 0) {
+        else if (utils::Compare(p_Mass, 4.5) < 0) {
             maxBG = { 1000.0, 8.0 };
             if (utils::Compare(m_Radius, 410.0) > 0) lambdaBG = { 52.980056, 1.109736 };
             else {
@@ -132,7 +425,7 @@ double HG::CalculateLambdaNanjing() const {
                 b     = { 1.02183, -0.1024 , 0.00493, -8.16343E-05, 4.55426E-07, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 5.5) < 0) {
+        else if (utils::Compare(p_Mass, 5.5) < 0) {
             maxBG = { 1000.0, 8.0 };
             if (utils::Compare(m_Radius, 430.0) > 0) lambdaBG = { 109.593522, 1.324248 };
             else {
@@ -140,7 +433,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.85723, -0.04922, 0.00137, -1.36163E-05, 4.68683E-08, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 6.5) < 0) {
+        else if (utils::Compare(p_Mass, 6.5) < 0) {
             maxBG = { 25.5, 5.0 };
             if (utils::Compare(m_Radius, 440.0) > 0) lambdaBG = { 16.279603, 1.352166 };
             else {
@@ -148,7 +441,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.78428, -0.02959, 5.2013E-04 , -3.45172E-06, 8.17248E-09, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 7.5) < 0) {
+        else if (utils::Compare(p_Mass, 7.5) < 0) {
             maxBG = { 9.0, 3.0 };
             if (utils::Compare(m_Radius, 420.0) > 0) lambdaBG = { 5.133959, 1.004036 };
             else {
@@ -156,7 +449,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.76009, -0.02412, 3.47104E-04, -1.92347E-06, 3.79609E-09, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 8.5) < 0) {
+        else if (utils::Compare(p_Mass, 8.5) < 0) {
             maxBG = { 7.0, 3.0 };
             if (utils::Compare(m_Radius, 490.0) > 0) lambdaBG = { 4.342985, 0.934659 };
             else {
@@ -164,7 +457,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.73826, -0.01995, 2.37842E-04, -1.09803E-06, 1.79044E-09, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 9.5) < 0) {
+        else if (utils::Compare(p_Mass, 9.5) < 0) {
             maxBG = { 4.0, 2.0 };
             if (utils::Compare(m_Radius, 530.0) > 0) lambdaBG = { 2.441672, 0.702310 };
             else {
@@ -172,7 +465,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.71571, -0.01657, 1.64607E-04, -6.31935E-07, 8.52082E-10, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 11.0) < 0) {
+        else if (utils::Compare(p_Mass, 11.0) < 0) {
             maxBG = { 3.0, 1.5 };
             if (utils::Compare(m_Radius, 600.0) > 0) lambdaBG = { 1.842314, 0.593854 };
             else {
@@ -181,7 +474,7 @@ double HG::CalculateLambdaNanjing() const {
                 b     = { 0.69245, -0.01398, 1.17256E-04, -3.81487E-07, 4.35818E-10, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 13.0) < 0) {
+        else if (utils::Compare(p_Mass, 13.0) < 0) {
             maxBG = { 1.5, 1.0 };
                  if (utils::Compare(m_Radius, 850.0) > 0) lambdaBG = { 0.392470, 0.176660 };
             else if (utils::Compare(m_Radius, 0.0) > 0 && utils::Compare(m_Radius, 350.0) <= 0) {
@@ -197,7 +490,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { -15.11672, 0.06331, -8.81542E-05, 4.0982E-08 , 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 15.0) < 0) {
+        else if (utils::Compare(p_Mass, 15.0) < 0) {
             maxBG = { 1.5, 1.0 };
                  if (utils::Compare(m_Radius, 1000.0) > 0)                                       lambdaBG = { 0.414200, 0.189008 };
             else if (utils::Compare(m_Radius, 190.0) > 0 && utils::Compare(m_Radius, 600.0) < 0) lambdaBG = { 0.15, 0.15 };
@@ -206,7 +499,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.78215, -0.02326, 3.25984E-04, -1.94991E-06, 4.08044E-09, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 18.0) < 0) {
+        else if (utils::Compare(p_Mass, 18.0) < 0) {
             maxBG = { 1.5, 1.0 };
                  if (utils::Compare(m_Radius, 1050.0) > 0)                                       lambdaBG = { 0.2, 0.1 };
             else if (utils::Compare(m_Radius, 120.0) > 0 && utils::Compare(m_Radius, 170.0) < 0) lambdaBG = { 0.2, 0.2 };
@@ -215,12 +508,12 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.85384, -0.03086, 5.50878E-04, -4.37671E-06, 1.25075E-08, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 35.0) < 0) {
+        else if (utils::Compare(p_Mass, 35.0) < 0) {
             maxBG = { 1.5, 1.0 };
             if (utils::Compare(m_Radius, 1200.0) > 0) lambdaBG = { 0.05, 0.05 };
             else                                      lambdaBG = { 1.2 * exp(-m_Radius / 90.0), 0.55 * exp(-m_Radius / 160.0) };
         }
-        else if (utils::Compare(m_MZAMS, 75.0) < 0) {
+        else if (utils::Compare(p_Mass, 75.0) < 0) {
             maxBG = { 1.0, 0.5 };
             a     = { 0.31321, -7.50384E-04, 5.38545E-07, -1.16946E-10, 0.0, 0.0 };
             b     = { 0.159  , -3.94451E-04, 2.88452E-07, -6.35132E-11, 0.0, 0.0 };
@@ -232,7 +525,7 @@ double HG::CalculateLambdaNanjing() const {
         }
     }
     else {                                                                  // Z<=0.5 Zsun: popI and popII
-        if (utils::Compare(m_MZAMS, 1.5) < 0) {
+        if (utils::Compare(p_Mass, 1.5) < 0) {
             maxBG = { 2.0, 1.5 };
                  if (utils::Compare(m_Radius, 160.0) > 0) lambdaBG = { 0.05, 0.05 };
             else if (utils::Compare(m_Radius, 12.0)  > 0) lambdaBG = { 1.8 * exp(-m_Radius / 80.0), exp(-m_Radius / 45.0) };
@@ -241,7 +534,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.15504, -0.01238, 3.96633E-04, -5.3329E-06 , 3.16052E-08, -6.84288E-11 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 2.5) < 0) {
+        else if (utils::Compare(p_Mass, 2.5) < 0) {
             maxBG = { 4.0, 2.0 };
                  if (utils::Compare(m_Radius, 350.0) > 0)                                      lambdaBG = { 2.868539, 0.389991 };
             else if (utils::Compare(m_Radius, 22.0) > 0 && utils::Compare(m_Radius, 87.0) < 0) lambdaBG = { 1.95, 0.85 };
@@ -250,7 +543,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 1.41896, -0.4266 , 0.05792, -0.00281, 4.61E-05   , 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 3.5) < 0) {
+        else if (utils::Compare(p_Mass, 3.5) < 0) {
             maxBG = { 600.0, 2.0 };
             if (utils::Compare(m_Radius, 400.0) > 0) lambdaBG = { 398.126442, 0.648560 };
             else {
@@ -258,7 +551,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.99218, -0.10082, 0.00451, -5.53632E-05, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 4.5) < 0) {
+        else if (utils::Compare(p_Mass, 4.5) < 0) {
             maxBG = { 600.0, 2.0 };
             if (utils::Compare(m_Radius, 410.0) > 0) lambdaBG = { 91.579093, 1.032432 };
             else {
@@ -266,7 +559,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.92172, -0.06187, 0.00177, -1.42677E-05, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 5.5) < 0) {
+        else if (utils::Compare(p_Mass, 5.5) < 0) {
             maxBG = { 10.0, 3.0 };
             if (utils::Compare(m_Radius, 320.0) > 0) lambdaBG = { 7.618019, 1.257919 };
             else {
@@ -274,7 +567,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.87647, -0.04103, 7.91444E-04, -4.41644E-06, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 6.5) < 0) {
+        else if (utils::Compare(p_Mass, 6.5) < 0) {
             maxBG = { 4.0, 1.5 };
             if (utils::Compare(m_Radius, 330.0) > 0) lambdaBG = { 2.390575, 0.772091 };
             else {
@@ -282,7 +575,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.83636, -0.02806, 3.73346E-04, -1.47016E-06, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 7.5) < 0) {
+        else if (utils::Compare(p_Mass, 7.5) < 0) {
             maxBG = { 2.5, 1.0 };
             if (utils::Compare(m_Radius, 360.0) > 0) lambdaBG = { 1.878174, 0.646353 };
             else {
@@ -290,7 +583,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.81688, -0.02324, 2.5804E-04, -8.54696E-07, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 8.5) < 0) {
+        else if (utils::Compare(p_Mass, 8.5) < 0) {
             maxBG = { 2.0, 1.0 };
             if (utils::Compare(m_Radius, 400.0) > 0) lambdaBG = { 1.517662, 0.553169 };
             else {
@@ -298,7 +591,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.79396, -0.01903, 1.77574E-04, -5.04262E-07, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 9.5) < 0) {
+        else if (utils::Compare(p_Mass, 9.5) < 0) {
             maxBG = { 1.6, 1.0 };
             if (utils::Compare(m_Radius, 440.0) > 0) lambdaBG = { 1.136394, 0.478963 };
             else {
@@ -306,12 +599,12 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 0.805  , -0.02   , 2.01872E-04, -6.4295E-07 , 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 11.0) < 0) {
+        else if (utils::Compare(p_Mass, 11.0) < 0) {
             maxBG = { 1.6, 1.0 };
             if (utils::Compare(m_Radius, 500.0) > 0) lambdaBG = { 1.068300, 0.424706 };
             else                                     lambdaBG = { 1.75 * exp(-m_Radius / 35.0), 0.9 * exp(-m_Radius /35.0) };
         }
-        else if (utils::Compare(m_MZAMS, 13.0) < 0) {
+        else if (utils::Compare(p_Mass, 13.0) < 0) {
             maxBG = { 1.6, 1.0 };
             if (utils::Compare(m_Radius, 600.0) > 0) lambdaBG = { 0.537155, 0.211105 };
             else {
@@ -319,7 +612,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 1.17934, -0.08481, 0.00329    , -4.69096E-05, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 15.0) < 0) {
+        else if (utils::Compare(p_Mass, 15.0) < 0) {
             maxBG = { 1.6, 1.0 };
             if (utils::Compare(m_Radius, 650.0) > 0) lambdaBG = { 0.3, 0.160696 };
             else {
@@ -327,7 +620,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 1.19526, -0.08503,  0.00324, -4.58919E-05, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 18.0) < 0) {
+        else if (utils::Compare(p_Mass, 18.0) < 0) {
             maxBG = { 1.5, 1.0 };
             if (utils::Compare(m_Radius, 750.0) > 0) lambdaBG = { 0.5, 0.204092 };
             else {
@@ -335,7 +628,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 1.17731, -0.07834,  0.00275, -3.58108E-05, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 35.0) < 0) {
+        else if (utils::Compare(p_Mass, 35.0) < 0) {
             maxBG = { 1.5, 1.0 };
             if (utils::Compare(m_Radius, 900.0) > 0) lambdaBG = { 0.2, 0.107914 };
             else {
@@ -343,7 +636,7 @@ double HG::CalculateLambdaNanjing() const {
                 b = { 1.07496, -0.05737,  0.00153, -1.49005E-05, 0.0, 0.0 };
             }
         }
-        else if (utils::Compare(m_MZAMS, 75.0) < 0) {
+        else if (utils::Compare(p_Mass, 75.0) < 0) {
             maxBG = { 20.0, 3.0 };
             a     = { 0.821  , -0.00669, 1.57665E-05, -1.3427E-08 , 3.74204E-12, 0.0 };
             b     = { 0.49287, -0.00439, 1.06766E-05, -9.22015E-09, 2.58926E-12, 0.0 };
@@ -356,7 +649,7 @@ double HG::CalculateLambdaNanjing() const {
     }
 
     if (lambdaBG.empty()) {                                                 // calculate lambda B & G - not approximated by hand
-        if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0 && utils::Compare(m_MZAMS, 1.5) < 0) {
+        if (utils::Compare(p_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0 && utils::Compare(p_Mass, 1.5) < 0) {
             double x  = (m_Mass - m_CoreMass) / m_Mass;
             double x2 = x * x;
             double x3 = x2 * x;
@@ -567,7 +860,8 @@ double HG::CalculateCoreMassAtPhaseEnd(const double p_Mass) const {
 /*
  * Calculate core mass on the Hertzsprung Gap
  *
- * Hurley et al. 2000, eq 30
+ *  If the star is losing mass, choose core mass as the maximum of the core mass
+ *  at the previous time-step and the value given by Hurley et al. 2000, eq 30 (see Section 7)
  *
  *
  * double CalculateCoreMassOnPhase(const double p_Mass, const double p_Time)
@@ -577,19 +871,37 @@ double HG::CalculateCoreMassAtPhaseEnd(const double p_Mass) const {
  * @return                                      Core mass on the Hertzsprung Gap in Msol
  */
 double HG::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const {
-#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
+    return std::max(HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(p_Mass, p_Time), m_CoreMass);
+
+}
+
+
+/*
+ * Calculate core mass on the Hertzsprung Gap without accounting for previous core mass
+ *
+ * This ignores the previous core mass constraint (see section 7 of Hurley et al. 2000) when computing the expected core mass,
+ * and just follows eq. 30.  This is useful for asking what the core mass would be for the given mass without considering
+ * that the core mass should not be allowed to drop -- used, e.g., in HG::UpdateInitialMass().
+ *
+ *
+ * double CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(const double p_Mass, const double p_Time)
+ *
+ * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Time                      Time after ZAMS in Myr (tBGB <= time <= tHeI)
+ * @return                                      Core mass on the Hertzsprung Gap in Msol
+ */
+double HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(const double p_Mass, const double p_Time) const {
+#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
+    
     double McEHG = CalculateCoreMassAtPhaseEnd(p_Mass);
     double rhoHG = CalculateRho(p_Mass);
     double tau   = (p_Time - timescales(tMS)) / (timescales(tBGB) - timescales(tMS));
-
-    // If the star is losing mass, choose core mass as the maximum of the core mass
-    // at the previous time-step and the value given by Hurley et al. 2000, eq 30
-    return std::max((((1.0 - tau) * rhoHG) + tau) * McEHG, m_CoreMass);
-
+    
+    return (((1.0 - tau) * rhoHG) + tau) * McEHG;
+    
 #undef timescales
 }
-
 
 /*
  * Calculate rejuvenation factor for stellar age based on mass lost/gained during mass transfer
@@ -616,7 +928,7 @@ double HG::CalculateMassTransferRejuvenationFactor() const {
             }
             break;
 
-        default:                                                        // unknow prescription - use default Hurley et al. 2000 prescription = 1.0
+        default:                                                        // unknown prescription - use default Hurley et al. 2000 prescription = 1.0
             SHOW_WARN(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION);     // show warning
     }
 
@@ -625,30 +937,27 @@ double HG::CalculateMassTransferRejuvenationFactor() const {
 
 
 /*
- * Determines if mass transfer produces a wet merger
+ * Determines if mass transfer is unstable according to the critical mass ratio.
  *
- * According to the mass ratio limit discussed by de Mink et al. 2013 and Claeys et al. 2014
+ * See e.g de Mink et al. 2013, Claeys et al. 2014, and Ge et al. 2010, 2015, 2020 for discussions.
  *
- * Assumes this star is the donor; relevant accretor details are passed as parameters
+ * Assumes this star is the donor; relevant accretor details are passed as parameters.
+ * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
  *
+ * double HG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) 
  *
- * bool IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate)
- *
- * @param   [IN]    p_AccretorMass              Mass of accretor in Msol
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
- * @return                                      Boolean indicating stability of mass transfer (true = unstable)
+ * @return                                      Critical mass ratio for unstable MT 
  */
-bool HG::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
+double HG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const {
 
-    bool result = false;                                                                                                    // default is stable
+    double qCrit;
 
-    if (OPTIONS->MassTransferCriticalMassRatioHG()) {
-        result = p_AccretorIsDegenerate
-                    ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGDegenerateAccretor()              // degenerate accretor
-                    : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHGNonDegenerateAccretor();          // non-degenerate accretor
-    }
-
-    return result;
+    qCrit = p_AccretorIsDegenerate
+                ? OPTIONS->MassTransferCriticalMassRatioHGDegenerateAccretor()              // degenerate accretor
+                : OPTIONS->MassTransferCriticalMassRatioHGNonDegenerateAccretor();          // non-degenerate accretor
+                                                                                                                        
+    return qCrit;
 }
 
 
@@ -690,10 +999,10 @@ double HG::CalculateTauOnPhase() const {
 void HG::UpdateAgeAfterMassLoss() {
 
     double tBGB      = m_Timescales[static_cast<int>(TIMESCALE::tBGB)];
-    double tBGBprime = CalculateLifetimeToBGB(m_Mass);
+    double tBGBprime = CalculateLifetimeToBGB(m_Mass0);
 
     double tMS       = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
-    double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass, tBGBprime);
+    double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass0, tBGBprime);
 
     m_Age = tMSprime + (((tBGBprime - tMSprime) / (tBGB - tMS)) * (m_Age - tMS));
 }
@@ -706,40 +1015,6 @@ void HG::UpdateAgeAfterMassLoss() {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-/*
- * Calculate the mass-radius response exponent Zeta
- *
- * Hurley et al. 2000, eqs 97 & 98
- *
- *
- * double CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription)
- *
- * @param   [IN]    p_ZetaPrescription          Prescription for computing ZetaStar
- * @return                                      mass-radius response exponent Zeta
- */
-double HG::CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) {
-    
-    double zeta = 0.0;                                              // default value
-    
-    // Use ZetaRadiativeEnvelopeGiant() for radiative envelope giant-like stars, CalculateZadiabatic for convective-envelope giants
-    switch (DetermineEnvelopeType()) {                           // which envelope?
-        case ENVELOPE::RADIATIVE:
-            zeta = OPTIONS->ZetaRadiativeEnvelopeGiant();
-            break;
-            
-        case ENVELOPE::CONVECTIVE:
-            zeta = CalculateZadiabatic(p_ZetaPrescription);
-            if (OPTIONS->EnvelopeStatePrescription() == ENVELOPE_STATE_PRESCRIPTION::LEGACY && StellarType() == STELLAR_TYPE::HERTZSPRUNG_GAP)
-                zeta = OPTIONS->ZetaRadiativeEnvelopeGiant();       // HG stars within LEGACY  prescription are hardcoded to use zeta=ZetaRadiativeEnvelopeGiant despite nominally being convective
-            break;
-            
-        default:                                                    // shouldn't happen
-            m_Error = ERROR::INVALID_TYPE_ZETA_CALCULATION;         // set error value
-            SHOW_ERROR(m_Error);                                    // warn that an error occurred
-    }
-    
-    return zeta;
-}
 
 /*
  * Determine the star's envelope type.
@@ -753,17 +1028,20 @@ double HG::CalculateZeta(ZETA_PRESCRIPTION p_ZetaPrescription) {
  */
 ENVELOPE HG::DetermineEnvelopeType() const {
  
-    ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                       // default envelope type is CONVECTIVE
+    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type is RADIATIVE
     
-    switch (OPTIONS->EnvelopeStatePrescription()) {                                                 // which envelope prescription?
+    switch (OPTIONS->EnvelopeStatePrescription()) {                                                  // which envelope prescription?
             
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
+            envelope = ENVELOPE::RADIATIVE;                                                          // default treatment
+            break;
+            
         case ENVELOPE_STATE_PRESCRIPTION::HURLEY:                                                   // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG; we approximate it as convective here
             envelope = ENVELOPE::CONVECTIVE;
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
-            envelope =  utils::Compare(Temperature() * TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            envelope =  utils::Compare(Temperature() * TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
             
         default:                                                                                    // unknown prescription - use default envelope type
@@ -820,7 +1098,7 @@ double HG::ChooseTimestep(const double p_Time) const {
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
- * @return                                      Stellar Type to which star shoule evolve after losing envelope
+ * @return                                      Stellar Type to which star should evolve after losing envelope
  */
 STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]              // for convenience and readability - undefined at end of function
@@ -828,13 +1106,14 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) > 0) {                  // envelope loss
+    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                  // envelope loss
+
+        m_Mass       = std::min(m_CoreMass, m_Mass);
 
         if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {                   // star evolves to Helium White Dwarf
 
             stellarType  = STELLAR_TYPE::HELIUM_WHITE_DWARF;
 
-            m_Mass       = m_CoreMass;
             m_Radius     = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
             m_Age        = 0.0;                                                 // see Hurley et al. 2000, discussion after eq 76
         }
@@ -842,13 +1121,11 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
             stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;
 
-            m_Mass       = m_CoreMass;
             m_Mass0      = m_Mass;
             m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);          
             m_Luminosity = HeMS::CalculateLuminosityAtZAMS_Static(m_Mass);
             m_Age        = 0.0;                                                 // can't use Hurley et al. 2000, eq 76 here - timescales(tHe) not calculated yet
         }
-
     }
 
     return stellarType;
@@ -892,7 +1169,7 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
  *
  */
 void HG::UpdateInitialMass() {
-    if (utils::Compare(m_CoreMass,HG::CalculateCoreMassOnPhase(m_Mass, m_Age)) < 0 ) {        //The current mass would yield a core mass larger than the current core mass -- i.e., no unphysical core mass decrease would ensue
+    if (utils::Compare(m_CoreMass,HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass, m_Age)) < 0 ) {        //The current mass would yield a core mass larger than the current core mass -- i.e., no unphysical core mass decrease would ensue
         m_Mass0 = m_Mass;
     }
 }

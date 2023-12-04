@@ -1,6 +1,5 @@
 #include <iostream>
 #include <stdarg.h>
-#include <fstream>
 #include <algorithm>
 #include <cstring>
 #include "profiling.h"
@@ -15,6 +14,43 @@
 namespace utils {
 
     // Alphabetical - so I can find them...
+
+     /*
+     * Iterative binary search
+     *
+     * For a given number x and a sorted array arr, return the lower and upper bin edges of x in arr.
+     *
+     *
+     * std::vector<int> binarySearch(const std::vector<double> p_Arr, const double p_x)
+     *
+     * @param   [IN]    p_Array             Sorted array to search over
+     * @param   [IN]    p_x                 Value to search for
+
+     * @return                              Vector containing indices of the lower and upper
+                                            bin edges containing x. If x < min(Arr), return
+                                            {-1, 0}. If x > max(Arr), return {0, -1}. If x
+                                            is equal to an array element, return index of that
+                                            element.
+     */
+    std::vector<int> binarySearch(const std::vector<double> p_Arr, const double p_x) {
+        int low = 0;
+        int up = p_Arr.size() - 1;
+        int mid = 0;
+
+        // If x is not within array limits...
+        if      (p_x < p_Arr[low]) { return {-1, 0}; }
+        else if (p_x > p_Arr[up])  { return {0, -1}; }
+
+        while(1) {
+            mid = roundl( 0.5*(up + low) );
+            if (std::abs(low - up) == 1) { return {low, low+1}; }    // arr(low) < x < arr(up), so return low
+            else if (p_x == p_Arr[low])  { return {low, low}; }      // arr(low) = x. In this case, return low = up
+            else if (p_x == p_Arr[up])   { return {up, up}; }        // arr(up) = x. In this case, return low = up
+            else if (p_x == p_Arr[mid])  { return {mid, mid}; }      // arr(mid) = x. In this case, return low = up = mid
+            else if (p_x < p_Arr[mid])   { up = mid; }               // Bring down upper bound
+            else                         { low = mid; }              // Bring up lower bound
+        }
+    }
 
 
     /*
@@ -315,7 +351,7 @@ namespace utils {
      * double intPow(const double p_Base, const int p_Exponent)
      *
      * @param   [IN]    p_Base              Base - number to be raised to integer power
-     * @param   [IN]    p_Exponent          Exponent - integer to wich base should be raised
+     * @param   [IN]    p_Exponent          Exponent - integer to which base should be raised
      * @return                              Base ^ Exponent
      */
     double intPow(const double p_Base, const int p_Exponent) {
@@ -461,7 +497,7 @@ namespace utils {
      * Determines if the string passed as p_Str is a valid DOUBLE
      *
      * In this context, to be a valid DOUBLE the string must convert to a
-     * double succussfully via the std::stod() function
+     * double successfully via the std::stod() function
      * 
      * 
      * int IsDOUBLE(const std::string p_Str)
@@ -493,7 +529,7 @@ namespace utils {
      * Determines if the string passed as p_Str is a valid FLOAT
      *
      * In this context, to be a valid FLOAT the string must convert to a
-     * double succussfully via the std::stof() function
+     * double successfully via the std::stof() function
      * 
      * 
      * int IsFLOAT(const std::string p_Str)
@@ -525,7 +561,7 @@ namespace utils {
      * Determines if the string passed as p_Str is a valid INT
      *
      * In this context, to be a valid INT the string must convert to an
-     * integer succussfully via the std::stoi() function
+     * integer successfully via the std::stoi() function
      * 
      * 
      * int IsINT(const std::string p_Str)
@@ -557,7 +593,7 @@ namespace utils {
      * Determines if the string passed as p_Str is a valid LONG DOUBLE
      *
      * In this context, to be a valid LONG DOUBLE the string must convert to a
-     * long double succussfully via the std::stold() function
+     * long double successfully via the std::stold() function
      * 
      * 
      * int IsLONGDOUBLE(const std::string p_Str)
@@ -589,7 +625,7 @@ namespace utils {
      * Determines if the string passed as p_Str is a valid LONG INT
      *
      * In this context, to be a valid LONG INT the string must convert to a
-     * long integer succussfully via the std::stol() function
+     * long integer successfully via the std::stol() function
      * 
      * 
      * int IsLONGINT(const std::string p_Str)
@@ -621,7 +657,7 @@ namespace utils {
      * Determines if the string passed as p_Str is a valid UNSIGNED LONG INT
      *
      * In this context, to be a valid UNSIGNED LONG INT the string must convert to a
-     * unsigned long integer succussfully via the std::stoul() function
+     * unsigned long integer successfully via the std::stoul() function
      * 
      * 
      * int IsULONGINT(const std::string p_Str)
@@ -675,7 +711,7 @@ namespace utils {
      *
      * @param   [IN]    p_Str                       String to be padded with leading "0"s
      * @param   [IN]    p_MaxLength                 The required length of the resultant string
-     * @return                                      String padded with leading "0"s - will be unchanged from input string if length alread >= required length
+     * @return                                      String padded with leading "0"s - will be unchanged from input string if length already >= required length
      */
     std::string PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength) {
         return (p_Str.length() < p_MaxLength) ? std::string(p_MaxLength - p_Str.length(), '0') + p_Str : p_Str;
@@ -692,7 +728,7 @@ namespace utils {
      *
      * @param   [IN]    p_Str                       String to be padded with trailing " "s
      * @param   [IN]    p_MaxLength                 The required length of the resultant string
-     * @return                                      String padded with leading "0"s - will be unchanged from input string if length alread >= required length
+     * @return                                      String padded with leading "0"s - will be unchanged from input string if length already >= required length
      */
     std::string PadTrailingSpaces(const std::string p_Str, const std::size_t p_MaxLength) {
         return (p_Str.length() < p_MaxLength) ? p_Str + std::string(p_MaxLength - p_Str.length(), ' ') : p_Str;
@@ -956,14 +992,14 @@ namespace utils {
                 thisMass = utils::InverseSampleFromPowerLaw(p_Power, p_Max, p_Min);
                 break;
 
-            case INITIAL_MASS_FUNCTION::UNIFORM:                                                                    // UNIFORM - convienience function for POWERLAW with slope of 0
+            case INITIAL_MASS_FUNCTION::UNIFORM:                                                                    // UNIFORM - convenience function for POWERLAW with slope of 0
 
                 thisMass = RAND->Random(p_Min, p_Max);
                 break;
 
             case INITIAL_MASS_FUNCTION::KROUPA:                                                                     // KROUPA
 
-                // find out where the user specificed their minimum and maximum masses to generate
+                // find out where the user specified their minimum and maximum masses to generate
                 if (utils::Compare(p_Min, KROUPA_BREAK_1) <= 0 && utils::Compare(p_Max, KROUPA_BREAK_1) <= 0) {
                     thisMass = utils::InverseSampleFromPowerLaw(KROUPA_POWER_1, p_Max, p_Min);                      // draw mass using inverse sampling
                 }
@@ -1239,6 +1275,9 @@ namespace utils {
      *    SN_EVENT::PISN  iff PISN  bit is set
      *    SN_EVENT::PPISN iff PPISN bit is set
      *    SN_EVENT::USSN  iff USSN  bit is set
+     *    SN_EVENT::AIC   iff AIC   bit is set
+     *    SN_EVENT::SNIA  iff SNIA  bit is set and HeSD bit is not set
+     *    SN_EVENT::HeSD  iff HeSD  bit is set
      *    SN_EVENT::NONE  otherwise
      * 
      *
@@ -1252,7 +1291,10 @@ namespace utils {
         if ((p_SNEvent & SN_EVENT::PISN )                   == SN_EVENT::PISN ) return SN_EVENT::PISN;
         if ((p_SNEvent & SN_EVENT::PPISN)                   == SN_EVENT::PPISN) return SN_EVENT::PPISN;
         if ((p_SNEvent & SN_EVENT::USSN )                   == SN_EVENT::USSN ) return SN_EVENT::USSN;
-        
+        if ((p_SNEvent & SN_EVENT::AIC  )                   == SN_EVENT::AIC  ) return SN_EVENT::AIC;
+        if ((p_SNEvent & (SN_EVENT::SNIA | SN_EVENT::HeSD)) == SN_EVENT::SNIA ) return SN_EVENT::SNIA;
+        if ((p_SNEvent & SN_EVENT::HeSD )                   == SN_EVENT::HeSD ) return SN_EVENT::HeSD;
+
         return SN_EVENT::NONE;
     }
 
