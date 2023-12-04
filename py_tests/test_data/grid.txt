@@ -1,0 +1,2 @@
+--initial-mass-1 35.0 --initial-mass-2 31.0 --metallicity 0.001 --eccentricity 0.000000e+00 --semi-major-axis 3.5 --kick-magnitude-1 0 --kick-magnitude-2 0
+--initial-mass-1 35.0 --initial-mass-2 31.0 --metallicity 0.001 --eccentricity 0.000000e+00 --semi-major-axis 3.5 --kick-magnitude-1 0 --kick-magnitude-2 0
