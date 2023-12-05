@@ -4,11 +4,11 @@ import pandas as pd
 
 
 ########################################################################
-# ## 
-# ## Function to print the data from a given COMPAS HDF5 group 
-# ## in a readable pandas template
-# ## 
-# #######################################################################
+### 
+### Function to print the data from a given COMPAS HDF5 group 
+### in a readable pandas template
+### 
+########################################################################
 
 def printCompasDetails(data, *seeds, mask=()):
     """
@@ -64,10 +64,10 @@ def printCompasDetails(data, *seeds, mask=()):
 
 
 ########################################################################
-# ## 
-# ## Get event histories of MT data, SN data, and combined MT, SN data
-# ## 
-# #######################################################################
+### 
+### Get event histories of MT data, SN data, and combined MT, SN data
+### 
+########################################################################
 
 def getMtEvents(MT):                                     
     """
@@ -230,9 +230,8 @@ def getEventHistory(h5file, exclude_null=False):
         seedsToIterate = allSeeds
         
     idxOrdered = np.argsort(seedsToIterate)
-    # set arrays of dummy value -1 
-    returnedSeeds = np.empty(seedsToIterate.shape)                          # array of seeds - will only contain seeds that have events (of any type)
-    returnedEvents = np.empty(seedsToIterate.shape)                         # array of seeds - will only contain seeds that have events (of any type)
+    returnedSeeds = [None] * np.size(seedsToIterate)                        # array of seeds - will only contain seeds that have events (of any type)
+    returnedEvents = [None] * np.size(seedsToIterate)                       # array of events - same size as returnedSeeds (includes event times)
 
     for idx in idxOrdered:
         seed = seedsToIterate[idx]
@@ -256,6 +255,7 @@ def getEventHistory(h5file, exclude_null=False):
         returnedEvents[idx] = seedEvents                                    # record the events for this seed in the events array being returned
 
     return returnedSeeds, returnedEvents                                    # see above for details
+
 
 
 ###########################################
