@@ -276,7 +276,6 @@ void Options::OptionValues::Initialise() {
     m_KickMagnitude                                                 = 0.0;
     m_KickMagnitude1                                                = 0.0;
     m_KickMagnitude2                                                = 0.0;                               
-    m_RocketKickMagnitude                                           = 0.0;
 
     m_MullerMandelKickBH                                            = MULLERMANDEL_KICKBH;
     m_MullerMandelKickNS                                            = MULLERMANDEL_KICKNS;
@@ -303,6 +302,13 @@ void Options::OptionValues::Initialise() {
     m_BlackHoleKicks.type                                           = BLACK_HOLE_KICKS::FALLBACK;
     m_BlackHoleKicks.typeString                                     = BLACK_HOLE_KICKS_LABEL.at(m_BlackHoleKicks.type);
 
+    // Rocket kicks
+    m_RocketKickMagnitude1                                          = 0.0;
+    m_RocketKickMagnitude2                                          = 0.0;
+    m_RocketKickPhi1  		                                        = 0.0;	
+    m_RocketKickPhi2  		                                        = 0.0;	
+    m_RocketKickTheta1		                                        = 0.0;	
+    m_RocketKickTheta2		                                        = 0.0;	
 
     // Chemically Homogeneous Evolution
     m_CheMode.type                                                  = CHE_MODE::PESSIMISTIC;
@@ -1198,11 +1204,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("The magnitude of the kick velocity, in km/s, that the secondary star receives during the supernova (default = " + std::to_string(p_Options->m_KickMagnitude2) + ")").c_str()
         )
         (
-            "rocket-kick-magnitude",                                          
-            po::value<double>(&p_Options->m_RocketKickMagnitude)->default_value(p_Options->m_RocketKickMagnitude),                                                      
-            ("The magnitude of the rocket kick velocity, in km/s, that neutron stars receive following the supernova (default = " + std::to_string(p_Options->m_RocketKickMagnitude) + ")").c_str()
-        )
-        (
             "kick-magnitude-max",                                          
             po::value<double>(&p_Options->m_KickMagnitudeDistributionMaximum)->default_value(p_Options->m_KickMagnitudeDistributionMaximum),                                                      
             ("Maximum drawn kick magnitude in km/s. Ignored if < 0. Must be > 0 if using kick-magnitude-distribution=FLAT (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionMaximum) + ")").c_str()
@@ -1462,6 +1463,37 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-minimum-magnetic-field",                               
             po::value<double>(&p_Options->m_PulsarLog10MinimumMagneticField)->default_value(p_Options->m_PulsarLog10MinimumMagneticField),                                                        
             ("Minimum pulsar magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarLog10MinimumMagneticField) + ")").c_str()
+        )
+
+        (
+            "rocket-kick-magnitude-1",
+            po::value<double>(&p_Options->m_RocketKickMagnitude1)->default_value(p_Options->m_RocketKickMagnitude1),
+            ("The magnitude of the rocket kick velocity, in km/s, that primary neutron star receives following the supernova (default = " + std::to_string(p_Options->m_RocketKickMagnitude1) + ")").c_str()
+        )
+        (
+            "rocket-kick-magnitude-2",
+            po::value<double>(&p_Options->m_RocketKickMagnitude2)->default_value(p_Options->m_RocketKickMagnitude2),
+            ("The magnitude of the rocket kick velocity, in km/s, that primary neutron star receives following the supernova (default = " + std::to_string(p_Options->m_RocketKickMagnitude2) + ")").c_str()
+        )
+        (
+            "rocket-kick-phi-1",
+            po::value<double>(&p_Options->m_RocketKickPhi1)->default_value(p_Options->m_RocketKickPhi1),
+            ("The in-plane angle [0, 2pi) of the rocket kick velocity that primary neutron star receives following the supernova (default = " + std::to_string(p_Options->m_RocketKickPhi1) + ")").c_str()
+        )
+        (
+            "rocket-kick-phi-2",
+            po::value<double>(&p_Options->m_RocketKickPhi2)->default_value(p_Options->m_RocketKickPhi2),
+            ("The in-plane angle [0, 2pi) of the rocket kick velocity that secondary neutron star receives following the supernova (default " + std::to_string(p_Options->m_RocketKickPhi2) + ")").c_str()
+        )
+        (
+            "rocket-kick-theta-1",
+            po::value<double>(&p_Options->m_RocketKickTheta1)->default_value(p_Options->m_RocketKickTheta1),
+            ("The polar angle [0, pi] of the rocket kick velocity that primary neutron star receives following the supernova. 0 is aligned with orbital AM (default = " + std::to_string(p_Options->m_RocketKickTheta1) + ")").c_str()
+        )
+        (
+            "rocket-kick-theta-2",
+            po::value<double>(&p_Options->m_RocketKickTheta2)->default_value(p_Options->m_RocketKickTheta2),
+            ("The polar angle [0, pi] of the rocket kick velocity that secondary neutron star receives following the supernova. 0 is aligned with orbital AM (default = " + std::to_string(p_Options->m_RocketKickTheta2) + ")").c_str()
         )
 
         (
@@ -2333,7 +2365,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_KickMagnitude  < 0.0, "Kick magnitude (--kick-magnitude) must be >= 0");
         COMPLAIN_IF(m_KickMagnitude1 < 0.0, "Kick magnitude (--kick-magnitude-1) must be >= 0");
         COMPLAIN_IF(m_KickMagnitude2 < 0.0, "Kick magnitude (--kick-magnitude-2) must be >= 0");
-        COMPLAIN_IF(m_RocketKickMagnitude < 0.0, "Rocket Kick magnitude (--rocket-kick-magnitude) must be >= 0");
+        COMPLAIN_IF(m_RocketKickMagnitude1 < 0.0, "Rocket Kick magnitude 1 (--rocket-kick-magnitude-1) must be >= 0");
+        COMPLAIN_IF(m_RocketKickMagnitude2 < 0.0, "Rocket Kick magnitude 2 (--rocket-kick-magnitude-2) must be >= 0");
 
         COMPLAIN_IF(m_KickMagnitudeRandom  < 0.0 || m_KickMagnitudeRandom  >= 1.0, "Kick magnitude random (--kick-magnitude-random) must be >= 0 and < 1");
         COMPLAIN_IF(m_KickMagnitudeRandom1 < 0.0 || m_KickMagnitudeRandom1 >= 1.0, "Kick magnitude random (--kick-magnitude-random-1) must be >= 0 and < 1");
@@ -4468,7 +4501,6 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::KICK_MAGNITUDE                                 : value = KickMagnitude();                                                      break;
         case PROGRAM_OPTION::KICK_MAGNITUDE_1                               : value = KickMagnitude1();                                                     break;
         case PROGRAM_OPTION::KICK_MAGNITUDE_2                               : value = KickMagnitude2();                                                     break;
-        case PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE                          : value = RocketKickMagnitude();                                                break;
 
         case PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM                          : value = KickMagnitudeRandom();                                                break;
         case PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_1                        : value = KickMagnitudeRandom1();                                               break;
@@ -4576,6 +4608,13 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::RANDOM_SEED_CMDLINE                            : value = RandomSeedCmdLine();                                                  break;
 
         case PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION                      : value = static_cast<int>(RemnantMassPrescription());                          break;
+
+        case PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1                        : value = RocketKickMagnitude1();                                               break;
+        case PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_2                        : value = RocketKickMagnitude2();                                               break;
+        case PROGRAM_OPTION::ROCKET_KICK_PHI_1                              : value = RocketKick_Phi1();                                                    break;
+        case PROGRAM_OPTION::ROCKET_KICK_PHI_2                              : value = RocketKick_Phi2();                                                    break;
+        case PROGRAM_OPTION::ROCKET_KICK_THETA_1                            : value = RocketKick_Theta1();                                                  break;
+        case PROGRAM_OPTION::ROCKET_KICK_THETA_2                            : value = RocketKick_Theta2();                                                  break;
 
         case PROGRAM_OPTION::ROTATIONAL_VELOCITY_DISTRIBUTION               : value = static_cast<int>(RotationalVelocityDistribution());                   break;
 

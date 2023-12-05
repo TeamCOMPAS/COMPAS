@@ -1063,8 +1063,10 @@
 //                                          - Added --RSG-mass-loss.
 //                                          - Added --VMS-mass-loss.
 //                                          - Added --WR-mass-loss.
+// 02.41.00     RTW - Nov 21, 2023   - Enhancement:
+//                                      - Added Hirai pulsar rocket kick, and related options
 
-const std::string VERSION_STRING = "02.40.00";
+const std::string VERSION_STRING = "02.41.00";
 
 
 # endif // __changelog_h__

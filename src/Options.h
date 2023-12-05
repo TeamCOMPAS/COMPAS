@@ -350,7 +350,6 @@ private:
         "kick-phi-2",
         "kick-theta-1",
         "kick-theta-2",
-        "rocket-kick-magnitude",
 
         //"logfile-be-binaries",
         //"logfile-be-binaries-record-types",
@@ -387,6 +386,13 @@ private:
         "rlof-printing",
         "rotational-frequency-1",
         "rotational-frequency-2",
+
+        "rocket-kick-magnitude-1",
+        "rocket-kick-magnitude-2",
+        "rocket-kick-phi-1", 
+        "rocket-kick-phi-2", 
+        "rocket-kick-theta-1",
+        "rocket-kick-theta-2",
 
         "semi-major-axis", "a",
         "semi-major-axis-distribution",
@@ -752,7 +758,6 @@ public:
             double                                              m_KickPhi2;                                                     // Angle between 'x' and 'y', both in the orbital plane of supernovae vector (rad) - BSE secondary star
             double                                              m_KickTheta1;                                                   // Angle between the orbital plane and the 'z' axis of supernovae vector (rad) - BSE primary star
             double                                              m_KickTheta2;                                                   // Angle between the orbital plane and the 'z' axis of supernovae vector (rad) - BSE secondar star
-            double                                              m_RocketKickMagnitude;                                          // Rocket kick magnitude - only for neutron stars
 
             double                                              m_MullerMandelKickBH;                                           // Multiplier for BH kicks per Mandel and Mueller, 2020
             double                                              m_MullerMandelKickNS;                                           // Multiplier for NS kicks per Mandel and Mueller, 2020
@@ -761,6 +766,14 @@ public:
             // Black hole kicks
             ENUM_OPT<BLACK_HOLE_KICKS>                          m_BlackHoleKicks;                                               // Which black hole kicks mode
 
+            // Rocket kicks
+            double                                              m_RocketKickMagnitude1;                                         // Rocket kick magnitude 1 - only for neutron stars
+            double                                              m_RocketKickMagnitude2;                                         // Rocket kick magnitude 1 - only for neutron stars
+            double                                              m_RocketKickPhi1;                                               // Rocket kick phi angle 1
+            double                                              m_RocketKickPhi2;                                               // Rocket kick phi angle 2
+            double                                              m_RocketKickTheta1;                                             // Rocket kick theta angle 1
+            double                                              m_RocketKickTheta2;                                             // Rocket kick theta angle 2
+                                                                                                                                
             // CHE - Chemically Homogeneous Evolution
             ENUM_OPT<CHE_MODE>                                  m_CheMode;                                                      // Which Chemically Homogeneous Evolution mode
 
@@ -1271,7 +1284,6 @@ public:
     double                                      KickMagnitude() const                                                   { return OPT_VALUE("kick-magnitude", m_KickMagnitude, true); }
     double                                      KickMagnitude1() const                                                  { return OPT_VALUE("kick-magnitude-1", m_KickMagnitude1, true); }
     double                                      KickMagnitude2() const                                                  { return OPT_VALUE("kick-magnitude-2", m_KickMagnitude2, true); }
-    double                                      RocketKickMagnitude() const                                             { return OPT_VALUE("rocket-kick-magnitude", m_RocketKickMagnitude, true); }
 
     double                                      KickMagnitudeRandom() const                                             { return OPT_VALUE("kick-magnitude-random", m_KickMagnitudeRandom, false); }
     double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, false); }
@@ -1443,6 +1455,13 @@ public:
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
     
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
+
+    double                                      RocketKickMagnitude1() const                                            { return OPT_VALUE("rocket-kick-magnitude-1", m_RocketKickMagnitude1, true); }
+    double                                      RocketKickMagnitude2() const                                            { return OPT_VALUE("rocket-kick-magnitude-2", m_RocketKickMagnitude2, true); }
+    double                                      RocketKick_Phi1() const                                                 { return OPT_VALUE("rocket-kick-phi-1", m_RocketKickPhi1, false); }
+    double                                      RocketKick_Phi2() const                                                 { return OPT_VALUE("rocket-kick-phi-2", m_RocketKickPhi2, false); }
+    double                                      RocketKick_Theta1() const                                               { return OPT_VALUE("rocket-kick-theta-1", m_RocketKickTheta1, false); }
+    double                                      RocketKick_Theta2() const                                               { return OPT_VALUE("rocket-kick-theta-2", m_RocketKickTheta2, false); }
 
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return OPT_VALUE("rotational-velocity-distribution", m_RotationalVelocityDistribution.type, true); }
     double                                      RotationalFrequency() const                                             { return OPT_VALUE("rotational-frequency", m_RotationalFrequency, true); }
