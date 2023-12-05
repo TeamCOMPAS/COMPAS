@@ -877,22 +877,20 @@ double EAGB::CalculateMassLossRateHurley() {
     double rateVW = CalculateMassLossRateVassiliadisWood();
     double rateWR = CalculateMassLossRateWolfRayet(m_Mu);
     double dominantRate;
+    m_DominantMassLossRate = MASS_LOSS_TYPE::GB;
 
     if (utils::Compare(rateNJ, rateKR) > 0) {
-        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
         dominantRate = rateNJ;
     } else {
-        m_DominantMassLossRate = MASS_LOSS_TYPE::KUDRITZKI_REIMERS;
         dominantRate = rateKR;
     }
 
     if (utils::Compare(rateVW, dominantRate) > 0) {
-        m_DominantMassLossRate = MASS_LOSS_TYPE::VASSILIADIS_WOOD;
         dominantRate = rateVW;
     }
 
     if (utils::Compare(rateWR, dominantRate) > 0) {
-        m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
         dominantRate = rateWR;
     }
     return dominantRate;
@@ -992,7 +990,7 @@ double EAGB::ChooseTimestep(const double p_Time) const {
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
- * @return                                      Stellar Type to which star shoule evolve after losing envelope
+ * @return                                      Stellar Type to which star should evolve after losing envelope
  */
 STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
@@ -1000,7 +998,9 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_HeCoreMass, m_Mass) >= 0) {              // Envelope lost, form an evolved naked helium giant
+    if(ShouldEnvelopeBeExpelledByPulsations())          { m_EnvelopeJustExpelledByPulsations = true; }
+
+    if (p_NoCheck || utils::Compare(m_HeCoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {              // Envelope lost, form an evolved naked helium giant
 
         m_Mass     = std::min(m_HeCoreMass, m_Mass);
         m_HeCoreMass  = m_Mass;
@@ -1021,7 +1021,7 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
 
         m_Age      = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
-        HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, m_LogMetallicityXi, m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams);  // IM: order of type change and parameter updates to be revisited (e.g., why not just CalculateGBParams(m_Mass0, m_GBParams)?)
+        HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, LogMetallicityXi(), m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams);  // IM: order of type change and parameter updates to be revisited (e.g., why not just CalculateGBParams(m_Mass0, m_GBParams)?)  JR: static function has no access to class variables
         m_Luminosity = HeGB::CalculateLuminosityOnPhase_Static(m_COCoreMass, gbParams(B), gbParams(D));
 
         double R1, R2;
@@ -1079,7 +1079,7 @@ bool EAGB::ShouldEvolveOnPhase() const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
 	double tDU = CalculateLifetimeTo2ndDredgeUp(timescales(tinf1_FAGB), timescales(tinf2_FAGB));
-    return (utils::Compare(m_Age, tDU) < 0 || utils::Compare(gbParams(McBAGB), MCBUR2) >= 0);
+    return ((utils::Compare(m_Age, tDU) < 0 || utils::Compare(gbParams(McBAGB), MCBUR2) >= 0) && !ShouldEnvelopeBeExpelledByPulsations());
 
 #undef gbParams
 #undef timescales

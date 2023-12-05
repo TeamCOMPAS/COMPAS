@@ -8,6 +8,28 @@
 #include <unordered_map>
 #include <fstream>
 
+// the defaults size of the boost list that handles variant types is 20 - so only 20 variant types are allowed
+// we've exceeded that number - we're at 21 currently - so the size of the boost list needs to be increased
+// we have to set the size of the list before we include the boost headers - otherwise boost redefines it
+// boost only recognises values of 20, 30, 40, & 50: for now we set it to 30. 
+#define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+  
+#if !defined(BOOST_MPL_LIMIT_LIST_SIZE)
+    #if defined(BOOST_MPL_LIST_HPP_INCLUDED)
+      # error "BOOST_MPL_LIMIT_LIST_SIZE must be set to accommodate the size of COMPAS_VARIABLE_TYPE before the including the Boost headers"
+    #endif
+
+    #define BOOST_MPL_LIMIT_LIST_SIZE 30
+
+#elif BOOST_MPL_LIMIT_LIST_SIZE < 30
+    #if defined(BOOST_MPL_LIST_HPP_INCLUDED)
+      # error "BOOST_MPL_LIMIT_LIST_SIZE must be set to accommodate the size of COMPAS_VARIABLE_TYPE before the including the Boost headers"
+    #else
+      # error "BOOST_MPL_LIMIT_LIST_SIZE value is too low"
+    #endif
+    
+#endif
+
 #include <boost/variant.hpp>
 
 
@@ -33,6 +55,7 @@ using HashType = typename std::conditional<std::is_enum<Key>::value, EnumClassHa
 
 template <typename Key, typename T>
 using COMPASUnorderedMap = std::unordered_map<Key, T, HashType<Key>>;
+
 
 
 // Bitwise operators for Enum Class - |, |=, &, &=, ^, ^=, ~ only
@@ -206,13 +229,16 @@ constexpr double JOULES_TO_ERG                          = 1.0E7;                
 constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
 constexpr double GAUSS_TO_TESLA                         = 1.0 / TESLA_TO_GAUSS;                                     // convert Gauss to Tesla
 
+// opacity
+constexpr double OPACITY_CGS_TO_SI                      = 0.1;                                                      // cm^2 g^-1 to m^2 kg^-1
+
 // constants
 
 constexpr double _2_PI                                  = M_PI * 2;                                                 // 2PI
-constexpr double SQRT_M_2_PI                            = 0.7978845608028653558798921198687637369517;               // sqrt(2/PI)
+constexpr double SQRT_M_2_PI                            = 0.79788456080286536;                                      // sqrt(2/PI)
 constexpr double DEGREE                                 = M_PI / 180.0;                                             // 1 degree in radians
 
-constexpr double GAMMA_E                                = 0.57721566490153286060651209008240243104215933593992;     // Euler's Constant (probably don't need so many digits after the decimal point...)
+constexpr double GAMMA_E                                = 0.57721566490153286;                                      // Euler's Constant
 
 constexpr double H0                                     = 67.8;                                                     // Hubble's Constant in km s^-1 Mpc^-1  (from plank approx 67.80±0.77) CPLB: Use WMAP value
 constexpr double H0SI                                   = H0 * 1000.0 / 3.0E22;                                     // Hubble's Constant in SI units, s^-1
@@ -227,7 +253,10 @@ constexpr double G_SOLAR_YEAR                           = 3.14E7;               
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
 constexpr double ZSOL_ASPLUND				            = 0.0142;						                            // Solar Metallicity (Asplund+ 2010) used in initial condition
+constexpr double LOG10_ZSOL                             = -1.69897;                                                 // log10(ZSOL) - for performance
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
+constexpr double LSOL                                   = 3.844E33;                                                 // Solar Luminosity in erg/s
+constexpr double LSOLW                                  = 3.844E26;                                                 // Solar luminosity (in W)
 
 constexpr double AU                                     = 149597870700.0;                                           // 1 AU (Astronomical Unit) in metres
 constexpr double KM                                     = 1000.0;                                                   // 1 km (Kilometre) in metres
@@ -257,12 +286,14 @@ constexpr double MCBUR2					                = 2.25;							                      
 
 constexpr double NJ_MINIMUM_LUMINOSITY                  = 4.0E3;                                                    // Minimum luminosity in Lsun needed for Nieuwenhuijzen & de Jager wind mass loss
 constexpr double VINK_MASS_LOSS_MINIMUM_TEMP            = 1.25E4;                                                   // Minimum temperature in K for Vink mass loss rates to be applied
+constexpr double VERY_MASSIVE_MINIMUM_MASS              = 100.0;                                                    // Minimum mass for applying Very Massive (VMS) mass rates to be applied
+constexpr double RSG_MAXIMUM_TEMP                       = 8.0E3;                                                    // Upper temperature in K for Red Supergiant (RSG) mass loss rates to be applied
 constexpr double VINK_MASS_LOSS_BISTABILITY_TEMP        = 2.5E4;                                                    // Temperature in K for bistability jump in Vink mass loss (assumed to be 25000K following Belczysnki+2010)
 constexpr double VINK_MASS_LOSS_MAXIMUM_TEMP            = 5.0E4;                                                    // Maximum temperature in K for Vink mass loss rates to be applied (show warning above this)
 constexpr double LBV_LUMINOSITY_LIMIT_STARTRACK         = 6.0E5;                                                    // STARTRACK LBV luminosity limit
 constexpr double LBV_LUMINOSITY_LIMIT_VANBEVEREN        = 3.0E5;                                                    // VANBEVEREN LBV luminosity limit
 
-constexpr double CONVECTIVE_BOUNDARY_TEMPERATURE        = 5.3703E3;                                                 // Threshold temperature for the star to develop a convective envelope, in Kelvin (10^3.73 K, from Belczynski+, 2008)
+constexpr double CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI = 5.37E3;                                               // Threshold temperature for the star to develop a convective envelope, in Kelvin (10^3.73 K, from Belczynski+, 2008)
 
 constexpr double ABSOLUTE_MINIMUM_TIMESTEP              = 100.0 / SECONDS_IN_MYR;                                   // 100 seconds expressed in Myr (3.1688765E-12 Myr)
 constexpr double NUCLEAR_MINIMUM_TIMESTEP               = 1.0E-6;                                                   // Minimum time step for nuclear evolution = 1 year expressed in Myr
@@ -289,15 +320,17 @@ constexpr double NEWTON_RAPHSON_EPSILON                 = 1.0E-5;               
 
 constexpr double EPSILON_PULSAR                         = 1.0;                                                      // JR: todo: description
 
-constexpr double MIN_HMXRB_STAR_TO_ROCHE_LOBE_RADIUS_RATIO  = 0.8;                                                      // Minimum value of stellar radius | Roche Lobe radius for visible HMXRBs
+constexpr double MIN_HMXRB_STAR_TO_ROCHE_LOBE_RADIUS_RATIO  = 0.8;                                                  // Minimum value of stellar radius | Roche Lobe radius for visible HMXRBs
 
 constexpr double ADAPTIVE_RLOF_FRACTION_DONOR_GUESS     = 0.001;                                                    // Fraction of donor mass to use as guess in MassLossToFitInsideRocheLobe()
 constexpr int    ADAPTIVE_RLOF_MAX_ITERATIONS           = 50;                                                       // Maximum number of iterations in MassLossToFitInsideRocheLobe()
 constexpr double ADAPTIVE_RLOF_SEARCH_FACTOR            = 2.0;                                                      // Search factor in MassLossToFitInsideRocheLobe()
+constexpr int    ADAPTIVE_MASS0_MAX_ITERATIONS          = 50;                                                       // Maximum number of iterations in Mass0ToMatchDesiredCoreMass()
+constexpr double ADAPTIVE_MASS0_SEARCH_FACTOR           = 2.0;                                                      // Search factor in Mass0ToMatchDesiredCoreMass()
 constexpr double FARMER_PPISN_UPP_LIM_LIN_REGIME        = 38.0;                                                     // Maximum CO core mass to result in the linear remnant mass regime of the FARMER PPISN prescription
 constexpr double FARMER_PPISN_UPP_LIM_QUAD_REGIME       = 60.0;                                                     // Maximum CO core mass to result in the quadratic remnant mass regime of the FARMER PPISN prescription
 constexpr double FARMER_PPISN_UPP_LIM_INSTABILLITY      = 140.0;                                                    // Maximum CO core mass to result in PI (upper edge of PISN gap) from FARMER PPISN prescription
-
+constexpr double STARTRACK_PPISN_HE_CORE_MASS           = 45.0;                                                     // Helium core mass remaining following PPISN as assumed in StarTrack (Belczynski et al. 2017 https://arxiv.org/abs/1607.03116)
 
 
 // logging constants
@@ -312,6 +345,69 @@ const std::string RUN_DETAILS_FILE_NAME                 = "Run_Details";        
 constexpr int    HDF5_DEFAULT_CHUNK_SIZE                = 100000;                                                   // default HDF5 chunk size (number of dataset entries)
 constexpr int    HDF5_DEFAULT_IO_BUFFER_SIZE            = 1;                                                        // number of HDF5 chunks to buffer for IO (per open dataset)
 constexpr int    HDF5_MINIMUM_CHUNK_SIZE                = 1000;                                                     // minimum HDF5 chunk size (number of dataset entries)
+
+// Logfile record types
+// Note all enum classes for log record types start at 1 (and *must* start at 1)
+typedef unsigned int LOGRECORDTYPE;
+
+enum class BE_BINARY_RECORD_TYPE: unsigned int {                                                                    // BSE_BE_BINARIES file record type
+    DEFAULT = 1                                                                                                     // 1 - default BSE_BE_BINARIES file record type
+};
+
+enum class CE_RECORD_TYPE: unsigned int {                                                                           // BSE_COMMON_ENVELOPES file record type
+    DEFAULT = 1                                                                                                     // 1 - default BSE_COMMON_ENVELOPES file record type
+};
+
+enum class DCO_RECORD_TYPE: unsigned int {                                                                          // BSE_DOUBLE_COMPACT_OBJECTS file record type
+    DEFAULT = 1                                                                                                     // 1 - default BSE_DOUBLE_COMPACT_OBJECTS file record type
+};
+
+enum class PULSAR_RECORD_TYPE: unsigned int {                                                                       // BSE_PULSAR_EVOLUTION file record type
+    DEFAULT = 1,                                                                                                    //  1 - record describes the initial state of the binary
+    POST_BINARY_TIMESTEP                                                                                            //  3 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
+};
+
+enum class RLOF_RECORD_TYPE: unsigned int {                                                                         // BSE_RLOF_PARAMETERS file record type
+    DEFAULT = 1                                                                                                     // 1 - default BSE_RLOF_PARAMETERS file record type
+};
+
+enum class BSE_DETAILED_RECORD_TYPE: unsigned int {                                                                 // BSE_DETAILED_OUTPUT file record type
+    INITIAL_STATE = 1,                                                                                              //  1 - record describes the initial state of the binary
+    POST_STELLAR_TIMESTEP,                                                                                          //  2 - record was logged immediately following stellar timestep (i.e. the evolution of the constituent stars for a single timestep)
+    POST_BINARY_TIMESTEP,                                                                                           //  3 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
+    TIMESTEP_COMPLETED,                                                                                             //  4 - record was logged immediately following the completion of the timestep (after all changes to the binary and components)
+    FINAL_STATE,                                                                                                    //  5 - record describes the final state of the binary
+    STELLAR_TYPE_CHANGE_DURING_CEE,                                                                                 //  6 - record was logged immediately following a stellar type change during a common envelope event
+    STELLAR_TYPE_CHANGE_DURING_MT,                                                                                  //  7 - record was logged immediately following a stellar type change during a mass transfer event
+    STELLAR_TYPE_CHANGE_DURING_MASS_RESOLUTION,                                                                     //  8 - record was logged immediately following a stellar type change during mass resolution
+    STELLAR_TYPE_CHANGE_DURING_CHE_EQUILIBRATION,                                                                   //  9 - record was logged immediately following a stellar type change during mass equilibration for CHE
+    POST_MT,                                                                                                        // 10 - record was logged immediately following a mass transfer event
+    POST_WINDS,                                                                                                     // 11 - record was logged immediately following winds mass loss
+    POST_CEE,                                                                                                       // 12 - record was logged immediately following a common envelope event
+    POST_SN,                                                                                                        // 13 - record was logged immediately following a supernova event
+    POST_MASS_RESOLUTION,                                                                                           // 14 - record was logged immediately following mass resolution (i.e. after winds mass loss & mass transfer complete)
+    POST_MASS_RESOLUTION_MERGER                                                                                     // 15 - record was logged immediately following a merger after mass resolution
+};
+
+enum class SSE_DETAILED_RECORD_TYPE: unsigned int {                                                                 // SSE_DETAILED_OUTPUT file record type
+    DEFAULT = 1                                                                                                     // 1 - default SSE_DETAILED_OUTPUT record type
+};
+
+enum class BSE_SN_RECORD_TYPE: unsigned int {                                                                       // BSE_SUPERNOVAE file record type
+    DEFAULT = 1                                                                                                     // 1 - default BSE_SUPERNOVAE file record type
+};
+
+enum class SSE_SN_RECORD_TYPE: unsigned int {                                                                       // SSE_SUPERNOVAE file record type
+    DEFAULT = 1                                                                                                     // 1 - default SSE_SUPERNOVAE file record type
+};
+
+enum class BSE_SYSPARMS_RECORD_TYPE: unsigned int {                                                                 // BSE_SYSTEM_PARAMETERS file record type
+    DEFAULT = 1                                                                                                     // 1 - default BSE_SYSTEM_PARAMETERS file record type
+};
+
+enum class SSE_SYSPARMS_RECORD_TYPE: unsigned int {                                                                 // SSE_SYSTEM_PARAMETERS file record type
+    DEFAULT = 1                                                                                                     // 1 - default SSE_SYSTEM_PARAMETERS file record type
+};
 
 // option constraints
 // Use these constant to specify constraints that should be applied to program option values
@@ -351,12 +447,12 @@ constexpr double KROUPA_BREAK_1                         = 0.08;
 constexpr double KROUPA_BREAK_2                         = 0.5;
 
 // Some values that are really constants
-constexpr double KROUPA_BREAK_1_PLUS1_1                 = 0.1706722802578593435430149987533206236794;               // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_1);
-constexpr double KROUPA_BREAK_1_PLUS1_2                 = 2.1334035032232417942876874844165077959929;               // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_2);
+constexpr double KROUPA_BREAK_1_PLUS1_1                 = 0.17067228025785934;                                      // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_1);
+constexpr double KROUPA_BREAK_1_PLUS1_2                 = 2.13340350322324179;                                      // pow(KROUPA_BREAK_1, KROUPA_POWER_PLUS1_2);
 constexpr double KROUPA_BREAK_1_POWER_1_2               = 0.08;                                                     // pow(KROUPA_BREAK_1, (KROUPA_POWER_1 - KROUPA_POWER_2));
 
-constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.2311444133449162844993930691677431098761;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_2);
-constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.4622888266898325689987861383354862197522;               // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
+constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.23114441334491628;                                      // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_2);
+constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.46228882668983257;                                      // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
 constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_3));
 
 // Constants for the Muller and Mandel remnant mass and kick prescriptions
@@ -376,10 +472,31 @@ constexpr double MULLERMANDEL_MUBH                    	= 0.8;
 constexpr double MULLERMANDEL_SIGMABH                   = 0.5;
 constexpr double MULLERMANDEL_MINNS                     = 1.13;
 constexpr double MULLERMANDEL_MAXNS                     = 2.0;
-constexpr double MULLERMANDEL_KICKNS                    = 400.0;
+constexpr double MULLERMANDEL_KICKNS                    = 520.0;                                                    // As calibrated by Kapil+ 2023
 constexpr double MULLERMANDEL_KICKBH                    = 200.0;
 constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3; 
 
+// Constants for WD evolution 
+
+constexpr double COWD_LOG_MDOT_MIN_OFF_CENTER_IGNITION  = -5.688246139;                                             // Minimum log mass accretion rate for off center ignition in a CO WD. From Wang+ 2017. Log( 2.05 x 10^-6). 
+constexpr double COWD_MASS_MIN_OFF_CENTER_IGNITION      = 1.33;                                                     // Minimum mass required for off center ignition, as shown in Wang, Podsiadlowski & Han (2017), sect 3.2.
+constexpr double HEWD_HE_MDOT_CRIT                      = 2.0E-8;                                                   // Critical accretion rate for He WD accreting He-rich material. From Belczynski+ 2008, Mdot_crit2 in section 5.7.1.
+constexpr double HEWD_MINIMUM_MASS_IGNITION             = 0.35;                                                     // Minimum mass for HeMS burning
+constexpr double MASS_DOUBLE_DETONATION_CO              = 0.9;                                                      // Minimum mass for detonation which would yield something similar to SN Ia. Ruiter+ 2014.
+constexpr double Q_HYDROGEN_BURNING                     = 6.4E18 * MSOL_TO_G / (SECONDS_IN_YEAR * LSOL);            // 6.4E18 is the energy yield of H burning in erg/g as given in Nomoto+ 2007 (2007ApJ...663.1269N)
+constexpr double WD_HE_SHELL_MCRIT_DETONATION           = 0.05;                                                     // Minimum shell mass of He for detonation. Should be composed of helium (so, exclude burnt material), but not implemented yet. Ruiter+ 2014.
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0      = -6.84;
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1      = 1.349;
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_0      = -8.115;
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_1      = 2.29;
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_0      = -8.313;
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_1      = 1.018;
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0      = -8.33017155;
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1      = 2.88247131;
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2      = -0.98023471;
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_0        = -9.21757267;
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_1        = 3.57319872;
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_2        = -1.2137735;
 
 // object types
 enum class OBJECT_TYPE: int { NONE, MAIN, PROFILING, UTILS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR };    //  if BASE_STAR, check STELLAR_TYPE
@@ -453,7 +570,6 @@ enum class ERROR: int {
     GRID_OPTIONS_ERROR,                                             // grid file options error
     HIGH_TEFF_WINDS,                                                // winds being used at high temperature
     INVALID_DATA_TYPE,                                              // invalid data type
-    INVALID_EDDINGTION_FACTOR,                                      // invalid OPTION value: Eddington Accretion Factor eddingtonAccretionFactor < 0.0
     INVALID_ENVELOPE_TYPE,                                          // invalid envelope type
     INVALID_INITIAL_ATTRIBUTES,                                     // initial values of stellar or binary attributes are not valid - can't evolve star or binary
     INVALID_MASS_TRANSFER_DONOR,                                    // mass transfer from NS, BH or Massless Remnant
@@ -462,8 +578,9 @@ enum class ERROR: int {
     INVALID_TYPE_MT_MASS_RATIO,                                     // invalid stellar type for mass ratio calculation
     INVALID_TYPE_MT_THERMAL_TIMESCALE,                              // invalid stellar type for thermal timescale calculation
     INVALID_TYPE_ZETA_CALCULATION,                                  // invalid stellar type for Zeta calculation
-    INVALID_VALUE_FOR_BOOLEAN_OPTION,                               // invalid valuse specified for boolean option
+    INVALID_VALUE_FOR_BOOLEAN_OPTION,                               // invalid values specified for boolean option
     LAMBDA_NOT_POSITIVE,                                            // lambda is <= 0.0 - invalid
+    LOW_GAMMA,                                                      // very massive mass-loss prescription being extrapolated to low gamma (<0.5)
     LOW_TEFF_WINDS,                                                 // winds being used at low temperature
     MASS_NOT_POSITIVE_ONCE,                                         // mass is <= 0.0 - invalid
     MAXIMUM_MASS_LOST,                                              // (WARNING) maximum mass lost during mass loss calculations
@@ -474,7 +591,7 @@ enum class ERROR: int {
     NO_LAMBDA_NANJING,                                              // Nanjing lambda calculation not supported for stellar type
     NO_REAL_ROOTS,                                                  // equation has no real roots
     NOT_INITIALISED,                                                // object not initialised
-    OPTION_NOT_SUPPORTED_IN_GRID_FILE,                              // option not suppoted in grid file
+    OPTION_NOT_SUPPORTED_IN_GRID_FILE,                              // option not supported in grid file
     OUT_OF_BOUNDS,                                                  // value out of bounds
     PROGRAM_OPTIONS_ERROR,                                          // program options error
     RADIUS_NOT_POSITIVE,                                            // radius is <= 0.0 - invalid
@@ -484,6 +601,7 @@ enum class ERROR: int {
     STELLAR_SIMULATION_STOPPED,                                     // stellar simulation stopped
     SUGGEST_HELP,                                                   // suggest using --help
     TIMESTEP_BELOW_MINIMUM,                                         // timestep too small - below minimum
+    TOO_MANY_MASS0_ITERATIONS,                                      // too many iterations in MASS0 root finder
     TOO_MANY_RLOF_ITERATIONS,                                       // too many iterations in RLOF root finder
     UNEXPECTED_END_OF_FILE,                                         // unexpected end of file
     UNEXPECTED_LOG_FILE_TYPE,                                       // unexpected log file type
@@ -494,6 +612,7 @@ enum class ERROR: int {
     UNKNOWN_BINARY_PROPERTY,                                        // unknown binary property
     UNKNOWN_CASE_BB_STABILITY_PRESCRIPTION,                         // unknown case BB/BC mass transfer stability prescription
     UNKNOWN_CE_ACCRETION_PRESCRIPTION,                              // unknown common envelope accretion prescription
+    UNKNOWN_CE_FORMALISM,                                           // unknown common envelope formalism
     UNKNOWN_CE_LAMBDA_PRESCRIPTION,                                 // unknown common envelope Lambda Prescription
     UNKNOWN_DATA_TYPE,                                              // unknown data type
     UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                            // unknown envelope state prescription
@@ -517,6 +636,7 @@ enum class ERROR: int {
     UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,               // unknown pulsar birth magnetic field distribution
     UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                  // unknown pulsar birth spin period distribution
     UNKNOWN_Q_DISTRIBUTION,                                         // unknown q-distribution
+    UNKNOWN_QCRIT_PRESCRIPTION,                                     // unknown critical mass ratio prescription
     UNKNOWN_REMNANT_MASS_PRESCRIPTION,                              // unknown remnant mass prescription
     UNKNOWN_SN_ENGINE,                                              // unknown supernova engine
     UNKNOWN_SN_EVENT,                                               // unknown supernova event encountered
@@ -528,7 +648,8 @@ enum class ERROR: int {
     UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,           // unsupported pulsar birth magnetic field distribution
     UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,              // unsupported pulsar birth spin period distribution
     UNSUPPORTED_MT_PRESCRIPTION,                                    // unsupported mass transfer prescription
-    WARNING                                                         // unspecified warning
+    WARNING,                                                        // unspecified warning
+    WHITE_DWARF_TOO_MASSIVE                                         // a white dwarf exceeds the Chandrasekhar mass limit
 };
 
 
@@ -589,7 +710,6 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::GRID_OPTIONS_ERROR,                                    { ERROR_SCOPE::ALWAYS,              "Grid File Options error" }},
     { ERROR::HIGH_TEFF_WINDS,                                       { ERROR_SCOPE::ALWAYS,              "Winds being used at high temperature" }},
     { ERROR::INVALID_DATA_TYPE,                                     { ERROR_SCOPE::ALWAYS,              "Invalid data type" }},
-    { ERROR::INVALID_EDDINGTION_FACTOR,                             { ERROR_SCOPE::ALWAYS,              "Invalid OPTION value: Eddington Accretion Factor eddingtonAccretionFactor < 0.0" }},
     { ERROR::INVALID_ENVELOPE_TYPE,                                 { ERROR_SCOPE::ALWAYS,              "Invalid envelope type" }},
     { ERROR::INVALID_INITIAL_ATTRIBUTES,                            { ERROR_SCOPE::ALWAYS,              "Initial attributes are not valid - evolution not possible" }},
     { ERROR::INVALID_MASS_TRANSFER_DONOR,                           { ERROR_SCOPE::ALWAYS,              "Mass transfer from NS, BH, or Massless Remnant" }},
@@ -597,9 +717,10 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::INVALID_TYPE_EDDINGTON_RATE,                           { ERROR_SCOPE::ALWAYS,              "Invalid stellar type for Eddington critical rate calculation" }},
     { ERROR::INVALID_TYPE_MT_MASS_RATIO,                            { ERROR_SCOPE::ALWAYS,              "Invalid stellar type for mass ratio calculation" }},
     { ERROR::INVALID_TYPE_MT_THERMAL_TIMESCALE,                     { ERROR_SCOPE::ALWAYS,              "Invalid stellar type for thermal timescale calculation" }},
-    { ERROR::INVALID_TYPE_ZETA_CALCULATION,                         { ERROR_SCOPE::ALWAYS,              "Invalid stellar tyoe for Zeta calculation" }},
+    { ERROR::INVALID_TYPE_ZETA_CALCULATION,                         { ERROR_SCOPE::ALWAYS,              "Invalid stellar type for Zeta calculation" }},
     { ERROR::INVALID_VALUE_FOR_BOOLEAN_OPTION,                      { ERROR_SCOPE::ALWAYS,              "Invalid value specified for BOOLEAN option" }},
     { ERROR::LAMBDA_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Lambda <= 0.0" }},
+    { ERROR::LOW_GAMMA,                                             { ERROR_SCOPE::ALWAYS,              "Very massive prescription being extrapolated to low gamma (<0.5)" }},
     { ERROR::LOW_TEFF_WINDS,                                        { ERROR_SCOPE::ALWAYS,              "Winds being used at low temperature" }},
     { ERROR::MASS_NOT_POSITIVE_ONCE,                                { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Mass <= 0.0" }},
     { ERROR::MAXIMUM_MASS_LOST,                                     { ERROR_SCOPE::ALWAYS,              "Maximum mass lost during mass loss calculations" }},
@@ -621,6 +742,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
     { ERROR::SUGGEST_HELP,                                          { ERROR_SCOPE::ALWAYS,              "Use option '-h' (or '--help') to see (descriptions of) available options" }},
     { ERROR::TIMESTEP_BELOW_MINIMUM,                                { ERROR_SCOPE::ALWAYS,              "Timestep below minimum - timestep taken" }},
+    { ERROR::TOO_MANY_MASS0_ITERATIONS,                             { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when looking for effective initial mass Mass_0 to match desired stellar core of HG star following case A mass transfer" }},
     { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::UNEXPECTED_END_OF_FILE,                                { ERROR_SCOPE::ALWAYS,              "Unexpected end of file" }},
     { ERROR::UNEXPECTED_LOG_FILE_TYPE,                              { ERROR_SCOPE::ALWAYS,              "Unexpected log file type" }},
@@ -631,6 +753,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_BINARY_PROPERTY,                               { ERROR_SCOPE::ALWAYS,              "Unknown binary property - property details not found" }},
     { ERROR::UNKNOWN_CASE_BB_STABILITY_PRESCRIPTION,                { ERROR_SCOPE::ALWAYS,              "Unknown case BB/BC mass transfer stability prescription" }},
     { ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown common envelope accretion prescription" }},
+    { ERROR::UNKNOWN_CE_FORMALISM,                                  { ERROR_SCOPE::ALWAYS,              "Unknown common envelope formalism" }},
     { ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown common envelope lambda prescription" }},
     { ERROR::UNKNOWN_DATA_TYPE,                                     { ERROR_SCOPE::ALWAYS,              "Unknown data type" }},
     { ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown envelope state prescription" }},
@@ -653,6 +776,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,      { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth magnetic field distribution" }},
     { ERROR::UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,         { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth spin period distribution" }},
     { ERROR::UNKNOWN_Q_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown q-distribution" }},
+    { ERROR::UNKNOWN_QCRIT_PRESCRIPTION,                            { ERROR_SCOPE::ALWAYS,              "Unknown critical mass ratio prescription" }},
     { ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown remnant mass prescription" }},
     { ERROR::UNKNOWN_SN_ENGINE,                                     { ERROR_SCOPE::ALWAYS,              "Unknown supernova engine" }},
     { ERROR::UNKNOWN_SN_EVENT,                                      { ERROR_SCOPE::ALWAYS,              "Unknown supernova event" }},
@@ -664,50 +788,52 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,  { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth magnetic field distribution" }},
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,     { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth spin period distribution" }},
     { ERROR::UNSUPPORTED_ZETA_PRESCRIPTION,                         { ERROR_SCOPE::ALWAYS,              "Unsupported stellar Zeta prescription" }},
-    { ERROR::WARNING,                                               { ERROR_SCOPE::ALWAYS,              "Warning!" }}
+    { ERROR::WARNING,                                               { ERROR_SCOPE::ALWAYS,              "Warning!" }},
+    { ERROR::WHITE_DWARF_TOO_MASSIVE,                               { ERROR_SCOPE::ALWAYS,              "This white dwarf exceeds the Chandrasekhar mass limit" }}
 };
 
 
-// Binary evolution status constants
+// Evolution status constants
 enum class EVOLUTION_STATUS: int {
-    DONE,
     CONTINUE,
+    DONE,
     ERROR,
+    TIMES_UP,
+    STEPS_UP,
     SSE_ERROR,
     BINARY_ERROR,
-    MASSLESS_REMNANT,
+    DCO_MERGER_TIME,
     STARS_TOUCHING,
     STELLAR_MERGER,
     STELLAR_MERGER_AT_BIRTH,
-    UNBOUND,
+    DCO,
     WD_WD,
-    TIMES_UP,
-    STEPS_UP,
-    STOPPED
+    MASSLESS_REMNANT,
+    UNBOUND
 };
 
 // JR: deliberately kept these messages succinct (where I could) so running status doesn't scroll off the page...
 const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL = {
-    { EVOLUTION_STATUS::DONE,                        "Simulation completed" },
-    { EVOLUTION_STATUS::CONTINUE,                    "Continue evolution" },
-    { EVOLUTION_STATUS::ERROR,                       "An error occurred" },
-    { EVOLUTION_STATUS::SSE_ERROR,                   "SSE error for one of the constituent stars" },
-    { EVOLUTION_STATUS::BINARY_ERROR,                "Error evolving binary" },
-    { EVOLUTION_STATUS::MASSLESS_REMNANT,            "Massless Remnant formed" },
-    { EVOLUTION_STATUS::STARS_TOUCHING,              "Stars touching" },
-    { EVOLUTION_STATUS::STELLAR_MERGER,              "Stars merged" },
-    { EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH,     "Stars merged at birth" },
-    { EVOLUTION_STATUS::UNBOUND,                     "Unbound binary" },
-    { EVOLUTION_STATUS::WD_WD,                       "Double White Dwarf" },
-    { EVOLUTION_STATUS::TIMES_UP,                    "Allowed time exceeded" },
-    { EVOLUTION_STATUS::STEPS_UP,                    "Allowed timesteps exceeded" },
-    { EVOLUTION_STATUS::STOPPED,                     "Evolution stopped" }
+    { EVOLUTION_STATUS::CONTINUE,                "Continue evolution" },
+    { EVOLUTION_STATUS::DONE,                    "Simulation completed" },
+    { EVOLUTION_STATUS::ERROR,                   "Evolution stopped because an error occurred" },
+    { EVOLUTION_STATUS::TIMES_UP,                "Allowed time exceeded" },
+    { EVOLUTION_STATUS::STEPS_UP,                "Allowed timesteps exceeded" },
+    { EVOLUTION_STATUS::SSE_ERROR,               "SSE error for one of the constituent stars" },
+    { EVOLUTION_STATUS::BINARY_ERROR,            "Error evolving binary" },
+    { EVOLUTION_STATUS::DCO_MERGER_TIME,         "Time exceeded DCO merger (formation + coalescence) time" },
+    { EVOLUTION_STATUS::STARS_TOUCHING,          "Stars touching" },
+    { EVOLUTION_STATUS::STELLAR_MERGER,          "Stars merged" },
+    { EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH, "Stars merged at birth" },
+    { EVOLUTION_STATUS::DCO,                     "DCO formed" },
+    { EVOLUTION_STATUS::WD_WD,                   "Double White Dwarf formed" },
+    { EVOLUTION_STATUS::MASSLESS_REMNANT,        "Massless Remnant formed" },
+    { EVOLUTION_STATUS::UNBOUND,                 "Unbound binary" }
 };
 
 
 // Evolution mode (SSE or BSE)
 enum class EVOLUTION_MODE: int { SSE, BSE };
-
 const COMPASUnorderedMap<EVOLUTION_MODE, std::string> EVOLUTION_MODE_LABEL = {
     { EVOLUTION_MODE::SSE, "SSE" },
     { EVOLUTION_MODE::BSE, "BSE" }
@@ -735,27 +861,28 @@ const COMPASUnorderedMap<BRAY_ELDRIDGE_CONSTANT, double> BRAY_ELDRIDGE_CONSTANT_
 
 enum class CASE_BB_STABILITY_PRESCRIPTION: int{ ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE };
 const COMPASUnorderedMap<CASE_BB_STABILITY_PRESCRIPTION, std::string> CASE_BB_STABILITY_PRESCRIPTION_LABEL = {
-    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE,              "ALWAYS_STABLE" },
-    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH,    "ALWAYS_STABLE_ONTO_NSBH" },
-    { CASE_BB_STABILITY_PRESCRIPTION::TREAT_AS_OTHER_MT,          "TREAT_AS_OTHER_MT" },
-    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE,            "ALWAYS_UNSTABLE" }
+    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE,           "ALWAYS_STABLE" },
+    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH, "ALWAYS_STABLE_ONTO_NSBH" },
+    { CASE_BB_STABILITY_PRESCRIPTION::TREAT_AS_OTHER_MT,       "TREAT_AS_OTHER_MT" },
+    { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE,         "ALWAYS_UNSTABLE" }
 };
 
 // Common Envelope Accretion Prescriptions
-enum class CE_ACCRETION_PRESCRIPTION: int { ZERO, CONSTANT, UNIFORM, MACLEOD };
+enum class CE_ACCRETION_PRESCRIPTION: int { ZERO, CONSTANT, UNIFORM, MACLEOD, CHEVALIER };
 const COMPASUnorderedMap<CE_ACCRETION_PRESCRIPTION, std::string> CE_ACCRETION_PRESCRIPTION_LABEL = {
-    { CE_ACCRETION_PRESCRIPTION::ZERO,     "ZERO" },
-    { CE_ACCRETION_PRESCRIPTION::CONSTANT, "CONSTANT" },
-    { CE_ACCRETION_PRESCRIPTION::UNIFORM,  "UNIFORM" },
-    { CE_ACCRETION_PRESCRIPTION::MACLEOD,  "MACLEOD" }
+    { CE_ACCRETION_PRESCRIPTION::ZERO,      "ZERO" },
+    { CE_ACCRETION_PRESCRIPTION::CONSTANT,  "CONSTANT" },
+    { CE_ACCRETION_PRESCRIPTION::UNIFORM,   "UNIFORM" },
+    { CE_ACCRETION_PRESCRIPTION::MACLEOD,   "MACLEOD" },
+    { CE_ACCRETION_PRESCRIPTION::CHEVALIER, "CHEVALIER" }
 };
 
 // Envelope State Prescriptions
 enum class ENVELOPE_STATE_PRESCRIPTION: int { LEGACY, HURLEY, FIXED_TEMPERATURE };
 const COMPASUnorderedMap<ENVELOPE_STATE_PRESCRIPTION, std::string> ENVELOPE_STATE_PRESCRIPTION_LABEL = {
-    { ENVELOPE_STATE_PRESCRIPTION::LEGACY,              "LEGACY" },
-    { ENVELOPE_STATE_PRESCRIPTION::HURLEY,              "HURLEY" },
-    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE,   "FIXED_TEMPERATURE" }
+    { ENVELOPE_STATE_PRESCRIPTION::LEGACY,            "LEGACY" },
+    { ENVELOPE_STATE_PRESCRIPTION::HURLEY,            "HURLEY" },
+    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE, "FIXED_TEMPERATURE" }
 };
 
 
@@ -768,14 +895,33 @@ const COMPASUnorderedMap<CE_LAMBDA_PRESCRIPTION, std::string> CE_LAMBDA_PRESCRIP
     { CE_LAMBDA_PRESCRIPTION::KRUCKOW,   "LAMBDA_KRUCKOW" },
     { CE_LAMBDA_PRESCRIPTION::DEWI,      "LAMBDA_DEWI" }
 };
+    
+    
+// Common Envelope Formalism
+enum class CE_FORMALISM: int { ENERGY, TWO_STAGE };
+const COMPASUnorderedMap<CE_FORMALISM, std::string> CE_FORMALISM_LABEL = {
+        { CE_FORMALISM::ENERGY,    "ENERGY" },
+        { CE_FORMALISM::TWO_STAGE, "TWO_STAGE" }
+};
 
 
 // Common envelope zeta prescription
-enum class ZETA_PRESCRIPTION: int { STARTRACK, SOBERMAN, HURLEY, ARBITRARY };
+enum class ZETA_PRESCRIPTION: int { SOBERMAN, HURLEY, ARBITRARY, NONE };
 const COMPASUnorderedMap<ZETA_PRESCRIPTION, std::string> ZETA_PRESCRIPTION_LABEL = {
     { ZETA_PRESCRIPTION::SOBERMAN,  "SOBERMAN" },
     { ZETA_PRESCRIPTION::HURLEY,    "HURLEY" },
-    { ZETA_PRESCRIPTION::ARBITRARY, "ARBITRARY" }
+    { ZETA_PRESCRIPTION::ARBITRARY, "ARBITRARY" },
+    { ZETA_PRESCRIPTION::NONE,      "NONE" },
+};
+
+// Critical Mass Ratio prescription
+enum class QCRIT_PRESCRIPTION: int { NONE, CLAEYS, GE20, GE20_IC, HURLEY_HJELLMING_WEBBINK};
+const COMPASUnorderedMap<QCRIT_PRESCRIPTION, std::string> QCRIT_PRESCRIPTION_LABEL = {
+    { QCRIT_PRESCRIPTION::NONE,    "NONE" },
+    { QCRIT_PRESCRIPTION::CLAEYS,  "CLAEYS" },
+    { QCRIT_PRESCRIPTION::GE20,    "GE20" },
+    { QCRIT_PRESCRIPTION::GE20_IC, "GE20_IC" },
+    { QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK, "HURLEY_HJELLMING_WEBBINK" },
 };
 
 
@@ -888,18 +1034,58 @@ const COMPASUnorderedMap<INITIAL_MASS_FUNCTION, std::string> INITIAL_MASS_FUNCTI
 // LBV Mass loss prescriptions
 enum class LBV_PRESCRIPTION: int { NONE, HURLEY_ADD, HURLEY, BELCZYNSKI };
 const COMPASUnorderedMap<LBV_PRESCRIPTION, std::string> LBV_PRESCRIPTION_LABEL = {
-    { LBV_PRESCRIPTION::NONE,           "NONE" },
-    { LBV_PRESCRIPTION::HURLEY_ADD,     "HURLEY_ADD" },
-    { LBV_PRESCRIPTION::HURLEY,         "HURLEY" },
-    { LBV_PRESCRIPTION::BELCZYNSKI,     "BELCZYNSKI" }
+    { LBV_PRESCRIPTION::NONE,       "NONE" },
+    { LBV_PRESCRIPTION::HURLEY_ADD, "HURLEY_ADD" },
+    { LBV_PRESCRIPTION::HURLEY,     "HURLEY" },
+    { LBV_PRESCRIPTION::BELCZYNSKI, "BELCZYNSKI" }
+};
+
+// OB (main sequence) Mass loss prescriptions
+enum class OB_MASS_LOSS: int { NONE, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018};
+const COMPASUnorderedMap<OB_MASS_LOSS, std::string> OB_MASS_LOSS_LABEL = {
+    { OB_MASS_LOSS::NONE,          "NONE" },
+    { OB_MASS_LOSS::VINK2001,      "VINK2001" },
+    { OB_MASS_LOSS::VINK2021,      "VINK2021" },
+    { OB_MASS_LOSS::BJORKLUND2022, "BJORKLUND2022" },
+    { OB_MASS_LOSS::KRTICKA2018,   "KRTICKA2018" },
+};
+
+// Very Massive Mass loss prescriptions
+enum class VMS_MASS_LOSS: int { NONE, VINK2011, BESTENLEHNER2020, SABHAHIT2023};
+const COMPASUnorderedMap<VMS_MASS_LOSS, std::string> VMS_MASS_LOSS_LABEL = {
+    { VMS_MASS_LOSS::NONE,             "NONE" },
+    { VMS_MASS_LOSS::VINK2011,         "VINK2011" },
+    { VMS_MASS_LOSS::BESTENLEHNER2020, "BESTENLEHNER2020" },
+    { VMS_MASS_LOSS::SABHAHIT2023,     "SABHAHIT2023" },
+};
+
+// RSG Mass loss prescriptions
+enum class RSG_MASS_LOSS: int { NONE, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90};
+const COMPASUnorderedMap<RSG_MASS_LOSS, std::string> RSG_MASS_LOSS_LABEL = {
+    { RSG_MASS_LOSS::NONE,             "NONE" },
+    { RSG_MASS_LOSS::VINKSABHAHIT2023, "VINKSABHAHIT2023" },
+    { RSG_MASS_LOSS::BEASOR2020,       "BEASOR2020" },
+    { RSG_MASS_LOSS::DECIN2023,        "DECIN2023" },
+    { RSG_MASS_LOSS::YANG2023,         "YANG2023" },
+    { RSG_MASS_LOSS::KEE2021,          "KEE2021" },
+    { RSG_MASS_LOSS::NJ90,             "NJ90" },
+};
+
+// WR Mass loss prescriptions
+enum class WR_MASS_LOSS: int { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 };
+const COMPASUnorderedMap<WR_MASS_LOSS, std::string> WR_MASS_LOSS_LABEL = {
+    { WR_MASS_LOSS::BELCZYNSKI2010, "BELCZYNSKI2010" },
+    { WR_MASS_LOSS::SANDERVINK2023, "SANDERVINK2023" },
+    { WR_MASS_LOSS::SHENAR2019,     "SHENAR2019" },
 };
 
 // Mass loss prescriptions
-enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, VINK };
+enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, BELCZYNSKI2010, FLEXIBLE2023 };
 const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
-    { MASS_LOSS_PRESCRIPTION::NONE,   "NONE" },
-    { MASS_LOSS_PRESCRIPTION::HURLEY, "HURLEY" },
-    { MASS_LOSS_PRESCRIPTION::VINK,   "VINK" }
+    { MASS_LOSS_PRESCRIPTION::NONE,           "NONE" },
+    { MASS_LOSS_PRESCRIPTION::HURLEY,         "HURLEY" },
+    { MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010, "BELCZYNSKI2010" },
+    { MASS_LOSS_PRESCRIPTION::FLEXIBLE2023,   "FLEXIBLE2023"}
 };
 
 
@@ -926,17 +1112,18 @@ const COMPASUnorderedMap<MASS_TRANSFER, std::string> MASS_TRANSFER_LABEL = {
 // Mass transfer accretion efficiency prescriptions
 enum class MT_ACCRETION_EFFICIENCY_PRESCRIPTION: int { THERMALLY_LIMITED, FIXED_FRACTION};
 const COMPASUnorderedMap<MT_ACCRETION_EFFICIENCY_PRESCRIPTION, std::string> MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL = {
-    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED,     "THERMAL" },
-    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION,        "FIXED" }
+    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED, "THERMAL" },
+    { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION,    "FIXED" }
 };
 
 
 // Mass transfer angular momentum loss prescriptions
-enum class MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION: int { JEANS, ISOTROPIC_RE_EMISSION, CIRCUMBINARY_RING, ARBITRARY };
+enum class MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION: int { JEANS, ISOTROPIC_RE_EMISSION, CIRCUMBINARY_RING, MACLEOD_LINEAR, ARBITRARY };
 const COMPASUnorderedMap<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION, std::string> MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL = {
     { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS,                 "JEANS" },
     { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION, "ISOTROPIC" },
     { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING,     "CIRCUMBINARY" },
+    { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR,        "MACLEOD_LINEAR" },
     { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY,             "ARBITRARY" }
 };
 
@@ -978,22 +1165,19 @@ const COMPASUnorderedMap<MT_REJUVENATION_PRESCRIPTION, std::string> MT_REJUVENAT
 
 
 // Mass transfer tracking constants
-enum class MT_TRACKING: int { NO_MASS_TRANSFER, STABLE_FROM_1_TO_2, STABLE_FROM_2_TO_1, CE_FROM_1_TO_2, CE_FROM_2_TO_1, CE_DOUBLE_CORE, CE_BOTH_MS, CE_MS_WITH_CO, CE_WITH_RAD_ENV, CE_IMMEDIATE_RLOF };
+enum class MT_TRACKING: int { NO_MASS_TRANSFER, STABLE_1_TO_2_SURV, STABLE_2_TO_1_SURV, CE_1_TO_2_SURV, CE_2_TO_1_SURV, CE_DOUBLE_SURV, MERGER }; 
 const COMPASUnorderedMap<MT_TRACKING, std::string> MT_TRACKING_LABEL = {
     { MT_TRACKING::NO_MASS_TRANSFER,   "NO MASS TRANSFER" },
-    { MT_TRACKING::STABLE_FROM_1_TO_2, "MASS TRANSFER STABLE STAR1 -> STAR2" },
-    { MT_TRACKING::STABLE_FROM_2_TO_1, "MASS TRANSFER STABLE STAR2 -> STAR1" },
-    { MT_TRACKING::CE_FROM_1_TO_2,     "MASS TRANSFER COMMON ENVELOPE STAR1 -> STAR2" },
-    { MT_TRACKING::CE_FROM_2_TO_1,     "MASS TRANSFER COMMON ENVELOPE STAR2 -> STAR1" },
-    { MT_TRACKING::CE_DOUBLE_CORE,     "MASS TRANSFER COMMON ENVELOPE DOUBLE CORE" },
-    { MT_TRACKING::CE_BOTH_MS,         "MASS TRANSFER WET MERGER: MS -> MS" },
-    { MT_TRACKING::CE_MS_WITH_CO,      "MASS TRANSFER COMMON ENVELOPE MS -> CO" },
-    { MT_TRACKING::CE_WITH_RAD_ENV,    "MASS TRANSFER COMMON ENVELOPE MERGER WITH RADIATIVE ENVELOPE STAR" },
-    { MT_TRACKING::CE_IMMEDIATE_RLOF,  "MASS TRANSFER COMMON ENVELOPE MERGER DUE TO IMMEDIATE POST-CE RLOF" }
+    { MT_TRACKING::STABLE_1_TO_2_SURV, "MASS TRANSFER STABLE STAR1 -> STAR2" },
+    { MT_TRACKING::STABLE_2_TO_1_SURV, "MASS TRANSFER STABLE STAR2 -> STAR1" },
+    { MT_TRACKING::CE_1_TO_2_SURV,     "MASS TRANSFER COMMON ENVELOPE STAR1 -> STAR2" },
+    { MT_TRACKING::CE_2_TO_1_SURV,     "MASS TRANSFER COMMON ENVELOPE STAR2 -> STAR1" },
+    { MT_TRACKING::CE_DOUBLE_SURV,     "MASS TRANSFER COMMON ENVELOPE DOUBLE CORE" },
+    { MT_TRACKING::MERGER,             "MASS TRANSFER -> MERGER" }
 };
 
 
-// Mass tranfer timing options for writing to BSE_RLOF file
+// Mass transfer timing options for writing to BSE_RLOF file
 // Doesn't need labels...
 enum class MASS_TRANSFER_TIMING: int { PRE_MT, POST_MT };
 
@@ -1023,7 +1207,7 @@ const COMPASUnorderedMap<NS_EOS, std::string> NS_EOSLabel = {
 // Orbital Period Distributions
 enum class ORBITAL_PERIOD_DISTRIBUTION: int { FLATINLOG };
 const COMPASUnorderedMap<ORBITAL_PERIOD_DISTRIBUTION, std::string> ORBITAL_PERIOD_DISTRIBUTION_LABEL = {
-    { ORBITAL_PERIOD_DISTRIBUTION::FLATINLOG,   "FLATINLOG" },
+    { ORBITAL_PERIOD_DISTRIBUTION::FLATINLOG, "FLATINLOG" },
 };
 
 
@@ -1059,15 +1243,16 @@ const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PUL
 
 
 // Remnant Mass Prescriptions
-enum class REMNANT_MASS_PRESCRIPTION: int { HURLEY2000, BELCZYNSKI2002, FRYER2012, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT};
+enum class REMNANT_MASS_PRESCRIPTION: int { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT};
 const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PRESCRIPTION_LABEL = {
-    { REMNANT_MASS_PRESCRIPTION::HURLEY2000,           "HURLEY2000" },
-    { REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002,       "BELCZYNSKI2002" },
-    { REMNANT_MASS_PRESCRIPTION::FRYER2012,            "FRYER2012" },
-    { REMNANT_MASS_PRESCRIPTION::MULLER2016,           "MULLER2016" },
-    { REMNANT_MASS_PRESCRIPTION::MULLERMANDEL,         "MULLERMANDEL" },
-    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020,        "SCHNEIDER2020" },
-    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT ,    "SCHNEIDER2020ALT" }
+    { REMNANT_MASS_PRESCRIPTION::HURLEY2000,       "HURLEY2000" },
+    { REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002,   "BELCZYNSKI2002" },
+    { REMNANT_MASS_PRESCRIPTION::FRYER2012,        "FRYER2012" },
+    { REMNANT_MASS_PRESCRIPTION::FRYER2022,        "FRYER2022" },
+    { REMNANT_MASS_PRESCRIPTION::MULLER2016,       "MULLER2016" },
+    { REMNANT_MASS_PRESCRIPTION::MULLERMANDEL,     "MULLERMANDEL" },
+    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020,    "SCHNEIDER2020" },
+    { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT, "SCHNEIDER2020ALT" }
 };
 
 
@@ -1101,7 +1286,7 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 // The values here for SN_EVENT are powers of 2 so that they can be used in a bit map
 // and manipulated with bit-wise logical operators
 //
-// Ordinarily we might expect that an SN event could be only one of CCSN, ECSN, PISN, PPISN, USSN
+// Ordinarily we might expect that an SN event could be only one of CCSN, ECSN, PISN, PPISN, USSN, AIC, SNIA, or HeSD
 // Note that the CCSN value here replaces the SN value in the legacy code
 // The legacy code implemented these values as boolean flags, and the SN flag was always set when
 // the uSSN flag was set (but not the converse).  In the legacy code when the ECSN flag was set 
@@ -1114,6 +1299,8 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 // time - necessary for the code flow (from the legacy code) - which we should probably one
 // day look at and rewrite).
 //
+// HeSD stands for helium-shell detonation
+//
 // A convenience function has been provided in utils.cpp to interpret the bit map (utils::SNEventType()).
 // Given an SN_EVENT bitmap (current or past), it returns (in priority order):
 //     
@@ -1122,6 +1309,9 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 //    SN_EVENT::PISN  iff PISN  bit is set
 //    SN_EVENT::PPISN iff PPISN bit is set
 //    SN_EVENT::USSN  iff USSN  bit is set
+//    SN_EVENT::AIC   iff AIC   bit is set
+//    SN_EVENT::SNIA  iff SNIA  bit is set and HeSD bit is not set
+//    SN_EVENT::HeSD  iff HeSD  bit is set
 //    SN_EVENT::NONE  otherwise
 //
 enum class SN_EVENT: int { 
@@ -1130,17 +1320,23 @@ enum class SN_EVENT: int {
     ECSN         = 2, 
     PISN         = 4, 
     PPISN        = 8, 
-    USSN         = 16
+    USSN         = 16,
+    AIC          = 32,
+    SNIA         = 64,
+    HeSD         = 128,
 };
 ENABLE_BITMASK_OPERATORS(SN_EVENT);
 
 const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
-    { SN_EVENT::NONE,         "No Supernova" },
-    { SN_EVENT::CCSN,         "Core Collapse Supernova" },
-    { SN_EVENT::ECSN,         "Electron Capture Supernova" },
-    { SN_EVENT::PISN,         "Pair Instability Supernova" },
-    { SN_EVENT::PPISN,        "Pulsational Pair Instability Supernova" },
-    { SN_EVENT::USSN,         "Ultra Stripped Supernova" }
+    { SN_EVENT::NONE,  "No Supernova" },
+    { SN_EVENT::CCSN,  "Core Collapse Supernova" },
+    { SN_EVENT::ECSN,  "Electron Capture Supernova" },
+    { SN_EVENT::PISN,  "Pair Instability Supernova" },
+    { SN_EVENT::PPISN, "Pulsational Pair Instability Supernova" },
+    { SN_EVENT::USSN,  "Ultra Stripped Supernova" },
+    { SN_EVENT::AIC,   "Accretion-Induced Collapse" }, 
+    { SN_EVENT::SNIA,  "Supernova Type Ia" }, 
+    { SN_EVENT::HeSD,  "Helium-shell detonation" }, 
 };
 
 
@@ -1152,6 +1348,39 @@ const COMPASUnorderedMap<SN_STATE, std::string> SN_STATE_LABEL = {
     { SN_STATE::STAR2, "Star2 only" },
     { SN_STATE::BOTH,  "Both stars" }
 };
+
+// enum class ACCRETION_REGIME
+// Symbolic names for WD accretion regimes
+enum class ACCRETION_REGIME: int {
+    HELIUM_ACCUMULATION,
+    HELIUM_FLASHES,
+    HELIUM_STABLE_BURNING,
+    HELIUM_OPT_THICK_WINDS,
+    HYDROGEN_FLASHES,
+    HYDROGEN_STABLE_BURNING,
+    HYDROGEN_OPT_THICK_WINDS,
+    HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR,
+    HELIUM_WHITE_DWARF_HELIUM_IGNITION,
+    HELIUM_WHITE_DWARF_HYDROGEN_FLASHES,
+    HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION,
+    NONE
+};
+
+const COMPASUnorderedMap<ACCRETION_REGIME, std::string> ACCRETION_REGIME_LABEL = {
+    { ACCRETION_REGIME::NONE,                                        "No accretion regime" },
+    { ACCRETION_REGIME::HELIUM_ACCUMULATION,                         "Helium piles up without burning, full efficiency" },
+    { ACCRETION_REGIME::HELIUM_FLASHES,                              "Helium ignites in flashes, partial accretion efficiency" },
+    { ACCRETION_REGIME::HELIUM_STABLE_BURNING,                       "Helium is burnt without flashes, full efficiency" },
+    { ACCRETION_REGIME::HELIUM_OPT_THICK_WINDS,                      "Helium is being accreted at a high rate, producing winds and limiting the accretion efficiency to a critical value" },
+    { ACCRETION_REGIME::HYDROGEN_FLASHES,                            "Hydrogen ignites in flashes, partial accretion efficiency" },
+    { ACCRETION_REGIME::HYDROGEN_STABLE_BURNING,                     "Hydrogen is burnt without flashes, full efficiency" },
+    { ACCRETION_REGIME::HYDROGEN_OPT_THICK_WINDS,                    "Hydrogen is being accreted at a high rate, producing winds and limiting the accretion efficiency to a critical value" },
+    { ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR, "Full accretion leads to transient, but it would not make enough radioactive Ni-56 to be classified as a SN Ia" },
+    { ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_IGNITION,          "Full accretion until material is ignited in a flash and degeneracy is lifted" },
+    { ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES,         "Unstable hydrogen flashes lead to net accretion being zero" },
+    { ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION,    "Material piles up. Depending on the companion, it could lead to a CE episode or merger" }
+};
+
 
 // enum class L_CONSTANTS
 // symbolic names for the Luminosity Constants
@@ -1296,7 +1525,6 @@ const std::initializer_list<STELLAR_TYPE> ALL_HERTZSPRUNG_GAP = {
     STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP
 };
 
-
 // (convenience) initializer list for COMPACT OBJECTS
 const std::initializer_list<STELLAR_TYPE> COMPACT_OBJECTS = {
     STELLAR_TYPE::HELIUM_WHITE_DWARF,
@@ -1305,6 +1533,31 @@ const std::initializer_list<STELLAR_TYPE> COMPACT_OBJECTS = {
     STELLAR_TYPE::NEUTRON_STAR,
     STELLAR_TYPE::BLACK_HOLE,
     STELLAR_TYPE::MASSLESS_REMNANT
+};
+
+// (convenience) initializer list for GIANTS
+const std::initializer_list<STELLAR_TYPE> GIANTS = {
+    STELLAR_TYPE::FIRST_GIANT_BRANCH,
+    STELLAR_TYPE::CORE_HELIUM_BURNING,
+    STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,
+    STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH
+};
+
+
+// (convenience) initializer list for WHITE DWARFS
+const std::initializer_list<STELLAR_TYPE> WHITE_DWARFS = {
+    STELLAR_TYPE::HELIUM_WHITE_DWARF,
+    STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF,
+    STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF
+};
+
+
+// (convenience) initializer list for He rich stellar types
+const std::initializer_list<STELLAR_TYPE> He_RICH_TYPES = {
+    STELLAR_TYPE::NAKED_HELIUM_STAR_MS,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH,
+    STELLAR_TYPE::HELIUM_WHITE_DWARF
 };
 
 
@@ -1335,12 +1588,12 @@ enum class MASS_CUTOFF: int {
 // Symbolic names for mass loss rate type
 enum class MASS_LOSS_TYPE: int {
     NONE,
-    NIEUWENHUIJZEN_DE_JAGER,
-    KUDRITZKI_REIMERS,
-    VASSILIADIS_WOOD,
-    WOLF_RAYET_LIKE,
-    VINK,
-    LUMINOUS_BLUE_VARIABLE
+    OB,
+    VMS,
+    GB,
+    RSG,
+    WR,
+    LBV
 };
 
 
@@ -1371,7 +1624,6 @@ enum class TIMESCALE: int {
     tinf2_SAGB,             // Thermally Pulsating Asymptotic Giant Branch tinf2
     tMx_SAGB,               // Thermally Pulsating Asymptotic Giant Branch t(Mx)
     tP,                     // (tDU?)
-    tMcMax,                 // Never used? not sure what TP, t(McMax) are
                             // Helium Giant Branch
     tHeMS,                  // Naked Helium Star central helium burning lifetime (HeMs)
     tinf1_HeGB,             // Helium Giant Branch tinf1
@@ -1432,35 +1684,37 @@ enum class TYPENAME: int {
     MT_TRACKING,
     SN_EVENT,
     SN_STATE,
-    STRING_VECTOR
+    STRING_VECTOR,
+    EVOLUTION_STATUS
 };
 
 
 // labels (long and short) for typenames
 // unordered_map - key is integer typename (from enum class TYPENAME above)
 const COMPASUnorderedMap<TYPENAME, std::tuple<std::string, std::string>> TYPENAME_LABEL = {
-    { TYPENAME::NONE,         { "NONE",                   "NONE"   }},
-    { TYPENAME::BOOL,         { "BOOL",                   "BOOL"   }},
-    { TYPENAME::SHORTINT,     { "SHORT INT",              "INT"    }},
-    { TYPENAME::INT,          { "INT",                    "INT"    }},
-    { TYPENAME::LONGINT,      { "LONG_INT",               "INT"    }},
-    { TYPENAME::LONGLONGINT,  { "LONG_LONG_INT",          "INT"    }},
-    { TYPENAME::USHORTINT,    { "UNSIGNED_SHORT_INT",     "INT"    }},
-    { TYPENAME::UINT,         { "UNSIGNED_INT",           "INT"    }},
-    { TYPENAME::ULONGINT,     { "UNSIGNED_LONG_INT",      "INT"    }},
-    { TYPENAME::ULONGLONGINT, { "UNSIGNED_LONG_LONG_INT", "INT"    }},
-    { TYPENAME::FLOAT,        { "FLOAT",                  "FLOAT"  }},
-    { TYPENAME::DOUBLE,       { "DOUBLE",                 "FLOAT"  }},
-    { TYPENAME::LONGDOUBLE,   { "LONG_DOUBLE",            "FLOAT"  }},
-    { TYPENAME::STRING,       { "STRING",                 "STRING" }},
-    { TYPENAME::OBJECT_ID,    { "OBJECT_ID",              "INT"    }},
-    { TYPENAME::ERROR,        { "ERROR",                  "INT"    }},
-    { TYPENAME::STELLAR_TYPE, { "STELLAR_TYPE",           "INT"    }},
-    { TYPENAME::MT_CASE,      { "MT_CASE",                "INT"    }},
-    { TYPENAME::MT_TRACKING,  { "MT_TRACKING",            "INT"    }},
-    { TYPENAME::SN_EVENT,     { "SN_EVENT",               "INT"    }},
-    { TYPENAME::SN_STATE,     { "SN_STATE",               "INT"    }},
-    { TYPENAME::SN_STATE,     { "STRING_VECTOR",          "VECTOR<STRING>"    }}
+    { TYPENAME::NONE,             { "NONE",                   "NONE"           }},
+    { TYPENAME::BOOL,             { "BOOL",                   "BOOL"           }},
+    { TYPENAME::SHORTINT,         { "SHORT INT",              "INT"            }},
+    { TYPENAME::INT,              { "INT",                    "INT"            }},
+    { TYPENAME::LONGINT,          { "LONG_INT",               "INT"            }},
+    { TYPENAME::LONGLONGINT,      { "LONG_LONG_INT",          "INT"            }},
+    { TYPENAME::USHORTINT,        { "UNSIGNED_SHORT_INT",     "INT"            }},
+    { TYPENAME::UINT,             { "UNSIGNED_INT",           "INT"            }},
+    { TYPENAME::ULONGINT,         { "UNSIGNED_LONG_INT",      "INT"            }},
+    { TYPENAME::ULONGLONGINT,     { "UNSIGNED_LONG_LONG_INT", "INT"            }},
+    { TYPENAME::FLOAT,            { "FLOAT",                  "FLOAT"          }},
+    { TYPENAME::DOUBLE,           { "DOUBLE",                 "FLOAT"          }},
+    { TYPENAME::LONGDOUBLE,       { "LONG_DOUBLE",            "FLOAT"          }},
+    { TYPENAME::STRING,           { "STRING",                 "STRING"         }},
+    { TYPENAME::OBJECT_ID,        { "OBJECT_ID",              "INT"            }},
+    { TYPENAME::ERROR,            { "ERROR",                  "INT"            }},
+    { TYPENAME::STELLAR_TYPE,     { "STELLAR_TYPE",           "INT"            }},
+    { TYPENAME::MT_CASE,          { "MT_CASE",                "INT"            }},
+    { TYPENAME::MT_TRACKING,      { "MT_TRACKING",            "INT"            }},
+    { TYPENAME::SN_EVENT,         { "SN_EVENT",               "INT"            }},
+    { TYPENAME::SN_STATE,         { "SN_STATE",               "INT"            }},
+    { TYPENAME::STRING_VECTOR,    { "STRING_VECTOR",          "VECTOR<STRING>" }},
+    { TYPENAME::EVOLUTION_STATUS, { "EVOLUTION_STATUS",       "INT"            }}
 };
 
 
@@ -1488,7 +1742,6 @@ const std::initializer_list<TYPENAME> FLOAT_TYPES = {
     TYPENAME::LONGDOUBLE
 };
 
-
 // boost variant definition for allowed data types
 // used for variable specification to define logfile records
 typedef boost::variant<
@@ -1511,7 +1764,8 @@ typedef boost::variant<
     MT_CASE,
     MT_TRACKING,
     SN_EVENT,
-    SN_STATE
+    SN_STATE,
+    EVOLUTION_STATUS
 > COMPAS_VARIABLE_TYPE;
 
 
@@ -1559,11 +1813,15 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     ECCENTRIC_ANOMALY,                               \
     ENV_MASS,                                        \
     ERROR,                                           \
+    EVOL_STATUS,                                     \
+    EXPERIENCED_AIC,                                 \
     EXPERIENCED_CCSN,                                \
+    EXPERIENCED_HeSD,                                \
     EXPERIENCED_ECSN,                                \
     EXPERIENCED_PISN,                                \
     EXPERIENCED_PPISN,                               \
     EXPERIENCED_RLOF,                                \
+    EXPERIENCED_SNIA,                                \
     EXPERIENCED_SN_TYPE,                             \
     EXPERIENCED_USSN,                                \
     FALLBACK_FRACTION,                               \
@@ -1576,12 +1834,15 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     INITIAL_STELLAR_TYPE,                            \
     INITIAL_STELLAR_TYPE_NAME,                       \
     INITIAL_TEMPERATURE,                             \
+    IS_AIC,                                          \
     IS_CCSN,                                         \
+    IS_HeSD,                                         \
     IS_ECSN,                                         \
     IS_HYDROGEN_POOR,                                \
     IS_PISN,                                         \
     IS_PPISN,                                        \
     IS_RLOF,                                         \
+    IS_SNIA,                                         \
     IS_USSN,                                         \
     KICK_MAGNITUDE,                                  \
     LAMBDA_AT_COMMON_ENVELOPE,                       \
@@ -1617,6 +1878,8 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     ORBITAL_ENERGY_PRE_SUPERNOVA,                    \
     PULSAR_MAGNETIC_FIELD,                           \
     PULSAR_SPIN_DOWN_RATE,                           \
+    PULSAR_BIRTH_PERIOD,                             \
+    PULSAR_BIRTH_SPIN_DOWN_RATE,                     \
     PULSAR_SPIN_FREQUENCY,                           \
     PULSAR_SPIN_PERIOD,                              \
     RADIAL_EXPANSION_TIMESCALE,                      \
@@ -1707,11 +1970,15 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::ECCENTRIC_ANOMALY,                               "ECCENTRIC_ANOMALY" },
     { STAR_PROPERTY::ENV_MASS,                                        "ENV_MASS" },
     { STAR_PROPERTY::ERROR,                                           "ERROR" },
+    { STAR_PROPERTY::EVOL_STATUS,                                     "EVOL_STATUS" },
+    { STAR_PROPERTY::EXPERIENCED_AIC,                                 "EXPERIENCED_AIC" },
     { STAR_PROPERTY::EXPERIENCED_CCSN,                                "EXPERIENCED_CCSN" },
+    { STAR_PROPERTY::EXPERIENCED_HeSD,                                "EXPERIENCED_HeSD" },
     { STAR_PROPERTY::EXPERIENCED_ECSN,                                "EXPERIENCED_ECSN" },
     { STAR_PROPERTY::EXPERIENCED_PISN,                                "EXPERIENCED_PISN" },
     { STAR_PROPERTY::EXPERIENCED_PPISN,                               "EXPERIENCED_PPISN" },
     { STAR_PROPERTY::EXPERIENCED_RLOF,                                "EXPERIENCED_RLOF" },
+    { STAR_PROPERTY::EXPERIENCED_SNIA,                                "EXPERIENCED_SNIA" },
     { STAR_PROPERTY::EXPERIENCED_SN_TYPE,                             "EXPERIENCED_SN_TYPE" },
     { STAR_PROPERTY::EXPERIENCED_USSN,                                "EXPERIENCED_USSN" },
     { STAR_PROPERTY::FALLBACK_FRACTION,                               "FALLBACK_FRACTION" },
@@ -1724,12 +1991,15 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "STELLAR_TYPE" },
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                       "STELLAR_TYPE_NAME" },
     { STAR_PROPERTY::INITIAL_TEMPERATURE,                             "INITIAL_TEMPERATURE" },
+    { STAR_PROPERTY::IS_AIC,                                          "IS_AIC" },
     { STAR_PROPERTY::IS_CCSN,                                         "IS_CCSN" },
+    { STAR_PROPERTY::IS_HeSD,                                         "IS_HeSD" },
     { STAR_PROPERTY::IS_ECSN,                                         "IS_ECSN" },
     { STAR_PROPERTY::IS_HYDROGEN_POOR,                                "IS_HYDROGEN_POOR" },
     { STAR_PROPERTY::IS_PISN,                                         "IS_PISN" },
     { STAR_PROPERTY::IS_PPISN,                                        "IS_PPISN" },
     { STAR_PROPERTY::IS_RLOF,                                         "IS_RLOF" },
+    { STAR_PROPERTY::IS_SNIA,                                         "IS_SNIA" },
     { STAR_PROPERTY::IS_USSN,                                         "IS_USSN" },
     { STAR_PROPERTY::KICK_MAGNITUDE,                                  "KICK_MAGNITUDE" },
     { STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                       "LAMBDA_AT_COMMON_ENVELOPE" },
@@ -1765,6 +2035,8 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA,                    "ORBITAL_ENERGY_PRE_SUPERNOVA" },
     { STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,                           "PULSAR_MAGNETIC_FIELD" },
     { STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE,                           "PULSAR_SPIN_DOWN_RATE" },
+    { STAR_PROPERTY::PULSAR_BIRTH_PERIOD,                             "PULSAR_BIRTH_PERIOD" },
+    { STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,                     "PULSAR_BIRTH_SPIN_DOWN_RATE" },
     { STAR_PROPERTY::PULSAR_SPIN_FREQUENCY,                           "PULSAR_SPIN_FREQUENCY" },
     { STAR_PROPERTY::PULSAR_SPIN_PERIOD,                              "PULSAR_SPIN_PERIOD" },
     { STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE,                      "RADIAL_EXPANSION_TIMESCALE" },
@@ -1864,6 +2136,7 @@ enum class BINARY_PROPERTY: int {
     ECCENTRICITY_PRE_SUPERNOVA,
     ECCENTRICITY_PRE_COMMON_ENVELOPE,
     ERROR,
+    EVOL_STATUS,
     ID,
     IMMEDIATE_RLOF_POST_COMMON_ENVELOPE,
     MASS_1_POST_COMMON_ENVELOPE,
@@ -1899,7 +2172,6 @@ enum class BINARY_PROPERTY: int {
     RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME,
     RLOF_POST_MT_STAR2_STELLAR_TYPE,
     RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME,
-    RLOF_POST_MT_TIME,
     RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,
     RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,
     RLOF_PRE_MT_ECCENTRICITY,
@@ -1914,10 +2186,11 @@ enum class BINARY_PROPERTY: int {
     RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME,
     RLOF_PRE_MT_STAR2_STELLAR_TYPE,
     RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME,
-    RLOF_PRE_MT_TIME,
     RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,
     RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,
     RLOF_SECONDARY_POST_COMMON_ENVELOPE,
+    RLOF_TIME_POST_MT,
+    RLOF_TIME_PRE_MT,
     ROCHE_LOBE_RADIUS_1,
     ROCHE_LOBE_RADIUS_2,
     ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE,
@@ -1946,6 +2219,10 @@ enum class BINARY_PROPERTY: int {
     STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE,
     STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE,
     STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE,
+    SUPERNOVA_ORBIT_INCLINATION_ANGLE,
+    SUPERNOVA_ORBIT_INCLINATION_VECTOR_X,
+    SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y,
+    SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z,
     SUPERNOVA_STATE,
     SYNCHRONIZATION_TIMESCALE,
     SYSTEMIC_SPEED,
@@ -1990,6 +2267,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,                         "ECCENTRICITY_PRE_SUPERNOVA" },
     { BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE,                   "ECCENTRICITY_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::ERROR,                                              "ERROR" },
+    { BINARY_PROPERTY::EVOL_STATUS,                                        "EVOL_STATUS" },
     { BINARY_PROPERTY::ID,                                                 "ID" },
     { BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE,                "IMMEDIATE_RLOF_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::MASS_1_POST_COMMON_ENVELOPE,                        "MASS_1_POST_COMMON_ENVELOPE" },
@@ -2025,7 +2303,6 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME,               "RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE,                    "RLOF_POST_MT_STAR2_STELLAR_TYPE" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME,               "RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME" },
-    { BINARY_PROPERTY::RLOF_POST_MT_TIME,                                  "RLOF_POST_MT_TIME" },
     { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,   "RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1" },
     { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,   "RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2" },
     { BINARY_PROPERTY::RLOF_PRE_MT_ECCENTRICITY,                           "RLOF_PRE_MT_ECCENTRICITY" },
@@ -2040,10 +2317,11 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME,                "RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE,                     "RLOF_PRE_MT_STAR2_STELLAR_TYPE" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME,                "RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME" },
-    { BINARY_PROPERTY::RLOF_PRE_MT_TIME,                                   "RLOF_PRE_MT_TIME" },
     { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,    "RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1" },
     { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,    "RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2" },
     { BINARY_PROPERTY::RLOF_SECONDARY_POST_COMMON_ENVELOPE,                "RLOF_SECONDARY_POST_COMMON_ENVELOPE" },
+    { BINARY_PROPERTY::RLOF_TIME_POST_MT,                                  "RLOF_TIME_POST_MT" },
+    { BINARY_PROPERTY::RLOF_TIME_PRE_MT,                                   "RLOF_TIME_PRE_MT" },
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1,                                "ROCHE_LOBE_RADIUS_1" },
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE,           "ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE,            "ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE" },
@@ -2072,6 +2350,10 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE,            "STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE,           "STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE,            "STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE" },
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE,                  "SUPERNOVA_ORBIT_INCLINATION_ANGLE" },
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_X,               "SUPERNOVA_ORBIT_INCLINATION_VECTOR_X" },
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y,               "SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y" },
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z,               "SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z" },
     { BINARY_PROPERTY::SUPERNOVA_STATE,                                    "SUPERNOVA_STATE" },
     { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE,                          "SYNCHRONIZATION_TIMESCALE" },
     { BINARY_PROPERTY::SYSTEMIC_SPEED,                                     "SYSTEMIC_SPEED" },
@@ -2094,6 +2376,7 @@ enum class PROGRAM_OPTION: int {
     NONE,
 
     ADD_OPTIONS_TO_SYSPARMS,
+    ALLOW_NON_STRIPPED_ECSN,
     ALLOW_IMMEDIATE_RLOF_POST_CE_TO_SURVIVE_COMMON_ENVELOPE,
     ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE,
     ALLOW_RADIATIVE_ENVELOPE_STAR_TO_SURVIVE_COMMON_ENVELOPE,
@@ -2115,6 +2398,7 @@ enum class PROGRAM_OPTION: int {
 
     COMMON_ENVELOPE_ALPHA,
     COMMON_ENVELOPE_ALPHA_THERMAL,
+    COMMON_ENVELOPE_FORMALISM,
     COMMON_ENVELOPE_LAMBDA,
     COMMON_ENVELOPE_LAMBDA_MULTIPLIER,
     COMMON_ENVELOPE_LAMBDA_PRESCRIPTION,
@@ -2124,6 +2408,8 @@ enum class PROGRAM_OPTION: int {
     COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION,
     COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY,
     COMMON_ENVELOPE_SLOPE_KRUCKOW,
+
+    CONVECTIVE_ENVELOPE_TEMPERATURE_THRESHOLD,
 
     COOL_WIND_MASS_LOSS_MULTIPLIER,
 
@@ -2136,6 +2422,9 @@ enum class PROGRAM_OPTION: int {
     EVOLUTION_MODE,
 
     FRYER_SUPERNOVA_ENGINE,
+
+    FRYER22_FMIX,
+    FRYER22_MCRIT,
 
     INITIAL_MASS,
     INITIAL_MASS_1,
@@ -2203,41 +2492,32 @@ enum class PROGRAM_OPTION: int {
     MT_ANG_MOM_LOSS_PRESCRIPTION,
     MT_THERMAL_LIMIT_C,
 
-    // AVG
-    /*
-    MT_CRIT_MR_MS_LOW_MASS,
     MT_CRIT_MR_MS_LOW_MASS_DEGENERATE_ACCRETOR,
     MT_CRIT_MR_MS_LOW_MASS_NON_DEGENERATE_ACCRETOR,
-    MT_CRIT_MR_MS_HIGH_MASS,
     MT_CRIT_MR_MS_HIGH_MASS_DEGENERATE_ACCRETOR,
     MT_CRIT_MR_MS_HIGH_MASS_NON_DEGENERATE_ACCRETOR,
-    MT_CRIT_MR_GIANT,
     MT_CRIT_MR_GIANT_DEGENERATE_ACCRETOR,
     MT_CRIT_MR_GIANT_NON_DEGENERATE_ACCRETOR,
-    MT_CRIT_MR_HG,
     MT_CRIT_MR_HG_DEGENERATE_ACCRETOR,
     MT_CRIT_MR_HG_NON_DEGENERATE_ACCRETOR,
-    MT_CRIT_MR_HE_GIANT,
     MT_CRIT_MR_HE_GIANT_DEGENERATE_ACCRETOR,
     MT_CRIT_MR_HE_GIANT_NON_DEGENERATE_ACCRETOR,
-    MT_CRIT_MR_HE_HG,
     MT_CRIT_MR_HE_HG_DEGENERATE_ACCRETOR,
     MT_CRIT_MR_HE_HG_NON_DEGENERATE_ACCRETOR,
-    MT_CRIT_MR_HE_MS,
     MT_CRIT_MR_HE_MS_DEGENERATE_ACCRETOR,
     MT_CRIT_MR_HE_MS_NON_DEGENERATE_ACCRETOR,
-    MT_CRIT_MR_WD,
     MT_CRIT_MR_WD_DEGENERATE_ACCRETOR,
     MT_CRIT_MR_WD_NONDEGENERATE_ACCRETOR,
-    */
 
     MT_FRACTION_ACCRETED,
     MT_JLOSS,
+    MT_JLOSS_MACLEOD_LINEAR_FRACTION,
     MT_REJUVENATION_PRESCRIPTION,
     MT_THERMALLY_LIMITED_VARIATION,
 
     MULLER_MANDEL_KICK_MULTIPLIER_BH,
     MULLER_MANDEL_KICK_MULTIPLIER_NS,
+    MULLER_MANDEL_SIGMA_KICK,
 
     NEUTRINO_MASS_LOSS_ASSUMPTION_BH,
     NEUTRINO_MASS_LOSS_VALUE_BH,
@@ -2272,6 +2552,8 @@ enum class PROGRAM_OPTION: int {
     PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE,
 
     PULSAR_MINIMUM_MAGNETIC_FIELD,
+
+    QCRIT_PRESCRIPTION,
 
     RANDOM_SEED,
     RANDOM_SEED_CMDLINE,
@@ -2309,6 +2591,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::NONE,                                             "NONE" },
 
+    { PROGRAM_OPTION::ALLOW_NON_STRIPPED_ECSN,                          "ALLOW_NON_STRIPPED_ECSN" },
     { PROGRAM_OPTION::ADD_OPTIONS_TO_SYSPARMS,                          "ADD_OPTIONS_TO_SYSPARMS" },
     { PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE,         "ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE" },
     { PROGRAM_OPTION::ALLOW_RADIATIVE_ENVELOPE_STAR_TO_SURVIVE_COMMON_ENVELOPE, "ALLOW_RADIATIVE_ENVELOPE_STAR_TO_SURVIVE_COMMON_ENVELOPE" },
@@ -2331,6 +2614,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA,                            "COMMON_ENVELOPE_ALPHA" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA_THERMAL,                    "COMMON_ENVELOPE_ALPHA_THERMAL" },
+    { PROGRAM_OPTION::COMMON_ENVELOPE_FORMALISM,                        "COMMON_ENVELOPE_FORMALISM" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA,                           "COMMON_ENVELOPE_LAMBDA" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_MULTIPLIER,                "COMMON_ENVELOPE_LAMBDA_MULTIPLIER" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_PRESCRIPTION,              "COMMON_ENVELOPE_LAMBDA_PRESCRIPTION" },
@@ -2352,6 +2636,9 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::EVOLUTION_MODE,                                   "EVOLUTION_MODE" },
 
     { PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE,                           "FRYER_SUPERNOVA_ENGINE" },
+
+    { PROGRAM_OPTION::FRYER22_FMIX,                                     "FRYER22_FMIX" },
+    { PROGRAM_OPTION::FRYER22_MCRIT,                                    "FRYER22_MCRIT" },
 
     { PROGRAM_OPTION::INITIAL_MASS,                                     "INITIAL_MASS" },
     { PROGRAM_OPTION::INITIAL_MASS_1,                                   "INITIAL_MASS_1" },
@@ -2419,41 +2706,32 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                     "MT_ANG_MOM_LOSS_PRESCRIPTION" },
     { PROGRAM_OPTION::MT_THERMAL_LIMIT_C,                               "MT_THERMAL_LIMIT_C" },
 
-    // AVG
-    /*
-    { PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS,                           "MT_CRIT_MR_MS_LOW_MASS" },
     { PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS_DEGENERATE_ACCRETOR,       "MT_CRIT_MR_MS_LOW_MASS_DEGENERATE_ACCRETOR" },
     { PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS_NON_DEGENERATE_ACCRETOR,   "MT_CRIT_MR_MS_LOW_MASS_NON_DEGENERATE_ACCRETOR" },
-    { PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS,                          "MT_CRIT_MR_MS_HIGH_MASS" },
     { PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS_DEGENERATE_ACCRETOR,      "MT_CRIT_MR_MS_HIGH_MASS_DEGENERATE_ACCRETOR" },
     { PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS_NON_DEGENERATE_ACCRETOR,  "MT_CRIT_MR_MS_HIGH_MASS_NON_DEGENERATE_ACCRETOR" },
-    { PROGRAM_OPTION::MT_CRIT_MR_GIANT,                                 "MT_CRIT_MR_GIANT" },
     { PROGRAM_OPTION::MT_CRIT_MR_GIANT_DEGENERATE_ACCRETOR,             "MT_CRIT_MR_GIANT_DEGENERATE_ACCRETOR" },
     { PROGRAM_OPTION::MT_CRIT_MR_GIANT_NON_DEGENERATE_ACCRETOR,         "MT_CRIT_MR_GIANT_NON_DEGENERATE_ACCRETOR" },
-    { PROGRAM_OPTION::MT_CRIT_MR_HG,                                    "MT_CRIT_MR_HG" },
     { PROGRAM_OPTION::MT_CRIT_MR_HG_DEGENERATE_ACCRETOR,                "MT_CRIT_MR_HG_DEGENERATE_ACCRETOR" },
     { PROGRAM_OPTION::MT_CRIT_MR_HG_NON_DEGENERATE_ACCRETOR,            "MT_CRIT_MR_HG_NON_DEGENERATE_ACCRETOR" },
-    { PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT,                              "MT_CRIT_MR_HE_GIANT" },
     { PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_DEGENERATE_ACCRETOR,          "MT_CRIT_MR_HE_GIANT_DEGENERATE_ACCRETOR" },
     { PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_NON_DEGENERATE_ACCRETOR,      "MT_CRIT_MR_HE_GIANT_NON_DEGENERATE_ACCRETOR" },
-    { PROGRAM_OPTION::MT_CRIT_MR_HE_HG,                                 "MT_CRIT_MR_HE_HG" },
     { PROGRAM_OPTION::MT_CRIT_MR_HE_HG_DEGENERATE_ACCRETOR,             "MT_CRIT_MR_HE_HG_DEGENERATE_ACCRETOR" },
     { PROGRAM_OPTION::MT_CRIT_MR_HE_HG_NON_DEGENERATE_ACCRETOR,         "MT_CRIT_MR_HE_HG_NON_DEGENERATE_ACCRETOR" },
-    { PROGRAM_OPTION::MT_CRIT_MR_HE_MS,                                 "MT_CRIT_MR_HE_MS" },
     { PROGRAM_OPTION::MT_CRIT_MR_HE_MS_DEGENERATE_ACCRETOR,             "MT_CRIT_MR_HE_MS_DEGENERATE_ACCRETOR" },
     { PROGRAM_OPTION::MT_CRIT_MR_HE_MS_NON_DEGENERATE_ACCRETOR,         "MT_CRIT_MR_HE_MS_NON_DEGENERATE_ACCRETOR" },
-    { PROGRAM_OPTION::MT_CRIT_MR_WD,                                    "MT_CRIT_MR_WD" },
     { PROGRAM_OPTION::MT_CRIT_MR_WD_DEGENERATE_ACCRETOR,                "MT_CRIT_MR_WD_DEGENERATE_ACCRETOR" },
     { PROGRAM_OPTION::MT_CRIT_MR_WD_NONDEGENERATE_ACCRETOR,             "MT_CRIT_MR_WD_NONDEGENERATE_ACCRETOR" },
-    */
 
     { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                             "MT_FRACTION_ACCRETED" },
     { PROGRAM_OPTION::MT_JLOSS,                                         "MT_JLOSS" },
+    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION,                 "MT_JLOSS_MACLEOD_LINEAR_FRACTION" },
     { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                     "MT_REJUVENATION_PRESCRIPTION" },
     { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                   "MT_THERMALLY_LIMITED_VARIATION" },
 
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH,                 "MULLER_MANDEL_KICK_MULTIPLIER_BH" },
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                 "MULLER_MANDEL_KICK_MULTIPLIER_NS" },
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK,                         "MULLER_MANDEL_SIGMA_KICK" },
 
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                 "NEUTRINO_MASS_LOSS_ASSUMPTION_BH" },
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                      "NEUTRINO_MASS_LOSS_VALUE_BH" },
@@ -2488,6 +2766,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE,           "PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE" },
 
     { PROGRAM_OPTION::PULSAR_MINIMUM_MAGNETIC_FIELD,                    "PULSAR_MINIMUM_MAGNETIC_FIELD" },
+
+    { PROGRAM_OPTION::QCRIT_PRESCRIPTION,                               "QCRIT_PRESCRIPTION" },
 
     { PROGRAM_OPTION::RANDOM_SEED,                                      "RANDOM_SEED" },
     { PROGRAM_OPTION::RANDOM_SEED_CMDLINE,                              "RANDOM_SEED_CMDLINE" },
@@ -2588,11 +2868,15 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY,                                 { TYPENAME::DOUBLE,         "Eccentric_Anomaly",    "-",                14, 6 }},
     { ANY_STAR_PROPERTY::ENV_MASS,                                          { TYPENAME::DOUBLE,         "Mass_Env",             "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::ERROR,                                             { TYPENAME::ERROR,          "Error",                "-",                 4, 1 }},
+    { ANY_STAR_PROPERTY::EVOL_STATUS,                                       { TYPENAME::EVOLUTION_STATUS, "Evolution_Status",                "-",                 4, 1 }},
+    { ANY_STAR_PROPERTY::EXPERIENCED_AIC,                                   { TYPENAME::BOOL,             "Experienced_AIC",                 "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_CCSN,                                  { TYPENAME::BOOL,           "Experienced_CCSN",     "Event",             0, 0 }},
+    { ANY_STAR_PROPERTY::EXPERIENCED_HeSD,                                  { TYPENAME::BOOL,             "Experienced_HeSD",                "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_ECSN,                                  { TYPENAME::BOOL,           "Experienced_ECSN",     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_PISN,                                  { TYPENAME::BOOL,           "Experienced_PISN",     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_PPISN,                                 { TYPENAME::BOOL,           "Experienced_PPISN",    "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_RLOF,                                  { TYPENAME::BOOL,           "Experienced_RLOF",     "Event",             0, 0 }},
+    { ANY_STAR_PROPERTY::EXPERIENCED_SNIA,                                  { TYPENAME::BOOL,             "Experienced_SNIA",                "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_SN_TYPE,                               { TYPENAME::SN_EVENT,       "Experienced_SN_Type",  "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_USSN,                                  { TYPENAME::BOOL,           "Experienced_USSN",     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::FALLBACK_FRACTION,                                 { TYPENAME::DOUBLE,         "Fallback_Fraction",    "-",                14, 6 }},
@@ -2604,13 +2888,16 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::INITIAL_RADIUS,                                    { TYPENAME::DOUBLE,         "Initial_Radius",       "Rsol",             14, 6 }},
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE,                              { TYPENAME::STELLAR_TYPE,   "Stellar_Type@ZAMS",    "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                         { TYPENAME::STRING,         "Stellar_Type@ZAMS",    "-",                42, 1 }},
+    { ANY_STAR_PROPERTY::IS_AIC,                                            { TYPENAME::BOOL,             "AIC",                             "State",             0, 0 }},
     { ANY_STAR_PROPERTY::INITIAL_TEMPERATURE,                               { TYPENAME::DOUBLE,         "Initial_Temperature",  "Tsol",             14, 6 }},
     { ANY_STAR_PROPERTY::IS_CCSN,                                           { TYPENAME::BOOL,           "CCSN",                 "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_HeSD,                                           { TYPENAME::BOOL,             "HeSD",                            "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_ECSN,                                           { TYPENAME::BOOL,           "ECSN",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_HYDROGEN_POOR,                                  { TYPENAME::BOOL,           "Is_Hydrogen_Poor",     "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_PISN,                                           { TYPENAME::BOOL,           "PISN",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_PPISN,                                          { TYPENAME::BOOL,           "PPISN",                "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_RLOF,                                           { TYPENAME::BOOL,           "RLOF",                 "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_SNIA,                                           { TYPENAME::BOOL,             "SNIA",                            "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_USSN,                                           { TYPENAME::BOOL,           "USSN",                 "State",             0, 0 }},
     { ANY_STAR_PROPERTY::KICK_MAGNITUDE,                                    { TYPENAME::DOUBLE,         "Applied_Kick_Magnitude","kms^-1",          14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                         { TYPENAME::DOUBLE,         "Lambda@CE",            "-",                14, 6 }},
@@ -2645,6 +2932,8 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA,                      { TYPENAME::DOUBLE,         "Orbital_Energy<SN",    "Msol^2AU^-1",      14, 6 }},
     { ANY_STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,                             { TYPENAME::DOUBLE,         "Pulsar_Mag_Field",     "Tesla",            14, 6 }},
     { ANY_STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE,                             { TYPENAME::DOUBLE,         "Pulsar_Spin_Down",     "rad/s^2",          14, 6 }},
+    { ANY_STAR_PROPERTY::PULSAR_BIRTH_PERIOD,                               { TYPENAME::DOUBLE,           "Pulsar_Birth_Period",             "s",                14, 6 }},
+    { ANY_STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,                       { TYPENAME::DOUBLE,           "Pulsar_Birth_Spin_Down",          "s/s",              14, 6 }},
     { ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY,                             { TYPENAME::DOUBLE,         "Pulsar_Spin_Freq",     "rad/s",            14, 6 }},
     { ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD,                                { TYPENAME::DOUBLE,         "Pulsar_Spin_Period",   "ms",               14, 6 }},
     { ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE,                        { TYPENAME::DOUBLE,         "Tau_Radial",           "Myr",              16, 8 }},
@@ -2688,121 +2977,126 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
 // Properties only need to be here if they are required to be available for printing in 
 // the logfiles - all keys present here should also be in BINARY_PROPERTY and BINARY_PROPERTY_LABEL
 const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
-    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_LUMINOSITY,              { TYPENAME::DOUBLE,         "Companion_Lum",        "Lsol",             14, 6 }},
-    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_MASS,                    { TYPENAME::DOUBLE,         "Companion_Mass",       "Msol",             14, 6 }},
-    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_RADIUS,                  { TYPENAME::DOUBLE,         "Companion_Radius",     "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_TEFF,                    { TYPENAME::DOUBLE,         "Companion_Teff",       "K",                14, 6 }},
-    { BINARY_PROPERTY::BE_BINARY_CURRENT_DT,                                { TYPENAME::DOUBLE,         "dT",                   "Myr",              16, 8 }},
-    { BINARY_PROPERTY::BE_BINARY_CURRENT_ECCENTRICITY,                      { TYPENAME::DOUBLE,         "Eccentricity",         "-",                14, 6 }},
-    { BINARY_PROPERTY::BE_BINARY_CURRENT_ID,                                { TYPENAME::OBJECT_ID,      "ID",                   "-",                12, 1 }},
-    { BINARY_PROPERTY::BE_BINARY_CURRENT_NS_MASS,                           { TYPENAME::DOUBLE,         "NS_Mass",              "Msol",             14, 6 }},
-    { BINARY_PROPERTY::BE_BINARY_CURRENT_SEMI_MAJOR_AXIS,                   { TYPENAME::DOUBLE,         "SemiMajorAxis",        "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::BE_BINARY_CURRENT_TOTAL_TIME,                        { TYPENAME::DOUBLE,         "Total_Time",           "Myr",              16, 8 }},
-    { BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE,                           { TYPENAME::DOUBLE,         "Tau_Circ",             "Myr",              16, 8 }},
-    { BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE,                       { TYPENAME::BOOL,           "CEE",                  "Event",             0, 0 }},
-    { BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT,                         { TYPENAME::UINT,           "CE_Event_Counter",     "Count",             6, 1 }},
-    { BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE,                        { TYPENAME::DOUBLE,         "Kick_Magnitude(uK)",   "-",                14, 6 }},
-    { BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE,                         { TYPENAME::BOOL,           "Double_Core_CE",       "Event",             0, 0 }},
-    { BINARY_PROPERTY::DT,                                                  { TYPENAME::DOUBLE,         "dT",                   "Myr",              16, 8 }},
-    { BINARY_PROPERTY::ECCENTRICITY,                                        { TYPENAME::DOUBLE,         "Eccentricity",         "-",                14, 6 }},
-    { BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION,                       { TYPENAME::DOUBLE,         "Eccentricity@DCO",     "-",                14, 6 }},
-    { BINARY_PROPERTY::ECCENTRICITY_INITIAL,                                { TYPENAME::DOUBLE,         "Eccentricity@ZAMS",    "-",                14, 6 }},
-    { BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Eccentricity>CE",      "-",                14, 6 }},
-    { BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,                          { TYPENAME::DOUBLE,         "Eccentricity<SN",      "-",                14, 6 }},
-    { BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE,                    { TYPENAME::DOUBLE,         "Eccentricity<CE",      "-",                14, 6 }},
-    { BINARY_PROPERTY::ERROR,                                               { TYPENAME::ERROR,          "Error",                "-",                 4, 1 }},
-    { BINARY_PROPERTY::ID,                                                  { TYPENAME::OBJECT_ID,      "ID",                   "-",                12, 1 }},
-    { BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE,                 { TYPENAME::BOOL,           "Immediate_RLOF>CE",    "Event",             0, 0 }},
-    { BINARY_PROPERTY::MASS_1_POST_COMMON_ENVELOPE,                         { TYPENAME::DOUBLE,         "Mass(1)>CE",           "Msol",             14, 6 }},
-    { BINARY_PROPERTY::MASS_1_PRE_COMMON_ENVELOPE,                          { TYPENAME::DOUBLE,         "Mass(1)<CE",           "Msol",             14, 6 }},
-    { BINARY_PROPERTY::MASS_2_POST_COMMON_ENVELOPE,                         { TYPENAME::DOUBLE,         "Mass(2)>CE",           "Msol",             14, 6 }},
-    { BINARY_PROPERTY::MASS_2_PRE_COMMON_ENVELOPE,                          { TYPENAME::DOUBLE,         "Mass(2)<CE",           "Msol",             14, 6 }},
-    { BINARY_PROPERTY::MASS_ENV_1,                                          { TYPENAME::DOUBLE,         "Mass_Env(1)",          "Msol",             14, 6 }},
-    { BINARY_PROPERTY::MASS_ENV_2,                                          { TYPENAME::DOUBLE,         "Mass_Env(2)",          "Msol",             14, 6 }},
-    { BINARY_PROPERTY::MASSES_EQUILIBRATED,                                 { TYPENAME::BOOL,           "Equilibrated",         "Event",             0, 0 }},
-    { BINARY_PROPERTY::MASSES_EQUILIBRATED_AT_BIRTH,                        { TYPENAME::BOOL,           "Equilibrated_At_Birth","Event",             0, 0 }},
-    { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                       { TYPENAME::MT_TRACKING,    "MT_History",           "-",                 4, 1 }},
-    { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                               { TYPENAME::BOOL,           "Merges_Hubble_Time",   "State",             0, 0 }},
-    { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                          { TYPENAME::BOOL,           "Optimistic_CE",        "State",             0, 0 }},
-    { BINARY_PROPERTY::ORBITAL_ANGULAR_VELOCITY,                            { TYPENAME::DOUBLE,         "Orbital_Angular_Velocity", "kms^-1",       14, 6 }},
-    { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                      { TYPENAME::DOUBLE,         "Orb_Velocity<SN",      "kms^-1",           14, 6 }},
-    { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,         "Radius(1)>CE",         "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE,                        { TYPENAME::DOUBLE,         "Radius(1)<CE",         "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,         "Radius(2)>CE",         "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::RADIUS_2_PRE_COMMON_ENVELOPE,                        { TYPENAME::DOUBLE,         "Radius(2)<CE",         "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::RANDOM_SEED,                                         { TYPENAME::ULONGINT,       "SEED",                 "-",                12, 1 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_COMMON_ENVELOPE,                        { TYPENAME::BOOL,           "CEE>MT",               "State",             0, 0 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY,                           { TYPENAME::DOUBLE,         "Eccentricity>MT",      "-",                14, 6 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER,                          { TYPENAME::UINT,           "MT_Event_Counter",     "Count",             6, 1 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_ID,                                     { TYPENAME::OBJECT_ID,      "ID>MT",                "",                 12, 1 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_SEMI_MAJOR_AXIS,                        { TYPENAME::DOUBLE,         "SemiMajorAxis>MT",     "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_MASS,                             { TYPENAME::DOUBLE,         "Mass(1)>MT",           "Msol",             14, 6 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS,                             { TYPENAME::DOUBLE,         "Mass(2)>MT",           "Msol",             14, 6 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_RADIUS,                           { TYPENAME::DOUBLE,         "Radius(1)>MT",         "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_RADIUS,                           { TYPENAME::DOUBLE,         "Radius(2)>MT",         "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_RLOF,                             { TYPENAME::BOOL,           "RLOF(1)>MT",           "State",             0, 0 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_RLOF,                             { TYPENAME::BOOL,           "RLOF(2)>MT",           "State",             0, 0 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE,                     { TYPENAME::STELLAR_TYPE,   "Stellar_Type(1)>MT",    "-",                4, 1 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME,                { TYPENAME::STRING,         "Stellar_Type(1)>MT",    "-",               42, 1 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE,                     { TYPENAME::STELLAR_TYPE,   "Stellar_Type(2)>MT",    "-",                4, 1 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME,                { TYPENAME::STRING,         "Stellar_Type(2)>MT",    "-",               42, 1 }},
-    { BINARY_PROPERTY::RLOF_POST_MT_TIME,                                   { TYPENAME::DOUBLE,         "Time>MT",              "Myr",              16, 8 }},
-    { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,    { TYPENAME::DOUBLE,         "Radius(1)|RL>step",      "-",              14, 6 }},
-    { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,    { TYPENAME::DOUBLE,         "Radius(2)|RL>step",      "-",              14, 6 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_ECCENTRICITY,                            { TYPENAME::DOUBLE,         "Eccentricity<MT",      "-",                14, 6 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_SEMI_MAJOR_AXIS,                         { TYPENAME::DOUBLE,         "SemiMajorAxis<MT",     "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_MASS,                              { TYPENAME::DOUBLE,         "Mass(1)<MT",           "Msol",             14, 6 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_MASS,                              { TYPENAME::DOUBLE,         "Mass(2)<MT",           "Msol",             14, 6 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RADIUS,                            { TYPENAME::DOUBLE,         "Radius(1)<MT",         "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RADIUS,                            { TYPENAME::DOUBLE,         "Radius(2)<MT",         "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RLOF,                              { TYPENAME::BOOL,           "RLOF(1)<MT",           "Event",             0, 0 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RLOF,                              { TYPENAME::BOOL,           "RLOF(2)<MT",           "Event",             0, 0 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE,                      { TYPENAME::STELLAR_TYPE,   "Stellar_Type(1)<MT",   "-",                 4, 1 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME,                 { TYPENAME::STRING,         "Stellar_Type(1)<MT",   "-",                42, 1 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE,                      { TYPENAME::STELLAR_TYPE,   "Stellar_Type(2)<MT",   "-",                 4, 1 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME,                 { TYPENAME::STRING,         "Stellar_Type(2)<MT",   "-",                42, 1 }},
-    { BINARY_PROPERTY::RLOF_PRE_MT_TIME,                                    { TYPENAME::DOUBLE,         "Time<MT",              "Myr",              16, 8 }},
-    { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,     { TYPENAME::DOUBLE,         "Radius(1)|RL<step",      "-",              14, 6 }},
-    { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,     { TYPENAME::DOUBLE,         "Radius(2)|RL<step",      "-",              14, 6 }},
-    { BINARY_PROPERTY::RLOF_SECONDARY_POST_COMMON_ENVELOPE,                 { TYPENAME::BOOL,           "RLOF_Secondary>CE",    "Event",             0, 0 }},
-    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1,                                 { TYPENAME::DOUBLE,         "RocheLobe(1)|a",       "-",                14, 6 }},
-    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE,            { TYPENAME::DOUBLE,         "RocheLobe(1)>CE",      "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE,             { TYPENAME::DOUBLE,         "RocheLobe(1)<CE",      "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2,                                 { TYPENAME::DOUBLE,         "RocheLobe(2)|a",       "-",                14, 6 }},
-    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_POST_COMMON_ENVELOPE,            { TYPENAME::DOUBLE,         "RocheLobe(2)>CE",      "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_PRE_COMMON_ENVELOPE,             { TYPENAME::DOUBLE,         "RocheLobe(2)<CE",      "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,                   { TYPENAME::DOUBLE,         "Radius(1)|RL",         "-",                14, 6 }},
-    { BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,                   { TYPENAME::DOUBLE,         "Radius(2)|RL",         "-",                14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                    { TYPENAME::DOUBLE,         "SemiMajorAxis@DCO",    "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                             { TYPENAME::DOUBLE,         "SemiMajorAxis@ZAMS",   "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,         "SemiMajorAxis>CE",     "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,         "SemiMajorAxis<CE",     "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                       { TYPENAME::DOUBLE,         "SemiMajorAxis<SN",     "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,                  { TYPENAME::DOUBLE,         "SemiMajorAxis<SN",     "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS,                                     { TYPENAME::DOUBLE,         "SemiMajorAxis",        "AU",               14, 6 }},
-    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,                                { TYPENAME::DOUBLE,         "SemiMajorAxis",        "Rsol",             14, 6 }},
-    { BINARY_PROPERTY::SIMULTANEOUS_RLOF,                                   { TYPENAME::BOOL,           "Simultaneous_RLOF",    "Event",             0, 0 }},
-    { BINARY_PROPERTY::STABLE_RLOF_POST_COMMON_ENVELOPE,                    { TYPENAME::BOOL,           "Stable_RLOF>CE",       "State",             0, 0 }},
-    { BINARY_PROPERTY::STELLAR_MERGER,                                      { TYPENAME::BOOL,           "Merger",               "Event",             0, 0 }},
-    { BINARY_PROPERTY::STELLAR_MERGER_AT_BIRTH,                             { TYPENAME::BOOL,           "Merger_At_Birth",      "Event",             0, 0 }},
-    { BINARY_PROPERTY::STELLAR_TYPE_1_POST_COMMON_ENVELOPE,                 { TYPENAME::STELLAR_TYPE,   "Stellar_Type(1)>CE",   "-",                 4, 1 }},
-    { BINARY_PROPERTY::STELLAR_TYPE_1_PRE_COMMON_ENVELOPE,                  { TYPENAME::STELLAR_TYPE,   "Stellar_Type(1)<CE",   "-",                 4, 1 }},
-    { BINARY_PROPERTY::STELLAR_TYPE_2_POST_COMMON_ENVELOPE,                 { TYPENAME::STELLAR_TYPE,   "Stellar_Type(2)>CE",   "-",                 4, 1 }},
-    { BINARY_PROPERTY::STELLAR_TYPE_2_PRE_COMMON_ENVELOPE,                  { TYPENAME::STELLAR_TYPE,   "Stellar_Type(2)<CE",   "-",                 4, 1 }},
-    { BINARY_PROPERTY::STELLAR_TYPE_NAME_1_POST_COMMON_ENVELOPE,            { TYPENAME::STRING,         "Stellar_Type(1)>CE",   "-",                42, 1 }},
-    { BINARY_PROPERTY::STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE,             { TYPENAME::STRING,         "Stellar_Type(1)<CE",   "-",                42, 1 }},
-    { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE,            { TYPENAME::STRING,         "Stellar_Type(2)>CE",   "-",                42, 1 }},
-    { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE,             { TYPENAME::STRING,         "Stellar_Type(2)<CE",   "-",                42, 1 }},
-    { BINARY_PROPERTY::SUPERNOVA_STATE,                                     { TYPENAME::SN_STATE,       "Supernova_State",      "State",             4, 1 }},   // JR: todo: for backward compatibility
-    { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE,                           { TYPENAME::DOUBLE,         "Tau_Sync",             "Myr",              16, 8 }},
-    { BINARY_PROPERTY::SYSTEMIC_SPEED,                                      { TYPENAME::DOUBLE,         "SystemicSpeed",        "kms^-1",           14, 6 }},
-    { BINARY_PROPERTY::TIME,                                                { TYPENAME::DOUBLE,         "Time",                 "Myr",              16, 8 }},
-    { BINARY_PROPERTY::TIME_TO_COALESCENCE,                                 { TYPENAME::DOUBLE,         "Coalescence_Time",     "Myr",              16, 8 }},
-    { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,                              { TYPENAME::DOUBLE,         "Ang_Momentum_Total",   "Msol*AU^2*yr^-1",  14, 6 }},
-    { BINARY_PROPERTY::TOTAL_ENERGY,                                        { TYPENAME::DOUBLE,         "Energy_Total",         "Msol*AU^2*yr^-2",  14, 6 }},
-    { BINARY_PROPERTY::UNBOUND,                                             { TYPENAME::BOOL,           "Unbound",              "State",             0, 0 }},
-    { BINARY_PROPERTY::ZETA_LOBE,                                           { TYPENAME::DOUBLE,         "Zeta_Lobe",            "-",                14, 6 }},
-    { BINARY_PROPERTY::ZETA_STAR,                                           { TYPENAME::DOUBLE,         "Zeta_Star",            "-",                14, 6 }}
+    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_LUMINOSITY,              { TYPENAME::DOUBLE,           "Companion_Lum",             "Lsol",             14, 6 }},
+    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_MASS,                    { TYPENAME::DOUBLE,           "Companion_Mass",            "Msol",             14, 6 }},
+    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_RADIUS,                  { TYPENAME::DOUBLE,           "Companion_Radius",          "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_TEFF,                    { TYPENAME::DOUBLE,           "Companion_Teff",            "K",                14, 6 }},
+    { BINARY_PROPERTY::BE_BINARY_CURRENT_DT,                                { TYPENAME::DOUBLE,           "dT",                        "Myr",              16, 8 }},
+    { BINARY_PROPERTY::BE_BINARY_CURRENT_ECCENTRICITY,                      { TYPENAME::DOUBLE,           "Eccentricity",              "-",                14, 6 }},
+    { BINARY_PROPERTY::BE_BINARY_CURRENT_ID,                                { TYPENAME::OBJECT_ID,        "ID",                        "-",                12, 1 }},
+    { BINARY_PROPERTY::BE_BINARY_CURRENT_NS_MASS,                           { TYPENAME::DOUBLE,           "NS_Mass",                   "Msol",             14, 6 }},
+    { BINARY_PROPERTY::BE_BINARY_CURRENT_SEMI_MAJOR_AXIS,                   { TYPENAME::DOUBLE,           "SemiMajorAxis",             "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::BE_BINARY_CURRENT_TOTAL_TIME,                        { TYPENAME::DOUBLE,           "Total_Time",                "Myr",              16, 8 }},
+    { BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE,                           { TYPENAME::DOUBLE,           "Tau_Circ",                  "Myr",              16, 8 }},
+    { BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE,                       { TYPENAME::BOOL,             "CEE",                       "Event",             0, 0 }},
+    { BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT,                         { TYPENAME::UINT,             "CE_Event_Counter",          "Count",             6, 1 }},
+    { BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE,                        { TYPENAME::DOUBLE,           "Kick_Magnitude(uK)",        "-",                14, 6 }},
+    { BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE,                         { TYPENAME::BOOL,             "Double_Core_CE",            "Event",             0, 0 }},
+    { BINARY_PROPERTY::DT,                                                  { TYPENAME::DOUBLE,           "dT",                        "Myr",              16, 8 }},
+    { BINARY_PROPERTY::ECCENTRICITY,                                        { TYPENAME::DOUBLE,           "Eccentricity",              "-",                14, 6 }},
+    { BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION,                       { TYPENAME::DOUBLE,           "Eccentricity@DCO",          "-",                14, 6 }},
+    { BINARY_PROPERTY::ECCENTRICITY_INITIAL,                                { TYPENAME::DOUBLE,           "Eccentricity@ZAMS",         "-",                14, 6 }},
+    { BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,           "Eccentricity>CE",           "-",                14, 6 }},
+    { BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,                          { TYPENAME::DOUBLE,           "Eccentricity<SN",           "-",                14, 6 }},
+    { BINARY_PROPERTY::ECCENTRICITY_PRE_COMMON_ENVELOPE,                    { TYPENAME::DOUBLE,           "Eccentricity<CE",           "-",                14, 6 }},
+    { BINARY_PROPERTY::ERROR,                                               { TYPENAME::ERROR,            "Error",                     "-",                 4, 1 }},
+    { BINARY_PROPERTY::EVOL_STATUS,                                         { TYPENAME::EVOLUTION_STATUS, "Evolution_Status",          "-",                 4, 1 }},
+    { BINARY_PROPERTY::ID,                                                  { TYPENAME::OBJECT_ID,        "ID",                        "-",                12, 1 }},
+    { BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE,                 { TYPENAME::BOOL,             "Immediate_RLOF>CE",         "Event",             0, 0 }},
+    { BINARY_PROPERTY::MASS_1_POST_COMMON_ENVELOPE,                         { TYPENAME::DOUBLE,           "Mass(1)>CE",                "Msol",             14, 6 }},
+    { BINARY_PROPERTY::MASS_1_PRE_COMMON_ENVELOPE,                          { TYPENAME::DOUBLE,           "Mass(1)<CE",                "Msol",             14, 6 }},
+    { BINARY_PROPERTY::MASS_2_POST_COMMON_ENVELOPE,                         { TYPENAME::DOUBLE,           "Mass(2)>CE",                "Msol",             14, 6 }},
+    { BINARY_PROPERTY::MASS_2_PRE_COMMON_ENVELOPE,                          { TYPENAME::DOUBLE,           "Mass(2)<CE",                "Msol",             14, 6 }},
+    { BINARY_PROPERTY::MASS_ENV_1,                                          { TYPENAME::DOUBLE,           "Mass_Env(1)",               "Msol",             14, 6 }},
+    { BINARY_PROPERTY::MASS_ENV_2,                                          { TYPENAME::DOUBLE,           "Mass_Env(2)",               "Msol",             14, 6 }},
+    { BINARY_PROPERTY::MASSES_EQUILIBRATED,                                 { TYPENAME::BOOL,             "Equilibrated",              "Event",             0, 0 }},
+    { BINARY_PROPERTY::MASSES_EQUILIBRATED_AT_BIRTH,                        { TYPENAME::BOOL,             "Equilibrated_At_Birth",     "Event",             0, 0 }},
+    { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                       { TYPENAME::MT_TRACKING,      "MT_History",                "-",                 4, 1 }},
+    { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                               { TYPENAME::BOOL,             "Merges_Hubble_Time",        "State",             0, 0 }},
+    { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                          { TYPENAME::BOOL,             "Optimistic_CE",             "State",             0, 0 }},
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_VELOCITY,                            { TYPENAME::DOUBLE,           "Orbital_Angular_Velocity",  "kms^-1",           14, 6 }},
+    { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                      { TYPENAME::DOUBLE,           "Orb_Velocity<SN",           "kms^-1",           14, 6 }},
+    { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,           "Radius(1)>CE",              "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::RADIUS_1_PRE_COMMON_ENVELOPE,                        { TYPENAME::DOUBLE,           "Radius(1)<CE",              "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,           "Radius(2)>CE",              "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::RADIUS_2_PRE_COMMON_ENVELOPE,                        { TYPENAME::DOUBLE,           "Radius(2)<CE",              "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::RANDOM_SEED,                                         { TYPENAME::ULONGINT,         "SEED",                      "-",                12, 1 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_COMMON_ENVELOPE,                        { TYPENAME::BOOL,             "CEE>MT",                    "State",             0, 0 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY,                           { TYPENAME::DOUBLE,           "Eccentricity>MT",           "-",                14, 6 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER,                          { TYPENAME::UINT,             "MT_Event_Counter",          "Count",             6, 1 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_ID,                                     { TYPENAME::OBJECT_ID,        "ID>MT",                     "-",                12, 1 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_SEMI_MAJOR_AXIS,                        { TYPENAME::DOUBLE,           "SemiMajorAxis>MT",          "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_MASS,                             { TYPENAME::DOUBLE,           "Mass(1)>MT",                "Msol",             14, 6 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS,                             { TYPENAME::DOUBLE,           "Mass(2)>MT",                "Msol",             14, 6 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_RADIUS,                           { TYPENAME::DOUBLE,           "Radius(1)>MT",              "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_RADIUS,                           { TYPENAME::DOUBLE,           "Radius(2)>MT",              "Rsol",             14, 6 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_RLOF,                             { TYPENAME::BOOL,             "RLOF(1)>MT",                "State",             0, 0 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_RLOF,                             { TYPENAME::BOOL,             "RLOF(2)>MT",                "State",             0, 0 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE,                     { TYPENAME::STELLAR_TYPE,     "Stellar_Type(1)>MT",         "-",                4, 1 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME,                { TYPENAME::STRING,           "Stellar_Type(1)>MT",         "-",               42, 1 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE,                     { TYPENAME::STELLAR_TYPE,     "Stellar_Type(2)>MT",         "-",                4, 1 }},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME,                { TYPENAME::STRING,           "Stellar_Type(2)>MT",         "-",               42, 1 }},
+    { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,    { TYPENAME::DOUBLE,           "Radius(1)|RL>step",          "-",               14, 6 }},
+    { BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,    { TYPENAME::DOUBLE,           "Radius(2)|RL>step",          "-",               14, 6 }},
+    { BINARY_PROPERTY::RLOF_PRE_MT_ECCENTRICITY,                            { TYPENAME::DOUBLE,           "Eccentricity<MT",            "-",               14, 6 }},
+    { BINARY_PROPERTY::RLOF_PRE_MT_SEMI_MAJOR_AXIS,                         { TYPENAME::DOUBLE,           "SemiMajorAxis<MT",           "Rsol",            14, 6 }},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_MASS,                              { TYPENAME::DOUBLE,           "Mass(1)<MT",                 "Msol",            14, 6 }},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_MASS,                              { TYPENAME::DOUBLE,           "Mass(2)<MT",                 "Msol",            14, 6 }},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RADIUS,                            { TYPENAME::DOUBLE,           "Radius(1)<MT",               "Rsol",            14, 6 }},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RADIUS,                            { TYPENAME::DOUBLE,           "Radius(2)<MT",               "Rsol",            14, 6 }},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RLOF,                              { TYPENAME::BOOL,             "RLOF(1)<MT",                 "Event",            0, 0 }},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RLOF,                              { TYPENAME::BOOL,             "RLOF(2)<MT",                 "Event",            0, 0 }},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE,                      { TYPENAME::STELLAR_TYPE,     "Stellar_Type(1)<MT",         "-",                4, 1 }},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME,                 { TYPENAME::STRING,           "Stellar_Type(1)<MT",         "-",               42, 1 }},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE,                      { TYPENAME::STELLAR_TYPE,     "Stellar_Type(2)<MT",         "-",                4, 1 }},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE_NAME,                 { TYPENAME::STRING,           "Stellar_Type(2)<MT",         "-",               42, 1 }},
+    { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,     { TYPENAME::DOUBLE,           "Radius(1)|RL<step",          "-",               14, 6 }},
+    { BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,     { TYPENAME::DOUBLE,           "Radius(2)|RL<step",          "-",               14, 6 }},
+    { BINARY_PROPERTY::RLOF_SECONDARY_POST_COMMON_ENVELOPE,                 { TYPENAME::BOOL,             "RLOF_Secondary>CE",          "Event",            0, 0 }},
+    { BINARY_PROPERTY::RLOF_TIME_POST_MT,                                   { TYPENAME::DOUBLE,           "Time>MT",                    "Myr",             16, 8 }},
+    { BINARY_PROPERTY::RLOF_TIME_PRE_MT,                                    { TYPENAME::DOUBLE,           "Time<MT",                    "Myr",             16, 8 }},
+    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1,                                 { TYPENAME::DOUBLE,           "RocheLobe(1)",               "Rsol",            14, 6 }},
+    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE,            { TYPENAME::DOUBLE,           "RocheLobe(1)>CE",            "Rsol",            14, 6 }},
+    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE,             { TYPENAME::DOUBLE,           "RocheLobe(1)<CE",            "Rsol",            14, 6 }},
+    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2,                                 { TYPENAME::DOUBLE,           "RocheLobe(2)",               "Rsol",            14, 6 }},
+    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_POST_COMMON_ENVELOPE,            { TYPENAME::DOUBLE,           "RocheLobe(2)>CE",            "Rsol",            14, 6 }},
+    { BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_PRE_COMMON_ENVELOPE,             { TYPENAME::DOUBLE,           "RocheLobe(2)<CE",            "Rsol",            14, 6 }},
+    { BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,                   { TYPENAME::DOUBLE,           "Radius(1)|RL",               "-",               14, 6 }},
+    { BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,                   { TYPENAME::DOUBLE,           "Radius(2)|RL",               "-",               14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                    { TYPENAME::DOUBLE,           "SemiMajorAxis@DCO",          "AU",              14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                             { TYPENAME::DOUBLE,           "SemiMajorAxis@ZAMS",         "AU",              14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,           "SemiMajorAxis>CE",           "Rsol",            14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,           "SemiMajorAxis<CE",           "Rsol",            14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                       { TYPENAME::DOUBLE,           "SemiMajorAxis<SN",           "AU",              14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,                  { TYPENAME::DOUBLE,           "SemiMajorAxis<SN",           "Rsol",            14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS,                                     { TYPENAME::DOUBLE,           "SemiMajorAxis",              "AU",              14, 6 }},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,                                { TYPENAME::DOUBLE,           "SemiMajorAxis",              "Rsol",            14, 6 }},
+    { BINARY_PROPERTY::SIMULTANEOUS_RLOF,                                   { TYPENAME::BOOL,             "Simultaneous_RLOF",          "Event",            0, 0 }},
+    { BINARY_PROPERTY::STABLE_RLOF_POST_COMMON_ENVELOPE,                    { TYPENAME::BOOL,             "Stable_RLOF>CE",             "State",            0, 0 }},
+    { BINARY_PROPERTY::STELLAR_MERGER,                                      { TYPENAME::BOOL,             "Merger",                     "Event",            0, 0 }},
+    { BINARY_PROPERTY::STELLAR_MERGER_AT_BIRTH,                             { TYPENAME::BOOL,             "Merger_At_Birth",            "Event",            0, 0 }},
+    { BINARY_PROPERTY::STELLAR_TYPE_1_POST_COMMON_ENVELOPE,                 { TYPENAME::STELLAR_TYPE,     "Stellar_Type(1)>CE",         "-",                4, 1 }},
+    { BINARY_PROPERTY::STELLAR_TYPE_1_PRE_COMMON_ENVELOPE,                  { TYPENAME::STELLAR_TYPE,     "Stellar_Type(1)<CE",         "-",                4, 1 }},
+    { BINARY_PROPERTY::STELLAR_TYPE_2_POST_COMMON_ENVELOPE,                 { TYPENAME::STELLAR_TYPE,     "Stellar_Type(2)>CE",         "-",                4, 1 }},
+    { BINARY_PROPERTY::STELLAR_TYPE_2_PRE_COMMON_ENVELOPE,                  { TYPENAME::STELLAR_TYPE,     "Stellar_Type(2)<CE",         "-",                4, 1 }},
+    { BINARY_PROPERTY::STELLAR_TYPE_NAME_1_POST_COMMON_ENVELOPE,            { TYPENAME::STRING,           "Stellar_Type(1)>CE",         "-",               42, 1 }},
+    { BINARY_PROPERTY::STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE,             { TYPENAME::STRING,           "Stellar_Type(1)<CE",         "-",               42, 1 }},
+    { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE,            { TYPENAME::STRING,           "Stellar_Type(2)>CE",         "-",               42, 1 }},
+    { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE,             { TYPENAME::STRING,           "Stellar_Type(2)<CE",         "-",               42, 1 }},
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE,                   { TYPENAME::DOUBLE,           "SN_Orbit_Inclination_Angle", "-",               14, 6 }},   
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_X,                { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_X",     "-",               14, 6 }},   
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y,                { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_Y",     "-",               14, 6 }},   
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z,                { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_Z",     "-",               14, 6 }},   
+    { BINARY_PROPERTY::SUPERNOVA_STATE,                                     { TYPENAME::SN_STATE,         "Supernova_State",            "State",            4, 1 }},
+    { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE,                           { TYPENAME::DOUBLE,           "Tau_Sync",                   "Myr",             16, 8 }},
+    { BINARY_PROPERTY::SYSTEMIC_SPEED,                                      { TYPENAME::DOUBLE,           "SystemicSpeed",              "kms^-1",          14, 6 }},
+    { BINARY_PROPERTY::TIME,                                                { TYPENAME::DOUBLE,           "Time",                       "Myr",             16, 8 }},
+    { BINARY_PROPERTY::TIME_TO_COALESCENCE,                                 { TYPENAME::DOUBLE,           "Coalescence_Time",           "Myr",             16, 8 }},
+    { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,                              { TYPENAME::DOUBLE,           "Ang_Momentum_Total",         "Msol*AU^2*yr^-1", 14, 6 }},
+    { BINARY_PROPERTY::TOTAL_ENERGY,                                        { TYPENAME::DOUBLE,           "Energy_Total",               "Msol*AU^2*yr^-2", 14, 6 }},
+    { BINARY_PROPERTY::UNBOUND,                                             { TYPENAME::BOOL,             "Unbound",                    "State",            0, 0 }},
+    { BINARY_PROPERTY::ZETA_LOBE,                                           { TYPENAME::DOUBLE,           "Zeta_Lobe",                  "-",               14, 6 }},
+    { BINARY_PROPERTY::ZETA_STAR,                                           { TYPENAME::DOUBLE,           "Zeta_Star",                  "-",               14, 6 }}
 };
 
 // map PROGRAM_OPTION_DETAIL
@@ -2812,207 +3106,205 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
 // the logfiles - all keys present here should also be in PROGRAM_OPTION and PROGRAM_OPTION_LABEL
 const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 
-    { PROGRAM_OPTION::ADD_OPTIONS_TO_SYSPARMS,                              { TYPENAME::INT,            "Add_Options_To_SysParms",      "-",                 4, 1 }},
-    { PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE,             { TYPENAME::BOOL,           "Allow_MS_To_Survive_CE",       "Flag",              0, 0 }},
-    { PROGRAM_OPTION::ALLOW_RADIATIVE_ENVELOPE_STAR_TO_SURVIVE_COMMON_ENVELOPE, { TYPENAME::BOOL,       "Allow_Radiative_Envelope_To_Survive_CE", "Flag",    0, 0 }},
-    { PROGRAM_OPTION::ALLOW_IMMEDIATE_RLOF_POST_CE_TO_SURVIVE_COMMON_ENVELOPE,  { TYPENAME::BOOL,       "Allow_Immediate_RLOF>CE_To_Survive_CE",  "Flag",    0, 0 }},
-    { PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH,                                  { TYPENAME::BOOL,           "Allow_RLOF@Birth",             "Flag",              0, 0 }},
-    { PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH,                              { TYPENAME::BOOL,           "Allow_Touching@Birth",         "Flag",              0, 0 }},
-    { PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,          { TYPENAME::BOOL,           "Conserve_AngMom@Circ",         "Flag",              0, 0 }},
-    //{ PROGRAM_OPTION::BE_BINARIES,                                        { TYPENAME::BOOL,           "Be_Binaries",                  "Flag",              0, 0 }},
+    { PROGRAM_OPTION::ADD_OPTIONS_TO_SYSPARMS,                                  { TYPENAME::INT,        "Add_Options_To_SysParms",                "-",          4, 1 }},
+    { PROGRAM_OPTION::ALLOW_NON_STRIPPED_ECSN,                                  { TYPENAME::BOOL,       "Allow_Non_Stripped_ECSN",                "Flag",       0, 0 }},
+    { PROGRAM_OPTION::ALLOW_MS_STAR_TO_SURVIVE_COMMON_ENVELOPE,                 { TYPENAME::BOOL,       "Allow_MS_To_Survive_CE",                 "Flag",       0, 0 }},
+    { PROGRAM_OPTION::ALLOW_RADIATIVE_ENVELOPE_STAR_TO_SURVIVE_COMMON_ENVELOPE, { TYPENAME::BOOL,       "Allow_Radiative_Envelope_To_Survive_CE", "Flag",       0, 0 }},
+    { PROGRAM_OPTION::ALLOW_IMMEDIATE_RLOF_POST_CE_TO_SURVIVE_COMMON_ENVELOPE,  { TYPENAME::BOOL,       "Allow_Immediate_RLOF>CE_To_Survive_CE",  "Flag",       0, 0 }},
+    { PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH,                                      { TYPENAME::BOOL,       "Allow_RLOF@Birth",                       "Flag",       0, 0 }},
+    { PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH,                                  { TYPENAME::BOOL,       "Allow_Touching@Birth",                   "Flag",       0, 0 }},
+    { PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,              { TYPENAME::BOOL,       "Conserve_AngMom@Circ",                   "Flag",       0, 0 }},
+    //{ PROGRAM_OPTION::BE_BINARIES,                                              { TYPENAME::BOOL,       "Be_Binaries",                            "Flag",       0, 0 }},
 
-    { PROGRAM_OPTION::BLACK_HOLE_KICKS,                                     { TYPENAME::INT,            "BH_Kicks",                     "-",                 4, 1 }},
+    { PROGRAM_OPTION::BLACK_HOLE_KICKS,                                         { TYPENAME::INT,        "BH_Kicks",                               "-",          4, 1 }},
     
-    { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                       { TYPENAME::INT,            "BB_Mass_xFer_Stblty_Prscrptn", "-",                 4, 1 }},
+    { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                           { TYPENAME::INT,        "BB_Mass_xFer_Stblty_Prscrptn",           "-",          4, 1 }},
     
-    { PROGRAM_OPTION::CHECK_PHOTON_TIRING_LIMIT,                            { TYPENAME::BOOL,           "Check_Photon_Tiring_Limit",    "Flag",              0, 0 }},
+    { PROGRAM_OPTION::CHECK_PHOTON_TIRING_LIMIT,                                { TYPENAME::BOOL,       "Check_Photon_Tiring_Limit",              "Flag",       0, 0 }},
 
-    { PROGRAM_OPTION::CHE_MODE,                                             { TYPENAME::INT,            "CHE_Mode",                     "-",                 4, 1 }},
+    { PROGRAM_OPTION::CHE_MODE,                                                 { TYPENAME::INT,        "CHE_Mode",                               "-",          4, 1 }},
+      
+    { PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT,                             { TYPENAME::BOOL,       "Circularise@MT",                         "Flag",       0, 0 }},
 
-    { PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT,                         { TYPENAME::BOOL,           "Circularise@MT",               "Flag",              0, 0 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA,                                    { TYPENAME::DOUBLE,     "CE_Alpha",                               "-",         14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA_THERMAL,                            { TYPENAME::DOUBLE,     "CE_Alpha_Thermal",                       "-",         14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_FORMALISM,                                { TYPENAME::INT,        "CE_Formalism",                           "-",          4, 1 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA,                                   { TYPENAME::DOUBLE,     "CE_Lambda",                              "-",         14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_MULTIPLIER,                        { TYPENAME::DOUBLE,     "CE_Lambda_Multiplier",                   "-",         14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_PRESCRIPTION,                      { TYPENAME::INT,        "CE_Lambda_Prscrptn",                     "-",          4, 1 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_CONSTANT,                  { TYPENAME::DOUBLE,     "CE_Mass_Accr_Constant",                  "-",         14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MAX,                       { TYPENAME::DOUBLE,     "CE_Mass_Accr_Max",                       "Msol",      14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MIN,                       { TYPENAME::DOUBLE,     "CE_Mass_Accr_Min",                       "Msol",      14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION,              { TYPENAME::INT,        "CE_Mass_Accr_Prscrptn",                  "-",          4, 1 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY,             { TYPENAME::DOUBLE,     "CE_Recomb_Enrgy_Dnsty",                  "erg g^-1",  14, 6 }},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW,                            { TYPENAME::DOUBLE,     "CE_Slope_Kruckow",                       "-",         14, 6 }},
 
-    { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA,                                { TYPENAME::DOUBLE,         "CE_Alpha",                     "-",                14, 6 }},
-    { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA_THERMAL,                        { TYPENAME::DOUBLE,         "CE_Alpha_Thermal",             "-",                14, 6 }},
-    { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA,                               { TYPENAME::DOUBLE,         "CE_Lambda",                    "-",                14, 6 }},
-    { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_MULTIPLIER,                    { TYPENAME::DOUBLE,         "CE_Lambda_Multiplier",         "-",                14, 6 }},
-    { PROGRAM_OPTION::COMMON_ENVELOPE_LAMBDA_PRESCRIPTION,                  { TYPENAME::INT,            "CE_Lambda_Prscrptn",           "-",                 4, 1 }},
-    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_CONSTANT,              { TYPENAME::DOUBLE,         "CE_Mass_Accr_Constant",        "-",                14, 6 }},
-    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MAX,                   { TYPENAME::DOUBLE,         "CE_Mass_Accr_Max",             "Msol",             14, 6 }},
-    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MIN,                   { TYPENAME::DOUBLE,         "CE_Mass_Accr_Min",             "Msol",             14, 6 }},
-    { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION,          { TYPENAME::INT,            "CE_Mass_Accr_Prscrptn",        "-",                 4, 1 }},
-    { PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY,         { TYPENAME::DOUBLE,         "CE_Recomb_Enrgy_Dnsty",        "erg g^-1",         14, 6 }},
-    { PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW,                        { TYPENAME::DOUBLE,         "CE_Slope_Kruckow",             "-",                14, 6 }},
+    { PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER,                           { TYPENAME::DOUBLE,     "Cool_WindMassLoss_Multipl",              "-",         14, 6 }},
 
-    { PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER,                       { TYPENAME::DOUBLE,         "Cool_WindMassLoss_Multipl",    "-",                14, 6 }},
+    { PROGRAM_OPTION::ECCENTRICITY,                                             { TYPENAME::DOUBLE,     "Eccentricity",                           "-",         14, 6 }},
+    { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION,                                { TYPENAME::INT,        "Eccentricity_Dstrbtn",                   "-",          4, 1 }},
+    { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MAX,                            { TYPENAME::DOUBLE,     "Eccentricity_Dstrbtn_Max",               "-",         14, 6 }},
+    { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MIN,                            { TYPENAME::DOUBLE,     "Eccentricity_Dstrbtn_Min",               "-",         14, 6 }},
+    { PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR,                               { TYPENAME::DOUBLE,     "Eddington_Accr_Factor",                  "-",         14, 6 }},
+    { PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION,                              { TYPENAME::INT,        "Envelope_State_Prscrptn",                "-",          4, 1 }},
+    { PROGRAM_OPTION::EVOLUTION_MODE,                                           { TYPENAME::INT,        "Evolution_Mode",                         "Mode",       4, 1 }},
 
-    { PROGRAM_OPTION::ECCENTRICITY,                                         { TYPENAME::DOUBLE,         "Eccentricity",                 "-",                14, 6 }},
-    { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION,                            { TYPENAME::INT,            "Eccentricity_Dstrbtn",         "-",                 4, 1 }},
-    { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MAX,                        { TYPENAME::DOUBLE,         "Eccentricity_Dstrbtn_Max",     "-",                14, 6 }},
-    { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MIN,                        { TYPENAME::DOUBLE,         "Eccentricity_Dstrbtn_Min",     "-",                14, 6 }},
-    { PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR,                           { TYPENAME::DOUBLE,         "Eddington_Accr_Factor",        "-",                14, 6 }},
-    { PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION,                          { TYPENAME::INT,            "Envelope_State_Prscrptn",      "-",                 4, 1 }},
-    { PROGRAM_OPTION::EVOLUTION_MODE,                                       { TYPENAME::INT,            "Evolution_Mode",               "Mode",              4, 1 }},
+    { PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE,                                   { TYPENAME::INT,        "Fryer_SN_Engine",                        "-",          4, 1 }},
 
-    { PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE,                               { TYPENAME::INT,            "Fryer_SN_Engine",              "-",                 4, 1 }},
+    { PROGRAM_OPTION::FRYER22_FMIX,                                             { TYPENAME::DOUBLE,     "Fryer22_mixing_fraction",                "-",         14, 6 }},
+    { PROGRAM_OPTION::FRYER22_MCRIT,                                            { TYPENAME::DOUBLE,     "Fryer22_crit_COcore_Mass",               "Msol",      14, 6 }},
 
-    { PROGRAM_OPTION::INITIAL_MASS,                                         { TYPENAME::DOUBLE,         "Initial_Mass",                 "Msol",             14, 6 }},
-    { PROGRAM_OPTION::INITIAL_MASS_1,                                       { TYPENAME::DOUBLE,         "Initial_Mass(1)",              "Msol",             14, 6 }},
-    { PROGRAM_OPTION::INITIAL_MASS_2,                                       { TYPENAME::DOUBLE,         "Initial_Mass(2)",              "Msol",             14, 6 }},
+    { PROGRAM_OPTION::INITIAL_MASS,                                             { TYPENAME::DOUBLE,     "Initial_Mass",                           "Msol",      14, 6 }},
+    { PROGRAM_OPTION::INITIAL_MASS_1,                                           { TYPENAME::DOUBLE,     "Initial_Mass(1)",                        "Msol",      14, 6 }},
+    { PROGRAM_OPTION::INITIAL_MASS_2,                                           { TYPENAME::DOUBLE,     "Initial_Mass(2)",                        "Msol",      14, 6 }},
 
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION,                                { TYPENAME::INT,            "Initial_Mass_Function",        "-",                 4, 1 }},
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                            { TYPENAME::DOUBLE,         "Initial_Mass_Func_Max",        "Msol",             14, 6 }},
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                            { TYPENAME::DOUBLE,         "Initial_Mass_Func_Min",        "Msol",             14, 6 }},
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                           { TYPENAME::DOUBLE,         "Initial_Mass_Func_Power",      "-",                14, 6 }},
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION,                                    { TYPENAME::INT,        "Initial_Mass_Function",                  "-",          4, 1 }},
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                                { TYPENAME::DOUBLE,     "Initial_Mass_Func_Max",                  "Msol",      14, 6 }},
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                                { TYPENAME::DOUBLE,     "Initial_Mass_Func_Min",                  "Msol",      14, 6 }},
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                               { TYPENAME::DOUBLE,     "Initial_Mass_Func_Power",                "-",         14, 6 }},
 
-    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE,                                 { TYPENAME::STELLAR_TYPE,   "Initial_Stellar_Type",         "-",                14, 6 }},
-    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE_1,                               { TYPENAME::STELLAR_TYPE,   "Initial_Stellar_Type(1)",      "-",                14, 6 }},
-    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE_2,                               { TYPENAME::STELLAR_TYPE,   "Initial_Stellar_Type(2)",      "-",                14, 6 }},
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE,                                     { TYPENAME::STELLAR_TYPE,   "Initial_Stellar_Type",         "-",                14, 6 }},
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE_1,                                   { TYPENAME::STELLAR_TYPE,   "Initial_Stellar_Type(1)",      "-",                14, 6 }},
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE_2,                                   { TYPENAME::STELLAR_TYPE,   "Initial_Stellar_Type(2)",      "-",                14, 6 }},
 
-    { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                          { TYPENAME::INT,            "Kick_Direction_Dstrbtn",       "-",                 4, 1 }},
-    { PROGRAM_OPTION::KICK_DIRECTION_POWER,                                 { TYPENAME::DOUBLE,         "Kick_Direction_Power",         "-",                14, 6 }},
-    { PROGRAM_OPTION::KICK_SCALING_FACTOR,                                  { TYPENAME::DOUBLE,         "Kick_Scaling_Factor",          "-",                14, 6 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION,                          { TYPENAME::INT,            "Kick_Magnitude_Dstrbtn",       "-",                 4, 1 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_MAXIMUM,                  { TYPENAME::DOUBLE,         "Kick_Magnitude_Dstrbtn_Max",   "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                              { TYPENAME::INT,            "Kick_Direction_Dstrbtn",       "-",                 4, 1 }},
+    { PROGRAM_OPTION::KICK_DIRECTION_POWER,                                     { TYPENAME::DOUBLE,         "Kick_Direction_Power",         "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_SCALING_FACTOR,                                      { TYPENAME::DOUBLE,         "Kick_Scaling_Factor",          "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION,                              { TYPENAME::INT,            "Kick_Magnitude_Dstrbtn",       "-",                 4, 1 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_MAXIMUM,                      { TYPENAME::DOUBLE,         "Kick_Magnitude_Dstrbtn_Max",   "-",                14, 6 }},
 
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_BH,            { TYPENAME::DOUBLE,         "Sigma_Kick_CCSN_BH",           "kms^-1",           14, 6 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS,            { TYPENAME::DOUBLE,         "Sigma_Kick_CCSN_NS",           "kms^-1",           14, 6 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_ECSN,           { TYPENAME::DOUBLE,         "Sigma_Kick_ECSN",              "kms^-1",           14, 6 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_USSN,           { TYPENAME::DOUBLE,         "Sigma_Kick_USSN",              "kms^-1",           14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_BH,                { TYPENAME::DOUBLE,     "Sigma_Kick_CCSN_BH",                     "kms^-1",    14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS,                { TYPENAME::DOUBLE,     "Sigma_Kick_CCSN_NS",                     "kms^-1",    14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_ECSN,               { TYPENAME::DOUBLE,     "Sigma_Kick_ECSN",                        "kms^-1",    14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_USSN,               { TYPENAME::DOUBLE,     "Sigma_Kick_USSN",                        "kms^-1",    14, 6 }},
 
-    { PROGRAM_OPTION::KICK_MAGNITUDE,                                       { TYPENAME::DOUBLE,         "Kick_Magnitude",               "kms^-1",           14, 6 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_1,                                     { TYPENAME::DOUBLE,         "Kick_Magnitude(1)",            "kms^-1",           14, 6 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_2,                                     { TYPENAME::DOUBLE,         "Kick_Magnitude(2)",            "kms^-1",           14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE,                                           { TYPENAME::DOUBLE,     "Kick_Magnitude",                         "kms^-1",    14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_1,                                         { TYPENAME::DOUBLE,     "Kick_Magnitude(1)",                      "kms^-1",    14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_2,                                         { TYPENAME::DOUBLE,     "Kick_Magnitude(2)",                      "kms^-1",    14, 6 }},
 
-    { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM,                                { TYPENAME::DOUBLE,         "Kick_Magnitude_Random",        "-",                14, 6 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_1,                              { TYPENAME::DOUBLE,         "Kick_Magnitude_Random(1)",     "-",                14, 6 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_2,                              { TYPENAME::DOUBLE,         "Kick_Magnitude_Random(2)",     "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM,                                    { TYPENAME::DOUBLE,     "Kick_Magnitude_Random",                  "-",         14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_1,                                  { TYPENAME::DOUBLE,     "Kick_Magnitude_Random(1)",               "-",         14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_RANDOM_2,                                  { TYPENAME::DOUBLE,     "Kick_Magnitude_Random(2)",               "-",         14, 6 }},
 
-    { PROGRAM_OPTION::KICK_MEAN_ANOMALY_1,                                  { TYPENAME::DOUBLE,         "Kick_Mean_Anomaly(1)",         "-",                14, 6 }},
-    { PROGRAM_OPTION::KICK_MEAN_ANOMALY_2,                                  { TYPENAME::DOUBLE,         "Kick_Mean_Anomaly(2)",         "-",                14, 6 }},
-    { PROGRAM_OPTION::KICK_PHI_1,                                           { TYPENAME::DOUBLE,         "Kick_Phi(1)",                  "-",                14, 6 }},
-    { PROGRAM_OPTION::KICK_PHI_2,                                           { TYPENAME::DOUBLE,         "Kick_Phi(2)",                  "-",                14, 6 }},
-    { PROGRAM_OPTION::KICK_THETA_1,                                         { TYPENAME::DOUBLE,         "Kick_Theta(1)",                "-",                14, 6 }},
-    { PROGRAM_OPTION::KICK_THETA_2,                                         { TYPENAME::DOUBLE,         "Kick_Theta(2)",                "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_MEAN_ANOMALY_1,                                      { TYPENAME::DOUBLE,     "Kick_Mean_Anomaly(1)",                   "-",         14, 6 }},
+    { PROGRAM_OPTION::KICK_MEAN_ANOMALY_2,                                      { TYPENAME::DOUBLE,     "Kick_Mean_Anomaly(2)",                   "-",         14, 6 }},
+    { PROGRAM_OPTION::KICK_PHI_1,                                               { TYPENAME::DOUBLE,     "Kick_Phi(1)",                            "-",         14, 6 }},
+    { PROGRAM_OPTION::KICK_PHI_2,                                               { TYPENAME::DOUBLE,     "Kick_Phi(2)",                            "-",         14, 6 }},
+    { PROGRAM_OPTION::KICK_THETA_1,                                             { TYPENAME::DOUBLE,     "Kick_Theta(1)",                          "-",         14, 6 }},
+    { PROGRAM_OPTION::KICK_THETA_2,                                             { TYPENAME::DOUBLE,     "Kick_Theta(2)",                          "-",         14, 6 }},
 
-    { PROGRAM_OPTION::LBV_FACTOR,                                           { TYPENAME::DOUBLE,         "LBV_Factor",                   "-",                14, 6 }},
-    { PROGRAM_OPTION::LBV_PRESCRIPTION,                                     { TYPENAME::INT,            "LBV_Mass_Loss_Prscrptn",       "-",                 4, 1 }},
+    { PROGRAM_OPTION::LBV_FACTOR,                                               { TYPENAME::DOUBLE,     "LBV_Factor",                             "-",         14, 6 }},
+    { PROGRAM_OPTION::LBV_PRESCRIPTION,                                         { TYPENAME::INT,        "LBV_Mass_Loss_Prscrptn",                 "-",          4, 1 }},
 
-    { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                               { TYPENAME::INT,            "Mass_Loss_Prscrptn",           "-",                 4, 1 }},
+    { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                                   { TYPENAME::INT,        "Mass_Loss_Prscrptn",                     "-",          4, 1 }},
 
-    { PROGRAM_OPTION::MASS_RATIO,                                           { TYPENAME::DOUBLE,         "Mass_Ratio",                   "-",                14, 6 }},
-    { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION,                              { TYPENAME::INT,            "Mass_Ratio_Dstrbtn",           "-",                 4, 1 }},
-    { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MAX,                          { TYPENAME::DOUBLE,         "Mass_Ratio_Dstrbtn_Max",       "-",                14, 6 }},
-    { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MIN,                          { TYPENAME::DOUBLE,         "Mass_Ratio_Dstrbtn_Min",       "-",                14, 6 }},
+    { PROGRAM_OPTION::MASS_RATIO,                                               { TYPENAME::DOUBLE,     "Mass_Ratio",                             "-",         14, 6 }},
+    { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION,                                  { TYPENAME::INT,        "Mass_Ratio_Dstrbtn",                     "-",          4, 1 }},
+    { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MAX,                              { TYPENAME::DOUBLE,     "Mass_Ratio_Dstrbtn_Max",                 "-",         14, 6 }},
+    { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MIN,                              { TYPENAME::DOUBLE,     "Mass_Ratio_Dstrbtn_Min",                 "-",         14, 6 }},
 
-    { PROGRAM_OPTION::MAXIMUM_EVOLUTION_TIME,                               { TYPENAME::DOUBLE,         "Max_Evolution_Time",           "Myr",              14, 6 }},
-    { PROGRAM_OPTION::MAXIMUM_DONOR_MASS,                                   { TYPENAME::DOUBLE,         "Max_Donor_Mass",               "Msol",             14, 6 }},
-    { PROGRAM_OPTION::MAXIMUM_NEUTRON_STAR_MASS,                            { TYPENAME::DOUBLE,         "Max_NS_Mass",                  "Msol",             14, 6 }},
-    { PROGRAM_OPTION::MAXIMUM_TIMESTEPS,                                    { TYPENAME::INT,            "Max_Timesteps",                "Count",            10, 1 }},
+    { PROGRAM_OPTION::MAXIMUM_EVOLUTION_TIME,                                   { TYPENAME::DOUBLE,     "Max_Evolution_Time",                     "Myr",       14, 6 }},
+    { PROGRAM_OPTION::MAXIMUM_DONOR_MASS,                                       { TYPENAME::DOUBLE,     "Max_Donor_Mass",                         "Msol",      14, 6 }},
+    { PROGRAM_OPTION::MAXIMUM_NEUTRON_STAR_MASS,                                { TYPENAME::DOUBLE,     "Max_NS_Mass",                            "Msol",      14, 6 }},
+    { PROGRAM_OPTION::MAXIMUM_TIMESTEPS,                                        { TYPENAME::INT,        "Max_Timesteps",                          "Count",     10, 1 }},
 
-    { PROGRAM_OPTION::MCBUR1,                                               { TYPENAME::DOUBLE,         "MCBUR1",                       "Msol",             14, 6 }},
+    { PROGRAM_OPTION::MCBUR1,                                                   { TYPENAME::DOUBLE,     "MCBUR1",                                 "Msol",      14, 6 }},
 
-    { PROGRAM_OPTION::METALLICITY,                                          { TYPENAME::DOUBLE,         "Metallicity",                  "-",                14, 6 }},
-    { PROGRAM_OPTION::METALLICITY_DISTRIBUTION,                             { TYPENAME::INT,            "Metallicity_Dstrbtn",          "-",                 4, 1 }},
-    { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX,                         { TYPENAME::DOUBLE,         "Metallicity_Dstrbtn_Max",      "-",                14, 6 }},
-    { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN,                         { TYPENAME::DOUBLE,         "Metallicity_Dstrbtn_Min",      "-",                14, 6 }},
+    { PROGRAM_OPTION::METALLICITY,                                              { TYPENAME::DOUBLE,     "Metallicity",                            "-",         14, 6 }},
+    { PROGRAM_OPTION::METALLICITY_DISTRIBUTION,                                 { TYPENAME::INT,        "Metallicity_Dstrbtn",                    "-",          4, 1 }},
+    { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX,                             { TYPENAME::DOUBLE,     "Metallicity_Dstrbtn_Max",                "-",         14, 6 }},
+    { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN,                             { TYPENAME::DOUBLE,     "Metallicity_Dstrbtn_Min",                "-",         14, 6 }},
 
-    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                               { TYPENAME::DOUBLE,         "Min_Secondary_Mass",           "Msol",             14, 6 }},
+    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                                   { TYPENAME::DOUBLE,     "Min_Secondary_Mass",                     "Msol",      14, 6 }},
 
-    { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                 { TYPENAME::INT,            "MT_Acc_Efficiency_Prscrptn",   "-",                 4, 1 }},
-    { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                         { TYPENAME::INT,            "MT_AngMom_Loss_Prscrptn",      "-",                 4, 1 }},
-    { PROGRAM_OPTION::MT_THERMAL_LIMIT_C,                                   { TYPENAME::DOUBLE,         "MT_Thermal_Limit_C",           "-",                14, 6 }},
+    { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                     { TYPENAME::INT,        "MT_Acc_Efficiency_Prscrptn",             "-",          4, 1 }},
+    { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                             { TYPENAME::INT,        "MT_AngMom_Loss_Prscrptn",                "-",          4, 1 }},
+    { PROGRAM_OPTION::MT_THERMAL_LIMIT_C,                                       { TYPENAME::DOUBLE,     "MT_Thermal_Limit_C",                     "-",         14, 6 }},
 
-    // AVG
-    /*
-    { PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS,                               { TYPENAME::BOOL,           "MT_Crit_MR_MS_Low_Mass",               "Flag",      0, 0 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS_DEGENERATE_ACCRETOR,           { TYPENAME::DOUBLE,         "MT_Crit_MR_MS_Low_Mass_Deg_Acc",       "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS_NON_DEGENERATE_ACCRETOR,       { TYPENAME::DOUBLE,         "MT_Crit_MR_MS_Low_Mass_NonDeg_Acc",    "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS,                              { TYPENAME::BOOL,           "MT_Crit_MR_MS_High_Mass",              "Flag",      0, 0 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS_DEGENERATE_ACCRETOR,          { TYPENAME::DOUBLE,         "MT_Crit_MR_MS_High_Mass_Deg_Acc",      "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS_NON_DEGENERATE_ACCRETOR,      { TYPENAME::DOUBLE,         "MT_Crit_MR_MS_High_Mass_NonDeg_Acc",   "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_GIANT,                                     { TYPENAME::BOOL,           "MT_Crit_MR_Giant",                     "Flag",      0, 0 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_GIANT_DEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,         "MT_Crit_MR_Giant_Deg_Acc",             "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_GIANT_NON_DEGENERATE_ACCRETOR,             { TYPENAME::DOUBLE,         "MT_Crit_MR_Giant_NonDeg_Acc",          "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_HG,                                        { TYPENAME::BOOL,           "MT_Crit_MR_HG",                        "Flag",      0, 0 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_HG_DEGENERATE_ACCRETOR,                    { TYPENAME::DOUBLE,         "MT_Crit_MR_HG_Deg_Acc",                "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_HG_NON_DEGENERATE_ACCRETOR,                { TYPENAME::DOUBLE,         "MT_Crit_MR_HG_NonDeg_Acc",             "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT,                                  { TYPENAME::BOOL,           "MT_Crit_MR_HE_Giant",                  "Flag",      0, 0 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_DEGENERATE_ACCRETOR,              { TYPENAME::DOUBLE,         "MT_Crit_MR_HE_Giant_Deg_Acc",          "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_NON_DEGENERATE_ACCRETOR,          { TYPENAME::DOUBLE,         "MT_Crit_MR_HE_Giant_NonDeg_Acc",       "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_HE_HG,                                     { TYPENAME::BOOL,           "MT_Crit_MR_HE_HG",                     "Flag",      0, 0 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_HE_HG_DEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,         "MT_Crit_MR_HE_HG_Deg_Acc",             "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_HE_HG_NON_DEGENERATE_ACCRETOR,             { TYPENAME::DOUBLE,         "MT_Crit_MR_HE_HG_NonDeg_Acc",          "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_HE_MS,                                     { TYPENAME::BOOL,           "MT_Crit_MR_HE_MS",                     "Flag",      0, 0 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_HE_MS_DEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,         "MT_Crit_MR_HE_MS_Deg_Acc",             "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_HE_MS_NON_DEGENERATE_ACCRETOR,             { TYPENAME::DOUBLE,         "MT_Crit_MR_HE_MS_NonDeg_Acc",          "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_WD,                                        { TYPENAME::BOOL,           "MT_Crit_MR_WD",                        "Flag",      0, 0 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_WD_DEGENERATE_ACCRETOR,                    { TYPENAME::DOUBLE,         "MT_Crit_MR_WD_Deg_Acc",                "-",        14, 6 }},
-    { PROGRAM_OPTION::MT_CRIT_MR_WD_NONDEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,         "MT_Crit_MR_WD_NonDeg_Acc",             "-",        14, 6 }},
-    */
+    { PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS_DEGENERATE_ACCRETOR,               { TYPENAME::DOUBLE,     "MT_Crit_MR_MS_Low_Mass_Deg_Acc",         "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_MS_LOW_MASS_NON_DEGENERATE_ACCRETOR,           { TYPENAME::DOUBLE,     "MT_Crit_MR_MS_Low_Mass_NonDeg_Acc",      "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS_DEGENERATE_ACCRETOR,              { TYPENAME::DOUBLE,     "MT_Crit_MR_MS_High_Mass_Deg_Acc",        "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_MS_HIGH_MASS_NON_DEGENERATE_ACCRETOR,          { TYPENAME::DOUBLE,     "MT_Crit_MR_MS_High_Mass_NonDeg_Acc",     "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_GIANT_DEGENERATE_ACCRETOR,                     { TYPENAME::DOUBLE,     "MT_Crit_MR_Giant_Deg_Acc",               "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_GIANT_NON_DEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,     "MT_Crit_MR_Giant_NonDeg_Acc",            "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HG_DEGENERATE_ACCRETOR,                        { TYPENAME::DOUBLE,     "MT_Crit_MR_HG_Deg_Acc",                  "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HG_NON_DEGENERATE_ACCRETOR,                    { TYPENAME::DOUBLE,     "MT_Crit_MR_HG_NonDeg_Acc",               "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_DEGENERATE_ACCRETOR,                  { TYPENAME::DOUBLE,     "MT_Crit_MR_HE_Giant_Deg_Acc",            "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_NON_DEGENERATE_ACCRETOR,              { TYPENAME::DOUBLE,     "MT_Crit_MR_HE_Giant_NonDeg_Acc",         "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_HG_DEGENERATE_ACCRETOR,                     { TYPENAME::DOUBLE,     "MT_Crit_MR_HE_HG_Deg_Acc",               "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_HG_NON_DEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,     "MT_Crit_MR_HE_HG_NonDeg_Acc",            "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_MS_DEGENERATE_ACCRETOR,                     { TYPENAME::DOUBLE,     "MT_Crit_MR_HE_MS_Deg_Acc",               "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_HE_MS_NON_DEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,     "MT_Crit_MR_HE_MS_NonDeg_Acc",            "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_WD_DEGENERATE_ACCRETOR,                        { TYPENAME::DOUBLE,     "MT_Crit_MR_WD_Deg_Acc",                  "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_CRIT_MR_WD_NONDEGENERATE_ACCRETOR,                     { TYPENAME::DOUBLE,     "MT_Crit_MR_WD_NonDeg_Acc",               "-",         14, 6 }},
+    
+    { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                                     { TYPENAME::DOUBLE,     "MT_Fraction_Accreted",                   "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_JLOSS,                                                 { TYPENAME::DOUBLE,     "MT_JLoss",                               "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION,                         { TYPENAME::DOUBLE,     "MT_JLoss_Macleod_Linear_Frac",           "-",         14, 6 }},
+    { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                             { TYPENAME::INT,        "MT_Rejuvenation_Prscrptn",               "-",          4, 1 }},
+    { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                           { TYPENAME::INT,        "MT_Thermally_Lmtd_Variation",            "-",          4, 1 }},
 
-    { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                                 { TYPENAME::DOUBLE,         "MT_Fraction_Accreted",         "-",                14, 6 }},
-    { PROGRAM_OPTION::MT_JLOSS,                                             { TYPENAME::DOUBLE,         "MT_JLoss",                     "-",                14, 6 }},
-    { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                         { TYPENAME::INT,            "MT_Rejuvenation_Prscrptn",     "-",                 4, 1 }},
-    { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                       { TYPENAME::INT,            "MT_Thermally_Lmtd_Variation",  "-",                 4, 1 }},
+    { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH,                         { TYPENAME::DOUBLE,     "MM_Kick_Multiplier_BH",                  "-",         14, 6 }},
+    { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                         { TYPENAME::DOUBLE,     "MM_Kick_Multiplier_NS",                  "-",         14, 6 }},
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK,                                 { TYPENAME::DOUBLE,     "MM_Sigma_Kick",                          "-",         14, 6 }},
+    
+    { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                         { TYPENAME::INT,        "Neutrino_Mass_Loss_Assmptn",             "-",          4, 1 }},
+    { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                              { TYPENAME::DOUBLE,     "Neutrino_Mass_Loss_Value",               "-",         14, 6 }},
 
-    { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH,                     { TYPENAME::DOUBLE,         "MM_Kick_Multiplier_BH",        "-",                14, 6 }},
-    { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                     { TYPENAME::DOUBLE,         "MM_Kick_Multiplier_NS",        "-",                14, 6 }},
+    { PROGRAM_OPTION::NS_EOS,                                                   { TYPENAME::INT,        "NS_EOS",                                 "-",          4, 1 }},
 
-    { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                     { TYPENAME::INT,            "Neutrino_Mass_Loss_Assmptn",   "-",                 4, 1 }},
-    { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                          { TYPENAME::DOUBLE,         "Neutrino_Mass_Loss_Value",     "-",                14, 6 }},
+    { PROGRAM_OPTION::ORBITAL_PERIOD,                                           { TYPENAME::DOUBLE,     "Orbital_Period",                         "days",      14, 6 }},
+    { PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION,                              { TYPENAME::INT,        "Orbital_Period_Dstrbtn",                 "-",          4, 1 }},
+    { PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION_MAX,                          { TYPENAME::DOUBLE,     "Orbital_Period_Max",                     "days",      14, 6 }},
+    { PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION_MIN,                          { TYPENAME::DOUBLE,     "Orbital_Period_Min",                     "days",      14, 6 }},
 
-    { PROGRAM_OPTION::NS_EOS,                                               { TYPENAME::INT,            "NS_EOS",                       "-",                 4, 1 }},
+    { PROGRAM_OPTION::OVERALL_WIND_MASS_LOSS_MULTIPLIER,                        { TYPENAME::DOUBLE,     "Overall_WindMassLoss_Multipl",           "-",         14, 6 }},
 
-    { PROGRAM_OPTION::ORBITAL_PERIOD,                                       { TYPENAME::DOUBLE,         "Orbital_Period",               "days",             14, 6 }},
-    { PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION,                          { TYPENAME::INT,            "Orbital_Period_Dstrbtn",       "-",                 4, 1 }},
-    { PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION_MAX,                      { TYPENAME::DOUBLE,         "Orbital_Period_Max",           "days",             14, 6 }},
-    { PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION_MIN,                      { TYPENAME::DOUBLE,         "Orbital_Period_Min",           "days",             14, 6 }},
+    { PROGRAM_OPTION::PISN_LOWER_LIMIT,                                         { TYPENAME::DOUBLE,     "PISN_Lower_Limit",                       "Msol",      14, 6 }},
+    { PROGRAM_OPTION::PISN_UPPER_LIMIT,                                         { TYPENAME::DOUBLE,     "PISN_Upper_Limit",                       "Msol",      14, 6 }},
 
-    { PROGRAM_OPTION::OVERALL_WIND_MASS_LOSS_MULTIPLIER,                    { TYPENAME::DOUBLE,         "Overall_WindMassLoss_Multipl", "-",                14, 6 }},
+    { PROGRAM_OPTION::PPI_LOWER_LIMIT,                                          { TYPENAME::DOUBLE,     "PPI_Lower_Limit",                        "Msol",      14, 6 }},
+    { PROGRAM_OPTION::PPI_PRESCRIPTION,                                         { TYPENAME::INT,        "PPI_Prscrptn",                           "-",          4, 1 }},
+    { PROGRAM_OPTION::PPI_UPPER_LIMIT,                                          { TYPENAME::DOUBLE,     "PPI_Upper_Limit",                        "Msol",      14, 6 }},
 
-    { PROGRAM_OPTION::PISN_LOWER_LIMIT,                                     { TYPENAME::DOUBLE,         "PISN_Lower_Limit",             "Msol",             14, 6 }},
-    { PROGRAM_OPTION::PISN_UPPER_LIMIT,                                     { TYPENAME::DOUBLE,         "PISN_Upper_Limit",             "Msol",             14, 6 }},
+    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION,                       { TYPENAME::INT,        "Pulsar_Mag_Field_Dstrbtn",               "-",          4, 1 }},
+    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX,                   { TYPENAME::DOUBLE,     "Pulsar_Mag_Field_Dstrbtn_Max",           "AU",        14, 6 }},
+    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MIN,                   { TYPENAME::DOUBLE,     "Pulsar_Mag_Field_Dstrbtn_Min",           "AU",        14, 6 }},
 
-    { PROGRAM_OPTION::PPI_LOWER_LIMIT,                                      { TYPENAME::DOUBLE,         "PPI_Lower_Limit",              "Msol",             14, 6 }},
-    { PROGRAM_OPTION::PPI_PRESCRIPTION,                                     { TYPENAME::INT,            "PPI_Prscrptn",                 "-",                 4, 1 }},
-    { PROGRAM_OPTION::PPI_UPPER_LIMIT,                                      { TYPENAME::DOUBLE,         "PPI_Upper_Limit",              "Msol",             14, 6 }},
+    { PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                    { TYPENAME::INT,        "Pulsar_Spin_Period_Dstrbtn",             "-",          4, 1 }},
+    { PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MAX,                { TYPENAME::DOUBLE,     "Pulsar_Spin_Period_Dstrbtn_Max",         "AU",        14, 6 }},
+    { PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MIN,                { TYPENAME::DOUBLE,     "Pulsar_Spin_Period_Dstrbtn_Min",         "AU",        14, 6 }},
 
-    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION,                   { TYPENAME::INT,            "Pulsar_Mag_Field_Dstrbtn",     "-",                 4, 1 }},
-    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX,               { TYPENAME::DOUBLE,         "Pulsar_Mag_Field_Dstrbtn_Max", "AU",               14, 6 }},
-    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MIN,               { TYPENAME::DOUBLE,         "Pulsar_Mag_Field_Dstrbtn_Min", "AU",               14, 6 }},
+    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_MASS_SCALE,                   { TYPENAME::DOUBLE,     "Pulsar_Mag_Field_Decay_mScale",          "Msol",      14, 6 }},
+    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE,                   { TYPENAME::DOUBLE,     "Pulsar_Mag_Field_Decay_tScale",          "Myr",       14, 6 }},
 
-    { PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                { TYPENAME::INT,            "Pulsar_Spin_Period_Dstrbtn",   "-",                 4, 1 }},
-    { PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MAX,            { TYPENAME::DOUBLE,         "Pulsar_Spin_Period_Dstrbtn_Max","AU",              14, 6 }},
-    { PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MIN,            { TYPENAME::DOUBLE,         "Pulsar_Spin_Period_Dstrbtn_Min","AU",              14, 6 }},
+    { PROGRAM_OPTION::PULSAR_MINIMUM_MAGNETIC_FIELD,                            { TYPENAME::DOUBLE,     "Pulsar_Minimum_Mag_Field",               "Gauss",     14, 6 }},
 
-    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_MASS_SCALE,               { TYPENAME::DOUBLE,         "Pulsar_Mag_Field_Decay_mScale","Msol",             14, 6 }},
-    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE,               { TYPENAME::DOUBLE,         "Pulsar_Mag_Field_Decay_tScale","Myr",              14, 6 }},
+    { PROGRAM_OPTION::QCRIT_PRESCRIPTION,                                       { TYPENAME::INT,        "qCrit_Prescription",                     "-",          4, 1 }},
 
-    { PROGRAM_OPTION::PULSAR_MINIMUM_MAGNETIC_FIELD,                        { TYPENAME::DOUBLE,         "Pulsar_Minimum_Mag_Field",     "Gauss",            14, 6 }},
+    { PROGRAM_OPTION::RANDOM_SEED,                                              { TYPENAME::ULONGINT,   "SEED(OPTION)",                           "-",         12, 1 }},
+    { PROGRAM_OPTION::RANDOM_SEED_CMDLINE,                                      { TYPENAME::ULONGINT,   "SEED(CMDLINE)",                          "-",         12, 1 }},
 
-    { PROGRAM_OPTION::RANDOM_SEED,                                          { TYPENAME::ULONGINT,       "SEED(OPTION)",                 "-",                12, 1 }},
-    { PROGRAM_OPTION::RANDOM_SEED_CMDLINE,                                  { TYPENAME::ULONGINT,       "SEED(CMDLINE)",                "-",                11, 1 }},
+    { PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION,                                { TYPENAME::INT,        "Remnant_Mass_Prscrptn",                  "-",          4, 1 }},
 
-    { PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION,                            { TYPENAME::INT,            "Remnant_Mass_Prscrptn",        "-",                 4, 1 }},
-
-    { PROGRAM_OPTION::ROTATIONAL_VELOCITY_DISTRIBUTION,                     { TYPENAME::INT,            "Rotational_Velocity_Dstrbtn",  "-",                 4, 1 }},
-    { PROGRAM_OPTION::ROTATIONAL_FREQUENCY,                                 { TYPENAME::DOUBLE,         "Rotational_Frequency",         "Hz",               14, 6 }},
-    { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1,                               { TYPENAME::DOUBLE,         "Rotational_Frequency(1)",      "Hz",               14, 6 }},
-    { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_2,                               { TYPENAME::DOUBLE,         "Rotational_Frequency(2)",      "Hz",               14, 6 }},
+    { PROGRAM_OPTION::ROTATIONAL_VELOCITY_DISTRIBUTION,                         { TYPENAME::INT,        "Rotational_Velocity_Dstrbtn",            "-",          4, 1 }},
+    { PROGRAM_OPTION::ROTATIONAL_FREQUENCY,                                     { TYPENAME::DOUBLE,     "Rotational_Frequency",                   "Hz",        14, 6 }},
+    { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1,                                   { TYPENAME::DOUBLE,     "Rotational_Frequency(1)",                "Hz",        14, 6 }},
+    { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_2,                                   { TYPENAME::DOUBLE,     "Rotational_Frequency(2)",                "Hz",        14, 6 }},
    
-    { PROGRAM_OPTION::SEMI_MAJOR_AXIS,                                      { TYPENAME::DOUBLE,         "Semi-Major_Axis",              "AU",               14, 6 }},
-    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION,                         { TYPENAME::INT,            "Semi-Major_Axis_Dstrbtn",      "-",                 4, 1 }},
-    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX,                     { TYPENAME::DOUBLE,         "Semi-Major_Axis_Dstrbtn_Max",  "AU",               14, 6 }},
-    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MIN,                     { TYPENAME::DOUBLE,         "Semi-Major_Axis_Dstrbtn_Min",  "AU",               14, 6 }},
-    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER,                   { TYPENAME::DOUBLE,         "Semi-Major_Axis_Dstrbtn_Power","-",                14, 6 }},
+    { PROGRAM_OPTION::SEMI_MAJOR_AXIS,                                          { TYPENAME::DOUBLE,     "Semi-Major_Axis",                        "AU",        14, 6 }},
+    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION,                             { TYPENAME::INT,        "Semi-Major_Axis_Dstrbtn",                "-",          4, 1 }},
+    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX,                         { TYPENAME::DOUBLE,     "Semi-Major_Axis_Dstrbtn_Max",            "AU",        14, 6 }},
+    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MIN,                         { TYPENAME::DOUBLE,     "Semi-Major_Axis_Dstrbtn_Min",            "AU",        14, 6 }},
+    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER,                       { TYPENAME::DOUBLE,     "Semi-Major_Axis_Dstrbtn_Power",          "-",         14, 6 }},
 
-    { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                            { TYPENAME::INT,            "Stellar_Zeta_Prscrptn",        "-",                 4, 1 }},
+    { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                                { TYPENAME::INT,        "Stellar_Zeta_Prscrptn",                  "-",          4, 1 }},
 
-    { PROGRAM_OPTION::WR_FACTOR,                                            { TYPENAME::DOUBLE,         "WR_Factor",                    "-",                14, 6 }},
+    { PROGRAM_OPTION::WR_FACTOR,                                                { TYPENAME::DOUBLE,     "WR_Factor",                              "-",         14, 6 }},
 
-    { PROGRAM_OPTION::ZETA_ADIABATIC_ARBITRARY,                             { TYPENAME::DOUBLE,         "Zeta_Adiabatic_Arbitrary",     "-",                14, 6 }},
-    { PROGRAM_OPTION::ZETA_MS,                                              { TYPENAME::DOUBLE,         "Zeta_Main_Sequence",           "-",                14, 6 }},
-    { PROGRAM_OPTION::ZETA_RADIATIVE_ENVELOPE_GIANT,                        { TYPENAME::DOUBLE,         "Zeta_Radiative_Envelope_Giant","-",                14, 6 }}
+    { PROGRAM_OPTION::ZETA_ADIABATIC_ARBITRARY,                                 { TYPENAME::DOUBLE,     "Zeta_Adiabatic_Arbitrary",               "-",         14, 6 }},
+    { PROGRAM_OPTION::ZETA_MS,                                                  { TYPENAME::DOUBLE,     "Zeta_Main_Sequence",                     "-",         14, 6 }},
+    { PROGRAM_OPTION::ZETA_RADIATIVE_ENVELOPE_GIANT,                            { TYPENAME::DOUBLE,     "Zeta_Radiative_Envelope_Giant",          "-",         14, 6 }}
 };
 
 
@@ -3156,6 +3448,11 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     BINARY_PROPERTY::TIME,
     BINARY_PROPERTY::ECCENTRICITY,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,
+    STAR_1_PROPERTY::MZAMS,
+    STAR_2_PROPERTY::MZAMS,
+    STAR_1_PROPERTY::MASS_0,
+    STAR_2_PROPERTY::MASS_0,
+    BINARY_PROPERTY::UNBOUND,
     STAR_1_PROPERTY::MASS,
     STAR_2_PROPERTY::MASS,
     STAR_1_PROPERTY::ENV_MASS,
@@ -3176,6 +3473,8 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_2_PROPERTY::OMEGA,
     STAR_1_PROPERTY::OMEGA_BREAK,
     STAR_2_PROPERTY::OMEGA_BREAK,
+    STAR_1_PROPERTY::INITIAL_STELLAR_TYPE,
+    STAR_2_PROPERTY::INITIAL_STELLAR_TYPE,
     STAR_1_PROPERTY::STELLAR_TYPE,
     STAR_2_PROPERTY::STELLAR_TYPE,
     STAR_1_PROPERTY::AGE,
@@ -3217,6 +3516,10 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_2_PROPERTY::PULSAR_SPIN_FREQUENCY,
     STAR_1_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_2_PROPERTY::PULSAR_SPIN_DOWN_RATE,
+    STAR_1_PROPERTY::PULSAR_BIRTH_PERIOD,
+    STAR_2_PROPERTY::PULSAR_BIRTH_PERIOD,
+    STAR_1_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
+    STAR_2_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
     STAR_1_PROPERTY::RADIAL_EXPANSION_TIMESCALE,
     STAR_2_PROPERTY::RADIAL_EXPANSION_TIMESCALE
 };
@@ -3260,6 +3563,10 @@ const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
     STAR_2_PROPERTY::PULSAR_SPIN_FREQUENCY,
     STAR_1_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_2_PROPERTY::PULSAR_SPIN_DOWN_RATE,
+    STAR_1_PROPERTY::PULSAR_BIRTH_PERIOD,
+    STAR_2_PROPERTY::PULSAR_BIRTH_PERIOD,
+    STAR_1_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
+    STAR_2_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
     BINARY_PROPERTY::TIME,
     BINARY_PROPERTY::DT
 };
@@ -3271,6 +3578,8 @@ const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
 //
 const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
+    BINARY_PROPERTY::RLOF_TIME_POST_MT,
+    BINARY_PROPERTY::RLOF_TIME_PRE_MT,
     BINARY_PROPERTY::RLOF_POST_MT_STAR1_MASS,
     BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS,
     BINARY_PROPERTY::RLOF_POST_MT_STAR1_RADIUS,
@@ -3280,9 +3589,9 @@ const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
     BINARY_PROPERTY::RLOF_POST_MT_SEMI_MAJOR_AXIS,
     BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY,
     BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER,
-    BINARY_PROPERTY::RLOF_POST_MT_TIME,
     BINARY_PROPERTY::RLOF_POST_MT_STAR1_RLOF,
     BINARY_PROPERTY::RLOF_POST_MT_STAR2_RLOF,
+    BINARY_PROPERTY::STELLAR_MERGER,
     BINARY_PROPERTY::RLOF_POST_MT_COMMON_ENVELOPE,
     BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,
     BINARY_PROPERTY::RLOF_POST_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,
@@ -3294,7 +3603,6 @@ const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
     BINARY_PROPERTY::RLOF_PRE_MT_STAR2_STELLAR_TYPE,
     BINARY_PROPERTY::RLOF_PRE_MT_SEMI_MAJOR_AXIS,
     BINARY_PROPERTY::RLOF_PRE_MT_ECCENTRICITY,
-    BINARY_PROPERTY::RLOF_PRE_MT_TIME,
     BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RLOF,
     BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RLOF,
     BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,
@@ -3346,7 +3654,8 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::SPEED,
     COMPANION_PROPERTY::SPEED,
     BINARY_PROPERTY::SYSTEMIC_SPEED,
-    SUPERNOVA_PROPERTY::IS_HYDROGEN_POOR
+    SUPERNOVA_PROPERTY::IS_HYDROGEN_POOR,
+    BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE, 
 };
 
 
@@ -3395,6 +3704,7 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     STAR_2_PROPERTY::STELLAR_TYPE,
     STAR_1_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,
     STAR_2_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,
+    BINARY_PROPERTY::EVOL_STATUS,
     BINARY_PROPERTY::ERROR,
     PROGRAM_OPTION::NOTES
 };
@@ -3465,6 +3775,7 @@ const ANY_PROPERTY_VECTOR SSE_SWITCH_LOG_REC = {
 const ANY_PROPERTY_VECTOR SSE_SYSTEM_PARAMETERS_REC = {
     STAR_PROPERTY::RANDOM_SEED,
     STAR_PROPERTY::MZAMS,
+    STAR_PROPERTY::RZAMS,
     STAR_PROPERTY::INITIAL_RADIUS,
     STAR_PROPERTY::METALLICITY,
     STAR_PROPERTY::OMEGA_ZAMS,
@@ -3473,6 +3784,7 @@ const ANY_PROPERTY_VECTOR SSE_SYSTEM_PARAMETERS_REC = {
     STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER,
     STAR_PROPERTY::MASS,
     STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,
+    STAR_PROPERTY::EVOL_STATUS,
     PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS,
     PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_BH,
     PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_ECSN,
@@ -3739,6 +4051,61 @@ const std::map<int, COMPASUnorderedMap<AB_TCoeff, double>> A_COEFF = {
     {81, {{ALPHA,  2.493000E0 }, {BETA,  1.147500E0 }, {GAMMA,  0.000000E0 }, {ETA,  0.000000E0 }, {MU,  0.000000E0 }}}
 };
 
+// Critial mass ratios and zetas, for a grid of masses and radii 
+// Subset of Table 3 in Ge et al. 2020, corresponding to the just the mass, logR, qCrit, qCritIC, zeta, and zetaIC
+// where qCrit is the critical mass ratio for adiabatic MT (qadic or qad tilde), and qCritIC is 
+// the critical mass ratio for isentropic envelopes (qadic or qad tilde). Similarly, zeta is for adiabatic MT, 
+// and zetaIC is for isentropic envelopes. (Zetas are not used in COMPAS, they are functionally equivalent to qCrits).
+// In both cases, q is mAccretor/mDonor, which is inverted from the Ge et al. datatable.
+// First entry in the tuple is the vector of unique mass values, second entry is the 5-tuple of vectors for logR, qCrit, qCritIC, zeta, zetaIC.
+// Note that the radius may contract several times. These points have been removed to facilitate the interpolation, so logR is monotonic.
+const std::tuple< std::vector<double>, std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>>> GE20_QCRIT_AND_ZETA = {
+    {0.1, 0.13, 0.16, 0.2, 0.22, 0.25, 0.28, 0.32, 0.36, 0.4, 0.45, 0.5, 0.56, 0.63, 0.71, 0.8, 0.89, 1.0, 1.14, 1.3, 1.439, 1.6, 1.8, 2.0, 2.04, 2.5, 3.2, 4.0, 5.0, 6.3, 8.0, 10.0, 13.0, 16.0, 20.0, 25.0, 32.0, 40.0, 50.0, 63.0, 80.0, 100.0},
+    {
+      {{-0.8724, -0.8581, -0.8457, -0.8367, -0.8336},  {-2.309, -31.250, -34.483, 43.478, 14.493},  {1.517, 1.531, 1.534, 1.536, 1.538},  {-2.635, -1.708, -1.705, -1.635, -1.545},  {-0.278, -0.293, -0.295, -0.296, -0.298}},
+      {{-0.7771, -0.7662, -0.7581, -0.7545, -0.7545, -0.7295, -0.7239},  {-2.907, -5.814, -8.264, -11.905, 22.222, 0.941, 0.209},  {1.531, 1.534, 1.536, 1.538, 1.538, 0.828, 0.209},  {-2.33, -1.93, -1.841, -1.783, -1.593, 0.593, 8.539},  {-0.292, -0.295, -0.297, -0.3, -0.3, 0.905, 8.549}},
+      {{-0.7068, -0.6996, -0.6958, -0.6953, -0.6949, -0.6642, -0.5622, -0.46, -0.3582, -0.256},  {-3.356, -6.211, -16.393, 6.536, 2.075, 1.495, 0.600, 0.366, 0.204, 0.096},  {1.534, 1.538, 1.541, 1.543, 1.427, 1.186, 0.580, 0.354, 0.196, 0.096},  {-2.204, -1.909, -1.748, -1.368, -0.662, -0.258, 1.891, 4.177, 8.767, 20.29},  {-0.294, -0.298, -0.301, -0.303, -0.189, 0.117, 2.015, 4.366, 9.193, 20.36}},
+      {{-0.6373, -0.6331, -0.6305, -0.6299, -0.6295, -0.6251, -0.6117, -0.5659, -0.4627, -0.3596, -0.256, -0.1531, -0.0464, 0.0491, 0.1517, 0.2617, 0.3627},  {-6.289, -15.625, 3.356, 2.674, 2.283, 2.110, 1.825, 1.309, 0.823, 0.664, 0.575, 0.495, 0.415, 0.342, 0.258, 0.156, 0.042},  {1.538, 1.543, 1.548, 1.550, 1.534, 1.484, 1.381, 1.151, 0.797, 0.649, 0.560, 0.479, 0.397, 0.323, 0.241, 0.142, 0.042},  {-1.905, -1.759, -1.057, -0.895, -0.757, -0.679, -0.52, -0.052, 0.921, 1.545, 2.05, 2.648, 3.49, 4.591, 6.604, 12.01, 47.96},  {-0.299, -0.303, -0.307, -0.31, -0.294, -0.247, -0.138, 0.175, 1.006, 1.621, 2.15, 2.798, 3.724, 4.952, 7.207, 13.3, 48.75}},
+      {{-0.6087, -0.6047, -0.6021, -0.6015, -0.5993, -0.593, -0.5764, -0.5258, -0.4215, -0.3172, -0.2127, -0.1081, -0.0049, 0.0996, 0.2053, 0.3111, 0.4082, 0.5206, 0.6211},  {-5.128, 7.407, 2.451, 2.188, 2.101, 1.916, 1.672, 1.269, 0.870, 0.739, 0.674, 0.610, 0.543, 0.475, 0.403, 0.325, 0.247, 0.146, 0.030},  {1.541, 1.546, 1.550, 1.548, 1.522, 1.468, 1.364, 1.143, 0.844, 0.723, 0.659, 0.592, 0.523, 0.452, 0.378, 0.300, 0.224, 0.128, 0.030},  {-1.973, -1.406, -0.821, -0.716, -0.674, -0.575, -0.412, 0.0, 0.779, 1.22, 1.496, 1.835, 2.264, 2.833, 3.642, 4.911, 6.982, 12.93, 66.78},  {-0.301, -0.306, -0.31, -0.308, -0.284, -0.233, -0.119, 0.188, 0.857, 1.281, 1.569, 1.939, 2.419, 3.064, 3.992, 5.457, 7.867, 14.86, 68.8}},
+      {{-0.5703, -0.5663, -0.5638, -0.5627, -0.5583, -0.5497, -0.5296, -0.4743, -0.3728, -0.2715, -0.1699, -0.0708, 0.0319, 0.1316, 0.2382, 0.3351, 0.4386, 0.546, 0.6432, 0.7393, 0.8399, 0.9457},  {-12.500, 2.809, 2.320, 2.212, 2.000, 1.838, 1.590, 1.236, 0.931, 0.831, 0.789, 0.742, 0.685, 0.629, 0.566, 0.506, 0.439, 0.364, 0.292, 0.218, 0.136, 0.020},  {1.546, 1.550, 1.550, 1.538, 1.506, 1.449, 1.344, 1.139, 0.904, 0.817, 0.775, 0.725, 0.665, 0.604, 0.537, 0.474, 0.404, 0.329, 0.258, 0.188, 0.113, 0.019},  {-1.776, -0.934, -0.771, -0.727, -0.623, -0.527, -0.345, 0.045, 0.615, 0.893, 1.035, 1.207, 1.446, 1.729, 2.107, 2.553, 3.201, 4.205, 5.645, 8.134, 13.94, 100.2},  {-0.305, -0.31, -0.31, -0.299, -0.268, -0.212, -0.095, 0.194, 0.685, 0.941, 1.085, 1.274, 1.543, 1.871, 2.314, 2.844, 3.621, 4.835, 6.6, 9.68, 17.04, 107.1}},
+      {{-0.536, -0.5322, -0.5307, -0.5276, -0.5217, -0.5112, -0.4883, -0.4305, -0.3276, -0.2249, -0.1214, -0.0168, 0.0805, 0.1867, 0.2933, 0.3908, 0.4954, 0.593, 0.707, 0.8101, 0.9127, 1.0121, 1.1144, 1.2151},  {8.475, 3.802, 2.451, 2.096, 1.898, 1.745, 1.524, 1.220, 0.963, 0.890, 0.864, 0.822, 0.774, 0.718, 0.661, 0.606, 0.544, 0.482, 0.407, 0.337, 0.263, 0.191, 0.115, 0.019},  {1.550, 1.550, 1.548, 1.527, 1.488, 1.431, 1.326, 1.139, 0.927, 0.876, 0.850, 0.806, 0.754, 0.693, 0.629, 0.569, 0.503, 0.439, 0.362, 0.292, 0.222, 0.155, 0.089, 0.013},  {-1.443, -1.133, -0.822, -0.673, -0.565, -0.465, -0.286, 0.069, 0.538, 0.721, 0.798, 0.923, 1.086, 1.302, 1.563, 1.857, 2.262, 2.763, 3.578, 4.682, 6.45, 9.513, 16.72, 110.1},  {-0.309, -0.31, -0.307, -0.287, -0.252, -0.193, -0.074, 0.194, 0.627, 0.762, 0.836, 0.974, 1.161, 1.414, 1.727, 2.084, 2.581, 3.205, 4.234, 5.653, 7.963, 12.05, 22.07, 159.2}},
+      {{-0.4956, -0.4928, -0.4908, -0.4861, -0.4786, -0.4662, -0.4406, -0.3806, -0.2813, -0.1825, -0.085, 0.0174, 0.1168, 0.2151, 0.3155, 0.4085, 0.5101, 0.6091, 0.7101, 0.8133, 0.9053, 1.0115, 1.1044, 1.2088, 1.3081, 1.4077, 1.5028},  {2.646, 2.160, 2.123, 1.946, 1.799, 1.658, 1.466, 1.209, 1.007, 0.944, 0.931, 0.903, 0.859, 0.811, 0.760, 0.712, 0.658, 0.607, 0.551, 0.488, 0.429, 0.359, 0.296, 0.224, 0.159, 0.092, 0.014},  {1.550, 1.550, 1.538, 1.511, 1.471, 1.412, 1.311, 1.143, 0.982, 0.929, 0.918, 0.889, 0.841, 0.787, 0.730, 0.676, 0.615, 0.559, 0.498, 0.432, 0.371, 0.301, 0.241, 0.175, 0.117, 0.062, 0.008},  {-0.885, -0.703, -0.685, -0.592, -0.501, -0.4, -0.23, 0.083, 0.442, 0.584, 0.617, 0.689, 0.81, 0.959, 1.135, 1.328, 1.577, 1.852, 2.211, 2.712, 3.313, 4.288, 5.555, 7.843, 11.75, 21.43, 145.4},  {-0.31, -0.31, -0.298, -0.273, -0.234, -0.173, -0.056, 0.187, 0.496, 0.622, 0.648, 0.727, 0.864, 1.04, 1.253, 1.489, 1.802, 2.156, 2.623, 3.284, 4.089, 5.427, 7.207, 10.52, 16.48, 32.06, 260.6}},
+      {{-0.4601, -0.4588, -0.4549, -0.4491, -0.4404, -0.4267, -0.3993, -0.3391, -0.2412, -0.1446, -0.0441, 0.0538, 0.1524, 0.2466, 0.3437, 0.4443, 0.5423, 0.6364, 0.7361, 0.8389, 0.9307, 1.0371, 1.1311, 1.2251, 1.3315, 1.4219, 1.5193, 1.6162, 1.7182},  {2.475, 2.146, 1.984, 1.855, 1.724, 1.600, 1.429, 1.209, 1.040, 0.996, 0.992, 0.968, 0.926, 0.882, 0.836, 0.788, 0.737, 0.688, 0.634, 0.576, 0.521, 0.455, 0.394, 0.332, 0.262, 0.203, 0.143, 0.083, 0.011},  {1.553, 1.546, 1.524, 1.495, 1.456, 1.397, 1.300, 1.151, 1.015, 0.980, 0.979, 0.956, 0.909, 0.860, 0.808, 0.752, 0.694, 0.638, 0.578, 0.514, 0.456, 0.386, 0.325, 0.264, 0.198, 0.146, 0.094, 0.049, 0.004},  {-0.829, -0.697, -0.614, -0.54, -0.451, -0.353, -0.191, 0.084, 0.375, 0.465, 0.475, 0.527, 0.63, 0.746, 0.879, 1.038, 1.223, 1.434, 1.699, 2.042, 2.433, 3.032, 3.755, 4.761, 6.481, 8.839, 13.23, 23.91, 189.3},  {-0.311, -0.305, -0.286, -0.258, -0.218, -0.156, -0.042, 0.175, 0.425, 0.5, 0.503, 0.557, 0.672, 0.809, 0.971, 1.169, 1.405, 1.678, 2.027, 2.489, 3.026, 3.868, 4.911, 6.411, 9.085, 12.9, 20.76, 41.34, 493.3}},
+      {{-0.4265, -0.4218, -0.4158, -0.4079, -0.3971, -0.3809, -0.3506, -0.2891, -0.1896, -0.0899, 0.0089, 0.1082, 0.2107, 0.3082, 0.4071, 0.5078, 0.6032, 0.7087, 0.8087, 0.9117, 1.0036, 1.1101, 1.2042, 1.3121, 1.4059, 1.5111, 1.5998, 1.8083, 1.9051},  {1.887, 1.845, 1.757, 1.675, 1.575, 1.473, 1.330, 1.148, 1.018, 1.004, 1.014, 0.996, 0.958, 0.918, 0.876, 0.831, 0.784, 0.731, 0.680, 0.624, 0.571, 0.507, 0.448, 0.378, 0.316, 0.247, 0.192, 0.069, 0.006},  {1.534, 1.508, 1.479, 1.445, 1.401, 1.340, 1.247, 1.109, 0.999, 0.990, 1.002, 0.982, 0.940, 0.894, 0.845, 0.792, 0.737, 0.676, 0.617, 0.554, 0.496, 0.428, 0.366, 0.296, 0.237, 0.174, 0.126, 0.031, 0.002},  {-0.557, -0.531, -0.473, -0.413, -0.332, -0.235, -0.078, 0.178, 0.419, 0.448, 0.428, 0.466, 0.551, 0.649, 0.761, 0.894, 1.05, 1.249, 1.472, 1.755, 2.073, 2.549, 3.107, 3.987, 5.086, 6.962, 9.416, 28.72, 327.2},  {-0.294, -0.272, -0.244, -0.208, -0.16, -0.091, 0.03, 0.244, 0.46, 0.478, 0.453, 0.496, 0.596, 0.714, 0.854, 1.025, 1.226, 1.491, 1.793, 2.187, 2.639, 3.332, 4.17, 5.546, 7.343, 10.58, 15.24, 66.1, 1306.0}},
+      {{-0.3833, -0.3768, -0.3686, -0.3584, -0.3449, -0.3253, -0.2916, -0.2299, -0.1287, -0.0276, 0.0708, 0.1718, 0.2754, 0.3766, 0.4772, 0.5775, 0.6809, 0.7754, 0.8745, 0.9768, 1.0813, 1.1741, 1.2811, 1.3751, 1.4821, 1.5875, 1.6899, 1.7877, 1.8895, 1.9868, 2.0867},  {1.869, 1.678, 1.582, 1.508, 1.427, 1.330, 1.206, 1.065, 0.979, 1.011, 1.034, 1.021, 0.990, 0.954, 0.915, 0.873, 0.824, 0.781, 0.733, 0.681, 0.623, 0.569, 0.503, 0.443, 0.373, 0.302, 0.236, 0.175, 0.114, 0.058, 0.005},  {1.479, 1.449, 1.412, 1.372, 1.321, 1.255, 1.160, 1.040, 0.965, 0.999, 1.021, 1.006, 0.968, 0.924, 0.878, 0.828, 0.770, 0.719, 0.663, 0.602, 0.538, 0.478, 0.408, 0.346, 0.276, 0.209, 0.150, 0.097, 0.051, 0.012, 0.001},  {-0.546, -0.415, -0.337, -0.27, -0.189, -0.079, 0.087, 0.326, 0.501, 0.434, 0.386, 0.411, 0.478, 0.562, 0.658, 0.77, 0.917, 1.061, 1.241, 1.468, 1.759, 2.087, 2.58, 3.158, 4.071, 5.409, 7.374, 10.51, 16.89, 34.84, 409.7},  {-0.242, -0.211, -0.174, -0.127, -0.067, 0.018, 0.158, 0.374, 0.534, 0.46, 0.412, 0.445, 0.527, 0.633, 0.758, 0.906, 1.101, 1.3, 1.551, 1.877, 2.307, 2.803, 3.574, 4.515, 6.078, 8.523, 12.5, 20.09, 39.79, 164.1, 1727.0}},
+      {{-0.3385, -0.3304, -0.3205, -0.3085, -0.2931, -0.2718, -0.2375, -0.1818, -0.1056, -0.0284, 0.0736, 0.1762, 0.2766, 0.3844, 0.4792, 0.5853, 0.6837, 0.7944, 0.8911, 0.9914, 1.0942, 1.1988, 1.3047, 1.3978, 1.504, 1.6092, 1.7122, 1.8121, 1.919, 2.0177, 2.1214, 2.2211},  {1.522, 1.468, 1.410, 1.350, 1.280, 1.199, 1.100, 0.997, 0.951, 0.989, 1.045, 1.053, 1.033, 1.001, 0.968, 0.929, 0.887, 0.838, 0.795, 0.747, 0.693, 0.636, 0.573, 0.514, 0.445, 0.373, 0.302, 0.238, 0.166, 0.109, 0.046, 0.004},  {1.399, 1.362, 1.323, 1.279, 1.225, 1.159, 1.072, 0.979, 0.939, 0.978, 1.032, 1.036, 1.012, 0.972, 0.931, 0.883, 0.832, 0.773, 0.722, 0.665, 0.603, 0.537, 0.468, 0.405, 0.333, 0.263, 0.197, 0.138, 0.080, 0.033, 0.008, 0.001},  {-0.283, -0.232, -0.172, -0.101, -0.015, 0.099, 0.262, 0.464, 0.567, 0.48, 0.365, 0.348, 0.387, 0.455, 0.528, 0.623, 0.733, 0.873, 1.012, 1.187, 1.408, 1.691, 2.062, 2.487, 3.14, 4.062, 5.408, 7.317, 11.12, 17.69, 44.12, 485.2},  {-0.157, -0.118, -0.07, -0.013, 0.061, 0.162, 0.312, 0.503, 0.597, 0.506, 0.391, 0.381, 0.432, 0.52, 0.616, 0.744, 0.893, 1.088, 1.287, 1.543, 1.874, 2.311, 2.902, 3.607, 4.743, 6.454, 9.139, 13.71, 24.69, 61.83, 258.9, 2038.0}},
+      {{-0.2837, -0.2743, -0.2632, -0.2502, -0.2344, -0.2139, -0.1855, -0.1451, -0.0687, 0.0091, 0.1072, 0.2088, 0.3064, 0.4031, 0.5016, 0.6035, 0.699, 0.7957, 0.9009, 0.9988, 1.0995, 1.1894, 1.2934, 1.3983, 1.4903, 1.595, 1.6855, 1.787, 1.8856, 1.9917, 2.0802, 2.1805, 2.2827},  {1.330, 1.284, 1.235, 1.183, 1.129, 1.067, 1.000, 0.941, 0.917, 0.979, 1.055, 1.075, 1.065, 1.042, 1.011, 0.977, 0.940, 0.897, 0.853, 0.810, 0.761, 0.715, 0.657, 0.594, 0.536, 0.465, 0.401, 0.329, 0.262, 0.187, 0.133, -0.100, -0.100},  {1.272, 1.235, 1.193, 1.149, 1.100, 1.044, 0.982, 0.927, 0.906, 0.967, 1.041, 1.058, 1.042, 1.011, 0.973, 0.929, 0.884, 0.832, 0.778, 0.726, 0.668, 0.613, 0.547, 0.477, 0.413, 0.340, 0.277, 0.209, 0.147, 0.085, 0.037, -0.100, -0.100},  {-0.078, -0.02, 0.046, 0.122, 0.211, 0.321, 0.457, 0.594, 0.651, 0.502, 0.345, 0.305, 0.326, 0.371, 0.432, 0.508, 0.594, 0.705, 0.827, 0.963, 1.133, 1.317, 1.581, 1.926, 2.321, 2.927, 3.657, 4.838, 6.485, 9.752, 14.31, -9.99, -9.99},  {-0.005, 0.047, 0.107, 0.176, 0.26, 0.365, 0.496, 0.626, 0.681, 0.53, 0.372, 0.338, 0.371, 0.433, 0.516, 0.62, 0.739, 0.892, 1.07, 1.272, 1.529, 1.816, 2.241, 2.817, 3.504, 4.612, 6.037, 8.518, 12.76, 23.16, 54.23, -9.99, -9.99}},
+      {{-0.2237, -0.2149, -0.2052, -0.1944, -0.1821, -0.1667, -0.144, -0.1035, -0.027, 0.048, 0.1496, 0.2515, 0.3555, 0.456, 0.562, 0.6631, 0.7607, 0.8678, 0.9605, 1.0696, 1.1694, 1.2711, 1.3739, 1.4774, 1.5808, 1.6835, 1.7847, 1.8837, 1.9914, 2.0936, 2.189, 2.2922, 2.3394, 2.3607},  {1.142, 1.107, 1.072, 1.036, 1.000, 0.962, 0.919, 0.873, 0.876, 0.961, 1.065, 1.096, 1.091, 1.070, 1.040, 1.007, 0.970, 0.924, 0.887, 0.840, 0.794, 0.741, 0.684, 0.622, 0.555, 0.483, 0.408, 0.334, 0.255, 0.180, -0.100, -0.100, 0.004, 0.002},  {1.114, 1.083, 1.050, 1.017, 0.983, 0.948, 0.907, 0.862, 0.863, 0.948, 1.049, 1.076, 1.064, 1.035, 0.996, 0.955, 0.908, 0.853, 0.806, 0.748, 0.691, 0.629, 0.562, 0.492, 0.419, 0.344, 0.271, 0.202, 0.130, 0.068, -0.100, -0.100, 0.001, 0.000},  {0.19, 0.248, 0.312, 0.38, 0.457, 0.542, 0.647, 0.769, 0.764, 0.545, 0.326, 0.267, 0.278, 0.317, 0.375, 0.441, 0.524, 0.633, 0.73, 0.866, 1.018, 1.208, 1.45, 1.765, 2.184, 2.758, 3.577, 4.726, 6.711, 10.16, -9.99, -9.99, 459.6, 1087.0},  {0.236, 0.291, 0.353, 0.42, 0.493, 0.576, 0.679, 0.801, 0.799, 0.576, 0.356, 0.304, 0.327, 0.384, 0.465, 0.559, 0.675, 0.83, 0.975, 1.183, 1.42, 1.727, 2.131, 2.676, 3.437, 4.54, 6.226, 8.88, 14.72, 29.54, -9.99, -9.99, 2002.0, 4692.0}},
+      {{-0.1759, -0.1695, -0.1619, -0.1529, -0.1415, -0.1263, -0.1025, -0.0658, 0.0099, 0.0862, 0.186, 0.2839, 0.3856, 0.4854, 0.5831, 0.6904, 0.7825, 0.891, 0.9806, 1.0863, 1.1837, 1.2832, 1.3841, 1.4857, 1.5876, 1.6889, 1.7891, 1.8876, 1.9836, 2.0873, 2.1854, 2.2853, 2.3885, 2.467, 2.4927},  {1.001, 0.979, 0.955, 0.929, 0.901, 0.870, 0.833, 0.798, 0.812, 0.925, 1.066, 1.112, 1.116, 1.100, 1.076, 1.045, 1.014, 0.967, 0.934, 0.890, 0.847, 0.800, 0.747, 0.689, 0.625, 0.555, 0.480, 0.402, 0.328, 0.241, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.985, 0.964, 0.942, 0.917, 0.889, 0.858, 0.821, 0.787, 0.799, 0.910, 1.048, 1.091, 1.087, 1.064, 1.032, 0.990, 0.951, 0.894, 0.851, 0.797, 0.743, 0.684, 0.620, 0.552, 0.480, 0.405, 0.329, 0.254, 0.185, 0.111, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.455, 0.503, 0.559, 0.622, 0.694, 0.781, 0.891, 1.001, 0.956, 0.632, 0.323, 0.238, 0.233, 0.261, 0.304, 0.365, 0.427, 0.53, 0.61, 0.721, 0.844, 0.996, 1.187, 1.431, 1.751, 2.181, 2.784, 3.653, 4.841, 7.197, -9.99, -9.99, -9.99, -9.99, -9.99},  {0.49, 0.537, 0.592, 0.654, 0.727, 0.815, 0.927, 1.041, 1.001, 0.671, 0.357, 0.277, 0.284, 0.327, 0.391, 0.478, 0.569, 0.714, 0.835, 1.008, 1.203, 1.452, 1.774, 2.201, 2.784, 3.61, 4.837, 6.738, 9.88, 17.496, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{-0.138, -0.131, -0.1221, -0.1116, -0.0984, -0.0809, -0.0558, -0.0258, 0.0571, 0.1393, 0.2406, 0.3444, 0.4457, 0.5449, 0.644, 0.7523, 0.8506, 0.9542, 1.0547, 1.1482, 1.2566, 1.3549, 1.4544, 1.5544, 1.6544, 1.7662, 1.8643, 1.9605, 2.0653, 2.1653, 2.2687, 2.2972, 2.3945, 2.4822, 2.569, 2.5907},  {0.890, 0.867, 0.842, 0.816, 0.787, 0.756, 0.724, 0.702, 0.732, 0.899, 1.081, 1.133, 1.135, 1.121, 1.098, 1.067, 1.033, 0.990, 0.953, 0.916, 0.868, 0.821, 0.769, 0.711, 0.647, 0.567, 0.489, 0.410, 0.323, 0.231, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.878, 0.855, 0.831, 0.805, 0.776, 0.745, 0.712, 0.689, 0.716, 0.882, 1.060, 1.107, 1.103, 1.080, 1.048, 1.008, 0.963, 0.911, 0.863, 0.814, 0.755, 0.696, 0.633, 0.564, 0.492, 0.406, 0.327, 0.251, 0.170, 0.095, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.724, 0.788, 0.861, 0.944, 1.04, 1.151, 1.279, 1.373, 1.248, 0.697, 0.295, 0.204, 0.199, 0.223, 0.265, 0.321, 0.388, 0.478, 0.563, 0.656, 0.785, 0.927, 1.106, 1.334, 1.633, 2.098, 2.7, 3.551, 4.957, 7.554, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99},  {0.757, 0.823, 0.896, 0.982, 1.079, 1.196, 1.329, 1.429, 1.31, 0.745, 0.333, 0.248, 0.256, 0.296, 0.358, 0.441, 0.539, 0.669, 0.801, 0.947, 1.157, 1.397, 1.708, 2.119, 2.681, 3.603, 4.869, 6.828, 10.88, 20.57, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{-0.0999, -0.091, -0.0802, -0.0675, -0.0515, -0.0326, -0.0084, 0.0141, 0.1013, 0.1875, 0.2858, 0.3838, 0.4842, 0.5821, 0.6848, 0.7751, 0.8806, 0.9732, 1.071, 1.1737, 1.2681, 1.3766, 1.4743, 1.5727, 1.6711, 1.7691, 1.8661, 1.9614, 2.0657, 2.1656, 2.2592, 2.2708, 2.3713, 2.468, 2.5533, 2.6354, 2.6586},  {0.770, 0.740, 0.712, 0.683, 0.652, 0.623, 0.597, 0.586, 0.627, 0.864, 1.092, 1.148, 1.155, 1.142, 1.119, 1.094, 1.062, 1.024, 0.989, 0.950, 0.910, 0.860, 0.810, 0.755, 0.694, 0.626, 0.550, 0.468, 0.379, 0.279, -0.100, 0.142, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.759, 0.728, 0.700, 0.671, 0.640, 0.611, 0.584, 0.573, 0.611, 0.845, 1.070, 1.120, 1.119, 1.098, 1.066, 1.033, 0.990, 0.943, 0.897, 0.846, 0.795, 0.732, 0.671, 0.604, 0.533, 0.457, 0.378, 0.298, 0.212, 0.129, -0.100, 0.027, -0.100, -0.100, -0.100, -0.100, -0.100},  {1.101, 1.216, 1.33, 1.458, 1.607, 1.761, 1.911, 1.978, 1.736, 0.795, 0.275, 0.179, 0.168, 0.19, 0.228, 0.27, 0.332, 0.408, 0.481, 0.572, 0.671, 0.808, 0.961, 1.154, 1.406, 1.742, 2.214, 2.898, 3.979, 5.994, -9.99, 13.32, -9.99, -9.99, -9.99, -9.99, -9.99},  {1.142, 1.262, 1.379, 1.514, 1.668, 1.83, 1.99, 2.062, 1.825, 0.852, 0.318, 0.226, 0.228, 0.264, 0.323, 0.387, 0.479, 0.589, 0.704, 0.85, 1.012, 1.245, 1.514, 1.866, 2.341, 3.007, 3.99, 5.502, 8.367, 14.76, -9.99, 76.09, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{-0.0471, -0.0352, -0.0217, -0.0063, 0.0105, 0.0286, 0.0467, 0.0627, 0.1611, 0.26, 0.3588, 0.4567, 0.5574, 0.6556, 0.7514, 0.8533, 0.9495, 1.0511, 1.1494, 1.2515, 1.3449, 1.4519, 1.5481, 1.6449, 1.7414, 1.8492, 1.9438, 2.0478, 2.1479, 2.2425, 2.3066, 2.4089, 2.5083, 2.615, 2.6998, 2.7186},  {0.585, 0.541, 0.508, 0.477, 0.450, 0.428, 0.417, 0.416, 0.479, 0.898, 1.130, 1.171, 1.171, 1.156, 1.134, 1.106, 1.079, 1.038, 1.003, 0.964, 0.924, 0.875, 0.826, 0.770, 0.709, 0.630, 0.550, 0.456, 0.359, 0.256, 0.163, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.573, 0.529, 0.497, 0.465, 0.437, 0.416, 0.404, 0.403, 0.463, 0.876, 1.104, 1.138, 1.131, 1.107, 1.076, 1.038, 1.000, 0.950, 0.904, 0.852, 0.801, 0.737, 0.676, 0.609, 0.537, 0.450, 0.368, 0.277, 0.187, 0.105, 0.059, -0.100, -0.100, -0.100, -0.100, -0.100},  {1.985, 2.285, 2.537, 2.812, 3.087, 3.328, 3.46, 3.477, 2.792, 0.7, 0.208, 0.141, 0.141, 0.165, 0.202, 0.249, 0.3, 0.377, 0.45, 0.538, 0.633, 0.765, 0.912, 1.099, 1.342, 1.722, 2.217, 3.019, 4.283, 6.674, 11.43, -9.99, -9.99, -9.99, -9.99, -9.99},  {2.058, 2.372, 2.637, 2.928, 3.22, 3.476, 3.621, 3.643, 2.949, 0.762, 0.254, 0.195, 0.207, 0.248, 0.303, 0.376, 0.456, 0.571, 0.687, 0.831, 0.992, 1.223, 1.489, 1.839, 2.313, 3.088, 4.149, 6.044, 9.708, 18.45, 33.94, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{0.0304, 0.0434, 0.0575, 0.0721, 0.0852, 0.097, 0.109, 0.1228, 0.1591, 0.1923, 0.2657, 0.3392, 0.4361, 0.5356, 0.6357, 0.731, 0.8312, 0.9342, 1.0339, 1.1293, 1.2283, 1.3304, 1.4231, 1.5288, 1.6233, 1.718, 1.824, 1.9174, 2.0207, 2.1209, 2.2162, 2.2694, 2.3705, 2.4715, 2.5687, 2.6689, 2.7338, 2.7643, 2.774},  {0.411, 0.393, 0.380, 0.367, 0.358, 0.351, 0.345, 0.341, 0.335, 0.307, 0.363, 0.991, 1.171, 1.196, 1.190, 1.172, 1.148, 1.120, 1.082, 1.052, 1.016, 0.976, 0.936, 0.887, 0.838, 0.782, 0.711, 0.639, 0.545, 0.451, 0.343, 0.247, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.411, 0.393, 0.379, 0.367, 0.357, 0.350, 0.344, 0.340, 0.335, 0.306, 0.346, 0.965, 1.140, 1.157, 1.143, 1.117, 1.083, 1.045, 0.998, 0.956, 0.908, 0.856, 0.805, 0.740, 0.678, 0.611, 0.528, 0.449, 0.355, 0.263, 0.169, 0.103, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {3.535, 3.766, 3.962, 4.154, 4.31, 4.43, 4.527, 4.601, 4.707, 5.299, 4.225, 0.476, 0.141, 0.103, 0.112, 0.139, 0.178, 0.226, 0.292, 0.352, 0.423, 0.51, 0.604, 0.733, 0.876, 1.058, 1.333, 1.676, 2.251, 3.076, 4.565, 6.964, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99},  {3.541, 3.774, 3.969, 4.162, 4.319, 4.44, 4.537, 4.612, 4.719, 5.313, 4.503, 0.535, 0.191, 0.163, 0.186, 0.23, 0.29, 0.364, 0.462, 0.557, 0.674, 0.82, 0.982, 1.213, 1.479, 1.829, 2.378, 3.095, 4.357, 6.451, 10.89, 18.81, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{0.1105, 0.1305, 0.1549, 0.1838, 0.2138, 0.2392, 0.2629, 0.3128, 0.4025, 0.4475, 0.5442, 0.6436, 0.7432, 0.8343, 0.9409, 1.0351, 1.135, 1.2337, 1.3223, 1.424, 1.5156, 1.6196, 1.7123, 1.8163, 1.9081, 2.0099, 2.1091, 2.2035, 2.2922, 2.4153, 2.5143, 2.6085, 2.7203, 2.785, 2.813, 2.8205},  {0.355, 0.338, 0.325, 0.314, 0.308, 0.309, 0.317, 0.258, 1.040, 1.161, 1.217, 1.214, 1.200, 1.179, 1.151, 1.125, 1.089, 1.055, 1.022, 0.981, 0.941, 0.890, 0.840, 0.775, 0.709, 0.622, 0.527, 0.426, 0.281, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.354, 0.338, 0.324, 0.313, 0.307, 0.308, 0.316, 0.258, 1.010, 1.130, 1.178, 1.167, 1.145, 1.116, 1.078, 1.042, 0.995, 0.949, 0.905, 0.851, 0.798, 0.733, 0.670, 0.591, 0.515, 0.423, 0.328, 0.233, 0.126, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {4.354, 4.649, 4.915, 5.144, 5.27, 5.247, 5.072, 6.597, 0.375, 0.157, 0.074, 0.077, 0.097, 0.129, 0.174, 0.217, 0.28, 0.344, 0.41, 0.498, 0.592, 0.722, 0.868, 1.081, 1.341, 1.767, 2.388, 3.349, 5.939, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99},  {4.365, 4.662, 4.931, 5.16, 5.286, 5.263, 5.088, 6.622, 0.434, 0.21, 0.132, 0.148, 0.184, 0.232, 0.302, 0.371, 0.468, 0.573, 0.682, 0.834, 1.002, 1.242, 1.52, 1.943, 2.478, 3.39, 4.846, 7.493, 15.22, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{0.1554, 0.1773, 0.2091, 0.2456, 0.2816, 0.313, 0.3424, 0.3577, 0.3763, 0.4846, 0.5853, 0.6828, 0.7826, 0.8808, 0.9824, 1.0763, 1.1824, 1.2745, 1.3813, 1.4804, 1.5813, 1.6721, 1.7746, 1.8768, 1.978, 2.0771, 2.172, 2.2663, 2.3611, 2.4566, 2.5534, 2.6636, 2.7482, 2.8093, 2.8425, 2.8521},  {0.334, 0.321, 0.308, 0.297, 0.290, 0.288, 0.294, 0.296, 0.255, 1.024, 1.199, 1.221, 1.215, 1.196, 1.171, 1.133, 1.100, 1.068, 1.029, 0.989, 0.944, 0.899, 0.842, 0.776, 0.697, 0.607, 0.513, 0.352, 0.250, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.333, 0.320, 0.307, 0.296, 0.289, 0.287, 0.294, 0.295, 0.254, 0.991, 1.157, 1.172, 1.157, 1.129, 1.094, 1.045, 1.001, 0.960, 0.907, 0.853, 0.794, 0.736, 0.664, 0.584, 0.496, 0.402, 0.307, 0.182, 0.095, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {4.727, 4.987, 5.273, 5.536, 5.712, 5.745, 5.589, 5.56, 6.706, 0.407, 0.099, 0.066, 0.075, 0.103, 0.142, 0.205, 0.262, 0.318, 0.396, 0.481, 0.584, 0.698, 0.861, 1.079, 1.392, 1.849, 2.498, 4.399, 6.886, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99},  {4.748, 5.01, 5.298, 5.561, 5.735, 5.768, 5.61, 5.582, 6.738, 0.476, 0.162, 0.14, 0.164, 0.21, 0.272, 0.363, 0.454, 0.548, 0.68, 0.829, 1.017, 1.231, 1.547, 1.987, 2.638, 3.652, 5.29, 10.05, 20.65, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{0.1695, 0.1998, 0.2407, 0.2868, 0.3377, 0.3866, 0.4213, 0.4504, 0.5386, 0.54, 0.6345, 0.7287, 0.8225, 0.9176, 1.0088, 1.1055, 1.2078, 1.3049, 1.4075, 1.5142, 1.6236, 1.7235, 1.8239, 1.9349, 2.0334, 2.1394, 2.1921, 2.2893, 2.3807, 2.4745, 2.592, 2.677, 2.7864, 2.8443, 2.8719, 2.8821},  {0.338, 0.324, 0.309, 0.294, 0.280, 0.272, 0.273, 0.251, 0.301, 1.036, 1.203, 1.221, 1.217, 1.200, 1.179, 1.151, 1.114, 1.081, 1.045, 1.002, 0.953, 0.903, 0.847, 0.772, 0.692, 0.591, 0.490, 0.378, 0.269, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.338, 0.323, 0.308, 0.292, 0.278, 0.270, 0.272, 0.250, 0.299, 1.001, 1.160, 1.170, 1.156, 1.131, 1.101, 1.063, 1.014, 0.971, 0.921, 0.864, 0.799, 0.735, 0.663, 0.575, 0.486, 0.381, 0.295, 0.198, 0.107, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {4.649, 4.925, 5.258, 5.611, 5.967, 6.197, 6.164, 6.83, 5.44, 0.382, 0.093, 0.066, 0.073, 0.097, 0.129, 0.174, 0.237, 0.294, 0.365, 0.453, 0.562, 0.687, 0.847, 1.092, 1.416, 1.944, 2.694, 3.984, 6.283, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99},  {4.664, 4.941, 5.278, 5.639, 6.006, 6.231, 6.195, 6.871, 5.476, 0.455, 0.16, 0.144, 0.165, 0.206, 0.258, 0.329, 0.427, 0.522, 0.643, 0.798, 0.998, 1.235, 1.55, 2.05, 2.734, 3.944, 5.585, 9.087, 18.2, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{0.1864, 0.2229, 0.2683, 0.3215, 0.3781, 0.4395, 0.4987, 0.5316, 0.5618, 0.6374, 0.7315, 0.8336, 0.935, 1.0423, 1.1437, 1.2443, 1.263, 1.3573, 1.4604, 1.5595, 1.652, 1.7467, 1.8533, 1.9495, 2.045, 2.1238, 2.225, 2.3202, 2.4159, 2.5146, 2.6106, 2.7129, 2.8113, 2.8658, 2.8976, 2.9118},  {0.347, 0.331, 0.314, 0.297, 0.281, 0.267, 0.257, 0.250, 0.228, 0.276, 1.188, 1.203, 1.199, 1.185, 1.161, 1.134, 1.117, 1.087, 1.050, 1.012, 0.972, 0.926, 0.867, 0.804, 0.729, 0.612, 0.523, 0.401, 0.271, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.346, 0.331, 0.313, 0.296, 0.280, 0.266, 0.255, 0.248, 0.226, 0.274, 1.138, 1.145, 1.131, 1.106, 1.072, 1.033, 1.014, 0.973, 0.923, 0.870, 0.817, 0.756, 0.682, 0.606, 0.521, 0.410, 0.316, 0.211, 0.102, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {4.502, 4.785, 5.137, 5.535, 5.938, 6.337, 6.642, 6.88, 7.701, 6.075, 0.116, 0.092, 0.098, 0.121, 0.156, 0.202, 0.231, 0.284, 0.352, 0.431, 0.519, 0.629, 0.788, 0.983, 1.259, 1.824, 2.418, 3.665, 6.225, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99},  {4.511, 4.795, 5.149, 5.553, 5.962, 6.375, 6.693, 6.931, 7.776, 6.121, 0.195, 0.184, 0.206, 0.251, 0.311, 0.389, 0.427, 0.517, 0.637, 0.778, 0.941, 1.15, 1.463, 1.858, 2.438, 3.551, 5.094, 8.46, 19.18, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{0.2061, 0.2508, 0.2984, 0.3476, 0.407, 0.473, 0.5416, 0.5813, 0.6245, 0.7291, 0.8127, 0.9095, 1.0031, 1.0966, 1.1905, 1.2907, 1.3835, 1.4606, 1.5683, 1.6733, 1.7823, 1.8227, 1.9215, 2.0444, 2.1254, 2.2266, 2.3272, 2.4302, 2.533, 2.6287, 2.7278, 2.7879, 2.8327, 2.872, 2.9021, 2.921, 2.936},  {0.354, 0.335, 0.318, 0.301, 0.284, 0.269, 0.256, 0.247, 0.225, 0.260, 1.166, 1.183, 1.185, 1.176, 1.160, 1.135, 1.109, 1.072, 1.032, 0.988, 0.935, 0.835, 0.787, 0.718, 0.666, 0.579, 0.449, 0.296, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.353, 0.335, 0.317, 0.301, 0.284, 0.268, 0.254, 0.245, 0.224, 0.259, 1.112, 1.121, 1.112, 1.095, 1.068, 1.032, 0.992, 0.946, 0.892, 0.833, 0.765, 0.670, 0.608, 0.522, 0.458, 0.363, 0.244, 0.117, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {4.377, 4.703, 5.061, 5.426, 5.846, 6.277, 6.681, 6.972, 7.805, 6.534, 0.151, 0.121, 0.121, 0.133, 0.159, 0.199, 0.246, 0.313, 0.391, 0.483, 0.605, 0.884, 1.04, 1.301, 1.539, 2.02, 3.096, 5.553, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99},  {4.382, 4.708, 5.069, 5.437, 5.863, 6.304, 6.724, 7.028, 7.863, 6.592, 0.24, 0.223, 0.238, 0.27, 0.32, 0.391, 0.473, 0.579, 0.719, 0.89, 1.122, 1.519, 1.843, 2.427, 3.004, 4.227, 7.068, 16.51, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{0.2102, 0.2525, 0.3083, 0.3581, 0.418, 0.4792, 0.5492, 0.5886, 0.638, 0.747, 0.8297, 0.9266, 1.026, 1.1197, 1.2209, 1.3146, 1.4107, 1.4482, 1.47, 1.578, 1.6751, 1.7777, 1.8748, 1.9645, 2.0508, 2.1656, 2.2541, 2.3435, 2.4591, 2.5416, 2.6394, 2.7014, 2.7536, 2.8085, 2.849, 2.8844, 2.9116, 2.9309, 2.9432},  {0.355, 0.338, 0.317, 0.300, 0.284, 0.269, 0.256, 0.247, 0.225, 0.260, 1.161, 1.181, 1.181, 1.172, 1.155, 1.131, 1.103, 0.977, 0.969, 0.937, 0.903, 0.861, 0.814, 0.763, 0.708, 0.620, 0.527, 0.402, 0.221, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.355, 0.337, 0.316, 0.300, 0.283, 0.268, 0.255, 0.246, 0.223, 0.258, 1.106, 1.116, 1.107, 1.089, 1.059, 1.025, 0.984, 0.867, 0.856, 0.811, 0.764, 0.708, 0.648, 0.586, 0.520, 0.420, 0.327, 0.220, 0.024, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {4.355, 4.66, 5.079, 5.446, 5.867, 6.266, 6.679, 6.975, 7.832, 6.553, 0.158, 0.127, 0.126, 0.139, 0.168, 0.207, 0.256, 0.51, 0.526, 0.601, 0.688, 0.804, 0.948, 1.124, 1.345, 1.776, 2.386, 3.649, 8.004, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99},  {4.36, 4.665, 5.086, 5.456, 5.882, 6.29, 6.719, 7.026, 7.887, 6.614, 0.249, 0.231, 0.248, 0.281, 0.336, 0.405, 0.492, 0.789, 0.819, 0.96, 1.122, 1.344, 1.627, 1.976, 2.442, 3.419, 4.864, 8.025, 86.57, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{0.2565, 0.3089, 0.3608, 0.4107, 0.4719, 0.5383, 0.611, 0.6533, 0.7003, 0.8159, 0.9302, 1.0234, 1.1269, 1.2307, 1.3342, 1.4388, 1.5429, 1.5919, 1.6698, 1.7978, 1.8888, 1.9812, 2.0912, 2.1877, 2.2821, 2.3811, 2.4758, 2.5726, 2.6808, 2.784, 2.8345, 2.8796, 2.9103, 2.9355, 2.9553, 2.9769},  {0.369, 0.347, 0.327, 0.309, 0.291, 0.275, 0.260, 0.250, 0.229, 0.217, 0.251, 1.109, 1.131, 1.134, 1.122, 1.100, 1.070, 0.981, 0.956, 0.907, 0.867, 0.820, 0.757, 0.688, 0.592, 0.448, 0.283, 0.088, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.368, 0.347, 0.326, 0.309, 0.291, 0.275, 0.260, 0.250, 0.228, 0.216, 0.249, 1.046, 1.057, 1.048, 1.026, 0.990, 0.946, 0.858, 0.822, 0.756, 0.688, 0.641, 0.563, 0.481, 0.381, 0.251, 0.023, 0.051, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {4.132, 4.497, 4.877, 5.238, 5.666, 6.099, 6.538, 6.859, 7.652, 8.16, 6.825, 0.245, 0.207, 0.203, 0.221, 0.26, 0.317, 0.498, 0.555, 0.677, 0.79, 0.932, 1.149, 1.434, 1.939, 3.104, 5.868, 22.36, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99},  {4.134, 4.499, 4.88, 5.243, 5.672, 6.108, 6.557, 6.884, 7.683, 8.227, 6.916, 0.362, 0.341, 0.358, 0.404, 0.478, 0.581, 0.814, 0.922, 1.151, 1.435, 1.664, 2.128, 2.777, 3.951, 6.846, 88.5, 39.18, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{0.3185, 0.3701, 0.4211, 0.4749, 0.5368, 0.6028, 0.6745, 0.7197, 0.7518, 0.854, 0.9536, 1.0493, 1.1528, 1.2552, 1.3566, 1.4598, 1.565, 1.6659, 1.7359, 1.8392, 1.9346, 2.0384, 2.1341, 2.2172, 2.3138, 2.4199, 2.5175, 2.6173, 2.7032, 2.7587, 2.8134, 2.8693, 2.9066, 2.9422, 2.9704, 2.9993},  {0.386, 0.363, 0.341, 0.322, 0.302, 0.285, 0.269, 0.258, 0.239, 0.225, 0.218, 0.216, 0.252, 1.036, 1.075, 1.080, 1.075, 1.056, 0.961, 0.923, 0.884, 0.837, 0.787, 0.733, 0.645, 0.506, 0.326, 0.077, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.386, 0.362, 0.341, 0.321, 0.302, 0.285, 0.269, 0.258, 0.239, 0.224, 0.216, 0.213, 0.248, 0.959, 0.983, 0.975, 0.956, 0.922, 0.828, 0.776, 0.724, 0.660, 0.595, 0.529, 0.423, 0.295, 0.204, 0.046, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {3.873, 4.227, 4.593, 4.977, 5.404, 5.836, 6.28, 6.615, 7.274, 7.827, 8.134, 8.217, 6.804, 0.381, 0.306, 0.298, 0.305, 0.343, 0.546, 0.638, 0.74, 0.876, 1.041, 1.243, 1.641, 2.558, 4.883, 25.63, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99},  {3.876, 4.23, 4.597, 4.98, 5.407, 5.839, 6.285, 6.623, 7.28, 7.846, 8.188, 8.321, 6.941, 0.55, 0.493, 0.514, 0.557, 0.641, 0.905, 1.078, 1.28, 1.565, 1.924, 2.375, 3.386, 5.565, 8.764, 43.43, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{0.3767, 0.4256, 0.4783, 0.5342, 0.5945, 0.6617, 0.7348, 0.7745, 0.8044, 0.8996, 0.9923, 1.0906, 1.1855, 1.2812, 1.3658, 1.376, 1.4653, 1.5586, 1.6531, 1.7419, 1.8342, 1.8646, 1.9616, 2.0593, 2.1566, 2.2498, 2.3536, 2.4389, 2.541, 2.6314, 2.7313, 2.8248, 2.886, 2.927, 2.9659, 2.9941, 3.0207},  {0.403, 0.379, 0.355, 0.333, 0.313, 0.294, 0.276, 0.265, 0.248, 0.232, 0.223, 0.217, 0.216, 0.217, 0.262, 0.626, 0.937, 0.998, 1.007, 1.005, 0.990, 0.933, 0.901, 0.862, 0.814, 0.757, 0.669, 0.580, 0.424, 0.174, 0.009, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {0.403, 0.378, 0.355, 0.333, 0.313, 0.294, 0.276, 0.265, 0.247, 0.232, 0.222, 0.216, 0.214, 0.213, 0.257, 0.566, 0.852, 0.897, 0.892, 0.877, 0.848, 0.790, 0.743, 0.688, 0.625, 0.555, 0.459, 0.368, 0.271, 0.114, 0.006, -0.100, -0.100, -0.100, -0.100, -0.100, -0.100},  {3.642, 3.98, 4.354, 4.748, 5.159, 5.598, 6.061, 6.377, 6.956, 7.528, 7.916, 8.156, 8.219, 8.168, 6.469, 1.743, 0.601, 0.462, 0.442, 0.446, 0.478, 0.613, 0.694, 0.802, 0.948, 1.148, 1.523, 2.014, 3.381, 10.59, 222.7, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99},  {3.644, 3.983, 4.357, 4.751, 5.163, 5.604, 6.066, 6.384, 6.964, 7.536, 7.932, 8.195, 8.308, 8.342, 6.647, 2.106, 0.833, 0.705, 0.718, 0.759, 0.842, 1.03, 1.202, 1.434, 1.748, 2.183, 2.986, 4.141, 6.226, 16.99, 330.1, -9.99, -9.99, -9.99, -9.99, -9.99, -9.99}},
+      {{0.4348, 0.483, 0.5369, 0.5866, 0.6466, 0.7179, 0.7843, 0.8274, 0.8701, 0.9734, 1.0775, 1.1835, 1.2879, 1.396, 1.4978, 1.605, 1.7107, 1.814, 1.9138, 2.0197, 2.119, 2.2207, 2.3247, 2.429, 2.5276, 2.6355, 2.7366, 2.8373, 2.9452, 2.9866, 3.0198, 3.0486},  {0.421, 0.395, 0.369, 0.348, 0.326, 0.305, 0.287, 0.275, 0.254, 0.236, 0.225, 0.217, 0.214, 0.213, 0.212, 0.546, 0.879, 0.925, 0.929, 0.922, 0.829, 0.773, 0.700, 0.617, 0.532, 0.264, 0.015, 0.002, -0.100, -0.100, -0.100, -0.100},  {0.421, 0.395, 0.369, 0.348, 0.326, 0.304, 0.287, 0.275, 0.254, 0.236, 0.224, 0.217, 0.213, 0.210, 0.207, 0.479, 0.778, 0.806, 0.793, 0.766, 0.664, 0.597, 0.514, 0.423, 0.327, 0.159, 0.011, 0.002, -0.100, -0.100, -0.100, -0.100},  {3.411, 3.746, 4.126, 4.471, 4.878, 5.347, 5.773, 6.105, 6.744, 7.367, 7.832, 8.15, 8.297, 8.34, 8.382, 2.244, 0.755, 0.632, 0.621, 0.641, 0.904, 1.09, 1.379, 1.794, 2.346, 6.429, 113.4, 868.3, -9.99, -9.99, -9.99, -9.99},  {3.413, 3.749, 4.128, 4.475, 4.882, 5.351, 5.778, 6.111, 6.752, 7.377, 7.846, 8.171, 8.353, 8.471, 8.639, 2.791, 1.072, 0.976, 1.019, 1.117, 1.547, 1.913, 2.487, 3.385, 4.869, 11.68, 182.2, 1174.0, -9.99, -9.99, -9.99, -9.99}},
+      {{0.4941, 0.5384, 0.591, 0.647, 0.7067, 0.77, 0.8451, 0.8839, 0.9248, 1.0243, 1.1241, 1.2245, 1.3242, 1.4274, 1.5265, 1.6324, 1.7313, 1.8336, 1.9279, 2.0251, 2.1158, 2.2121, 2.2799, 2.3794, 2.4768, 2.5743, 2.5838, 2.5971, 2.6244, 2.6721},  {0.442, 0.415, 0.388, 0.362, 0.339, 0.318, 0.297, 0.284, 0.265, 0.245, 0.231, 0.221, 0.215, 0.211, 0.208, 0.205, 0.201, 0.524, 0.810, 0.845, 0.847, 0.830, 0.737, 0.682, 0.608, 0.511, 0.509, 0.496, 0.448, 0.319},  {0.442, 0.415, 0.388, 0.362, 0.339, 0.318, 0.296, 0.284, 0.264, 0.245, 0.231, 0.221, 0.214, 0.210, 0.206, 0.201, 0.193, 0.447, 0.694, 0.711, 0.697, 0.664, 0.570, 0.502, 0.420, 0.324, 0.324, 0.310, 0.265, 0.162},  {3.171, 3.48, 3.846, 4.231, 4.632, 5.048, 5.537, 5.856, 6.404, 7.044, 7.559, 7.968, 8.261, 8.448, 8.562, 8.725, 8.941, 2.413, 0.963, 0.853, 0.846, 0.899, 1.226, 1.462, 1.843, 2.517, 2.527, 2.642, 3.101, 5.039},  {3.173, 3.482, 3.849, 4.234, 4.635, 5.052, 5.543, 5.863, 6.412, 7.055, 7.574, 7.988, 8.285, 8.492, 8.673, 8.954, 9.369, 3.114, 1.404, 1.333, 1.392, 1.546, 2.078, 2.588, 3.421, 4.925, 4.926, 5.228, 6.39, 11.47}},
+      {{0.5543, 0.6002, 0.6495, 0.7007, 0.7596, 0.8307, 0.9062, 0.945, 1.0021, 1.0933, 1.1798, 1.2815, 1.379, 1.4779, 1.57, 1.6655, 1.7667, 1.8709, 1.9713, 2.0648, 2.1493, 2.2414, 2.3271, 2.415, 2.4651, 2.5699, 2.6747},  {0.466, 0.436, 0.407, 0.382, 0.357, 0.331, 0.307, 0.294, 0.272, 0.253, 0.237, 0.224, 0.215, 0.207, 0.202, 0.198, 0.193, 0.187, 0.180, 0.508, 0.726, 0.745, 0.741, 0.725, 0.641, 0.555, 0.413},  {0.466, 0.435, 0.407, 0.382, 0.357, 0.331, 0.307, 0.293, 0.271, 0.252, 0.237, 0.224, 0.214, 0.207, 0.201, 0.196, 0.189, 0.180, 0.169, 0.417, 0.600, 0.600, 0.581, 0.546, 0.463, 0.371, 0.245},  {2.923, 3.241, 3.58, 3.927, 4.319, 4.786, 5.285, 5.609, 6.199, 6.785, 7.32, 7.849, 8.266, 8.609, 8.867, 9.094, 9.362, 9.746, 10.15, 2.542, 1.269, 1.196, 1.208, 1.274, 1.662, 2.179, 3.513},  {2.925, 3.243, 3.582, 3.93, 4.323, 4.791, 5.292, 5.619, 6.212, 6.802, 7.342, 7.875, 8.298, 8.648, 8.917, 9.194, 9.579, 10.16, 10.92, 3.463, 1.895, 1.89, 2.011, 2.249, 2.95, 4.094, 7.038}},
+      {{0.6098, 0.6536, 0.7051, 0.7616, 0.821, 0.8847, 0.961, 1.0081, 1.0592, 1.1435, 1.248, 1.3425, 1.4449, 1.5472, 1.6379, 1.7372, 1.8431, 1.9394, 2.0354, 2.1389, 2.2337, 2.3265, 2.4095, 2.4984, 2.5874, 2.6803, 2.7853},  {0.491, 0.459, 0.427, 0.397, 0.370, 0.345, 0.319, 0.301, 0.281, 0.263, 0.243, 0.230, 0.218, 0.208, 0.202, 0.196, 0.190, 0.184, 0.177, 0.170, 0.482, 0.680, 0.674, 0.643, 0.602, 0.452, 0.293},  {0.490, 0.459, 0.427, 0.397, 0.370, 0.344, 0.318, 0.300, 0.280, 0.262, 0.242, 0.228, 0.216, 0.207, 0.200, 0.194, 0.187, 0.179, 0.169, 0.157, 0.381, 0.539, 0.522, 0.481, 0.421, 0.287, 0.156},  {2.688, 2.988, 3.337, 3.715, 4.108, 4.526, 5.036, 5.429, 5.936, 6.453, 7.104, 7.628, 8.132, 8.569, 8.902, 9.226, 9.552, 9.902, 10.36, 10.87, 2.769, 1.471, 1.498, 1.653, 1.883, 3.062, 5.621},  {2.69, 2.991, 3.34, 3.72, 4.115, 4.537, 5.051, 5.448, 5.961, 6.484, 7.143, 7.673, 8.185, 8.631, 8.972, 9.311, 9.717, 10.22, 10.92, 11.9, 3.946, 2.299, 2.429, 2.782, 3.41, 5.765, 11.93}},
+      {{0.6744, 0.7197, 0.7696, 0.8232, 0.886, 0.9574, 1.0331, 1.0896, 1.1286, 1.2266, 1.3272, 1.4232, 1.5288, 1.625, 1.7269, 1.8239, 1.9293, 2.0288, 2.1165, 2.2179, 2.3212, 2.4224, 2.5305, 2.6371, 2.7467, 2.7916, 2.8864},  {0.525, 0.488, 0.454, 0.422, 0.389, 0.358, 0.329, 0.306, 0.289, 0.266, 0.246, 0.230, 0.216, 0.206, 0.196, 0.189, 0.181, 0.175, 0.169, 0.162, 0.155, 0.408, 0.584, 0.525, 0.434, 0.368, 0.201},  {0.525, 0.488, 0.453, 0.421, 0.389, 0.357, 0.328, 0.304, 0.287, 0.263, 0.243, 0.228, 0.214, 0.203, 0.194, 0.186, 0.179, 0.171, 0.163, 0.152, 0.140, 0.309, 0.436, 0.384, 0.286, 0.220, 0.097},  {2.404, 2.71, 3.045, 3.403, 3.824, 4.304, 4.825, 5.308, 5.716, 6.366, 7.015, 7.596, 8.195, 8.702, 9.195, 9.628, 10.08, 10.49, 10.9, 11.47, 12.04, 3.573, 1.988, 2.4, 3.254, 4.146, 8.952},  {2.404, 2.712, 3.049, 3.41, 3.836, 4.323, 4.852, 5.353, 5.774, 6.439, 7.102, 7.692, 8.301, 8.819, 9.326, 9.775, 10.25, 10.78, 11.39, 12.32, 13.54, 5.247, 3.239, 3.905, 5.79, 8.046, 20.18}},
+      {{0.7249, 0.7702, 0.8212, 0.8771, 0.9439, 1.0217, 1.1114, 1.1683, 1.2003, 1.3054, 1.4086, 1.5074, 1.6067, 1.713, 1.8162, 1.9163, 2.0197, 2.1185, 2.2206, 2.3245, 2.4243, 2.5264, 2.6285, 2.7105, 2.794, 2.8816, 2.9489, 3.0202, 3.026},  {0.557, 0.517, 0.477, 0.440, 0.401, 0.364, 0.327, 0.301, 0.284, 0.258, 0.237, 0.219, 0.203, 0.189, 0.176, 0.166, 0.156, 0.148, 0.141, 0.133, 0.126, 0.119, 0.268, 0.377, 0.342, 0.241, 0.144, 0.071, 0.073},  {0.556, 0.515, 0.476, 0.438, 0.399, 0.361, 0.324, 0.298, 0.280, 0.254, 0.232, 0.215, 0.199, 0.185, 0.173, 0.162, 0.153, 0.144, 0.134, 0.124, 0.112, 0.100, 0.187, 0.261, 0.236, 0.135, 0.071, 0.030, 0.031},  {2.168, 2.471, 2.813, 3.196, 3.658, 4.208, 4.875, 5.422, 5.854, 6.597, 7.344, 8.078, 8.826, 9.628, 10.4, 11.15, 11.93, 12.68, 13.43, 14.27, 15.22, 16.15, 6.287, 3.997, 4.591, 7.207, 13.05, 28.08, 27.3},  {2.173, 2.478, 2.825, 3.215, 3.685, 4.251, 4.938, 5.506, 5.965, 6.732, 7.514, 8.268, 9.035, 9.861, 10.66, 11.44, 12.27, 13.1, 14.13, 15.49, 17.22, 19.48, 9.736, 6.52, 7.372, 14.04, 28.23, 67.21, 65.74}},
+      {{0.779, 0.8239, 0.8777, 0.936, 1.0066, 1.094, 1.1909, 1.2612, 1.2973, 1.3991, 1.5013, 1.6029, 1.7035, 1.8074, 1.9068, 2.0087, 2.1065, 2.2163, 2.3061, 2.4227, 2.5158, 2.6188, 2.7163, 2.8192, 2.9088, 2.9939, 3.0828},  {0.599, 0.553, 0.505, 0.461, 0.415, 0.367, 0.323, 0.291, 0.269, 0.243, 0.221, 0.201, 0.184, 0.168, 0.155, 0.142, 0.131, 0.119, 0.110, 0.101, 0.094, 0.088, 0.083, 0.143, 0.213, 0.170, 0.075},  {0.598, 0.551, 0.503, 0.457, 0.410, 0.362, 0.317, 0.283, 0.261, 0.235, 0.213, 0.194, 0.178, 0.162, 0.149, 0.136, 0.125, 0.113, 0.104, 0.092, 0.082, 0.071, 0.062, 0.087, 0.134, 0.112, 0.025},  {1.896, 2.198, 2.563, 2.972, 3.484, 4.151, 4.943, 5.682, 6.268, 7.106, 8.001, 8.939, 9.923, 11.0, 12.09, 13.3, 14.59, 16.2, 17.59, 19.33, 20.78, 22.41, 23.76, 13.18, 8.333, 10.86, 26.31},  {1.904, 2.211, 2.586, 3.008, 3.543, 4.244, 5.084, 5.876, 6.524, 7.399, 8.332, 9.306, 10.33, 11.45, 12.59, 13.92, 15.31, 17.05, 18.75, 21.4, 24.05, 27.87, 32.28, 22.64, 14.21, 17.23, 81.14}},
+      {{0.8329, 0.8774, 0.9302, 0.9949, 1.0673, 1.1574, 1.2675, 1.3554, 1.3727, 1.4708, 1.5744, 1.6662, 1.7714, 1.8734, 1.9704, 2.0724, 2.17, 2.2604, 2.3655, 2.4746, 2.5585, 2.6581, 2.7628, 2.859, 2.96, 3.05, 3.1447, 3.237},  {0.653, 0.596, 0.541, 0.482, 0.428, 0.372, 0.317, 0.275, 0.255, 0.229, 0.205, 0.187, 0.168, 0.152, 0.138, 0.125, 0.113, 0.103, 0.092, 0.082, 0.076, 0.069, 0.063, 0.059, 0.064, 0.108, 0.068, 0.041},  {0.650, 0.592, 0.535, 0.475, 0.419, 0.361, 0.305, 0.262, 0.240, 0.215, 0.193, 0.176, 0.159, 0.143, 0.130, 0.117, 0.105, 0.095, 0.084, 0.073, 0.065, 0.056, 0.045, 0.038, 0.036, 0.061, 0.021, 0.011},  {1.604, 1.916, 2.286, 2.763, 3.327, 4.076, 5.071, 6.09, 6.722, 7.657, 8.717, 9.725, 10.98, 12.32, 13.72, 15.36, 17.12, 18.98, 21.4, 24.07, 26.2, 28.9, 31.79, 34.0, 31.16, 17.86, 29.43, 49.88},  {1.618, 1.94, 2.326, 2.831, 3.435, 4.248, 5.343, 6.469, 7.223, 8.242, 9.371, 10.43, 11.73, 13.16, 14.67, 16.44, 18.41, 20.52, 23.37, 27.04, 30.62, 36.19, 44.42, 53.58, 55.7, 32.78, 99.48, 185.6}},
+      {{0.8929, 0.9375, 0.9895, 1.0552, 1.1378, 1.2309, 1.3559, 1.4615, 1.4757, 1.5758, 1.6801, 1.7799, 1.8742, 1.9722, 2.0736, 2.1782, 2.2748, 2.3743, 2.478, 2.5789, 2.6792, 2.7749, 2.8788, 2.9741, 3.073, 3.1565, 3.2419, 3.3267},  {0.728, 0.660, 0.590, 0.516, 0.443, 0.378, 0.310, 0.256, 0.230, 0.204, 0.182, 0.163, 0.147, 0.133, 0.119, 0.106, 0.095, 0.085, 0.076, 0.068, 0.061, 0.055, 0.049, 0.045, 0.049, 0.067, 0.053, 0.034},  {0.722, 0.651, 0.581, 0.503, 0.427, 0.359, 0.290, 0.236, 0.208, 0.184, 0.164, 0.148, 0.134, 0.121, 0.108, 0.096, 0.086, 0.076, 0.066, 0.058, 0.049, 0.040, 0.031, 0.025, 0.022, 0.033, 0.014, 0.010},  {1.261, 1.568, 1.951, 2.476, 3.157, 3.99, 5.234, 6.672, 7.624, 8.771, 10.06, 11.38, 12.75, 14.31, 16.13, 18.27, 20.5, 23.11, 26.21, 29.46, 32.87, 36.57, 40.88, 44.66, 41.41, 29.73, 37.76, 60.0},  {1.287, 1.61, 2.01, 2.578, 3.341, 4.288, 5.711, 7.375, 8.598, 9.888, 11.31, 12.73, 14.19, 15.88, 17.91, 20.34, 22.97, 26.15, 30.06, 34.87, 41.43, 50.31, 64.64, 81.4, 93.09, 62.16, 142.5, 203.9}},
+      {{0.9471, 0.9955, 1.0498, 1.1179, 1.2027, 1.3139, 1.3822, 1.4588, 1.5268, 1.5976, 1.6047, 1.703, 1.7972, 1.8952, 1.9864, 2.0918, 2.1888, 2.2771, 2.377, 2.4785, 2.5704, 2.678, 2.7651, 2.8719, 2.9565, 3.0585, 3.1547, 3.2663, 3.3783},  {0.818, 0.740, 0.663, 0.580, 0.491, 0.394, 0.346, 0.300, 0.264, 0.224, 0.189, 0.167, 0.149, 0.133, 0.120, 0.106, 0.095, 0.086, 0.076, 0.068, 0.061, 0.053, 0.049, 0.043, 0.039, 0.035, 0.033, 0.045, 0.032},  {0.806, 0.724, 0.635, 0.537, 0.444, 0.354, 0.309, 0.267, 0.234, 0.198, 0.162, 0.143, 0.128, 0.114, 0.103, 0.092, 0.082, 0.073, 0.064, 0.056, 0.049, 0.042, 0.035, 0.028, 0.022, 0.017, 0.012, 0.016, 0.009},  {0.937, 1.215, 1.553, 2.013, 2.684, 3.757, 4.512, 5.46, 6.424, 7.874, 9.616, 11.08, 12.58, 14.28, 16.02, 18.26, 20.59, 22.97, 26.01, 29.53, 33.1, 37.65, 41.56, 47.09, 51.95, 58.19, 61.9, 44.57, 63.34},  {0.975, 1.278, 1.693, 2.309, 3.142, 4.378, 5.242, 6.328, 7.439, 9.101, 11.5, 13.21, 14.94, 16.88, 18.8, 21.35, 24.17, 27.15, 31.13, 35.89, 40.96, 48.68, 57.59, 73.73, 92.97, 123.2, 165.9, 125.4, 236.2}},
+      {{1.0029, 1.0499, 1.1095, 1.1814, 1.2743, 1.3952, 1.4725, 1.5544, 1.6361, 1.7219, 1.7321, 1.8285, 1.9297, 2.0342, 2.1316, 2.231, 2.3319, 2.4341, 2.5361, 2.6397, 2.7391, 2.8383, 2.9398, 3.0485, 3.1463, 3.2481, 3.3292, 3.4049},  {0.934, 0.851, 0.758, 0.656, 0.541, 0.423, 0.365, 0.313, 0.271, 0.225, 0.162, 0.143, 0.126, 0.111, 0.099, 0.088, 0.078, 0.069, 0.061, 0.054, 0.048, 0.043, 0.039, 0.034, 0.031, 0.029, 0.038, 0.039},  {0.907, 0.799, 0.672, 0.552, 0.443, 0.343, 0.294, 0.253, 0.218, 0.178, 0.132, 0.116, 0.102, 0.090, 0.081, 0.072, 0.063, 0.055, 0.047, 0.041, 0.035, 0.029, 0.023, 0.017, 0.013, 0.010, 0.012, 0.010},  {0.61, 0.835, 1.144, 1.586, 2.286, 3.392, 4.197, 5.149, 6.227, 7.812, 11.44, 13.17, 15.14, 17.36, 19.66, 22.29, 25.29, 28.75, 32.66, 37.16, 41.91, 46.85, 52.59, 59.53, 66.04, 70.55, 53.45, 52.32},  {0.679, 1.0, 1.508, 2.199, 3.156, 4.572, 5.596, 6.774, 8.117, 10.27, 14.47, 16.6, 19.03, 21.7, 24.44, 27.75, 31.78, 36.75, 42.7, 49.78, 58.49, 71.2, 90.57, 121.8, 155.4, 210.9, 166.0, 197.0}},
+      {{1.0629, 1.1151, 1.1753, 1.2546, 1.3564, 1.4811, 1.5716, 1.6672, 1.7614, 1.8518, 1.9506, 2.0475, 2.1469, 2.2375, 2.3402, 2.4447, 2.5372, 2.6403, 2.733, 2.8354, 2.938, 3.0352, 3.1225, 3.2232, 3.3239, 3.3965, 3.4704},  {1.091, 0.987, 0.864, 0.714, 0.560, 0.429, 0.359, 0.300, 0.254, 0.215, 0.128, 0.113, 0.100, 0.089, 0.078, 0.069, 0.062, 0.055, 0.049, 0.043, 0.039, 0.035, 0.031, 0.028, 0.026, 0.033, 0.037},  {0.999, 0.831, 0.672, 0.532, 0.412, 0.315, 0.264, 0.224, 0.191, 0.158, 0.098, 0.086, 0.076, 0.068, 0.059, 0.051, 0.044, 0.038, 0.033, 0.028, 0.023, 0.018, 0.014, 0.011, 0.009, 0.010, 0.010},  {0.277, 0.484, 0.798, 1.322, 2.149, 3.311, 4.289, 5.448, 6.737, 8.239, 14.89, 17.1, 19.59, 22.1, 25.25, 28.85, 32.45, 36.85, 41.42, 46.74, 52.56, 58.84, 65.0, 72.34, 78.49, 61.77, 54.26},  {0.46, 0.895, 1.506, 2.348, 3.527, 5.123, 6.411, 7.863, 9.501, 11.81, 19.94, 22.84, 26.09, 29.35, 33.82, 39.44, 45.52, 53.08, 61.19, 73.2, 90.62, 114.8, 143.59, 181.49, 239.55, 199.95, 199.52}},
+      {{1.1279, 1.1796, 1.2481, 1.335, 1.4428, 1.5145, 1.5912, 1.6953, 1.7934, 1.9019, 2.0188, 2.1012, 2.203, 2.3081, 2.4017, 2.5082, 2.6022, 2.6946, 2.7988, 2.8955, 2.9905, 3.0905, 3.1926, 3.2958, 3.3927, 3.4605, 3.5279},  {1.307, 1.147, 0.941, 0.733, 0.552, 0.472, 0.405, 0.323, 0.273, 0.233, 0.189, 0.115, 0.100, 0.087, 0.077, 0.068, 0.060, 0.054, 0.047, 0.042, 0.038, 0.034, 0.030, 0.027, 0.025, 0.028, 0.035},  {1.045, 0.826, 0.624, 0.471, 0.355, 0.302, 0.259, 0.216, 0.185, 0.156, 0.124, 0.079, 0.069, 0.059, 0.052, 0.044, 0.038, 0.033, 0.028, 0.024, 0.020, 0.016, 0.013, 0.010, 0.008, 0.009, 0.010},  {-0.05, 0.18, 0.592, 1.241, 2.202, 2.863, 3.613, 4.94, 6.155, 7.477, 9.585, 16.75, 19.46, 22.5, 25.66, 29.44, 33.35, 37.55, 42.83, 48.3, 53.68, 60.25, 68.09, 76.09, 82.88, 72.21, 57.94},  {0.363, 0.909, 1.756, 2.868, 4.353, 5.4, 6.581, 8.202, 9.872, 11.99, 15.4, 25.08, 29.07, 33.78, 38.62, 45.61, 53.01, 61.11, 71.54, 83.57, 100.5, 125.4, 159.3, 204.0, 257.3, 239.9, 212.1}},
+      {{1.1921, 1.2529, 1.3279, 1.4202, 1.5448, 1.6258, 1.7109, 1.8276, 1.9456, 2.0581, 2.164, 2.2702, 2.3409, 2.4455, 2.5366, 2.6464, 2.7418, 2.8473, 2.94, 3.0334, 3.1361, 3.2417, 3.3381, 3.4403, 3.513, 3.5774},  {1.520, 1.232, 0.943, 0.697, 0.481, 0.423, 0.342, 0.289, 0.239, 0.199, 0.171, 0.143, 0.094, 0.081, 0.072, 0.063, 0.056, 0.049, 0.043, 0.039, 0.035, 0.031, 0.027, 0.024, 0.023, 0.033},  {1.009, 0.720, 0.517, 0.378, 0.273, 0.230, 0.197, 0.164, 0.137, 0.116, 0.099, 0.082, 0.054, 0.046, 0.041, 0.034, 0.030, 0.026, 0.023, 0.019, 0.016, 0.013, 0.010, 0.008, 0.007, 0.009},  {-0.281, 0.052, 0.587, 1.393, 2.772, 3.382, 4.582, 5.731, 7.256, 9.055, 10.76, 13.15, 20.93, 24.4, 27.57, 31.83, 36.13, 41.24, 46.58, 51.95, 58.64, 66.51, 74.94, 83.76, 89.18, 61.38},  {0.437, 1.294, 2.47, 3.986, 6.155, 7.624, 9.156, 11.35, 13.83, 16.67, 19.72, 24.16, 36.98, 43.86, 49.92, 59.12, 67.93, 78.82, 89.96, 105.0, 127.7, 160.3, 204.3, 261.9, 282.7, 223.6}},
+    }
+};
 
 // B coefficients
 // Table in Appendix A of Hurley et al. 2000
@@ -6725,5 +7092,7 @@ const std::vector<std::vector<std::vector<LoveridgeCoefficients>>> LOVERIDGE_COE
         }
     }
 };
+
+
 
 #endif // __constants_h__

@@ -1372,7 +1372,7 @@ bool CHeB::ShouldEvolveOnPhase() const {
     bool beforeEndOfHeBurning = (m_Age < (m_Timescales[static_cast<int>(TIMESCALE::tHeI)] + m_Timescales[static_cast<int>(TIMESCALE::tHe)]));
     bool coreIsNotTooMassive = (m_HeCoreMass < m_Mass);
     // Evolve on CHeB phase if age after He Ign and while He Burning and He core mass does not exceed total mass (could happen due to mass loss)
-    return (afterHeIgnition && beforeEndOfHeBurning && coreIsNotTooMassive);
+    return (afterHeIgnition && beforeEndOfHeBurning && coreIsNotTooMassive && !ShouldEnvelopeBeExpelledByPulsations());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1403,7 +1403,7 @@ ENVELOPE CHeB::DetermineEnvelopeType() const {
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
-            envelope =  utils::Compare(Temperature() * TSOL, CONVECTIVE_BOUNDARY_TEMPERATURE) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            envelope =  utils::Compare(Temperature() * TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
             
         default:                                                                                    // unknown prescription - use default envelope type
@@ -1445,7 +1445,6 @@ double CHeB::ChooseTimestep(const double p_Time) const {
 }
 
 
-
 /*
  * Modify the star after it loses its envelope
  *
@@ -1468,14 +1467,16 @@ double CHeB::ChooseTimestep(const double p_Time) const {
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
- * @return                                      Stellar Type to which star shoule evolve after losing envelope
+ * @return                                      Stellar Type to which star should evolve after losing envelope
  */
 STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     STELLAR_TYPE stellarType = m_StellarType;
+    
+    if(ShouldEnvelopeBeExpelledByPulsations())          { m_EnvelopeJustExpelledByPulsations = true; }
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                     // Envelope loss
+    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations ) {                     // Envelope loss
 
         m_Mass       = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_Mass;
@@ -1495,7 +1496,6 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
         m_Luminosity = HeMS::CalculateLuminosityOnPhase_Static(m_Mass, m_Tau);
         m_Radius     = HeMS::CalculateRadiusOnPhase_Static(m_Mass, m_Tau);
-
         stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                          // will evolve to an evolved helium star
     }
 

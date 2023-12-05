@@ -1,16 +1,75 @@
 name: COMPAS compile test
 
-on: [pull_request]
+on:
+  workflow_dispatch: # allow manual triggering of this workflow
+  pull_request: # run workflow when PRs made to dev (if following files changed)
+    branches:
+      - dev
+    paths: ['src/**', "compas_python_utils/**", "py_tests/**", ".github/workflows/**"]
+  push: # always run workflow on push to the following branch
+    branches:
+      - dev
 
 jobs:
   compas:
     name: Build COMPAS
-    runs-on: ubuntu-18.04
+    runs-on: ${{ matrix.os}}
+    container: ${{matrix.container}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip' # caching pip dependencies
 
-      - name: Install dependencies 
-        run: sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev 
+      - name: Install dependencies on ubuntu
+        if: startsWith(matrix.os, 'ubuntu-20')
+        run: |
+          cd misc/cicd-scripts
+          chmod 755 linux-dependencies
+          ./linux-dependencies
 
       - name: Build Compas
-        run: cd src && make -j $(nproc) -f Makefile
+        run: |
+          cd src && make -j $(nproc) -f Makefile
+          ./COMPAS -v
+
+      - name: Run example COMPAS job
+        run: |
+          pip install --upgrade pip
+          pip install -e .[dev]
+          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+          cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
+          chmod 755 run.sh
+          cat run.sh
+          ./run.sh
+
+      - name: Run pytests
+        # Run tests and collect coverage data
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+          jupyter-kernelspec list
+          pytest --cov=compas_python_utils/ py_tests/ -m 'not webtest'
+          pytest --cov=compas_python_utils/ --cov-append py_tests/ -m webtest 
+          coverage html
+          coverage-badge -o coverage_badge.svg -f
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage
+          path: |
+            htmlcov/
+            coverage_badge.svg
+
+      - name: Archive COMPAS run data
+        uses: actions/upload-artifact@v3
+        with:
+          name: COMPAS-run-artifacts
+          path: |
+            py_tests/test_artifacts

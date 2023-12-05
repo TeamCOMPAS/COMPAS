@@ -4,8 +4,6 @@
 #include "constants.h"
 #include "typedefs.h"
 
-#include <algorithm> 
-
 namespace utils {
 
 
@@ -34,7 +32,6 @@ namespace utils {
     bool                                FileExists(const std::string& p_Filename);
     bool                                FileExists(const char *p_Filename);
 
-
     /*
      * Generic function to find an element in a vector
      *
@@ -61,10 +58,10 @@ namespace utils {
 
 
     /*
-     * Find a value in an unordered map and return the key if found, otherwise defaut value
+     * Find a value in an unordered map and return the key if found, otherwise default value
      *
      * This function looks for the passed string value in an unordered map, and if the string
-     * is found returns the key correspoding to the value found.  If the value is not found
+     * is found returns the key corresponding to the value found.  If the value is not found
      * the value passed as the default value is returned.
      *
      * The string comparison is case-insensitive.

@@ -84,7 +84,7 @@ double HeMS::CalculateLuminosityAtPhaseEnd_Static(const double p_Mass) {
 
 
 /*
- * Calculate luminosity for a Helium Main Seqeuence star (during central He burning)
+ * Calculate luminosity for a Helium Main Sequence star (during central He burning)
  *
  * Hurley et al. 2000, eqs 80 & 82
  *
@@ -220,17 +220,15 @@ double HeMS::CalculateMassLossRateHurley() {
     double rateKR = CalculateMassLossRateKudritzkiReimers();
     double rateWR = CalculateMassLossRateWolfRayet(0.0); // use mu=0.0 for Helium stars
     double dominantRate;
-
+    m_DominantMassLossRate = MASS_LOSS_TYPE::GB;
     if (utils::Compare(rateNJ, rateKR) > 0) {
         dominantRate = rateNJ;
-        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
     } else {
         dominantRate = rateKR;
-        m_DominantMassLossRate = MASS_LOSS_TYPE::KUDRITZKI_REIMERS;
     }
     if (utils::Compare(rateWR, dominantRate) > 0) {
         dominantRate = rateWR;
-        m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
     }
 
     return dominantRate;
@@ -242,41 +240,119 @@ double HeMS::CalculateMassLossRateHurley() {
  *
  * According to Vink - based on implementation in StarTrack
  *
- * double CalculateMassLossRateVink()
+ * double CalculateMassLossRateBelczynski2010()
  *
  * @return                                      Mass loss rate in Msol per year
  */
-double HeMS::CalculateMassLossRateVink() {
-    m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+double HeMS::CalculateMassLossRateBelczynski2010() {
+    m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
     return CalculateMassLossRateWolfRayetZDependent(0.0);
+}
+
+/*
+ * Calculate the mass-loss rate for Wolf--Rayet stars according to the
+ * prescription of Shenar et al. 2019 (https://ui.adsabs.harvard.edu/abs/2019A%26A...627A.151S/abstract)
+ * 
+ * See their Eq. 6 and Table 5
+ * 
+ * We use the fitting coefficients for hydrogen poor WR stars 
+ * The C4 (X_He) term is = 0 and is omitted
+ * 
+ * double CalculateMassLossRateWolfRayetShenar2019()
+ *
+ *
+ * @return                                      Mass loss rate (in Msol yr^{-1})
+ */
+double HeMS::CalculateMassLossRateWolfRayetShenar2019() const {
+
+    double logMdot = 0.0;
+    double Teff    = m_Temperature * TSOL;
+
+    // For H-poor WR stars (X_H < 0.05)
+    const double C1 = -7.99;
+    const double C2 =  0.97;
+    const double C3 = -0.07;
+    const double C5 =  0.89;
+
+    logMdot = C1 + (C2 * log10(m_Luminosity)) + (C3 * log10(Teff)) + (C5 * m_Log10Metallicity); 
+
+    return PPOW(10.0, logMdot); // Mdot
 }
 
 
 /*
- * Determines if mass transfer produces a wet merger
+ * Calculate the mass loss rate for helium stars in the updated prescription
+ * Uses Sander & Vink 2020 for Wolf--Rayet stars
+ * 
+ * double CalculateMassLossRateFlexible2023()
  *
- * According to the mass ratio limit discussed by de Mink et al. 2013 and Claeys et al. 2014
- *
- * Assumes this star is the donor; relevant accretor details are passed as parameters
- *
- *
- * bool IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate)
- *
- * @param   [IN]    p_AccretorMass              Mass of accretor in Msol
- * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
- * @return                                      Boolean indicating stability of mass transfer (true = unstable)
+ * @return                                      Mass loss rate in Msol per year
  */
-bool HeMS::IsMassRatioUnstable(const double p_AccretorMass, const bool p_AccretorIsDegenerate) const {
+double HeMS::CalculateMassLossRateFlexible2023() {
 
-    bool result = false;                                                                                                    // default is stable
+    m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
 
-    if (OPTIONS->MassTransferCriticalMassRatioHeliumMS()) {
-        result = p_AccretorIsDegenerate
-                    ? (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHeliumMSDegenerateAccretor()        // degenerate accretor
-                    : (p_AccretorMass / m_Mass) < OPTIONS->MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor();    // non-degenerate accretor
+    double MdotWR = 0.0;
+
+    if(OPTIONS->WRMassLoss() == WR_MASS_LOSS::SANDERVINK2023){
+
+        // Calculate Sander & Vink 2020 mass-loss rate
+        double Mdot_SanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
+
+        // Apply the Sander et al. 2023 temperature correction to the Sander & Vink 2020 rate
+        double Mdot_Sander2023     = CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(Mdot_SanderVink2020);
+
+        // Calculate Vink 2017 mass-loss rate
+        double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
+
+        // Use whichever gives the highest mass loss rate -- will typically be Vink 2017 for
+        // low Mass or Luminosity, and Sander & Vink 2020 for high Mass or Luminosity
+
+        MdotWR = std::max(Mdot_Sander2023, Mdot_Vink2017);
+
+    }
+    else if(OPTIONS->WRMassLoss() == WR_MASS_LOSS::SHENAR2019){
+
+        // Mass loss rate for WR stars from Shenar+ 2019
+        double Mdot_Shenar2019 = CalculateMassLossRateWolfRayetShenar2019();
+
+        // Calculate Vink 2017 mass-loss rate
+        double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
+
+        // Apply a minimum of Vink 2017 mass-loss rate to avoid extrapolating to low luminosity
+        MdotWR = std::max(Mdot_Shenar2019, Mdot_Vink2017);
+
+    }
+    else{
+        MdotWR = CalculateMassLossRateBelczynski2010();
     }
 
-    return result;
+    return MdotWR;
+
+}
+
+/*
+ * Determines if mass transfer is unstable according to the critical mass ratio.
+ *
+ * See e.g de Mink et al. 2013, Claeys et al. 2014, and Ge et al. 2010, 2015, 2020 for discussions.
+ *
+ * Assumes this star is the donor; relevant accretor details are passed as parameters.
+ * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
+ *
+ * double HeMS::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) 
+ *
+ * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
+ * @return                                      Critical mass ratio for unstable MT 
+ */
+double HeMS::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const {
+
+    double qCrit;
+                                                                                                                            
+    qCrit = p_AccretorIsDegenerate
+                ? OPTIONS->MassTransferCriticalMassRatioHeliumMSDegenerateAccretor()        // degenerate accretor
+                : OPTIONS->MassTransferCriticalMassRatioHeliumMSNonDegenerateAccretor();    // non-degenerate accretor
+                                                                                                                        
+    return qCrit;
 }
 
 
@@ -380,7 +456,7 @@ double HeMS::ChooseTimestep(const double p_Time) const {
  *
  * STELLAR_TYPE ResolveEnvelopeLoss()
  *
- * @return                                      Stellar Type to which star shoule evolve after losing envelope
+ * @return                                      Stellar Type to which star should evolve after losing envelope
  */
 STELLAR_TYPE HeMS::ResolveEnvelopeLoss(bool p_NoCheck) {
 

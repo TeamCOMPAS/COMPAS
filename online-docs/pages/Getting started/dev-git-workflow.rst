@@ -53,6 +53,9 @@ Some of the most fundamental terms are `described
 below <#terminology>`__ to assist new users.
 
 
+ *TIP:* GitHub Desktop is a free app available at https://desktop.github.com/ 
+ that provides a desktop app to visualize and simplify Github and git use. Highly recommended!
+
 
 Purpose of this document
 
@@ -195,6 +198,7 @@ collaborator, you will only have read-access to the repository.
 
 *Note:* This section is very technical.  Take a look at the section below on `Terminology, <#terminology>`__ if you get stuck!
 
+*TIP:* you can add local files to the .git/info/exclude instead of the .gitignore that is part of COMPAS dev to ignore files on your local clone
 
 
 Join as a collaborator
@@ -219,7 +223,7 @@ This is a second, remote repository (distinct from your local repo),
 but is managed by your github account.
 It serves as a public-facing 'sandbox' of your current work, where you
 can share partially-developed ideas and projects with others who might
-be interested in assisting, without interferring with or clogging up the
+be interested in assisting, without interfering with or clogging up the
 Main repo.
 
 On Github, go to the TeamCOMPAS/COMPAS repo and click on ``Fork`` in
@@ -474,7 +478,7 @@ To delete a branch,
 
 ``git branch -d <branch-name>``
 
-#. If that throws an error, likely there were some uncommited/unmerged
+#. If that throws an error, likely there were some uncommitted/unmerged
    changes (work that would be completely lost if the branch gets
    deleted).
    Either commit/merge the branch before deleting, or if you don't want
@@ -581,7 +585,7 @@ which will have an output that looks similar to:
 
     * compas_hpc_updates eea656f [origin/compas_hpc_updates: behind 14] Removed references to dead files:
     dev                  a110d38 [origin/dev: ahead 2, behind 12] Remove unwanted demo files (#150)
-    production           d379be5 [origin/production] Jeff's defect repairs from previous commits that had to be readded (#82)
+    production           d379be5 [origin/production] Jeff's defect repairs from previous commits that had to be read (#82)
     new_branch           b6aee96 generic branch to test git branch -vv, don't keep this
 
 #. The first column lists your local branches (the \* indicates your
@@ -959,14 +963,14 @@ Terminology
    edits to files.
    It has meaning in git only in reference to the Index and the most
    recent commit (i.e the tip of the current branch).
-   Files are editted in the working directory, before being added to
+   Files are edited in the working directory, before being added to
    the Index (or "staged"), and then finally committed to the current
    branch, or HEAD (see below).
 
 -  **Index**: The Index (aka Staging Area) exists only in the
    intermediate step between editing local files and committing those
    files.
-   Historically, other Version Control systems only allowed editting
+   Historically, other Version Control systems only allowed editing
    files, and then committing those files one by one.
    The issue with that is that sometimes a collection of edits of
    different files logically make up one full "commit-worthy-edit".
@@ -1036,7 +1040,7 @@ Terminology
 
 -  **Log**: The log of a branch is the history of that branch in terms
    of its commits.
-   The log shows when the commits occured, who authored them, and what
+   The log shows when the commits occurred, who authored them, and what
    the commit message stated.
 
 

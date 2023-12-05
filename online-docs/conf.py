@@ -15,12 +15,13 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../compas_python_utils/'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'COMPAS'
-copyright = '2021, The Authors'
+copyright = '2021, 2022, 2023 The Authors'
 author = 'TeamCOMPAS'
 
 
@@ -28,7 +29,7 @@ author = 'TeamCOMPAS'
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
-# needs_sphinx = '1.0'
+needs_sphinx = '4.3.2'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -43,7 +44,14 @@ extensions = [
     'nbsphinx',
     'matplotlib.sphinxext.plot_directive',
     'IPython.sphinxext.ipython_console_highlighting',
-    'IPython.sphinxext.ipython_directive'
+    'IPython.sphinxext.ipython_directive',
+    "sphinx.ext.autodoc",
+    "numpydoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.autosectionlabel",
+    "sphinx.ext.viewcode",
+    "sphinxarg.ext",
+    "sphinx_tabs.tabs",
 ]
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None),

@@ -3,7 +3,7 @@
 #
 # can be overridden with CPP parameter
 #
-# e.g. make CPP=clang will use clang instaed of g++
+# e.g. make CPP=clang will use clang instead of g++
 # (note uppercase 'CPP' and no whitespace around '=')
 
 CPP := g++
@@ -55,6 +55,7 @@ LFLAGS := -L$(GSLLIBDIR) -L$(BOOSTLIBDIR) -L$(HDF5LIBDIR) -Xlinker -rpath -Xlink
 SOURCES :=								\
 			profiling.cpp				\
 			utils.cpp					\
+			yaml.cpp					\
 			vector3d.cpp				\
 										\
 			Rand.cpp					\

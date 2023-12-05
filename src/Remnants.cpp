@@ -27,41 +27,12 @@
  */
 DBL_DBL Remnants::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
 
-    double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
-    double fractionAccreted = 0.0;                                                          // accretion fraction - default=0.0
+    double thisMassRate = CalculateEddingtonCriticalRate(); 
 
-    if (utils::Compare(OPTIONS->EddingtonAccretionFactor(), 0.0) < 0) {
-        m_Error = ERROR::INVALID_EDDINGTION_FACTOR;                                         // set error value
-        SHOW_WARN(m_Error);                                                                 // warn that an error occurred
-    }
-
-    double thisMassRate = CalculateEddingtonCriticalRate() * OPTIONS->EddingtonAccretionFactor();
-
-    acceptanceRate   = std::min(thisMassRate, p_DonorMassRate);
-    fractionAccreted = acceptanceRate / p_DonorMassRate;
+    double acceptanceRate   = std::min(thisMassRate, p_DonorMassRate);
+    double fractionAccreted = acceptanceRate / p_DonorMassRate;
 
     return std::make_tuple(acceptanceRate, fractionAccreted);
-}
-
-
-/*
- * Calculate the dominant mass loss mechanism and associated rate for the star
- * at the current evolutionary phase.
- *
- * Hurley et al. 2000, just after eq 106
- *
- * double CalculateMassLossRateHurley()
- *
- * @return                                      Mass loss rate in Msol per year
- */
-double Remnants::CalculateMassLossRateHurley() {
-    double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
-    if (utils::Compare(rateNJ, 0.0) > 0) {
-        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
-    } else {
-        m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
-    }
-    return rateNJ;
 }
 
 

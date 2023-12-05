@@ -94,7 +94,7 @@ Star::Star(const Star& p_Star) {
     m_ObjectId   = globalObjectId++;                                                    // set object id
     m_ObjectType = OBJECT_TYPE::STAR;                                                   // set object type
 
-    m_Star     = p_Star.m_Star ? Clone(*(p_Star.m_Star)) : nullptr;                     // copy underlying BasStar object
+    m_Star     = p_Star.m_Star ? Clone(*(p_Star.m_Star)) : nullptr;                     // copy underlying BaseStar object
     m_SaveStar = p_Star.m_SaveStar ? Clone(*(p_Star.m_Star)) : nullptr;                 // and the saved copy
 }
 
@@ -108,7 +108,7 @@ Star& Star::operator = (const Star& p_Star) {
         m_ObjectType = OBJECT_TYPE::STAR;                                               // set object type
 
         delete m_Star;
-        m_Star = p_Star.m_Star ? Clone(*(p_Star.m_Star)) : nullptr;                     // copy underlying BasStar object
+        m_Star = p_Star.m_Star ? Clone(*(p_Star.m_Star)) : nullptr;                     // copy underlying BaseStar object
 
         delete m_SaveStar;
         m_SaveStar = p_Star.m_SaveStar ? Clone(*(p_Star.m_SaveStar)) : nullptr;         // and the saved copy
@@ -424,7 +424,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
         
         SaveState();                                                                                            // save the state of the star - in case we want to revert
 
-        double minTimestep = std::max(m_Star->CalculateDynamicalTimescale(), ABSOLUTE_MINIMUM_TIMESTEP);        // calculate the minimum timestep - maximum of dynamical timescale for this star and the aboslute minimum timestep
+        double minTimestep = std::max(m_Star->CalculateDynamicalTimescale(), ABSOLUTE_MINIMUM_TIMESTEP);        // calculate the minimum timestep - maximum of dynamical timescale for this star and the absolute minimum timestep
 
         // evolve the star a single timestep
 
@@ -448,7 +448,7 @@ double Star::EvolveOneTimestep(const double p_Dt) {
                 else {                                                                                          // not too many retries - retry with smaller timestep
                     if (RevertState()) {                                                                        // revert to last state ok?
                         dt = dt / 2.0;                                                                          // yes - halve the timestep (limit to minimum)      JR: probably should be dt = max(dt / 2.0, minTimestep);
-                        takeTimestep = false;                                                                   // previous timestep discared - use new one
+                        takeTimestep = false;                                                                   // previous timestep discarded - use new one
                     }
                     else {                                                                                      // revert failed
                         takeTimestep = true;                                                                    // take the last timestep anyway
@@ -482,13 +482,13 @@ double Star::EvolveOneTimestep(const double p_Dt) {
  */
 EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
 
-    EVOLUTION_STATUS status = EVOLUTION_STATUS::CONTINUE;
+    EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
-    m_Id = p_Id;                                                                // store the id
+    m_Id = p_Id;                                                                    // store the id
 
     // evolve the star
 
-    m_Star->CalculateGBParams();                                                // calculate giant branch parameters - in case for some reason star is initially not MS
+    m_Star->CalculateGBParams();                                                    // calculate giant branch parameters - in case for some reason star is initially not MS
 
     double dt = 0.0;
 
@@ -497,29 +497,31 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
     // we should be more rigorous in checking/setting error conditions, and stop the evolution for catastrophic errors
 
     int stepNum = 0;
-    while (status == EVOLUTION_STATUS::CONTINUE) {
+    while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {
     
         if (m_Star->Time() > OPTIONS->MaxEvolutionTime()) {
-            status = EVOLUTION_STATUS::TIMES_UP;                                // out of time...
+            evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                    // out of time...
         }
         else if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) {
-            status = EVOLUTION_STATUS::STEPS_UP;                                // out of steps...
+            evolutionStatus = EVOLUTION_STATUS::STEPS_UP;                                    // out of steps...
         }
         else if (!m_Star->IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07, STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, STELLAR_TYPE::HERTZSPRUNG_GAP,
                                     STELLAR_TYPE::FIRST_GIANT_BRANCH, STELLAR_TYPE::CORE_HELIUM_BURNING, STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH, STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
                                     STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
 
-            status = EVOLUTION_STATUS::DONE;                                    // we're done
+            evolutionStatus = EVOLUTION_STATUS::DONE;                                        // we're done
         }
         else {
-            stepNum++;                                                          // increment step number                                                      
-            dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();   // calculate new timestep
-            EvolveOneTimestep(dt);                                              // evolve for timestep
-            (void)m_Star->PrintDetailedOutput(m_Id);                            // log record  JR: this should probably be before the star switches type, but this way matches the original code
+            stepNum++;                                                              // increment step number                                                      
+            dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();       // calculate new timestep
+            EvolveOneTimestep(dt);                                                  // evolve for timestep
+            (void)m_Star->PrintDetailedOutput(m_Id);                                // log record
         }
     }
 
-    (void)m_Star->PrintSystemParameters();                                      // log system parameters
+    m_Star->SetEvolutionStatus(evolutionStatus);                                    // set evolution final outcome for star
 
-    return status;
+    (void)m_Star->PrintSystemParameters();                                          // log system parameters
+
+    return evolutionStatus;
 }
