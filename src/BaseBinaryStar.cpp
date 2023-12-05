@@ -1196,7 +1196,12 @@ bool BaseBinaryStar::ResolveSupernova() {
                                                                          sin(theta));
     
     // Define the rocket kick vector - will be 0 if unused. 
-    Vector3d rocketKickVector = m_Supernova->SN_RocketKickMagnitude() * Vector3d(0.0, 0.0, 1.0);                        // The rocket is aligned with the NS, which should be aligned with the pre-SN orbit. Defined here in case the system is already unbound.
+    double rocket_theta = m_Supernova->SN_RocketKickPhi();                                                              // Polar angle
+    double rocket_phi   = m_Supernova->SN_RocketKickTheta();                                                            // Azimuthal angle
+    Vector3d rocketKickVector = m_Supernova->SN_RocketKickMagnitude() * Vector3d( sin(rocket_theta)*cos(rocket_phi), 
+                                                                                  sin(rocket_theta)*sin(rocket_phi),
+                                                                                  cos(rocket_theta));                   // The rocket is aligned with the NS spin axis, which by default is aligned with the pre-SN orbit (0.0, 0.0, 1.0). Defined here in case the system is already unbound.
+
     // Check if the system is already unbound
     if (IsUnbound()) {                                                                                                  // Is system already unbound?
 

@@ -124,9 +124,11 @@ public:
             double              SN_HeCoreMassAtCOFormation() const                              { return m_SupernovaDetails.HeCoreMassAtCOFormation; }
             bool                SN_IsHydrogenPoor() const                                       { return m_SupernovaDetails.isHydrogenPoor; }
             double              SN_KickMagnitude() const                                        { return m_SupernovaDetails.kickMagnitude; }
-            double              SN_RocketKickMagnitude() const                                  { return m_SupernovaDetails.rocketKickMagnitude; }
             double              SN_MeanAnomaly() const                                          { return m_SupernovaDetails.meanAnomaly; }
             double              SN_Phi() const                                                  { return m_SupernovaDetails.phi; }
+            double              SN_RocketKickMagnitude() const                                  { return m_SupernovaDetails.rocketKickMagnitude; }
+            double              SN_RocketKickPhi() const                                        { return m_SupernovaDetails.rocketKickPhi; }
+            double              SN_RocketKickTheta() const                                      { return m_SupernovaDetails.rocketKickTheta; }
             double              SN_TotalMassAtCOFormation() const                               { return m_SupernovaDetails.totalMassAtCOFormation; }
             double              SN_TrueAnomaly() const                                          { return m_SupernovaDetails.trueAnomaly; }
             double              SN_Theta() const                                                { return m_SupernovaDetails.theta; }
