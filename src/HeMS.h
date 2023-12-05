@@ -93,10 +93,8 @@ protected:
             double          CalculateLuminosityOnPhase() const                                                      { return CalculateLuminosityOnPhase(m_Mass, m_Tau); }                           // Use class member variables
 
             double          CalculateMassLossRateHurley();
-            double          CalculateMassLossRateBelczynski2010();
-            double          CalculateMassLossRateFlexible2023();
-            double          CalculateMassLossRateWolfRayetShenar2019() const;
-            
+            double          CalculateMassLossRateVink();
+
             double          CalculateMassTransferRejuvenationFactor() const;
 
             double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                      { return MainSequence::CalculateMomentOfInertia(p_RemnantRadius); }             // Use MainSequence

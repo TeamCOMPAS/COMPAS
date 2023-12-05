@@ -872,8 +872,6 @@
 //                                      - Fixed mass change on forced envelope loss in response to issue # 743
 // 02.27.03     JR - Feb 8, 2022     - Defect repair:
 //                                      - Fix for issue # 745 - logfile definition records not updated correctly when using logfile-definitions file (see issue for details)
-// 02.27.04     RTW - Jan 18, 2021   - Enhancements:
-//                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
 // 02.27.04     RTW - Feb 15, 2022   - Defect repair:
 //                                      - Fix for issue # 761 - USSNe not occurring. See issue for details.
 // 02.27.05     IRS - Feb 17, 2022   - Enhancements:
@@ -1059,13 +1057,23 @@
 //                                      - Fixed a few typos, a little code cleanup.
 // 02.39.01     LC - Sep 01, 2023    - Defect repair:
 //                                      - Fix for issue #945 - made HeSD SN types a sub-class of SNIA types.
+//                                      - Fix for issue #945 - made HeSD SN types a sub-class of SNIA types.
+//
 // 02.40.00     JDM - Sep 29, 2023   - Enhancement:
 //                                      - Added 'FLEXIBLE2023' option to --mass-loss-prescription. Recover previous defaults via 'BELCZYNSKI2010' option. this applies the following prescriptions:
 //                                          - Added --OB-mass-loss program option.
 //                                          - Added --RSG-mass-loss.
 //                                          - Added --VMS-mass-loss.
 //                                          - Added --WR-mass-loss.
+//
+// 02.41.00     JR - Nov 02, 2023    - Enhancement, a little cleanup:
+//                                      - Added naive tides implementation.  Functionality enabled with new option `--enable-tides`.  Default is no tides.
+//                                      - Fixed CalculateOrbitalAngularMomentum() (now uses eccentricity)
+//                                      - Added links to online documentation to splash string
+//                                      - Constants 'G1' and 'G_SN' renamed to 'G_AU_Msol_yr' and 'G_km_Msol_s' respectively
+// 02.42.00     RTW - Jan 18, 2021   - Enhancements:
+//                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
 
-const std::string VERSION_STRING = "02.27.05";
+const std::string VERSION_STRING = "02.42.00";
 
 # endif // __changelog_h__

@@ -198,7 +198,7 @@ public:
     
             double          CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) const;
 
-            double          CalculateRadialChange() const                                                       { return (utils::Compare(m_RadiusPrev,0)<=0)? 0 : std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; }                    // Return fractional radial change (if previous radius is negative or zero, return 0 to avoid NaN
+            double          CalculateRadialChange() const                                                       { return (utils::Compare(m_RadiusPrev,0)<=0)? 0 : std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; } // Return fractional radial change (if previous radius is negative or zero, return 0 to avoid NaN
 
             double          CalculateRadialExpansionTimescale() const                                           { return CalculateRadialExpansionTimescale_Static(m_StellarType, m_StellarTypePrev, m_Radius, m_RadiusPrev, m_DtPrev); } // Use class member variables
     
@@ -217,13 +217,13 @@ public:
             double          CalculateTimestep();
 
             double          CalculateZetaAdiabatic();
-    virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                               // Use inheritance hierarchy
+    virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                                     // Use inheritance hierarchy
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
     
-            void            HaltWinds()                                                                         { m_Mdot = 0.0; }       // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
+            void            HaltWinds()                                                                         { m_Mdot = 0.0; }                                                   // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 
     virtual void            FastForward()                                                                       { return; }
 
@@ -249,12 +249,12 @@ public:
    
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
     
-            bool            ShouldEnvelopeBeExpelledByPulsations() const                                        { return false; }       // Default is that there is no envelope expulsion by pulsations
+            bool            ShouldEnvelopeBeExpelledByPulsations() const                                        { return false; }                                                   // Default is that there is no envelope expulsion by pulsations
 
             void            StashSupernovaDetails(const STELLAR_TYPE p_StellarType,
                                                   const SSE_SN_RECORD_TYPE p_RecordType = SSE_SN_RECORD_TYPE::DEFAULT) { LOGGING->StashSSESupernovaDetails(this, p_StellarType, p_RecordType); }
 
-    virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                             // Default is NO-OP
+    virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
 
             STELLAR_TYPE    UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
                                                               const double p_DeltaMass0,
@@ -320,6 +320,7 @@ protected:
     double                  m_RZAMS;                                    // ZAMS Radius
     double                  m_TZAMS;                                    // ZAMS Temperature
 
+
     // Effective Zero Age Main Sequence
     double                  m_LZAMS0;                                   // Effective ZAMS Luminosity
     double                  m_RZAMS0;                                   // Effective ZAMS Radius
@@ -344,7 +345,7 @@ protected:
     double                  m_Mdot;                                     // Current mass loss rate (Msol per ?)
     MASS_LOSS_TYPE          m_DominantMassLossRate;                     // Current dominant mass loss rate
     double                  m_Mu;                                       // Current small envelope parameter mu
-    double                  m_Omega;                                    // Current angular frequency (yr-1)
+    double                  m_Omega;                                    // Current angular frequency (yr^-1)
     double                  m_Radius;                                   // Current radius (Rsol)
     double                  m_Tau;                                      // Relative time
     double                  m_Temperature;                              // Current temperature (Tsol)
@@ -353,7 +354,7 @@ protected:
     // Previous timestep variables
     double                  m_DtPrev;                                   // Previous timestep
     double                  m_MassPrev;                                 // Previous mass (Msol)
-    double                  m_OmegaPrev;                                // Previous angular frequency (yr-1)
+    double                  m_OmegaPrev;                                // Previous angular frequency (yr^-1)
     double                  m_RadiusPrev;                               // Previous radius (Rsol)
     STELLAR_TYPE            m_StellarTypePrev;                          // Stellar type at previous timestep
 
@@ -427,8 +428,6 @@ protected:
                                                         DBL_VECTOR &p_RConstants,
                                                         DBL_VECTOR &p_GammaConstants);
 
-    virtual void                CalculateAndSetPulsarParameters() { }                                                                                                                               // NO-OP for most stellar types
-
             double              CalculateBindingEnergy(const double p_CoreMass, const double p_EnvMass, const double p_Radius, const double p_Lambda) const;
 
             void                CalculateBnCoefficients(DBL_VECTOR &p_BnCoefficients);
@@ -488,31 +487,12 @@ protected:
             double              CalculateMassLossRateLBVHurley(const double p_HD_limit_fac) const;
             double              CalculateMassLossRateLBVBelczynski() const;
             double              CalculateMassLossRateNieuwenhuijzenDeJager() const;
-            double              CalculateMassLossRateBjorklundEddingtonFactor() const;
-            double              CalculateMassLossRateOB(const OB_MASS_LOSS p_OB_mass_loss);
-            double              CalculateMassLossRateOBBjorklund2022() const;
-            double              CalculateMassLossRateOBVink2001() const;
-            double              CalculateMassLossRateOBKrticka2018() const;
-            double              CalculateMassLossRateOBVinkSander2021() const;
-            double              CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss) const;
-            double              CalculateMassLossRateRSGVinkSabhahit2023() const;
-            double              CalculateMassLossRateRSGBeasor2020() const;
-            double              CalculateMassLossRateRSGDecin2023() const;
-            double              CalculateMassLossRateRSGYang2023() const;
-            double              CalculateMassLossRateRSGKee2021() const;
+            double              CalculateMassLossRateOB(const double p_Teff);
             double              CalculateMassLossRateVassiliadisWood() const;
-            double              CalculateMassLossRateVMS(const VMS_MASS_LOSS p_VMS_mass_loss);
-            double              CalculateMassLossRateVMSBestenlehner2020() const;
-            double              CalculateMassLossRateVMSSabhahit2023() const;
-            double              CalculateMassLossRateVMSVink2011() const;
-    virtual double              CalculateMassLossRateBelczynski2010();
-    virtual double              CalculateMassLossRateFlexible2023();
+    virtual double              CalculateMassLossRateVink();
             double              CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const;
+            double              CalculateMassLossRateWolfRayet3() const;                                                                                                                            // JR: Never called - do we need it?
             double              CalculateMassLossRateWolfRayet(const double p_Mu) const;
-            double              CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const;
-            double              CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot) const;
-            double              CalculateMassLossRateHeliumStarVink2017() const;
-            double              CalculateMassLossRateWolfRayetShenar2019() const;
 
     virtual double              CalculateMassTransferRejuvenationFactor() const;
 
