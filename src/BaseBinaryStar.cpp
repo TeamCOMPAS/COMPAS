@@ -1384,8 +1384,12 @@ bool BaseBinaryStar::ResolveSupernova() {
             } else {                                                                                                            // no - need to update the eccentricity and system velocity
 
                 Vector3d eccentricityVectorPreRocket = eccentricityVector;                                                      // defined earlier
-                Vector3d normalizedAngularMomentumVectorPreRocket = m_NormalizedOrbitalAngularMomentumVector;                   // defined earlier
-                double averageOrbitalVelocityPreRocket = std::sqrt( -2*m_OrbitalEnergy/reducedMass);                            // average orbital velocity post-SN
+                double averageOrbitalVelocityPreRocket = std::sqrt( -2*m_OrbitalEnergy/reducedMass);                            // AU/yr - average orbital velocity post-SN
+                double k_grav = averageOrbitalVelocityPreRocket*averageOrbitalVelocityPreRocket
+                       * reducedMass * m_SemiMajorAxis;                                                                         // AU^3 * Msol / yr^2
+                // RTW this is the specific orbital angular momentum! Check units!
+                Vector3d amVectorNormalizedByCircularAmPreRocket = orbitalAngularMomentumVector 
+                                                                   * averageOrbitalVelocityPreRocket / k_grav ;                 // RTW
                     
                 // Using hPlus and hMinus support vectors
                 Vector3d hPlusVector = normalizedAngularMomentumVectorPreRocket + eccentricityVectorPreRocket;
