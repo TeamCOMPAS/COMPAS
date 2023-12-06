@@ -1376,27 +1376,27 @@ bool BaseBinaryStar::ResolveSupernova() {
             m_PsiE = _2_PI * RAND->Random();
         }
         
-        // Account for possible neutrino rocket - see Hirai+ 202?
+        // Account for possible neutrino rocket - see Hirai+ 2024
         if (ShouldResolveNeutrinoRocketMechanism()) {
 
             if (IsUnbound()) {                                                                                                  // Is system unbound? 
-                m_Supernova->UpdateComponentVelocity(rocketKickVector.RotateVector(m_ThetaE, m_PhiE, m_PsiE));              // yes - simply update the component velocity
+                m_Supernova->UpdateComponentVelocity(rocketKickVector.RotateVector(m_ThetaE, m_PhiE, m_PsiE));                  // yes - simply update the component velocity
             } else {                                                                                                            // no - need to update the eccentricity and system velocity
 
                 Vector3d eccentricityVectorPreRocket = eccentricityVector;                                                      // defined earlier
                 Vector3d normalizedAngularMomentumVectorPreRocket = m_NormalizedOrbitalAngularMomentumVector;                   // defined earlier
                 double averageOrbitalVelocityPreRocket = std::sqrt( -2*m_OrbitalEnergy/reducedMass);                            // average orbital velocity post-SN
                     
-                // Using B and D support vectors
-                Vector3d B_support = normalizedAngularMomentumVectorPreRocket + eccentricityVectorPreRocket;
-                Vector3d D_support = normalizedAngularMomentumVectorPreRocket - eccentricityVectorPreRocket;
+                // Using hPlus and hMinus support vectors
+                Vector3d hPlusVector = normalizedAngularMomentumVectorPreRocket + eccentricityVectorPreRocket;
+                Vector3d hMinusVector = normalizedAngularMomentumVectorPreRocket - eccentricityVectorPreRocket;
 
                 double theta_rotation = 3*rocketKickVector.mag/(2*averageOrbitalVelocityPreRocket);
-                Vector3d B_prime = B_support.RotateVector( 0.0, 0.0, theta_rotation );                   // want cosTheta = 1, and either cosPhi or cosPsi
-                Vector3d D_prime = D_support.RotateVector( 0.0, 0.0, theta_rotation );                   // want cosTheta = 1, and either cosPhi or cosPsi
+                Vector3d hPlusVector_prime = hPlusVector.RotateVector( 0.0, 0.0, theta_rotation );                   // want cosTheta = 1, and either cosPhi or cosPsi
+                Vector3d hMinusVector_prime = hMinusVector.RotateVector( 0.0, 0.0, theta_rotation );                   // want cosTheta = 1, and either cosPhi or cosPsi
 
-                Vector3d normalizedAngularMomentumVectorPostRocket = 0.5 * (B_prime + D_prime);
-                Vector3d eccentricityVectorPostRocket = 0.5 * (B_prime - D_prime);
+                Vector3d normalizedAngularMomentumVectorPostRocket = 0.5 * (hPlusVector_prime + hMinusVector_prime);
+                Vector3d eccentricityVectorPostRocket = 0.5 * (hPlusVector_prime - hMinusVector_prime);
 
                 m_NormalizedOrbitalAngularMomentumVector = normalizedAngularMomentumVectorPostRocket ;                 
                 m_Eccentricity = eccentricityVectorPostRocket.mag;                                                        
