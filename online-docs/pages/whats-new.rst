@@ -6,6 +6,11 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.41.00 Nov 02, 2023**
+
+* Added a naive tides implementation.
+* Added program option ``enable-tides`` to enable the tides implementation (default is ``false``).
+
 **02.40.00 Oct 20, 2023**
 
 * Added ``FLEXIBLE2023`` as a new default, and ``BELCZYNSKI2010`` as a replacement for the previous ``VINK`` mass loss prescription. The following new sub-wrappers are overridden when selecting ``BELCZYNSKI2010``:
