@@ -1072,7 +1072,7 @@
 //                                      - Added links to online documentation to splash string
 //                                      - Constants 'G1' and 'G_SN' renamed to 'G_AU_Msol_yr' and 'G_km_Msol_s' respectively
 //
-// 02.41.01     JR - Dec 11, 2023    - Defect repair:
+// 02.41.01     JR - Dec 11, 2023    - Defect repair: 
 //                                      - Fix for issue #1022 - incorrect value being used for last entry in array in BaseStar::InterpolateGe20QCrit()
 
 const std::string VERSION_STRING = "02.41.01";
