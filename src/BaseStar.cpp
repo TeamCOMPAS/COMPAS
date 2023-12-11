@@ -1384,8 +1384,8 @@ double BaseStar::InterpolateGe20QCrit( const QCRIT_PRESCRIPTION p_qCritPrescript
         upperMassInd = 0;
     } 
     else if (upperMassInd == -1) { 
-        lowerMassInd = massesFromGe20.size() - 1;                               // use last array entry
-        upperMassInd = massesFromGe20.size() - 1;                               // use last array entry
+        lowerMassInd = massesFromGe20.size() - 1;
+        upperMassInd = massesFromGe20.size() - 1;
     } 
 
     // Get vector of radii from GE20_QCRIT_AND_ZETA for the lower and upper mass indices
@@ -1416,8 +1416,8 @@ double BaseStar::InterpolateGe20QCrit( const QCRIT_PRESCRIPTION p_qCritPrescript
         upperRadiusLowerMassInd = 0; 
     }
     else if (upperRadiusLowerMassInd == -1) {                                                   
-        lowerRadiusLowerMassInd = logRadiusVectorLowerMass.size() - 1;          // use last array entry
-        upperRadiusLowerMassInd = logRadiusVectorLowerMass.size() - 1;          // use last array entry
+        lowerRadiusLowerMassInd = logRadiusVectorLowerMass.size() - 1;
+        upperRadiusLowerMassInd = logRadiusVectorLowerMass.size() - 1;
     }
 
     std::vector<int> indR1 = utils::binarySearch(logRadiusVectorUpperMass, log10(m_Radius));
@@ -1429,8 +1429,8 @@ double BaseStar::InterpolateGe20QCrit( const QCRIT_PRESCRIPTION p_qCritPrescript
         upperRadiusUpperMassInd = 0; 
     }
     else if (upperRadiusUpperMassInd == -1) {                                                   
-        lowerRadiusUpperMassInd = logRadiusVectorUpperMass.size() - 1;          // use last array entry
-        upperRadiusUpperMassInd = logRadiusVectorUpperMass.size() - 1;          // use last array entry
+        lowerRadiusUpperMassInd = logRadiusVectorUpperMass.size() - 1;
+        upperRadiusUpperMassInd = logRadiusVectorUpperMass.size() - 1;
     }
 
     // Set the 4 boundary points for the 2D interpolation
