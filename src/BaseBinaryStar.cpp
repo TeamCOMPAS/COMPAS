@@ -1901,7 +1901,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         // NOTE: Critical mass ratio is defined as mAccretor/mDonor
         double qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate());
 
-        isUnstable = (m_Accretor->Mass()/m_Donor->Mass()) < qCrit;
+        isUnstable = (m_Accretor->Mass() / m_Donor->Mass()) < qCrit;
         m_FractionAccreted = 1.0;                                                                                               // Accretion is assumed fully conservative for qCrit calculations
     }
     else {                                                                                                                      // Determine stability based on zetas
