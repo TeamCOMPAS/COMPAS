@@ -1070,10 +1070,13 @@
 //                                      - Fixed CalculateOrbitalAngularMomentum() (now uses eccentricity)
 //                                      - Added links to online documentation to splash string
 //                                      - Constants 'G1' and 'G_SN' renamed to 'G_AU_Msol_yr' and 'G_km_Msol_s' respectively
-// 02.41.01     RTW - Nov 21, 2023   - Enhancement:
+// 02.41.01     JR - Dec 11, 2023    - Defect repair, a little code cleanup:
+//                                      - Fix for issue #1022 - incorrect index used for last array entry.
+//                                      - A little code cleanup
+// 02.41.02     RTW - Nov 21, 2023   - Enhancement:
 //                                      - Added Hirai pulsar rocket kick, and related options
 
-const std::string VERSION_STRING = "02.41.01";
+const std::string VERSION_STRING = "02.41.02";
 
 
 # endif // __changelog_h__
