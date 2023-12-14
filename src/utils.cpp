@@ -1109,7 +1109,7 @@ namespace utils {
                 q = utils::InverseSampleFromPowerLaw(0.0, p_Max, p_Min);
                 break;
 
-            case MASS_RATIO_DISTRIBUTION::POWERLAW:                                                                 // FLAT mass ratio distriution
+            case MASS_RATIO_DISTRIBUTION::POWERLAW:                                                             // POWERLAW mass ratio distriution
                 q = utils::InverseSampleFromPowerLaw(p_Power, p_Max, p_Min);
                 break;
 
