@@ -781,8 +781,9 @@ Default = Value is sampled if option not specified.
 
 **--mass-ratio-distribution** |br|
 Initial mass ratio distribution for :math:`q = \frac{m2}{m1}`. |br|
-Options: { FLAT, DUQUENNOYMAYOR1991, SANA2012 } |br|
-``FLAT`` is uniform in the mass ratio between ``--mass-ratio-min`` and ``--mass-ratio-max``, the other prescriptions follow Duquennoy & Mayor 1991 and Sana et al. 2012 |br|
+Options: { FLAT, POWERLAW, DUQUENNOYMAYOR1991, SANA2012 } |br|
+``FLAT`` is uniform in the mass ratio between ``--mass-ratio-min`` and ``--mass-ratio-max``.
+The other prescriptions available follow a power law, Duquennoy & Mayor 1991 and Sana et al. 2012 |br|
 Default = FLAT
 
 **--mass-ratio-max** |br|
@@ -792,6 +793,10 @@ Default = 1.0
 **--mass-ratio-min** |br|
 Minimum mass ratio :math:`\frac{m2}{m1}` to generate. |br|
 Default = 0.01
+
+**--mass-ratio-power** |br|
+Power law exponent for the initial binary mass ratio :math:`\frac{m2}{m1}`. |br|
+Default = 0.0
 
 **--mass-transfer** |br|
 Enable mass transfer. |br|
@@ -1220,7 +1225,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --initial-mass-function, --initial-mass, --initial-mass-1, --initial-mass-2, --initial-mass-min, --initial-mass-max, --initial-mass-power
 
---mass-ratio-distribution, --mass-ratio, --mass-ratio-min, --mass-ratio-max, --minimum-secondary-mass
+--mass-ratio-distribution, --mass-ratio, --mass-ratio-min, --mass-ratio-max, --mass-ratio-power, --minimum-secondary-mass
 
 --eccentricity-distribution, --eccentricity, --eccentricity-min, --eccentricity-max
 

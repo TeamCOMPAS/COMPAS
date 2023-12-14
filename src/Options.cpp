@@ -213,6 +213,7 @@ void Options::OptionValues::Initialise() {
     m_MassRatioDistribution.typeString                              = MASS_RATIO_DISTRIBUTION_LABEL.at(m_MassRatioDistribution.type);
     m_MassRatioDistributionMin                                      = 0.01;
     m_MassRatioDistributionMax                                      = 1.0;
+    m_MassRatioDistributionPower                                    = 0.0;
 
     m_MinimumMassSecondary                                          = 0.1;
 
@@ -1296,6 +1297,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "mass-ratio-min",                                              
             po::value<double>(&p_Options->m_MassRatioDistributionMin)->default_value(p_Options->m_MassRatioDistributionMin),                                                                      
             ("Minimum mass ratio m2/m1 to generate (default = " + std::to_string(p_Options->m_MassRatioDistributionMin) + ")").c_str()
+        )
+        (
+            "mass-ratio-power",                                              
+            po::value<double>(&p_Options->m_MassRatioDistributionPower)->default_value(p_Options->m_MassRatioDistributionPower),                                                                      
+            ("Power-law exponent for the mass ratio (m2/m1) distribution (default = " + std::to_string(p_Options->m_MassRatioDistributionPower) + ")").c_str()
         )
         (
             "mass-transfer-fa",                                            
@@ -4437,7 +4443,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION                        : value = static_cast<int>(MassRatioDistribution());                            break;
         case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MAX                    : value = MassRatioDistributionMax();                                           break;
         case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MIN                    : value = MassRatioDistributionMin();                                           break;
-
+        case PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_POWER                  : value = MassRatioDistributionPower();                                         break;
+        
         case PROGRAM_OPTION::MAXIMUM_EVOLUTION_TIME                         : value = MaxEvolutionTime();                                                   break;
         case PROGRAM_OPTION::MAXIMUM_DONOR_MASS                             : value = MaximumDonorMass();                                                   break;
         case PROGRAM_OPTION::MAXIMUM_NEUTRON_STAR_MASS                      : value = MaximumNeutronStarMass();                                             break;

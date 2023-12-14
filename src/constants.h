@@ -1055,9 +1055,10 @@ const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIP
 
 
 // Mass ratio distribution
-enum class MASS_RATIO_DISTRIBUTION: int { FLAT, DUQUENNOYMAYOR1991, SANA2012 };
+enum class MASS_RATIO_DISTRIBUTION: int { FLAT, POWERLAW, DUQUENNOYMAYOR1991, SANA2012 };
 const COMPASUnorderedMap<MASS_RATIO_DISTRIBUTION, std::string> MASS_RATIO_DISTRIBUTION_LABEL = {
     { MASS_RATIO_DISTRIBUTION::FLAT,               "FLAT" },
+    { MASS_RATIO_DISTRIBUTION::POWERLAW,           "POWERLAW"},
     { MASS_RATIO_DISTRIBUTION::DUQUENNOYMAYOR1991, "DUQUENNOYMAYOR1991" },
     { MASS_RATIO_DISTRIBUTION::SANA2012,           "SANA2012" }
 };
@@ -2409,6 +2410,7 @@ enum class PROGRAM_OPTION: int {
     MASS_RATIO_DISTRIBUTION,
     MASS_RATIO_DISTRIBUTION_MAX,
     MASS_RATIO_DISTRIBUTION_MIN,
+    MASS_RATIO_DISTRIBUTION_POWER,
 
     MAXIMUM_EVOLUTION_TIME,
     MAXIMUM_DONOR_MASS,
@@ -2619,6 +2621,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION,                          "MASS_RATIO_DISTRIBUTION" },
     { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MAX,                      "MASS_RATIO_DISTRIBUTION_MAX" },
     { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MIN,                      "MASS_RATIO_DISTRIBUTION_MIN" },
+    { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_POWER,                    "MASS_RATIO_DISTRIBUTION_POWER" },
 
     { PROGRAM_OPTION::MAXIMUM_EVOLUTION_TIME,                           "MAXIMUM_EVOLUTION_TIME" },
     { PROGRAM_OPTION::MAXIMUM_DONOR_MASS,                               "MAXIMUM_DONOR_MASS" },
@@ -3128,6 +3131,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION,                                  { TYPENAME::INT,        "Mass_Ratio_Dstrbtn",                     "-",          4, 1 }},
     { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MAX,                              { TYPENAME::DOUBLE,     "Mass_Ratio_Dstrbtn_Max",                 "-",         14, 6 }},
     { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_MIN,                              { TYPENAME::DOUBLE,     "Mass_Ratio_Dstrbtn_Min",                 "-",         14, 6 }},
+    { PROGRAM_OPTION::MASS_RATIO_DISTRIBUTION_POWER,                            { TYPENAME::DOUBLE,     "Mass_Ratio_Dstrbtn_Power",               "-",         14, 6 }},
 
     { PROGRAM_OPTION::MAXIMUM_EVOLUTION_TIME,                                   { TYPENAME::DOUBLE,     "Max_Evolution_Time",                     "Myr",       14, 6 }},
     { PROGRAM_OPTION::MAXIMUM_DONOR_MASS,                                       { TYPENAME::DOUBLE,     "Max_Donor_Mass",                         "Msol",      14, 6 }},

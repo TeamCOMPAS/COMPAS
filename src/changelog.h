@@ -1074,8 +1074,10 @@
 // 02.41.01     JR - Dec 11, 2023    - Defect repair, a little code cleanup:
 //                                      - Fix for issue #1022 - incorrect index used for last array entry.
 //                                      - A little code cleanup
+// 02.42.00     SS - Dec 14, 2023    - Enhancement:
+//                                      - Added power law mass ratio distribution and associated option
 
-const std::string VERSION_STRING = "02.41.01";
+const std::string VERSION_STRING = "02.42.00";
 
 
 # endif // __changelog_h__

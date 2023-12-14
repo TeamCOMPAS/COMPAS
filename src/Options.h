@@ -696,6 +696,7 @@ public:
             ENUM_OPT<MASS_RATIO_DISTRIBUTION>                   m_MassRatioDistribution;                                        // Which mass ratio distribution
             double                                              m_MassRatioDistributionMin;                                     // Minimum initial mass ratio when using a distribution
             double                                              m_MassRatioDistributionMax;                                     // Maximum initial mass ratio when using a distribution
+            double                                              m_MassRatioDistributionPower;                                   // Power law exponent for the initial mass ratio distribution
 
             double                                              m_MinimumMassSecondary;                                         // Minimum mass of secondary to draw (in Msol)
 
@@ -1330,6 +1331,7 @@ public:
     MASS_RATIO_DISTRIBUTION                     MassRatioDistribution() const                                           { return OPT_VALUE("mass-ratio-distribution", m_MassRatioDistribution.type, true); }
     double                                      MassRatioDistributionMax() const                                        { return OPT_VALUE("mass-ratio-max", m_MassRatioDistributionMax, true); }
     double                                      MassRatioDistributionMin() const                                        { return OPT_VALUE("mass-ratio-min", m_MassRatioDistributionMin, true); }
+    double                                      MassRatioDistributionPower() const                                      { return OPT_VALUE("mass-ratio-power", m_MassRatioDistributionPower, true); }
 
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION        MassTransferAccretionEfficiencyPrescription() const                     { return OPT_VALUE("mass-transfer-accretion-efficiency-prescription", m_MassTransferAccretionEfficiencyPrescription.type, true); }
     MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION       MassTransferAngularMomentumLossPrescription() const                     { return OPT_VALUE("mass-transfer-angular-momentum-loss-prescription", m_MassTransferAngularMomentumLossPrescription.type, true); }

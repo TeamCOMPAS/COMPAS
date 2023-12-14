@@ -102,7 +102,8 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
                         ? OPTIONS->MassRatio()                                                                                          // yes, use it
                         : utils::SampleMassRatio(OPTIONS->MassRatioDistribution(),
                                                  OPTIONS->MassRatioDistributionMax(), 
-                                                 OPTIONS->MassRatioDistributionMin());                                                  // no - sample it
+                                                 OPTIONS->MassRatioDistributionMin(),
+                                                 OPTIONS->MassRatioDistributionPower());                                                  // no - sample it
 
             mass2 = mass1 * q;                                                                                                          // calculate mass2 using mass ratio                                                                     
         }

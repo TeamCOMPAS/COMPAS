@@ -6,6 +6,10 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.42.00 Nov 02, 2023**
+
+* Added power law mass ratio distribution (``--mass-ratio-distribution POWERLAW```) and associated option (``--mass-ratio-power```)
+
 **02.41.00 Nov 02, 2023**
 
 * Added a naive tides implementation.

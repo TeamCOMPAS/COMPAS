@@ -1091,14 +1091,15 @@ namespace utils {
      * Draw mass ratio q from the distribution specified by the user
      *
      *
-     * double SampleMassRatio(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min)
+     * double SampleMassRatio(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min, const double p_Power)
      *
      * @param   [IN]    p_IMF                       The distribution to use to draw the ratio
      * @param   [IN]    p_Max                       Distribution maximum
      * @param   [IN]    p_Min                       Distribution minimum
+     * @param   [IN]    p_Power                     Power law slope
      * @return                                      Mass ratio q
      */
-    double SampleMassRatio(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min) {
+    double SampleMassRatio(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min, const double p_Power) {
 
         double q;
 
@@ -1106,6 +1107,10 @@ namespace utils {
 
             case MASS_RATIO_DISTRIBUTION::FLAT:                                                                 // FLAT mass ratio distriution
                 q = utils::InverseSampleFromPowerLaw(0.0, p_Max, p_Min);
+                break;
+
+            case MASS_RATIO_DISTRIBUTION::POWERLAW:                                                                 // FLAT mass ratio distriution
+                q = utils::InverseSampleFromPowerLaw(p_Power, p_Max, p_Min);
                 break;
 
             case MASS_RATIO_DISTRIBUTION::DUQUENNOYMAYOR1991:                                                   // mass ratio distribution from Duquennoy & Mayor (1991) (http://adsabs.harvard.edu/abs/1991A%26A...248..485D)
