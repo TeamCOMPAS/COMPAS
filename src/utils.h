@@ -118,7 +118,7 @@ namespace utils {
     double                              SampleEccentricity(const ECCENTRICITY_DISTRIBUTION p_Edist, const double p_Max, const double p_Min);
     double                              SampleFromTabulatedCDF(const double p_X, const std::map<double, double> pTable);
     double                              SampleInitialMass(const INITIAL_MASS_FUNCTION p_IMF, const double p_Max, const double p_Min, const double p_Power);
-    double                              SampleMassRatio(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min);
+    double                              SampleMassRatio(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min, const double p_Power);
     double                              SampleMetallicity(const METALLICITY_DISTRIBUTION p_Zdist, const double p_Max, const double p_Min);
     double                              SampleOrbitalPeriod(const ORBITAL_PERIOD_DISTRIBUTION p_Pdist, const double p_PdistMax, const double p_PdistMin);
     double                              SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
