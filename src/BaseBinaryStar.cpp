@@ -90,7 +90,7 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
                         : utils::SampleInitialMass(OPTIONS->InitialMassFunction(), 
                                                    OPTIONS->InitialMassFunctionMax(), 
                                                    OPTIONS->InitialMassFunctionMin(), 
-                                                   OPTIONS->InitialMassFunctionPower());                                                // no - asmple it
+                                                   OPTIONS->InitialMassFunctionPower());                                                // no - sample it
 
         double mass2 = 0.0;                      
         if (OPTIONS->OptionSpecified("initial-mass-2") == 1) {                                                                          // user specified secondary mass?
@@ -103,7 +103,7 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
                         : utils::SampleMassRatio(OPTIONS->MassRatioDistribution(),
                                                  OPTIONS->MassRatioDistributionMax(), 
                                                  OPTIONS->MassRatioDistributionMin(),
-                                                 OPTIONS->MassRatioDistributionPower());                                                  // no - sample it
+                                                 OPTIONS->MassRatioDistributionPower());                                                // no - sample it
 
             mass2 = mass1 * q;                                                                                                          // calculate mass2 using mass ratio                                                                     
         }
