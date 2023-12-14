@@ -1387,7 +1387,6 @@ bool BaseBinaryStar::ResolveSupernova() {
                 double averageOrbitalVelocityPreRocket = std::sqrt( -2*m_OrbitalEnergy/reducedMass);                            // AU/yr - average orbital velocity post-SN
                 double k_grav = averageOrbitalVelocityPreRocket*averageOrbitalVelocityPreRocket
                        * reducedMass * m_SemiMajorAxis;                                                                         // AU^3 * Msol / yr^2
-                // RTW this is the specific orbital angular momentum! Check units!
                 Vector3d totalAmVectorPreRocket = orbitalAngularMomentumVector * reducedMass * 
                                                             * KM_TO_AU * KM_TO_AU * SECONDS_IN_YEAR;                            // Msol * AU^2 / yr (orbitalAngularMomentumVector is the specific orbital AM)
                 Vector3d amVectorNormalizedByCircularAmPreRocket = totalAmVectorPreRocket                            
@@ -1397,8 +1396,8 @@ bool BaseBinaryStar::ResolveSupernova() {
                 Vector3d hPlusVector = normalizedAngularMomentumVectorPreRocket + eccentricityVectorPreRocket;
                 Vector3d hMinusVector = normalizedAngularMomentumVectorPreRocket - eccentricityVectorPreRocket;
 
-                // RTW - fix this
-                double theta_rotation = 3*rocketKickVector.mag/(2*averageOrbitalVelocityPreRocket);
+                double theta_rotation = 3*rocketKickVector.mag * KM_TO_AU * SECONDS_IN_YEAR
+                                        / (2*averageOrbitalVelocityPreRocket);                                                  // rad - need to convert velocities to same units
                 Vector3d hPlusVector_prime = hPlusVector.RotateVector( 0.0, 0.0, theta_rotation );                              // want cosTheta = 1, and either cosPhi or cosPsi
                 Vector3d hMinusVector_prime = hMinusVector.RotateVector( 0.0, 0.0, theta_rotation );                            // want cosTheta = 1, and either cosPhi or cosPsi
 
