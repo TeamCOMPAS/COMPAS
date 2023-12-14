@@ -1273,8 +1273,8 @@ bool BaseBinaryStar::ResolveSupernova() {
         Vector3d relativeVelocityVector       = relativeVelocityVectorPrev + (natalKickVector - companionRecoilVector);         // km/s - PostSN relative velocity vector
 
         Vector3d orbitalAngularMomentumVector = cross(separationVectorPrev, relativeVelocityVector);                            // km^2 s^-1 - PostSN specific orbital angular momentum vector
-        double   orbitalAngularMomentum = orbitalAngularMomentumVector.mag;                                             // km^2 s^-1  - PostSN specific orbital angular momentum 
-        m_NormalizedOrbitalAngularMomentumVector = orbitalAngularMomentumVector/orbitalAngularMomentum;                 // set unit vector here to make printing out the inclination vector easier
+        double   orbitalAngularMomentum = orbitalAngularMomentumVector.mag;                                                     // km^2 s^-1 - PostSN specific orbital angular momentum 
+        m_NormalizedOrbitalAngularMomentumVector = orbitalAngularMomentumVector/orbitalAngularMomentum;                         // set unit vector here to make printing out the inclination vector easier
 
         Vector3d eccentricityVector           = cross(relativeVelocityVector, orbitalAngularMomentumVector) / 
                                                 (G_km_Msol_s * totalMass) - separationVectorPrev / separationPrev;              // PostSN Laplace-Runge-Lenz vector
@@ -1388,16 +1388,19 @@ bool BaseBinaryStar::ResolveSupernova() {
                 double k_grav = averageOrbitalVelocityPreRocket*averageOrbitalVelocityPreRocket
                        * reducedMass * m_SemiMajorAxis;                                                                         // AU^3 * Msol / yr^2
                 // RTW this is the specific orbital angular momentum! Check units!
-                Vector3d amVectorNormalizedByCircularAmPreRocket = orbitalAngularMomentumVector 
-                                                                   * averageOrbitalVelocityPreRocket / k_grav ;                 // RTW
+                Vector3d totalAmVectorPreRocket = orbitalAngularMomentumVector * reducedMass * 
+                                                            * KM_TO_AU * KM_TO_AU * SECONDS_IN_YEAR;                            // Msol * AU^2 / yr (orbitalAngularMomentumVector is the specific orbital AM)
+                Vector3d amVectorNormalizedByCircularAmPreRocket = totalAmVectorPreRocket                            
+                                                                  *(averageOrbitalVelocityPreRocket / k_grav) ;                 // unitless!
                     
                 // Using hPlus and hMinus support vectors
                 Vector3d hPlusVector = normalizedAngularMomentumVectorPreRocket + eccentricityVectorPreRocket;
                 Vector3d hMinusVector = normalizedAngularMomentumVectorPreRocket - eccentricityVectorPreRocket;
 
+                // RTW - fix this
                 double theta_rotation = 3*rocketKickVector.mag/(2*averageOrbitalVelocityPreRocket);
-                Vector3d hPlusVector_prime = hPlusVector.RotateVector( 0.0, 0.0, theta_rotation );                   // want cosTheta = 1, and either cosPhi or cosPsi
-                Vector3d hMinusVector_prime = hMinusVector.RotateVector( 0.0, 0.0, theta_rotation );                   // want cosTheta = 1, and either cosPhi or cosPsi
+                Vector3d hPlusVector_prime = hPlusVector.RotateVector( 0.0, 0.0, theta_rotation );                              // want cosTheta = 1, and either cosPhi or cosPsi
+                Vector3d hMinusVector_prime = hMinusVector.RotateVector( 0.0, 0.0, theta_rotation );                            // want cosTheta = 1, and either cosPhi or cosPsi
 
                 Vector3d normalizedAngularMomentumVectorPostRocket = 0.5 * (hPlusVector_prime + hMinusVector_prime);
                 Vector3d eccentricityVectorPostRocket = 0.5 * (hPlusVector_prime - hMinusVector_prime);
