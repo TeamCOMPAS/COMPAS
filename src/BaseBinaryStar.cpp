@@ -1192,7 +1192,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     // Check if the system is already unbound
     if (IsUnbound()) {                                                                                                          // is system already unbound?
 
-        m_Supernova->UpdateComponentVelocity( (natalKickVector+rocketKickVector).RotateVector(m_ThetaE, m_PhiE, m_PsiE)); // yes - only need to update the velocity of the star undergoing SN
+        m_Supernova->UpdateComponentVelocity( (natalKickVector+rocketKickVector).RotateVector(m_ThetaE, m_PhiE, m_PsiE));       // yes - only need to update the velocity of the star undergoing SN
 
         // The quantities below are meaningless in this context, so they are set to nan to avoid misuse
         m_OrbitalVelocityPreSN = -nan("");
@@ -1391,15 +1391,20 @@ bool BaseBinaryStar::ResolveSupernova() {
                                                             * KM_TO_AU * KM_TO_AU * SECONDS_IN_YEAR;                            // Msol * AU^2 / yr (orbitalAngularMomentumVector is the specific orbital AM)
                 Vector3d amVectorNormalizedByCircularAmPreRocket = totalAmVectorPreRocket                            
                                                                   *(averageOrbitalVelocityPreRocket / k_grav) ;                 // unitless!
+                double theta_rotation = 3*rocketKickVector.mag * KM_TO_AU * SECONDS_IN_YEAR
+                                        / (2*averageOrbitalVelocityPreRocket);                                                  // rad - need to convert velocities to same units
                     
-                // Using hPlus and hMinus support vectors
+                // Apply hPlus and hMinus support vectors
                 Vector3d hPlusVector  = amVectorNormalizedByCircularAmPreRocket + eccentricityVectorPreRocket;
                 Vector3d hMinusVector = amVectorNormalizedByCircularAmPreRocket - eccentricityVectorPreRocket;
 
-                double theta_rotation = 3*rocketKickVector.mag * KM_TO_AU * SECONDS_IN_YEAR
-                                        / (2*averageOrbitalVelocityPreRocket);                                                  // rad - need to convert velocities to same units
-                Vector3d hPlusVector_prime = hPlusVector.RotateVector( 0.0, 0.0, theta_rotation );                              // want cosTheta = 1, and either cosPhi or cosPsi
-                Vector3d hMinusVector_prime = hMinusVector.RotateVector( 0.0, 0.0, theta_rotation );                            // want cosTheta = 1, and either cosPhi or cosPsi
+                // Rotate hPlus and hMinus vectors so that the thrust is parallel to the z-axis, in order to apply the rotation below
+                hPlusVector  = hPlusVector.RotateVector(  -rocket_phi, 0.0, 0.0);                                    // want cosTheta = 1, and either cosPhi or cosPsi
+                hMinusVector = hMinusVector.RotateVector( -rocket_phi, 0.0, 0.0);                                     // want cosTheta = 1, and either cosPhi or cosPsi
+
+                // Rotate vectors about the "z-axis"
+                Vector3d hPlusVector_prime  = hPlusVector.RotateVector(   theta_rotation, 0.0, 0.0);                           // want cosTheta = 1, and either cosPhi or cosPsi
+                Vector3d hMinusVector_prime = hMinusVector.RotateVector( -theta_rotation, 0.0, 0.0);                           // want cosTheta = 1, and either cosPhi or cosPsi
 
                 Vector3d normalizedAngularMomentumVectorPostRocket = 0.5 * (hPlusVector_prime + hMinusVector_prime);
                 Vector3d eccentricityVectorPostRocket = 0.5 * (hPlusVector_prime - hMinusVector_prime);
@@ -1423,7 +1428,7 @@ bool BaseBinaryStar::ResolveSupernova() {
     //////////////////////////
     // Do for all systems 
 
-    m_IPrime    = m_ThetaE;                                                                                             // Inclination angle between preSN and postSN orbital planes 
+    m_IPrime    = m_ThetaE;                                                                                                     // Inclination angle between preSN and postSN orbital planes 
     m_CosIPrime = cos(m_IPrime);
 
     (void)PrintSupernovaDetails();                                                                                              // log record to supernovae logfile
