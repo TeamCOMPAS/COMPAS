@@ -1063,7 +1063,6 @@
 //                                          - Added --RSG-mass-loss.
 //                                          - Added --VMS-mass-loss.
 //                                          - Added --WR-mass-loss.
-//
 // 02.41.00     JR - Nov 02, 2023    - Enhancement, a little cleanup:
 //                                      - Added naive tides implementation.  Functionality enabled with new option `--enable-tides`.  Default is no tides.
 //                                      - Fixed CalculateOrbitalAngularMomentum() (now uses eccentricity)
@@ -1072,8 +1071,11 @@
 // 02.41.01     JR - Dec 11, 2023    - Defect repair, a little code cleanup:
 //                                      - Fix for issue #1022 - incorrect index used for last array entry.
 //                                      - A little code cleanup
+// 02.41.02     JR - Dec 15, 2023    - Defect repair:
+//                                      - 2.41.00 backed-ou the changes made in 2.40.00 - this puts them back
+//                                      - Calling it a defect repair so we get a new version number - just in case we need it...
 
-const std::string VERSION_STRING = "02.41.01";
+const std::string VERSION_STRING = "02.41.02";
 
 
 # endif // __changelog_h__
