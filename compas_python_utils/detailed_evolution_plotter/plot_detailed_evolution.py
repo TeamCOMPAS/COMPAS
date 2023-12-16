@@ -70,8 +70,9 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
     event_times = [event.time for event in events]
     stopTimeAt = event_times[-1] * 1.05  # End time at the last event, plus 5% for convenience.
     if num_events == 1:
-        stopTimeAt = Data['Time'][-1] * 1.05  # plot all the way to the end of the run if no events beyond ZAMS
-    mask = Data['Time'][()] < stopTimeAt  # Mask the data to not include the 'End' events
+        stopTimeAt = Data['Time'][-1] * 1.05            # Plot all the way to the end of the run if no events beyond ZAMS
+    mask = Data['Time'][()] < stopTimeAt                # Mask the data to not include the 'End' events
+    mask &= Data['Record_Type'][()] == 4                # Only include end-of-timestep events
 
     rcParams.update(fontparams)  # Set configurations for uniform plot output
 
@@ -144,17 +145,11 @@ def plotMassAttributes(ax=None, Data=None, mask=None, **kwargs):
 def plotLengthAttributes(ax=None, Data=None, mask=None, **kwargs):
     ### Plot radius attributes
     ax.plot(Data['Time'][()][mask], Data['SemiMajorAxis'][()][mask], linestyle='-', c='k', label='Semi-Major Axis')
-    ax.plot(Data['Time'][()][mask], Data['SemiMajorAxis'][()][mask] * (1 - Data['Eccentricity'][()][mask]),
-            linestyle=':', c='k', label='Periapsis')
+    ax.plot(Data['Time'][()][mask], Data['SemiMajorAxis'][()][mask] * (1 - Data['Eccentricity'][()][mask]), linestyle=':', c='k', label='Periapsis')
     ax.plot(Data['Time'][()][mask], Data['Radius(1)'][()][mask], linestyle='-', c='r', label='Stellar Radius 1')
     ax.plot(Data['Time'][()][mask], Data['Radius(2)'][()][mask], linestyle='-', c='b', label='Stellar Radius 2')
-    # Need to mask out when the denominator is 0
-    starToRLradius1 = Data['Radius(1)'][()][mask] / Data['RocheLobe(1)'][()][mask]
-    mask1 = mask & (starToRLradius1 != 0)
-    ax.plot(Data['Time'][()][mask1], Data['Radius(1)'][()][mask1]/starToRLradius1[mask1], linestyle='--', c='r', label='Roche Radius 1')
-    starToRLradius2 = Data['Radius(2)'][()][mask] / Data['RocheLobe(2)'][()][mask]
-    mask2 = mask & (starToRLradius2 != 0)
-    ax.plot(Data['Time'][()][mask2], Data['Radius(2)'][()][mask2]/starToRLradius2[mask2], linestyle='--', c='b', label='Roche Radius 2')
+    ax.plot(Data['Time'][()][mask], Data['RocheLobe(1)'][()][mask], linestyle='--', c='r', label='Roche Radius 1')
+    ax.plot(Data['Time'][()][mask], Data['RocheLobe(2)'][()][mask], linestyle='--', c='b', label='Roche Radius 2')
 
     ax.set_ylabel(r'Radius $/ \; R_{\odot}$')
     ax.set_yscale('log')
