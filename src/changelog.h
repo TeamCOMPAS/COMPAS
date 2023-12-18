@@ -1057,15 +1057,12 @@
 //                                      - Fixed a few typos, a little code cleanup.
 // 02.39.01     LC - Sep 01, 2023    - Defect repair:
 //                                      - Fix for issue #945 - made HeSD SN types a sub-class of SNIA types.
-//                                      - Fix for issue #945 - made HeSD SN types a sub-class of SNIA types.
-//
 // 02.40.00     JDM - Sep 29, 2023   - Enhancement:
 //                                      - Added 'FLEXIBLE2023' option to --mass-loss-prescription. Recover previous defaults via 'BELCZYNSKI2010' option. this applies the following prescriptions:
 //                                          - Added --OB-mass-loss program option.
 //                                          - Added --RSG-mass-loss.
 //                                          - Added --VMS-mass-loss.
 //                                          - Added --WR-mass-loss.
-//
 // 02.41.00     JR - Nov 02, 2023    - Enhancement, a little cleanup:
 //                                      - Added naive tides implementation.  Functionality enabled with new option `--enable-tides`.  Default is no tides.
 //                                      - Fixed CalculateOrbitalAngularMomentum() (now uses eccentricity)
@@ -1075,7 +1072,10 @@
 // 02.41.01     JR - Dec 11, 2023    - Defect repair, a little code cleanup:
 //                                      - Fix for issue #1022 - incorrect index used for last array entry.
 //                                      - A little code cleanup
-// 02.42.00     RTW - Jan 18, 2021   - Enhancements:
+// 02.41.02     JR - Dec 15, 2023    - Defect repair:
+//                                      - 2.41.00 backed-ou the changes made in 2.40.00 - this puts them back
+//                                      - Calling it a defect repair so we get a new version number - just in case we need it...
+// 02.42.00     RTW - Dec 18, 2023   - Enhancements:
 
 const std::string VERSION_STRING = "02.42.00";
 
