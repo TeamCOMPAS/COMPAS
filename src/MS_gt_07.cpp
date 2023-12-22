@@ -15,6 +15,7 @@ double MS_gt_07::CalculateMassLossRateHurley() {
     double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
     m_DominantMassLossRate = MASS_LOSS_TYPE::GB;
     if (utils::Compare(rateNJ, 0.0) > 0) {
+        // RTW - what is supposed to go here?
     } else {
         m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
     }
