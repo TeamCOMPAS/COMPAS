@@ -407,35 +407,16 @@ private:
 
     // member functions - alphabetical in groups (sort of...)
 
-    // CalculateAngularMomentum - the actual function takes 10 parameters because of the various calling permutations
-    //                          - various signatures are defined here - they just assemble the parameters as required
-    //                            and call the actual function
-    // JR: todo: note in the original code the binary orbital velicity was passed in as a parameter but never used - I removed it
-
-    void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
-    void    SetRemainingValues();
-
     double  CalculateAngularMomentum(const double p_SemiMajorAxis,
                                      const double p_Eccentricity,
                                      const double p_Star1Mass,
                                      const double p_Star2Mass,
-                                     const double p_Star1Radius,
-                                     const double p_Star2Radius,
-                                     const double p_Star1_SpinAngularVelocity,
-                                     const double p_Star2_SpinAngularVelocity,
-                                     const double p_Star1_GyrationRadius,
-                                     const double p_Star2_GyrationRadius) const;
+                                     const double p_Star1SpinAngularVelocity,
+                                     const double p_Star2SpinAngularVelocity,
+                                     const double p_Star1MomentOfInertia,
+                                     const double p_Star2MomentOfInertia) const;
 
-    double  CalculateAngularMomentum() const                                    { return CalculateAngularMomentum(m_SemiMajorAxis, m_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
-
-    double  CalculateAngularMomentum(const double p_SemiMajorAxis,
-                                     const double p_Eccentricity,
-                                     const double p_Star1_SpinAngularVelocity,
-                                     const double p_Star2_SpinAngularVelocity,
-                                     const double p_Star1_GyrationRadius,
-                                     const double p_Star2_GyrationRadius) const { return CalculateAngularMomentum(p_SemiMajorAxis, p_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), p_Star1_SpinAngularVelocity, p_Star2_SpinAngularVelocity, p_Star1_GyrationRadius, p_Star2_GyrationRadius); }
-
-    double  CalculateAngularMomentumPrev() const                                { return CalculateAngularMomentum(m_SemiMajorAxisPrev, m_EccentricityPrev, m_Star1->MassPrev(), m_Star2->MassPrev(), m_Star1->RadiusPrev(), m_Star2->RadiusPrev(), m_Star1->OmegaPrev(), m_Star2->OmegaPrev(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
+    double  CalculateAngularMomentum() const                                    { return CalculateAngularMomentum(m_SemiMajorAxis, m_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateMomentOfInertia(), m_Star2->CalculateMomentOfInertia()); }
 
     void    CalculateEnergyAndAngularMomentum();
 
@@ -466,27 +447,15 @@ private:
 
     double  CalculateTimeToCoalescence(double a0, double e0, double m1, double m2) const;
 
-    // CalculateTotalEnergy - the actual function takes 9 parameters because of the various calling permutations
-    //                      - various signatures are defined here - they just assemble the parameters as required
-    //                        and call the actual function
     double  CalculateTotalEnergy(const double p_SemiMajorAxis,
                                  const double p_Star1Mass,
                                  const double p_Star2Mass,
-                                 const double p_Star1Radius,
-                                 const double p_Star2Radius,
-                                 const double p_Star1_SpinAngularVelocity,
-                                 const double p_Star2_SpinAngularVelocity,
-                                 const double p_Star1GyrationRadius,
-                                 const double p_Star2GyrationRadius) const;
+                                 const double p_Star1SpinAngularVelocity,
+                                 const double p_Star2SpinAngularVelocity,
+                                 const double p_Star1MomentOfInertia,
+                                 const double p_Star2MomentOfInertia) const;
 
-    double  CalculateTotalEnergy() const                                    { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
-
-    double  CalculateTotalEnergy(const double p_SemiMajorAxis,
-                                 const double p_Star1_SpinAngularVelocity,
-                                 const double p_Star2_SpinAngularVelocity,
-                                 const double p_Star1_GyrationRadius,
-                                 const double p_Star2_GyrationRadius) const { return CalculateTotalEnergy(p_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), p_Star1_SpinAngularVelocity, p_Star2_SpinAngularVelocity, p_Star1_GyrationRadius, p_Star2_GyrationRadius); }
-
+    double  CalculateTotalEnergy() const                                    { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateMomentOfInertia(), m_Star2->CalculateMomentOfInertia()); }
 
     void    EvaluateBinary(const double p_Dt);
 
@@ -499,6 +468,9 @@ private:
     void    ResolveCommonEnvelopeEvent();
     void    ResolveMassChanges();
     bool    ResolveSupernova();
+
+    void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
+    void    SetRemainingValues();
 
     void    SetPostCEEValues(const double p_SemiMajorAxis,
                              const double p_Eccentricity,
