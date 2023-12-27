@@ -273,7 +273,7 @@ void BaseBinaryStar::SetRemainingValues() {
     m_EccentricityAtDCOFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     double momentOfInertia1       = m_Star1->CalculateMomentOfInertiaAU();
-    double momentOfInertia2       = m_Star2->CalculateMomentOfInertiaAu();
+    double momentOfInertia2       = m_Star2->CalculateMomentOfInertiaAU();
 
     m_TotalEnergy                 = CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), momentOfInertia1, momentOfInertia2);
 
