@@ -1072,10 +1072,19 @@
 //                                      - Fix for issue #1022 - incorrect index used for last array entry.
 //                                      - A little code cleanup
 // 02.41.02     JR - Dec 15, 2023    - Defect repair:
-//                                      - 2.41.00 backed-ou the changes made in 2.40.00 - this puts them back
+//                                      - 2.41.00 backed-out the changes made in 2.40.00 - this puts them back
 //                                      - Calling it a defect repair so we get a new version number - just in case we need it...
+// 02.41.03     JR - Dec 28, 2023    - Defect repair:
+//                                      - Fix for issue #1034
+//                                      - This fix changes the functions
+//                                           . BaseBinaryStar::CalculateAngularMomentum(), 
+//                                           . BaseBinaryStar::CalculateTotalEnergy(), and
+//                                           . BaseStar::AngularMomentum()
+//                                        to use moment of inertia rather than gyration radius. This has wider implications than just issue #1034
+//                                        and may change DCO yields slightly.
+//                                      - Change to functionality (noted above) noted in 'What's New' online documentation page
 
-const std::string VERSION_STRING = "02.41.02";
+const std::string VERSION_STRING = "02.41.03";
 
 
 # endif // __changelog_h__
