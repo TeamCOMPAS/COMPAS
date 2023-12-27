@@ -1082,6 +1082,7 @@
 //                                           . BaseStar::AngularMomentum()
 //                                        to use moment of inertia rather than gyration radius. This has wider implications than just issue #1034
 //                                        and may change DCO yields slightly.
+//                                      - Removed some unused functions.
 //                                      - Change to functionality (noted above) noted in 'What's New' online documentation page
 
 const std::string VERSION_STRING = "02.41.03";
