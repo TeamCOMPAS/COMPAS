@@ -40,7 +40,7 @@ public:
 
     // getters - alphabetically
             double              Age() const                                                     { return m_Age; }
-            double              AngularMomentum() const                                         { return CalculateGyrationRadius() * m_Radius * RSOL_TO_AU * m_Radius * RSOL_TO_AU * m_Omega; }
+            double              AngularMomentum() const                                         { return CalculateMomentOfInertia() * m_Omega; }
             double              BindingEnergy_Fixed() const                                     { return m_BindingEnergies.fixed; }
             double              BindingEnergy_Nanjing() const                                   { return m_BindingEnergies.nanjing; }
             double              BindingEnergy_Loveridge() const                                 { return m_BindingEnergies.loveridge; }

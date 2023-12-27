@@ -272,12 +272,12 @@ void BaseBinaryStar::SetRemainingValues() {
     m_SemiMajorAxisAtDCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_EccentricityAtDCOFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-    double gyrationRadius1        = m_Star1->CalculateGyrationRadius();
-    double gyrationRadius2        = m_Star2->CalculateGyrationRadius();
+    double momentOfInertia1       = m_Star1->CalculateMomentOfInertia();
+    double momentOfInertia2       = m_Star2->CalculateMomentOfInertia();
 
-    m_TotalEnergy                 = CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->RZAMS(), m_Star2->RZAMS(), m_Star1->Omega(), m_Star2->Omega(), gyrationRadius1, gyrationRadius2);
+    m_TotalEnergy                 = CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), momentOfInertia1, momentOfInertia2);
 
-    m_TotalAngularMomentum        = CalculateAngularMomentum(m_SemiMajorAxis, m_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->RZAMS(), m_Star2->RZAMS(), m_Star1->Omega(), m_Star2->Omega(), gyrationRadius1, gyrationRadius2);
+    m_TotalAngularMomentum        = CalculateAngularMomentum(m_SemiMajorAxis, m_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), momentOfInertia1, momentOfInertia2);
     m_TotalAngularMomentumPrev    = m_TotalAngularMomentum;
     
     m_Omega                       = 0.0;
@@ -2046,51 +2046,32 @@ void BaseBinaryStar::InitialiseMassTransfer() {
  * double CalculateTotalEnergy(const double p_SemiMajorAxis,
  *                             const double p_Star1Mass,
  *                             const double p_Star2Mass,
- *                             const double p_Star1Radius,
- *                             const double p_Star2Radius,
- *                             const double p_Star1_SpinAngularVelocity,
- *                             const double p_Star1_SpinAngularVelocity,
- *                             const double p_Star1_GyrationRadius,
- *                             const double p_Star2_GyrationRadius)
+ *                             const double p_Star1SpinAngularVelocity,
+ *                             const double p_Star2SpinAngularVelocity,
+ *                             const double p_Star1MomentOfInertia,
+ *                             const double p_Star2MomentOfInertia)
  *
  * @param   [IN]    p_SemiMajorAxis             Semi-major axis of the binary
  * @param   [IN]    p_Star1Mass                 Mass of star 1
  * @param   [IN]    p_Star2Mass                 Mass of star 2
- * @param   [IN]    p_Star1Radius               Radius of star 1
- * @param   [IN]    p_Star2Radius               Radius of star 2
- * @param   [IN]    p_Star1_SpinAngularVelocity Spin angular velocity of star 1
- * @param   [IN]    p_Star1_SpinAngularVelocity Spin angular velocity of star 1
- * @param   [IN]    p_Star1_GyrationRadius      Gyration radius of star 1
- * @param   [IN]    p_Star2_GyrationRadius      Gyration radius of star 2
+ * @param   [IN]    p_Star1SpinAngularVelocity  Spin angular velocity of star 1
+ * @param   [IN]    p_Star2SpinAngularVelocity  Spin angular velocity of star 2
+ * @param   [IN]    p_Star1MomentOfInertia      Moment of inertia of star 1
+ * @param   [IN]    p_Star2MomentOfInertia      Moment of inertia of star 2
  * @return                                      Total energy of the binary
  */
 double BaseBinaryStar::CalculateTotalEnergy(const double p_SemiMajorAxis,
                                             const double p_Star1Mass,
                                             const double p_Star2Mass,
-                                            const double p_Star1Radius,
-                                            const double p_Star2Radius,
-                                            const double p_Star1_SpinAngularVelocity,
-                                            const double p_Star2_SpinAngularVelocity,
-                                            const double p_Star1_GyrationRadius,
-                                            const double p_Star2_GyrationRadius) const {
-	double m1  = p_Star1Mass;
-	double m2  = p_Star2Mass;
+                                            const double p_Star1SpinAngularVelocity,
+                                            const double p_Star2SpinAngularVelocity,
+                                            const double p_Star1MomentOfInertia,
+                                            const double p_Star2MomentOfInertia) const {
 
-	double R1  = p_Star1Radius;
-	double R2  = p_Star2Radius;
+	double w1_2 = p_Star1SpinAngularVelocity * p_Star1SpinAngularVelocity;
+	double w2_2 = p_Star2SpinAngularVelocity * p_Star2SpinAngularVelocity;
 
-	double w1  = p_Star1_SpinAngularVelocity;
-	double w2  = p_Star2_SpinAngularVelocity;
-
-	double ks1 = p_Star1_GyrationRadius;
-	double ks2 = p_Star2_GyrationRadius;
-
-    constexpr double RSOL_TO_AU_2 = RSOL_TO_AU * RSOL_TO_AU;
-
-	double 	Is1  = ks1 * m1 * R1 * R1 * RSOL_TO_AU_2;
-	double 	Is2  = ks2 * m2 * R2 * R2 * RSOL_TO_AU_2;
-
-	return (0.5 * Is1 * w1 * w1) + (0.5 * Is2 * w2 * w2) - (0.5 * G_AU_Msol_yr * m1 * m2 / p_SemiMajorAxis);
+	return 0.5 * ((p_Star1MomentOfInertia * w1_2) + (p_Star2MomentOfInertia * w2_2) - (G_AU_Msol_yr * p_Star1Mass * p_Star2Mass / p_SemiMajorAxis));
 }
 
 
@@ -2101,57 +2082,36 @@ double BaseBinaryStar::CalculateTotalEnergy(const double p_SemiMajorAxis,
  *
  *
  * double CalculateAngularMomentum(const double p_SemiMajorAxis,
- *                             const double p_Eccentricity,
- *                             const double p_Star1Mass,
- *                             const double p_Star2Mass,
- *                             const double p_Star1Radius,
- *                             const double p_Star2Radius,
- *                             const double p_Star1_SpinAngularVelocity,
- *                             const double p_Star1_SpinAngularVelocity,
- *                             const double p_Star1_GyrationRadius,
- *                             const double p_Star2_GyrationRadius)
+ *                                 const double p_Eccentricity,
+ *                                 const double p_Star1Mass,
+ *                                 const double p_Star2Mass,
+ *                                 const double p_Star1SpinAngularVelocity,
+ *                                 const double p_Star1SpinAngularVelocity,
+ *                                 const double p_Star1MomentOfInertia,
+ *                                 const double p_Star2MomentOfInertia)
  *
  * @param   [IN]    p_SemiMajorAxis             Semi-major axis of the binary
  * @param   [IN]    p_Eccentricity              Eccentricity of the binary
  * @param   [IN]    p_Star1Mass                 Mass of the primary
  * @param   [IN]    p_Star2Mass                 Mass of the secondary
- * @param   [IN]    p_Star1Radius               Radius of the primary
- * @param   [IN]    p_Star2Radius               Radius of the secondary
- * @param   [IN]    p_Star1_SpinAngularVelocity Orbital frequency of the primary
- * @param   [IN]    p_Star1_SpinAngularVelocity Orbital frequency of the secondary
- * @param   [IN]    p_Star1_GyrationRadius      Gyration radius of the primary
- * @param   [IN]    p_Star2_GyrationRadius      Gyration radius of the secondary
+ * @param   [IN]    p_Star1SpinAngularVelocity  Orbital frequency of the primary
+ * @param   [IN]    p_Star1SpinAngularVelocity  Orbital frequency of the secondary
+ * @param   [IN]    p_Star1MomentOfInertia      Moment of inertia of the primary
+ * @param   [IN]    p_Star2MomentOfInertia      Moment of inertia of the secondary
  * @return                                      Angular momentum of the binary
  */
 double BaseBinaryStar::CalculateAngularMomentum(const double p_SemiMajorAxis,
                                                 const double p_Eccentricity,
                                                 const double p_Star1Mass,
                                                 const double p_Star2Mass,
-                                                const double p_Star1Radius,
-                                                const double p_Star2Radius,
-                                                const double p_Star1_SpinAngularVelocity,
-                                                const double p_Star2_SpinAngularVelocity,
-                                                const double p_Star1_GyrationRadius,
-                                                const double p_Star2_GyrationRadius) const {
+                                                const double p_Star1SpinAngularVelocity,
+                                                const double p_Star2SpinAngularVelocity,
+                                                const double p_Star1MomentOfInertia,
+                                                const double p_Star2MomentOfInertia) const {
 
-	double m1 = p_Star1Mass;
-	double m2 = p_Star2Mass;
+    double Jorb = CalculateOrbitalAngularMomentum(p_Star1Mass, p_Star2Mass, p_SemiMajorAxis, p_Eccentricity);
 
-	double R1 = p_Star1Radius * RSOL_TO_AU;
-	double R2 = p_Star2Radius * RSOL_TO_AU;
-
-	double w1 = p_Star1_SpinAngularVelocity;
-	double w2 = p_Star2_SpinAngularVelocity;
-
-	double ks1 = p_Star1_GyrationRadius;
-	double ks2 = p_Star2_GyrationRadius;
-
-	double Is1  = ks1 * m1 * R1 * R1;
-	double Is2  = ks2 * m2 * R2 * R2;
-
-    double Jorb = CalculateOrbitalAngularMomentum(m1, m2, p_SemiMajorAxis, p_Eccentricity);
-
-	return (Is1 * w1) + (Is2 * w2) + Jorb;
+	return (p_Star1MomentOfInertia * p_Star1SpinAngularVelocity) + (p_Star2MomentOfInertia * p_Star2SpinAngularVelocity) + Jorb;
 }
 
 
