@@ -692,7 +692,7 @@ double GiantBranch::CalculateRemnantRadius() const {
  *
  * @return                                      Radial extent of the star's convective envelope in Rsol
  */
-double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
+double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const {
 
 	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
 	clone.ResolveEnvelopeLoss(true);                // update clone's attributes after envelope is lost
@@ -1105,6 +1105,29 @@ double GiantBranch::CalculateLifetimeToHeIgnition(const double p_Mass, const dou
 
 #undef massCutoffs
 #undef gbParams
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+//                                                                                   //
+//                               ROTATION CALCULATIONS                               //
+//                                                                                   //
+///////////////////////////////////////////////////////////////////////////////////////
+
+/*
+ * Calculate moment of inertia
+ *
+ * Hurley et al., 2000, paragraph immediately following eq 109 
+ *
+ * 
+ * double GiantBranch::CalculateMomentOfInertia()
+ * 
+ * @return                                      Moment of inertia (Msol AU^2)
+ */
+double GiantBranch::CalculateMomentOfInertia() const {
+    double Rc = CalculateRemnantRadius();
+    
+    return (0.1 * (m_Mass - m_CoreMass) * m_Radius * m_Radius) + (0.21 * m_CoreMass * Rc * Rc);
 }
 
 
@@ -1671,12 +1694,6 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
     double McFeNi = (utils::Compare(p_COCoreMass, 2.5) < 0) ? (0.161767 * p_COCoreMass) + 1.067055 : (0.314154 * p_COCoreMass) + 0.686088; // Iron core mass
     return McFeNi + (p_FallbackFraction * (p_Mass - McFeNi));
 }
-
-
-
-
-
-
 
 
 /*

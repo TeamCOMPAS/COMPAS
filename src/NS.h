@@ -73,7 +73,6 @@ protected:
     
     double          CalculateMomentOfInertiaCGS() const;                                                                                                            // MoI in CGS
     double          CalculateMomentOfInertia() const                                        { return CalculateMomentOfInertiaCGS() / MSOL_TO_G / RSOL_TO_CM / RSOL_TO_CM; } // MoI (default is solar units)
-    double          CalculateMomentOfInertiaAU() const                                      { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
 
     double          CalculatePulsarBirthMagneticField();
 
