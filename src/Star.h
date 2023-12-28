@@ -161,7 +161,6 @@ public:
     double          CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
     
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }
-    double          CalculateGyrationRadius() const                                                                 { return m_Star->CalculateGyrationRadius(); }
 
     void            CalculateLambdas()                                                                              { m_Star->CalculateLambdas(); }
     void            CalculateLambdas(const double p_EnvMass)                                                        { m_Star->CalculateLambdas(p_EnvMass); }
@@ -172,8 +171,8 @@ public:
 
     double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false)        { return m_Star->CalculateMassLossValues(p_UpdateMDot, p_UpdateMDt); }
 
-    double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                              { return m_Star->CalculateMomentOfInertia(p_RemnantRadius); }
-    double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const                            { return m_Star->CalculateMomentOfInertiaAU(p_RemnantRadius); }
+    double          CalculateMomentOfInertia() const                                                                { return m_Star->CalculateMomentOfInertia(); }
+    double          CalculateMomentOfInertiaAU() const                                                              { return m_Star->CalculateMomentOfInertiaAU(); }
 
     void            CalculateSNAnomalies(const double p_Eccentricity)                                               { m_Star->CalculateSNAnomalies(p_Eccentricity); }
     
