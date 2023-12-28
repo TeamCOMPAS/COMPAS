@@ -416,7 +416,7 @@ private:
                                      const double p_Star1MomentOfInertia,
                                      const double p_Star2MomentOfInertia) const;
 
-    double  CalculateAngularMomentum() const                                    { return CalculateAngularMomentum(m_SemiMajorAxis, m_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateMomentOfInertia(), m_Star2->CalculateMomentOfInertia()); }
+    double  CalculateAngularMomentum() const                                    { return CalculateAngularMomentum(m_SemiMajorAxis, m_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateMomentOfInertiaAU(), m_Star2->CalculateMomentOfInertiaAU()); }
 
     void    CalculateEnergyAndAngularMomentum();
 
@@ -455,7 +455,7 @@ private:
                                  const double p_Star1MomentOfInertia,
                                  const double p_Star2MomentOfInertia) const;
 
-    double  CalculateTotalEnergy() const                                    { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateMomentOfInertia(), m_Star2->CalculateMomentOfInertia()); }
+    double  CalculateTotalEnergy() const                                    { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateMomentOfInertiaAU(), m_Star2->CalculateMomentOfInertiaAU()); }
 
     void    EvaluateBinary(const double p_Dt);
 
