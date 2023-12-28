@@ -2271,6 +2271,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     if (OPTIONS->EnableTides() && !m_Unbound) {
 
+        double angmom1 = m_TotalAngularMomentum;
         // find omega assuming synchronisation
         // use current value of m_Omega as best guess for root
         // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
@@ -2326,6 +2327,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
             m_SemiMajorAxis = radius * RSOL_TO_AU / CalculateRocheLobeRadius_Static(mass1, mass2);                      // new semi-major axis - should tip into CE
             m_Omega         = OrbitalAngularVelocity();                                                                 // m_Omega at new semi-major axis
         }
+        std::cout << fabs(m_TotalAngularMomentum - angmom1) * 100.0 / angmom1 << "\n";
     }
 
     m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star1
