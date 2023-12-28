@@ -53,7 +53,6 @@ protected:
     double          CalculateLuminosityOnPhase() const                                      { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0); }        // Use class member variables
 
     double          CalculateMomentOfInertia() const                                        { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                      // k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
-    double          CalculateMomentOfInertiaAU() const                                      { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
 
     double          CalculatePerturbationMu() const                                         { return 5.0; }                                                         // mu(MS) = 5.0 (Hurley et al. 2000, eqs 97 & 98)
 
