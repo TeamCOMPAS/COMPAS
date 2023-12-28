@@ -9,6 +9,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 **02.41.03 Dec 28, 2023**
 
 * The functions ``BaseBinaryStar::CalculateAngularMomentum()``, ``BaseBinaryStar::CalculateTotalEnergy()``, and ``BaseStar::AngularMomentum()`` changed to use moment of inertia instead of gyration radius.
+* Changed CalculateMomentOfInertia() to properly implement Hurley et al., 2000 eq 109.
 * This change may change DCO yields slightly when compared to previous versions of the code.
 
 **02.41.00 Nov 02, 2023**
