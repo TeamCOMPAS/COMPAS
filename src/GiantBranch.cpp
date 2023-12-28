@@ -1151,10 +1151,10 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
  * STELLAR_TYPE CalculateRemnantTypeBySchneider2020(const double p_COCoreMass)
  *
  * @param   [IN]    p_COCoreMass                COCoreMass in Msol
- * @param   [IN]    useSchneiderAlt             Whether to use the Schneider alt prescription 
+ * @param   [IN]    p_UseSchneiderAlt           Whether to use the Schneider alt prescription 
  * @return                                      Remnant mass in Msol
  */
-double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool p_useSchneiderAlt) {
+double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool p_UseSchneiderAlt) {
 
     double logRemnantMass;
     STYPE_VECTOR mtHist = MassTransferDonorHistory();
@@ -1188,7 +1188,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
 
         case MT_CASE::NONE:                                                                                             // No history of MT
 
-            if (!p_useSchneiderAlt) {                                                                                   // Use standard or alternative remnant mass prescription for effectively single stars?
+            if (!p_UseSchneiderAlt) {                                                                                   // Use standard or alternative remnant mass prescription for effectively single stars?
                      // standard prescription
                      if (utils::Compare(p_COCoreMass, 6.357)  < 0) { logRemnantMass = log10(0.03357*p_COCoreMass + 1.31780); }
                 else if (utils::Compare(p_COCoreMass, 7.311)  < 0) { logRemnantMass = -0.02466*p_COCoreMass + 1.28070; }
