@@ -55,7 +55,6 @@ protected:
     double  CalculateMassLossRate()                                                 { return 0.0; }                                                     // Ensure that BHs don't lose mass in winds
     
     double  CalculateMomentOfInertia() const                                        { return (2.0 / 5.0) * m_Mass * m_Radius * m_Radius; }
-    double  CalculateMomentOfInertiaAU() const                                      { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
 
     double  CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase_Static(m_Mass); }                   // Use class member variables - returns radius in Rsol
 };
