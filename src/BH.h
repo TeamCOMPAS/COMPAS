@@ -50,8 +50,6 @@ protected:
 
     double  CalculateEddingtonCriticalRate() const                                  { return 2.6E-8 * m_Mass * MYR_TO_YEAR; }                           // E.g., Marchant+, 2017, Eq. 3, assuming accretion efficiency of 10%
 
-    double  CalculateGyrationRadius() const                                         { return 0.0; }                                                     // No tidal coupling to a BH
-
     double  CalculateLuminosityOnPhase() const                                      { return CalculateLuminosityOnPhase_Static(); }
 
     double  CalculateMassLossRate()                                                 { return 0.0; }                                                     // Ensure that BHs don't lose mass in winds

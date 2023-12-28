@@ -1080,8 +1080,9 @@
 //                                           . BaseBinaryStar::CalculateAngularMomentum(), 
 //                                           . BaseBinaryStar::CalculateTotalEnergy(), and
 //                                           . BaseStar::AngularMomentum()
-//                                        to use moment of inertia rather than gyration radius. This has wider implications than just issue #1034
-//                                        and may change DCO yields slightly.
+//                                        to use moment of inertia rather than gyration radius.
+//                                        It also removes CalculateGyrationRadius() from all classes, and changes code that called CalculateGyrationRadius().
+//                                        These changes have wider implications than just issue #1034 and may change DCO yields slightly.
 //                                      - Removed some unused functions.
 //                                      - Change to functionality (noted above) noted in 'What's New' online documentation page
 
