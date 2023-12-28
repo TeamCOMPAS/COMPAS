@@ -384,7 +384,7 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
  */
 double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_SemiMajorAxis) {
 
-    double gyrationRadiusSquared   = CalculateMomentOfInertia() / Mass() / Radius() / Radius();
+    double gyrationRadiusSquared   = CalculateMomentOfInertiaAU() / Mass() / Radius() / Radius();
     double gyrationRadiusSquared_1 = 1.0 / gyrationRadiusSquared;
     double rOverA                  = Radius() / p_SemiMajorAxis;
     double rOverA_6                = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;
