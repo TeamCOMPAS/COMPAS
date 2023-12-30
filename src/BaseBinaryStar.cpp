@@ -1541,7 +1541,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         double k3         = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                         // assumes immediate circularisation at periastron at start of CE
         double k4         = (endOfFirstStageMass1 * endOfFirstStageMass2);
         double aFinalRsol = k4 / (k1 + k2 + k3);
-        m_SemiMajorAxis   = aFinalRsol*RSOL_TO_AU;
+        m_SemiMajorAxis   = aFinalRsol * RSOL_TO_AU;
 
         // Stage 2: radiative envelope removal on a thermal timescale; assumed to be fully non-conservative
         if( utils::Compare(radiativeIntershellMass1, 0.0) > 0 ) {
@@ -1829,8 +1829,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     
     InitialiseMassTransfer();                                                                                                   // initialise - even if not using mass transfer (sets some flags we might need)
     
-    if (Unbound())
-        return;                                                                                                                 // do nothing for unbound binaries
+    if (Unbound()) return;                                                                                                      // do nothing for unbound binaries
     
     if (!OPTIONS->UseMassTransfer()) return;                                                                                    // mass transfer not enabled - nothing to do
     
@@ -2294,10 +2293,6 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
             m_SemiMajorAxis        = std::cbrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / m_Omega / m_Omega); // re-calculate semi-major axis
             m_Eccentricity         = 0.0;                                                                               // circularise
             m_TotalAngularMomentum = CalculateAngularMomentum();                                                        // re-calculate total angular momentum
-
-            // assign new values to "previous" values, for following timestep
-            m_EccentricityPrev  = m_Eccentricity;
-            m_SemiMajorAxisPrev = m_SemiMajorAxis;
         }
         else {                                                                                                          // no (real) root found
 
@@ -2327,6 +2322,10 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
             m_Omega         = OrbitalAngularVelocity();                                                                 // m_Omega at new semi-major axis
         }
     }
+
+    // assign new values to "previous" values, for following timestep
+    m_EccentricityPrev  = m_Eccentricity;
+    m_SemiMajorAxisPrev = m_SemiMajorAxis;
 
     m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star1
     m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star2
