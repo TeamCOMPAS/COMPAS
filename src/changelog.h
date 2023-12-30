@@ -1086,8 +1086,10 @@
 //                                        These changes have wider implications than just issue #1034 and may change DCO yields slightly.
 //                                      - Removed some unused functions.
 //                                      - Change to functionality (noted above) noted in 'What's New' online documentation page
+// 02.41.04     JR - Dec 30, 2023    - Defect repair:
+//                                      - Fix for issue #1048
 
-const std::string VERSION_STRING = "02.41.03";
+const std::string VERSION_STRING = "02.41.04";
 
 
 # endif // __changelog_h__
