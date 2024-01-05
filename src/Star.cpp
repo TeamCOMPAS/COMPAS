@@ -330,8 +330,8 @@ STELLAR_TYPE Star::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
  *
  *
  * Checks whether the star:
- *    - is a massless remnant (checked after applying p_DeltaMass and p_DeltaMass0)  <--- this is no longer ture (it may have been once)
- *    - has become a supernova (checked after applying p_DeltaMass and p_DeltaMass0)  <--- this is no longer ture (it may have been once)  JR: this causes different behaviour SSE vs BSE
+ *    - is a massless remnant (checked after applying p_DeltaMass and p_DeltaMass0)  <--- JR: this is no longer true (it may have been once)
+ *    - has become a supernova (checked after applying p_DeltaMass and p_DeltaMass0)  <--- JR this is no longer true (it may have been once)  This causes different behaviour SSE vs BSE
  *    - should skip this phase for this timestep (checked after applying p_DeltaMass and p_DeltaMass0)
  *
  * If none of the above are true the star's attributes are updated based on the mass changes required and the star's
@@ -422,7 +422,7 @@ double Star::EvolveOneTimestep(const double p_Dt, const bool p_Force) {
         
         SaveState();                                                                                            // save the state of the star - in case we want to revert
 
-        double minTimestep = std::max(m_Star->CalculateDynamicalTimescale(), NUCLEAR_MINIMUM_TIMESTEP);         // calculate the minimum timestep - maximum of dynamical timescale for this star and the absolute minimum timestep
+        double minTimestep = std::max(m_Star->CalculateDynamicalTimescale(), ABSOLUTE_MINIMUM_TIMESTEP);        // calculate the minimum timestep - maximum of dynamical timescale for this star and the absolute minimum timestep
 
         // evolve the star a single timestep
 
