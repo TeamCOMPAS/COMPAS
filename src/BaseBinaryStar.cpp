@@ -2407,10 +2407,37 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
         SAY("RandomSeed " << m_RandomSeed);
     }
 
+    bool usingProvidedTimesteps = false;                                                                                                    // using user-provided timesteps?
+    DBL_VECTOR timesteps;
+    if (!OPTIONS->TimestepsFileName().empty()) {                                                                                            // have timesteps filename?
+                                                                                                                                            // yes
+        ERROR error;
+        std::tie(error, timesteps) = utils::ReadTimesteps(OPTIONS->TimestepsFileName());                                                    // read timesteps from file
+        if (error != ERROR::NONE) {                                                                                                         // ok?
+            evolutionStatus = EVOLUTION_STATUS::NO_TIMESTEPS;                                                                               // no - set status
+            SHOW_WARN(error);                                                                                                               // show warning
+        }
+        else usingProvidedTimesteps = true;                                                                                                 // have user-provided timesteps
+    }
+
     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                                    // continue evolution
         // evolve the current binary up to the maximum evolution time (and number of steps)
-        double dt      = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) / 1000.0;                                     // initialise the timestep
-        int    stepNum = 1;                                                                                                                 // initialise step number
+
+        double dt;                                                                                                                          // timestep
+        if (usingProvidedTimesteps) {                                                                                                       // user-provided timesteps?
+            // get new timestep
+            //   - don't quantise
+            //   - don't apply timestep multiplier
+            // (we assume user wants the timesteps in the file)
+            dt = timesteps[0];
+        }
+        else {                                                                                                                              // no - not using user-provided timesteps
+            dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier() / 1000.0;             // calculate timestep - make first step small
+            dt = std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);                                  // quantised
+        }
+
+        long unsigned int stepNum = 1;                                                                                                      // initialise step number
+
         while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                             // perform binary evolution - iterate over timesteps until told to stop
 
             EvolveOneTimestep(dt);                                                                                                          // evolve the binary system one timestep
@@ -2418,6 +2445,11 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             // check for problems
             if (m_Error != ERROR::NONE) {                                                                                                   // SSE error for either constituent star?
                 evolutionStatus = EVOLUTION_STATUS::SSE_ERROR;                                                                              // yes - stop evolution
+            }
+
+            // check for reasons to not continue evolution
+            else if (!OPTIONS->EvolveDoubleWhiteDwarfs() && IsWDandWD()) {                                                                  // double WD and their evolution is not enabled?
+                evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                                                  // yes - do not evolve double WD systems
             }
             else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                                        // at least one massless remnant?
                 evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                                                       // yes - stop evolution
@@ -2444,7 +2476,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 
                 (void)PrintRLOFParameters();                                                                                                // print (log) RLOF parameters
                 
-                // check for problems
+                // check for problems/reasons to not continue evolution
                 if (StellarMerger()) {                                                                                                      // have stars merged?
                     evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                     // for now, stop evolution
                 }
@@ -2486,19 +2518,36 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                         }
                     }
 
-                    // check for problems
+                    // check whether to continue evolution
                     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
+
+                        // check for problems
                         if (m_Error != ERROR::NONE) {                                                                                       // error in binary evolution?
                             evolutionStatus = EVOLUTION_STATUS::BINARY_ERROR;                                                               // yes - stop evolution
                         }
-                        else if (!OPTIONS->EvolveDoubleWhiteDwarfs() && IsWDandWD()) {                                                      // double WD and their evolution is not enabled?
-                            evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                                      // yes - do not evolve double WD systems
-                        }
+
+                        // check for reasons to stop evolution
                         else if (IsDCO() && m_Time > (m_DCOFormationTime + m_TimeToCoalescence) && !IsUnbound()) {                          // evolution time exceeds DCO merger time?
                             evolutionStatus = EVOLUTION_STATUS::DCO_MERGER_TIME;                                                            // yes - stop evolution
                         }
                         else if (m_Time > OPTIONS->MaxEvolutionTime()) {                                                                    // evolution time exceeds maximum?
                             evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                                                   // yes - stop evolution
+                        }
+                        else if (!OPTIONS->EvolveDoubleWhiteDwarfs() && IsWDandWD()) {                                                      // double WD and their evolution is not enabled?
+                            evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                                      // yes - do not evolve double WD systems
+                        }
+                        else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                            // at least one massless remnant?
+                            evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                                           // yes - stop evolution
+                        }
+                        else if (StellarMerger()) {                                                                                         // have stars merged?
+                            evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                             // for now, stop evolution
+                        }
+                        else if (HasStarsTouching()) {                                                                                      // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
+                            evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                             // yes - stop evolution
+                        }
+                        else if (IsUnbound() && !OPTIONS->EvolveUnboundSystems()) {                                                         // binary is unbound and we don't want unbound systems?
+                            m_Unbound       = true;                                                                                         // yes - set the unbound flag (should already be set)
+                            evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                    // stop evolution
                         }
                     }
                 }
@@ -2507,15 +2556,34 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                                                  // print (log) detailed output: this is after all changes made in the timestep
 
             if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) evolutionStatus = EVOLUTION_STATUS::STEPS_UP;                          // number of timesteps for evolution exceeds maximum
+            else if (usingProvidedTimesteps && stepNum >= timesteps.size()) {
+                evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_EXHAUSTED;                                                                    // using user-provided timesteps and all consumed
+                SHOW_WARN(ERROR::TIMESTEPS_EXHAUSTED);                                                                                      // show warning
+            }
 
             if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                            // continue evolution?
+                if (usingProvidedTimesteps) {                                                                                               // user-provided timesteps
+                    // get new timestep
+                    //   - don't quantise
+                    //   - don't apply timestep multiplier
+                    // (we assume user wants the timesteps in the file)
+                    dt = timesteps[stepNum];
+                }
+                else {                                                                                                                      // not using user-provided timesteps
+                    dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();              // calculate new timestep
+                    dt = std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);                          // quantised
+                }
 
-                dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();                  // new timestep
                 if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt < NUCLEAR_MINIMUM_TIMESTEP) {
                     dt = NUCLEAR_MINIMUM_TIMESTEP;                                                                                          // but not less than minimum
 		        }
                 stepNum++;                                                                                                                  // increment stepNum
             }
+        }
+
+        if (usingProvidedTimesteps && timesteps.size() > stepNum) {                                                                         // all user-defined timesteps consumed?
+            evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_NOT_CONSUMED;                                                                     // no - set status
+            SHOW_WARN(ERROR::TIMESTEPS_NOT_CONSUMED);                                                                                       // show warning
         }
     }
 

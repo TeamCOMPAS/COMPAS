@@ -1438,4 +1438,109 @@ namespace utils {
         return splashString;                                    // return the splash string
     }
 
+
+    /*
+     * Read timesteps from timesteps file
+     *
+     * Timesteps file is expected to be an ascii file with one timestep per record.
+     * Timesteps must be > 0.0
+     *  
+     * 
+     * std::tuple<ERROR, DBL_VECTOR> ReadTimesteps(const std::string p_TimestepsFileName)
+     * 
+     * @param   [IN]    p_TimestepsFileName       Filename to be read - should be fully qualified
+     * @return                                    Tuple containing error value and timesteps vector
+     *                                            The error value returned will be:
+     *                                                ERROR::NONE                                 if no error occurred
+     *                                                ERROR::EMPTY_FILENAME                       if the filename provided was an empty string
+     *                                                ERROR::FILE_DOES_NOT_EXIST                  if the timesteps file does not exist
+     *                                                ERROR::FILE_OPEN_ERROR                      if the timesteps file exists but could not be opened
+     *                                                ERROR::FILE_READ_ERROR                      if the timesteps file could not be read
+     *                                                ERROR::EMPTY_FILE                           if the timesteps file contains no content
+     *                                                ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE      if the file contains an invalid value for timestep
+     *                                                ERROR::TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE if the file contains too many timesteps (> maximum per OPTIONS)
+     *                                              If the error returned is not ERROR:NONE, the content of the timesteps vector returned is not defined
+     */
+    std::tuple<ERROR, DBL_VECTOR> ReadTimesteps(const std::string p_TimestepsFileName) {
+
+        ERROR error = ERROR::NONE;                                                                                  // error - initially NONE
+ 
+        DBL_VECTOR timesteps;                                                                                       // timesteps vector
+
+        if (p_TimestepsFileName.empty()) {                                                                          // timesteps filename empty?
+            error = ERROR::EMPTY_FILENAME;                                                                          // yes - fail
+        }
+        else {
+
+            if (!FileExists(p_TimestepsFileName)) {                                                                 // timesteps file exists?
+                error = ERROR::FILE_DOES_NOT_EXIST;                                                                 // no - fail
+            }
+            else {                                                                                                  // yes
+                std::ifstream timestepsFile;
+                timestepsFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+                try {
+                    timestepsFile.open(p_TimestepsFileName);                                                        // open the timesteps file
+                    if (!timestepsFile.is_open()) {                                                                 // open ok?
+                        error = ERROR::FILE_OPEN_ERROR;                                                             // no - fail
+                    }
+                    else {                                                                                          // yes - file open
+                        std::string rec;                                                                            // record read from file
+                        unsigned int numTimesteps = 0;
+                        while (std::getline(timestepsFile, rec)) {                                                  // get next record from timesteps file
+
+                            if (rec.size() > 0 && (rec[rec.size() - 1] == '\n' || rec[rec.size() - 1] == '\r')) {   // last character `\n` or `\r`?
+                                rec.erase(rec.size() - 1);                                                          // yes - strip it
+                            }
+
+                            if (!rec.empty()) {                                                                     // blank record?                                 
+                                try {                                                                               // no - process it
+                                    size_t lastChar;
+                                    long double v = std::stold(rec, &lastChar);                                     // try conversion
+                                    if (lastChar != (rec.size())) {                                                 // conversion valid only if rec completely consumed
+                                        error = ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE;                             // not a valid DOUBLE
+                                        break;                                                                      // stop processing
+                                    }
+
+                                    timesteps.push_back(v);                                                         // add timestep to timesteps vector
+                    
+                                    numTimesteps++;                                                                 // increment number of timesteps read
+                                    if (numTimesteps >= ABSOLUTE_MAXIMUM_TIMESTEPS) {                               // number of timesteps exceeds maximum?
+                                        error = ERROR::TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE;                        // yes - fail
+                                        break;                                                                      // stop processing
+                                    }
+                                }
+                                catch (const std::out_of_range& e) {                                                // conversion failed
+                                    error = ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE;                                 // not a valid DOUBLE
+                                    break;                                                                          // stop processing
+                                }
+                                catch (const std::invalid_argument& e) {                                            // conversion failed
+                                    error = ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE;                                 // not a valid DOUBLE
+                                    break;                                                                          // stop processing
+                                }
+                            }
+                        }
+                        try {
+                            timestepsFile.close();                                                                  // close the timesteps file
+                        }
+                        catch (std::ifstream::failure& e) {                                                         // close failed
+                            error = ERROR::FILE_NOT_CLOSED;                                                         // fail
+                        }
+                    }
+                }
+                catch (std::ifstream::failure& e) {                                                                 // something was flagged...
+                    if (timestepsFile.eof()) {                                                                      // end-of-file?
+                        if (timesteps.size() < 1) {                                                                 // yes - at least one timestep read?
+                            error = ERROR::EMPTY_FILE;                                                              // no - fail
+                        }
+                    }
+                    else {                                                                                          // not end-of-file - error
+                        error = ERROR::FILE_READ_ERROR;                                                             // fail
+                    }
+                }
+
+            }
+        }
+        return std::make_tuple(error, timesteps);
+    }
+
 }

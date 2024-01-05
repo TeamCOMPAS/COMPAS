@@ -495,8 +495,7 @@ private:
         return LOGGING->LogBSESystemParameters(this, p_RecordType);
     }
     
-    bool PrintDetailedOutput(const long int p_Id, 
-                             const BSE_DETAILED_RECORD_TYPE p_RecordType) const {
+    bool PrintDetailedOutput(const long int p_Id, const BSE_DETAILED_RECORD_TYPE p_RecordType) const {
         return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id, p_RecordType) : true;
     }
     
