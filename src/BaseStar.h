@@ -236,7 +236,7 @@ public:
 
     virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                         { return m_StellarType; }
 
-    virtual void            ResolveMassLoss();
+    virtual void            ResolveMassLoss(const bool p_UpdateMDt = true);
    
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
     
@@ -264,8 +264,7 @@ public:
 
     
     // printing functions
-    bool PrintDetailedOutput(const int p_Id, 
-                             const SSE_DETAILED_RECORD_TYPE p_RecordType = SSE_DETAILED_RECORD_TYPE::DEFAULT) const { 
+    bool PrintDetailedOutput(const int p_Id, const SSE_DETAILED_RECORD_TYPE p_RecordType) const { 
         return OPTIONS->DetailedOutput() ? LOGGING->LogSSEDetailedOutput(this, p_Id, p_RecordType) : true;                                                                          // Write record to SSE Detailed Output log file
     }
 
@@ -622,7 +621,7 @@ protected:
 
     virtual void                SetSNHydrogenContent()                                                                  { m_SupernovaDetails.isHydrogenPoor = false; }                              // Default is false
 
-            bool                ShouldBeMasslessRemnant() const                                                         { return (m_Mass <= 0.0 || m_StellarType==STELLAR_TYPE::MASSLESS_REMNANT); }
+            bool                ShouldBeMasslessRemnant() const                                                         { return (m_Mass <= 0.0 || m_StellarType == STELLAR_TYPE::MASSLESS_REMNANT); }
     virtual bool                ShouldEvolveOnPhase() const                                                             { return true; }
     virtual bool                ShouldSkipPhase() const                                                                 { return false; }                                                           // Default is false
 

@@ -49,11 +49,11 @@ protected:
             m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
             CalculateGBParams();
         }
-        m_CoreMass    = CalculateCoreMassOnPhase();
-        m_COCoreMass  = CalculateCOCoreMassOnPhase();
-        m_HeCoreMass  = CalculateHeCoreMassOnPhase();
-        m_Luminosity  = CalculateLuminosityOnPhase();
-        std::tie(m_Radius, std::ignore) = CalculateRadiusAndStellarTypeOnPhase();   // Update radius
+        m_CoreMass   = CalculateCoreMassOnPhase();
+        m_COCoreMass = CalculateCOCoreMassOnPhase();
+        m_HeCoreMass = CalculateHeCoreMassOnPhase();
+        m_Luminosity = CalculateLuminosityOnPhase();
+        std::tie(m_Radius, std::ignore) = CalculateRadiusAndStellarTypeOnPhase();                                                                                               // Update radius
     }
 
 
