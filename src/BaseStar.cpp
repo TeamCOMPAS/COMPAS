@@ -2680,7 +2680,7 @@ double BaseStar::CalculateMassLossRate() {
                 break;
 
             default:                                                                                            // unknown mass-loss prescription
-                SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "DEFAULT!");                                   // show warning
+                SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using HURLEY");                               // show warning
                 LBVRate        = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
                 otherWindsRate = CalculateMassLossRateHurley();                                                 // use HURLEY
                 if (utils::Compare(LBVRate, otherWindsRate) > 0) {

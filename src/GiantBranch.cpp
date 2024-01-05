@@ -1907,7 +1907,6 @@ STELLAR_TYPE GiantBranch::ResolveTypeIIaSN() {
  */
 STELLAR_TYPE GiantBranch::ResolvePairInstabilitySN() {
 
-    m_Mass        = 0.0;
     m_Luminosity  = 0.0;
     m_Radius      = 0.0;
     m_Temperature = 0.0;
