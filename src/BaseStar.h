@@ -582,7 +582,7 @@ protected:
     
     virtual void                EvolveOneTimestepPreamble() { };                                                                                                                                    // Default is NO-OP
 
-            STELLAR_TYPE        EvolveOnPhase();
+            STELLAR_TYPE        EvolveOnPhase(const double p_DeltaTime);
 
     virtual STELLAR_TYPE        EvolveToNextPhase()                                                                     { return m_StellarType; }
 

@@ -301,7 +301,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
             case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = CalculateDynamicalTimescale();                          break;
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
-            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass()-CoreMass();                                      break;
+            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass() - CoreMass();                                    break;
             case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
             case ANY_STAR_PROPERTY::EVOL_STATUS:                                        value = EvolutionStatus();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_AIC:                                    value = ExperiencedAIC();                                       break;
@@ -2611,7 +2611,7 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
         OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_ADD ) {                             // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
 
         if ((utils::Compare(teff, RSG_MAXIMUM_TEMP) < 0) && 
-            (utils::Compare(m_MZAMS, 8.0) >= 0)          &&                                                         // JR: where does this 8.0 come from? We shouldn't have undocumented magic numbers in the code... If it's an accepted threshold, let's document it and give it a name.
+            (utils::Compare(m_MZAMS, 8.0) >= 0)          &&                                                         // JR: We shouldn't have undocumented magic numbers in the code... This is an accepted threshold, so let's document it and give it a name.
             IsOneOf(GIANTS)) {                                                                                      // RSG criteria, below 8kK, above 8Msol, and core helium burning giant(CHeB, FGB, EAGB, TPAGB) 
             otherWindsRate         = CalculateMassLossRateRSG(OPTIONS->RSGMassLoss()); 
             m_DominantMassLossRate = MASS_LOSS_TYPE::RSG;
@@ -3999,14 +3999,12 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
                 utils::Compare(p_DeltaMass0, 0.0) != 0 ||                                   // mass0 change? or...
                                p_DeltaTime         > 0) {                                   // age/time advance? (don't use utils::Compare() here)
                                                                                             // yes - update attributes
-                if (p_DeltaTime > 0.0) AgeOneTimestepPreamble(p_DeltaTime);                 // advance dt, age, simulation time if necessary (don't use utils::Compare() here)
+                AgeOneTimestepPreamble(p_DeltaTime);                                        // advance dt, age, simulation time if necessary (don't use utils::Compare() here)
 
                 if (ShouldSkipPhase()) stellarType = ResolveSkippedPhase();                 // skip phase if required
                 else {                                                                      // not skipped - execute phase
-                    if (p_DeltaTime > 0.0) {;                                               // evolve on phase if necessary (don't use utils::Compare() here)
-                        stellarType = EvolveOnPhase();                                      // evolve on phase
-                        if (stellarType == m_StellarType) stellarType = ResolveEndOfPhase();// check for need to move off phase
-                    }
+                    stellarType = EvolveOnPhase(p_DeltaTime);                                      // evolve on phase
+                    if (stellarType == m_StellarType) stellarType = ResolveEndOfPhase();// check for need to move off phase
                 }
             }
         }
@@ -4087,12 +4085,11 @@ void BaseStar::UpdateMassTransferDonorHistory() {
  *
  * @return                                      Stellar Type to which star should evolve - unchanged if not moving off current phase
  */
-STELLAR_TYPE BaseStar::EvolveOnPhase() {
+STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (ShouldEvolveOnPhase()) {                                                    // evolve timestep on phase
-
         m_Tau             = CalculateTauOnPhase();
 
         m_COCoreMass      = CalculateCOCoreMassOnPhase();
@@ -4109,9 +4106,11 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
 
         m_Temperature     = CalculateTemperatureOnPhase();
 
+        if (p_DeltaTime > 0.0) {
         STELLAR_TYPE thisStellarType = ResolveEnvelopeLoss();                       // resolve envelope loss if it occurs - possibly new stellar type
         if (thisStellarType != m_StellarType) {                                     // thisStellarType overrides stellarType (from CalculateRadiusAndStellarTypeOnPhase())
             stellarType = thisStellarType;
+        }
         }
     }
 
