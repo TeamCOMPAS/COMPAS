@@ -100,7 +100,7 @@ double CHeB::CalculateLambdaDewi() const {
     double lambdaCE;
 
          if (utils::Compare(envMass, 1.0) >= 0) lambdaCE = 2.0 * lambda1;                                                   // (A.1) Bottom, Claeys+2014
-	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (std::sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
+	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (std::sqrt(envMass) * (lambda1 - lambda2)));    // (A.1) Mid, Claeys+2014
 	else                                        lambdaCE = 2.0 * lambda2;	                                                // (A.1) Top, Claeys+2014
 
 	return	lambdaCE;
@@ -1214,7 +1214,7 @@ double CHeB::CalculateRemnantRadius() const {
  * @return                                      Core mass on the First Giant Branch in Msol
  */
 double CHeB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau) const {
-    return std::min(((1.0 - p_Tau) * CalculateCoreMassAtHeIgnition(p_Mass)) + (p_Tau * CalculateCoreMassAtBAGB(p_Mass)), m_Mass);               //He mass capped at total mass (should become HeMS star)
+    return std::min(((1.0 - p_Tau) * CalculateCoreMassAtHeIgnition(p_Mass)) + (p_Tau * CalculateCoreMassAtBAGB(p_Mass)), m_Mass);               // We mass capped at total mass (should become HeMS star)
 }
 
 
