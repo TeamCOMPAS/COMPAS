@@ -71,9 +71,6 @@ protected:
         m_StellarTypePrev                          = m_StellarType;
     }
 
-    double m_MomentOfInertia;                                                                                                                                       // in CGS g cm^2
-    double m_AngularMomentum;                                                                                                                                       // Current angular momentum in (Msol AU^2 yr-1)
-    
     double m_AngularMomentum_CGS;                                                                                                                                   // Current angular momentum in CGS - only required in NS class
     double m_MomentOfInertia_CGS;                                                                                                                                   // MoI in CGS - only required in NS class
 
