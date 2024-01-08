@@ -1262,6 +1262,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --initial-mass-function, --initial-mass, --initial-mass-1, --initial-mass-2, --initial-mass-min, --initial-mass-max, --initial-mass-power
 
+--initial-stellar-type, --initial-stellar-type-1, --initial-stellar-type-2
+
 --mass-ratio-distribution, --mass-ratio, --mass-ratio-min, --mass-ratio-max, --minimum-secondary-mass
 
 --eccentricity-distribution, --eccentricity, --eccentricity-min, --eccentricity-max
