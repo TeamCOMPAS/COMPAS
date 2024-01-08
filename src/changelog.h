@@ -1068,7 +1068,6 @@
 //                                      - Fixed CalculateOrbitalAngularMomentum() (now uses eccentricity)
 //                                      - Added links to online documentation to splash string
 //                                      - Constants 'G1' and 'G_SN' renamed to 'G_AU_Msol_yr' and 'G_km_Msol_s' respectively
-//                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
 // 02.41.01     JR - Dec 11, 2023    - Defect repair, a little code cleanup:
 //                                      - Fix for issue #1022 - incorrect index used for last array entry.
 //                                      - A little code cleanup
@@ -1076,6 +1075,7 @@
 //                                      - 2.41.00 backed-ou the changes made in 2.40.00 - this puts them back
 //                                      - Calling it a defect repair so we get a new version number - just in case we need it...
 // 02.42.00     RTW - Dec 18, 2023   - Enhancements:
+//                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
 
 const std::string VERSION_STRING = "02.42.00";
 
