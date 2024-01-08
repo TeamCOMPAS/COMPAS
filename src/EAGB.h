@@ -53,8 +53,6 @@ protected:
 
     double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                        { return GiantBranch::CalculateCriticalMassRatioHurleyHjellmingWebbink(); }
 
-    double          CalculateGyrationRadius() const                                                 { return 0.1; }                                                     // Hurley et al., 2000, after eq 109 for giants. Single number approximation.   JR: todo: should this be in constants.h?
-
     double          CalculateHeCoreMassAtPhaseEnd() const                                           { return CalculateHeCoreMassOnPhase(); }                            // Same as on phase
     double          CalculateHeCoreMassOnPhase() const                                              { return m_HeCoreMass; }                                            // NO-OP
 

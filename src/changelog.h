@@ -1072,9 +1072,23 @@
 //                                      - Fix for issue #1022 - incorrect index used for last array entry.
 //                                      - A little code cleanup
 // 02.41.02     JR - Dec 15, 2023    - Defect repair:
-//                                      - 2.41.00 backed-ou the changes made in 2.40.00 - this puts them back
+//                                      - 2.41.00 backed-out the changes made in 2.40.00 - this puts them back
 //                                      - Calling it a defect repair so we get a new version number - just in case we need it...
-// 02.42.00     RTW - Dec 18, 2023   - Enhancements:
+// 02.41.03     JR - Dec 28, 2023    - Defect repair:
+//                                      - Fix for issue #1034
+//                                      - This fix changes the functions
+//                                           . BaseBinaryStar::CalculateAngularMomentum(), 
+//                                           . BaseBinaryStar::CalculateTotalEnergy(), and
+//                                           . BaseStar::AngularMomentum()
+//                                        to use moment of inertia rather than gyration radius.
+//                                        This fix changes CalculateMomentOfInertia to properly implement Hurley et al., 2000 eq 109  
+//                                        This fix also removes CalculateGyrationRadius() from all classes, and changes code that called CalculateGyrationRadius().
+//                                        These changes have wider implications than just issue #1034 and may change DCO yields slightly.
+//                                      - Removed some unused functions.
+//                                      - Change to functionality (noted above) noted in 'What's New' online documentation page
+// 02.41.04     JR - Dec 30, 2023    - Defect repair:
+//                                      - Fix for issue #1048
+// 02.42.00     RTW - Jan 8, 2023    - Enhancements:
 //                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
 
 const std::string VERSION_STRING = "02.42.00";

@@ -42,8 +42,6 @@ protected:
     double          CalculateCoreMassAtPhaseEnd() const                                     { return OPTIONS->RetainCoreMassDuringCaseAMassTransfer() ? MinimumCoreMass() : 0.0; }                // Accounts for minimal core mass built up prior to mass loss through mass transfer
     double          CalculateCoreMassOnPhase() const                                        { return 0.0; }                                                         // Mc(MS) = 0.0 (Hurley et al. 2000, just before eq 28)
 
-    double          CalculateGyrationRadius() const;
-
     double          CalculateHeCoreMassAtPhaseEnd() const                                   { return CalculateCoreMassAtPhaseEnd(); }                               // Same as He core mass
     double          CalculateHeCoreMassOnPhase() const                                      { return 0.0; }                                                         // McHe(MS) = 0.0
 
@@ -54,8 +52,7 @@ protected:
     double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const;
     double          CalculateLuminosityOnPhase() const                                      { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0); }        // Use class member variables
 
-    double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const      { return CalculateGyrationRadius() * m_Mass * m_Radius * m_Radius; }
-    double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const    { return CalculateMomentOfInertia(p_RemnantRadius * RSOL_TO_AU) * RSOL_TO_AU * RSOL_TO_AU; }
+    double          CalculateMomentOfInertia() const                                        { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                      // k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
 
     double          CalculatePerturbationMu() const                                         { return 5.0; }                                                         // mu(MS) = 5.0 (Hurley et al. 2000, eqs 97 & 98)
 
