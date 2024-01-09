@@ -1492,7 +1492,9 @@ namespace utils {
                                 rec.erase(rec.size() - 1);                                                          // yes - strip it
                             }
 
-                            if (!rec.empty()) {                                                                     // blank record?                                 
+                            rec = trim(rec);                                                                        // remove leading and trailing blanks
+
+                            if (!rec.empty() or rec[0] == '#') {                                                    // blank record or comment?                                 
                                 try {                                                                               // no - process it
                                     size_t lastChar;
                                     long double v = std::stold(rec, &lastChar);                                     // try conversion
@@ -1501,7 +1503,13 @@ namespace utils {
                                         break;                                                                      // stop processing
                                     }
 
-                                    timesteps.push_back(v);                                                         // add timestep to timesteps vector
+                                    if (v < 0.0) {                                                                  // timestep must be >= 0.0
+                                       error = ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE;                              // not a valid timestep
+                                       break;                                                                       // stop processing
+                                    }
+                                    else {                                                                          // ok - timestep >= 0.0
+                                        timesteps.push_back(v);                                                     // add timestep to timesteps vector
+                                    }
                     
                                     numTimesteps++;                                                                 // increment number of timesteps read
                                     if (numTimesteps >= ABSOLUTE_MAXIMUM_TIMESTEPS) {                               // number of timesteps exceeds maximum?
