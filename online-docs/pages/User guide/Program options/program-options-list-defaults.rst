@@ -413,7 +413,7 @@ Default = 5.75
 :ref:`Back to Top <options-props-top>`
 
 **--grid** |br|
-Grid filename. |br|
+Grid filename. (See :doc:`Grid files <../grid-files>`) |br|
 Default = ’’ (None)
 
 **--grid-lines-to-process** |br|
@@ -1160,6 +1160,10 @@ Default = FALSE
 .. _options-props-T:
 
 :ref:`Back to Top <options-props-top>`
+
+**--timestep-filename** |br|
+User-defined timesteps filename. (See :doc:`Timestep files <../timestep-files>`) |br|
+Default = ’’ (None)
 
 **--timestep-multiplier** |br|
 Multiplicative factor for timestep duration. |br|

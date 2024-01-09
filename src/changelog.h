@@ -1088,8 +1088,14 @@
 //                                      - Change to functionality (noted above) noted in 'What's New' online documentation page
 // 02.41.04     JR - Dec 30, 2023    - Defect repair:
 //                                      - Fix for issue #1048
+// 02.42.99     JR - Jan 04. 2024    - Enhancements, defect repair, a little cleanup
+//                                      - added `timesteps-filename` option to allow users to provide preset timesteps for both SSE and BSE
+//                                      - updated documentation for new option; updated `What's New`
+//                                      - SSE vs BSE consistency: modified SSE to evolve a single star exactly as the primary in a wide binary with small companion
+//                                      - quantised timesteps to an integral multiple of 1E-12Myr - new constant `TIMESTEP_QUANTUM` in constants.h
+//                                      - little bit of code cleanup
 
-const std::string VERSION_STRING = "02.41.04";
+const std::string VERSION_STRING = "02.42.00";
 
 
 # endif // __changelog_h__

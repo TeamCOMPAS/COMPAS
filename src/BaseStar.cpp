@@ -301,7 +301,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
             case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = CalculateDynamicalTimescale();                          break;
             case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
-            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass()-CoreMass();                                      break;
+            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass() - CoreMass();                                    break;
             case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
             case ANY_STAR_PROPERTY::EVOL_STATUS:                                        value = EvolutionStatus();                                      break;
             case ANY_STAR_PROPERTY::EXPERIENCED_AIC:                                    value = ExperiencedAIC();                                       break;
@@ -2587,7 +2587,8 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
 
 
 /*
- * Calculate the mass loss rate according to the updated prescription. The structure is similar to the Vink wrapper (previous default), which should be called Belczynski.
+ * Calculate the mass loss rate according to the updated prescription. 
+ * The structure is similar to the Vink wrapper (previous default), which should be called Belczynski.
  * Mass loss rates for hot, massive OB stars are given by Bjorklund et al. 2022
  * Mass loss rates for helium rich Wolf--Rayet stars are given by Sander (not yet implemented)
  * Mass loss rates for red supergiants are given by Beasor and Davies (not yet implemented)
@@ -2604,15 +2605,14 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
 
     double LBVRate         = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                 // start with LBV winds (can be, and is often, 0.0)
     double otherWindsRate  = 0.0;
-
     double teff            = TSOL * m_Temperature;    
 
     if (m_DominantMassLossRate != MASS_LOSS_TYPE::LBV || 
         OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_ADD ) {                             // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
 
-
-        if ((utils::Compare(teff, RSG_MAXIMUM_TEMP) < 0) && (utils::Compare(m_MZAMS, 8.0) >= 0) && 
-        IsOneOf(GIANTS)) {                                                                                          // RSG criteria, below 8kK, above 8Msol, and core helium burning giant(CHeB, FGB, EAGB, TPAGB) 
+        if ((utils::Compare(teff, RSG_MAXIMUM_TEMP) < 0) && 
+            (utils::Compare(m_MZAMS, 8.0) >= 0)          &&                                                         // JR: We shouldn't have undocumented magic numbers in the code... This is an accepted threshold, so let's document it and give it a name.
+            IsOneOf(GIANTS)) {                                                                                      // RSG criteria, below 8kK, above 8Msol, and core helium burning giant(CHeB, FGB, EAGB, TPAGB) 
             otherWindsRate         = CalculateMassLossRateRSG(OPTIONS->RSGMassLoss()); 
             m_DominantMassLossRate = MASS_LOSS_TYPE::RSG;
         }                                                                      
@@ -2621,18 +2621,16 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
         }                                                                                                           // change to Kelvin so it can be compared with values as stated in Vink prescription
         else if (utils::Compare(m_MZAMS, VERY_MASSIVE_MINIMUM_MASS) >= 0) {
             otherWindsRate         = CalculateMassLossRateVMS(OPTIONS->VMSMassLoss());        
-            m_DominantMassLossRate = MASS_LOSS_TYPE::VMS;                                                  // massive MS, >100 Msol. Alternately could use Luminosity or Gamma and Mass threshold                             
+            m_DominantMassLossRate = MASS_LOSS_TYPE::VMS;                                                           // massive MS, >100 Msol. Alternatively could use Luminosity or Gamma and Mass threshold                             
         }
-
         else {     
             otherWindsRate         = CalculateMassLossRateOB(OPTIONS->OBMassLoss());
             m_DominantMassLossRate = MASS_LOSS_TYPE::OB;
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {
-            m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;                                        // set LBV dominant again in case Hurley or OB overwrote it
+            m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;                                                           // set LBV dominant again in case Hurley or OB overwrote it
         }
-
     }
 
     return LBVRate + otherWindsRate;
@@ -2684,11 +2682,11 @@ double BaseStar::CalculateMassLossRate() {
             default:                                                                                            // unknown mass-loss prescription
                 SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using HURLEY");                               // show warning
                 LBVRate        = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
-                otherWindsRate = CalculateMassLossRateHurley();
+                otherWindsRate = CalculateMassLossRateHurley();                                                 // use HURLEY
                 if (utils::Compare(LBVRate, otherWindsRate) > 0) {
                     m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;
                 }
-                mDot = LBVRate + otherWindsRate;                                                                // use HURLEY
+                mDot = LBVRate + otherWindsRate;
         }
         mDot = mDot * OPTIONS->OverallWindMassLossMultiplier();                                                 // apply overall wind mass loss multiplier
     }
@@ -2698,7 +2696,7 @@ double BaseStar::CalculateMassLossRate() {
 
 
 /*
- * Calculate mass loss given mass loss rate - uses current timestep (m_Dt)
+ * Calculate mass loss given mass loss rate - uses timestep passed (p_Dt)
  * Returned mass loss is limited to MAXIMUM_MASS_LOSS_FRACTION (e.g., 1%) of current mass
  *
  *
@@ -2727,7 +2725,10 @@ double BaseStar::CalculateMassLoss_Static(const double p_Mass, const double p_Md
  * Returns existing value for mass if mass loss not being used (program option)
  *
  *
- * double CalculateMassLossValues()                                                             // JR: todo: pick a better name for this...
+ * double CalculateMassLossValues(const bool p_UpdateMDot, const bool p_UpdateMDt)  // JR: todo: pick a better name for this...
+ *
+ * @param   [IN]    p_UpdateMDot                flag to indicate whether the class member variable m_Mdot should be updated (default is false)
+ * @param   [IN]    p_UpdateMDt                 flag to indicate whether the class member variable m_Dt should be updated (default is false)
  * @return                                      calculated mass (mSol)
  */
 double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_UpdateMDt) {
@@ -2738,7 +2739,7 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
 
     if (OPTIONS->UseMassLoss()) {                                               // only if using mass loss (program option)
 
-        mDot = CalculateMassLossRate();                                         // calculate mass loss rate
+        mDot            = CalculateMassLossRate();                              // calculate mass loss rate
         double massLoss = CalculateMassLoss_Static(mass, mDot, dt);             // calculate mass loss - limited to (mass * MAXIMUM_MASS_LOSS_FRACTION)
 
         if (OPTIONS->CheckPhotonTiringLimit()) {
@@ -2753,6 +2754,7 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
         }
         else {
             dt    = massLoss / (mDot * 1.0E6);                                  // new timestep to match limited mass loss
+            dt    = std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM;
             mass -= massLoss;                                                   // new mass based on limited mass loss
 
             if (p_UpdateMDt) m_Dt = dt;                                         // update class member variable if necessary
@@ -2775,18 +2777,21 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
  * - applies mass rejuvenation factor and calculates new age
  *
  *
- * double ResolveMassLoss()
+ * double ResolveMassLoss(const bool p_UpdateMDt)
+ * 
+ * @param   [IN]    p_UpdateMDt                 flag to indicate whether the class member variable m_Dt should be updated in BaseStar::CalculateMassLossValues()
+ *                                              (default is true)
  */
-void BaseStar::ResolveMassLoss() {
+void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
 
     if (OPTIONS->UseMassLoss()) {
-        m_Mass = CalculateMassLossValues(true, true);                           // calculate new values assuming mass loss applied
-        
-        m_HeCoreMass = std::min(m_HeCoreMass, m_Mass);                          // update He mass if mass loss is happening from He stars
-        
-        m_COCoreMass = std::min(m_COCoreMass, m_Mass);                          // not expected, only a precaution to avoid inconsistencies
-        m_CoreMass   = std::min(m_CoreMass, m_Mass);
-        
+        double mass = CalculateMassLossValues(true, p_UpdateMDt);                      // calculate new values assuming mass loss applied
+
+        // JR: this is here (and the change to the line above) to keep attributes in sync BSE vs SSE
+        // Supernovae are caught in UpdateAttributesAndAgeOneTimestep() (hence the need to move the
+        // call to PrintStashedSupernovaDetails() in Star:EvolveOneTimestep())
+        UpdateAttributesAndAgeOneTimestep(mass - m_Mass, 0.0, 0.0, false);
+
         UpdateInitialMass();                                                    // update effective initial mass (MS, HG & HeMS)
         UpdateAgeAfterMassLoss();                                               // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                  // apply age rejuvenation factor
@@ -3843,6 +3848,8 @@ double BaseStar::LimitTimestep(const double p_Dt) {
 
         if (utils::Compare(massLoss, 0.0) > 0) {                                            // No change if no mass loss
             double dtWind = massLoss / (mDot * 1.0E6);                                      // Calculate timestep to match (possibly limited) mass loss
+                   dtWind = std::max(std::round(dtWind / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
+                   dt     = std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
                    dt     = min(dt, dtWind);                                                // choose dt
         }
     }
@@ -3868,12 +3875,12 @@ double BaseStar::CalculateTimestep() {
     // calls this functiom, the GBParams and Timescale functions
     // are called here
 
-    CalculateGBParams();                                                                // calculate giant branch parameters
-    CalculateTimescales();                                                              // calculate timescales
+    CalculateGBParams();                                                                                    // calculate giant branch parameters
+    CalculateTimescales();                                                                                  // calculate timescales
 
-    double dt = ChooseTimestep(m_Age);
+    double dt = std::max(std::round(ChooseTimestep(m_Age) / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
 
-    return max(LimitTimestep(dt), NUCLEAR_MINIMUM_TIMESTEP);                            // clamp timestep to minimum NUCLEAR_MINIMUM_TIMESTEP
+    return max(LimitTimestep(dt), NUCLEAR_MINIMUM_TIMESTEP);                                                // clamp timestep to minimum NUCLEAR_MINIMUM_TIMESTEP
 }
 
 
@@ -3944,7 +3951,7 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
  *      in which case no change is made to the star's age or the physical time attribute.
  *
  *
- * Checks whether the star:
+ * Checks whether the star: (JR: the first two comments below are not true - they probably were once, but not now... check why, and fix the code or fix the comments)
  *    - is a massless remnant (checked after applying p_DeltaMass and p_DeltaMass0, but before applying p_DeltaTime)
  *    - has become a supernova (checked after applying p_DeltaMass and p_DeltaMass0, but before applying p_DeltaTime)
  *    - should skip this phase for this timestep (checked after applying p_DeltaMass, p_DeltaMass0 and p_DeltaTime)
@@ -3982,28 +3989,22 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
     }
     else {
-        stellarType = ResolveSupernova();                                                   // handle supernova          
-        
+        stellarType = ResolveSupernova();                                                   // handle supernova              
         if (stellarType == m_StellarType) {                                                 // still on phase?
             
-            UpdateAttributesAndAgeOneTimestepPreamble(p_DeltaMass, p_DeltaMass0, p_DeltaTime);      // apply mass changes and save current values if required
+            UpdateAttributesAndAgeOneTimestepPreamble(p_DeltaMass, p_DeltaMass0, p_DeltaTime); // apply mass changes and save current values if required
 
             if (p_ForceRecalculate                     ||                                   // force recalculate?
                 utils::Compare(p_DeltaMass,  0.0) != 0 ||                                   // mass change? or...
                 utils::Compare(p_DeltaMass0, 0.0) != 0 ||                                   // mass0 change? or...
-                utils::Compare(p_DeltaTime,  0.0)  > 0) {                                   // age/time advance?
+                               p_DeltaTime         > 0) {                                   // age/time advance? (don't use utils::Compare() here)
                                                                                             // yes - update attributes
-                AgeOneTimestepPreamble(p_DeltaTime);                                        // advance dt, age, simulation time
+                AgeOneTimestepPreamble(p_DeltaTime);                                        // advance dt, age, simulation time if necessary (don't use utils::Compare() here)
 
-                if (ShouldSkipPhase()) {                                                    // skip phase?
-                    stellarType = ResolveSkippedPhase();                                    // phase skipped - do what's required
-                }
+                if (ShouldSkipPhase()) stellarType = ResolveSkippedPhase();                 // skip phase if required
                 else {                                                                      // not skipped - execute phase
-                    stellarType = EvolveOnPhase();                                          // evolve on phase
-
-                    if (stellarType == m_StellarType) {                                     // still on phase?
-                        stellarType = ResolveEndOfPhase();                                  // check for need to move off phase
-                    }
+                    stellarType = EvolveOnPhase(p_DeltaTime);                                      // evolve on phase
+                    if (stellarType == m_StellarType) stellarType = ResolveEndOfPhase();// check for need to move off phase
                 }
             }
         }
@@ -4028,7 +4029,6 @@ void BaseStar::AgeOneTimestepPreamble(const double p_DeltaTime) {
         m_Age  += p_DeltaTime;                      // advance age of star
         m_Dt    = p_DeltaTime;                      // set timestep
     }
-
     EvolveOneTimestepPreamble();
 }
 
@@ -4085,12 +4085,11 @@ void BaseStar::UpdateMassTransferDonorHistory() {
  *
  * @return                                      Stellar Type to which star should evolve - unchanged if not moving off current phase
  */
-STELLAR_TYPE BaseStar::EvolveOnPhase() {
+STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (ShouldEvolveOnPhase()) {                                                    // evolve timestep on phase
-
         m_Tau             = CalculateTauOnPhase();
 
         m_COCoreMass      = CalculateCOCoreMassOnPhase();
@@ -4107,9 +4106,11 @@ STELLAR_TYPE BaseStar::EvolveOnPhase() {
 
         m_Temperature     = CalculateTemperatureOnPhase();
 
+        if (p_DeltaTime > 0.0) {
         STELLAR_TYPE thisStellarType = ResolveEnvelopeLoss();                       // resolve envelope loss if it occurs - possibly new stellar type
         if (thisStellarType != m_StellarType) {                                     // thisStellarType overrides stellarType (from CalculateRadiusAndStellarTypeOnPhase())
             stellarType = thisStellarType;
+        }
         }
     }
 
