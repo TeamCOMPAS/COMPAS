@@ -971,7 +971,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         (
             "maximum-number-timestep-iterations",                          
-            po::value<long unsigned int>(&p_Options->m_MaxNumberOfTimestepIterations)->default_value(p_Options->m_MaxNumberOfTimestepIterations),                                                               
+            po::value<unsigned long int>(&p_Options->m_MaxNumberOfTimestepIterations)->default_value(p_Options->m_MaxNumberOfTimestepIterations),                                                               
             ("Maximum number of timesteps to evolve binary before giving up (default = " + std::to_string(p_Options->m_MaxNumberOfTimestepIterations) + ")").c_str()
         )
 
@@ -1809,7 +1809,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "timesteps-filename",
             po::value<std::string>(&p_Options->m_TimestepsFileName)->default_value(p_Options->m_TimestepsFileName),
-            ("Filename for file to provide timesteps to be used for evolution (SSE and BSE) (default = " + p_Options->m_TimestepsFileName + ")").c_str()
+            ("Filename for file to provide timesteps to be used for evolution (SSE and BSE) (default = '" + p_Options->m_TimestepsFileName + "')").c_str()
         )
 
         (
