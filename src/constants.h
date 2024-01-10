@@ -3204,7 +3204,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::MAXIMUM_EVOLUTION_TIME,                                   { TYPENAME::DOUBLE,     "Max_Evolution_Time",                     "Myr",       24, 15}},
     { PROGRAM_OPTION::MAXIMUM_DONOR_MASS,                                       { TYPENAME::DOUBLE,     "Max_Donor_Mass",                         "Msol",      14, 6 }},
     { PROGRAM_OPTION::MAXIMUM_NEUTRON_STAR_MASS,                                { TYPENAME::DOUBLE,     "Max_NS_Mass",                            "Msol",      14, 6 }},
-    { PROGRAM_OPTION::MAXIMUM_TIMESTEPS,                                        { TYPENAME::INT,        "Max_Timesteps",                          "Count",     10, 1 }},
+    { PROGRAM_OPTION::MAXIMUM_TIMESTEPS,                                        { TYPENAME::ULONGINT,   "Max_Timesteps",                          "Count",     10, 1 }},
 
     { PROGRAM_OPTION::MCBUR1,                                                   { TYPENAME::DOUBLE,     "MCBUR1",                                 "Msol",      14, 6 }},
 
@@ -3226,6 +3226,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::MT_CRIT_MR_GIANT_DEGENERATE_ACCRETOR,                     { TYPENAME::DOUBLE,     "MT_Crit_MR_Giant_Deg_Acc",               "-",         14, 6 }},
     { PROGRAM_OPTION::MT_CRIT_MR_GIANT_NON_DEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,     "MT_Crit_MR_Giant_NonDeg_Acc",            "-",         14, 6 }},
     { PROGRAM_OPTION::MT_CRIT_MR_HG_DEGENERATE_ACCRETOR,                        { TYPENAME::DOUBLE,     "MT_Crit_MR_HG_Deg_Acc",                  "-",         14, 6 }},
+
     { PROGRAM_OPTION::MT_CRIT_MR_HG_NON_DEGENERATE_ACCRETOR,                    { TYPENAME::DOUBLE,     "MT_Crit_MR_HG_NonDeg_Acc",               "-",         14, 6 }},
     { PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_DEGENERATE_ACCRETOR,                  { TYPENAME::DOUBLE,     "MT_Crit_MR_HE_Giant_Deg_Acc",            "-",         14, 6 }},
     { PROGRAM_OPTION::MT_CRIT_MR_HE_GIANT_NON_DEGENERATE_ACCRETOR,              { TYPENAME::DOUBLE,     "MT_Crit_MR_HE_Giant_NonDeg_Acc",         "-",         14, 6 }},

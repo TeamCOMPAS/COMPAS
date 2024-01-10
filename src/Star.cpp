@@ -513,7 +513,7 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
     // m_Error seems to be set ad hoc for SSE, and doesn't actually stop the evolution
     // we should be more rigorous in checking/setting error conditions, and stop the evolution for catastrophic errors
 
-    long unsigned int stepNum = 0;
+    unsigned long int stepNum = 0;                                                                                          // initialise step number
     while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {
         if (m_Star->Time() > OPTIONS->MaxEvolutionTime()) {
             evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                                                   // out of time...
