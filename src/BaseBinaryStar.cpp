@@ -2436,7 +2436,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             dt = std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);                                  // quantised
         }
 
-        long unsigned int stepNum = 1;                                                                                                      // initialise step number
+        unsigned long int stepNum = 1;                                                                                                      // initialise step number
 
         while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                             // perform binary evolution - iterate over timesteps until told to stop
 
