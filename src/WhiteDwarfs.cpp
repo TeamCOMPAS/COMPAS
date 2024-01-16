@@ -210,6 +210,11 @@ STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
 
     if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
 
+    m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;                                // Don't need to worry about stashing SNe for SSE since this is a uniquely binary phenomenon
+    m_SupernovaDetails.HeCoreMassAtCOFormation = 0.0; 
+    m_SupernovaDetails.COCoreMassAtCOFormation = 0.0; 
+    m_SupernovaDetails.coreMassAtCOFormation   = 0.0; 
+
     m_Mass                                = MECS_REM;                                   // defined in constants.h
     
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
@@ -234,12 +239,17 @@ STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
 STELLAR_TYPE WhiteDwarfs::ResolveSNIa() { 
 
     if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
-
+    
+    m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;                                // Don't need to worry about stashing SNe for SSE since this is a uniquely binary phenomenon
+    m_SupernovaDetails.HeCoreMassAtCOFormation = 0.0; 
+    m_SupernovaDetails.COCoreMassAtCOFormation = 0.0; 
+    m_SupernovaDetails.coreMassAtCOFormation   = 0.0; 
+        
     m_Mass       = 0.0;
     m_Radius     = 0.0;
     m_Luminosity = 0.0;
     m_Age        = 0.0;
-    
+
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
 
