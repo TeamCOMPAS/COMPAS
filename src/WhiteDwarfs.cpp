@@ -214,6 +214,7 @@ STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
     m_SupernovaDetails.HeCoreMassAtCOFormation = 0.0; 
     m_SupernovaDetails.COCoreMassAtCOFormation = 0.0; 
     m_SupernovaDetails.coreMassAtCOFormation   = 0.0; 
+    SetSNHydrogenContent();                                                             // SN to be H-poor. 
 
     m_Mass                                = MECS_REM;                                   // defined in constants.h
     
@@ -244,6 +245,7 @@ STELLAR_TYPE WhiteDwarfs::ResolveSNIa() {
     m_SupernovaDetails.HeCoreMassAtCOFormation = 0.0; 
     m_SupernovaDetails.COCoreMassAtCOFormation = 0.0; 
     m_SupernovaDetails.coreMassAtCOFormation   = 0.0; 
+    SetSNHydrogenContent();                                                             // SN to be H-poor. 
         
     m_Mass       = 0.0;
     m_Radius     = 0.0;
