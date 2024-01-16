@@ -692,7 +692,7 @@ double GiantBranch::CalculateRemnantRadius() const {
  *
  * @return                                      Radial extent of the star's convective envelope in Rsol
  */
-double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
+double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const {
 
 	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
 	clone.ResolveEnvelopeLoss(true);                // update clone's attributes after envelope is lost
@@ -1110,6 +1110,29 @@ double GiantBranch::CalculateLifetimeToHeIgnition(const double p_Mass, const dou
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
+//                               ROTATION CALCULATIONS                               //
+//                                                                                   //
+///////////////////////////////////////////////////////////////////////////////////////
+
+/*
+ * Calculate moment of inertia
+ *
+ * Hurley et al., 2000, paragraph immediately following eq 109 
+ *
+ * 
+ * double GiantBranch::CalculateMomentOfInertia()
+ * 
+ * @return                                      Moment of inertia (Msol AU^2)
+ */
+double GiantBranch::CalculateMomentOfInertia() const {
+    double Rc = CalculateRemnantRadius();
+    
+    return (0.1 * (m_Mass - m_CoreMass) * m_Radius * m_Radius) + (0.21 * m_CoreMass * Rc * Rc);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+//                                                                                   //
 //                              SUPERNOVA CALCULATIONS                               //
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1151,10 +1174,10 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
  * STELLAR_TYPE CalculateRemnantTypeBySchneider2020(const double p_COCoreMass)
  *
  * @param   [IN]    p_COCoreMass                COCoreMass in Msol
- * @param   [IN]    useSchneiderAlt             Whether to use the Schneider alt prescription 
+ * @param   [IN]    p_UseSchneiderAlt           Whether to use the Schneider alt prescription 
  * @return                                      Remnant mass in Msol
  */
-double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool p_useSchneiderAlt) {
+double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool p_UseSchneiderAlt) {
 
     double logRemnantMass;
     STYPE_VECTOR mtHist = MassTransferDonorHistory();
@@ -1188,7 +1211,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
 
         case MT_CASE::NONE:                                                                                             // No history of MT
 
-            if (!p_useSchneiderAlt) {                                                                                   // Use standard or alternative remnant mass prescription for effectively single stars?
+            if (!p_UseSchneiderAlt) {                                                                                   // Use standard or alternative remnant mass prescription for effectively single stars?
                      // standard prescription
                      if (utils::Compare(p_COCoreMass, 6.357)  < 0) { logRemnantMass = log10(0.03357*p_COCoreMass + 1.31780); }
                 else if (utils::Compare(p_COCoreMass, 7.311)  < 0) { logRemnantMass = -0.02466*p_COCoreMass + 1.28070; }
@@ -1671,12 +1694,6 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
     double McFeNi = (utils::Compare(p_COCoreMass, 2.5) < 0) ? (0.161767 * p_COCoreMass) + 1.067055 : (0.314154 * p_COCoreMass) + 0.686088; // Iron core mass
     return McFeNi + (p_FallbackFraction * (p_Mass - McFeNi));
 }
-
-
-
-
-
-
 
 
 /*

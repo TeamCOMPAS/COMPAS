@@ -72,8 +72,7 @@ protected:
     double          CalculateMassLossRate()                                                 { return 0.0; }                                                         // Ensure that NSs don't lose mass in winds
     
     double          CalculateMomentOfInertiaCGS() const;                                                                                                            // MoI in CGS
-    double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const      { return CalculateMomentOfInertiaCGS() / MSOL_TO_G / RSOL_TO_CM / RSOL_TO_CM; } // MoI (default is solar units)
-    double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const    { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
+    double          CalculateMomentOfInertia() const                                        { return CalculateMomentOfInertiaCGS() / MSOL_TO_G / RSOL_TO_CM / RSOL_TO_CM; } // MoI (default is solar units)
 
     double          CalculatePulsarBirthMagneticField();
 

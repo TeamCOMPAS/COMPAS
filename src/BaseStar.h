@@ -40,7 +40,7 @@ public:
 
     // getters - alphabetically
             double              Age() const                                                     { return m_Age; }
-            double              AngularMomentum() const                                         { return CalculateGyrationRadius() * m_Radius * RSOL_TO_AU * m_Radius * RSOL_TO_AU * m_Omega; }
+            double              AngularMomentum() const                                         { return CalculateMomentOfInertiaAU() * m_Omega; }
             double              BindingEnergy_Fixed() const                                     { return m_BindingEnergies.fixed; }
             double              BindingEnergy_Nanjing() const                                   { return m_BindingEnergies.nanjing; }
             double              BindingEnergy_Loveridge() const                                 { return m_BindingEnergies.loveridge; }
@@ -178,8 +178,6 @@ public:
     virtual void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) { }                                                                                      // Default is NO-OP
     virtual void            CalculateGBParams()                                                                 { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
 
-    virtual double          CalculateGyrationRadius() const                                                     { return 0.0; }                                                     // Default is 0.0
-
             void            CalculateLambdas()                                                                  { CalculateLambdas(m_Mass - m_CoreMass); }                          // Use class member variables
             void            CalculateLambdas(const double p_EnvMass);
 
@@ -191,8 +189,8 @@ public:
 
             double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false);                                                               // JR: todo: better name?
 
-    virtual double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                  { return 0.0; }                                                     // Use inheritance hierarchy
-    virtual double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const                { return 0.0; }                                                     // Use inheritance hierarchy
+    virtual double          CalculateMomentOfInertia() const                                                    { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                  // Defaults to MS. k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
+    virtual double          CalculateMomentOfInertiaAU() const                                                  { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
     
             double          CalculateNuclearTimescale() const                                                   { return CalculateNuclearTimescale_Static(m_Mass, m_Luminosity); }  // Use class member variables
     
