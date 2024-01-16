@@ -564,50 +564,6 @@ void MainSequence::UpdateAgeAfterMassLoss() {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
-//                  ROTATIONAL / GYRATION / FREQUENCY CALCULATIONS                   //
-//                                                                                   //
-///////////////////////////////////////////////////////////////////////////////////////
-
-/*
- * Calculate gyration radius
- *
- * Define gyration radius 'k=r_g^2' using fit from de Mink et al. 2013, calling k_definition function
- * Original created by Alejandro Vigna-Gomez on 11/2015.  Rewritten June 2019, JR.
- *
- * The original fits from de Mink+2013 were made for MS stars a Z=0.02.
- *
- * Uses class member variables instead of passing in parameters
- *
- *
- * double CalculateGyrationRadius()
- *
- * @return                                      Gyration radius in Rsol
- *
- */
-double MainSequence::CalculateGyrationRadius() const {
-
-    double log10M = log10(m_Mass);
-
-	double cLower = 0.0;                                                                            // correction factor 'c' (lowercase 'c') in de Mink et al., 2013 eq A1
-	if ((utils::Compare(log10M, 1.3) > 0)) {                                                        // log10(M) > 1.3 (de Mink doesn't include '=' - we assume it not to be here))
-        double log10M_13 = log10M - 1.3;
-        cLower = -0.055 * log10M_13 * log10M_13;
-	}
-
-	double CUpper = -2.5;                                                                           // exponent 'C' (uppercase 'C') in de Mink et al., 2013 eq A2
-	     if ((utils::Compare(log10M, 0.2) > 0)) CUpper = -1.5;                                      // log10(M) > 0.2
-	else if ((utils::Compare(log10M, 0.0) > 0)) CUpper = -2.5 + (5.0 * log10M);                     // 0.2 <= log10(M) > 0.0 (de Mink doesn't include '=' - we assume it to be here (and for log10(M) <= 0.0))
-
-    double k0 = cLower + std::min(0.21, std::max(0.09 - (0.27 * log10M), 0.037 + (0.033 * log10M)));// gyration radius squared for ZAMS stars
-
-    double radiusRatio = m_Radius / m_RZAMS;
-
-	return ((k0 - 0.025) * PPOW(radiusRatio, CUpper)) + (0.025 * PPOW(radiusRatio, -0.1));          // gyration radius
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////
-//                                                                                   //
 //                    MISCELLANEOUS FUNCTIONS / CONTROL FUNCTIONS                    //
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////

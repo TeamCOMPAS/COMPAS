@@ -71,8 +71,6 @@ protected:
     double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
     double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const        { return 0.25; }                                                                            // As coded in BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
 
-    double          CalculateGyrationRadius() const                                 { return 0.21; }                                                                            // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
-
     double          CalculateHeCoreMassAtPhaseEnd() const                           { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
     double          CalculateHeCoreMassOnPhase() const                              { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
 
