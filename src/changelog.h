@@ -1089,7 +1089,7 @@
 // 02.41.04     JR - Dec 30, 2023    - Defect repair:
 //                                      - Fix for issue #1048
 // 02.41.05     YS - Jan 31, 2024    - Bug fix:
-//                                      - Fix for issue #1058: fixing calculation of pulsar spin period. 
+//                                      - Fix for issue #1058: fixing calculation of pulsar spin period
 
 const std::string VERSION_STRING = "02.41.05";
 
