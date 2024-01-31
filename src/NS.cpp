@@ -387,7 +387,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     
     double initialMagField        = m_PulsarDetails.magneticField;                                                              // (in T)
     double initialMagField_G      = initialMagField * TESLA_TO_GAUSS;
-    double initialSpinPeriod      = PI_2 / m_PulsarDetails.spinFrequency;
+    double initialSpinPeriod      = _2_PI / m_PulsarDetails.spinFrequency;
     double magFieldLowerLimit     = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;    
     double magFieldLowerLimit_G   = magFieldLowerLimit * TESLA_TO_GAUSS;                                   
     double tau                    = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
