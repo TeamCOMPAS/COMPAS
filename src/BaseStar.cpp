@@ -2785,16 +2785,20 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
 void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
 
     if (OPTIONS->UseMassLoss()) {
-        double mass = CalculateMassLossValues(true, p_UpdateMDt);                      // calculate new values assuming mass loss applied
+        double mass = CalculateMassLossValues(true, p_UpdateMDt);                                   // calculate new values assuming mass loss applied
 
         // JR: this is here (and the change to the line above) to keep attributes in sync BSE vs SSE
         // Supernovae are caught in UpdateAttributesAndAgeOneTimestep() (hence the need to move the
         // call to PrintStashedSupernovaDetails() in Star:EvolveOneTimestep())
-        UpdateAttributesAndAgeOneTimestep(mass - m_Mass, 0.0, 0.0, false);
+        // Don't resolve envelope loss here (JR: we're not going to switch anyway... need to revisit this)
+        STELLAR_TYPE st = UpdateAttributesAndAgeOneTimestep(mass - m_Mass, 0.0, 0.0, false, false); // recalculate stellar attributes
+        if (st != m_StellarType) {                                                                  // should switch?
+            SHOW_WARN(ERROR::SWITCH_NOT_TAKEN);                                                     // show warning if we think we should switch again...
+        }
 
-        UpdateInitialMass();                                                    // update effective initial mass (MS, HG & HeMS)
-        UpdateAgeAfterMassLoss();                                               // update age (MS, HG & HeMS)
-        ApplyMassTransferRejuvenationFactor();                                  // apply age rejuvenation factor
+        UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
+        UpdateAgeAfterMassLoss();                                                                   // update age (MS, HG & HeMS)
+        ApplyMassTransferRejuvenationFactor();                                                      // apply age rejuvenation factor
     }
 }
 
@@ -3977,40 +3981,49 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
  * @param   [IN]    p_DeltaTime                 The timestep to evolve in Myr
  * @param   [IN]    p_ForceRecalculate          Specifies whether the star's attributes should be recalculated even if the three deltas are 0.0
  *                                              (optional, default = false)
+ * @param   [IN]    p_ResolveEnvelopeLoss       Specifies whether envelope loss should be resolved here
+ *                                              (optional, default = true)
+ *                                              JR: this is a bit of a kludge to resolve problems introduced by modifying stellar attributes in
+ *                                                  anticipation of switching stellar type, but using those attributes before the actual switch
+ *                                                  to the new stellar type - we need to resolve those situations in the code.
+ *                                                  The bottom line is that this parameter is a temporary fix while I develop the permannet fix.
  * @return                                      Stellar type to which star should evolve
  */
 STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
                                                          const double p_DeltaMass0,
                                                          const double p_DeltaTime,
-                                                         const bool   p_ForceRecalculate) {
-    STELLAR_TYPE stellarType = m_StellarType;                                               // default is no change
+                                                         const bool   p_ForceRecalculate,
+                                                         const bool   p_ResolveEnvelopeLoss) {
+    STELLAR_TYPE stellarType = m_StellarType;                                                   // default is no change
 
-    if (ShouldBeMasslessRemnant()) {                                                        // Do not update the star if it lost all of its mass
+    if (ShouldBeMasslessRemnant()) {                                                            // Do not update the star if it lost all of its mass
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
     }
     else {
-        stellarType = ResolveSupernova();                                                   // handle supernova              
-        if (stellarType == m_StellarType) {                                                 // still on phase?
+        stellarType = ResolveSupernova();                                                       // handle supernova              
+        if (stellarType == m_StellarType) {                                                     // still on phase?
             
-            UpdateAttributesAndAgeOneTimestepPreamble(p_DeltaMass, p_DeltaMass0, p_DeltaTime); // apply mass changes and save current values if required
+            UpdateAttributesAndAgeOneTimestepPreamble(p_DeltaMass, p_DeltaMass0, p_DeltaTime);  // apply mass changes and save current values if required
 
-            if (p_ForceRecalculate                     ||                                   // force recalculate?
-                utils::Compare(p_DeltaMass,  0.0) != 0 ||                                   // mass change? or...
-                utils::Compare(p_DeltaMass0, 0.0) != 0 ||                                   // mass0 change? or...
-                               p_DeltaTime         > 0) {                                   // age/time advance? (don't use utils::Compare() here)
-                                                                                            // yes - update attributes
-                AgeOneTimestepPreamble(p_DeltaTime);                                        // advance dt, age, simulation time if necessary (don't use utils::Compare() here)
+            if (p_ForceRecalculate                     ||                                       // force recalculate?
+                utils::Compare(p_DeltaMass,  0.0) != 0 ||                                       // mass change? or...
+                utils::Compare(p_DeltaMass0, 0.0) != 0 ||                                       // mass0 change? or...
+                               p_DeltaTime         > 0) {                                       // age/time advance? (don't use utils::Compare() here)
+                                                                                                // yes - update attributes
+                AgeOneTimestepPreamble(p_DeltaTime);                                            // advance dt, age, simulation time if necessary (don't use utils::Compare() here)
 
-                if (ShouldSkipPhase()) stellarType = ResolveSkippedPhase();                 // skip phase if required
-                else {                                                                      // not skipped - execute phase
-                    stellarType = EvolveOnPhase(p_DeltaTime);                                      // evolve on phase
-                    if (stellarType == m_StellarType) stellarType = ResolveEndOfPhase();// check for need to move off phase
+                if (ShouldSkipPhase()) stellarType = ResolveSkippedPhase();                     // skip phase if required
+                else {                                                                          // not skipped - execute phase
+                    stellarType = EvolveOnPhase(p_DeltaTime);                                   // evolve on phase
+                    if (stellarType == m_StellarType) {                                         // need to switch to new stellar type?
+                        stellarType = ResolveEndOfPhase(p_ResolveEnvelopeLoss);                 // no - check for need to move off phase
+                    }   
                 }
             }
         }
     }
 
-    return stellarType;                                                                     // stellar type to which star should evolve
+    return stellarType;                                                                         // stellar type to which star should evolve
 }
 
 
@@ -4107,10 +4120,10 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
         m_Temperature     = CalculateTemperatureOnPhase();
 
         if (p_DeltaTime > 0.0) {
-        STELLAR_TYPE thisStellarType = ResolveEnvelopeLoss();                       // resolve envelope loss if it occurs - possibly new stellar type
-        if (thisStellarType != m_StellarType) {                                     // thisStellarType overrides stellarType (from CalculateRadiusAndStellarTypeOnPhase())
-            stellarType = thisStellarType;
-        }
+            STELLAR_TYPE thisStellarType = ResolveEnvelopeLoss();                       // resolve envelope loss if it occurs - possibly new stellar type
+            if (thisStellarType != m_StellarType) {                                     // thisStellarType overrides stellarType (from CalculateRadiusAndStellarTypeOnPhase())
+                stellarType = thisStellarType;
+            }
         }
     }
 
@@ -4122,17 +4135,23 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
  * Evolve the star onto the next phase if necessary - take one timestep at the end of the current phase
  *
  *
- * STELLAR_TYPE ResolveEndOfPhase()
+ * STELLAR_TYPE ResolveEndOfPhase(const bool p_ResolveEnvelopeLoss)
  *
+ * @param   [IN]    p_ResolveEnvelopeLoss       Specifies whether envelope loss should be resolved here
+ *                                              (optional, default = true)
+ *                                              JR: this is a bit of a kludge to resolve problems introduced by modifying stellar attributes in
+ *                                                  anticipation of switching stellar type, but using those attributes before the actual switch
+ *                                                  to the new stellar type - we need to resolve those situations in the code.
  * @return                                      Stellar Type to which star should evolve - unchanged if not moving off current phase
  */
-STELLAR_TYPE BaseStar::ResolveEndOfPhase() {
+STELLAR_TYPE BaseStar::ResolveEndOfPhase(const bool p_ResolveEnvelopeLoss) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (IsEndOfPhase()) {                                                       // end of phase
 
-        stellarType = ResolveEnvelopeLoss();                                    // resolve envelope loss if it occurs
+        if (p_ResolveEnvelopeLoss) stellarType = ResolveEnvelopeLoss();         // if required, resolve envelope loss if it occurs
+
         if (stellarType == m_StellarType) {                                     // staying on phase?
 
             m_Tau         = CalculateTauAtPhaseEnd();

@@ -250,7 +250,8 @@ public:
             STELLAR_TYPE    UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
                                                               const double p_DeltaMass0,
                                                               const double p_DeltaTime,
-                                                              const bool   p_ForceRecalculate);
+                                                              const bool   p_ForceRecalculate = false,
+                                                              const bool   p_ResolveEnvelopeLoss = true);
 
     virtual void            UpdateInitialMass() { }                                                                                                                                 // Default is NO-OP
 
@@ -614,7 +615,7 @@ protected:
     virtual void                PerturbLuminosityAndRadius() { }                                                                                                                                    // NO-OP
     virtual void                PerturbLuminosityAndRadiusAtPhaseEnd()                                                  { PerturbLuminosityAndRadiusOnPhase(); }                                    // Same as on phase
     virtual void                PerturbLuminosityAndRadiusOnPhase()                                                     { PerturbLuminosityAndRadius(); }
-            STELLAR_TYPE        ResolveEndOfPhase();
+            STELLAR_TYPE        ResolveEndOfPhase(const bool p_ResolveEnvelopeLoss = true);
     virtual void                ResolveHeliumFlash() { }
     virtual STELLAR_TYPE        ResolveSkippedPhase()                                                                   { return EvolveToNextPhase(); }                                             // Default is evolve to next phase
     virtual STELLAR_TYPE        ResolveSupernova()                                                                      { return m_StellarType; }                                                   // Default is NO-OP
