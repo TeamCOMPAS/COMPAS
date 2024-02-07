@@ -2556,7 +2556,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                                                  // print (log) detailed output: this is after all changes made in the timestep
 
             if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) evolutionStatus = EVOLUTION_STATUS::STEPS_UP;                          // number of timesteps for evolution exceeds maximum
-            else if (usingProvidedTimesteps && stepNum >= timesteps.size()) {
+            else if (evolutionStatus == EVOLUTION_STATUS::CONTINUE && usingProvidedTimesteps && stepNum >= timesteps.size()) {
                 evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_EXHAUSTED;                                                                    // using user-provided timesteps and all consumed
                 SHOW_WARN(ERROR::TIMESTEPS_EXHAUSTED);                                                                                      // show warning
             }

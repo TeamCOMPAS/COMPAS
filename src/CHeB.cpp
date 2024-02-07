@@ -1358,6 +1358,7 @@ double CHeB::CalculateLifetimeOnBluePhase(const double p_Mass) {
 #undef b
 }
 
+
 /*
  * Determine whether star should continue to evolve on phase
  *
@@ -1366,14 +1367,14 @@ double CHeB::CalculateLifetimeOnBluePhase(const double p_Mass) {
  *
  * @return         true if evolution should continue on phase, false otherwise
  */
-
 bool CHeB::ShouldEvolveOnPhase() const {
-    bool afterHeIgnition = (m_Age >= m_Timescales[static_cast<int>(TIMESCALE::tHeI)]);
+    bool afterHeIgnition      = (m_Age >= m_Timescales[static_cast<int>(TIMESCALE::tHeI)]);
     bool beforeEndOfHeBurning = (m_Age < (m_Timescales[static_cast<int>(TIMESCALE::tHeI)] + m_Timescales[static_cast<int>(TIMESCALE::tHe)]));
-    bool coreIsNotTooMassive = (m_HeCoreMass < m_Mass);
+    bool coreIsNotTooMassive  = (m_HeCoreMass < m_Mass);
     // Evolve on CHeB phase if age after He Ign and while He Burning and He core mass does not exceed total mass (could happen due to mass loss)
     return (afterHeIgnition && beforeEndOfHeBurning && coreIsNotTooMassive && !ShouldEnvelopeBeExpelledByPulsations());
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -1468,7 +1469,7 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     STELLAR_TYPE stellarType = m_StellarType;
     
-    if(ShouldEnvelopeBeExpelledByPulsations()) {
+    if (ShouldEnvelopeBeExpelledByPulsations()) {
         m_EnvelopeJustExpelledByPulsations = true;
     }
 
