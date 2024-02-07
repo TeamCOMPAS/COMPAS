@@ -621,6 +621,7 @@ enum class ERROR: int {
     STELLAR_EVOLUTION_STOPPED,                                      // evolution of current star stopped
     STELLAR_SIMULATION_STOPPED,                                     // stellar simulation stopped
     SUGGEST_HELP,                                                   // suggest using --help
+    SWITCH_NOT_TAKEN,                                               // switch to new stellar type not performed
     TIMESTEP_BELOW_MINIMUM,                                         // timestep too small - below minimum
     TIMESTEPS_EXHAUSTED,                                            // timesteps provided exhausted, but evolution not complete
     TIMESTEPS_NOT_CONSUMED,                                         // evolution complete, but provided timesteps not consumed
@@ -769,6 +770,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::STELLAR_EVOLUTION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Evolution of current star stopped" }},
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
     { ERROR::SUGGEST_HELP,                                          { ERROR_SCOPE::ALWAYS,              "Use option '-h' (or '--help') to see (descriptions of) available options" }},
+    { ERROR::SWITCH_NOT_TAKEN,                                      { ERROR_SCOPE::ALWAYS,              "Switch to new stellar type not performed" }},
     { ERROR::TIMESTEP_BELOW_MINIMUM,                                { ERROR_SCOPE::ALWAYS,              "Timestep below minimum - timestep taken" }},
     { ERROR::TIMESTEPS_EXHAUSTED,                                   { ERROR_SCOPE::ALWAYS,              "Provided timesteps exhausted, but evolution not complete" }},
     { ERROR::TIMESTEPS_NOT_CONSUMED,                                { ERROR_SCOPE::ALWAYS,              "Evolution complete, but provided timesteps not consumed" }},
