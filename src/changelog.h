@@ -1093,7 +1093,8 @@
 //                                      - updated documentation for new option; updated `What's New`
 //                                      - SSE vs BSE consistency: modified SSE to evolve a single star exactly as the primary in a wide binary with small companion
 //                                      - quantised timesteps to an integral multiple of 1E-12Myr - new constant `TIMESTEP_QUANTUM` in constants.h
-//                                      - little bit of code cleanup
+//                                      - little bit of code cleanupA
+//                                      - added warning for stellar type switch not take - just a diagnostic for now
 
 const std::string VERSION_STRING = "02.42.00";
 

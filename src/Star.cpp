@@ -297,7 +297,10 @@ STELLAR_TYPE Star::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
         // (this could get recursive, but shouldn't...)
         if (stellarTypePrev == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS && 
                 stellarType == STELLAR_TYPE::NAKED_HELIUM_STAR_MS) {                        // discontinuous transition?
-            UpdateAttributes(0.0, 0.0, true);                                               // yes - recalculate stellar attributes
+            if (UpdateAttributes(0.0, 0.0, true) != stellarType) {                          // yes - recalculate stellar attributes
+                // JR: need to revisit this - should we (queue) switch here?
+                SHOW_WARN(ERROR::SWITCH_NOT_TAKEN);                                         // show warning if we think we should switch again...
+            }
         }
     }
 
