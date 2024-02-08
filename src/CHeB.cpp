@@ -1214,7 +1214,7 @@ double CHeB::CalculateRemnantRadius() const {
  * @return                                      Core mass on the First Giant Branch in Msol
  */
 double CHeB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau) const {
-    return std::min(((1.0 - p_Tau) * CalculateCoreMassAtHeIgnition(p_Mass)) + (p_Tau * CalculateCoreMassAtBAGB(p_Mass)), m_Mass);               // We mass capped at total mass (should become HeMS star)
+    return std::min(((1.0 - p_Tau) * CalculateCoreMassAtHeIgnition(p_Mass)) + (p_Tau * CalculateCoreMassAtBAGB(p_Mass)), m_Mass);               // He mass capped at total mass (should become HeMS star)
 }
 
 
