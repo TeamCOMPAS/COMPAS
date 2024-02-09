@@ -151,8 +151,13 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
  * @return                                      Radius of a White Dwarf in Rsol (since WD is ~ Earth sized, expect answer around 0.009)
  */
 double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
+
+    // sanity check for mass - just return 0.0 if mass <= 0
+    if (utils::Compare(p_Mass, 0.0) <= 0) return 0.0;
+    
     double MCH_Mass_one_third  = std::cbrt(MCH / p_Mass); 
     double MCH_Mass_two_thirds = MCH_Mass_one_third * MCH_Mass_one_third;
+
     return std::max(NEUTRON_STAR_RADIUS, 0.0115 * std::sqrt((MCH_Mass_two_thirds - 1.0 / MCH_Mass_two_thirds)));
 }
 

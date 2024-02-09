@@ -144,6 +144,9 @@ double HeMS::CalculateRadiusAtZAMS_Static(const double p_Mass) {
  */
 double HeMS::CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Tau) {
 
+    // sanity check for mass - just return 0.0 if mass <= 0
+    if (utils::Compare(p_Mass, 0.0) <= 0) return 0.0;
+
     double tau_6 = p_Tau * p_Tau * p_Tau * p_Tau * p_Tau * p_Tau;   // pow() is slow - use multiplication
     double beta  = std::max(0.0, 0.4 - 0.22 * log10(p_Mass));
 
