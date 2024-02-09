@@ -77,6 +77,8 @@ protected:
 
             double          CalculateMassTransferRejuvenationFactor() const;
 
+            double          CalculateMomentOfInertia() const                                                        { return GiantBranch::CalculateMomentOfInertia(); }                      // k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
+
             double          CalculatePerturbationMu() const;
             double          CalculatePerturbationMuAtPhaseEnd() const                                               { return m_Mu; }                                                        // NO-OP
 
