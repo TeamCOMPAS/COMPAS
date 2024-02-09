@@ -1091,7 +1091,9 @@
 // 02.41.05     YS - Jan 31, 2024    - Bug fix:
 //                                      - Fix for issue #1058: fixing calculation of pulsar spin period
 // 02.41.06     JR - Feb 10, 2024    - Defect repair:
-//                                      - Fix for issue #1057
+//                                      - Fix for issue #1057:
+//                                            HeMS::CalculateMomentOfInertia() falls back to MainSequence::CalculateMomentOfInertia()
+//                                            HeHG::CalculateMomentOfInertia() falls back to GiantBranch::CalculateMomentOfInertia()
 //                                      - Added sanity checks for mass and luminosity where necessary in variants of CalculateRadiusOnPhase_Static()
 
 const std::string VERSION_STRING = "02.41.06";
