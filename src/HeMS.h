@@ -84,7 +84,7 @@ protected:
             
             double          CalculateMassTransferRejuvenationFactor() const;
 
-            double          CalculateMomentOfInertia() const                                                        { return MainSequence::CalculateMomentOfInertia(); }                      // k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
+            double          CalculateMomentOfInertia() const                                                        { return MainSequence::CalculateMomentOfInertia(); }
 
             double          CalculatePerturbationMu() const                                                         { return 5.0; }                                                                 // Hurley et al. 2000, eqs 97 & 98
 
