@@ -77,6 +77,8 @@ protected:
 
             double          CalculateMassTransferRejuvenationFactor() const;
 
+            double          CalculateMomentOfInertia() const                                                        { return GiantBranch::CalculateMomentOfInertia(); }
+
             double          CalculatePerturbationMu() const;
             double          CalculatePerturbationMuAtPhaseEnd() const                                               { return m_Mu; }                                                        // NO-OP
 
