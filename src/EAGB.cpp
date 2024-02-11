@@ -772,6 +772,12 @@ double EAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
                                            const DBL_VECTOR &p_BnCoefficients) {
 #define b p_BnCoefficients  // for convenience and readability - undefined at end of function
 
+    // sanity check for mass and luminosity - just return 0.0 if mass or luminosity <= 0
+    // doing this will save some compute cycles - but it is not strictly what the equation in Hurley says
+    // (Hurley et al. 2000, eq 74 and immediately following) - there if mass is 0.0 but luminosity is
+    // non-zero we get a non-zero value for radius (shouldn't happen, but we need to code for all possibilities)
+    if (utils::Compare(p_Mass, 0.0) <= 0 || utils::Compare(p_Luminosity, 0.0) <= 0) return 0.0;
+
     // calculate radius constant A (Hurley et al. 2000, eq 74)
     // and coefficient b(50)
     double A;
