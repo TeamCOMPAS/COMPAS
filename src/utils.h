@@ -138,6 +138,8 @@ namespace utils {
 
     std::string                         SplashScreen(const bool p_Print = true);
 
+    std::tuple<ERROR, DBL_VECTOR>       ReadTimesteps(const std::string p_TimestepsFileName);
+
 }
 
 #endif // __utils_h__
