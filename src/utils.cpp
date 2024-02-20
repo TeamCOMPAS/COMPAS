@@ -1494,7 +1494,7 @@ namespace utils {
 
                             rec = trim(rec);                                                                        // remove leading and trailing blanks
 
-                            if (!rec.empty() or rec[0] == '#') {                                                    // blank record or comment?                                 
+                            if (!(rec.empty() || rec[0] == '#')) {                                                  // blank record or comment?                                 
                                 try {                                                                               // no - process it
                                     size_t lastChar;
                                     long double v = std::stold(rec, &lastChar);                                     // try conversion
