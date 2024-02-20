@@ -1095,8 +1095,14 @@
 //                                            HeMS::CalculateMomentOfInertia() falls back to MainSequence::CalculateMomentOfInertia()
 //                                            HeHG::CalculateMomentOfInertia() falls back to GiantBranch::CalculateMomentOfInertia()
 //                                      - Added sanity checks for mass and luminosity where necessary in variants of CalculateRadiusOnPhase_Static()
+// 02.42.00     JR - Jan 08, 2024    - Enhancements, defect repair, a little cleanup
+//                                      - added `timesteps-filename` option to allow users to provide preset timesteps for both SSE and BSE
+//                                      - updated documentation for new option; updated `What's New`
+//                                      - SSE vs BSE consistency: modified SSE to evolve a single star exactly as the primary in a wide binary with small companion
+//                                      - quantised timesteps to an integral multiple of 1E-12Myr - new constant `TIMESTEP_QUANTUM` in constants.h
+//                                      - little bit of code cleanup
+//                                      - added warning for stellar type switch not taken - just a diagnostic for now
 
-const std::string VERSION_STRING = "02.41.06";
-
+const std::string VERSION_STRING = "02.42.00";
 
 # endif // __changelog_h__
