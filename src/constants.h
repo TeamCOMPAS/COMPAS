@@ -400,7 +400,7 @@ enum class BSE_DETAILED_RECORD_TYPE: unsigned int {                             
     POST_CEE,                                                                                                       // 12 - record was logged immediately following a common envelope event
     POST_SN,                                                                                                        // 13 - record was logged immediately following a supernova event
     POST_MASS_RESOLUTION,                                                                                           // 14 - record was logged immediately following mass resolution (i.e. after winds mass loss & mass transfer complete)
-    POST_MASS_RESOLUTION_MERGER
+    POST_MASS_RESOLUTION_MERGER                                                                                     // 15 - record was logged immediately following a merger after mass resolution
 };
 
 enum class SSE_DETAILED_RECORD_TYPE: unsigned int {                                                                 // SSE_DETAILED_OUTPUT file record type
@@ -565,7 +565,7 @@ enum class ERROR: int {
     BOOST_OPTION_CMDLINE,                                           // failed to initialise Boost options descriptions for commandline options
     BOOST_OPTION_GRIDLINE,                                          // failed to initialise Boost options descriptions for grid line options
     BOOST_OPTION_INTERNAL_ERROR,                                    // Boost option internal error
-    EMPTY_FILE,                                                     // filename is empty (contains no content)
+    EMPTY_FILE,                                                     // file is empty (contains no content)
     EMPTY_FILENAME,                                                 // filename is an empty string
     ERROR,                                                          // unspecified error
     ERROR_PROCESSING_CMDLINE_OPTIONS,                               // an error occurred while processing commandline options
