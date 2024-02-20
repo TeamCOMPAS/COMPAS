@@ -2787,7 +2787,7 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
     if (OPTIONS->UseMassLoss()) {
         double mass = CalculateMassLossValues(true, p_UpdateMDt);                                   // calculate new values assuming mass loss applied
 
-        // JR: this is here (and the change to the line above) to keep attributes in sync BSE vs SSE
+        // JR: this is here to keep attributes in sync BSE vs SSE
         // Supernovae are caught in UpdateAttributesAndAgeOneTimestep() (hence the need to move the
         // call to PrintStashedSupernovaDetails() in Star:EvolveOneTimestep())
         // Don't resolve envelope loss here (JR: we're not going to switch anyway... need to revisit this)
@@ -4094,8 +4094,9 @@ void BaseStar::UpdateMassTransferDonorHistory() {
  * Evolve the star on it's current phase - take one timestep on the current phase
  *
  *
- * STELLAR_TYPE EvolveOnPhase()
+ * STELLAR_TYPE EvolveOnPhase(const double p_DeltaTime)
  *
+ * @param   [IN]    p_DeltaTime                 Timestep in Myr
  * @return                                      Stellar Type to which star should evolve - unchanged if not moving off current phase
  */
 STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {

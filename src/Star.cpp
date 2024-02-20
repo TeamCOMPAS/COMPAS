@@ -466,7 +466,7 @@ double Star::EvolveOneTimestep(const double p_Dt, const bool p_Force) {
 
     (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::PRE_MASS_LOSS);                           // log record - pre mass loss
 
-    (void)m_Star->ResolveMassLoss(!p_Force);                                                                    // apply wind mass loss if required - after the switch is consistent with the BSE code
+    (void)m_Star->ResolveMassLoss(!p_Force);                                                                    // apply wind mass loss if required
 
     (void)m_Star->PrintStashedSupernovaDetails();                                                               // print stashed SSE Supernova log record if necessary
 
@@ -549,7 +549,7 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
             stepNum++;                                                                                                      // increment step number                                                      
 
             EvolveOneTimestep(dt, true);                                                                                    // evolve for timestep
-            UpdateAttributes(0.0, 0.0, true);                                                                               // JR: if this is not included, BSE and SSE are out of sync by 1 timestep.  If we remove this, we have to change BS accordingly.  Not sure which one is right yet... (or if that actually matters)
+            UpdateAttributes(0.0, 0.0, true);                                                                               // JR: if this is not included, BSE and SSE are out of sync by 1 timestep.  If we remove this, we have to change BSE accordingly.  Not sure which one is right yet... (or if that actually matters)
             (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                          // log record  
         }
     }
