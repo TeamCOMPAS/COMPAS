@@ -344,7 +344,7 @@ constexpr double FARMER_PPISN_UPP_LIM_INSTABILLITY      = 140.0;                
 constexpr double STARTRACK_PPISN_HE_CORE_MASS           = 45.0;                                                     // Helium core mass remaining following PPISN as assumed in StarTrack (Belczynski et al. 2017 https://arxiv.org/abs/1607.03116)
 
 constexpr int    TIDES_OMEGA_MAX_ITERATIONS             = 1000;                                                     // Maximum number of iterations in BaseBinaryStar::OmegaAfterCircularisation()
-constexpr double TIDES_OMEGA_SEARCH_FACTOR              = 1.1;                                                      // Search factor in BaseBinaryStar::OmegaAfterCircularisation()
+constexpr double TIDES_OMEGA_SEARCH_FACTOR_FRAC         = 0.1;                                                      // Search size factor (fractional part) in BaseBinaryStar::OmegaAfterCircularisation() (added to 1.0)
 
 
 // logging constants
