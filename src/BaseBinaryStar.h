@@ -639,24 +639,37 @@ private:
         auto func = [a, b, c](double x) -> double { return (a * x) + (b / std::cbrt(x)) + c; };             // functor
 
         // find root
-        double factor  = TIDES_OMEGA_SEARCH_FACTOR;                                                         // size of search steps
-        bool is_rising = func(p_Guess) > func(p_Guess * factor) ? false : true;                             // so bracket_and_solve_root() knows whether to increase or decrease guess per iteration
 
-        std::pair<double, double> root(-1.0, -1.0);                                                         // initialise root
-        try {
-            root = boost::math::tools::bracket_and_solve_root(func, p_Guess, factor, is_rising, tol, it);   // iterate to find root
-        }
-        catch(std::exception& e) {                                                                          // catch generic boost root finding error
-            root.first  = -1.0;                                                                             // set error return
-            root.second = -1.0;
-            if (it < maxit) {                                                                               // not too many iterations?
-                SHOW_ERROR(ERROR::ROOT_FINDER_FAILED, e.what());                                            // no - some other error - show it
+        // adjust search step size if necessary
+        double factorFrac = TIDES_OMEGA_SEARCH_FACTOR_FRAC;                                                 // search step size factor fractional part
+        double factor     = 1.0 + factorFrac;                                                               // factor to determine search step size (size = guess * factor)
+        bool   isRising   = func(p_Guess) >= func(p_Guess * factor) ? false : true;                         // gradient direction from guess to upper search increment
+
+        std::pair<double, double> root(1.0E-20, 1.0E-20);                                                   // initialise root - no root found (< precision of double)
+        while (root.first < 1.0E-16 && root.second < 1.0E-16) {                                             // while no root found
+            try {
+                root = boost::math::tools::bracket_and_solve_root(func, p_Guess, factor, isRising, tol, it); // iterate to find root
+            }
+            catch(std::exception& e) {                                                                      // catch generic boost root finding error
+                root.first  = -2.0;                                                                         // set error return
+                root.second = -2.0;
+                if (it < maxit) {                                                                           // not too many iterations?
+                    SHOW_ERROR(ERROR::ROOT_FINDER_FAILED, e.what());                                        // no - some other error - show it
+                }
+            }
+
+            if (root.first < 1.0E-16 && root.second < 1.0E-16) {                                            // root too small (< precision of double)?
+                // root finder failed to find root
+                // reduce search step size and try again
+                factorFrac /= 2.0;                                                                          // reduce fractional part of factor                                            
+                factor      = 1.0 + factorFrac;                                                             // new search step size
+                isRising    = func(p_Guess) >= func(p_Guess * factor) ? false : true;                       // gradient direction from guess to upper search increment
             }
         }
 
         if (it >= maxit) {                                                                                  // too many iterations?
-            root.first  = -1.0;                                                                             // yes - set error return
-            root.second = -1.0;
+            root.first  = -2.0;                                                                             // yes - set error return
+            root.second = -2.0;
             SHOW_WARN(ERROR::TOO_MANY_OMEGA_ITERATIONS);                                                    // show warning
         }
 

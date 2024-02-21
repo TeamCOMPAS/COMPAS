@@ -1102,7 +1102,9 @@
 //                                      - quantised timesteps to an integral multiple of 1E-12Myr - new constant `TIMESTEP_QUANTUM` in constants.h
 //                                      - little bit of code cleanup
 //                                      - added warning for stellar type switch not taken - just a diagnostic for now
+// 02.42.01     JR - Jan 21, 2024    - Defect repair
+//                                      - fix for issue 1066 - see issue for explanation
 
-const std::string VERSION_STRING = "02.42.00";
+const std::string VERSION_STRING = "02.42.01";
 
 # endif // __changelog_h__
