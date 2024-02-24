@@ -528,7 +528,7 @@ private:
      * @param   [IN]    p_Binary                    (Pointer to) The binary star under examination
      * @param   [IN]    p_Donor                     (Pointer to) The star donating mass
      * @param   [IN]    p_Accretor                  (Pointer to) The star accreting mass
-     * @param   [IN]    p_FractionAccreted          The faction of the donated mass accreted by the accretor
+     * @param   [IN]    p_FractionAccreted          The fraction of the donated mass accreted by the accretor
      * @param   [IN]    p_Error                     (Address of variable to record) Error encountered in functor
      * 
      * Function: calculate radius difference after mass loss
