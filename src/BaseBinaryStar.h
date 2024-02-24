@@ -595,7 +595,7 @@ private:
      * @param   [IN]    p_Binary                    (Pointer to) The binary star under examination
      * @param   [IN]    p_Donor                     (Pointer to) The star donating mass
      * @param   [IN]    p_Accretor                  (Pointer to) The star accreting mass
-     * @param   [IN]    p_FractionAccreted          The faction of the donated mass accreted by the accretor
+     * @param   [IN]    p_FractionAccreted          The fraction of the donated mass accreted by the accretor
      * @return                                      Root found: will be -1.0 if no acceptable real root found
      */    
     double MassLossToFitInsideRocheLobe(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted) {
