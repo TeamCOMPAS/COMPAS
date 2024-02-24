@@ -529,13 +529,13 @@ private:
      * @param   [IN]    p_Donor                     (Pointer to) The star donating mass
      * @param   [IN]    p_Accretor                  (Pointer to) The star accreting mass
      * @param   [IN]    p_FractionAccreted          The faction of the donated mass accreted by the accretor
-     * @param   [IN]    p_Error                     (Address of variable to record) Error encounted in functor
+     * @param   [IN]    p_Error                     (Address of variable to record) Error encountered in functor
      * 
      * Function: calculate radius difference after mass loss
      * T RadiusEqualsRocheLobeFunctor(double const& p_dM)
      * 
      * @param   [IN]    p_dM                        Mass to be donated
-     * @return                                      Difference between star's Roche Lobe radius annd radius after mass loss
+     * @return                                      Difference between star's Roche Lobe radius and radius after mass loss
      */    
     template <class T>
     struct RadiusEqualsRocheLobeFunctor {
