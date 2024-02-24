@@ -1923,7 +1923,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         }
         else {                                                                                                                  // donor has no envelope
             massDiffDonor = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                        // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
-            if (massDiffDonor <= 0.0) {                                                                                         // no root found - no mass can be lost from donor
+            if (massDiffDonor <= 0.0) {                                                                                         // no root found
                 // if donor cannot lose mass to fit inside Roche lobe, the only viable action is to enter CE phase
                 m_CEDetails.CEEnow = true;                                                                                      // flag CE
             }
