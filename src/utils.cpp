@@ -1375,7 +1375,6 @@ namespace utils {
      * @param   [IN]    p_A                       Coefficient of x^2
      * @param   [IN]    p_B                       Coefficient of x^1
      * @param   [IN]    p_C                       Coefficient of x^0 (Constant)
-     * @return                                    Root found (see above)
      * @return                                    Tuple containing (in order): error value, root found (see above)
      *                                            The error value returned will be:
      *                                                ERROR::NONE if no error occurred
@@ -1408,6 +1407,25 @@ namespace utils {
         }
 
         return std::make_tuple(error, root);
+    }
+
+
+    /*
+     * Tolerance for Boost bracket_and_solve_root()
+     *
+     * Determines if the brackets around the root are within the COMPAS defined tolerance.
+     * 
+     * 
+     * bool BracketTolerance(const double p_Bracket1, const double p_Bracket2)
+     * 
+     * @param   [IN]    p_Bracket1                Bracket bound 1
+     * @param   [IN]    p_Bracket2                Bracket bound 2
+     * @return                                    Boolean indicating if the brackets bounds are within tolerance
+     */
+    bool BracketTolerance(const double p_Bracket1, const double p_Bracket2) {
+        double diff = fabs(p_Bracket1 - p_Bracket2);                                            // absolute value of difference
+        double min  = std::min(p_Bracket1, p_Bracket2);                                         // minimum bracket value - could straddle 0.0
+        return diff <= ROOT_ABS_TOLERANCE || fabs(diff / min) <= ROOT_REL_TOLERANCE;
     }
 
 
