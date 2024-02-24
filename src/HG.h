@@ -43,14 +43,14 @@ protected:
         // update stellar properties at start of HG phase (since core definition changes)
         CalculateGBParams();
         
-        // update effective "initial" mass (m_Mass0) so that the core mass is at least equal to the minimum core mass
-        // (only relevant if RetainCoreMassDuringCaseAMassTransfer()) but no more than total mass
+        // update effective "initial" mass (m_Mass0) so that the core mass is at least equal to the minimum core mass but no more than total mass
+        // (only relevant if RetainCoreMassDuringCaseAMassTransfer()) 
         if(utils::Compare(CalculateCoreMassOnPhase(m_Mass0, m_Age), std::min(m_Mass, MinimumCoreMass())) < 0) {
             double desiredCoreMass = std::min(m_Mass, MinimumCoreMass());       // desired core mass
             m_Mass0 = Mass0ToMatchDesiredCoreMass(this, desiredCoreMass);       // use root finder to find new core mass estimate
             if (m_Mass0 <= 0.0) {                                               // no root found - no solution for estimated core mass
-                // if no root found we use 2 * min(m_Mass, MinimumCoreMass()) as the new core mass
-                m_Mass0 = 2.0 * desiredCoreMass;
+                // if no root found we keep m_Mass0 equal to the total mass
+                m_Mass0 = m_Mass;
             }
             CalculateTimescales();
             m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
