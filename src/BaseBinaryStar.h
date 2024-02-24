@@ -549,8 +549,8 @@ private:
         T operator()(double const& p_dM) {
 
             if (p_dM >= m_Donor->Mass()) {                  // Can't remove more than the donor's mass
-                *m_Error = ERROR::TOO_MANY_RLOF_ITERATIONS;
-                return m_Donor->Radius();
+                *m_Error = ERROR::TOO_MANY_RLOF_ITERATIONS; // set error
+                return 1000.0 * ROOT_ABS_TOLERANCE;         // arbitrary value to indicate no (sensible) solution found
             }
 
             double donorMass    = m_Donor->Mass();
