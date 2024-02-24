@@ -197,48 +197,46 @@ protected:
         std::size_t tries = 0;                                                                              // number of tries
         bool done         = false;                                                                          // finished (found root or exceed maximum tries)?
         Mass0YieldsDesiredCoreMassFunctor<double> func = Mass0YieldsDesiredCoreMassFunctor<double>(p_Star, p_DesiredCoreMass);
-        while (!done) {                                                                                     // while no error and acceptable root found
+        while (!done) {                                                                                     // while no acceptable root found
             bool isRising = func((const double)guess) >= func((const double)guess * factor) ? false : true; // gradient direction from guess to upper search increment
-          
+
+            // run the root finder
+            // regardless of any exceptions or errors, display any problems as a warning, then
+            // check if the root returned is within tolerance - so even if the root finder
+            // bumped up against the maximum iterations, or couldn't bracket the root, use
+            // whatever value it ended with and check if it's good enough for us - not finding
+            // an acceptable root should be the exception rather than the rule, so this strategy
+            // shouldn't cause undue performance issues.
             try {
-                root = boost::math::tools::bracket_and_solve_root(func, guess, factor, isRising, utils::BracketTolerance, it);
+                root = boost::math::tools::bracket_and_solve_root(func, guess, factor, isRising, utils::BracketTolerance, it); // find root
+                // root finder returned without raising an exception
+                if (it >= maxit) { SHOW_WARN(ERROR::TOO_MANY_MASS0_ITERATIONS); }                           // too many root finder iterations
             }
             catch(std::exception& e) {                                                                      // catch generic boost root finding error
-                root.first  = -1.0;                                                                         // set default return
-                root.second = -1.0;
-                if (it < maxit) {                                                                           // not too many iterations?
-                    SHOW_WARN(ERROR::ROOT_FINDER_FAILED, e.what());                                         // no - some other error - show it as a warning
-                }
-                done = true;                                                                                // we're done
+                // root finder exception
+                // could be too many iterations, or unable to bracket root - it may not
+                // be a hard error - so no matter what the reason is that we are here,
+                // we'll just emit a warning and keep trying
+                if (it >= maxit) { SHOW_WARN(ERROR::TOO_MANY_MASS0_ITERATIONS); }                           // too many root finder iterations
+                else             { SHOW_WARN(ERROR::ROOT_FINDER_FAILED, e.what()); }                        // some other problem - show it as a warning
             }
 
-            // root finder returned without error
-
-            if (it >= maxit) {                                                                              // too many iterations?
-                // too many iterations in root finder
-                // reducing the step size probably won't help here, so just stop
-                root.first  = -1.0;                                                                         // yes - set default return
-                root.second = -1.0;
-                SHOW_WARN(ERROR::TOO_MANY_MASS0_ITERATIONS);                                                // show warning
-                done = true;                                                                                // we're done
+            // we have a solution from the root finder - it may not be an acceptable solution
+            // so we check if it is within our preferred tolerance
+            if (fabs(func(root.first + (root.second - root.first) / 2.0)) <= ROOT_ABS_TOLERANCE) {          // solution within tolerance?
+                done = true;                                                                                // yes - we're done
             }
-            else if (!done)  {                                                                              // no - not too many iterations
-
-                if (fabs(func(root.first + (root.second - root.first) / 2.0)) <= ROOT_ABS_TOLERANCE) {      // within tolerance?
-                    done = true;                                                                            // yes - we're done
-                }
-                else {                                                                                      // no
-                    // root finder failed to find acceptable solution
-                    // reduce search step size and try again
-                    factorFrac /= 2.0;                                                                      // reduce fractional part of factor
-                    factor      = 1.0 + factorFrac;                                                         // new search step size
-                    tries++;                                                                                // increment number of tries
-                    if (tries > ADAPTIVE_MASS0_MAX_TRIES || fabs(factor - 1.0) <= ROOT_ABS_TOLERANCE) {     // too many tries, or step size 0.0?
-                        root.first  = -1.0;                                                                 // yes - set default return
-                        root.second = -1.0;
-                        SHOW_WARN(ERROR::TOO_MANY_MASS0_TRIES);                                             // show warning
-                        done = true;                                                                        // we're done
-                    }
+            else {                                                                                          // no - try again
+                // we don't have an acceptable solution - reduce search step size and try again
+                factorFrac /= 2.0;                                                                          // reduce fractional part of factor
+                factor      = 1.0 + factorFrac;                                                             // new search step size
+                tries++;                                                                                    // increment number of tries
+                if (tries > ADAPTIVE_MASS0_MAX_TRIES || fabs(factor - 1.0) <= ROOT_ABS_TOLERANCE) {         // too many tries, or step size 0.0?
+                    // we've tried as much as we can - fail here with -ve return value
+                    root.first  = -1.0;                                                                     // yes - set error return
+                    root.second = -1.0;
+                    SHOW_WARN(ERROR::TOO_MANY_MASS0_TRIES);                                                 // show warning
+                    done = true;                                                                            // we're done
                 }
             }
         }
