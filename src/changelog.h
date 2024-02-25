@@ -1102,7 +1102,14 @@
 //                                      - quantised timesteps to an integral multiple of 1E-12Myr - new constant `TIMESTEP_QUANTUM` in constants.h
 //                                      - little bit of code cleanup
 //                                      - added warning for stellar type switch not taken - just a diagnostic for now
+// 02.42.01     JR - Jan 21, 2024    - Defect repair
+//                                      - fix for issue 1066 - see issue/PR for explanation
+//                                      - cleaned up root solvers OmegaAfterSynchronisation(), MassLossToFitInsideRocheLobe(), and Mass0ToMatchDesiredCoreMass(), and their respective functors
+//                                      - MassLossToFitInsideRocheLobe(), and Mass0ToMatchDesiredCoreMass() now return -1.0 if no acceptable root found
+//                                      - calling code for MassLossToFitInsideRocheLobe() and Mass0ToMatchDesiredCoreMass() now handles -ve return:
+//                                           - if MassLossToFitInsideRocheLobe() returns -ve value (i.e. no root found), the binary immediately enters a CE phase
+//                                           - if Mass0ToMatchDesiredCoreMass() returns -ve value (i.e. no root found), an arbitrary value is used for core mass (see code for value)
 
-const std::string VERSION_STRING = "02.42.00";
+const std::string VERSION_STRING = "02.42.01";
 
 # endif // __changelog_h__
