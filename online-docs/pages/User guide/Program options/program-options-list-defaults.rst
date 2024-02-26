@@ -413,7 +413,7 @@ Default = 5.75
 :ref:`Back to Top <options-props-top>`
 
 **--grid** |br|
-Grid filename. |br|
+Grid filename. (See :doc:`Grid files <../grid-files>`) |br|
 Default = ’’ (None)
 
 **--grid-lines-to-process** |br|
@@ -1179,6 +1179,10 @@ Default = FALSE
 
 :ref:`Back to Top <options-props-top>`
 
+**--timestep-filename** |br|
+User-defined timesteps filename. (See :doc:`Timestep files <../timestep-files>`) |br|
+Default = ’’ (None)
+
 **--timestep-multiplier** |br|
 Multiplicative factor for timestep duration. |br|
 Default = 1.0
@@ -1344,7 +1348,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Administrative**
 
 --mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-pulsars, --evolve-unbound-systems, --maximum-evolution-time, --maximum-number-timestep-iterations,
---random-seed, --timestep-multiplier
+--random-seed, --timestep-multiplier, --timestep-filename
 
 --grid, --grid-start-line, --grid-lines-to-process
 

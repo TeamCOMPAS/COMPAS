@@ -6,6 +6,12 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.42.00 Jan 04, 2023**
+
+* Timesteps are now quantised to an integral multiple of 1e-12Myr.
+* New option provided to allow user-defined timesteps: ``--timesteps-filename`` (See :doc:`Timestep files <../"User guide"/timestep-files>`).
+* Code changes to make SSE and BSE evolution more consistent (See `PR 1052 <https://github.com/TeamCOMPAS/COMPAS/pull/1052>`_).
+
 **02.41.03 Dec 28, 2023**
 
 * The functions ``BaseBinaryStar::CalculateAngularMomentum()``, ``BaseBinaryStar::CalculateTotalEnergy()``, and ``BaseStar::AngularMomentum()`` changed to use moment of inertia instead of gyration radius.

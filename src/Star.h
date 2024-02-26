@@ -205,7 +205,7 @@ public:
 
     EVOLUTION_STATUS Evolve(const long int p_Id);
 
-    double          EvolveOneTimestep(const double p_Dt);
+    double          EvolveOneTimestep(const double p_Dt, const bool p_Force = false);
 
     void            FastForward()                                                                                   { m_Star->FastForward(); }
 
@@ -272,6 +272,8 @@ private:
 
     BaseStar        *m_Star;                    // pointer to current star
     BaseStar        *m_SaveStar;                // pointer to saved star
+
+    std::vector<double> m_Timesteps;            // timesteps vector - for debugging/testing
 
 };
 

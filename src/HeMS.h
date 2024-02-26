@@ -97,6 +97,8 @@ protected:
             
             double          CalculateMassTransferRejuvenationFactor() const;
 
+            double          CalculateMomentOfInertia() const                                                        { return MainSequence::CalculateMomentOfInertia(); }
+
             double          CalculatePerturbationMu() const                                                         { return 5.0; }                                                                 // Hurley et al. 2000, eqs 97 & 98
 
             double          CalculateRadialExtentConvectiveEnvelope() const                                         { return BaseStar::CalculateRadialExtentConvectiveEnvelope(); }                 // HeMS stars don't have a convective envelope

@@ -194,6 +194,7 @@ void Options::OptionValues::Initialise() {
     m_MaxEvolutionTime                                              = 13700.0;
     m_MaxNumberOfTimestepIterations                                 = 99999;
     m_TimestepMultiplier                                            = 1.0;
+    m_TimestepsFileName                                             = "";
 
     // Initial mass options
     m_InitialMass                                                   = 5.0;
@@ -371,8 +372,8 @@ void Options::OptionValues::Initialise() {
     m_LuminousBlueVariablePrescription.type                         = LBV_PRESCRIPTION::HURLEY_ADD;
     m_LuminousBlueVariablePrescription.typeString                   = LBV_PRESCRIPTION_LABEL.at(m_LuminousBlueVariablePrescription.type);
 
-    m_OBMassLoss.type                                              = OB_MASS_LOSS::VINK2021;
-    m_OBMassLoss.typeString                                        = OB_MASS_LOSS_LABEL.at(m_OBMassLoss.type);
+    m_OBMassLoss.type                                               = OB_MASS_LOSS::VINK2021;
+    m_OBMassLoss.typeString                                         = OB_MASS_LOSS_LABEL.at(m_OBMassLoss.type);
 
     m_VMSMassLoss.type                                              = VMS_MASS_LOSS::SABHAHIT2023;
     m_VMSMassLoss.typeString                                        = VMS_MASS_LOSS_LABEL.at(m_VMSMassLoss.type);
@@ -380,8 +381,8 @@ void Options::OptionValues::Initialise() {
     m_RSGMassLoss.type                                              = RSG_MASS_LOSS::DECIN2023;
     m_RSGMassLoss.typeString                                        = RSG_MASS_LOSS_LABEL.at(m_RSGMassLoss.type);
 
-    m_WRMassLoss.type                                              = WR_MASS_LOSS::SANDERVINK2023;
-    m_WRMassLoss.typeString                                        = WR_MASS_LOSS_LABEL.at(m_WRMassLoss.type);
+    m_WRMassLoss.type                                               = WR_MASS_LOSS::SANDERVINK2023;
+    m_WRMassLoss.typeString                                         = WR_MASS_LOSS_LABEL.at(m_WRMassLoss.type);
 
     // Wind mass loss multiplicitive constants
     m_CoolWindMassLossMultiplier                                    = 1.0;
@@ -451,6 +452,7 @@ void Options::OptionValues::Initialise() {
 
 	m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor  = 0.0;                                                  // Claeys+ 2014 = unspecified
     m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor     = 1.6;                                                  // Claeys+ 2014 = 1.6
+
 
     // Common Envelope options
     m_CommonEnvelopeAlpha                                           = 1.0;
@@ -975,7 +977,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         (
             "maximum-number-timestep-iterations",                          
-            po::value<int>(&p_Options->m_MaxNumberOfTimestepIterations)->default_value(p_Options->m_MaxNumberOfTimestepIterations),                                                               
+            po::value<unsigned long int>(&p_Options->m_MaxNumberOfTimestepIterations)->default_value(p_Options->m_MaxNumberOfTimestepIterations),                                                               
             ("Maximum number of timesteps to evolve binary before giving up (default = " + std::to_string(p_Options->m_MaxNumberOfTimestepIterations) + ")").c_str()
         )
 
@@ -1825,6 +1827,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "stellar-zeta-prescription",                                   
             po::value<std::string>(&p_Options->m_StellarZetaPrescription.typeString)->default_value(p_Options->m_StellarZetaPrescription.typeString),                                                            
             ("Prescription for stellar zeta (" + AllowedOptionValuesFormatted("stellar-zeta-prescription") + ", default = '" + p_Options->m_StellarZetaPrescription.typeString + "')").c_str()
+        )
+
+        (
+            "timesteps-filename",
+            po::value<std::string>(&p_Options->m_TimestepsFileName)->default_value(p_Options->m_TimestepsFileName),
+            ("Filename for file to provide timesteps to be used for evolution (SSE and BSE) (default = '" + p_Options->m_TimestepsFileName + "')").c_str()
         )
 
         (

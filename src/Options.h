@@ -532,6 +532,8 @@ private:
         "store-input-files",
         "switch-log",
 
+        "timesteps-filename",
+
         "use-mass-loss",
 
         "VMS-mass-loss",
@@ -611,6 +613,8 @@ private:
         "store-input-files",
         "switch-log",
 
+        "timesteps-filename",
+
         "version", "v",
 
         "yaml-template"
@@ -682,11 +686,13 @@ public:
             unsigned long int                                   m_RandomSeed;                                                   // Random seed to use
     
             double                                              m_MaxEvolutionTime;                                             // Maximum time to evolve a binary by
-            int                                                 m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
+            unsigned long int                                   m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
             double                                              m_TimestepMultiplier;                                           // Multiplier for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
 
             std::streamsize                                     m_GridStartLine;                                                // The grid file line to start processing (0-based)
             std::streamsize                                     m_GridLinesToProcess;                                           // The number of grid file lines to process (starting at m_GridStartLine)
+
+            std::string                                         m_TimestepsFileName;                                            // The name of the timesteps file
 
             // Initial distribution variables
 
@@ -1381,7 +1387,7 @@ public:
     MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return OPT_VALUE("mass-transfer-thermal-limit-accretor", m_MassTransferThermallyLimitedVariation.type, true); }
     double                                      MaxEvolutionTime() const                                                { return OPT_VALUE("maximum-evolution-time", m_MaxEvolutionTime, true); }
     double                                      MaximumNeutronStarMass() const                                          { return OPT_VALUE("maximum-neutron-star-mass", m_MaximumNeutronStarMass, true); }
-    int                                         MaxNumberOfTimestepIterations() const                                   { return OPT_VALUE("maximum-number-timestep-iterations", m_MaxNumberOfTimestepIterations, true); }
+    unsigned long int                           MaxNumberOfTimestepIterations() const                                   { return OPT_VALUE("maximum-number-timestep-iterations", m_MaxNumberOfTimestepIterations, true); }
     double                                      MaximumDonorMass() const                                                { return OPT_VALUE("maximum-mass-donor-nandez-ivanova", m_MaximumMassDonorNandezIvanova, true); }
     double                                      MCBUR1() const                                                          { return OPT_VALUE("mcbur1", m_mCBUR1, true); }
 
@@ -1486,6 +1492,7 @@ public:
 
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
 
+    std::string                                 TimestepsFileName() const                                               { return OPT_VALUE("timesteps-filename", m_TimestepsFileName, true); }
     double                                      TimestepMultiplier() const                                              { return m_CmdLine.optionValues.m_TimestepMultiplier; }
 
     bool                                        UseFixedUK() const                                                      { return (m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_UseFixedUK); }
