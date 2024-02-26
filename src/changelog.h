@@ -1113,4 +1113,5 @@
 //                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
 
 const std::string VERSION_STRING = "02.43.00";
+
 # endif // __changelog_h__
