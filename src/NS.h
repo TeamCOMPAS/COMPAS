@@ -86,6 +86,15 @@ protected:
     
     bool            ShouldEvolveOnPhase() const                                             { return (m_Mass <= OPTIONS->MaximumNeutronStarMass()); }               // Evolve as a neutron star unless mass > maximum neutron star mass (e.g. through accretion)
     void            SpinDownIsolatedPulsar(const double p_Stepsize);
+    DBL_DBL_DBL_DBL            PulsarAccretion(const double p_Stepsize,
+                                    const double p_MassGainPerTimeStep,
+                                    const double kappa,
+                                    const double p_Epsilon);
+    DBL_DBL_DBL_DBL            PulsarAccretion_V2(const double initial_b, const double initial_p, const double initial_am,
+                                    const double p_Stepsize,
+                                    const double p_MassGainPerTimeStep,
+                                    const double kappa,
+                                    const double p_Epsilon);
     void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
                                                const bool   p_RecycledNS,
                                                const double p_Stepsize,
