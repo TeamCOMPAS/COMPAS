@@ -412,7 +412,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     // see Equation 4 in arXiv:0903.3538v2 (Our version is in cgs)      
     double pDotTop                = constant2 * TESLA_TO_GAUSS * TESLA_TO_GAUSS * m_PulsarDetails.magneticField * m_PulsarDetails.magneticField;
     double pDot                   = pDotTop / P_f;
-    m_PulsarDetails.spinDownRate  = -_2_PI * pDot / (P_f * P_f);  
+    m_PulsarDetails.spinDownRate  = CalculateSpinDownRate(m_PulsarDetails.spinFrequency,m_MomentOfInertia_CGS  , m_PulsarDetails.magneticField, NSradius_IN_CM / KM_TO_CM);//-_2_PI * pDot / (P_f * P_f);  
     //std::cout << "spindown fdot1, " << m_PulsarDetails.spinDownRate << " spindown fdot2, " << -_2_PI * pDot / (P_f * P_f) << std::endl;
     //std::cout << "constant2: " << constant2 << " term1: " << term1 << " term2: " << term2 << " term3: " << term3 << " IP: " << initialSpinPeriod << std::endl;
     //std::cout << "Timestep: "<< p_Stepsize << " radius^6: " << NSradius_6 << "B: " << m_PulsarDetails.magneticField << " m: " << m_Mass << " MOI: " <<  m_MomentOfInertia_CGS << "period: " << P_f << std::endl;
@@ -633,8 +633,11 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
 
             m_PulsarDetails.magneticField = std::get<0>(Accretion_Results);
             m_PulsarDetails.spinFrequency = std::get<1>(Accretion_Results);
-            m_PulsarDetails.spinDownRate  = std::get<2>(Accretion_Results);
+            //m_PulsarDetails.spinDownRate  = std::get<2>(Accretion_Results);
             m_AngularMomentum_CGS         = std::get<3>(Accretion_Results);
+
+            m_PulsarDetails.spinDownRate  = CalculateSpinDownRate(m_PulsarDetails.spinFrequency,m_MomentOfInertia_CGS , m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM );//-_2_PI * pDot / (P_f * P_f);  
+
             std::cout << "at end of accretion, period is " << _2_PI/m_PulsarDetails.spinFrequency << std::endl;
         }
           
@@ -656,8 +659,10 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             double newAngularMomentum = angularMomentum + Jacc ; 
             m_PulsarDetails.magneticField = newPulsarMagneticField * GAUSS_TO_TESLA;
             m_PulsarDetails.spinFrequency = newAngularMomentum / MoI ;
-            m_PulsarDetails.spinDownRate  = (Jacc / p_Stepsize) / MoI;
+            //m_PulsarDetails.spinDownRate  = (Jacc / p_Stepsize) / MoI;
             m_AngularMomentum_CGS = newAngularMomentum ;
+            m_PulsarDetails.spinDownRate  = CalculateSpinDownRate(m_PulsarDetails.spinFrequency,m_MomentOfInertia_CGS , m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM );//-_2_PI * pDot / (P_f * P_f);  
+
             std::cout << "CE Accretion - f: " << newAngularMomentum / MoI << " and fdot: " <<  (Jacc / p_Stepsize) / MoI << std::endl;
             std::cout << "CE Accretion - dm: " << p_MassGainPerTimeStep << " p: " << _2_PI / m_PulsarDetails.spinFrequency << std::endl;
         }
