@@ -511,6 +511,9 @@ void Options::OptionValues::Initialise() {
     m_NeutronStarEquationOfState.type                               = NS_EOS::SSE;
     m_NeutronStarEquationOfState.typeString                         = NS_EOSLabel.at(m_NeutronStarEquationOfState.type);
 
+    // Neutron star accretion in common envelope
+    m_NSAccretionInCE.type                                          = NS_ACCRETION_IN_CE::ZERO;
+    m_NSAccretionInCE.typeString                                    = NS_ACCRETION_IN_CELabel.at(m_NSAccretionInCE.type) ; 
 
     // Pulsar birth magnetic field distribution
     m_PulsarBirthMagneticFieldDistribution.type                     = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO;
@@ -1739,7 +1742,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_NeutronStarEquationOfState.typeString)->default_value(p_Options->m_NeutronStarEquationOfState.typeString),                                                      
             ("Neutron star equation of state to use (" + AllowedOptionValuesFormatted("neutron-star-equation-of-state") + ", default = '" + p_Options->m_NeutronStarEquationOfState.typeString + "')").c_str()
         )
-
+        (
+            "neutron-star-accretion-in-ce",                              
+            po::value<std::string>(&p_Options->m_NSAccretionInCE.typeString)->default_value(p_Options->m_NSAccretionInCE.typeString),                                                      
+            ("Neutron star accretion in CE to use (" + AllowedOptionValuesFormatted("neutron-star-accretion-in-ce") + ", default = '" + p_Options->m_NSAccretionInCE.typeString + "')").c_str()
+        )
         (
             "OB-mass-loss",                                      
             po::value<std::string>(&p_Options->m_OBMassLoss.typeString)->default_value(p_Options->m_OBMassLoss.typeString),                                                                  
@@ -2169,6 +2176,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
         }
 
+        if (!DEFAULTED("neutron-star-accretion-in-ce")) {                                                                         // neutron star accretion in ce
+            std::tie(found, m_NSAccretionInCE.type) = utils::GetMapKey(m_NSAccretionInCE.typeString, NS_ACCRETION_IN_CELabel, m_NSAccretionInCE.type);
+            COMPLAIN_IF(!found, "Unknown Neutron Star Accretion in CE");
+        }
+
         if (!DEFAULTED("OB-mass-loss")) {                                                                    // OB (main sequence) loss prescription
             std::tie(found, m_OBMassLoss.type) = utils::GetMapKey(m_OBMassLoss.typeString, OB_MASS_LOSS_LABEL, m_OBMassLoss.type);
             COMPLAIN_IF(!found, "Unknown OB Mass Loss Prescription");
@@ -2469,6 +2481,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                           break;
         case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);          break;
         case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOSLabel);                                    break;
+        case _("neutron-star-accretion-in-ce")                      : POPULATE_RET(NS_ACCRETION_IN_CELabel);                                    break;
         case _("OB-mass-loss")                                      : POPULATE_RET(OB_MASS_LOSS_LABEL);                             break;
         case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);              break;
         case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL); break;
@@ -4544,6 +4557,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::NOTES                                          : value = Notes();                                                              break;
 
         case PROGRAM_OPTION::NS_EOS                                         : value = static_cast<int>(NeutronStarEquationOfState());                       break;
+        case PROGRAM_OPTION::NS_ACCRETION_IN_CE                             : value = static_cast<int>(NeutronStarAccretionInCE());                       break;
 
         case PROGRAM_OPTION::ORBITAL_PERIOD                                 : value = OrbitalPeriod();                                                      break;
         case PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION                    : value = static_cast<int>(OrbitalPeriodDistribution());                        break;

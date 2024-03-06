@@ -317,6 +317,7 @@ namespace yaml {
             "    --kick-magnitude-distribution",
             "    --kick-direction",
             "    --neutron-star-equation-of-state",
+            "    --neutron-star-accretion-in-ce",
             "    --neutrino-mass-loss-BH-formation",
             "    --pulsar-birth-magnetic-field-distribution",
             "    --pulsar-birth-spin-period-distribution",

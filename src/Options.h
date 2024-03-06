@@ -379,6 +379,8 @@ private:
         "maximum-mass-donor-nandez-ivanova",
         "minimum-secondary-mass",
 
+        "neutron-star-in-accretion-in-ce",
+
         "orbital-period",
         "orbital-period-distribution",
         "orbital-period-max",
@@ -501,6 +503,7 @@ private:
         "notes-hdrs",
         "neutrino-mass-loss-BH-formation",
         "neutron-star-equation-of-state",
+        "neutron-star-accretion-in-CE",
 
         "OB-mass-loss",
         "orbital-period-distribution",
@@ -932,6 +935,8 @@ public:
             // Neutron star equation of state
             ENUM_OPT<NS_EOS>                                    m_NeutronStarEquationOfState;                                   // NS EOS
 
+            // Neutron star accretion in common envelope
+            ENUM_OPT<NS_ACCRETION_IN_CE>                        m_NSAccretionInCE;                                             // NS Accretion In CE
 
             // Pulsar birth magnetic field distribution string
             ENUM_OPT<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION>  m_PulsarBirthMagneticFieldDistribution;                         // Birth magnetic field distribution for pulsars
@@ -1388,6 +1393,7 @@ public:
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-BH-formation-value", m_NeutrinoMassLossValueBH, true); }
 
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return OPT_VALUE("neutron-star-equation-of-state", m_NeutronStarEquationOfState.type, true); }
+    NS_ACCRETION_IN_CE                          NeutronStarAccretionInCE() const                                        { return OPT_VALUE("neutron-star-accretion-in-ce", m_NSAccretionInCE.type, true); }
 
     std::string                                 Notes(const size_t p_Idx) const                                         { return OPT_VALUE("notes", m_Notes[p_Idx], true); }
     std::vector<std::string>                    Notes() const                                                           { return OPT_VALUE("notes", m_Notes, true); }

@@ -642,6 +642,7 @@ enum class ERROR: int {
     UNKNOWN_MT_THERMALLY_LIMITED_VARIATION,                         // unknown mass transfer thermally limited variation
     UNKNOWN_NEUTRINO_MASS_LOSS_PRESCRIPTION,                        // unknown neutrino mass loss prescription
     UNKNOWN_NS_EOS,                                                 // unknown NS equation-of-state
+    UNKNOWN_NS_ACCRETION_IN_CE,                                     // unknown NS accretion-in-ce
     UNKNOWN_PPI_PRESCRIPTION,                                       // unknown pulsational pair instability prescription
     UNKNOWN_PROGRAM_OPTION,                                         // unknown program option
     UNKNOWN_PROPERTY_TYPE,                                          // unknown property type
@@ -784,6 +785,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown mass loss prescription" }},
     { ERROR::UNKNOWN_NEUTRINO_MASS_LOSS_PRESCRIPTION,               { ERROR_SCOPE::ALWAYS,              "Unknown neutrino mass loss prescription" }},
     { ERROR::UNKNOWN_NS_EOS,                                        { ERROR_SCOPE::ALWAYS,              "Unknown NS equation-of-state" }},
+    { ERROR::UNKNOWN_NS_ACCRETION_IN_CE,                            { ERROR_SCOPE::ALWAYS,              "Unknown NS accretion-in-ce" }},
     { ERROR::UNKNOWN_PPI_PRESCRIPTION,                              { ERROR_SCOPE::ALWAYS,              "Unknown pulsational pair instability prescription" }},
     { ERROR::UNKNOWN_PROGRAM_OPTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown program option - property details not found" }},
     { ERROR::UNKNOWN_PROPERTY_TYPE,                                 { ERROR_SCOPE::ALWAYS,              "Unknown property type - property details not found" }},
@@ -1215,6 +1217,14 @@ enum class NS_EOS: int { SSE, ARP3 };
 const COMPASUnorderedMap<NS_EOS, std::string> NS_EOSLabel = {
     { NS_EOS::SSE,  "SSE" },
     { NS_EOS::ARP3, "ARP3" }
+};
+
+// Neutron Star accretion in CE
+enum class NS_ACCRETION_IN_CE: int { ZERO, DISK, SURFACE };
+const COMPASUnorderedMap<NS_ACCRETION_IN_CE, std::string> NS_ACCRETION_IN_CELabel = {
+    { NS_ACCRETION_IN_CE::ZERO,     "ZERO" },
+    { NS_ACCRETION_IN_CE::DISK,     "DISK" },
+    { NS_ACCRETION_IN_CE::SURFACE,  "SURFACE" }
 };
 
 
@@ -2509,6 +2519,7 @@ enum class PROGRAM_OPTION: int {
     NOTES,
 
     NS_EOS,
+    NS_ACCRETION_IN_CE,
 
     ORBITAL_PERIOD,
     ORBITAL_PERIOD_DISTRIBUTION,
