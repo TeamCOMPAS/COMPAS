@@ -72,13 +72,11 @@ jobs:
            htmlcov/
            coverage_badge.svg
 
-
-            
-      - name: Archive COMPAS detailed-evolution plot
-        id: upload
-        uses: actions/upload-artifact@v3.1.2
-        with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_NAME }}
-          if-no-files-found: error
+     - name: Archive COMPAS detailed-evolution plot
+       id: upload
+       uses: actions/upload-artifact@v3.1.2
+       with:
+         name: ${{ env.ARTIFACT_NAME }}
+         path: ${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_NAME }}
+         if-no-files-found: error
 
