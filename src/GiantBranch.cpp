@@ -376,7 +376,7 @@ double GiantBranch::CalculatePerturbationMu() const {
  * function is called (and does nothing). (So far FGB is the only class that
  * defines this function where it actually does anything)
  *
- * If DEBUG_PERTURB is defined then perturbation is not disabled while debbuging.
+ * If DEBUG_PERTURB is defined then perturbation is not disabled while debugging.
  * To enable perturbation while DEBUG is enabled, define DEBUG_PERTURB.
  *
  *
@@ -692,7 +692,7 @@ double GiantBranch::CalculateRemnantRadius() const {
  *
  * @return                                      Radial extent of the star's convective envelope in Rsol
  */
-double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
+double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const {
 
 	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
 	clone.ResolveEnvelopeLoss(true);                // update clone's attributes after envelope is lost
@@ -902,17 +902,15 @@ double GiantBranch::CalculateMassLossRateHurley() {
     double rateKR = CalculateMassLossRateKudritzkiReimers();
     double rateWR = CalculateMassLossRateWolfRayet(m_Mu);
     double dominantRate;
-
+    m_DominantMassLossRate = MASS_LOSS_TYPE::GB;
     if (utils::Compare(rateNJ, rateKR) > 0) {
         dominantRate = rateNJ;
-        m_DominantMassLossRate = MASS_LOSS_TYPE::NIEUWENHUIJZEN_DE_JAGER;
     } else {
         dominantRate = rateKR;
-        m_DominantMassLossRate = MASS_LOSS_TYPE::KUDRITZKI_REIMERS;
     }
     if (utils::Compare(rateWR, dominantRate) > 0) {
         dominantRate = rateWR;
-        m_DominantMassLossRate = MASS_LOSS_TYPE::WOLF_RAYET_LIKE;
+        m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
     }
 
     return dominantRate;
@@ -1112,6 +1110,29 @@ double GiantBranch::CalculateLifetimeToHeIgnition(const double p_Mass, const dou
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
+//                               ROTATION CALCULATIONS                               //
+//                                                                                   //
+///////////////////////////////////////////////////////////////////////////////////////
+
+/*
+ * Calculate moment of inertia
+ *
+ * Hurley et al., 2000, paragraph immediately following eq 109 
+ *
+ * 
+ * double GiantBranch::CalculateMomentOfInertia()
+ * 
+ * @return                                      Moment of inertia (Msol AU^2)
+ */
+double GiantBranch::CalculateMomentOfInertia() const {
+    double Rc = CalculateRemnantRadius();
+    
+    return (0.1 * (m_Mass - m_CoreMass) * m_Radius * m_Radius) + (0.21 * m_CoreMass * Rc * Rc);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+//                                                                                   //
 //                              SUPERNOVA CALCULATIONS                               //
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1153,10 +1174,10 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
  * STELLAR_TYPE CalculateRemnantTypeBySchneider2020(const double p_COCoreMass)
  *
  * @param   [IN]    p_COCoreMass                COCoreMass in Msol
- * @param   [IN]    useSchneiderAlt             Whether to use the Schneider alt prescription 
+ * @param   [IN]    p_UseSchneiderAlt           Whether to use the Schneider alt prescription 
  * @return                                      Remnant mass in Msol
  */
-double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool p_useSchneiderAlt) {
+double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool p_UseSchneiderAlt) {
 
     double logRemnantMass;
     STYPE_VECTOR mtHist = MassTransferDonorHistory();
@@ -1190,7 +1211,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
 
         case MT_CASE::NONE:                                                                                             // No history of MT
 
-            if (!p_useSchneiderAlt) {                                                                                   // Use standard or alternative remnant mass prescription for effectively single stars?
+            if (!p_UseSchneiderAlt) {                                                                                   // Use standard or alternative remnant mass prescription for effectively single stars?
                      // standard prescription
                      if (utils::Compare(p_COCoreMass, 6.357)  < 0) { logRemnantMass = log10(0.03357*p_COCoreMass + 1.31780); }
                 else if (utils::Compare(p_COCoreMass, 7.311)  < 0) { logRemnantMass = -0.02466*p_COCoreMass + 1.28070; }
@@ -1675,12 +1696,6 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
 }
 
 
-
-
-
-
-
-
 /*
  * Driver function for Core Collapse Supernovas
  *
@@ -1859,10 +1874,10 @@ STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
  */
 STELLAR_TYPE GiantBranch::ResolveTypeIIaSN() {
 
-    m_Mass              = 0.0;
-    m_Radius            = 0.0;
-    m_Luminosity        = 0.0;
-    m_Temperature       = 0.0;
+    m_Mass        = 0.0;
+    m_Radius      = 0.0;
+    m_Luminosity  = 0.0;
+    m_Temperature = 0.0;
 
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
@@ -1962,28 +1977,26 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
             } break;
 
         case PPI_PRESCRIPTION::FARMER: {                                                                // Farmer et al. 2019 http://dx.doi.org/10.3847/1538-4357/ab518b
-            double totalMassPrePPISN = m_Mass;                                                          // Save the total stellar mass 
-                                                                                                        // Three cases:
-            if (m_COCoreMass < FARMER_PPISN_UPP_LIM_LIN_REGIME){
-                m_Mass = m_COCoreMass + 4.;                                                             // A linear relation below CO core masses of 38 Msun
-                }
-
-            else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_QUAD_REGIME) {                                 // A quadratic relation in CO core mass for 38 =< CO_core < 60
-                double a1             = -0.096;
-                double a2             = 8.564;
-                double a3             = -2.07;
-                double a4             = -152.97;
-                m_Mass = a1*pow(m_COCoreMass, 2.0)  + a2*m_COCoreMass + a3*log10(m_Metallicity) + a4  ;
+            double totalMassPrePPISN = m_Mass;                                                          // save the total stellar mass 
+                                                                                                        // three cases:
+            if (m_COCoreMass < FARMER_PPISN_UPP_LIM_LIN_REGIME) {
+                m_Mass = m_COCoreMass + 4.0;                                                            // a linear relation below CO core masses of 38 Msun
             }
-
-            else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_INSTABILLITY) {                                // No remnant between 60 - 140 Msun
-                m_Mass = 0;
+            else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_QUAD_REGIME) {                                 // a quadratic relation in CO core mass for 38 =< CO_core < 60
+                const double a1 = -0.096;
+                const double a2 = 8.564;
+                const double a3 = -2.07;
+                const double a4 = -152.97;
+                m_Mass    = a1 * PPOW(m_COCoreMass, 2.0)  + a2 * m_COCoreMass + a3 * m_Log10Metallicity + a4;
+            }
+            else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_INSTABILLITY) {                                // no remnant between 60 - 140 Msun
+                m_Mass = 0.0;
             }
             else {                                                                                      // BH mass becomes CO-core mass above the PISN gap
                 m_Mass = m_COCoreMass;
             }
 
-            m_Mass = std::min(totalMassPrePPISN, m_Mass);                                               // Check if your remnant mass is bigger than your total mass    
+            m_Mass = std::min(totalMassPrePPISN, m_Mass);                                               // check if remnant mass is bigger than total mass    
 
             } break;
 

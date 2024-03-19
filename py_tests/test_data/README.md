@@ -1,8 +1,12 @@
 # Test Data
 
-This folder contains all the COMPAS test data generated manually by running:
+This folder contains COMPAS configs used for testing. 
+COMPAS is run from within the pytest environment and the output is cached for the remainder of the tests.
+
+The pytest runs the following command:
 ```bash
-bash generate_test_data.sh
+compas_run_submit fiducial_bbh_configs.yaml
 ```
 
-These files may need to be periodically updated if the COMPAS code changes.
+The pytest cache is _not_ cleared locally (but will be cleared on the CI server).
+Hence, this may need to be rerun locally if changes are made to COMPAS.

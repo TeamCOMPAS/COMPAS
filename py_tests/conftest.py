@@ -1,16 +1,15 @@
 import os
 from typing import Any, Dict
 
+import subprocess
 import h5py
 import pytest
 from compas_python_utils.cosmic_integration.binned_cosmic_integrator.bbh_population import \
     generate_mock_bbh_population_file
 
 HERE = os.path.dirname(__file__)
-DETAILED_EVOLUTION_PATH = os.path.join(
-    HERE, "../misc/examples/methods_paper_plots/detailed_evolution"
-)
-
+TEST_CONFIG_DIR = os.path.join(HERE, "test_data")
+TEST_CONFIG_FNAME = os.path.join(TEST_CONFIG_DIR, "fiducial_bbh_config.yaml")
 TEST_ARCHIVE_DIR = os.path.join(HERE, "test_artifacts")
 
 
@@ -21,15 +20,19 @@ def example_compas_output_path(clean=False):
     (This is a fixture so it can passed as a parameter to other tests)
     """
     compas_data_path = os.path.join(
-        DETAILED_EVOLUTION_PATH, "COMPAS_Output/COMPAS_Output.h5"
+        TEST_CONFIG_DIR, "COMPAS_Output/COMPAS_Output.h5"
     )
 
     if not os.path.exists(compas_data_path) or clean:  # Check if path exists
         curr_dir = os.getcwd()
-        os.chdir(DETAILED_EVOLUTION_PATH)
-        os.system("python runSubmitDemo.py")
+        os.chdir(TEST_CONFIG_DIR)
+        cmd = f"compas_run_submit {TEST_CONFIG_FNAME}"
+        # run the command in shell "compas_run_submit {TEST_CONFIG_FNAME}" with subprocess
+        subprocess.run(cmd, shell=True, check=True)
+
         os.chdir(curr_dir)
         print("Generated COMPAS test data")
+
 
     return compas_data_path
 

@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Wed Nov  1 11:25:11 2023 by COMPAS v02.40.00
+##~!!~## File Created Tue Oct 31 10:11:32 2023 by COMPAS v02.40.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -10,7 +10,7 @@ booleanChoices:
 
     ### LOGISTICS
 #    --debug-to-file: False                                                # Default: False
-#    --detailed-output: False                                              # Default: False                                                                                                                                                              # WARNING! this creates a data heavy file
+     --detailed-output: True                                              # Default: False                                                                                                                                                              # WARNING! this creates a data heavy file
 #    --enable-warnings: False                                              # Default: False                                                                                                                                                              # option to enable/disable warning messages
 #    --errors-to-file: False                                               # Default: False
 #    --evolve-unbound-systems: True                                        # Default: True
@@ -99,7 +99,7 @@ numericalChoices:
 #    --rotational-frequency: 0.000000                                      # Default: 0.000000
 #    --rotational-frequency-1: 0.000000                                    # Default: 0.000000
 #    --rotational-frequency-2: 0.000000                                    # Default: 0.000000
-#    --wolf-rayet-multiplier: 1.000000                                     # Default: 1.000000
+#    --wolf-rayet-multiplier: 0.100000                                     # Default: 0.100000
 
     ### BINARY PROPERTIES
 #    --eccentricity: 0.000000                                              # Default: 0.000000                                                                                                                                                           # eccentricity for BSE
@@ -205,7 +205,7 @@ stringChoices:
 
     ### LOGISTICS
 #    --add-options-to-sysparms: 'GRID'                                     # Default: 'GRID'                        # Options: ['NEVER','GRID','ALWAYS']
-#    --grid: ''                                                            # Default: ''                                                                                                                                                                 # grid file name (e.g. 'mygrid.txt')
+     --grid: 'grid.txt'                                               # Default: ''                                                                                                                                                                 # grid file name (e.g. 'mygrid.txt')
 #    --mode: 'BSE'                                                         # Default: 'BSE'                         # Options: ['BSE','SSE']                                                                                                             # evolving single (SSE) or binary stars (BSE)
 #    --notes: { }                                                          # Default: { }
 #    --notes-hdrs: { }                                                     # Default: { }
@@ -216,11 +216,7 @@ stringChoices:
 #    --envelope-state-prescription: 'LEGACY'                               # Default: 'LEGACY'                      # Options: ['FIXED_TEMPERATURE','HURLEY','LEGACY']
 #    --initial-mass-function: 'KROUPA'                                     # Default: 'KROUPA'                      # Options: ['KROUPA','UNIFORM','POWERLAW','SALPETER']
 #    --luminous-blue-variable-prescription: 'HURLEY_ADD'                   # Default: 'HURLEY_ADD'                  # Options: ['BELCZYNSKI','HURLEY','HURLEY_ADD','NONE']
-#    --mass-loss-prescription: 'FLEXIBLE2023'                              # Default: 'FLEXIBLE2023'                # Options: ['FLEXIBLE2023','BELCZYNSKI2010','HURLEY','NONE']
-#    --OB-mass-loss: 'VINK2021'                                            # Default: 'VINK2021'                    # Options: ['KRTICKA2018','BJORKLUND2022','VINK2021','VINK2001','NONE']
-#    --RSG-mass-loss: 'DECIN2023'                                          # Default: 'DECIN2023'                   # Options: ['NJ90','KEE2021','YANG2023','DECIN2023','BEASOR2020','VINKSABHAHIT2023','NONE']
-#    --VMS-mass-loss: 'SABHAHIT2023'                                       # Default: 'SABHAHIT2023'                # Options: ['SABHAHIT2023','BESTENLEHNER2020','VINK2011','NONE']
-#    --WR-mass-loss: 'SANDERVINK2023'                                      # Default: 'SANDERVINK2023'              # Options: ['SHENAR2019','SANDERVINK2023','BELCZYNSKI2010']
+#    --mass-loss-prescription: 'VINK'                                      # Default: 'VINK'                        # Options: ['VINK','HURLEY','NONE']
 #    --metallicity-distribution: 'ZSOLAR'                                  # Default: 'ZSOLAR'                      # Options: ['LOGUNIFORM','ZSOLAR']
 #    --pulsational-pair-instability-prescription: 'MARCHANT'               # Default: 'MARCHANT'                    # Options: ['FARMER','MARCHANT','STARTRACK','COMPAS']
 
@@ -256,7 +252,7 @@ stringChoices:
 #    --pulsar-birth-spin-period-distribution: 'ZERO'                       # Default: 'ZERO'                        # Options: ['NORMAL','UNIFORM','FIXED','ZERO']
 #    --remnant-mass-prescription: 'MULLERMANDEL'                           # Default: 'MULLERMANDEL'                # Options: ['SCHNEIDER2020ALT','SCHNEIDER2020','MULLERMANDEL','MULLER2016','FRYER2022','FRYER2012','BELCZYNSKI2002','HURLEY2000']
 
-    ### LOGFILES AND OUTPUTS 
+    ### LOGFILES AND OUTPUTS
 #    --logfile-type: 'HDF5'                                                # Default: 'HDF5'                        # Options: ['TXT','TSV','CSV','HDF5','NONE']
 #    --logfile-name-prefix: ''                                             # Default: ''
 #    --logfile-definitions: ''                                             # Default: ''
@@ -271,7 +267,7 @@ stringChoices:
 #    --output-path: '.'                                                    # Default: '.'
 
 
-listChoices: 
+listChoices:
 
 #    --log-classes: { }                                                    # Default: { }
 #    --debug-classes: { }                                                  # Default: { }
