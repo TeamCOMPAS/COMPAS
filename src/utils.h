@@ -21,7 +21,7 @@ namespace utils {
 
     std::string                         CentreJustify(const std::string p_Str, std::size_t p_Width);
 
-    int                                 Compare(const double p_X, const double p_Y);
+    int                                 Compare(const double p_X, const double p_Y, const double p_Tolerance = -1.0, const bool p_Absolute = true);
 
     double                              ConvertPeriodInDaysToSemiMajorAxisInAU(const double p_Mass1, const double p_Mass2, const double p_Period);
 
@@ -136,7 +136,11 @@ namespace utils {
 
     std::tuple<ERROR, double>           SolveQuadratic(const double p_A, const double p_B, double p_C);
 
+    bool                                BracketTolerance(const double p_Bracket1, const double p_Bracket2);
+
     std::string                         SplashScreen(const bool p_Print = true);
+
+    std::tuple<ERROR, DBL_VECTOR>       ReadTimesteps(const std::string p_TimestepsFileName);
 
 }
 

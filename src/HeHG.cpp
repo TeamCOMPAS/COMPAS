@@ -448,13 +448,13 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
     
     if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {        // Envelope lost - determine what type of star to form
 
-        m_Mass      = std::min(m_COCoreMass, m_Mass);
-        m_CoreMass  = m_Mass;
-        m_HeCoreMass= m_Mass;
-        m_COCoreMass= m_Mass;
-        m_Mass0     = m_Mass;
-        m_Radius    = COWD::CalculateRadiusOnPhase_Static(m_Mass);
-        m_Age       = 0.0;
+        m_Mass       = std::min(m_COCoreMass, m_Mass);
+        m_CoreMass   = m_Mass;
+        m_HeCoreMass = m_Mass;
+        m_COCoreMass = m_Mass;
+        m_Mass0      = m_Mass;
+        m_Radius     = COWD::CalculateRadiusOnPhase_Static(m_Mass);
+        m_Age        = 0.0;
         if (!IsSupernova()) {
             stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;         //Note that this uses the CO core mass, rather than the core mass at base of AGB or He mass at He star birth suggested by Hurley+, 2000
         }

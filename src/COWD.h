@@ -26,7 +26,6 @@ public:
 
 
     // member functions
-           void   CalculateAngularMomentum() const { }                                                                                                          // NO-OP
 
     static double CalculateLuminosityOnPhase_Static(const double p_Mass, 
                                                     const double p_Time, 

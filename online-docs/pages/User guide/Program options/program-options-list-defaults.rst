@@ -349,6 +349,10 @@ Default = 0.0
 Multiplication factor for Eddington accretion for NS & BH (i.e. > 1 is super-eddington and 0 is no accretion). |br|
 Default = 1.0
 
+**--enable-tides** |br|
+Enables tides. |br|
+Default = FALSE
+
 **--enable-warnings** |br|
 Display warning messages to stdout. |br|
 Default = FALSE
@@ -409,7 +413,7 @@ Default = 5.75
 :ref:`Back to Top <options-props-top>`
 
 **--grid** |br|
-Grid filename. |br|
+Grid filename. (See :doc:`Grid files <../grid-files>`) |br|
 Default = ’’ (None)
 
 **--grid-lines-to-process** |br|
@@ -935,6 +939,12 @@ Default = 10
 
 :ref:`Back to Top <options-props-top>`
 
+**--OB-mass-loss** |br|
+Main sequence mass loss prescription. |br|
+Options: { NONE, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018 } |br|
+NONE turns off mass loss for main sequence stars. Also available are Vink (2001, previous default), Vink (2021), Bjorklund (2022), and Krticka (2018).   |br|
+Default = VINK2021
+
 **--orbital-period** |br|
 Initial orbital period for a binary star when evolving in BSE mode (days). |br|
 Used only if the semi-major axis is not specified via ``--semi-major-axis``. |br|
@@ -1101,6 +1111,12 @@ Options: { ZERO, HURLEY, VLTFLAMES } |br|
 ``ZERO`` sets all initial rotational velocities to 0, while ``HURLEY`` and ``VLTFLAMES`` sample them from the Hurley, Pols, Tout (2000) and Ramirez-Agudelo et al. (2013,2015), respectively |br|
 Default = ZERO
 
+**--RSG-mass-loss** |br|
+Red supergiant mass loss prescription. |br|
+Options: { NONE, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
+NONE turns off mass loss for giant (CHeB, FGB, AGB, TPAGB stellar types) stars below the RSG_MAXIMUM_TEMP. Also available are Vink and Sabhahit (2023), Beasor et al. (2020), Decin et al. (2023), Yang et al. (2023), Kee et. al (2021), and Nieuwenhuijzen and de Jager (1990, previous default).   |br|
+Default = DECIN2023
+
 .. _options-props-S:
 
 :ref:`Back to Top <options-props-top>`
@@ -1145,6 +1161,10 @@ Default = FALSE
 
 :ref:`Back to Top <options-props-top>`
 
+**--timestep-filename** |br|
+User-defined timesteps filename. (See :doc:`Timestep files <../timestep-files>`) |br|
+Default = ’’ (None)
+
 **--timestep-multiplier** |br|
 Multiplicative factor for timestep duration. |br|
 Default = 1.0
@@ -1169,6 +1189,12 @@ Default = TRUE
 **--version [ -v ]** |br|
 Prints COMPAS version string.
 
+**--VMS-mass-loss** |br|
+Very massive main sequence mass loss prescription. |br|
+Options: { NONE, VINK2011, SABHAHIT2023, BESTENLEHNER2020 } |br|
+Applied above the VERY_MASSIVE_MINIMUM_MASS (100 Msol by default). NONE turns off mass loss. Also available are Vink (2011), Bestenlehner (2020), and Sabhahit (2023).   |br|
+Default = SABHAHIT2023
+
 .. _options-props-W:
 
 :ref:`Back to Top <options-props-top>`
@@ -1177,6 +1203,12 @@ Prints COMPAS version string.
 Multiplicative constant for Wolf Rayet winds. Note that wind mass loss will also be multiplied by the
 ``overall-wind-mass-loss-multiplier``. |br|
 Default = 1.0
+
+**--WR-mass-loss** |br|
+Wolf-Rayet mass loss prescription. |br|
+Options: { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 } |br|
+Selects between Belczynski (2010), Sander and Vink (2021 updated), and Shenar (2019).   |br|
+Default = SANDERVINK2023
 
 .. _options-props-X:
 .. _options-props-Y:
@@ -1235,7 +1267,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, 
 --luminous-blue-variable-multiplier, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
---expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold
+--expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold,
+--OB-mass-loss, --RSG-mass-loss, --VMS-mass-loss, --WR-mass-loss
 
 --chemically-homogeneous-evolution
 
@@ -1256,7 +1289,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
---circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation
+--circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --enable-tides
 
 --envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-formalism,
 --common-envelope-lambda-prescription, --common-envelope-lambda, 
@@ -1295,7 +1328,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Administrative**
 
 --mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-pulsars, --evolve-unbound-systems, --maximum-evolution-time, --maximum-number-timestep-iterations,
---random-seed, --timestep-multiplier
+--random-seed, --timestep-multiplier, --timestep-filename
 
 --grid, --grid-start-line, --grid-lines-to-process
 

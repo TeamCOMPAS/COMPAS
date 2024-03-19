@@ -13,8 +13,8 @@
 
 #include <boost/math/tools/roots.hpp>
 
-#include <boost/math/special_functions/next.hpp>    // For float_distance.
-#include <boost/math/special_functions/cbrt.hpp>    // For boost::math::cbrt.
+//#include <boost/math/special_functions/next.hpp>    // For float_distance.
+//#include <boost/math/special_functions/cbrt.hpp>    // For boost::math::cbrt.
 
 #include <tuple>                                    // for std::tuple and std::make_tuple.
 
@@ -83,6 +83,7 @@ public:
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
 
+        m_Omega                            = p_Star.m_Omega;
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
 
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
@@ -109,6 +110,7 @@ public:
         m_TimePrev                         = p_Star.m_TimePrev;
         m_TimeToCoalescence                = p_Star.m_TimeToCoalescence;
 
+        m_TotalAngularMomentumPrev         = p_Star.m_TotalAngularMomentumPrev;
         m_TotalAngularMomentum             = p_Star.m_TotalAngularMomentum;
 
         m_TotalEnergy                      = p_Star.m_TotalEnergy;
@@ -216,10 +218,11 @@ public:
     bool                MassesEquilibratedAtBirth() const           { return m_Flags.massesEquilibratedAtBirth; }
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_Flags.mergesInHubbleTime; }
+    double              Omega() const                               { return m_Omega; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
-    double              OrbitalAngularVelocity() const              { return std::sqrt(G1 * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
+    double              OrbitalAngularVelocity() const              { return std::sqrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
-    double              Periastron() const                          { return m_SemiMajorAxis * (1.0-m_Eccentricity); }
+    double              Periastron() const                          { return m_SemiMajorAxis * (1.0 - m_Eccentricity); }
     double              PeriastronRsol() const                      { return Periastron() * AU_TO_RSOL; }
     double              Radius1PostCEE() const                      { return m_Star1->RadiusPostCEE(); }
     double              Radius2PostCEE() const                      { return m_Star2->RadiusPostCEE(); }
@@ -348,6 +351,7 @@ private:
 
     MT_TRACKING         m_MassTransferTrackerHistory;
 
+    double              m_Omega;                                                            // Orbital frequency
     double              m_OrbitalVelocityPreSN;
 
     BinaryRLOFDetailsT  m_RLOFDetails;                                                      // RLOF details
@@ -374,6 +378,7 @@ private:
     double              m_DCOFormationTime;                                                 // Time of DCO formation
 
     double              m_TotalAngularMomentum;
+    double              m_TotalAngularMomentumPrev;
 
     double              m_TotalEnergy;
 
@@ -402,35 +407,16 @@ private:
 
     // member functions - alphabetical in groups (sort of...)
 
-    // CalculateAngularMomentum - the actual function takes 10 parameters because of the various calling permutations
-    //                          - various signatures are defined here - they just assemble the parameters as required
-    //                            and call the actual function
-    // JR: todo: note in the original code the binary orbital velicity was passed in as a parameter but never used - I removed it
-
-    void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
-    void    SetRemainingValues();
-
     double  CalculateAngularMomentum(const double p_SemiMajorAxis,
                                      const double p_Eccentricity,
                                      const double p_Star1Mass,
                                      const double p_Star2Mass,
-                                     const double p_Star1Radius,
-                                     const double p_Star2Radius,
-                                     const double p_Star1_SpinAngularVelocity,
-                                     const double p_Star2_SpinAngularVelocity,
-                                     const double p_Star1_GyrationRadius,
-                                     const double p_Star2_GyrationRadius) const;
+                                     const double p_Star1SpinAngularVelocity,
+                                     const double p_Star2SpinAngularVelocity,
+                                     const double p_Star1MomentOfInertia,
+                                     const double p_Star2MomentOfInertia) const;
 
-    double  CalculateAngularMomentum() const                                    { return CalculateAngularMomentum(m_SemiMajorAxis, m_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
-
-    double  CalculateAngularMomentum(const double p_SemiMajorAxis,
-                                     const double p_Eccentricity,
-                                     const double p_Star1_SpinAngularVelocity,
-                                     const double p_Star2_SpinAngularVelocity,
-                                     const double p_Star1_GyrationRadius,
-                                     const double p_Star2_GyrationRadius) const { return CalculateAngularMomentum(p_SemiMajorAxis, p_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), p_Star1_SpinAngularVelocity, p_Star2_SpinAngularVelocity, p_Star1_GyrationRadius, p_Star2_GyrationRadius); }
-
-    double  CalculateAngularMomentumPrev() const                                { return CalculateAngularMomentum(m_SemiMajorAxisPrev, m_EccentricityPrev, m_Star1->MassPrev(), m_Star2->MassPrev(), m_Star1->RadiusPrev(), m_Star2->RadiusPrev(), m_Star1->OmegaPrev(), m_Star2->OmegaPrev(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
+    double  CalculateAngularMomentum() const                                    { return CalculateAngularMomentum(m_SemiMajorAxis, m_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateMomentOfInertiaAU(), m_Star2->CalculateMomentOfInertiaAU()); }
 
     void    CalculateEnergyAndAngularMomentum();
 
@@ -448,39 +434,28 @@ private:
     void    CalculateWindsMassLoss();
     void    InitialiseMassTransfer();
 
-    double  CalculateOrbitalAngularMomentum(const double p_Mu,
-                                            const double p_Mass,
-                                            const double p_SemiMajorAxis) const { return p_Mu * std::sqrt(G1 * p_Mass * p_SemiMajorAxis); }
+    double  CalculateOrbitalAngularMomentum(const double p_Star1Mass,
+                                            const double p_Star2Mass,
+                                            const double p_SemiMajorAxis,
+                                            const double p_Eccentricity) const  { return ((p_Star1Mass * p_Star2Mass) / (p_Star1Mass + p_Star2Mass)) * std::sqrt(G_AU_Msol_yr * (p_Star1Mass + p_Star2Mass) * p_SemiMajorAxis * (1.0 - (p_Eccentricity * p_Eccentricity))); }
 
     double  CalculateOrbitalEnergy(const double p_Mu,
                                    const double p_Mass,
-                                   const double p_SemiMajorAxis) const          { return -(G1 * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
+                                   const double p_SemiMajorAxis) const          { return -(G_AU_Msol_yr * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
 
     double  CalculateZetaRocheLobe(const double p_jLoss) const;
 
     double  CalculateTimeToCoalescence(double a0, double e0, double m1, double m2) const;
 
-    // CalculateTotalEnergy - the actual function takes 9 parameters because of the various calling permutations
-    //                      - various signatures are defined here - they just assemble the parameters as required
-    //                        and call the actual function
     double  CalculateTotalEnergy(const double p_SemiMajorAxis,
                                  const double p_Star1Mass,
                                  const double p_Star2Mass,
-                                 const double p_Star1Radius,
-                                 const double p_Star2Radius,
-                                 const double p_Star1_SpinAngularVelocity,
-                                 const double p_Star2_SpinAngularVelocity,
-                                 const double p_Star1GyrationRadius,
-                                 const double p_Star2GyrationRadius) const;
+                                 const double p_Star1SpinAngularVelocity,
+                                 const double p_Star2SpinAngularVelocity,
+                                 const double p_Star1MomentOfInertia,
+                                 const double p_Star2MomentOfInertia) const;
 
-    double  CalculateTotalEnergy() const                                    { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateGyrationRadius(), m_Star2->CalculateGyrationRadius()); }
-
-    double  CalculateTotalEnergy(const double p_SemiMajorAxis,
-                                 const double p_Star1_SpinAngularVelocity,
-                                 const double p_Star2_SpinAngularVelocity,
-                                 const double p_Star1_GyrationRadius,
-                                 const double p_Star2_GyrationRadius) const { return CalculateTotalEnergy(p_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Radius(), m_Star2->Radius(), p_Star1_SpinAngularVelocity, p_Star2_SpinAngularVelocity, p_Star1_GyrationRadius, p_Star2_GyrationRadius); }
-
+    double  CalculateTotalEnergy() const                                    { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateMomentOfInertiaAU(), m_Star2->CalculateMomentOfInertiaAU()); }
 
     void    EvaluateBinary(const double p_Dt);
 
@@ -493,6 +468,9 @@ private:
     void    ResolveCommonEnvelopeEvent();
     void    ResolveMassChanges();
     bool    ResolveSupernova();
+
+    void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
+    void    SetRemainingValues();
 
     void    SetPostCEEValues(const double p_SemiMajorAxis,
                              const double p_Eccentricity,
@@ -517,8 +495,7 @@ private:
         return LOGGING->LogBSESystemParameters(this, p_RecordType);
     }
     
-    bool PrintDetailedOutput(const long int p_Id, 
-                             const BSE_DETAILED_RECORD_TYPE p_RecordType) const {
+    bool PrintDetailedOutput(const long int p_Id, const BSE_DETAILED_RECORD_TYPE p_RecordType) const {
         return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id, p_RecordType) : true;
     }
     
@@ -541,91 +518,254 @@ private:
     }
 
     
-    //Functor for the boost root finder to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
+    /*
+     * Functor for MassLossToFitInsideRocheLobe()
+     *
+     *
+     * Constructor: initialise the class
+     * template <class T> RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted)
+     *
+     * @param   [IN]    p_Binary                    (Pointer to) The binary star under examination
+     * @param   [IN]    p_Donor                     (Pointer to) The star donating mass
+     * @param   [IN]    p_Accretor                  (Pointer to) The star accreting mass
+     * @param   [IN]    p_FractionAccreted          The fraction of the donated mass accreted by the accretor
+     * @param   [IN]    p_Error                     (Address of variable to record) Error encountered in functor
+     * 
+     * Function: calculate radius difference after mass loss
+     * T RadiusEqualsRocheLobeFunctor(double const& p_dM)
+     * 
+     * @param   [IN]    p_dM                        Mass to be donated
+     * @return                                      Difference between star's Roche Lobe radius and radius after mass loss
+     */    
     template <class T>
-    struct RadiusEqualsRocheLobeFunctor
-    {
-        RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, ERROR *p_Error, double p_FractionAccreted)
-        {
+    struct RadiusEqualsRocheLobeFunctor {
+        RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, ERROR *p_Error) {
             m_Binary           = p_Binary;
             m_Donor            = p_Donor;
             m_Accretor         = p_Accretor;
             m_Error            = p_Error;
             m_FractionAccreted = p_FractionAccreted;
         }
-        T operator()(double const& dM)
-        {
-            if (dM >= m_Donor->Mass()) {            // Can't remove more than the donor's mass
-                *m_Error = ERROR::TOO_MANY_RLOF_ITERATIONS;
-                return m_Donor->Radius();
+        T operator()(double const& p_dM) {
+
+            if (p_dM >= m_Donor->Mass()) {                  // Can't remove more than the donor's mass
+                *m_Error = ERROR::TOO_MANY_RLOF_ITERATIONS; // set error
+                return 1000.0 * ROOT_ABS_TOLERANCE;         // arbitrary value to indicate no (sensible) solution found
             }
 
             double donorMass    = m_Donor->Mass();
             double accretorMass = m_Accretor->Mass();
 
             BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
-            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -dM , *m_Accretor, m_FractionAccreted);
-            double RLRadius      = semiMajorAxis * (1 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - dM, accretorMass + (m_Binary->FractionAccreted() * dM)) * AU_TO_RSOL;
+            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -p_dM , *m_Accretor, m_FractionAccreted);
+            double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (m_Binary->FractionAccreted() * p_dM)) * AU_TO_RSOL;
             
-            (void)donorCopy->UpdateAttributes(-dM, -dM*donorCopy->Mass0()/donorCopy->Mass());
+            (void)donorCopy->UpdateAttributes(-p_dM, -p_dM * donorCopy->Mass0() / donorCopy->Mass());
             
             // Modify donor Mass0 and Age for MS (including HeMS) and HG stars
-            donorCopy->UpdateInitialMass();         // update initial mass (MS, HG & HeMS)  
-            donorCopy->UpdateAgeAfterMassLoss();    // update age (MS, HG & HeMS)
+            donorCopy->UpdateInitialMass();                 // update initial mass (MS, HG & HeMS)  
+            donorCopy->UpdateAgeAfterMassLoss();            // update age (MS, HG & HeMS)
             
-            (void)donorCopy->AgeOneTimestep(0.0);   // recalculate radius of star - don't age - just update values
+            (void)donorCopy->AgeOneTimestep(0.0);           // recalculate radius of star - don't age - just update values
             
             double thisRadiusAfterMassLoss = donorCopy->Radius();
             
             delete donorCopy; donorCopy = nullptr;
             
-            return (RLRadius-thisRadiusAfterMassLoss);
+            return (RLRadius - thisRadiusAfterMassLoss);
         }
     private:
-        BaseBinaryStar *m_Binary;
+        BaseBinaryStar        *m_Binary;
         BinaryConstituentStar *m_Donor;
         BinaryConstituentStar *m_Accretor;
-        ERROR *m_Error;
-        double m_FractionAccreted;
+        ERROR                 *m_Error;
+        double                 m_FractionAccreted;
     };
-    
-  
-    //Root solver to determine how much mass needs to be lost from a donor without an envelope in order to fit inside the Roche lobe
-    double MassLossToFitInsideRocheLobe(BaseBinaryStar * p_Binary, BinaryConstituentStar * p_Donor, BinaryConstituentStar * p_Accretor, double p_FractionAccreted)
-    {
-        using namespace std;                                                    // Help ADL of std functions.
-        using namespace boost::math::tools;                                     // For bracket_and_solve_root.
-        
-        double guess  = ADAPTIVE_RLOF_FRACTION_DONOR_GUESS * p_Donor->Mass();   // Rough guess at solution
-        double factor = ADAPTIVE_RLOF_SEARCH_FACTOR;                            // Size of search steps
-        
-        const boost::uintmax_t maxit = ADAPTIVE_RLOF_MAX_ITERATIONS;            // Limit to maximum iterations.
-        boost::uintmax_t it = maxit;                                            // Initially our chosen max iterations, but updated with actual.
-        bool is_rising = true;                                                  // So if result with guess is too low, then try increasing guess.
-        int digits = std::numeric_limits<double>::digits;                       // Maximum possible binary digits accuracy for type T.
 
-        // Some fraction of digits is used to control how accurate to try to make the result.
-        int get_digits = digits - 5;                                            // We have to have a non-zero interval at each step, so
 
-        // maximum accuracy is digits - 1.  But we also have to
-        // allow for inaccuracy in f(x), otherwise the last few
-        // iterations just thrash around.
-        eps_tolerance<double> tol(get_digits);                                  // Set the tolerance.
+    /*
+     * Root solver to determine how much mass needs to be lost from a donor without an envelope
+     * in order to fit inside the Roche lobe
+     *
+     * Uses boost::math::tools::bracket_and_solve_root()
+     *
+     *
+     * double MassLossToFitInsideRocheLobe(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted)
+     *
+     * @param   [IN]    p_Binary                    (Pointer to) The binary star under examination
+     * @param   [IN]    p_Donor                     (Pointer to) The star donating mass
+     * @param   [IN]    p_Accretor                  (Pointer to) The star accreting mass
+     * @param   [IN]    p_FractionAccreted          The fraction of the donated mass accreted by the accretor
+     * @return                                      Root found: will be -1.0 if no acceptable real root found
+     */    
+    double MassLossToFitInsideRocheLobe(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted) {
         
-        std::pair<double, double> root;
-        try {
-            ERROR error = ERROR::NONE;
-            root = bracket_and_solve_root(RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor, &error, p_FractionAccreted), guess, factor, is_rising, tol, it);
-            if (error != ERROR::NONE) SHOW_WARN(error);
+        const boost::uintmax_t maxit = ADAPTIVE_RLOF_MAX_ITERATIONS;                                        // Limit to maximum iterations.
+        boost::uintmax_t it          = maxit;                                                               // Initially our chosen max iterations, but updated with actual.
+
+        // find root
+        // we use an iterative algorithm to find the root here:
+        //    - if the root finder throws an exception, we stop and return a negative value for the root (indicating no root found)
+        //    - if the root finder reaches the maximum number of (internal) iterations, we stop and return a negative value for the root (indicating no root found)
+        //    - if the root finder returns a solution, we check that func(solution) = 0.0 +/ ROOT_ABS_TOLERANCE
+        //       - if the solution is acceptable, we stop and return the solution
+        //       - if the solution is not acceptable, we reduce the search step size and try again
+        //       - if we reach the maximum number of search step reduction iterations, or the search step factor reduces to 1.0 (so search step size = 0.0),
+        //         we stop and return a negative value for the root (indicating no root found)
+       
+        double guess      = ADAPTIVE_RLOF_FRACTION_DONOR_GUESS * p_Donor->Mass();                           // Rough guess at solution
+ 
+        double factorFrac = ADAPTIVE_RLOF_SEARCH_FACTOR_FRAC;                                               // search step size factor fractional part
+        double factor     = 1.0 + factorFrac;                                                               // factor to determine search step size (size = guess * factor)
+
+        std::pair<double, double> root(-1.0, -1.0);                                                         // initialise root - default return
+        std::size_t tries = 0;                                                                              // number of tries
+        bool done         = false;                                                                          // finished (found root or exceed maximum tries)?
+        ERROR error       = ERROR::NONE;
+        RadiusEqualsRocheLobeFunctor<double> func = RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor, p_FractionAccreted, &error); // no need to check error here
+        while (!done) {                                                                                     // while no error and acceptable root found
+            bool isRising = func((const double)guess) >= func((const double)guess * factor) ? false : true; // gradient direction from guess to upper search increment
+
+            // run the root finder
+            // regardless of any exceptions or errors, display any problems as a warning, then
+            // check if the root returned is within tolerance - so even if the root finder
+            // bumped up against the maximum iterations, or couldn't bracket the root, use
+            // whatever value it ended with and check if it's good enough for us - not finding
+            // an acceptable root should be the exception rather than the rule, so this strategy
+            // shouldn't cause undue performance issues.
+            try {
+                error = ERROR::NONE;
+                root = boost::math::tools::bracket_and_solve_root(func, guess, factor, isRising, utils::BracketTolerance, it); // find root
+                // root finder returned without raising an exception
+                if (error != ERROR::NONE) { SHOW_WARN(error); }                                             // root finder encountered an error
+                else if (it >= maxit) { SHOW_WARN(ERROR::TOO_MANY_RLOF_ITERATIONS); }                       // too many root finder iterations
+            }
+            catch(std::exception& e) {                                                                      // catch generic boost root finding error
+                // root finder exception
+                // could be too many iterations, or unable to bracket root - it may not
+                // be a hard error - so no matter what the reason is that we are here,
+                // we'll just emit a warning and keep trying
+                if (it >= maxit) { SHOW_WARN(ERROR::TOO_MANY_RLOF_ITERATIONS); }                            // too many root finder iterations
+                else             { SHOW_WARN(ERROR::ROOT_FINDER_FAILED, e.what()); }                        // some other problem - show it as a warning
+            }
+
+            // we have a solution from the root finder - it may not be an acceptable solution
+            // so we check if it is within our preferred tolerance
+            if (fabs(func(root.first + (root.second - root.first) / 2.0)) <= ROOT_ABS_TOLERANCE) {          // solution within tolerance?
+                done = true;                                                                                // yes - we're done
+            }
+            else {                                                                                          // no - try again
+                // we don't have an acceptable solution - reduce search step size and try again
+                factorFrac /= 2.0;                                                                          // reduce fractional part of factor
+                factor      = 1.0 + factorFrac;                                                             // new search step size
+                tries++;                                                                                    // increment number of tries
+                if (tries > ADAPTIVE_RLOF_MAX_TRIES || fabs(factor - 1.0) <= ROOT_ABS_TOLERANCE) {          // too many tries, or step size 0.0?
+                    // we've tried as much as we can - fail here with -ve return value
+                    root.first  = -1.0;                                                                     // yes - set error return
+                    root.second = -1.0;
+                    SHOW_WARN(ERROR::TOO_MANY_RLOF_TRIES);                                                  // show warning
+                    done = true;                                                                            // we're done
+                }
+            }
         }
-        catch(exception& e) {
-            SHOW_ERROR(ERROR::TOO_MANY_RLOF_ITERATIONS, e.what());              // Catch generic boost root finding error
-            m_Donor->Radius();
-        }
-        SHOW_WARN_IF(it>=maxit, ERROR::TOO_MANY_RLOF_ITERATIONS);
         
-        return root.first + (root.second - root.first)/2;                       // Midway between brackets is our result, if necessary we could return the result as an interval here.
+        return root.first + (root.second - root.first) / 2.0;                                               // Midway between brackets is our result, if necessary we could return the result as an interval here.
     }
+
+
+    /*
+     * Root solver to determine rotational frequency after synchronisation for tides
+     *
+     * Uses boost::math::tools::bracket_and_solve_root()
+     *
+     *
+     * double OmegaAfterSynchronisation(const double p_M1, const double p_M2, const double p_I1, const double p_I2, const double p_Omega)
+     *
+     * @param   [IN]    p_M1                        Mass of star 1
+     * @param   [IN]    p_M2                        Mass of star 2
+     * @param   [IN]    p_I1                        Moment of inertia of star 1
+     * @param   [IN]    p_I2                        Moment of inertia of star 1
+     * @param   [IN]    p_Ltot                      Total angular momentum for binary
+     * @param   [IN]    p_Guess                     Initial guess for value of root
+     * @return                                      Root found: will be -1.0 if no acceptable real root found
+     */    
+    double OmegaAfterSynchronisation(const double p_M1, const double p_M2, const double p_I1, const double p_I2, const double p_Ltot, const double p_Guess) {
+        
+        const boost::uintmax_t maxit = TIDES_OMEGA_MAX_ITERATIONS;                                          // maximum iterations for root finder
+        boost::uintmax_t it          = maxit;                                                               // initially max iterations, but updated with actual count
+  
+        // define functor
+        // function: (I_1 + I_2) Omega + L(Omega) - p_Ltot = 0
+        //    where L(Omega) = b*Omega(-1/3)
+        double a = p_I1 + p_I2;                                                                             // I_1 + I_2
+        double b = PPOW(G_AU_Msol_yr, 2.0 / 3.0) * p_M1 * p_M2 / std::cbrt(p_M1 + p_M2);
+        double c = -p_Ltot;
+
+        auto func = [a, b, c](double x) -> double { return (a * x) + (b / std::cbrt(x)) + c; };             // functor
+
+        // find root
+        // we use an iterative algorithm to find the root here:
+        //    - if the root finder throws an exception, we stop and return a negative value for the root (indicating no root found)
+        //    - if the root finder reaches the maximum number of (internal) iterations, we stop and return a negative value for the root (indicating no root found)
+        //    - if the root finder returns a solution, we check that func(solution) = 0.0 +/ ROOT_ABS_TOLERANCE
+        //       - if the solution is acceptable, we stop and return the solution
+        //       - if the solution is not acceptable, we reduce the search step size and try again
+        //       - if we reach the maximum number of search step reduction iterations, or the search step factor reduces to 1.0 (so search step size = 0.0),
+        //         we stop and return a negative value for the root (indicating no root found)
+
+        double factorFrac = TIDES_OMEGA_SEARCH_FACTOR_FRAC;                                                 // search step size factor fractional part
+        double factor     = 1.0 + factorFrac;                                                               // factor to determine search step size (size = guess * factor)
+
+        std::pair<double, double> root(-1.0, -1.0);                                                         // initialise root - default return
+        std::size_t tries = 0;                                                                              // number of tries
+        bool done         = false;                                                                          // finished (found root or exceed maximum tries)?
+        while (!done) {                                                                                     // while no acceptable root found
+            bool isRising = func(p_Guess) >= func(p_Guess * factor) ? false : true;                         // gradient direction from guess to upper search increment
+
+            // run the root finder
+            // regardless of any exceptions or errors, display any problems as a warning, then
+            // check if the root returned is within tolerance - so even if the root finder
+            // bumped up against the maximum iterations, or couldn't bracket the root, use
+            // whatever value it ended with and check if it's good enough for us - not finding
+            // an acceptable root should be the exception rather than the rule, so this strategy
+            // shouldn't cause undue performance issues.
+            try {
+                root = boost::math::tools::bracket_and_solve_root(func, p_Guess, factor, isRising, utils::BracketTolerance, it); // find root
+                // root finder returned without raising an exception
+                if (it >= maxit) { SHOW_WARN(ERROR::TOO_MANY_OMEGA_ITERATIONS); }                           // too many root finder iterations
+            }
+            catch(std::exception& e) {                                                                      // catch generic boost root finding error
+                // root finder exception
+                // could be too many iterations, or unable to bracket root - it may not
+                // be a hard error - so no matter what the reason is that we are here,
+                // we'll just emit a warning and keep trying
+                if (it >= maxit) { SHOW_WARN(ERROR::TOO_MANY_OMEGA_ITERATIONS); }                           // too many root finder iterations
+                else             { SHOW_WARN(ERROR::ROOT_FINDER_FAILED, e.what()); }                        // some other problem - show it as a warning
+            }
+
+            // we have a solution from the root finder - it may not be an acceptable solution
+            // so we check if it is within our preferred tolerance
+            if (fabs(func(root.first + (root.second - root.first) / 2.0)) <= ROOT_ABS_TOLERANCE) {          // solution within tolerance?
+                done = true;                                                                                // yes - we're done
+            }
+            else {                                                                                          // no - try again
+                // we don't have an acceptable solution - reduce search step size and try again
+                factorFrac /= 2.0;                                                                          // reduce fractional part of factor
+                factor      = 1.0 + factorFrac;                                                             // new search step size
+                tries++;                                                                                    // increment number of tries
+                if (tries > TIDES_OMEGA_MAX_TRIES || fabs(factor - 1.0) <= ROOT_ABS_TOLERANCE) {            // too many tries, or step size 0.0?
+                    // we've tried as much as we can - fail here with -ve return value
+                    root.first  = -1.0;                                                                     // yes - set error return
+                    root.second = -1.0;
+                    SHOW_WARN(ERROR::TOO_MANY_OMEGA_TRIES);                                                 // show warning
+                    done = true;                                                                            // we're done
+                }
+            }
+        }
+
+        return root.first + (root.second - root.first) / 2.0;                                               // midway between brackets (could return brackets...)
+    }
+    
 };
 
 #endif // __BaseBinaryStar_h__

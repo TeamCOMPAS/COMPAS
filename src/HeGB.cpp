@@ -41,6 +41,9 @@ double HeGB::CalculateLuminosityOnPhase_Static(const double p_CoreMass, const do
  */
 std::tuple<double, double> HeGB::CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Luminosity) {
 
+    // sanity check for mass and luminosity - just return 0.0 if mass or luminosity <= 0
+    if (utils::Compare(p_Mass, 0.0) <= 0 || utils::Compare(p_Luminosity, 0.0) <= 0) return std::make_tuple(0.0, 0.0);
+
     double RZHe = HeMS::CalculateRadiusAtZAMS_Static(p_Mass);
     double LTHe = CalculateLuminosityAtPhaseEnd_Static(p_Mass);
 

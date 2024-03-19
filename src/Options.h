@@ -333,6 +333,7 @@ private:
         "eccentricity-distribution",
         "eccentricity-max",
         "eccentricity-min",
+        "enable-tides",
         "evolve-double-white-dwarfs",
         "evolve-pulsars",
         "evolve-unbound-systems",
@@ -437,6 +438,7 @@ private:
         "detailed-output",
 
         "eccentricity-distribution",
+        "enable-tides",
         "enable-warnings",
         "envelope-state-prescription",
         "errors-to-file",
@@ -500,6 +502,7 @@ private:
         "neutrino-mass-loss-BH-formation",
         "neutron-star-equation-of-state",
 
+        "OB-mass-loss",
         "orbital-period-distribution",
         "output-container", "c",
         "outputPath", "o",
@@ -514,6 +517,7 @@ private:
 
         "quiet", 
 
+        "RSG-mass-loss",
         "random-seed",
         "remnant-mass-prescription",
         "revised-energy-formalism-nandez-ivanova",
@@ -525,9 +529,14 @@ private:
         "store-input-files",
         "switch-log",
 
+        "timesteps-filename",
+
         "use-mass-loss",
 
+        "VMS-mass-loss",
         "version", "v",
+
+        "WR-mass-loss"
 
         "yaml-template"
     };
@@ -601,6 +610,8 @@ private:
         "store-input-files",
         "switch-log",
 
+        "timesteps-filename",
+
         "version", "v",
 
         "yaml-template"
@@ -672,11 +683,13 @@ public:
             unsigned long int                                   m_RandomSeed;                                                   // Random seed to use
     
             double                                              m_MaxEvolutionTime;                                             // Maximum time to evolve a binary by
-            int                                                 m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
+            unsigned long int                                   m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
             double                                              m_TimestepMultiplier;                                           // Multiplier for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
 
             std::streamsize                                     m_GridStartLine;                                                // The grid file line to start processing (0-based)
             std::streamsize                                     m_GridLinesToProcess;                                           // The number of grid file lines to process (starting at m_GridStartLine)
+
+            std::string                                         m_TimestepsFileName;                                            // The name of the timesteps file
 
             // Initial distribution variables
 
@@ -803,6 +816,11 @@ public:
             ENUM_OPT<LBV_PRESCRIPTION>                          m_LuminousBlueVariablePrescription;                             // Which LBV mass loss prescription to use
             double                                              m_LuminousBlueVariableFactor;                                   // Multiplicitive factor for luminous blue variable (LBV) mass loss rates when using Belczynski’s prescription
             double                                              m_WolfRayetFactor;                                              // Multiplicitive factor for Wolf-Rayet (WR) wind mass loss rates
+            ENUM_OPT<OB_MASS_LOSS>                              m_OBMassLoss; 
+            ENUM_OPT<VMS_MASS_LOSS>                             m_VMSMassLoss;                                                  // Which mass loss prescription for M > 100 Msol        
+            ENUM_OPT<RSG_MASS_LOSS>                             m_RSGMassLoss;                                                  // Which mass loss prescription to use for RSG       
+            ENUM_OPT<WR_MASS_LOSS>                              m_WRMassLoss;                                                   // Which mass loss prescription to use for WR       
+
 
             // Mass transfer options
             bool                                                m_UseMassTransfer;                                              // Whether to use mass transfer (default = true)
@@ -894,6 +912,10 @@ public:
 	        bool                                                m_RevisedEnergyFormalismNandezIvanova;			                // Use the revised energy formalism from Nandez & Ivanova 2016 (default = false)
 	        double                                              m_MaximumMassDonorNandezIvanova;								// Maximum mass allowed to use the revised energy formalism in Msol (default = 2.0)
 	        double                                              m_CommonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 erg/g)
+
+
+            // Tides
+            bool                                                m_EnableTides;                                                   // Whether to enable tides (default = False)
 
 
             // Zetas
@@ -1206,6 +1228,7 @@ public:
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
     bool                                        DetailedOutput() const                                                  { return m_CmdLine.optionValues.m_DetailedOutput; }
 
+    bool                                        EnableTides() const                                                     { return OPT_VALUE("enable-tides", m_EnableTides, true); }
     bool                                        EnableWarnings() const                                                  { return m_CmdLine.optionValues.m_EnableWarnings; }
     bool                                        ErrorsToFile() const                                                    { return m_CmdLine.optionValues.m_ErrorsToFile; }
     double                                      Eccentricity() const                                                    { return OPT_VALUE("eccentricity", m_Eccentricity, true); }
@@ -1352,7 +1375,7 @@ public:
     MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return OPT_VALUE("mass-transfer-thermal-limit-accretor", m_MassTransferThermallyLimitedVariation.type, true); }
     double                                      MaxEvolutionTime() const                                                { return OPT_VALUE("maximum-evolution-time", m_MaxEvolutionTime, true); }
     double                                      MaximumNeutronStarMass() const                                          { return OPT_VALUE("maximum-neutron-star-mass", m_MaximumNeutronStarMass, true); }
-    int                                         MaxNumberOfTimestepIterations() const                                   { return OPT_VALUE("maximum-number-timestep-iterations", m_MaxNumberOfTimestepIterations, true); }
+    unsigned long int                           MaxNumberOfTimestepIterations() const                                   { return OPT_VALUE("maximum-number-timestep-iterations", m_MaxNumberOfTimestepIterations, true); }
     double                                      MaximumDonorMass() const                                                { return OPT_VALUE("maximum-mass-donor-nandez-ivanova", m_MaximumMassDonorNandezIvanova, true); }
     double                                      MCBUR1() const                                                          { return OPT_VALUE("mcbur1", m_mCBUR1, true); }
 
@@ -1378,6 +1401,7 @@ public:
     std::vector<std::string>                    NotesHdrs() const                                                       { return m_CmdLine.optionValues.m_NotesHdrs; }
  
     size_t                                      nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
+    OB_MASS_LOSS                                OBMassLoss() const                                                      { return OPT_VALUE("OB-mass-loss", m_OBMassLoss.type, true); }
     bool                                        OptimisticCHE() const                                                   { CHE_MODE che = OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); return che == CHE_MODE::OPTIMISTIC; }
 
     double                                      OrbitalPeriod() const                                                   { return OPT_VALUE("orbital-period", m_OrbitalPeriod, true); }
@@ -1434,7 +1458,8 @@ public:
     double                                      RotationalFrequency() const                                             { return OPT_VALUE("rotational-frequency", m_RotationalFrequency, true); }
     double                                      RotationalFrequency1() const                                            { return OPT_VALUE("rotational-frequency-1", m_RotationalFrequency1, true); }
     double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
-   
+    RSG_MASS_LOSS                               RSGMassLoss() const                                                     { return OPT_VALUE("RSG-mass-loss", m_RSGMassLoss.type, true); }
+
     double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis, true); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }
     double                                      SemiMajorAxisDistributionMax() const                                    { return OPT_VALUE("semi-major-axis-max", m_SemiMajorAxisDistributionMax, true); }
@@ -1455,6 +1480,7 @@ public:
 
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
 
+    std::string                                 TimestepsFileName() const                                               { return OPT_VALUE("timesteps-filename", m_TimestepsFileName, true); }
     double                                      TimestepMultiplier() const                                              { return m_CmdLine.optionValues.m_TimestepMultiplier; }
 
     bool                                        UseFixedUK() const                                                      { return (m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_UseFixedUK); }
@@ -1463,7 +1489,9 @@ public:
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
 
+    VMS_MASS_LOSS                               VMSMassLoss() const                                                     { return OPT_VALUE("VMS-mass-loss", m_VMSMassLoss.type, true); }
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
+    WR_MASS_LOSS                                WRMassLoss() const                                                      { return OPT_VALUE("WR-mass-loss", m_WRMassLoss.type, true); }
 
     std::string                                 YAMLfilename() const                                                    { return m_CmdLine.optionValues.m_YAMLfilename; }
     std::string                                 YAMLtemplate() const                                                    { return m_CmdLine.optionValues.m_YAMLtemplate; }

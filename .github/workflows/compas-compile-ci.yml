@@ -13,8 +13,8 @@ on:
 jobs:
   compas:
     env:
-      ARTIFACT_NAME: artifact.txt
-      ARTIFACT_PATH: ./
+      ARTIFACT_NAME: detailedEvolutionPlot.eps
+      ARTIFACT_PATH: py_tests/test_artifacts
     name: Build COMPAS
     runs-on: ${{ matrix.os}}
     container: ${{matrix.container}}
@@ -23,11 +23,58 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
     steps:
+     - uses: actions/checkout@v3
+     
+     - uses: actions/setup-python@v4
+       with:
+         python-version: '3.9'
+         cache: 'pip' # caching pip dependencies
 
-      - name: Create something to artifact
-        run: echo "stuff I want to artifact" > "$ARTIFACT_PATH/$ARTIFACT_NAME"
+     - name: Install dependencies on ubuntu
+       if: startsWith(matrix.os, 'ubuntu-20')
+       run: |
+         cd misc/cicd-scripts
+         chmod 755 linux-dependencies
+         ./linux-dependencies
 
-      - name: Upload Artifact
+     - name: Build Compas
+       run: |
+         cd src && make -j $(nproc) -f Makefile
+         ./COMPAS -v
+
+     - name: Run example COMPAS job
+       run: |
+         pip install --upgrade pip
+         pip install -e .[dev]
+         export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+         cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
+         chmod 755 run.sh
+         cat run.sh
+         ./run.sh
+
+     - name: Run pytests
+       # Run tests and collect coverage data
+       run: |
+         cd ${GITHUB_WORKSPACE}
+         export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+         jupyter-kernelspec list
+         pytest --cov=compas_python_utils/ py_tests/ -m 'not webtest'
+         pytest --cov=compas_python_utils/ --cov-append py_tests/ -m webtest
+         ls py_tests/test_artifacts
+         coverage html
+         coverage-badge -o coverage_badge.svg -f
+
+     - name: Archive code coverage results
+       uses: actions/upload-artifact@v3
+       with:
+         name: code-coverage
+         path: |
+           htmlcov/
+           coverage_badge.svg
+
+
+            
+      - name: Archive COMPAS detailed-evolution plot
         id: upload
         uses: actions/upload-artifact@v3.1.2
         with:
@@ -35,69 +82,3 @@ jobs:
           path: ${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_NAME }}
           if-no-files-found: error
 
-
-
-
-#jobs:
-#  compas:
-#    name: Build COMPAS
-#    runs-on: ${{ matrix.os}}
-#    container: ${{matrix.container}}
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        os: [ubuntu-20.04]
-#    steps:
-#      - uses: actions/checkout@v3
-#      - uses: actions/setup-python@v4
-#        with:
-#          python-version: '3.9'
-#          cache: 'pip' # caching pip dependencies
-#
-#      - name: Install dependencies on ubuntu
-#        if: startsWith(matrix.os, 'ubuntu-20')
-#        run: |
-#          cd misc/cicd-scripts
-#          chmod 755 linux-dependencies
-#          ./linux-dependencies
-#
-#      - name: Build Compas
-#        run: |
-#          cd src && make -j $(nproc) -f Makefile
-#          ./COMPAS -v
-#
-#      - name: Run example COMPAS job
-#        run: |
-#          pip install --upgrade pip
-#          pip install -e .[dev]
-#          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
-#          cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
-#          chmod 755 run.sh
-#          cat run.sh
-#          ./run.sh
-#
-#      - name: Run pytests
-#        # Run tests and collect coverage data
-#        run: |
-#          cd ${GITHUB_WORKSPACE}
-#          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
-#          jupyter-kernelspec list
-#          pytest --cov=compas_python_utils/ py_tests/ -m 'not webtest'
-#          pytest --cov=compas_python_utils/ --cov-append py_tests/ -m webtest
-#          coverage html
-#          coverage-badge -o coverage_badge.svg -f
-#
-#      - name: Archive code coverage results
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: code-coverage
-#          path: |
-#            htmlcov/
-#            coverage_badge.svg
-#
-#      - name: Archive COMPAS run data
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: COMPAS-run-artifacts
-#          path: |
-#            py_tests/test_artifacts

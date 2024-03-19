@@ -161,7 +161,6 @@ public:
     double          CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
     
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }
-    double          CalculateGyrationRadius() const                                                                 { return m_Star->CalculateGyrationRadius(); }
 
     void            CalculateLambdas()                                                                              { m_Star->CalculateLambdas(); }
     void            CalculateLambdas(const double p_EnvMass)                                                        { m_Star->CalculateLambdas(p_EnvMass); }
@@ -172,8 +171,8 @@ public:
 
     double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false)        { return m_Star->CalculateMassLossValues(p_UpdateMDot, p_UpdateMDt); }
 
-    double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                              { return m_Star->CalculateMomentOfInertia(p_RemnantRadius); }
-    double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const                            { return m_Star->CalculateMomentOfInertiaAU(p_RemnantRadius); }
+    double          CalculateMomentOfInertia() const                                                                { return m_Star->CalculateMomentOfInertia(); }
+    double          CalculateMomentOfInertiaAU() const                                                              { return m_Star->CalculateMomentOfInertiaAU(); }
 
     void            CalculateSNAnomalies(const double p_Eccentricity)                                               { m_Star->CalculateSNAnomalies(p_Eccentricity); }
     
@@ -205,7 +204,7 @@ public:
 
     EVOLUTION_STATUS Evolve(const long int p_Id);
 
-    double          EvolveOneTimestep(const double p_Dt);
+    double          EvolveOneTimestep(const double p_Dt, const bool p_Force = false);
 
     double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription)                              { return m_Star->InterpolateGe20QCrit(p_qCritPrescription); }
     void            HaltWinds()                                                                                     { m_Star->HaltWinds(); }
@@ -268,6 +267,8 @@ private:
 
     BaseStar        *m_Star;                    // pointer to current star
     BaseStar        *m_SaveStar;                // pointer to saved star
+
+    std::vector<double> m_Timesteps;            // timesteps vector - for debugging/testing
 
 };
 
