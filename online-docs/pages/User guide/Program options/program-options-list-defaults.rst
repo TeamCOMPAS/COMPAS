@@ -379,6 +379,10 @@ Default = 0.0
 Multiplication factor for Eddington accretion for NS & BH (i.e. > 1 is super-eddington and 0 is no accretion). |br|
 Default = 1.0
 
+**--emit-gravitational-radiation**  |br|
+Emit gravitational radiation at each timestep of binary evolution according to Peters 1964. |br|
+Default = FALSE
+
 **--enable-warnings** |br|
 Display warning messages to stdout. |br|
 Default = FALSE
@@ -1440,7 +1444,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Administrative**
 
---mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-main-sequence-mergers, --evolve-pulsars, --evolve-unbound-systems, --mass-change-fraction, 
+--mode, --number-of-systems, --emit-gravitational-radiation, --evolve-double-white-dwarfs, --evolve-main-sequence-mergers, --evolve-pulsars, --evolve-unbound-systems, --mass-change-fraction, 
 --maximum-evolution-time, --maximum-number-timestep-iterations,
 --radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename
 
