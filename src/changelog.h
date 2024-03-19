@@ -1263,8 +1263,10 @@
 //                                      - Reinstate correctly functioning code for floating-point error handling for Linux
 //                                      - Disable floating-point error handling for MacOS - until I can figure out how to
 //                                        make it work properly for both INTEL and ARM architectures.
+// 03.01.00    APB - Aug 24, 2024   - Enhancement:
+//                                      - Implemented gravitational radiation at each timestep of binary evolution. Available with new '--emit-gravitational-radiation' option.  Updates time step dynamically if required.
 
 
-const std::string VERSION_STRING = "03.00.05";
+const std::string VERSION_STRING = "03.01.00";
 
 # endif // __changelog_h__

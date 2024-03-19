@@ -77,6 +77,7 @@ namespace yaml {
             "    ### LOGISTICS",
             "    --debug-to-file",
             "    --detailed-output                                               # WARNING! this creates a data heavy file",
+            "    --emit-gravitational-radiation",
             "    --enable-warnings                                               # option to enable/disable warning messages",
             "    --errors-to-file",
             "    --evolve-main-sequence-mergers",
