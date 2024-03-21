@@ -215,10 +215,10 @@ STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
 
     if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
 
-    m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;                                // Don't need to worry about stashing SNe for SSE since this is a uniquely binary phenomenon
-    m_SupernovaDetails.HeCoreMassAtCOFormation = 0.0; 
-    m_SupernovaDetails.COCoreMassAtCOFormation = 0.0; 
-    m_SupernovaDetails.coreMassAtCOFormation   = 0.0; 
+    m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;
+    m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
+    m_SupernovaDetails.COCoreMassAtCOFormation = m_COCoreMass;
+    m_SupernovaDetails.coreMassAtCOFormation   = m_CoreMass;
     SetSNHydrogenContent();                                                             // SN to be H-poor. 
 
     m_Mass                                = MECS_REM;                                   // defined in constants.h
@@ -245,11 +245,11 @@ STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
 STELLAR_TYPE WhiteDwarfs::ResolveSNIa() { 
 
     if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
-    
-    m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;                                // Don't need to worry about stashing SNe for SSE since this is a uniquely binary phenomenon
-    m_SupernovaDetails.HeCoreMassAtCOFormation = 0.0; 
-    m_SupernovaDetails.COCoreMassAtCOFormation = 0.0; 
-    m_SupernovaDetails.coreMassAtCOFormation   = 0.0; 
+
+    m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;
+    m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
+    m_SupernovaDetails.COCoreMassAtCOFormation = m_COCoreMass;
+    m_SupernovaDetails.coreMassAtCOFormation   = m_CoreMass;
     SetSNHydrogenContent();                                                             // SN to be H-poor. 
         
     m_Mass       = 0.0;
