@@ -898,14 +898,14 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     if (p_NoCheck || (utils::Compare(m_CoreMass, m_Mass)) >= 0 || m_EnvelopeJustExpelledByPulsations) {
         
-        m_Mass      = std::min(m_CoreMass, m_Mass);
-        m_CoreMass  = m_Mass;
-        m_HeCoreMass= m_Mass;
-        m_COCoreMass= m_Mass;
-        m_Mass0     = m_Mass;
-        m_Radius    = COWD::CalculateRadiusOnPhase_Static(m_Mass);
-        m_Age       = 0.0;
-        stellarType = (utils::Compare(gbParams(McBAGB), OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
+        m_Mass       = std::min(m_CoreMass, m_Mass);
+        m_CoreMass   = m_Mass;
+        m_HeCoreMass = m_Mass;
+        m_COCoreMass = m_Mass;
+        m_Mass0      = m_Mass;
+        m_Radius     = COWD::CalculateRadiusOnPhase_Static(m_Mass);
+        m_Age        = 0.0;
+        stellarType  = (utils::Compare(gbParams(McBAGB), OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }
 
     return stellarType;
