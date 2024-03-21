@@ -1109,7 +1109,9 @@
 //                                      - calling code for MassLossToFitInsideRocheLobe() and Mass0ToMatchDesiredCoreMass() now handles -ve return:
 //                                           - if MassLossToFitInsideRocheLobe() returns -ve value (i.e. no root found), the binary immediately enters a CE phase
 //                                           - if Mass0ToMatchDesiredCoreMass() returns -ve value (i.e. no root found), an arbitrary value is used for core mass (see code for value)
+// 02.42.02    RTW - Mar 21, 2024    - Minor enhancement:
+//                                           - Added output parameter TZAMS for internal variable m_TZAMS
 
-const std::string VERSION_STRING = "02.42.01";
+const std::string VERSION_STRING = "02.42.02";
 
 # endif // __changelog_h__
