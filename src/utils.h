@@ -136,7 +136,11 @@ namespace utils {
 
     std::tuple<ERROR, double>           SolveQuadratic(const double p_A, const double p_B, double p_C);
 
+    bool                                BracketTolerance(const double p_Bracket1, const double p_Bracket2);
+
     std::string                         SplashScreen(const bool p_Print = true);
+
+    std::tuple<ERROR, DBL_VECTOR>       ReadTimesteps(const std::string p_TimestepsFileName);
 
 }
 

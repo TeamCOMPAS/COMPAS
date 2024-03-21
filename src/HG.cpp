@@ -1108,7 +1108,7 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                  // envelope loss
 
-        m_Mass       = std::min(m_CoreMass, m_Mass);
+        m_Mass = std::min(m_CoreMass, m_Mass);
 
         if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {                   // star evolves to Helium White Dwarf
 

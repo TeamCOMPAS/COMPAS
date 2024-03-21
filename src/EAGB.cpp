@@ -772,6 +772,12 @@ double EAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
                                            const DBL_VECTOR &p_BnCoefficients) {
 #define b p_BnCoefficients  // for convenience and readability - undefined at end of function
 
+    // sanity check for mass and luminosity - just return 0.0 if mass or luminosity <= 0
+    // doing this will save some compute cycles - but it is not strictly what the equation in Hurley says
+    // (Hurley et al. 2000, eq 74 and immediately following) - there if mass is 0.0 but luminosity is
+    // non-zero we get a non-zero value for radius (shouldn't happen, but we need to code for all possibilities)
+    if (utils::Compare(p_Mass, 0.0) <= 0 || utils::Compare(p_Luminosity, 0.0) <= 0) return 0.0;
+
     // calculate radius constant A (Hurley et al. 2000, eq 74)
     // and coefficient b(50)
     double A;
@@ -1000,17 +1006,17 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     if(ShouldEnvelopeBeExpelledByPulsations())          { m_EnvelopeJustExpelledByPulsations = true; }
 
-    if (p_NoCheck || utils::Compare(m_HeCoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {              // Envelope lost, form an evolved naked helium giant
+    if (p_NoCheck || utils::Compare(m_HeCoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) { // Envelope lost, form an evolved naked helium giant
 
-        m_Mass     = std::min(m_HeCoreMass, m_Mass);
-        m_HeCoreMass  = m_Mass;
-        m_Mass0    = m_Mass;
-        m_CoreMass = m_COCoreMass;
+        m_Mass       = std::min(m_HeCoreMass, m_Mass);
+        m_HeCoreMass = m_Mass;
+        m_Mass0      = m_Mass;
+        m_CoreMass   = m_COCoreMass;
 
-        double p1   = gbParams(p) - 1.0;
-        double q1   = gbParams(q) - 1.0;
-        double p1_p = p1 / gbParams(p);
-        double q1_q = q1 / gbParams(q);
+        double p1    = gbParams(p) - 1.0;
+        double q1    = gbParams(q) - 1.0;
+        double p1_p  = p1 / gbParams(p);
+        double q1_q  = q1 / gbParams(q);
 
         timescales(tHeMS) = HeMS::CalculateLifetimeOnPhase_Static(m_Mass);  // calculate common values
 
@@ -1020,7 +1026,7 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * PPOW((LTHe / gbParams(Lx)), p1_p);
         timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
 
-        m_Age      = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
+        m_Age = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
         HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, LogMetallicityXi(), m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams);  // IM: order of type change and parameter updates to be revisited (e.g., why not just CalculateGBParams(m_Mass0, m_GBParams)?)  JR: static function has no access to class variables
         m_Luminosity = HeGB::CalculateLuminosityOnPhase_Static(m_COCoreMass, gbParams(B), gbParams(D));
 
@@ -1032,7 +1038,7 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         }
         else {
             m_Radius    = R2;
-            stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH;     // Has a deep convective envelope
+            stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH;                                 // Has a deep convective envelope
         }
     }
 

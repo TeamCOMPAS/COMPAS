@@ -1088,8 +1088,28 @@
 //                                      - Change to functionality (noted above) noted in 'What's New' online documentation page
 // 02.41.04     JR - Dec 30, 2023    - Defect repair:
 //                                      - Fix for issue #1048
+// 02.41.05     YS - Jan 31, 2024    - Bug fix:
+//                                      - Fix for issue #1058: fixing calculation of pulsar spin period
+// 02.41.06     JR - Feb 10, 2024    - Defect repair:
+//                                      - Fix for issue #1057:
+//                                            HeMS::CalculateMomentOfInertia() falls back to MainSequence::CalculateMomentOfInertia()
+//                                            HeHG::CalculateMomentOfInertia() falls back to GiantBranch::CalculateMomentOfInertia()
+//                                      - Added sanity checks for mass and luminosity where necessary in variants of CalculateRadiusOnPhase_Static()
+// 02.42.00     JR - Jan 08, 2024    - Enhancements, defect repair, a little cleanup
+//                                      - added `timesteps-filename` option to allow users to provide preset timesteps for both SSE and BSE
+//                                      - updated documentation for new option; updated `What's New`
+//                                      - SSE vs BSE consistency: modified SSE to evolve a single star exactly as the primary in a wide binary with small companion
+//                                      - quantised timesteps to an integral multiple of 1E-12Myr - new constant `TIMESTEP_QUANTUM` in constants.h
+//                                      - little bit of code cleanup
+//                                      - added warning for stellar type switch not taken - just a diagnostic for now
+// 02.42.01     JR - Jan 21, 2024    - Defect repair
+//                                      - fix for issue 1066 - see issue/PR for explanation
+//                                      - cleaned up root solvers OmegaAfterSynchronisation(), MassLossToFitInsideRocheLobe(), and Mass0ToMatchDesiredCoreMass(), and their respective functors
+//                                      - MassLossToFitInsideRocheLobe(), and Mass0ToMatchDesiredCoreMass() now return -1.0 if no acceptable root found
+//                                      - calling code for MassLossToFitInsideRocheLobe() and Mass0ToMatchDesiredCoreMass() now handles -ve return:
+//                                           - if MassLossToFitInsideRocheLobe() returns -ve value (i.e. no root found), the binary immediately enters a CE phase
+//                                           - if Mass0ToMatchDesiredCoreMass() returns -ve value (i.e. no root found), an arbitrary value is used for core mass (see code for value)
 
-const std::string VERSION_STRING = "02.41.04";
-
+const std::string VERSION_STRING = "02.42.01";
 
 # endif // __changelog_h__
