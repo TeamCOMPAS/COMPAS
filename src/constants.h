@@ -263,8 +263,8 @@ constexpr double G_SOLAR_YEAR                           = 3.14E7;               
 
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
+constexpr double ZSOL_ASPLUND				            = 0.0142;						                            // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double LOG10_ZSOL                             = -1.69897;                                                 // log10(ZSOL) - for performance
-constexpr double ZSOL_ASPLUND                           = 0.0142;                                                   // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
 constexpr double LSOL                                   = 3.844E33;                                                 // Solar Luminosity in erg/s
 constexpr double LSOLW                                  = 3.844E26;                                                 // Solar luminosity (in W)
@@ -1534,6 +1534,28 @@ const std::initializer_list<STELLAR_TYPE> EVOLVABLE_TYPES = {
     STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS
 };
 
+
+// Allowed initial stellar types (STAR is used here as the default MS in place of either MS_LTE_07 or MS_GT_07 as these get set later depending on initial mass
+const std::initializer_list<STELLAR_TYPE> INITIAL_STELLAR_TYPE = {
+    STELLAR_TYPE::STAR,                                    
+    STELLAR_TYPE::NAKED_HELIUM_STAR_MS,                    
+    STELLAR_TYPE::HELIUM_WHITE_DWARF,                      
+    STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF,               
+    STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,                 
+    STELLAR_TYPE::NEUTRON_STAR,                            
+    STELLAR_TYPE::BLACK_HOLE,                              
+};
+// unordered_map for allowed initial stellar types - key is integer stellar type (from enum class STELLAR_TYPE above)
+const COMPASUnorderedMap<STELLAR_TYPE, std::string> INITIAL_STELLAR_TYPE_LABEL = {
+    { STELLAR_TYPE::STAR,                                      "MS" },
+    { STELLAR_TYPE::NAKED_HELIUM_STAR_MS,                      "HeMS" },
+    { STELLAR_TYPE::HELIUM_WHITE_DWARF,                        "HeWD" },
+    { STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF,                 "COWD" },
+    { STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,                   "ONeWD" },
+    { STELLAR_TYPE::NEUTRON_STAR,                              "NS" },
+    { STELLAR_TYPE::BLACK_HOLE,                                "BH" },
+};
+
 // (convenience) initializer list for MAIN SEQUENCE stars (does not include NAKED_HELIUM_STAR_MS)
 const std::initializer_list<STELLAR_TYPE> MAIN_SEQUENCE = {
     STELLAR_TYPE::MS_LTE_07,
@@ -1861,8 +1883,11 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     HE_CORE_MASS_AT_COMMON_ENVELOPE,                 \
     HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        \
     ID,                                              \
+    INITIAL_LUMINOSITY,                              \
+    INITIAL_RADIUS,                                  \
     INITIAL_STELLAR_TYPE,                            \
     INITIAL_STELLAR_TYPE_NAME,                       \
+    INITIAL_TEMPERATURE,                             \
     IS_AIC,                                          \
     IS_CCSN,                                         \
     IS_HeSD,                                         \
@@ -2017,8 +2042,11 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::HE_CORE_MASS_AT_COMMON_ENVELOPE,                 "HE_CORE_MASS_AT_COMMON_ENVELOPE" },
     { STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        "HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION" },
     { STAR_PROPERTY::ID,                                              "ID" },
-    { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "INITIAL_STELLAR_TYPE" },
-    { STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                       "INITIAL_STELLAR_TYPE_NAME" },
+    { STAR_PROPERTY::INITIAL_LUMINOSITY,                              "INITIAL_LUMINOSITY" },
+    { STAR_PROPERTY::INITIAL_RADIUS,                                  "INITIAL_RADIUS" },
+    { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "STELLAR_TYPE" },
+    { STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                       "STELLAR_TYPE_NAME" },
+    { STAR_PROPERTY::INITIAL_TEMPERATURE,                             "INITIAL_TEMPERATURE" },
     { STAR_PROPERTY::IS_AIC,                                          "IS_AIC" },
     { STAR_PROPERTY::IS_CCSN,                                         "IS_CCSN" },
     { STAR_PROPERTY::IS_HeSD,                                         "IS_HeSD" },
@@ -2465,6 +2493,10 @@ enum class PROGRAM_OPTION: int {
     INITIAL_MASS_FUNCTION_MIN,
     INITIAL_MASS_FUNCTIONPOWER,
 
+    INITIAL_STELLAR_TYPE,
+    INITIAL_STELLAR_TYPE_1,
+    INITIAL_STELLAR_TYPE_2,
+
     KICK_DIRECTION_DISTRIBUTION,
     KICK_DIRECTION_POWER,
     KICK_SCALING_FACTOR,
@@ -2674,6 +2706,10 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                        "INITIAL_MASS_FUNCTION_MAX" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                        "INITIAL_MASS_FUNCTION_MIN" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                       "INITIAL_MASS_FUNCTIONPOWER" },
+
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE,                             "INITIAL_STELLAR_TYPE" },
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE_1,                           "INITIAL_STELLAR_TYPE_1" },
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE_2,                           "INITIAL_STELLAR_TYPE_2" },
 
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                      "KICK_DIRECTION_DISTRIBUTION" },
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                             "KICK_DIRECTION_POWER" },
@@ -2899,24 +2935,27 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::EXPERIENCED_PPISN,                                 { TYPENAME::BOOL,             "Experienced_PPISN",               "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_RLOF,                                  { TYPENAME::BOOL,             "Experienced_RLOF",                "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_SNIA,                                  { TYPENAME::BOOL,             "Experienced_SNIA",                "Event",             0, 0 }},
-    { ANY_STAR_PROPERTY::EXPERIENCED_SN_TYPE,                               { TYPENAME::SN_EVENT,         "Experienced_SN_Type",             "-",                 4, 1 }},
-    { ANY_STAR_PROPERTY::EXPERIENCED_USSN,                                  { TYPENAME::BOOL,             "Experienced_USSN",                "Event",             0, 0 }},
-    { ANY_STAR_PROPERTY::FALLBACK_FRACTION,                                 { TYPENAME::DOUBLE,           "Fallback_Fraction",               "-",                14, 6 }},
-    { ANY_STAR_PROPERTY::HE_CORE_MASS,                                      { TYPENAME::DOUBLE,           "Mass_He_Core",                    "Msol",             14, 6 }},
-    { ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,           "Mass_He_Core@CE",                 "Msol",             14, 6 }},
-    { ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,          { TYPENAME::DOUBLE,           "Mass_He_Core@CO",                 "Msol",             14, 6 }},
-    { ANY_STAR_PROPERTY::ID,                                                { TYPENAME::OBJECT_ID,        "ID",                              "-",                12, 1 }},
-    { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE,                              { TYPENAME::STELLAR_TYPE,     "Stellar_Type@ZAMS",               "-",                 4, 1 }},
-    { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                         { TYPENAME::STRING,           "Stellar_Type@ZAMS",               "-",                42, 1 }},
+    { ANY_STAR_PROPERTY::EXPERIENCED_SN_TYPE,                               { TYPENAME::SN_EVENT,       "Experienced_SN_Type",               "-",                 4, 1 }},
+    { ANY_STAR_PROPERTY::EXPERIENCED_USSN,                                  { TYPENAME::BOOL,           "Experienced_USSN",                  "Event",             0, 0 }},
+    { ANY_STAR_PROPERTY::FALLBACK_FRACTION,                                 { TYPENAME::DOUBLE,         "Fallback_Fraction",                 "-",                14, 6 }},
+    { ANY_STAR_PROPERTY::HE_CORE_MASS,                                      { TYPENAME::DOUBLE,         "Mass_He_Core",                      "Msol",             14, 6 }},
+    { ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,         "Mass_He_Core@CE",                   "Msol",             14, 6 }},
+    { ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,          { TYPENAME::DOUBLE,         "Mass_He_Core@CO",                   "Msol",             14, 6 }},
+    { ANY_STAR_PROPERTY::ID,                                                { TYPENAME::OBJECT_ID,      "ID",                                "-",                12, 1 }},
+    { ANY_STAR_PROPERTY::INITIAL_LUMINOSITY,                                { TYPENAME::DOUBLE,         "Initial_Luminosity",                "Lsol",             14, 6 }},
+    { ANY_STAR_PROPERTY::INITIAL_RADIUS,                                    { TYPENAME::DOUBLE,         "Initial_Radius",                    "Rsol",             14, 6 }},
+    { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE,                              { TYPENAME::STELLAR_TYPE,   "Stellar_Type@ZAMS",                 "-",                 4, 1 }},
+    { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                         { TYPENAME::STRING,         "Stellar_Type@ZAMS",                 "-",                42, 1 }},
     { ANY_STAR_PROPERTY::IS_AIC,                                            { TYPENAME::BOOL,             "AIC",                             "State",             0, 0 }},
-    { ANY_STAR_PROPERTY::IS_CCSN,                                           { TYPENAME::BOOL,             "CCSN",                            "State",             0, 0 }},
-    { ANY_STAR_PROPERTY::IS_HeSD,                                           { TYPENAME::BOOL,             "HeSD",                            "State",             0, 0 }},
-    { ANY_STAR_PROPERTY::IS_ECSN,                                           { TYPENAME::BOOL,             "ECSN",                            "State",             0, 0 }},
-    { ANY_STAR_PROPERTY::IS_HYDROGEN_POOR,                                  { TYPENAME::BOOL,             "Is_Hydrogen_Poor",                "State",             0, 0 }},
-    { ANY_STAR_PROPERTY::IS_PISN,                                           { TYPENAME::BOOL,             "PISN",                            "State",             0, 0 }},
-    { ANY_STAR_PROPERTY::IS_PPISN,                                          { TYPENAME::BOOL,             "PPISN",                           "State",             0, 0 }},
-    { ANY_STAR_PROPERTY::IS_RLOF,                                           { TYPENAME::BOOL,             "RLOF",                            "State",             0, 0 }},
-    { ANY_STAR_PROPERTY::IS_SNIA,                                           { TYPENAME::BOOL,             "SNIA",                            "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::INITIAL_TEMPERATURE,                               { TYPENAME::DOUBLE,         "Initial_Temperature",               "Tsol",             14, 6 }},
+    { ANY_STAR_PROPERTY::IS_CCSN,                                           { TYPENAME::BOOL,           "CCSN",                              "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_HeSD,                                           { TYPENAME::BOOL,           "HeSD",                            "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_ECSN,                                           { TYPENAME::BOOL,           "ECSN",                              "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_HYDROGEN_POOR,                                  { TYPENAME::BOOL,           "Is_Hydrogen_Poor",                  "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_PISN,                                           { TYPENAME::BOOL,           "PISN",                              "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_PPISN,                                          { TYPENAME::BOOL,           "PPISN",                             "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_RLOF,                                           { TYPENAME::BOOL,           "RLOF",                              "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_SNIA,                                           { TYPENAME::BOOL,           "SNIA",                            "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_USSN,                                           { TYPENAME::BOOL,             "USSN",                            "State",             0, 0 }},
     { ANY_STAR_PROPERTY::KICK_MAGNITUDE,                                    { TYPENAME::DOUBLE,           "Applied_Kick_Magnitude",          "kms^-1",           14, 6 }},
     { ANY_STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                         { TYPENAME::DOUBLE,           "Lambda@CE",                       "-",                14, 6 }},
@@ -3184,11 +3223,15 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                                { TYPENAME::DOUBLE,     "Initial_Mass_Func_Min",                  "Msol",      14, 6 }},
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                               { TYPENAME::DOUBLE,     "Initial_Mass_Func_Power",                "-",         14, 6 }},
 
-    { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                              { TYPENAME::INT,        "Kick_Direction_Dstrbtn",                 "-",          4, 1 }},
-    { PROGRAM_OPTION::KICK_DIRECTION_POWER,                                     { TYPENAME::DOUBLE,     "Kick_Direction_Power",                   "-",         14, 6 }},
-    { PROGRAM_OPTION::KICK_SCALING_FACTOR,                                      { TYPENAME::DOUBLE,     "Kick_Scaling_Factor",                    "-",         14, 6 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION,                              { TYPENAME::INT,        "Kick_Magnitude_Dstrbtn",                 "-",          4, 1 }},
-    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_MAXIMUM,                      { TYPENAME::DOUBLE,     "Kick_Magnitude_Dstrbtn_Max",             "-",         14, 6 }},
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE,                                     { TYPENAME::STELLAR_TYPE,   "Initial_Stellar_Type",         "-",                14, 6 }},
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE_1,                                   { TYPENAME::STELLAR_TYPE,   "Initial_Stellar_Type(1)",      "-",                14, 6 }},
+    { PROGRAM_OPTION::INITIAL_STELLAR_TYPE_2,                                   { TYPENAME::STELLAR_TYPE,   "Initial_Stellar_Type(2)",      "-",                14, 6 }},
+
+    { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                              { TYPENAME::INT,            "Kick_Direction_Dstrbtn",       "-",                 4, 1 }},
+    { PROGRAM_OPTION::KICK_DIRECTION_POWER,                                     { TYPENAME::DOUBLE,         "Kick_Direction_Power",         "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_SCALING_FACTOR,                                      { TYPENAME::DOUBLE,         "Kick_Scaling_Factor",          "-",                14, 6 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION,                              { TYPENAME::INT,            "Kick_Magnitude_Dstrbtn",       "-",                 4, 1 }},
+    { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_MAXIMUM,                      { TYPENAME::DOUBLE,         "Kick_Magnitude_Dstrbtn_Max",   "-",                14, 6 }},
 
     { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_BH,                { TYPENAME::DOUBLE,     "Sigma_Kick_CCSN_BH",                     "kms^-1",    14, 6 }},
     { PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS,                { TYPENAME::DOUBLE,     "Sigma_Kick_CCSN_NS",                     "kms^-1",    14, 6 }},
@@ -3465,8 +3508,8 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     BINARY_PROPERTY::DT,
     BINARY_PROPERTY::TIME,
     BINARY_PROPERTY::UNBOUND,
-    BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,
     BINARY_PROPERTY::ECCENTRICITY,
+    BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,
     STAR_1_PROPERTY::MZAMS,
     STAR_2_PROPERTY::MZAMS,
     STAR_1_PROPERTY::MASS_0,
@@ -3485,6 +3528,8 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_2_PROPERTY::RADIUS,
     BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1,
     BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2,
+    BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,
+    BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,
     STAR_1_PROPERTY::OMEGA,
     STAR_2_PROPERTY::OMEGA,
     STAR_1_PROPERTY::OMEGA_BREAK,
@@ -3693,6 +3738,8 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
     STAR_1_PROPERTY::MZAMS,
     STAR_2_PROPERTY::MZAMS,
+    STAR_1_PROPERTY::INITIAL_RADIUS,
+    STAR_2_PROPERTY::INITIAL_RADIUS,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,
     BINARY_PROPERTY::ECCENTRICITY_INITIAL,
     STAR_1_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER,
@@ -3736,10 +3783,8 @@ const ANY_PROPERTY_VECTOR SSE_DETAILED_OUTPUT_REC = {
     STAR_PROPERTY::TIME,
     STAR_PROPERTY::STELLAR_TYPE,
     STAR_PROPERTY::METALLICITY,
-    STAR_PROPERTY::MASS_0,
     STAR_PROPERTY::MASS,
     STAR_PROPERTY::RADIUS,
-    STAR_PROPERTY::RZAMS,
     STAR_PROPERTY::LUMINOSITY,
     STAR_PROPERTY::TEMPERATURE,
     STAR_PROPERTY::CORE_MASS,
@@ -3792,6 +3837,7 @@ const ANY_PROPERTY_VECTOR SSE_SYSTEM_PARAMETERS_REC = {
     STAR_PROPERTY::RANDOM_SEED,
     STAR_PROPERTY::MZAMS,
     STAR_PROPERTY::RZAMS,
+    STAR_PROPERTY::INITIAL_RADIUS,
     STAR_PROPERTY::METALLICITY,
     STAR_PROPERTY::OMEGA_ZAMS,
     STAR_PROPERTY::INITIAL_STELLAR_TYPE,

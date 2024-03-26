@@ -66,6 +66,9 @@ public:
             SN_EVENT            ExperiencedSN_Type() const                                      { return utils::SNEventType(m_SupernovaDetails.events.past); }
             bool                ExperiencedUSSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::USSN) == SN_EVENT::USSN; }
             double              HeCoreMass() const                                              { return m_HeCoreMass; }
+            double              InitialLuminosity() const                                       { return m_InitialLuminosity; }
+            double              InitialRadius() const                                           { return m_InitialRadius; }
+            double              InitialTemperature() const                                      { return m_InitialTemperature; }
             bool                IsAIC() const                                                   { return (m_SupernovaDetails.events.current & SN_EVENT::AIC) == SN_EVENT::AIC; }
             bool                IsCCSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
             bool                IsHeSD() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
@@ -221,6 +224,10 @@ public:
     
             void            HaltWinds()                                                                         { m_Mdot = 0.0; }                                                   // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 
+    virtual void            FastForward()                                                                       { return; }
+
+            void            IncrementOmega(const double p_OmegaDelta)                                           { m_Omega += p_OmegaDelta; }                                        // Apply delta to current m_Omega
+
     virtual ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
                                                       const double p_DonorThermalMassLossRate)                  { return ACCRETION_REGIME::NONE; }                                  // Placeholder, use inheritance for WDs
 
@@ -317,6 +324,9 @@ protected:
     double                  m_LZAMS0;                                   // Effective ZAMS Luminosity
     double                  m_RZAMS0;                                   // Effective ZAMS Radius
     double                  m_TZAMS0;                                   // Effective ZAMS Temperature
+    double                  m_InitialLuminosity;                        // Initial luminosity (Lsol)
+    double                  m_InitialRadius;                            // Initial radius (Rsol)
+    double                  m_InitialTemperature;                       // Initial temperature (Tsol)
 
     // Current timestep variables
     double                  m_Age;                                      // Current effective age (changes with mass loss/gain)(myrs)

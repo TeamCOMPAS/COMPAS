@@ -129,8 +129,11 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Mass0                                    = m_MZAMS;
     m_MinimumCoreMass                          = 0.0;
     m_Luminosity                               = m_LZAMS;
+    m_InitialLuminosity                        = m_LZAMS;
     m_Radius                                   = m_RZAMS;
+    m_InitialRadius                            = m_RZAMS;
     m_Temperature                              = m_TZAMS;
+    m_InitialTemperature                       = m_TZAMS;
 	m_ComponentVelocity						   = Vector3d();
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -318,6 +321,9 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_HeCoreMassAtCOFormation();                           break;
             case ANY_STAR_PROPERTY::IS_HYDROGEN_POOR:                                   value = SN_IsHydrogenPoor();                                    break;
             case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
+            case ANY_STAR_PROPERTY::INITIAL_LUMINOSITY:                                 value = InitialLuminosity();                                    break;
+            case ANY_STAR_PROPERTY::INITIAL_RADIUS:                                     value = InitialRadius();                                        break;
+            case ANY_STAR_PROPERTY::INITIAL_TEMPERATURE:                                value = InitialTemperature();                                   break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
             case ANY_STAR_PROPERTY::IS_AIC:                                             value = IsAIC();                                                break;

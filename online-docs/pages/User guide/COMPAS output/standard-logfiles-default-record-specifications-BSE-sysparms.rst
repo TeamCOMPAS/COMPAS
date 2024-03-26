@@ -36,4 +36,3 @@ Default record definition for the BSE System Parameters log file::
         BINARY_PROPERTY::ERROR,
         PROGRAM_OPTION::NOTES
     };
-
