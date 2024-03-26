@@ -1965,6 +1965,7 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     TIMESCALE_MS,                                    \
     TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,          \
     TRUE_ANOMALY,                                    \
+    TZAMS,                                           \
     ZETA_HURLEY,                                     \
     ZETA_HURLEY_HE,                                  \
     ZETA_SOBERMAN,                                   \
@@ -2123,6 +2124,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::TIMESCALE_MS,                                    "TIMESCALE_MS" },
     { STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,          "TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION" },
     { STAR_PROPERTY::TRUE_ANOMALY,                                    "TRUE_ANOMALY" },
+    { STAR_PROPERTY::TZAMS,                                           "TZAMS" },
     { STAR_PROPERTY::ZETA_HURLEY,                                     "ZETA_HURLEY" },
     { STAR_PROPERTY::ZETA_HURLEY_HE,                                  "ZETA_HURLEY_HE" },
     { STAR_PROPERTY::ZETA_SOBERMAN,                                   "ZETA_SOBERMAN" },
@@ -3022,6 +3024,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::TIMESCALE_MS,                                      { TYPENAME::DOUBLE,           "tMS",                             "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,            { TYPENAME::DOUBLE,           "Mass_Total@CO",                   "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::TRUE_ANOMALY,                                      { TYPENAME::DOUBLE,           "True_Anomaly(psi)",               "-",                14, 6 }},
+    { ANY_STAR_PROPERTY::TZAMS,                                             { TYPENAME::DOUBLE,           "Teff@ZAMS",                       "K",                14, 6 }},
     { ANY_STAR_PROPERTY::ZETA_HURLEY,                                       { TYPENAME::DOUBLE,           "Zeta_Hurley",                     "-",                14, 6 }},
     { ANY_STAR_PROPERTY::ZETA_HURLEY_HE,                                    { TYPENAME::DOUBLE,           "Zeta_Hurley_He",                  "-",                14, 6 }},
     { ANY_STAR_PROPERTY::ZETA_SOBERMAN,                                     { TYPENAME::DOUBLE,           "Zeta_Soberman",                   "-",                14, 6 }},

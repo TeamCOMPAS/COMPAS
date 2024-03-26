@@ -1887,7 +1887,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     bool accretorIsWD                 = m_Accretor->IsOneOf(WHITE_DWARFS); 
 
     // Determine stability
-    bool isUnstable;
+    bool isUnstable = false;
     if (donorIsHeHGorHeGB && (caseBBAlwaysStable || caseBBAlwaysUnstable || (caseBBAlwaysUnstableOntoNSBH && accretorIsNSorBH))) { // Determine stability based on case BB 
         isUnstable = (caseBBAlwaysUnstable || (caseBBAlwaysUnstableOntoNSBH && accretorIsNSorBH));                              // Already established that donor is HeHG or HeGB - need to check if new case BB prescriptions are added
     } 
