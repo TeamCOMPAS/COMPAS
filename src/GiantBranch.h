@@ -42,6 +42,8 @@ protected:
     static  double          CalculateCoreMass_Luminosity_Lx_Static(const DBL_VECTOR &p_GBParams);
     static  double          CalculateCoreMass_Luminosity_Mx_Static(const DBL_VECTOR &p_GBParams);
 
+            double          CalculateCoreRadius() const                                                      { return CalculateRemnantRadius(); }
+
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const; 
             double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const; 
 

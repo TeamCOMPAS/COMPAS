@@ -340,6 +340,23 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Header Strings:
      - Mass_Core@\ CO, Mass_Core@CO(1), Mass_Core@CO(2), Mass_Core@CO(SN), Mass_Core@CO(CP)
 
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CORE_RADIUS**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_CoreRadius
+   * - Description:
+     - Core radius (\ :math:`R\odot`).
+   * - Header Strings:
+     - Radius_Core, Radius_Core(1), Radius_Core(2), Radius_Core(SN), Radius_Core(CP)
+
+
 .. _stellar-props-D:
 
 :ref:`Back to Top <stellar-props-top>`
