@@ -162,7 +162,7 @@ public:
             double          CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda);
 
     virtual double          CalculateConvectiveEnvelopeMass() const                                             { return 0.0; }
-
+    virtual double          CalculateCoreRadius() const                                                         { return 0.0; }
     virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate); 
     virtual double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const         { return 0.0; }                                                     // Default is 0.0
             double          CalculateCriticalMassRatioGe20(const QCRIT_PRESCRIPTION p_qCritPrescription)        { return InterpolateGe20QCrit(p_qCritPrescription); }
@@ -321,6 +321,7 @@ protected:
     double                  m_Age;                                      // Current effective age (changes with mass loss/gain)(myrs)
     double                  m_COCoreMass;                               // Current CO core mass (Msol)
     double                  m_CoreMass;                                 // Current core mass (Msol)
+    double                  m_CoreRadius;                               // Current core radius (Rsol)
     double                  m_Dt;                                       // Current timestep (myrs)
     bool                    m_EnvelopeJustExpelledByPulsations;         // Flag to know if the convective envelope has just been expelled by pulsations
     double                  m_HeCoreMass;                               // Current He core mass (Msol)
