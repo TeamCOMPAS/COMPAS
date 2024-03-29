@@ -1113,7 +1113,11 @@
 //                                      - Defect repair : Added explicit definition `bool isUnstable = false` to avoid confusion in BaseBinaryStar.cpp
 //                                      - Defect repair : Fixed erroneous core mass values in ResolveSNIa in WhiteDwarfs.cpp. Was previously 0 for all core masses. 
 //                                      - Enhancement: Added output parameter TZAMS for internal variable m_TZAMS
+// 02.43.00    RTW - Mar 29, 2024    - Enhancement:
+//                                      - Updated the Ge et al. 2020 table for critical mass ratios, to include new values calculated for fully non-conservative MT. 
+//                                      - Modified the critical mass ratio calculator to interpolate between the fully conservative and fully non-conservative values,
+//                                      - albeit with fixed AM loss (isotropic re-emission). 
 
-const std::string VERSION_STRING = "02.42.02";
+const std::string VERSION_STRING = "02.43.00";
 
 # endif // __changelog_h__
