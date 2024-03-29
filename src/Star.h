@@ -80,7 +80,8 @@ public:
     double              BindingEnergy_Nanjing() const                                                               { return m_Star->BindingEnergy_Nanjing(); }
     double              BindingEnergy_Kruckow() const                                                               { return m_Star->BindingEnergy_Kruckow(); }
     double              BindingEnergy_Dewi() const                                                                  { return m_Star->BindingEnergy_Dewi(); }
-    double              CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                         { return m_Star->CalculateCriticalMassRatio(p_AccretorIsDegenerate); }
+    double              CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, 
+                                                   const double p_massTransferEfficiencyBeta) const                 { return m_Star->CalculateCriticalMassRatio(p_AccretorIsDegenerate, p_massTransferEfficiencyBeta); }
     double              CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const                 { return m_Star->CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate); }
     double              CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                    { return m_Star->CalculateCriticalMassRatioHurleyHjellmingWebbink(); }
     double              CalculateDynamicalTimescale() const                                                         { return m_Star->CalculateDynamicalTimescale(); }
@@ -206,7 +207,8 @@ public:
 
     double          EvolveOneTimestep(const double p_Dt, const bool p_Force = false);
 
-    double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription)                              { return m_Star->InterpolateGe20QCrit(p_qCritPrescription); }
+    double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
+                                         const double p_massTransferEfficiencyBeta)                                 { return m_Star->InterpolateGe20QCrit(p_qCritPrescription, p_massTransferEfficiencyBeta); }
     void            HaltWinds()                                                                                     { m_Star->HaltWinds(); }
 
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
