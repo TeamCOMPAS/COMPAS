@@ -1095,11 +1095,11 @@ Default = TRUE
 
 
 **--rocket-kick-magnitude-1** |br|
-Magnitude of post-SN pulsar rocket kick, in km/s. |br|
+Magnitude of post-SN pulsar rocket kick for the primary, in km/s. |br|
 Default = 0.0 
 
 **--rocket-kick-magnitude-2** |br|
-Magnitude of post-SN pulsar rocket kick, in km/s. |br|
+Magnitude of post-SN pulsar rocket kick for the secondary, in km/s. |br|
 Default = 0.0 
 
 **--rocket-kick-phi-1** |br|
