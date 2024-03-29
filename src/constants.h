@@ -4079,7 +4079,7 @@ const std::map<int, COMPASUnorderedMap<AB_TCoeff, double>> A_COEFF = {
 // In all cases, q is mAccretor/mDonor, which is inverted from the Ge et al. datatable. First entry in the tuple is the vector of 
 // unique mass values, second entry is the 5-tuple of vectors for logR, qCritSTD_full, qCritIC_full, qCritSTD_nonc, qCritIC_nonc.
 // Note that the radius may contract several times. These points have been removed to facilitate the interpolation, so logR is monotonic.
-// Previously, this table contained the commonly used Mass-Radius relation zeta's, however these are functionaly identical to the critical
+// Previously, this table contained the commonly used Mass-Radius relation zeta's, however these are functionality identical to the critical
 // mass ratios of the same derivation, and were not used in the code anyway, so they have been replaced by the non-conservative qcrits.
 const std::tuple< std::vector<double>, std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>>> GE20_QCRIT = {
     {0.100, 0.130, 0.160, 0.200, 0.220, 0.250, 0.280, 0.320, 0.360, 0.400, 0.450, 0.500, 0.560, 0.630, 0.710, 0.800, 0.890, 1.000, 1.140, 1.300, 1.439, 1.600, 1.800, 2.000, 2.040, 2.500, 3.200, 4.000, 5.000, 6.300, 8.000, 10.000, 13.000, 16.000, 20.000, 25.000, 32.000, 40.000, 50.000, 63.000, 80.000, 100.000},
