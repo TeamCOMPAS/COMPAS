@@ -100,7 +100,7 @@ double CHeB::CalculateLambdaDewi() const {
     double lambdaCE;
 
          if (utils::Compare(envMass, 1.0) >= 0) lambdaCE = 2.0 * lambda1;                                                   // (A.1) Bottom, Claeys+2014
-	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (std::sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
+	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (std::sqrt(envMass) * (lambda1 - lambda2)));    // (A.1) Mid, Claeys+2014
 	else                                        lambdaCE = 2.0 * lambda2;	                                                // (A.1) Top, Claeys+2014
 
 	return	lambdaCE;
@@ -1214,7 +1214,7 @@ double CHeB::CalculateRemnantRadius() const {
  * @return                                      Core mass on the First Giant Branch in Msol
  */
 double CHeB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau) const {
-    return std::min(((1.0 - p_Tau) * CalculateCoreMassAtHeIgnition(p_Mass)) + (p_Tau * CalculateCoreMassAtBAGB(p_Mass)), m_Mass);               //He mass capped at total mass (should become HeMS star)
+    return std::min(((1.0 - p_Tau) * CalculateCoreMassAtHeIgnition(p_Mass)) + (p_Tau * CalculateCoreMassAtBAGB(p_Mass)), m_Mass);               // He mass capped at total mass (should become HeMS star)
 }
 
 
@@ -1358,6 +1358,7 @@ double CHeB::CalculateLifetimeOnBluePhase(const double p_Mass) {
 #undef b
 }
 
+
 /*
  * Determine whether star should continue to evolve on phase
  *
@@ -1366,14 +1367,14 @@ double CHeB::CalculateLifetimeOnBluePhase(const double p_Mass) {
  *
  * @return         true if evolution should continue on phase, false otherwise
  */
-
 bool CHeB::ShouldEvolveOnPhase() const {
-    bool afterHeIgnition = (m_Age >= m_Timescales[static_cast<int>(TIMESCALE::tHeI)]);
+    bool afterHeIgnition      = (m_Age >= m_Timescales[static_cast<int>(TIMESCALE::tHeI)]);
     bool beforeEndOfHeBurning = (m_Age < (m_Timescales[static_cast<int>(TIMESCALE::tHeI)] + m_Timescales[static_cast<int>(TIMESCALE::tHe)]));
-    bool coreIsNotTooMassive = (m_HeCoreMass < m_Mass);
+    bool coreIsNotTooMassive  = (m_HeCoreMass < m_Mass);
     // Evolve on CHeB phase if age after He Ign and while He Burning and He core mass does not exceed total mass (could happen due to mass loss)
     return (afterHeIgnition && beforeEndOfHeBurning && coreIsNotTooMassive && !ShouldEnvelopeBeExpelledByPulsations());
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -1432,11 +1433,6 @@ double CHeB::ChooseTimestep(const double p_Time) const {
     double dtk = 2.0E-3 * timescales(tHe);
     double dte = timescales(tHeI) + timescales(tHe) - p_Time;
 
-// JR: todo: I took this next IF out - was it left in by mistake after some debugging?
-//    if (dtk < dte) {
-//        dtk = 2E-3 * m_Timescales[TS::tHe];
-//    }
-
     double timestep = std::max(std::min(dtk, dte), NUCLEAR_MINIMUM_TIMESTEP);
 
     return timestep;
@@ -1471,12 +1467,13 @@ double CHeB::ChooseTimestep(const double p_Time) const {
  */
 STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-
     STELLAR_TYPE stellarType = m_StellarType;
     
-    if(ShouldEnvelopeBeExpelledByPulsations())          { m_EnvelopeJustExpelledByPulsations = true; }
+    if (ShouldEnvelopeBeExpelledByPulsations()) {
+        m_EnvelopeJustExpelledByPulsations = true;
+    }
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations ) {                     // Envelope loss
+    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations ) {  // Envelope loss
 
         m_Mass       = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_Mass;
@@ -1488,15 +1485,15 @@ STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
 		double tHeIPrime = timescales(tHeI);
 		double tHePrime  = timescales(tHe);
 
-        m_Tau = ((m_Age - tHeIPrime) / tHePrime);                                   // Hurley et al. 2000, just after eq 81
-        m_Age = m_Tau * HeMS::CalculateLifetimeOnPhase_Static(m_Mass0);             // Hurley et al. 2000, eq 76 and following discussion
+        m_Tau = (m_Age - tHeIPrime) / tHePrime;                                                         // Hurley et al. 2000, just after eq 81
+        m_Age = m_Tau * HeMS::CalculateLifetimeOnPhase_Static(m_Mass0);                                 // Hurley et al. 2000, eq 76 and following discussion
 
         CalculateTimescales(m_Mass0, m_Timescales);
         CalculateGBParams(m_Mass0, m_GBParams);
 
         m_Luminosity = HeMS::CalculateLuminosityOnPhase_Static(m_Mass, m_Tau);
         m_Radius     = HeMS::CalculateRadiusOnPhase_Static(m_Mass, m_Tau);
-        stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                          // will evolve to an evolved helium star
+        stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                                              // will evolve to an evolved helium star
     }
 
     return stellarType;

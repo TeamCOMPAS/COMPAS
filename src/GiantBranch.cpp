@@ -376,7 +376,7 @@ double GiantBranch::CalculatePerturbationMu() const {
  * function is called (and does nothing). (So far FGB is the only class that
  * defines this function where it actually does anything)
  *
- * If DEBUG_PERTURB is defined then perturbation is not disabled while debbuging.
+ * If DEBUG_PERTURB is defined then perturbation is not disabled while debugging.
  * To enable perturbation while DEBUG is enabled, define DEBUG_PERTURB.
  *
  *
@@ -1874,10 +1874,10 @@ STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
  */
 STELLAR_TYPE GiantBranch::ResolveTypeIIaSN() {
 
-    m_Mass              = 0.0;
-    m_Radius            = 0.0;
-    m_Luminosity        = 0.0;
-    m_Temperature       = 0.0;
+    m_Mass        = 0.0;
+    m_Radius      = 0.0;
+    m_Luminosity  = 0.0;
+    m_Temperature = 0.0;
 
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;

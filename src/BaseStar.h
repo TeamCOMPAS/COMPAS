@@ -140,6 +140,7 @@ public:
             double              Temperature() const                                             { return m_Temperature; }
             double              Time() const                                                    { return m_Time; }
             double              Timescale(TIMESCALE p_Timescale) const                          { return m_Timescales[static_cast<int>(p_Timescale)]; }
+            double              TZAMS() const                                                   { return m_TZAMS; }
     virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::NONE; }
             double              XExponent() const                                               { return m_XExponent; }
 
@@ -239,7 +240,7 @@ public:
 
     virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                         { return m_StellarType; }
 
-    virtual void            ResolveMassLoss();
+    virtual void            ResolveMassLoss(const bool p_UpdateMDt = true);
    
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
     
@@ -253,7 +254,8 @@ public:
             STELLAR_TYPE    UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
                                                               const double p_DeltaMass0,
                                                               const double p_DeltaTime,
-                                                              const bool   p_ForceRecalculate);
+                                                              const bool   p_ForceRecalculate = false,
+                                                              const bool   p_ResolveEnvelopeLoss = true);
 
     virtual void            UpdateInitialMass() { }                                                                                                                                 // Default is NO-OP
 
@@ -267,8 +269,7 @@ public:
 
     
     // printing functions
-    bool PrintDetailedOutput(const int p_Id, 
-                             const SSE_DETAILED_RECORD_TYPE p_RecordType = SSE_DETAILED_RECORD_TYPE::DEFAULT) const { 
+    bool PrintDetailedOutput(const int p_Id, const SSE_DETAILED_RECORD_TYPE p_RecordType) const { 
         return OPTIONS->DetailedOutput() ? LOGGING->LogSSEDetailedOutput(this, p_Id, p_RecordType) : true;                                                                          // Write record to SSE Detailed Output log file
     }
 
@@ -586,7 +587,7 @@ protected:
     
     virtual void                EvolveOneTimestepPreamble() { };                                                                                                                                    // Default is NO-OP
 
-            STELLAR_TYPE        EvolveOnPhase();
+            STELLAR_TYPE        EvolveOnPhase(const double p_DeltaTime);
 
     virtual STELLAR_TYPE        EvolveToNextPhase()                                                                     { return m_StellarType; }
 
@@ -618,14 +619,14 @@ protected:
     virtual void                PerturbLuminosityAndRadius() { }                                                                                                                                    // NO-OP
     virtual void                PerturbLuminosityAndRadiusAtPhaseEnd()                                                  { PerturbLuminosityAndRadiusOnPhase(); }                                    // Same as on phase
     virtual void                PerturbLuminosityAndRadiusOnPhase()                                                     { PerturbLuminosityAndRadius(); }
-            STELLAR_TYPE        ResolveEndOfPhase();
+            STELLAR_TYPE        ResolveEndOfPhase(const bool p_ResolveEnvelopeLoss = true);
     virtual void                ResolveHeliumFlash() { }
     virtual STELLAR_TYPE        ResolveSkippedPhase()                                                                   { return EvolveToNextPhase(); }                                             // Default is evolve to next phase
     virtual STELLAR_TYPE        ResolveSupernova()                                                                      { return m_StellarType; }                                                   // Default is NO-OP
 
     virtual void                SetSNHydrogenContent()                                                                  { m_SupernovaDetails.isHydrogenPoor = false; }                              // Default is false
 
-            bool                ShouldBeMasslessRemnant() const                                                         { return (m_Mass <= 0.0 || m_StellarType==STELLAR_TYPE::MASSLESS_REMNANT); }
+            bool                ShouldBeMasslessRemnant() const                                                         { return (m_Mass <= 0.0 || m_StellarType == STELLAR_TYPE::MASSLESS_REMNANT); }
     virtual bool                ShouldEvolveOnPhase() const                                                             { return true; }
     virtual bool                ShouldSkipPhase() const                                                                 { return false; }                                                           // Default is false
 
