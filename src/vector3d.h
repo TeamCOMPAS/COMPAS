@@ -47,7 +47,6 @@ public:
                               const double p_PsiE);
     Vector3d    UnitVector();
 
-    ///////////////////////////////
     // Overload operators
     
     // Overload Indexing operator

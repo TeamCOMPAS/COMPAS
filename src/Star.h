@@ -204,7 +204,7 @@ public:
 
     EVOLUTION_STATUS Evolve(const long int p_Id);
 
-    double          EvolveOneTimestep(const double p_Dt);
+    double          EvolveOneTimestep(const double p_Dt, const bool p_Force = false);
 
     double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription)                              { return m_Star->InterpolateGe20QCrit(p_qCritPrescription); }
     void            HaltWinds()                                                                                     { m_Star->HaltWinds(); }
@@ -271,6 +271,8 @@ private:
 
     BaseStar        *m_Star;                    // pointer to current star
     BaseStar        *m_SaveStar;                // pointer to saved star
+
+    std::vector<double> m_Timesteps;            // timesteps vector - for debugging/testing
 
 };
 

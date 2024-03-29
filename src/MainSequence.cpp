@@ -637,12 +637,13 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
     
     if (p_NoCheck || utils::Compare(m_Mass, 0.0) <= 0) {
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
-        m_Radius = 0.0;   // massless remnant
-        m_Mass = 0.0;
+        m_Radius    = 0.0;   // massless remnant
+        m_Mass      = 0.0;
     }
     
     return stellarType;
 }
+
 
 /*
  * Update the minimum core mass of a main sequence star that loses mass through Case A mass transfer by
@@ -658,9 +659,9 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
 void MainSequence::UpdateMinimumCoreMass()
 {
     if (OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
-        double fractionalAge=CalculateTauOnPhase();
-        HG clone = *this;                               //create an HG star clone to query its core mass just after TAMS
-        double TAMSCoreMass = clone.CoreMass();
-        m_MinimumCoreMass = std::max(m_MinimumCoreMass, fractionalAge * TAMSCoreMass);
+        double fractionalAge =CalculateTauOnPhase();
+        HG clone             = *this;                           //create an HG star clone to query its core mass just after TAMS
+        double TAMSCoreMass  = clone.CoreMass();
+        m_MinimumCoreMass    = std::max(m_MinimumCoreMass, fractionalAge * TAMSCoreMass);
     }
 }
