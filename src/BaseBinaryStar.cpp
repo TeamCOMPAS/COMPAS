@@ -1183,11 +1183,11 @@ bool BaseBinaryStar::ResolveSupernova() {
                                                                          sin(theta));
     
     // Define the rocket kick vector - will be 0 if unused. 
-    double rocket_theta = m_Supernova->SN_RocketKickTheta();                                                                    // Azimuthal angle
-    double rocket_phi   = m_Supernova->SN_RocketKickPhi();                                                                      // Polar angle
-    Vector3d rocketKickVector = m_Supernova->SN_RocketKickMagnitude() * Vector3d( sin(rocket_theta)*cos(rocket_phi), 
-                                                                                  sin(rocket_theta)*sin(rocket_phi),
-                                                                                  cos(rocket_theta));                           // The rocket is aligned with the NS spin axis, which by default is aligned with the pre-SN orbit (0.0, 0.0, 1.0). Defined here in case the system is already unbound.
+    double rocketTheta = m_Supernova->SN_RocketKickTheta();                                                                    // Azimuthal angle
+    double rocketPhi   = m_Supernova->SN_RocketKickPhi();                                                                      // Polar angle
+    Vector3d rocketKickVector = m_Supernova->SN_RocketKickMagnitude() * Vector3d( sin(rocketTheta)*cos(rocketPhi), 
+                                                                                  sin(rocketTheta)*sin(rocketPhi),
+                                                                                  cos(rocketTheta));                           // The rocket is aligned with the NS spin axis, which by default is aligned with the pre-SN orbit (0.0, 0.0, 1.0). Defined here in case the system is already unbound.
 
     // Check if the system is already unbound
     if (IsUnbound()) {                                                                                                          // is system already unbound?
@@ -1399,16 +1399,16 @@ bool BaseBinaryStar::ResolveSupernova() {
                 Vector3d hMinusVector = amVectorNormalizedByCircularAmPreRocket - eccentricityVectorPreRocket;
 
                 // Rotate hPlus and hMinus vectors so that the thrust is parallel to the z-axis, in order to apply the rotation below
-                hPlusVector  = hPlusVector.RotateVectorAboutZ( -rocket_phi).RotateVectorAboutY(-rocket_theta);
-                hMinusVector = hMinusVector.RotateVectorAboutZ(-rocket_phi).RotateVectorAboutY(-rocket_theta);
+                hPlusVector  = hPlusVector.RotateVectorAboutZ( -rocketPhi).RotateVectorAboutY(-rocketTheta);
+                hMinusVector = hMinusVector.RotateVectorAboutZ(-rocketPhi).RotateVectorAboutY(-rocketTheta);
 
                 // Rotate vectors about the new "z-axis" - parallel to the rocket thrust
                 Vector3d hPlusVector_prime  = hPlusVector.RotateVectorAboutZ(   theta_rotation );
                 Vector3d hMinusVector_prime = hMinusVector.RotateVectorAboutZ( -theta_rotation );
 
                 // Rotate new hPlus and hMinus vectors back to the original frame
-                hPlusVector  = hPlusVector.RotateVectorAboutY( rocket_theta).RotateVectorAboutZ(rocket_phi);
-                hMinusVector = hMinusVector.RotateVectorAboutY(rocket_theta).RotateVectorAboutZ(rocket_phi);
+                hPlusVector  = hPlusVector.RotateVectorAboutY( rocketTheta).RotateVectorAboutZ(rocketPhi);
+                hMinusVector = hMinusVector.RotateVectorAboutY(rocketTheta).RotateVectorAboutZ(rocketPhi);
 
                 // Calculate post-rocket values
                 Vector3d normalizedAngularMomentumVectorPostRocket = 0.5 * (hPlusVector_prime + hMinusVector_prime);
