@@ -9,7 +9,6 @@
 // 
 ///////////////////////////////////////////////////////////
 
-// Default constructor
 Vector3d::Vector3d() {
 
     // Initialize member variables
@@ -22,10 +21,10 @@ Vector3d::Vector3d() {
 
 }
 
-// Initialize from values 
+Vector3d::Vector3d(double p_x, double p_y, double p_z) {        // Initialize from values 
 
-Vector3d::Vector3d(double p_x, double p_y, double p_z) {
-
+    // Initialize member variables
+    
     m_ObjectId = globalObjectId++; 
 
     m_x = p_x;
@@ -121,7 +120,8 @@ std::ostream &operator <<(std::ostream &os, Vector3d const p_Vec) {
 
 /*
  * Calculate the magnitude of a velocity vector.
- * 
+ *
+ * double Magnitude() const
  *
  * @return                                       The magnitude of the velocity vector (speed)
  */
@@ -134,6 +134,7 @@ double Vector3d::Magnitude() const {
 /*
  * Convert the Vector3d to a DBL_VECTOR
  * 
+ * DBL_VECTOR asDBL_VECTOR()
  *
  * @return                                       The analogous DBL_VECTOR
  */
@@ -143,11 +144,7 @@ DBL_VECTOR Vector3d::asDBL_VECTOR() {
     DBL_VECTOR vFinal = { v[0], v[1], v[2] };
 
     return vFinal;
-
 }
-
-
-
 
 
 //////////////////////////////////
@@ -159,6 +156,7 @@ DBL_VECTOR Vector3d::asDBL_VECTOR() {
 /*
  * Rotate a vector about the X axis.
  *
+ * Vector3d RotateVectorAboutX( const double p_Theta)
  *
  * @param   [IN]   p_Theta                     Rotation angle (rad) 
  * @return                                     Vector after rotation
@@ -174,6 +172,7 @@ Vector3d Vector3d::RotateVectorAboutX( const double p_Theta) {
 /*
  * Rotate a vector about the Y axis.
  *
+ * Vector3d RotateVectorAboutY( const double p_Theta)
  *
  * @param   [IN]   p_Theta                     Rotation angle (rad) 
  * @return                                     Vector after rotation
@@ -189,6 +188,7 @@ Vector3d Vector3d::RotateVectorAboutY( const double p_Theta) {
 /*
  * Rotate a vector about the Z axis.
  *
+ * Vector3d RotateVectorAboutZ( const double p_Theta)
  *
  * @param   [IN]   p_Theta                     Rotation angle (rad) 
  * @return                                     Vector after rotation
@@ -203,12 +203,6 @@ Vector3d Vector3d::RotateVectorAboutZ( const double p_Theta) {
 
 #undef cTheta
 #undef sTheta
-
-
-
-
-
-
 
 
 /*
@@ -232,6 +226,7 @@ Vector3d Vector3d::RotateVectorAboutZ( const double p_Theta) {
  * https://en.wikipedia.org/wiki/Euler_angles
  * https://en.wikipedia.org/wiki/Change_of_basis
  *
+ * Vector3d ChangeBasis(const double p_ThetaE, const double p_PhiE, const double p_PsiE)
  *
  * @param   [IN]   p_ThetaE                    Euler angle Theta (rad) 
  * @param   [IN]   p_PhiE                      Euler angle Phi   (rad) 
@@ -277,6 +272,7 @@ Vector3d Vector3d::ChangeBasis(const double p_ThetaE, const double p_PhiE, const
 /*
  * Returns the unit vector in the direction of the given vector
  * 
+ * Vector3d UnitVector() 
  *
  * @return                                     Unit vector of input
  */
@@ -299,6 +295,7 @@ namespace linalg {
     /*
      * Calculate the standard dot product of two vectors
      *
+     * double dot(const Vector3d& p_a, const Vector3d& p_b)
      *
      * @param   [IN]   a                            first vector
      * @param   [IN]   b                            second vector
@@ -317,6 +314,7 @@ namespace linalg {
     /*
      * Calculate the standard cross product of two vectors
      *
+     * Vector3d cross(const Vector3d& p_a, const Vector3d& p_b)
      *
      * @param   [IN]   a                            first vector
      * @param   [IN]   b                            second vector
@@ -336,6 +334,7 @@ namespace linalg {
     /*
      * Calculate the angle between two vectors.
      *
+     * double angleBetween(const Vector3d& p_a, const Vector3d& p_b) 
      *
      * @param   [IN]   p_a                          first vector
      * @param   [IN]   p_b                          second vector
@@ -349,6 +348,7 @@ namespace linalg {
     /*
      * Right multiply a matrix by a vector
      *
+     * Vector3d matrixMult(const std::vector<DBL_VECTOR>& p_matrix, const Vector3d& p_vector) 
      *
      * @param   [IN]   p_matrix                     matrix 
      * @param   [IN]   p_vector                     vector
