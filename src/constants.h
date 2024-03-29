@@ -4081,7 +4081,7 @@ const std::map<int, COMPASUnorderedMap<AB_TCoeff, double>> A_COEFF = {
 // Note that the radius may contract several times. These points have been removed to facilitate the interpolation, so logR is monotonic.
 // Previously, this table contained the commonly used Mass-Radius relation zeta's, however these are functionaly identical to the critical
 // mass ratios of the same derivation, and were not used in the code anyway, so they have been replaced by the non-conservative qcrits.
-const std::tuple< std::vector<double>, std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>>> GE20_QCRIT_AND_ZETA = {
+const std::tuple< std::vector<double>, std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>>> GE20_QCRIT = {
     {0.100, 0.130, 0.160, 0.200, 0.220, 0.250, 0.280, 0.320, 0.360, 0.400, 0.450, 0.500, 0.560, 0.630, 0.710, 0.800, 0.890, 1.000, 1.140, 1.300, 1.439, 1.600, 1.800, 2.000, 2.040, 2.500, 3.200, 4.000, 5.000, 6.300, 8.000, 10.000, 13.000, 16.000, 20.000, 25.000, 32.000, 40.000, 50.000, 63.000, 80.000, 100.000},
     {
       {{-1.1463, -1.1653, -1.1824, -1.1951, -1.1997}, {-0.0027, -0.0018, -0.0021, 0.0020, 0.0033}, {1.5165, 1.5324, 1.5344, 1.5360, 1.5374}, {-94.8767, -109.5290, -103.1992, -390.6250, 9090.9091}, {1.0060, 1.0132, 1.0143, 1.0151, 1.0159}},

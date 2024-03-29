@@ -164,9 +164,11 @@ public:
 
     virtual double          CalculateConvectiveEnvelopeMass() const                                             { return 0.0; }
 
-    virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate); 
+    virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, 
+                                                       const double p_massTransferEfficiencyBeta); 
     virtual double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const         { return 0.0; }                                                     // Default is 0.0
-            double          CalculateCriticalMassRatioGe20(const QCRIT_PRESCRIPTION p_qCritPrescription)        { return InterpolateGe20QCrit(p_qCritPrescription); }
+            double          CalculateCriticalMassRatioGe20(const QCRIT_PRESCRIPTION p_qCritPrescription,
+                                                           const double p_massTransferEfficiencyBeta)           { return InterpolateGe20QCrit(p_qCritPrescription, p_massTransferEfficiencyBeta); }
     virtual double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                            { return 0.0; }                                                     // Default is 0.0
                                                                                                                                                                                          
             double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
@@ -228,7 +230,7 @@ public:
 
     virtual void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                     // Default does nothing, use inheritance for WDs.
 
-            double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription); 
+            double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta); 
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 
