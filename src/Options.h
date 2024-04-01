@@ -915,6 +915,7 @@ public:
 
 
             // Tides
+            bool                                                m_EnableRealisticTides;                                          // Whether to enable realistic tides (default = False)
             bool                                                m_EnableTides;                                                   // Whether to enable tides (default = False)
 
 
@@ -1228,6 +1229,7 @@ public:
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
     bool                                        DetailedOutput() const                                                  { return m_CmdLine.optionValues.m_DetailedOutput; }
 
+    bool                                        EnableRealisticTides() const                                            { return OPT_VALUE("enable-realistic-tides", m_EnableRealisticTides, true); }
     bool                                        EnableTides() const                                                     { return OPT_VALUE("enable-tides", m_EnableTides, true); }
     bool                                        EnableWarnings() const                                                  { return m_CmdLine.optionValues.m_EnableWarnings; }
     bool                                        ErrorsToFile() const                                                    { return m_CmdLine.optionValues.m_ErrorsToFile; }
