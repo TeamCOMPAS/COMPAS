@@ -766,6 +766,28 @@ private:
         return root.first + (root.second - root.first) / 2.0;                                               // midway between brackets (could return brackets...)
     }
     
+    /*
+     * Change in semi-major axis based on secular equations for tidal evolution given some tidal love number
+     * Zahn, 1977, Eq. (3.6)
+     *
+     *
+     * double CalculateDSemiMajorAxisTidal(const double p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
+     *
+     * @param   [IN]    p_ImKlm                     Imaginary component of potential tidal love number of star 1 (unitless)
+     * @param   [IN]    p_M1                        Mass of star 1 (Msol)
+     * @param   [IN]    p_R1                        Radius of star 1 (Rsol)
+     * @param   [IN]    p_M2                        Mass of star 2 (Msol)
+     * @param   [IN]    p_Omega                     Orbital angular frequency for bianry (1/yr)    
+     * @param   [IN]    p_SemiMajorAxis             Semi-major axis for binary (AU)
+     * @param   [IN]    p_Eccentricity              Eccentricity for binary
+     * @return                                      Root found: will be -1.0 if no acceptable real root found
+     */    
+    double CalculateDSemiMajorAxisTidal(const double p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
+        double p_R1_AU = p_R1 * RSOL_TO_AU;
+
+        return - (3.0 / p_Omega) * p_M2 * (1.0 + (p_M2 / p_M1)) * (G_AU_Msol_yr / p_R1_AU / p_R1_AU) * PPOW(p_R1_AU / p_SemiMajorAxis, 7) * p_ImKlm;
+    }
+  
 };
 
 #endif // __BaseBinaryStar_h__
