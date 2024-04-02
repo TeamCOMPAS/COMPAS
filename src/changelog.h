@@ -1113,7 +1113,9 @@
 //                                      - Defect repair : Added explicit definition `bool isUnstable = false` to avoid confusion in BaseBinaryStar.cpp
 //                                      - Defect repair : Fixed erroneous core mass values in ResolveSNIa in WhiteDwarfs.cpp. Was previously 0 for all core masses. 
 //                                      - Enhancement: Added output parameter TZAMS for internal variable m_TZAMS
+// 02.43.00    RTW - Mar 29, 2023    - Enhancement:
+//                                      - Added Hirai pulsar rocket kick, and related options
 
-const std::string VERSION_STRING = "02.42.02";
+const std::string VERSION_STRING = "02.43.00";
 
 # endif // __changelog_h__
