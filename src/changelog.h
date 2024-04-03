@@ -1113,13 +1113,13 @@
 //                                      - Defect repair : Added explicit definition `bool isUnstable = false` to avoid confusion in BaseBinaryStar.cpp
 //                                      - Defect repair : Fixed erroneous core mass values in ResolveSNIa in WhiteDwarfs.cpp. Was previously 0 for all core masses. 
 //                                      - Enhancement: Added output parameter TZAMS for internal variable m_TZAMS
-// 02.42.03   YS - Mar 31, 2024      - Update to neutron star accretion treatments:
+// 02.43.00   YS - Mar 31, 2024      - Update to neutron star accretion treatments:
 //                                      - Fixes to MSP formation/NS in mass transfer treatments:
 //                                       1). Created a new function NS::PulsarAccretion() to calculate the pulsar evolution in stable mass transfer.
 //                                       2). In UpdateMagneticFieldAndSpin(), splitting stable mass transfer into smaller steps so that no negative spin period is present. 
-//                                       3). Adding a new programing option "NS_ACCRETION_IN_CE" for different treatment of how neutron star would behave when in CE. 
+//                                       3). Adding a new programing option "NS-ACCRETION-IN-CE" for different treatment of how neutron star would behave when in CE. 
 
 
-const std::string VERSION_STRING = "02.42.03";
+const std::string VERSION_STRING = "02.43.00";
 
 # endif // __changelog_h__

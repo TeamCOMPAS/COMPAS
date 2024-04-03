@@ -247,6 +247,7 @@ stringChoices:
 #    --fryer-supernova-engine: 'DELAYED'                                   # Default: 'DELAYED'                     # Options: ['DELAYED','RAPID']
 #    --kick-magnitude-distribution: 'MULLERMANDEL'                         # Default: 'MULLERMANDEL'                # Options: ['MULLERMANDEL','MULLER2016MAXWELLIAN','MULLER2016','BRAYELDRIDGE','MAXWELLIAN','FLAT','FIXED','ZERO']
 #    --kick-direction: 'ISOTROPIC'                                         # Default: 'ISOTROPIC'                   # Options: ['POLES','WEDGE','POWERLAW','PERPENDICULAR','INPLANE','ISOTROPIC']
+#    --neutron-star-accretion-in-ce: 'ZERO'                                # Default: 'ZERO'                        # Options: ['ZERO', 'DISK', 'SURFACE']
 #    --neutron-star-equation-of-state: 'SSE'                               # Default: 'SSE'                         # Options: ['ARP3','SSE']
 #    --neutrino-mass-loss-BH-formation: 'FIXED_MASS'                       # Default: 'FIXED_MASS'                  # Options: ['FIXED_MASS','FIXED_FRACTION']
 #    --pulsar-birth-magnetic-field-distribution: 'ZERO'                    # Default: 'ZERO'                        # Options: ['LOGNORMAL','UNIFORM','FLATINLOG','FIXED','ZERO']
