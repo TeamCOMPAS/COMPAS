@@ -1138,7 +1138,7 @@ double GiantBranch::CalculateMomentOfInertia() const {
  * double CalculateImK22Tidal(const double p_Omega)
  *
  * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
- * @return                                      Imaginary component of pontential tidal love number (unitless)
+ * @return                                      Imaginary component of potential tidal love number (unitless, (2,2) mode only)
  */
 double GiantBranch::CalculateImK22Tidal(const double p_Omega) {
     double beta2Dynamical = 1.0;
