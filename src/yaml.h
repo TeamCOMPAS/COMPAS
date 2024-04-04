@@ -114,6 +114,7 @@ namespace yaml {
             "    --revised-energy-formalism-nandez-ivanova",
             "",
             "    ### TIDES",
+            "    --enable-realistic-tides",
             "    --enable-tides",
             "",
             "    ### SUPERNOVAE, KICKS AND REMNANTS",

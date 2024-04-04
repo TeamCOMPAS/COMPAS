@@ -349,6 +349,10 @@ Default = 0.0
 Multiplication factor for Eddington accretion for NS & BH (i.e. > 1 is super-eddington and 0 is no accretion). |br|
 Default = 1.0
 
+**--enable-realistic-tides** |br|
+Enables realistic tides following the secular equations of Zahn, 1977. |br|
+Default = FALSE
+
 **--enable-tides** |br|
 Enables tides. |br|
 Default = FALSE
