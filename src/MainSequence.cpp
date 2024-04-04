@@ -28,6 +28,7 @@ void MainSequence::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timesc
 #define timescales(x) p_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     timescales(tBGB)   = CalculateLifetimeToBGB(p_Mass);
     timescales(tMS)    = CalculateLifetimeOnPhase(p_Mass, timescales(tBGB));
+std::cout << std::fixed << std::setprecision(15) << "MainSequence::CalculateTimescales(), timescales(tBGB) = " << timescales(tBGB) << ", timescales(tMS) = " << timescales(tMS) << "\n";
 #undef timescales
 }
 
@@ -534,6 +535,8 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
 
     // For mass < Mhook, x > mu (i.e. for stars without a hook)
     double x = std::max(0.95, std::min((0.95 - (0.03 * (LogMetallicityXi() + 0.30103))), 0.99));
+
+std::cout << std::fixed << std::setprecision(15) << "MainSequence::CalculateLifetimeOnPhase() returns " << std::max(tHook, (x * p_TBGB)) << ", p_Mass = " << p_Mass << ", mu = " << mu << ", x = " << x << "\n";
 
     return std::max(tHook, (x * p_TBGB));
 

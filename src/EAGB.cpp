@@ -718,6 +718,8 @@ double EAGB::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p
  * @return                                      Luminosity on the Early Asymptotic Giant Branch in Lsol
  */
 double EAGB::CalculateLuminosityOnPhase(const double p_CoreMass) const {
+std::cout << std::fixed << std::setprecision(15) << "EAGB::CalculateLuminosityOnPhase(), p_CoreMass = " << p_CoreMass << " (m_CoreMass = " << m_CoreMass << ", m_COCoreMass = " << m_COCoreMass << ", m_HeCoreMass = " << m_HeCoreMass << "), returns " << CalculateLuminosityGivenCoreMass(p_CoreMass) << " <################\n";
+
     return CalculateLuminosityGivenCoreMass(p_CoreMass);
 }
 
@@ -776,7 +778,10 @@ double EAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
     // doing this will save some compute cycles - but it is not strictly what the equation in Hurley says
     // (Hurley et al. 2000, eq 74 and immediately following) - there if mass is 0.0 but luminosity is
     // non-zero we get a non-zero value for radius (shouldn't happen, but we need to code for all possibilities)
-    if (utils::Compare(p_Mass, 0.0) <= 0 || utils::Compare(p_Luminosity, 0.0) <= 0) return 0.0;
+    
+    
+    // JR check this <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    //if (utils::Compare(p_Mass, 0.0) <= 0 || utils::Compare(p_Luminosity, 0.0) <= 0) return 0.0;
 
     // calculate radius constant A (Hurley et al. 2000, eq 74)
     // and coefficient b(50)
@@ -810,6 +815,7 @@ double EAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
     }
 
     // now calculate the radius
+std::cout << std::fixed << std::setprecision(15) << "EAGB::CalculateRadiusOnPhase_Static(), p_Mass = " << p_Mass << ", p_Luminosity = " << p_Luminosity << ", A = " << A << ", b[1] = " << b[1] << ", b[2] = " << b[2] << ", b50 = " << b50 << "\n";
     return A * (PPOW(p_Luminosity, b[1]) + (b[2] * PPOW(p_Luminosity, b50)));
 
 #undef b
@@ -857,6 +863,14 @@ double EAGB::CalculateRemnantRadius() const {
 double EAGB::CalculateCOCoreMassOnPhase(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)] // for convenience and readability - undefined at end of function
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
+std::cout << std::fixed << std::setprecision(15) << "EAGB::CalculateCOCoreMassOnPhase(), p_Time = " << p_Time << ", tMx_FAGB = " << timescales(tMx_FAGB) << ", p = " << gbParams(p) << ", q = " << gbParams(q) << ", B = " << gbParams(B) << ", D = " << gbParams(D) << ", AHe = " << gbParams(AHe) << ", tinf1_FAGB = " << timescales(tinf1_FAGB) << ", tinf2_FAGB = " << timescales(tinf2_FAGB) << " <#-#-#-#-#-#-#-#-#-#-#-#\n";
+
+double compas = PPOW((gbParams(p) - 1.0) * gbParams(AHe) * gbParams(D) * (timescales(tinf1_FAGB) - p_Time), 1.0 / (1.0 - gbParams(p)));
+double sse    = PPOW((5.0 - 1.0) * 8.0000000000000007E-005 * 0.48417236758409943 * (4.7003562372950345 - 4.6445952482724282), 1.0 / (1.0 - 5.0));
+////t =    4.6457104680528802      , tx =    4.7001208896436353      , A =    8.0000000000000007E-005 , tinf1 =    4.7003562372950345      , tinf2 =    4.7010622802492339      , GB(3) =    183486.92170347279      , GB(4) =   0.48417236758409943      , GB(5) =    5.0000000000000000      , GB(6) =    2.0000000000000000      , mcgbtf =    18.538447844186539
+
+std::cout << std::fixed << std::setprecision(15) << ">>>###>>>###>>>###>>> " << compas << ", " << sse << "\n";
+
 
     return utils::Compare(p_Time, timescales(tMx_FAGB)) <= 0
             ? PPOW((gbParams(p) - 1.0) * gbParams(AHe) * gbParams(D) * (timescales(tinf1_FAGB) - p_Time), 1.0 / (1.0 - gbParams(p)))
@@ -1027,6 +1041,7 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
 
         m_Age = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
+
         HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, LogMetallicityXi(), m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams);  // IM: order of type change and parameter updates to be revisited (e.g., why not just CalculateGBParams(m_Mass0, m_GBParams)?)  JR: static function has no access to class variables
         m_Luminosity = HeGB::CalculateLuminosityOnPhase_Static(m_COCoreMass, gbParams(B), gbParams(D));
 

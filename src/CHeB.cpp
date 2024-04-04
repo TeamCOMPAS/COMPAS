@@ -978,6 +978,7 @@ double CHeB::CalculateRemnantLuminosity() const {
 
 double CHeB::CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_Luminosity) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateRadiusAtPhaseEnd(), p_Mass = " << p_Mass << ", p_Luminosity = " << p_Luminosity << "\n";
     return EAGB::CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, massCutoffs(MHeF), m_BnCoefficients);
 #undef massCutoffs
 }
@@ -1090,6 +1091,7 @@ double CHeB::CalculateRadiusAtBluePhaseEnd(const double p_Mass) const {
     //      - tau = ty
     //      - tau (ty) can never be < tx (so tau (ty) must be >= tx)
     //      - Ry = RAGB(Lx) (which is correct according to Hurley et al. 2000)
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateRadiusAtBluePhaseEnd(), p_Mass = " << p_Mass << ", lum = " << CalculateLuminosityAtBluePhaseEnd(m_Mass0) << "\n";
     return EAGB::CalculateRadiusOnPhase_Static(p_Mass, CalculateLuminosityAtBluePhaseEnd(m_Mass0), massCutoffs(MHeF), m_BnCoefficients);
 
 #undef massCutoffs
@@ -1158,9 +1160,11 @@ double CHeB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosi
 
     if (utils::Compare(p_Tau, tx) < 0) {
         RCHeB = GiantBranch::CalculateRadiusOnPhase(p_Mass, p_Luminosity);
+std::cout << "CHeB::CalculateRadiusOnPhase(@1)\n";
     }
     else if (utils::Compare(p_Tau, ty) > 0) {
         RCHeB = EAGB::CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, massCutoffs(MHeF), m_BnCoefficients);
+std::cout << "CHeB::CalculateRadiusOnPhase(@2)\n";
     }
     else  {
         double RmHe = CalculateMinimumRadiusOnPhase_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
@@ -1169,8 +1173,10 @@ double CHeB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosi
 
         rho         = std::abs(CalculateRadiusRho(p_Mass, p_Tau));
         RCHeB       = Rmin * exp(rho * rho * rho);
+std::cout << "CHeB::CalculateRadiusOnPhase(@3)\n";
     }
 
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateRadiusOnPhase(), p_Mass = " << p_Mass << ", p_Luminosity = " << p_Luminosity << ", p_Tau = " << p_Tau << ", radius = " << RCHeB << "\n";
     return RCHeB;
 
 #undef massCutoffs
@@ -1310,6 +1316,7 @@ double CHeB::CalculateBluePhaseFBL(const double p_Mass) {
     top = std::min(top, RHeI);
 
     // Calculate RAGB(LHeI(M)) for M > MFGB > MHeF
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateBluePhaseFBL(), p_Mass = " << p_Mass << ", LHeI = " << LHeI << "\n";
     double bottom   = EAGB::CalculateRadiusOnPhase_Static(p_Mass, LHeI, massCutoffs(MHeF), m_BnCoefficients);
     double brackets = 1.0 - (top / bottom);
 
