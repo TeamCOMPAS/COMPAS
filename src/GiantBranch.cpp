@@ -1135,22 +1135,28 @@ double GiantBranch::CalculateMomentOfInertia() const {
  *
  * Zahn, 1977, Eq. (5.5) , with the value of E_2 coming from Kushnir et al., 2017, by comparing Eq. (8) to Eq. (1)
  *
- *
- * double CalculateImKlmTidal(const double p_Omega)
+ * double CalculateImK22Tidal(const double p_Omega)
  *
  * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
  * @return                                      Imaginary component of pontential tidal love number (unitless)
  */
-double GiantBranch::CalculateImKlmTidal(const double p_Omega) {
-    double beta2Dynamical = 1;
+double GiantBranch::CalculateImK22Tidal(const double p_Omega) {
+    double beta2Dynamical = 1.0;
     double rhoFactorDynamcial = 0.1;
     double radiusAU = m_Radius * RSOL_TO_AU;
+    double coreRadiusAU = CalculateCoreRadius() * RSOL_TO_AU;
+    double coreRadius_over_radius = coreRadiusAU / radiusAU;
+    double coreRadius_over_radius_3 = coreRadius_over_radius * coreRadius_over_radius * coreRadius_over_radius;
+    double coreRadius_over_radius_9 = coreRadius_over_radius_3 * coreRadius_over_radius_3 * coreRadius_over_radius_3;
+    double mass_over_coreMass = m_Mass / m_CoreMass;
 
-    double E2Dynamical = (2.0 / 3.0) * PPOW((CalculateCoreRadius() / radiusAU), 9) * PPOW((m_Mass / m_CoreMass), (4.0 / 3.0)) * beta2Dynamical * rhoFactorDynamcial;
 
-    double s22 = 2.0 * (p_Omega - m_Omega) * std::sqrt(radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
+    double E2Dynamical = (2.0 / 3.0) * coreRadius_over_radius_9 * mass_over_coreMass * std::cbrt(mass_over_coreMass) * beta2Dynamical * rhoFactorDynamcial;
 
-    double k22Dynamical = E2Dynamical * PPOW(s22, 8.0/3.0);
+    double s22 = 2.0 * (p_Omega - Omega()) * std::sqrt(radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
+    double s22_4_3 = s22 * std::cbrt(s22);
+    double s22_8_3 = s22_4_3 * s22_4_3;
+    double k22Dynamical = E2Dynamical * s22_8_3;
 
     return k22Dynamical;
 }
