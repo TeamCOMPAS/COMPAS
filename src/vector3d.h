@@ -39,7 +39,10 @@ public:
     DBL_VECTOR  asDBL_VECTOR();
     
     // member functions 
-    Vector3d    RotateVector( const double p_ThetaE, 
+    Vector3d    RotateVectorAboutX( const double p_Theta);
+    Vector3d    RotateVectorAboutY( const double p_Theta);
+    Vector3d    RotateVectorAboutZ( const double p_Theta);
+    Vector3d    ChangeBasis( const double p_ThetaE, 
                               const double p_PhiE, 
                               const double p_PsiE);
     Vector3d    UnitVector();
@@ -107,6 +110,9 @@ namespace linalg {
     Vector3d    cross(const Vector3d& p_a, const Vector3d& p_b);
 
     double      angleBetween(const Vector3d& p_a, const Vector3d& p_b);
+
+    Vector3d    matrixMult(const std::vector<DBL_VECTOR>& p_matrix, const Vector3d& p_vector);
+
 }
 
 #endif // __vector3d_h__
