@@ -2279,8 +2279,79 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
 
-    if (OPTIONS->EnableTides() && !m_Unbound) {
+    if (OPTIONS->EnableRealisticTides() && !m_Unbound) {
+        // Change binary semi-major axis and spin of each star based on realistic tidal torque
+        // Adjust the binary orbital frequency to match semi-major axis.
+        // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
+        if (utils::Compare(m_Omega, 0.0) == 0) {
+            m_Omega = OrbitalAngularVelocity(); 
+        }
+      
+        
+        double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(m_Star1->CalculateImK22Tidal(m_Omega),
+                                                                  m_Star1->Mass(),
+                                                                  m_Star1->Radius(),
+                                                                  m_Star2->Mass(),
+                                                                  m_Omega,
+                                                                  m_SemiMajorAxis,
+                                                                  m_Eccentricity);
+        
+        double DSemiMajorAxis2Dt = CalculateDSemiMajorAxisTidalDt(m_Star2->CalculateImK22Tidal(m_Omega),
+                                                                  m_Star2->Mass(),
+                                                                  m_Star2->Radius(),
+                                                                  m_Star1->Mass(),
+                                                                  m_Omega,
+                                                                  m_SemiMajorAxis,
+                                                                  m_Eccentricity);
 
+        double DEccentricity1Dt   = CalculateDEccentricityTidalDt(m_Star1->CalculateImK22Tidal(m_Omega),
+                                                                  m_Star1->Mass(),
+                                                                  m_Star1->Radius(),
+                                                                  m_Star2->Mass(),
+                                                                  m_Omega,
+                                                                  m_SemiMajorAxis,
+                                                                  m_Eccentricity);
+        
+        double DEccentricity2Dt   = CalculateDEccentricityTidalDt(m_Star2->CalculateImK22Tidal(m_Omega),
+                                                                  m_Star2->Mass(),
+                                                                  m_Star2->Radius(),
+                                                                  m_Star1->Mass(),
+                                                                  m_Omega,
+                                                                  m_SemiMajorAxis,
+                                                                  m_Eccentricity);
+                                                       
+        double DOmega1Dt                =  CalculateDOmegaTidalDt(m_Star1->CalculateImK22Tidal(m_Omega),
+                                                                  m_Star1->Mass(),
+                                                                  m_Star1->Radius(),
+                                                                  m_Star1->CalculateMomentOfInertiaAU(),
+                                                                  m_Star2->Mass(),
+                                                                  m_Omega,
+                                                                  m_SemiMajorAxis,
+                                                                  m_Eccentricity);
+        
+        double DOmega2Dt                =  CalculateDOmegaTidalDt(m_Star2->CalculateImK22Tidal(m_Omega),
+                                                                  m_Star2->Mass(),
+                                                                  m_Star2->Radius(),
+                                                                  m_Star2->CalculateMomentOfInertiaAU(),
+                                                                  m_Star1->Mass(),
+                                                                  m_Omega,
+                                                                  m_SemiMajorAxis,
+                                                                  m_Eccentricity);
+
+        m_Star1->SetOmega(m_Star1->Omega() + (DOmega1Dt * p_Dt * MYR_TO_YEAR));                                                         // synchronise star 1
+        m_Star2->SetOmega(m_Star2->Omega() + (DOmega2Dt * p_Dt * MYR_TO_YEAR));                                                         // synchronise star 1
+
+        m_SemiMajorAxis = m_SemiMajorAxis + ((DSemiMajorAxis1Dt + DSemiMajorAxis2Dt) * p_Dt * MYR_TO_YEAR);                             // change separation
+
+        m_Eccentricity = m_Eccentricity + ((DEccentricity1Dt + DEccentricity2Dt) * p_Dt * MYR_TO_YEAR);                                 // change eccentricity (This increases eccentricity for positive k22)
+
+        m_Omega  = std::sqrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / m_SemiMajorAxis / m_SemiMajorAxis / m_SemiMajorAxis); // re-calculate orbital frequency
+
+        m_TotalAngularMomentum = CalculateAngularMomentum();                                                                            // re-calculate total angular momentum
+
+    }
+
+    if (OPTIONS->EnableTides() && !m_Unbound) {
         // find omega assuming synchronisation
         // use current value of m_Omega as best guess for root
         // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
