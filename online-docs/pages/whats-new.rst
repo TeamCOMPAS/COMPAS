@@ -6,6 +6,13 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.44.00 Apr 04, 2024**
+
+* Added 'realistic' tides option, which implements dynamical tides. 
+* Functionality enabled with new option ``--enable-realistic-tides`` (default is ``false``).
+* Added new function CalculateCoreRadius(), and member variable CoreRadius().
+
+
 **02.43.00 Mar 29, 2024**
 
 * Implementation of the neutrino rocket kick.

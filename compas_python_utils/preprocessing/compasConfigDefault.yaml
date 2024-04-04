@@ -49,6 +49,7 @@ booleanChoices:
 
     ### TIDES
 #    --enable-tides: False                                                 # Default: False
+#    --enable-realistic-tides: False                                        # Default: False
 
     ### SUPERNOVAE, KICKS AND REMNANTS
 #    --allow-non-stripped-ECSN: False                                      # Default: False
