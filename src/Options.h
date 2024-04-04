@@ -388,6 +388,13 @@ private:
         "rotational-frequency-1",
         "rotational-frequency-2",
 
+        "rocket-kick-magnitude-1",
+        "rocket-kick-magnitude-2",
+        "rocket-kick-phi-1", 
+        "rocket-kick-phi-2", 
+        "rocket-kick-theta-1",
+        "rocket-kick-theta-2",
+
         "semi-major-axis", "a",
         "semi-major-axis-distribution",
         "semi-major-axis-max",
@@ -767,6 +774,14 @@ public:
             // Black hole kicks
             ENUM_OPT<BLACK_HOLE_KICKS>                          m_BlackHoleKicks;                                               // Which black hole kicks mode
 
+            // Rocket kicks
+            double                                              m_RocketKickMagnitude1;                                         // Rocket kick magnitude primary - only for neutron stars
+            double                                              m_RocketKickMagnitude2;                                         // Rocket kick magnitude secondary - only for neutron stars
+            double                                              m_RocketKickPhi1;                                               // Rocket kick phi angle primary
+            double                                              m_RocketKickPhi2;                                               // Rocket kick phi angle secondary
+            double                                              m_RocketKickTheta1;                                             // Rocket kick theta angle primary
+            double                                              m_RocketKickTheta2;                                             // Rocket kick theta angle secondary
+                                                                                                                                
             // CHE - Chemically Homogeneous Evolution
             ENUM_OPT<CHE_MODE>                                  m_CheMode;                                                      // Which Chemically Homogeneous Evolution mode
 
@@ -1455,6 +1470,13 @@ public:
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
     
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
+
+    double                                      RocketKickMagnitude1() const                                            { return OPT_VALUE("rocket-kick-magnitude-1", m_RocketKickMagnitude1, true); }
+    double                                      RocketKickMagnitude2() const                                            { return OPT_VALUE("rocket-kick-magnitude-2", m_RocketKickMagnitude2, true); }
+    double                                      RocketKick_Phi1() const                                                 { return OPT_VALUE("rocket-kick-phi-1", m_RocketKickPhi1, true); }
+    double                                      RocketKick_Phi2() const                                                 { return OPT_VALUE("rocket-kick-phi-2", m_RocketKickPhi2, true); }
+    double                                      RocketKick_Theta1() const                                               { return OPT_VALUE("rocket-kick-theta-1", m_RocketKickTheta1, true); }
+    double                                      RocketKick_Theta2() const                                               { return OPT_VALUE("rocket-kick-theta-2", m_RocketKickTheta2, true); }
 
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return OPT_VALUE("rotational-velocity-distribution", m_RotationalVelocityDistribution.type, true); }
     double                                      RotationalFrequency() const                                             { return OPT_VALUE("rotational-frequency", m_RotationalFrequency, true); }

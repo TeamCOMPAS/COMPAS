@@ -227,6 +227,10 @@ public:
     void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                                        { m_Star->SetSNPastEvent(p_SNEvent); }
 
     double     	    SN_KickMagnitude()       									                                    { return m_Star->SN_KickMagnitude() ; }
+    double     	    SN_RocketKickMagnitude()       									                                { return m_Star->SN_RocketKickMagnitude(); }
+    double     	    SN_RocketKickPhi()       									                                    { return m_Star->SN_RocketKickPhi(); }
+    double     	    SN_RocketKickTheta()       									                                    { return m_Star->SN_RocketKickTheta(); }
+    
 
     STELLAR_TYPE    SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
 
