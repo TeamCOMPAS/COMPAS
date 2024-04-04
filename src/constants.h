@@ -280,7 +280,8 @@ constexpr double NEUTRINO_LOSS_FALLBACK_FACTOR          = 1.0;                  
 constexpr double MC_L_C1                                = 9.20925E-5;                                               // Core Mass - Luminosity relation constant c1 (Hurley et al. 2000, eq 44)
 constexpr double MC_L_C2                                = 5.402216;                                                 // Core Mass - Luminosity relation constant c2 (Hurley et al. 2000, eq 44)
 
-constexpr double HE_RATE_CONSTANT                       = 7.66E-5;                                                  // Helium rate constant (Hurley et al. 2000, eq 68)
+//constexpr double HE_RATE_CONSTANT                       = 7.66E-5;                                                  // Helium rate constant (Hurley et al. 2000, eq 68)
+constexpr double HE_RATE_CONSTANT                       = 8.0E-5;                                                  // Helium rate constant (Hurley sse)
 constexpr double HHE_RATE_CONSTANT                      = 1.27E-5;                                                  // Combined rate constant for both hydrogen and helium shell burning (Hurley et al. 2000, eq 71)
 
 constexpr double BLACK_HOLE_LUMINOSITY                  = 1.0E-10;                                                  // Black Hole luminosity
@@ -1644,14 +1645,12 @@ enum class TIMESCALE: int {
     tinf2_FGB,              // First Giant Branch tinf2
     tMx_FGB,                // First Giant Branch t(Mx)
 
-                            // Early Asymptotic Giant Branch (EAGB)
-                            // Why, then, are the following described as "FAGB"?  First AGB?
+                            // Early Asymptotic Giant Branch (EAGB) (FAGB in Hurley's sse)
     tinf1_FAGB,             // Early Asymptotic Giant Branch tinf1
     tinf2_FAGB,             // Early Asymptotic Giant Branch tinf2
     tMx_FAGB,               // Early Asymptotic Giant Branch t(Mx)
 
-                            // Thermally Pulsating Asymptotic Giant Branch (TPAGB)
-                            // Why, then, are the following described as "SAGB"?    Second AGB?
+                            // Thermally Pulsating Asymptotic Giant Branch (TPAGB) (SAGB in Hurley's sse)
     tinf1_SAGB,             // Thermally Pulsating Asymptotic Giant Branch tinf1
     tinf2_SAGB,             // Thermally Pulsating Asymptotic Giant Branch tinf2
     tMx_SAGB,               // Thermally Pulsating Asymptotic Giant Branch t(Mx)

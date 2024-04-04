@@ -82,7 +82,7 @@ protected:
 
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
 
-    bool            ShouldEvolveOnPhase() const                                             { return (m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]); }    // Evolve on MS phase if age in MS timescale
+    bool            ShouldEvolveOnPhase() const                                             { std::cout << std::fixed << std::setprecision(15) << "MS::ShouldEvolveOnPhase(): " << m_Age << ", " << m_Timescales[static_cast<int>(TIMESCALE::tMS)] << ", " << m_Timescales[static_cast<int>(TIMESCALE::tBGB)] << "\n"; return (m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]); }    // Evolve on MS phase if age in MS timescale
 
     void            UpdateInitialMass()                                                     { m_Mass0 = m_Mass; }                                                   // Per Hurley et al. 2000, section 7.1
     void            UpdateAgeAfterMassLoss();                                                                                                                       // Per Hurley et al. 2000, section 7.1

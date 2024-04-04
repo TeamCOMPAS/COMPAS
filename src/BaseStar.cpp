@@ -1555,6 +1555,7 @@ double BaseStar::CalculateLuminosityAtBAGB(double p_Mass) const {
  */
 double BaseStar::CalculateLuminosityGivenCoreMass(const double p_CoreMass) const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateLuminosityGivenCoreMass(), p_CoreMass = " << p_CoreMass << ", gbParams(Mx) = " << gbParams(Mx) << ", gbParams(p) = " << gbParams(p) << ", gbParams(q) = " << gbParams(q) << ", gbParams(B) = " << gbParams(B) << ", gbParams(D) = " << gbParams(D) << ", 1 = " << (gbParams(B) * PPOW(p_CoreMass, gbParams(q))) << ", 2 = " << (gbParams(D) * PPOW(p_CoreMass, gbParams(p))) << "\n";
     return min((gbParams(B) * PPOW(p_CoreMass, gbParams(q))), (gbParams(D) * PPOW(p_CoreMass, gbParams(p))));
 #undef gbParams
 }
@@ -4112,12 +4113,15 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
         m_HeCoreMass      = CalculateHeCoreMassOnPhase();
         
         m_Luminosity      = CalculateLuminosityOnPhase();
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(), m_Luminosity = " << m_Luminosity << ", ST = " << static_cast<int>(m_StellarType) << " <***************\n";
 
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // radius and possibly new stellar type
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(pre-perturb), m_Radius = " << m_Radius << ", ST = " << static_cast<int>(m_StellarType) << " <***************\n";
 
         m_Mu              = CalculatePerturbationMuOnPhase();
 
         PerturbLuminosityAndRadiusOnPhase();
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(post-perturb), m_Radius = " << m_Radius << ", ST = " << static_cast<int>(m_StellarType) << " <***************\n";
 
         m_Temperature     = CalculateTemperatureOnPhase();
 
