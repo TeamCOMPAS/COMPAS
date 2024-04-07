@@ -4112,8 +4112,9 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
         m_CoreMass        = CalculateCoreMassOnPhase();
         m_HeCoreMass      = CalculateHeCoreMassOnPhase();
         
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(@1), m_Luminosity = " << m_Luminosity << ", ST = " << static_cast<int>(m_StellarType) << " <***************\n";
         m_Luminosity      = CalculateLuminosityOnPhase();
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(), m_Luminosity = " << m_Luminosity << ", ST = " << static_cast<int>(m_StellarType) << " <***************\n";
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(@2), m_Luminosity = " << m_Luminosity << ", ST = " << static_cast<int>(m_StellarType) << " <***************\n";
 
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // radius and possibly new stellar type
 std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(pre-perturb), m_Radius = " << m_Radius << ", ST = " << static_cast<int>(m_StellarType) << " <***************\n";
