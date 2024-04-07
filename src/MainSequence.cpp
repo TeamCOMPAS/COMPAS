@@ -28,7 +28,7 @@ void MainSequence::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timesc
 #define timescales(x) p_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     timescales(tBGB)   = CalculateLifetimeToBGB(p_Mass);
     timescales(tMS)    = CalculateLifetimeOnPhase(p_Mass, timescales(tBGB));
-std::cout << std::fixed << std::setprecision(15) << "MainSequence::CalculateTimescales(), timescales(tBGB) = " << timescales(tBGB) << ", timescales(tMS) = " << timescales(tMS) << "\n";
+std::cout << std::fixed << std::setprecision(15) << "MainSequence::CalculateTimescales(), timescales(tBGB) = " << timescales(tBGB) << ", timescales(tMS) = " << timescales(tMS) << ", timescales(tHeI) = " << timescales(tHeI) << "\n";
 #undef timescales
 }
 

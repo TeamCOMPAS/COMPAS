@@ -47,7 +47,9 @@ void CHeB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
     // actually exist for some stars), and maybe a bit more meaningful (we're just using a very short 
     // duration blue loop instead of a no duration (non-existent) one)
 
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateTimescales(@1), tau_BL = " << timescales(tau_BL) << "\n";
     if (timescales(tau_BL) <= 0.0) timescales(tau_BL) = ABSOLUTE_MINIMUM_TIMESTEP;      // don't use utils::Compare() here
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateTimescales(@2), tau_BL = " << timescales(tau_BL) << "\n";
 
     // Calculate the relative age at the start of the blue phase of Core Helium Burning
     // Hurley et al. 2000, just before eq 59
@@ -62,6 +64,7 @@ void CHeB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
 	timescales(tauY_BL) = utils::Compare(p_Mass, massCutoffs(MFGB)) >= 0
                                     ? timescales(tau_BL)                                // high mass stars
                                     : 1.0;                                              // intermediate and low mass stars
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateTimescales(@1), tauX_BL = " << timescales(tauX_BL) << ", tauY_BL = " << timescales(tauY_BL) << "\n";
 
 #undef massCutoffs
 #undef timescales
@@ -853,14 +856,18 @@ double CHeB::CalculateLuminosityAtBluePhaseStart(const double p_Mass) const {
     double Lx;
     if (utils::Compare(p_Mass, massCutoffs(MHeF)) < 0) {
         Lx = GiantBranch::CalculateLuminosityOnZAHB_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateLuminosityAtBluePhaseStart(@1)\n";
     }
     else if (utils::Compare(p_Mass, massCutoffs(MFGB)) < 0) {
         Lx = CalculateMinimumLuminosityOnPhase(p_Mass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_BnCoefficients);
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateLuminosityAtBluePhaseStart(@2)\n";
     }
     else {
         Lx = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateLuminosityAtBluePhaseStart(@3)\n";
     }
 
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateLuminosityAtBluePhaseStart(), p_Mass = " << p_Mass << ", MHef = " << massCutoffs(MHeF) << ", MFGB = " << massCutoffs(MFGB) << ", Lx = " << Lx << "\n";
     return Lx;
 
 #undef massCutoffs
@@ -888,6 +895,7 @@ double CHeB::CalculateLuminosityAtBluePhaseEnd(const double p_Mass) const {
     double ty = timescales(tauY_BL);
 
     double Lx = CalculateLuminosityAtBluePhaseStart(p_Mass);
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateLuminosityAtBluePhaseEnd(@1), p_Mass = " << p_Mass << ", tx = " << tx << ", ty = " << ty << ", Lx = " << Lx << "\n";
 
     if (utils::Compare(ty, tx) >= 0) {
         double Rx      = CalculateRadiusAtBluePhaseStart(p_Mass);
@@ -895,12 +903,14 @@ double CHeB::CalculateLuminosityAtBluePhaseEnd(const double p_Mass) const {
         double epsilon = std::min(2.5, std::max(0.4, RMinHe / Rx));
         double lambda  = (utils::Compare(ty, tx) == 0) ? 0.0 : PPOW(((ty - tx) / (1.0 - tx)), epsilon);     // JR: tx can be 1.0 here - if so, lambda = 0.0
         Ly             = Lx * PPOW(CalculateLuminosityAtBAGB(p_Mass) / Lx, lambda);
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateLuminosityAtBluePhaseEnd(@2), Rx = " << Rx << ", RMinHe = " << RMinHe << ", epsion = " << epsilon << ", lambda = " << lambda << ", Ly = " << Ly << "\n";
     }
     else {
         // pow() is slow - use multiplication
         double tmp         = (tx - ty) / tx;                                                        // JR: tx cannot be 0.0 here - so safe (tx > ty, ty = [0, 1])
         double lambdaPrime = tmp * tmp * tmp;
         Ly                 = Lx * PPOW(GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients) / Lx, lambdaPrime);
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateLuminosityAtBluePhaseEnd(@3), Ly = " << Ly << "\n";
     }
 
     return Ly;
@@ -925,19 +935,29 @@ double CHeB::CalculateLuminosityAtBluePhaseEnd(const double p_Mass) const {
 double CHeB::CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateLuminosityOnPhase(@1), p_Mass = " << p_Mass << ", p_Tau = " << p_Tau << ", m_Age = " << m_Age << ", tBGB = " << timescales(tBGB) << ", tHeI = " << timescales(tHeI) << "\n";
 
     double lCHeB;
 
     double tx = timescales(tauX_BL);                                                                                                        // 0 for LM and HM stars, non-zero for IM stars
     double Lx = CalculateLuminosityAtBluePhaseStart(p_Mass);
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateLuminosityOnPhase(@2), tx = " << tx << ", Lx = " << Lx << "\n";
 
     if (utils::Compare(p_Tau, tx) >= 0) {
         double Rx      = CalculateRadiusAtBluePhaseStart(p_Mass);
         double RmHe    = CalculateMinimumRadiusOnPhase_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
         double LBAGB   = CalculateLuminosityAtBAGB(p_Mass);
+
+
+        if (p_Mass > 12.0) {
+            Rx = RmHe;
+        }
+
+
         double epsilon = std::min(2.5, std::max(0.4, (RmHe / Rx)));
         double lambda  = (utils::Compare(p_Tau, tx) == 0) ? 0.0 : PPOW((p_Tau - tx) / (1.0 - tx), epsilon);                                  // JR: tx can be 1.0 here - if so, lambda = 0.0
         lCHeB          = Lx * PPOW(LBAGB / Lx, lambda);
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateLuminosityOnPhase(@2.5), RmHe = " << RmHe << ", Rx = " << Rx << ", epsilon " << epsilon << ", LBAGB = " << LBAGB << ", lambda = " << lambda << "\n";
     }
     else {
         double LHeI        = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);    // pow() is slow - use multiplication
@@ -946,6 +966,7 @@ double CHeB::CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau)
         lCHeB              = Lx * PPOW((LHeI / Lx), lambdaPrime);
     }
 
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateLuminosityOnPhase(@3), lCHeB = " << lCHeB << "\n";
     return lCHeB;
 
 #undef masCutoffs
@@ -1057,13 +1078,16 @@ double CHeB::CalculateRadiusAtBluePhaseStart(const double p_Mass) const {
     double Rx;
 
     if (utils::Compare(p_Mass, massCutoffs(MHeF)) < 0) {
+std::cout << "CHeB::CalculateRadiusAtBluePhaseStart(@1)\n";
         Rx = GiantBranch::CalculateRadiusOnZAHB_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
     }
     else if (utils::Compare(p_Mass, massCutoffs(MFGB)) < 0) {
+std::cout << "CHeB::CalculateRadiusAtBluePhaseStart(@2)\n";
         double luminosity = CalculateMinimumLuminosityOnPhase(p_Mass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_BnCoefficients);
         Rx = GiantBranch::CalculateRadiusOnPhase(p_Mass, luminosity);
     }
     else {
+std::cout << "CHeB::CalculateRadiusAtBluePhaseStart(@3)\n";
         Rx = CalculateRadiusAtHeIgnition(p_Mass);
     }
 
@@ -1157,6 +1181,7 @@ double CHeB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosi
     double tx  = timescales(tauX_BL);
     double ty  = timescales(tauY_BL);
     double rho = 0.0;
+std::cout << std::fixed << std::setprecision(15) << "CHeB::CalculateRadiusOnPhase(), p_Tau = " << p_Tau << ", tx = " << tx << ", ty = " << ty << ", p_Mass = " << p_Mass << ", MHeF = " << massCutoffs(MHeF) << "\n";
 
     if (utils::Compare(p_Tau, tx) < 0) {
         RCHeB = GiantBranch::CalculateRadiusOnPhase(p_Mass, p_Luminosity);
