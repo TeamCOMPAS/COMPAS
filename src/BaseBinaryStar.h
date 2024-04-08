@@ -774,9 +774,12 @@ private:
      * Zahn, 1977, Eq. (3.6)
      *
      *
-     * double CalculateDSemiMajorAxisTidalDt(const double p_ImK22, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
+     * double CalculateDSemiMajorAxisTidalDt(const double p_ImK10, const double p_ImK12, const double p_ImK22, const double p_ImK32, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
      *
+     * @param   [IN]    p_ImK10                     Imaginary (1,0) component of potential tidal love number of star (unitless)
+     * @param   [IN]    p_ImK12                     Imaginary (1,2) component of potential tidal love number of star (unitless)
      * @param   [IN]    p_ImK22                     Imaginary (2,2) component of potential tidal love number of star (unitless)
+     * @param   [IN]    p_ImK32                     Imaginary (3,2) component of potential tidal love number of star (unitless)
      * @param   [IN]    p_M1                        Mass of star (Msol)
      * @param   [IN]    p_R1                        Radius of star (Rsol)
      * @param   [IN]    p_M2                        Mass of companion star (Msol)
@@ -785,12 +788,12 @@ private:
      * @param   [IN]    p_Eccentricity              Eccentricity for binary
      * @return                                      Change in semi-major axis for binary (AU/yr)
      */    
-    double CalculateDSemiMajorAxisTidalDt(const double p_ImK22, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
+    double CalculateDSemiMajorAxisTidalDt(const double p_ImK10, const double p_ImK12, const double p_ImK22, const double p_ImK32, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
         double R1_AU = p_R1 * RSOL_TO_AU;
         double R1_over_a = R1_AU / p_SemiMajorAxis;
         double R1_over_a_7 = R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a;
 
-        return - (3.0 / p_Omega) * (1.0 + (p_M2 / p_M1)) * (G_AU_Msol_yr * p_M2/ R1_AU / R1_AU) * R1_over_a_7 * p_ImK22;
+        return - (3.0 / p_Omega) * (1.0 + (p_M2 / p_M1)) * (G_AU_Msol_yr * p_M2/ R1_AU / R1_AU) * R1_over_a_7 * (p_ImK22 + ((p_Eccentricity*p_Eccentricity) * ((3.0 * p_ImK10 / 4.0) + (p_ImK12 / 8.0) - (5.0 * p_ImK22) + (147.0 * p_ImK32 / 8.0))));
     }
 
     /*
@@ -798,9 +801,12 @@ private:
      * Zahn, 1977, Eq. (3.7)
      *
      *
-     * double CalculateDEccentricityTidalDt(const double p_ImK22, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
+     * double CalculateDEccentricityTidalDt(const double p_ImK10, const double p_ImK12, const double p_ImK22, const double p_ImK32, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
      *
+     * @param   [IN]    p_ImK10                     Imaginary (1,0) component of potential tidal love number of star (unitless)
+     * @param   [IN]    p_ImK12                     Imaginary (1,2) component of potential tidal love number of star (unitless)
      * @param   [IN]    p_ImK22                     Imaginary (2,2) component of potential tidal love number of star (unitless)
+     * @param   [IN]    p_ImK32                     Imaginary (3,2) component of potential tidal love number of star (unitless)
      * @param   [IN]    p_M1                        Mass of star (Msol)
      * @param   [IN]    p_R1                        Radius of star (Rsol)
      * @param   [IN]    p_M2                        Mass of companion star (Msol)
@@ -809,13 +815,13 @@ private:
      * @param   [IN]    p_Eccentricity              Eccentricity for binary
      * @return                                      Change in Eccentricity for binary (1/yr)
      */    
-    double CalculateDEccentricityTidalDt(const double p_ImK22, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
+    double CalculateDEccentricityTidalDt(const double p_ImK10, const double p_ImK12, const double p_ImK22, const double p_ImK32, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
         
         double R1_AU = p_R1 * RSOL_TO_AU;
         double R1_over_a = R1_AU / p_SemiMajorAxis;
         double R1_over_a_8 = R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a;
 
-        return -(3.0 / 4.0) * (p_Eccentricity/p_Omega) * (1.0 + (p_M2 / p_M1)) * (G_AU_Msol_yr * p_M2 / R1_AU / R1_AU / R1_AU) * R1_over_a_8 * (-p_ImK22);
+        return -(3.0 / 4.0) * (p_Eccentricity/p_Omega) * (1.0 + (p_M2 / p_M1)) * (G_AU_Msol_yr * p_M2 / R1_AU / R1_AU / R1_AU) * R1_over_a_8 * ((3.0 * p_ImK10 / 2.0) - (p_ImK12 / 4.0) - p_ImK22 + (49.0 * p_ImK32 / 4.0));
     }
 
     /*
@@ -823,9 +829,12 @@ private:
      * Zahn, 1977, Eq. (3.8)
      *
      *
-     * double CalculateDOmegaTidalDt(const double p_ImK22, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
+     * double CalculateDOmegaTidalDt(const double p_ImK10, const double p_ImK12, const double p_ImK22, const double p_ImK32, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
      *
+     * @param   [IN]    p_ImK10                     Imaginary (1,0) component of potential tidal love number of star (unitless)
+     * @param   [IN]    p_ImK12                     Imaginary (1,2) component of potential tidal love number of star (unitless)
      * @param   [IN]    p_ImK22                     Imaginary (2,2) component of potential tidal love number of star (unitless)
+     * @param   [IN]    p_ImK32                     Imaginary (3,2) component of potential tidal love number of star (unitless)
      * @param   [IN]    p_M1                        Mass of star (Msol)
      * @param   [IN]    p_R1                        Radius of star (Rsol)
      * @param   [IN]    p_I1                        Moment of Inertia of star (Msol * AU^2)
@@ -834,13 +843,13 @@ private:
      * @param   [IN]    p_Eccentricity              Eccentricity for binary
      * @return                                      Change in Omega for star (1/yr/yr)
      */    
-    double CalculateDOmegaTidalDt(const double p_ImK22, const double p_M1, const double p_R1, const double p_I1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
+    double CalculateDOmegaTidalDt(const double p_ImK10, const double p_ImK12, const double p_ImK22, const double p_ImK32, const double p_M1, const double p_R1, const double p_I1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
         
         double R1_AU = p_R1 * RSOL_TO_AU;
         double R1_over_a = R1_AU / p_SemiMajorAxis;
         double R1_over_a_6 = R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a;
 
-        return (3.0 / 2.0) * (1/p_I1) * (G_AU_Msol_yr * p_M2 * p_M2 / R1_AU) * R1_over_a_6 * p_ImK22;
+        return (3.0 / 2.0) * (1/p_I1) * (G_AU_Msol_yr * p_M2 * p_M2 / R1_AU) * R1_over_a_6 * (p_ImK22 + ((p_Eccentricity*p_Eccentricity) *  ((p_ImK12 / 4.0) - (5.0 * p_ImK22) + (49.0 * p_ImK32 / 4.0))));
     }
   
 };

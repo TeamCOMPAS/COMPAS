@@ -1131,16 +1131,18 @@ double GiantBranch::CalculateMomentOfInertia() const {
 }
 
 /*
- * Calculate imaginary component of potential tidal Love number (Dynamical Tides, (2,2) mode ONLY)
+ * Calculate (n=2, l, m) imaginary component of potential tidal Love number (Dynamical Tides ONLY for now)
  *
  * Zahn, 1977, Eq. (5.5) , with the value of E_2 coming from Kushnir et al., 2017, by comparing Eq. (8) to Eq. (1)
  *
- * double CalculateImK22Tidal(const double p_Omega)
+ * double CalculateImKlmTidal(const double p_Omega)
  *
  * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
- * @return                                      Imaginary component of potential tidal love number (unitless, (2,2) mode only)
+ * @param   [IN]    l                           l mode
+ * @param   [IN]    m                           m mode
+ * @return                                      Imaginary component of potential tidal love number (unitless)
  */
-double GiantBranch::CalculateImK22Tidal(const double p_Omega) {
+double GiantBranch::CalculateImKlmTidal(const double p_Omega, const int p_l, const int p_m) {
     double beta2Dynamical = 1.0;
     double rhoFactorDynamcial = 0.1;
     double radiusAU = m_Radius * RSOL_TO_AU;
@@ -1153,12 +1155,12 @@ double GiantBranch::CalculateImK22Tidal(const double p_Omega) {
 
     double E2Dynamical = (2.0 / 3.0) * coreRadius_over_radius_9 * mass_over_coreMass * std::cbrt(mass_over_coreMass) * beta2Dynamical * rhoFactorDynamcial;
 
-    double s22 = 2.0 * (p_Omega - Omega()) * std::sqrt(radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
-    double s22_4_3 = s22 * std::cbrt(s22);
-    double s22_8_3 = s22_4_3 * s22_4_3;
-    double k22Dynamical = E2Dynamical * s22_8_3;
+    double slm = ((p_l*p_Omega) - (p_m*Omega())) * std::sqrt(radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
+    double slm_4_3 = slm * std::cbrt(slm);
+    double slm_8_3 = slm_4_3 * slm_4_3;
+    double klmDynamical = E2Dynamical * slm_8_3;
 
-    return k22Dynamical;
+    return klmDynamical;
 }
 
 

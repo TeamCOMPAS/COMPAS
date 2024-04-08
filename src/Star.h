@@ -162,7 +162,7 @@ public:
     double          CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
     
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }
-    double          CalculateImK22Tidal(const double p_Omega)                                                       { return m_Star->CalculateImK22Tidal(p_Omega); }
+    double          CalculateImKlmTidal(const double p_Omega, const int p_l, const int p_m)                         { return m_Star->CalculateImKlmTidal(p_Omega, p_l, p_m); }
     void            CalculateLambdas()                                                                              { m_Star->CalculateLambdas(); }
     void            CalculateLambdas(const double p_EnvMass)                                                        { m_Star->CalculateLambdas(p_EnvMass); }
 
