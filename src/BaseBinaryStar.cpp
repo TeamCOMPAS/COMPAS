@@ -2335,7 +2335,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
 
     if (OPTIONS->EnableRealisticTides() && !m_Unbound) {
-        // Change binary semi-major axis and spin of each star based on realistic tidal torque
+        // Change binary semi-major axis, eccentricity, and spin of each star based on realistic tidal torque
         // Adjust the binary orbital frequency to match semi-major axis.
         // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
         if (utils::Compare(m_Omega, 0.0) == 0) {
@@ -2343,7 +2343,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         }
       
         
-        double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(m_Star1->CalculateImK22Tidal(m_Omega),
+        double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(m_Star1->CalculateImKlmTidal(m_Omega, 1, 0), m_Star1->CalculateImKlmTidal(m_Omega, 1, 2),
+                                                                  m_Star1->CalculateImKlmTidal(m_Omega, 2, 2), m_Star1->CalculateImKlmTidal(m_Omega, 3, 2),
                                                                   m_Star1->Mass(),
                                                                   m_Star1->Radius(),
                                                                   m_Star2->Mass(),
@@ -2351,7 +2352,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
                                                                   m_SemiMajorAxis,
                                                                   m_Eccentricity);
         
-        double DSemiMajorAxis2Dt = CalculateDSemiMajorAxisTidalDt(m_Star2->CalculateImK22Tidal(m_Omega),
+        double DSemiMajorAxis2Dt = CalculateDSemiMajorAxisTidalDt(m_Star1->CalculateImKlmTidal(m_Omega, 1, 0), m_Star1->CalculateImKlmTidal(m_Omega, 1, 2),
+                                                                  m_Star1->CalculateImKlmTidal(m_Omega, 2, 2), m_Star1->CalculateImKlmTidal(m_Omega, 3, 2),
                                                                   m_Star2->Mass(),
                                                                   m_Star2->Radius(),
                                                                   m_Star1->Mass(),
@@ -2359,7 +2361,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
                                                                   m_SemiMajorAxis,
                                                                   m_Eccentricity);
 
-        double DEccentricity1Dt   = CalculateDEccentricityTidalDt(m_Star1->CalculateImK22Tidal(m_Omega),
+        double DEccentricity1Dt   = CalculateDEccentricityTidalDt(m_Star1->CalculateImKlmTidal(m_Omega, 1, 0), m_Star1->CalculateImKlmTidal(m_Omega, 1, 2),
+                                                                  m_Star1->CalculateImKlmTidal(m_Omega, 2, 2), m_Star1->CalculateImKlmTidal(m_Omega, 3, 2),
                                                                   m_Star1->Mass(),
                                                                   m_Star1->Radius(),
                                                                   m_Star2->Mass(),
@@ -2367,7 +2370,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
                                                                   m_SemiMajorAxis,
                                                                   m_Eccentricity);
         
-        double DEccentricity2Dt   = CalculateDEccentricityTidalDt(m_Star2->CalculateImK22Tidal(m_Omega),
+        double DEccentricity2Dt   = CalculateDEccentricityTidalDt(m_Star1->CalculateImKlmTidal(m_Omega, 1, 0), m_Star1->CalculateImKlmTidal(m_Omega, 1, 2),
+                                                                  m_Star1->CalculateImKlmTidal(m_Omega, 2, 2), m_Star1->CalculateImKlmTidal(m_Omega, 3, 2),
                                                                   m_Star2->Mass(),
                                                                   m_Star2->Radius(),
                                                                   m_Star1->Mass(),
@@ -2375,7 +2379,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
                                                                   m_SemiMajorAxis,
                                                                   m_Eccentricity);
                                                        
-        double DOmega1Dt                =  CalculateDOmegaTidalDt(m_Star1->CalculateImK22Tidal(m_Omega),
+        double DOmega1Dt                =  CalculateDOmegaTidalDt(m_Star1->CalculateImKlmTidal(m_Omega, 1, 0), m_Star1->CalculateImKlmTidal(m_Omega, 1, 2),
+                                                                  m_Star1->CalculateImKlmTidal(m_Omega, 2, 2), m_Star1->CalculateImKlmTidal(m_Omega, 3, 2),
                                                                   m_Star1->Mass(),
                                                                   m_Star1->Radius(),
                                                                   m_Star1->CalculateMomentOfInertiaAU(),
@@ -2384,7 +2389,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
                                                                   m_SemiMajorAxis,
                                                                   m_Eccentricity);
         
-        double DOmega2Dt                =  CalculateDOmegaTidalDt(m_Star2->CalculateImK22Tidal(m_Omega),
+        double DOmega2Dt                =  CalculateDOmegaTidalDt(m_Star1->CalculateImKlmTidal(m_Omega, 1, 0), m_Star1->CalculateImKlmTidal(m_Omega, 1, 2),
+                                                                  m_Star1->CalculateImKlmTidal(m_Omega, 2, 2), m_Star1->CalculateImKlmTidal(m_Omega, 3, 2),
                                                                   m_Star2->Mass(),
                                                                   m_Star2->Radius(),
                                                                   m_Star2->CalculateMomentOfInertiaAU(),
@@ -2398,7 +2404,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
         m_SemiMajorAxis = m_SemiMajorAxis + ((DSemiMajorAxis1Dt + DSemiMajorAxis2Dt) * p_Dt * MYR_TO_YEAR);                             // change separation
 
-        m_Eccentricity = m_Eccentricity + ((DEccentricity1Dt + DEccentricity2Dt) * p_Dt * MYR_TO_YEAR);                                 // change eccentricity (This increases eccentricity for positive k22)
+        m_Eccentricity = m_Eccentricity + ((DEccentricity1Dt + DEccentricity2Dt) * p_Dt * MYR_TO_YEAR);                                 // change eccentricity 
 
         m_Omega  = std::sqrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / m_SemiMajorAxis / m_SemiMajorAxis / m_SemiMajorAxis); // re-calculate orbital frequency
 
