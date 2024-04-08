@@ -1775,7 +1775,7 @@ double BaseStar::CalculateMassLossRateBjorklundEddingtonFactor() const {
     const double YHe  = 0.1;                                            // Assumed constant by Bjorklund et al.
     double kappa_e    = 0.4 * (1.0 + iHe * YHe) / (1.0 + 4.0 * YHe);    // cm^2/g
     double kappa_e_SI = kappa_e * OPACITY_CGS_TO_SI;                    // m^2/kg
-    double top        = kappa_e_SI * m_Luminosity * LSOL;
+    double top        = kappa_e_SI * m_Luminosity * LSOLW;
     double bottom     = 4.0 * M_PI * G * C * m_Mass * MSOL_TO_KG; 
 
     return top / bottom;

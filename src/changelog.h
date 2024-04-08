@@ -1113,8 +1113,11 @@
 //                                      - Defect repair : Added explicit definition `bool isUnstable = false` to avoid confusion in BaseBinaryStar.cpp
 //                                      - Defect repair : Fixed erroneous core mass values in ResolveSNIa in WhiteDwarfs.cpp. Was previously 0 for all core masses. 
 //                                      - Enhancement: Added output parameter TZAMS for internal variable m_TZAMS
-// 02.43.00    RTW - Mar 29, 2023    - Enhancement:
+// 02.43.00    RTW - Mar 29, 2024    - Enhancement:
 //                                      - Added Hirai pulsar rocket kick, and related options
+// 02.43.01    SS - Apr 8, 2024      - Defect repair
+//                                      - Fix CalculateMassLossRateBjorklundEddingtonFactor to use LSOLW (in SI) rather than LSOL (in cgs)        
+//
 // 02.44.00     VK - Apr 04, 2024    - Enhancement:
 //                                      - Added 'realistic' tides option, which implements dynamical tides. Functionality enabled with new option `--enable-realistic-tides`.  Default is no tides.
 //                                      - Dynamcial tides implementation follows Zahn, 1977, Eq. (5.5) , with the value of E_2 coming from Kushnir et al., 2017, Eq. (8).
