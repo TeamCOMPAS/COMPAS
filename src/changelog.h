@@ -1116,8 +1116,7 @@
 // 02.43.00    RTW - Mar 29, 2024    - Enhancement:
 //                                      - Added Hirai pulsar rocket kick, and related options
 // 02.43.01    SS - Apr 8, 2024      - Defect repair
-//                                      - Fix CalculateMassLossRateBjorklundEddingtonFactor to use LSOLW (in SI) rather than LSOL (in cgs)
-//                                      - Fix typo in year in previous changelog entry (2023 -> 2024)           
+//                                      - Fix CalculateMassLossRateBjorklundEddingtonFactor to use LSOLW (in SI) rather than LSOL (in cgs)        
 //
 
 const std::string VERSION_STRING = "02.43.01";
