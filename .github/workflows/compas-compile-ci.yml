@@ -48,7 +48,7 @@ jobs:
           pip install --upgrade pip
           pip install -e .[dev]
       - name: Run example COMPAS job
-        run: >
+        run: |
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
           cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
           chmod 755 run.sh
