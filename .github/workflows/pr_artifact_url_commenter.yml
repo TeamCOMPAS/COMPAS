@@ -7,7 +7,8 @@ name: Comment on Pull request
 #     workflows:
 #       - 'COMPAS compile test'
 
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
 
 jobs:
   comment:
