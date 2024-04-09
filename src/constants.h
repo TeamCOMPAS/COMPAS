@@ -1919,6 +1919,9 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     RANDOM_SEED,                                     \
     RECYCLED_NEUTRON_STAR,                           \
     RLOF_ONTO_NS,                                    \
+    ROCKET_KICK_MAGNITUDE,                           \
+    ROCKET_KICK_PHI,                                 \
+    ROCKET_KICK_THETA,                               \
     RZAMS,                                           \
     SN_TYPE,                                         \
     SPEED,                                           \
@@ -1939,6 +1942,7 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     TIMESCALE_MS,                                    \
     TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,          \
     TRUE_ANOMALY,                                    \
+    TZAMS,                                           \
     ZETA_HURLEY,                                     \
     ZETA_HURLEY_HE,                                  \
     ZETA_SOBERMAN,                                   \
@@ -2074,6 +2078,9 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::RANDOM_SEED,                                     "RANDOM_SEED" },
     { STAR_PROPERTY::RECYCLED_NEUTRON_STAR,                           "RECYCLED_NEUTRON_STAR" },
     { STAR_PROPERTY::RLOF_ONTO_NS,                                    "RLOF_ONTO_NS" },
+    { STAR_PROPERTY::ROCKET_KICK_MAGNITUDE,                           "ROCKET_KICK_MAGNITUDE" },
+    { STAR_PROPERTY::ROCKET_KICK_PHI,                                 "ROCKET_KICK_PHI" },
+    { STAR_PROPERTY::ROCKET_KICK_THETA,                               "ROCKET_KICK_THETA" },
     { STAR_PROPERTY::RZAMS,                                           "RZAMS" },
     { STAR_PROPERTY::SN_TYPE,                                         "SN_TYPE" },
     { STAR_PROPERTY::SPEED,                                           "SPEED" },
@@ -2094,6 +2101,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::TIMESCALE_MS,                                    "TIMESCALE_MS" },
     { STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,          "TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION" },
     { STAR_PROPERTY::TRUE_ANOMALY,                                    "TRUE_ANOMALY" },
+    { STAR_PROPERTY::TZAMS,                                           "TZAMS" },
     { STAR_PROPERTY::ZETA_HURLEY,                                     "ZETA_HURLEY" },
     { STAR_PROPERTY::ZETA_HURLEY_HE,                                  "ZETA_HURLEY_HE" },
     { STAR_PROPERTY::ZETA_SOBERMAN,                                   "ZETA_SOBERMAN" },
@@ -2584,6 +2592,13 @@ enum class PROGRAM_OPTION: int {
 
     REMNANT_MASS_PRESCRIPTION,
 
+    ROCKET_KICK_MAGNITUDE_1,
+    ROCKET_KICK_MAGNITUDE_2,
+    ROCKET_KICK_PHI_1,
+    ROCKET_KICK_PHI_2,
+    ROCKET_KICK_THETA_1,
+    ROCKET_KICK_THETA_2,
+
     ROTATIONAL_VELOCITY_DISTRIBUTION,
     ROTATIONAL_FREQUENCY,
     ROTATIONAL_FREQUENCY_1,
@@ -2794,6 +2809,13 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION,                        "REMNANT_MASS_PRESCRIPTION" },
 
+    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1,                          "ROCKET_KICK_MAGNITUDE_1" },
+    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_2,                          "ROCKET_KICK_MAGNITUDE_2" },
+    { PROGRAM_OPTION::ROCKET_KICK_PHI_1,                                "ROCKET_KICK_PHI_1" },
+    { PROGRAM_OPTION::ROCKET_KICK_PHI_2,                                "ROCKET_KICK_PHI_2" },
+    { PROGRAM_OPTION::ROCKET_KICK_THETA_1,                              "ROCKET_KICK_THETA_1" },
+    { PROGRAM_OPTION::ROCKET_KICK_THETA_2,                              "ROCKET_KICK_THETA_2" },
+
     { PROGRAM_OPTION::ROTATIONAL_VELOCITY_DISTRIBUTION,                 "ROTATIONAL_VELOCITY_DISTRIBUTION" },
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY,                             "ROTATIONAL_FREQUENCY" },
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1,                           "ROTATIONAL_FREQUENCY_1" },
@@ -2961,6 +2983,9 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::RANDOM_SEED,                                       { TYPENAME::ULONGINT,         "SEED",                            "-",                12, 1 }},
     { ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR,                             { TYPENAME::BOOL,             "Recycled_NS",                     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::RLOF_ONTO_NS,                                      { TYPENAME::BOOL,             "RLOF->NS",                        "Event",             0, 0 }},
+    { ANY_STAR_PROPERTY::ROCKET_KICK_MAGNITUDE,                             { TYPENAME::DOUBLE,           "Rocket_Kick_Magnitude",           "kms^-1",           14, 6 }},
+    { ANY_STAR_PROPERTY::ROCKET_KICK_PHI,                                   { TYPENAME::DOUBLE,           "Rocket_Kick_Phi",                 "-",                14, 6 }},
+    { ANY_STAR_PROPERTY::ROCKET_KICK_THETA,                                 { TYPENAME::DOUBLE,           "Rocket_Kick_Theta",               "-",                14, 6 }},
     { ANY_STAR_PROPERTY::RZAMS,                                             { TYPENAME::DOUBLE,           "Radius@ZAMS",                     "Rsol",             14, 6 }},
     { ANY_STAR_PROPERTY::SN_TYPE,                                           { TYPENAME::SN_EVENT,         "SN_Type",                         "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::SPEED,                                             { TYPENAME::DOUBLE,           "ComponentSpeed",                  "kms^-1",           14, 6 }},
@@ -2982,6 +3007,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::TIMESCALE_MS,                                      { TYPENAME::DOUBLE,           "tMS",                             "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,            { TYPENAME::DOUBLE,           "Mass_Total@CO",                   "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::TRUE_ANOMALY,                                      { TYPENAME::DOUBLE,           "True_Anomaly(psi)",               "-",                14, 6 }},
+    { ANY_STAR_PROPERTY::TZAMS,                                             { TYPENAME::DOUBLE,           "Teff@ZAMS",                       "K",                14, 6 }},
     { ANY_STAR_PROPERTY::ZETA_HURLEY,                                       { TYPENAME::DOUBLE,           "Zeta_Hurley",                     "-",                14, 6 }},
     { ANY_STAR_PROPERTY::ZETA_HURLEY_HE,                                    { TYPENAME::DOUBLE,           "Zeta_Hurley_He",                  "-",                14, 6 }},
     { ANY_STAR_PROPERTY::ZETA_SOBERMAN,                                     { TYPENAME::DOUBLE,           "Zeta_Soberman",                   "-",                14, 6 }},
@@ -3301,6 +3327,13 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::RANDOM_SEED_CMDLINE,                                      { TYPENAME::ULONGINT,   "SEED(CMDLINE)",                          "-",         12, 1 }},
 
     { PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION,                                { TYPENAME::INT,        "Remnant_Mass_Prscrptn",                  "-",          4, 1 }},
+
+    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1,                                  { TYPENAME::DOUBLE,     "Rocket_Kick_Magnitude(1)",               "kms^-1",    14, 6 }},
+    { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_2,                                  { TYPENAME::DOUBLE,     "Rocket_Kick_Magnitude(2)",               "kms^-1",    14, 6 }},
+    { PROGRAM_OPTION::ROCKET_KICK_PHI_1,                                        { TYPENAME::DOUBLE,     "Rocket_Kick_Phi(1)",                     "-",         14, 6 }},
+    { PROGRAM_OPTION::ROCKET_KICK_PHI_2,                                        { TYPENAME::DOUBLE,     "Rocket_Kick_Phi(2)",                     "-",         14, 6 }},
+    { PROGRAM_OPTION::ROCKET_KICK_THETA_1,                                      { TYPENAME::DOUBLE,     "Rocket_Kick_Theta(1)",                   "-",         14, 6 }},
+    { PROGRAM_OPTION::ROCKET_KICK_THETA_2,                                      { TYPENAME::DOUBLE,     "Rocket_Kick_Theta(2)",                   "-",         14, 6 }},
 
     { PROGRAM_OPTION::ROTATIONAL_VELOCITY_DISTRIBUTION,                         { TYPENAME::INT,        "Rotational_Velocity_Dstrbtn",            "-",          4, 1 }},
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY,                                     { TYPENAME::DOUBLE,     "Rotational_Frequency",                   "Hz",        14, 6 }},

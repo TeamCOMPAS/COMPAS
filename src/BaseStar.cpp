@@ -200,6 +200,10 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_SupernovaDetails.phi                     = p_KickParameters.phi;
     m_SupernovaDetails.meanAnomaly             = p_KickParameters.meanAnomaly;
 
+    m_SupernovaDetails.rocketKickMagnitude     = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.rocketKickPhi           = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.rocketKickTheta         = DEFAULT_INITIAL_DOUBLE_VALUE;
+
     // Calculates the Baryonic mass for which the GravitationalRemnantMass will be equal to the maximumNeutronStarMass (inverse of SolveQuadratic())
     // needed to decide whether to calculate Fryer+2012 for Neutron Star or Black Hole in GiantBranch::CalculateGravitationalRemnantMass()
     // calculate only once for entire simulation of N binaries in the future.
@@ -361,6 +365,9 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE:                         value = CalculateRadialExpansionTimescale();                    break;
             case ANY_STAR_PROPERTY::RADIUS:                                             value = Radius();                                               break;
             case ANY_STAR_PROPERTY::RANDOM_SEED:                                        value = RandomSeed();                                           break;
+            case ANY_STAR_PROPERTY::ROCKET_KICK_MAGNITUDE:                              value = SN_RocketKickMagnitude();                               break;
+            case ANY_STAR_PROPERTY::ROCKET_KICK_PHI:                                    value = SN_RocketKickPhi();                                     break;
+            case ANY_STAR_PROPERTY::ROCKET_KICK_THETA:                                  value = SN_RocketKickTheta();                                   break;
             case ANY_STAR_PROPERTY::RZAMS:                                              value = RZAMS();                                                break;
             case ANY_STAR_PROPERTY::SN_TYPE:                                            value = SN_Type();                                              break;
             case ANY_STAR_PROPERTY::SPEED:                                              value = Speed();												break;
@@ -377,6 +384,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::TIMESCALE_MS:                                       value = Timescale(TIMESCALE::tMS);                              break;
             case ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION:             value = SN_TotalMassAtCOFormation();                            break;
             case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
+            case ANY_STAR_PROPERTY::TZAMS:                                              value = TZAMS()*TSOL;                                        break;
             case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZetaAdiabaticHurley2002(m_CoreMass);           break;
             case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = CalculateZetaAdiabaticHurley2002(m_HeCoreMass);         break;
             case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = CalculateZetaAdiabaticSPH(m_CoreMass);                  break;
@@ -1766,7 +1774,7 @@ double BaseStar::CalculateMassLossRateBjorklundEddingtonFactor() const {
     const double YHe  = 0.1;                                            // Assumed constant by Bjorklund et al.
     double kappa_e    = 0.4 * (1.0 + iHe * YHe) / (1.0 + 4.0 * YHe);    // cm^2/g
     double kappa_e_SI = kappa_e * OPACITY_CGS_TO_SI;                    // m^2/kg
-    double top        = kappa_e_SI * m_Luminosity * LSOL;
+    double top        = kappa_e_SI * m_Luminosity * LSOLW;
     double bottom     = 4.0 * M_PI * G * C * m_Mass * MSOL_TO_KG; 
 
     return top / bottom;

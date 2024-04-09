@@ -2055,6 +2055,22 @@ but not both. If both are printed then the file will contain two columns with th
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **TZAMS**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_TZAMS
+   * - Description:
+     - ZAMS Effective Temperature (K).
+   * - Header Strings:
+     - Teff@\ ZAMS, Teff@ZAMS(1), Teff@ZAMS(2), Teff@ZAMS(SN), Teff@ZAMS(CP)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **THERMAL_TIMESCALE**
      -
    * - Data type:

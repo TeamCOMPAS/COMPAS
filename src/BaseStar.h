@@ -126,6 +126,9 @@ public:
             double              SN_KickMagnitude() const                                        { return m_SupernovaDetails.kickMagnitude; }
             double              SN_MeanAnomaly() const                                          { return m_SupernovaDetails.meanAnomaly; }
             double              SN_Phi() const                                                  { return m_SupernovaDetails.phi; }
+            double              SN_RocketKickMagnitude() const                                  { return m_SupernovaDetails.rocketKickMagnitude; }
+            double              SN_RocketKickPhi() const                                        { return m_SupernovaDetails.rocketKickPhi; }
+            double              SN_RocketKickTheta() const                                      { return m_SupernovaDetails.rocketKickTheta; }
             double              SN_TotalMassAtCOFormation() const                               { return m_SupernovaDetails.totalMassAtCOFormation; }
             double              SN_TrueAnomaly() const                                          { return m_SupernovaDetails.trueAnomaly; }
             double              SN_Theta() const                                                { return m_SupernovaDetails.theta; }
@@ -137,6 +140,7 @@ public:
             double              Temperature() const                                             { return m_Temperature; }
             double              Time() const                                                    { return m_Time; }
             double              Timescale(TIMESCALE p_Timescale) const                          { return m_Timescales[static_cast<int>(p_Timescale)]; }
+            double              TZAMS() const                                                   { return m_TZAMS; }
     virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::NONE; }
             double              XExponent() const                                               { return m_XExponent; }
 
