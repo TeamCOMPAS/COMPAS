@@ -1,11 +1,13 @@
 name: Comment on Pull request
 
-on:
-  workflow_run:
-    types:
-      - completed
-    workflows:
-      - 'COMPAS compile test'
+# on:
+#   workflow_run:
+#     types:
+#       - completed
+#     workflows:
+#       - 'COMPAS compile test'
+
+on: workflow_dispatch
 
 jobs:
   comment:
