@@ -7,9 +7,6 @@ on:
     workflows:
       - 'COMPAS compile test'
 
-on: 
-  pull_request:
-
 jobs:
   comment:
     if: github.event.workflow_run.conclusion == 'success'/
