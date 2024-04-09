@@ -30,12 +30,16 @@ jobs:
          python-version: '3.9'
          cache: 'pip' # caching pip dependencies
 
-     - name: Install dependencies on ubuntu
-       if: startsWith(matrix.os, 'ubuntu-20')
-       run: |
-         cd misc/cicd-scripts
-         chmod 755 linux-dependencies
-         ./linux-dependencies
+      - name: Install TeXLive
+        uses: teatimeguest/setup-texlive-action@v3
+
+
+      - name: Install dependencies on ubuntu
+        if: startsWith(matrix.os, 'ubuntu-20')
+        run: |
+          cd misc/cicd-scripts
+          chmod 755 linux-dependencies
+          ./linux-dependencies
 
      - name: Build Compas
        run: |
