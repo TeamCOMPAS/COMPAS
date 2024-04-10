@@ -1131,18 +1131,18 @@ double GiantBranch::CalculateMomentOfInertia() const {
 }
 
 /*
- * Calculate (n=2, l, m) imaginary component of potential tidal Love number (Dynamical Tides ONLY for now)
+ * Calculate the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the potential tidal Love number
+ * (Dynamical Tides only for now)
  *
  * Zahn, 1977, Eq. (5.5) , with the value of E_2 coming from Kushnir et al., 2017, by comparing Eq. (8) to Eq. (1)
  *
- * double CalculateImKlmTidal(const double p_Omega)
+ * std::tuple <double, double, double, double> CalculateImKlmTidal(const double p_Omega)
  *
  * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
- * @param   [IN]    l                           l mode
- * @param   [IN]    m                           m mode
- * @return                                      Imaginary component of potential tidal love number (unitless)
+ * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
+ *                                              potential tidal love number (unitless)
  */
-double GiantBranch::CalculateImKlmTidal(const double p_Omega, const int p_l, const int p_m) {
+std::tuple <double, double, double, double> GiantBranch::CalculateImKlmTidal(const double p_Omega) {
     double beta2Dynamical = 1.0;
     double rhoFactorDynamcial = 0.1;
     double radiusAU = m_Radius * RSOL_TO_AU;
@@ -1152,15 +1152,39 @@ double GiantBranch::CalculateImKlmTidal(const double p_Omega, const int p_l, con
     double coreRadius_over_radius_9 = coreRadius_over_radius_3 * coreRadius_over_radius_3 * coreRadius_over_radius_3;
     double mass_over_coreMass = m_Mass / m_CoreMass;
 
-
     double E2Dynamical = (2.0 / 3.0) * coreRadius_over_radius_9 * mass_over_coreMass * std::cbrt(mass_over_coreMass) * beta2Dynamical * rhoFactorDynamcial;
 
-    double slm = ((p_l*p_Omega) - (p_m*Omega())) * std::sqrt(radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
-    double slm_4_3 = slm * std::cbrt(slm);
-    double slm_8_3 = slm_4_3 * slm_4_3;
-    double klmDynamical = E2Dynamical * slm_8_3;
+    double sqrt_R3_over_G_M = std::sqrt(radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
+    // (l=1, m=0), Dynamical Tide
+    double s10 = (p_Omega) * sqrt_R3_over_G_M;
+    double s10_4_3 = s10 * std::cbrt(s10);
+    double s10_8_3 = s10_4_3 * s10_4_3;
+    if (s10 < 0) s10_8_3 = - std::abs(s10_8_3);
+    double k10Dynamical = E2Dynamical * s10_8_3;
 
-    return klmDynamical;
+    // (l=1, m=2), Dynamical Tide
+    double s12 = (p_Omega - (2*Omega())) * sqrt_R3_over_G_M;
+    double s12_4_3 = s12 * std::cbrt(s12);
+    double s12_8_3 = s12_4_3 * s12_4_3;
+    if (s12 < 0) s12_8_3 = - std::abs(s12_8_3);
+    double k12Dynamical = E2Dynamical * s12_8_3;
+
+    // (l=2, m=2), Dynamical Tide
+    double s22 = ((2*p_Omega) - (2*Omega())) * sqrt_R3_over_G_M;
+    double s22_4_3 = s22 * std::cbrt(s22);
+    double s22_8_3 = s22_4_3 * s22_4_3;
+    if (s22 < 0) s22_8_3 = - std::abs(s22_8_3);
+    double k22Dynamical = E2Dynamical * s22_8_3;
+
+    // (l=3, m=2), Dynamical Tide
+    double s32 = ((3*p_Omega) - (2*Omega())) * sqrt_R3_over_G_M;
+    double s32_4_3 = s32 * std::cbrt(s32);
+    double s32_8_3 = s32_4_3 * s32_4_3;
+    if (s32 < 0) s32_8_3 = - std::abs(s32_8_3);
+    double k32Dynamical = E2Dynamical * s32_8_3;
+
+    // return klmDynamical;
+    return std::make_tuple(k10Dynamical, k12Dynamical, k22Dynamical, k32Dynamical);
 }
 
 

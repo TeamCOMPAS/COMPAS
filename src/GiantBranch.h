@@ -52,7 +52,7 @@ protected:
             void            CalculateGBParams()                                                             { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
 
     static  double          CalculateHRateConstant_Static(const double p_Mass);
-            double          CalculateImKlmTidal(const double p_Omega, const int p_l, const int p_m);
+            DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega);
     virtual double          CalculateInitialSupernovaMass() const                                           { return m_Mass; }                                                  // Use class member variables
 
             double          CalculateLifetimeToHeIgnition(const double p_Mass, const double p_Tinf1_FGB, const double p_Tinf2_FGB);
