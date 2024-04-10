@@ -2334,7 +2334,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
 
-    if (OPTIONS->EnableRealisticTides() && !m_Unbound) {
+    if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024 && !m_Unbound) {
         // Change binary semi-major axis, eccentricity, and spin of each star based on realistic tidal torque
         // Adjust the binary orbital frequency to match semi-major axis.
         // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
@@ -2408,7 +2408,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     }
 
-    if (OPTIONS->EnableTides() && !m_Unbound) {
+    if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::PERFECT && !m_Unbound) {
         // find omega assuming synchronisation
         // use current value of m_Omega as best guess for root
         // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here

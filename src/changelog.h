@@ -1118,10 +1118,11 @@
 // 02.43.01    SS - Apr 8, 2024      - Defect repair
 //                                      - Fix CalculateMassLossRateBjorklundEddingtonFactor to use LSOLW (in SI) rather than LSOL (in cgs)        
 //
-// 02.44.00     VK - Apr 04, 2024    - Enhancement:
-//                                      - Added 'realistic' tides option, which implements dynamical tides. Functionality enabled with new option `--enable-realistic-tides`.  Default is no tides.
+// 02.44.00    VK - Apr 04, 2024    - Enhancement:
+//                                      - Added dynamical tides to binary evolution. Functionality enabled by setting the new option `--tides-prescription` to the value `KAPIL2024` (default is `NONE`)
 //                                      - Dynamcial tides implementation follows Zahn, 1977, Eq. (5.5) , with the value of E_2 coming from Kushnir et al., 2017, Eq. (8).
 //                                      - Secular evolution under the effect of tides follows Zahn, 1977, Eqs. (3.6) to (3.8)
+//                                      - Moved previous tides implementation under `PERFECT` prescription for `--tides-prescription`
 //                                      - Added function CalculateCoreRadius(). Currently returns the same value as CalculateRemnantRadius() for Giant Branch stars, returns 0.0 otherwise
 //                                      - Added new CoreRadius() member variable which can also be accessed in the Log file as CORE_RADIUS (Star property)
 

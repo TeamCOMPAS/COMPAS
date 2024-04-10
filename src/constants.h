@@ -1335,6 +1335,14 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
     { SN_ENGINE::DELAYED, "DELAYED" }
 };
 
+// Tides Prescriptions
+enum class TIDES_PRESCRIPTION: int { NONE, PERFECT, KAPIL2024 };
+const COMPASUnorderedMap<TIDES_PRESCRIPTION, std::string> TIDES_PRESCRIPTION_LABEL = {
+    { TIDES_PRESCRIPTION::NONE,      "NONE" },
+    { TIDES_PRESCRIPTION::PERFECT,   "PERFECT" },
+    { TIDES_PRESCRIPTION::KAPIL2024, "KAPIL2024" }
+};
+
 
 // Supernova events/states
 //
@@ -2615,6 +2623,8 @@ enum class PROGRAM_OPTION: int {
 
     STELLAR_ZETA_PRESCRIPTION,
 
+    TIDES_PRESCRIPTION,
+
     WR_FACTOR,
 
     ZETA_ADIABATIC_ARBITRARY,
@@ -2831,6 +2841,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER,               "SEMI_MAJOR_AXIS_DISTRIBUTION_POWER" },
 
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                        "STELLAR_ZETA_PRESCRIPTION" },
+
+    { PROGRAM_OPTION::TIDES_PRESCRIPTION,                               "TIDES_PRESCRIPTION" },
 
     { PROGRAM_OPTION::WR_FACTOR,                                        "WR_FACTOR" },
 
@@ -3351,6 +3363,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER,                       { TYPENAME::DOUBLE,     "Semi-Major_Axis_Dstrbtn_Power",          "-",         14, 6 }},
 
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                                { TYPENAME::INT,        "Stellar_Zeta_Prscrptn",                  "-",          4, 1 }},
+
+    { PROGRAM_OPTION::TIDES_PRESCRIPTION,                                       { TYPENAME::INT,        "Tides_Prscrptn",                         "-",          4, 1 }},
 
     { PROGRAM_OPTION::WR_FACTOR,                                                { TYPENAME::DOUBLE,     "WR_Factor",                              "-",         14, 6 }},
 
