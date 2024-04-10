@@ -252,6 +252,9 @@ stringChoices:
 #    --common-envelope-lambda-prescription: 'LAMBDA_NANJING'               # Default: 'LAMBDA_NANJING'              # Options: ['LAMBDA_DEWI','LAMBDA_KRUCKOW','LAMBDA_NANJING','LAMBDA_LOVERIDGE','LAMBDA_FIXED']                                       # Xu & Li 2010
 #    --common-envelope-mass-accretion-prescription: 'ZERO'                 # Default: 'ZERO'                        # Options: ['CHEVALIER','MACLEOD','UNIFORM','CONSTANT','ZERO']
 
+    ### TIDES
+#    --tides-prescription: 'NONE'                                          # Default: 'NONE'                        # Options: ['NONE','PERFECT','KAPIL2024']
+
     ### SUPERNOVAE, KICKS AND REMNANTS
 #    --black-hole-kicks: 'FALLBACK'                                        # Default: 'FALLBACK'                    # Options: ['FALLBACK','ZERO','REDUCED','FULL']
 #    --fryer-supernova-engine: 'DELAYED'                                   # Default: 'DELAYED'                     # Options: ['DELAYED','RAPID']
