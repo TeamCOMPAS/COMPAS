@@ -778,16 +778,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<bool>(&p_Options->m_DetailedOutput)->default_value(p_Options->m_DetailedOutput)->implicit_value(true),                                                                      
             ("Print detailed output to file (default = " + std::string(p_Options->m_DetailedOutput ? "TRUE" : "FALSE") + ")").c_str()
         )
-        (
-            "enable-realistic-tides",                                               
-            po::value<bool>(&p_Options->m_EnableRealisticTides)->default_value(p_Options->m_EnableRealisticTides)->implicit_value(true),                                                                            
-            ("Enable realistic tides (default = " + std::string(p_Options->m_EnableRealisticTides ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "enable-tides",                                               
-            po::value<bool>(&p_Options->m_EnableTides)->default_value(p_Options->m_EnableTides)->implicit_value(true),                                                                            
-            ("Enable tides (default = " + std::string(p_Options->m_EnableTides ? "TRUE" : "FALSE") + ")").c_str()
-        )
 
         (
             "enable-warnings",                                             
