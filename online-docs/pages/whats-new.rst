@@ -9,7 +9,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 **02.44.00 Apr 04, 2024**
 
 * Added 'realistic' tides option, which implements dynamical tides. 
-* Functionality enabled with new option ``--enable-realistic-tides`` (default is ``false``).
+* Functionality enabled with new option ``--tides-prescription KAPIL2024`` (default is ``NONE``).
 * Added new function CalculateCoreRadius(), and member variable CoreRadius().
 
 

@@ -536,6 +536,8 @@ private:
         "store-input-files",
         "switch-log",
 
+        "tides-prescription",
+
         "timesteps-filename",
 
         "use-mass-loss",
@@ -932,6 +934,7 @@ public:
             // Tides
             bool                                                m_EnableRealisticTides;                                          // Whether to enable realistic tides (default = False)
             bool                                                m_EnableTides;                                                   // Whether to enable tides (default = False)
+            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                             // Which tides prescription (default = NONE)
 
 
             // Zetas
@@ -1503,6 +1506,8 @@ public:
     bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }
 
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
+
+    TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return OPT_VALUE("tides-prescription", m_TidesPrescription.type, true); }
 
     std::string                                 TimestepsFileName() const                                               { return OPT_VALUE("timesteps-filename", m_TimestepsFileName, true); }
     double                                      TimestepMultiplier() const                                              { return m_CmdLine.optionValues.m_TimestepMultiplier; }
