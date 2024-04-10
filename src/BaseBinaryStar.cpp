@@ -2342,9 +2342,10 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
             m_Omega = OrbitalAngularVelocity(); 
         }
       
-        
-        double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(m_Star1->CalculateImKlmTidal(m_Omega, 1, 0), m_Star1->CalculateImKlmTidal(m_Omega, 1, 2),
-                                                                  m_Star1->CalculateImKlmTidal(m_Omega, 2, 2), m_Star1->CalculateImKlmTidal(m_Omega, 3, 2),
+        DBL_DBL_DBL_DBL ImKlm1 = m_Star1->CalculateImKlmTidal(m_Omega);
+        DBL_DBL_DBL_DBL ImKlm2 = m_Star2->CalculateImKlmTidal(m_Omega);
+
+        double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(ImKlm1,
                                                                   m_Star1->Mass(),
                                                                   m_Star1->Radius(),
                                                                   m_Star2->Mass(),
@@ -2352,8 +2353,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
                                                                   m_SemiMajorAxis,
                                                                   m_Eccentricity);
         
-        double DSemiMajorAxis2Dt = CalculateDSemiMajorAxisTidalDt(m_Star1->CalculateImKlmTidal(m_Omega, 1, 0), m_Star1->CalculateImKlmTidal(m_Omega, 1, 2),
-                                                                  m_Star1->CalculateImKlmTidal(m_Omega, 2, 2), m_Star1->CalculateImKlmTidal(m_Omega, 3, 2),
+        double DSemiMajorAxis2Dt = CalculateDSemiMajorAxisTidalDt(ImKlm2,
                                                                   m_Star2->Mass(),
                                                                   m_Star2->Radius(),
                                                                   m_Star1->Mass(),
@@ -2361,8 +2361,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
                                                                   m_SemiMajorAxis,
                                                                   m_Eccentricity);
 
-        double DEccentricity1Dt   = CalculateDEccentricityTidalDt(m_Star1->CalculateImKlmTidal(m_Omega, 1, 0), m_Star1->CalculateImKlmTidal(m_Omega, 1, 2),
-                                                                  m_Star1->CalculateImKlmTidal(m_Omega, 2, 2), m_Star1->CalculateImKlmTidal(m_Omega, 3, 2),
+        double DEccentricity1Dt   = CalculateDEccentricityTidalDt(ImKlm1,
                                                                   m_Star1->Mass(),
                                                                   m_Star1->Radius(),
                                                                   m_Star2->Mass(),
@@ -2370,8 +2369,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
                                                                   m_SemiMajorAxis,
                                                                   m_Eccentricity);
         
-        double DEccentricity2Dt   = CalculateDEccentricityTidalDt(m_Star1->CalculateImKlmTidal(m_Omega, 1, 0), m_Star1->CalculateImKlmTidal(m_Omega, 1, 2),
-                                                                  m_Star1->CalculateImKlmTidal(m_Omega, 2, 2), m_Star1->CalculateImKlmTidal(m_Omega, 3, 2),
+        double DEccentricity2Dt   = CalculateDEccentricityTidalDt(ImKlm2,
                                                                   m_Star2->Mass(),
                                                                   m_Star2->Radius(),
                                                                   m_Star1->Mass(),
@@ -2379,8 +2377,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
                                                                   m_SemiMajorAxis,
                                                                   m_Eccentricity);
                                                        
-        double DOmega1Dt                =  CalculateDOmegaTidalDt(m_Star1->CalculateImKlmTidal(m_Omega, 1, 0), m_Star1->CalculateImKlmTidal(m_Omega, 1, 2),
-                                                                  m_Star1->CalculateImKlmTidal(m_Omega, 2, 2), m_Star1->CalculateImKlmTidal(m_Omega, 3, 2),
+        double DOmega1Dt                =  CalculateDOmegaTidalDt(ImKlm1,
                                                                   m_Star1->Mass(),
                                                                   m_Star1->Radius(),
                                                                   m_Star1->CalculateMomentOfInertiaAU(),
@@ -2389,8 +2386,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
                                                                   m_SemiMajorAxis,
                                                                   m_Eccentricity);
         
-        double DOmega2Dt                =  CalculateDOmegaTidalDt(m_Star1->CalculateImKlmTidal(m_Omega, 1, 0), m_Star1->CalculateImKlmTidal(m_Omega, 1, 2),
-                                                                  m_Star1->CalculateImKlmTidal(m_Omega, 2, 2), m_Star1->CalculateImKlmTidal(m_Omega, 3, 2),
+        double DOmega2Dt                =  CalculateDOmegaTidalDt(ImKlm2,
                                                                   m_Star2->Mass(),
                                                                   m_Star2->Radius(),
                                                                   m_Star2->CalculateMomentOfInertiaAU(),

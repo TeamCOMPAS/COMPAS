@@ -38,6 +38,7 @@ typedef unsigned long int                                               OBJECT_I
 typedef std::vector<double>                                             DBL_VECTOR;
 typedef std::tuple <double, double>                                     DBL_DBL;
 typedef std::tuple <double, double, double>                             DBL_DBL_DBL;
+typedef std::tuple <double, double, double, double>                     DBL_DBL_DBL_DBL;
 typedef std::tuple<std::string, std::string, std::string, std::string>  STR_STR_STR_STR;
 
 // Hash for Enum Class
