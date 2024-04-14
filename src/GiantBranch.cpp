@@ -2090,6 +2090,9 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         }
             
     	CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
+        if ( !utils::IsOneOf(stellarType, { STELLAR_TYPE::NEUTRON_STAR })) {
+            m_SupernovaDetails.rocketKickMagnitude = 0;                                             // Only NSs can get rocket kicks
+        }
 
         // stash SN details for later printing to the SSE Supernova log
         // can't print it now because we may revert state (in Star::EvolveOneTimestep())

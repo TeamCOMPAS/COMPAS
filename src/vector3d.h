@@ -28,11 +28,11 @@ public:
 
 
     // getters 
+    DBL_VECTOR  asDBL_VECTOR() const { return { (*this)[0], (*this)[1] , (*this)[2]} ; }
+    double      Magnitude() const    { return std::sqrt(Dot(*this, *this)); }
     double      xValue() const       { return m_x; }
     double      yValue() const       { return m_y; }
     double      zValue() const       { return m_z; }
-    double      Magnitude() const    { return std::sqrt(Dot((*this), (*this))); }
-    DBL_VECTOR  asDBL_VECTOR() const { return { (*this)[0], (*this)[1] , (*this)[2]} ; }
 
     // Operator overloads
     double   operator [] (const size_t p_i) const { return (*const_cast<Vector3d*>(this))[p_i]; }
@@ -53,7 +53,7 @@ public:
    
     void     operator = (const Vector3d p_Vec) { UpdateVector(p_Vec[0], p_Vec[1], p_Vec[2]); }
 
-    void     operator += (const Vector3d p_Vec) { (*this) = (*this) + p_Vec; }
+    void     operator += (const Vector3d p_Vec) { *this = (*this) + p_Vec; }
 
     Vector3d operator + (const Vector3d p_Vec) {
         Vector3d vec;
@@ -84,9 +84,9 @@ public:
 
 
     // member functions 
-    Vector3d        RotateVector(const double p_ThetaE, const double p_PhiE, const double p_PsiE);
-
     static double   AngleBetween(const Vector3d& p_Vec1, const Vector3d& p_Vec2) { return std::acos(Dot(p_Vec1, p_Vec2) / (p_Vec1.Magnitude() * p_Vec2.Magnitude())); }
+
+    Vector3d        ChangeBasis(const double p_ThetaE, const double p_PhiE, const double p_PsiE);
 
     static Vector3d Cross(const Vector3d& p_a, const Vector3d& p_b) {
     
@@ -105,7 +105,13 @@ public:
         return result;
     }
 
-    Vector3d        UnitVector() { return (*this) / (*this).Magnitude(); } 
+    Vector3d        MatrixMult(const std::vector<DBL_VECTOR>& p_matrix, const Vector3d& p_vector);
+
+    Vector3d        RotateVectorAboutX(const double p_Theta);
+    Vector3d        RotateVectorAboutY(const double p_Theta);
+    Vector3d        RotateVectorAboutZ(const double p_Theta);
+
+    Vector3d        UnitVector() { return *this / (*this).Magnitude(); } 
 
 
 protected:
