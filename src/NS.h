@@ -21,12 +21,6 @@ public:
         if (p_Initialise) Initialise();
     }
 
-    NS& operator = (const BaseStar &p_BaseStar) {
-        static_cast<BaseStar&>(*this) = p_BaseStar;
-        Initialise();
-        return *this;
-    }
-
 
     // member functions - alphabetically
     static  DBL_DBL_DBL     CalculateCoreCollapseSNParams_Static(const double p_Mass);

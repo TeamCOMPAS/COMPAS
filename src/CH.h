@@ -20,12 +20,6 @@ public:
         if (p_Initialise) Initialise();
     }
 
-    CH& operator = (const BaseStar &baseStar) {
-        static_cast<BaseStar&>(*this) = baseStar;
-        Initialise();
-        return *this;
-    }
-
 
 protected:
 
