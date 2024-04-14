@@ -9,7 +9,6 @@
 
 class BaseBinaryStar;
 
-
 class BinaryStar {
 
 public:
@@ -29,8 +28,9 @@ public:
     // Copy constructor
     BinaryStar(const BinaryStar& p_Star) {
 
-        m_ObjectId   = globalObjectId++;                                                        // get unique object id (don't copy source)
-        m_ObjectType = OBJECT_TYPE::BINARY_STAR;                                                // can only copy from BINARY_STAR
+        m_ObjectId          = globalObjectId++;                                                 // get unique object id (don't copy source)
+        m_ObjectType        = OBJECT_TYPE::BINARY_STAR;                                         // can only copy from BINARY_STAR
+        m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;                                    // permanent - not an ephemeral clone
 
         m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));                          // copy underlying BaseBinaryStar
         m_SaveBinaryStar = new BaseBinaryStar(*(p_Star.m_SaveBinaryStar));                      // copy underlying Saved BaseBinaryStar
@@ -42,8 +42,9 @@ public:
 
         if (this != &p_Star) {                                                                  // make sure we're not not copying ourselves...
 
-            m_ObjectId   = globalObjectId++;                                                    // get unique object id (don't copy source)
-            m_ObjectType = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;                                // can only copy from BINARY_CONSTITUENT_STAR
+            m_ObjectId          = globalObjectId++;                                             // get unique object id (don't copy source)
+            m_ObjectType        = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;                         // can only copy from BINARY_CONSTITUENT_STAR
+            m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;                                // permanent - not an ephemeral clone
 
             delete m_BinaryStar;                                                                // delete existing
             m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));                      // copy underlying BaseBinaryStar
@@ -60,6 +61,7 @@ public:
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const            { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const          { return m_ObjectType; }
+    OBJECT_PERSISTENCE  ObjectPersistence() const   { return m_ObjectPersistence; }
     STELLAR_TYPE        StellarType() const         { return m_StellarType; }
 
 
@@ -75,16 +77,22 @@ public:
 
     bool                PrintSwitchLog();
 
+    // setters
+    void                SetObjectId(const OBJECT_ID p_ObjectId)          { m_ObjectId = p_ObjectId; }
+    void                SetPersistence(OBJECT_PERSISTENCE p_Persistence) { m_ObjectPersistence = p_Persistence; }
+
+
 private:
 
     BinaryStar() { }
 
-    OBJECT_ID       m_ObjectId;                                                                 // Instantiated object's unique object id
-    OBJECT_TYPE     m_ObjectType;                                                               // Instantiated object's object type
-    STELLAR_TYPE    m_StellarType;                                                              // Stellar type defined in Hurley et al. 2000
+    OBJECT_ID          m_ObjectId;                                                              // Instantiated object's unique object id
+    OBJECT_TYPE        m_ObjectType;                                                            // Instantiated object's object type
+    OBJECT_PERSISTENCE m_ObjectPersistence;                                                     // Instantiated object's persistence (permanent or ephemeral)
+    STELLAR_TYPE       m_StellarType;                                                           // Stellar type defined in Hurley et al. 2000
 
-    BaseBinaryStar *m_BinaryStar;                                                               // Pointer to current binary star
-    BaseBinaryStar *m_SaveBinaryStar;                                                           // Pointer to saved binary star
+    BaseBinaryStar    *m_BinaryStar;                                                            // Pointer to current binary star
+    BaseBinaryStar    *m_SaveBinaryStar;                                                        // Pointer to saved binary star
 
 };
 

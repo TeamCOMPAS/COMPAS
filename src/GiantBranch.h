@@ -18,7 +18,6 @@ class GiantBranch: virtual public BaseStar, public MainSequence {
 public:
 
     GiantBranch(const BaseStar &baseStar) : BaseStar(baseStar), MainSequence(baseStar) {}
-    GiantBranch& operator = (const BaseStar &baseStar) { static_cast<BaseStar&>(*this) = baseStar; return *this; }
 
 
 protected:

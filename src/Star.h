@@ -63,6 +63,9 @@ public:
 
     Star& operator = (const Star& p_Star);
 
+    static BaseStar* CloneStar(BaseStar& p_Star, const OBJECT_PERSISTENCE p_Persistence);
+    static BaseStar* CloneStar(BaseStar& p_Star)                                                                        { return CloneStar(p_Star, p_Star.ObjectPersistence()); }
+
     virtual ~Star() { delete m_Star; delete m_SaveStar; }
 
 
@@ -70,6 +73,7 @@ public:
     OBJECT_ID           ObjectId() const                                                                            { return m_ObjectId; }
     OBJECT_ID           StarObjectId() const                                                                        { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const                                                                          { return m_ObjectType; }
+    OBJECT_PERSISTENCE  ObjectPersistence() const                                                                   { return m_ObjectPersistence; }
     STELLAR_TYPE        InitialStellarType() const                                                                  { return m_Star->InitialStellarType(); }
     STELLAR_TYPE        StellarType() const                                                                         { return m_Star->StellarType(); }
 
@@ -137,11 +141,11 @@ public:
     double              XExponent() const                                                                           { return m_Star->XExponent(); }
 
 
-    // setters (JR: I don't really like this, but I think unavoidable - at least for now)
+    // setters
     void                SetOmega(double p_vRot)                                                                     { m_Star->SetOmega(p_vRot); }
-
+    void                SetObjectId(const OBJECT_ID p_ObjectId)                                                     { m_ObjectId = p_ObjectId; }
+    void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)                                      { m_ObjectPersistence = p_Persistence; }
     void                UpdateMassTransferDonorHistory()                                                            { m_Star->UpdateMassTransferDonorHistory(); }
-
     void                ResetEnvelopeExpulsationByPulsations()                                                      { m_Star->ResetEnvelopeExpulsationByPulsations(); }
 
 
@@ -194,8 +198,6 @@ public:
     double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                          { return m_Star->CalculateZetaConstantsByEnvelope(p_ZetaPrescription); }
 
     void            ClearCurrentSNEvent()                                                                           { m_Star->ClearCurrentSNEvent(); }
-
-    BaseStar*       Clone(const BaseStar& p_Star);
 
     ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
                                               const double p_DonorThermalMassLossRate)                              { return m_Star->DetermineAccretionRegime(p_HeRich, p_DonorThermalMassLossRate); }  // Used in WDs
@@ -261,12 +263,13 @@ public:
 
 private:
 
-    OBJECT_ID        m_ObjectId;                // instantiated object's unique object id
-    OBJECT_TYPE      m_ObjectType;              // instantiated object's object type
-    long int         m_Id;                      // id used to name output files - uses p_Id as passed (usually the step number of multiple single stars being produced)
+    OBJECT_ID          m_ObjectId;              // instantiated object's unique object id
+    OBJECT_TYPE        m_ObjectType;            // instantiated object's object type
+    OBJECT_PERSISTENCE m_ObjectPersistence;     // instantiated object's persistence
+    long int           m_Id;                    // id used to name output files - uses p_Id as passed (usually the step number of multiple single stars being produced)
 
-    BaseStar        *m_Star;                    // pointer to current star
-    BaseStar        *m_SaveStar;                // pointer to saved star
+    BaseStar          *m_Star;                  // pointer to current star
+    BaseStar          *m_SaveStar;              // pointer to saved star
 
     std::vector<double> m_Timesteps;            // timesteps vector - for debugging/testing
 

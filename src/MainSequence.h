@@ -15,7 +15,6 @@ class MainSequence: virtual public BaseStar {
 public:
 
     MainSequence(const BaseStar& baseStar) : BaseStar(baseStar) {}
-    MainSequence& operator = (const BaseStar& baseStar) { static_cast<BaseStar&>(*this) = baseStar; return *this; }
 
 
 protected:

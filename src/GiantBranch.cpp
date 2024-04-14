@@ -685,8 +685,6 @@ double GiantBranch::CalculateRemnantRadius() const {
  *
  * Hurley et al. 2000, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
  *
- * (Technically not a radius calculation I suppose, but "radial extent" is close enough to put it with the radius calculations...)
- *
  *
  * double CalculateRadialExtentConvectiveEnvelope()
  *
@@ -694,10 +692,17 @@ double GiantBranch::CalculateRemnantRadius() const {
  */
 double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const {
 
-	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
-	clone.ResolveEnvelopeLoss(true);                // update clone's attributes after envelope is lost
+    // 'this' is const in this function, and it is an instantiation of the 'GiantBranch' class.
+    // We want to clone this object and access it as a BaseStar object, so we first remove its
+    // const-ness (required for Clone()), then cast it as BaseStar, then clone it.
+    BaseStar *clone = Clone(static_cast<BaseStar&>(const_cast<GiantBranch&>(*this)));
 
-    return m_Radius - clone.Radius();
+	clone->ResolveEnvelopeLoss(true);               // update clone's attributes after envelope is lost
+    double cloneRadius = clone->Radius();           // get the radius of the updated clone
+
+    delete clone; clone = nullptr;                  // return the memory allocated for the clone
+
+    return m_Radius - cloneRadius;
 }
 
 
@@ -1053,19 +1058,30 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  */
 double GiantBranch::CalculateConvectiveEnvelopeMass() const {
     
-    double log10Z = log10 (m_Metallicity);
-    HG clone = *this;                                                                                                       // Create an HG star clone to query its core mass just after TAMS
-    double log10Ltams = log10 (clone.Luminosity());
+    // 'this' is const in this function, and it is an instantiation of the 'GiantBranch' class.
+    // We want to clone this object and access it as an HG object, so we first remove its
+    // const-ness (required for Clone()), then cast it as HG, then clone it.
+    HG *clone = Clone(static_cast<HG&>(const_cast<GiantBranch&>(*this)));
+
+    double log10Ltams = log10(clone->Luminosity());                                                             // get luminosity of clone
+
+    delete clone; clone = nullptr;                                                                              // return the memory allocated for the clone
+
     double Mcorefinal = CalculateCoreMassAtBAGB(m_Mass);
-    double Mconvmax = m_Mass - 1.1 * Mcorefinal;
-    double b1 = 14.4 * log10Z * log10Z + 57.4 * log10Z + 95.7;
-    double a2 = -16.9 * log10Z * log10Z - 81.9 * log10Z - 47.9;
-    double b2 = 184.0 * log10Z * log10Z + 872.2 * log10Z + 370.0;
-    double c2 = -660.1 * log10Z * log10Z - 3482.0 * log10Z + 1489.0;
-    double Tnorm = a2 * log10Ltams * log10Ltams + b2 * log10Ltams + c2;
-    double convectiveEnvelopeMass = Mconvmax / (1+exp(b1*(m_Temperature*TSOL-Tnorm)/Tnorm));
-    convectiveEnvelopeMass = std::max(std::min(convectiveEnvelopeMass, (m_Mass - m_CoreMass)), 0.0);                        // Ensure that convective envelope mass is limited to [0, envelope mass]
-    
+    double Mconvmax   = m_Mass - 1.1 * Mcorefinal;
+
+    double log10Z     = log10 (m_Metallicity);
+    double log10Z_2   = log10Z * log10Z;
+
+    double b1         = 14.4 * log10Z_2 + 57.4 * log10Z + 95.7;
+    double a2         = -16.9 * log10Z_2 - 81.9 * log10Z - 47.9;
+    double b2         = 184.0 * log10Z_2 + 872.2 * log10Z + 370.0;
+    double c2         = -660.1 * log10Z_2 - 3482.0 * log10Z + 1489.0;
+    double Tnorm      = a2 * log10Ltams * log10Ltams + b2 * log10Ltams + c2;
+
+    double convectiveEnvelopeMass = Mconvmax / (1.0 + exp(b1 * (m_Temperature * TSOL - Tnorm) / Tnorm));
+    convectiveEnvelopeMass        = std::max(std::min(convectiveEnvelopeMass, (m_Mass - m_CoreMass)), 0.0);     // ensure that convective envelope mass is limited to [0, envelope mass]
+   
     return convectiveEnvelopeMass;
 }
 
