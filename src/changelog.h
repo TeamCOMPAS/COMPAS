@@ -1118,7 +1118,7 @@
 // 02.43.01    SS - Apr 8, 2024      - Defect repair
 //                                      - Fix CalculateMassLossRateBjorklundEddingtonFactor to use LSOLW (in SI) rather than LSOL (in cgs)        
 // 02.43.02    JR - Apr 14, 2024     - Defect repair, some code cleanup:
-//                                      - Defect repair: Issue #1084 - modified code to record desired persistence of obejcts so that cloned stars don't participate in logging etc.
+//                                      - Defect repair: Issue #1084 - modified code to record desired persistence of objects so that cloned stars don't participate in logging etc.
 //                                      - Removed some unused code (as a result of the defect repair)
 //                                      - Some Code cleanup
 
