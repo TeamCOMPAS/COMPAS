@@ -14,12 +14,6 @@
 #include "Log.h"
 #include "Errors.h"
 
-#include <type_traits>
-
-#include <memory>
-#include <string>
-#include <cxxabi.h>
-
 class MainSequence;
 
 class BaseStar {
