@@ -23,12 +23,6 @@ public:
         if (p_Initialise) Initialise();
     }
 
-    HeMS& operator = (const BaseStar &p_BaseStar) {
-        static_cast<BaseStar&>(*this) = p_BaseStar;
-        Initialise();
-        return *this;
-    }
-
 
     // member functions - alphabetically
     static double   CalculateLifetimeOnPhase_Static(const double p_Mass);

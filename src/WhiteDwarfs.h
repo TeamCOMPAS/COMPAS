@@ -20,8 +20,6 @@ public:
         if (p_Initialise) Initialise();
     }
 
-    WhiteDwarfs& operator = (const BaseStar &p_BaseStar) { static_cast<BaseStar&>(*this) = p_BaseStar; return *this; }
-
 
     // member functions
     static  double      CalculateLuminosityOnPhase_Static(const double p_Mass, 

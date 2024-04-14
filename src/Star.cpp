@@ -5,23 +5,24 @@
 // Default constructor
 Star::Star() : m_Star(new BaseStar()) {
 
-    m_ObjectId   = globalObjectId++;                                                                // set object id
-    m_ObjectType = OBJECT_TYPE::STAR;                                                               // set object type
+    m_ObjectId          = globalObjectId++;                                                                         // set object id
+    m_ObjectType        = OBJECT_TYPE::STAR;                                                                        // set object type
+    m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;                                                            // set object persistence
 
     m_SaveStar = nullptr;
 }
 
 
 // Regular constructor - with parameters for RandomSeed, MZAMS, Metallicity, and KickParameters
-
 Star::Star(const unsigned long int p_RandomSeed,
            const double            p_MZAMS,
            const double            p_Metallicity, 
            const KickParameters    p_KickParameters,
            const double            p_RotationalVelocity) {
 
-    m_ObjectId   = globalObjectId++;                                                                                // set object id
-    m_ObjectType = OBJECT_TYPE::STAR;                                                                               // set object type
+    m_ObjectId          = globalObjectId++;                                                                         // set object id
+    m_ObjectType        = OBJECT_TYPE::STAR;                                                                        // set object type
+    m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;                                                            // set object persistence
 
     m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_KickParameters, p_RotationalVelocity);            // create underlying BaseStar object
 
@@ -45,48 +46,40 @@ Star::Star(const unsigned long int p_RandomSeed,
 /*
  * Clone underlying BaseStar
  *
- * Instantiates new object of current underlying star class and initialises
- * it with the star object passed as p_Star
+ * Instantiates new object of the current underlying star class and initialises
+ * it with the star object passed as p_Star.
+ * 
+ * This function is used to clone stars when we want to save state etc., but
+ * can also be used to create a temporary, or "ephemeral", copy of a star to
+ * be used for hypothesis testing in the code, in which case the 'p_Persistence' 
+ * parameter should be passed as 'OBJECT_PERSISTENCE::EPHEMERAL' (default is
+ * 'OBJECT_PERSISTENCE::PERMANENT').  Objects with persistence 'ephmeral' will
+ * not participate in logging, and the 'ephemeral' indication is sometimes used
+ * to determine if error and/or warnings should be displayed for that object.
  *
  *
- * BaseStar* Clone()
+ * BaseStar* CloneStar(const BaseStar& p_Star, const OBJECT_PERSISTENCE OBJECT_PERSISTENCE::PERMANENT)
+ * 
+ * @param   [IN]    p_Star                      (address of) The star to be cloned
+ * @param   [IN]    p_Persistence               The persistence to be assigned to the cloned object
+ * @return                                      Pointer to the cloned star
+ * 
  */
-BaseStar* Star::Clone(const BaseStar& p_Star) {
+BaseStar* Star::CloneStar(BaseStar& p_Star, const OBJECT_PERSISTENCE p_Persistence) {
 
-    BaseStar *ptr = nullptr;
-
-    switch (p_Star.StellarType()) {
-        case STELLAR_TYPE::MS_LTE_07                                : {ptr = new MS_lte_07(p_Star, false);} break;
-        case STELLAR_TYPE::MS_GT_07                                 : {ptr = new MS_gt_07(p_Star, false);} break;
-        case STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS                   : {ptr = new CH(p_Star, false);} break;
-        case STELLAR_TYPE::HERTZSPRUNG_GAP                          : {ptr = new HG(p_Star, false);} break;
-        case STELLAR_TYPE::FIRST_GIANT_BRANCH                       : {ptr = new FGB(p_Star, false);} break;
-        case STELLAR_TYPE::CORE_HELIUM_BURNING                      : {ptr = new CHeB(p_Star, false);} break;
-        case STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH            : {ptr = new EAGB(p_Star, false);} break;
-        case STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH: {ptr = new TPAGB(p_Star, false);} break;
-        case STELLAR_TYPE::NAKED_HELIUM_STAR_MS                     : {ptr = new HeMS(p_Star, false);} break;
-        case STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP        : {ptr = new HeHG(p_Star, false);} break;
-        case STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH           : {ptr = new HeGB(p_Star, false);} break;
-        case STELLAR_TYPE::HELIUM_WHITE_DWARF                       : {ptr = new HeWD(p_Star, false);} break;
-        case STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF                : {ptr = new COWD(p_Star, false);} break;
-        case STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF                  : {ptr = new ONeWD(p_Star, false);} break;
-        case STELLAR_TYPE::NEUTRON_STAR                             : {ptr = new NS(p_Star, false);} break;
-        case STELLAR_TYPE::BLACK_HOLE                               : {ptr = new BH(p_Star, false);} break;
-        case STELLAR_TYPE::MASSLESS_REMNANT                         : {ptr = new MR(p_Star, false);} break;
-        default: break;                                             // avoids compiler warning - this should never happen
-    }
-
+    BaseStar *ptr = BaseStar::Clone(p_Star, p_Persistence);
     return ptr;
 }
 
 // Copy constructor - deep copy so dynamic variables are also copied
 Star::Star(const Star& p_Star) {
 
-    m_ObjectId   = globalObjectId++;                                                    // set object id
-    m_ObjectType = OBJECT_TYPE::STAR;                                                   // set object type
+    m_ObjectId          = globalObjectId++;                                             // set object id
+    m_ObjectType        = OBJECT_TYPE::STAR;                                            // set object type
+    m_ObjectPersistence = p_Star.ObjectPersistence();                                   // set object persistence
 
-    m_Star     = p_Star.m_Star ? Clone(*(p_Star.m_Star)) : nullptr;                     // copy underlying BaseStar object
-    m_SaveStar = p_Star.m_SaveStar ? Clone(*(p_Star.m_Star)) : nullptr;                 // and the saved copy
+    m_Star     = p_Star.m_Star ? CloneStar(*(p_Star.m_Star)) : nullptr;                 // copy underlying BaseStar object
+    m_SaveStar = p_Star.m_SaveStar ? CloneStar(*(p_Star.m_Star)) : nullptr;             // and the saved copy
 }
 
 
@@ -95,14 +88,15 @@ Star& Star::operator = (const Star& p_Star) {
 
     if (this != &p_Star) {                                                              // make sure we're not not copying ourselves...
 
-        m_ObjectId   = globalObjectId++;                                                // set object id
-        m_ObjectType = OBJECT_TYPE::STAR;                                               // set object type
+        m_ObjectId          = globalObjectId++;                                         // set object id
+        m_ObjectType        = OBJECT_TYPE::STAR;                                        // set object type
+        m_ObjectPersistence = p_Star.ObjectPersistence();                               // set object persistence
 
         delete m_Star;
-        m_Star = p_Star.m_Star ? Clone(*(p_Star.m_Star)) : nullptr;                     // copy underlying BaseStar object
+        m_Star = p_Star.m_Star ? CloneStar(*(p_Star.m_Star)) : nullptr;                 // copy underlying BaseStar object
 
         delete m_SaveStar;
-        m_SaveStar = p_Star.m_SaveStar ? Clone(*(p_Star.m_SaveStar)) : nullptr;         // and the saved copy
+        m_SaveStar = p_Star.m_SaveStar ? CloneStar(*(p_Star.m_SaveStar)) : nullptr;     // and the saved copy
     }
     return *this;
 }
@@ -162,14 +156,14 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
 
         // write to switch log file if required
 
-        if (utils::IsOneOf(stellarTypePrev, EVOLVABLE_TYPES) && OPTIONS->SwitchLog()) {     // star should be evolving from one of the evolvable types (We don't want the initial switch from Star->MS.  Not necessary for BSE (handled differently), but no harm)
+        if (utils::IsOneOf(stellarTypePrev, EVOLVABLE_TYPES) && OPTIONS->SwitchLog()) {                     // star should be evolving from one of the evolvable types (We don't want the initial switch from Star->MS.  Not necessary for BSE (handled differently), but no harm)
         
-            LOGGING->SetSwitchParameters(m_ObjectId, stellarTypePrev, p_StellarType);       // store switch details to LOGGING service
-            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::BSE) {                          // BSE?
-                raise(SIGUSR1);                                                             // signal to BSE that switch is occurring
+            LOGGING->SetSwitchParameters(m_ObjectId, m_ObjectType, m_ObjectPersistence, stellarTypePrev, p_StellarType);  // store switch details to LOGGING service
+            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::BSE) {                                          // BSE?
+                raise(SIGUSR1);                                                                             // signal to BSE that switch is occurring
             }
-            else {                                                                          // SSE
-                (void)m_Star->PrintSwitchLog();                                             // no need for the BSE signal shenanigans - just call the function
+            else {                                                                                          // SSE
+                (void)m_Star->PrintSwitchLog();                                                             // no need for the BSE signal shenanigans - just call the function
             }
         }
     }
@@ -190,7 +184,7 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
 void Star::SaveState() {
 
     delete m_SaveStar;
-    m_SaveStar = Clone(*m_Star);
+    m_SaveStar = CloneStar(*m_Star);
 }
 
 

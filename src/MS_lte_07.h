@@ -20,12 +20,6 @@ public:
         if (p_Initialise) Initialise();
     }
 
-    MS_lte_07& operator = (const BaseStar &p_BaseStar) {
-        static_cast<BaseStar&>(*this) = p_BaseStar;
-        Initialise();
-        return *this;
-    }
-
 
 protected:
 

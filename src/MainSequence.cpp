@@ -659,9 +659,17 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
 void MainSequence::UpdateMinimumCoreMass()
 {
     if (OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
-        double fractionalAge =CalculateTauOnPhase();
-        HG clone             = *this;                           //create an HG star clone to query its core mass just after TAMS
-        double TAMSCoreMass  = clone.CoreMass();
-        m_MinimumCoreMass    = std::max(m_MinimumCoreMass, fractionalAge * TAMSCoreMass);
+
+        // 'this' is an instantiation of the 'MainSequence' class.
+        // We want to clone this object and access it as an HG object,
+        // so we cast it as HG, then clone it.
+        HG *clone = Clone(static_cast<HG&>(*this));
+
+        double TAMSCoreMass = clone->CoreMass();                                            // get core mass from clone
+
+        delete clone; clone = nullptr;                                                      // return the memory allocated for the clone
+
+        double fractionalAge = CalculateTauOnPhase();                                       // get age on phase
+        m_MinimumCoreMass    = std::max(m_MinimumCoreMass, fractionalAge * TAMSCoreMass);   // update minimum core mass
     }
 }

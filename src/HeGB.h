@@ -20,12 +20,6 @@ public:
         if (p_Initialise) Initialise();
     }
 
-    HeGB& operator = (const BaseStar &p_BaseStar) {
-        static_cast<BaseStar&>(*this) = p_BaseStar;
-        Initialise();
-        return *this;
-    }
-
 
     // member functions - alphabetically
     static  double      CalculateAgeOnPhase_Static(const double p_Mass, const double p_CoreMass, const double p_tHeMS, const DBL_VECTOR &p_GBParams);
