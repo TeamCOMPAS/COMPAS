@@ -1,10 +1,11 @@
 #ifndef __vector3d_h__
 #define __vector3d_h__
 
-#include "constants.h"
-#include "errors.h"
 #include <vector>
 #include <array>
+
+#include "constants.h"
+#include "Errors.h"
 
 
 class Vector3d {

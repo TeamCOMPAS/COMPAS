@@ -1,5 +1,6 @@
 #include <iostream>
 #include <math.h>
+
 #include "vector3d.h"
 #include "constants.h"
 
