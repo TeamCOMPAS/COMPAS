@@ -1113,11 +1113,15 @@
 //                                      - Defect repair : Added explicit definition `bool isUnstable = false` to avoid confusion in BaseBinaryStar.cpp
 //                                      - Defect repair : Fixed erroneous core mass values in ResolveSNIa in WhiteDwarfs.cpp. Was previously 0 for all core masses. 
 //                                      - Enhancement: Added output parameter TZAMS for internal variable m_TZAMS
-// 02.42.03    JR - Apr 14, 2024     - Defect repair, some code cleanup:
+// 02.43.00    RTW - Mar 29, 2024    - Enhancement:
+//                                      - Added Hirai pulsar rocket kick, and related options
+// 02.43.01    SS - Apr 8, 2024      - Defect repair
+//                                      - Fix CalculateMassLossRateBjorklundEddingtonFactor to use LSOLW (in SI) rather than LSOL (in cgs)        
+// 02.43.02    JR - Apr 14, 2024     - Defect repair, some code cleanup:
 //                                      - Defect repair: Issue #1084 - modified code to record desired persistence of obejcts so that cloned stars don't participate in logging etc.
 //                                      - Removed some unused code (as a result of the defect repair)
 //                                      - Some Code cleanup
 
-const std::string VERSION_STRING = "02.42.03";
+const std::string VERSION_STRING = "02.42.02";
 
 # endif // __changelog_h__

@@ -4,7 +4,6 @@
 #include "constants.h"
 
 
-// Default constructor
 Vector3d::Vector3d() {
 
     m_ObjectId = globalObjectId++; 
@@ -17,6 +16,8 @@ Vector3d::Vector3d() {
 // Regular constructor - with parameters for x, y, and z
 Vector3d::Vector3d(const double p_x, const double p_y, const double p_z) {
 
+    // Initialize member variables
+    
     m_ObjectId = globalObjectId++; 
 
     m_x = p_x;
@@ -29,7 +30,7 @@ Vector3d::Vector3d(const DBL_VECTOR p_Vec) {
 
     m_ObjectId = globalObjectId++; 
     
-    int numValuesSupplied = p_Vec.size();
+    size_t numValuesSupplied = p_Vec.size();
 
     SHOW_WARN_IF(numValuesSupplied != 3, ERROR::EXPECTED_3D_VECTOR);
 
@@ -63,15 +64,15 @@ Vector3d::Vector3d(const DBL_VECTOR p_Vec) {
  * https://en.wikipedia.org/wiki/Change_of_basis
  *
  * 
- * Vector3d::RotateVector(const double p_ThetaE, const double p_PhiE, const double p_PsiE)
+ * Vector3d::ChangeBasis(const double p_ThetaE, const double p_PhiE, const double p_PsiE)
  * 
  * @param   [IN]   p_ThetaE                    Euler angle Theta (rad) 
  * @param   [IN]   p_PhiE                      Euler angle Phi   (rad) 
  * @param   [IN]   p_PsiE                      Euler angle Psi   (rad) 
  * @return                                     Vector in previous basis
  */
-Vector3d Vector3d::RotateVector(const double p_ThetaE, const double p_PhiE, const double p_PsiE) {
-// Replace for convenience, undefined below
+Vector3d Vector3d::ChangeBasis(const double p_ThetaE, const double p_PhiE, const double p_PsiE) {
+// For convenience, undefined below
 #define cTheta cos(p_ThetaE)
 #define cPhi   cos(p_PhiE)
 #define cPsi   cos(p_PsiE)
@@ -103,4 +104,112 @@ Vector3d Vector3d::RotateVector(const double p_ThetaE, const double p_PhiE, cons
 #undef sTheta
 #undef sPhi
 #undef sPsi
+}
+
+
+/*
+ * Right multiply a matrix by a vector
+ *
+ * Vector3d MatrixMult(const std::vector<DBL_VECTOR>& p_matrix, const Vector3d& p_vector) 
+ *
+ * @param   [IN]   p_Matrix                     matrix 
+ * @param   [IN]   p_Vec                        vector
+ * @return                                      angle between them, in radians
+ */
+Vector3d Vector3d::MatrixMult(const std::vector<DBL_VECTOR>& p_Matrix, const Vector3d& p_Vec) {
+
+    Vector3d result = Vector3d(0.0, 0.0, 0.0);
+
+    size_t numRowsSupplied = p_Matrix.size();
+    SHOW_WARN_IF(numRowsSupplied != 3, ERROR::EXPECTED_3D_VECTOR);
+    for (size_t row = 0; row < numRowsSupplied; row++) {
+        size_t numColsSupplied = p_Matrix[row].size();
+        SHOW_WARN_IF(numColsSupplied != 3, ERROR::EXPECTED_3D_VECTOR);
+        for (size_t col = 0; col < numColsSupplied; col++) {
+            result[row] += p_Matrix[row][col] * p_Vec[col];
+        }
+    }
+
+    return result;
+}
+
+
+/*
+ * Rotate a vector about the X axis.
+ *
+ * Vector3d RotateVectorAboutX(const double p_Theta)
+ *
+ * @param   [IN]   p_Theta                     Rotation angle (rad) 
+ * @return                                     Vector after rotation
+ */
+Vector3d Vector3d::RotateVectorAboutX(const double p_Theta) {
+// For convenience, undefined below
+#define cTheta cos(p_Theta)
+#define sTheta sin(p_Theta)
+
+    // Define the Rotation Matrix
+    std::vector<DBL_VECTOR> RotationMatrix = {     
+        { 1.0,  0.0,     0.0    },
+        { 0.0,  cTheta, -sTheta },
+        { 0.0,  sTheta,  cTheta }};
+
+    // Apply rotation and return result
+    return MatrixMult(RotationMatrix, *this);
+
+#undef cTheta
+#undef sTheta
+}
+
+
+/*
+ * Rotate a vector about the Y axis.
+ *
+ * Vector3d RotateVectorAboutY( const double p_Theta)
+ *
+ * @param   [IN]   p_Theta                     Rotation angle (rad) 
+ * @return                                     Vector after rotation
+ */
+Vector3d Vector3d::RotateVectorAboutY( const double p_Theta) {
+// For convenience, undefined below
+#define cTheta cos(p_Theta)
+#define sTheta sin(p_Theta)
+
+    // Define the Rotation Matrix
+    std::vector<DBL_VECTOR> RotationMatrix = {
+        {  cTheta, 0.0, sTheta },
+        {  0.0,    1.0, 0.0    },
+        { -sTheta, 0.0, cTheta }};
+
+    // Apply rotation and return result
+    return MatrixMult(RotationMatrix, *this);
+
+#undef cTheta
+#undef sTheta
+}
+
+
+/*
+ * Rotate a vector about the Z axis.
+ *
+ * Vector3d RotateVectorAboutZ( const double p_Theta)
+ *
+ * @param   [IN]   p_Theta                     Rotation angle (rad) 
+ * @return                                     Vector after rotation
+ */
+Vector3d Vector3d::RotateVectorAboutZ( const double p_Theta) {
+// For convenience, undefined below
+#define cTheta cos(p_Theta)
+#define sTheta sin(p_Theta)
+
+    // Define the Rotation Matrix
+    std::vector<DBL_VECTOR> RotationMatrix = {
+        { cTheta, -sTheta,  0.0 },
+        { sTheta,  cTheta,  0.0 },
+        { 0.0,     0.0,     1.0 }};
+
+    // Apply rotation and return result
+    return MatrixMult(RotationMatrix, *this);
+
+#undef cTheta
+#undef sTheta
 }

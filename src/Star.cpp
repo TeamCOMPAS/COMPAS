@@ -68,31 +68,6 @@ Star::Star(const unsigned long int p_RandomSeed,
 BaseStar* Star::CloneStar(BaseStar& p_Star, const OBJECT_PERSISTENCE p_Persistence) {
 
     BaseStar *ptr = BaseStar::Clone(p_Star, p_Persistence);
-
-/*
-    BaseStar *ptr;
-
-    switch (p_Star.StellarType()) {
-        case STELLAR_TYPE::MS_LTE_07                                : {ptr = new MS_lte_07(p_Star, false);} break;
-        case STELLAR_TYPE::MS_GT_07                                 : {ptr = new MS_gt_07(p_Star, false);} break;
-        case STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS                   : {ptr = new CH(p_Star, false);} break;
-        case STELLAR_TYPE::HERTZSPRUNG_GAP                          : {ptr = new HG(p_Star, false);} break;
-        case STELLAR_TYPE::FIRST_GIANT_BRANCH                       : {ptr = new FGB(p_Star, false);} break;
-        case STELLAR_TYPE::CORE_HELIUM_BURNING                      : {ptr = new CHeB(p_Star, false);} break;
-        case STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH            : {ptr = new EAGB(p_Star, false);} break;
-        case STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH: {ptr = new TPAGB(p_Star, false);} break;
-        case STELLAR_TYPE::NAKED_HELIUM_STAR_MS                     : {ptr = new HeMS(p_Star, false);} break;
-        case STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP        : {ptr = new HeHG(p_Star, false);} break;
-        case STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH           : {ptr = new HeGB(p_Star, false);} break;
-        case STELLAR_TYPE::HELIUM_WHITE_DWARF                       : {ptr = new HeWD(p_Star, false);} break;
-        case STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF                : {ptr = new COWD(p_Star, false);} break;
-        case STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF                  : {ptr = new ONeWD(p_Star, false);} break;
-        case STELLAR_TYPE::NEUTRON_STAR                             : {ptr = new NS(p_Star, false);} break;
-        case STELLAR_TYPE::BLACK_HOLE                               : {ptr = new BH(p_Star, false);} break;
-        case STELLAR_TYPE::MASSLESS_REMNANT                         : {ptr = new MR(p_Star, false);} break;
-        default: break;                                             // avoids compiler warning - this should never happen
-    }
-*/
     return ptr;
 }
 
@@ -183,7 +158,6 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
 
         if (utils::IsOneOf(stellarTypePrev, EVOLVABLE_TYPES) && OPTIONS->SwitchLog()) {                     // star should be evolving from one of the evolvable types (We don't want the initial switch from Star->MS.  Not necessary for BSE (handled differently), but no harm)
         
-//            LOGGING->SetSwitchParameters(m_Star->ObjectId(), m_Star->ObjectType(), m_Star->ObjectPersistence(), stellarTypePrev, p_StellarType);  // store switch details to LOGGING service
             LOGGING->SetSwitchParameters(m_ObjectId, m_ObjectType, m_ObjectPersistence, stellarTypePrev, p_StellarType);  // store switch details to LOGGING service
             if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::BSE) {                                          // BSE?
                 raise(SIGUSR1);                                                                             // signal to BSE that switch is occurring

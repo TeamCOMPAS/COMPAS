@@ -388,11 +388,11 @@ void BaseBinaryStar::SetRemainingValues() {
     m_Flags.mergesInHubbleTime                       = false;
     m_Unbound                                        = false;
 
-    m_SystemicVelocity                               = Vector3d();
-    m_OrbitalAngularMomentumVector                   = Vector3d();
-	m_ThetaE                                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_PhiE                                           = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_PsiE                                           = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SystemicVelocity                           = Vector3d();
+    m_NormalizedOrbitalAngularMomentumVector     = Vector3d();
+	m_ThetaE                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_PhiE                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_PsiE                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 	m_SynchronizationTimescale                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CircularizationTimescale                       = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1186,10 +1186,21 @@ bool BaseBinaryStar::ResolveSupernova() {
     // Define the natal kick vector (see above for precise definitions of the angles)
     double theta             = m_Supernova->SN_Theta();                                                                         // angle out of the binary plane
     double phi               = m_Supernova->SN_Phi();                                                                           // angle in the binary plane
-    Vector3d natalKickVector = m_Supernova->SN_KickMagnitude() * Vector3d(cos(theta) * cos(phi), cos(theta) * sin(phi), sin(theta));
+    Vector3d natalKickVector = m_Supernova->SN_KickMagnitude() *Vector3d(cos(theta) * cos(phi), 
+                                                                         cos(theta) * sin(phi),
+                                                                         sin(theta));
+    
+    // Define the rocket kick vector - will be 0 if unused. 
+    double rocketTheta = m_Supernova->SN_RocketKickTheta();                                                                    // Azimuthal angle
+    double rocketPhi   = m_Supernova->SN_RocketKickPhi();                                                                      // Polar angle
+    Vector3d rocketKickVector = m_Supernova->SN_RocketKickMagnitude() * Vector3d( sin(rocketTheta)*cos(rocketPhi), 
+                                                                                  sin(rocketTheta)*sin(rocketPhi),
+                                                                                  cos(rocketTheta));                           // The rocket is aligned with the NS spin axis, which by default is aligned with the pre-SN orbit (0.0, 0.0, 1.0). Defined here in case the system is already unbound.
 
+    // Check if the system is already unbound
     if (IsUnbound()) {                                                                                                          // is system already unbound?
-        m_Supernova->UpdateComponentVelocity( natalKickVector.RotateVector(m_ThetaE, m_PhiE, m_PsiE));                          // yes - only need to update the velocity of the star undergoing SN
+
+        m_Supernova->UpdateComponentVelocity( (natalKickVector+rocketKickVector).ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));       // yes - only need to update the velocity of the star undergoing SN
 
         // The quantities below are meaningless in this context, so they are set to nan to avoid misuse
         m_OrbitalVelocityPreSN = -nan("");
@@ -1256,8 +1267,8 @@ bool BaseBinaryStar::ResolveSupernova() {
         Vector3d relativeVelocityVector       = relativeVelocityVectorPrev + (natalKickVector - companionRecoilVector);         // km/s - PostSN relative velocity vector
 
         Vector3d orbitalAngularMomentumVector = cross(separationVectorPrev, relativeVelocityVector);                            // km^2 s^-1 - PostSN specific orbital angular momentum vector
-        double   orbitalAngularMomentum       = orbitalAngularMomentumVector.mag;                                               // km^2 s^-1 - PostSN specific orbital angular momentum 
-        m_OrbitalAngularMomentumVector        = orbitalAngularMomentumVector / orbitalAngularMomentum;                          // set unit vector here to make printing out the inclination vector easier
+        double   orbitalAngularMomentum = orbitalAngularMomentumVector.mag;                                                     // km^2 s^-1 - PostSN specific orbital angular momentum 
+        m_NormalizedOrbitalAngularMomentumVector = orbitalAngularMomentumVector/orbitalAngularMomentum;                         // set unit vector here to make printing out the inclination vector easier
 
         Vector3d eccentricityVector           = cross(relativeVelocityVector, orbitalAngularMomentumVector) / 
                                                 (G_km_Msol_s * totalMass) - separationVectorPrev / separationPrev;              // PostSN Laplace-Runge-Lenz vector
@@ -1273,7 +1284,9 @@ bool BaseBinaryStar::ResolveSupernova() {
         // eccentricityVector defines the X'-axis, and
         // (orbitalAngularMomentumVector x eccentricityVector) defines the Y'-axis
          
-        UpdateSystemicVelocity(centerOfMassVelocity.RotateVector(m_ThetaE, m_PhiE, m_PsiE));                                    // update the system velocity with the new center of mass velocity
+        UpdateSystemicVelocity(centerOfMassVelocity.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));                            // Update the system velocity with the new center of mass velocity
+        double reducedMass = m_Supernova->Mass() * m_Companion->Mass() / totalMass;                                     // Reduced Mass
+        m_Supernova->SetOrbitalEnergyPostSN(CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxis));           // Orbital energy
 
         // Split off and evaluate depending on whether the binary is now bound or unbound
 	    if (utils::Compare(m_Eccentricity, 1.0) >= 0) {                                                                         // unbound?
@@ -1291,8 +1304,8 @@ bool BaseBinaryStar::ResolveSupernova() {
             Vector3d component2VelocityVectorAtInfinity = -(m1 / totalMass) * relativeVelocityVectorAtInfinity + centerOfMassVelocity;
 
             // Update the component velocities 
-            m_Supernova->UpdateComponentVelocity(component1VelocityVectorAtInfinity.RotateVector(m_ThetaE, m_PhiE, m_PsiE));
-            m_Companion->UpdateComponentVelocity(component2VelocityVectorAtInfinity.RotateVector(m_ThetaE, m_PhiE, m_PsiE));
+            m_Supernova->UpdateComponentVelocity(component1VelocityVectorAtInfinity.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));
+            m_Companion->UpdateComponentVelocity(component2VelocityVectorAtInfinity.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));
 
             // Set Euler Angles 
             m_ThetaE = angleBetween(orbitalAngularMomentumVectorPrev, orbitalAngularMomentumVector);                            // angle between the angular momentum unit vectors, always well defined
@@ -1303,10 +1316,10 @@ bool BaseBinaryStar::ResolveSupernova() {
 
             // Set the component velocites to the system velocity. System velocity was already correctly set above.
              
-            m_Supernova->UpdateComponentVelocity(centerOfMassVelocity.RotateVector(m_ThetaE, m_PhiE, m_PsiE));
-            m_Companion->UpdateComponentVelocity(centerOfMassVelocity.RotateVector(m_ThetaE, m_PhiE, m_PsiE));
+            m_Supernova->UpdateComponentVelocity(centerOfMassVelocity.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));
+            m_Companion->UpdateComponentVelocity(centerOfMassVelocity.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));
 
-            // Calculate Euler angles - see RotateVector() in vector.cpp for details
+            // Calculate Euler angles - see ChangeBasis() in vector.cpp for details
             m_ThetaE = angleBetween(orbitalAngularMomentumVector, orbitalAngularMomentumVectorPrev);                            // angle between the angular momentum unit vectors, always well defined
 
             // If the new orbital A.M. is parallel or anti-parallel to the previous orbital A.M., 
@@ -1356,14 +1369,61 @@ bool BaseBinaryStar::ResolveSupernova() {
             // the angle of periapsis around the new orbital angular momentum, (i.e, Psi) - RTW 15/05/20
             m_PsiE = _2_PI * RAND->Random();
         }
+        
+        // Account for possible neutrino rocket - see Hirai+ 2024
+        if (ShouldResolveNeutrinoRocketMechanism()) {
+
+            if (IsUnbound()) {                                                                                                  // Is system unbound? 
+                m_Supernova->UpdateComponentVelocity(rocketKickVector.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));                   // yes - simply update the component velocity
+            }
+            else {                                                                                                              // no - need to update the eccentricity and system velocity
+                Vector3d eccentricityVectorPreRocket   = eccentricityVector;                                                    // defined earlier
+                double averageOrbitalVelocityPreRocket = std::sqrt(-2.0 * m_OrbitalEnergy/reducedMass);                         // AU/yr - average orbital velocity post-SN
+                double kGrav                           = averageOrbitalVelocityPreRocket * averageOrbitalVelocityPreRocket * reducedMass * m_SemiMajorAxis; // AU^3 * Msol / yr^2
+                Vector3d totalAmVectorPreRocket        = orbitalAngularMomentumVector * reducedMass * KM_TO_AU * KM_TO_AU * SECONDS_IN_YEAR; // Msol * AU^2 / yr (orbitalAngularMomentumVector is the specific orbital AM)
+                Vector3d amVectorNormalizedByCircularAmPreRocket = totalAmVectorPreRocket * (averageOrbitalVelocityPreRocket / kGrav); // unitless!
+                double theta_rotation                  = 3.0 * rocketKickVector.mag * KM_TO_AU * SECONDS_IN_YEAR / (2.0 * averageOrbitalVelocityPreRocket); // rad - need to convert velocities to same units
+                    
+                // Apply hPlus and hMinus support vectors
+                Vector3d hPlusVector  = amVectorNormalizedByCircularAmPreRocket + eccentricityVectorPreRocket;
+                Vector3d hMinusVector = amVectorNormalizedByCircularAmPreRocket - eccentricityVectorPreRocket;
+
+                // Rotate hPlus and hMinus vectors so that the thrust is parallel to the z-axis, in order to apply the rotation below
+                hPlusVector  = hPlusVector.RotateVectorAboutZ( -rocketPhi).RotateVectorAboutY(-rocketTheta);
+                hMinusVector = hMinusVector.RotateVectorAboutZ(-rocketPhi).RotateVectorAboutY(-rocketTheta);
+
+                // Rotate vectors about the new "z-axis" - parallel to the rocket thrust
+                Vector3d hPlusVector_prime  = hPlusVector.RotateVectorAboutZ(  theta_rotation);
+                Vector3d hMinusVector_prime = hMinusVector.RotateVectorAboutZ(-theta_rotation);
+
+                // Rotate new hPlus and hMinus vectors back to the original frame
+                hPlusVector  = hPlusVector.RotateVectorAboutY( rocketTheta).RotateVectorAboutZ(rocketPhi);
+                hMinusVector = hMinusVector.RotateVectorAboutY(rocketTheta).RotateVectorAboutZ(rocketPhi);
+
+                // Calculate post-rocket values
+                Vector3d normalizedAngularMomentumVectorPostRocket = 0.5 * (hPlusVector_prime + hMinusVector_prime);
+                Vector3d eccentricityVectorPostRocket = 0.5 * (hPlusVector_prime - hMinusVector_prime);
+
+                m_NormalizedOrbitalAngularMomentumVector = normalizedAngularMomentumVectorPostRocket ;                 
+                m_Eccentricity                           = eccentricityVectorPostRocket.mag;                                                        
+
+                UpdateSystemicVelocity(rocketKickVector.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));                            
+                m_Supernova->UpdateComponentVelocity(rocketKickVector.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));
+                m_Companion->UpdateComponentVelocity(rocketKickVector.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));
+            }
+        }
+
+        #undef hat
+        #undef mag        
+        #undef angleBetween
+        #undef dot
+        #undef cross
     }
 
-    // Set remaining post-SN values
-    double totalMass   = m_Supernova->Mass() + m_Companion->Mass();                                                             // total Mass 
-    double reducedMass = m_Supernova->Mass() * m_Companion->Mass() / totalMass;                                                 // reduced Mass
-    m_Supernova->SetOrbitalEnergyPostSN(CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxis));                       // orbital energy
+    //////////////////////////
+    // Do for all systems 
 
-    m_IPrime    = m_ThetaE;                                                                                                     // inclination angle between preSN and postSN orbital planes 
+    m_IPrime    = m_ThetaE;                                                                                                     // Inclination angle between preSN and postSN orbital planes 
     m_CosIPrime = cos(m_IPrime);
 
     (void)PrintSupernovaDetails();                                                                                              // log record to supernovae logfile
