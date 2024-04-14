@@ -20,8 +20,6 @@ public:
         if (p_Initialise) Initialise();
     }
 
-    Remnants& operator = (const BaseStar &p_BaseStar) { static_cast<BaseStar&>(*this) = p_BaseStar; return *this; }
-
 
     // member functions
 

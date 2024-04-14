@@ -25,12 +25,6 @@ public:
         if (p_Initialise) Initialise();
     }
 
-    HG& operator = (const BaseStar &p_BaseStar) {
-        static_cast<BaseStar&>(*this) = p_BaseStar;
-        Initialise();
-        return *this;
-    }
-
 
 protected:
 
@@ -149,14 +143,18 @@ protected:
             m_DesiredCoreMass = p_DesiredCoreMass;
         }
         T operator()(double const& p_GuessMass0) {
-            HG *copy = new HG(*m_Star, false);
-            copy->UpdateAttributesAndAgeOneTimestep(0.0, p_GuessMass0 - copy->Mass0(), 0.0, true);
-            double coreMassEstimate = copy->CalculateCoreMassOnPhase(p_GuessMass0, copy->Age());
-            delete copy; copy = nullptr;
+
+            HG *clone = Clone(*m_Star);                                                                 // clone the star
+      
+            clone->UpdateAttributesAndAgeOneTimestep(0.0, p_GuessMass0 - clone->Mass0(), 0.0, true);    // update clone's mass and age it one timestep 
+            double coreMassEstimate = clone->CalculateCoreMassOnPhase(p_GuessMass0, clone->Age());      // get clone's core mass
+
+            delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+
             return (coreMassEstimate - m_DesiredCoreMass);
         }
     private:
-        HG    *m_Star;
+        HG *m_Star;
         double m_DesiredCoreMass;
     };
     
@@ -167,13 +165,13 @@ protected:
      * Uses boost::math::tools::bracket_and_solve_root()
      *
      *
-     * double Mass0ToMatchDesiredCoreMass(HG * p_Star, double p_DesiredCoreMass)
+     * double Mass0ToMatchDesiredCoreMass(HG *p_Star, double p_DesiredCoreMass)
      *
      * @param   [IN]    p_Star                      (Pointer to) The star under examination
      * @param   [IN]    p_DesiredCoreMass           The desired core mass
      * @return                                      Root found: will be -1.0 if no acceptable real root found
      */
-    double Mass0ToMatchDesiredCoreMass(HG * p_Star, double p_DesiredCoreMass) {
+    double Mass0ToMatchDesiredCoreMass(HG *p_Star, double p_DesiredCoreMass) {
 
         const boost::uintmax_t maxit = ADAPTIVE_MASS0_MAX_ITERATIONS;                                       // Limit to maximum iterations.
         boost::uintmax_t it          = maxit;                                                               // Initially our chosen max iterations, but updated with actual.

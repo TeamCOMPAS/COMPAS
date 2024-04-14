@@ -535,9 +535,15 @@ const COMPASUnorderedMap<OBJECT_TYPE, std::string> OBJECT_TYPE_LABEL = {
     { OBJECT_TYPE::BASE_STAR,               "BaseStar" },
     { OBJECT_TYPE::BINARY_STAR,             "BinaryStar" },
     { OBJECT_TYPE::BASE_BINARY_STAR,        "BaseBinaryStar" },
-    { OBJECT_TYPE::BINARY_CONSTITUENT_STAR, "BinaryConstituentStar" },
+    { OBJECT_TYPE::BINARY_CONSTITUENT_STAR, "BinaryConstituentStar" }
 };
 
+// object persistence
+enum class OBJECT_PERSISTENCE: int { PERMANENT, EPHEMERAL };
+const COMPASUnorderedMap<OBJECT_PERSISTENCE, std::string> OBJECT_PERSISTENCE_LABEL = {
+    { OBJECT_PERSISTENCE::PERMANENT, "Permanent" },
+    { OBJECT_PERSISTENCE::EPHEMERAL, "Ephemeral" }
+};
 
 // Commandline Status constants
 enum class PROGRAM_STATUS: int { SUCCESS, CONTINUE, STOPPED, ERROR_IN_COMMAND_LINE, LOGGING_FAILED, ERROR_UNHANDLED_EXCEPTION };
@@ -578,6 +584,7 @@ enum class ERROR: int {
     ERROR,                                                          // unspecified error
     ERROR_PROCESSING_CMDLINE_OPTIONS,                               // an error occurred while processing commandline options
     ERROR_PROCESSING_GRIDLINE_OPTIONS,                              // an error occurred while processing grid file options
+    EXPECTED_3D_VECTOR,                                             // expected a vector of size 3
     EXPECTED_ASSIGNMENT_OPERATOR,                                   // expected assignment operator
     EXPECTED_BINARY_PROPERTY,                                       // expected a binary property (STAR_1_, STAR_2_, SUPERNOVA_, COMPANION_, or BINARY_PROPERTY)
     EXPECTED_COMMA_OR_CLOSE_BRACE,                                  // expected a comma or close brace
@@ -596,6 +603,7 @@ enum class ERROR: int {
     FILE_WRITE_ERROR,                                               // error writing to file - data not written
     GRID_OPTIONS_ERROR,                                             // grid file options error
     HIGH_TEFF_WINDS,                                                // winds being used at high temperature
+    INDEX_OUT_OF_RANGE,                                             // index supplied is out of range
     INVALID_DATA_TYPE,                                              // invalid data type
     INVALID_ENVELOPE_TYPE,                                          // invalid envelope type
     INVALID_INITIAL_ATTRIBUTES,                                     // initial values of stellar or binary attributes are not valid - can't evolve star or binary
@@ -729,6 +737,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::ERROR,                                                 { ERROR_SCOPE::ALWAYS,              "Error!" }},
     { ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS,                      { ERROR_SCOPE::ALWAYS,              "An error occurred while processing commandline options" }},
     { ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS,                     { ERROR_SCOPE::ALWAYS,              "An error occurred while processing grid file options" }},
+    { ERROR::EXPECTED_3D_VECTOR,                                    { ERROR_SCOPE::ALWAYS,              "Expected a vector of size 3" }},
     { ERROR::EXPECTED_ASSIGNMENT_OPERATOR,                          { ERROR_SCOPE::ALWAYS,              "Expected assignment operator: one of { '=', '-=', '+=' }" }},
     { ERROR::EXPECTED_BINARY_PROPERTY,                              { ERROR_SCOPE::ALWAYS,              "Expected binary logfile property: one of { (STAR_1|STAR_2|SUPERNOVA|COMPANION|BINARY)_PROPERTY, PROGRAM_OPTION }" }},
     { ERROR::EXPECTED_COMMA_OR_CLOSE_BRACE,                         { ERROR_SCOPE::ALWAYS,              "Expected a comma ',' or close brace '}'" }},
@@ -747,6 +756,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::FILE_WRITE_ERROR,                                      { ERROR_SCOPE::ALWAYS,              "Error writing to file - data not written" }},
     { ERROR::GRID_OPTIONS_ERROR,                                    { ERROR_SCOPE::ALWAYS,              "Grid File Options error" }},
     { ERROR::HIGH_TEFF_WINDS,                                       { ERROR_SCOPE::ALWAYS,              "Winds being used at high temperature" }},
+    { ERROR::INDEX_OUT_OF_RANGE,                                    { ERROR_SCOPE::ALWAYS,              "Index out of range" }},
     { ERROR::INVALID_DATA_TYPE,                                     { ERROR_SCOPE::ALWAYS,              "Invalid data type" }},
     { ERROR::INVALID_ENVELOPE_TYPE,                                 { ERROR_SCOPE::ALWAYS,              "Invalid envelope type" }},
     { ERROR::INVALID_INITIAL_ATTRIBUTES,                            { ERROR_SCOPE::ALWAYS,              "Initial attributes are not valid - evolution not possible" }},
