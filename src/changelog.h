@@ -1117,8 +1117,13 @@
 //                                      - Added Hirai pulsar rocket kick, and related options
 // 02.43.01    SS - Apr 8, 2024      - Defect repair
 //                                      - Fix CalculateMassLossRateBjorklundEddingtonFactor to use LSOLW (in SI) rather than LSOL (in cgs)        
-//
+// 02.43.02    IM - Apr 15, 2024     - Enhancement
+//                                      - Updated fits for the mass and binding energy of the outer convective envelope based on Picker, Hirai, Mandel (2024)
+//                                      - Added functionality for CalculateConvectiveEnvelopeMass(), CalculateConvectiveCoreMass(), CalculateConvectiveCoreRadius()
+//                                   - Defect repair
+//                                      - Fixes to CalculateRadialExtentConvectiveEnvelope(), comments
 
-const std::string VERSION_STRING = "02.43.01";
+
+const std::string VERSION_STRING = "02.43.02";
 
 # endif // __changelog_h__

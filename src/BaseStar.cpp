@@ -3827,7 +3827,7 @@ double BaseStar::CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMa
  * double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(double p_convectiveEnvelopeMass, double p_maxConvectiveEnvelopeMass)
  *
  * @param   [IN]    p_convectiveEnvelopeMass    Mass of the outer convective envelope shell
- * @param   [IN]    p_maxConvectiveEnvelopeMass Maximum mass of the outher convective envelope shell at the onset of carbon burning
+ * @param   [IN]    p_maxConvectiveEnvelopeMass Maximum mass of the outer convective envelope shell at the onset of carbon burning
  * @return                                      Lambda binding energy parameter for the outer convective envelope
  */
 double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(double p_convectiveEnvelopeMass, double p_maxConvectiveEnvelopeMass) {
