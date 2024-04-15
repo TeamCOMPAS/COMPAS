@@ -1117,8 +1117,9 @@
 //                                      - Added Hirai pulsar rocket kick, and related options
 // 02.43.01    SS - Apr 8, 2024      - Defect repair
 //                                      - Fix CalculateMassLossRateBjorklundEddingtonFactor to use LSOLW (in SI) rather than LSOL (in cgs)        
-//
+// 02.43.02    JR - Apr 15, 2024     - Defect repair
+//                                      - Fix for issue #1074 - SSE Supernova records duplicated
 
-const std::string VERSION_STRING = "02.43.01";
+const std::string VERSION_STRING = "02.43.02";
 
 # endif // __changelog_h__

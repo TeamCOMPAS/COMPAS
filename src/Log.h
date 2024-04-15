@@ -1218,6 +1218,11 @@ public:
     bool LogSSESystemParameters(const T* const p_Star,
                                 const SSE_SYSPARMS_RECORD_TYPE p_RecordType)        { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS)), 0, LOGFILE::SSE_SYSTEM_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
 
+    void ClearSSESupernovaStash() {
+        m_SSESupernovae_DelayedWrite.logRecordType       = 0;                       // delayed log record type for SSE_Supernovae file - initially 0 (set later)
+        m_SSESupernovae_DelayedWrite.logRecordString     = "";                      // delayed log record (string) for SSE_Supernovae file - initially empty
+        m_SSESupernovae_DelayedWrite.logRecordValues     = {};                      // delayed log record (property values) for SSE_Supernovae file - initially empty
+    }
 
     template <class T>
     void StashSSESupernovaDetails(const T* const p_Star, const STELLAR_TYPE p_StellarType, const SSE_SN_RECORD_TYPE p_RecordType) {
