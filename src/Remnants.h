@@ -31,7 +31,9 @@ protected:
     // member functions - alphabetically
     double          CalculateCOCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 
-    double          CalculateConvectiveEnvelopeMass() const                                                     { return 0.0; }
+    double          CalculateConvectiveCoreRadius () const                      { return m_Radius; }                                                                                  // All core
+    DBL_DBL         CalculateConvectiveEnvelopeMass() const                                                     { return std::tuple<double, double> (0.0, 
+0.0); }
 
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 
@@ -58,7 +60,7 @@ protected:
 
     double          CalculatePerturbationMuOnPhase() const                                                      { return m_Mu; }                                                        // NO-OP
 
-    double          CalculateRadialExtentConvectiveEnvelope() const                                             { return BaseStar::CalculateRadialExtentConvectiveEnvelope(); }         // WD stars don't have a convective envelope
+    double          CalculateRadialExtentConvectiveEnvelope() const                                             { return 0.0; }         // WD stars don't have a convective envelope
 
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                              { return BaseStar::CalculateRadiusAndStellarTypeOnPhase(); }
 
