@@ -559,6 +559,8 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
         SHOW_WARN(ERROR::TIMESTEPS_NOT_CONSUMED);                                                                           // show warning
     }
 
+    (void)m_Star->PrintStashedSupernovaDetails();                                                                           // print final stashed SSE Supernova log record if necessary
+
     (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::FINAL_STATE);                                         // log record
 
     m_Star->SetEvolutionStatus(evolutionStatus);                                                                            // set evolution final outcome for star
