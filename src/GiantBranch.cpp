@@ -1050,11 +1050,11 @@ DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     double MinterfMcoref = -0.021 * log10Z + 0.0038;                                                                        //Eq. (8) of Picker+ 2024
     double Tonset = -139.8 * log10Z * log10Z - 981.7 * log10Z + 2798.3;                                                     //Eq. (6) of Picker+ 2024
     EAGB clone = *this;                                                                                                     // Create an HG star clone to query its core mass just after BAGB
-    double Tmin=this->Temperature();
+    clone.UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                           // Otherwise, temperature not updated
+    double Tmin=clone.Temperature();
     double Mcorefinal = CalculateCoreMassAtBAGB(m_Mass);
-    std::cout<<"temp"<<m_Temperature<<" Tmin"<<Tmin<<" Mcorefinal"<<Mcorefinal<<" this.mass"<<this->CoreMass()<<std::endl;
     double Mconvmax = std::max(m_Mass - Mcorefinal * (1 + MinterfMcoref), 0.0);                                             //Eq. (9) of Picker+ 2024
-    double convectiveEnvelopeMass = Mconvmax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature)/(Tmin-Tonset)));       //Eq. (7) of Picker+ 2024
+    double convectiveEnvelopeMass = Mconvmax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature)/(Tmin-Tonset)));      //Eq. (7) of Picker+ 2024
     
     return std::tuple<double, double> (convectiveEnvelopeMass, Mconvmax);
 }
