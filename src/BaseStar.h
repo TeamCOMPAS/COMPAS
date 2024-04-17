@@ -164,10 +164,16 @@ public:
 
             void            CalculateBindingEnergies(const double p_CoreMass, const double p_EnvMass, const double p_Radius);
     
-            double          CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda);
+    virtual double          CalculateConvectiveCoreMass () const {return 0.0;}
+    virtual double          CalculateConvectiveCoreRadius () const {return 0.0;}
 
     virtual double          CalculateConvectiveEnvelopeMass() const                                             { return 0.0; }
     virtual double          CalculateCoreRadius() const                                                         { return 0.0; }
+            double          CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda);
+
+            double          CalculateConvectiveEnvelopeLambdaPicker(double p_convectiveEnvelopeMass, double p_maxConvectiveEnvelopeMass);
+    virtual DBL_DBL         CalculateConvectiveEnvelopeMass() const                                             { return std::tuple<double, double> (0.0, 0.0); }
+
     virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate); 
     virtual double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const         { return 0.0; }                                                     // Default is 0.0
             double          CalculateCriticalMassRatioGe20(const QCRIT_PRESCRIPTION p_qCritPrescription)        { return InterpolateGe20QCrit(p_qCritPrescription); }
@@ -204,6 +210,8 @@ public:
 
             double          CalculateRadialExpansionTimescale() const                                           { return CalculateRadialExpansionTimescale_Static(m_StellarType, m_StellarTypePrev, m_Radius, m_RadiusPrev, m_DtPrev); } // Use class member variables
     
+    virtual double      CalculateRadialExtentConvectiveEnvelope() const                                         { return 0.0; }                                                        // default for stars with no convective envelope
+
             void            CalculateSNAnomalies(const double p_Eccentricity);
 
             double          CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType);
@@ -430,7 +438,7 @@ protected:
 
     virtual double              CalculateCOCoreMassAtPhaseEnd() const                                                   { return m_COCoreMass; }                                                    // Default is NO-OP
     virtual double              CalculateCOCoreMassOnPhase() const                                                      { return m_COCoreMass; }                                                    // Default is NO-OP
-
+    
     virtual double              CalculateCoreMassAtPhaseEnd() const                                                     { return m_CoreMass; }                                                      // Default is NO-OP
     static  double              CalculateCoreMassGivenLuminosity_Static(const double p_Luminosity, const DBL_VECTOR &p_GBParams);
     virtual double              CalculateCoreMassOnPhase() const                                                        { return m_CoreMass; }                                                      // Default is NO-OP
@@ -535,8 +543,6 @@ protected:
                                                                      const double       p_Radius,
                                                                      const double       p_RadiusPrev,
                                                                      const double       p_DtPrev);
-
-            virtual double      CalculateRadialExtentConvectiveEnvelope() const                                         { return m_Radius; }                                                        // default for stars with no convective envelope
 
     virtual double              CalculateRadiusAtPhaseEnd() const                                                       { return m_Radius; }                                                        // Default is NO-OP
             double              CalculateRadiusAtZAMS(const double p_MZAMS) const;
