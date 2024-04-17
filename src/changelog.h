@@ -1124,7 +1124,6 @@
 //                                      - Secular evolution under the effect of tides follows Zahn, 1977, Eqs. (3.6) to (3.8)
 //                                      - Moved previous tides implementation under `PERFECT` prescription for `--tides-prescription`
 //                                      - Added function CalculateCoreRadius(). Currently returns the same value as CalculateRemnantRadius() for Giant Branch stars, returns 0.0 otherwise
-//                                      - Added new CoreRadius() member variable which can also be accessed in the Log file as CORE_RADIUS (Star property)
 
 const std::string VERSION_STRING = "02.44.00";
 
