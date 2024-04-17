@@ -69,6 +69,8 @@ protected:
             double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_Mass; }                                                      // NO-OP
 
+            DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega)                                               { return GiantBranch::CalculateImKlmTidal(p_Omega); }                   // Same behavior as for other giant stars
+
             double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
             double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const             { return CalculateLambdaNanjingStarTrack(0.0, 0.0); }                   // 0.0 are dummy values that are not used
 
