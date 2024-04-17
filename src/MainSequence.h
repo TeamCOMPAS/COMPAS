@@ -27,7 +27,7 @@ protected:
 
     double          CalculateConvectiveCoreMass() const;
     double          CalculateConvectiveCoreRadius() const;
-    DBL_DBL         CalculateConvectiveEnvelopeMass() const                                 { return std::tuple<double, double> (0.0, 0.0); }
+    DBL_DBL         CalculateConvectiveEnvelopeMass() const;
     double          CalculateBetaL(const double p_Mass) const;
     double          CalculateBetaR(const double p_Mass) const;
 

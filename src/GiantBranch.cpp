@@ -1057,7 +1057,7 @@ DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     double convectiveEnvelopeMass = Mconvmax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature)/(Tmin-Tonset)));      //Eq. (7) of Picker+ 2024
     
     return std::tuple<double, double> (convectiveEnvelopeMass, Mconvmax);
-}
+}   // /*ILYA*/ check consistency with HG convective envelope radii and masses from Hurley+ 2002, 2000
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
