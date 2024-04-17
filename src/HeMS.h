@@ -67,6 +67,8 @@ protected:
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_Mass; }                                                              // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase
 
+            DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega)                                               { return std::make_tuple(0.0, 0.0, 0.0, 0.0); }                                 // Default is no tidal response
+
             double          CalculateInitialSupernovaMass() const                                                   { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
 
             double          CalculateLambdaDewi() const                                                             { return 0.5; }
