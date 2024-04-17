@@ -520,6 +520,24 @@ double MainSequence::CalculateConvectiveCoreMass() const {
     return ( initialConvectiveCoreMass - m_Tau * (initialConvectiveCoreMass - finalConvectiveCoreMass) );
 }
 
+/*
+ * Calculate the mass of the convective envelope
+ *
+ * Based on section 7.2 (after Eq. 111) of Hurley, Pols, Tout (2000)
+ *
+ *
+ * double CalculateConvectiveEnvelopeMass() const
+ *
+ * @return                                      Mass of convective envelope in Msol
+ */
+double MainSequence::CalculateConvectiveEnvelopeMass() const {
+    if (utils::Compare(m_Mass, 1.25) > 0)
+        return 0;
+    double massEnvelope0 = 0.35;
+    if(utils::Compare(m_Mass, 0.35) > 0)
+        massEnvelope0 = 0.35 * (1.25 - m_Mass) * (1.25 - m_Mass) / 0.81;
+    return massEnvelope0 * sqrt(sqrt(1.0 - m_Tau));
+}
 
 
 //                                                                                   //
