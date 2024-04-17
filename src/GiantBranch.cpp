@@ -1040,7 +1040,7 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  * Follows the fits of Picker, Hirai, Mandel (2024), arXiv:2402.13180
  *
  *
- * double GiantBranch::CalculateConvectiveEnvelopeMass()
+ * std::tuple<double, double> GiantBranch::CalculateConvectiveEnvelopeMass()
  *
  * @return                                      Tuple containing the mass of the outer convective envelope and its maximum value
  */
