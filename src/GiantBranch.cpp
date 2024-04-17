@@ -1126,13 +1126,13 @@ double GiantBranch::CalculateMomentOfInertia() const {
  *
  * Zahn, 1977, Eq. (5.5) , with the value of E_2 coming from Kushnir et al., 2017, by comparing Eq. (8) to Eq. (1)
  *
- * std::tuple <double, double, double, double> CalculateImKlmTidal(const double p_Omega)
+ * std::tuple <double, double, double, double> CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
  *
  * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
  * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
  *                                              potential tidal love number (unitless)
  */
-std::tuple <double, double, double, double> GiantBranch::CalculateImKlmTidal(const double p_Omega) {
+std::tuple <double, double, double, double> GiantBranch::CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
     double beta2Dynamical = 1.0;
     double rhoFactorDynamcial = 0.1;
     double radiusAU = m_Radius * RSOL_TO_AU;

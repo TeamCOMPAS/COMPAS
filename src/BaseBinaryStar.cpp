@@ -2347,8 +2347,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
             m_Omega = OrbitalAngularVelocity(); 
         }
       
-        DBL_DBL_DBL_DBL ImKlm1 = m_Star1->CalculateImKlmTidal(m_Omega);
-        DBL_DBL_DBL_DBL ImKlm2 = m_Star2->CalculateImKlmTidal(m_Omega);
+        DBL_DBL_DBL_DBL ImKlm1 = m_Star1->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star2->Mass());
+        DBL_DBL_DBL_DBL ImKlm2 = m_Star2->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star1->Mass());
 
         double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(ImKlm1,
                                                                   m_Star1->Mass(),
