@@ -2261,7 +2261,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
         }
 
-        if (!DEFAULTED("tides-prescription")) {                                                                       // Chemically Homogeneous Evolution
+        if (!DEFAULTED("tides-prescription")) {                                                                       // tides prescription
             std::tie(found, m_TidesPrescription.type) = utils::GetMapKey(m_TidesPrescription.typeString, TIDES_PRESCRIPTION_LABEL, m_TidesPrescription.type);
             COMPLAIN_IF(!found, "Unknown Tides Prescription");
         }
