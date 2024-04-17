@@ -683,21 +683,14 @@ double GiantBranch::CalculateRemnantRadius() const {
 /*
  * Calculate the radial extent of the star's convective envelope (if it has one)
  *
- * Hurley et al. 2000, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
- *
- * (Technically not a radius calculation I suppose, but "radial extent" is close enough to put it with the radius calculations...)
- *
+ * Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
  *
  * double CalculateRadialExtentConvectiveEnvelope()
  *
  * @return                                      Radial extent of the star's convective envelope in Rsol
  */
 double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const {
-
-	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
-	clone.ResolveEnvelopeLoss(true);                // update clone's attributes after envelope is lost
-
-    return m_Radius - clone.Radius();
+    return m_Radius - CalculateConvectiveCoreRadius();
 }
 
 
@@ -1044,29 +1037,26 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  * Approximates the mass of the outer convective envelope.
  *
  * This is needed for the Hirai & Mandel (2022) two-stage CE formalism.
- * Follows the fits of Picker, Hirai, Mandel (2023).
+ * Follows the fits of Picker, Hirai, Mandel (2024), arXiv:2402.13180
  *
  *
  * double GiantBranch::CalculateConvectiveEnvelopeMass()
  *
- * @return                                      Mass of the outer convective envelope
+ * @return                                      Tuple containing the mass of the outer convective envelope and its maximum value
  */
-double GiantBranch::CalculateConvectiveEnvelopeMass() const {
+DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     
     double log10Z = log10 (m_Metallicity);
-    HG clone = *this;                                                                                                       // Create an HG star clone to query its core mass just after TAMS
-    double log10Ltams = log10 (clone.Luminosity());
+    double MinterfMcoref = -0.021 * log10Z + 0.0038;                                                                        //Eq. (8) of Picker+ 2024
+    double Tonset = -139.8 * log10Z * log10Z - 981.7 * log10Z + 2798.3;                                                     //Eq. (6) of Picker+ 2024
+    EAGB clone = *this;                                                                                                     // Create an HG star clone to query its core mass just after BAGB
+    clone.UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                           // Otherwise, temperature not updated
+    double Tmin=clone.Temperature();
     double Mcorefinal = CalculateCoreMassAtBAGB(m_Mass);
-    double Mconvmax = m_Mass - 1.1 * Mcorefinal;
-    double b1 = 14.4 * log10Z * log10Z + 57.4 * log10Z + 95.7;
-    double a2 = -16.9 * log10Z * log10Z - 81.9 * log10Z - 47.9;
-    double b2 = 184.0 * log10Z * log10Z + 872.2 * log10Z + 370.0;
-    double c2 = -660.1 * log10Z * log10Z - 3482.0 * log10Z + 1489.0;
-    double Tnorm = a2 * log10Ltams * log10Ltams + b2 * log10Ltams + c2;
-    double convectiveEnvelopeMass = Mconvmax / (1+exp(b1*(m_Temperature*TSOL-Tnorm)/Tnorm));
-    convectiveEnvelopeMass = std::max(std::min(convectiveEnvelopeMass, (m_Mass - m_CoreMass)), 0.0);                        // Ensure that convective envelope mass is limited to [0, envelope mass]
+    double Mconvmax = std::max(m_Mass - Mcorefinal * (1 + MinterfMcoref), 0.0);                                             //Eq. (9) of Picker+ 2024
+    double convectiveEnvelopeMass = Mconvmax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature)/(Tmin-Tonset)));      //Eq. (7) of Picker+ 2024
     
-    return convectiveEnvelopeMass;
+    return std::tuple<double, double> (convectiveEnvelopeMass, Mconvmax);
 }
 
 
