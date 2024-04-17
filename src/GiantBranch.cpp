@@ -2098,6 +2098,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (IsSupernova()) {                                                                            // has gone supernova
+                                                                                                    // no - resolve new supernova event
         // squirrel away some attributes before they get changed...
         m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;
         m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
