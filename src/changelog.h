@@ -1120,9 +1120,9 @@
 //
 // 02.44.00    VK - Apr 04, 2024    - Enhancement:
 //                                      - Added dynamical tides to binary evolution. Functionality enabled by setting the new option `--tides-prescription` to the value `KAPIL2024` (default is `NONE`)
+//                                      - Removed old option `--enable-tides`, which can now be enabled by setting `--tides-prescription PERFECT`.
 //                                      - Dynamcial tides implementation follows Zahn, 1977, Eq. (5.5) , with the value of E_2 coming from Kushnir et al., 2017, Eq. (8).
 //                                      - Secular evolution under the effect of tides follows Zahn, 1977, Eqs. (3.6) to (3.8)
-//                                      - Moved previous tides implementation under `PERFECT` prescription for `--tides-prescription`
 //                                      - Added function CalculateCoreRadius(). Currently returns the same value as CalculateRemnantRadius() for Giant Branch stars, returns 0.0 otherwise
 
 const std::string VERSION_STRING = "02.44.00";
