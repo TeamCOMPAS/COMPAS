@@ -520,8 +520,33 @@ double MainSequence::CalculateConvectiveCoreMass() const {
     return ( initialConvectiveCoreMass - m_Tau * (initialConvectiveCoreMass - finalConvectiveCoreMass) );
 }
 
+/*
+ * Calculate the mass of the convective envelope
+ *
+ * Based on Hurley et al. 2000, after Eq. (111)
+ *
+ * std::tuple<double, double> MainSequence::CalculateConvectiveEnvelopeMass()
+ *
+ * @return                                      Tuple containing the mass of the outer convective envelope and its maximum value
+ */
+std::tuple<double, double> MainSequence::CalculateConvectiveEnvelopeMass() const {
+    double envMass0 = 0.0; // default is 0.0
+
+    if (utils::Compare(m_Mass, 0.35) < 0) {                  // star is fully convective so Menv = M
+        envMass0 = m_Mass;
+    }
+    else if (utils::Compare(m_Mass, 1.25) < 0) {
+        double brackets = (1.25 - m_Mass) / 0.9;             // pow() is slow - use multiplication
+        envMass0         = 0.35 * brackets * brackets;       
+    }
+
+    double convectiveEnvelopeMass = envMass0 * std::sqrt(std::sqrt(1.0 - m_Tau));
+    return std::tuple<double, double> (convectiveEnvelopeMass, 0.0); // (Veome: set Mconvmax to 0.0 to avoid unintended consequences during Double CE, should check though). 
+
+}
 
 
+///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                            LIFETIME / AGE CALCULATIONS                            //
 //                                                                                   //
@@ -596,6 +621,70 @@ void MainSequence::UpdateAgeAfterMassLoss() {
     m_Age *= tMSprime / tMS;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+//                                                                                   //
+//                               ROTATION CALCULATIONS                               //
+//                                                                                   //
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+/*
+ * Calculate the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the potential tidal Love number
+ *
+ * Barker (2020), Eqs. (20) to (27)
+ *
+ * std::tuple <double, double, double, double> CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ *
+ * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
+ * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
+ * @param   [IN]    p_M2                        Mass of companion star (Msol)
+ * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
+ *                                              potential tidal love number (unitless)
+ */
+std::tuple <double, double, double, double> MainSequence::CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+
+    // EQUILIBRIUM TIDES (Viscous Dissipation)
+    double rOutAU = m_Radius * RSOL_TO_AU;                                    // outer boundary of convective envelope
+    double rEnvAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
+    double rInAU = (rOutAU - rEnvAU);                                         // inner boundary of convective envelope
+
+    double r_out_3 = rOutAU * rOutAU * rOutAU;
+    double r_out_5 = rOutAU * rOutAU * rOutAU * rOutAU * rOutAU;
+    double r_out_9 = r_out_3 * r_out_3 * r_out_3;
+
+    double r_in_3 = rInAU * rInAU * rInAU;
+    double r_in_9 = r_in_3 * r_in_3 * r_in_3;
+
+    double a_3 = p_SemiMajorAxis * p_SemiMajorAxis * p_SemiMajorAxis;
+    double a_6 = a_3 * a_3;
+
+    double omega_t = std::abs(2.0 * (p_Omega - Omega()));                     // assuming l=m=2 
+
+    double Menv, Menvmax;
+    std::tie(Menv, Menvmax) = CalculateConvectiveEnvelopeMass();
+    double rho_conv =  Menv / (4.0 * M_PI * (r_out_3 - r_in_3) / 3.0);
+
+    double l_conv = rEnvAU;                                                   // Set length scale to height of convective envelope
+    double t_conv = CalculateEddyTurnoverTimescale();
+    double v_conv = l_conv/t_conv;
+    double omega_conv = 1.0/t_conv;                                           // absent factor of 2*PI, following Barker (2020)
+
+    double nuTidal = 5.0 * v_conv * l_conv;
+    if (utils::Compare(omega_t/omega_conv, 5.0) > 0) {             
+        nuTidal = v_conv * l_conv * 5.5901699 * (omega_t/omega_conv) * (omega_t/omega_conv);
+    }
+    else if (utils::Compare(omega_t/omega_conv, 0.01) > 0) {
+        nuTidal = v_conv * l_conv * 0.5 * std::sqrt(omega_t/omega_conv);    
+    }
+
+    double Dnu = (28.0/3.0) * omega_t * omega_t * (p_M2 / m_Mass) * (p_M2 / m_Mass) * (r_out_9 - r_in_9)  * rho_conv * nuTidal / a_6;
+    double A2 = (G_AU_Msol_yr * p_M2 / a_3) * (G_AU_Msol_yr * p_M2 / a_3);
+
+    double k22Equilibrium = (3.0/2.0) * (16.0 * M_PI / 15.0) * G_AU_Msol_yr * Dnu / A2 / r_out_5 / omega_t;
+    
+    // return klm;
+    return std::make_tuple(0.0, 0.0, k22Equilibrium, 0.0);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //

@@ -185,7 +185,8 @@ public:
     virtual void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) { }                                                                                      // Default is NO-OP
     virtual void            CalculateGBParams()                                                                 { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
 
-    virtual DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega)                                           { return std::make_tuple(0.0, 0.0, 0.0, 0.0); }                                                     // Default is 0.0
+    virtual DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, 
+                                                const double p_M2)                                              { return std::make_tuple(0.0, 0.0, 0.0, 0.0); }                     // Default is no tides
 
             void            CalculateLambdas()                                                                  { CalculateLambdas(m_Mass - m_CoreMass); }                          // Use class member variables
             void            CalculateLambdas(const double p_EnvMass);
