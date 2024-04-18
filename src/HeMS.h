@@ -70,7 +70,7 @@ protected:
             double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase
 
             DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, 
-                                                const double p_M2)                                                  { return std::make_tuple(0.0, 0.0, 0.0, 0.0); }                                 // Default is no tidal response
+                                                const double p_M2)                                                  { return MainSequence::CalculateImKlmTidal(p_Omega, p_SemiMajorAxis, p_M2); }                                // Default is no tidal response
 
             double          CalculateInitialSupernovaMass() const                                                   { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
 

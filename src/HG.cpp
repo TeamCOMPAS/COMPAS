@@ -954,6 +954,36 @@ double HG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate)
     return qCrit;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+//                                                                                   //
+//                               ROTATION CALCULATIONS                               //
+//                                                                                   //
+///////////////////////////////////////////////////////////////////////////////////////
+
+/*
+ * Calculate the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the potential tidal Love number
+ *
+ * Barker (2020), Eqs. (20) to (27)
+ *
+ * std::tuple <double, double, double, double> CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ *
+ * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
+ * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
+ * @param   [IN]    p_M2                        Mass of companion star (Msol)
+ * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
+ *                                              potential tidal love number (unitless)
+ */
+std::tuple <double, double, double, double> HG::CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+    
+    double Imk10Dynamical, Imk12Dynamical, Imk22Dynamical, Imk32Dynamical;
+    std::tie(Imk10Dynamical, Imk12Dynamical, Imk22Dynamical, Imk32Dynamical) = CalculateImKlmDynamical(p_Omega, p_SemiMajorAxis, p_M2);
+
+    double Imk10Equilibrium, Imk12Equilibrium, Imk22Equilibrium, Imk32Equilibrium;
+    std::tie(Imk10Equilibrium, Imk12Equilibrium, Imk22Equilibrium, Imk32Equilibrium) = CalculateImKlmEquilibrium(p_Omega, p_SemiMajorAxis, p_M2);
+    
+    // return combined ImKlm terms;
+    return std::make_tuple(Imk10Dynamical+Imk10Equilibrium, Imk12Dynamical+Imk12Equilibrium, Imk22Dynamical+Imk22Equilibrium, Imk32Dynamical+Imk32Equilibrium);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
