@@ -43,13 +43,13 @@ protected:
 
 
     // member functions
-   	 double     CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const      { return 0.0; }     // No moment of inertia for massless remnants - use 0.0
-   	 double     CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const    { return 0.0; }     // No moment of inertia for massless remnants - use 0.0
+   	 double     CalculateMomentOfInertia() const        { return 0.0; }                                     // No moment of inertia for massless remnants - use 0.0
+   	 double     CalculateMomentOfInertiaAU() const      { return 0.0; }                                     // No moment of inertia for massless remnants - use 0.0
 
      void       SetPulsarParameters() const { }                                                             // NO-OP
 
-     bool       ShouldEvolveOnPhase() const                                             { return true; }    // Always
-     bool       ShouldSkipPhase() const                                                 { return false; }   // Don't skip
+     bool       ShouldEvolveOnPhase() const             { return true; }                                    // Always
+     bool       ShouldSkipPhase() const                 { return false; }                                   // Don't skip
 };
 
 #endif // __MR_h__
