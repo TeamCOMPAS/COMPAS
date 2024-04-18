@@ -92,7 +92,7 @@ protected:
 
     double          CalculateMassTransferRejuvenationFactor() const;
 
-    double          CalculateRadialExtentConvectiveEnvelope() const;
+    double          CalculateRadialExtentConvectiveEnvelope() const { return (std::sqrt(m_Tau) * (m_Radius - CalculateConvectiveCoreRadius())); }                               // Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 39-40
 
     double          CalculateRadiusAtPhaseEnd(const double p_Mass) const;
     double          CalculateRadiusAtPhaseEnd() const                               { return CalculateRadiusAtPhaseEnd(m_Mass); }                                               // Use class member variables

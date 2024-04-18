@@ -169,7 +169,7 @@ public:
 
             double          CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda);
 
-            double          CalculateConvectiveEnvelopeLambdaPicker(double p_convectiveEnvelopeMass, double p_maxConvectiveEnvelopeMass);
+            double          CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const;
     virtual DBL_DBL         CalculateConvectiveEnvelopeMass() const                                             { return std::tuple<double, double> (0.0, 0.0); }
 
     virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate); 

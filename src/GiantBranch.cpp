@@ -680,20 +680,6 @@ double GiantBranch::CalculateRemnantRadius() const {
 }
 
 
-/*
- * Calculate the radial extent of the star's convective envelope (if it has one)
- *
- * Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
- *
- * double CalculateRadialExtentConvectiveEnvelope()
- *
- * @return                                      Radial extent of the star's convective envelope in Rsol
- */
-double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const {
-    return m_Radius - CalculateConvectiveCoreRadius();
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                                 MASS CALCULATIONS                                 //
@@ -1053,7 +1039,7 @@ DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     clone.UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                           // Otherwise, temperature not updated
     double Tmin=clone.Temperature();
     double Mcorefinal = CalculateCoreMassAtBAGB(m_Mass);
-    double Mconvmax = std::max(m_Mass - Mcorefinal * (1 + MinterfMcoref), 0.0);                                             //Eq. (9) of Picker+ 2024
+    double Mconvmax = std::max(m_Mass - Mcorefinal * (1.0 + MinterfMcoref), 0.0);                                             //Eq. (9) of Picker+ 2024
     double convectiveEnvelopeMass = Mconvmax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature)/(Tmin-Tonset)));      //Eq. (7) of Picker+ 2024
     
     return std::tuple<double, double> (convectiveEnvelopeMass, Mconvmax);
