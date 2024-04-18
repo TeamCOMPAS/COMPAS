@@ -3197,6 +3197,142 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
 #undef massCutoffs
 }
 
+/*
+ * Calculate the Dynamical tides contribution to the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the 
+ * potential tidal Love number
+ *
+ * Zahn, 1977, Eq. (5.5) , with the value of E_2 coming from Kushnir et al., 2017, by comparing Eq. (8) to Eq. (1)
+ *
+ * std::tuple <double, double, double, double> CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ *
+ * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
+ * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
+ *                                              potential tidal love number, Dynamical tides only (unitless)
+ */
+std::tuple <double, double, double, double> BaseStar::CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+    // Dynamical tides (gravity wave dissipation) (from convective core to radiative inter-shell)
+    double beta2Dynamical = 1.0;
+    double rhoFactorDynamcial = 0.1;
+    double radiusAU = m_Radius * RSOL_TO_AU;
+    double coreRadiusAU = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
+    double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
+    double coreMass = CalculateConvectiveCoreMass();
+
+    if (utils::Compare(coreRadiusAU + convectiveEnvRadiusAU, radiusAU) >= 0.0) {
+        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           // Avoid calculations if entire star is convective
+    }
+
+    // Veome: TEMPORARY FIX, until dynamical tides from convective envelope are implemented
+    if (coreRadiusAU <= 0.0 || coreMass <= 0.0) {
+        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           // Avoid calculations if no convective core
+    }
+
+    double coreRadius_over_radius = coreRadiusAU / radiusAU;
+    double coreRadius_over_radius_3 = coreRadius_over_radius * coreRadius_over_radius * coreRadius_over_radius;
+    double coreRadius_over_radius_9 = coreRadius_over_radius_3 * coreRadius_over_radius_3 * coreRadius_over_radius_3;
+    double mass_over_coreMass = m_Mass / coreMass;
+
+    double E2Dynamical = (2.0 / 3.0) * coreRadius_over_radius_9 * mass_over_coreMass * std::cbrt(mass_over_coreMass) * beta2Dynamical * rhoFactorDynamcial;
+
+    double sqrt_R3_over_G_M = std::sqrt(radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
+    // (l=1, m=0), Dynamical Tide
+    double s10 = (p_Omega) * sqrt_R3_over_G_M;
+    double s10_4_3 = s10 * std::cbrt(s10);
+    double s10_8_3 = s10_4_3 * s10_4_3;
+    if (s10 < 0) s10_8_3 = - std::abs(s10_8_3);
+    double k10Dynamical = E2Dynamical * s10_8_3;
+
+    // (l=1, m=2), Dynamical Tide
+    double s12 = (p_Omega - (2*Omega())) * sqrt_R3_over_G_M;
+    double s12_4_3 = s12 * std::cbrt(s12);
+    double s12_8_3 = s12_4_3 * s12_4_3;
+    if (s12 < 0) s12_8_3 = - std::abs(s12_8_3);
+    double k12Dynamical = E2Dynamical * s12_8_3;
+
+    // (l=2, m=2), Dynamical Tide
+    double s22 = ((2*p_Omega) - (2*Omega())) * sqrt_R3_over_G_M;
+    double s22_4_3 = s22 * std::cbrt(s22);
+    double s22_8_3 = s22_4_3 * s22_4_3;
+    if (s22 < 0) s22_8_3 = - std::abs(s22_8_3);
+    double k22Dynamical = E2Dynamical * s22_8_3;
+
+    // (l=3, m=2), Dynamical Tide
+    double s32 = ((3*p_Omega) - (2*Omega())) * sqrt_R3_over_G_M;
+    double s32_4_3 = s32 * std::cbrt(s32);
+    double s32_8_3 = s32_4_3 * s32_4_3;
+    if (s32 < 0) s32_8_3 = - std::abs(s32_8_3);
+    double k32Dynamical = E2Dynamical * s32_8_3;
+
+    // return ImKlmDynamical;
+    return std::make_tuple(k10Dynamical, k12Dynamical, k22Dynamical, k32Dynamical);
+}
+
+
+/*
+ * Calculate the Equilibrium tides contribution to the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the 
+ * potential tidal Love number
+ * 
+ * Barker (2020), Eqs. (20) to (27)
+ *
+ * std::tuple <double, double, double, double> CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ *
+ * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
+ * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
+ * @param   [IN]    p_M2                        Mass of companion star (Msol)
+ * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
+ *                                              potential tidal love number, Equilibrium tides only (unitless)
+ */
+std::tuple <double, double, double, double> BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+
+    // EQUILIBRIUM TIDES (Viscous Dissipation)
+    // No contribution from convective core; only convective envelope.
+    double rOutAU = m_Radius * RSOL_TO_AU;                                    // outer boundary of convective envelope
+    double rEnvAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
+    double rInAU = (rOutAU - rEnvAU);                                         // inner boundary of convective envelope
+
+    if (utils::Compare(rInAU, rOutAU) >= 0.0) {
+        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           // Avoid calculations if there is no convective envelope (avoid Imk22 = NaN)
+    }
+
+    double r_out_3 = rOutAU * rOutAU * rOutAU;
+    double r_out_5 = rOutAU * rOutAU * rOutAU * rOutAU * rOutAU;
+    double r_out_9 = r_out_3 * r_out_3 * r_out_3;
+
+    double r_in_3 = rInAU * rInAU * rInAU;
+    double r_in_9 = r_in_3 * r_in_3 * r_in_3;
+
+    double a_3 = p_SemiMajorAxis * p_SemiMajorAxis * p_SemiMajorAxis;
+    double a_6 = a_3 * a_3;
+
+    double omega_t = std::abs(2.0 * (p_Omega - Omega()));                     // assuming l=m=2 
+
+    double Menv, Menvmax;
+    std::tie(Menv, Menvmax) = CalculateConvectiveEnvelopeMass();
+
+    double rho_conv =  Menv / (4.0 * M_PI * (r_out_3 - r_in_3) / 3.0);
+
+    double l_conv = rEnvAU;                                                   // Set length scale to height of convective envelope
+    double t_conv = CalculateEddyTurnoverTimescale();
+    double v_conv = l_conv/t_conv;
+    double omega_conv = 1.0/t_conv;                                           // absent factor of 2*PI, following Barker (2020)
+
+    double nuTidal = 5.0 * v_conv * l_conv;
+    if (utils::Compare(omega_t/omega_conv, 5.0) > 0) {             
+        nuTidal = v_conv * l_conv * 5.5901699 * (omega_t/omega_conv) * (omega_t/omega_conv);
+    }
+    else if (utils::Compare(omega_t/omega_conv, 0.01) > 0) {
+        nuTidal = v_conv * l_conv * 0.5 * std::sqrt(omega_t/omega_conv);    
+    }
+
+    double Dnu = (28.0/3.0) * omega_t * omega_t * (p_M2 / m_Mass) * (p_M2 / m_Mass) * (r_out_9 - r_in_9)  * rho_conv * nuTidal / a_6;
+    double A2 = (G_AU_Msol_yr * p_M2 / a_3) * (G_AU_Msol_yr * p_M2 / a_3);
+
+    double k22Equilibrium = (3.0/2.0) * (16.0 * M_PI / 15.0) * G_AU_Msol_yr * Dnu / A2 / r_out_5 / omega_t;
+    
+    // return ImKlmEquilibrium;
+    return std::make_tuple(0.0, 0.0, k22Equilibrium, 0.0);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
