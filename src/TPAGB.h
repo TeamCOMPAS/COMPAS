@@ -44,8 +44,6 @@ protected:
             double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const;
             double          CalculateCoreMassOnPhase() const                                                        { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                    // Use class member variables
 
-            double          CalculateGyrationRadius() const                                                         { return 0.1; }                                                                         // Hurley et al., 2000, after eq 109 for giants. Single number approximation.
-
             double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return m_HeCoreMass; }                                                                // NO-OP
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_CoreMass; }                                                                  // NO-OP
 

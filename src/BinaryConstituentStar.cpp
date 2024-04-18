@@ -343,9 +343,9 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
             case ENVELOPE::CONVECTIVE: {                                                                                                    // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
 
 	        double tauConv          = CalculateEddyTurnoverTimescale();
-	        double fConv            = 1.0;                                                                                              // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
-                double fConvOverTauConv = fConv / tauConv;
-                double rOverAPow8       = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;                            // use multiplication - pow() is slow
+	        double fConv            = 1.0;                                                                                                  // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
+            double fConvOverTauConv = fConv / tauConv;
+            double rOverAPow8       = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;                                // use multiplication - pow() is slow
 
 	        timescale               = 1.0 / (fConvOverTauConv * ((Mass() - CoreMass()) / Mass()) * q2 * (1.0 + q2) * rOverAPow8);
             } break;
@@ -357,10 +357,10 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
                 double rOverAPow10            = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;    // use multiplication - pow() is slow
                 double rOverAPow21Over2       = rOverAPow10 * rOverA * std::sqrt(rOverA);                                                   // sqrt() is faster than pow()
 
-		double	secondOrderTidalCoeff = 1.592E-09 * PPOW(Mass(), 2.84);                                                              // aka E_2.
-		double	freeFallFactor        = std::sqrt(G1 * Mass() / rInAUPow3);
+		        double	secondOrderTidalCoeff = 1.592E-09 * PPOW(Mass(), 2.84);                                                             // aka E_2.    
+		        double	freeFallFactor        = std::sqrt(G_AU_Msol_yr * Mass() / rInAUPow3);
 		
-		timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * PPOW(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
+		        timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * PPOW(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
             } break;
 
             default:                                                                                                                        // all other envelope types (remnants?)
@@ -384,7 +384,8 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
  */
 double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_SemiMajorAxis) {
 
-    double gyrationRadiusSquared_1 = 1.0 / CalculateGyrationRadius();
+    double gyrationRadiusSquared   = CalculateMomentOfInertia() / Mass() / Radius() / Radius();
+    double gyrationRadiusSquared_1 = 1.0 / gyrationRadiusSquared;
     double rOverA                  = Radius() / p_SemiMajorAxis;
     double rOverA_6                = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;
     double q2			           = m_Companion->Mass() / Mass();
@@ -399,7 +400,7 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
                 double fConv   = 1.0;	                                            // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
                 double kOverTc = (2.0 / 21.0) * (fConv / tauConv) * ((Mass() - CoreMass()) / Mass());
 
-                timescale       = 1.0 / (3.0 * kOverTc * q2 * gyrationRadiusSquared_1 * rOverA_6);
+                timescale      = 1.0 / (3.0 * kOverTc * q2 * gyrationRadiusSquared_1 * rOverA_6);
             } break;
 
             case ENVELOPE::RADIATIVE: {                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
@@ -408,9 +409,9 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
                 double e2              = 1.592E-9 * PPOW(Mass(), 2.84);             // second order tidal coefficient (a.k.a. E_2)
                 double rAU             = Radius() * RSOL_TO_AU;
                 double rAU_3           = rAU * rAU * rAU;
-                double freeFallFactor  = std::sqrt(G1 * Mass() / rAU_3);
+                double freeFallFactor  = std::sqrt(G_AU_Msol_yr * Mass() / rAU_3);
 
-		timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * PPOW(1.0 + q2, 5.0 / 6.0) * e2 * PPOW(rOverA, 17.0 / 2.0));
+		        timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * PPOW(1.0 + q2, 5.0 / 6.0) * e2 * PPOW(rOverA, 17.0 / 2.0));
             } break;
 
             default:                                                                // all other envelope types (remnants?)
@@ -439,7 +440,7 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
 
     double starToRocheLobeRadiusRatio = StarToRocheLobeRadiusRatio(p_SemiMajorAxis, p_Eccentricity);
 
-    if (utils::Compare(starToRocheLobeRadiusRatio, 1.0) >= 0) {                                                                   // if star is equal to or larger than its Roche Lobe...
+    if (utils::Compare(starToRocheLobeRadiusRatio, 1.0) >= 0) {                                                         // if star is equal to or larger than its Roche Lobe...
         m_RLOFDetails.isRLOF          = true;                                                                           // ... it is currently Roche Lobe overflowing
 		m_RLOFDetails.experiencedRLOF = true;                                                                           // ... and for future checks, did Roche Lobe overflow
 	}
@@ -455,11 +456,10 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
  *
  * @param   [IN]    p_SemiMajorAxis             Semi major axis of the binary (in AU)
  * @param   [IN]    p_Eccentricity              Eccentricity of the binary orbit
- * @return                              Ratio of stars radius to its Roche lobe radius
+ * @return                                      Ratio of star's radius to its Roche lobe radius
  */
-double  BinaryConstituentStar::StarToRocheLobeRadiusRatio(const double p_SemiMajorAxis, const double p_Eccentricity) {
-    if ((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0))
-        return 0.0;         // binary is unbound, so not in RLOF
+double BinaryConstituentStar::StarToRocheLobeRadiusRatio(const double p_SemiMajorAxis, const double p_Eccentricity) {
+    if ((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0)) return 0.0;           // binary is unbound, so not in RLOF
     
     double rocheLobeRadius = BaseBinaryStar::CalculateRocheLobeRadius_Static(Mass(), m_Companion->Mass());
     return (Radius() * RSOL_TO_AU) / (rocheLobeRadius * p_SemiMajorAxis * (1.0 - p_Eccentricity));

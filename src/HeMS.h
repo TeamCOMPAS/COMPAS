@@ -64,8 +64,6 @@ protected:
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
             double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return 0.33; }                                                                // As coded in BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
 
-            double          CalculateGyrationRadius() const                                                         { return 0.1; }
-
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_Mass; }                                                              // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase
 
@@ -86,8 +84,7 @@ protected:
             
             double          CalculateMassTransferRejuvenationFactor() const;
 
-            double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                      { return MainSequence::CalculateMomentOfInertia(p_RemnantRadius); }             // Use MainSequence
-            double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const                    { return MainSequence::CalculateMomentOfInertiaAU(p_RemnantRadius); }           // Use MainSequence
+            double          CalculateMomentOfInertia() const                                                        { return MainSequence::CalculateMomentOfInertia(); }
 
             double          CalculatePerturbationMu() const                                                         { return 5.0; }                                                                 // Hurley et al. 2000, eqs 97 & 98
 

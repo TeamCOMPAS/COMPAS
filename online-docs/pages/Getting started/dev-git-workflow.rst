@@ -15,7 +15,7 @@ Contents of this document
 `Day to Day Commands <#day-to-day-commands>`__
 
 
-`Lifetime of a Project <#lifetime-of-a-project>`__
+`Lifetime of a New Feature <#lifetime-of-a-new-feature>`__
 
 
 `COMPAS Git Workflow <#the-compas-git-workflow>`__
@@ -27,7 +27,7 @@ Contents of this document
 
 
 Introduction
-============
+------------
 
 Git & Github for COMPAS developers
 
@@ -117,7 +117,7 @@ which is in common use in industry.
 
 
 Getting Set Up
-==============
+--------------
 
 **Step-by-step directions for how to configure your local and remote git
 repositories**
@@ -215,6 +215,7 @@ homepage <https://compas.science/>`__ for an up-to-date list).
 
 
 Fork the main repo
+------------------
 
 
 As a COMPAS developer, you are highly encouraged to create your own
@@ -262,7 +263,7 @@ The ``<fork-nickname>`` is your choice, but should be informative, e.g
 
 
 Day to Day commands
-===================
+-------------------
 
 Basic commands for navigating local git
 
@@ -461,6 +462,7 @@ preferred text editor.
 
 
 Deleting branches
+-----------------
 
 
 You should become comfortable deleting branches, or else your repos
@@ -607,6 +609,7 @@ which will have an output that looks similar to:
 
 
 git pull
+--------
 
 
 If you have a branch which is "behind" the remote branch it is tracking
@@ -697,7 +700,7 @@ called the "upstream" branch) with:
 
 
 Lifetime of a New Feature
-=========================
+-------------------------
 
 New feature branches
 
@@ -808,7 +811,7 @@ before accepting it, so keep an eye on the pull request conversation.
 
 
 The COMPAS Git Workflow
-=======================
+-----------------------
 
 The above sections go over many of the available git commands that you
 might find useful.
@@ -868,7 +871,7 @@ comparisons of key plots from different papers.
 
 
 Terminology
-===========
+-----------
 
 -  **Commit**: A single commit records a collection of edits to one or
    more files, with an associated commit message.

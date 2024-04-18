@@ -47,7 +47,7 @@ double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
  * table A1. The thresholds here are named by the boundaries RG/SS, SS/MF, and SF/Dt, 
  * respectively (see text for details). Note that the different flashes regimes from 
  * Piersanti+ 2014 have been merged into one, i.e we omit the MF/SF boundary, and 
- * the accumulation regime has been change so we can get double detonations. Finally, 
+ * the accumulation regime has been changed so we can get double detonations. Finally, 
  * eta_KH04 has also been updated with the accretion efficiency values from Piersanti+ 2014.
  *
  * double CalculateEtaHe(const double p_MassTransferRate)
@@ -151,8 +151,13 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
  * @return                                      Radius of a White Dwarf in Rsol (since WD is ~ Earth sized, expect answer around 0.009)
  */
 double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
+
+    // sanity check for mass - just return 0.0 if mass <= 0
+    if (utils::Compare(p_Mass, 0.0) <= 0) return 0.0;
+    
     double MCH_Mass_one_third  = std::cbrt(MCH / p_Mass); 
     double MCH_Mass_two_thirds = MCH_Mass_one_third * MCH_Mass_one_third;
+
     return std::max(NEUTRON_STAR_RADIUS, 0.0115 * std::sqrt((MCH_Mass_two_thirds - 1.0 / MCH_Mass_two_thirds)));
 }
 
@@ -210,6 +215,12 @@ STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
 
     if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
 
+    m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;
+    m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
+    m_SupernovaDetails.COCoreMassAtCOFormation = m_COCoreMass;
+    m_SupernovaDetails.coreMassAtCOFormation   = m_CoreMass;
+    SetSNHydrogenContent();                                                             // SN to be H-poor. 
+
     m_Mass                                = MECS_REM;                                   // defined in constants.h
     
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
@@ -235,11 +246,17 @@ STELLAR_TYPE WhiteDwarfs::ResolveSNIa() {
 
     if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
 
+    m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;
+    m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
+    m_SupernovaDetails.COCoreMassAtCOFormation = m_COCoreMass;
+    m_SupernovaDetails.coreMassAtCOFormation   = m_CoreMass;
+    SetSNHydrogenContent();                                                             // SN to be H-poor. 
+        
     m_Mass       = 0.0;
     m_Radius     = 0.0;
     m_Luminosity = 0.0;
     m_Age        = 0.0;
-    
+
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
 

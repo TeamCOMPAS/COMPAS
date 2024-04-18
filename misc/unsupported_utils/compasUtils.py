@@ -69,7 +69,7 @@ def printCompasDetails(data, *seeds, mask=()):
 ### 
 ########################################################################
 
-def getMTevents(MTs):                                     
+def getMtEvents(MT):                                     
     """
     This function takes in the `BSE_RLOF` output category from COMPAS, and returns the information
     on the Mass Transfer (MT) events that happen for each seed. The events do not have to be in order, 
@@ -77,23 +77,23 @@ def getMTevents(MTs):
     
     OUT:
         tuple of (returnedSeeds, returnedEvents, returnedTimes)
-        returnedSeeds (list): ordered list of the unique seeds in the MTs file
+        returnedSeeds (list): ordered list of the unique seeds in the MT file
         returnedEvents (list): list of sublists, where each sublist contains all the MT events for a given seed.
             MT event tuples take the form :
             (stellarTypePrimary, stellarTypeSecondary, isRlof1, isRlof2, isCEE)
         returnTimes (list): is a list of sublists of times of each of the MT events
     """
 
-    mtSeeds = MTs['SEED'][()]
-    mtTimes = MTs['Time<MT'][()]
-    mtPrimaryStype = MTs['Stellar_Type(1)<MT'][()]
-    mtSecondaryStype = MTs['Stellar_Type(2)<MT'][()]
-    mtIsRlof1 = MTs['RLOF(1)>MT'][()] == 1
-    mtIsRlof2 = MTs['RLOF(2)>MT'][()] == 1
-    mtIsCEE = MTs['CEE>MT'][()] == 1
+    mtSeeds = MT['SEED'][()]
+    mtTimes = MT['Time<MT'][()]
+    mtPrimaryStype = MT['Stellar_Type(1)<MT'][()]
+    mtSecondaryStype = MT['Stellar_Type(2)<MT'][()]
+    mtIsRlof1 = MT['RLOF(1)>MT'][()] == 1
+    mtIsRlof2 = MT['RLOF(2)>MT'][()] == 1
+    mtIsCEE = MT['CEE>MT'][()] == 1
 
     # We want the return arrays sorted by seed, so sort here.
-    mtSeedsInds = mtSeeds.argsort()
+    mtSeedsInds = np.lexsort((mtTimes, mtSeeds)) # sort by seeds then times - lexsort sorts by the last column first...
     mtSeeds = mtSeeds[mtSeedsInds]  
     mtTimes = mtTimes[mtSeedsInds]  
     mtPrimaryStype = mtPrimaryStype[mtSeedsInds]
@@ -134,7 +134,7 @@ def getMTevents(MTs):
     return returnedSeeds, returnedEvents, returnedTimes       # see above for description
 
 
-def getSNevents(SNe):                                     
+def getSnEvents(SN):                                     
     """
     This function takes in the `BSE_Supernovae` output category from COMPAS, and returns the information
     on the Supernova (SN) events that happen for each seed. The events do not have to be in order chronologically,
@@ -142,22 +142,22 @@ def getSNevents(SNe):
     
     OUT:
         tuple of (returnedSeeds, returnedEvents, returnedTimes)     
-        returnedSeeds (list): ordered list of all the unique seeds in the SNe file
+        returnedSeeds (list): ordered list of all the unique seeds in the SN file
         returnedEvents (list): list of sublists, where each sublist contains all the SN events for a given seed.
             SN event tuples take the form :
             (stellarTypeProgenitor, stellarTypeRemnant, whichStarIsProgenitor, isBinaryUnbound)
         returnedTimes (list): is a list of sublists of times of each of the SN events
     """
     
-    snSeeds = SNe['SEED'][()]
-    snTimes = SNe['Time'][()]
-    snProgStype = SNe['Stellar_Type_Prev(SN)'][()]
-    snRemnStype = SNe['Stellar_Type(SN)'][()]
-    snWhichProg = SNe['Supernova_State'][()]
-    snIsUnbound = SNe['Unbound'][()] == 1
+    snSeeds = SN['SEED'][()]
+    snTimes = SN['Time'][()]
+    snProgStype = SN['Stellar_Type_Prev(SN)'][()]
+    snRemnStype = SN['Stellar_Type(SN)'][()]
+    snWhichProg = SN['Supernova_State'][()]
+    snIsUnbound = SN['Unbound'][()] == 1
 
     # We want the return arrays sorted by seed, so sort here.
-    snSeedsInds = snSeeds.argsort()
+    snSeedsInds = np.lexsort((snTimes, snSeeds)) # sort by seeds then times - lexsort sorts by the last column first...
     snSeeds = snSeeds[snSeedsInds]  
     snTimes = snTimes[snSeedsInds]  
     snProgStype = snProgStype[snSeedsInds]
@@ -185,12 +185,8 @@ def getSNevents(SNe):
             returnedEvents.append([thisEvent])              #   initialize the list of events for this seed
             lastSeed = thisSeed                             #   update the latest seed
         else:                                               # yes - second SN event for this seed
-            if thisTime > returnedTimes[-1][0]:             #   new event occurs after first event?
-                returnedTimes[-1].append(thisTime)          #     yes - append time at end of array
-                returnedEvents[-1].append(thisEvent)        #         - append event at end of array
-            else:
-                np.insert(returnedTimes[-1], 0, thisTime)   #     no - insert time at beginning of array
-                np.insert(returnedEvents[-1], 0, thisEvent) #        - insert event at beginning of array
+            returnedTimes[-1].append(thisTime)              #   append time at end of array
+            returnedEvents[-1].append(thisEvent)            #   append event at end of array
                 
     return returnedSeeds, returnedEvents, returnedTimes     # see above for description
 
@@ -205,15 +201,15 @@ def getEventHistory(h5file, exclude_null=False):
         tuple of (returnedSeeds, returnedEvents)
         returnedSeeds (list): ordered list of all seeds in the output
         returnedEvents (list): a list of the collected SN and MT events from the 
-            getMTevents and getSNevents functions above
+            getMtEvents and getSnEvents functions above
     """
 
-    SPs = h5file['BSE_System_Parameters']
-    MTs = h5file['BSE_RLOF']
-    SNe = h5file['BSE_Supernovae']
-    allSeeds = SPs['SEED'][()]                                              # get all seeds
-    mtSeeds, mtEvents, mtTimes = getMTevents(MTs)                           # get MT events
-    snSeeds, snEvents, snTimes = getSNevents(SNe)                           # get SN events
+    SP = h5file['BSE_System_Parameters']
+    MT = h5file['BSE_RLOF']
+    SN = h5file['BSE_Supernovae']
+    allSeeds = SP['SEED'][()]                                              # get all seeds
+    mtSeeds, mtEvents, mtTimes = getMtEvents(MT)                           # get MT events
+    snSeeds, snEvents, snTimes = getSnEvents(SN)                           # get SN events
 
     numMtSeeds = len(mtSeeds)                                               # number of MT events
     numSnSeeds = len(snSeeds)                                               # number of SN events
@@ -233,11 +229,15 @@ def getEventHistory(h5file, exclude_null=False):
     else:
         seedsToIterate = allSeeds
         
-    for seed in seedsToIterate:
+    idxOrdered = np.argsort(seedsToIterate)
+    returnedSeeds = [None] * np.size(seedsToIterate)                        # array of seeds - will only contain seeds that have events (of any type)
+    returnedEvents = [None] * np.size(seedsToIterate)                       # array of events - same size as returnedSeeds (includes event times)
 
+    for idx in idxOrdered:
+        seed = seedsToIterate[idx]
         seedEvents = []                                                     # initialise the events for the seed being processed
-        
-        # Collect any MT events for this seed, add the time of the event and the event type 
+
+        # Collect any MT events for this seed, add the time of the event and the event type
         while mtIndex < numMtSeeds and mtSeeds[mtIndex] == seed:
             for eventIndex, event in enumerate(mtEvents[mtIndex]):
                 seedEvents.append(('MT', mtTimes[mtIndex][eventIndex], *mtEvents[mtIndex][eventIndex]))
@@ -248,13 +248,14 @@ def getEventHistory(h5file, exclude_null=False):
             for eventIndex, event in enumerate(snEvents[snIndex]):
                 seedEvents.append(('SN', snTimes[snIndex][eventIndex], *snEvents[snIndex][eventIndex]))
             snIndex += 1
-        
+
         seedEvents.sort(key=lambda ev:(ev[1], eventOrdering.index(ev[0])))  # sort the events by time and event type (MT before SN if at the same time)
 
-        returnedSeeds.append(seed)                                          # record the seed in the seeds array being returned
-        returnedEvents.append(seedEvents)                                   # record the events for this seed in the events array being returned
+        returnedSeeds[idx] = seed                                           # record the seed in the seeds array being returned
+        returnedEvents[idx] = seedEvents                                    # record the events for this seed in the events array being returned
 
-    return returnedSeeds, returnedEvents                                              # see above for details
+    return returnedSeeds, returnedEvents                                    # see above for details
+
 
 
 ###########################################

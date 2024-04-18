@@ -333,6 +333,7 @@ private:
         "eccentricity-distribution",
         "eccentricity-max",
         "eccentricity-min",
+        "enable-tides",
         "evolve-double-white-dwarfs",
         "evolve-pulsars",
         "evolve-unbound-systems",
@@ -387,6 +388,13 @@ private:
         "rotational-frequency-1",
         "rotational-frequency-2",
 
+        "rocket-kick-magnitude-1",
+        "rocket-kick-magnitude-2",
+        "rocket-kick-phi-1", 
+        "rocket-kick-phi-2", 
+        "rocket-kick-theta-1",
+        "rocket-kick-theta-2",
+
         "semi-major-axis", "a",
         "semi-major-axis-distribution",
         "semi-major-axis-max",
@@ -437,6 +445,7 @@ private:
         "detailed-output",
 
         "eccentricity-distribution",
+        "enable-tides",
         "enable-warnings",
         "envelope-state-prescription",
         "errors-to-file",
@@ -527,6 +536,8 @@ private:
         "store-input-files",
         "switch-log",
 
+        "timesteps-filename",
+
         "use-mass-loss",
 
         "VMS-mass-loss",
@@ -606,6 +617,8 @@ private:
         "store-input-files",
         "switch-log",
 
+        "timesteps-filename",
+
         "version", "v",
 
         "yaml-template"
@@ -677,11 +690,13 @@ public:
             unsigned long int                                   m_RandomSeed;                                                   // Random seed to use
     
             double                                              m_MaxEvolutionTime;                                             // Maximum time to evolve a binary by
-            int                                                 m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
+            unsigned long int                                   m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
             double                                              m_TimestepMultiplier;                                           // Multiplier for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
 
             std::streamsize                                     m_GridStartLine;                                                // The grid file line to start processing (0-based)
             std::streamsize                                     m_GridLinesToProcess;                                           // The number of grid file lines to process (starting at m_GridStartLine)
+
+            std::string                                         m_TimestepsFileName;                                            // The name of the timesteps file
 
             // Initial distribution variables
 
@@ -759,6 +774,14 @@ public:
             // Black hole kicks
             ENUM_OPT<BLACK_HOLE_KICKS>                          m_BlackHoleKicks;                                               // Which black hole kicks mode
 
+            // Rocket kicks
+            double                                              m_RocketKickMagnitude1;                                         // Rocket kick magnitude primary - only for neutron stars
+            double                                              m_RocketKickMagnitude2;                                         // Rocket kick magnitude secondary - only for neutron stars
+            double                                              m_RocketKickPhi1;                                               // Rocket kick phi angle primary
+            double                                              m_RocketKickPhi2;                                               // Rocket kick phi angle secondary
+            double                                              m_RocketKickTheta1;                                             // Rocket kick theta angle primary
+            double                                              m_RocketKickTheta2;                                             // Rocket kick theta angle secondary
+                                                                                                                                
             // CHE - Chemically Homogeneous Evolution
             ENUM_OPT<CHE_MODE>                                  m_CheMode;                                                      // Which Chemically Homogeneous Evolution mode
 
@@ -904,6 +927,10 @@ public:
 	        bool                                                m_RevisedEnergyFormalismNandezIvanova;			                // Use the revised energy formalism from Nandez & Ivanova 2016 (default = false)
 	        double                                              m_MaximumMassDonorNandezIvanova;								// Maximum mass allowed to use the revised energy formalism in Msol (default = 2.0)
 	        double                                              m_CommonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 erg/g)
+
+
+            // Tides
+            bool                                                m_EnableTides;                                                   // Whether to enable tides (default = False)
 
 
             // Zetas
@@ -1216,6 +1243,7 @@ public:
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
     bool                                        DetailedOutput() const                                                  { return m_CmdLine.optionValues.m_DetailedOutput; }
 
+    bool                                        EnableTides() const                                                     { return OPT_VALUE("enable-tides", m_EnableTides, true); }
     bool                                        EnableWarnings() const                                                  { return m_CmdLine.optionValues.m_EnableWarnings; }
     bool                                        ErrorsToFile() const                                                    { return m_CmdLine.optionValues.m_ErrorsToFile; }
     double                                      Eccentricity() const                                                    { return OPT_VALUE("eccentricity", m_Eccentricity, true); }
@@ -1362,7 +1390,7 @@ public:
     MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return OPT_VALUE("mass-transfer-thermal-limit-accretor", m_MassTransferThermallyLimitedVariation.type, true); }
     double                                      MaxEvolutionTime() const                                                { return OPT_VALUE("maximum-evolution-time", m_MaxEvolutionTime, true); }
     double                                      MaximumNeutronStarMass() const                                          { return OPT_VALUE("maximum-neutron-star-mass", m_MaximumNeutronStarMass, true); }
-    int                                         MaxNumberOfTimestepIterations() const                                   { return OPT_VALUE("maximum-number-timestep-iterations", m_MaxNumberOfTimestepIterations, true); }
+    unsigned long int                           MaxNumberOfTimestepIterations() const                                   { return OPT_VALUE("maximum-number-timestep-iterations", m_MaxNumberOfTimestepIterations, true); }
     double                                      MaximumDonorMass() const                                                { return OPT_VALUE("maximum-mass-donor-nandez-ivanova", m_MaximumMassDonorNandezIvanova, true); }
     double                                      MCBUR1() const                                                          { return OPT_VALUE("mcbur1", m_mCBUR1, true); }
 
@@ -1441,6 +1469,13 @@ public:
     
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
 
+    double                                      RocketKickMagnitude1() const                                            { return OPT_VALUE("rocket-kick-magnitude-1", m_RocketKickMagnitude1, true); }
+    double                                      RocketKickMagnitude2() const                                            { return OPT_VALUE("rocket-kick-magnitude-2", m_RocketKickMagnitude2, true); }
+    double                                      RocketKick_Phi1() const                                                 { return OPT_VALUE("rocket-kick-phi-1", m_RocketKickPhi1, true); }
+    double                                      RocketKick_Phi2() const                                                 { return OPT_VALUE("rocket-kick-phi-2", m_RocketKickPhi2, true); }
+    double                                      RocketKick_Theta1() const                                               { return OPT_VALUE("rocket-kick-theta-1", m_RocketKickTheta1, true); }
+    double                                      RocketKick_Theta2() const                                               { return OPT_VALUE("rocket-kick-theta-2", m_RocketKickTheta2, true); }
+
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return OPT_VALUE("rotational-velocity-distribution", m_RotationalVelocityDistribution.type, true); }
     double                                      RotationalFrequency() const                                             { return OPT_VALUE("rotational-frequency", m_RotationalFrequency, true); }
     double                                      RotationalFrequency1() const                                            { return OPT_VALUE("rotational-frequency-1", m_RotationalFrequency1, true); }
@@ -1467,6 +1502,7 @@ public:
 
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
 
+    std::string                                 TimestepsFileName() const                                               { return OPT_VALUE("timesteps-filename", m_TimestepsFileName, true); }
     double                                      TimestepMultiplier() const                                              { return m_CmdLine.optionValues.m_TimestepMultiplier; }
 
     bool                                        UseFixedUK() const                                                      { return (m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_UseFixedUK); }
