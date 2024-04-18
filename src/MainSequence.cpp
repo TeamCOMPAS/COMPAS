@@ -490,8 +490,8 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
 
 double MainSequence::CalculateConvectiveCoreRadius() const {
     if (utils::Compare(m_Mass, 1.25) < 0)       // /*ILYA*/ To check
-        return 0;
-    return ( m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57))); // Preliminary fit from Minori
+        return 0.0;
+    return ( m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57))); // Preliminary fit from Minori Shikauchi @ ZAMS, does not take evolution into account yet
 }
 
 

@@ -3825,16 +3825,15 @@ double BaseStar::CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMa
  * Follows the fits of Picker, Hirai, Mandel (2024), arXiv:2402.13180 for lambda_He
  *
  *
- * double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(double p_convectiveEnvelopeMass, double p_maxConvectiveEnvelopeMass)
+ * double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const
  *
  * @param   [IN]    p_convectiveEnvelopeMass    Mass of the outer convective envelope shell
  * @param   [IN]    p_maxConvectiveEnvelopeMass Maximum mass of the outer convective envelope shell at the onset of carbon burning
  * @return                                      Lambda binding energy parameter for the outer convective envelope
  */
-double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(double p_convectiveEnvelopeMass, double p_maxConvectiveEnvelopeMass) {
+double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const {
     
-    double log10Z     = log10 (m_Metallicity);
-    double m2         = 0.0023 * log10Z * log10Z + 0.0088 * log10Z + 0.013;         // Eq. (12) and Table 1 of Picker, Hirai, Mandel (2024)
+    double m2         = 0.0023 * m_Log10Metallicity * m_Log10Metallicity + 0.0088 * m_Log10Metallicity + 0.013;         // Eq. (12) and Table 1 of Picker, Hirai, Mandel (2024)
     double b1         = m2 * m_Mass - 0.23;                                         // Eq. (11) of Picker+ (2024)
     double logLambda  = p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass > 0.3 ?
         0.42 * p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass + b1 : 0.3 * 0.42 + b1;

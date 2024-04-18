@@ -1599,7 +1599,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         double k1         = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * convectiveEnvelopeMass1 / m_Star1->Radius();
         double k2         = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * convectiveEnvelopeMass2 / m_Star2->Radius();
         double k3         = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                         // assumes immediate circularisation at periastron at start of CE
-        double k4         = (endOfFirstStageMass1 * endOfFirstStageMass2);
+        double k4         = endOfFirstStageMass1 * endOfFirstStageMass2;
         double aFinalRsol = k4 / (k1 + k2 + k3);
         m_SemiMajorAxis   = aFinalRsol * RSOL_TO_AU;
 
