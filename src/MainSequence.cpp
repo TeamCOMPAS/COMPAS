@@ -482,7 +482,7 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
     if ( utils::Compare(m_Mass, 1.25) >= 0)
         radiusEnvelope0 = 0.0;
     else if (utils::Compare(m_Mass, 0.35) > 0) {
-        double radiusM035 = m_Radius;          // /*ILYA*/ to fix: radius of a 0.35 solar mass star of fractional age Tau
+        double radiusM035 = CalculateRadiusAtZAMS(0.35);          // uses radius of a 0.35 solar mass star at ZAMS rather than at fractional age Tau, but such low-mass stars only grow by a maximum factor of 1.5 [just above Eq. (10) in Hurley, Pols, Tout (2000), so this is a reasonable approximation
         radiusEnvelope0 = radiusM035 * std::sqrt((1.25 - m_Mass) / 0.9);
     }
     return radiusEnvelope0 * std::sqrt(std::sqrt(1.0 - m_Tau));
