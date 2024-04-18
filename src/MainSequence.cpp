@@ -530,13 +530,14 @@ double MainSequence::CalculateConvectiveCoreMass() const {
  *
  * @return                                      Mass of convective envelope in Msol
  */
-double MainSequence::CalculateConvectiveEnvelopeMass() const {
+DBL_DBL MainSequence::CalculateConvectiveEnvelopeMass() const {
     if (utils::Compare(m_Mass, 1.25) > 0)
-        return 0;
+        return std::tuple<double, double> (0.0, 0.0);
     double massEnvelope0 = 0.35;
     if(utils::Compare(m_Mass, 0.35) > 0)
         massEnvelope0 = 0.35 * (1.25 - m_Mass) * (1.25 - m_Mass) / 0.81;
-    return massEnvelope0 * sqrt(sqrt(1.0 - m_Tau));
+    double massEnvelope = massEnvelope0 * sqrt(sqrt(1.0 - m_Tau));
+    return std::tuple<double, double> (massEnvelope, massEnvelope);
 }
 
 
