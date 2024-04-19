@@ -9,7 +9,6 @@
 // 
 ///////////////////////////////////////////////////////////
 
-// Default constructor
 Vector3d::Vector3d() {
 
     // Initialize member variables
@@ -22,10 +21,10 @@ Vector3d::Vector3d() {
 
 }
 
-// Initialize from values 
+Vector3d::Vector3d(double p_x, double p_y, double p_z) {        // Initialize from values 
 
-Vector3d::Vector3d(double p_x, double p_y, double p_z) {
-
+    // Initialize member variables
+    
     m_ObjectId = globalObjectId++; 
 
     m_x = p_x;
@@ -120,8 +119,9 @@ std::ostream &operator <<(std::ostream &os, Vector3d const p_Vec) {
 // Add in common vector calculations
 
 /*
- * Calculate the magnitude of a velocity vector, the speed.
- * 
+ * Calculate the magnitude of a velocity vector.
+ *
+ * double Magnitude() const
  *
  * @return                                       The magnitude of the velocity vector (speed)
  */
@@ -134,6 +134,7 @@ double Vector3d::Magnitude() const {
 /*
  * Convert the Vector3d to a DBL_VECTOR
  * 
+ * DBL_VECTOR asDBL_VECTOR()
  *
  * @return                                       The analogous DBL_VECTOR
  */
@@ -143,8 +144,65 @@ DBL_VECTOR Vector3d::asDBL_VECTOR() {
     DBL_VECTOR vFinal = { v[0], v[1], v[2] };
 
     return vFinal;
-
 }
+
+
+//////////////////////////////////
+// Add in rotation about an axis
+
+#define cTheta cos(p_Theta)
+#define sTheta sin(p_Theta)
+
+/*
+ * Rotate a vector about the X axis.
+ *
+ * Vector3d RotateVectorAboutX( const double p_Theta)
+ *
+ * @param   [IN]   p_Theta                     Rotation angle (rad) 
+ * @return                                     Vector after rotation
+ */
+Vector3d Vector3d::RotateVectorAboutX( const double p_Theta) {
+    std::vector<DBL_VECTOR> RotationMatrix = {                      // Define the Rotation Matrix     
+        { 1.0,  0.0,     0.0    },
+        { 0.0,  cTheta, -sTheta },
+        { 0.0,  sTheta,  cTheta }};
+    return linalg::matrixMult(RotationMatrix, (*this));             // Multiply RotationMatrix * p_oldVector
+}
+
+/*
+ * Rotate a vector about the Y axis.
+ *
+ * Vector3d RotateVectorAboutY( const double p_Theta)
+ *
+ * @param   [IN]   p_Theta                     Rotation angle (rad) 
+ * @return                                     Vector after rotation
+ */
+Vector3d Vector3d::RotateVectorAboutY( const double p_Theta) {
+    std::vector<DBL_VECTOR> RotationMatrix = {                      // Define the Rotation Matrix     
+        {  cTheta, 0.0, sTheta },
+        {  0.0,    1.0, 0.0    },
+        { -sTheta, 0.0, cTheta }};
+    return linalg::matrixMult(RotationMatrix, (*this));             // Multiply RotationMatrix * p_oldVector
+}
+
+/*
+ * Rotate a vector about the Z axis.
+ *
+ * Vector3d RotateVectorAboutZ( const double p_Theta)
+ *
+ * @param   [IN]   p_Theta                     Rotation angle (rad) 
+ * @return                                     Vector after rotation
+ */
+Vector3d Vector3d::RotateVectorAboutZ( const double p_Theta) {
+    std::vector<DBL_VECTOR> RotationMatrix = {                      // Define the Rotation Matrix     
+        { cTheta, -sTheta,  0.0 },
+        { sTheta,  cTheta,  0.0 },
+        { 0.0,     0.0,     1.0 }};
+    return linalg::matrixMult(RotationMatrix, (*this));             // Multiply RotationMatrix * p_oldVector
+}
+
+#undef cTheta
+#undef sTheta
 
 
 /*
@@ -168,13 +226,14 @@ DBL_VECTOR Vector3d::asDBL_VECTOR() {
  * https://en.wikipedia.org/wiki/Euler_angles
  * https://en.wikipedia.org/wiki/Change_of_basis
  *
+ * Vector3d ChangeBasis(const double p_ThetaE, const double p_PhiE, const double p_PsiE)
  *
  * @param   [IN]   p_ThetaE                    Euler angle Theta (rad) 
  * @param   [IN]   p_PhiE                      Euler angle Phi   (rad) 
  * @param   [IN]   p_PsiE                      Euler angle Psi   (rad) 
  * @return                                     Vector in previous basis
  */
-Vector3d Vector3d::RotateVector(const double p_ThetaE, const double p_PhiE, const double p_PsiE) {
+Vector3d Vector3d::ChangeBasis(const double p_ThetaE, const double p_PhiE, const double p_PsiE) {
 
     // Replace for convenience, undefine below
     #define cTheta cos(p_ThetaE)
@@ -213,6 +272,7 @@ Vector3d Vector3d::RotateVector(const double p_ThetaE, const double p_PhiE, cons
 /*
  * Returns the unit vector in the direction of the given vector
  * 
+ * Vector3d UnitVector() 
  *
  * @return                                     Unit vector of input
  */
@@ -235,6 +295,7 @@ namespace linalg {
     /*
      * Calculate the standard dot product of two vectors
      *
+     * double dot(const Vector3d& p_a, const Vector3d& p_b)
      *
      * @param   [IN]   a                            first vector
      * @param   [IN]   b                            second vector
@@ -253,6 +314,7 @@ namespace linalg {
     /*
      * Calculate the standard cross product of two vectors
      *
+     * Vector3d cross(const Vector3d& p_a, const Vector3d& p_b)
      *
      * @param   [IN]   a                            first vector
      * @param   [IN]   b                            second vector
@@ -272,14 +334,35 @@ namespace linalg {
     /*
      * Calculate the angle between two vectors.
      *
+     * double angleBetween(const Vector3d& p_a, const Vector3d& p_b) 
      *
-     * @param   [IN]   a                            first vector
-     * @param   [IN]   b                            second vector
+     * @param   [IN]   p_a                          first vector
+     * @param   [IN]   p_b                          second vector
      * @return                                      angle between them, in radians
      */
     double angleBetween(const Vector3d& p_a, const Vector3d& p_b) {
         // Angle between 2 vectors, between [0, pi] 
         return std::acos(linalg::dot(p_a, p_b) / (p_a.Magnitude() * p_b.Magnitude()));
+    }
+
+    /*
+     * Right multiply a matrix by a vector
+     *
+     * Vector3d matrixMult(const std::vector<DBL_VECTOR>& p_matrix, const Vector3d& p_vector) 
+     *
+     * @param   [IN]   p_matrix                     matrix 
+     * @param   [IN]   p_vector                     vector
+     * @return                                      angle between them, in radians
+     */
+    Vector3d matrixMult(const std::vector<DBL_VECTOR>& p_matrix, const Vector3d& p_vector) {
+        // Product of matrix and vector
+        Vector3d newVector = Vector3d(0.0, 0.0, 0.0);
+        for (size_t i=0; i< 3; i++) {
+            for (size_t j=0; j<3; j++) {
+                newVector[i] += p_matrix[i][j] * p_vector[j];
+            }
+        }
+        return newVector;
     }
 }
 

@@ -16,6 +16,7 @@ def test_fast_cosmic_integration(example_compas_output_path,  test_archive_dir, 
         COMPAS,
     ) = FastCosmicIntegration.find_detection_rate(
         path=example_compas_output_path,
+        merges_hubble_time=False,
     )
     runtime = time.time() - t0
     assert runtime < 10
@@ -38,3 +39,13 @@ def test_fast_cosmic_integration(example_compas_output_path,  test_archive_dir, 
     # check that the COMPAS object is a COMPASData object
     assert isinstance(COMPAS, COMPASData)
 
+
+
+def test_compas_output_has_dcos(example_compas_output_path):
+    """Test that the COMPAS output has dco_type"""
+    COMPAS = COMPASData(path=example_compas_output_path, lazyData=False)
+    COMPAS.setCOMPASDCOmask(types='BBH', withinHubbleTime=False, pessimistic=True, noRLOFafterCEE=True)
+    COMPAS.setCOMPASData()
+    n_bin = len(COMPAS.seedsDCO)
+    assert n_bin > 1
+    assert sum(COMPAS.DCOmask) == n_bin

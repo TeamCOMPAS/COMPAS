@@ -470,11 +470,7 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
 /*
  * Calculate the radial extent of the star's convective envelope (if it has one)
  *
- * Hurley et al. 2000, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
- *
- * (Technically not a radius calculation I suppose, but "radial extent" is close enough to put it with the radius calculations...)
- *
- * JR: todo: original code for MS is broken for mass < 1.25 - check this (see calculateRadialExtentConvectiveEnvelope())
+ * Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 36-38
  *
  *
  * double CalculateRadialExtentConvectiveEnvelope()
@@ -482,11 +478,69 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
  * @return                                      Radial extent of the star's convective envelope in Rsol
  */
 double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
-    return utils::Compare(m_Mass, 0.35) <= 0 ? m_Radius * std::sqrt(std::sqrt(1.0 - m_Tau)) : 0.0;
+    double radiusEnvelope0 = m_Radius;
+    if ( utils::Compare(m_Mass, 1.25) >= 0)
+        radiusEnvelope0 = 0.0;
+    else if (utils::Compare(m_Mass, 0.35) > 0) {
+        double radiusM035 = CalculateRadiusAtZAMS(0.35);          // uses radius of a 0.35 solar mass star at ZAMS rather than at fractional age Tau, but such low-mass stars only grow by a maximum factor of 1.5 [just above Eq. (10) in Hurley, Pols, Tout (2000), so this is a reasonable approximation
+        radiusEnvelope0 = radiusM035 * std::sqrt((1.25 - m_Mass) / 0.9);
+    }
+    return radiusEnvelope0 * std::sqrt(std::sqrt(1.0 - m_Tau));
+}
+
+double MainSequence::CalculateConvectiveCoreRadius() const {
+    if (utils::Compare(m_Mass, 1.25) < 0)       // /*ILYA*/ To check
+        return 0.0;
+    return ( m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57))); // Preliminary fit from Minori Shikauchi @ ZAMS, does not take evolution into account yet
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
+//                                            //
+//             MASS CALCULATIONS              //
+//                                            //
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+/*
+ * Calculate the mass of the convective core
+ *
+ * Based on Shikauchi, Hirai, Mandel (2024), core mass shrinks to 60% of initial value over the course of the MS
+ *
+ *
+ * double CalculateConvectiveCoreMass() const
+ *
+ * @return                                      Mass of convective core in Msol
+ */
+double MainSequence::CalculateConvectiveCoreMass() const {
+    HG clone             = *this;                           //create an HG star clone to query its core mass just after TAMS
+    double TAMSCoreMass  = clone.CoreMass();
+    double finalConvectiveCoreMass = TAMSCoreMass;
+    double initialConvectiveCoreMass = finalConvectiveCoreMass / 0.6;
+    return ( initialConvectiveCoreMass - m_Tau * (initialConvectiveCoreMass - finalConvectiveCoreMass) );
+}
+
+/*
+ * Calculate the mass of the convective envelope
+ *
+ * Based on section 7.2 (after Eq. 111) of Hurley, Pols, Tout (2000)
+ *
+ *
+ * double CalculateConvectiveEnvelopeMass() const
+ *
+ * @return                                      Mass of convective envelope in Msol
+ */
+DBL_DBL MainSequence::CalculateConvectiveEnvelopeMass() const {
+    if (utils::Compare(m_Mass, 1.25) > 0)
+        return std::tuple<double, double> (0.0, 0.0);
+    double massEnvelope0 = m_Mass;
+    if(utils::Compare(m_Mass, 0.35) > 0)
+        massEnvelope0 = 0.35 * (1.25 - m_Mass) * (1.25 - m_Mass) / 0.81;
+    double massEnvelope = massEnvelope0 * sqrt(sqrt(1.0 - m_Tau));
+    return std::tuple<double, double> (massEnvelope, massEnvelope0);
+}
+
+
 //                                                                                   //
 //                            LIFETIME / AGE CALCULATIONS                            //
 //                                                                                   //
@@ -559,50 +613,6 @@ void MainSequence::UpdateAgeAfterMassLoss() {
     double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass, tBGBprime);
 
     m_Age *= tMSprime / tMS;
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////
-//                                                                                   //
-//                  ROTATIONAL / GYRATION / FREQUENCY CALCULATIONS                   //
-//                                                                                   //
-///////////////////////////////////////////////////////////////////////////////////////
-
-/*
- * Calculate gyration radius
- *
- * Define gyration radius 'k=r_g^2' using fit from de Mink et al. 2013, calling k_definition function
- * Original created by Alejandro Vigna-Gomez on 11/2015.  Rewritten June 2019, JR.
- *
- * The original fits from de Mink+2013 were made for MS stars a Z=0.02.
- *
- * Uses class member variables instead of passing in parameters
- *
- *
- * double CalculateGyrationRadius()
- *
- * @return                                      Gyration radius in Rsol
- *
- */
-double MainSequence::CalculateGyrationRadius() const {
-
-    double log10M = log10(m_Mass);
-
-	double cLower = 0.0;                                                                            // correction factor 'c' (lowercase 'c') in de Mink et al., 2013 eq A1
-	if ((utils::Compare(log10M, 1.3) > 0)) {                                                        // log10(M) > 1.3 (de Mink doesn't include '=' - we assume it not to be here))
-        double log10M_13 = log10M - 1.3;
-        cLower = -0.055 * log10M_13 * log10M_13;
-	}
-
-	double CUpper = -2.5;                                                                           // exponent 'C' (uppercase 'C') in de Mink et al., 2013 eq A2
-	     if ((utils::Compare(log10M, 0.2) > 0)) CUpper = -1.5;                                      // log10(M) > 0.2
-	else if ((utils::Compare(log10M, 0.0) > 0)) CUpper = -2.5 + (5.0 * log10M);                     // 0.2 <= log10(M) > 0.0 (de Mink doesn't include '=' - we assume it to be here (and for log10(M) <= 0.0))
-
-    double k0 = cLower+ std::min(0.21, std::max(0.09 - (0.27 * log10M), 0.037 + (0.033 * log10M))); // gyration radius squared for ZAMS stars
-
-    double radiusRatio = m_Radius / m_RZAMS;
-
-	return ((k0 - 0.025) * PPOW(radiusRatio, CUpper)) + (0.025 * PPOW(radiusRatio, -0.1));          // gyration radius
 }
 
 
@@ -681,12 +691,13 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
     
     if (p_NoCheck || utils::Compare(m_Mass, 0.0) <= 0) {
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
-        m_Radius = 0.0;   // massless remnant
-        m_Mass = 0.0;
+        m_Radius    = 0.0;   // massless remnant
+        m_Mass      = 0.0;
     }
     
     return stellarType;
 }
+
 
 /*
  * Update the minimum core mass of a main sequence star that loses mass through Case A mass transfer by
@@ -702,9 +713,9 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
 void MainSequence::UpdateMinimumCoreMass()
 {
     if (OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
-        double fractionalAge=CalculateTauOnPhase();
-        HG clone = *this;                               //create an HG star clone to query its core mass just after TAMS
-        double TAMSCoreMass = clone.CoreMass();
-        m_MinimumCoreMass = std::max(m_MinimumCoreMass, fractionalAge * TAMSCoreMass);
+        double fractionalAge =CalculateTauOnPhase();
+        HG clone             = *this;                           //create an HG star clone to query its core mass just after TAMS
+        double TAMSCoreMass  = clone.CoreMass();
+        m_MinimumCoreMass    = std::max(m_MinimumCoreMass, fractionalAge * TAMSCoreMass);
     }
 }
