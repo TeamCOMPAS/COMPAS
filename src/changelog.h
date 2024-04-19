@@ -1119,7 +1119,14 @@
 //                                      - Fix CalculateMassLossRateBjorklundEddingtonFactor to use LSOLW (in SI) rather than LSOL (in cgs)        
 // 02.43.02    JR - Apr 15, 2024     - Defect repair
 //                                      - Fix for issue #1074 - SSE Supernova records duplicated
+// 02.43.03    IM - Apr 15, 2024     - Enhancement
+//                                      - Updated fits for the mass and binding energy of the outer convective envelope based on Picker, Hirai, Mandel (2024)
+//                                      - Added functionality for CalculateConvectiveEnvelopeMass(), CalculateConvectiveCoreMass(), CalculateConvectiveCoreRadius()
+//                                   - Defect repair
+//                                      - Fixes to CalculateRadialExtentConvectiveEnvelope(), comments
 
-const std::string VERSION_STRING = "02.43.02";
+
+const std::string VERSION_STRING = "02.43.03";
+
 
 # endif // __changelog_h__
