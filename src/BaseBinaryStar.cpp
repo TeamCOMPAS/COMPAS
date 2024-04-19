@@ -1583,18 +1583,23 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
     // Two-stage common envelope, Hirai & Mandel (2022)
     else if ( OPTIONS->CommonEnvelopeFormalism() == CE_FORMALISM::TWO_STAGE ) {
-        double convectiveEnvelopeMass1  = m_Star1->CalculateConvectiveEnvelopeMass();
+        double convectiveEnvelopeMass1, maxConvectiveEnvelopeMass1;
+        std::tie(convectiveEnvelopeMass1, maxConvectiveEnvelopeMass1) = m_Star1->CalculateConvectiveEnvelopeMass();
         double radiativeIntershellMass1 = m_MassEnv1 - convectiveEnvelopeMass1;
         double endOfFirstStageMass1     = m_Mass1Final + radiativeIntershellMass1;
-        double convectiveEnvelopeMass2  = m_Star2->CalculateConvectiveEnvelopeMass();
+        double convectiveEnvelopeMass2, maxConvectiveEnvelopeMass2;
+        std::tie(convectiveEnvelopeMass2, maxConvectiveEnvelopeMass2) = m_Star2->CalculateConvectiveEnvelopeMass();
         double radiativeIntershellMass2 = m_MassEnv2 - convectiveEnvelopeMass2;
         double endOfFirstStageMass2     = m_Mass2Final + radiativeIntershellMass2;
         
-        // Stage 1: convective envelope removal on a dynamical timescale; assumes lambda = 1.5, motivated by bottom panel of Figure 3 of Hirai & Mandel 2022, including internal energy
-        double k1         = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (1.5 * alphaCE)) * m_Star1->Mass() * convectiveEnvelopeMass1 / m_Star1->Radius();
-        double k2         = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (1.5 * alphaCE)) * m_Star2->Mass() * convectiveEnvelopeMass2 / m_Star2->Radius();
+        // Stage 1: convective envelope removal on a dynamical timescale; assumes lambda = lambda_He
+        double lambda1    = m_Star1->CalculateConvectiveEnvelopeLambdaPicker(convectiveEnvelopeMass1, maxConvectiveEnvelopeMass1);
+        double lambda2    = m_Star1->CalculateConvectiveEnvelopeLambdaPicker(convectiveEnvelopeMass2, maxConvectiveEnvelopeMass2);
+        
+        double k1         = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * convectiveEnvelopeMass1 / m_Star1->Radius();
+        double k2         = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * convectiveEnvelopeMass2 / m_Star2->Radius();
         double k3         = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                         // assumes immediate circularisation at periastron at start of CE
-        double k4         = (endOfFirstStageMass1 * endOfFirstStageMass2);
+        double k4         = endOfFirstStageMass1 * endOfFirstStageMass2;
         double aFinalRsol = k4 / (k1 + k2 + k3);
         m_SemiMajorAxis   = aFinalRsol * RSOL_TO_AU;
 

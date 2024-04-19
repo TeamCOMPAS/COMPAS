@@ -470,11 +470,7 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
 /*
  * Calculate the radial extent of the star's convective envelope (if it has one)
  *
- * Hurley et al. 2000, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
- *
- * (Technically not a radius calculation I suppose, but "radial extent" is close enough to put it with the radius calculations...)
- *
- * JR: todo: original code for MS is broken for mass < 1.25 - check this (see calculateRadialExtentConvectiveEnvelope())
+ * Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 36-38
  *
  *
  * double CalculateRadialExtentConvectiveEnvelope()
@@ -482,11 +478,69 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
  * @return                                      Radial extent of the star's convective envelope in Rsol
  */
 double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
-    return utils::Compare(m_Mass, 0.35) <= 0 ? m_Radius * std::sqrt(std::sqrt(1.0 - m_Tau)) : 0.0;
+    double radiusEnvelope0 = m_Radius;
+    if ( utils::Compare(m_Mass, 1.25) >= 0)
+        radiusEnvelope0 = 0.0;
+    else if (utils::Compare(m_Mass, 0.35) > 0) {
+        double radiusM035 = CalculateRadiusAtZAMS(0.35);          // uses radius of a 0.35 solar mass star at ZAMS rather than at fractional age Tau, but such low-mass stars only grow by a maximum factor of 1.5 [just above Eq. (10) in Hurley, Pols, Tout (2000), so this is a reasonable approximation
+        radiusEnvelope0 = radiusM035 * std::sqrt((1.25 - m_Mass) / 0.9);
+    }
+    return radiusEnvelope0 * std::sqrt(std::sqrt(1.0 - m_Tau));
+}
+
+double MainSequence::CalculateConvectiveCoreRadius() const {
+    if (utils::Compare(m_Mass, 1.25) < 0)       // /*ILYA*/ To check
+        return 0.0;
+    return ( m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57))); // Preliminary fit from Minori Shikauchi @ ZAMS, does not take evolution into account yet
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
+//                                            //
+//             MASS CALCULATIONS              //
+//                                            //
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+/*
+ * Calculate the mass of the convective core
+ *
+ * Based on Shikauchi, Hirai, Mandel (2024), core mass shrinks to 60% of initial value over the course of the MS
+ *
+ *
+ * double CalculateConvectiveCoreMass() const
+ *
+ * @return                                      Mass of convective core in Msol
+ */
+double MainSequence::CalculateConvectiveCoreMass() const {
+    HG clone             = *this;                           //create an HG star clone to query its core mass just after TAMS
+    double TAMSCoreMass  = clone.CoreMass();
+    double finalConvectiveCoreMass = TAMSCoreMass;
+    double initialConvectiveCoreMass = finalConvectiveCoreMass / 0.6;
+    return ( initialConvectiveCoreMass - m_Tau * (initialConvectiveCoreMass - finalConvectiveCoreMass) );
+}
+
+/*
+ * Calculate the mass of the convective envelope
+ *
+ * Based on section 7.2 (after Eq. 111) of Hurley, Pols, Tout (2000)
+ *
+ *
+ * double CalculateConvectiveEnvelopeMass() const
+ *
+ * @return                                      Mass of convective envelope in Msol
+ */
+DBL_DBL MainSequence::CalculateConvectiveEnvelopeMass() const {
+    if (utils::Compare(m_Mass, 1.25) > 0)
+        return std::tuple<double, double> (0.0, 0.0);
+    double massEnvelope0 = m_Mass;
+    if(utils::Compare(m_Mass, 0.35) > 0)
+        massEnvelope0 = 0.35 * (1.25 - m_Mass) * (1.25 - m_Mass) / 0.81;
+    double massEnvelope = massEnvelope0 * sqrt(sqrt(1.0 - m_Tau));
+    return std::tuple<double, double> (massEnvelope, massEnvelope0);
+}
+
+
 //                                                                                   //
 //                            LIFETIME / AGE CALCULATIONS                            //
 //                                                                                   //
