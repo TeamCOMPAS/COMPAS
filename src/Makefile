@@ -9,16 +9,16 @@
 CPP := g++
 
 # gsl directories
-GSLINCDIR := /opt/homebrew/Cellar/gsl/2.7.1/include
-GSLLIBDIR := /opt/homebrew/Cellar/gsl/2.7.1/lib
+GSLINCDIR := /include
+GSLLIBDIR := /lib
 
 # boost directories
-BOOSTINCDIR := /opt/homebrew/Cellar/boost/1.84.0_1/include
-BOOSTLIBDIR := /opt/homebrew/Cellar/boost/1.84.0_1/lib
+BOOSTINCDIR := /include
+BOOSTLIBDIR := /lib
 
 # hdf5 directories
-HDF5INCDIR := /opt/homebrew/Cellar/hdf5/1.14.3_1/include
-HDF5LIBDIR := /opt/homebrew/Cellar/hdf5/1.14.3_1/lib
+HDF5INCDIR := /usr/include/hdf5/serial
+HDF5LIBDIR := /usr/lib/x86_64-linux-gnu/hdf5/serial
 
 EXE := COMPAS
 
@@ -40,7 +40,7 @@ ifneq ($(filter staticfast,$(MAKECMDGOALS)),)
 endif
 
 
-CXXFLAGS := -std=c++11 -Wall $(OPTFLAGS)
+CXXFLAGS := -std=c++11 -Wall -Woverloaded-virtual $(OPTFLAGS)
 ICFLAGS := -I$(GSLINCDIR) -I$(BOOSTINCDIR) -I$(HDF5INCDIR) -I.
 
 LIBS := -lm -lz -ldl -lpthread
@@ -121,7 +121,7 @@ $(EXE)_STATIC: $(OBJI)
 	@echo $(OBJI)
 	$(CPP) $(OBJI) $(LFLAGS) -static -o $@
 
-.cpp.o: $(SOURCES) $(INCL) Makefile
+%.o: %.cpp
 	$(CPP) $(CXXFLAGS) $(ICFLAGS) -c $?
 
 .phony: clean static fast staticfast
