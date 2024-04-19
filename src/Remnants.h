@@ -31,7 +31,9 @@ protected:
     // member functions - alphabetically
     double          CalculateCOCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 
-    double          CalculateConvectiveEnvelopeMass() const                                                     { return 0.0; }
+    double          CalculateConvectiveCoreRadius () const                      { return m_Radius; }                                                                                  // All core
+    DBL_DBL         CalculateConvectiveEnvelopeMass() const                                                     { return std::tuple<double, double> (0.0, 
+0.0); }
 
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 
@@ -39,8 +41,6 @@ protected:
 
     void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)                              { GiantBranch::CalculateGBParams(p_Mass, p_GBParams); }                 // Default to GiantBranch  
     void            CalculateGBParams()                                                                         { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
-
-    double          CalculateGyrationRadius() const                                                             { return 0.21; }                                                        // Hurley et al., 2000, after eq 109 for n=3/2 polytrope or dense convective core. Single number approximation.
 
     double          CalculateHeCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 
@@ -58,12 +58,9 @@ protected:
     double          CalculateMassLossRateHurley()                                                               { return 0.0; }
     double          CalculateMassLossRateBelczynski2010()                                                                 { return 0.0; }
 
-    double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                          { return GiantBranch::CalculateMomentOfInertia(p_RemnantRadius); }      // Default to GiantBranch
-    double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const                        { return GiantBranch::CalculateMomentOfInertiaAU(p_RemnantRadius); }    // Default to GiantBranch
-
     double          CalculatePerturbationMuOnPhase() const                                                      { return m_Mu; }                                                        // NO-OP
 
-    double          CalculateRadialExtentConvectiveEnvelope() const                                             { return BaseStar::CalculateRadialExtentConvectiveEnvelope(); }         // WD stars don't have a convective envelope
+    double          CalculateRadialExtentConvectiveEnvelope() const                                             { return 0.0; }         // WD stars don't have a convective envelope
 
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                              { return BaseStar::CalculateRadiusAndStellarTypeOnPhase(); }
 
@@ -100,7 +97,7 @@ protected:
     void            ResolveEnvelopeMassAtPhaseEnd(const double p_Tau) const                                     { ResolveEnvelopeMassOnPhase(p_Tau); }                                  // Same as on phase
     void            ResolveEnvelopeMassOnPhase(const double p_Tau) const { }                                                                                                            // NO-OP
 
-    void            ResolveMassLoss() { }                                                                                                                                               // NO-OP
+    void            ResolveMassLoss(const bool p_UpdateMDt = true) { }                                                                                                                                               // NO-OP
 
     STELLAR_TYPE    ResolveSkippedPhase()                                                                       { return BaseStar::ResolveSkippedPhase(); }                             // Default to BaseStar
                                                                                                                                                                                         //

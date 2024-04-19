@@ -6,6 +6,27 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.43.00 Mar 29, 2024**
+
+* Implementation of the neutrino rocket kick.
+
+**02.42.00 Jan 04, 2023**
+
+* Timesteps are now quantised to an integral multiple of 1e-12Myr.
+* New option provided to allow user-defined timesteps: ``--timesteps-filename`` (See :doc:`Timestep files <../"User guide"/timestep-files>`).
+* Code changes to make SSE and BSE evolution more consistent (See `PR 1052 <https://github.com/TeamCOMPAS/COMPAS/pull/1052>`_).
+
+**02.41.03 Dec 28, 2023**
+
+* The functions ``BaseBinaryStar::CalculateAngularMomentum()``, ``BaseBinaryStar::CalculateTotalEnergy()``, and ``BaseStar::AngularMomentum()`` changed to use moment of inertia instead of gyration radius.
+* Changed CalculateMomentOfInertia() to properly implement Hurley et al., 2000 eq 109.
+* This change may change DCO yields slightly when compared to previous versions of the code.
+
+**02.41.00 Nov 02, 2023**
+
+* Added a naive tides implementation.
+* Added program option ``enable-tides`` to enable the tides implementation (default is ``false``).
+
 **02.40.00 Oct 20, 2023**
 
 * Added ``FLEXIBLE2023`` as a new default, and ``BELCZYNSKI2010`` as a replacement for the previous ``VINK`` mass loss prescription. The following new sub-wrappers are overridden when selecting ``BELCZYNSKI2010``:

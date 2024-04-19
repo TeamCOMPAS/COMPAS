@@ -154,14 +154,17 @@ public:
                                              const double p_EnvMass,
                                              const double p_Radius)                                                 { m_Star->CalculateBindingEnergies(p_CoreMass, p_EnvMass, p_Radius); }
 
-    double          CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass,
+    double          CalculateConvectiveCoreMass () { return m_Star->CalculateConvectiveCoreMass(); }
+    double          CalculateConvectiveCoreRadius () { return m_Star->CalculateConvectiveCoreRadius(); }
+
+    double          CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass,
                                                              const double p_ConvectiveEnvelopeMass,
                                                              const double p_Radius,
-                                                             const double p_Lambda)                                 { return m_Star->CalculateConvectiveEnvelopeBindingEnergy(p_CoreMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda); }
-    double          CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
+                                                             const double p_Lambda)                                 { return m_Star->CalculateConvectiveEnvelopeBindingEnergy(p_TotalMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda); }
+    double          CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass ) const     { return m_Star->CalculateConvectiveEnvelopeLambdaPicker(p_convectiveEnvelopeMass, p_maxConvectiveEnvelopeMass); }
+    DBL_DBL         CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
     
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }
-    double          CalculateGyrationRadius() const                                                                 { return m_Star->CalculateGyrationRadius(); }
 
     void            CalculateLambdas()                                                                              { m_Star->CalculateLambdas(); }
     void            CalculateLambdas(const double p_EnvMass)                                                        { m_Star->CalculateLambdas(p_EnvMass); }
@@ -172,8 +175,10 @@ public:
 
     double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false)        { return m_Star->CalculateMassLossValues(p_UpdateMDot, p_UpdateMDt); }
 
-    double          CalculateMomentOfInertia(const double p_RemnantRadius = 0.0) const                              { return m_Star->CalculateMomentOfInertia(p_RemnantRadius); }
-    double          CalculateMomentOfInertiaAU(const double p_RemnantRadius = 0.0) const                            { return m_Star->CalculateMomentOfInertiaAU(p_RemnantRadius); }
+    double          CalculateMomentOfInertia() const                                                                { return m_Star->CalculateMomentOfInertia(); }
+    double          CalculateMomentOfInertiaAU() const                                                              { return m_Star->CalculateMomentOfInertiaAU(); }
+    
+    double          CalculateRadialExtentConvectiveEnvelope() { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
 
     void            CalculateSNAnomalies(const double p_Eccentricity)                                               { m_Star->CalculateSNAnomalies(p_Eccentricity); }
     
@@ -205,7 +210,7 @@ public:
 
     EVOLUTION_STATUS Evolve(const long int p_Id);
 
-    double          EvolveOneTimestep(const double p_Dt);
+    double          EvolveOneTimestep(const double p_Dt, const bool p_Force = false);
 
     double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription)                              { return m_Star->InterpolateGe20QCrit(p_qCritPrescription); }
     void            HaltWinds()                                                                                     { m_Star->HaltWinds(); }
@@ -227,6 +232,10 @@ public:
     void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                                        { m_Star->SetSNPastEvent(p_SNEvent); }
 
     double     	    SN_KickMagnitude()       									                                    { return m_Star->SN_KickMagnitude() ; }
+    double     	    SN_RocketKickMagnitude()       									                                { return m_Star->SN_RocketKickMagnitude(); }
+    double     	    SN_RocketKickPhi()       									                                    { return m_Star->SN_RocketKickPhi(); }
+    double     	    SN_RocketKickTheta()       									                                    { return m_Star->SN_RocketKickTheta(); }
+    
 
     STELLAR_TYPE    SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
 
@@ -268,6 +277,8 @@ private:
 
     BaseStar        *m_Star;                    // pointer to current star
     BaseStar        *m_SaveStar;                // pointer to saved star
+
+    std::vector<double> m_Timesteps;            // timesteps vector - for debugging/testing
 
 };
 
