@@ -387,11 +387,11 @@ void BaseBinaryStar::SetRemainingValues() {
     m_Flags.mergesInHubbleTime                       = false;
     m_Unbound                                        = false;
 
-    m_SystemicVelocity                               = Vector3d();
-    m_NormalizedOrbitalAngularMomentumVector         = Vector3d();
-	m_ThetaE                                         = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_PhiE                                           = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_PsiE                                           = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SystemicVelocity                           = Vector3d();
+    m_NormalizedOrbitalAngularMomentumVector     = Vector3d();
+	m_ThetaE                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_PhiE                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_PsiE                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 	m_SynchronizationTimescale                       = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CircularizationTimescale                       = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1273,7 +1273,7 @@ bool BaseBinaryStar::ResolveSupernova() {
         Vector3d relativeVelocityVector       = relativeVelocityVectorPrev + (natalKickVector - companionRecoilVector);         // km/s - PostSN relative velocity vector
 
         Vector3d orbitalAngularMomentumVector = cross(separationVectorPrev, relativeVelocityVector);                            // km^2 s^-1 - PostSN specific orbital angular momentum vector
-        double   orbitalAngularMomentum       = orbitalAngularMomentumVector.mag;                                                     // km^2 s^-1 - PostSN specific orbital angular momentum 
+        double   orbitalAngularMomentum = orbitalAngularMomentumVector.mag;                                                     // km^2 s^-1 - PostSN specific orbital angular momentum 
         m_NormalizedOrbitalAngularMomentumVector = orbitalAngularMomentumVector/orbitalAngularMomentum;                         // set unit vector here to make printing out the inclination vector easier
 
         Vector3d eccentricityVector           = cross(relativeVelocityVector, orbitalAngularMomentumVector) / 
@@ -1986,13 +1986,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
                 m_Donor->UpdateMinimumCoreMass();                                                                               // reset the minimum core mass following case A
             }
-        }
-
-        // If the current timestep is smaller than the donor's thermal timescale, only a fraction of the mass
-        // that needs to be donated has time to be donated
-        double donorThermalTimescale = m_Donor->CalculateThermalTimescale();
-        if (p_Dt < donorThermalTimescale) {
-            massDiffDonor = (p_Dt / donorThermalTimescale) * massDiffDonor;
         }
 
         if (!m_CEDetails.CEEnow) {                                                                                              // CE flagged?
