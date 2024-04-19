@@ -533,11 +533,11 @@ double MainSequence::CalculateConvectiveCoreMass() const {
 DBL_DBL MainSequence::CalculateConvectiveEnvelopeMass() const {
     if (utils::Compare(m_Mass, 1.25) > 0)
         return std::tuple<double, double> (0.0, 0.0);
-    double massEnvelope0 = 0.35;
+    double massEnvelope0 = m_Mass;
     if(utils::Compare(m_Mass, 0.35) > 0)
         massEnvelope0 = 0.35 * (1.25 - m_Mass) * (1.25 - m_Mass) / 0.81;
     double massEnvelope = massEnvelope0 * sqrt(sqrt(1.0 - m_Tau));
-    return std::tuple<double, double> (massEnvelope, massEnvelope);
+    return std::tuple<double, double> (massEnvelope, massEnvelope0);
 }
 
 
