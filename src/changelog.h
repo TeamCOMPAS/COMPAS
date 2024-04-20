@@ -1128,8 +1128,10 @@
 //                                      - Defect repair: Issue #1084 - modified code to record desired persistence of objects so that cloned stars don't participate in logging etc.
 //                                      - Removed some unused code (as a result of the defect repair)
 //                                      - Some Code cleanup
+// 02.43.05    JR - Apr 21, 2024     - Defect repair, some code cleanup:
+//                                      - Last piece of no logging for clones - this prevents ephemeral clones from writing to or clearing the SSE SN stash.
 
-const std::string VERSION_STRING = "02.43.04";
+const std::string VERSION_STRING = "02.43.05";
 
 
 # endif // __changelog_h__
