@@ -1093,6 +1093,31 @@ Default = FALSE
 Print RLOF events to logfile. |br|
 Default = TRUE
 
+
+**--rocket-kick-magnitude-1** |br|
+Magnitude of post-SN pulsar rocket kick for the primary, in km/s. |br|
+Default = 0.0 
+
+**--rocket-kick-magnitude-2** |br|
+Magnitude of post-SN pulsar rocket kick for the secondary, in km/s. |br|
+Default = 0.0 
+
+**--rocket-kick-phi-1** |br|
+The in-plane angle [0, 2pi) of the rocket kick velocity that primary neutron star receives following the supernova. |br|
+Default = 0.0 
+
+**--rocket-kick-phi-2** |br|
+The in-plane angle [0, 2pi) of the rocket kick velocity that secondary neutron star receives following the supernova. |br|
+Default = 0.0 
+
+**--rocket-kick-theta-1** |br|
+The polar angle [0, pi] of the rocket kick velocity that primary neutron star receives following the supernova. 0 is aligned with orbital AM. |br|
+Default = 0.0 
+
+**--rocket-kick-theta-2** |br|
+The polar angle [0, pi] of the rocket kick velocity that secondary neutron star receives following the supernova. 0 is aligned with orbital AM. |br|
+Default = 0.0 
+
 **--rotational-frequency** |br|
 Initial rotational frequency of the star for SSE (Hz). |br|
 Default = 0.0 (``--rotational-velocity-distribution`` used if ``--rotational-frequency`` not specified)

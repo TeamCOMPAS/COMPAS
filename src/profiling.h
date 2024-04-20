@@ -35,9 +35,10 @@ namespace profiling {
 
 
     // object identifiers - all classes have these (adding here (no class) for error handling)
-    inline OBJECT_ID    ObjectId()    { return static_cast<int>(OBJECT_TYPE::PROFILING); }          // object id for profiling - ordinal value from enum
-    inline OBJECT_TYPE  ObjectType()  { return OBJECT_TYPE::PROFILING; }                            // object type for profiling - always "UTILS"
-    inline STELLAR_TYPE StellarType() { return STELLAR_TYPE::NONE; }                                // stellar type for profiling - always "NONE"
+    inline OBJECT_ID    ObjectId()                { return static_cast<int>(OBJECT_TYPE::PROFILING); } // object id for profiling - ordinal value from enum
+    inline OBJECT_TYPE  ObjectType()              { return OBJECT_TYPE::PROFILING; }                // object type for profiling - always "PROFILING"
+    inline OBJECT_PERSISTENCE ObjectPersistence() { return OBJECT_PERSISTENCE::PERMANENT; }         // object persistence for profiling - always "PERMANENT"
+    inline STELLAR_TYPE StellarType()             { return STELLAR_TYPE::NONE; }                    // stellar type for profiling - always "NONE"
 
 
     // namespace functions
