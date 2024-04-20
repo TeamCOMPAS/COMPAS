@@ -17,13 +17,20 @@ class CHeB: virtual public BaseStar, public FGB {
 public:
 
     CHeB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), FGB(p_BaseStar, false) {
-        if (p_Initialise) Initialise();
+        m_StellarType = STELLAR_TYPE::CORE_HELIUM_BURNING;                                                                                                      // Set stellar type
+        if (p_Initialise) Initialise();                                                                                                                         // Initialise if required
     }
 
-    CHeB& operator = (const BaseStar &p_BaseStar) {
-        static_cast<BaseStar&>(*this) = p_BaseStar;
-        Initialise();
-        return *this;
+    CHeB* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        CHeB* clone = new CHeB(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
+
+    static CHeB* Clone(CHeB& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        CHeB* clone = new CHeB(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
     }
 
 
