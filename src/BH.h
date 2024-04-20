@@ -15,16 +15,22 @@ class BH: virtual public BaseStar, public Remnants {
 
 public:
 
-    BH(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), Remnants(p_BaseStar, false) {
-        if (p_Initialise) Initialise();
+    BH(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), Remnants(p_BaseStar) {
+        m_StellarType = STELLAR_TYPE::BLACK_HOLE;                                                                                                       // Set stellar type
+        if (p_Initialise) Initialise();                                                                                                                 // Initialise if required
     }
 
-    BH& operator = (const BaseStar &p_BaseStar) {
-        static_cast<BaseStar&>(*this) = p_BaseStar;
-        Initialise();
-        return *this;
+    BH* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        BH* clone = new BH(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
     }
 
+    static BH* Clone(BH& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        BH* clone = new BH(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
 
     // member functions - alphabetically
     static  DBL_DBL_DBL CalculateCoreCollapseSNParams_Static(const double p_Mass);
@@ -39,7 +45,6 @@ public:
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::BLACK_HOLE;                                                                                                       // Set stellar type
         CalculateTimescales();                                                                                                                          // Initialise timescales
         m_Age = 0.0;                                                                                                                                    // Set age appropriately
    }

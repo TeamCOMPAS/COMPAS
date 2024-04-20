@@ -27,12 +27,50 @@ public:
              const KickParameters    p_KickParameters,
              const double            p_RotationalVelocity = -1.0); 
 
+
+    /*
+     * The following Clone() functions should be used to clone a star - any steller type, including BaseStar.
+     * The BaseStar functions will never actually be executed - the derived functions will be called as required.
+     * The static function is provided for cases where a clone is required (e.g. for hypothesis testing), but
+     * no object of the correct class exists.
+     * 
+     * Important:
+     * 
+     * The Clone() functions return a pointer, created by the 'new' operator.  The 'new' operator dynamically
+     * allocates memory on the heap, not the stack, which is why it is available to the caller of this function
+     * after this function has exited and its stack frame collapsed.  It is the responsibility of the caller of 
+     * this function to delete the pointer returned when it is no longer required so that the allocated memory 
+     * is return to the pool of available memory - failing to do so will cause a memory leak and the program will 
+     * eventually exhaust available memory and fail.  The preferred usage pattern is:
+     * 
+     *     T* ptr = Clone(obj, persistence)
+     *     ...
+     *     ...
+     *     delete ptr; ptr = nullptr;
+     * 
+     * 
+     * BaseStar* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true)
+     * 
+     * @param   [IN]    p_Star                      (address of) The star to be cloned
+     *                                              Must be BaseStar or one of the stellar type classes derived from the BaseStar class
+     * @param   [IN]    p_Persistence               Specifies the object persistence to be assigned to the cloned star.
+     *                                              If the cloned star is intended to be used temporarily (e.g. for hypothesis testing),
+     *                                              persistence should be EPHEMERAL (the default), otherwise PERMANENT.
+     * @param   [IN]    p_Initialise                Specifies whether the clone should be initialised via the class Initialise() function.
+     *                                              (Default is `true`)
+     * @return                                      (pointer to) The cloned star
+     */
+
+    virtual BaseStar* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) { return this; }
+    static  BaseStar* Clone(BaseStar* p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) { return p_Star; }
+
     virtual ~BaseStar() {}
 
 
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const                                                        { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const                                                      { return m_ObjectType; }
+    OBJECT_PERSISTENCE  ObjectPersistence() const                                               { return m_ObjectPersistence; }
     STELLAR_TYPE        InitialStellarType() const                                              { return m_InitialStellarType; }
     STELLAR_TYPE        StellarType() const                                                     { return m_StellarType; }
     STELLAR_TYPE        StellarTypePrev() const                                                 { return m_StellarTypePrev; }
@@ -147,13 +185,16 @@ public:
 
 
     // setters
-            void                SetInitialType(STELLAR_TYPE p_InitialType)                      { m_InitialStellarType = p_InitialType; }                                           // JR Could do some sanity checks here
+            void                SetInitialType(const STELLAR_TYPE p_InitialType)                { m_InitialStellarType = p_InitialType; }                                           // JR Could do some sanity checks here
+            void                SetObjectId(const OBJECT_ID p_ObjectId)                         { m_ObjectId = p_ObjectId; }
+            void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)          { m_ObjectPersistence = p_Persistence; }
+
             void                SetOmega(double p_vRot)                                         { if (p_vRot >= 0.0) m_Omega = p_vRot; };                                           // Do nothing if sanity check fails (JR: I don't really like this, but I think unavoidable - at least for now)
 
-            void                SetSNCurrentEvent(SN_EVENT p_SNEvent)                           { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
+            void                SetSNCurrentEvent(const SN_EVENT p_SNEvent)                     { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
             void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep
             
-            void                SetEvolutionStatus(EVOLUTION_STATUS p_EvolutionStatus)          { m_EvolutionStatus = p_EvolutionStatus; }                                          // Set evolution status (typically final outcome) for star
+            void                SetEvolutionStatus(const EVOLUTION_STATUS p_EvolutionStatus)    { m_EvolutionStatus = p_EvolutionStatus; }                                          // Set evolution status (typically final outcome) for star
             void                UpdateComponentVelocity(const Vector3d p_newVelocity);	
 
             void                UpdateMassTransferDonorHistory();
@@ -290,7 +331,7 @@ public:
     }
 
     bool PrintSwitchLog() const { 
-        return OPTIONS->SwitchLog() ? LOGGING->LogSSESwitchLog(this) : true;                                                                                                        // Write record to SSE Switchlog log file
+        return OPTIONS->SwitchLog() ? (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT ? LOGGING->LogSSESwitchLog(this) : true) : true;                                                                                                        // Write record to SSE Switchlog log file
     }
 
     bool PrintSystemParameters(const SSE_SYSPARMS_RECORD_TYPE p_RecordType = SSE_SYSPARMS_RECORD_TYPE::DEFAULT) const {
@@ -301,6 +342,7 @@ protected:
 
     OBJECT_ID               m_ObjectId;                                 // Instantiated object's unique object id
     OBJECT_TYPE             m_ObjectType;                               // Instantiated object's object type
+    OBJECT_PERSISTENCE      m_ObjectPersistence;                        // Instantiated object's persistence (permanent or ephemeral)
     STELLAR_TYPE            m_InitialStellarType;                       // Stellar type at birth, defined in Hurley et al. 2000
     STELLAR_TYPE            m_StellarType;                              // Stellar type defined in Hurley et al. 2000
 
@@ -456,7 +498,7 @@ protected:
     virtual double              CalculateLambdaDewi() const                                                             { SHOW_WARN(ERROR::NO_LAMBDA_DEWI, "Default used: 1.0"); return 1.0; }      // Not supported: show error
             double              CalculateLambdaKruckow(const double p_Radius, const double p_Alpha) const;
             double              CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss = false) const;
-    virtual double              CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const           { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: show error
+    virtual double              CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: show error
     virtual double              CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const             { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: show error
 
             void                CalculateLCoefficients(const double p_LogMetallicityXi, DBL_VECTOR &p_LCoefficients);

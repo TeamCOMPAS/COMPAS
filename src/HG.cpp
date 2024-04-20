@@ -800,7 +800,6 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-
 /*
  * Calculate core mass at the end of the Hertzsprung Gap
  *
