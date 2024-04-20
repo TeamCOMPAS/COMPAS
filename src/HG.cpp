@@ -806,12 +806,13 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 double HG::CalculateRadialExtentConvectiveEnvelope() const {
    
     // 'this' is const in this function, so we remove its const-ness (required for Clone())
-    HG *clone = Clone(const_cast<HG&>(*this));
+//    HG *clone = const_cast<HG*>(this)->Clone(OBJECT_PERSISTENCE::EPHEMERAL);
+HG clone = *this;
 
-	clone->ResolveEnvelopeLoss(true);               // update clone's attributes after envelope is lost
-    double cloneRadius = clone->Radius();           // get the radius of the updated clone
+	clone.ResolveEnvelopeLoss(true);               // update clone's attributes after envelope is lost
+    double cloneRadius = clone.Radius();           // get the radius of the updated clone
 
-    delete clone; clone = nullptr;                  // return the memory allocated for the clone
+//    delete clone; clone = nullptr;                  // return the memory allocated for the clone
     
     return std::sqrt(m_Tau) * (m_Radius - cloneRadius);
 }

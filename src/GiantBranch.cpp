@@ -6,7 +6,6 @@
 #include "BH.h"
 
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                     COEFFICIENT AND CONSTANT CALCULATIONS ETC.                    //
@@ -692,14 +691,23 @@ double GiantBranch::CalculateRemnantRadius() const {
  */
 double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const {
 
-    // 'this' is const in this function, and it is an instantiation of the 'GiantBranch' class.
-    // We want to clone this object and access it as a BaseStar object, so we first remove its
-    // const-ness (required for Clone()), then cast it as BaseStar, then clone it.
-    BaseStar *clone = Clone(static_cast<BaseStar&>(const_cast<GiantBranch&>(*this)));
+    // We need this star's radius after its envelope (if any) is lost.  Since we
+    // are on the giant branch here, we can clone this object and use the clone to
+    // resolve the envelope loss and give us the radius after the envelope loss,
+    // without modifying this object. To ensure the clone does not participate in
+    // logging, we set its persistence to EPHEMERAL.
+    //
+    // We don't know at compile time what the underlying object type is (e.g. FGB,
+    // HeMS, etc.), so we need to call the Clone() function and dynamically cast the
+    // object returned as a 'BaseStar'.  Note that we do not want to initialise the
+    // object here (to the start of whatever phase it is currently on).
+    //
+    // Furthermore, 'this' is const in this function, so we first remove its const-ness
+    // (required to call Clone()) via the use of const_cast<>().
 
+    BaseStar *clone = dynamic_cast<BaseStar*>(const_cast<GiantBranch*>(this)->Clone(OBJECT_PERSISTENCE::EPHEMERAL, false));
 	clone->ResolveEnvelopeLoss(true);               // update clone's attributes after envelope is lost
-    double cloneRadius = clone->Radius();           // get the radius of the updated clone
-
+    double cloneRadius  = clone->Radius();          // get the radius of the updated clone
     delete clone; clone = nullptr;                  // return the memory allocated for the clone
 
     return m_Radius - cloneRadius;
@@ -1057,11 +1065,34 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  * @return                                      Mass of the outer convective envelope
  */
 double GiantBranch::CalculateConvectiveEnvelopeMass() const {
-    
+std::cout << "GiantBranch::CalculateConvectiveEnvelopeMass(ENTRY)\n";
+
     // 'this' is const in this function, and it is an instantiation of the 'GiantBranch' class.
     // We want to clone this object and access it as an HG object, so we first remove its
     // const-ness (required for Clone()), then cast it as HG, then clone it.
-    HG *clone = Clone(static_cast<HG&>(const_cast<GiantBranch&>(*this)));
+
+
+
+        // We need TAMSCoreMass, which is just the core mass at the start of the HG phase.
+        // Since we are on the main sequence here, we can clone this object as an HG object
+        // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
+        // we can query the cloned object for its core mass.
+        //
+        // The clone should not evolve, and so should not log anything, but to be sure the
+        // clone does not participate in logging, we set its persistence to EPHEMERAL.
+    //
+    // Furthermore, 'this' is const in this function, so we first remove its const-ness
+    // (required to call Clone()) via the use of const_cast<>().
+
+    BaseStar *clone = dynamic_cast<BaseStar*>(const_cast<GiantBranch*>(this)->Clone(OBJECT_PERSISTENCE::EPHEMERAL, false));
+
+
+
+
+std::cout << "GiantBranch::CalculateConvectiveEnvelopeMass(), Typename = " << typeid(*this).name() << "\n";
+//    HG *clone = dynamic_cast<HG*>(const_cast<GiantBranch*>(this))->Clone(OBJECT_PERSISTENCE::EPHEMERAL);
+HG clone = *this;
+std::cout << "GiantBranch::CalculateConvectiveEnvelopeMass(), Typename = " << typeid(clone).name() << "\n";
 
     double log10Ltams = log10(clone->Luminosity());                                                             // get luminosity of clone
 
@@ -1082,6 +1113,7 @@ double GiantBranch::CalculateConvectiveEnvelopeMass() const {
     double convectiveEnvelopeMass = Mconvmax / (1.0 + exp(b1 * (m_Temperature * TSOL - Tnorm) / Tnorm));
     convectiveEnvelopeMass        = std::max(std::min(convectiveEnvelopeMass, (m_Mass - m_CoreMass)), 0.0);     // ensure that convective envelope mass is limited to [0, envelope mass]
    
+std::cout << "GiantBranch::CalculateConvectiveEnvelopeMass(EXIT)\n";
     return convectiveEnvelopeMass;
 }
 

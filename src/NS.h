@@ -17,8 +17,21 @@ class NS: virtual public BaseStar, public Remnants {
 
 public:
 
-    NS(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), Remnants(p_BaseStar, false) {
-        if (p_Initialise) Initialise();
+    NS(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), Remnants(p_BaseStar) {
+        m_StellarType = STELLAR_TYPE::NEUTRON_STAR;                                                                                                                 // Set stellar type
+        if (p_Initialise) Initialise();                                                                                                                             // Initialise if required
+    }
+
+    NS* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        NS* clone = new NS(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
+
+    static NS* Clone(NS& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        NS* clone = new NS(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
     }
 
 
@@ -38,7 +51,6 @@ public:
 protected:
     
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::NEUTRON_STAR;                                                                                                                 // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
         
         //Set internal properties to zero to avoid meaningless values

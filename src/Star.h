@@ -63,8 +63,10 @@ public:
 
     Star& operator = (const Star& p_Star);
 
-    static BaseStar* CloneStar(BaseStar& p_Star, const OBJECT_PERSISTENCE p_Persistence);
-    static BaseStar* CloneStar(BaseStar& p_Star)                                                                        { return CloneStar(p_Star, p_Star.ObjectPersistence()); }
+//    template <class T>
+//    static BaseStar* CloneStar(T& p_Star, const OBJECT_PERSISTENCE p_Persistence);
+//    template <class T>
+//    static BaseStar* CloneStar(T& p_Star)                                                                           { return CloneStar(p_Star, p_Star.ObjectPersistence()); }
 
     virtual ~Star() { delete m_Star; delete m_SaveStar; }
 

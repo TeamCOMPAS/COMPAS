@@ -14,7 +14,7 @@ class MainSequence: virtual public BaseStar {
 
 public:
 
-    MainSequence(const BaseStar& baseStar) : BaseStar(baseStar) {}
+    MainSequence(const BaseStar& p_BaseStar) : BaseStar(p_BaseStar) {}
 
 
 protected:

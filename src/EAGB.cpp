@@ -1001,6 +1001,7 @@ double EAGB::ChooseTimestep(const double p_Time) const {
 STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
+std::cout << "EAGB::ResolveEnvelopeLoss()\n";
 
     STELLAR_TYPE stellarType = m_StellarType;
 
