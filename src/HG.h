@@ -22,27 +22,19 @@ class HG: virtual public BaseStar, public GiantBranch {
 public:
 
     HG(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), GiantBranch(p_BaseStar) {
-std::cout << "HG::HG(@ENTRY), p_Initialise = " << std::boolalpha << p_Initialise << std::noboolalpha << ", p_BaseStar = " << p_BaseStar.ObjectId() << "\n";
         m_StellarType = STELLAR_TYPE::HERTZSPRUNG_GAP;                                                                                                                          // Set stellar type 
         if (p_Initialise) Initialise();                                                                                                                                         // Initialise if required
-std::cout << "HG::HG(@EXIT), p_Initialise = " << std::boolalpha << p_Initialise << std::noboolalpha << ", p_BaseStar = " << p_BaseStar.ObjectId() << "\n";
     }
 
     HG* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-std::cout << "HG* Clone(@1)\n";
         HG* clone = new HG(*this, p_Initialise); 
-std::cout << "HG* Clone(@1.5)\n";
         clone->SetPersistence(p_Persistence); 
-std::cout << "HG* Clone(@2)\n";
         return clone; 
     }
 
     static HG* Clone(HG p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-std::cout << "static HG* Clone(@1)\n";
         HG* clone = new HG(p_Star, p_Initialise); 
-std::cout << "static HG* Clone(@1.5)\n";
         clone->SetPersistence(p_Persistence); 
-std::cout << "static HG* Clone(@2)\n";
         return clone; 
     }
 
@@ -50,7 +42,7 @@ std::cout << "static HG* Clone(@2)\n";
 protected:
 
     void Initialise() {
-std::cout << "HG Initialise(@ENTRY)\n";
+
         m_Tau = 0.0;                                                                                                                                                            // Start of phase
         CalculateTimescales();                                                                                                                                                  // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];                                                                                                                 // Set age appropriately
@@ -76,7 +68,6 @@ std::cout << "HG Initialise(@ENTRY)\n";
         m_HeCoreMass = CalculateHeCoreMassOnPhase();
         m_Luminosity = CalculateLuminosityOnPhase();
         std::tie(m_Radius, std::ignore) = CalculateRadiusAndStellarTypeOnPhase();                                                                                               // Update radius
-std::cout << "HG Initialise(@EXIT)\n";
     }
 
 
@@ -108,7 +99,7 @@ std::cout << "HG Initialise(@EXIT)\n";
 
     double          CalculateMassTransferRejuvenationFactor() const;
 
-    double          CalculateRadialExtentConvectiveEnvelope() const;
+    double          CalculateRadialExtentConvectiveEnvelope() const { return (std::sqrt(m_Tau) * (m_Radius - CalculateConvectiveCoreRadius())); }                               // Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 39-40
 
     double          CalculateRadiusAtPhaseEnd(const double p_Mass) const;
     double          CalculateRadiusAtPhaseEnd() const                               { return CalculateRadiusAtPhaseEnd(m_Mass); }                                               // Use class member variables
@@ -165,13 +156,17 @@ std::cout << "HG Initialise(@EXIT)\n";
             m_DesiredCoreMass = p_DesiredCoreMass;
         }
         T operator()(double const& p_GuessMass0) {
+        
+            // We need an estimate of the core mass of the star so we clone the star without
+            // initialisation (i.e. we leave it where it is on the phase) so we can calculate
+            // and query its core mass.
+            //
+            // To ensure the clone does not participate in logging, we set its persistence to EPHEMERAL.
 
-//            HG *clone = Clone(*m_Star, OBJECT_PERSISTENCE::EPHEMERAL);                                  // clone the star
-HG clone = *m_Star;      
-            clone.UpdateAttributesAndAgeOneTimestep(0.0, p_GuessMass0 - clone.Mass0(), 0.0, true);    // update clone's mass and age it one timestep 
-            double coreMassEstimate = clone.CalculateCoreMassOnPhase(p_GuessMass0, clone.Age());      // get clone's core mass
-
-//            delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+            HG *clone = m_Star->Clone(OBJECT_PERSISTENCE::EPHEMERAL, false);
+            clone->UpdateAttributesAndAgeOneTimestep(0.0, p_GuessMass0 - clone->Mass0(), 0.0, true);    // update clone's mass and age it one timestep 
+            double coreMassEstimate = clone->CalculateCoreMassOnPhase(p_GuessMass0, clone->Age());      // calculate clone's core mass
+            delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
 
             return (coreMassEstimate - m_DesiredCoreMass);
         }

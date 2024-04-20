@@ -29,16 +29,19 @@ public:
 
 
     /*
-     * This function should be used to clone a star - any steller type, including BaseStar.
+     * The following Clone() functions should be used to clone a star - any steller type, including BaseStar.
+     * The BaseStar functions will never actually be executed - the derived functions will be called as required.
+     * The static function is provided for cases where a clone is required (e.g. for hypothesis testing), but
+     * no object of the correct class exists.
      * 
      * Important:
      * 
-     * This function returns a pointer, created by the 'new' operator.  The 'new' operator dynamically allocates
-     * memory on the heap, not the stack, which is why it is available to the caller of this function after this
-     * function has exited and its stack frame collapsed.  It is the responsibility of the caller of this function
-     * to delete the pointer returned when it is no longer required so that the allocated memory is return to the
-     * pool of available memory - failing to do so will cause a memory leak and the program will eventually exhaust
-     * available memory and fail.  The preferred usage pattern is:
+     * The Clone() functions return a pointer, created by the 'new' operator.  The 'new' operator dynamically
+     * allocates memory on the heap, not the stack, which is why it is available to the caller of this function
+     * after this function has exited and its stack frame collapsed.  It is the responsibility of the caller of 
+     * this function to delete the pointer returned when it is no longer required so that the allocated memory 
+     * is return to the pool of available memory - failing to do so will cause a memory leak and the program will 
+     * eventually exhaust available memory and fail.  The preferred usage pattern is:
      * 
      *     T* ptr = Clone(obj, persistence)
      *     ...
@@ -46,20 +49,20 @@ public:
      *     delete ptr; ptr = nullptr;
      * 
      * 
-     * template <class T1>
-     * static T1* Clone(T1& p_Star, const OBJECT_PERSISTENCE p_Persistence = OBJECT_PERSISTENCE::EPHEMERAL)
+     * BaseStar* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true)
      * 
      * @param   [IN]    p_Star                      (address of) The star to be cloned
      *                                              Must be BaseStar or one of the stellar type classes derived from the BaseStar class
      * @param   [IN]    p_Persistence               Specifies the object persistence to be assigned to the cloned star.
      *                                              If the cloned star is intended to be used temporarily (e.g. for hypothesis testing),
      *                                              persistence should be EPHEMERAL (the default), otherwise PERMANENT.
+     * @param   [IN]    p_Initialise                Specifies whether the clone should be initialised via the class Initialise() function.
+     *                                              (Default is `true`)
      * @return                                      (pointer to) The cloned star
      */
 
     virtual BaseStar* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) { return this; }
-
-    static BaseStar* Clone(BaseStar* p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) { return p_Star; }
+    static  BaseStar* Clone(BaseStar* p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) { return p_Star; }
 
     virtual ~BaseStar() {}
 
@@ -106,6 +109,7 @@ public:
             bool                IsHeSD() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
     virtual bool                IsDegenerate() const                                            { return false; }   // default is not degenerate - White Dwarfs, NS and BH are degenerate
             bool                IsECSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
+            bool                IsSN_NONE() const                                               { return m_SupernovaDetails.events.current == SN_EVENT::NONE; }
             bool                IsOneOf(const STELLAR_TYPE_LIST p_List) const;
             bool                IsPISN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::PISN) == SN_EVENT::PISN; }
             bool                IsPPISN() const                                                 { return (m_SupernovaDetails.events.current & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
@@ -201,9 +205,13 @@ public:
 
             void            CalculateBindingEnergies(const double p_CoreMass, const double p_EnvMass, const double p_Radius);
     
-            double          CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda);
+    virtual double          CalculateConvectiveCoreMass () const {return 0.0;}
+    virtual double          CalculateConvectiveCoreRadius () const {return 0.0;}
 
-    virtual double          CalculateConvectiveEnvelopeMass() const                                             { return 0.0; }
+            double          CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda);
+
+            double          CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const;
+    virtual DBL_DBL         CalculateConvectiveEnvelopeMass() const                                             { return std::tuple<double, double> (0.0, 0.0); }
 
     virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate); 
     virtual double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const         { return 0.0; }                                                     // Default is 0.0
@@ -239,6 +247,8 @@ public:
 
             double          CalculateRadialExpansionTimescale() const                                           { return CalculateRadialExpansionTimescale_Static(m_StellarType, m_StellarTypePrev, m_Radius, m_RadiusPrev, m_DtPrev); } // Use class member variables
     
+    virtual double      CalculateRadialExtentConvectiveEnvelope() const                                         { return 0.0; }                                                        // default for stars with no convective envelope
+
             void            CalculateSNAnomalies(const double p_Eccentricity);
 
             double          CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType);
@@ -257,31 +267,29 @@ public:
     virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                                     // Use inheritance hierarchy
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
+            void            ClearSupernovaStash()                                                               { LOGGING->ClearSSESupernovaStash(); }                              // Clear contents of SSE supernova stash
+
+    virtual ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
+                                                      const double p_DonorThermalMassLossRate)                  { return ACCRETION_REGIME::NONE; }                                  // Placeholder, use inheritance for WDs
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
     
             void            HaltWinds()                                                                         { m_Mdot = 0.0; }                                                   // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 
-    virtual ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
-                                                      const double p_DonorThermalMassLossRate)                  { return ACCRETION_REGIME::NONE; }                                  // Placeholder, use inheritance for WDs
+            double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription); 
 
             void            ResetEnvelopeExpulsationByPulsations()                                              { m_EnvelopeJustExpelledByPulsations = false; }
-
-    virtual void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                     // Default does nothing, use inheritance for WDs.
-
-            double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription); 
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative
 
     virtual void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
                                                    const double p_DonorThermalMassLossRate) { }                                                                                     // Default does nothing, only works for WDs.
 
-    virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                         { 
-//std::cout << "BaseStar::ResolveEnvelopeLoss(), Typename(this) = " << typeid(*this).name() << "\n";
-std::cout << "BaseStar::ResolveEnvelopeLoss(), ST(this) = " << static_cast<int>(m_StellarType) << "\n";
-            std::cout << "BaseStar::ResolveEnvelopeLoss()\n"; return m_StellarType; }
+    virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                         { return m_StellarType; }
 
     virtual void            ResolveMassLoss(const bool p_UpdateMDt = true);
+
+    virtual void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                     // Default does nothing, use inheritance for WDs.
    
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
     
@@ -468,7 +476,7 @@ protected:
 
     virtual double              CalculateCOCoreMassAtPhaseEnd() const                                                   { return m_COCoreMass; }                                                    // Default is NO-OP
     virtual double              CalculateCOCoreMassOnPhase() const                                                      { return m_COCoreMass; }                                                    // Default is NO-OP
-
+    
     virtual double              CalculateCoreMassAtPhaseEnd() const                                                     { return m_CoreMass; }                                                      // Default is NO-OP
     static  double              CalculateCoreMassGivenLuminosity_Static(const double p_Luminosity, const DBL_VECTOR &p_GBParams);
     virtual double              CalculateCoreMassOnPhase() const                                                        { return m_CoreMass; }                                                      // Default is NO-OP
@@ -573,8 +581,6 @@ protected:
                                                                      const double       p_Radius,
                                                                      const double       p_RadiusPrev,
                                                                      const double       p_DtPrev);
-
-            virtual double      CalculateRadialExtentConvectiveEnvelope() const                                         { return m_Radius; }                                                        // default for stars with no convective envelope
 
     virtual double              CalculateRadiusAtPhaseEnd() const                                                       { return m_Radius; }                                                        // Default is NO-OP
             double              CalculateRadiusAtZAMS(const double p_MZAMS) const;

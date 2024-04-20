@@ -1117,11 +1117,19 @@
 //                                      - Added Hirai pulsar rocket kick, and related options
 // 02.43.01    SS - Apr 8, 2024      - Defect repair
 //                                      - Fix CalculateMassLossRateBjorklundEddingtonFactor to use LSOLW (in SI) rather than LSOL (in cgs)        
-// 02.43.02    JR - Apr 14, 2024     - Defect repair, some code cleanup:
+// 02.43.02    JR - Apr 15, 2024     - Defect repair
+//                                      - Fix for issue #1074 - SSE Supernova records duplicated
+// 02.43.03    IM - Apr 15, 2024     - Enhancement
+//                                      - Updated fits for the mass and binding energy of the outer convective envelope based on Picker, Hirai, Mandel (2024)
+//                                      - Added functionality for CalculateConvectiveEnvelopeMass(), CalculateConvectiveCoreMass(), CalculateConvectiveCoreRadius()
+//                                   - Defect repair
+//                                      - Fixes to CalculateRadialExtentConvectiveEnvelope(), comments
+// 02.43.04    JR - Apr 20, 2024     - Defect repair, some code cleanup:
 //                                      - Defect repair: Issue #1084 - modified code to record desired persistence of objects so that cloned stars don't participate in logging etc.
 //                                      - Removed some unused code (as a result of the defect repair)
 //                                      - Some Code cleanup
 
-const std::string VERSION_STRING = "02.42.02";
+const std::string VERSION_STRING = "02.43.04";
+
 
 # endif // __changelog_h__

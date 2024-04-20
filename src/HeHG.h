@@ -58,8 +58,10 @@ protected:
 
 
     // member functions - aphabetically
-            double          CalculateCOCoreMassAtPhaseEnd() const                                                   { return m_COCoreMass; }                                                // NO-OP
+            double          CalculateCOCoreMassAtPhaseEnd() const                                                   { return m_COCoreMass; }  //*ILYA* check                                               // NO-OP
             double          CalculateCOCoreMassOnPhase() const;
+    
+            double          CalculateConvectiveCoreMass() const { return m_CoreMass; }
 
             double          CalculateCoreMassAtBAGB() const                                                         { return m_Mass0; }                                                     // McBAGB = M0 (Hurely et al. 2000, discussion just before eq 89)
             double          CalculateCoreMassAtPhaseEnd() const                                                     { return m_CoreMass; }                                                  // NO-OP
@@ -68,6 +70,7 @@ protected:
     static  double          CalculateCoreMass_Luminosity_B_Static()                                                 { return 4.1E4; }
     static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                              { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }   // pow() is slow - use multiplication
 
+            double          CalculateConvectiveCoreRadius () const                      { return 5.0 * CalculateRemnantRadius (); }                                                         // Last paragraph of section 6 of Hurley+ 2000
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
             double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return 1.28; }                                                        // From BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
 
@@ -90,7 +93,7 @@ protected:
             double          CalculatePerturbationMu() const;
             double          CalculatePerturbationMuAtPhaseEnd() const                                               { return m_Mu; }                                                        // NO-OP
 
-            double          CalculateRadialExtentConvectiveEnvelope() const                                         { return GiantBranch::CalculateRadialExtentConvectiveEnvelope(); }      // Skip HeMS
+            double          CalculateRadialExtentConvectiveEnvelope() const                                         { return HG::CalculateRadialExtentConvectiveEnvelope(); }
 
             double          CalculateRadiusAtPhaseEnd() const                                                       { return m_Radius; }                                                    // NO-OP
             double          CalculateRadiusOnPhase() const;

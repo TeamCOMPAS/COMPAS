@@ -36,25 +36,6 @@ public:
         m_SaveBinaryStar = new BaseBinaryStar(*(p_Star.m_SaveBinaryStar));                      // copy underlying Saved BaseBinaryStar
     }
 
-
-    // Assignment overload
-    BinaryStar& operator = (const BinaryStar& p_Star) {
-
-        if (this != &p_Star) {                                                                  // make sure we're not not copying ourselves...
-
-            m_ObjectId          = globalObjectId++;                                             // get unique object id (don't copy source)
-            m_ObjectType        = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;                         // can only copy from BINARY_CONSTITUENT_STAR
-            m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;                                // permanent - not an ephemeral clone
-
-            delete m_BinaryStar;                                                                // delete existing
-            m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));                      // copy underlying BaseBinaryStar
-            delete m_SaveBinaryStar;                                                            // delete existing
-            m_SaveBinaryStar = new BaseBinaryStar(*(p_Star.m_SaveBinaryStar));                  // copy underlying Saved BaseBinaryStar
-
-        }
-        return *this;
-    }
-
     virtual ~BinaryStar() { delete m_BinaryStar; delete m_SaveBinaryStar; }
 
 
