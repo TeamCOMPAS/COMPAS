@@ -2804,7 +2804,10 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
         STELLAR_TYPE st = UpdateAttributesAndAgeOneTimestep(mass - m_Mass, 0.0, 0.0, false, false); // recalculate stellar attributes
         if (st != m_StellarType) {                                                                  // should switch?
             SHOW_WARN(ERROR::SWITCH_NOT_TAKEN);                                                     // show warning if we think we should switch again...
-            if (IsSupernova()) ClearSupernovaStash();                                               // we may have stashed SN details - need to clear them if we're not going to switch
+            
+            // we may have stashed SN details - need to clear them if we're not going to switch,
+            // but only if not an ephemeral clone (ephemeral clones don't write to the stash)
+            if (IsSupernova() && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) ClearSupernovaStash();
         }
 
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
