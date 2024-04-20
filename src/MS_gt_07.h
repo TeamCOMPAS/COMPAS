@@ -22,10 +22,8 @@ public:
     }
 
     MS_gt_07* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-std::cout << "MS_gt_07* Clone(@1)\n";
         MS_gt_07* clone = new MS_gt_07(*this, p_Initialise); 
         clone->SetPersistence(p_Persistence); 
-std::cout << "MS_gt_07* Clone(@2)\n";
         return clone; 
     }
 

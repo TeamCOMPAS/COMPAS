@@ -2210,7 +2210,7 @@ double BaseStar::CalculateMassLossRateRSGVinkSabhahit2023() const {
     if (utils::Compare(logL, logLkink) < 0) {
         logMdot = -8.0 + 0.7 * logL - 0.7 * logM;
     }
-    else if (utils::Compare(logL, logLkink) >= 0) {
+    else {
         logMdot = -24.0 + 4.77 * logL - 3.99 * logM;
     }
 
@@ -2804,6 +2804,7 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
         STELLAR_TYPE st = UpdateAttributesAndAgeOneTimestep(mass - m_Mass, 0.0, 0.0, false, false); // recalculate stellar attributes
         if (st != m_StellarType) {                                                                  // should switch?
             SHOW_WARN(ERROR::SWITCH_NOT_TAKEN);                                                     // show warning if we think we should switch again...
+            if (IsSupernova()) ClearSupernovaStash();                                               // we may have stashed SN details - need to clear them if we're not going to switch
         }
 
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
@@ -3806,18 +3807,41 @@ void BaseStar::CalculateBindingEnergies(const double p_CoreMass, const double p_
  * Calculate convective envelope binding energy for the two-stage Hirai & Mandel (2022) common envelope formalism
  *
  *
- * double CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_lambda)
+ * double CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_lambda)
  *
- * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
+ * @param   [IN]    p_TotalMass                 Total mass of the star (Msol)
  * @param   [IN]    p_ConvectiveEnvelopeMass    Mass of the convective outer envelope  (Msol)
  * @param   [IN]    p_Radius                    Radius of the star (Rsol)
- * @param   [IN]    p_Lambda                    Dimensionless parameter defining the binding energy
+ * @param   [IN]    p_Lambda                    Lambda parameter for the convective envelope
  * @return                                      Binding energy (erg)
  */
-double BaseStar::CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda) {
-    return CalculateBindingEnergy(p_CoreMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda);
+double BaseStar::CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_lambda) {
+    return CalculateBindingEnergy(p_TotalMass - p_ConvectiveEnvelopeMass, p_ConvectiveEnvelopeMass, p_Radius, p_lambda);
 }
 
+
+/*
+ * Approximates the lambda binding energy parameter of the outer convective envelope
+ *
+ * This is needed for the Hirai & Mandel (2022) two-stage CE formalism.
+ * Follows the fits of Picker, Hirai, Mandel (2024), arXiv:2402.13180 for lambda_He
+ *
+ *
+ * double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const
+ *
+ * @param   [IN]    p_convectiveEnvelopeMass    Mass of the outer convective envelope shell
+ * @param   [IN]    p_maxConvectiveEnvelopeMass Maximum mass of the outer convective envelope shell at the onset of carbon burning
+ * @return                                      Lambda binding energy parameter for the outer convective envelope
+ */
+double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const {
+    
+    double m2         = 0.0023 * m_Log10Metallicity * m_Log10Metallicity + 0.0088 * m_Log10Metallicity + 0.013;         // Eq. (12) and Table 1 of Picker, Hirai, Mandel (2024)
+    double b1         = m2 * m_Mass - 0.23;                                         // Eq. (11) of Picker+ (2024)
+    double logLambda  = p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass > 0.3 ?
+        0.42 * p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass + b1 : 0.3 * 0.42 + b1;
+    
+    return exp(logLambda);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -4005,7 +4029,6 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
                                                          const bool   p_ForceRecalculate,
                                                          const bool   p_ResolveEnvelopeLoss) {
     STELLAR_TYPE stellarType = m_StellarType;                                                   // default is no change
-double x = CalculateRadialExtentConvectiveEnvelope();
 
     if (ShouldBeMasslessRemnant()) {                                                            // Do not update the star if it lost all of its mass
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;

@@ -42,6 +42,7 @@ public:
 
     static  double      CalculateLuminosityOnPhase_Static(const double p_CoreMass, const double p_GBPB, const double p_GBPD);
 
+    double          CalculateRadialExtentConvectiveEnvelope() const                                 { return FGB::CalculateRadialExtentConvectiveEnvelope(); }                             
     static  DBL_DBL     CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Luminosity);
 
 

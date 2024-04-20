@@ -151,22 +151,6 @@ public:
     }
 
 
-    // Assignment overload
-    BaseBinaryStar& operator = (const BaseBinaryStar& p_Star) {
-
-        if (this != &p_Star) {                                      // make sure we're not not copying ourselves...
-
-            m_ObjectId          = globalObjectId++;                 // get unique object id (don't copy source)
-            m_ObjectType        = OBJECT_TYPE::BASE_BINARY_STAR;    // can only copy from BASE_BINARY_STAR
-            m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;    // permanent - not an ephemeral clone
-            m_StellarType       = STELLAR_TYPE::BINARY_STAR;        // always
-
-            CopyMemberVariables(p_Star);                            // copy member variables
-        }
-        return *this;
-    }
-
-
     virtual ~BaseBinaryStar() { delete m_Star1; delete m_Star2; }
 
 

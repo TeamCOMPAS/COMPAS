@@ -172,7 +172,6 @@ double FGB::ChooseTimestep(const double p_Time) const {
 STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_NoCheck) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]                                  // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]                              // for convenience and readability - undefined at end of function
-std::cout << "FGB::ResolveEnvelopeLoss()\n";
 
     STELLAR_TYPE stellarType = m_StellarType;
 
