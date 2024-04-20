@@ -63,6 +63,11 @@ public:
 
     Star& operator = (const Star& p_Star);
 
+//    template <class T>
+//    static BaseStar* CloneStar(T& p_Star, const OBJECT_PERSISTENCE p_Persistence);
+//    template <class T>
+//    static BaseStar* CloneStar(T& p_Star)                                                                           { return CloneStar(p_Star, p_Star.ObjectPersistence()); }
+
     virtual ~Star() { delete m_Star; delete m_SaveStar; }
 
 
@@ -70,6 +75,7 @@ public:
     OBJECT_ID           ObjectId() const                                                                            { return m_ObjectId; }
     OBJECT_ID           StarObjectId() const                                                                        { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const                                                                          { return m_ObjectType; }
+    OBJECT_PERSISTENCE  ObjectPersistence() const                                                                   { return m_ObjectPersistence; }
     STELLAR_TYPE        InitialStellarType() const                                                                  { return m_Star->InitialStellarType(); }
     STELLAR_TYPE        StellarType() const                                                                         { return m_Star->StellarType(); }
 
@@ -137,11 +143,11 @@ public:
     double              XExponent() const                                                                           { return m_Star->XExponent(); }
 
 
-    // setters (JR: I don't really like this, but I think unavoidable - at least for now)
+    // setters
     void                SetOmega(double p_vRot)                                                                     { m_Star->SetOmega(p_vRot); }
-
+    void                SetObjectId(const OBJECT_ID p_ObjectId)                                                     { m_ObjectId = p_ObjectId; }
+    void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)                                      { m_ObjectPersistence = p_Persistence; }
     void                UpdateMassTransferDonorHistory()                                                            { m_Star->UpdateMassTransferDonorHistory(); }
-
     void                ResetEnvelopeExpulsationByPulsations()                                                      { m_Star->ResetEnvelopeExpulsationByPulsations(); }
 
 
@@ -154,11 +160,15 @@ public:
                                              const double p_EnvMass,
                                              const double p_Radius)                                                 { m_Star->CalculateBindingEnergies(p_CoreMass, p_EnvMass, p_Radius); }
 
-    double          CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass,
+    double          CalculateConvectiveCoreMass () { return m_Star->CalculateConvectiveCoreMass(); }
+    double          CalculateConvectiveCoreRadius () { return m_Star->CalculateConvectiveCoreRadius(); }
+
+    double          CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass,
                                                              const double p_ConvectiveEnvelopeMass,
                                                              const double p_Radius,
-                                                             const double p_Lambda)                                 { return m_Star->CalculateConvectiveEnvelopeBindingEnergy(p_CoreMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda); }
-    double          CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
+                                                             const double p_Lambda)                                 { return m_Star->CalculateConvectiveEnvelopeBindingEnergy(p_TotalMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda); }
+    double          CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass ) const     { return m_Star->CalculateConvectiveEnvelopeLambdaPicker(p_convectiveEnvelopeMass, p_maxConvectiveEnvelopeMass); }
+    DBL_DBL         CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
     
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }
 
@@ -173,6 +183,8 @@ public:
 
     double          CalculateMomentOfInertia() const                                                                { return m_Star->CalculateMomentOfInertia(); }
     double          CalculateMomentOfInertiaAU() const                                                              { return m_Star->CalculateMomentOfInertiaAU(); }
+    
+    double          CalculateRadialExtentConvectiveEnvelope() { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
 
     void            CalculateSNAnomalies(const double p_Eccentricity)                                               { m_Star->CalculateSNAnomalies(p_Eccentricity); }
     
@@ -194,8 +206,6 @@ public:
     double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                          { return m_Star->CalculateZetaConstantsByEnvelope(p_ZetaPrescription); }
 
     void            ClearCurrentSNEvent()                                                                           { m_Star->ClearCurrentSNEvent(); }
-
-    BaseStar*       Clone(const BaseStar& p_Star);
 
     ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
                                               const double p_DonorThermalMassLossRate)                              { return m_Star->DetermineAccretionRegime(p_HeRich, p_DonorThermalMassLossRate); }  // Used in WDs
@@ -226,6 +236,10 @@ public:
     void            SetSNPastEvent(const SN_EVENT p_SNEvent)                                                        { m_Star->SetSNPastEvent(p_SNEvent); }
 
     double     	    SN_KickMagnitude()       									                                    { return m_Star->SN_KickMagnitude() ; }
+    double     	    SN_RocketKickMagnitude()       									                                { return m_Star->SN_RocketKickMagnitude(); }
+    double     	    SN_RocketKickPhi()       									                                    { return m_Star->SN_RocketKickPhi(); }
+    double     	    SN_RocketKickTheta()       									                                    { return m_Star->SN_RocketKickTheta(); }
+    
 
     STELLAR_TYPE    SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
 
@@ -261,12 +275,13 @@ public:
 
 private:
 
-    OBJECT_ID        m_ObjectId;                // instantiated object's unique object id
-    OBJECT_TYPE      m_ObjectType;              // instantiated object's object type
-    long int         m_Id;                      // id used to name output files - uses p_Id as passed (usually the step number of multiple single stars being produced)
+    OBJECT_ID          m_ObjectId;              // instantiated object's unique object id
+    OBJECT_TYPE        m_ObjectType;            // instantiated object's object type
+    OBJECT_PERSISTENCE m_ObjectPersistence;     // instantiated object's persistence
+    long int           m_Id;                    // id used to name output files - uses p_Id as passed (usually the step number of multiple single stars being produced)
 
-    BaseStar        *m_Star;                    // pointer to current star
-    BaseStar        *m_SaveStar;                // pointer to saved star
+    BaseStar          *m_Star;                  // pointer to current star
+    BaseStar          *m_SaveStar;              // pointer to saved star
 
     std::vector<double> m_Timesteps;            // timesteps vector - for debugging/testing
 

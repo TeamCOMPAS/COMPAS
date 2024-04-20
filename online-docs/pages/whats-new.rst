@@ -6,6 +6,10 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.43.00 Mar 29, 2024**
+
+* Implementation of the neutrino rocket kick.
+
 **02.42.00 Jan 04, 2023**
 
 * Timesteps are now quantised to an integral multiple of 1e-12Myr.

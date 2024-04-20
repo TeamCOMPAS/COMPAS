@@ -47,7 +47,7 @@ double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
  * table A1. The thresholds here are named by the boundaries RG/SS, SS/MF, and SF/Dt, 
  * respectively (see text for details). Note that the different flashes regimes from 
  * Piersanti+ 2014 have been merged into one, i.e we omit the MF/SF boundary, and 
- * the accumulation regime has been change so we can get double detonations. Finally, 
+ * the accumulation regime has been changed so we can get double detonations. Finally, 
  * eta_KH04 has also been updated with the accretion efficiency values from Piersanti+ 2014.
  *
  * double CalculateEtaHe(const double p_MassTransferRate)
