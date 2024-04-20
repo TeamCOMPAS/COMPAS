@@ -47,12 +47,12 @@ Star::Star(const unsigned long int p_RandomSeed,
 // Copy constructor - deep copy so dynamic variables are also copied
 Star::Star(const Star& p_Star) {
 
-    m_ObjectId          = globalObjectId++;                                             // set object id
-    m_ObjectType        = OBJECT_TYPE::STAR;                                            // set object type
-    m_ObjectPersistence = p_Star.ObjectPersistence();                                   // set object persistence
+    m_ObjectId          = globalObjectId++;                                                                                             // set object id
+    m_ObjectType        = OBJECT_TYPE::STAR;                                                                                            // set object type
+    m_ObjectPersistence = p_Star.ObjectPersistence();                                                                                   // set object persistence
 
-    m_Star     = p_Star.m_Star ? dynamic_cast<BaseStar*>(p_Star.m_Star->Clone(OBJECT_PERSISTENCE::PERMANENT, false)) : nullptr;                 // copy underlying BaseStar object
-    m_SaveStar = p_Star.m_SaveStar ? dynamic_cast<BaseStar*>(p_Star.m_SaveStar->Clone(OBJECT_PERSISTENCE::PERMANENT, false)) : nullptr;             // and the saved copy
+    m_Star     = p_Star.m_Star ? static_cast<BaseStar*>(p_Star.m_Star->Clone(OBJECT_PERSISTENCE::PERMANENT, false)) : nullptr;          // copy underlying BaseStar object
+    m_SaveStar = p_Star.m_SaveStar ? static_cast<BaseStar*>(p_Star.m_SaveStar->Clone(OBJECT_PERSISTENCE::PERMANENT, false)) : nullptr;  // and the saved copy
 }
 
 
