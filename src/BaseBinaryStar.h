@@ -151,22 +151,6 @@ public:
     }
 
 
-    // Assignment overload
-    BaseBinaryStar& operator = (const BaseBinaryStar& p_Star) {
-
-        if (this != &p_Star) {                                      // make sure we're not not copying ourselves...
-
-            m_ObjectId          = globalObjectId++;                 // get unique object id (don't copy source)
-            m_ObjectType        = OBJECT_TYPE::BASE_BINARY_STAR;    // can only copy from BASE_BINARY_STAR
-            m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;    // permanent - not an ephemeral clone
-            m_StellarType       = STELLAR_TYPE::BINARY_STAR;        // always
-
-            CopyMemberVariables(p_Star);                            // copy member variables
-        }
-        return *this;
-    }
-
-
     virtual ~BaseBinaryStar() { delete m_Star1; delete m_Star2; }
 
 
@@ -285,7 +269,14 @@ public:
 
             EVOLUTION_STATUS    Evolve();
 
-            bool                PrintSwitchLog(const bool p_PrimarySwitching) { return OPTIONS->SwitchLog() ? (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT ? LOGGING->LogBSESwitchLog(this, p_PrimarySwitching) : true) : true; }
+            bool                PrintSwitchLog(const bool p_PrimarySwitching) {                                     // print to the switch log file
+                                    return OPTIONS->SwitchLog() ?                                                   // switch logging enabled?
+                                        (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT ?   // yes, logging enabled - is this a 'permanent' object (i.e. not am ephemeral clone)?
+                                            LOGGING->LogBSESwitchLog(this, p_PrimarySwitching) :                    // yes, permanent - log it
+                                            true                                                                    // no, ephemeral - ignore the log request
+                                        ) :
+                                        true;                                                                       // no - switch logging not enabled - ignore the log request
+                                    }
 
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
 

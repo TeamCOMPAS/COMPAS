@@ -14,7 +14,7 @@ class MainSequence: virtual public BaseStar {
 
 public:
 
-    MainSequence(const BaseStar& baseStar) : BaseStar(baseStar) {}
+    MainSequence(const BaseStar& p_BaseStar) : BaseStar(p_BaseStar) {}
 
 
 protected:
@@ -24,7 +24,9 @@ protected:
     double          CalculateAlphaL(const double p_Mass) const;
     double          CalculateAlphaR(const double p_Mass) const;
 
-    double          CalculateConvectiveEnvelopeMass() const                                 { return 0.0; }
+    double          CalculateConvectiveCoreMass() const;
+    double          CalculateConvectiveCoreRadius() const;
+    DBL_DBL         CalculateConvectiveEnvelopeMass() const;
     double          CalculateBetaL(const double p_Mass) const;
     double          CalculateBetaR(const double p_Mass) const;
 

@@ -6,7 +6,6 @@
 #include "BH.h"
 
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                     COEFFICIENT AND CONSTANT CALCULATIONS ETC.                    //
@@ -680,32 +679,6 @@ double GiantBranch::CalculateRemnantRadius() const {
 }
 
 
-/*
- * Calculate the radial extent of the star's convective envelope (if it has one)
- *
- * Hurley et al. 2000, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
- *
- *
- * double CalculateRadialExtentConvectiveEnvelope()
- *
- * @return                                      Radial extent of the star's convective envelope in Rsol
- */
-double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const {
-
-    // 'this' is const in this function, and it is an instantiation of the 'GiantBranch' class.
-    // We want to clone this object and access it as a BaseStar object, so we first remove its
-    // const-ness (required for Clone()), then cast it as BaseStar, then clone it.
-    BaseStar *clone = Clone(static_cast<BaseStar&>(const_cast<GiantBranch&>(*this)));
-
-	clone->ResolveEnvelopeLoss(true);               // update clone's attributes after envelope is lost
-    double cloneRadius = clone->Radius();           // get the radius of the updated clone
-
-    delete clone; clone = nullptr;                  // return the memory allocated for the clone
-
-    return m_Radius - cloneRadius;
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                                 MASS CALCULATIONS                                 //
@@ -1049,41 +1022,40 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  * Approximates the mass of the outer convective envelope.
  *
  * This is needed for the Hirai & Mandel (2022) two-stage CE formalism.
- * Follows the fits of Picker, Hirai, Mandel (2023).
+ * Follows the fits of Picker, Hirai, Mandel (2024), arXiv:2402.13180
  *
  *
  * double GiantBranch::CalculateConvectiveEnvelopeMass()
  *
- * @return                                      Mass of the outer convective envelope
+ * @return                                      Tuple containing the mass of the outer convective envelope and its maximum value
  */
-double GiantBranch::CalculateConvectiveEnvelopeMass() const {
+DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     
-    // 'this' is const in this function, and it is an instantiation of the 'GiantBranch' class.
-    // We want to clone this object and access it as an HG object, so we first remove its
-    // const-ness (required for Clone()), then cast it as HG, then clone it.
-    HG *clone = Clone(static_cast<HG&>(const_cast<GiantBranch&>(*this)));
+    double MinterfMcoref = -0.021 * m_Log10Metallicity + 0.0038;                                                            // Eq. (8) of Picker+ 2024
+    double Tonset        = -139.8 * m_Log10Metallicity * m_Log10Metallicity - 981.7 * m_Log10Metallicity + 2798.3;          // Eq. (6) of Picker+ 2024
 
-    double log10Ltams = log10(clone->Luminosity());                                                             // get luminosity of clone
+    // We need the temperature of the star just after BAGB, which is the temperature at the
+    // start of the EAGB phase.  Since we are on the giant branch here, we can clone this
+    // object as an EAGB object and, as long as it is initialised (to the start of the phase),
+    // we can query the cloned object for its temperature.
+    //
+    // To ensure the clone does not participate in logging, we set its persistence to EPHEMERAL.
+    //
+    // Furthermore, 'this' is const in this function, so we first remove its const-ness (required
+    // to call Clone()) via the use of const_cast<>().  Since we don't know what class the
+    // underlying object is, we cast it to EAGB&.
 
-    delete clone; clone = nullptr;                                                                              // return the memory allocated for the clone
+    EAGB *clone = EAGB::Clone(static_cast<EAGB&>(const_cast<GiantBranch&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
+    clone->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                          // Otherwise, temperature not updated
+    double Tmin = clone->Temperature();                                                                                     // get temperature of clone
+    delete clone; clone = nullptr;                                                                                          // return the memory allocated for the clone
 
-    double Mcorefinal = CalculateCoreMassAtBAGB(m_Mass);
-    double Mconvmax   = m_Mass - 1.1 * Mcorefinal;
-
-    double log10Z     = log10 (m_Metallicity);
-    double log10Z_2   = log10Z * log10Z;
-
-    double b1         = 14.4 * log10Z_2 + 57.4 * log10Z + 95.7;
-    double a2         = -16.9 * log10Z_2 - 81.9 * log10Z - 47.9;
-    double b2         = 184.0 * log10Z_2 + 872.2 * log10Z + 370.0;
-    double c2         = -660.1 * log10Z_2 - 3482.0 * log10Z + 1489.0;
-    double Tnorm      = a2 * log10Ltams * log10Ltams + b2 * log10Ltams + c2;
-
-    double convectiveEnvelopeMass = Mconvmax / (1.0 + exp(b1 * (m_Temperature * TSOL - Tnorm) / Tnorm));
-    convectiveEnvelopeMass        = std::max(std::min(convectiveEnvelopeMass, (m_Mass - m_CoreMass)), 0.0);     // ensure that convective envelope mass is limited to [0, envelope mass]
-   
-    return convectiveEnvelopeMass;
-}
+    double McoreFinal             = CalculateCoreMassAtBAGB(m_Mass);
+    double MconvMax               = std::max(m_Mass - McoreFinal * (1.0 + MinterfMcoref), 0.0);                             // Eq. (9) of Picker+ 2024
+    double convectiveEnvelopeMass = MconvMax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature) / (Tmin - Tonset)));  // Eq. (7) of Picker+ 2024
+    
+    return std::tuple<double, double> (convectiveEnvelopeMass, MconvMax);
+}   // /*ILYA*/ check consistency with HG convective envelope radii and masses from Hurley+ 2002, 2000
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -2057,6 +2029,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (IsSupernova()) {                                                                            // has gone supernova
+                                                                                                    // no - resolve new supernova event
         // squirrel away some attributes before they get changed...
         m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;
         m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
