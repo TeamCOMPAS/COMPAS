@@ -17,14 +17,26 @@ class FGB: virtual public BaseStar, public HG {
 public:
 
     FGB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HG(p_BaseStar, false) {
-        if (p_Initialise) Initialise();
+        m_StellarType = STELLAR_TYPE::FIRST_GIANT_BRANCH;                                                                                                                                           // Set stellar type
+        if (p_Initialise) Initialise();                                                                                                                                                             // Initialise if required
+    }
+
+    FGB* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        FGB* clone = new FGB(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
+
+    static FGB* Clone(FGB& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        FGB* clone = new FGB(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
     }
 
 
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::FIRST_GIANT_BRANCH;                                                                                                                                           // Set stellar type
         CalculateTimescales();                                                                                                                                                                      // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tBGB)];                                                                                                                                    // Set age appropriately
     }
@@ -50,9 +62,9 @@ protected:
     double          CalculateLuminosityOnPhase(const double p_Time) const;
     double          CalculateLuminosityOnPhase() const                                              { return CalculateLuminosityOnPhase(m_Age); }                                                   // Use class member variables
 
-    double          CalculateRadialExtentConvectiveEnvelope() const                                 { return GiantBranch::CalculateRadialExtentConvectiveEnvelope(); }                              // Skip HG
+    double          CalculateRadialExtentConvectiveEnvelope() const                                 { return m_Radius - CalculateConvectiveCoreRadius(); }                                          // Skip HG
 
-    double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_Luminosity) const { return GiantBranch::CalculateRadiusOnPhase(p_Mass, p_Luminosity); }                           // Skip HG - same as on phase
+    double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_Luminosity) const { return GiantBranch::CalculateRadiusOnPhase(p_Mass, p_Luminosity); }                  // Skip HG - same as on phase
     double          CalculateRadiusAtPhaseEnd() const                                               { return CalculateRadiusAtPhaseEnd(m_Mass, m_Luminosity); }                                     // Use class member variables
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return GiantBranch::CalculateRadiusOnPhase(p_Mass, p_Luminosity); }                           // Skip HG
     double          CalculateRadiusOnPhase() const                                                  { return CalculateRadiusOnPhase(m_Mass, m_Luminosity); }                                        // Use class member variables

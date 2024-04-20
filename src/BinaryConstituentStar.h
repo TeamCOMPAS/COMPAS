@@ -110,42 +110,6 @@ public:
     }
 
 
-    // Assignment overload
-    BinaryConstituentStar& operator = (const BinaryConstituentStar& p_Star) {
-
-        if (this != &p_Star) {                                                  // make sure we're not not copying ourselves...
-
-            m_ObjectId                 = globalObjectId++;                      // get unique object id (don't copy source)
-            m_ObjectType               = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;  // can only copy from BINARY_CONSTITUENT_STAR
-            m_ObjectPersistence        = p_Star.m_ObjectPersistence;            // object persistence
-
-            m_CEDetails                = p_Star.m_CEDetails;
-
-            m_Flags                    = p_Star.m_Flags;
-            
-            m_MassTransferDiff         = p_Star.m_MassTransferDiff;
-            m_MassLossDiff             = p_Star.m_MassLossDiff;
-
-            m_OrbitalEnergyPreSN       = p_Star.m_OrbitalEnergyPreSN;
-            m_OrbitalEnergyPostSN      = p_Star.m_OrbitalEnergyPostSN;
-
-            m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
-
-            m_OmegaTidesIndividualDiff = p_Star.m_OmegaTidesIndividualDiff;
-
-            m_RLOFDetails              = p_Star.m_RLOFDetails;
-
-            // This BinaryConstituentStar's companion is an instance of the BinaryConstituentStar class
-            // Here we copy the pointer to the companion object - note that it could be a nullptr if the
-            // companion object has not yet been set.  Also note that when this BinaryConstituentStar
-            // star object is deleted (if it is deleted), the object to which m_Companion points will not
-            // be deleted as a result.
-            m_Companion                = p_Star.m_Companion;
-        }
-        return *this;
-    }
-
-
     /*
      * This function should be used to clone a BinaryConstituentStar.
      * 

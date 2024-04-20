@@ -17,14 +17,26 @@ class CH: virtual public BaseStar, public MS_gt_07 {
 public:
 
     CH(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), MS_gt_07(p_BaseStar) {
-        if (p_Initialise) Initialise();
+        m_StellarType = STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS;                                                                                                                       // Set stellar type
+        if (p_Initialise) Initialise();                                                                                                                                             // Initialise if required
+    }
+
+    CH* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        CH* clone = new CH(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
+
+    static CH* Clone(CH& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        CH* clone = new CH(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
     }
 
 
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS;                                                                                                                       // Set stellar type
         CalculateTimescales();                                                                                                                                                      // Initialise timescales
         m_Age = 0.0;                                                                                                                                                                // Set age appropriately
         m_CHE = true;                                                                                                                                                               // initially for CH stars                                                                                                                                                            // Set age appropriately

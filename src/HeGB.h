@@ -17,7 +17,21 @@ class HeGB: virtual public BaseStar, public HeHG {
 public:
 
     HeGB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HeHG(p_BaseStar, false) {
-        if (p_Initialise) Initialise();
+        STELLAR_TYPE currentStellarType = m_StellarType;                                                                                                                // Stellar type evolving from
+        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH;                                                                                                   // Set stellar type
+        if (p_Initialise) Initialise(currentStellarType);                                                                                                               // Initialise if required
+    }
+
+    HeGB* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        HeGB* clone = new HeGB(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
+
+    static HeGB* Clone(HeGB& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        HeGB* clone = new HeGB(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
     }
 
 
@@ -28,16 +42,15 @@ public:
 
     static  double      CalculateLuminosityOnPhase_Static(const double p_CoreMass, const double p_GBPB, const double p_GBPD);
 
+    double          CalculateRadialExtentConvectiveEnvelope() const                                 { return FGB::CalculateRadialExtentConvectiveEnvelope(); }                             
     static  DBL_DBL     CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Luminosity);
 
 
 protected:
 
-    void Initialise() {
-        STELLAR_TYPE previousStellarType = m_StellarType;;
-        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH;                                                                                                   // Set stellar type
+    void Initialise(const STELLAR_TYPE p_PreviousStellarType) {
         CalculateTimescales();                                                                                                                                          // Initialise timescales
-        if (previousStellarType != STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP)                                                                                     // If not evolving from HeHG...
+        if (p_PreviousStellarType != STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP)                                                                                   // If not evolving from HeHG...
             m_Age = CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, m_Timescales[static_cast<int>(TIMESCALE::tHeMS)], m_GBParams);                                     // ... Set age appropriately
     }
 

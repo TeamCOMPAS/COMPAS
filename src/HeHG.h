@@ -17,16 +17,30 @@ class HeHG: virtual public BaseStar, public HeMS {
 public:
 
     HeHG(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HeMS(p_BaseStar, false) {
-        if (p_Initialise) Initialise();
+        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;                                                                                                                    // Set stellar type
+        if (p_Initialise) Initialise();                                                                                                                                                     // Initialise if required
     }
 
+    HeHG* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        HeHG* clone = new HeHG(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
+
+    static HeHG* Clone(HeHG& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        HeHG* clone = new HeHG(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
+
+
+    // member functions
     static void CalculateGBParams_Static(const double p_Mass0, const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
 
 
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;                                                                                                                    // Set stellar type
         m_Tau = 0.0;                                                                                      // Start of phase
         CalculateTimescales();                                                                                                                                                              // Initialise timescales
         // JR: Age for HeHG is calculated before switching -
@@ -44,8 +58,10 @@ protected:
 
 
     // member functions - aphabetically
-            double          CalculateCOCoreMassAtPhaseEnd() const                                                   { return m_COCoreMass; }                                                // NO-OP
+            double          CalculateCOCoreMassAtPhaseEnd() const                                                   { return m_COCoreMass; }  //*ILYA* check                                               // NO-OP
             double          CalculateCOCoreMassOnPhase() const;
+    
+            double          CalculateConvectiveCoreMass() const { return m_CoreMass; }
 
             double          CalculateCoreMassAtBAGB() const                                                         { return m_Mass0; }                                                     // McBAGB = M0 (Hurely et al. 2000, discussion just before eq 89)
             double          CalculateCoreMassAtPhaseEnd() const                                                     { return m_CoreMass; }                                                  // NO-OP
@@ -54,6 +70,7 @@ protected:
     static  double          CalculateCoreMass_Luminosity_B_Static()                                                 { return 4.1E4; }
     static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                              { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }   // pow() is slow - use multiplication
 
+            double          CalculateConvectiveCoreRadius () const                      { return 5.0 * CalculateRemnantRadius (); }                                                         // Last paragraph of section 6 of Hurley+ 2000
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
             double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return 1.28; }                                                        // From BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
 
@@ -76,7 +93,7 @@ protected:
             double          CalculatePerturbationMu() const;
             double          CalculatePerturbationMuAtPhaseEnd() const                                               { return m_Mu; }                                                        // NO-OP
 
-            double          CalculateRadialExtentConvectiveEnvelope() const                                         { return GiantBranch::CalculateRadialExtentConvectiveEnvelope(); }      // Skip HeMS
+            double          CalculateRadialExtentConvectiveEnvelope() const                                         { return HG::CalculateRadialExtentConvectiveEnvelope(); }
 
             double          CalculateRadiusAtPhaseEnd() const                                                       { return m_Radius; }                                                    // NO-OP
             double          CalculateRadiusOnPhase() const;
