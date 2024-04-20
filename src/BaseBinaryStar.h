@@ -271,7 +271,7 @@ public:
 
             bool                PrintSwitchLog(const bool p_PrimarySwitching) {                                     // print to the switch log file
                                     return OPTIONS->SwitchLog() ?                                                   // switch logging enabled?
-                                        (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT ?   // yes, logging enabled - is this a 'permanent' object (i.e. not am ephemeral clone)?
+                                        (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT ?   // yes, logging enabled - is this a 'permanent' object (i.e. not an ephemeral clone)?
                                             LOGGING->LogBSESwitchLog(this, p_PrimarySwitching) :                    // yes, permanent - log it
                                             true                                                                    // no, ephemeral - ignore the log request
                                         ) :
