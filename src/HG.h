@@ -22,14 +22,35 @@ class HG: virtual public BaseStar, public GiantBranch {
 public:
 
     HG(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), GiantBranch(p_BaseStar) {
-        if (p_Initialise) Initialise();
+std::cout << "HG::HG(@ENTRY), p_Initialise = " << std::boolalpha << p_Initialise << std::noboolalpha << ", p_BaseStar = " << p_BaseStar.ObjectId() << "\n";
+        m_StellarType = STELLAR_TYPE::HERTZSPRUNG_GAP;                                                                                                                          // Set stellar type 
+        if (p_Initialise) Initialise();                                                                                                                                         // Initialise if required
+std::cout << "HG::HG(@EXIT), p_Initialise = " << std::boolalpha << p_Initialise << std::noboolalpha << ", p_BaseStar = " << p_BaseStar.ObjectId() << "\n";
+    }
+
+    HG* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+std::cout << "HG* Clone(@1)\n";
+        HG* clone = new HG(*this, p_Initialise); 
+std::cout << "HG* Clone(@1.5)\n";
+        clone->SetPersistence(p_Persistence); 
+std::cout << "HG* Clone(@2)\n";
+        return clone; 
+    }
+
+    static HG* Clone(HG p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+std::cout << "static HG* Clone(@1)\n";
+        HG* clone = new HG(p_Star, p_Initialise); 
+std::cout << "static HG* Clone(@1.5)\n";
+        clone->SetPersistence(p_Persistence); 
+std::cout << "static HG* Clone(@2)\n";
+        return clone; 
     }
 
 
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::HERTZSPRUNG_GAP;                                                                                                                          // Set stellar type
+std::cout << "HG Initialise(@ENTRY)\n";
         m_Tau = 0.0;                                                                                                                                                            // Start of phase
         CalculateTimescales();                                                                                                                                                  // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];                                                                                                                 // Set age appropriately
@@ -40,9 +61,9 @@ protected:
         // update effective "initial" mass (m_Mass0) so that the core mass is at least equal to the minimum core mass but no more than total mass
         // (only relevant if RetainCoreMassDuringCaseAMassTransfer()) 
         if(utils::Compare(CalculateCoreMassOnPhase(m_Mass0, m_Age), std::min(m_Mass, MinimumCoreMass())) < 0) {
-            double desiredCoreMass = std::min(m_Mass, MinimumCoreMass());       // desired core mass
-            m_Mass0 = Mass0ToMatchDesiredCoreMass(this, desiredCoreMass);       // use root finder to find new core mass estimate
-            if (m_Mass0 <= 0.0) {                                               // no root found - no solution for estimated core mass
+            double desiredCoreMass = std::min(m_Mass, MinimumCoreMass());                                                                                                       // desired core mass
+            m_Mass0 = Mass0ToMatchDesiredCoreMass(this, desiredCoreMass);                                                                                                       // use root finder to find new core mass estimate
+            if (m_Mass0 <= 0.0) {                                                                                                                                               // no root found - no solution for estimated core mass
                 // if no root found we keep m_Mass0 equal to the total mass
                 m_Mass0 = m_Mass;
             }
@@ -55,6 +76,7 @@ protected:
         m_HeCoreMass = CalculateHeCoreMassOnPhase();
         m_Luminosity = CalculateLuminosityOnPhase();
         std::tie(m_Radius, std::ignore) = CalculateRadiusAndStellarTypeOnPhase();                                                                                               // Update radius
+std::cout << "HG Initialise(@EXIT)\n";
     }
 
 
@@ -144,12 +166,12 @@ protected:
         }
         T operator()(double const& p_GuessMass0) {
 
-            HG *clone = Clone(*m_Star);                                                                 // clone the star
-      
-            clone->UpdateAttributesAndAgeOneTimestep(0.0, p_GuessMass0 - clone->Mass0(), 0.0, true);    // update clone's mass and age it one timestep 
-            double coreMassEstimate = clone->CalculateCoreMassOnPhase(p_GuessMass0, clone->Age());      // get clone's core mass
+//            HG *clone = Clone(*m_Star, OBJECT_PERSISTENCE::EPHEMERAL);                                  // clone the star
+HG clone = *m_Star;      
+            clone.UpdateAttributesAndAgeOneTimestep(0.0, p_GuessMass0 - clone.Mass0(), 0.0, true);    // update clone's mass and age it one timestep 
+            double coreMassEstimate = clone.CalculateCoreMassOnPhase(p_GuessMass0, clone.Age());      // get clone's core mass
 
-            delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+//            delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
 
             return (coreMassEstimate - m_DesiredCoreMass);
         }

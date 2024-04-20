@@ -14,7 +14,6 @@
 #include "Log.h"
 #include "Errors.h"
 
-class MainSequence;
 
 class BaseStar {
 
@@ -28,9 +27,6 @@ public:
              const KickParameters    p_KickParameters,
              const double            p_RotationalVelocity = -1.0); 
 
-    // This signature is required for Clone() (below)
-    // p_initialise is ignored
-    BaseStar(const BaseStar &p_BaseStar, const bool p_Initialise = false) { *this = p_BaseStar; }
 
     /*
      * This function should be used to clone a star - any steller type, including BaseStar.
@@ -60,12 +56,10 @@ public:
      *                                              persistence should be EPHEMERAL (the default), otherwise PERMANENT.
      * @return                                      (pointer to) The cloned star
      */
-    template <class T1>
-    static T1* Clone(T1& p_Star, const OBJECT_PERSISTENCE p_Persistence = OBJECT_PERSISTENCE::EPHEMERAL) { 
-        T1* clone = new T1(static_cast<BaseStar&>(p_Star), false); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
-    }
+
+    virtual BaseStar* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) { return this; }
+
+    static BaseStar* Clone(BaseStar* p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) { return p_Star; }
 
     virtual ~BaseStar() {}
 
@@ -282,7 +276,10 @@ public:
     virtual void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
                                                    const double p_DonorThermalMassLossRate) { }                                                                                     // Default does nothing, only works for WDs.
 
-    virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                         { return m_StellarType; }
+    virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                         { 
+//std::cout << "BaseStar::ResolveEnvelopeLoss(), Typename(this) = " << typeid(*this).name() << "\n";
+std::cout << "BaseStar::ResolveEnvelopeLoss(), ST(this) = " << static_cast<int>(m_StellarType) << "\n";
+            std::cout << "BaseStar::ResolveEnvelopeLoss()\n"; return m_StellarType; }
 
     virtual void            ResolveMassLoss(const bool p_UpdateMDt = true);
    

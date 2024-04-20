@@ -441,6 +441,7 @@ bool HeHG::ShouldEvolveOnPhase() const {
  * @return                                      Stellar Type to which star should evolve after losing envelope
  */
 STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
+std::cout << "HeHG::ResolveEnvelopeLoss()\n";
 
     STELLAR_TYPE stellarType = m_StellarType;
     

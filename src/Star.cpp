@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <csignal>
 
+#include <typeinfo>
+
 // Default constructor
 Star::Star() : m_Star(new BaseStar()) {
 
@@ -65,11 +67,13 @@ Star::Star(const unsigned long int p_RandomSeed,
  * @return                                      Pointer to the cloned star
  * 
  */
-BaseStar* Star::CloneStar(BaseStar& p_Star, const OBJECT_PERSISTENCE p_Persistence) {
-
-    BaseStar *ptr = BaseStar::Clone(p_Star, p_Persistence);
-    return ptr;
-}
+//template <class T>
+//BaseStar* Star::CloneStar(T& p_Star, const OBJECT_PERSISTENCE p_Persistence) {
+//
+//    T *ptr = p_Star.Clone(p_Persistence);
+//
+//    return static_cast<BaseStar*>(ptr);
+//}
 
 // Copy constructor - deep copy so dynamic variables are also copied
 Star::Star(const Star& p_Star) {
@@ -78,26 +82,39 @@ Star::Star(const Star& p_Star) {
     m_ObjectType        = OBJECT_TYPE::STAR;                                            // set object type
     m_ObjectPersistence = p_Star.ObjectPersistence();                                   // set object persistence
 
-    m_Star     = p_Star.m_Star ? CloneStar(*(p_Star.m_Star)) : nullptr;                 // copy underlying BaseStar object
-    m_SaveStar = p_Star.m_SaveStar ? CloneStar(*(p_Star.m_Star)) : nullptr;             // and the saved copy
+//    m_Star     = p_Star.m_Star ? CloneStar(*(p_Star.m_Star)) : nullptr;                 // copy underlying BaseStar object
+//    m_SaveStar = p_Star.m_SaveStar ? CloneStar(*(p_Star.m_Star)) : nullptr;             // and the saved copy
+std::cout << "Star::Star(), Typename = " << typeid(*(p_Star.m_Star)).name() << "\n";
+if (p_Star.m_Star) std::cout << "Star::Star(@1), Typename = " << typeid(*(p_Star.m_Star)).name() << "\n";
+if (p_Star.m_SaveStar) std::cout << "Star::Star(@2), Typename = " << typeid(*(p_Star.m_SaveStar)).name() << "\n";
+    m_Star     = p_Star.m_Star ? dynamic_cast<BaseStar*>(p_Star.m_Star->Clone(OBJECT_PERSISTENCE::PERMANENT)) : nullptr;                 // copy underlying BaseStar object
+    m_SaveStar = p_Star.m_SaveStar ? dynamic_cast<BaseStar*>(p_Star.m_SaveStar->Clone(OBJECT_PERSISTENCE::PERMANENT)) : nullptr;             // and the saved copy
+if (m_Star) std::cout << "Star::Star(@3), Typename = " << typeid(*m_Star).name() << "\n";
+if (m_SaveStar) std::cout << "Star::Star(@4), Typename = " << typeid(*m_SaveStar).name() << "\n";
+std::cout << "Star::Star() return\n";
 }
 
 
 // Assignment overload - deep copy so dynamic variables are also copied
 Star& Star::operator = (const Star& p_Star) {
+std::cout << "Star::Operator = ENTRY\n";
 
     if (this != &p_Star) {                                                              // make sure we're not not copying ourselves...
+std::cout << "Star::Operator =, Typename = " << typeid(*(p_Star.m_Star)).name() << "\n";
 
         m_ObjectId          = globalObjectId++;                                         // set object id
         m_ObjectType        = OBJECT_TYPE::STAR;                                        // set object type
         m_ObjectPersistence = p_Star.ObjectPersistence();                               // set object persistence
 
         delete m_Star;
-        m_Star = p_Star.m_Star ? CloneStar(*(p_Star.m_Star)) : nullptr;                 // copy underlying BaseStar object
+//        m_Star = p_Star.m_Star ? CloneStar(*(p_Star.m_Star)) : nullptr;                 // copy underlying BaseStar object
+        m_Star = p_Star.m_Star ? dynamic_cast<BaseStar*>(p_Star.m_Star->Clone(OBJECT_PERSISTENCE::PERMANENT)) : nullptr;                 // copy underlying BaseStar object
 
         delete m_SaveStar;
-        m_SaveStar = p_Star.m_SaveStar ? CloneStar(*(p_Star.m_SaveStar)) : nullptr;     // and the saved copy
+//        m_SaveStar = p_Star.m_SaveStar ? CloneStar(*(p_Star.m_SaveStar)) : nullptr;     // and the saved copy
+        m_SaveStar = p_Star.m_SaveStar ? dynamic_cast<BaseStar*>(p_Star.m_SaveStar->Clone(OBJECT_PERSISTENCE::PERMANENT)) : nullptr;             // and the saved copy
     }
+std::cout << "Star::Operator = EXIT\n";
     return *this;
 }
 
@@ -184,7 +201,7 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
 void Star::SaveState() {
 
     delete m_SaveStar;
-    m_SaveStar = CloneStar(*m_Star);
+    m_SaveStar = m_Star->Clone(OBJECT_PERSISTENCE::PERMANENT);
 }
 
 

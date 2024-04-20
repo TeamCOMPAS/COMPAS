@@ -20,7 +20,20 @@ class HeMS: virtual public BaseStar, public TPAGB {
 public:
 
     HeMS(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), TPAGB(p_BaseStar, false) {
-        if (p_Initialise) Initialise();
+        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                                                                                                                                         // Set stellar type
+        if (p_Initialise) Initialise();                                                                                                                                                             // Initialise if required
+    }
+
+    HeMS* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        HeMS* clone = new HeMS(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
+
+    static HeMS* Clone(HeMS& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        HeMS* clone = new HeMS(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
     }
 
 
@@ -40,7 +53,6 @@ public:
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                                                                                                                                         // Set stellar type
         CalculateTimescales();
         // JR: Age for HeMS is partially calculated before switching -
         // can get here from various places in ResolveEnvelopeLoss(),

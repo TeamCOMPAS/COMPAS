@@ -1,4 +1,5 @@
 #include "MainSequence.h"
+#include "MS_gt_07.h"
 #include "HG.h"
 
 
@@ -660,16 +661,18 @@ void MainSequence::UpdateMinimumCoreMass()
 {
     if (OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
 
-        // 'this' is an instantiation of the 'MainSequence' class.
-        // We want to clone this object and access it as an HG object,
-        // so we cast it as HG, then clone it.
-        HG *clone = Clone(static_cast<HG&>(*this));
+        // We need TAMSCoreMass, which is just the core mass at the start of the HG phase.
+        // Since we are on the main sequence here, we can clone this object as an HG object
+        // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
+        // we can query the cloned object for its core mass.
+        //
+        // The clone should not evolve, and so should not log anything, but to be sure the
+        // clone does not participate in logging, we set its persistence to EPHEMERAL.
+      
+        HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL, true);
+        double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
+        delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
 
-        double TAMSCoreMass = clone->CoreMass();                                            // get core mass from clone
-
-        delete clone; clone = nullptr;                                                      // return the memory allocated for the clone
-
-        double fractionalAge = CalculateTauOnPhase();                                       // get age on phase
-        m_MinimumCoreMass    = std::max(m_MinimumCoreMass, fractionalAge * TAMSCoreMass);   // update minimum core mass
+        m_MinimumCoreMass   = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass);    // update minimum core mass
     }
 }

@@ -4005,6 +4005,7 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
                                                          const bool   p_ForceRecalculate,
                                                          const bool   p_ResolveEnvelopeLoss) {
     STELLAR_TYPE stellarType = m_StellarType;                                                   // default is no change
+double x = CalculateRadialExtentConvectiveEnvelope();
 
     if (ShouldBeMasslessRemnant()) {                                                            // Do not update the star if it lost all of its mass
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;

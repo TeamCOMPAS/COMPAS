@@ -17,14 +17,28 @@ class MS_gt_07: virtual public BaseStar, public MainSequence {
 public:
 
     MS_gt_07(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {
-        if (p_Initialise) Initialise();
+        m_StellarType = STELLAR_TYPE::MS_GT_07;                                                                                                         // Set stellar type
+        if (p_Initialise) Initialise();                                                                                                                 // Initialise if required
+    }
+
+    MS_gt_07* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+std::cout << "MS_gt_07* Clone(@1)\n";
+        MS_gt_07* clone = new MS_gt_07(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+std::cout << "MS_gt_07* Clone(@2)\n";
+        return clone; 
+    }
+
+    static MS_gt_07* Clone(MS_gt_07& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        MS_gt_07* clone = new MS_gt_07(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
     }
 
 
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::MS_GT_07;                                                                                                         // Set stellar type
         CalculateTimescales();                                                                                                                          // Initialise timescales
         // JR: Age for MS_GT_07 is carried over from CH stars switching to MS after spinning down, so not set to 0.0 here
     }
