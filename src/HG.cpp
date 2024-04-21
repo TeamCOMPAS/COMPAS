@@ -793,27 +793,11 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 }
 
 
-/*
- * Calculate the radial extent of the star's convective envelope (if it has one)
- *
- * Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 39-40
- *
- *
- * double CalculateRadialExtentConvectiveEnvelope()
- *
- * @return                                      Radial extent of the star's convective envelope in Rsol
- */
-double HG::CalculateRadialExtentConvectiveEnvelope() const {
-    return std::sqrt(m_Tau) * (m_Radius - CalculateConvectiveCoreRadius());
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                                 MASS CALCULATIONS                                 //
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
-
 
 
 /*

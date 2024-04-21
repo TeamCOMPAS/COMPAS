@@ -459,10 +459,12 @@ private:
         m_Logfiles.empty();                                                         // default is no log files
         m_OpenStandardLogFileIds = {};                                              // no open COMPAS standard log files
 
-        m_ObjectIdSwitching = -1L;                                                  // object id of Star object switching stellar type - default none
-        m_TypeSwitchingFrom = STELLAR_TYPE::NONE;                                   // stellar type from which Star object is switching - default NONE
-        m_TypeSwitchingTo   = STELLAR_TYPE::NONE;                                   // stellar type to which Star object is switching - default NONE
-        m_PrimarySwitching  = false;                                                // Star switching is primary star of binary - default false
+        m_ObjectIdSwitching          = -1L;                                         // object id of the Star object switching stellar type - default none
+        m_ObjectSwitchingType        = OBJECT_TYPE::NONE;                           // object type of the Star object switching stellar type - default NONE
+        m_ObjectSwitchingPersistence = OBJECT_PERSISTENCE::PERMANENT;               // object persistence of the Star object switching stellar type - default permanent
+        m_TypeSwitchingFrom          = STELLAR_TYPE::NONE;                          // stellar type from which the Star object is switching - default NONE
+        m_TypeSwitchingTo            = STELLAR_TYPE::NONE;                          // stellar type to which the Star object is switching - default NONE
+        m_PrimarySwitching           = false;                                       // Star switching is primary star of binary - default false
 
         m_SSESupernovae_DelayedWrite.logRecordType       = 0;                       // delayed log record type for SSE_Supernovae file - initially 0 (set later)
         m_SSESupernovae_DelayedWrite.logRecordString     = "";                      // delayed log record (string) for SSE_Supernovae file - initially empty
@@ -596,10 +598,12 @@ private:
 
     // the following block of variables support the BSE Switch Log file
     
-    OBJECT_ID    m_ObjectIdSwitching;                                               // the object id of the Star object switching stellar type
-    STELLAR_TYPE m_TypeSwitchingFrom;                                               // the stellar type from which the Star object is switching
-    STELLAR_TYPE m_TypeSwitchingTo;                                                 // the stellar type to which the Star object is switching
-    bool         m_PrimarySwitching;                                                // flag to indicate whether the primary star of the binary is switching
+    OBJECT_ID          m_ObjectIdSwitching;                                         // the object id of the Star object switching stellar type
+    OBJECT_TYPE        m_ObjectSwitchingType;                                       // the object type of the Star object switching stellar type
+    OBJECT_PERSISTENCE m_ObjectSwitchingPersistence;                                // the object persistence of the Star object switching stellar type
+    STELLAR_TYPE       m_TypeSwitchingFrom;                                         // the stellar type from which the Star object is switching
+    STELLAR_TYPE       m_TypeSwitchingTo;                                           // the stellar type to which the Star object is switching
+    bool               m_PrimarySwitching;                                          // flag to indicate whether the primary star of the binary is switching
 
 
     // the following struct supports delayed writes to logfiles
@@ -989,6 +993,8 @@ private:
 
         bool ok = true;                                                                                                     // initially
 
+        if (p_Star->ObjectPersistence() != OBJECT_PERSISTENCE::PERMANENT) return ok;                                        // do nothing if not a permanent object
+
         LogfileDetailsT fileDetails = StandardLogFileDetails(p_LogFile, p_FileSuffix);                                      // get record details - open file (if necessary)
         if (fileDetails.id >= 0) {                                                                                          // file open?
             if (((1 << (p_RecordType - 1)) & fileDetails.recordTypes) > 0) {                                                // yes - record type enabled?
@@ -1035,6 +1041,8 @@ private:
 
         bool ok = true;                                                                                                     // initially
 
+        if (p_Star->ObjectPersistence() != OBJECT_PERSISTENCE::PERMANENT) return ok;                                        // do nothing if not a permanent object
+
         LogfileDetailsT fileDetails = StandardLogFileDetails(p_LogFile, p_FileSuffix);                                      // get record details - open file (if necessary)
         if (fileDetails.id >= 0) {                                                                                          // file open?
             if ((p_RecordType & fileDetails.recordTypes) > 0) {                                                             // yes - record type enabled?
@@ -1066,6 +1074,8 @@ private:
                            const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues) {
 
         bool ok = true;                                                                                                     // initially
+
+        if (p_Star->ObjectPersistence() != OBJECT_PERSISTENCE::PERMANENT) return ok;                                        // do nothing if not a permanent object
 
         LogfileDetailsT fileDetails = StandardLogFileDetails(p_LogFile, p_FileSuffix);                                      // get record details - open file (if necessary)
         if (fileDetails.id >= 0) {                                                                                          // file open?
@@ -1145,15 +1155,21 @@ public:
 
     // SetSwitchParameters is called by Star::SwitchTo to set the parameters 
     // to be written to the BSE Switch Log file
-    void   SetSwitchParameters(const OBJECT_ID    p_ObjectIdSwitching, 
-                               const STELLAR_TYPE p_TypeSwitchingFrom, 
-                               const STELLAR_TYPE p_TypeSwitchingTo) {
-        m_ObjectIdSwitching = p_ObjectIdSwitching;                          // the object id of the Star object switching stellar type
-        m_TypeSwitchingFrom = p_TypeSwitchingFrom;                          // the stellar type from which the Star object is switching
-        m_TypeSwitchingTo   = p_TypeSwitchingTo;                            // the stellar type to which the Star object is switching
+    void   SetSwitchParameters(const OBJECT_ID          p_ObjectIdSwitching,
+                               const OBJECT_TYPE        p_ObjectSwitchingType,
+                               const OBJECT_PERSISTENCE p_ObjectSwitchingPersistence, 
+                               const STELLAR_TYPE       p_TypeSwitchingFrom, 
+                               const STELLAR_TYPE       p_TypeSwitchingTo) {
+        m_ObjectIdSwitching          = p_ObjectIdSwitching;                         // the object id of the Star object switching stellar type
+        m_ObjectSwitchingType        = p_ObjectSwitchingType;                       // the object type of the Star object switching stellar type
+        m_ObjectSwitchingPersistence = p_ObjectSwitchingPersistence;                // the object persistence of the Star object switching stellar type
+        m_TypeSwitchingFrom          = p_TypeSwitchingFrom;                         // the stellar type from which the Star object is switching
+        m_TypeSwitchingTo            = p_TypeSwitchingTo;                           // the stellar type to which the Star object is switching
     }
 
-    OBJECT_ID ObjectIdSwitching() { return m_ObjectIdSwitching; }
+    OBJECT_ID          ObjectIdSwitching()          { return m_ObjectIdSwitching; }
+    OBJECT_TYPE        ObjectSwitchingType()        { return m_ObjectSwitchingType; }
+    OBJECT_PERSISTENCE ObjectSwitchingPersistence() { return m_ObjectSwitchingPersistence; }
 
 
 

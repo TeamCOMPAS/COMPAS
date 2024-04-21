@@ -17,22 +17,30 @@ class HeHG: virtual public BaseStar, public HeMS {
 public:
 
     HeHG(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HeMS(p_BaseStar, false) {
-        if (p_Initialise) Initialise();
+        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;                                                                                                                    // Set stellar type
+        if (p_Initialise) Initialise();                                                                                                                                                     // Initialise if required
     }
 
-    HeHG& operator = (const BaseStar &p_BaseStar) {
-        static_cast<BaseStar&>(*this) = p_BaseStar;
-        Initialise();
-        return *this;
+    HeHG* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        HeHG* clone = new HeHG(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
     }
 
+    static HeHG* Clone(HeHG& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        HeHG* clone = new HeHG(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
+
+
+    // member functions
     static void CalculateGBParams_Static(const double p_Mass0, const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
 
 
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;                                                                                                                    // Set stellar type
         m_Tau = 0.0;                                                                                      // Start of phase
         CalculateTimescales();                                                                                                                                                              // Initialise timescales
         // JR: Age for HeHG is calculated before switching -

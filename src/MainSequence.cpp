@@ -1,4 +1,5 @@
 #include "MainSequence.h"
+#include "MS_gt_07.h"
 #include "HG.h"
 
 
@@ -255,11 +256,11 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
 
     // pow() is slow - use multipliaction where it makes sense
     double logLMS_LZAMS  = alphaL * tau;                                                                                        // Hurley et al. 2000, eq 12, part 1
-           logLMS_LZAMS += betaL * PPOW(tau, eta);                                                                               // Hurley et al. 2000, eq 12, part 2
+           logLMS_LZAMS += betaL * PPOW(tau, eta);                                                                              // Hurley et al. 2000, eq 12, part 2
            logLMS_LZAMS += (log10(LTMS / p_LZAMS) - alphaL - betaL) * tau * tau;                                                // Hurley et al. 2000, eq 12, part 3
            logLMS_LZAMS -= deltaL * ((tau1 * tau1) - (tau2 * tau2));                                                            // Hurley et al. 2000, eq 12, part 4
 
-    return p_LZAMS * PPOW(10.0, logLMS_LZAMS);                                                                                   // rewrite Hurley et al. 2000, eq 12 for L(t)
+    return p_LZAMS * PPOW(10.0, logLMS_LZAMS);                                                                                  // rewrite Hurley et al. 2000, eq 12 for L(t)
 
 #undef timescales
 #undef a
@@ -482,7 +483,7 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
     if ( utils::Compare(m_Mass, 1.25) >= 0)
         radiusEnvelope0 = 0.0;
     else if (utils::Compare(m_Mass, 0.35) > 0) {
-        double radiusM035 = m_Radius;          // /*ILYA*/ to fix: radius of a 0.35 solar mass star of fractional age Tau
+        double radiusM035 = CalculateRadiusAtZAMS(0.35);          // uses radius of a 0.35 solar mass star at ZAMS rather than at fractional age Tau, but such low-mass stars only grow by a maximum factor of 1.5 [just above Eq. (10) in Hurley, Pols, Tout (2000), so this is a reasonable approximation
         radiusEnvelope0 = radiusM035 * std::sqrt((1.25 - m_Mass) / 0.9);
     }
     return radiusEnvelope0 * std::sqrt(std::sqrt(1.0 - m_Tau));
@@ -490,15 +491,15 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
 
 double MainSequence::CalculateConvectiveCoreRadius() const {
     if (utils::Compare(m_Mass, 1.25) < 0)       // /*ILYA*/ To check
-        return 0;
-    return ( m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57))); // Preliminary fit from Minori
+        return 0.0;
+    return ( m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57))); // Preliminary fit from Minori Shikauchi @ ZAMS, does not take evolution into account yet
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                                            //
-//             MASS CALCULATIONS              //
-//                                            //
+//                                                                                   //
+//                                 MASS CALCULATIONS                                 //
+//                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -513,36 +514,43 @@ double MainSequence::CalculateConvectiveCoreRadius() const {
  * @return                                      Mass of convective core in Msol
  */
 double MainSequence::CalculateConvectiveCoreMass() const {
-    HG clone             = *this;                           //create an HG star clone to query its core mass just after TAMS
-    double TAMSCoreMass  = clone.CoreMass();
-    double finalConvectiveCoreMass = TAMSCoreMass;
+
+    // We need TAMSCoreMass, which is just the core mass at the start of the HG phase.
+    // Since we are on the main sequence here, we can clone this object as an HG object
+    // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
+    // we can query the cloned object for its core mass.
+    //
+    // The clone should not evolve, and so should not log anything, but to be sure the
+    // clone does not participate in logging, we set its persistence to EPHEMERAL.
+      
+    HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+    double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+
+    double finalConvectiveCoreMass   = TAMSCoreMass;
     double initialConvectiveCoreMass = finalConvectiveCoreMass / 0.6;
-    return ( initialConvectiveCoreMass - m_Tau * (initialConvectiveCoreMass - finalConvectiveCoreMass) );
+    return (initialConvectiveCoreMass - m_Tau * (initialConvectiveCoreMass - finalConvectiveCoreMass));
 }
 
 /*
  * Calculate the mass of the convective envelope
  *
- * Based on Hurley et al. 2000, after Eq. (111)
+ * Based on section 7.2 (after Eq. 111) of Hurley, Pols, Tout (2000)
  *
- * std::tuple<double, double> MainSequence::CalculateConvectiveEnvelopeMass()
  *
- * @return                                      Tuple containing the mass of the outer convective envelope and its maximum value
+ * double CalculateConvectiveEnvelopeMass() const
+ *
+ * @return                                      Mass of convective envelope in Msol
  */
-std::tuple<double, double> MainSequence::CalculateConvectiveEnvelopeMass() const {
-    double envMass0 = 0.0; // default is 0.0
+DBL_DBL MainSequence::CalculateConvectiveEnvelopeMass() const {
+    if (utils::Compare(m_Mass, 1.25) > 0) return std::tuple<double, double> (0.0, 0.0);
 
-    if (utils::Compare(m_Mass, 0.35) < 0) {                  // star is fully convective so Menv = M
-        envMass0 = m_Mass;
-    }
-    else if (utils::Compare(m_Mass, 1.25) < 0) {
-        double brackets = (1.25 - m_Mass) / 0.9;             // pow() is slow - use multiplication
-        envMass0         = 0.35 * brackets * brackets;       
-    }
-
-    double convectiveEnvelopeMass = envMass0 * std::sqrt(std::sqrt(1.0 - m_Tau));
-    return std::tuple<double, double> (convectiveEnvelopeMass, 0.0); // (Veome: set Mconvmax to 0.0 to avoid unintended consequences during Double CE, should check though). 
-
+    double massEnvelope0 = m_Mass;
+    if (utils::Compare(m_Mass, 0.35) > 0) massEnvelope0 = 0.35 * (1.25 - m_Mass) * (1.25 - m_Mass) / 0.81;
+    
+    double massEnvelope  = massEnvelope0 * sqrt(sqrt(1.0 - m_Tau));
+    
+    return std::tuple<double, double> (massEnvelope, massEnvelope0);
 }
 
 
@@ -751,9 +759,19 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
 void MainSequence::UpdateMinimumCoreMass()
 {
     if (OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
-        double fractionalAge =CalculateTauOnPhase();
-        HG clone             = *this;                           //create an HG star clone to query its core mass just after TAMS
-        double TAMSCoreMass  = clone.CoreMass();
-        m_MinimumCoreMass    = std::max(m_MinimumCoreMass, fractionalAge * TAMSCoreMass);
+
+        // We need TAMSCoreMass, which is just the core mass at the start of the HG phase.
+        // Since we are on the main sequence here, we can clone this object as an HG object
+        // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
+        // we can query the cloned object for its core mass.
+        //
+        // The clone should not evolve, and so should not log anything, but to be sure the
+        // clone does not participate in logging, we set its persistence to EPHEMERAL.
+      
+        HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+        double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
+        delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+
+        m_MinimumCoreMass   = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass);    // update minimum core mass
     }
 }

@@ -6,7 +6,6 @@
 #include "BH.h"
 
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                     COEFFICIENT AND CONSTANT CALCULATIONS ETC.                    //
@@ -680,20 +679,6 @@ double GiantBranch::CalculateRemnantRadius() const {
 }
 
 
-/*
- * Calculate the radial extent of the star's convective envelope (if it has one)
- *
- * Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
- *
- * double CalculateRadialExtentConvectiveEnvelope()
- *
- * @return                                      Radial extent of the star's convective envelope in Rsol
- */
-double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const {
-    return m_Radius - CalculateConvectiveCoreRadius();
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                                 MASS CALCULATIONS                                 //
@@ -1046,18 +1031,31 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  */
 DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     
-    double log10Z = log10 (m_Metallicity);
-    double MinterfMcoref = -0.021 * log10Z + 0.0038;                                                                        //Eq. (8) of Picker+ 2024
-    double Tonset = -139.8 * log10Z * log10Z - 981.7 * log10Z + 2798.3;                                                     //Eq. (6) of Picker+ 2024
-    EAGB clone = *this;                                                                                                     // Create an HG star clone to query its core mass just after BAGB
-    clone.UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                           // Otherwise, temperature not updated
-    double Tmin=clone.Temperature();
-    double Mcorefinal = CalculateCoreMassAtBAGB(m_Mass);
-    double Mconvmax = std::max(m_Mass - Mcorefinal * (1 + MinterfMcoref), 0.0);                                             //Eq. (9) of Picker+ 2024
-    double convectiveEnvelopeMass = Mconvmax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature)/(Tmin-Tonset)));      //Eq. (7) of Picker+ 2024
+    double MinterfMcoref = -0.021 * m_Log10Metallicity + 0.0038;                                                            // Eq. (8) of Picker+ 2024
+    double Tonset        = -139.8 * m_Log10Metallicity * m_Log10Metallicity - 981.7 * m_Log10Metallicity + 2798.3;          // Eq. (6) of Picker+ 2024
+
+    // We need the temperature of the star just after BAGB, which is the temperature at the
+    // start of the EAGB phase.  Since we are on the giant branch here, we can clone this
+    // object as an EAGB object and, as long as it is initialised (to the start of the phase),
+    // we can query the cloned object for its temperature.
+    //
+    // To ensure the clone does not participate in logging, we set its persistence to EPHEMERAL.
+    //
+    // Furthermore, 'this' is const in this function, so we first remove its const-ness (required
+    // to call Clone()) via the use of const_cast<>().  Since we don't know what class the
+    // underlying object is, we cast it to EAGB&.
+
+    EAGB *clone = EAGB::Clone(static_cast<EAGB&>(const_cast<GiantBranch&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
+    clone->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                          // Otherwise, temperature not updated
+    double Tmin = clone->Temperature();                                                                                     // get temperature of clone
+    delete clone; clone = nullptr;                                                                                          // return the memory allocated for the clone
+
+    double McoreFinal             = CalculateCoreMassAtBAGB(m_Mass);
+    double MconvMax               = std::max(m_Mass - McoreFinal * (1.0 + MinterfMcoref), 0.0);                             // Eq. (9) of Picker+ 2024
+    double convectiveEnvelopeMass = MconvMax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature) / (Tmin - Tonset)));  // Eq. (7) of Picker+ 2024
     
-    return std::tuple<double, double> (convectiveEnvelopeMass, Mconvmax);
-}
+    return std::tuple<double, double> (convectiveEnvelopeMass, MconvMax);
+}   // /*ILYA*/ check consistency with HG convective envelope radii and masses from Hurley+ 2002, 2000
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -2090,12 +2088,13 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
             m_SupernovaDetails.rocketKickMagnitude = 0;                                             // Only NSs can get rocket kicks
         }
 
-        // stash SN details for later printing to the SSE Supernova log
-        // can't print it now because we may revert state (in Star::EvolveOneTimestep())
-        // will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state)
-        // need to record the stellar type to which the star will switch if we don't revert state
+        // Stash SN details for later printing to the SSE Supernova log.
+        // Only if SSE (BSE does its own SN printing), and only if not an ephemeral clone
+        // Can't print it now because we may revert state (in Star::EvolveOneTimestep()).
+        // Will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state).
+        // Need to record the stellar type to which the star will switch if we don't revert state.
 
-        if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {                                      // only if SSE (BSE does its own SN printing)
+        if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) {
             StashSupernovaDetails(stellarType);
         }
     }

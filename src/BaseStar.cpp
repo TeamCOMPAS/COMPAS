@@ -17,12 +17,13 @@ BaseStar::BaseStar() {
 
     // initialise member variables
 
-    m_ObjectId           = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
-    m_ObjectType         = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
-    m_InitialStellarType = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
-    m_StellarType        = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    m_ObjectId           = globalObjectId++;                                                        // unique object id - remains for life of star (even through evolution to other phases)
+    m_ObjectType         = OBJECT_TYPE::BASE_STAR;                                                  // object type - remains for life of star (even through evolution to other phases)
+    m_ObjectPersistence  = OBJECT_PERSISTENCE::PERMANENT;                                           // object persistence - permanent or ephemeral (ephemeral used for ephemeral clones)
+    m_InitialStellarType = STELLAR_TYPE::STAR;                                                      // stellar type - changes throughout life of star (through evolution to other phases)
+    m_StellarType        = STELLAR_TYPE::STAR;                                                      // stellar type - changes throughout life of star (through evolution to other phases)
 
-    m_Error              = ERROR::NOT_INITIALISED;                     // clear error flag
+    m_Error              = ERROR::NOT_INITIALISED;                                                  // clear error flag
 }
 
 
@@ -36,6 +37,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     m_ObjectId            = globalObjectId++;                                                       // unique object id - remains for life of star (even through evolution to other phases)
     m_ObjectType          = OBJECT_TYPE::BASE_STAR;                                                 // object type - remains for life of star (even through evolution to other phases)
+    m_ObjectPersistence   = OBJECT_PERSISTENCE::PERMANENT;                                          // object persistence - permanent or ephemeral (ephemeral used for ephemeral clones)
     m_InitialStellarType  = STELLAR_TYPE::STAR;                                                     // stellar type - changes throughout life of star (through evolution to other phases)
     m_StellarType         = STELLAR_TYPE::STAR;                                                     // stellar type - changes throughout life of star (through evolution to other phases)
 
@@ -2803,7 +2805,10 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
         STELLAR_TYPE st = UpdateAttributesAndAgeOneTimestep(mass - m_Mass, 0.0, 0.0, false, false); // recalculate stellar attributes
         if (st != m_StellarType) {                                                                  // should switch?
             SHOW_WARN(ERROR::SWITCH_NOT_TAKEN);                                                     // show warning if we think we should switch again...
-            if (IsSupernova()) ClearSupernovaStash();                                               // we may have stashed SN details - need to clear them if we're not going to switch
+            
+            // we may have stashed SN details - need to clear them if we're not going to switch,
+            // but only if not an ephemeral clone (ephemeral clones don't write to the stash)
+            if (IsSupernova() && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) ClearSupernovaStash();
         }
 
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
@@ -3963,16 +3968,15 @@ double BaseStar::CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMa
  * Follows the fits of Picker, Hirai, Mandel (2024), arXiv:2402.13180 for lambda_He
  *
  *
- * double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(double p_convectiveEnvelopeMass, double p_maxConvectiveEnvelopeMass)
+ * double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const
  *
  * @param   [IN]    p_convectiveEnvelopeMass    Mass of the outer convective envelope shell
  * @param   [IN]    p_maxConvectiveEnvelopeMass Maximum mass of the outer convective envelope shell at the onset of carbon burning
  * @return                                      Lambda binding energy parameter for the outer convective envelope
  */
-double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(double p_convectiveEnvelopeMass, double p_maxConvectiveEnvelopeMass) {
+double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const {
     
-    double log10Z     = log10 (m_Metallicity);
-    double m2         = 0.0023 * log10Z * log10Z + 0.0088 * log10Z + 0.013;         // Eq. (12) and Table 1 of Picker, Hirai, Mandel (2024)
+    double m2         = 0.0023 * m_Log10Metallicity * m_Log10Metallicity + 0.0088 * m_Log10Metallicity + 0.013;         // Eq. (12) and Table 1 of Picker, Hirai, Mandel (2024)
     double b1         = m2 * m_Mass - 0.23;                                         // Eq. (11) of Picker+ (2024)
     double logLambda  = p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass > 0.3 ?
         0.42 * p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass + b1 : 0.3 * 0.42 + b1;
