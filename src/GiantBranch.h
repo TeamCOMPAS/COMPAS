@@ -17,8 +17,7 @@ class GiantBranch: virtual public BaseStar, public MainSequence {
 
 public:
 
-    GiantBranch(const BaseStar &baseStar) : BaseStar(baseStar), MainSequence(baseStar) {}
-    GiantBranch& operator = (const BaseStar &baseStar) { static_cast<BaseStar&>(*this) = baseStar; return *this; }
+    GiantBranch(const BaseStar &p_BaseStar) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {}
 
 
 protected:
@@ -26,7 +25,6 @@ protected:
 
     // member functions - alphabetically (sort of - some are grouped by functionality)
             double          CalculateConvectiveCoreMass() const { return m_CoreMass; }
-            double          CalculateConvectiveEnvelopeLambdaPicker(double p_convectiveEnvelopeMass, double p_maxConvectiveEnvelopeMass);
             DBL_DBL         CalculateConvectiveEnvelopeMass() const;
     static  double          CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB);
             double          CalculateCoreMassAtBAGB(const double p_Mass) const;
@@ -94,7 +92,7 @@ protected:
 
             double          CalculatePerturbationMu() const;
 
-            double          CalculateRadialExtentConvectiveEnvelope() const;
+            double          CalculateRadialExtentConvectiveEnvelope() const                                 { return (m_Radius - CalculateConvectiveCoreRadius()); }    //Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
 
             double          CalculateRadiusAtHeIgnition(const double p_Mass) const;
             double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, m_BnCoefficients); }
