@@ -494,7 +494,7 @@ DBL_DBL_DBL_DBL NS::PulsarAccretion(const double p_MagField, const double p_Spin
  * @param   [IN]    p_CommonEnvelope            Indicates whether there there is a common envelope - true or false
  * @param   [IN]    p_RecycledNS                Indicates whether this star is/was a recycled neutron star - true or false
  * @param   [IN]    p_Stepsize                  Timestep size for integration (in seconds)
- * @param   [IN]    p_MassGainPerTimeStep       Mass trasnferred from the secondary for each iteration (in kg)
+ * @param   [IN]    p_MassGainPerTimeStep       Mass transferred from the secondary for each iteration (in kg)
  * @param   [IN]    p_Epsilon                   Efficiency factor allowing for uncertainties of coupling magnetic field and matter.
  */
 void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_RecycledNS, const double p_Stepsize, const double p_MassGainPerTimeStep, const double p_Epsilon) {

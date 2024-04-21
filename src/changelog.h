@@ -1134,7 +1134,7 @@
 //                                      - Fixes to MSP formation/NS in mass transfer treatments:
 //                                       1). Created a new function NS::PulsarAccretion() to calculate the pulsar evolution in stable mass transfer.
 //                                       2). In UpdateMagneticFieldAndSpin(), splitting stable mass transfer into smaller steps so that no negative spin period is present. 
-//                                       3). Adding a new programing option "NS-ACCRETION-IN-CE" for different treatment of how neutron star would behave when in CE. 
+//                                       3). Adding a new programming option "NS-ACCRETION-IN-CE" for different treatment of how neutron star would behave when in CE. 
 //                                    - Includes SS's fix for issue #1076
 const std::string VERSION_STRING = "02.44.00";
 
