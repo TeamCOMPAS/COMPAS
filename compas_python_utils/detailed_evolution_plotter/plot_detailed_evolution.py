@@ -5,6 +5,7 @@
 ###################################################################
 
 import os, sys
+import shutil
 import numpy as np
 import h5py as h5
 import matplotlib.pyplot as plt
@@ -45,7 +46,7 @@ def run_main_plotter(data_path, outdir='.', show=True):
 
 fontparams = {
     "font.serif": "Times New Roman",
-    "text.usetex": "True",
+    "text.usetex": str(shutil.which("latex") is not None),
     "axes.grid": "True",
     "grid.color": "gray",
     "grid.linestyle": ":",
