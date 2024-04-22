@@ -3206,7 +3206,11 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
  * Calculate the Dynamical tides contribution to the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the 
  * potential tidal Love number
  *
+ * Core boundary:
  * Zahn, 1977, Eq. (5.5) , with the value of E_2 coming from Kushnir et al., 2017, by comparing Eq. (8) to Eq. (1)
+ * 
+ * Envelope Boundary:
+ * Ahuir et al, 2021, Eq. (131)
  *
  * std::tuple <double, double, double, double> CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
  *
@@ -3215,61 +3219,121 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
  *                                              potential tidal love number, Dynamical tides only (unitless)
  */
 std::tuple <double, double, double, double> BaseStar::CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
-    // Dynamical tides (gravity wave dissipation) (from convective core to radiative inter-shell)
-    double beta2Dynamical = 1.0;
-    double rhoFactorDynamcial = 0.1;
+    // Dynamical tides (gravity wave dissipation) 
     double radiusAU = m_Radius * RSOL_TO_AU;
     double coreRadiusAU = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
     double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
+    double radiusIntershellAU = radiusAU - convectiveEnvRadiusAU;
+
     double coreMass = CalculateConvectiveCoreMass();
+    double envMass, envMassMax;
+    std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
+    double radIntershellMass = m_Mass - coreMass - envMass;
 
     if (utils::Compare(coreRadiusAU + convectiveEnvRadiusAU, radiusAU) >= 0.0) {
-        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           // Avoid calculations if entire star is convective
+        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           // No Dynamical tides from gravity waves if entire star is convective
     }
 
-    // Veome: TEMPORARY FIX, until dynamical tides from convective envelope are implemented
-    if (coreRadiusAU <= 0.0 || coreMass <= 0.0) {
-        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           // Avoid calculations if no convective core
+    double R3_over_G_M = (radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
+    double sqrt_R3_over_G_M = std::sqrt(R3_over_G_M);
+
+    
+    double k10DynamicalCore = 0.0;
+    double k12DynamicalCore = 0.0;
+    double k22DynamicalCore = 0.0;
+    double k32DynamicalCore = 0.0;
+
+    double k10DynamicalEnv = 0.0;
+    double k12DynamicalEnv = 0.0;
+    double k22DynamicalEnv = 0.0;
+    double k32DynamicalEnv = 0.0;
+    
+    double w10 = p_Omega;
+    double w12 = ((p_Omega) - (2*Omega()));
+    double w22 = ((2*p_Omega) - (2*Omega()));
+    double w32 = ((3*p_Omega) - (2*Omega()));
+
+    if (coreRadiusAU > 0.0 && coreMass > 0.0) {                               // Avoid calculations if no convective core
+        double beta2Dynamical = 1.0;
+        double rhoFactorDynamcial = 0.1;
+        double coreRadius_over_radius = coreRadiusAU / radiusAU;
+        double coreRadius_over_radius_3 = coreRadius_over_radius * coreRadius_over_radius * coreRadius_over_radius;
+        double coreRadius_over_radius_9 = coreRadius_over_radius_3 * coreRadius_over_radius_3 * coreRadius_over_radius_3;
+        double mass_over_coreMass = m_Mass / coreMass;
+        double E2Dynamical = (2.0 / 3.0) * coreRadius_over_radius_9 * mass_over_coreMass * std::cbrt(mass_over_coreMass) * beta2Dynamical * rhoFactorDynamcial;
+
+        // (l=1, m=0), Gravity Wave dissipation from core boundary
+        double s10 = w10 * sqrt_R3_over_G_M;
+        double s10_4_3 = s10 * std::cbrt(s10);
+        double s10_8_3 = s10_4_3 * s10_4_3;
+        if (w10 < 0.0) s10_8_3 = - std::abs(s10_8_3);
+        k10DynamicalCore = E2Dynamical * s10_8_3;
+
+        // (l=1, m=2), Gravity Wave dissipation from core boundary
+        double s12 = w12 * sqrt_R3_over_G_M;
+        double s12_4_3 = s12 * std::cbrt(s12);
+        double s12_8_3 = s12_4_3 * s12_4_3;
+        if (w12 < 0.0) s12_8_3 = - std::abs(s12_8_3);
+        k12DynamicalCore = E2Dynamical * s12_8_3;
+
+        // (l=2, m=2), Gravity Wave dissipation from core boundary
+        double s22 = w22 * sqrt_R3_over_G_M;
+        double s22_4_3 = s22 * std::cbrt(s22);
+        double s22_8_3 = s22_4_3 * s22_4_3;
+        if (w22 < 0.0) s22_8_3 = - std::abs(s22_8_3);
+        k22DynamicalCore = E2Dynamical * s22_8_3;
+
+        // (l=3, m=2), Gravity Wave dissipation from core boundary
+        double s32 = w32 * sqrt_R3_over_G_M;
+        double s32_4_3 = s32 * std::cbrt(s32);
+        double s32_8_3 = s32_4_3 * s32_4_3;
+        if (w32 < 0.0) s32_8_3 = - std::abs(s32_8_3);
+        k32DynamicalCore = E2Dynamical * s32_8_3;
+    
     }
 
-    double coreRadius_over_radius = coreRadiusAU / radiusAU;
-    double coreRadius_over_radius_3 = coreRadius_over_radius * coreRadius_over_radius * coreRadius_over_radius;
-    double coreRadius_over_radius_9 = coreRadius_over_radius_3 * coreRadius_over_radius_3 * coreRadius_over_radius_3;
-    double mass_over_coreMass = m_Mass / coreMass;
+    if (convectiveEnvRadiusAU > 0.0 && envMass > 0.0) {                       // Avoid calculations if no convective envelope
+        double dyn_prefactor = 3.207452512782476;                             // 3^(11/3) * Gamma(1/3)^2 / 40 PI
+        double dNdlnr_cbrt = std::cbrt(G_AU_Msol_yr * radIntershellMass / radiusIntershellAU / (radiusAU - radiusIntershellAU) / (radiusAU - radiusIntershellAU));
+        
+        double alpha = radiusIntershellAU / radiusAU;
+        double beta = radIntershellMass / m_Mass;
+        double alpha_3 = alpha * alpha * alpha;
+        double alpha_11 = alpha_3 * alpha_3 * alpha_3 * alpha * alpha;
+        double beta_2 = beta * beta;
+        double gamma = alpha_3 * (1.0 - beta) / beta / (1.0 - alpha_3);
+        double alpha_2_3_minus_1 = (alpha * 2.0 / 3.0) - 1.0;
+        double Epsilon = alpha_11 * (1.0 - beta) * (1.0 - gamma) * (1.0 - gamma) * alpha_2_3_minus_1 * alpha_2_3_minus_1 / beta_2 / (1.0 - alpha_3) / (1.0 - alpha) / (1.0 - alpha);
 
-    double E2Dynamical = (2.0 / 3.0) * coreRadius_over_radius_9 * mass_over_coreMass * std::cbrt(mass_over_coreMass) * beta2Dynamical * rhoFactorDynamcial;
+        // (l=1, m=0), Gravity Wave dissipation from envelope boundary
+        k10DynamicalEnv = 0.0;
 
-    double sqrt_R3_over_G_M = std::sqrt(radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
-    // (l=1, m=0), Dynamical Tide
-    double s10 = (p_Omega) * sqrt_R3_over_G_M;
-    double s10_4_3 = s10 * std::cbrt(s10);
-    double s10_8_3 = s10_4_3 * s10_4_3;
-    if (s10 < 0) s10_8_3 = - std::abs(s10_8_3);
-    double k10Dynamical = E2Dynamical * s10_8_3;
+        // (l=1, m=2), Gravity Wave dissipation from envelope boundary
+        double m_l_factor_12 = 2.0 / (1.0 * (1.0 + 1.0)) / std::cbrt(1.0 * (1.0 + 1.0));
+        double w12_4_3 = w12 * std::cbrt(w12);
+        double w12_8_3 = w12_4_3 * w12_4_3;
+        if (w12 < 0.0) w12_8_3 = - std::abs(w12_8_3);
+        k12DynamicalEnv = dyn_prefactor * m_l_factor_12 * w12_8_3 * R3_over_G_M * Epsilon / dNdlnr_cbrt;
 
-    // (l=1, m=2), Dynamical Tide
-    double s12 = (p_Omega - (2*Omega())) * sqrt_R3_over_G_M;
-    double s12_4_3 = s12 * std::cbrt(s12);
-    double s12_8_3 = s12_4_3 * s12_4_3;
-    if (s12 < 0) s12_8_3 = - std::abs(s12_8_3);
-    double k12Dynamical = E2Dynamical * s12_8_3;
+        // (l=2, m=2), Gravity Wave dissipation from envelope boundary
+        double m_l_factor_22 = 2.0 / (2.0 * (2.0 + 1.0)) / std::cbrt(2.0 * (2.0 + 1.0));
+        double w22_4_3 = w22 * std::cbrt(w22);
+        double w22_8_3 = w22_4_3 * w22_4_3;
+        if (w22 < 0.0) w22_8_3 = - std::abs(w22_8_3);
+        k22DynamicalEnv = dyn_prefactor * m_l_factor_22 * w22_8_3 * R3_over_G_M * Epsilon / dNdlnr_cbrt;
 
-    // (l=2, m=2), Dynamical Tide
-    double s22 = ((2*p_Omega) - (2*Omega())) * sqrt_R3_over_G_M;
-    double s22_4_3 = s22 * std::cbrt(s22);
-    double s22_8_3 = s22_4_3 * s22_4_3;
-    if (s22 < 0) s22_8_3 = - std::abs(s22_8_3);
-    double k22Dynamical = E2Dynamical * s22_8_3;
+        // (l=3, m=2), Gravity Wave dissipation from envelope boundary
+        double m_l_factor_32 = 2.0 / (3.0 * (3.0 + 1.0)) / std::cbrt(3.0 * (3.0 + 1.0));
+        double w32_4_3 = w32 * std::cbrt(w32);
+        double w32_8_3 = w32_4_3 * w32_4_3;
+        if (w32 < 0.0) w32_8_3 = - std::abs(w32_8_3);
+        k32DynamicalEnv = dyn_prefactor * m_l_factor_32 * w32_8_3 * R3_over_G_M * Epsilon / dNdlnr_cbrt;
 
-    // (l=3, m=2), Dynamical Tide
-    double s32 = ((3*p_Omega) - (2*Omega())) * sqrt_R3_over_G_M;
-    double s32_4_3 = s32 * std::cbrt(s32);
-    double s32_8_3 = s32_4_3 * s32_4_3;
-    if (s32 < 0) s32_8_3 = - std::abs(s32_8_3);
-    double k32Dynamical = E2Dynamical * s32_8_3;
+    }
 
     // return ImKlmDynamical;
-    return std::make_tuple(k10Dynamical, k12Dynamical, k22Dynamical, k32Dynamical);
+    return std::make_tuple(k10DynamicalCore+k10DynamicalEnv, k12DynamicalCore+k12DynamicalEnv, k22DynamicalCore+k22DynamicalEnv, k32DynamicalCore+k32DynamicalEnv);
+
 }
 
 
@@ -3311,10 +3375,10 @@ std::tuple <double, double, double, double> BaseStar::CalculateImKlmEquilibrium(
 
     double omega_t = std::abs(2.0 * (p_Omega - Omega()));                     // assuming l=m=2 
 
-    double Menv, Menvmax;
-    std::tie(Menv, Menvmax) = CalculateConvectiveEnvelopeMass();
+    double envMass, envMassMax;
+    std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
 
-    double rho_conv =  Menv / (4.0 * M_PI * (r_out_3 - r_in_3) / 3.0);
+    double rho_conv =  envMass / (4.0 * M_PI * (r_out_3 - r_in_3) / 3.0);
 
     double l_conv = rEnvAU;                                                   // Set length scale to height of convective envelope
     double t_conv = CalculateEddyTurnoverTimescale();
@@ -3333,7 +3397,8 @@ std::tuple <double, double, double, double> BaseStar::CalculateImKlmEquilibrium(
     double A2 = (G_AU_Msol_yr * p_M2 / a_3) * (G_AU_Msol_yr * p_M2 / a_3);
 
     double k22Equilibrium = (3.0/2.0) * (16.0 * M_PI / 15.0) * G_AU_Msol_yr * Dnu / A2 / r_out_5 / omega_t;
-    
+    if ((p_Omega - Omega()) < 0) k22Equilibrium = - std::abs(k22Equilibrium);
+
     // return ImKlmEquilibrium;
     return std::make_tuple(0.0, 0.0, k22Equilibrium, 0.0);
 }
