@@ -218,7 +218,7 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
                     maxBG = { 2.0, 1.5 };
                     Rmax = 160.0;
                     double R_in = std::min(Rmax, m_Radius);
-                    if (utils::Compare(R_in, 12.0)  > 0) {
+                    if (utils::Compare(R_in, 12.0) > 0) {
                         lambdaBG = { 1.8 * exp(-R_in / 80.0), exp(-R_in / 45.0) };
                     }
                     else {

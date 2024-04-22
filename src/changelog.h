@@ -1131,7 +1131,7 @@
 // 02.43.05    JR - Apr 21, 2024     - Defect repair, some code cleanup:
 //                                      - Last piece of no logging for clones - this prevents ephemeral clones from writing to or clearing the SSE SN stash.
 
-const std::string VERSION_STRING = "02.43.05";
+const std::string VERSION_STRING = "Test - built on v02.43.05";
 
 
 # endif // __changelog_h__
