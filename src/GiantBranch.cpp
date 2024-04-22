@@ -1120,9 +1120,6 @@ double GiantBranch::CalculateMomentOfInertia() const {
 
 /*
  * Calculate the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the potential tidal Love number
- * (Dynamical Tides only for now)
- *
- * Zahn, 1977, Eq. (5.5) , with the value of E_2 coming from Kushnir et al., 2017, by comparing Eq. (8) to Eq. (1)
  *
  * std::tuple <double, double, double, double> CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
  *

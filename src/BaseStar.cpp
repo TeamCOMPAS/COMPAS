@@ -3219,7 +3219,7 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
  *                                              potential tidal love number, Dynamical tides only (unitless)
  */
 std::tuple <double, double, double, double> BaseStar::CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
-    // Dynamical tides (gravity wave dissipation) 
+    // Gravity wave dissipation
     double radiusAU = m_Radius * RSOL_TO_AU;
     double coreRadiusAU = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
     double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
@@ -3341,7 +3341,7 @@ std::tuple <double, double, double, double> BaseStar::CalculateImKlmDynamical(co
  * Calculate the Equilibrium tides contribution to the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the 
  * potential tidal Love number
  * 
- * Barker (2020), Eqs. (20) to (27)
+ * Barker (2020), Eqs. (20) to (27).
  *
  * std::tuple <double, double, double, double> CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
  *
@@ -3353,7 +3353,7 @@ std::tuple <double, double, double, double> BaseStar::CalculateImKlmDynamical(co
  */
 std::tuple <double, double, double, double> BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
 
-    // EQUILIBRIUM TIDES (Viscous Dissipation)
+    // Viscous dissipation
     // No contribution from convective core; only convective envelope.
     double rOutAU = m_Radius * RSOL_TO_AU;                                    // outer boundary of convective envelope
     double rEnvAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
