@@ -263,6 +263,10 @@ constexpr double G_SOLAR_YEAR                           = 3.14E7;               
 
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
+// ~~ILYA~~
+// adding extra digits to the value of LOG10_ZSOL results in subtle changes the the a and b coefficients (Hurley+2000, page 24 Appendix)
+// doesn't sold the radius discontinuity problem, but does help COMPAS switch stellar types at the same timestep as sse (changes the
+// timescales calculations slightly - enough to make a difference)
 constexpr double LOG10_ZSOL                             = -1.698970004336019;                                       // log10(ZSOL) - for performance
 constexpr double ZSOL_ASPLUND                           = 0.0142;                                                   // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
