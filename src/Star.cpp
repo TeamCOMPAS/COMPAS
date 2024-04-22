@@ -498,7 +498,6 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
 
             EvolveOneTimestep(dt, true);                                                                                    // evolve for timestep
             UpdateAttributes(0.0, 0.0, true);                                                                               // JR: if this is not included, BSE and SSE are out of sync by 1 timestep.  If we remove this, we have to change BSE accordingly.  Not sure which one is right yet... (or if that actually matters)
-std::cout << std::fixed << std::setprecision(15) << stepNum << ", " << m_Star->Age() << ", " << dt << ", " << m_Star->Time() << ", " << static_cast<int>(m_Star->StellarType()) << ", " << m_Star->Mass() << ", " << m_Star->Radius() << "\n";
             (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                          // log record  
         }
     }

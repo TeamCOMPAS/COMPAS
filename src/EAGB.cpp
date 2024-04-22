@@ -383,7 +383,7 @@ double EAGB::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p
 	DBL_VECTOR b        = {};                                                       // 0..5 b_coefficients
 
     if (utils::Compare(p_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0) {                 // Z>0.5 Zsun: popI
-        if (utils::Compare(p_Mass, 1.5) < 0) {                                     // Should probably use effective mass m_Mass0 instead for Lambda calculations
+        if (utils::Compare(p_Mass, 1.5) < 0) {                                      // Should probably use effective mass m_Mass0 instead for Lambda calculations
             maxBG = { 2.5, 1.5 };
             if (utils::Compare(m_Radius, 200.0) > 0) lambdaBG = { 0.05, 0.05 };
             else  {
@@ -718,8 +718,6 @@ double EAGB::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p
  * @return                                      Luminosity on the Early Asymptotic Giant Branch in Lsol
  */
 double EAGB::CalculateLuminosityOnPhase(const double p_CoreMass) const {
-std::cout << std::fixed << std::setprecision(15) << "EAGB::CalculateLuminosityOnPhase(), p_CoreMass = " << p_CoreMass << " (m_CoreMass = " << m_CoreMass << ", m_COCoreMass = " << m_COCoreMass << ", m_HeCoreMass = " << m_HeCoreMass << "), returns " << CalculateLuminosityGivenCoreMass(p_CoreMass) << " <################\n";
-
     return CalculateLuminosityGivenCoreMass(p_CoreMass);
 }
 
@@ -815,7 +813,6 @@ double EAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
     }
 
     // now calculate the radius
-std::cout << std::fixed << std::setprecision(15) << "EAGB::CalculateRadiusOnPhase_Static(), p_Mass = " << p_Mass << ", p_Luminosity = " << p_Luminosity << ", A = " << A << ", b[1] = " << b[1] << ", b[2] = " << b[2] << ", b50 = " << b50 << "\n";
     return A * (PPOW(p_Luminosity, b[1]) + (b[2] * PPOW(p_Luminosity, b50)));
 
 #undef b
@@ -861,16 +858,8 @@ double EAGB::CalculateRemnantRadius() const {
  * @return                                      Core mass on the Early Asymptotic Giant Branch in Msol
  */
 double EAGB::CalculateCOCoreMassOnPhase(const double p_Time) const {
-#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)] // for convenience and readability - undefined at end of function
-#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
-std::cout << std::fixed << std::setprecision(15) << "EAGB::CalculateCOCoreMassOnPhase(), p_Time = " << p_Time << ", tMx_FAGB = " << timescales(tMx_FAGB) << ", p = " << gbParams(p) << ", q = " << gbParams(q) << ", B = " << gbParams(B) << ", D = " << gbParams(D) << ", AHe = " << gbParams(AHe) << ", tinf1_FAGB = " << timescales(tinf1_FAGB) << ", tinf2_FAGB = " << timescales(tinf2_FAGB) << " <#-#-#-#-#-#-#-#-#-#-#-#\n";
-
-double compas = PPOW((gbParams(p) - 1.0) * gbParams(AHe) * gbParams(D) * (timescales(tinf1_FAGB) - p_Time), 1.0 / (1.0 - gbParams(p)));
-double sse    = PPOW((5.0 - 1.0) * 8.0000000000000007E-005 * 0.48417236758409943 * (4.7003562372950345 - 4.6445952482724282), 1.0 / (1.0 - 5.0));
-////t =    4.6457104680528802      , tx =    4.7001208896436353      , A =    8.0000000000000007E-005 , tinf1 =    4.7003562372950345      , tinf2 =    4.7010622802492339      , GB(3) =    183486.92170347279      , GB(4) =   0.48417236758409943      , GB(5) =    5.0000000000000000      , GB(6) =    2.0000000000000000      , mcgbtf =    18.538447844186539
-
-std::cout << std::fixed << std::setprecision(15) << ">>>###>>>###>>>###>>> " << compas << ", " << sse << "\n";
-
+#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
+#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
     return utils::Compare(p_Time, timescales(tMx_FAGB)) <= 0
             ? PPOW((gbParams(p) - 1.0) * gbParams(AHe) * gbParams(D) * (timescales(tinf1_FAGB) - p_Time), 1.0 / (1.0 - gbParams(p)))
@@ -1122,7 +1111,15 @@ bool EAGB::IsSupernova() const {
     double McCOBAGB = CalculateCOCoreMassOnPhase(timescales(tHeI) + timescales(tHe));
     double McSN     = std::max(gbParams(McSN), 1.05 * McCOBAGB);                                // hack from Hurley fortran code, doesn't seem to be in the paper   JR: do we know why?
 
-    return (utils::Compare(McSN, m_COCoreMass) < 0);                                            // core is heavy enough to go Supernova
+    //             mcbagb = mcagbf(mass)
+    // McCOBAGB    mcx = mcgbtf(tbagb,GB(8),GB,tscls(7),tscls(8),tscls(9))
+    // McSN        mcmax = MAX(MAX(mch,0.773d0*mcbagb-0.35d0),1.05d0*mcx)
+    // MECS        mch
+    
+    // ~~ILYA~~
+    // JAR: added absolute threshold for comparison
+    //      see Hurley sse hrdiag.f line 431 (different threshold, but same reason I think)
+    return (utils::Compare(McSN, m_COCoreMass, 1.0E-12, true) <= 0);                                            // core is heavy enough to go Supernova
 
 #undef gbParams
 #undef timescales

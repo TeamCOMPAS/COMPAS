@@ -1356,7 +1356,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "mcbur1",                                                      
             po::value<double>(&p_Options->m_mCBUR1)->default_value(p_Options->m_mCBUR1),                                                                                                          
-            ("Minimum core mass at BAGB, in Msol, to avoid fully degenerate CO core  (default = " + std::to_string(p_Options->m_mCBUR1) + ")").c_str()
+            ("Minimum core mass at BAGB, in Msol, to avoid fully degenerate CO core (default = " + std::to_string(p_Options->m_mCBUR1) + ")").c_str()
         )
         (
             "metallicity,z",                                               

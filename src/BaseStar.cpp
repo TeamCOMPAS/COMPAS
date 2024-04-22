@@ -510,7 +510,6 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     double xi_3  = xi * xi_2;
     double xi_4  = xi_2 * xi_2;
 
-
     // calculate initial values for a(n) coefficients
     a.push_back(0.0);           // this is a dummy entry - so our index is the same as that in Hurley et al. 2000 (we just ignore the zeroeth entry)
     for (auto coeff: A_COEFF) {
@@ -1564,7 +1563,6 @@ double BaseStar::CalculateLuminosityAtBAGB(double p_Mass) const {
  */
 double BaseStar::CalculateLuminosityGivenCoreMass(const double p_CoreMass) const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateLuminosityGivenCoreMass(), p_CoreMass = " << p_CoreMass << ", gbParams(Mx) = " << gbParams(Mx) << ", gbParams(p) = " << gbParams(p) << ", gbParams(q) = " << gbParams(q) << ", gbParams(B) = " << gbParams(B) << ", gbParams(D) = " << gbParams(D) << ", 1 = " << (gbParams(B) * PPOW(p_CoreMass, gbParams(q))) << ", 2 = " << (gbParams(D) * PPOW(p_CoreMass, gbParams(p))) << "\n";
     return min((gbParams(B) * PPOW(p_CoreMass, gbParams(q))), (gbParams(D) * PPOW(p_CoreMass, gbParams(p))));
 #undef gbParams
 }
@@ -3212,7 +3210,7 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
 
 /*
  * Calculate lifetime to the Base of the Giant Branch (end of the Hertzsprung Gap)
- * For high mass stars, t_BGB = t_HeI. (JR: there is no check here...)
+ * For high mass stars, t_BGB = t_HeI.
  *
  * Hurley et al. 2000, eq 4 (plotted in Hurley et al. 2000, fig 5)
  *
@@ -3230,8 +3228,8 @@ double BaseStar::CalculateLifetimeToBGB(const double p_Mass) const {
     double m_4   = m_2 * m_2;
     double m_5_5 = m_4 * p_Mass * std::sqrt(p_Mass);
     double m_7   = m_4 * m_2 * p_Mass;
-
     return (a[1] + (a[2] * m_4) + (a[3] * m_5_5) + m_7) / ((a[4] * m_2) + (a[5] * m_7));
+
 #undef a
 }
 
@@ -4148,17 +4146,13 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
         m_CoreMass        = CalculateCoreMassOnPhase();
         m_HeCoreMass      = CalculateHeCoreMassOnPhase();
         
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(@1), m_Luminosity = " << m_Luminosity << ", ST = " << static_cast<int>(m_StellarType) << " <***************\n";
         m_Luminosity      = CalculateLuminosityOnPhase();
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(@2), m_Luminosity = " << m_Luminosity << ", ST = " << static_cast<int>(m_StellarType) << " <***************\n";
 
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // radius and possibly new stellar type
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(pre-perturb), m_Radius = " << m_Radius << ", ST = " << static_cast<int>(m_StellarType) << " <***************\n";
 
         m_Mu              = CalculatePerturbationMuOnPhase();
 
         PerturbLuminosityAndRadiusOnPhase();
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(post-perturb), m_Radius = " << m_Radius << ", ST = " << static_cast<int>(m_StellarType) << " <***************\n";
 
         m_Temperature     = CalculateTemperatureOnPhase();
 

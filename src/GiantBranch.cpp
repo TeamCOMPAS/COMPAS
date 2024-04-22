@@ -633,7 +633,7 @@ double GiantBranch::CalculateRadiusOnZAHB_Static(const double      p_Mass,
 double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    double RHeI = 0.0;                                                  // Radius at Helium Ignition
+    double RHeI = 0.0;                                                      // Radius at Helium Ignition
 
     double LHeI      = CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
     double RmHe      = CHeB::CalculateMinimumRadiusOnPhase_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
