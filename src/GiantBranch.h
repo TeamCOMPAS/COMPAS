@@ -50,7 +50,7 @@ protected:
 
     static  double          CalculateHRateConstant_Static(const double p_Mass);
             
-            DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const                                    
+            DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)                                    
                                                                                                             { return CalculateImKlmEquilibrium(p_Omega, p_SemiMajorAxis, p_M2); }  
     
     virtual double          CalculateInitialSupernovaMass() const                                           { return m_Mass; }                                                  // Use class member variables
