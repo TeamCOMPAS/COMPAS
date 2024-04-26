@@ -1121,13 +1121,15 @@ double GiantBranch::CalculateMomentOfInertia() const {
 /*
  * Calculate the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the potential tidal Love number
  *
- * std::tuple <double, double, double, double> CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ * DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
  *
  * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
+ * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
+ * @param   [IN]    p_M2                        Mass of companion star (Msol)
  * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
  *                                              potential tidal Love number (unitless)
  */
-std::tuple <double, double, double, double> GiantBranch::CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+DBL_DBL_DBL_DBL GiantBranch::CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
     
     double Imk10Equilibrium, Imk12Equilibrium, Imk22Equilibrium, Imk32Equilibrium;
     std::tie(Imk10Equilibrium, Imk12Equilibrium, Imk22Equilibrium, Imk32Equilibrium) = CalculateImKlmEquilibrium(p_Omega, p_SemiMajorAxis, p_M2);

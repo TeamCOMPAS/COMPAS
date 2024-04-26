@@ -302,7 +302,6 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_COCoreMassAtCOFormation();                           break;
             case ANY_STAR_PROPERTY::CORE_MASS:                                          value = CoreMass();                                             break;
             case ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION:              value = SN_CoreMassAtCOFormation();                             break;
-            case ANY_STAR_PROPERTY::CORE_RADIUS:                                        value = CalculateCoreRadius();                                  break;
             case ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE:                               value = SN_DrawnKickMagnitude();                                break;
             case ANY_STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE:                            value = DominantMassLossRate();                                 break;
             case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
@@ -3215,13 +3214,15 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
  * Inertial Waves, Convective Envelope:
  * Ogilvie, 2013, Eq. (B3)
  * 
- * std::tuple <double, double, double, double> CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ * DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
  *
  * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
+ * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
+ * @param   [IN]    p_M2                        Mass of companion star (Msol)
  * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
- *                                              potential tidal love number, Dynamical tides only (unitless)
+ *                                              potential tidal Love number, Dynamical tides only (unitless)
  */
-std::tuple <double, double, double, double> BaseStar::CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
     double radiusAU = m_Radius * RSOL_TO_AU;
     double coreRadiusAU = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
     double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
@@ -3358,15 +3359,15 @@ std::tuple <double, double, double, double> BaseStar::CalculateImKlmDynamical(co
  * 
  * Barker (2020), Eqs. (20) to (27), (l=2, m=2 mode only).
  *
- * std::tuple <double, double, double, double> CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ * DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
  *
  * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
  * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
  * @param   [IN]    p_M2                        Mass of companion star (Msol)
  * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
- *                                              potential tidal love number, Equilibrium tides only (unitless)
+ *                                              potential tidal Love number, Equilibrium tides only (unitless)
  */
-std::tuple <double, double, double, double> BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
 
     // Viscous dissipation
     // No contribution from convective core; only convective envelope.
