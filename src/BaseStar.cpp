@@ -3583,7 +3583,7 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
 	double rEnv	= CalculateRadialExtentConvectiveEnvelope();
     double mEnv, mEnvmax;
     std::tie(mEnv, mEnvmax) = CalculateConvectiveEnvelopeMass();
-	return 0.4311 * cbrt((mEnv * rEnv * (m_Radius - (0.5 * rEnv))) / (3.0 * m_Luminosity));
+    return 0.4311 * cbrt((mEnv * rEnv * (m_Radius - (0.5 * rEnv))) / (3.0 * m_Luminosity));
 }
 
 
