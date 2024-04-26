@@ -955,7 +955,7 @@ double HG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate)
  * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
  * @param   [IN]    p_M2                        Mass of companion star (Msol)
  * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
- *                                              potential tidal love number (unitless)
+ *                                              potential tidal Love number (unitless)
  */
 std::tuple <double, double, double, double> HG::CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
     
