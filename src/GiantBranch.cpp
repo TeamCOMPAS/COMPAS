@@ -1125,7 +1125,7 @@ double GiantBranch::CalculateMomentOfInertia() const {
  *
  * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
  * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
- *                                              potential tidal love number (unitless)
+ *                                              potential tidal Love number (unitless)
  */
 std::tuple <double, double, double, double> GiantBranch::CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
     
