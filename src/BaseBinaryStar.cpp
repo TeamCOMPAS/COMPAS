@@ -2403,7 +2403,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
         m_Eccentricity = m_Eccentricity + ((DEccentricity1Dt + DEccentricity2Dt) * p_Dt * MYR_TO_YEAR);                                 // change eccentricity 
 
-        m_Omega  = std::sqrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / m_SemiMajorAxis / m_SemiMajorAxis / m_SemiMajorAxis); // re-calculate orbital frequency
+        m_Omega  = OrbitalAngularVelocity();                                                                                            // re-calculate orbital frequency
 
         m_TotalAngularMomentum = CalculateAngularMomentum();                                                                            // re-calculate total angular momentum
 
