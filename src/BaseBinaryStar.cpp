@@ -2427,7 +2427,6 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         m_Omega = OrbitalAngularVelocity(); 
     }
     
-    
         if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024) {
             // Evolve binary semi-major axis, eccentricity, and spin of each star based on Kapil et al., 2024
 
