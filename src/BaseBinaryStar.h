@@ -769,13 +769,13 @@ private:
     }
     
     /*
-     * Change in semi-major axis based on secular equations for tidal evolution given the tidal love number
+     * Change in semi-major axis based on secular equations for tidal evolution given the tidal Love number
      * Zahn, 1977, Eq. (3.6)
      *
      *
-     * double CalculateDSemiMajorAxisTidalDt(const std::tuple <double, double, double, double> p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
+     * double CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
      *
-     * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal love number of star (unitless)
+     * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
      * @param   [IN]    p_M1                        Mass of star (Msol)
      * @param   [IN]    p_R1                        Radius of star (Rsol)
      * @param   [IN]    p_M2                        Mass of companion star (Msol)
@@ -784,7 +784,7 @@ private:
      * @param   [IN]    p_Eccentricity              Eccentricity for binary
      * @return                                      Change in semi-major axis for binary (AU/yr)
      */    
-    double CalculateDSemiMajorAxisTidalDt(const std::tuple <double, double, double, double> p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
+    double CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
         
         double ImK10, ImK12, ImK22, ImK32;
         std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
@@ -797,13 +797,13 @@ private:
     }
 
     /*
-     * Change in eccentricity based on secular equations for tidal evolution given the tidal love number
+     * Change in eccentricity based on secular equations for tidal evolution given the tidal Love number
      * Zahn, 1977, Eq. (3.7)
      *
      *
-     * double CalculateDEccentricityTidalDt(const std::tuple <double, double, double, double> p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
+     * double CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
      *
-     * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal love number of star (unitless)
+     * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
      * @param   [IN]    p_M1                        Mass of star (Msol)
      * @param   [IN]    p_R1                        Radius of star (Rsol)
      * @param   [IN]    p_M2                        Mass of companion star (Msol)
@@ -812,7 +812,7 @@ private:
      * @param   [IN]    p_Eccentricity              Eccentricity for binary
      * @return                                      Change in Eccentricity for binary (1/yr)
      */    
-    double CalculateDEccentricityTidalDt(const std::tuple <double, double, double, double> p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
+    double CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
         
         double ImK10, ImK12, ImK22, ImK32;
         std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
@@ -825,13 +825,13 @@ private:
     }
 
     /*
-     * Change in spin based on secular equations for tidal evolution given the tidal love number
+     * Change in spin based on secular equations for tidal evolution given the tidal Love number
      * Zahn, 1977, Eq. (3.8)
      *
      *
-     * double CalculateDOmegaTidalDt(const std::tuple <double, double, double, double> p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
+     * double CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
      *
-     * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal love number of star (unitless)
+     * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
      * @param   [IN]    p_M1                        Mass of star (Msol)
      * @param   [IN]    p_R1                        Radius of star (Rsol)
      * @param   [IN]    p_I1                        Moment of Inertia of star (Msol * AU^2)
@@ -840,7 +840,7 @@ private:
      * @param   [IN]    p_Eccentricity              Eccentricity for binary
      * @return                                      Change in Omega for star (1/yr/yr)
      */    
-    double CalculateDOmegaTidalDt(const std::tuple <double, double, double, double> p_ImKlm, const double p_M1, const double p_R1, const double p_I1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
+    double CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_I1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
         
         double ImK10, ImK12, ImK22, ImK32;
         std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
