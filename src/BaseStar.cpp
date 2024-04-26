@@ -3223,22 +3223,24 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
  *                                              potential tidal Love number, Dynamical tides only (unitless)
  */
 DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
-    double radiusAU = m_Radius * RSOL_TO_AU;
-    double coreRadiusAU = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
-    double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
-    double radiusIntershellAU = radiusAU - convectiveEnvRadiusAU;                                       // Outer radial coordinate of radiative intershell
     
-    // There should be no Dynamical tides if the entire star is convective, i.e. if there are no convective-radiative boundaries. 
-    // If so, return 0.0 for all dynamical components of ImKlm.
-    // Relevant for low-mass MS stars (<= 0.35 Msol).
-    if (utils::Compare(coreRadiusAU + convectiveEnvRadiusAU, radiusAU) >= 0) {
-        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           
-    }
-
     double coreMass = CalculateConvectiveCoreMass();
     double envMass, envMassMax;
     std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
     double radIntershellMass = m_Mass - coreMass - envMass;
+
+    // There should be no Dynamical tides if the entire star is convective, i.e. if there are no convective-radiative boundaries. 
+    // If so, return 0.0 for all dynamical components of ImKlm.
+    // Check mass rather than radial extent, since radiative mass can currently be non-zero for GB stars following Picker+ 2024 (radial extent will be 0 following Hurley 2000).
+    // This condition should be true for low-mass MS stars (<= 0.35 Msol) at ZAMS.
+    if (radIntershellMass <= 0.0) {
+        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           
+    }
+
+    double radiusAU = m_Radius * RSOL_TO_AU;
+    double coreRadiusAU = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
+    double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
+    double radiusIntershellAU = radiusAU - convectiveEnvRadiusAU;                                       // Outer radial coordinate of radiative intershell
 
     double R3_over_G_M = (radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
     double sqrt_R3_over_G_M = std::sqrt(R3_over_G_M);
@@ -3309,8 +3311,9 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         
         double alpha = radiusIntershellAU / radiusAU;
         double beta = radIntershellMass / m_Mass;
-        double alpha_3 = alpha * alpha * alpha;
-        double alpha_5 = alpha_3 * alpha * alpha;
+        double alpha_2 = alpha * alpha;
+        double alpha_3 = alpha_2 * alpha;
+        double alpha_5 = alpha_3 * alpha_2;
         double alpha_11 = alpha_5 * alpha_5 * alpha;
         double one_minus_alpha_2 = (1.0 - alpha) * (1.0 - alpha);
         double beta_2 = beta * beta;
@@ -3348,7 +3351,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         if (two_Omega_spin >= p_Omega) {                                                                            
             double epsilonIW_2 = (OmegaSpin / p_Omega) * (OmegaSpin / p_Omega);
             double one_minus_alpha_4 = one_minus_alpha_2 * one_minus_alpha_2;
-            double bracket1 = 1.0 + (2.0 * alpha) + (3.0 * alpha * alpha) + (3.0 * alpha_3 / 2.0);
+            double bracket1 = 1.0 + (2.0 * alpha) + (3.0 * alpha_2) + (3.0 * alpha_3 / 2.0);
             double bracket2 = 1.0 + ((1.0 - gamma) / gamma) * alpha_3;
             double bracket3 = 1.0 + (3.0 * gamma / 2.0) + (5.0 * alpha_3 / (2.0 * gamma) * (1.0 + (gamma / 2.0) - (3.0*gamma*gamma/2.0))) - (9.0/4.0 * (1.0 - gamma) * alpha_5);
             k22InertialEnv = (100.0 * M_PI / 63.0) * epsilonIW_2 * (alpha_5 / (1.0 - alpha_5)) * one_minus_gamma_2 * one_minus_alpha_4 * bracket1 * bracket1 * bracket2 / bracket3 / bracket3;
@@ -3416,7 +3419,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
 
     double nuTidal = 5.0 * v_l;
     if (utils::Compare(omega_t_over_omega_c, 5.0) > 0) {             
-        nuTidal = v_l * 5.5901699 * (omega_t_over_omega_c) * (omega_t_over_omega_c);           // 25.0 / sqrt(20.0) = 5.5901699
+        nuTidal = v_l * (25.0 / std::sqrt(20.0)) * (omega_t_over_omega_c) * (omega_t_over_omega_c);
     }
     else if (utils::Compare(omega_t_over_omega_c, 0.01) > 0) {
         nuTidal = v_l * 0.5 * std::sqrt(omega_t_over_omega_c);    
@@ -3455,7 +3458,6 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmTidal(const double p_Omega, const double
     
     // return combined ImKlm terms;
     return std::make_tuple(Imk10Dynamical+Imk10Equilibrium, Imk12Dynamical+Imk12Equilibrium, Imk22Dynamical+Imk22Equilibrium, Imk32Dynamical+Imk32Equilibrium);
-    // return CalculateImKlmEquilibrium(p_Omega, p_SemiMajorAxis, p_M2);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
