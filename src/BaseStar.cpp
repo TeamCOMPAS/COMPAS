@@ -3393,47 +3393,117 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     double r_out_2 = rOutAU * rOutAU;
     double r_out_3 = r_out_2 * rOutAU;
     double r_out_5 = r_out_2 * r_out_3;
-    double r_out_9 = r_out_3 * r_out_3 * r_out_3;
+    double r_out_7 = r_out_2 * r_out_5;
+    double r_out_9 = r_out_2 * r_out_7;
+    double r_out_11 = r_out_2 * r_out_9;
 
-    double r_in_3 = rInAU * rInAU * rInAU;
-    double r_in_9 = r_in_3 * r_in_3 * r_in_3;
+    double r_in_2 = rInAU * rInAU;
+    double r_in_3 = r_in_2 * rInAU;
+    double r_in_5 = r_in_2 * r_in_3;
+    double r_in_7 = r_in_2 * r_in_5;
+    double r_in_9 = r_in_2 * r_in_7;
+    double r_in_11 = r_in_2 * r_in_9;
 
-    double a_3 = p_SemiMajorAxis * p_SemiMajorAxis * p_SemiMajorAxis;
+    double a_2 = p_SemiMajorAxis * p_SemiMajorAxis;
+    double a_3 = a_2 * p_SemiMajorAxis;
+    double a_4 = a_2 * a_2;
     double a_6 = a_3 * a_3;
+    double a_8 = a_6 * a_2;
 
     double OmegaSpin = m_Omega;
-    double omega_t = std::abs(2.0 * (p_Omega - OmegaSpin));                                    // assuming l=m=2 
+    double two_Omega_spin = OmegaSpin + OmegaSpin;
 
     double envMass, envMassMax;
     std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
-
     double rho_conv =  envMass / (4.0 * M_PI * (r_out_3 - r_in_3) / 3.0);
-
     double l_conv = rEnvAU;                                                                    // Set length scale to height of convective envelope
     double t_conv = CalculateEddyTurnoverTimescale();
     double v_conv = l_conv/t_conv;
     double omega_conv = 1.0/t_conv;                                                            // absent factor of 2*PI, following Barker (2020)
-    double omega_t_over_omega_c = omega_t/omega_conv;
     double v_l = v_conv * l_conv;
     double m2_over_M = p_M2 / m_Mass;
+    double m2_over_M_2 = m2_over_M * m2_over_M;
 
-    double nuTidal = 5.0 * v_l;
-    if (utils::Compare(omega_t_over_omega_c, 5.0) > 0) {             
-        nuTidal = v_l * (25.0 / std::sqrt(20.0)) * (omega_t_over_omega_c) * (omega_t_over_omega_c);
+    double v_l_5 = 5.0 * v_l;
+    double v_l_25_over_root20 = v_l * (25.0 / std::sqrt(20.0));
+    double v_l_over_2 = 0.5 * v_l;
+
+    double w10 = p_Omega;
+    double w12 = ((p_Omega) - (two_Omega_spin));
+    double w22 = ((p_Omega + p_Omega) - (two_Omega_spin));
+    double w32 = ((p_Omega + p_Omega + p_Omega) - (two_Omega_spin));
+
+    // (l=1, m=0), Viscous dissipation, convective envelope
+    double omega_t_10 = std::abs(w10);                                               
+    double omega_t_over_omega_c_10 = omega_t_10/omega_conv;
+    double nuTidal10 = v_l_5;
+    if (utils::Compare(omega_t_over_omega_c_10, 5.0) > 0) {             
+        nuTidal10 = v_l_25_over_root20 * (omega_t_over_omega_c_10) * (omega_t_over_omega_c_10);
     }
-    else if (utils::Compare(omega_t_over_omega_c, 0.01) > 0) {
-        nuTidal = v_l * 0.5 * std::sqrt(omega_t_over_omega_c);    
+    else if (utils::Compare(omega_t_over_omega_c_10, 0.01) > 0) {
+        nuTidal10 = v_l_over_2 * std::sqrt(omega_t_over_omega_c_10);    
     }
+    double Dnu10 = (99.0 / 14.0) * omega_t_10 * omega_t_10  * m2_over_M_2 * (r_out_7 - r_in_7) * rho_conv * nuTidal10 / a_4;
+    double A10_1 = - G_AU_Msol_yr * p_M2 / a_2;
+    double A10_2 = A10_1 * A10_1;
+    double k10Equilibrium = (3.0/2.0) * (16.0 * M_PI / 9.0) * G_AU_Msol_yr * Dnu10 / A10_2 / r_out_3 / omega_t_10;
+    if (w10 < 0.0) k10Equilibrium = - std::abs(k10Equilibrium);
 
-    double Dnu = (28.0/3.0) * omega_t * omega_t * m2_over_M * m2_over_M * (r_out_9 - r_in_9)  * rho_conv * nuTidal / a_6;
-    double A1 = G_AU_Msol_yr * p_M2 / a_3;
-    double A2 = A1 * A1;
 
-    double k22Equilibrium = (3.0/2.0) * (16.0 * M_PI / 15.0) * G_AU_Msol_yr * Dnu / A2 / r_out_5 / omega_t;
-    if ((p_Omega - OmegaSpin) < 0) k22Equilibrium = - std::abs(k22Equilibrium);
+    // (l=1, m=2), Viscous dissipation, convective envelope
+    double omega_t_12 = std::abs(w12);                                               
+    double omega_t_over_omega_c_12 = omega_t_12/omega_conv;
+    double nuTidal12 = v_l_5;
+    if (utils::Compare(omega_t_over_omega_c_12, 5.0) > 0) {             
+        nuTidal12 = v_l_25_over_root20 * (omega_t_over_omega_c_12) * (omega_t_over_omega_c_12);
+    }
+    else if (utils::Compare(omega_t_over_omega_c_12, 0.01) > 0) {
+        nuTidal12 = v_l_over_2 * std::sqrt(omega_t_over_omega_c_12);    
+    }
+    double Dnu12 = (99.0 / 14.0) * omega_t_12 * omega_t_12  * m2_over_M_2 * (r_out_7 - r_in_7) * rho_conv * nuTidal12 / a_4;
+    double A12_1 = - G_AU_Msol_yr * p_M2 / a_2;
+    double A12_2 = A12_1 * A12_1;
+    double k12Equilibrium = (3.0/2.0) * (16.0 * M_PI / 9.0) * G_AU_Msol_yr * Dnu12 / A12_2 / r_out_3 / omega_t_12;
+    if (w12 < 0) k12Equilibrium = - std::abs(k12Equilibrium);
+
+
+    // (l=2, m=2), Viscous dissipation, convective envelope
+    double omega_t_22 = std::abs(w22);                                               
+    double omega_t_over_omega_c_22 = omega_t_22/omega_conv;
+    double nuTidal22 = v_l_5;
+    if (utils::Compare(omega_t_over_omega_c_22, 5.0) > 0) {             
+        nuTidal22 = v_l_25_over_root20 * (omega_t_over_omega_c_22) * (omega_t_over_omega_c_22);
+    }
+    else if (utils::Compare(omega_t_over_omega_c_22, 0.01) > 0) {
+        nuTidal22 = v_l_over_2 * std::sqrt(omega_t_over_omega_c_22);    
+    }
+    double Dnu22 = (28.0/3.0) * omega_t_22 * omega_t_22 * m2_over_M_2 * (r_out_9 - r_in_9)  * rho_conv * nuTidal22 / a_6;
+    double A22_1 = - G_AU_Msol_yr * p_M2 / a_3;
+    double A22_2 = A22_1 * A22_1;
+    double k22Equilibrium = (3.0/2.0) * (16.0 * M_PI / 15.0) * G_AU_Msol_yr * Dnu22 / A22_2 / r_out_5 / omega_t_22;
+    if (w22 < 0.0) k22Equilibrium = - std::abs(k22Equilibrium);
+
+
+    // (l=3, m=2), Viscous dissipation, convective envelope
+    double omega_t_32 = std::abs(w32);                                               
+    double omega_t_over_omega_c_32 = omega_t_32/omega_conv;
+    double nuTidal32 = v_l_5;
+    if (utils::Compare(omega_t_over_omega_c_32, 5.0) > 0) {             
+        nuTidal32 = v_l_25_over_root20 * (omega_t_over_omega_c_32) * (omega_t_over_omega_c_32);
+    }
+    else if (utils::Compare(omega_t_over_omega_c_32, 0.01) > 0) {
+        nuTidal32 = v_l_over_2 * std::sqrt(omega_t_over_omega_c_32);    
+    }
+    double Dnu32 = (1495.0 / 132.0) * omega_t_32 * omega_t_32  * m2_over_M_2 * (r_out_11 - r_in_11) * rho_conv * nuTidal32 / a_8;
+    double A32_1 = - G_AU_Msol_yr * p_M2 / a_4;
+    double A32_2 = A32_1 * A32_1;
+    double k32Equilibrium = (3.0/2.0) * (16.0 * M_PI / 21.0) * G_AU_Msol_yr * Dnu32 / A32_2 / r_out_7 / omega_t_32;
+    if (w32 < 0.0) k32Equilibrium = - std::abs(k32Equilibrium);
+
+
 
     // return ImKlmEquilibrium;
-    return std::make_tuple(0.0, 0.0, k22Equilibrium, 0.0);
+    return std::make_tuple(k10Equilibrium, k12Equilibrium, k22Equilibrium, k32Equilibrium);
 }
 
 /*
