@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Wed Nov  1 11:25:11 2023 by COMPAS v02.40.00
+##~!!~## File Created Fri Apr 26 19:21:29 2024 by COMPAS v02.44.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -187,6 +187,12 @@ numericalChoices:
 #    --pisn-upper-limit: 135.00                                            # Default: 135.00                                                                                                                                                             # Maximum core mass for PISN [Msol]
 #    --ppi-lower-limit: 35.000000                                          # Default: 35.000000                                                                                                                                                          # Minimum core mass for PPI [Msol]
 #    --ppi-upper-limit: 60.000000                                          # Default: 60.000000                                                                                                                                                          # Maximum core mass for PPI [Msol]
+#    --rocket-kick-magnitude-1: 0.000000                                   # Default: 0.000000                                                                                                                                                           # (BSE) rocket kick magnitude for the primary should it undergo a supernova event [km/s]
+#    --rocket-kick-magnitude-2: 0.000000                                   # Default: 0.000000                                                                                                                                                           # (BSE) rocket kick magnitude for the secondary should it undergo a supernova event [km/s]
+#    --rocket-kick-theta-1: 0.000000                                       # Default: 0.000000                                                                                                                                                           # (BSE) angle between the orbital plane and the 'z' axis of the rocket kick for the primary star [radians]
+#    --rocket-kick-phi-1: 0.000000                                         # Default: 0.000000                                                                                                                                                           # (BSE) angle between 'x' and 'y', both in the orbital plane of the rocket kick , for the primary star [radians]
+#    --rocket-kick-theta-2: 0.000000                                       # Default: 0.000000                                                                                                                                                           # (BSE) angle between the orbital plane and the 'z' axis of the rocket kick for the secondary star [radians]
+#    --rocket-kick-phi-2: 0.000000                                         # Default: 0.000000                                                                                                                                                           # (BSE) angle between 'x' and 'y', both in the orbital plane of the rocket kick , for the secondary star [radians]
 
     ### PULSAR PARAMETERS
 #    --pulsar-birth-magnetic-field-distribution-min: 11.000000             # Default: 11.000000                                                                                                                                                          # [log10(B/G)]
@@ -207,6 +213,7 @@ stringChoices:
 #    --notes: { }                                                          # Default: { }
 #    --notes-hdrs: { }                                                     # Default: { }
 #    --output-container: 'COMPAS_Output'                                   # Default: 'COMPAS_Output'
+#    --timesteps-filename: ''                                              # Default: ''
 
     ### STELLAR PROPERTIES
 #    --chemically-homogeneous-evolution: 'PESSIMISTIC'                     # Default: 'PESSIMISTIC'                 # Options: ['PESSIMISTIC','OPTIMISTIC','NONE']                                                                                       # chemically homogeneous evolution
@@ -243,7 +250,7 @@ stringChoices:
 #    --common-envelope-mass-accretion-prescription: 'ZERO'                 # Default: 'ZERO'                        # Options: ['CHEVALIER','MACLEOD','UNIFORM','CONSTANT','ZERO']
 
     ### TIDES
-#    --tides-prescription: 'NONE'                                          # Default:'NONE'                         # Options: ['NONE','PERFECT','KAPIL2024']
+#    --tides-prescription: 'NONE'                                          # Default: 'NONE'                        # Options: ['KAPIL2024','PERFECT','NONE']
 
     ### SUPERNOVAE, KICKS AND REMNANTS
 #    --black-hole-kicks: 'FALLBACK'                                        # Default: 'FALLBACK'                    # Options: ['FALLBACK','ZERO','REDUCED','FULL']
