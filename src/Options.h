@@ -930,8 +930,6 @@ public:
 
 
             // Tides
-            bool                                                m_EnableRealisticTides;                                          // Whether to enable realistic tides (default = False)
-            bool                                                m_EnableTides;                                                   // Whether to enable tides (default = False)
             ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                             // Which tides prescription (default = NONE)
 
 

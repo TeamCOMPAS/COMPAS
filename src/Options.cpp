@@ -498,8 +498,6 @@ void Options::OptionValues::Initialise() {
     // Tides
     m_TidesPrescription.type                                        = TIDES_PRESCRIPTION::NONE;
     m_TidesPrescription.typeString                                  = TIDES_PRESCRIPTION_LABEL.at(m_TidesPrescription.type);
-    m_EnableRealisticTides                                          = false;                                                // default is no tides
-    m_EnableTides                                                   = false;                                                // default is no tides
 
 
 	// Zetas
