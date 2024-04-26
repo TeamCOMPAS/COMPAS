@@ -3433,6 +3433,30 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     return std::make_tuple(0.0, 0.0, k22Equilibrium, 0.0);
 }
 
+/*
+ * Calculate the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the potential tidal Love number 
+ * by combining Equilibrium and Dynamical tidal contributions.
+ *
+ * DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ *
+ * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
+ * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
+ * @param   [IN]    p_M2                        Mass of companion star (Msol)
+ * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
+ *                                              potential tidal Love number (unitless)
+ */
+DBL_DBL_DBL_DBL BaseStar::CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+    
+    double Imk10Dynamical, Imk12Dynamical, Imk22Dynamical, Imk32Dynamical;
+    std::tie(Imk10Dynamical, Imk12Dynamical, Imk22Dynamical, Imk32Dynamical) = CalculateImKlmDynamical(p_Omega, p_SemiMajorAxis, p_M2);
+
+    double Imk10Equilibrium, Imk12Equilibrium, Imk22Equilibrium, Imk32Equilibrium;
+    std::tie(Imk10Equilibrium, Imk12Equilibrium, Imk22Equilibrium, Imk32Equilibrium) = CalculateImKlmEquilibrium(p_Omega, p_SemiMajorAxis, p_M2);
+    
+    // return combined ImKlm terms;
+    return std::make_tuple(Imk10Dynamical+Imk10Equilibrium, Imk12Dynamical+Imk12Equilibrium, Imk22Dynamical+Imk22Equilibrium, Imk32Dynamical+Imk32Equilibrium);
+    // return CalculateImKlmEquilibrium(p_Omega, p_SemiMajorAxis, p_M2);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //

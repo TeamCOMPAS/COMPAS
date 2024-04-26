@@ -57,9 +57,6 @@ protected:
     double          CalculateHeCoreMassAtPhaseEnd() const                                           { return CalculateHeCoreMassOnPhase(); }                                                        // Same as on phase
     double          CalculateHeCoreMassOnPhase() const                                              { return m_CoreMass; }                                                                          // McHe(FGB) = Core Mass
 
-    DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, 
-                                        const double p_M2)                                          { return GiantBranch::CalculateImKlmTidal(p_Omega, p_SemiMajorAxis, p_M2); }
-
     double          CalculateLuminosityAtPhaseEnd(const double p_Time) const                        { return CalculateLuminosityOnPhase(p_Time); }                                                  // Same as on phase
     double          CalculateLuminosityAtPhaseEnd() const                                           { return CalculateLuminosityAtPhaseEnd(m_Age); }                                                // Use class member variables
     double          CalculateLuminosityOnPhase(const double p_Time) const;

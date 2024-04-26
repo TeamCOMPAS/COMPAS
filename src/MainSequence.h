@@ -46,8 +46,6 @@ protected:
     double          CalculateHeCoreMassAtPhaseEnd() const                                   { return CalculateCoreMassAtPhaseEnd(); }                               // Same as He core mass
     double          CalculateHeCoreMassOnPhase() const                                      { return 0.0; }                                                         // McHe(MS) = 0.0
 
-    DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2);
-
     double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const;
 
     double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;
