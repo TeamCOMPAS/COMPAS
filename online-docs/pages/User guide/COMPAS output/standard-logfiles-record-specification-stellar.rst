@@ -340,7 +340,6 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Header Strings:
      - Mass_Core@\ CO, Mass_Core@CO(1), Mass_Core@CO(2), Mass_Core@CO(SN), Mass_Core@CO(CP)
 
-
 .. _stellar-props-D:
 
 :ref:`Back to Top <stellar-props-top>`
@@ -361,6 +360,10 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Header Strings:
      - Drawn_Kick_Magnitude, Drawn_Kick_Magnitude(1), Drawn_Kick_Magnitude(2), Drawn_Kick_Magnitude(SN), Drawn_Kick_Magnitude(CP)
 
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
 
    * - :cspan:`2` **DOMINANT_MASS_LOSS_RATE**
      -
