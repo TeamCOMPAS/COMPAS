@@ -208,7 +208,6 @@ public:
     virtual double          CalculateConvectiveCoreMass () const {return 0.0;}
     virtual double          CalculateConvectiveCoreRadius () const {return 0.0;}
 
-    virtual double          CalculateCoreRadius() const                                                         { return 0.0; }
             double          CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda);
 
             double          CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const;
