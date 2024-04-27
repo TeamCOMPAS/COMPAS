@@ -1130,8 +1130,13 @@
 //                                      - Some Code cleanup
 // 02.43.05    JR - Apr 21, 2024     - Defect repair, some code cleanup:
 //                                      - Last piece of no logging for clones - this prevents ephemeral clones from writing to or clearing the SSE SN stash.
-
-const std::string VERSION_STRING = "02.43.05";
-
+// 02.44.00    VK - Apr 04, 2024    - Enhancement:
+//                                      - Added realistic tides to binary evolution, based on the formalism described in Kapil et al. (2024). Functionality enabled by setting the new option `--tides-prescription` to the value `KAPIL2024` (default is `NONE`)
+//                                      - Removed old option `--enable-tides`, which can now be enabled by setting `--tides-prescription PERFECT`.
+//                                      - Dynamcial tides implementation follows Zahn, 1977, Kushnir et al., 2017, and Ahuir et al., 2021.
+//                                      - Equilibrium tides implementation follows Barker, 2020.
+//                                      - Secular evolution under the effect of tides follows Zahn, 1977, Eqs. (3.6) to (3.8)
+          
+const std::string VERSION_STRING = "02.44.00";
 
 # endif // __changelog_h__

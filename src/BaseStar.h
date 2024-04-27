@@ -219,11 +219,15 @@ public:
     virtual double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                            { return 0.0; }                                                     // Default is 0.0
                                                                                                                                                                                          
             double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
-
+        
             double          CalculateEddyTurnoverTimescale();
 
     virtual void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) { }                                                                                      // Default is NO-OP
     virtual void            CalculateGBParams()                                                                 { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
+
+    virtual DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2);  
+    virtual DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2);                                              
+    virtual DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2);                                                            
 
             void            CalculateLambdas()                                                                  { CalculateLambdas(m_Mass - m_CoreMass); }                          // Use class member variables
             void            CalculateLambdas(const double p_EnvMass);

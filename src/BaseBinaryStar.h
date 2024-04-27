@@ -418,6 +418,10 @@ private:
 
     void    CalculateEnergyAndAngularMomentum();
 
+    double CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity);
+    double CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_I1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity);
+    double CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity);
+
     double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass);
     double  CalculateGammaAngularMomentumLoss()                                 { return CalculateGammaAngularMomentumLoss(m_Donor->Mass(), m_Accretor->Mass()); }
 
@@ -767,7 +771,7 @@ private:
 
         return root.first + (root.second - root.first) / 2.0;                                               // midway between brackets (could return brackets...)
     }
-    
+  
 };
 
 #endif // __BaseBinaryStar_h__

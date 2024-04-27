@@ -41,6 +41,11 @@ protected:
 
     double          CalculateHeCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 
+    DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, 
+                                        const double p_M2)                                                      { return std::make_tuple(0.0, 0.0, 0.0, 0.0); }                         // Default is no tidal response
+    DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, 
+                                        const double p_M2)                                                      { return std::make_tuple(0.0, 0.0, 0.0, 0.0); }                         // Default is no tidal response
+
     double          CalculateInitialSupernovaMass() const                                                       { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
 
     double          CalculateLambdaDewi() const                                                                 { return BaseStar::CalculateLambdaDewi(); }                             // Not supported - use BaseStar

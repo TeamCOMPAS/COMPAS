@@ -629,7 +629,6 @@ void MainSequence::UpdateAgeAfterMassLoss() {
     m_Age *= tMSprime / tMS;
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                    MISCELLANEOUS FUNCTIONS / CONTROL FUNCTIONS                    //
