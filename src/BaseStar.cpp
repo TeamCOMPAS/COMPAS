@@ -3227,7 +3227,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
     double coreMass = CalculateConvectiveCoreMass();
     double envMass, envMassMax;
     std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
-    double radIntershellMass = m_Mass - coreMass - envMass;
+    double radIntershellMass = m_Mass - coreMass - envMass;						// Refers to the combined mass of non-convective layers
 
     // There should be no Dynamical tides if the entire star is convective, i.e. if there are no convective-radiative boundaries. 
     // If so, return 0.0 for all dynamical components of ImKlm.
