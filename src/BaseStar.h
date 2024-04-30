@@ -220,11 +220,15 @@ public:
     virtual double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                            { return 0.0; }                                                     // Default is 0.0
                                                                                                                                                                                          
             double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
-
+        
             double          CalculateEddyTurnoverTimescale();
 
     virtual void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) { }                                                                                      // Default is NO-OP
     virtual void            CalculateGBParams()                                                                 { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
+
+    virtual DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2);  
+    virtual DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2);                                              
+    virtual DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2);                                                            
 
             void            CalculateLambdas()                                                                  { CalculateLambdas(m_Mass - m_CoreMass); }                          // Use class member variables
             void            CalculateLambdas(const double p_EnvMass);
@@ -587,7 +591,7 @@ protected:
     virtual double              CalculateRadiusAtPhaseEnd() const                                                       { return m_Radius; }                                                        // Default is NO-OP
             double              CalculateRadiusAtZAMS(const double p_MZAMS) const;
     virtual double              CalculateRadiusOnPhase() const                                                          { return m_Radius; }                                                        // Default is NO-OP
-    virtual std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                              { std::cout << "BaseStar::CalculateRadiusAndStellarTypeOnPhase()!!!\n"; return std::make_tuple(CalculateRadiusOnPhase(), m_StellarType); }
+    virtual std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                              { return std::make_tuple(CalculateRadiusOnPhase(), m_StellarType); }
 
             void                CalculateRCoefficients(const double p_LogMetallicityXi, DBL_VECTOR &p_RCoefficients);
 

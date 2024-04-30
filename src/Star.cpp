@@ -494,9 +494,8 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
                 dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();                                           // calculate new timestep   
                 dt = std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM;                                                  // quantised
             }
-std::cout << std::fixed << std::setprecision(15) << "Star::Evolve(), timestep = " << dt << "\n";
 
-            if (stepNum > 0) EvolveOneTimestep(dt, true, stepNum > 0);         // JAR FIX                                                                           // evolve for timestep
+            EvolveOneTimestep(dt, true, stepNum > 0);                                                                       // evolve for timestep - no mass loss in first timestep
             UpdateAttributes(0.0, 0.0, true);                                                                               // JR: if this is not included, BSE and SSE are out of sync by 1 timestep.  If we remove this, we have to change BSE accordingly.  Not sure which one is right yet... (or if that actually matters)
             (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                          // log record  
 

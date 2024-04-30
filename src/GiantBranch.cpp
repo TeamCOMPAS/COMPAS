@@ -359,7 +359,6 @@ double GiantBranch::CalculatePerturbationMu() const {
     double kappa = -0.5;
     double L0    = 7.0E4;
 
-std::cout << std::fixed << std::setprecision(15) << "GiantBranch::CalculatePerturbationMu(), m_Mass = " << m_Mass << ", m_CoreMass = " << m_CoreMass << ", m_Luminosity = " << m_Luminosity << ", mu = " << ((m_Mass - m_CoreMass) / m_Mass) * (std::min(5.0, std::max(1.2, PPOW((m_Luminosity / L0), kappa)))) << "\n";
     return ((m_Mass - m_CoreMass) / m_Mass) * (std::min(5.0, std::max(1.2, PPOW((m_Luminosity / L0), kappa))));
 }
 
@@ -394,9 +393,7 @@ void GiantBranch::PerturbLuminosityAndRadius() {
         double r = CalculatePerturbationR(m_Mu, m_Mass, m_Radius, Rc);
 
         m_Luminosity = Lc * PPOW((m_Luminosity / Lc), s);        
-std::cout << std::fixed << std::setprecision(15) << "GiantBranch::PerturbLuminosityAndRadius(@1), m_Mu = " << m_Mu << ", m_Mass = " << m_Mass << ", m_Radius = " << m_Radius << ", r = " << r << ", Rc = " << Rc << "\n";
         m_Radius     = Rc * PPOW((m_Radius / Rc), r);
-std::cout << std::fixed << std::setprecision(15) << "GiantBranch::PerturbLuminosityAndRadius(@2), m_Mu = " << m_Mu << ", m_Mass = " << m_Mass << ", m_Radius = " << m_Radius << ", r = " << r << ", Rc = " << Rc << "\n";
     }
 }
 #else
@@ -642,20 +639,16 @@ double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
     double RmHe      = CHeB::CalculateMinimumRadiusOnPhase_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
     double RGB_LHeI  = CalculateRadiusOnPhase(p_Mass, LHeI);
 
-std::cout << std::fixed << std::setprecision(15) << "GiantBranch::CalculateRadiusAtHeIgnition(@1), p_Mass = " << p_Mass << ", MFGB = " << massCutoffs(MFGB) << "\n";
     if (utils::Compare(p_Mass, massCutoffs(MFGB)) <= 0) {
         RHeI = RGB_LHeI;
-std::cout << std::fixed << std::setprecision(15) << "GiantBranch::CalculateRadiusAtHeIgnition(@2), RHeI = " << RHeI << "\n";
     }
-    else if (utils::Compare(p_Mass, std::max(massCutoffs(MFGB), 12.0)) >= 0) {
+    else if (utils::Compare(p_Mass, std::max(massCutoffs(MFGB), HIGH_MASS_THRESHOLD)) >= 0) {
         double RAGB_LHeI = EAGB::CalculateRadiusOnPhase_Static(p_Mass, LHeI, massCutoffs(MHeF), m_BnCoefficients);
         RHeI             = std::min(RmHe, RAGB_LHeI);                        // Hurley et al. 2000, eq 55
-std::cout << std::fixed << std::setprecision(15) << "GiantBranch::CalculateRadiusAtHeIgnition(@3), RHeI = " << RHeI << "\n";
     }
     else {
-        double mu = log10(p_Mass / 12.0) / log10(massCutoffs(MFGB) / 12.0);
+        double mu = log10(p_Mass / HIGH_MASS_THRESHOLD) / log10(massCutoffs(MFGB) / HIGH_MASS_THRESHOLD);
         RHeI      = RmHe * PPOW((RGB_LHeI / RmHe), mu);
-std::cout << std::fixed << std::setprecision(15) << "GiantBranch::CalculateRadiusAtHeIgnition(@4), RHeI = " << RHeI << "\n";
     }
 
     return RHeI;
@@ -677,7 +670,6 @@ std::cout << std::fixed << std::setprecision(15) << "GiantBranch::CalculateRadiu
  */
 double GiantBranch::CalculateRemnantRadius() const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
-std::cout << std::fixed << std::setprecision(15) << "GiantBranch::CalculateRemnantRadius(), m_Mass0 = " << m_Mass0 << ", MHeF = " << massCutoffs(MHeF) << ", m_CoreMass = " << m_CoreMass << ", HeMS = " << HeMS::CalculateRadiusAtZAMS_Static(m_CoreMass) << ", WD = " << WhiteDwarfs::CalculateRadiusOnPhase_Static(m_CoreMass) << "\n";
     return (utils::Compare(m_Mass0, massCutoffs(MHeF)) > 0)
             ? HeMS::CalculateRadiusAtZAMS_Static(m_CoreMass)
             : WhiteDwarfs::CalculateRadiusOnPhase_Static(m_CoreMass);
@@ -897,7 +889,6 @@ double GiantBranch::CalculateMassLossRateHurley() {
         dominantRate = rateWR;
         m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
     }
-std::cout << std::fixed << std::setprecision(15) << "GiantBranch::CalculateMassLossRateHurley(), dominantRate = " << dominantRate << ", rateNJ = " << rateNJ << ", rateKR = " << rateKR << ", rateWR = " << rateWR << "\n";
 
     return dominantRate;
 }
@@ -1033,7 +1024,7 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  * Follows the fits of Picker, Hirai, Mandel (2024), arXiv:2402.13180
  *
  *
- * double GiantBranch::CalculateConvectiveEnvelopeMass()
+ * std::tuple<double, double> GiantBranch::CalculateConvectiveEnvelopeMass()
  *
  * @return                                      Tuple containing the mass of the outer convective envelope and its maximum value
  */
@@ -1125,6 +1116,7 @@ double GiantBranch::CalculateMomentOfInertia() const {
     
     return (0.1 * (m_Mass - m_CoreMass) * m_Radius * m_Radius) + (0.21 * m_CoreMass * Rc * Rc);
 }
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -496,7 +496,8 @@ void Options::OptionValues::Initialise() {
 
 
     // Tides
-    m_EnableTides                                                   = false;                                                // default is no tides
+    m_TidesPrescription.type                                        = TIDES_PRESCRIPTION::NONE;
+    m_TidesPrescription.typeString                                  = TIDES_PRESCRIPTION_LABEL.at(m_TidesPrescription.type);
 
 
 	// Zetas
@@ -774,12 +775,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "detailed-output",                                              
             po::value<bool>(&p_Options->m_DetailedOutput)->default_value(p_Options->m_DetailedOutput)->implicit_value(true),                                                                      
             ("Print detailed output to file (default = " + std::string(p_Options->m_DetailedOutput ? "TRUE" : "FALSE") + ")").c_str()
-        )
-
-        (
-            "enable-tides",                                               
-            po::value<bool>(&p_Options->m_EnableTides)->default_value(p_Options->m_EnableTides)->implicit_value(true),                                                                            
-            ("Enable tides (default = " + std::string(p_Options->m_EnableTides ? "TRUE" : "FALSE") + ")").c_str()
         )
 
         (
@@ -1843,7 +1838,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_StellarZetaPrescription.typeString)->default_value(p_Options->m_StellarZetaPrescription.typeString),                                                            
             ("Prescription for stellar zeta (" + AllowedOptionValuesFormatted("stellar-zeta-prescription") + ", default = '" + p_Options->m_StellarZetaPrescription.typeString + "')").c_str()
         )
-
+        (
+            "tides-prescription",                            
+            po::value<std::string>(&p_Options->m_TidesPrescription.typeString)->default_value(p_Options->m_TidesPrescription.typeString),                                                                                                    
+            ("Tides Prescription (" + AllowedOptionValuesFormatted("tides-prescription") + ", default = '" + p_Options->m_TidesPrescription.typeString + "')").c_str()
+        )
         (
             "timesteps-filename",
             po::value<std::string>(&p_Options->m_TimestepsFileName)->default_value(p_Options->m_TimestepsFileName),
@@ -2260,6 +2259,10 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
         }
 
+        if (!DEFAULTED("tides-prescription")) {                                                                       // tides prescription
+            std::tie(found, m_TidesPrescription.type) = utils::GetMapKey(m_TidesPrescription.typeString, TIDES_PRESCRIPTION_LABEL, m_TidesPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Tides Prescription");
+        }
         if (!DEFAULTED("VMS-mass-loss")) {                                                                    // very massive mass loss prescription
             std::tie(found, m_VMSMassLoss.type) = utils::GetMapKey(m_VMSMassLoss.typeString, VMS_MASS_LOSS_LABEL, m_VMSMassLoss.type);
             COMPLAIN_IF(!found, "Unknown Very Massive Mass Loss Prescription");
@@ -2527,6 +2530,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);         break;
         case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);             break;
         case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                        break;
+        case _("tides-prescription")                                : POPULATE_RET(TIDES_PRESCRIPTION_LABEL);                       break;
         case _("VMS-mass-loss")                                     : POPULATE_RET(VMS_MASS_LOSS_LABEL);                            break;
         case _("WR-mass-loss")                                      : POPULATE_RET(WR_MASS_LOSS_LABEL);                             break;
         default: break;
@@ -4647,6 +4651,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER             : value = SemiMajorAxisDistributionPower();                                     break;
 
         case PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION                      : value = static_cast<int>(StellarZetaPrescription());                          break;
+
+        case PROGRAM_OPTION::TIDES_PRESCRIPTION                             : value = static_cast<int>(TidesPrescription());                                break;
 
         case PROGRAM_OPTION::WR_FACTOR                                      : value = WolfRayetFactor();                                                    break;
 
