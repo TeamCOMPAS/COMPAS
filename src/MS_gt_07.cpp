@@ -49,6 +49,7 @@ double MS_gt_07::CalculateMassTransferRejuvenationFactor() const {
             SHOW_WARN(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION, "Using default fRej = 1.0");     // show warning
     }
 
+std::cout << "MS_gt_07::CalculateMassTransferRejuvenationFactor(), fRej = " << fRej << "\n";
     return fRej;
 }
 

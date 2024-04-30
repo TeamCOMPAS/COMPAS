@@ -1119,7 +1119,7 @@ bool EAGB::IsSupernova() const {
     // ~~ILYA~~
     // JAR: added absolute threshold for comparison
     //      see Hurley sse hrdiag.f line 431 (different threshold, but same reason I think)
-    return (utils::Compare(McSN, m_COCoreMass, 1.0E-12, true) <= 0);                                            // core is heavy enough to go Supernova
+    return (utils::Compare(McSN, m_COCoreMass) <= 0); //, 1.0E-12, true) <= 0);                                            // core is heavy enough to go Supernova
 
 #undef gbParams
 #undef timescales

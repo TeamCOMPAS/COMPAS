@@ -64,7 +64,7 @@ double FGB::CalculateLuminosityOnPhase(const double p_Time) const {
  * double CalculateCoreMassOnPhase(const double p_Mass, const double p_Time)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
- * @param   [IN]    p_Time                      Time after ZAMS in MYRS (tBGB <= time <= tHeI)
+ * @param   [IN]    p_Time                      Time after ZAMS in Myr (tBGB <= time <= tHeI)
  * @return                                      Core mass on the First Giant Branch in Msol
  */
 double FGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const {

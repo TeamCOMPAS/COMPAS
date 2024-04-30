@@ -67,6 +67,7 @@ protected:
         m_COCoreMass = CalculateCOCoreMassOnPhase();
         m_HeCoreMass = CalculateHeCoreMassOnPhase();
         m_Luminosity = CalculateLuminosityOnPhase();
+std::cout << "HG::Initialise()!!!!!!!!!!!!<----------\n";
         std::tie(m_Radius, std::ignore) = CalculateRadiusAndStellarTypeOnPhase();                                                                                               // Update radius
     }
 
@@ -104,7 +105,7 @@ protected:
     double          CalculateRadiusAtPhaseEnd(const double p_Mass) const;
     double          CalculateRadiusAtPhaseEnd() const                               { return CalculateRadiusAtPhaseEnd(m_Mass); }                                               // Use class member variables
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS) const;
-    double          CalculateRadiusOnPhase() const                                  { return CalculateRadiusOnPhase(m_Mass, m_Tau, m_RZAMS0); }                                 // Use class member variables
+    double          CalculateRadiusOnPhase() const                                  { std::cout << "HG::CalculateRadiusOnPhase()!!!\n"; return CalculateRadiusOnPhase(m_Mass, m_Tau, m_RZAMS0); }                                 // Use class member variables
 
     double          CalculateRho(const double p_Mass) const;
 
@@ -125,7 +126,7 @@ protected:
     void            ResolveHeliumFlash() {  }                                                                                                                                   // NO-OP
     STELLAR_TYPE    ResolveSkippedPhase()                                           { return m_StellarType; }                                                                   // NO-OP
 
-    bool            ShouldEvolveOnPhase() const                                     { return (utils::Compare(m_Age, m_Timescales[static_cast<int>(TIMESCALE::tBGB)]) < 0); }    // Evolve on HG phase if age < Base Giant Branch timescale
+    bool            ShouldEvolveOnPhase() const                                     { std::cout << std::fixed << std::setprecision(15) << "HG:ShouldEvolveOnPhase(), m_Age = " << m_Age << ", tBGB = " << m_Timescales[static_cast<int>(TIMESCALE::tBGB)] << "\n"; return (utils::Compare(m_Age, m_Timescales[static_cast<int>(TIMESCALE::tBGB)]) < 0); }    // Evolve on HG phase if age < Base Giant Branch timescale
     bool            ShouldSkipPhase() const                                         { return false; }                                                                           // Never skip HG phase
 
     void            UpdateAgeAfterMassLoss();                                                                                                                                   // Per Hurley et al. 2000, section 7.1

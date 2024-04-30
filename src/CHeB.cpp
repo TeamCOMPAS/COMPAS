@@ -946,28 +946,6 @@ double CHeB::CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau)
             Rx = RmHe;
         }
 
-//*
-//* For HM stars He-ignition takes place at Rmin in the HG, and CHeB
-//* consists of a blue phase (before tloop) and a RG phase (after tloop).
-//*
-//            tau2 = tblf(mass,zpars(2),zpars(3))                                       <--- NOT USED HERE eq 58 (CHeB::CalculateLifetimeOnBluePhase() = timescales(tau_BL))
-//            tloop = tscls(2) + tau2*tscls(3)                                          <--- NOT USED HERE
-//            rmin = rminf(mass)                                                        <--- eq 55 for M >= Mhef   (what if M < Mhef???) CHeB::CalculateRadiusAtBluePhaseStart() ??
-//            rg = rgbf(mt,lums(4))                                                     <--- Rhei (using eq 46) for M < Mfgb  (what if M >= Mfgb???)
-//            rx = ragbf(mt,lums(4),zpars(2))                                           <--- EAGB::CalculateRadiusOnPhase_Static(), Hurley eq74 and below
-//            rmin = MIN(rmin, rx)
-//            if(mass.le.mlp) then                                                      <--- M <= 12.0 ?
-//               texp = log(mass/mlp)/log(zpars(3)/mlp)                                 <--- Hurley eq 50 ???  u = 
-//               rx = rg
-//               rx = rmin*(rx/rmin)**texp
-//            else                                                                      <--- M > 12.0
-//               rx = rmin
-//            end if
-//            texp = MIN(MAX(0.4d0,rmin/rx),2.5d0)                                      <--- Hurley eq 62
-//            lum = lums(4)*(lums(7)/lums(4))**(tau**texp)                              <--- Hurley eq 61 ?? lums(7) = Lbagb, lums(4) = Lhei - this ignores eq 59???
-
-
-
 
         double epsilon = std::min(2.5, std::max(0.4, (RmHe / Rx)));
         double lambda  = (utils::Compare(p_Tau, tx) == 0) ? 0.0 : PPOW((p_Tau - tx) / (1.0 - tx), epsilon);                                  // JR: tx can be 1.0 here - if so, lambda = 0.0
@@ -1287,7 +1265,7 @@ double CHeB::CalculateTauOnPhase() const {
  * double CalculateLifetimeOnPhase(const double p_Mass)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
- * @return                                      Lifetime of Core Helium Burning in MYRs (tHe)
+ * @return                                      Lifetime of Core Helium Burning in Myr (tHe)
  *
  * JR: changed this to use m_Timescales[TS::tBGB] instead of parameter
  */
@@ -1339,12 +1317,12 @@ double CHeB::CalculateBluePhaseFBL(const double p_Mass) {
 
     // Might be that we are supposed to use min(RmHe, Rx=RHeI)
     double RHeI = CalculateRadiusAtHeIgnition(p_Mass);
-    double LHeI = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
+    double LHeI = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), b);
 
     top = std::min(top, RHeI);
 
     // Calculate RAGB(LHeI(M)) for M > MFGB > MHeF
-    double bottom   = EAGB::CalculateRadiusOnPhase_Static(p_Mass, LHeI, massCutoffs(MHeF), m_BnCoefficients);
+    double bottom   = EAGB::CalculateRadiusOnPhase_Static(p_Mass, LHeI, massCutoffs(MHeF), b);
     double brackets = 1.0 - (top / bottom);
 
     return PPOW(p_Mass, b[48]) * PPOW(brackets, b[49]);
@@ -1365,7 +1343,7 @@ double CHeB::CalculateBluePhaseFBL(const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Relative lifetime of blue phase of Core Helium Burning, clamped to [0, 1]
  */
-double CHeB::CalculateLifetimeOnBluePhase(const double p_Mass) {
+double CHeB::CalculateLifetimeOnBluePhase(const double p_Mass) {                                          
 #define b m_BnCoefficients                                              // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 

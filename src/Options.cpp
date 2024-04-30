@@ -1469,7 +1469,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "pulsar-magnetic-field-decay-timescale",                       
             po::value<double>(&p_Options->m_PulsarMagneticFieldDecayTimescale)->default_value(p_Options->m_PulsarMagneticFieldDecayTimescale),                                                    
-            ("Timescale on which magnetic field decays, in Myrs (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescale) + ")").c_str()
+            ("Timescale on which magnetic field decays, in Myr (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescale) + ")").c_str()
         )
         (
             "pulsar-minimum-magnetic-field",                               

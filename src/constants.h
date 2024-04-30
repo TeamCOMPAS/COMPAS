@@ -270,6 +270,7 @@ constexpr double ZSOL                                   = 0.02;                 
 constexpr double LOG10_ZSOL                             = -1.698970004336019;                                       // log10(ZSOL) - for performance
 constexpr double ZSOL_ASPLUND                           = 0.0142;                                                   // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
+//constexpr double TSOL                                   = 5797.885185819327489;                                                   // Solar Temperature in kelvin - sse
 constexpr double LSOL                                   = 3.844E33;                                                 // Solar Luminosity in erg/s
 constexpr double LSOLW                                  = 3.844E26;                                                 // Solar luminosity (in W)
 
@@ -2964,14 +2965,14 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::LAMBDA_NANJING,                                    { TYPENAME::DOUBLE,           "Lambda_Nanjing",                  "-",                14, 6 }},
     { ANY_STAR_PROPERTY::LBV_PHASE_FLAG,                                    { TYPENAME::BOOL,             "LBV_Phase_Flag",                  "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::LUMINOSITY,                                        { TYPENAME::DOUBLE,           "Luminosity",                      "Lsol",             24, 15}},
-    { ANY_STAR_PROPERTY::LUMINOSITY_POST_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,           "Luminosity>CE",                   "Lsol",             14, 6 }},
-    { ANY_STAR_PROPERTY::LUMINOSITY_PRE_COMMON_ENVELOPE,                    { TYPENAME::DOUBLE,           "Luminosity<CE",                   "Lsol",             14, 6 }},
+    { ANY_STAR_PROPERTY::LUMINOSITY_POST_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,           "Luminosity>CE",                   "Lsol",             24, 15}},
+    { ANY_STAR_PROPERTY::LUMINOSITY_PRE_COMMON_ENVELOPE,                    { TYPENAME::DOUBLE,           "Luminosity<CE",                   "Lsol",             24, 15}},
     { ANY_STAR_PROPERTY::MASS,                                              { TYPENAME::DOUBLE,           "Mass",                            "Msol",             24, 15}},
-    { ANY_STAR_PROPERTY::MASS_0,                                            { TYPENAME::DOUBLE,           "Mass_0",                          "Msol",             14, 6 }},
+    { ANY_STAR_PROPERTY::MASS_0,                                            { TYPENAME::DOUBLE,           "Mass_0",                          "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::MASS_LOSS_DIFF,                                    { TYPENAME::DOUBLE,           "dmWinds",                         "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF,                                { TYPENAME::DOUBLE,           "dmMT",                            "Msol",             14, 6 }},
     { ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,                       { TYPENAME::STRING,           "MT_Donor_Hist",                   "-",                16, 1 }}, 
-    { ANY_STAR_PROPERTY::MDOT,                                              { TYPENAME::DOUBLE,           "Mdot",                            "Msol yr^-1",       14, 6 }},
+    { ANY_STAR_PROPERTY::MDOT,                                              { TYPENAME::DOUBLE,           "Mdot",                            "Msol yr^-1",       24, 15}},
     { ANY_STAR_PROPERTY::METALLICITY,                                       { TYPENAME::DOUBLE,           "Metallicity@ZAMS",                "-",                14, 6 }},
     { ANY_STAR_PROPERTY::MOMENT_OF_INERTIA,                                 { TYPENAME::DOUBLE,           "Moment_Of_Inertia",               "Msol Rsol^2",      14, 6 }},
     { ANY_STAR_PROPERTY::MZAMS,                                             { TYPENAME::DOUBLE,           "Mass@ZAMS",                       "Msol",             14, 6 }},
