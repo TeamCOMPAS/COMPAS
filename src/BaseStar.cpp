@@ -869,7 +869,7 @@ void BaseStar::CalculateMassCutoffs(const double p_Metallicity, const double p_L
  *
  * double CalculateGBRadiusXExponent()
  *
- * @return                                      'x' exponent to which Radius depends on Mass (at conatant Luminosity)- 'x' in Hurley et al. 2000, eq 47
+ * @return                                      'x' exponent to which Radius depends on Mass (at constant Luminosity)- 'x' in Hurley et al. 2000, eq 47
  */
 double BaseStar::CalculateGBRadiusXExponent() const {
 
@@ -956,6 +956,8 @@ double BaseStar::CalculatePerturbationQ(const double p_Radius, const double p_Rc
 
 /*
  * Calculate the perturbation parameter r
+ *
+ * Hurley et al. 2000, eq 102
  *
  *
  * double CalculatePerturbationR(const double p_Mu, const double p_Mass, const double p_Radius, const double p_Rc)
@@ -1744,7 +1746,7 @@ double BaseStar::CalculateMassLossRateKudritzkiReimers() const {
  * Hurley et al. 2000, just after eq 106
  *
  *
- * double CalculateMassLossRateNieuwenhuijzenDeJagerStatic()
+ * double CalculateMassLossRateNieuwenhuijzenDeJager()
  *
  * @return                                      Nieuwenhuijzen & de Jager mass-loss rate for massive stars (in Msol yr^-1)
  */
@@ -1877,7 +1879,9 @@ double BaseStar::CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_Prescript
  * @return                                      LBV-like mass loss rate (in Msol yr^{-1})
  */
 double BaseStar::CalculateMassLossRateLBVHurley(const double p_HD_LimitFactor) const {
-    return 0.1 * PPOW((p_HD_LimitFactor - 1.0), 3.0) * ((m_Luminosity / 6.0E5) - 1.0);
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateMassLossRateLBVHurley(), p_HD_LimitFactor = " << p_HD_LimitFactor << ", m_Luminosity = " << m_Luminosity << "\n";
+    double v = p_HD_LimitFactor - 1.0;
+    return 0.1 * v * v * v * ((m_Luminosity / 6.0E5) - 1.0);
 }
 
 
@@ -2668,15 +2672,17 @@ double BaseStar::CalculateMassLossRate() {
         switch (OPTIONS->MassLossPrescription()) {                                                              // which prescription?
 
             case MASS_LOSS_PRESCRIPTION::HURLEY:                                                                // HURLEY
+std::cout << "BaseStar::CalculateMassLossRate(@1)\n";
                 LBVRate        = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
                 otherWindsRate = CalculateMassLossRateHurley();
                 if (utils::Compare(LBVRate, otherWindsRate) > 0) {
                     m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;
                 }
                 mDot = LBVRate + otherWindsRate;
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateMassLossRate(@2), LBVRate = " << LBVRate << ", otherWindsRate = " << otherWindsRate << ", mDot = " << mDot << "\n";
                 break;
 
-            case MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010:                                                        // formerly named VINK mass-loss prescription
+            case MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010:                                                        // formerly named VINK mass loss prescription
                 mDot = CalculateMassLossRateBelczynski2010();
                 break;
 
@@ -2688,7 +2694,7 @@ double BaseStar::CalculateMassLossRate() {
                 mDot = 0.0;
                 break;
 
-            default:                                                                                            // unknown mass-loss prescription
+            default:                                                                                            // unknown mass loss prescription
                 SHOW_WARN(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION, "Using HURLEY");                               // show warning
                 LBVRate        = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
                 otherWindsRate = CalculateMassLossRateHurley();                                                 // use HURLEY
@@ -2744,11 +2750,14 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
 
     double dt   = m_Dt;
     double mDot = m_Mdot;
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateMassLossValues(@1), mDot = " << mDot << std::boolalpha << ", p_UpdateMDot = " << p_UpdateMDot << std::noboolalpha << "\n";
     double mass = m_Mass;
 
     if (OPTIONS->UseMassLoss()) {                                               // only if using mass loss (program option)
 
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateMassLossValues(@2), mDot = " << mDot << "\n";
         mDot            = CalculateMassLossRate();                              // calculate mass loss rate
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateMassLossValues(@3), mDot = " << mDot << "\n";
         double massLoss = CalculateMassLoss_Static(mass, mDot, dt);             // calculate mass loss - limited to (mass * MAXIMUM_MASS_LOSS_FRACTION)
 
         if (OPTIONS->CheckPhotonTiringLimit()) {
@@ -2770,6 +2779,7 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
         }
 
         if (p_UpdateMDot) m_Mdot = mDot;                                        // update class member variable if necessary
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateMassLossValues(@4), m_Mdot = " << m_Mdot << "\n";
     }
 
     return mass;
@@ -2794,7 +2804,9 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
 void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
 
     if (OPTIONS->UseMassLoss()) {
+
         double mass = CalculateMassLossValues(true, p_UpdateMDt);                                   // calculate new values assuming mass loss applied
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::ResolveMassLoss(), m_Mdot = " << m_Mdot << "\n";
 
         // JR: this is here to keep attributes in sync BSE vs SSE
         // Supernovae are caught in UpdateAttributesAndAgeOneTimestep() (hence the need to move the
@@ -2930,6 +2942,7 @@ double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) const
  * @return                                      Effective temperature of the star (Tsol)
  */
 double BaseStar::CalculateTemperatureOnPhase_Static(const double p_Luminosity, const double p_Radius) {
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateTemperatureOnPhase_Static(), p_Luminosity = " << p_Luminosity << ", p_Radius = " << p_Radius << ", temp = " << std::sqrt(std::sqrt(p_Luminosity)) / std::sqrt(p_Radius) * TSOL << "\n";
     return std::sqrt(std::sqrt(p_Luminosity)) / std::sqrt(p_Radius);   // sqrt() is much faster than pow()
 }
 
@@ -3222,12 +3235,12 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
  */
 double BaseStar::CalculateLifetimeToBGB(const double p_Mass) const {
 #define a m_AnCoefficients    // for convenience and readability - undefined at end of function
-
     // pow() is slow - use multiplication (sqrt() is much faster than pow())
     double m_2   = p_Mass * p_Mass;
     double m_4   = m_2 * m_2;
     double m_5_5 = m_4 * p_Mass * std::sqrt(p_Mass);
     double m_7   = m_4 * m_2 * p_Mass;
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateLifetimeToBGB(), a[1] = " << a[1] << ", a[2] = " << a[2] << ", a[3] = " << a[3] << ", a[4] = " << a[4] << ", a[5] = " << a[5] << ", p_Mass = " << p_Mass << ", tBGB = " << (a[1] + (a[2] * m_4) + (a[3] * m_5_5) + m_7) / ((a[4] * m_2) + (a[5] * m_7)) << "\n";
     return (a[1] + (a[2] * m_4) + (a[3] * m_5_5) + m_7) / ((a[4] * m_2) + (a[5] * m_7));
 
 #undef a
@@ -4075,6 +4088,7 @@ void BaseStar::AgeOneTimestepPreamble(const double p_DeltaTime) {
 
     if (p_DeltaTime > 0.0) {                        // if dt > 0    (don't use utils::Compare() here)
         m_Time += p_DeltaTime;                      // advance physical simulation time
+        m_AgePrev = m_Age;
         m_Age  += p_DeltaTime;                      // advance age of star
         m_Dt    = p_DeltaTime;                      // set timestep
     }
@@ -4140,7 +4154,9 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (ShouldEvolveOnPhase()) {                                                    // evolve timestep on phase
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(@1), ST = " << static_cast<int>(m_StellarType) << ", m_Tau = " << m_Tau << ", p_DeltaTime = " << p_DeltaTime << "\n";
         m_Tau             = CalculateTauOnPhase();
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(@2), ST = " << static_cast<int>(m_StellarType) << ", m_Tau = " << m_Tau << "\n";
 
         m_COCoreMass      = CalculateCOCoreMassOnPhase();
         m_CoreMass        = CalculateCoreMassOnPhase();
@@ -4149,12 +4165,14 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
         m_Luminosity      = CalculateLuminosityOnPhase();
 
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // radius and possibly new stellar type
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(@3), ST = " << static_cast<int>(m_StellarType) << ", m_Temperature = " << m_Temperature * TSOL << ", m_Radius = " << m_Radius << "\n";
 
         m_Mu              = CalculatePerturbationMuOnPhase();
 
         PerturbLuminosityAndRadiusOnPhase();
 
         m_Temperature     = CalculateTemperatureOnPhase();
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(@4), ST = " << static_cast<int>(m_StellarType) << ", m_Temperature = " << m_Temperature * TSOL << ", m_Radius = " << m_Radius << "\n";
 
         if (p_DeltaTime > 0.0) {
             STELLAR_TYPE thisStellarType = ResolveEnvelopeLoss();                       // resolve envelope loss if it occurs - possibly new stellar type
@@ -4198,12 +4216,14 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase(const bool p_ResolveEnvelopeLoss) {
             m_HeCoreMass  = CalculateHeCoreMassAtPhaseEnd();
 
             m_Luminosity  = CalculateLuminosityAtPhaseEnd();
-            
+
             m_Radius      = CalculateRadiusAtPhaseEnd();
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::ResolveEndOfPhase(@1), ST = " << static_cast<int>(m_StellarType) << ", m_Luminosity = " << m_Luminosity << ", m_Radius = " << m_Radius << "\n";
 
             m_Mu          = CalculatePerturbationMuAtPhaseEnd();
 
             PerturbLuminosityAndRadiusAtPhaseEnd();
+std::cout << std::fixed << std::setprecision(15) << "BaseStar::ResolveEndOfPhase(@2), ST = " << static_cast<int>(m_StellarType) << ", m_Luminosity = " << m_Luminosity << ", m_Radius = " << m_Radius << "\n";
 
             m_Temperature = CalculateTemperatureAtPhaseEnd();
 

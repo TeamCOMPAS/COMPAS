@@ -15,7 +15,7 @@ namespace utils {
 
     // Alphabetical - so I can find them...
 
-     /*
+    /*
      * Iterative binary search
      *
      * For a given number x and a sorted array arr, return the lower and upper bin edges of x in arr.
