@@ -38,6 +38,7 @@ typedef unsigned long int                                               OBJECT_I
 typedef std::vector<double>                                             DBL_VECTOR;
 typedef std::tuple <double, double>                                     DBL_DBL;
 typedef std::tuple <double, double, double>                             DBL_DBL_DBL;
+typedef std::tuple <double, double, double, double>                     DBL_DBL_DBL_DBL;
 typedef std::tuple<std::string, std::string, std::string, std::string>  STR_STR_STR_STR;
 
 // Hash for Enum Class
@@ -263,14 +264,12 @@ constexpr double G_SOLAR_YEAR                           = 3.14E7;               
 
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
-// ~~ILYA~~
-// adding extra digits to the value of LOG10_ZSOL results in subtle changes the the a and b coefficients (Hurley+2000, page 24 Appendix)
-// doesn't sold the radius discontinuity problem, but does help COMPAS switch stellar types at the same timestep as sse (changes the
-// timescales calculations slightly - enough to make a difference)
+//constexpr double LOG10_ZSOL                             = -1.69897;                                                 // log10(ZSOL) - for performance
+// adding extra digits to the value of LOG10_ZSOL results in subtle changes the the a and b coefficients (Hurley et al. 2000, page 24 Appendix)
+// this helps COMPAS switch stellar types at the same timestep as sse (changes the timescales calculations slightly - enough to make a difference)
 constexpr double LOG10_ZSOL                             = -1.698970004336019;                                       // log10(ZSOL) - for performance
 constexpr double ZSOL_ASPLUND                           = 0.0142;                                                   // Solar Metallicity (Asplund+ 2010) used in initial condition
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
-//constexpr double TSOL                                   = 5797.885185819327489;                                                   // Solar Temperature in kelvin - sse
 constexpr double LSOL                                   = 3.844E33;                                                 // Solar Luminosity in erg/s
 constexpr double LSOLW                                  = 3.844E26;                                                 // Solar luminosity (in W)
 
@@ -286,13 +285,17 @@ constexpr double MC_L_C1                                = 9.20925E-5;           
 constexpr double MC_L_C2                                = 5.402216;                                                 // Core Mass - Luminosity relation constant c2 (Hurley et al. 2000, eq 44)
 
 //constexpr double HE_RATE_CONSTANT                       = 7.66E-5;                                                  // Helium rate constant (Hurley et al. 2000, eq 68)
-constexpr double HE_RATE_CONSTANT                       = 8.0E-5;                                                  // Helium rate constant (Hurley sse)
+// despite Hurley et al. 2000, eq 68, the value used in the Hurley sse code is 8.0E-05
+// (see Hurley sse code `star.f`, lines 76 & 318)
+constexpr double HE_RATE_CONSTANT                       = 8.0E-5;                                                   // Helium rate constant (as defined in Hurley sse code, `star.f`, lines 76 & 318)
 constexpr double HHE_RATE_CONSTANT                      = 1.27E-5;                                                  // Combined rate constant for both hydrogen and helium shell burning (Hurley et al. 2000, eq 71)
 
 constexpr double BLACK_HOLE_LUMINOSITY                  = 1.0E-10;                                                  // Black Hole luminosity
 
 constexpr double NEUTRON_STAR_MASS                      = 1.4;                                                      // Canonical NS mass in Msol
 constexpr double NEUTRON_STAR_RADIUS                    = (1.0 / 7.0) * 1.0E-4;                                     // 10km in Rsol.  Hurley et al. 2000, just after eq 93
+
+constexpr double HIGH_MASS_THRESHOLD                    = 12.0;                                                     // value above which we consider stars to be high mass stars
 
 constexpr double MCH                                    = 1.44;                                                     // Chandrasekhar mass
 constexpr double MECS                                   = 1.38;                                                     // Mass of Neutron-Star (NS) formed in electron capture supernova (ECS). From Belczysnki+2008, before eq. 3.
@@ -1348,6 +1351,14 @@ enum class SN_ENGINE: int { RAPID, DELAYED };
 const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
     { SN_ENGINE::RAPID,   "RAPID" },
     { SN_ENGINE::DELAYED, "DELAYED" }
+};
+
+// Tides Prescriptions
+enum class TIDES_PRESCRIPTION: int { NONE, PERFECT, KAPIL2024 };
+const COMPASUnorderedMap<TIDES_PRESCRIPTION, std::string> TIDES_PRESCRIPTION_LABEL = {
+    { TIDES_PRESCRIPTION::NONE,      "NONE" },
+    { TIDES_PRESCRIPTION::PERFECT,   "PERFECT" },
+    { TIDES_PRESCRIPTION::KAPIL2024, "KAPIL2024" }
 };
 
 
@@ -2626,6 +2637,8 @@ enum class PROGRAM_OPTION: int {
 
     STELLAR_ZETA_PRESCRIPTION,
 
+    TIDES_PRESCRIPTION,
+
     WR_FACTOR,
 
     ZETA_ADIABATIC_ARBITRARY,
@@ -2842,6 +2855,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER,               "SEMI_MAJOR_AXIS_DISTRIBUTION_POWER" },
 
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                        "STELLAR_ZETA_PRESCRIPTION" },
+
+    { PROGRAM_OPTION::TIDES_PRESCRIPTION,                               "TIDES_PRESCRIPTION" },
 
     { PROGRAM_OPTION::WR_FACTOR,                                        "WR_FACTOR" },
 
@@ -3361,6 +3376,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER,                       { TYPENAME::DOUBLE,     "Semi-Major_Axis_Dstrbtn_Power",          "-",         14, 6 }},
 
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                                { TYPENAME::INT,        "Stellar_Zeta_Prscrptn",                  "-",          4, 1 }},
+
+    { PROGRAM_OPTION::TIDES_PRESCRIPTION,                                       { TYPENAME::INT,        "Tides_Prscrptn",                         "-",          4, 1 }},
 
     { PROGRAM_OPTION::WR_FACTOR,                                                { TYPENAME::DOUBLE,     "WR_Factor",                              "-",         14, 6 }},
 

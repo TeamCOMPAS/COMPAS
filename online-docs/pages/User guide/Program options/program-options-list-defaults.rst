@@ -349,10 +349,6 @@ Default = 0.0
 Multiplication factor for Eddington accretion for NS & BH (i.e. > 1 is super-eddington and 0 is no accretion). |br|
 Default = 1.0
 
-**--enable-tides** |br|
-Enables tides. |br|
-Default = FALSE
-
 **--enable-warnings** |br|
 Display warning messages to stdout. |br|
 Default = FALSE
@@ -1186,6 +1182,14 @@ Default = FALSE
 
 :ref:`Back to Top <options-props-top>`
 
+**--tides-prescription** |br|
+Prescription for tidal evolution of the binary. |br|
+Options: { NONE, PERFECT, KAPIL2024 } |br|
+``NONE`` disables tidal interactions
+``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization 
+``KAPIL2024`` uses the prescription from Kapil+ (2024) |br|
+Default = NONE
+
 **--timestep-filename** |br|
 User-defined timesteps filename. (See :doc:`Timestep files <../timestep-files>`) |br|
 Default = ’’ (None)
@@ -1314,7 +1318,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
---circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --enable-tides
+--circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription
 
 --envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-formalism,
 --common-envelope-lambda-prescription, --common-envelope-lambda, 

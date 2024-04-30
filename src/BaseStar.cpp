@@ -386,7 +386,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::TIMESCALE_MS:                                       value = Timescale(TIMESCALE::tMS);                              break;
             case ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION:             value = SN_TotalMassAtCOFormation();                            break;
             case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
-            case ANY_STAR_PROPERTY::TZAMS:                                              value = TZAMS()*TSOL;                                        break;
+            case ANY_STAR_PROPERTY::TZAMS:                                              value = TZAMS()*TSOL;                                           break;
             case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZetaAdiabaticHurley2002(m_CoreMass);           break;
             case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = CalculateZetaAdiabaticHurley2002(m_HeCoreMass);         break;
             case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = CalculateZetaAdiabaticSPH(m_CoreMass);                  break;
@@ -541,7 +541,7 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     a[68] = max(0.9, min(a[68], 1.0));
 
     // Need bAlpaR - calculate it now
-    RConstants(B_ALPHA_R) = (a[58] * PPOW(a[66], a[60])) / (a[59] + PPOW(a[66], a[61]));                          // Hurley et al. 2000, eq 21a (wrong in the arxiv version - says = a59*M**(a61))
+    RConstants(B_ALPHA_R) = (a[58] * PPOW(a[66], a[60])) / (a[59] + PPOW(a[66], a[61]));                            // Hurley et al. 2000, eq 21a (wrong in the arxiv version - says = a59*M**(a61))
 
     // Continue special cases
 
@@ -558,17 +558,17 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     a[80] = max(0.0585542, a[80]);
     a[81] = min(1.5, max(0.4, a[81]));
 
-    LConstants(B_ALPHA_L)   = (a[45] + (a[46] * PPOW(2.0, a[48]))) / (PPOW(2.0, 0.4) + (a[47] * PPOW(2.0, 1.9)));  // Hurley et al. 2000, eq 19a
-    LConstants(B_BETA_L)    = max(0.0, (a[54] - (a[55] * PPOW(a[57], a[56]))));                                  // Hurley et al. 2000, eq 20
-    LConstants(B_DELTA_L)   = min((a[34] / PPOW(a[33], a[35])), (a[36] / PPOW(a[33], a[37])));                    // Hurley et al. 2000, eq 16
+    LConstants(B_ALPHA_L)   = (a[45] + (a[46] * PPOW(2.0, a[48]))) / (PPOW(2.0, 0.4) + (a[47] * PPOW(2.0, 1.9)));   // Hurley et al. 2000, eq 19a
+    LConstants(B_BETA_L)    = max(0.0, (a[54] - (a[55] * PPOW(a[57], a[56]))));                                     // Hurley et al. 2000, eq 20
+    LConstants(B_DELTA_L)   = min((a[34] / PPOW(a[33], a[35])), (a[36] / PPOW(a[33], a[37])));                      // Hurley et al. 2000, eq 16
 
-    RConstants(C_ALPHA_R)   = (a[58] * PPOW(a[67], a[60])) / (a[59] + PPOW(a[67], a[61]));                        // Hurley et al. 2000, eq 21a (wrong in the arxiv version)
-    RConstants(B_BETA_R)    = (a[69] * 8.0 * M_SQRT2) / (a[70] + PPOW(2.0, a[71]));                              // Hurley et al. 2000, eq 22a
-    RConstants(C_BETA_R)    = (a[69] * 16384.0) / (a[70] + PPOW(16.0, a[71]));                                   // Hurley et al. 2000, eq 22a
-    RConstants(B_DELTA_R)   = (a[38] + a[39] * 8.0 * M_SQRT2) / (a[40] * 8.0 + PPOW(2.0, a[41])) - 1.0;            // Hurley et al. 2000, eq 17
+    RConstants(C_ALPHA_R)   = (a[58] * PPOW(a[67], a[60])) / (a[59] + PPOW(a[67], a[61]));                          // Hurley et al. 2000, eq 21a (wrong in the arxiv version)
+    RConstants(B_BETA_R)    = (a[69] * 8.0 * M_SQRT2) / (a[70] + PPOW(2.0, a[71]));                                 // Hurley et al. 2000, eq 22a
+    RConstants(C_BETA_R)    = (a[69] * 16384.0) / (a[70] + PPOW(16.0, a[71]));                                      // Hurley et al. 2000, eq 22a
+    RConstants(B_DELTA_R)   = (a[38] + a[39] * 8.0 * M_SQRT2) / (a[40] * 8.0 + PPOW(2.0, a[41])) - 1.0;             // Hurley et al. 2000, eq 17
 
-    GammaConstants(B_GAMMA) = a[76] + (a[77] * PPOW((1.0 - a[78]), a[79]));                                      // Hurley et al. 2000, eq 23
-    GammaConstants(C_GAMMA) = (utils::Compare(a[75], 1.0) == 0) ? GammaConstants(B_GAMMA) : a[80];              // Hurley et al. 2000, eq 23
+    GammaConstants(B_GAMMA) = a[76] + (a[77] * PPOW((1.0 - a[78]), a[79]));                                         // Hurley et al. 2000, eq 23
+    GammaConstants(C_GAMMA) = (utils::Compare(a[75], 1.0) == 0) ? GammaConstants(B_GAMMA) : a[80];                  // Hurley et al. 2000, eq 23
 
 #undef GammaConstants
 #undef RConstants
@@ -972,14 +972,14 @@ double BaseStar::CalculatePerturbationR(const double p_Mu, const double p_Mass, 
 
     double r = 0.0;
 
-    if (utils::Compare(p_Mu, 0.0) > 0 && utils::Compare(p_Radius, p_Rc) > 0) {  // only if mu > 0 and radius is larger than core radius, otherwise r=0 and perturbed radius = core radius
+    if (utils::Compare(p_Mu, 0.0) > 0 && utils::Compare(p_Radius, p_Rc) > 0) {  // only if mu > 0 and radius is larger than core radius, otherwise r = 0 and perturbed radius = core radius
 
         double c      = CalculatePerturbationC(p_Mass);
         double c_3    = c * c * c;                                              // pow() is slow - use multiplication
         double mu_c_3 = p_Mu * p_Mu * p_Mu / c_3;                               // calculate once
 
         double q        = CalculatePerturbationQ(p_Radius, p_Rc);
-        double exponent = min((0.1 / q), (-14.0 / log10(p_Mu)));                // JR: todo: Hurley et al. 2000 is just 0.1 / q ?
+        double exponent = min((0.1 / q), (-14.0 / log10(p_Mu)));                // Hurley et al. 2000 is just 0.1 / q, but the Hurley sse code does this (`rpertf()` in `zfuncs.f`) - no explanation.
 
         r = ((1.0 + c_3) * mu_c_3 * PPOW((p_Mu), exponent)) / ((1.0 + mu_c_3));
     }
@@ -1083,8 +1083,7 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) const {
     double MZAMS_Mass = (m_MZAMS - m_Mass) / m_MZAMS;                                       // Should m_ZAMS really be m_Mass0 (i.e., account for change in effective mass through mass loss in winds, MS mass transfer?)
     logBindingEnergy *= p_IsMassLoss ? 1.0 + (0.25 * MZAMS_Mass * MZAMS_Mass) : 1.0;        // apply mass-loss correction factor (lambda)
 
-    constexpr double logBE0 = 33.29866;                                                     // JR: todo: what is this for?  Should it be in constants.h?
-    logBindingEnergy += logBE0;
+    logBindingEnergy += 33.29866;                                                           // JR: todo: what is this for?  Should it be in constants.h?
 
 	return logBindingEnergy;
 }
@@ -1121,9 +1120,9 @@ double BaseStar::CalculateLambdaNanjing() const {
 
     double mass   = m_MZAMS;
     double lambda = 0.0;
-    if (OPTIONS->CommonEnvelopeLambdaNanjingUseRejuvenatedMass()) {mass = m_Mass0;}                              // Use rejuvenated mass to calculate lambda instead of true birth mass
+    if (OPTIONS->CommonEnvelopeLambdaNanjingUseRejuvenatedMass()) {mass = m_Mass0;}                             // Use rejuvenated mass to calculate lambda instead of true birth mass
     
-    if (OPTIONS->CommonEnvelopeLambdaNanjingEnhanced()) {                                                        // If using enhanced Nanjing lambda's
+    if (OPTIONS->CommonEnvelopeLambdaNanjingEnhanced()) {                                                       // If using enhanced Nanjing lambda's
         if (OPTIONS->CommonEnvelopeLambdaNanjingInterpolateInMass()) {
             if (OPTIONS->CommonEnvelopeLambdaNanjingInterpolateInMetallicity()) {
                 lambda = BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(mass, m_Metallicity);
@@ -1163,16 +1162,16 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass,
 
     double lambda = 0.0;
     if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
-        lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 0);                    // Use lambda for pop. II metallicity
+        lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 0);                   // Use lambda for pop. II metallicity
     }
     else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) > 0) {
-        lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 1);                    // Use lambda for pop. I metallicity
+        lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 1);                   // Use lambda for pop. I metallicity
     }
-    else {                                                                                       // Linear interpolation in logZ between pop. I and pop. II metallicities
-        const double logZ = log(m_Metallicity);
-        double lambdaLow = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 0);
-        double lambdaUp  = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 1);
-        lambda = lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
+    else {                                                                                      // Linear interpolation in logZ between pop. I and pop. II metallicities
+        const double logZ = log(m_Metallicity);                                                 // JR: should this be log10()?  If so, use m_Log10Metallicity
+        double lambdaLow  = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 0);
+        double lambdaUp   = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 1);
+        lambda            = lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
     }
     return lambda;
 }
@@ -1227,13 +1226,13 @@ double BaseStar::CalculateZInterpolatedLambdaNanjing(const double p_Z, const int
 
     double lambda = 0.0;
     if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
-        lambda = CalculateLambdaNanjingEnhanced(p_MassInd, 0);                       // Use lambda for pop. II metallicity
+        lambda = CalculateLambdaNanjingEnhanced(p_MassInd, 0);                      // Use lambda for pop. II metallicity
     }
     else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) > 0) {
-        lambda = CalculateLambdaNanjingEnhanced(p_MassInd, 1);                       // Use lambda for pop. I metallicity
+        lambda = CalculateLambdaNanjingEnhanced(p_MassInd, 1);                      // Use lambda for pop. I metallicity
     }
-    else {                                                                           // Linear interpolation in logZ between pop. I and pop. II metallicities
-        const double logZ = log(m_Metallicity);
+    else {                                                                          // Linear interpolation in logZ between pop. I and pop. II metallicities
+        const double logZ = log(m_Metallicity);                                     // JR: should this be log10()?  If so, use m_Log10Metallicity
         double lambdaLow  = CalculateLambdaNanjingEnhanced(p_MassInd, 0);
         double lambdaUp   = CalculateLambdaNanjingEnhanced(p_MassInd, 1);
         lambda            = lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
@@ -1252,9 +1251,9 @@ double BaseStar::CalculateZInterpolatedLambdaNanjing(const double p_Z, const int
  */ 
 double BaseStar::FindLambdaNanjingNearestMassIndex(const double p_Mass) const {
 
-    if (p_Mass < NANJING_MASSES_MIDPOINTS[0]) return 0;                                 // M < 1.5 Msun, use lambda for the 1 Msun model
+    if (p_Mass < NANJING_MASSES_MIDPOINTS[0]) return 0.0;                               // M < 1.5 Msun, use lambda for the 1 Msun model
     
-    if (p_Mass >= NANJING_MASSES_MIDPOINTS.back()) return NANJING_MASSES.size() - 1;    // M >= 75 Msun, use lambda for the 100 Msun model
+    if (p_Mass >= NANJING_MASSES_MIDPOINTS.back()) return NANJING_MASSES.size() - 1.0;  // M >= 75 Msun, use lambda for the 100 Msun model
 
     return utils::binarySearch(NANJING_MASSES_MIDPOINTS, p_Mass)[1];                    // Search for upper and lower mass bin edges
 }
@@ -1414,8 +1413,8 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
 
     // Get vector of radii from GE20_QCRIT_AND_ZETA for both lower and upper masses
     std::vector<int> indR0 = utils::binarySearch(logRadiusVectorLowerMass, log10(m_Radius));
-    double lowerRadiusLowerMassInd = indR0[0];
-    double upperRadiusLowerMassInd = indR0[1];
+    int lowerRadiusLowerMassInd = indR0[0];
+    int upperRadiusLowerMassInd = indR0[1];
 
     if (lowerRadiusLowerMassInd == -1) {                                        // if radii are out of range, set to endpoints
         lowerRadiusLowerMassInd = 0; 
@@ -1427,8 +1426,8 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
     }
 
     std::vector<int> indR1 = utils::binarySearch(logRadiusVectorUpperMass, log10(m_Radius));
-    double lowerRadiusUpperMassInd = indR1[0];
-    double upperRadiusUpperMassInd = indR1[1];
+    int lowerRadiusUpperMassInd = indR1[0];
+    int upperRadiusUpperMassInd = indR1[1];
 
     if (lowerRadiusUpperMassInd == -1) {                                        // if radii are out of range, set to endpoints
         lowerRadiusUpperMassInd = 0; 
@@ -1879,7 +1878,6 @@ double BaseStar::CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_Prescript
  * @return                                      LBV-like mass loss rate (in Msol yr^{-1})
  */
 double BaseStar::CalculateMassLossRateLBVHurley(const double p_HD_LimitFactor) const {
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateMassLossRateLBVHurley(), p_HD_LimitFactor = " << p_HD_LimitFactor << ", m_Luminosity = " << m_Luminosity << "\n";
     double v = p_HD_LimitFactor - 1.0;
     return 0.1 * v * v * v * ((m_Luminosity / 6.0E5) - 1.0);
 }
@@ -2058,9 +2056,9 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
         rate = PPOW(10.0, logMdotOB);
     }
     else if (utils::Compare(teff, T2) > 0) {
-        SHOW_WARN_IF(utils::Compare(teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);        // show warning if winds being used outside comfort zone
+        SHOW_WARN_IF(utils::Compare(teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);            // show warning if winds being used outside comfort zone
 
-        double V         = 2.6;                                                                             // v_inf/v_esc
+        double V         = 2.6;                                                                                 // v_inf/v_esc
         double logMdotOB = -6.697 +
                            (2.194 * logL5) -
                            (1.313 * logM30) -
@@ -2115,7 +2113,7 @@ double BaseStar::CalculateMassLossRateOBKrticka2018() const {
  */
 double BaseStar::CalculateMassLossRateRSGBeasor2020() const {
 
-    double logMdot = (-21.5 - 0.15 * m_MZAMS) + (3.6 * log10(m_Luminosity));                                //Further correction by Beasor+
+    double logMdot = (-21.5 - 0.15 * m_MZAMS) + (3.6 * log10(m_Luminosity));                                // Further correction by Beasor+
 
     return PPOW(10.0, logMdot);
 }
@@ -2257,7 +2255,7 @@ double BaseStar::CalculateMassLossRateVMSVink2011() const {
 
     double rate;
 
-    double Gamma    = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
+    double Gamma    = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;                                                  // Eddington Parameter, independent of surface composition
     double rate2001 = CalculateMassLossRateOBVink2001();
 
     double logMdotdiff;
@@ -2590,7 +2588,7 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {
-            m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;                                        // set LBV dominant again in case Hurley or OB overwrote it
+            m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;                                                           // set LBV dominant again in case Hurley or OB overwrote it
         }
     }
 
@@ -2672,14 +2670,12 @@ double BaseStar::CalculateMassLossRate() {
         switch (OPTIONS->MassLossPrescription()) {                                                              // which prescription?
 
             case MASS_LOSS_PRESCRIPTION::HURLEY:                                                                // HURLEY
-std::cout << "BaseStar::CalculateMassLossRate(@1)\n";
                 LBVRate        = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
                 otherWindsRate = CalculateMassLossRateHurley();
                 if (utils::Compare(LBVRate, otherWindsRate) > 0) {
                     m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;
                 }
                 mDot = LBVRate + otherWindsRate;
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateMassLossRate(@2), LBVRate = " << LBVRate << ", otherWindsRate = " << otherWindsRate << ", mDot = " << mDot << "\n";
                 break;
 
             case MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010:                                                        // formerly named VINK mass loss prescription
@@ -2750,14 +2746,11 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
 
     double dt   = m_Dt;
     double mDot = m_Mdot;
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateMassLossValues(@1), mDot = " << mDot << std::boolalpha << ", p_UpdateMDot = " << p_UpdateMDot << std::noboolalpha << "\n";
     double mass = m_Mass;
 
     if (OPTIONS->UseMassLoss()) {                                               // only if using mass loss (program option)
 
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateMassLossValues(@2), mDot = " << mDot << "\n";
         mDot            = CalculateMassLossRate();                              // calculate mass loss rate
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateMassLossValues(@3), mDot = " << mDot << "\n";
         double massLoss = CalculateMassLoss_Static(mass, mDot, dt);             // calculate mass loss - limited to (mass * MAXIMUM_MASS_LOSS_FRACTION)
 
         if (OPTIONS->CheckPhotonTiringLimit()) {
@@ -2779,7 +2772,6 @@ std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateMassLoss
         }
 
         if (p_UpdateMDot) m_Mdot = mDot;                                        // update class member variable if necessary
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateMassLossValues(@4), m_Mdot = " << m_Mdot << "\n";
     }
 
     return mass;
@@ -2806,7 +2798,6 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
     if (OPTIONS->UseMassLoss()) {
 
         double mass = CalculateMassLossValues(true, p_UpdateMDt);                                   // calculate new values assuming mass loss applied
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::ResolveMassLoss(), m_Mdot = " << m_Mdot << "\n";
 
         // JR: this is here to keep attributes in sync BSE vs SSE
         // Supernovae are caught in UpdateAttributesAndAgeOneTimestep() (hence the need to move the
@@ -2821,6 +2812,7 @@ std::cout << std::fixed << std::setprecision(15) << "BaseStar::ResolveMassLoss()
             if (IsSupernova() && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) ClearSupernovaStash();
         }
 
+        // JR: should we update the initial mass before or after we aupdate the age after mass loss?
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
         UpdateAgeAfterMassLoss();                                                                   // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                                      // apply age rejuvenation factor
@@ -2942,7 +2934,6 @@ double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) const
  * @return                                      Effective temperature of the star (Tsol)
  */
 double BaseStar::CalculateTemperatureOnPhase_Static(const double p_Luminosity, const double p_Radius) {
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateTemperatureOnPhase_Static(), p_Luminosity = " << p_Luminosity << ", p_Radius = " << p_Radius << ", temp = " << std::sqrt(std::sqrt(p_Luminosity)) / std::sqrt(p_Radius) * TSOL << "\n";
     return std::sqrt(std::sqrt(p_Luminosity)) / std::sqrt(p_Radius);   // sqrt() is much faster than pow()
 }
 
@@ -3135,7 +3126,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) const {
             }
             break;
 
-        default:                                                                        // unknown rorational velocity prescription
+        default:                                                                        // unknown rotational velocity prescription
             SHOW_WARN(ERROR::UNKNOWN_VROT_PRESCRIPTION, "Using default vRot = 0.0");    // show warning
     }
     return vRot;
@@ -3171,7 +3162,6 @@ double BaseStar::CalculateZAMSAngularFrequency(const double p_MZAMS, const doubl
  */
 double BaseStar::CalculateOmegaBreak() const {
     constexpr double RSOL_TO_AU_3 = RSOL_TO_AU * RSOL_TO_AU * RSOL_TO_AU;
-
 	return _2_PI * std::sqrt(m_Mass / (RSOL_TO_AU_3 * m_Radius * m_Radius * m_Radius));
 }
 
@@ -3213,6 +3203,330 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
 #undef massCutoffs
 }
 
+/*
+ * Calculate the Dynamical tides contribution to the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the 
+ * potential tidal Love number
+ *
+ * Gravity Waves, Core boundary:
+ * Zahn, 1977, Eq. (5.5) , with the value of E_2 coming from Kushnir et al., 2017, by comparing Eq. (8) to Eq. (1)
+ * 
+ * Gravity Waves, Envelope Boundary:
+ * Ahuir et al, 2021, Eq. (131)
+ * 
+ * Inertial Waves, Convective Envelope:
+ * Ogilvie, 2013, Eq. (B3)
+ * 
+ * DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ *
+ * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
+ * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
+ * @param   [IN]    p_M2                        Mass of companion star (Msol)
+ * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
+ *                                              potential tidal Love number, Dynamical tides only (unitless)
+ */
+DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+    
+    double coreMass = CalculateConvectiveCoreMass();
+
+    double envMass, envMassMax;
+    std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
+    
+    double radIntershellMass = m_Mass - coreMass - envMass;                                             // Refers to the combined mass of non-convective layers
+
+    // There should be no Dynamical tides if the entire star is convective, i.e. if there are no convective-radiative boundaries. 
+    // If so, return 0.0 for all dynamical components of ImKlm.
+    // Check mass rather than radial extent, since radiative mass can currently be non-zero for GB stars following Picker+ 2024 (radial extent will be 0 following Hurley 2000).
+    // This condition should be true for low-mass MS stars (<= 0.35 Msol) at ZAMS.
+    if (utils::Compare(radIntershellMass, 0.0) <= 0) {
+        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           
+    }
+
+    double radiusAU = m_Radius * RSOL_TO_AU;
+    double coreRadiusAU          = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
+    double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
+    double radiusIntershellAU    = radiusAU - convectiveEnvRadiusAU;                                    // Outer radial coordinate of radiative intershell
+
+    double R3_over_G_M = (radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
+    double sqrt_R3_over_G_M = std::sqrt(R3_over_G_M);
+
+    double k10GravityCore = 0.0;                                                                        // Gravity Wave dissipation, core boundary
+    double k12GravityCore = 0.0;
+    double k22GravityCore = 0.0;
+    double k32GravityCore = 0.0;
+
+    double k10GravityEnv = 0.0;                                                                         // Gravity Wave dissipation, envelope boundary
+    double k12GravityEnv = 0.0;
+    double k22GravityEnv = 0.0;
+    double k32GravityEnv = 0.0;
+
+    double k22InertialEnv = 0.0;                                                                        // Inertial Wave dissipation, envelope
+    
+    double omegaSpin     = m_Omega;
+    double two_OmegaSpin = omegaSpin + omegaSpin;
+
+    double w10 = p_Omega;
+    double w12 = ((p_Omega) - two_OmegaSpin);
+    double w22 = ((p_Omega + p_Omega) - two_OmegaSpin);
+    double w32 = ((p_Omega + p_Omega + p_Omega) - two_OmegaSpin);
+
+    if (utils::Compare(coreRadiusAU, 0.0) > 0 && utils::Compare(coreMass, 0.0) > 0) {                   // No GW dissipation from core boundary if no convective core
+        double beta2Dynamical           = 1.0;
+        double rhoFactorDynamcial       = 0.1;
+        double coreRadius_over_radius   = coreRadiusAU / radiusAU;
+        double coreRadius_over_radius_3 = coreRadius_over_radius * coreRadius_over_radius * coreRadius_over_radius;
+        double coreRadius_over_radius_9 = coreRadius_over_radius_3 * coreRadius_over_radius_3 * coreRadius_over_radius_3;
+        double mass_over_coreMass       = m_Mass / coreMass;
+        double E2Dynamical              = (2.0 / 3.0) * coreRadius_over_radius_9 * mass_over_coreMass * std::cbrt(mass_over_coreMass) * beta2Dynamical * rhoFactorDynamcial;
+
+        // (l=1, m=0), Gravity Wave dissipation from core boundary
+        double s10     = w10 * sqrt_R3_over_G_M;
+        double s10_4_3 = s10 * std::cbrt(s10);
+        double s10_8_3 = s10_4_3 * s10_4_3;
+        k10GravityCore = E2Dynamical * (w10 < 0.0 ? -std::abs(s10_8_3) : s10_8_3);
+
+        // (l=1, m=2), Gravity Wave dissipation from core boundary
+        double s12     = w12 * sqrt_R3_over_G_M;
+        double s12_4_3 = s12 * std::cbrt(s12);
+        double s12_8_3 = s12_4_3 * s12_4_3;
+        k12GravityCore = E2Dynamical * (w12 < 0.0 ? -std::abs(s12_8_3) : s12_8_3);
+
+        // (l=2, m=2), Gravity Wave dissipation from core boundary
+        double s22     = w22 * sqrt_R3_over_G_M;
+        double s22_4_3 = s22 * std::cbrt(s22);
+        double s22_8_3 = s22_4_3 * s22_4_3;
+        k22GravityCore = E2Dynamical * (w22 < 0.0 ? -std::abs(s22_8_3) : s22_8_3);
+
+        // (l=3, m=2), Gravity Wave dissipation from core boundary
+        double s32     = w32 * sqrt_R3_over_G_M;
+        double s32_4_3 = s32 * std::cbrt(s32);
+        double s32_8_3 = s32_4_3 * s32_4_3;
+        k32GravityCore = E2Dynamical * (w32 < 0.0 ? -std::abs(s32_8_3) : s32_8_3);    
+    }
+
+    // No GW or IW dissipation from envelope if no convective envelope
+    if (utils::Compare(convectiveEnvRadiusAU, 0.0) > 0 && utils::Compare(envMass, 0.0) > 0) {                                                 
+        double dyn_prefactor = 3.207452512782476;                                                       // 3^(11/3) * Gamma(1/3)^2 / 40 PI
+        double dNdlnr_cbrt = std::cbrt(G_AU_Msol_yr * radIntershellMass / radiusIntershellAU / (radiusAU - radiusIntershellAU) / (radiusAU - radiusIntershellAU));
+        
+        double alpha             = radiusIntershellAU / radiusAU;
+        double one_minus_alpha   = 1.0 - alpha;
+        double beta              = radIntershellMass / m_Mass;
+        double one_minus_beta    = 1.0 - beta;
+        double alpha_2           = alpha * alpha;
+        double alpha_3           = alpha_2 * alpha;
+        double alpha_5           = alpha_3 * alpha_2;
+        double alpha_11          = alpha_5 * alpha_5 * alpha;
+        double one_minus_alpha_2 = one_minus_alpha * one_minus_alpha;
+        double one_minus_alpha_3 = 1.0 - alpha_3;
+        double beta_2            = beta * beta;
+        double gamma             = alpha_3 * one_minus_beta / beta / one_minus_alpha_3;
+        double one_minus_gamma   = 1.0 - gamma;
+        double one_minus_gamma_2 = one_minus_gamma * one_minus_gamma;
+        double alpha_2_3_minus_1 = (alpha * 2.0 / 3.0) - 1.0;
+        double Epsilon           = alpha_11 * one_minus_beta * one_minus_gamma_2 * alpha_2_3_minus_1 * alpha_2_3_minus_1 / beta_2 / one_minus_alpha_3 / one_minus_alpha_2;
+
+        // (l=1, m=0), Gravity Wave dissipation from envelope boundary is always 0.0 since m=0.0
+
+        // (l=1, m=2), Gravity Wave dissipation from envelope boundary
+        double m_l_factor_12 = 2.0 / (1.0 * (1.0 + 1.0)) / std::cbrt(1.0 * (1.0 + 1.0));                // m * (l(l+1))^{-4/3}
+        double w12_4_3       = w12 * std::cbrt(w12);
+        double w12_8_3       = w12_4_3 * w12_4_3;
+        k12GravityEnv        = dyn_prefactor * m_l_factor_12 * (w12 < 0.0 ? -std::abs(w12_8_3) : w12_8_3) * R3_over_G_M * Epsilon / dNdlnr_cbrt;
+
+        // (l=2, m=2), Gravity Wave dissipation from envelope boundary
+        double m_l_factor_22 = 2.0 / (2.0 * (2.0 + 1.0)) / std::cbrt(2.0 * (2.0 + 1.0));                // m * (l(l+1))^{-4/3}
+        double w22_4_3       = w22 * std::cbrt(w22);
+        double w22_8_3       = w22_4_3 * w22_4_3;
+        k22GravityEnv        = dyn_prefactor * m_l_factor_22 * (w22 < 0.0 ? -std::abs(w22_8_3) : w22_8_3) * R3_over_G_M * Epsilon / dNdlnr_cbrt;
+
+        // (l=3, m=2), Gravity Wave dissipation from envelope boundary
+        double m_l_factor_32 = 2.0 / (3.0 * (3.0 + 1.0)) / std::cbrt(3.0 * (3.0 + 1.0));                // m * (l(l+1))^{-4/3}
+        double w32_4_3       = w32 * std::cbrt(w32);
+        double w32_8_3       = w32_4_3 * w32_4_3;
+        k32GravityEnv        = dyn_prefactor * m_l_factor_32 * (w32 < 0.0 ? -std::abs(w32_8_3) : w32_8_3) * R3_over_G_M * Epsilon / dNdlnr_cbrt;
+
+
+        // (l=2, m=2), Inertial Wave dissipation, convective envelope
+        // IW dissipation is only efficient for highly spinning stars, as in Esseldeurs, et al., 2024 
+        if (utils::Compare(two_OmegaSpin, p_Omega) >= 0) {                                                                            
+            double epsilonIW_2       = (omegaSpin / p_Omega) * (omegaSpin / p_Omega);
+            double one_minus_alpha_4 = one_minus_alpha_2 * one_minus_alpha_2;
+            double bracket1          = 1.0 + (2.0 * alpha) + (3.0 * alpha_2) + (3.0 * alpha_3 / 2.0);
+            double bracket2          = 1.0 + (one_minus_gamma / gamma) * alpha_3;
+            double bracket3          = 1.0 + (3.0 * gamma / 2.0) + (5.0 * alpha_3 / (2.0 * gamma) * (1.0 + (gamma / 2.0) - (3.0* gamma * gamma / 2.0))) - (9.0 / 4.0 * one_minus_gamma * alpha_5);
+            k22InertialEnv           = (100.0 * M_PI / 63.0) * epsilonIW_2 * (alpha_5 / (1.0 - alpha_5)) * one_minus_gamma_2 * one_minus_alpha_4 * bracket1 * bracket1 * bracket2 / bracket3 / bracket3;
+        }
+    }
+
+    // return ImKlmDynamical;
+    return std::make_tuple(k10GravityCore+k10GravityEnv, k12GravityCore+k12GravityEnv, k22GravityCore+k22GravityEnv+k22InertialEnv, k32GravityCore+k32GravityEnv);
+}
+
+
+/*
+ * Calculate the Equilibrium tides contribution to the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the 
+ * potential tidal Love number
+ * 
+ * Barker (2020), Eqs. (20) to (27), (l=2, m=2 mode only).
+ *
+ * DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ *
+ * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
+ * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
+ * @param   [IN]    p_M2                        Mass of companion star (Msol)
+ * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
+ *                                              potential tidal Love number, Equilibrium tides only (unitless)
+ */
+DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+
+    // Viscous dissipation
+    // No contribution from convective core; only convective envelope.
+
+    double rEnvAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
+
+    if (utils::Compare(rEnvAU, 0.0) <= 0) return std::make_tuple(0.0, 0.0, 0.0, 0.0);           // skip calculations if there is no convective envelope (to avoid Imk22 = NaN)
+
+    double rOutAU = m_Radius * RSOL_TO_AU;                                                      // outer boundary of convective envelope
+    double rInAU  = (rOutAU - rEnvAU);                                                          // inner boundary of convective envelope
+
+    double rOut_2  = rOutAU * rOutAU;
+    double rOut_3  = rOut_2 * rOutAU;
+    double rOut_5  = rOut_2 * rOut_3;
+    double rOut_7  = rOut_2 * rOut_5;
+    double rOut_9  = rOut_2 * rOut_7;
+    double rOut_11 = rOut_2 * rOut_9;
+
+    double rIn_2  = rInAU * rInAU;
+    double rIn_3  = rIn_2 * rInAU;
+    double rIn_5  = rIn_2 * rIn_3;
+    double rIn_7  = rIn_2 * rIn_5;
+    double rIn_9  = rIn_2 * rIn_7;
+    double rIn_11 = rIn_2 * rIn_9;
+
+    double a_2 = p_SemiMajorAxis * p_SemiMajorAxis;
+    double a_3 = a_2 * p_SemiMajorAxis;
+    double a_4 = a_2 * a_2;
+    double a_6 = a_3 * a_3;
+    double a_8 = a_6 * a_2;
+
+    double omegaSpin     = m_Omega;
+    double two_OmegaSpin = omegaSpin + omegaSpin;
+
+    double envMass, envMassMax;
+    std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
+
+    double rhoConv     = envMass / (4.0 * M_PI * (rOut_3 - rIn_3) / 3.0);
+    double lConv       = rEnvAU;                                                                // Set length scale to height of convective envelope
+    double tConv       = CalculateEddyTurnoverTimescale();
+    double vConv       = lConv / tConv;
+    double omegaConv   = 1.0 / tConv;                                                           // absent factor of 2*PI, following Barker (2020)
+    double vl          = vConv * lConv;
+    double m2_over_M   = p_M2 / m_Mass;
+    double m2_over_M_2 = m2_over_M * m2_over_M;
+
+    double vl_5              = 5.0 * vl;
+    double vl_25_over_root20 = vl * (25.0 / std::sqrt(20.0));
+    double vl_over_2         = 0.5 * vl;
+
+    double w10 = p_Omega;
+    double w12 = ((p_Omega) - (two_OmegaSpin));
+    double w22 = ((p_Omega + p_Omega) - (two_OmegaSpin));
+    double w32 = ((p_Omega + p_Omega + p_Omega) - (two_OmegaSpin));
+
+    // (l=1, m=0), Viscous dissipation, convective envelope
+    double omega_t_10              = std::abs(w10);                                               
+    double omega_t_over_omega_c_10 = omega_t_10 / omegaConv;
+    double nuTidal10               = vl_5;
+    if (utils::Compare(omega_t_over_omega_c_10, 5.0) > 0) {             
+        nuTidal10 = vl_25_over_root20 * (omega_t_over_omega_c_10) * (omega_t_over_omega_c_10);
+    }
+    else if (utils::Compare(omega_t_over_omega_c_10, 0.01) > 0) {
+        nuTidal10 = vl_over_2 * std::sqrt(omega_t_over_omega_c_10);    
+    }
+    double Dnu10          = (99.0 / 14.0) * omega_t_10 * omega_t_10  * m2_over_M_2 * (rOut_7 - rIn_7) * rhoConv * nuTidal10 / a_4;
+    double A10_1          = -G_AU_Msol_yr * p_M2 / a_2;
+    double A10_2          = A10_1 * A10_1;
+    double k10Equilibrium = (3.0 / 2.0) * (16.0 * M_PI / 9.0) * G_AU_Msol_yr * Dnu10 / A10_2 / rOut_3 / omega_t_10;
+    if (w10 < 0.0) k10Equilibrium = -std::abs(k10Equilibrium);
+
+
+    // (l=1, m=2), Viscous dissipation, convective envelope
+    double omega_t_12              = std::abs(w12);                                               
+    double omega_t_over_omega_c_12 = omega_t_12 / omegaConv;
+    double nuTidal12               = vl_5;
+    if (utils::Compare(omega_t_over_omega_c_12, 5.0) > 0) {             
+        nuTidal12 = vl_25_over_root20 * (omega_t_over_omega_c_12) * (omega_t_over_omega_c_12);
+    }
+    else if (utils::Compare(omega_t_over_omega_c_12, 0.01) > 0) {
+        nuTidal12 = vl_over_2 * std::sqrt(omega_t_over_omega_c_12);    
+    }
+    double Dnu12          = (99.0 / 14.0) * omega_t_12 * omega_t_12  * m2_over_M_2 * (rOut_7 - rIn_7) * rhoConv * nuTidal12 / a_4;
+    double A12_1          = -G_AU_Msol_yr * p_M2 / a_2;
+    double A12_2          = A12_1 * A12_1;
+    double k12Equilibrium = (3.0 / 2.0) * (16.0 * M_PI / 9.0) * G_AU_Msol_yr * Dnu12 / A12_2 / rOut_3 / omega_t_12;
+    if (w12 < 0) k12Equilibrium = -std::abs(k12Equilibrium);
+
+
+    // (l=2, m=2), Viscous dissipation, convective envelope
+    double omega_t_22              = std::abs(w22);                                               
+    double omega_t_over_omega_c_22 = omega_t_22 / omegaConv;
+    double nuTidal22               = vl_5;
+    if (utils::Compare(omega_t_over_omega_c_22, 5.0) > 0) {             
+        nuTidal22 = vl_25_over_root20 * (omega_t_over_omega_c_22) * (omega_t_over_omega_c_22);
+    }
+    else if (utils::Compare(omega_t_over_omega_c_22, 0.01) > 0) {
+        nuTidal22 = vl_over_2 * std::sqrt(omega_t_over_omega_c_22);    
+    }
+    double Dnu22          = (28.0/3.0) * omega_t_22 * omega_t_22 * m2_over_M_2 * (rOut_9 - rIn_9)  * rhoConv * nuTidal22 / a_6;
+    double A22_1          = -G_AU_Msol_yr * p_M2 / a_3;
+    double A22_2          = A22_1 * A22_1;
+    double k22Equilibrium = (3.0 / 2.0) * (16.0 * M_PI / 15.0) * G_AU_Msol_yr * Dnu22 / A22_2 / rOut_5 / omega_t_22;
+    if (w22 < 0.0) k22Equilibrium = -std::abs(k22Equilibrium);
+
+
+    // (l=3, m=2), Viscous dissipation, convective envelope
+    double omega_t_32              = std::abs(w32);                                               
+    double omega_t_over_omega_c_32 = omega_t_32 / omegaConv;
+    double nuTidal32               = vl_5;
+    if (utils::Compare(omega_t_over_omega_c_32, 5.0) > 0) {             
+        nuTidal32 = vl_25_over_root20 * (omega_t_over_omega_c_32) * (omega_t_over_omega_c_32);
+    }
+    else if (utils::Compare(omega_t_over_omega_c_32, 0.01) > 0) {
+        nuTidal32 = vl_over_2 * std::sqrt(omega_t_over_omega_c_32);    
+    }
+    double Dnu32          = (1495.0 / 132.0) * omega_t_32 * omega_t_32  * m2_over_M_2 * (rOut_11 - rIn_11) * rhoConv * nuTidal32 / a_8;
+    double A32_1          = -G_AU_Msol_yr * p_M2 / a_4;
+    double A32_2          = A32_1 * A32_1;
+    double k32Equilibrium = (3.0 / 2.0) * (16.0 * M_PI / 21.0) * G_AU_Msol_yr * Dnu32 / A32_2 / rOut_7 / omega_t_32;
+    if (w32 < 0.0) k32Equilibrium = -std::abs(k32Equilibrium);
+
+    // return ImKlmEquilibrium;
+    return std::make_tuple(k10Equilibrium, k12Equilibrium, k22Equilibrium, k32Equilibrium);
+}
+
+/*
+ * Calculate the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the potential tidal Love number 
+ * by combining Equilibrium and Dynamical tidal contributions.
+ *
+ * DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ *
+ * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
+ * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
+ * @param   [IN]    p_M2                        Mass of companion star (Msol)
+ * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
+ *                                              potential tidal Love number (unitless)
+ */
+DBL_DBL_DBL_DBL BaseStar::CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+    
+    double Imk10Dynamical, Imk12Dynamical, Imk22Dynamical, Imk32Dynamical;
+    std::tie(Imk10Dynamical, Imk12Dynamical, Imk22Dynamical, Imk32Dynamical) = CalculateImKlmDynamical(p_Omega, p_SemiMajorAxis, p_M2);
+
+    double Imk10Equilibrium, Imk12Equilibrium, Imk22Equilibrium, Imk32Equilibrium;
+    std::tie(Imk10Equilibrium, Imk12Equilibrium, Imk22Equilibrium, Imk32Equilibrium) = CalculateImKlmEquilibrium(p_Omega, p_SemiMajorAxis, p_M2);
+    
+    // return combined ImKlm terms;
+    return std::make_tuple(Imk10Dynamical+Imk10Equilibrium, Imk12Dynamical+Imk12Equilibrium, Imk22Dynamical+Imk22Equilibrium, Imk32Dynamical+Imk32Equilibrium);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -3240,7 +3554,7 @@ double BaseStar::CalculateLifetimeToBGB(const double p_Mass) const {
     double m_4   = m_2 * m_2;
     double m_5_5 = m_4 * p_Mass * std::sqrt(p_Mass);
     double m_7   = m_4 * m_2 * p_Mass;
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::CalculateLifetimeToBGB(), a[1] = " << a[1] << ", a[2] = " << a[2] << ", a[3] = " << a[3] << ", a[4] = " << a[4] << ", a[5] = " << a[5] << ", p_Mass = " << p_Mass << ", tBGB = " << (a[1] + (a[2] * m_4) + (a[3] * m_5_5) + m_7) / ((a[4] * m_2) + (a[5] * m_7)) << "\n";
+
     return (a[1] + (a[2] * m_4) + (a[3] * m_5_5) + m_7) / ((a[4] * m_2) + (a[5] * m_7));
 
 #undef a
@@ -3361,8 +3675,9 @@ double BaseStar::CalculateRadialExpansionTimescale_Static(const STELLAR_TYPE p_S
 double BaseStar::CalculateEddyTurnoverTimescale() {
 
 	double rEnv	= CalculateRadialExtentConvectiveEnvelope();
-
-	return 0.4311 * cbrt((m_Mass * rEnv * (m_Radius - (0.5 * rEnv))) / (3.0 * m_Luminosity));
+    double mEnv, mEnvmax;
+    std::tie(mEnv, mEnvmax) = CalculateConvectiveEnvelopeMass();
+    return 0.4311 * cbrt((mEnv * rEnv * (m_Radius - (0.5 * rEnv))) / (3.0 * m_Luminosity));
 }
 
 
@@ -3571,45 +3886,45 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
                                      const double p_RemnantMass) const {
 	double kickMagnitude;
 
-    switch (OPTIONS->KickMagnitudeDistribution()) {                                              // which distribution
+    switch (OPTIONS->KickMagnitudeDistribution()) {                                             // which distribution
 
         case KICK_MAGNITUDE_DISTRIBUTION::MAXWELLIAN:
-            kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);                // MAXWELLIAN, MAXWELL
+            kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);              // MAXWELLIAN, MAXWELL
             break;
 
-        case KICK_MAGNITUDE_DISTRIBUTION::FLAT:                                                  // FLAT
+        case KICK_MAGNITUDE_DISTRIBUTION::FLAT:                                                 // FLAT
             kickMagnitude = DrawKickMagnitudeDistributionFlat(OPTIONS->KickMagnitudeDistributionMaximum(), p_Rand);
             break;
 
-        case KICK_MAGNITUDE_DISTRIBUTION::ZERO:                                                  // ZERO
+        case KICK_MAGNITUDE_DISTRIBUTION::ZERO:                                                 // ZERO
             kickMagnitude = 0.0;
             break;
 
-        case KICK_MAGNITUDE_DISTRIBUTION::FIXED:                                                 // FIXED
+        case KICK_MAGNITUDE_DISTRIBUTION::FIXED:                                                // FIXED
             kickMagnitude = p_Sigma;
             break;
 
-        case KICK_MAGNITUDE_DISTRIBUTION::BRAYELDRIDGE:                                          // BRAY ELDRIDGE
+        case KICK_MAGNITUDE_DISTRIBUTION::BRAYELDRIDGE:                                         // BRAY ELDRIDGE
             kickMagnitude = DrawKickMagnitudeBrayEldridge(p_EjectaMass, p_RemnantMass, BRAY_ELDRIDGE_CONSTANT_VALUES.at(BRAY_ELDRIDGE_CONSTANT::ALPHA), BRAY_ELDRIDGE_CONSTANT_VALUES.at(BRAY_ELDRIDGE_CONSTANT::BETA));
             break;
 
-        case KICK_MAGNITUDE_DISTRIBUTION::MULLER2016:                                            // MULLER2016
+        case KICK_MAGNITUDE_DISTRIBUTION::MULLER2016:                                           // MULLER2016
             kickMagnitude = DrawRemnantKickMuller(p_COCoreMass);
             break;
 
-        case KICK_MAGNITUDE_DISTRIBUTION::MULLER2016MAXWELLIAN: {                                // MULLER2016-MAXWELLIAN
+        case KICK_MAGNITUDE_DISTRIBUTION::MULLER2016MAXWELLIAN: {                               // MULLER2016-MAXWELLIAN
 
             double mullerSigma = DrawRemnantKickMuller(p_COCoreMass) / std::sqrt(3.0);
 
             kickMagnitude = DrawKickMagnitudeDistributionMaxwell(mullerSigma, p_Rand);
             } break;
 
-        case  KICK_MAGNITUDE_DISTRIBUTION::MULLERMANDEL:                                          // MULLERMANDEL
+        case  KICK_MAGNITUDE_DISTRIBUTION::MULLERMANDEL:                                        // MULLERMANDEL
             kickMagnitude = DrawRemnantKickMullerMandel(p_COCoreMass, p_Rand, p_RemnantMass);
             break;
 
         default:                                                                                // unknown distribution
-            SHOW_WARN(ERROR::UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION, "Using default: MAXWELL");     // show warning
+            SHOW_WARN(ERROR::UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION, "Using default: MAXWELL");    // show warning
             kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);
     }
 
@@ -3639,7 +3954,7 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
         double sigma;
         switch (utils::SNEventType(m_SupernovaDetails.events.current)) {                            // what type of supernova event happening now?
 
-		    case SN_EVENT::ECSN:                                                                    //  ECSN may have a separate kick prescription
+		    case SN_EVENT::ECSN:                                                                    // ECSN may have a separate kick prescription
 			    sigma = OPTIONS->KickMagnitudeDistributionSigmaForECSN();
                 break;
 
@@ -3851,9 +4166,10 @@ double BaseStar::CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMa
 double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const {
     
     double m2         = 0.0023 * m_Log10Metallicity * m_Log10Metallicity + 0.0088 * m_Log10Metallicity + 0.013;         // Eq. (12) and Table 1 of Picker, Hirai, Mandel (2024)
-    double b1         = m2 * m_Mass - 0.23;                                         // Eq. (11) of Picker+ (2024)
-    double logLambda  = p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass > 0.3 ?
-        0.42 * p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass + b1 : 0.3 * 0.42 + b1;
+    double b1         = m2 * m_Mass - 0.23;                                                                             // Eq. (11) of Picker+ (2024)
+    double logLambda  = p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass > 0.3
+                            ? 0.42 * p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass + b1
+                            : 0.3 * 0.42 + b1;
     
     return exp(logLambda);
 }
@@ -3959,10 +4275,10 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
 
     // record some current values before they are (possibly) changed by evolution
     if (p_DeltaTime > 0.0) {                                                                        // don't use utils::Compare() here
-        m_StellarTypePrev     = m_StellarType;
-        m_DtPrev              = m_Dt;
-        m_MassPrev            = m_Mass;
-        m_RadiusPrev          = m_Radius;
+        m_StellarTypePrev = m_StellarType;
+        m_DtPrev          = m_Dt;
+        m_MassPrev        = m_Mass;
+        m_RadiusPrev      = m_Radius;
     }
 
     // the GBParams and Timescale calculations need to be done
@@ -4154,9 +4470,7 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (ShouldEvolveOnPhase()) {                                                    // evolve timestep on phase
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(@1), ST = " << static_cast<int>(m_StellarType) << ", m_Tau = " << m_Tau << ", p_DeltaTime = " << p_DeltaTime << "\n";
         m_Tau             = CalculateTauOnPhase();
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(@2), ST = " << static_cast<int>(m_StellarType) << ", m_Tau = " << m_Tau << "\n";
 
         m_COCoreMass      = CalculateCOCoreMassOnPhase();
         m_CoreMass        = CalculateCoreMassOnPhase();
@@ -4165,14 +4479,12 @@ std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(@2)
         m_Luminosity      = CalculateLuminosityOnPhase();
 
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // radius and possibly new stellar type
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(@3), ST = " << static_cast<int>(m_StellarType) << ", m_Temperature = " << m_Temperature * TSOL << ", m_Radius = " << m_Radius << "\n";
 
         m_Mu              = CalculatePerturbationMuOnPhase();
 
         PerturbLuminosityAndRadiusOnPhase();
 
         m_Temperature     = CalculateTemperatureOnPhase();
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::EvolveOnPhase(@4), ST = " << static_cast<int>(m_StellarType) << ", m_Temperature = " << m_Temperature * TSOL << ", m_Radius = " << m_Radius << "\n";
 
         if (p_DeltaTime > 0.0) {
             STELLAR_TYPE thisStellarType = ResolveEnvelopeLoss();                       // resolve envelope loss if it occurs - possibly new stellar type
@@ -4218,12 +4530,10 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase(const bool p_ResolveEnvelopeLoss) {
             m_Luminosity  = CalculateLuminosityAtPhaseEnd();
 
             m_Radius      = CalculateRadiusAtPhaseEnd();
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::ResolveEndOfPhase(@1), ST = " << static_cast<int>(m_StellarType) << ", m_Luminosity = " << m_Luminosity << ", m_Radius = " << m_Radius << "\n";
 
             m_Mu          = CalculatePerturbationMuAtPhaseEnd();
 
             PerturbLuminosityAndRadiusAtPhaseEnd();
-std::cout << std::fixed << std::setprecision(15) << "BaseStar::ResolveEndOfPhase(@2), ST = " << static_cast<int>(m_StellarType) << ", m_Luminosity = " << m_Luminosity << ", m_Radius = " << m_Radius << "\n";
 
             m_Temperature = CalculateTemperatureAtPhaseEnd();
 

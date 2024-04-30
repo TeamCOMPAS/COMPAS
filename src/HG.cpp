@@ -774,7 +774,9 @@ double HG::CalculateRadiusAtPhaseEnd(const double p_Mass) const {
 /*
  * Calculate radius on the Hertzsprung Gap
  *
- * Hurley et al. 2000, eq 27
+ * Uses a modified version Hurley et al. 2000, eq 27
+ * Here we replace the numberator, REHG, with the GB radius if mass is below the threshold for He ignition,
+ * and a calculated value if mass is above the threshold for He ignition (see code below)
  *
  *
  * double CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS)
@@ -789,55 +791,41 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 
-    double RTMS = MainSequence::CalculateRadiusAtPhaseEnd(m_Mass, p_RZAMS);
-//    double REHG = GiantBranch::CalculateRadiusAtHeIgnition(m_Mass);
+    double RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
+    double RGB  = GiantBranch::CalculateRadiusOnPhase_Static(p_Mass, m_Luminosity, b);
 
+    double rx   = RGB;                                                                                              // Hurley sse terminlogy (rx)
 
-    double rg = GiantBranch::CalculateRadiusOnPhase_Static(m_Mass, m_Luminosity, b);
+    if (utils::Compare(p_Mass, massCutoffs(MFGB)) > 0) {                                                            // mass above threshold for He ignition?
+                                                                                                                    // yes
+        // rMinHe is Hurley et al. 2000, eq 55 - first part (M >= MHeF)
+        double m_b28 = PPOW(p_Mass, b[28]);                                                                         // pow() is slow - do it once only
+        double rMinHe = ((b[24] * p_Mass) + (PPOW((b[25] * p_Mass), b[26]) * m_b28)) / (b[27] + m_b28);             // this is 'rmin' in Hurley sse 
 
-    double rx = rg;
-std::cout << std::fixed << std::setprecision(15) << "HG::CalculateRadiusOnPhase(@1), rx = " << rx << "\n";
-    double ry;
-    double rMin;
-    if (utils::Compare(m_Mass, massCutoffs(MFGB)) > 0) {
-        // rmin is eq 55 - first part (M >= MHeF)
-        double m_b28 = PPOW(m_Mass, b[28]);         // pow() is slow - do it once only
-        rMin = ((b[24] * m_Mass) + (PPOW((b[25] * m_Mass), b[26]) * m_b28)) / (b[27] + m_b28);
-std::cout << std::fixed << std::setprecision(15) << "HG::CalculateRadiusOnPhase(@2.1), b[24] = " << b[24] << ", b[25] = " << b[25] << ", b[26] = " << b[26] << ", b[27] = " << b[27] << ", b[28] = " << b[28] << "\n";
+        double lum = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), b);
+        double ry  = EAGB::CalculateRadiusOnPhase_Static(p_Mass, lum, massCutoffs(MHeF), b);                        // Hurley sse terminlogy (ry)
 
-
-        double lum = GiantBranch::CalculateLuminosityAtHeIgnition_Static(m_Mass, m_Alpha1, massCutoffs(MHeF), b);
-        ry = EAGB::CalculateRadiusOnPhase_Static(m_Mass, lum, massCutoffs(MHeF), b);
-        rx = std::min(rMin, ry);
-std::cout << std::fixed << std::setprecision(15) << "HG::CalculateRadiusOnPhase(@2.2), rx = " << rx << "\n";
+        // calculate radius at He ignition for MFGB < p_Mass < HM
+        // Hurley et al. 2000, eq 50
         
-        if (utils::Compare(m_Mass, 12.0) < 0) {
-
-            double mu = log10(m_Mass / 12.0) / log10(massCutoffs(MFGB) / 12.0);
-
-            rx      = rMin * PPOW(rg / rMin, mu);
-std::cout << std::fixed << std::setprecision(15) << "HG::CalculateRadiusOnPhase(@3), rx = " << rx << "\n";
+        rx = std::min(rMinHe, ry);
+        
+        if (utils::Compare(p_Mass, HIGH_MASS_THRESHOLD) < 0) {
+            double mu = log10(p_Mass / HIGH_MASS_THRESHOLD) / log10(massCutoffs(MFGB) / HIGH_MASS_THRESHOLD);
+            rx        = rMinHe * PPOW(RGB / rMinHe, mu);
         }
 
         // this piece of code resets rx if the blue loop is relatively short
-        // sse uses function tblf() in zfuncs.f
-        // I think tblf() just calculates what we call timescales(tau_BL) (see Hurley et al. 2000, eq 58 and discussion there) *ILYA* pls check!
+        // see Hurley sse, function tblf() in `zfuncs1.f`
+        double r1 = 1.0 - rMinHe / ry;
+        r1 = std::max(r1, 1.0E-12);     // JR: I suspect this is where the check came from in the dicussion re blue loop in CHeB::CalculateTimescales()
 
-      double r1 = 1.0 - rMin / ry;
-      r1 = std::max(r1, 1.0E-12);     // JAR: I suspect this is where the check came from in the dicussion re blue loop in CHeB::CalculateTimescales()
+        double tblf = b[47] * PPOW(p_Mass, b[48]) * PPOW(r1, b[49]);                                                // calculate blue-loop fraction of He-burning
+        tblf = std::min(1.0, std::max(0.0, tblf));                                                                  // clamp to [0.0, 1.0]
 
-      double tblf = b[47] * PPOW(m_Mass, b[48]) * PPOW(r1, b[49]);
-
-      tblf = std::min(1.0, std::max(0.0, tblf));
-      if (tblf < 1.0E-10) tblf = 0.0;   // if the fraction is tiney we assume 0
-
-std::cout << std::fixed << std::setprecision(15) << "HG::CalculateRadiusOnPhase(@5), tblf = " << tblf << "\n";
-        if (tblf <= 1.0E-14) rx = ry;
+        if (tblf < 1.0E-10) rx = ry;                                                                                // reset rx if short blue loop
     }
-std::cout << std::fixed << std::setprecision(15) << "HG::CalculateRadiusOnPhase(@5), rx = " << rx << "\n";
 
-
-std::cout << std::fixed << std::setprecision(15) << "HG::CalculateRadiusOnPhase(@6), p_Mass = " << p_Mass << ", p_Tau = " << p_Tau << ", p_RZAMS = " << p_RZAMS << ", RTMS = " << RTMS << ", rx = " << rx << ", r = " << RTMS * PPOW((rx / RTMS), p_Tau) << "\n";
     return RTMS * PPOW(rx / RTMS, p_Tau);
 
 #undef timescales
@@ -873,15 +861,12 @@ double HG::CalculateCoreMassAtPhaseEnd(const double p_Mass) const {
     if (utils::Compare(p_Mass, massCutoffs(MHeF)) < 0) {
         double LBGB = GiantBranch::CalculateLuminosityAtPhaseBase_Static(p_Mass, m_AnCoefficients);
         coreMass    = BaseStar::CalculateCoreMassGivenLuminosity_Static(LBGB, m_GBParams);
-std::cout << std::fixed << std::setprecision(15) << "HG::CalculateCoreMassAtPhaseEnd(@1), p_Mass = " << p_Mass << ", MHeF = " << massCutoffs(MHeF) << ", coreMass = " << coreMass << "\n";
     }
     else if (utils::Compare(p_Mass, massCutoffs(MFGB)) < 0) {
         coreMass = gbParams(McBGB);
-std::cout << std::fixed << std::setprecision(15) << "HG::CalculateCoreMassAtPhaseEnd(@2), p_Mass = " << p_Mass << ", MFGB = " << massCutoffs(MFGB) << ", coreMass = " << coreMass << "\n";
     }
     else {
         coreMass = CalculateCoreMassAtHeIgnition(p_Mass);
-std::cout << std::fixed << std::setprecision(15) << "HG::CalculateCoreMassAtPhaseEnd(@3), p_Mass = " << p_Mass << ", MFGB = " << massCutoffs(MFGB) << ", coreMass = " << coreMass << "\n";
     }
 
     return coreMass;
@@ -932,7 +917,6 @@ double HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(const double p_Mass,
     double rhoHG = CalculateRho(p_Mass);
     double tau   = (p_Time - timescales(tMS)) / (timescales(tBGB) - timescales(tMS));
     
-std::cout << std::fixed << std::setprecision(15) << "HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(), tMS = " << timescales(tMS) << ", tBGB = " << timescales(tBGB) << ", p_Time = " << p_Time << ", McEHG = " << McEHG << ", rhoHG = " << rhoHG << ", tau = " << tau << ", p_Mass = " << p_Mass << ", mc = " << (((1.0 - tau) * rhoHG) + tau) * McEHG << "\n";
     return (((1.0 - tau) * rhoHG) + tau) * McEHG;
     
 #undef timescales
@@ -1039,7 +1023,6 @@ void HG::UpdateAgeAfterMassLoss() {
     double tMS       = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
     double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass0, tBGBprime);
 
-//    m_Age = m_Dt + tMSprime + (((tBGBprime - tMS) / (tBGB - tMS)) * (m_AgePrev - tMS));
     m_Age = tMSprime + (((tBGBprime - tMSprime) / (tBGB - tMS)) * (m_Age - tMS));
 }
 
@@ -1142,7 +1125,6 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-std::cout << std::fixed << std::setprecision(15) << "HG::ResolveEnvelopeLoss(), m_CoreMass = " << m_CoreMass << ", m_Mass = " << m_Mass << ", m_Radius = " << m_Radius << "\n";
     if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                  // envelope loss
 
         m_Mass = std::min(m_CoreMass, m_Mass);
@@ -1206,10 +1188,7 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
  *
  */
 void HG::UpdateInitialMass() {
-std::cout << std::fixed << std::setprecision(15) << "HG::UpdateInitialMass(@1), m_Mass0 = " << m_Mass0 << ", m_Mass = " << m_Mass << ", m_CoreMass = " << m_CoreMass << ", newMc = " << HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass, m_Age) << "\n";
     if (utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass, m_Age), 1.0E-10, true) <= 0) {     // The current mass would yield a core mass larger than the current core mass -- i.e., no unphysical core mass decrease would ensue
         m_Mass0 = m_Mass;
-std::cout << std::fixed << std::setprecision(15) << "HG::UpdateInitialMass(@2), m_Mass0 = " << m_Mass0 << ", m_Mass = " << m_Mass << "\n";
     }
-std::cout << std::fixed << std::setprecision(15) << "HG::UpdateInitialMass(@3), m_Mass0 = " << m_Mass0 << ", m_Mass = " << m_Mass << "\n";
 }

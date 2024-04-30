@@ -29,7 +29,6 @@ void MainSequence::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timesc
 #define timescales(x) p_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     timescales(tBGB) = CalculateLifetimeToBGB(p_Mass);
     timescales(tMS)  = CalculateLifetimeOnPhase(p_Mass, timescales(tBGB));
-std::cout << std::fixed << std::setprecision(15) << "MainSequence::CalculateTimescales(), tBGB = " << timescales(tBGB) << "\n";
 #undef timescales
 }
 
@@ -604,7 +603,6 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
     // For mass < Mhook, x > mu (i.e. for stars without a hook)
     double x = std::max(0.95, std::min((0.95 - (0.03 * (LogMetallicityXi() + 0.30103))), 0.99));
 
-std::cout << std::fixed << std::setprecision(15) << "MainSequence::CalculateLifetimeOnPhase(), mu = " << mu << ", x = " << x << ", p_Mass = " << p_Mass << "\n";
     return std::max(tHook, (x * p_TBGB));
 
 #undef a
@@ -625,16 +623,11 @@ std::cout << std::fixed << std::setprecision(15) << "MainSequence::CalculateLife
 void MainSequence::UpdateAgeAfterMassLoss() {
 
     double tMS       = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
-std::cout << std::fixed << std::setprecision(15) << "MainSequence::UpdateAgeAfterMassLoss(@1), m_Age = " << m_Age << ", m_AgePrev = " << m_AgePrev << ", m_Mass = " << m_Mass << ", m_MassPrev = " << m_MassPrev << ", m_Dt = " << m_Dt << "\n";
     double tBGBprime = CalculateLifetimeToBGB(m_Mass0);
     double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass0, tBGBprime);
-std::cout << std::fixed << std::setprecision(15) << "MainSequence::UpdateAgeAfterMassLoss(@2), tBGBprime = " << tBGBprime << ", tMSprime = " << tMSprime << ", tMS = " << tMS << "\n";
 
-//    m_Age = m_Dt + m_AgePrev * tMSprime / tMS;
     m_Age *= tMSprime / tMS;
-std::cout << std::fixed << std::setprecision(15) << "MainSequence::UpdateAgeAfterMassLoss(@3), m_Age = " << m_Age << "\n";
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //

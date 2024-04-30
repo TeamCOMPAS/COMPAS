@@ -942,7 +942,7 @@ double CHeB::CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau)
         //      see Hurley sse hrdiag.f line 287 - partly reproduced in comments below
         //      this single check seems to work, but I haven't worked out yet if it will work in all circunstances...
         //      I don't think we defince cutoffs for LM, IM, and HM stars anywhere - we probably should define constants
-        if (p_Mass > 12.0) {
+        if (p_Mass > HIGH_MASS_THRESHOLD) {
             Rx = RmHe;
         }
 
