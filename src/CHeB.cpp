@@ -936,24 +936,19 @@ double CHeB::CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau)
         double RmHe    = CalculateMinimumRadiusOnPhase_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
         double LBAGB   = CalculateLuminosityAtBAGB(p_Mass);
 
-
-        // ~~ILYA~~
-        // JAR: added this check from Hurley
-        //      see Hurley sse hrdiag.f line 287 - partly reproduced in comments below
-        //      this single check seems to work, but I haven't worked out yet if it will work in all circunstances...
-        //      I don't think we defince cutoffs for LM, IM, and HM stars anywhere - we probably should define constants
+        // the following check for high mass stars was added to match the Hurley sse code
+        // - see Hurley sse `hrdiag.f` line 287
         if (p_Mass > HIGH_MASS_THRESHOLD) {
             Rx = RmHe;
         }
 
-
         double epsilon = std::min(2.5, std::max(0.4, (RmHe / Rx)));
-        double lambda  = (utils::Compare(p_Tau, tx) == 0) ? 0.0 : PPOW((p_Tau - tx) / (1.0 - tx), epsilon);                                  // JR: tx can be 1.0 here - if so, lambda = 0.0
+        double lambda  = (utils::Compare(p_Tau, tx) == 0) ? 0.0 : PPOW((p_Tau - tx) / (1.0 - tx), epsilon);                                 // tx can be 1.0 here - if so, lambda = 0.0
         lCHeB          = Lx * PPOW(LBAGB / Lx, lambda);
     }
     else {                                                                                                                                  // before the blue loop
         double LHeI        = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);    // pow() is slow - use multiplication
-        double tmp         = (tx - p_Tau) / tx;                                                                                             // JR: tx cannot be 0.0 here, so safe (tx > tau, tau = [0, 1])
+        double tmp         = (tx - p_Tau) / tx;                                                                                             // tx cannot be 0.0 here, so safe (tx > tau, tau = [0, 1])
         double lambdaPrime = tmp * tmp * tmp;
         lCHeB              = Lx * PPOW((LHeI / Lx), lambdaPrime);
     }

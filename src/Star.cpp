@@ -360,7 +360,7 @@ STELLAR_TYPE Star::AgeOneTimestep(const double p_DeltaTime, bool p_Switch) {
  *                                                 - the class member m_Dt may be updated in BaseStar::CalculateMassLossValues()
  * @return                                      The timestep actually taken
  */
-double Star::EvolveOneTimestep(const double p_Dt, const bool p_Force, const bool p_MassLoss) {
+double Star::EvolveOneTimestep(const double p_Dt, const bool p_Force) {
 
     double       dt = p_Dt;
 
@@ -414,7 +414,7 @@ double Star::EvolveOneTimestep(const double p_Dt, const bool p_Force, const bool
 
     (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::PRE_MASS_LOSS);                           // log record - pre mass loss
 
-    if (p_MassLoss) (void)m_Star->ResolveMassLoss(!p_Force);                                                    // apply wind mass loss if required
+    (void)m_Star->ResolveMassLoss(!p_Force);                                                                    // apply wind mass loss if required
 
     (void)m_Star->PrintStashedSupernovaDetails();                                                               // print stashed SSE Supernova log record if necessary
 
@@ -494,12 +494,11 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
                 dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();                                           // calculate new timestep   
                 dt = std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM;                                                  // quantised
             }
+            stepNum++;                                                                                                      // increment step number                                                      
 
-            EvolveOneTimestep(dt, true, stepNum > 0);                                                                       // evolve for timestep - no mass loss in first timestep
+            EvolveOneTimestep(dt, true);                                                                                    // evolve for timestep
             UpdateAttributes(0.0, 0.0, true);                                                                               // JR: if this is not included, BSE and SSE are out of sync by 1 timestep.  If we remove this, we have to change BSE accordingly.  Not sure which one is right yet... (or if that actually matters)
             (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                          // log record  
-
-            stepNum++;                                                                                                      // increment step number                                                      
         }
     }
 

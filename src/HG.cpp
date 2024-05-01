@@ -775,6 +775,7 @@ double HG::CalculateRadiusAtPhaseEnd(const double p_Mass) const {
  * Calculate radius on the Hertzsprung Gap
  *
  * Uses a modified version Hurley et al. 2000, eq 27
+ * See Hurley sse code `hrdiag.f` lines 92, 188-203
  * Here we replace the numberator, REHG, with the GB radius if mass is below the threshold for He ignition,
  * and a calculated value if mass is above the threshold for He ignition (see code below)
  *
@@ -803,7 +804,9 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
         double rMinHe = ((b[24] * p_Mass) + (PPOW((b[25] * p_Mass), b[26]) * m_b28)) / (b[27] + m_b28);             // this is 'rmin' in Hurley sse 
 
         double lum = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), b);
-        double ry  = EAGB::CalculateRadiusOnPhase_Static(p_Mass, lum, massCutoffs(MHeF), b);                        // Hurley sse terminlogy (ry)
+
+        // In the Hurley sse code mt (m_Mass) is used here (mass (m_Mass0) everywhere else)
+        double ry  = EAGB::CalculateRadiusOnPhase_Static(m_Mass, lum, massCutoffs(MHeF), b);                        // Hurley sse terminlogy (ry)
 
         // calculate radius at He ignition for MFGB < p_Mass < HM
         // Hurley et al. 2000, eq 50
@@ -890,9 +893,7 @@ double HG::CalculateCoreMassAtPhaseEnd(const double p_Mass) const {
  * @return                                      Core mass on the Hertzsprung Gap in Msol
  */
 double HG::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const {
-
     return std::max(HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(p_Mass, p_Time), m_CoreMass);
-
 }
 
 
@@ -1188,7 +1189,7 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
  *
  */
 void HG::UpdateInitialMass() {
-    if (utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass, m_Age), 1.0E-10, true) <= 0) {     // The current mass would yield a core mass larger than the current core mass -- i.e., no unphysical core mass decrease would ensue
+    if (utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass, m_Age)) <= 0) {     // The current mass would yield a core mass larger than the current core mass -- i.e., no unphysical core mass decrease would ensue
         m_Mass0 = m_Mass;
     }
 }

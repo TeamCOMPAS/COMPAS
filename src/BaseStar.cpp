@@ -2020,7 +2020,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
     const double zExp     = 0.42;
 
     double teff    = m_Temperature * TSOL;  
-    double Gamma   = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;
+    double Gamma   = EDDINGTON_PARAMETER_FACTOR * m_Luminosity / m_Mass;
     double charrho = -14.94 + (3.1857 * Gamma) + (zExp * LogMetallicityXi()); 
     double T2      = ( 61.2 + (2.59 * charrho) ) * 1000.0;                                                      // typically around 25000.0, higher jump first as in Vink python recipe
     double T1      = ( 100.0 + (6.0 * charrho) ) * 1000.0;                                                      // typically around 20000.0, has similar behavior when fixed
@@ -2231,10 +2231,10 @@ double BaseStar::CalculateMassLossRateRSGVinkSabhahit2023() const {
  */
 double BaseStar::CalculateMassLossRateVMSBestenlehner2020() const {
 
-    const double alpha       = 0.39;                                // CAK force multiplier
-    const double logMdotZero = -4.78;                               // from substituting LogMdotTrans and Gamma_e trans into eq 12. 
+    const double alpha       = 0.39;                                        // CAK force multiplier
+    const double logMdotZero = -4.78;                                       // from substituting LogMdotTrans and Gamma_e trans into eq 12. 
 
-    double gamma   = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;       // Eddington Parameter, not metallicity specific as in the publication
+    double gamma   = EDDINGTON_PARAMETER_FACTOR * m_Luminosity / m_Mass;    // Eddington Parameter, not metallicity specific as in the publication
     double logMdot = logMdotZero + ((1.0 / alpha) + 0.5) * log10(gamma) - (((1.0 - alpha) / alpha) + 2.0) * log10(1.0 - gamma);
 
     return PPOW(10.0, logMdot);
@@ -2255,7 +2255,7 @@ double BaseStar::CalculateMassLossRateVMSVink2011() const {
 
     double rate;
 
-    double Gamma    = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;                                                  // Eddington Parameter, independent of surface composition
+    double Gamma    = EDDINGTON_PARAMETER_FACTOR * m_Luminosity / m_Mass;                                       // Eddington Parameter, independent of surface composition
     double rate2001 = CalculateMassLossRateOBVink2001();
 
     double logMdotdiff;
@@ -2284,11 +2284,11 @@ double BaseStar::CalculateMassLossRateVMSVink2011() const {
  */
 double BaseStar::CalculateMassLossRateVMSSabhahit2023() const {
 
-    double gamma       = 7.66E-5 * 0.325 * m_Luminosity / m_Mass;                                               // Eddington Parameter, independent of surface composition
+    double gamma       = EDDINGTON_PARAMETER_FACTOR * m_Luminosity / m_Mass;                                    // Eddington Parameter, independent of surface composition
     double Mswitch     = PPOW(m_Metallicity, -1.574) * 0.0615 + 18.10;                                          // obtained from a powerlaw fit to table 2, given teff=45kK
     double Lswitch     = PPOW(10, (-1.91 * m_Log10Metallicity + 2.36));                                         // loglinear fits to table 2 
     double Mdotswitch  = PPOW(10, (-1.86 * m_Log10Metallicity - 8.90));
-    double gammaswitch = 7.66E-5 * 0.325 * Lswitch / Mswitch;
+    double gammaswitch = EDDINGTON_PARAMETER_FACTOR * Lswitch / Mswitch;
 
     double Mdot; 
     if (utils::Compare(gamma, gammaswitch) > 0) {

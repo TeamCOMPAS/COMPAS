@@ -284,11 +284,10 @@ constexpr double NEUTRINO_LOSS_FALLBACK_FACTOR          = 1.0;                  
 constexpr double MC_L_C1                                = 9.20925E-5;                                               // Core Mass - Luminosity relation constant c1 (Hurley et al. 2000, eq 44)
 constexpr double MC_L_C2                                = 5.402216;                                                 // Core Mass - Luminosity relation constant c2 (Hurley et al. 2000, eq 44)
 
-//constexpr double HE_RATE_CONSTANT                       = 7.66E-5;                                                  // Helium rate constant (Hurley et al. 2000, eq 68)
-// despite Hurley et al. 2000, eq 68, the value used in the Hurley sse code is 8.0E-05
-// (see Hurley sse code `star.f`, lines 76 & 318)
-constexpr double HE_RATE_CONSTANT                       = 8.0E-5;                                                   // Helium rate constant (as defined in Hurley sse code, `star.f`, lines 76 & 318)
+constexpr double HE_RATE_CONSTANT                       = 7.66E-5;                                                  // Helium rate constant (Hurley et al. 2000, eq 68)
 constexpr double HHE_RATE_CONSTANT                      = 1.27E-5;                                                  // Combined rate constant for both hydrogen and helium shell burning (Hurley et al. 2000, eq 71)
+
+constexpr double EDDINGTON_PARAMETER_FACTOR             = HE_RATE_CONSTANT * 0.325;                                 // Eddington parameter factor
 
 constexpr double BLACK_HOLE_LUMINOSITY                  = 1.0E-10;                                                  // Black Hole luminosity
 
