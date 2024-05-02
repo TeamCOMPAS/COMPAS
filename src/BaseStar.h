@@ -251,7 +251,7 @@ public:
 
             double          CalculateRadialExpansionTimescale() const                                           { return CalculateRadialExpansionTimescale_Static(m_StellarType, m_StellarTypePrev, m_Radius, m_RadiusPrev, m_DtPrev); } // Use class member variables
     
-    virtual double      CalculateRadialExtentConvectiveEnvelope() const                                         { return 0.0; }                                                        // default for stars with no convective envelope
+    virtual double          CalculateRadialExtentConvectiveEnvelope() const                                     { return 0.0; }                                                     // default for stars with no convective envelope
 
             void            CalculateSNAnomalies(const double p_Eccentricity);
 
@@ -376,10 +376,10 @@ protected:
     double                  m_TZAMS0;                                   // Effective ZAMS Temperature
 
     // Current timestep variables
-    double                  m_Age;                                      // Current effective age (changes with mass loss/gain)(myrs)
+    double                  m_Age;                                      // Current effective age (changes with mass loss/gain) (Myr)
     double                  m_COCoreMass;                               // Current CO core mass (Msol)
     double                  m_CoreMass;                                 // Current core mass (Msol)
-    double                  m_Dt;                                       // Current timestep (myrs)
+    double                  m_Dt;                                       // Size of current timestep (Myr)
     bool                    m_EnvelopeJustExpelledByPulsations;         // Flag to know if the convective envelope has just been expelled by pulsations
     double                  m_HeCoreMass;                               // Current He core mass (Msol)
     bool                    m_LBVphaseFlag;                             // Flag to know if the star satisfied the conditions, at any point in its evolution, to be considered a Luminous Blue Variable (LBV)
@@ -395,7 +395,7 @@ protected:
     double                  m_Radius;                                   // Current radius (Rsol)
     double                  m_Tau;                                      // Relative time
     double                  m_Temperature;                              // Current temperature (Tsol)
-    double                  m_Time;                                     // Current physical time the star has been evolved(myrs)
+    double                  m_Time;                                     // Current physical time the star has been evolved (Myr)
 
     // Previous timestep variables
     double                  m_DtPrev;                                   // Previous timestep
@@ -526,7 +526,7 @@ protected:
 
     static  double              CalculateMassLoss_Static(const double p_Mass, const double p_Mdot, const double p_Dt);
 
-            double              CalculateMassLossRate();
+    virtual double              CalculateMassLossRate();
     virtual double              CalculateMassLossRateHurley();
             double              CalculateMassLossRateKudritzkiReimers() const;
             double              CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescription);
@@ -557,7 +557,7 @@ protected:
             double              CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const;
             double              CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot) const;
             double              CalculateMassLossRateHeliumStarVink2017() const;
-            double              CalculateMassLossRateWolfRayetShenar2019() const;
+    virtual double              CalculateMassLossRateWolfRayetShenar2019() const;
 
     virtual double              CalculateMassTransferRejuvenationFactor() const;
 

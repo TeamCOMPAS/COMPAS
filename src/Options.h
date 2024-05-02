@@ -964,7 +964,7 @@ public:
             double                                              m_PulsarBirthSpinPeriodDistributionMin;                         // Minimum birth spin period (ms)
             double                                              m_PulsarBirthSpinPeriodDistributionMax;                         // Maximum birth spin period (ms)
 
-            double                                              m_PulsarMagneticFieldDecayTimescale;                            // Timescale on which magnetic field decays (Myrs)
+            double                                              m_PulsarMagneticFieldDecayTimescale;                            // Timescale on which magnetic field decays (Myr)
             double                                              m_PulsarMagneticFieldDecayMassscale;                            // Mass scale on which magnetic field decays during accretion (solar masses)
             double                                              m_PulsarLog10MinimumMagneticField;                              // log10 of the minimum pulsar magnetic field in Gauss
 
