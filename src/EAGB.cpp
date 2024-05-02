@@ -383,7 +383,7 @@ double EAGB::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p
 	DBL_VECTOR b        = {};                                                       // 0..5 b_coefficients
 
     if (utils::Compare(p_Metallicity, LAMBDA_NANJING_ZLIMIT) > 0) {                 // Z>0.5 Zsun: popI
-        if (utils::Compare(p_Mass, 1.5) < 0) {                                     // Should probably use effective mass m_Mass0 instead for Lambda calculations
+        if (utils::Compare(p_Mass, 1.5) < 0) {                                      // Should probably use effective mass m_Mass0 instead for Lambda calculations
             maxBG = { 2.5, 1.5 };
             if (utils::Compare(m_Radius, 200.0) > 0) lambdaBG = { 0.05, 0.05 };
             else  {
@@ -773,9 +773,8 @@ double EAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
 #define b p_BnCoefficients  // for convenience and readability - undefined at end of function
 
     // sanity check for mass and luminosity - just return 0.0 if mass or luminosity <= 0
-    // doing this will save some compute cycles - but it is not strictly what the equation in Hurley says
-    // (Hurley et al. 2000, eq 74 and immediately following) - there if mass is 0.0 but luminosity is
-    // non-zero we get a non-zero value for radius (shouldn't happen, but we need to code for all possibilities)
+    // doing this will save some compute cycles
+
     if (utils::Compare(p_Mass, 0.0) <= 0 || utils::Compare(p_Luminosity, 0.0) <= 0) return 0.0;
 
     // calculate radius constant A (Hurley et al. 2000, eq 74)
@@ -855,8 +854,8 @@ double EAGB::CalculateRemnantRadius() const {
  * @return                                      Core mass on the Early Asymptotic Giant Branch in Msol
  */
 double EAGB::CalculateCOCoreMassOnPhase(const double p_Time) const {
-#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)] // for convenience and readability - undefined at end of function
-#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
+#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
+#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
     return utils::Compare(p_Time, timescales(tMx_FAGB)) <= 0
             ? PPOW((gbParams(p) - 1.0) * gbParams(AHe) * gbParams(D) * (timescales(tinf1_FAGB) - p_Time), 1.0 / (1.0 - gbParams(p)))
@@ -1027,6 +1026,7 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
         timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
 
         m_Age = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
+
         HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, LogMetallicityXi(), m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams);  // IM: order of type change and parameter updates to be revisited (e.g., why not just CalculateGBParams(m_Mass0, m_GBParams)?)  JR: static function has no access to class variables
         m_Luminosity = HeGB::CalculateLuminosityOnPhase_Static(m_COCoreMass, gbParams(B), gbParams(D));
 
@@ -1107,7 +1107,7 @@ bool EAGB::IsSupernova() const {
     double McCOBAGB = CalculateCOCoreMassOnPhase(timescales(tHeI) + timescales(tHe));
     double McSN     = std::max(gbParams(McSN), 1.05 * McCOBAGB);                                // hack from Hurley fortran code, doesn't seem to be in the paper   JR: do we know why?
 
-    return (utils::Compare(McSN, m_COCoreMass) < 0);                                            // core is heavy enough to go Supernova
+    return (utils::Compare(McSN, m_COCoreMass) <= 0);                                           // core is heavy enough to go Supernova
 
 #undef gbParams
 #undef timescales

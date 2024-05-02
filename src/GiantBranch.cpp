@@ -531,7 +531,7 @@ double GiantBranch::CalculateLuminosityAtHeIgnition_Static(const double      p_M
 double GiantBranch::CalculateRemnantLuminosity() const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0)
+    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) > 0)
             ? HeMS::CalculateLuminosityAtZAMS_Static(m_CoreMass)
             : WhiteDwarfs::CalculateLuminosityOnPhase_Static(m_CoreMass, 0.0, m_Metallicity, WD_Baryon_Number.at(STELLAR_TYPE::HELIUM_WHITE_DWARF));
 
@@ -633,7 +633,7 @@ double GiantBranch::CalculateRadiusOnZAHB_Static(const double      p_Mass,
 double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    double RHeI = 0.0;                                                  // Radius at Helium Ignition
+    double RHeI = 0.0;                                                      // Radius at Helium Ignition
 
     double LHeI      = CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
     double RmHe      = CHeB::CalculateMinimumRadiusOnPhase_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
@@ -642,12 +642,12 @@ double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
     if (utils::Compare(p_Mass, massCutoffs(MFGB)) <= 0) {
         RHeI = RGB_LHeI;
     }
-    else if (utils::Compare(p_Mass, std::max(massCutoffs(MFGB), 12.0)) >= 0) {
+    else if (utils::Compare(p_Mass, std::max(massCutoffs(MFGB), HIGH_MASS_THRESHOLD)) >= 0) {
         double RAGB_LHeI = EAGB::CalculateRadiusOnPhase_Static(p_Mass, LHeI, massCutoffs(MHeF), m_BnCoefficients);
         RHeI             = std::min(RmHe, RAGB_LHeI);                        // Hurley et al. 2000, eq 55
     }
     else {
-        double mu = log10(p_Mass / 12.0) / log10(massCutoffs(MFGB) / 12.0);
+        double mu = log10(p_Mass / HIGH_MASS_THRESHOLD) / log10(massCutoffs(MFGB) / HIGH_MASS_THRESHOLD);
         RHeI      = RmHe * PPOW((RGB_LHeI / RmHe), mu);
     }
 
@@ -670,8 +670,7 @@ double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
  */
 double GiantBranch::CalculateRemnantRadius() const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
-
-    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0)
+    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) > 0)
             ? HeMS::CalculateRadiusAtZAMS_Static(m_CoreMass)
             : WhiteDwarfs::CalculateRadiusOnPhase_Static(m_CoreMass);
 
@@ -838,9 +837,9 @@ double GiantBranch::CalculateCoreMassAtHeIgnition(const double p_Mass) const {
         double luminosity_MHeF = CalculateLuminosityAtHeIgnition_Static(massCutoffs(MHeF), m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
         double Mc_MHeF         = BaseStar::CalculateCoreMassGivenLuminosity_Static(luminosity_MHeF, m_GBParams);
         double McBAGB          = CalculateCoreMassAtBAGB(p_Mass);
-        double c               = (Mc_MHeF * Mc_MHeF * Mc_MHeF * Mc_MHeF) - (MC_L_C1 * PPOW(massCutoffs(MHeF), MC_L_C2)); // pow() is slow - use multiplication
+        double c               = (Mc_MHeF * Mc_MHeF * Mc_MHeF * Mc_MHeF) - (MC_L_C1 * PPOW(massCutoffs(MHeF), MC_L_C2));    // pow() is slow - use multiplication
 
-        coreMass               = std::min((0.95 * McBAGB), std::sqrt(std::sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));           // sqrt() is much faster than PPOW()
+        coreMass               = std::min((0.95 * McBAGB), std::sqrt(std::sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));    // sqrt() is much faster than PPOW()
     }
 
     return coreMass;
