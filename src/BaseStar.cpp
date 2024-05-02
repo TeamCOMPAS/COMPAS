@@ -1166,10 +1166,9 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass,
         lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 1);                   // Use lambda for pop. I metallicity
     }
     else {                                                                                      // Linear interpolation in logZ between pop. I and pop. II metallicities
-        const double logZ = log(m_Metallicity);                                                 // JR: should this be log10()?  If so, use m_Log10Metallicity
-        double lambdaLow  = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 0);
-        double lambdaUp   = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 1);
-        lambda            = lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
+        double lambdaLow = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 0);
+        double lambdaUp  = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 1);
+        lambda           = lambdaLow + (m_Log10Metallicity - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
     }
     return lambda;
 }
@@ -1230,10 +1229,9 @@ double BaseStar::CalculateZInterpolatedLambdaNanjing(const double p_Z, const int
         lambda = CalculateLambdaNanjingEnhanced(p_MassInd, 1);                      // Use lambda for pop. I metallicity
     }
     else {                                                                          // Linear interpolation in logZ between pop. I and pop. II metallicities
-        const double logZ = log(m_Metallicity);                                     // JR: should this be log10()?  If so, use m_Log10Metallicity
-        double lambdaLow  = CalculateLambdaNanjingEnhanced(p_MassInd, 0);
-        double lambdaUp   = CalculateLambdaNanjingEnhanced(p_MassInd, 1);
-        lambda            = lambdaLow + (logZ - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
+        double lambdaLow = CalculateLambdaNanjingEnhanced(p_MassInd, 0);
+        double lambdaUp  = CalculateLambdaNanjingEnhanced(p_MassInd, 1);
+        lambda           = lambdaLow + (m_Log10Metallicity - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
     }
     return lambda;
 }
