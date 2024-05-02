@@ -623,8 +623,8 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
 void MainSequence::UpdateAgeAfterMassLoss() {
 
     double tMS       = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
-    double tBGBprime = CalculateLifetimeToBGB(m_Mass0);
-    double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass0, tBGBprime);
+    double tBGBprime = CalculateLifetimeToBGB(m_Mass);
+    double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass, tBGBprime);
 
     m_Age *= tMSprime / tMS;
 }

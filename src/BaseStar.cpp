@@ -2810,7 +2810,7 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
             if (IsSupernova() && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) ClearSupernovaStash();
         }
 
-        // JR: should we update the initial mass before or after we aupdate the age after mass loss?
+        // JR: should we update the initial mass before or after we update the age after mass loss?
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
         UpdateAgeAfterMassLoss();                                                                   // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                                      // apply age rejuvenation factor
