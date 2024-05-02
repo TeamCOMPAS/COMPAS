@@ -1189,7 +1189,9 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
  *
  */
 void HG::UpdateInitialMass() {
-    if (utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass, m_Age)) <= 0) {     // The current mass would yield a core mass larger than the current core mass -- i.e., no unphysical core mass decrease would ensue
+    // only update mass0 if the current mass would yield a core mass larger than or equal to the current core mass
+    // i.e., no unphysical core mass decrease would ensue
+    if (utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass, m_Age)) <= 0) {
         m_Mass0 = m_Mass;
     }
 }
