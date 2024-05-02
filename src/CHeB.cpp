@@ -1379,7 +1379,7 @@ bool CHeB::ShouldEvolveOnPhase() const {
 
     bool afterHeIgnition      = m_Age >= timescales(tHeI);
     bool beforeEndOfHeBurning = m_Age < (timescales(tHeI) + timescales(tHe));
-    bool coreIsNotTooMassive  = m_HeCoreMass < m_Mass;
+    bool coreIsNotTooMassive  = utils::Compare(m_HeCoreMass, m_Mass) < 0;
 
     // Evolve on CHeB phase if age after He Ign and while He Burning and He core mass does not exceed total mass (could happen due to mass loss)
     return (afterHeIgnition && beforeEndOfHeBurning && coreIsNotTooMassive && !ShouldEnvelopeBeExpelledByPulsations());

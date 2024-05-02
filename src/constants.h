@@ -291,7 +291,7 @@ constexpr double BLACK_HOLE_LUMINOSITY                  = 1.0E-10;              
 constexpr double NEUTRON_STAR_MASS                      = 1.4;                                                      // Canonical NS mass in Msol
 constexpr double NEUTRON_STAR_RADIUS                    = (1.0 / 7.0) * 1.0E-4;                                     // 10km in Rsol.  Hurley et al. 2000, just after eq 93
 
-constexpr double HIGH_MASS_THRESHOLD                    = 12.0;                                                     // value above which we consider stars to be high mass stars
+constexpr double HIGH_MASS_THRESHOLD                    = 12.0;                                                     // Mass (in solar masses) above which we consider stars to be high mass stars
 
 constexpr double MCH                                    = 1.44;                                                     // Chandrasekhar mass
 constexpr double MECS                                   = 1.38;                                                     // Mass of Neutron-Star (NS) formed in electron capture supernova (ECS). From Belczysnki+2008, before eq. 3.
