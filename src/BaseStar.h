@@ -78,7 +78,6 @@ public:
 
     // getters - alphabetically
             double              Age() const                                                     { return m_Age; }
-            double              AgePrev() const                                                 { return m_AgePrev; }
             double              AngularMomentum() const                                         { return CalculateMomentOfInertiaAU() * m_Omega; }
             double              BindingEnergy_Fixed() const                                     { return m_BindingEnergies.fixed; }
             double              BindingEnergy_Nanjing() const                                   { return m_BindingEnergies.nanjing; }
@@ -399,7 +398,6 @@ protected:
     double                  m_Time;                                     // Current physical time the star has been evolved (Myr)
 
     // Previous timestep variables
-    double                  m_AgePrev;                                  // Effective age at previous timestep (Myr)
     double                  m_DtPrev;                                   // Previous timestep
     double                  m_MassPrev;                                 // Previous mass (Msol)
     double                  m_OmegaPrev;                                // Previous angular frequency (yr^-1)

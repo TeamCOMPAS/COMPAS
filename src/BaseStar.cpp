@@ -540,7 +540,7 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     a[66] = max(0.8, min(0.8 - (2.0 * xi), a[66]));
     a[68] = max(0.9, min(a[68], 1.0));
 
-    // Need bAlpaR - calculate it now
+    // Need bAlphaR - calculate it now
     RConstants(B_ALPHA_R) = (a[58] * PPOW(a[66], a[60])) / (a[59] + PPOW(a[66], a[61]));                            // Hurley et al. 2000, eq 21a (wrong in the arxiv version - says = a59*M**(a61))
 
     // Continue special cases
@@ -1061,7 +1061,7 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) const {
         else {                                                                              // no - low mass star on RGB
 
             // calculate early / late cutoff for low mass RGB stars
-            constexpr double deltaM   = 1.0E-5;                                             // JR: todo: what is this for?  Should it be in constants.h?
+            constexpr double deltaM   = 1.0E-5;
                       double cutOff   = 0.0;
                       int    exponent = 0;
             for (auto const& aCoefficient: LOVERIDGE_LM1_LM2_CUTOFFS[lMetallicity]) {
@@ -1074,7 +1074,7 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) const {
     }
 
     // calculate log10(binding energy)
-    constexpr double deltaR           = 1E-5;                                               // JR: todo: what is this for?  Should it be in constants.h?
+    constexpr double deltaR           = 1.0E-5;
               double logBindingEnergy = 0.0;
     for (auto const& lCoefficients: LOVERIDGE_COEFFICIENTS[lMetallicity][static_cast<int>(lGroup)]) {
         logBindingEnergy += lCoefficients.alpha_mr * utils::intPow(log10(m_Mass), lCoefficients.m) * utils::intPow(log10(m_Radius + deltaR), lCoefficients.r);
@@ -1083,7 +1083,7 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) const {
     double MZAMS_Mass = (m_MZAMS - m_Mass) / m_MZAMS;                                       // Should m_ZAMS really be m_Mass0 (i.e., account for change in effective mass through mass loss in winds, MS mass transfer?)
     logBindingEnergy *= p_IsMassLoss ? 1.0 + (0.25 * MZAMS_Mass * MZAMS_Mass) : 1.0;        // apply mass-loss correction factor (lambda)
 
-    logBindingEnergy += 33.29866;                                                           // JR: todo: what is this for?  Should it be in constants.h?
+    logBindingEnergy += 33.29866;                                                           // + logBE0
 
 	return logBindingEnergy;
 }
@@ -1120,17 +1120,16 @@ double BaseStar::CalculateLambdaNanjing() const {
 
     double mass   = m_MZAMS;
     double lambda = 0.0;
-    if (OPTIONS->CommonEnvelopeLambdaNanjingUseRejuvenatedMass()) {mass = m_Mass0;}                             // Use rejuvenated mass to calculate lambda instead of true birth mass
+    if (OPTIONS->CommonEnvelopeLambdaNanjingUseRejuvenatedMass()) mass = m_Mass0;                               // Use rejuvenated mass to calculate lambda instead of true birth mass
     
-    if (OPTIONS->CommonEnvelopeLambdaNanjingEnhanced()) {                                                       // If using enhanced Nanjing lambda's
+    if (OPTIONS->CommonEnvelopeLambdaNanjingEnhanced()) {                                                       // If using enhanced Nanjing lambdas
         if (OPTIONS->CommonEnvelopeLambdaNanjingInterpolateInMass()) {
             if (OPTIONS->CommonEnvelopeLambdaNanjingInterpolateInMetallicity()) {
                 lambda = BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(mass, m_Metallicity);
             }
             else {
-                int Zind = 0;
-                if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) < 0) {Zind = 0;} else {Zind = 1;}
-                lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(mass, Zind);
+                int Zind = utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) < 0 ? 0 : 1;
+                lambda   = BaseStar::CalculateMassInterpolatedLambdaNanjing(mass, Zind);
             }
         }
         else {
@@ -1139,9 +1138,8 @@ double BaseStar::CalculateLambdaNanjing() const {
                 lambda = BaseStar::CalculateZInterpolatedLambdaNanjing(m_Metallicity, massInd);
             }
             else {
-                int Zind = 0;
-                if (utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) < 0) {Zind = 0;} else {Zind = 1;}
-                lambda = BaseStar::CalculateLambdaNanjingEnhanced(massInd, Zind);
+                int Zind = utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) < 0 ? 0 : 1;
+                lambda   = BaseStar::CalculateLambdaNanjingEnhanced(massInd, Zind);
             }
         }
     }
@@ -1194,7 +1192,7 @@ double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Mass, con
     std::vector<int> ind = utils::binarySearch(NANJING_MASSES, p_Mass);
     int low = ind[0];
     int up  = ind[1];
-    if ( (low < 0)  && (up >= 0) ) {                                                            // Mass below range calculated by Xu & Li (2010)
+    if ( (low < 0) && (up >= 0) ) {                                                             // Mass below range calculated by Xu & Li (2010)
         lambda = CalculateLambdaNanjingEnhanced(0, p_Zind);                                     // Use lambda for minimum mass
     }
     else if ( (low >= 0) && (up < 0) ) {                                                        // Mass above range calculated by Xu & Li (2010)
@@ -1805,7 +1803,7 @@ double BaseStar::CalculateMassLossRateOBBjorklund2022() const {
     double logZ    = log10(m_Metallicity / 0.014);
     double logL    = log10(m_Luminosity / 1.0E6);
     double Teff    = m_Temperature * TSOL;          // Convert effective temperature to Kelvin
-    double logTeff = log10(Teff/45000.0);           
+    double logTeff = log10(Teff / 45000.0);           
 
     double Meff    = m_Mass * (1.0 - Gamma);
     double logMeff = log10(Meff / 45.0);
@@ -1965,12 +1963,12 @@ double BaseStar::CalculateMassLossRateOBVink2001() const {
     double teff = m_Temperature * TSOL;  
 
     if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(teff, VINK_MASS_LOSS_BISTABILITY_TEMP) <= 0) {
-        double V         = 1.3;                                                                                 // v_inf/v_esc
+        double v         = 1.3;                                                                                 // v_inf/v_esc
 
         double logMdotOB = -6.688 +
                            (2.210 * log10(m_Luminosity / 1.0E5)) -
                            (1.339 * log10(m_Mass / 30.0)) -
-                           (1.601 * log10(V / 2.0)) +
+                           (1.601 * log10(v / 2.0)) +
                            (0.85  * LogMetallicityXi()) +
                            (1.07  * log10(teff / 20000.0));
 
@@ -1980,12 +1978,12 @@ double BaseStar::CalculateMassLossRateOBVink2001() const {
     else if (utils::Compare(teff, VINK_MASS_LOSS_BISTABILITY_TEMP) > 0) {
         SHOW_WARN_IF(utils::Compare(teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);            // show warning if winds being used outside comfort zone
 
-        double V         = 2.6;                                                                                 // v_inf/v_esc
+        double v         = 2.6;                                                                                 // v_inf/v_esc
 
         double logMdotOB = -6.697 +
                            (2.194 * log10(m_Luminosity / 1.0E5)) -
                            (1.313 * log10(m_Mass / 30.0)) -
-                           (1.226 * log10(V / 2.0)) +
+                           (1.226 * log10(v / 2.0)) +
                            (0.85  * LogMetallicityXi()) +
                            (0.933 * log10(teff / 40000.0)) -
                            (10.92 * log10(teff / 40000.0) * log10(teff/40000.0));
@@ -4404,7 +4402,6 @@ void BaseStar::AgeOneTimestepPreamble(const double p_DeltaTime) {
 
     if (p_DeltaTime > 0.0) {                        // if dt > 0    (don't use utils::Compare() here)
         m_Time += p_DeltaTime;                      // advance physical simulation time
-        m_AgePrev = m_Age;
         m_Age  += p_DeltaTime;                      // advance age of star
         m_Dt    = p_DeltaTime;                      // set timestep
     }

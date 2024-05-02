@@ -773,13 +773,9 @@ double EAGB::CalculateRadiusOnPhase_Static(const double      p_Mass,
 #define b p_BnCoefficients  // for convenience and readability - undefined at end of function
 
     // sanity check for mass and luminosity - just return 0.0 if mass or luminosity <= 0
-    // doing this will save some compute cycles - but it is not strictly what the equation in Hurley says
-    // (Hurley et al. 2000, eq 74 and immediately following) - there if mass is 0.0 but luminosity is
-    // non-zero we get a non-zero value for radius (shouldn't happen, but we need to code for all possibilities)
-    
-    
-    // JR check this <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    //if (utils::Compare(p_Mass, 0.0) <= 0 || utils::Compare(p_Luminosity, 0.0) <= 0) return 0.0;
+    // doing this will save some compute cycles
+
+    if (utils::Compare(p_Mass, 0.0) <= 0 || utils::Compare(p_Luminosity, 0.0) <= 0) return 0.0;
 
     // calculate radius constant A (Hurley et al. 2000, eq 74)
     // and coefficient b(50)
@@ -1111,15 +1107,7 @@ bool EAGB::IsSupernova() const {
     double McCOBAGB = CalculateCOCoreMassOnPhase(timescales(tHeI) + timescales(tHe));
     double McSN     = std::max(gbParams(McSN), 1.05 * McCOBAGB);                                // hack from Hurley fortran code, doesn't seem to be in the paper   JR: do we know why?
 
-    //             mcbagb = mcagbf(mass)
-    // McCOBAGB    mcx = mcgbtf(tbagb,GB(8),GB,tscls(7),tscls(8),tscls(9))
-    // McSN        mcmax = MAX(MAX(mch,0.773d0*mcbagb-0.35d0),1.05d0*mcx)
-    // MECS        mch
-    
-    // ~~ILYA~~
-    // JAR: added absolute threshold for comparison
-    //      see Hurley sse hrdiag.f line 431 (different threshold, but same reason I think)
-    return (utils::Compare(McSN, m_COCoreMass) <= 0); //, 1.0E-12, true) <= 0);                                            // core is heavy enough to go Supernova
+    return (utils::Compare(McSN, m_COCoreMass) <= 0);                                           // core is heavy enough to go Supernova
 
 #undef gbParams
 #undef timescales
