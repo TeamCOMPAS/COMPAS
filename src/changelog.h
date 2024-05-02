@@ -1136,7 +1136,12 @@
 //                                      - Dynamcial tides implementation follows Zahn, 1977, Kushnir et al., 2017, and Ahuir et al., 2021.
 //                                      - Equilibrium tides implementation follows Barker, 2020.
 //                                      - Secular evolution under the effect of tides follows Zahn, 1977, Eqs. (3.6) to (3.8)
+// 02.44.01    JR - May 02, 2024     - Defect repairs, some code cleanup:
+//                                      - defect repairs to address issues #978 and #1075 (discontinuous radius evolution/fluctuating radii)
+//                                           - the repairs made here are an attempt to ensure that COMPAS stellar evolution matches Hurlet sse stellar evolution
+//                                           - see issue #978 for details of changes made and the reasons for the changes, as well as results of tests of the changes
+//                                      - a little code cleanup
           
-const std::string VERSION_STRING = "02.44.00";
+const std::string VERSION_STRING = "02.44.01";
 
 # endif // __changelog_h__

@@ -937,7 +937,7 @@ double CHeB::CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau)
         double LBAGB   = CalculateLuminosityAtBAGB(p_Mass);
 
         // the following check for high mass stars was added to match the Hurley sse code
-        // - see Hurley sse `hrdiag.f` line 287
+        // - see Hurley sse `hrdiag.f` line 297
         if (p_Mass > HIGH_MASS_THRESHOLD) {
             Rx = RmHe;
         }
