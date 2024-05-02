@@ -776,7 +776,7 @@ double HG::CalculateRadiusAtPhaseEnd(const double p_Mass) const {
  *
  * Uses a modified version Hurley et al. 2000, eq 27
  * See Hurley sse code `hrdiag.f` lines 92, 188-203
- * Here we replace the numberator, REHG, with the GB radius if mass is below the threshold for He ignition,
+ * Here we replace the numerator, REHG, with the GB radius if mass is below the threshold for He ignition,
  * and a calculated value if mass is above the threshold for He ignition (see code below)
  *
  *
@@ -806,7 +806,7 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
         double lum = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), b);
 
         // In the Hurley sse code mt (m_Mass) is used here (mass (m_Mass0) everywhere else)
-        double ry  = EAGB::CalculateRadiusOnPhase_Static(m_Mass, lum, massCutoffs(MHeF), b);                        // Hurley sse terminlogy (ry)
+        double ry  = EAGB::CalculateRadiusOnPhase_Static(m_Mass, lum, massCutoffs(MHeF), b);                        // Hurley sse terminology (ry)
 
         // calculate radius at He ignition for MFGB < p_Mass < HM
         // Hurley et al. 2000, eq 50
@@ -821,12 +821,12 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
         // this piece of code resets rx if the blue loop is relatively short
         // see Hurley sse, function tblf() in `zfuncs1.f`
         double r1 = 1.0 - rMinHe / ry;
-        r1 = std::max(r1, 1.0E-12);     // JR: I suspect this is where the check came from in the dicussion re blue loop in CHeB::CalculateTimescales()
+        r1 = std::max(r1, 1.0E-12);     // JR: I suspect this is where the check came from in the dicussion re blue loop in CHeB::CalculateTimescales() - I don't like this much...
 
         double tblf = b[47] * PPOW(p_Mass, b[48]) * PPOW(r1, b[49]);                                                // calculate blue-loop fraction of He-burning
         tblf = std::min(1.0, std::max(0.0, tblf));                                                                  // clamp to [0.0, 1.0]
 
-        if (tblf < 1.0E-10) rx = ry;                                                                                // reset rx if short blue loop
+        if (tblf < MINIMUM_BLUE_LOOP_FRACTION) rx = ry;                                                             // reset rx if short blue loop
     }
 
     return RTMS * PPOW(rx / RTMS, p_Tau);
