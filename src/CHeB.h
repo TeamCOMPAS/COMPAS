@@ -89,7 +89,7 @@ protected:
     double          CalculateLuminosityAtBluePhaseEnd(const double p_Mass) const;
     double          CalculateLuminosityAtBluePhaseStart(const double p_Mass) const;
 
-    double          CalculateLuminosityAtPhaseEnd() const                       { return CalculateLuminosityOnPhase(m_Mass0, m_Tau); } //CalculateLuminosityAtBAGB(m_Mass0); }
+    double          CalculateLuminosityAtPhaseEnd() const                       { return CalculateLuminosityOnPhase(m_Mass0, m_Tau); }                          // Per Hurley sse code `hrdiag.f` lines 304-305
     double          CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau) const;
     double          CalculateLuminosityOnPhase() const                          { return CalculateLuminosityOnPhase(m_Mass0, m_Tau); }
 
