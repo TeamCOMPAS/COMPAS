@@ -1095,14 +1095,14 @@
 //                                            HeMS::CalculateMomentOfInertia() falls back to MainSequence::CalculateMomentOfInertia()
 //                                            HeHG::CalculateMomentOfInertia() falls back to GiantBranch::CalculateMomentOfInertia()
 //                                      - Added sanity checks for mass and luminosity where necessary in variants of CalculateRadiusOnPhase_Static()
-// 02.42.00     JR - Jan 08, 2024    - Enhancements, defect repair, a little cleanup
+// 02.42.00     JR - Feb 20, 2024    - Enhancements, defect repair, a little cleanup
 //                                      - added `timesteps-filename` option to allow users to provide preset timesteps for both SSE and BSE
 //                                      - updated documentation for new option; updated `What's New`
 //                                      - SSE vs BSE consistency: modified SSE to evolve a single star exactly as the primary in a wide binary with small companion
 //                                      - quantised timesteps to an integral multiple of 1E-12Myr - new constant `TIMESTEP_QUANTUM` in constants.h
 //                                      - little bit of code cleanup
 //                                      - added warning for stellar type switch not taken - just a diagnostic for now
-// 02.42.01     JR - Jan 21, 2024    - Defect repair
+// 02.42.01     JR - Feb 25, 2024    - Defect repair
 //                                      - fix for issue 1066 - see issue/PR for explanation
 //                                      - cleaned up root solvers OmegaAfterSynchronisation(), MassLossToFitInsideRocheLobe(), and Mass0ToMatchDesiredCoreMass(), and their respective functors
 //                                      - MassLossToFitInsideRocheLobe(), and Mass0ToMatchDesiredCoreMass() now return -1.0 if no acceptable root found
@@ -1119,7 +1119,24 @@
 //                                      - Fix CalculateMassLossRateBjorklundEddingtonFactor to use LSOLW (in SI) rather than LSOL (in cgs)        
 // 02.43.02    JR - Apr 15, 2024     - Defect repair
 //                                      - Fix for issue #1074 - SSE Supernova records duplicated
-
-const std::string VERSION_STRING = "02.43.02";
+// 02.43.03    IM - Apr 15, 2024     - Enhancement
+//                                      - Updated fits for the mass and binding energy of the outer convective envelope based on Picker, Hirai, Mandel (2024)
+//                                      - Added functionality for CalculateConvectiveEnvelopeMass(), CalculateConvectiveCoreMass(), CalculateConvectiveCoreRadius()
+//                                   - Defect repair
+//                                      - Fixes to CalculateRadialExtentConvectiveEnvelope(), comments
+// 02.43.04    JR - Apr 20, 2024     - Defect repair, some code cleanup:
+//                                      - Defect repair: Issue #1084 - modified code to record desired persistence of objects so that cloned stars don't participate in logging etc.
+//                                      - Removed some unused code (as a result of the defect repair)
+//                                      - Some Code cleanup
+// 02.43.05    JR - Apr 21, 2024     - Defect repair, some code cleanup:
+//                                      - Last piece of no logging for clones - this prevents ephemeral clones from writing to or clearing the SSE SN stash.
+// 02.44.00    VK - Apr 04, 2024    - Enhancement:
+//                                      - Added realistic tides to binary evolution, based on the formalism described in Kapil et al. (2024). Functionality enabled by setting the new option `--tides-prescription` to the value `KAPIL2024` (default is `NONE`)
+//                                      - Removed old option `--enable-tides`, which can now be enabled by setting `--tides-prescription PERFECT`.
+//                                      - Dynamcial tides implementation follows Zahn, 1977, Kushnir et al., 2017, and Ahuir et al., 2021.
+//                                      - Equilibrium tides implementation follows Barker, 2020.
+//                                      - Secular evolution under the effect of tides follows Zahn, 1977, Eqs. (3.6) to (3.8)
+          
+const std::string VERSION_STRING = "02.44.00";
 
 # endif // __changelog_h__

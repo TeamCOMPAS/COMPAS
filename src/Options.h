@@ -333,7 +333,6 @@ private:
         "eccentricity-distribution",
         "eccentricity-max",
         "eccentricity-min",
-        "enable-tides",
         "evolve-double-white-dwarfs",
         "evolve-pulsars",
         "evolve-unbound-systems",
@@ -445,7 +444,6 @@ private:
         "detailed-output",
 
         "eccentricity-distribution",
-        "enable-tides",
         "enable-warnings",
         "envelope-state-prescription",
         "errors-to-file",
@@ -535,6 +533,8 @@ private:
         "stellar-zeta-prescription",
         "store-input-files",
         "switch-log",
+
+        "tides-prescription",
 
         "timesteps-filename",
 
@@ -930,7 +930,7 @@ public:
 
 
             // Tides
-            bool                                                m_EnableTides;                                                   // Whether to enable tides (default = False)
+            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                             // Which tides prescription (default = NONE)
 
 
             // Zetas
@@ -1243,7 +1243,6 @@ public:
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
     bool                                        DetailedOutput() const                                                  { return m_CmdLine.optionValues.m_DetailedOutput; }
 
-    bool                                        EnableTides() const                                                     { return OPT_VALUE("enable-tides", m_EnableTides, true); }
     bool                                        EnableWarnings() const                                                  { return m_CmdLine.optionValues.m_EnableWarnings; }
     bool                                        ErrorsToFile() const                                                    { return m_CmdLine.optionValues.m_ErrorsToFile; }
     double                                      Eccentricity() const                                                    { return OPT_VALUE("eccentricity", m_Eccentricity, true); }
@@ -1501,6 +1500,8 @@ public:
     bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }
 
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
+
+    TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return OPT_VALUE("tides-prescription", m_TidesPrescription.type, true); }
 
     std::string                                 TimestepsFileName() const                                               { return OPT_VALUE("timesteps-filename", m_TimestepsFileName, true); }
     double                                      TimestepMultiplier() const                                              { return m_CmdLine.optionValues.m_TimestepMultiplier; }
