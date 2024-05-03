@@ -27,8 +27,8 @@
  */
 void MainSequence::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
 #define timescales(x) p_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-    timescales(tBGB)   = CalculateLifetimeToBGB(p_Mass);
-    timescales(tMS)    = CalculateLifetimeOnPhase(p_Mass, timescales(tBGB));
+    timescales(tBGB) = CalculateLifetimeToBGB(p_Mass);
+    timescales(tMS)  = CalculateLifetimeOnPhase(p_Mass, timescales(tBGB));
 #undef timescales
 }
 
@@ -663,10 +663,10 @@ void MainSequence::EvolveOneTimestepPreamble() {
 double MainSequence::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
-    double dtk = 1.0E-2 * timescales(tMS);
-    double dte = timescales(tMS) - p_Time;
+    double dtk = 1.0E-2 * timescales(tMS);  // 0.01 of MS timescale (sse uses 0.05)
+    double dte = timescales(tMS) - p_Time;  // time remaining on MS
 
-    if (utils::Compare(dte, dtk) < 0) {     // short enough to resolve the hook at the end of the MS for HM stars?
+    if (utils::Compare(dte, dtk) < 0) {     // short enough to resolve the hook at the end of the MS for HM stars? JAR: why not check for HM star?
         dtk /= 10.0;                        // no - go an order-of-magnitude shorter
     }
 
