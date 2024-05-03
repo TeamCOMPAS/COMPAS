@@ -71,7 +71,7 @@ protected:
     double          CalculateCOCoreMassOnPhase() const                          { return 0.0; }                                                                 // McCO(CHeB) = 0.0
 
     double          CalculateConvectiveCoreRadius () const                      { return CalculateRemnantRadius (); }                                           // Last paragraph of section 6 of Hurley+ 2000
-    double          CalculateCoreMassAtPhaseEnd() const                         { return CalculateCoreMassAtBAGB(m_Mass0); }                                    // Use class member variables
+    double          CalculateCoreMassAtPhaseEnd() const                         { return CalculateCoreMassOnPhase(); }                                          // Per Hurley sse code `hrdiag.f` lines 259-265
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau) const;
     double          CalculateCoreMassOnPhase() const                            { return CalculateCoreMassOnPhase(m_Mass0, m_Tau); }                            // Use class member variables
 
