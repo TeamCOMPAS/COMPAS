@@ -9,6 +9,7 @@ on:
 jobs:
   comment:
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Get Artifact and Pull request info
         env:
