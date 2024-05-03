@@ -929,7 +929,6 @@ double CHeB::CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau)
     double lCHeB;
 
     double tx = timescales(tauX_BL);                                                                                                        // 0 for LM and HM stars, non-zero for IM stars
-
     double Lx = CalculateLuminosityAtBluePhaseStart(p_Mass);
 
     if (utils::Compare(p_Tau, tx) >= 0) {                                                                                                   // on the blue loop
