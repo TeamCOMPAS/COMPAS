@@ -34,9 +34,10 @@ OBJECT_ID m_ObjectId     = 0;                                   // object id for
 class Star;
 class BinaryStar;
 
-OBJECT_ID    ObjectId()    { return m_ObjectId; }
-OBJECT_TYPE  ObjectType()  { return OBJECT_TYPE::MAIN; }
-STELLAR_TYPE StellarType() { return STELLAR_TYPE::NONE; }
+OBJECT_ID          ObjectId()          { return m_ObjectId; }
+OBJECT_TYPE        ObjectType()        { return OBJECT_TYPE::MAIN; }
+OBJECT_PERSISTENCE ObjectPersistence() { return OBJECT_PERSISTENCE::PERMANENT; }
+STELLAR_TYPE       StellarType()       { return STELLAR_TYPE::NONE; }
 
 
 // The following global variables support the BSE Switch Log file

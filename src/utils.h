@@ -8,9 +8,10 @@ namespace utils {
 
 
     // object identifiers - all classes have these (adding here (no class) for error handling)
-    inline OBJECT_ID    ObjectId()    { return static_cast<int>(OBJECT_TYPE::UTILS); }     // object id for utils - ordinal value from enum
-    inline OBJECT_TYPE  ObjectType()  { return OBJECT_TYPE::UTILS; }                       // object type for utils - always "UTILS"
-    inline STELLAR_TYPE StellarType() { return STELLAR_TYPE::NONE; }                       // stellar type for utils - always "NONE"
+    inline OBJECT_ID          ObjectId()          { return static_cast<int>(OBJECT_TYPE::UTILS); }  // object id for utils - ordinal value from enum
+    inline OBJECT_TYPE        ObjectType()        { return OBJECT_TYPE::UTILS; }                    // object type for utils - always "UTILS"
+    inline OBJECT_PERSISTENCE ObjectPersistence() { return OBJECT_PERSISTENCE::PERMANENT; }         // object persistence for utils - always "PERMANENT"
+    inline STELLAR_TYPE       StellarType()       { return STELLAR_TYPE::NONE; }                    // stellar type for utils - always "NONE"
 
 
     // namespace functions - alphabetical (sort of)

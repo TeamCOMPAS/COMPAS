@@ -142,26 +142,12 @@ public:
     // Copy constructor
     BaseBinaryStar(const BaseBinaryStar& p_Star) {
 
-        m_ObjectId    = globalObjectId++;                           // get unique object id (don't copy source)
-        m_ObjectType  = OBJECT_TYPE::BASE_BINARY_STAR;              // can only copy from BASE_BINARY_STAR
-        m_StellarType = STELLAR_TYPE::BINARY_STAR;                  // always
+        m_ObjectId          = globalObjectId++;                     // get unique object id (don't copy source)
+        m_ObjectType        = OBJECT_TYPE::BASE_BINARY_STAR;        // can only copy from BASE_BINARY_STAR
+        m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;        // permanent - not an ephemeral clone
+        m_StellarType       = STELLAR_TYPE::BINARY_STAR;            // always
 
         CopyMemberVariables(p_Star);                                // copy member variables
-    }
-
-
-    // Assignment overload
-    BaseBinaryStar& operator = (const BaseBinaryStar& p_Star) {
-
-        if (this != &p_Star) {                                      // make sure we're not not copying ourselves...
-
-            m_ObjectId    = globalObjectId++;                       // get unique object id (don't copy source)
-            m_ObjectType  = OBJECT_TYPE::BASE_BINARY_STAR;          // can only copy from BASE_BINARY_STAR
-            m_StellarType = STELLAR_TYPE::BINARY_STAR;              // always
-
-            CopyMemberVariables(p_Star);                            // copy member variables
-        }
-        return *this;
     }
 
 
@@ -171,6 +157,7 @@ public:
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const                            { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const                          { return m_ObjectType; }
+    OBJECT_PERSISTENCE  ObjectPersistence() const                   { return m_ObjectPersistence; }
     STELLAR_TYPE        StellarType() const                         { return m_StellarType; }
     long int            Id() const                                  { return m_Id; }
 
@@ -271,6 +258,9 @@ public:
     double              ZetaLobe() const                    	    { return m_ZetaLobe; }
     double              ZetaStar() const                            { return m_ZetaStar; }
 
+    // setters
+    void                SetObjectId(const OBJECT_ID p_ObjectId)                { m_ObjectId = p_ObjectId; }
+    void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence) { m_ObjectPersistence = p_Persistence; }
 
     // member functions - alphabetically
             COMPAS_VARIABLE     BinaryPropertyValue(const T_ANY_PROPERTY p_Property) const;
@@ -279,7 +269,14 @@ public:
 
             EVOLUTION_STATUS    Evolve();
 
-            bool                PrintSwitchLog(const bool p_PrimarySwitching) { return OPTIONS->SwitchLog() ? LOGGING->LogBSESwitchLog(this, p_PrimarySwitching) : true; }
+            bool                PrintSwitchLog(const bool p_PrimarySwitching) {                                     // print to the switch log file
+                                    return OPTIONS->SwitchLog() ?                                                   // switch logging enabled?
+                                        (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT ?   // yes, logging enabled - is this a 'permanent' object (i.e. not an ephemeral clone)?
+                                            LOGGING->LogBSESwitchLog(this, p_PrimarySwitching) :                    // yes, permanent - log it
+                                            true                                                                    // no, ephemeral - ignore the log request
+                                        ) :
+                                        true;                                                                       // no - switch logging not enabled - ignore the log request
+                                    }
 
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
 
@@ -290,12 +287,13 @@ private:
 
     BaseBinaryStar() { }
 
-    OBJECT_ID    m_ObjectId;                                                                // Instantiated object's unique object id
-    OBJECT_TYPE  m_ObjectType;                                                              // Instantiated object's object type
-    STELLAR_TYPE m_StellarType;                                                             // Stellar type defined in Hurley et al. 2000
-    long int     m_Id;                                                                      // Id used to name detailed output file - uses p_Id as passed (usually the index number of multiple binaries being produced)
+    OBJECT_ID           m_ObjectId;                                                         // Instantiated object's unique object id
+    OBJECT_TYPE         m_ObjectType;                                                       // Instantiated object's object type
+    OBJECT_PERSISTENCE  m_ObjectPersistence;                                                // Instantiated object's persistence (permanent or ephemeral)
+    STELLAR_TYPE        m_StellarType;                                                      // Stellar type defined in Hurley et al. 2000
+    long int            m_Id;                                                               // Id used to name detailed output file - uses p_Id as passed (usually the index number of multiple binaries being produced)
 
-    ERROR m_Error;                                                                          // Records most recent error encountered for this binary
+    ERROR               m_Error;                                                            // Records most recent error encountered for this binary
 
     // member variables - alphabetical in groups (sort of...)
 
@@ -419,6 +417,10 @@ private:
     double  CalculateAngularMomentum() const                                    { return CalculateAngularMomentum(m_SemiMajorAxis, m_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateMomentOfInertiaAU(), m_Star2->CalculateMomentOfInertiaAU()); }
 
     void    CalculateEnergyAndAngularMomentum();
+
+    double CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity);
+    double CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_I1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity);
+    double CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity);
 
     double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass);
     double  CalculateGammaAngularMomentumLoss()                                 { return CalculateGammaAngularMomentumLoss(m_Donor->Mass(), m_Accretor->Mass()); }
@@ -559,7 +561,8 @@ private:
             double donorMass    = m_Donor->Mass();
             double accretorMass = m_Accretor->Mass();
 
-            BinaryConstituentStar* donorCopy = new BinaryConstituentStar(*m_Donor);
+            BinaryConstituentStar *donorCopy = BinaryConstituentStar::Clone(*m_Donor, OBJECT_PERSISTENCE::EPHEMERAL);
+            
             double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -p_dM , *m_Accretor, m_FractionAccreted);
             double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (m_Binary->FractionAccreted() * p_dM)) * AU_TO_RSOL;
             
@@ -768,7 +771,7 @@ private:
 
         return root.first + (root.second - root.first) / 2.0;                                               // midway between brackets (could return brackets...)
     }
-    
+  
 };
 
 #endif // __BaseBinaryStar_h__

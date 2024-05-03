@@ -17,12 +17,13 @@ BaseStar::BaseStar() {
 
     // initialise member variables
 
-    m_ObjectId           = globalObjectId++;                           // unique object id - remains for life of star (even through evolution to other phases)
-    m_ObjectType         = OBJECT_TYPE::BASE_STAR;                     // object type - remains for life of star (even through evolution to other phases)
-    m_InitialStellarType = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
-    m_StellarType        = STELLAR_TYPE::STAR;                         // stellar type - changes throughout life of star (through evolution to other phases)
+    m_ObjectId           = globalObjectId++;                                                        // unique object id - remains for life of star (even through evolution to other phases)
+    m_ObjectType         = OBJECT_TYPE::BASE_STAR;                                                  // object type - remains for life of star (even through evolution to other phases)
+    m_ObjectPersistence  = OBJECT_PERSISTENCE::PERMANENT;                                           // object persistence - permanent or ephemeral (ephemeral used for ephemeral clones)
+    m_InitialStellarType = STELLAR_TYPE::STAR;                                                      // stellar type - changes throughout life of star (through evolution to other phases)
+    m_StellarType        = STELLAR_TYPE::STAR;                                                      // stellar type - changes throughout life of star (through evolution to other phases)
 
-    m_Error              = ERROR::NOT_INITIALISED;                     // clear error flag
+    m_Error              = ERROR::NOT_INITIALISED;                                                  // clear error flag
 }
 
 
@@ -36,6 +37,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     m_ObjectId            = globalObjectId++;                                                       // unique object id - remains for life of star (even through evolution to other phases)
     m_ObjectType          = OBJECT_TYPE::BASE_STAR;                                                 // object type - remains for life of star (even through evolution to other phases)
+    m_ObjectPersistence   = OBJECT_PERSISTENCE::PERMANENT;                                          // object persistence - permanent or ephemeral (ephemeral used for ephemeral clones)
     m_InitialStellarType  = STELLAR_TYPE::STAR;                                                     // stellar type - changes throughout life of star (through evolution to other phases)
     m_StellarType         = STELLAR_TYPE::STAR;                                                     // stellar type - changes throughout life of star (through evolution to other phases)
 
@@ -2208,7 +2210,7 @@ double BaseStar::CalculateMassLossRateRSGVinkSabhahit2023() const {
     if (utils::Compare(logL, logLkink) < 0) {
         logMdot = -8.0 + 0.7 * logL - 0.7 * logM;
     }
-    else if (utils::Compare(logL, logLkink) >= 0) {
+    else {
         logMdot = -24.0 + 4.77 * logL - 3.99 * logM;
     }
 
@@ -2802,7 +2804,10 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
         STELLAR_TYPE st = UpdateAttributesAndAgeOneTimestep(mass - m_Mass, 0.0, 0.0, false, false); // recalculate stellar attributes
         if (st != m_StellarType) {                                                                  // should switch?
             SHOW_WARN(ERROR::SWITCH_NOT_TAKEN);                                                     // show warning if we think we should switch again...
-            if (IsSupernova()) ClearSupernovaStash();                                               // we may have stashed SN details - need to clear them if we're not going to switch
+            
+            // we may have stashed SN details - need to clear them if we're not going to switch,
+            // but only if not an ephemeral clone (ephemeral clones don't write to the stash)
+            if (IsSupernova() && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) ClearSupernovaStash();
         }
 
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
@@ -3196,6 +3201,334 @@ double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallic
 #undef massCutoffs
 }
 
+/*
+ * Calculate the Dynamical tides contribution to the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the 
+ * potential tidal Love number
+ *
+ * Gravity Waves, Core boundary:
+ * Zahn, 1977, Eq. (5.5) , with the value of E_2 coming from Kushnir et al., 2017, by comparing Eq. (8) to Eq. (1)
+ * 
+ * Gravity Waves, Envelope Boundary:
+ * Ahuir et al, 2021, Eq. (131)
+ * 
+ * Inertial Waves, Convective Envelope:
+ * Ogilvie, 2013, Eq. (B3)
+ * 
+ * DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ *
+ * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
+ * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
+ * @param   [IN]    p_M2                        Mass of companion star (Msol)
+ * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
+ *                                              potential tidal Love number, Dynamical tides only (unitless)
+ */
+DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+    
+    double coreMass = CalculateConvectiveCoreMass();
+    double envMass, envMassMax;
+    std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
+    double radIntershellMass = m_Mass - coreMass - envMass;						// Refers to the combined mass of non-convective layers
+
+    // There should be no Dynamical tides if the entire star is convective, i.e. if there are no convective-radiative boundaries. 
+    // If so, return 0.0 for all dynamical components of ImKlm.
+    // Check mass rather than radial extent, since radiative mass can currently be non-zero for GB stars following Picker+ 2024 (radial extent will be 0 following Hurley 2000).
+    // This condition should be true for low-mass MS stars (<= 0.35 Msol) at ZAMS.
+    if (radIntershellMass <= 0.0) {
+        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           
+    }
+
+    double radiusAU = m_Radius * RSOL_TO_AU;
+    double coreRadiusAU = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
+    double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
+    double radiusIntershellAU = radiusAU - convectiveEnvRadiusAU;                                       // Outer radial coordinate of radiative intershell
+
+    double R3_over_G_M = (radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
+    double sqrt_R3_over_G_M = std::sqrt(R3_over_G_M);
+
+    double k10GravityCore = 0.0;                                                                        // Gravity Wave dissipation, core boundary
+    double k12GravityCore = 0.0;
+    double k22GravityCore = 0.0;
+    double k32GravityCore = 0.0;
+
+    double k10GravityEnv = 0.0;                                                                         // Gravity Wave dissipation, envelope boundary
+    double k12GravityEnv = 0.0;
+    double k22GravityEnv = 0.0;
+    double k32GravityEnv = 0.0;
+
+    double k22InertialEnv = 0.0;                                                                        // Inertial Wave dissipation, envelope
+    
+    double OmegaSpin = m_Omega;
+    double two_Omega_spin = OmegaSpin + OmegaSpin;
+
+    double w10 = p_Omega;
+    double w12 = ((p_Omega) - (two_Omega_spin));
+    double w22 = ((p_Omega + p_Omega) - (two_Omega_spin));
+    double w32 = ((p_Omega + p_Omega + p_Omega) - (two_Omega_spin));
+
+    if (coreRadiusAU > 0.0 && coreMass > 0.0) {                                                         // No GW dissipation from core boundary if no convective core
+        double beta2Dynamical = 1.0;
+        double rhoFactorDynamcial = 0.1;
+        double coreRadius_over_radius = coreRadiusAU / radiusAU;
+        double coreRadius_over_radius_3 = coreRadius_over_radius * coreRadius_over_radius * coreRadius_over_radius;
+        double coreRadius_over_radius_9 = coreRadius_over_radius_3 * coreRadius_over_radius_3 * coreRadius_over_radius_3;
+        double mass_over_coreMass = m_Mass / coreMass;
+        double E2Dynamical = (2.0 / 3.0) * coreRadius_over_radius_9 * mass_over_coreMass * std::cbrt(mass_over_coreMass) * beta2Dynamical * rhoFactorDynamcial;
+
+        // (l=1, m=0), Gravity Wave dissipation from core boundary
+        double s10 = w10 * sqrt_R3_over_G_M;
+        double s10_4_3 = s10 * std::cbrt(s10);
+        double s10_8_3 = s10_4_3 * s10_4_3;
+        if (w10 < 0.0) s10_8_3 = - std::abs(s10_8_3);
+        k10GravityCore = E2Dynamical * s10_8_3;
+
+        // (l=1, m=2), Gravity Wave dissipation from core boundary
+        double s12 = w12 * sqrt_R3_over_G_M;
+        double s12_4_3 = s12 * std::cbrt(s12);
+        double s12_8_3 = s12_4_3 * s12_4_3;
+        if (w12 < 0.0) s12_8_3 = - std::abs(s12_8_3);
+        k12GravityCore = E2Dynamical * s12_8_3;
+
+        // (l=2, m=2), Gravity Wave dissipation from core boundary
+        double s22 = w22 * sqrt_R3_over_G_M;
+        double s22_4_3 = s22 * std::cbrt(s22);
+        double s22_8_3 = s22_4_3 * s22_4_3;
+        if (w22 < 0.0) s22_8_3 = - std::abs(s22_8_3);
+        k22GravityCore = E2Dynamical * s22_8_3;
+
+        // (l=3, m=2), Gravity Wave dissipation from core boundary
+        double s32 = w32 * sqrt_R3_over_G_M;
+        double s32_4_3 = s32 * std::cbrt(s32);
+        double s32_8_3 = s32_4_3 * s32_4_3;
+        if (w32 < 0.0) s32_8_3 = - std::abs(s32_8_3);
+        k32GravityCore = E2Dynamical * s32_8_3;
+    
+    }
+
+    // No GW or IW dissipation from envelope if no convective envelope
+    if (convectiveEnvRadiusAU > 0.0 && envMass > 0.0) {                                                 
+        double dyn_prefactor = 3.207452512782476;                                                       // 3^(11/3) * Gamma(1/3)^2 / 40 PI
+        double dNdlnr_cbrt = std::cbrt(G_AU_Msol_yr * radIntershellMass / radiusIntershellAU / (radiusAU - radiusIntershellAU) / (radiusAU - radiusIntershellAU));
+        
+        double alpha = radiusIntershellAU / radiusAU;
+        double beta = radIntershellMass / m_Mass;
+        double alpha_2 = alpha * alpha;
+        double alpha_3 = alpha_2 * alpha;
+        double alpha_5 = alpha_3 * alpha_2;
+        double alpha_11 = alpha_5 * alpha_5 * alpha;
+        double one_minus_alpha_2 = (1.0 - alpha) * (1.0 - alpha);
+        double beta_2 = beta * beta;
+        double gamma = alpha_3 * (1.0 - beta) / beta / (1.0 - alpha_3);
+        double one_minus_gamma_2 = (1.0 - gamma) * (1.0 - gamma);
+        double alpha_2_3_minus_1 = (alpha * 2.0 / 3.0) - 1.0;
+        double Epsilon = alpha_11 * (1.0 - beta) * one_minus_gamma_2 * alpha_2_3_minus_1 * alpha_2_3_minus_1 / beta_2 / (1.0 - alpha_3) / one_minus_alpha_2;
+
+        // (l=1, m=0), Gravity Wave dissipation from envelope boundary is always 0.0 since m=0.0
+
+        // (l=1, m=2), Gravity Wave dissipation from envelope boundary
+        double m_l_factor_12 = 2.0 / (1.0 * (1.0 + 1.0)) / std::cbrt(1.0 * (1.0 + 1.0));                // m * (l(l+1))^{-4/3}
+        double w12_4_3 = w12 * std::cbrt(w12);
+        double w12_8_3 = w12_4_3 * w12_4_3;
+        if (w12 < 0.0) w12_8_3 = - std::abs(w12_8_3);
+        k12GravityEnv = dyn_prefactor * m_l_factor_12 * w12_8_3 * R3_over_G_M * Epsilon / dNdlnr_cbrt;
+
+        // (l=2, m=2), Gravity Wave dissipation from envelope boundary
+        double m_l_factor_22 = 2.0 / (2.0 * (2.0 + 1.0)) / std::cbrt(2.0 * (2.0 + 1.0));                // m * (l(l+1))^{-4/3}
+        double w22_4_3 = w22 * std::cbrt(w22);
+        double w22_8_3 = w22_4_3 * w22_4_3;
+        if (w22 < 0.0) w22_8_3 = - std::abs(w22_8_3);
+        k22GravityEnv = dyn_prefactor * m_l_factor_22 * w22_8_3 * R3_over_G_M * Epsilon / dNdlnr_cbrt;
+
+        // (l=3, m=2), Gravity Wave dissipation from envelope boundary
+        double m_l_factor_32 = 2.0 / (3.0 * (3.0 + 1.0)) / std::cbrt(3.0 * (3.0 + 1.0));                // m * (l(l+1))^{-4/3}
+        double w32_4_3 = w32 * std::cbrt(w32);
+        double w32_8_3 = w32_4_3 * w32_4_3;
+        if (w32 < 0.0) w32_8_3 = - std::abs(w32_8_3);
+        k32GravityEnv = dyn_prefactor * m_l_factor_32 * w32_8_3 * R3_over_G_M * Epsilon / dNdlnr_cbrt;
+
+
+        // (l=2, m=2), Inertial Wave dissipation, convective envelope
+        // IW dissipation is only efficient for highly spinning stars, as in Esseldeurs, et al., 2024 
+        if (two_Omega_spin >= p_Omega) {                                                                            
+            double epsilonIW_2 = (OmegaSpin / p_Omega) * (OmegaSpin / p_Omega);
+            double one_minus_alpha_4 = one_minus_alpha_2 * one_minus_alpha_2;
+            double bracket1 = 1.0 + (2.0 * alpha) + (3.0 * alpha_2) + (3.0 * alpha_3 / 2.0);
+            double bracket2 = 1.0 + ((1.0 - gamma) / gamma) * alpha_3;
+            double bracket3 = 1.0 + (3.0 * gamma / 2.0) + (5.0 * alpha_3 / (2.0 * gamma) * (1.0 + (gamma / 2.0) - (3.0*gamma*gamma/2.0))) - (9.0/4.0 * (1.0 - gamma) * alpha_5);
+            k22InertialEnv = (100.0 * M_PI / 63.0) * epsilonIW_2 * (alpha_5 / (1.0 - alpha_5)) * one_minus_gamma_2 * one_minus_alpha_4 * bracket1 * bracket1 * bracket2 / bracket3 / bracket3;
+        }
+    }
+
+    // return ImKlmDynamical;
+    return std::make_tuple(k10GravityCore+k10GravityEnv, k12GravityCore+k12GravityEnv, k22GravityCore+k22GravityEnv+k22InertialEnv, k32GravityCore+k32GravityEnv);
+}
+
+
+/*
+ * Calculate the Equilibrium tides contribution to the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the 
+ * potential tidal Love number
+ * 
+ * Barker (2020), Eqs. (20) to (27), (l=2, m=2 mode only).
+ *
+ * DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ *
+ * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
+ * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
+ * @param   [IN]    p_M2                        Mass of companion star (Msol)
+ * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
+ *                                              potential tidal Love number, Equilibrium tides only (unitless)
+ */
+DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+
+    // Viscous dissipation
+    // No contribution from convective core; only convective envelope.
+    double rOutAU = m_Radius * RSOL_TO_AU;                                                     // outer boundary of convective envelope
+    double rEnvAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
+    double rInAU = (rOutAU - rEnvAU);                                                          // inner boundary of convective envelope
+
+    // Skip calculations if there is no convective envelope (to avoid Imk22 = NaN)
+    if (rEnvAU <= 0.0) {
+        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                                            
+    }
+
+    double r_out_2 = rOutAU * rOutAU;
+    double r_out_3 = r_out_2 * rOutAU;
+    double r_out_5 = r_out_2 * r_out_3;
+    double r_out_7 = r_out_2 * r_out_5;
+    double r_out_9 = r_out_2 * r_out_7;
+    double r_out_11 = r_out_2 * r_out_9;
+
+    double r_in_2 = rInAU * rInAU;
+    double r_in_3 = r_in_2 * rInAU;
+    double r_in_5 = r_in_2 * r_in_3;
+    double r_in_7 = r_in_2 * r_in_5;
+    double r_in_9 = r_in_2 * r_in_7;
+    double r_in_11 = r_in_2 * r_in_9;
+
+    double a_2 = p_SemiMajorAxis * p_SemiMajorAxis;
+    double a_3 = a_2 * p_SemiMajorAxis;
+    double a_4 = a_2 * a_2;
+    double a_6 = a_3 * a_3;
+    double a_8 = a_6 * a_2;
+
+    double OmegaSpin = m_Omega;
+    double two_Omega_spin = OmegaSpin + OmegaSpin;
+
+    double envMass, envMassMax;
+    std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
+    double rho_conv =  envMass / (4.0 * M_PI * (r_out_3 - r_in_3) / 3.0);
+    double l_conv = rEnvAU;                                                                    // Set length scale to height of convective envelope
+    double t_conv = CalculateEddyTurnoverTimescale();
+    double v_conv = l_conv/t_conv;
+    double omega_conv = 1.0/t_conv;                                                            // absent factor of 2*PI, following Barker (2020)
+    double v_l = v_conv * l_conv;
+    double m2_over_M = p_M2 / m_Mass;
+    double m2_over_M_2 = m2_over_M * m2_over_M;
+
+    double v_l_5 = 5.0 * v_l;
+    double v_l_25_over_root20 = v_l * (25.0 / std::sqrt(20.0));
+    double v_l_over_2 = 0.5 * v_l;
+
+    double w10 = p_Omega;
+    double w12 = ((p_Omega) - (two_Omega_spin));
+    double w22 = ((p_Omega + p_Omega) - (two_Omega_spin));
+    double w32 = ((p_Omega + p_Omega + p_Omega) - (two_Omega_spin));
+
+    // (l=1, m=0), Viscous dissipation, convective envelope
+    double omega_t_10 = std::abs(w10);                                               
+    double omega_t_over_omega_c_10 = omega_t_10/omega_conv;
+    double nuTidal10 = v_l_5;
+    if (utils::Compare(omega_t_over_omega_c_10, 5.0) > 0) {             
+        nuTidal10 = v_l_25_over_root20 * (omega_t_over_omega_c_10) * (omega_t_over_omega_c_10);
+    }
+    else if (utils::Compare(omega_t_over_omega_c_10, 0.01) > 0) {
+        nuTidal10 = v_l_over_2 * std::sqrt(omega_t_over_omega_c_10);    
+    }
+    double Dnu10 = (99.0 / 14.0) * omega_t_10 * omega_t_10  * m2_over_M_2 * (r_out_7 - r_in_7) * rho_conv * nuTidal10 / a_4;
+    double A10_1 = - G_AU_Msol_yr * p_M2 / a_2;
+    double A10_2 = A10_1 * A10_1;
+    double k10Equilibrium = (3.0/2.0) * (16.0 * M_PI / 9.0) * G_AU_Msol_yr * Dnu10 / A10_2 / r_out_3 / omega_t_10;
+    if (w10 < 0.0) k10Equilibrium = - std::abs(k10Equilibrium);
+
+
+    // (l=1, m=2), Viscous dissipation, convective envelope
+    double omega_t_12 = std::abs(w12);                                               
+    double omega_t_over_omega_c_12 = omega_t_12/omega_conv;
+    double nuTidal12 = v_l_5;
+    if (utils::Compare(omega_t_over_omega_c_12, 5.0) > 0) {             
+        nuTidal12 = v_l_25_over_root20 * (omega_t_over_omega_c_12) * (omega_t_over_omega_c_12);
+    }
+    else if (utils::Compare(omega_t_over_omega_c_12, 0.01) > 0) {
+        nuTidal12 = v_l_over_2 * std::sqrt(omega_t_over_omega_c_12);    
+    }
+    double Dnu12 = (99.0 / 14.0) * omega_t_12 * omega_t_12  * m2_over_M_2 * (r_out_7 - r_in_7) * rho_conv * nuTidal12 / a_4;
+    double A12_1 = - G_AU_Msol_yr * p_M2 / a_2;
+    double A12_2 = A12_1 * A12_1;
+    double k12Equilibrium = (3.0/2.0) * (16.0 * M_PI / 9.0) * G_AU_Msol_yr * Dnu12 / A12_2 / r_out_3 / omega_t_12;
+    if (w12 < 0) k12Equilibrium = - std::abs(k12Equilibrium);
+
+
+    // (l=2, m=2), Viscous dissipation, convective envelope
+    double omega_t_22 = std::abs(w22);                                               
+    double omega_t_over_omega_c_22 = omega_t_22/omega_conv;
+    double nuTidal22 = v_l_5;
+    if (utils::Compare(omega_t_over_omega_c_22, 5.0) > 0) {             
+        nuTidal22 = v_l_25_over_root20 * (omega_t_over_omega_c_22) * (omega_t_over_omega_c_22);
+    }
+    else if (utils::Compare(omega_t_over_omega_c_22, 0.01) > 0) {
+        nuTidal22 = v_l_over_2 * std::sqrt(omega_t_over_omega_c_22);    
+    }
+    double Dnu22 = (28.0/3.0) * omega_t_22 * omega_t_22 * m2_over_M_2 * (r_out_9 - r_in_9)  * rho_conv * nuTidal22 / a_6;
+    double A22_1 = - G_AU_Msol_yr * p_M2 / a_3;
+    double A22_2 = A22_1 * A22_1;
+    double k22Equilibrium = (3.0/2.0) * (16.0 * M_PI / 15.0) * G_AU_Msol_yr * Dnu22 / A22_2 / r_out_5 / omega_t_22;
+    if (w22 < 0.0) k22Equilibrium = - std::abs(k22Equilibrium);
+
+
+    // (l=3, m=2), Viscous dissipation, convective envelope
+    double omega_t_32 = std::abs(w32);                                               
+    double omega_t_over_omega_c_32 = omega_t_32/omega_conv;
+    double nuTidal32 = v_l_5;
+    if (utils::Compare(omega_t_over_omega_c_32, 5.0) > 0) {             
+        nuTidal32 = v_l_25_over_root20 * (omega_t_over_omega_c_32) * (omega_t_over_omega_c_32);
+    }
+    else if (utils::Compare(omega_t_over_omega_c_32, 0.01) > 0) {
+        nuTidal32 = v_l_over_2 * std::sqrt(omega_t_over_omega_c_32);    
+    }
+    double Dnu32 = (1495.0 / 132.0) * omega_t_32 * omega_t_32  * m2_over_M_2 * (r_out_11 - r_in_11) * rho_conv * nuTidal32 / a_8;
+    double A32_1 = - G_AU_Msol_yr * p_M2 / a_4;
+    double A32_2 = A32_1 * A32_1;
+    double k32Equilibrium = (3.0/2.0) * (16.0 * M_PI / 21.0) * G_AU_Msol_yr * Dnu32 / A32_2 / r_out_7 / omega_t_32;
+    if (w32 < 0.0) k32Equilibrium = - std::abs(k32Equilibrium);
+
+
+
+    // return ImKlmEquilibrium;
+    return std::make_tuple(k10Equilibrium, k12Equilibrium, k22Equilibrium, k32Equilibrium);
+}
+
+/*
+ * Calculate the (l,m) = [(1,0), (1,2), (2,2), (3,2)] imaginary components of the potential tidal Love number 
+ * by combining Equilibrium and Dynamical tidal contributions.
+ *
+ * DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)
+ *
+ * @param   [IN]    p_Omega                     Orbital angular frequency (1/yr)
+ * @param   [IN]    p_SemiMajorAxis             Semi-major axis of binary (AU)
+ * @param   [IN]    p_M2                        Mass of companion star (Msol)
+ * @return                                      [(1,0), (1,2), (2,2), (3,2)] Imaginary components of the 
+ *                                              potential tidal Love number (unitless)
+ */
+DBL_DBL_DBL_DBL BaseStar::CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) {
+    
+    double Imk10Dynamical, Imk12Dynamical, Imk22Dynamical, Imk32Dynamical;
+    std::tie(Imk10Dynamical, Imk12Dynamical, Imk22Dynamical, Imk32Dynamical) = CalculateImKlmDynamical(p_Omega, p_SemiMajorAxis, p_M2);
+
+    double Imk10Equilibrium, Imk12Equilibrium, Imk22Equilibrium, Imk32Equilibrium;
+    std::tie(Imk10Equilibrium, Imk12Equilibrium, Imk22Equilibrium, Imk32Equilibrium) = CalculateImKlmEquilibrium(p_Omega, p_SemiMajorAxis, p_M2);
+    
+    // return combined ImKlm terms;
+    return std::make_tuple(Imk10Dynamical+Imk10Equilibrium, Imk12Dynamical+Imk12Equilibrium, Imk22Dynamical+Imk22Equilibrium, Imk32Dynamical+Imk32Equilibrium);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -3344,8 +3677,9 @@ double BaseStar::CalculateRadialExpansionTimescale_Static(const STELLAR_TYPE p_S
 double BaseStar::CalculateEddyTurnoverTimescale() {
 
 	double rEnv	= CalculateRadialExtentConvectiveEnvelope();
-
-	return 0.4311 * cbrt((m_Mass * rEnv * (m_Radius - (0.5 * rEnv))) / (3.0 * m_Luminosity));
+    double mEnv, mEnvmax;
+    std::tie(mEnv, mEnvmax) = CalculateConvectiveEnvelopeMass();
+    return 0.4311 * cbrt((mEnv * rEnv * (m_Radius - (0.5 * rEnv))) / (3.0 * m_Luminosity));
 }
 
 
@@ -3805,18 +4139,41 @@ void BaseStar::CalculateBindingEnergies(const double p_CoreMass, const double p_
  * Calculate convective envelope binding energy for the two-stage Hirai & Mandel (2022) common envelope formalism
  *
  *
- * double CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_lambda)
+ * double CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_lambda)
  *
- * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
+ * @param   [IN]    p_TotalMass                 Total mass of the star (Msol)
  * @param   [IN]    p_ConvectiveEnvelopeMass    Mass of the convective outer envelope  (Msol)
  * @param   [IN]    p_Radius                    Radius of the star (Rsol)
- * @param   [IN]    p_Lambda                    Dimensionless parameter defining the binding energy
+ * @param   [IN]    p_Lambda                    Lambda parameter for the convective envelope
  * @return                                      Binding energy (erg)
  */
-double BaseStar::CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda) {
-    return CalculateBindingEnergy(p_CoreMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda);
+double BaseStar::CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_lambda) {
+    return CalculateBindingEnergy(p_TotalMass - p_ConvectiveEnvelopeMass, p_ConvectiveEnvelopeMass, p_Radius, p_lambda);
 }
 
+
+/*
+ * Approximates the lambda binding energy parameter of the outer convective envelope
+ *
+ * This is needed for the Hirai & Mandel (2022) two-stage CE formalism.
+ * Follows the fits of Picker, Hirai, Mandel (2024), arXiv:2402.13180 for lambda_He
+ *
+ *
+ * double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const
+ *
+ * @param   [IN]    p_convectiveEnvelopeMass    Mass of the outer convective envelope shell
+ * @param   [IN]    p_maxConvectiveEnvelopeMass Maximum mass of the outer convective envelope shell at the onset of carbon burning
+ * @return                                      Lambda binding energy parameter for the outer convective envelope
+ */
+double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const {
+    
+    double m2         = 0.0023 * m_Log10Metallicity * m_Log10Metallicity + 0.0088 * m_Log10Metallicity + 0.013;         // Eq. (12) and Table 1 of Picker, Hirai, Mandel (2024)
+    double b1         = m2 * m_Mass - 0.23;                                         // Eq. (11) of Picker+ (2024)
+    double logLambda  = p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass > 0.3 ?
+        0.42 * p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass + b1 : 0.3 * 0.42 + b1;
+    
+    return exp(logLambda);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //

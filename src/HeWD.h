@@ -16,14 +16,21 @@ class HeWD: virtual public BaseStar, public WhiteDwarfs {
 
 public:
 
-    HeWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), WhiteDwarfs(p_BaseStar, false) {
-        if (p_Initialise) Initialise();
+    HeWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), WhiteDwarfs(p_BaseStar) {
+        m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF;               // Set stellar type
+        if (p_Initialise) Initialise();                                 // Initialise if required
     }
 
-    HeWD& operator = (const BaseStar &p_BaseStar) {
-        static_cast<BaseStar&>(*this) = p_BaseStar;
-        Initialise();
-        return *this;
+    HeWD* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        HeWD* clone = new HeWD(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
+
+    static HeWD* Clone(HeWD& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        HeWD* clone = new HeWD(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
     }
 
 
@@ -40,7 +47,6 @@ public:
 protected:
 
     void Initialise() {
-        m_StellarType              = STELLAR_TYPE::HELIUM_WHITE_DWARF;  // Set stellar type
         CalculateTimescales();                                          // Initialise timescales
         m_Age                      = 0.0;                               // Set age appropriately
         m_HShell                   = 0.0;                               // Initialize Hydrogen Shell

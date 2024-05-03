@@ -1,79 +1,119 @@
 #ifndef __vector3d_h__
 #define __vector3d_h__
 
-#include "constants.h"
 #include <vector>
 #include <array>
 
-///////////////////////////////////////////////////////////
-// 
-// Vector3d object
-// 
-///////////////////////////////////////////////////////////
+#include "constants.h"
+#include "Errors.h"
+
 
 class Vector3d {
 
 public:
 
-    // constructors & initializers
+    // constructors
     Vector3d();
-    Vector3d(const double p_x,
-             const double p_y,
-             const double p_z);
-    Vector3d(DBL_VECTOR p_v);
-
-    // object identifiers - all classes have these 
-    OBJECT_ID    ObjectId()    { return m_ObjectId; }           // object id for vectors - ordinal value from enum
-    OBJECT_TYPE  ObjectType()  { return OBJECT_TYPE::NONE; }    // object type for vectors - always "NONE"
-    STELLAR_TYPE StellarType() { return STELLAR_TYPE::NONE; }   // stellar type for vectors - always "NONE"
+    Vector3d(const double p_x, const double p_y, const double p_z);
+    Vector3d(DBL_VECTOR p_Vec);
 
     // destructor
     virtual ~Vector3d() {}
 
+
+    // object identifiers - all classes have these 
+    OBJECT_ID          ObjectId()          { return m_ObjectId; }                                       // object id for vectors - ordinal value from enum
+    OBJECT_TYPE        ObjectType()        { return OBJECT_TYPE::NONE; }                                // object type for vectors - always "NONE"
+    OBJECT_PERSISTENCE ObjectPersistence() { return OBJECT_PERSISTENCE::PERMANENT; }                    // object persistence for vectors - always "PERMANENT"
+    STELLAR_TYPE       StellarType()       { return STELLAR_TYPE::NONE; }                               // stellar type for vectors - always "NONE"
+
+
     // getters 
+    DBL_VECTOR  asDBL_VECTOR() const { return { (*this)[0], (*this)[1] , (*this)[2]} ; }
+    double      Magnitude() const    { return std::sqrt(Dot(*this, *this)); }
     double      xValue() const       { return m_x; }
     double      yValue() const       { return m_y; }
     double      zValue() const       { return m_z; }
-    double      Magnitude() const;
 
-    DBL_VECTOR  asDBL_VECTOR();
+    // Operator overloads
+    double   operator [] (const size_t p_i) const { return (*const_cast<Vector3d*>(this))[p_i]; }
+    double&  operator [] (const size_t p_i) {
+
+        // check that supplied index is in range.
+        // if index is not in range, issue a warning and use index modulo 3
+        size_t index = p_i;
+        if (index > 2) {
+            SHOW_WARN(ERROR::INDEX_OUT_OF_RANGE, "Using index modulo 3");                               // index out of range
+            index %= 3;                                                                                 // use index modulo 3
+        }
+        
+             if (index == 1) return m_x;
+        else if (index == 2) return m_y;
+        else                 return m_z;
+    }
+   
+    void     operator = (const Vector3d p_Vec) { UpdateVector(p_Vec[0], p_Vec[1], p_Vec[2]); }
+
+    void     operator += (const Vector3d p_Vec) { *this = (*this) + p_Vec; }
+
+    Vector3d operator + (const Vector3d p_Vec) {
+        Vector3d vec;
+        for (size_t i=0; i<3; i++) vec[i] = (*this)[i] + p_Vec[i];
+        return vec;
+    }
     
+    Vector3d operator - (const Vector3d p_Vec) {
+        Vector3d vec;
+        for (size_t i = 0; i < 3; i++) vec[i] = (*this)[i] - p_Vec[i];
+        return vec;
+    }
+    
+    Vector3d operator * (const double p_Scalar) {                                                       // for Vector3d * scalar
+        Vector3d vec;
+        for (size_t i = 0; i < 3; i++) vec[i] = (*this)[i] * p_Scalar; 
+        return vec;
+    }
+    friend Vector3d operator * (const double p_Scalar, Vector3d p_Vec) { return p_Vec * p_Scalar; };    // for scalar * Vector3d
+
+    Vector3d operator / (const double p_Scalar) {                                                       // for Vector3d / scalar
+        Vector3d vec;
+        for (size_t i = 0; i < 3; i++) vec[i] = (*this)[i] / p_Scalar;
+        return vec;
+    }
+
+    friend std::ostream &operator << (std::ostream &p_os, Vector3d const p_Vec) { return p_os << "{" << p_Vec[0] << ", " << p_Vec[1] << ", " << p_Vec[2] << "}"; }
+
+
     // member functions 
-    Vector3d    RotateVectorAboutX( const double p_Theta);
-    Vector3d    RotateVectorAboutY( const double p_Theta);
-    Vector3d    RotateVectorAboutZ( const double p_Theta);
-    Vector3d    ChangeBasis( const double p_ThetaE, 
-                              const double p_PhiE, 
-                              const double p_PsiE);
-    Vector3d    UnitVector();
+    static double   AngleBetween(const Vector3d& p_Vec1, const Vector3d& p_Vec2) { return std::acos(Dot(p_Vec1, p_Vec2) / (p_Vec1.Magnitude() * p_Vec2.Magnitude())); }
 
-    // Overload operators
-    
-    // Overload Indexing operator
-    double& operator[] (size_t p_i);
-    double operator[] (size_t p_i) const { return (*const_cast<Vector3d*>(this))[p_i]; }
-    
-    // Overload setting operator
-    void operator =(Vector3d p_NewVec);
+    Vector3d        ChangeBasis(const double p_ThetaE, const double p_PhiE, const double p_PsiE);
 
-    // Overload += setting vector
-    void operator +=(Vector3d p_Vec) { (*this) = (*this) + p_Vec; }
-
-    // Overload vector addition operator
-    Vector3d operator +(Vector3d p_Vec);
+    static Vector3d Cross(const Vector3d& p_a, const Vector3d& p_b) {
     
-    // Overload vector subtraction operator
-    Vector3d operator -(Vector3d p_Vec);
+        Vector3d result = Vector3d(0.0, 0.0, 0.0);
     
-    // Overload scalar multiplication operator (only works as v*s, see below for s*v)
-    Vector3d operator *(const double p_Scalar); 
-
-    // Overload scalar division operator
-    Vector3d operator /(const double p_Scalar);
-
-
+        result[0] = p_a[1] * p_b[2] - p_a[2] * p_b[1];
+        result[1] = p_a[2] * p_b[0] - p_a[0] * p_b[2];
+        result[2] = p_a[0] * p_b[1] - p_a[1] * p_b[0];
     
-    
+        return result;
+    }
+
+    static double   Dot(const Vector3d& p_Vec1, const Vector3d& p_Vec2) {
+        double result = 0.0;
+        for (size_t i = 0; i < 3; i++) result += p_Vec1[i] * p_Vec2[i];
+        return result;
+    }
+
+    Vector3d        MatrixMult(const std::vector<DBL_VECTOR>& p_matrix, const Vector3d& p_vector);
+
+    Vector3d        RotateVectorAboutX(const double p_Theta);
+    Vector3d        RotateVectorAboutY(const double p_Theta);
+    Vector3d        RotateVectorAboutZ(const double p_Theta);
+
+    Vector3d        UnitVector() { return *this / (*this).Magnitude(); } 
+
 
 protected:
 
@@ -84,35 +124,9 @@ protected:
     double m_y;
     double m_z;
 
+
     // member functions
-    void UpdateVector(const double p_x, const double p_y, const double p_z);
+    void UpdateVector(const double p_x, const double p_y, const double p_z) { m_x = p_x; m_y = p_y; m_z = p_z; }
 };
-
-// Free functions, 
-// Overload * with reversed order of inputs
-Vector3d operator *(double p_Scalar, Vector3d p_Vec);
-
-// Overload output << operator for Vector3d
-std::ostream &operator <<(std::ostream &os, Vector3d const p_Vec);
-
-
-
-///////////////////////////////////////////////////////////
-// 
-// Linear Algebra Functions
-// 
-///////////////////////////////////////////////////////////
-
-namespace linalg {
-
-    double      dot(const Vector3d& p_a, const Vector3d& p_b);
-
-    Vector3d    cross(const Vector3d& p_a, const Vector3d& p_b);
-
-    double      angleBetween(const Vector3d& p_a, const Vector3d& p_b);
-
-    Vector3d    matrixMult(const std::vector<DBL_VECTOR>& p_matrix, const Vector3d& p_vector);
-
-}
 
 #endif // __vector3d_h__
