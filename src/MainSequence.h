@@ -88,7 +88,7 @@ protected:
     void            UpdateInitialMass()                                                     { m_Mass0 = m_Mass; }                                                   // Per Hurley et al. 2000, section 7.1
     void            UpdateAgeAfterMassLoss();                                                                                                                       // Per Hurley et al. 2000, section 7.1
     
-    void            UpdateMinimumCoreMass();                                                                                                                 // Set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass
+    void            UpdateMinimumCoreMass();                                                                                                                        // Set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass
 
 };
 

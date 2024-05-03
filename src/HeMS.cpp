@@ -221,7 +221,7 @@ double HeMS::CalculateMassTransferRejuvenationFactor() const {
 double HeMS::CalculateMassLossRateHurley() {
     double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
     double rateKR = CalculateMassLossRateKudritzkiReimers();
-    double rateWR = CalculateMassLossRateWolfRayet(0.0); // use mu=0.0 for Helium stars
+    double rateWR = CalculateMassLossRateWolfRayet(0.0);        // use mu = 0.0 for Helium stars
     double dominantRate;
     m_DominantMassLossRate = MASS_LOSS_TYPE::GB;
     if (utils::Compare(rateNJ, rateKR) > 0) {
