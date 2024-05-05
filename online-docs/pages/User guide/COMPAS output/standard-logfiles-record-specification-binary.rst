@@ -1057,7 +1057,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - COMPAS variable:
      - BaseBinaryStar::m_RLOFDetails.propsPreMT→isRLOF1
    * - Description:
-     - Flag to indicate whether the primary is overflowing its Roche Lobe.
+     - Flag to indicate whether the primary was overflowing its Roche Lobe on the previous timestep.
    * - Header String:
      - RLOF(1)<MT
 
@@ -1073,7 +1073,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - COMPAS variable:
      - BaseBinaryStar::m_RLOFDetails.propsPreMT→isRLOF2
    * - Description:
-     - Flag to indicate whether the secondary is overflowing its Roche Lobe.
+     - Flag to indicate whether the secondary was overflowing its Roche Lobe on the previous timestep.
    * - Header String:
      - RLOF(2)<MT
 
