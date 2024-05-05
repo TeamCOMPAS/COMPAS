@@ -793,27 +793,6 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 }
 
 
-/*
- * Calculate the radial extent of the star's convective envelope (if it has one)
- *
- * Hurley et al. 2000, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
- *
- * (Technically not a radius calculation I suppose, but "radial extent" is close enough to put it with the radius calculations...)
- *
- *
- * double CalculateRadialExtentConvectiveEnvelope()
- *
- * @return                                      Radial extent of the star's convective envelope in Rsol
- */
-double HG::CalculateRadialExtentConvectiveEnvelope() const {
-
-	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
-	clone.ResolveEnvelopeLoss(true);                // update clone's attributes after envelope is lost
-
-    return std::sqrt(m_Tau) * (m_Radius - clone.Radius());
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                                 MASS CALCULATIONS                                 //

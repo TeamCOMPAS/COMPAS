@@ -818,6 +818,14 @@ def parse_cli_args():
     args = parser.parse_args()
     return args
 
+def set_cosmology(cosmology_name="Planck18"):
+    # Set cosmology using astropy, print a warning if TNG fit is used with Planck18 cosmology (since TNG uses Planck15)
+    if cosmology_name == "Planck18": print("USING PLANCK18 AS COSMOLOGY! If working with TNG fit, you may want to use Planck15 instead for self-consistency.")
+    else: print("Using %s as cosmology!"%cosmology_name)
+
+    return getattr(importlib.import_module('astropy.cosmology'), cosmology_name)
+
+
 
 
 
