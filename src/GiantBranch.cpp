@@ -1030,8 +1030,8 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  */
 DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     
-    double MinterfMcoref = -0.021 * m_Log10Metallicity + 0.0038;                                                            // Eq. (8) of Picker+ 2024
-    double Tonset        = -139.8 * m_Log10Metallicity * m_Log10Metallicity - 981.7 * m_Log10Metallicity + 2798.3;          // Eq. (6) of Picker+ 2024
+    double MinterfMcoref = -0.023 * m_Log10Metallicity - 0.0023;                                                            // Eq. (8) of Picker+ 2024
+    double Tonset        = -129.7 * m_Log10Metallicity * m_Log10Metallicity - 920.1 * m_Log10Metallicity + 2887.1;          // Eq. (6) of Picker+ 2024
 
     // We need the temperature of the star just after BAGB, which is the temperature at the
     // start of the EAGB phase.  Since we are on the giant branch here, we can clone this
