@@ -893,7 +893,7 @@ bool BaseBinaryStar::PrintBeBinary(const BE_BINARY_RECORD_TYPE p_RecordType) {
  *
  * void StashRLOFProperties()
  *
- * @param   [IN]    p_StashPostMassTransfer     Boolean - true if post-MT values should be stored (false for pre-MT values)
+ * @param   [IN]    p_Which                     MASS_TRANSFER_TIMING (PRE_MT or POST_MT)
  */
 void BaseBinaryStar::StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which) {
 
