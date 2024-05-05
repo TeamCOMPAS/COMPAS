@@ -551,7 +551,7 @@ Binary Properties
    * - COMPAS variable:
      - BaseBinaryStar::m_CEDetails.optimisticCE
    * - Description:
-     - Flag that returns TRUE if we have a Hertzsprung-gap star, and we allow it to survive the CE.
+     - Flag that returns TRUE if a radiative-envelope donor survives the CE (requires --common-envelope-allow-radiative-envelope-survive TRUE).
    * - Header String:
      - Optimistic_CE
 
