@@ -154,11 +154,15 @@ public:
                                              const double p_EnvMass,
                                              const double p_Radius)                                                 { m_Star->CalculateBindingEnergies(p_CoreMass, p_EnvMass, p_Radius); }
 
-    double          CalculateConvectiveEnvelopeBindingEnergy(const double p_CoreMass,
+    double          CalculateConvectiveCoreMass () { return m_Star->CalculateConvectiveCoreMass(); }
+    double          CalculateConvectiveCoreRadius () { return m_Star->CalculateConvectiveCoreRadius(); }
+
+    double          CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass,
                                                              const double p_ConvectiveEnvelopeMass,
                                                              const double p_Radius,
-                                                             const double p_Lambda)                                 { return m_Star->CalculateConvectiveEnvelopeBindingEnergy(p_CoreMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda); }
-    double          CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
+                                                             const double p_Lambda)                                 { return m_Star->CalculateConvectiveEnvelopeBindingEnergy(p_TotalMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda); }
+    double          CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass ) const     { return m_Star->CalculateConvectiveEnvelopeLambdaPicker(p_convectiveEnvelopeMass, p_maxConvectiveEnvelopeMass); }
+    DBL_DBL         CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
     
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }
 
@@ -173,6 +177,8 @@ public:
 
     double          CalculateMomentOfInertia() const                                                                { return m_Star->CalculateMomentOfInertia(); }
     double          CalculateMomentOfInertiaAU() const                                                              { return m_Star->CalculateMomentOfInertiaAU(); }
+    
+    double          CalculateRadialExtentConvectiveEnvelope() { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
 
     void            CalculateSNAnomalies(const double p_Eccentricity)                                               { m_Star->CalculateSNAnomalies(p_Eccentricity); }
     

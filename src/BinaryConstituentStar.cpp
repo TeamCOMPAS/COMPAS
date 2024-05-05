@@ -236,7 +236,9 @@ void BinaryConstituentStar::SetPostCEEValues() {
  *    m_CEDetails.CoreMass
  *    m_CEDetails.bindingEnergy
  *    m_CEDetails.lambda
- *
+ *    m_CEDetails.convectiveEnvelopeMass
+ *    m_CEDetails.radiativeIntershellMass
+ *    m_CEDetails.convectiveEnvelopeBindingEnergy
  *
  * void CalculateCommonEnvelopeValues()
  */
@@ -247,10 +249,6 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
     m_CEDetails.CoreMass   = CoreMass();
 
     m_CEDetails.lambda     = 0.0;                                               // default
-    
-    m_CEDetails.convectiveEnvelopeMass          = CalculateConvectiveEnvelopeMass();
-    m_CEDetails.radiativeIntershellMass         = Mass() - CoreMass() - m_CEDetails.convectiveEnvelopeMass;
-    m_CEDetails.convectiveEnvelopeBindingEnergy = 0.0;
 
     switch (OPTIONS->CommonEnvelopeLambdaPrescription()) {                      // which common envelope lambda prescription?
 
@@ -278,7 +276,7 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
             m_CEDetails.lambda        = Lambda_Dewi();
             m_CEDetails.bindingEnergy = BindingEnergy_Dewi();
             break;
-
+            
         default:                                                                // unknown prescription
             SHOW_WARN(ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION, "Lambda = 0.0");   // show warning
     }
@@ -286,7 +284,15 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
     if (utils::Compare(m_CEDetails.lambda, 0.0) <= 0) m_CEDetails.lambda = 0.0; // force non-positive lambda to 0
 
     m_CEDetails.lambda *= OPTIONS->CommonEnvelopeLambdaMultiplier();            // multiply by constant (program option, default = 1.0)
-    m_CEDetails.convectiveEnvelopeBindingEnergy = CalculateConvectiveEnvelopeBindingEnergy(CoreMass(), m_CEDetails.convectiveEnvelopeMass, Radius(), m_CEDetails.lambda);
+    
+    // Properties relevant for the Hirai & Mandel (2022) formalism
+    double maxConvectiveEnvelopeMass;
+    std::tie(m_CEDetails.convectiveEnvelopeMass, maxConvectiveEnvelopeMass) = CalculateConvectiveEnvelopeMass();
+    m_CEDetails.radiativeIntershellMass         = Mass() - CoreMass() - m_CEDetails.convectiveEnvelopeMass;
+    if ( OPTIONS->CommonEnvelopeFormalism() == CE_FORMALISM::TWO_STAGE )
+        m_CEDetails.lambda = CalculateConvectiveEnvelopeLambdaPicker(m_CEDetails.convectiveEnvelopeMass, maxConvectiveEnvelopeMass);
+
+    m_CEDetails.convectiveEnvelopeBindingEnergy = CalculateConvectiveEnvelopeBindingEnergy(Mass(), m_CEDetails.convectiveEnvelopeMass, Radius(), m_CEDetails.lambda);
 }
 
 
