@@ -242,9 +242,7 @@ public:
 
     virtual double          CalculateMomentOfInertia() const                                                    { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                  // Defaults to MS. k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
     virtual double          CalculateMomentOfInertiaAU() const                                                  { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
-    
-            double          CalculateNuclearTimescale() const                                                   { return CalculateNuclearTimescale_Static(m_Mass, m_Luminosity); }  // Use class member variables
-    
+        
             double          CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) const;
 
             double          CalculateRadialChange() const                                                       { return (utils::Compare(m_RadiusPrev,0)<=0)? 0 : std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; } // Return fractional radial change (if previous radius is negative or zero, return 0 to avoid NaN
@@ -463,8 +461,6 @@ protected:
     // member functions - alphabetically
             void                AgeOneTimestepPreamble(const double p_DeltaTime);
 
-            double              ApplyBlackHoleKicks(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass);
-
             double              CalculateAlpha1() const;
             double              CalculateAlpha3() const;
             double              CalculateAlpha4() const;
@@ -562,8 +558,6 @@ protected:
     virtual double              CalculateMassTransferRejuvenationFactor() const;
 
             double              CalculateMaximumCoreMass(double p_Mass) const;
-
-    static  double              CalculateNuclearTimescale_Static(const double p_Mass, const double p_Luminosity);
 
             double              CalculateOmegaBreak() const;
 
@@ -676,6 +670,9 @@ protected:
     virtual STELLAR_TYPE        ResolveSkippedPhase()                                                                   { return EvolveToNextPhase(); }                                             // Default is evolve to next phase
     virtual STELLAR_TYPE        ResolveSupernova()                                                                      { return m_StellarType; }                                                   // Default is NO-OP
 
+            double              ReweightSupernovaKickByMass(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) { return p_vK; }                              // Default is not to re-weight, except for black holes where the --black-hole-kicks option is relevant
+
+    
     virtual void                SetSNHydrogenContent()                                                                  { m_SupernovaDetails.isHydrogenPoor = false; }                              // Default is false
 
             bool                ShouldBeMasslessRemnant() const                                                         { return (m_Mass <= 0.0 || m_StellarType == STELLAR_TYPE::MASSLESS_REMNANT); }
