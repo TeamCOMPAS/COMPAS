@@ -1147,7 +1147,11 @@
 // 02.44.03    IM - May 06, 2024     - Defect repair, enhancement, minor cleanup:
 //					- updated Picker et al. (2024) coefficients for the 2-stage CE prescription
 //					- optimisticCE is now recorded only if the binary avoided merger (see issue #1014)
+// 02.33.04    IM - May 06, 2024     - Defect repair:
+//					- removed (incorrect) calculation of nuclear timescale (see issue #430)
+//				     	- replaced ApplyBlackHoleKicks() with ReweightBlackHoleKicksByMass() and now applying it only to BHs (see issue #1027)
+//					- set PISN massless remnant mass to zero (see issue #1051)
           
-const std::string VERSION_STRING = "02.44.03";
+const std::string VERSION_STRING = "02.44.04";
 
 # endif // __changelog_h__
