@@ -205,7 +205,7 @@ stringChoices:
 
     ### LOGISTICS
 #    --add-options-to-sysparms: 'GRID'                                     # Default: 'GRID'                        # Options: ['NEVER','GRID','ALWAYS']
-     --grid: 'grid.txt'                                               # Default: ''                                                                                                                                                                 # grid file name (e.g. 'mygrid.txt')
+     --grid: 'grid.txt'                                               	   # Default: ''                            # grid file name (e.g. 'mygrid.txt')
 #    --mode: 'BSE'                                                         # Default: 'BSE'                         # Options: ['BSE','SSE']                                                                                                             # evolving single (SSE) or binary stars (BSE)
 #    --notes: { }                                                          # Default: { }
 #    --notes-hdrs: { }                                                     # Default: { }
