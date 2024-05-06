@@ -1150,6 +1150,7 @@
 // 02.33.04    IM - May 06, 2024     - Defect repair:
 //					- removed (incorrect) calculation of nuclear timescale (see issue #430)
 //				     	- replaced ApplyBlackHoleKicks() with ReweightBlackHoleKicksByMass() and now applying it only to BHs (see issue #1027)
+//					- set PISN massless remnant mass to zero (see issue #1051)
           
 const std::string VERSION_STRING = "02.44.04";
 
