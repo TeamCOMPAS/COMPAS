@@ -83,7 +83,7 @@ Default = FALSE
 :ref:`Back to Top <options-props-top>`
 
 **--black-hole-kicks** |br|
-Black hole kicks relative to NS kicks. |br|
+Black hole kicks relative to NS kicks (not relevant for `MANDELMUELLER` ``--remnant-mass-prescription``). |br|
 Options: { FULL, REDUCED, ZERO, FALLBACK } |br|
 Default = FALLBACK
 
@@ -899,7 +899,7 @@ Default = 0.3
 :ref:`Back to Top <options-props-top>`
 
 **--neutrino-mass-loss-BH-formation** |br|
-Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not MANDELMUELLER). |br|
+Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not `MANDELMUELLER`). |br|
 Options: { FIXED_FRACTION, FIXED_MASS } |br|
 Default = FIXED_MASS
 

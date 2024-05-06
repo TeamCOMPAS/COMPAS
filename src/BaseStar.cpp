@@ -3667,57 +3667,6 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
 
 
 /*
- * Calculate the kick given to a black hole based on users chosen assumptions about black hole kicks,
- * fallback and the magnitude of a kick drawn from a distribution
- *
- * Current options are:
- *
- *    FULL    : Black holes receive the same kicks as neutron stars
- *    REDUCED : Black holes receive the same momentum kick as a neutron star, but downweighted by the black hole mass
- *    ZERO    : Black holes receive zero natal kick
- *    FALLBACK: Black holes receive a kick downweighted by the amount of mass falling back onto them
- *
- *
- *  double ApplyBlackHoleKicks(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass)
- *
- * @param   [IN]    p_vK                        Kick magnitude that would otherwise be applied to a neutron star
- * @param   [IN]    p_FallbackFraction          Fraction of mass that falls back onto the proto-compact object
- * @param   [IN]    p_BlackHoleMass             Mass of remnant (in Msol)
- * @return                                      Kick magnitude
- */
- double BaseStar::ApplyBlackHoleKicks(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) {
-
-    double vK;
-
-    switch (OPTIONS->BlackHoleKicks()) {                            // which BH kicks option specified?
-
-        case BLACK_HOLE_KICKS::FULL:                                // BH receives full kick - no adjustment necessary
-            vK = p_vK;
-            break;
-
-        case BLACK_HOLE_KICKS::REDUCED:                             // Kick is reduced by the ratio of the black hole mass to neutron star mass i.e. v_bh = ns/bh  *v_ns
-            vK = p_vK * NEUTRON_STAR_MASS / p_BlackHoleMass;
-            break;
-
-        case BLACK_HOLE_KICKS::ZERO:
-            vK = 0.0;                                               // BH Kicks are set to zero regardless of BH mass or kick magnitude drawn.
-            break;
-
-        case BLACK_HOLE_KICKS::FALLBACK:                            // Using the so-called 'fallback' prescription for BH kicks
-            vK = p_vK * (1.0 - p_FallbackFraction);
-            break;
-
-        default:                                                    // unknown BH kick option - shouldn't happen
-            vK = p_vK;                                              // return vK unchanged
-            m_Error = ERROR::UNKNOWN_BH_KICK_OPTION;                // set error value
-            SHOW_WARN(m_Error);                                     // warn that an error occurred
-    }
-
-    return vK;
-}
-
-
-/*
  * Draw a kick magnitude in km s^-1 from a Maxwellian distribution of the form:
  *
  *
@@ -3995,7 +3944,7 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
         m_SupernovaDetails.drawnKickMagnitude = vK;                                                 // drawn kick magnitude
 
         if (utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::CCSN) {              // core-collapse supernova event this timestep?
-            vK = ApplyBlackHoleKicks(vK, m_SupernovaDetails.fallbackFraction, m_Mass);              // re-weight kicks by mass of remnant according to user specified black hole kicks option
+            vK = ReweightSupernovaKickByMass(vK, m_SupernovaDetails.fallbackFraction, m_Mass);      // re-weight kick by mass of remnant according to user specified black hole kicks option, if relevant (default is no reweighting)
         }
         else {                                                                                      // otherwise
             m_SupernovaDetails.fallbackFraction = 0.0;                                              // set fallback fraction to zero
