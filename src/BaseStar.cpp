@@ -354,7 +354,6 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::METALLICITY:                                        value = Metallicity();                                          break;
             case ANY_STAR_PROPERTY::MOMENT_OF_INERTIA:                                  value = CalculateMomentOfInertia();                             break;
             case ANY_STAR_PROPERTY::MZAMS:                                              value = MZAMS();                                                break;
-            case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE:                                  value = CalculateNuclearTimescale();                            break;
             case ANY_STAR_PROPERTY::OMEGA:                                              value = Omega() / SECONDS_IN_YEAR;                              break;
             case ANY_STAR_PROPERTY::OMEGA_BREAK:                                        value = OmegaBreak() / SECONDS_IN_YEAR;                         break;
             case ANY_STAR_PROPERTY::OMEGA_ZAMS:                                         value = OmegaZAMS() / SECONDS_IN_YEAR;                          break;
@@ -3587,23 +3586,6 @@ double BaseStar::CalculateLifetimeToBAGB(const double p_tHeI, const double p_tHe
  */
 double BaseStar::CalculateDynamicalTimescale_Static(const double p_Mass, const double p_Radius) {
     return 5.0 * 1.0E-5 * p_Radius * std::sqrt(p_Radius) * YEAR_TO_MYR / std::sqrt(p_Mass);   // sqrt() is much faster than pow()
-}
-
-
-/*
- * Calculate nuclear timescale
- *
- * Kalogera & Webbink 1996, eq 3
- *
- *
- * double CalculateNuclearTimescale_Static(const double p_Mass, const double p_Luminosity)
- *
- * @param   [IN]    p_Mass                      Mass in Msol
- * @param   [IN]    p_Luminosity                Luminosity in Lsol
- * @return                                      Dynamical timescale in Myr
- */
-double BaseStar::CalculateNuclearTimescale_Static(const double p_Mass, const double p_Luminosity) {
-    return 1.0E10 * p_Mass * YEAR_TO_MYR / p_Luminosity;
 }
 
 
