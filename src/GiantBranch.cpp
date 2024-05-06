@@ -1898,6 +1898,10 @@ STELLAR_TYPE GiantBranch::ResolvePairInstabilitySN() {
     m_Luminosity  = 0.0;
     m_Radius      = 0.0;
     m_Temperature = 0.0;
+    m_Mass        = 0.0;
+    m_CoreMass    = 0.0;
+    m_COCoreMass  = 0.0;
+    m_HeCoreMass  = 0.0;
 
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
