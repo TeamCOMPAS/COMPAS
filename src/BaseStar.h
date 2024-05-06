@@ -461,8 +461,6 @@ protected:
     // member functions - alphabetically
             void                AgeOneTimestepPreamble(const double p_DeltaTime);
 
-            double              ApplyBlackHoleKicks(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass);
-
             double              CalculateAlpha1() const;
             double              CalculateAlpha3() const;
             double              CalculateAlpha4() const;
@@ -672,6 +670,9 @@ protected:
     virtual STELLAR_TYPE        ResolveSkippedPhase()                                                                   { return EvolveToNextPhase(); }                                             // Default is evolve to next phase
     virtual STELLAR_TYPE        ResolveSupernova()                                                                      { return m_StellarType; }                                                   // Default is NO-OP
 
+            double              ReweightSupernovaKickByMass(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) { return p_vK; }                              // Default is not to re-weight, except for black holes where the --black-hole-kicks option is relevant
+
+    
     virtual void                SetSNHydrogenContent()                                                                  { m_SupernovaDetails.isHydrogenPoor = false; }                              // Default is false
 
             bool                ShouldBeMasslessRemnant() const                                                         { return (m_Mass <= 0.0 || m_StellarType == STELLAR_TYPE::MASSLESS_REMNANT); }
