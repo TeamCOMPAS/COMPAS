@@ -354,7 +354,6 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::METALLICITY:                                        value = Metallicity();                                          break;
             case ANY_STAR_PROPERTY::MOMENT_OF_INERTIA:                                  value = CalculateMomentOfInertia();                             break;
             case ANY_STAR_PROPERTY::MZAMS:                                              value = MZAMS();                                                break;
-            case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE:                                  value = CalculateNuclearTimescale();                            break;
             case ANY_STAR_PROPERTY::OMEGA:                                              value = Omega() / SECONDS_IN_YEAR;                              break;
             case ANY_STAR_PROPERTY::OMEGA_BREAK:                                        value = OmegaBreak() / SECONDS_IN_YEAR;                         break;
             case ANY_STAR_PROPERTY::OMEGA_ZAMS:                                         value = OmegaZAMS() / SECONDS_IN_YEAR;                          break;
@@ -3591,23 +3590,6 @@ double BaseStar::CalculateDynamicalTimescale_Static(const double p_Mass, const d
 
 
 /*
- * Calculate nuclear timescale
- *
- * Kalogera & Webbink 1996, eq 3
- *
- *
- * double CalculateNuclearTimescale_Static(const double p_Mass, const double p_Luminosity)
- *
- * @param   [IN]    p_Mass                      Mass in Msol
- * @param   [IN]    p_Luminosity                Luminosity in Lsol
- * @return                                      Dynamical timescale in Myr
- */
-double BaseStar::CalculateNuclearTimescale_Static(const double p_Mass, const double p_Luminosity) {
-    return 1.0E10 * p_Mass * YEAR_TO_MYR / p_Luminosity;
-}
-
-
-/*
  * Calculate thermal timescale
  *
  * pre-factor from Kalogera & Webbink 1996 (https://arxiv.org/abs/astro-ph/9508072), equation 2, 
@@ -3682,57 +3664,6 @@ double BaseStar::CalculateEddyTurnoverTimescale() {
 //                                SUPERNOVA FUNCTIONS                                //
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
-
-
-/*
- * Calculate the kick given to a black hole based on users chosen assumptions about black hole kicks,
- * fallback and the magnitude of a kick drawn from a distribution
- *
- * Current options are:
- *
- *    FULL    : Black holes receive the same kicks as neutron stars
- *    REDUCED : Black holes receive the same momentum kick as a neutron star, but downweighted by the black hole mass
- *    ZERO    : Black holes receive zero natal kick
- *    FALLBACK: Black holes receive a kick downweighted by the amount of mass falling back onto them
- *
- *
- *  double ApplyBlackHoleKicks(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass)
- *
- * @param   [IN]    p_vK                        Kick magnitude that would otherwise be applied to a neutron star
- * @param   [IN]    p_FallbackFraction          Fraction of mass that falls back onto the proto-compact object
- * @param   [IN]    p_BlackHoleMass             Mass of remnant (in Msol)
- * @return                                      Kick magnitude
- */
- double BaseStar::ApplyBlackHoleKicks(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) {
-
-    double vK;
-
-    switch (OPTIONS->BlackHoleKicks()) {                            // which BH kicks option specified?
-
-        case BLACK_HOLE_KICKS::FULL:                                // BH receives full kick - no adjustment necessary
-            vK = p_vK;
-            break;
-
-        case BLACK_HOLE_KICKS::REDUCED:                             // Kick is reduced by the ratio of the black hole mass to neutron star mass i.e. v_bh = ns/bh  *v_ns
-            vK = p_vK * NEUTRON_STAR_MASS / p_BlackHoleMass;
-            break;
-
-        case BLACK_HOLE_KICKS::ZERO:
-            vK = 0.0;                                               // BH Kicks are set to zero regardless of BH mass or kick magnitude drawn.
-            break;
-
-        case BLACK_HOLE_KICKS::FALLBACK:                            // Using the so-called 'fallback' prescription for BH kicks
-            vK = p_vK * (1.0 - p_FallbackFraction);
-            break;
-
-        default:                                                    // unknown BH kick option - shouldn't happen
-            vK = p_vK;                                              // return vK unchanged
-            m_Error = ERROR::UNKNOWN_BH_KICK_OPTION;                // set error value
-            SHOW_WARN(m_Error);                                     // warn that an error occurred
-    }
-
-    return vK;
-}
 
 
 /*
@@ -4013,7 +3944,7 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
         m_SupernovaDetails.drawnKickMagnitude = vK;                                                 // drawn kick magnitude
 
         if (utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::CCSN) {              // core-collapse supernova event this timestep?
-            vK = ApplyBlackHoleKicks(vK, m_SupernovaDetails.fallbackFraction, m_Mass);              // re-weight kicks by mass of remnant according to user specified black hole kicks option
+            vK = ReweightSupernovaKickByMass(vK, m_SupernovaDetails.fallbackFraction, m_Mass);      // re-weight kick by mass of remnant according to user specified black hole kicks option, if relevant (default is no reweighting)
         }
         else {                                                                                      // otherwise
             m_SupernovaDetails.fallbackFraction = 0.0;                                              // set fallback fraction to zero

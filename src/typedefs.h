@@ -281,7 +281,6 @@ typedef struct StellarCEESavedValues {
     double       dynamicalTimescale;
     double       luminosity;
     double       mass;
-    double       nuclearTimescale;
     double       radialExpansionTimescale;
     double       radius;
     STELLAR_TYPE stellarType;

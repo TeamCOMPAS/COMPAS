@@ -350,7 +350,7 @@ void Options::OptionValues::Initialise() {
 
 	m_MaximumNeutronStarMass                                        = 2.5;                                                  // StarTrack is 3.0
     
-    m_mCBUR1                                                        = MCBUR1HURLEY;                                         // MHurley value, Fryer+ and Belczynski+ use 1.83
+    m_mCBUR1                                                        = MCBUR1HURLEY;                                         // Hurley value, Fryer+ and Belczynski+ use 1.83
 
 
     // Output path
@@ -1316,7 +1316,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "mass-transfer-fa",                                            
             po::value<double>(&p_Options->m_MassTransferFractionAccreted)->default_value(p_Options->m_MassTransferFractionAccreted),                                                              
-            ("Mass Transfer fraction accreted in FIXED prescription (default = " + std::to_string(p_Options->m_MassTransferFractionAccreted) + ", fully conservative)").c_str()
+            ("Mass Transfer fraction accreted in FIXED prescription (default = " + std::to_string(p_Options->m_MassTransferFractionAccreted) + ")").c_str()
         )
         (
             "mass-transfer-jloss",                                         
