@@ -1144,7 +1144,9 @@
 // 02.44.02    JR - May 03, 2024     - Defect repair:
 //                                      - change to the core mass calculations at phase end for the CHeB phase - uses method from Hurley sse code rather Hurley et al. 2000
 //                                        prior to this change the CHeB core mass at phase end was > mass (which in turn caused a spike in luminosity and Teff).
+// 02.44.03    JR - May 07, 2024     - Defect repair:
+//                                      - fix for HG-CHeB transition for low metallicities
           
-const std::string VERSION_STRING = "02.44.02";
+const std::string VERSION_STRING = "02.44.03";
 
 # endif // __changelog_h__

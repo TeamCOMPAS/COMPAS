@@ -823,7 +823,7 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
         double r1 = 1.0 - rMinHe / ry;
         r1 = std::max(r1, 1.0E-12);     // JR: I suspect this is where the check came from in the dicussion re blue loop in CHeB::CalculateTimescales() - I don't like this much...
 
-        double tblf = b[47] * PPOW(p_Mass, b[48]) * PPOW(r1, b[49]);                                                // calculate blue-loop fraction of He-burning
+        double tblf = (1.0 - b[47]) * PPOW(p_Mass, b[48]) * PPOW(r1, b[49]);                                        // calculate blue-loop fraction of He-burning
         tblf = std::min(1.0, std::max(0.0, tblf));                                                                  // clamp to [0.0, 1.0]
 
         if (tblf < MINIMUM_BLUE_LOOP_FRACTION) rx = ry;                                                             // reset rx if short blue loop
