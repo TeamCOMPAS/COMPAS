@@ -1145,13 +1145,15 @@
 //                                      - change to the core mass calculations at phase end for the CHeB phase - uses method from Hurley sse code rather Hurley et al. 2000
 //                                        prior to this change the CHeB core mass at phase end was > mass (which in turn caused a spike in luminosity and Teff).
 // 02.44.03    IM - May 06, 2024     - Defect repair, enhancement, minor cleanup:
-//					- updated Picker et al. (2024) coefficients for the 2-stage CE prescription
-//					- optimisticCE is now recorded only if the binary avoided merger (see issue #1014)
-// 02.33.04    IM - May 06, 2024     - Defect repair:
-//					- removed (incorrect) calculation of nuclear timescale (see issue #430)
-//				     	- replaced ApplyBlackHoleKicks() with ReweightBlackHoleKicksByMass() and now applying it only to BHs (see issue #1027)
-//					- set PISN massless remnant mass to zero (see issue #1051)
+//                                      - updated Picker et al. (2024) coefficients for the 2-stage CE prescription
+//                                      - optimisticCE is now recorded only if the binary avoided merger (see issue #1014)
+// 02.44.04    IM - May 06, 2024     - Defect repair:
+//                                      - removed (incorrect) calculation of nuclear timescale (see issue #430)
+//                                      - replaced ApplyBlackHoleKicks() with ReweightBlackHoleKicksByMass() and now applying it only to BHs (see issue #1027)
+//                                      - set PISN massless remnant mass to zero (see issue #1051)
+// 02.44.05    JR - May 07, 2024     - Defect repair:
+//                                      - fix for HG-CHeB transition for low metallicities
           
-const std::string VERSION_STRING = "02.44.04";
+const std::string VERSION_STRING = "02.44.05";
 
 # endif // __changelog_h__
