@@ -1921,9 +1921,6 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     METALLICITY,                                     \
     MOMENT_OF_INERTIA,                               \
     MZAMS,                                           \
-    NUCLEAR_TIMESCALE,                               \
-    NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE,          \
-    NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE,           \
     OMEGA,                                           \
     OMEGA_BREAK,                                     \
     OMEGA_ZAMS,                                      \
@@ -2080,9 +2077,6 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::METALLICITY,                                     "METALLICITY" },
     { STAR_PROPERTY::MOMENT_OF_INERTIA,                               "MOMENT_OF_INERTIA"},
     { STAR_PROPERTY::MZAMS,                                           "MZAMS" },
-    { STAR_PROPERTY::NUCLEAR_TIMESCALE,                               "NUCLEAR_TIMESCALE" },
-    { STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE,          "NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE" },
-    { STAR_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE,           "NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE" },
     { STAR_PROPERTY::OMEGA,                                           "OMEGA" },
     { STAR_PROPERTY::OMEGA_BREAK,                                     "OMEGA_BREAK" },
     { STAR_PROPERTY::OMEGA_ZAMS,                                      "OMEGA_ZAMS" },
@@ -2989,9 +2983,6 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::METALLICITY,                                       { TYPENAME::DOUBLE,           "Metallicity@ZAMS",                "-",                24, 15}},
     { ANY_STAR_PROPERTY::MOMENT_OF_INERTIA,                                 { TYPENAME::DOUBLE,           "Moment_Of_Inertia",               "Msol Rsol^2",      24, 15}},
     { ANY_STAR_PROPERTY::MZAMS,                                             { TYPENAME::DOUBLE,           "Mass@ZAMS",                       "Msol",             24, 15}},
-    { ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE,                                 { TYPENAME::DOUBLE,           "Tau_Nuclear",                     "Myr",              24, 15}},
-    { ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE,            { TYPENAME::DOUBLE,           "Tau_Nuclear>CE",                  "Myr",              24, 15}},
-    { ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE,             { TYPENAME::DOUBLE,           "Tau_Nuclear<CE",                  "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::OMEGA,                                             { TYPENAME::DOUBLE,           "Omega",                           "Hz",               24, 15}},
     { ANY_STAR_PROPERTY::OMEGA_BREAK,                                       { TYPENAME::DOUBLE,           "Omega_Break",                     "Hz",               24, 15}},
     { ANY_STAR_PROPERTY::OMEGA_ZAMS,                                        { TYPENAME::DOUBLE,           "Omega@ZAMS",                      "Hz",               24, 15}},
@@ -3497,13 +3488,11 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     STAR_1_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE,
     STAR_1_PROPERTY::DYNAMICAL_TIMESCALE_PRE_COMMON_ENVELOPE,
     STAR_1_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE,
-    STAR_1_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE,
     STAR_2_PROPERTY::IS_RLOF,
     STAR_2_PROPERTY::LUMINOSITY_PRE_COMMON_ENVELOPE,
     STAR_2_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE,
     STAR_2_PROPERTY::DYNAMICAL_TIMESCALE_PRE_COMMON_ENVELOPE,
     STAR_2_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE,
-    STAR_2_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE,
     BINARY_PROPERTY::ZETA_STAR,
     BINARY_PROPERTY::ZETA_LOBE,
     BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE,
@@ -3564,8 +3553,6 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_2_PROPERTY::DYNAMICAL_TIMESCALE,
     STAR_1_PROPERTY::THERMAL_TIMESCALE,
     STAR_2_PROPERTY::THERMAL_TIMESCALE,
-    STAR_1_PROPERTY::NUCLEAR_TIMESCALE,
-    STAR_2_PROPERTY::NUCLEAR_TIMESCALE,
     STAR_1_PROPERTY::ZETA_SOBERMAN,
     STAR_2_PROPERTY::ZETA_SOBERMAN,
     STAR_1_PROPERTY::ZETA_SOBERMAN_HE,
