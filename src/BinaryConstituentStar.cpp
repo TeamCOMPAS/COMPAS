@@ -79,8 +79,6 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
             case ANY_STAR_PROPERTY::LUMINOSITY_PRE_COMMON_ENVELOPE:                     value = LuminosityPreCEE();                             break;
             case ANY_STAR_PROPERTY::MASS_LOSS_DIFF:                                     value = MassLossDiff();                                 break;
             case ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF:                                 value = MassTransferDiff();                             break;
-            case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE:             value = NuclearTimescalePostCEE();                      break;
-            case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE:              value = NuclearTimescalePreCEE();                       break;
             case ANY_STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA:                      value = OrbitalEnergyPostSN();                          break;
             case ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA:                       value = OrbitalEnergyPreSN();                           break;
             case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE:    value = RadialExpansionTimescalePostCEE();              break;
@@ -170,7 +168,6 @@ double BinaryConstituentStar::CalculateMassAccretedForCO(const double p_Mass, co
  *    m_CEDetails.preCEE.eccentricity
  *    m_CEDetails.preCEE.luminosity
  *    m_CEDetails.preCEE.mass
- *    m_CEDetails.preCEE.nuclearTimescale
  *    m_CEDetails.preCEE.radialExpansionTimescale
  *    m_CEDetails.preCEE.radius
  *    m_CEDetails.preCEE.semiMajorAxis
@@ -187,7 +184,6 @@ void BinaryConstituentStar::SetPreCEEValues() {
     m_CEDetails.preCEE.dynamicalTimescale       = CalculateDynamicalTimescale();
     m_CEDetails.preCEE.luminosity               = Luminosity();
     m_CEDetails.preCEE.mass                     = Mass();
-    m_CEDetails.preCEE.nuclearTimescale         = CalculateNuclearTimescale();
     m_CEDetails.preCEE.radialExpansionTimescale = CalculateRadialExpansionTimescale();
     m_CEDetails.preCEE.radius                   = Radius();
     m_CEDetails.preCEE.stellarType              = StellarType();
@@ -203,7 +199,6 @@ void BinaryConstituentStar::SetPreCEEValues() {
  *    m_CEDetails.postCEE.eccentricity
  *    m_CEDetails.postCEE.luminosity
  *    m_CEDetails.postCEE.mass
- *    m_CEDetails.postCEE.nuclearTimescale
  *    m_CEDetails.postCEE.radialExpansionTimescale
  *    m_CEDetails.postCEE.radius
  *    m_CEDetails.postCEE.semiMajorAxis
@@ -219,7 +214,6 @@ void BinaryConstituentStar::SetPostCEEValues() {
     m_CEDetails.postCEE.dynamicalTimescale       = CalculateDynamicalTimescale();
     m_CEDetails.postCEE.luminosity               = Luminosity();
     m_CEDetails.postCEE.mass                     = Mass();
-    m_CEDetails.postCEE.nuclearTimescale         = CalculateNuclearTimescale();
     m_CEDetails.postCEE.radialExpansionTimescale = CalculateRadialExpansionTimescale();
     m_CEDetails.postCEE.radius                   = Radius();
     m_CEDetails.postCEE.stellarType              = StellarType();
@@ -236,7 +230,9 @@ void BinaryConstituentStar::SetPostCEEValues() {
  *    m_CEDetails.CoreMass
  *    m_CEDetails.bindingEnergy
  *    m_CEDetails.lambda
- *
+ *    m_CEDetails.convectiveEnvelopeMass
+ *    m_CEDetails.radiativeIntershellMass
+ *    m_CEDetails.convectiveEnvelopeBindingEnergy
  *
  * void CalculateCommonEnvelopeValues()
  */
@@ -247,10 +243,6 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
     m_CEDetails.CoreMass   = CoreMass();
 
     m_CEDetails.lambda     = 0.0;                                               // default
-    
-    m_CEDetails.convectiveEnvelopeMass          = CalculateConvectiveEnvelopeMass();
-    m_CEDetails.radiativeIntershellMass         = Mass() - CoreMass() - m_CEDetails.convectiveEnvelopeMass;
-    m_CEDetails.convectiveEnvelopeBindingEnergy = 0.0;
 
     switch (OPTIONS->CommonEnvelopeLambdaPrescription()) {                      // which common envelope lambda prescription?
 
@@ -278,7 +270,7 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
             m_CEDetails.lambda        = Lambda_Dewi();
             m_CEDetails.bindingEnergy = BindingEnergy_Dewi();
             break;
-
+            
         default:                                                                // unknown prescription
             SHOW_WARN(ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION, "Lambda = 0.0");   // show warning
     }
@@ -286,7 +278,15 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
     if (utils::Compare(m_CEDetails.lambda, 0.0) <= 0) m_CEDetails.lambda = 0.0; // force non-positive lambda to 0
 
     m_CEDetails.lambda *= OPTIONS->CommonEnvelopeLambdaMultiplier();            // multiply by constant (program option, default = 1.0)
-    m_CEDetails.convectiveEnvelopeBindingEnergy = CalculateConvectiveEnvelopeBindingEnergy(CoreMass(), m_CEDetails.convectiveEnvelopeMass, Radius(), m_CEDetails.lambda);
+    
+    // Properties relevant for the Hirai & Mandel (2022) formalism
+    double maxConvectiveEnvelopeMass;
+    std::tie(m_CEDetails.convectiveEnvelopeMass, maxConvectiveEnvelopeMass) = CalculateConvectiveEnvelopeMass();
+    m_CEDetails.radiativeIntershellMass         = Mass() - CoreMass() - m_CEDetails.convectiveEnvelopeMass;
+    if ( OPTIONS->CommonEnvelopeFormalism() == CE_FORMALISM::TWO_STAGE )
+        m_CEDetails.lambda = CalculateConvectiveEnvelopeLambdaPicker(m_CEDetails.convectiveEnvelopeMass, maxConvectiveEnvelopeMass);
+
+    m_CEDetails.convectiveEnvelopeBindingEnergy = CalculateConvectiveEnvelopeBindingEnergy(Mass(), m_CEDetails.convectiveEnvelopeMass, Radius(), m_CEDetails.lambda);
 }
 
 

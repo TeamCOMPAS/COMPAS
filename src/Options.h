@@ -333,7 +333,6 @@ private:
         "eccentricity-distribution",
         "eccentricity-max",
         "eccentricity-min",
-        "enable-tides",
         "evolve-double-white-dwarfs",
         "evolve-pulsars",
         "evolve-unbound-systems",
@@ -388,6 +387,13 @@ private:
         "rotational-frequency-1",
         "rotational-frequency-2",
 
+        "rocket-kick-magnitude-1",
+        "rocket-kick-magnitude-2",
+        "rocket-kick-phi-1", 
+        "rocket-kick-phi-2", 
+        "rocket-kick-theta-1",
+        "rocket-kick-theta-2",
+
         "semi-major-axis", "a",
         "semi-major-axis-distribution",
         "semi-major-axis-max",
@@ -438,7 +444,6 @@ private:
         "detailed-output",
 
         "eccentricity-distribution",
-        "enable-tides",
         "enable-warnings",
         "envelope-state-prescription",
         "errors-to-file",
@@ -528,6 +533,8 @@ private:
         "stellar-zeta-prescription",
         "store-input-files",
         "switch-log",
+
+        "tides-prescription",
 
         "timesteps-filename",
 
@@ -767,6 +774,14 @@ public:
             // Black hole kicks
             ENUM_OPT<BLACK_HOLE_KICKS>                          m_BlackHoleKicks;                                               // Which black hole kicks mode
 
+            // Rocket kicks
+            double                                              m_RocketKickMagnitude1;                                         // Rocket kick magnitude primary - only for neutron stars
+            double                                              m_RocketKickMagnitude2;                                         // Rocket kick magnitude secondary - only for neutron stars
+            double                                              m_RocketKickPhi1;                                               // Rocket kick phi angle primary
+            double                                              m_RocketKickPhi2;                                               // Rocket kick phi angle secondary
+            double                                              m_RocketKickTheta1;                                             // Rocket kick theta angle primary
+            double                                              m_RocketKickTheta2;                                             // Rocket kick theta angle secondary
+                                                                                                                                
             // CHE - Chemically Homogeneous Evolution
             ENUM_OPT<CHE_MODE>                                  m_CheMode;                                                      // Which Chemically Homogeneous Evolution mode
 
@@ -915,7 +930,7 @@ public:
 
 
             // Tides
-            bool                                                m_EnableTides;                                                   // Whether to enable tides (default = False)
+            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                             // Which tides prescription (default = NONE)
 
 
             // Zetas
@@ -949,7 +964,7 @@ public:
             double                                              m_PulsarBirthSpinPeriodDistributionMin;                         // Minimum birth spin period (ms)
             double                                              m_PulsarBirthSpinPeriodDistributionMax;                         // Maximum birth spin period (ms)
 
-            double                                              m_PulsarMagneticFieldDecayTimescale;                            // Timescale on which magnetic field decays (Myrs)
+            double                                              m_PulsarMagneticFieldDecayTimescale;                            // Timescale on which magnetic field decays (Myr)
             double                                              m_PulsarMagneticFieldDecayMassscale;                            // Mass scale on which magnetic field decays during accretion (solar masses)
             double                                              m_PulsarLog10MinimumMagneticField;                              // log10 of the minimum pulsar magnetic field in Gauss
 
@@ -1228,7 +1243,6 @@ public:
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
     bool                                        DetailedOutput() const                                                  { return m_CmdLine.optionValues.m_DetailedOutput; }
 
-    bool                                        EnableTides() const                                                     { return OPT_VALUE("enable-tides", m_EnableTides, true); }
     bool                                        EnableWarnings() const                                                  { return m_CmdLine.optionValues.m_EnableWarnings; }
     bool                                        ErrorsToFile() const                                                    { return m_CmdLine.optionValues.m_ErrorsToFile; }
     double                                      Eccentricity() const                                                    { return OPT_VALUE("eccentricity", m_Eccentricity, true); }
@@ -1454,6 +1468,13 @@ public:
     
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
 
+    double                                      RocketKickMagnitude1() const                                            { return OPT_VALUE("rocket-kick-magnitude-1", m_RocketKickMagnitude1, true); }
+    double                                      RocketKickMagnitude2() const                                            { return OPT_VALUE("rocket-kick-magnitude-2", m_RocketKickMagnitude2, true); }
+    double                                      RocketKick_Phi1() const                                                 { return OPT_VALUE("rocket-kick-phi-1", m_RocketKickPhi1, true); }
+    double                                      RocketKick_Phi2() const                                                 { return OPT_VALUE("rocket-kick-phi-2", m_RocketKickPhi2, true); }
+    double                                      RocketKick_Theta1() const                                               { return OPT_VALUE("rocket-kick-theta-1", m_RocketKickTheta1, true); }
+    double                                      RocketKick_Theta2() const                                               { return OPT_VALUE("rocket-kick-theta-2", m_RocketKickTheta2, true); }
+
     ROTATIONAL_VELOCITY_DISTRIBUTION            RotationalVelocityDistribution() const                                  { return OPT_VALUE("rotational-velocity-distribution", m_RotationalVelocityDistribution.type, true); }
     double                                      RotationalFrequency() const                                             { return OPT_VALUE("rotational-frequency", m_RotationalFrequency, true); }
     double                                      RotationalFrequency1() const                                            { return OPT_VALUE("rotational-frequency-1", m_RotationalFrequency1, true); }
@@ -1479,6 +1500,8 @@ public:
     bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }
 
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
+
+    TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return OPT_VALUE("tides-prescription", m_TidesPrescription.type, true); }
 
     std::string                                 TimestepsFileName() const                                               { return OPT_VALUE("timesteps-filename", m_TimestepsFileName, true); }
     double                                      TimestepMultiplier() const                                              { return m_CmdLine.optionValues.m_TimestepMultiplier; }

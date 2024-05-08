@@ -276,26 +276,32 @@ Binary Properties
              - = 3
            * - Allowed timesteps exceeded 
              - = 4
-           * - SSE error for one of the constituent stars 
+           * - No user-provided timesteps read
              - = 5
-           * - Error evolving binary 
+           * - User-provided timesteps exhausted
              - = 6
-           * - Time exceeded DCO merger time 
+           * - User-provided timesteps not consumed
              - = 7
-           * - Stars touching 
+           * - SSE error for one of the constituent stars 
              - = 8
-           * - Stars merged 
+           * - Error evolving binary 
              - = 9
-           * - Stars merged at birth 
+           * - Time exceeded DCO merger time 
              - = 10
-           * - DCO formed 
+           * - Stars touching 
              - = 11
-           * - Double White Dwarf formed 
+           * - Stars merged 
              - = 12
-           * - Massless Remnant formed 
+           * - Stars merged at birth 
              - = 13
-           * - Unbound binary 
+           * - DCO formed 
              - = 14
+           * - Double White Dwarf formed 
+             - = 15
+           * - Massless Remnant formed 
+             - = 16
+           * - Unbound binary 
+             - = 17
                   
    * - Header Strings:
      - Evolution_Status
@@ -551,7 +557,7 @@ Binary Properties
    * - COMPAS variable:
      - BaseBinaryStar::m_CEDetails.optimisticCE
    * - Description:
-     - Flag that returns TRUE if we have a Hertzsprung-gap star, and we allow it to survive the CE.
+     - Flag that returns TRUE if a radiative-envelope donor survives the CE (requires --common-envelope-allow-radiative-envelope-survive TRUE).
    * - Header String:
      - Optimistic_CE
 
@@ -1051,7 +1057,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - COMPAS variable:
      - BaseBinaryStar::m_RLOFDetails.propsPreMT→isRLOF1
    * - Description:
-     - Flag to indicate whether the primary is overflowing its Roche Lobe.
+     - Flag to indicate whether the primary was overflowing its Roche Lobe on the previous timestep.
    * - Header String:
      - RLOF(1)<MT
 
@@ -1067,7 +1073,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - COMPAS variable:
      - BaseBinaryStar::m_RLOFDetails.propsPreMT→isRLOF2
    * - Description:
-     - Flag to indicate whether the secondary is overflowing its Roche Lobe.
+     - Flag to indicate whether the secondary was overflowing its Roche Lobe on the previous timestep.
    * - Header String:
      - RLOF(2)<MT
 

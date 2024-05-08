@@ -16,18 +16,14 @@ class WhiteDwarfs: virtual public BaseStar, public Remnants {
 
 public:
 
-    WhiteDwarfs(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), Remnants(p_BaseStar, false) {
-        if (p_Initialise) Initialise();
-    }
-
-    WhiteDwarfs& operator = (const BaseStar &p_BaseStar) { static_cast<BaseStar&>(*this) = p_BaseStar; return *this; }
+    WhiteDwarfs(const BaseStar &p_BaseStar) : BaseStar(p_BaseStar), Remnants(p_BaseStar) {}
 
 
     // member functions
     static  double      CalculateLuminosityOnPhase_Static(const double p_Mass, 
-                                                         const double p_Time, 
-                                                         const double p_Metallicity, 
-                                                         const double p_BaryonNumber);
+                                                          const double p_Time, 
+                                                          const double p_Metallicity, 
+                                                          const double p_BaryonNumber);
 
     static  double      CalculateRadiusOnPhase_Static(const double p_Mass);
 
