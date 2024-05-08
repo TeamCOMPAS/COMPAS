@@ -1371,6 +1371,10 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, c
  */ 
 double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta) {
 
+    std::cout << "===>" << std::endl; 
+    std::cout << m_Mass << std::endl; 
+    std::cout << m_Radius << std::endl; 
+
     // Get vector of masses from GE20_QCRIT
     std::vector<double> massesFromGe20 = std::get<0>(GE20_QCRIT);
     std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>> 
@@ -1382,10 +1386,10 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
 
     if (lowerMassInd == -1) {                                                   // if masses are out of range, set to endpoints
         lowerMassInd = 0; 
-        upperMassInd = 0;
+        upperMassInd = 1;
     } 
     else if (upperMassInd == -1) { 
-        lowerMassInd = massesFromGe20.size() - 1; 
+        lowerMassInd = massesFromGe20.size() - 2; 
         upperMassInd = massesFromGe20.size() - 1;
     } 
 
@@ -1420,10 +1424,10 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
 
     if (lowerRadiusLowerMassInd == -1) {                                        // if radii are out of range, set to endpoints
         lowerRadiusLowerMassInd = 0; 
-        upperRadiusLowerMassInd = 0; 
+        upperRadiusLowerMassInd = 1; 
     }
     else if (upperRadiusLowerMassInd == -1) {                                                   
-        lowerRadiusLowerMassInd = logRadiusVectorLowerMass.size() - 1; 
+        lowerRadiusLowerMassInd = logRadiusVectorLowerMass.size() - 2; 
         upperRadiusLowerMassInd = logRadiusVectorLowerMass.size() - 1; 
     }
 
@@ -1433,10 +1437,10 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
 
     if (lowerRadiusUpperMassInd == -1) {                                        // if radii are out of range, set to endpoints
         lowerRadiusUpperMassInd = 0; 
-        upperRadiusUpperMassInd = 0; 
+        upperRadiusUpperMassInd = 1; 
     }
     else if (upperRadiusUpperMassInd == -1) {                                                   
-        lowerRadiusUpperMassInd = logRadiusVectorUpperMass.size() - 1; 
+        lowerRadiusUpperMassInd = logRadiusVectorUpperMass.size() - 2; 
         upperRadiusUpperMassInd = logRadiusVectorUpperMass.size() - 1; 
     }
 
@@ -1467,7 +1471,13 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
     double interpolatedQCritFull = qCritFullLowerMass + (upperMass - m_Mass) / (upperMass - lowerMass) * (qCritFullUpperMass - qCritFullLowerMass);
     double interpolatedQCritNonc = qCritNoncLowerMass + (upperMass - m_Mass) / (upperMass - lowerMass) * (qCritNoncUpperMass - qCritNoncLowerMass);
 
+    std::cout << qCritFullLowerMass << std::endl;
+    std::cout << qCritFullUpperMass << std::endl;
+    std::cout << interpolatedQCritFull << std::endl;
+    std::cout << "vv" << std::endl; 
+
     double interpolatedQCrit = p_massTransferEfficiencyBeta * interpolatedQCritNonc + (1-p_massTransferEfficiencyBeta)*interpolatedQCritFull;
+    std::cout << interpolatedQCrit << std::endl;
     return interpolatedQCrit;
 }
 
