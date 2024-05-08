@@ -1371,10 +1371,6 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, c
  */ 
 double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta) {
 
-    std::cout << "===>" << std::endl; 
-    std::cout << m_Mass << std::endl; 
-    std::cout << m_Radius << std::endl; 
-
     // Get vector of masses from GE20_QCRIT
     std::vector<double> massesFromGe20 = std::get<0>(GE20_QCRIT);
     std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>> 
@@ -1471,13 +1467,7 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
     double interpolatedQCritFull = qCritFullLowerMass + (upperMass - m_Mass) / (upperMass - lowerMass) * (qCritFullUpperMass - qCritFullLowerMass);
     double interpolatedQCritNonc = qCritNoncLowerMass + (upperMass - m_Mass) / (upperMass - lowerMass) * (qCritNoncUpperMass - qCritNoncLowerMass);
 
-    std::cout << qCritFullLowerMass << std::endl;
-    std::cout << qCritFullUpperMass << std::endl;
-    std::cout << interpolatedQCritFull << std::endl;
-    std::cout << "vv" << std::endl; 
-
     double interpolatedQCrit = p_massTransferEfficiencyBeta * interpolatedQCritNonc + (1-p_massTransferEfficiencyBeta)*interpolatedQCritFull;
-    std::cout << interpolatedQCrit << std::endl;
     return interpolatedQCrit;
 }
 
