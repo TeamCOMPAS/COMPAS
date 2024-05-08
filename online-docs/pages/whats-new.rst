@@ -6,6 +6,17 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.44.00 Apr 04, 2024**
+
+* Added 'realistic' tides option, which implements dynamical and equilibrium tides using the formalism described in Kapil et al. (2024). 
+* Functionality enabled with new option ``--tides-prescription KAPIL2024`` (default is ``NONE``).
+* Removed old option ``--enable-tides``, which can now be enabled by setting ``--tides-prescription PERFECT``.
+
+
+**02.43.00 Mar 29, 2024**
+
+* Implementation of the neutrino rocket kick.
+
 **02.42.00 Jan 04, 2023**
 
 * Timesteps are now quantised to an integral multiple of 1e-12Myr.

@@ -14,8 +14,7 @@ class MainSequence: virtual public BaseStar {
 
 public:
 
-    MainSequence(const BaseStar& baseStar) : BaseStar(baseStar) {}
-    MainSequence& operator = (const BaseStar& baseStar) { static_cast<BaseStar&>(*this) = baseStar; return *this; }
+    MainSequence(const BaseStar& p_BaseStar) : BaseStar(p_BaseStar) {}
 
 
 protected:
@@ -25,7 +24,9 @@ protected:
     double          CalculateAlphaL(const double p_Mass) const;
     double          CalculateAlphaR(const double p_Mass) const;
 
-    double          CalculateConvectiveEnvelopeMass() const                                 { return 0.0; }
+    double          CalculateConvectiveCoreMass() const;
+    double          CalculateConvectiveCoreRadius() const;
+    DBL_DBL         CalculateConvectiveEnvelopeMass() const;
     double          CalculateBetaL(const double p_Mass) const;
     double          CalculateBetaR(const double p_Mass) const;
 
@@ -87,7 +88,7 @@ protected:
     void            UpdateInitialMass()                                                     { m_Mass0 = m_Mass; }                                                   // Per Hurley et al. 2000, section 7.1
     void            UpdateAgeAfterMassLoss();                                                                                                                       // Per Hurley et al. 2000, section 7.1
     
-    void            UpdateMinimumCoreMass();                                                                                                                 // Set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass
+    void            UpdateMinimumCoreMass();                                                                                                                        // Set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass
 
 };
 

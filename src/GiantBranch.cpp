@@ -6,7 +6,6 @@
 #include "BH.h"
 
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                     COEFFICIENT AND CONSTANT CALCULATIONS ETC.                    //
@@ -532,7 +531,7 @@ double GiantBranch::CalculateLuminosityAtHeIgnition_Static(const double      p_M
 double GiantBranch::CalculateRemnantLuminosity() const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0)
+    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) > 0)
             ? HeMS::CalculateLuminosityAtZAMS_Static(m_CoreMass)
             : WhiteDwarfs::CalculateLuminosityOnPhase_Static(m_CoreMass, 0.0, m_Metallicity, WD_Baryon_Number.at(STELLAR_TYPE::HELIUM_WHITE_DWARF));
 
@@ -634,7 +633,7 @@ double GiantBranch::CalculateRadiusOnZAHB_Static(const double      p_Mass,
 double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    double RHeI = 0.0;                                                  // Radius at Helium Ignition
+    double RHeI = 0.0;                                                      // Radius at Helium Ignition
 
     double LHeI      = CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
     double RmHe      = CHeB::CalculateMinimumRadiusOnPhase_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
@@ -643,12 +642,12 @@ double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
     if (utils::Compare(p_Mass, massCutoffs(MFGB)) <= 0) {
         RHeI = RGB_LHeI;
     }
-    else if (utils::Compare(p_Mass, std::max(massCutoffs(MFGB), 12.0)) >= 0) {
+    else if (utils::Compare(p_Mass, std::max(massCutoffs(MFGB), HIGH_MASS_THRESHOLD)) >= 0) {
         double RAGB_LHeI = EAGB::CalculateRadiusOnPhase_Static(p_Mass, LHeI, massCutoffs(MHeF), m_BnCoefficients);
         RHeI             = std::min(RmHe, RAGB_LHeI);                        // Hurley et al. 2000, eq 55
     }
     else {
-        double mu = log10(p_Mass / 12.0) / log10(massCutoffs(MFGB) / 12.0);
+        double mu = log10(p_Mass / HIGH_MASS_THRESHOLD) / log10(massCutoffs(MFGB) / HIGH_MASS_THRESHOLD);
         RHeI      = RmHe * PPOW((RGB_LHeI / RmHe), mu);
     }
 
@@ -671,33 +670,11 @@ double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
  */
 double GiantBranch::CalculateRemnantRadius() const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
-
-    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0)
+    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) > 0)
             ? HeMS::CalculateRadiusAtZAMS_Static(m_CoreMass)
             : WhiteDwarfs::CalculateRadiusOnPhase_Static(m_CoreMass);
 
 #undef massCutoffs
-}
-
-
-/*
- * Calculate the radial extent of the star's convective envelope (if it has one)
- *
- * Hurley et al. 2000, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
- *
- * (Technically not a radius calculation I suppose, but "radial extent" is close enough to put it with the radius calculations...)
- *
- *
- * double CalculateRadialExtentConvectiveEnvelope()
- *
- * @return                                      Radial extent of the star's convective envelope in Rsol
- */
-double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const {
-
-	BaseStar clone = *this;                         // clone this star so can manipulate without changes persisiting
-	clone.ResolveEnvelopeLoss(true);                // update clone's attributes after envelope is lost
-
-    return m_Radius - clone.Radius();
 }
 
 
@@ -860,9 +837,9 @@ double GiantBranch::CalculateCoreMassAtHeIgnition(const double p_Mass) const {
         double luminosity_MHeF = CalculateLuminosityAtHeIgnition_Static(massCutoffs(MHeF), m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
         double Mc_MHeF         = BaseStar::CalculateCoreMassGivenLuminosity_Static(luminosity_MHeF, m_GBParams);
         double McBAGB          = CalculateCoreMassAtBAGB(p_Mass);
-        double c               = (Mc_MHeF * Mc_MHeF * Mc_MHeF * Mc_MHeF) - (MC_L_C1 * PPOW(massCutoffs(MHeF), MC_L_C2)); // pow() is slow - use multiplication
+        double c               = (Mc_MHeF * Mc_MHeF * Mc_MHeF * Mc_MHeF) - (MC_L_C1 * PPOW(massCutoffs(MHeF), MC_L_C2));    // pow() is slow - use multiplication
 
-        coreMass               = std::min((0.95 * McBAGB), std::sqrt(std::sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));           // sqrt() is much faster than PPOW()
+        coreMass               = std::min((0.95 * McBAGB), std::sqrt(std::sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));    // sqrt() is much faster than PPOW()
     }
 
     return coreMass;
@@ -1044,30 +1021,40 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  * Approximates the mass of the outer convective envelope.
  *
  * This is needed for the Hirai & Mandel (2022) two-stage CE formalism.
- * Follows the fits of Picker, Hirai, Mandel (2023).
+ * Follows the fits of Picker, Hirai, Mandel (2024), arXiv:2402.13180
  *
  *
- * double GiantBranch::CalculateConvectiveEnvelopeMass()
+ * std::tuple<double, double> GiantBranch::CalculateConvectiveEnvelopeMass()
  *
- * @return                                      Mass of the outer convective envelope
+ * @return                                      Tuple containing the mass of the outer convective envelope and its maximum value
  */
-double GiantBranch::CalculateConvectiveEnvelopeMass() const {
+DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     
-    double log10Z = log10 (m_Metallicity);
-    HG clone = *this;                                                                                                       // Create an HG star clone to query its core mass just after TAMS
-    double log10Ltams = log10 (clone.Luminosity());
-    double Mcorefinal = CalculateCoreMassAtBAGB(m_Mass);
-    double Mconvmax = m_Mass - 1.1 * Mcorefinal;
-    double b1 = 14.4 * log10Z * log10Z + 57.4 * log10Z + 95.7;
-    double a2 = -16.9 * log10Z * log10Z - 81.9 * log10Z - 47.9;
-    double b2 = 184.0 * log10Z * log10Z + 872.2 * log10Z + 370.0;
-    double c2 = -660.1 * log10Z * log10Z - 3482.0 * log10Z + 1489.0;
-    double Tnorm = a2 * log10Ltams * log10Ltams + b2 * log10Ltams + c2;
-    double convectiveEnvelopeMass = Mconvmax / (1+exp(b1*(m_Temperature*TSOL-Tnorm)/Tnorm));
-    convectiveEnvelopeMass = std::max(std::min(convectiveEnvelopeMass, (m_Mass - m_CoreMass)), 0.0);                        // Ensure that convective envelope mass is limited to [0, envelope mass]
+    double MinterfMcoref = -0.023 * m_Log10Metallicity - 0.0023;                                                            // Eq. (8) of Picker+ 2024
+    double Tonset        = -129.7 * m_Log10Metallicity * m_Log10Metallicity - 920.1 * m_Log10Metallicity + 2887.1;          // Eq. (6) of Picker+ 2024
+
+    // We need the temperature of the star just after BAGB, which is the temperature at the
+    // start of the EAGB phase.  Since we are on the giant branch here, we can clone this
+    // object as an EAGB object and, as long as it is initialised (to the start of the phase),
+    // we can query the cloned object for its temperature.
+    //
+    // To ensure the clone does not participate in logging, we set its persistence to EPHEMERAL.
+    //
+    // Furthermore, 'this' is const in this function, so we first remove its const-ness (required
+    // to call Clone()) via the use of const_cast<>().  Since we don't know what class the
+    // underlying object is, we cast it to EAGB&.
+
+    EAGB *clone = EAGB::Clone(static_cast<EAGB&>(const_cast<GiantBranch&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
+    clone->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                          // Otherwise, temperature not updated
+    double Tmin = clone->Temperature();                                                                                     // get temperature of clone
+    delete clone; clone = nullptr;                                                                                          // return the memory allocated for the clone
+
+    double McoreFinal             = CalculateCoreMassAtBAGB(m_Mass);
+    double MconvMax               = std::max(m_Mass - McoreFinal * (1.0 + MinterfMcoref), 0.0);                             // Eq. (9) of Picker+ 2024
+    double convectiveEnvelopeMass = MconvMax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature) / (Tmin - Tonset)));  // Eq. (7) of Picker+ 2024
     
-    return convectiveEnvelopeMass;
-}
+    return std::tuple<double, double> (convectiveEnvelopeMass, MconvMax);
+}   // /*ILYA*/ check consistency with HG convective envelope radii and masses from Hurley+ 2002, 2000
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1129,6 +1116,7 @@ double GiantBranch::CalculateMomentOfInertia() const {
     
     return (0.1 * (m_Mass - m_CoreMass) * m_Radius * m_Radius) + (0.21 * m_CoreMass * Rc * Rc);
 }
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1910,6 +1898,10 @@ STELLAR_TYPE GiantBranch::ResolvePairInstabilitySN() {
     m_Luminosity  = 0.0;
     m_Radius      = 0.0;
     m_Temperature = 0.0;
+    m_Mass        = 0.0;
+    m_CoreMass    = 0.0;
+    m_COCoreMass  = 0.0;
+    m_HeCoreMass  = 0.0;
 
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
@@ -2041,6 +2033,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (IsSupernova()) {                                                                            // has gone supernova
+                                                                                                    // no - resolve new supernova event
         // squirrel away some attributes before they get changed...
         m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;
         m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
@@ -2074,13 +2067,17 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         }
             
     	CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
+        if ( !utils::IsOneOf(stellarType, { STELLAR_TYPE::NEUTRON_STAR })) {
+            m_SupernovaDetails.rocketKickMagnitude = 0;                                             // Only NSs can get rocket kicks
+        }
 
-        // stash SN details for later printing to the SSE Supernova log
-        // can't print it now because we may revert state (in Star::EvolveOneTimestep())
-        // will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state)
-        // need to record the stellar type to which the star will switch if we don't revert state
+        // Stash SN details for later printing to the SSE Supernova log.
+        // Only if SSE (BSE does its own SN printing), and only if not an ephemeral clone
+        // Can't print it now because we may revert state (in Star::EvolveOneTimestep()).
+        // Will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state).
+        // Need to record the stellar type to which the star will switch if we don't revert state.
 
-        if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {                                      // only if SSE (BSE does its own SN printing)
+        if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) {
             StashSupernovaDetails(stellarType);
         }
     }
