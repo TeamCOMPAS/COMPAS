@@ -280,7 +280,8 @@ public:
     
             void            HaltWinds()                                                                         { m_Mdot = 0.0; }                                                   // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 
-            double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription); 
+            double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription,
+                                                 const double p_massTransferEfficiencyBeta); 
 
             void            ResetEnvelopeExpulsationByPulsations()                                              { m_EnvelopeJustExpelledByPulsations = false; }
 
