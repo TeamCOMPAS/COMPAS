@@ -14,8 +14,9 @@ import warnings
 import astropy.units as u
 import argparse
 import importlib
+from compas_python_utils.cosmic_integration.cosmology import get_cosmology
 
-def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10.0, cosmology="Planck18"):
+def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10.0, cosmology=None):
     """ 
         Given limits on the redshift, create an array of redshifts, times, distances and volumes
 
@@ -32,6 +33,8 @@ def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=
             distances              --> [list of floats] Equivalent of redshifts but converted to luminosity distances
             shell_volumes          --> [list of floats] Equivalent of redshifts but converted to shell volumes
     """
+    cosmology = get_cosmology(cosmology)
+
     # create a list of redshifts and record lengths
     redshifts = np.arange(0, max_redshift + redshift_step, redshift_step)
     n_redshifts_detection = int(max_redshift_detection / redshift_step)
@@ -318,7 +321,7 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
                         min_logZ=-12.0, max_logZ=0.0, step_logZ=0.01,
                         sensitivity="O1", snr_threshold=8, 
                         Mc_max=300.0, Mc_step=0.1, eta_max=0.25, eta_step=0.01,
-                        snr_max=1000.0, snr_step=0.1, cosmology="Planck18"):
+                        snr_max=1000.0, snr_step=0.1, cosmology=None):
     """
         The main function of this file. Finds the detection rate, formation rate and merger rate for each
         binary in a COMPAS file at a series of redshifts defined by input. Also returns relevant COMPAS
@@ -386,6 +389,8 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
             redshifts              --> [list of floats] List of redshifts
             COMPAS                 --> [Object]         Relevant COMPAS data in COMPASData Class
     """
+
+    cosmology = get_cosmology(cosmology)
 
     # assert that input will not produce errors
     assert max_redshift_detection <= max_redshift, "Maximum detection redshift cannot be below maximum redshift"
@@ -492,7 +497,7 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
 
 def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, COMPAS, n_redshifts_detection,
     maxz=1., sensitivity="O1", dco_type="BHBH", mu0=0.035, muz=-0.23, sigma0=0.39, sigmaz=0., alpha=0.,
-    append_binned_by_z = False, redshift_binsize=0.1, cosmology="Planck18"):
+    append_binned_by_z = False, redshift_binsize=0.1, cosmology=None):
     """
         Append the formation rate, merger rate, detection rate and redshifts as a new group to your COMPAS output with weights hdf5 file
 
@@ -520,6 +525,9 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
         Returns:
             h_new                  --> [hdf5 file] Compas output file with a new group "rates" with the same shape as DoubleCompactObjects x redshifts
     """
+
+    cosmology = get_cosmology(cosmology)
+
     print('shape redshifts', np.shape(redshifts))
     print('shape COMPAS.sw_weights', np.shape(COMPAS.sw_weights) )
     print('COMPAS.DCOmask', COMPAS.DCOmask, ' was set for dco_type', dco_type)
@@ -819,11 +827,13 @@ def set_cosmology(cosmology_name="Planck18"):
 
 
 
+
+
 def main():
     # Define command line options for the most commonly varied options
     args = parse_cli_args()
     
-    cosmology = set_cosmology(cosmology_name=args.cosmology_name)
+    cosmology = get_cosmology(args.cosmology_name)
 
 
     #####################################
