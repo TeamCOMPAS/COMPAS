@@ -17,8 +17,7 @@ class GiantBranch: virtual public BaseStar, public MainSequence {
 
 public:
 
-    GiantBranch(const BaseStar &baseStar) : BaseStar(baseStar), MainSequence(baseStar) {}
-    GiantBranch& operator = (const BaseStar &baseStar) { static_cast<BaseStar&>(*this) = baseStar; return *this; }
+    GiantBranch(const BaseStar &p_BaseStar) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {}
 
 
 protected:
@@ -50,7 +49,7 @@ protected:
             void            CalculateGBParams()                                                             { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
 
     static  double          CalculateHRateConstant_Static(const double p_Mass);
-
+    
     virtual double          CalculateInitialSupernovaMass() const                                           { return m_Mass; }                                                  // Use class member variables
 
             double          CalculateLifetimeToHeIgnition(const double p_Mass, const double p_Tinf1_FGB, const double p_Tinf2_FGB);

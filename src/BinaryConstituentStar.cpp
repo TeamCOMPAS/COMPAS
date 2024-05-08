@@ -79,8 +79,6 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
             case ANY_STAR_PROPERTY::LUMINOSITY_PRE_COMMON_ENVELOPE:                     value = LuminosityPreCEE();                             break;
             case ANY_STAR_PROPERTY::MASS_LOSS_DIFF:                                     value = MassLossDiff();                                 break;
             case ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF:                                 value = MassTransferDiff();                             break;
-            case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE:             value = NuclearTimescalePostCEE();                      break;
-            case ANY_STAR_PROPERTY::NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE:              value = NuclearTimescalePreCEE();                       break;
             case ANY_STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA:                      value = OrbitalEnergyPostSN();                          break;
             case ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA:                       value = OrbitalEnergyPreSN();                           break;
             case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE:    value = RadialExpansionTimescalePostCEE();              break;
@@ -170,7 +168,6 @@ double BinaryConstituentStar::CalculateMassAccretedForCO(const double p_Mass, co
  *    m_CEDetails.preCEE.eccentricity
  *    m_CEDetails.preCEE.luminosity
  *    m_CEDetails.preCEE.mass
- *    m_CEDetails.preCEE.nuclearTimescale
  *    m_CEDetails.preCEE.radialExpansionTimescale
  *    m_CEDetails.preCEE.radius
  *    m_CEDetails.preCEE.semiMajorAxis
@@ -187,7 +184,6 @@ void BinaryConstituentStar::SetPreCEEValues() {
     m_CEDetails.preCEE.dynamicalTimescale       = CalculateDynamicalTimescale();
     m_CEDetails.preCEE.luminosity               = Luminosity();
     m_CEDetails.preCEE.mass                     = Mass();
-    m_CEDetails.preCEE.nuclearTimescale         = CalculateNuclearTimescale();
     m_CEDetails.preCEE.radialExpansionTimescale = CalculateRadialExpansionTimescale();
     m_CEDetails.preCEE.radius                   = Radius();
     m_CEDetails.preCEE.stellarType              = StellarType();
@@ -203,7 +199,6 @@ void BinaryConstituentStar::SetPreCEEValues() {
  *    m_CEDetails.postCEE.eccentricity
  *    m_CEDetails.postCEE.luminosity
  *    m_CEDetails.postCEE.mass
- *    m_CEDetails.postCEE.nuclearTimescale
  *    m_CEDetails.postCEE.radialExpansionTimescale
  *    m_CEDetails.postCEE.radius
  *    m_CEDetails.postCEE.semiMajorAxis
@@ -219,7 +214,6 @@ void BinaryConstituentStar::SetPostCEEValues() {
     m_CEDetails.postCEE.dynamicalTimescale       = CalculateDynamicalTimescale();
     m_CEDetails.postCEE.luminosity               = Luminosity();
     m_CEDetails.postCEE.mass                     = Mass();
-    m_CEDetails.postCEE.nuclearTimescale         = CalculateNuclearTimescale();
     m_CEDetails.postCEE.radialExpansionTimescale = CalculateRadialExpansionTimescale();
     m_CEDetails.postCEE.radius                   = Radius();
     m_CEDetails.postCEE.stellarType              = StellarType();

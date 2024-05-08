@@ -233,13 +233,14 @@ void BaseBinaryStar::SetInitialValues(const unsigned long int p_Seed, const long
 
     m_Error = ERROR::NONE;
 
-    m_ObjectId    = globalObjectId++;
-    m_ObjectType  = OBJECT_TYPE::BASE_BINARY_STAR;
-    m_StellarType = STELLAR_TYPE::BINARY_STAR;
-    m_RandomSeed  = p_Seed;
-    m_Id          = p_Id;
+    m_ObjectId          = globalObjectId++;
+    m_ObjectType        = OBJECT_TYPE::BASE_BINARY_STAR;
+    m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;
+    m_StellarType       = STELLAR_TYPE::BINARY_STAR;
+    m_RandomSeed        = p_Seed;
+    m_Id                = p_Id;
 
-    m_EvolutionStatus = EVOLUTION_STATUS::CONTINUE;
+    m_EvolutionStatus   = EVOLUTION_STATUS::CONTINUE;
 
     if (OPTIONS->PopulationDataPrinting()) {                                                                                            // user wants to see details of binary?
         SAY("Using supplied random seed " << m_RandomSeed << " for Binary Star id = " << m_ObjectId);                                   // yes - show them
@@ -892,7 +893,7 @@ bool BaseBinaryStar::PrintBeBinary(const BE_BINARY_RECORD_TYPE p_RecordType) {
  *
  * void StashRLOFProperties()
  *
- * @param   [IN]    p_StashPostMassTransfer     Boolean - true if post-MT values should be stored (false for pre-MT values)
+ * @param   [IN]    p_Which                     MASS_TRANSFER_TIMING (PRE_MT or POST_MT)
  */
 void BaseBinaryStar::StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which) {
 
@@ -1118,6 +1119,91 @@ void BaseBinaryStar::ResolveCoalescence() {
 
 
 /*
+* Change in eccentricity based on secular equations for tidal evolution given the tidal Love number
+* Zahn, 1977, Eq. (3.7)
+*
+*
+* double BaseBinaryStar::CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
+*
+* @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
+* @param   [IN]    p_M1                        Mass of star (Msol)
+* @param   [IN]    p_R1                        Radius of star (Rsol)
+* @param   [IN]    p_M2                        Mass of companion star (Msol)
+* @param   [IN]    p_Omega                     Orbital angular frequency for binary (1/yr)    
+* @param   [IN]    p_SemiMajorAxis             Semi-major axis for binary (AU)
+* @param   [IN]    p_Eccentricity              Eccentricity for binary
+* @return                                      Change in Eccentricity for binary (1/yr)
+*/    
+double BaseBinaryStar::CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
+    
+    double ImK10, ImK12, ImK22, ImK32;
+    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
+
+    double R1_AU = p_R1 * RSOL_TO_AU;
+    double R1_over_a = R1_AU / p_SemiMajorAxis;
+    double R1_over_a_8 = R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a;
+
+    return -(3.0 / 4.0) * (p_Eccentricity/p_Omega) * (1.0 + (p_M2 / p_M1)) * (G_AU_Msol_yr * p_M2 / R1_AU / R1_AU / R1_AU) * R1_over_a_8 * ((3.0 * ImK10 / 2.0) - (ImK12 / 4.0) - ImK22 + (49.0 * ImK32 / 4.0));
+}
+
+/*
+* Change in spin based on secular equations for tidal evolution given the tidal Love number
+* Zahn, 1977, Eq. (3.8)
+*
+*
+* double BaseBinaryStar::CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
+*
+* @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
+* @param   [IN]    p_M1                        Mass of star (Msol)
+* @param   [IN]    p_R1                        Radius of star (Rsol)
+* @param   [IN]    p_I1                        Moment of Inertia of star (Msol * AU^2)
+* @param   [IN]    p_M2                        Mass of companion star (Msol)
+* @param   [IN]    p_SemiMajorAxis             Semi-major axis for binary (AU)
+* @param   [IN]    p_Eccentricity              Eccentricity for binary
+* @return                                      Change in Omega for star (1/yr/yr)
+*/    
+double BaseBinaryStar::CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_I1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
+    
+    double ImK10, ImK12, ImK22, ImK32;
+    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
+
+    double R1_AU = p_R1 * RSOL_TO_AU;
+    double R1_over_a = R1_AU / p_SemiMajorAxis;
+    double R1_over_a_6 = R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a;
+
+    return (3.0 / 2.0) * (1.0/p_I1) * (G_AU_Msol_yr * p_M2 * p_M2 / R1_AU) * R1_over_a_6 * (ImK22 + ((p_Eccentricity*p_Eccentricity) *  ((ImK12 / 4.0) - (5.0 * ImK22) + (49.0 * ImK32 / 4.0))));
+}
+
+/*
+* Change in semi-major axis based on secular equations for tidal evolution given the tidal Love number
+* Zahn, 1977, Eq. (3.6)
+*
+*
+* double BaseBinaryStar::CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity)
+*
+* @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
+* @param   [IN]    p_M1                        Mass of star (Msol)
+* @param   [IN]    p_R1                        Radius of star (Rsol)
+* @param   [IN]    p_M2                        Mass of companion star (Msol)
+* @param   [IN]    p_Omega                     Orbital angular frequency for binary (1/yr)    
+* @param   [IN]    p_SemiMajorAxis             Semi-major axis for binary (AU)
+* @param   [IN]    p_Eccentricity              Eccentricity for binary
+* @return                                      Change in semi-major axis for binary (AU/yr)
+*/    
+double BaseBinaryStar::CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity) {
+    
+    double ImK10, ImK12, ImK22, ImK32;
+    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
+
+    double R1_AU = p_R1 * RSOL_TO_AU;
+    double R1_over_a = R1_AU / p_SemiMajorAxis;
+    double R1_over_a_7 = R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a;
+
+    return - (3.0 / p_Omega) * (1.0 + (p_M2 / p_M1)) * (G_AU_Msol_yr * p_M2/ R1_AU / R1_AU) * R1_over_a_7 * (ImK22 + ((p_Eccentricity*p_Eccentricity) * ((3.0 * ImK10 / 4.0) + (ImK12 / 8.0) - (5.0 * ImK22) + (147.0 * ImK32 / 8.0))));
+}
+
+
+/*
  * Resolves supernova event - one of the stars has gone supernova!
  *
  * Assign a random supernova kick according to the user specified options and then update the orbit and velocities.
@@ -1161,6 +1247,13 @@ void BaseBinaryStar::ResolveCoalescence() {
  * @return                                      True if a supernova event occurred, otherwise false
  */
 bool BaseBinaryStar::ResolveSupernova() {
+// Functions defined in vector3d.h
+// Defined here for convenience - undefined later
+#define cross(x,y)        Vector3d::Cross(x, y)
+#define dot(x,y)          Vector3d::Dot(x, y) 
+#define angleBetween(x,y) Vector3d::AngleBetween(x, y)
+#define mag               Magnitude()
+#define hat               UnitVector()
 
     if (!m_Supernova->IsSNevent()) {
         SHOW_WARN(ERROR::RESOLVE_SUPERNOVA_IMPROPERLY_CALLED);
@@ -1201,14 +1294,6 @@ bool BaseBinaryStar::ResolveSupernova() {
     else {                                                                                                                      // no - evaluate orbital changes and calculate velocities
         // Evolve SN out of binary       
         
-        // Functions defined in vector3d.h
-        // Defined here for convenience - undefined later
-        #define cross(x,y)        linalg::cross(x,y)
-        #define dot(x,y)          linalg::dot(x,y) 
-        #define angleBetween(x,y) linalg::angleBetween(x,y)
-        #define mag               Magnitude()
-        #define hat               UnitVector()
-
         // Pre-SN parameters
         double semiMajorAxisPrev_km     = m_SemiMajorAxis * AU_TO_KM;                                                           // km - Semi-Major axis
         double eccentricityPrev         = m_Eccentricity;                                                                       // -- - Eccentricity, written with a prev to distinguish from later use
@@ -1224,29 +1309,23 @@ bool BaseBinaryStar::ResolveSupernova() {
         double sinEccAnomaly = sin(m_Supernova->SN_EccentricAnomaly());
 
         // Derived quantities
-        double aPrev                              = semiMajorAxisPrev_km;
-        double aPrev_2                            = aPrev * aPrev;
-        double aPrev_3                            = aPrev_2 * aPrev;
+        double aPrev   = semiMajorAxisPrev_km;
+        double aPrev_2 = aPrev * aPrev;
+        double aPrev_3 = aPrev_2 * aPrev;
 
-        double omega                              = std::sqrt(G_km_Msol_s * totalMassPrev / aPrev_3);                           // rad/s - Keplerian orbital frequency
+        double omega   = std::sqrt(G_km_Msol_s * totalMassPrev / aPrev_3);                                                      // rad/s - Keplerian orbital frequency
 
-        Vector3d separationVectorPrev             = Vector3d(aPrev * (cosEccAnomaly - eccentricityPrev),            
-                                                             aPrev * (sinEccAnomaly) * sqrt1MinusEccPrevSquared,
-                                                             0.0);                                                              // km - Relative position vector, from m1Prev to m2Prev
-        double separationPrev                     = separationVectorPrev.mag;                                                   // km - Instantaneous Separation
-        double fact1                              = aPrev_2 * omega / separationPrev;
+        Vector3d separationVectorPrev = Vector3d(aPrev * (cosEccAnomaly - eccentricityPrev), aPrev * (sinEccAnomaly) * sqrt1MinusEccPrevSquared, 0.0);  // km - Relative position vector, from m1Prev to m2Prev
+        double separationPrev         = separationVectorPrev.mag;                                                               // km - Instantaneous Separation
+        double fact1                  = aPrev_2 * omega / separationPrev;
 
-        Vector3d relativeVelocityVectorPrev       = Vector3d(-fact1 * sinEccAnomaly,   
-                                                             fact1 * cosEccAnomaly * sqrt1MinusEccPrevSquared,  
-                                                             0.0);                                                              // km/s - Relative velocity vector, in the m1Prev rest frame
-
+        Vector3d relativeVelocityVectorPrev       = Vector3d(-fact1 * sinEccAnomaly, fact1 * cosEccAnomaly * sqrt1MinusEccPrevSquared, 0.0); // km/s - Relative velocity vector, in the m1Prev rest frame
         Vector3d orbitalAngularMomentumVectorPrev = cross(separationVectorPrev, relativeVelocityVectorPrev);                    // km^2 s^-1 - Specific orbital angular momentum vector 
-
         Vector3d eccentricityVectorPrev           = cross(relativeVelocityVectorPrev, orbitalAngularMomentumVectorPrev) / 
                                                     (G_km_Msol_s * totalMassPrev) - separationVectorPrev.hat;                   // -- - Laplace-Runge-Lenz vector (magnitude = eccentricity)
 
-        m_OrbitalVelocityPreSN                    = relativeVelocityVectorPrev.mag;                                             // km/s - Set the Pre-SN orbital velocity and 
-        m_uK                                      = m_Supernova->SN_KickMagnitude() / m_OrbitalVelocityPreSN;                   // -- - Dimensionless kick magnitude
+        m_OrbitalVelocityPreSN = relativeVelocityVectorPrev.mag;                                                                // km/s - Set the Pre-SN orbital velocity and 
+        m_uK                   = m_Supernova->SN_KickMagnitude() / m_OrbitalVelocityPreSN;                                      // -- - Dimensionless kick magnitude
 
         // Note: In the following,
         // orbitalAngularMomentumVectorPrev defines the Z-axis, 
@@ -1380,19 +1459,15 @@ bool BaseBinaryStar::ResolveSupernova() {
         if (ShouldResolveNeutrinoRocketMechanism()) {
 
             if (IsUnbound()) {                                                                                                  // Is system unbound? 
-                m_Supernova->UpdateComponentVelocity(rocketKickVector.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));                  // yes - simply update the component velocity
-            } else {                                                                                                            // no - need to update the eccentricity and system velocity
-
-                Vector3d eccentricityVectorPreRocket = eccentricityVector;                                                      // defined earlier
-                double averageOrbitalVelocityPreRocket = std::sqrt( -2*m_OrbitalEnergy/reducedMass);                            // AU/yr - average orbital velocity post-SN
-                double k_grav = averageOrbitalVelocityPreRocket*averageOrbitalVelocityPreRocket
-                       * reducedMass * m_SemiMajorAxis;                                                                         // AU^3 * Msol / yr^2
-                Vector3d totalAmVectorPreRocket = orbitalAngularMomentumVector * reducedMass 
-                                                            * KM_TO_AU * KM_TO_AU * SECONDS_IN_YEAR;                            // Msol * AU^2 / yr (orbitalAngularMomentumVector is the specific orbital AM)
-                Vector3d amVectorNormalizedByCircularAmPreRocket = totalAmVectorPreRocket                            
-                                                                  *(averageOrbitalVelocityPreRocket / k_grav) ;                 // unitless!
-                double theta_rotation = 3*rocketKickVector.mag * KM_TO_AU * SECONDS_IN_YEAR
-                                        / (2*averageOrbitalVelocityPreRocket);                                                  // rad - need to convert velocities to same units
+                m_Supernova->UpdateComponentVelocity(rocketKickVector.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));                   // yes - simply update the component velocity
+            }
+            else {                                                                                                              // no - need to update the eccentricity and system velocity
+                Vector3d eccentricityVectorPreRocket   = eccentricityVector;                                                    // defined earlier
+                double averageOrbitalVelocityPreRocket = std::sqrt(-2.0 * m_OrbitalEnergy/reducedMass);                         // AU/yr - average orbital velocity post-SN
+                double kGrav                           = averageOrbitalVelocityPreRocket * averageOrbitalVelocityPreRocket * reducedMass * m_SemiMajorAxis; // AU^3 * Msol / yr^2
+                Vector3d totalAmVectorPreRocket        = orbitalAngularMomentumVector * reducedMass * KM_TO_AU * KM_TO_AU * SECONDS_IN_YEAR; // Msol * AU^2 / yr (orbitalAngularMomentumVector is the specific orbital AM)
+                Vector3d amVectorNormalizedByCircularAmPreRocket = totalAmVectorPreRocket * (averageOrbitalVelocityPreRocket / kGrav); // unitless!
+                double theta_rotation                  = 3.0 * rocketKickVector.mag * KM_TO_AU * SECONDS_IN_YEAR / (2.0 * averageOrbitalVelocityPreRocket); // rad - need to convert velocities to same units
                     
                 // Apply hPlus and hMinus support vectors
                 Vector3d hPlusVector  = amVectorNormalizedByCircularAmPreRocket + eccentricityVectorPreRocket;
@@ -1403,8 +1478,8 @@ bool BaseBinaryStar::ResolveSupernova() {
                 hMinusVector = hMinusVector.RotateVectorAboutZ(-rocketPhi).RotateVectorAboutY(-rocketTheta);
 
                 // Rotate vectors about the new "z-axis" - parallel to the rocket thrust
-                Vector3d hPlusVector_prime  = hPlusVector.RotateVectorAboutZ(   theta_rotation );
-                Vector3d hMinusVector_prime = hMinusVector.RotateVectorAboutZ( -theta_rotation );
+                Vector3d hPlusVector_prime  = hPlusVector.RotateVectorAboutZ(  theta_rotation);
+                Vector3d hMinusVector_prime = hMinusVector.RotateVectorAboutZ(-theta_rotation);
 
                 // Rotate new hPlus and hMinus vectors back to the original frame
                 hPlusVector  = hPlusVector.RotateVectorAboutY( rocketTheta).RotateVectorAboutZ(rocketPhi);
@@ -1415,7 +1490,7 @@ bool BaseBinaryStar::ResolveSupernova() {
                 Vector3d eccentricityVectorPostRocket = 0.5 * (hPlusVector_prime - hMinusVector_prime);
 
                 m_NormalizedOrbitalAngularMomentumVector = normalizedAngularMomentumVectorPostRocket ;                 
-                m_Eccentricity = eccentricityVectorPostRocket.mag;                                                        
+                m_Eccentricity                           = eccentricityVectorPostRocket.mag;                                                        
 
                 UpdateSystemicVelocity(rocketKickVector.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));                            
                 m_Supernova->UpdateComponentVelocity(rocketKickVector.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));
@@ -1440,6 +1515,12 @@ bool BaseBinaryStar::ResolveSupernova() {
     m_Supernova->ClearCurrentSNEvent();
 
     return true;
+
+#undef hat
+#undef mag        
+#undef angleBetween
+#undef dot
+#undef cross
 }
 
 
@@ -1636,8 +1717,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     }
     else if ( (m_Star1->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) ||
               (m_Star2->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) ) {       // check if we have a non-MS radiative-envelope star
-        m_CEDetails.optimisticCE = true;
         if(!OPTIONS->AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() ) {                                            // stellar merger
+            m_CEDetails.optimisticCE = true;
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
             m_Flags.stellarMerger        = true;
         }
@@ -2339,15 +2420,83 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
 
-    if (OPTIONS->EnableTides() && !m_Unbound) {
+    if (!m_Unbound && OPTIONS->TidesPrescription() != TIDES_PRESCRIPTION::NONE) {
+	
+    // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
+    if (utils::Compare(m_Omega, 0.0) == 0) {
+        m_Omega = OrbitalAngularVelocity(); 
+    }
+    
+        if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024) {
+            // Evolve binary semi-major axis, eccentricity, and spin of each star based on Kapil et al., 2024
 
-        // find omega assuming synchronisation
-        // use current value of m_Omega as best guess for root
-        // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
+            DBL_DBL_DBL_DBL ImKlm1 = m_Star1->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star2->Mass());
+            DBL_DBL_DBL_DBL ImKlm2 = m_Star2->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star1->Mass());
 
-        if (utils::Compare(m_Omega, 0.0) == 0) {
-            m_Omega = OrbitalAngularVelocity(); 
+            double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(ImKlm1,
+                                                                    m_Star1->Mass(),
+                                                                    m_Star1->Radius(),
+                                                                    m_Star2->Mass(),
+                                                                    m_Omega,
+                                                                    m_SemiMajorAxis,
+                                                                    m_Eccentricity);
+            
+            double DSemiMajorAxis2Dt = CalculateDSemiMajorAxisTidalDt(ImKlm2,
+                                                                    m_Star2->Mass(),
+                                                                    m_Star2->Radius(),
+                                                                    m_Star1->Mass(),
+                                                                    m_Omega,
+                                                                    m_SemiMajorAxis,
+                                                                    m_Eccentricity);
+
+            double DEccentricity1Dt   = CalculateDEccentricityTidalDt(ImKlm1,
+                                                                    m_Star1->Mass(),
+                                                                    m_Star1->Radius(),
+                                                                    m_Star2->Mass(),
+                                                                    m_Omega,
+                                                                    m_SemiMajorAxis,
+                                                                    m_Eccentricity);
+            
+            double DEccentricity2Dt   = CalculateDEccentricityTidalDt(ImKlm2,
+                                                                    m_Star2->Mass(),
+                                                                    m_Star2->Radius(),
+                                                                    m_Star1->Mass(),
+                                                                    m_Omega,
+                                                                    m_SemiMajorAxis,
+                                                                    m_Eccentricity);
+                                                        
+            double DOmega1Dt                =  CalculateDOmegaTidalDt(ImKlm1,
+                                                                    m_Star1->Mass(),
+                                                                    m_Star1->Radius(),
+                                                                    m_Star1->CalculateMomentOfInertiaAU(),
+                                                                    m_Star2->Mass(),
+                                                                    m_Omega,
+                                                                    m_SemiMajorAxis,
+                                                                    m_Eccentricity);
+            
+            double DOmega2Dt                =  CalculateDOmegaTidalDt(ImKlm2,
+                                                                    m_Star2->Mass(),
+                                                                    m_Star2->Radius(),
+                                                                    m_Star2->CalculateMomentOfInertiaAU(),
+                                                                    m_Star1->Mass(),
+                                                                    m_Omega,
+                                                                    m_SemiMajorAxis,
+                                                                    m_Eccentricity);
+
+            m_Star1->SetOmega(m_Star1->Omega() + (DOmega1Dt * p_Dt * MYR_TO_YEAR));                                                         // evolve star 1 spin
+            m_Star2->SetOmega(m_Star2->Omega() + (DOmega2Dt * p_Dt * MYR_TO_YEAR));                                                         // evolve star 2 spin
+
+            m_SemiMajorAxis = m_SemiMajorAxis + ((DSemiMajorAxis1Dt + DSemiMajorAxis2Dt) * p_Dt * MYR_TO_YEAR);                             // evolve separation
+            m_Eccentricity = m_Eccentricity + ((DEccentricity1Dt + DEccentricity2Dt) * p_Dt * MYR_TO_YEAR);                                 // evolve eccentricity 
+            m_Omega  = OrbitalAngularVelocity();                                                                                            // re-calculate orbital frequency
+            m_TotalAngularMomentum = CalculateAngularMomentum();                                                                            // re-calculate total angular momentum
+
         }
+
+    
+    else {
+        // find omega assuming instantaneous synchronisation
+        // use current value of m_Omega as best guess for root
 
         m_Omega = OmegaAfterSynchronisation(m_Star1->Mass(), 
                                             m_Star2->Mass(), 
@@ -2391,6 +2540,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
             m_Eccentricity  = 0.0;                                                                                      // assume circular
             m_SemiMajorAxis = radius * RSOL_TO_AU / CalculateRocheLobeRadius_Static(mass1, mass2);                      // new semi-major axis - should tip into CE
             m_Omega         = OrbitalAngularVelocity();                                                                 // m_Omega at new semi-major axis
+            }
         }
     }
 

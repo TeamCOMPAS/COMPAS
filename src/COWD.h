@@ -14,14 +14,21 @@ class COWD: virtual public BaseStar, public WhiteDwarfs {
 
 public:
 
-    COWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), WhiteDwarfs(p_BaseStar, false) {
-        if (p_Initialise) Initialise();
+    COWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), WhiteDwarfs(p_BaseStar) {
+        m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                                // Set stellar type
+        if (p_Initialise) Initialise();                                                                                                                         // Initialise if required
     }
 
-    COWD& operator = (const BaseStar &p_BaseStar) {
-        static_cast<BaseStar&>(*this) = p_BaseStar;
-        Initialise();
-        return *this;
+    COWD* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        COWD* clone = new COWD(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
+
+    static COWD* Clone(COWD& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        COWD* clone = new COWD(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
     }
 
 
@@ -40,7 +47,6 @@ public:
 protected:
 
     void Initialise() {
-        m_StellarType       = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                          // Set stellar type
         CalculateTimescales();                                                                                                                                  // Initialise timescales
         m_HShell            = 0.0;                                                                                                                              // Initialize hydrogen shell
         m_HeShell           = 0.0;                                                                                                                              // Initialize helium shell

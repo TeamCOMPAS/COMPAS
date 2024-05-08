@@ -27,12 +27,50 @@ public:
              const KickParameters    p_KickParameters,
              const double            p_RotationalVelocity = -1.0); 
 
+
+    /*
+     * The following Clone() functions should be used to clone a star - any steller type, including BaseStar.
+     * The BaseStar functions will never actually be executed - the derived functions will be called as required.
+     * The static function is provided for cases where a clone is required (e.g. for hypothesis testing), but
+     * no object of the correct class exists.
+     * 
+     * Important:
+     * 
+     * The Clone() functions return a pointer, created by the 'new' operator.  The 'new' operator dynamically
+     * allocates memory on the heap, not the stack, which is why it is available to the caller of this function
+     * after this function has exited and its stack frame collapsed.  It is the responsibility of the caller of 
+     * this function to delete the pointer returned when it is no longer required so that the allocated memory 
+     * is return to the pool of available memory - failing to do so will cause a memory leak and the program will 
+     * eventually exhaust available memory and fail.  The preferred usage pattern is:
+     * 
+     *     T* ptr = Clone(obj, persistence)
+     *     ...
+     *     ...
+     *     delete ptr; ptr = nullptr;
+     * 
+     * 
+     * BaseStar* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true)
+     * 
+     * @param   [IN]    p_Star                      (address of) The star to be cloned
+     *                                              Must be BaseStar or one of the stellar type classes derived from the BaseStar class
+     * @param   [IN]    p_Persistence               Specifies the object persistence to be assigned to the cloned star.
+     *                                              If the cloned star is intended to be used temporarily (e.g. for hypothesis testing),
+     *                                              persistence should be EPHEMERAL (the default), otherwise PERMANENT.
+     * @param   [IN]    p_Initialise                Specifies whether the clone should be initialised via the class Initialise() function.
+     *                                              (Default is `true`)
+     * @return                                      (pointer to) The cloned star
+     */
+
+    virtual BaseStar* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) { return this; }
+    static  BaseStar* Clone(BaseStar* p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) { return p_Star; }
+
     virtual ~BaseStar() {}
 
 
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const                                                        { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const                                                      { return m_ObjectType; }
+    OBJECT_PERSISTENCE  ObjectPersistence() const                                               { return m_ObjectPersistence; }
     STELLAR_TYPE        InitialStellarType() const                                              { return m_InitialStellarType; }
     STELLAR_TYPE        StellarType() const                                                     { return m_StellarType; }
     STELLAR_TYPE        StellarTypePrev() const                                                 { return m_StellarTypePrev; }
@@ -147,13 +185,16 @@ public:
 
 
     // setters
-            void                SetInitialType(STELLAR_TYPE p_InitialType)                      { m_InitialStellarType = p_InitialType; }                                           // JR Could do some sanity checks here
+            void                SetInitialType(const STELLAR_TYPE p_InitialType)                { m_InitialStellarType = p_InitialType; }                                           // JR Could do some sanity checks here
+            void                SetObjectId(const OBJECT_ID p_ObjectId)                         { m_ObjectId = p_ObjectId; }
+            void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)          { m_ObjectPersistence = p_Persistence; }
+
             void                SetOmega(double p_vRot)                                         { if (p_vRot >= 0.0) m_Omega = p_vRot; };                                           // Do nothing if sanity check fails (JR: I don't really like this, but I think unavoidable - at least for now)
 
-            void                SetSNCurrentEvent(SN_EVENT p_SNEvent)                           { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
+            void                SetSNCurrentEvent(const SN_EVENT p_SNEvent)                     { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
             void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep
             
-            void                SetEvolutionStatus(EVOLUTION_STATUS p_EvolutionStatus)          { m_EvolutionStatus = p_EvolutionStatus; }                                          // Set evolution status (typically final outcome) for star
+            void                SetEvolutionStatus(const EVOLUTION_STATUS p_EvolutionStatus)    { m_EvolutionStatus = p_EvolutionStatus; }                                          // Set evolution status (typically final outcome) for star
             void                UpdateComponentVelocity(const Vector3d p_newVelocity);	
 
             void                UpdateMassTransferDonorHistory();
@@ -178,11 +219,15 @@ public:
     virtual double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                            { return 0.0; }                                                     // Default is 0.0
                                                                                                                                                                                          
             double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
-
+        
             double          CalculateEddyTurnoverTimescale();
 
     virtual void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) { }                                                                                      // Default is NO-OP
     virtual void            CalculateGBParams()                                                                 { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
+
+    virtual DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2);  
+    virtual DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2);                                              
+    virtual DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2);                                                            
 
             void            CalculateLambdas()                                                                  { CalculateLambdas(m_Mass - m_CoreMass); }                          // Use class member variables
             void            CalculateLambdas(const double p_EnvMass);
@@ -197,16 +242,14 @@ public:
 
     virtual double          CalculateMomentOfInertia() const                                                    { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                  // Defaults to MS. k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
     virtual double          CalculateMomentOfInertiaAU() const                                                  { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
-    
-            double          CalculateNuclearTimescale() const                                                   { return CalculateNuclearTimescale_Static(m_Mass, m_Luminosity); }  // Use class member variables
-    
+        
             double          CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) const;
 
             double          CalculateRadialChange() const                                                       { return (utils::Compare(m_RadiusPrev,0)<=0)? 0 : std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; } // Return fractional radial change (if previous radius is negative or zero, return 0 to avoid NaN
 
             double          CalculateRadialExpansionTimescale() const                                           { return CalculateRadialExpansionTimescale_Static(m_StellarType, m_StellarTypePrev, m_Radius, m_RadiusPrev, m_DtPrev); } // Use class member variables
     
-    virtual double      CalculateRadialExtentConvectiveEnvelope() const                                         { return 0.0; }                                                        // default for stars with no convective envelope
+    virtual double          CalculateRadialExtentConvectiveEnvelope() const                                     { return 0.0; }                                                     // default for stars with no convective envelope
 
             void            CalculateSNAnomalies(const double p_Eccentricity);
 
@@ -290,7 +333,7 @@ public:
     }
 
     bool PrintSwitchLog() const { 
-        return OPTIONS->SwitchLog() ? LOGGING->LogSSESwitchLog(this) : true;                                                                                                        // Write record to SSE Switchlog log file
+        return OPTIONS->SwitchLog() ? (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT ? LOGGING->LogSSESwitchLog(this) : true) : true;                                                                                                        // Write record to SSE Switchlog log file
     }
 
     bool PrintSystemParameters(const SSE_SYSPARMS_RECORD_TYPE p_RecordType = SSE_SYSPARMS_RECORD_TYPE::DEFAULT) const {
@@ -301,6 +344,7 @@ protected:
 
     OBJECT_ID               m_ObjectId;                                 // Instantiated object's unique object id
     OBJECT_TYPE             m_ObjectType;                               // Instantiated object's object type
+    OBJECT_PERSISTENCE      m_ObjectPersistence;                        // Instantiated object's persistence (permanent or ephemeral)
     STELLAR_TYPE            m_InitialStellarType;                       // Stellar type at birth, defined in Hurley et al. 2000
     STELLAR_TYPE            m_StellarType;                              // Stellar type defined in Hurley et al. 2000
 
@@ -330,10 +374,10 @@ protected:
     double                  m_TZAMS0;                                   // Effective ZAMS Temperature
 
     // Current timestep variables
-    double                  m_Age;                                      // Current effective age (changes with mass loss/gain)(myrs)
+    double                  m_Age;                                      // Current effective age (changes with mass loss/gain) (Myr)
     double                  m_COCoreMass;                               // Current CO core mass (Msol)
     double                  m_CoreMass;                                 // Current core mass (Msol)
-    double                  m_Dt;                                       // Current timestep (myrs)
+    double                  m_Dt;                                       // Size of current timestep (Myr)
     bool                    m_EnvelopeJustExpelledByPulsations;         // Flag to know if the convective envelope has just been expelled by pulsations
     double                  m_HeCoreMass;                               // Current He core mass (Msol)
     bool                    m_LBVphaseFlag;                             // Flag to know if the star satisfied the conditions, at any point in its evolution, to be considered a Luminous Blue Variable (LBV)
@@ -349,7 +393,7 @@ protected:
     double                  m_Radius;                                   // Current radius (Rsol)
     double                  m_Tau;                                      // Relative time
     double                  m_Temperature;                              // Current temperature (Tsol)
-    double                  m_Time;                                     // Current physical time the star has been evolved(myrs)
+    double                  m_Time;                                     // Current physical time the star has been evolved (Myr)
 
     // Previous timestep variables
     double                  m_DtPrev;                                   // Previous timestep
@@ -417,8 +461,6 @@ protected:
     // member functions - alphabetically
             void                AgeOneTimestepPreamble(const double p_DeltaTime);
 
-            double              ApplyBlackHoleKicks(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass);
-
             double              CalculateAlpha1() const;
             double              CalculateAlpha3() const;
             double              CalculateAlpha4() const;
@@ -456,7 +498,7 @@ protected:
     virtual double              CalculateLambdaDewi() const                                                             { SHOW_WARN(ERROR::NO_LAMBDA_DEWI, "Default used: 1.0"); return 1.0; }      // Not supported: show error
             double              CalculateLambdaKruckow(const double p_Radius, const double p_Alpha) const;
             double              CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss = false) const;
-    virtual double              CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const           { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: show error
+    virtual double              CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: show error
     virtual double              CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const             { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: show error
 
             void                CalculateLCoefficients(const double p_LogMetallicityXi, DBL_VECTOR &p_LCoefficients);
@@ -480,7 +522,7 @@ protected:
 
     static  double              CalculateMassLoss_Static(const double p_Mass, const double p_Mdot, const double p_Dt);
 
-            double              CalculateMassLossRate();
+    virtual double              CalculateMassLossRate();
     virtual double              CalculateMassLossRateHurley();
             double              CalculateMassLossRateKudritzkiReimers() const;
             double              CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescription);
@@ -511,13 +553,11 @@ protected:
             double              CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const;
             double              CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot) const;
             double              CalculateMassLossRateHeliumStarVink2017() const;
-            double              CalculateMassLossRateWolfRayetShenar2019() const;
+    virtual double              CalculateMassLossRateWolfRayetShenar2019() const;
 
     virtual double              CalculateMassTransferRejuvenationFactor() const;
 
             double              CalculateMaximumCoreMass(double p_Mass) const;
-
-    static  double              CalculateNuclearTimescale_Static(const double p_Mass, const double p_Luminosity);
 
             double              CalculateOmegaBreak() const;
 
@@ -630,6 +670,9 @@ protected:
     virtual STELLAR_TYPE        ResolveSkippedPhase()                                                                   { return EvolveToNextPhase(); }                                             // Default is evolve to next phase
     virtual STELLAR_TYPE        ResolveSupernova()                                                                      { return m_StellarType; }                                                   // Default is NO-OP
 
+            double              ReweightSupernovaKickByMass(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) { return p_vK; }                              // Default is not to re-weight, except for black holes where the --black-hole-kicks option is relevant
+
+    
     virtual void                SetSNHydrogenContent()                                                                  { m_SupernovaDetails.isHydrogenPoor = false; }                              // Default is false
 
             bool                ShouldBeMasslessRemnant() const                                                         { return (m_Mass <= 0.0 || m_StellarType == STELLAR_TYPE::MASSLESS_REMNANT); }
