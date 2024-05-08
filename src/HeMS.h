@@ -20,13 +20,20 @@ class HeMS: virtual public BaseStar, public TPAGB {
 public:
 
     HeMS(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), TPAGB(p_BaseStar, false) {
-        if (p_Initialise) Initialise();
+        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                                                                                                                                         // Set stellar type
+        if (p_Initialise) Initialise();                                                                                                                                                             // Initialise if required
     }
 
-    HeMS& operator = (const BaseStar &p_BaseStar) {
-        static_cast<BaseStar&>(*this) = p_BaseStar;
-        Initialise();
-        return *this;
+    HeMS* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        HeMS* clone = new HeMS(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
+
+    static HeMS* Clone(HeMS& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        HeMS* clone = new HeMS(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
     }
 
 
@@ -46,7 +53,6 @@ public:
 protected:
 
     void Initialise() {
-        m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                                                                                                                                         // Set stellar type
         CalculateTimescales();
         // JR: Age for HeMS is partially calculated before switching -
         // can get here from various places in ResolveEnvelopeLoss(),
@@ -58,8 +64,8 @@ protected:
             double          CalculateCOCoreMassAtPhaseEnd() const                                                   { return CalculateCOCoreMassOnPhase(); }                                        // Same as on phase
             double          CalculateCOCoreMassOnPhase() const                                                      { return 0.0;  }                                                                // McCO(HeMS) = 0.0
 
-            double          CalculateConvectiveCoreMass() const { return MainSequence::CalculateConvectiveCoreMass(); }                         // Temporary solution, until we have tested the rate at which the convective core recedes in HeMS stars
-            double          CalculateConvectiveCoreRadius () const                      { return 0.5 * m_Radius; }                                         // Temporary solution, until we have tested the core radii of HeMS stars
+            double          CalculateConvectiveCoreMass() const                                                     { return MainSequence::CalculateConvectiveCoreMass(); }                         // Temporary solution, until we have tested the rate at which the convective core recedes in HeMS stars
+            double          CalculateConvectiveCoreRadius () const                                                  { return 0.5 * m_Radius; }                                                      // Temporary solution, until we have tested the core radii of HeMS stars
             double          CalculateCoreMassAtPhaseEnd() const                                                     { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase /*ILYA*/ To fix, not everything will become CO core
             double          CalculateCoreMassOnPhase() const                                                        { return 0.0; }                                                                 // Mc(HeMS) = 0.0
 
@@ -72,8 +78,7 @@ protected:
             double          CalculateInitialSupernovaMass() const                                                   { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
 
             double          CalculateLambdaDewi() const                                                             { return 0.5; }
-            double          CalculateLambdaNanjingStarTrack(const double p_Mass,
-                                                   const double p_Metallicity) const                                { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }                 // Not supported - use BaseStar (0.0 are dummy values)
+            double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }                 // Not supported - use BaseStar (0.0 are dummy values)
             double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const                                { return CalculateLuminosityAtPhaseEnd_Static(p_Mass); }
             double          CalculateLuminosityAtPhaseEnd() const                                                   { return CalculateLuminosityAtPhaseEnd(m_Mass); }                               // Use class member variables
             double          CalculateLuminosityOnPhase(const double p_Mass, const double p_Tau) const               { return CalculateLuminosityOnPhase_Static(p_Mass, p_Tau); }
