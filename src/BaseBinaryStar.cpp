@@ -1868,11 +1868,15 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
     double jOrb            = (massAtimesMassD / massAplusMassD) * std::sqrt(semiMajorAxis * G_AU_Msol_yr * massAplusMassD);     // orbital angular momentum
     double jLoss;                                                                                                               // specific angular momentum carried away by non-conservative mass transfer
     
+    std::cout<<"massD"<<massD<<" massA"<<massA<<" delta"<<p_DeltaMassDonor<<" frac"<<p_FractionAccreted<<" semiMajorAxis"<<semiMajorAxis<<std::endl;
+    
     if (utils::Compare(p_DeltaMassDonor, 0.0) < 0) {                                                                            // mass loss from donor?
                                                                                                                                 // yes
         int numberIterations = fmax( floor (fabs(p_DeltaMassDonor/(MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP * massD))), 1.0);    // number of iterations
         double dM            = p_DeltaMassDonor / numberIterations;                                                             // mass change per time step
 
+        std::cout<<"numberIterations"<<numberIterations<<" dM"<<dM<<std::endl;
+        
         for(int i = 0; i < numberIterations ; i++) {
             jLoss          = CalculateGammaAngularMomentumLoss(massD, massA);
             jOrb           = jOrb + ((jLoss * jOrb * (1.0 - p_FractionAccreted) / massAplusMassD) * dM);
@@ -1881,6 +1885,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
             massD          = massD + dM;
             massA          = massA - (dM * p_FractionAccreted);
             massAplusMassD = massA + massD;
+            std::cout<<"massD"<<massD<<" massA"<<massA<<" semiMajorAxis"<<semiMajorAxis<<std::endl;
         }
     }
 
