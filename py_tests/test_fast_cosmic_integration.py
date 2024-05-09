@@ -17,6 +17,8 @@ def test_fast_cosmic_integration(example_compas_output_path,  test_archive_dir, 
     ) = FastCosmicIntegration.find_detection_rate(
         path=example_compas_output_path,
         merges_hubble_time=False,
+        pessimistic_CEE=False,
+        no_RLOF_after_CEE=False,
     )
     runtime = time.time() - t0
     assert runtime < 10
