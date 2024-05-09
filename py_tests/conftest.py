@@ -26,7 +26,7 @@ def example_compas_output_path(clean=False):
     if not os.path.exists(compas_data_path) or clean:  # Check if path exists
         curr_dir = os.getcwd()
         os.chdir(TEST_CONFIG_DIR)
-        cmd = f"compas_run_submit {TEST_GRID}"
+        cmd = f"compas_run_submit --grid {TEST_GRID}"
         # run the command in shell "compas_run_submit {TEST_CONFIG_FNAME}" with subprocess
         subprocess.run(cmd, shell=True, check=True)
 
