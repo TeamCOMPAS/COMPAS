@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath('../compas_python_utils/'))
 # -- Project information -----------------------------------------------------
 
 project = 'COMPAS'
-copyright = '2021, 2022, 2023, 2024 The Authors'
+copyright = '2024 The Authors'
 author = 'TeamCOMPAS'
 
 
@@ -35,7 +35,6 @@ needs_sphinx = '4.3.2'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'python_docs_theme',
     'sphinx.ext.mathjax',
     'sphinx_math_dollar',
     'sphinx.ext.intersphinx',
@@ -78,7 +77,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = en
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -94,7 +93,7 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'python_docs_theme'
+html_theme = 'alabaster'
 #html_theme = 'sphinx_rtd_theme'
 #html_theme = 'pyramid'
 #html_theme = 'nature'
@@ -104,7 +103,9 @@ html_theme = 'python_docs_theme'
 # documentation.
 #
 html_theme_options = {
-    'prev_next_buttons_location': 'bottom'
+#    'prev_next_buttons_location': 'bottom'
+    'show_relbar_top': 'false',
+    'show_relbar_bottom': 'true'
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
