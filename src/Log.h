@@ -25,6 +25,14 @@
 
 using std::string;
 
+// fix for deprecated boost copy_option
+#if BOOST_VERSION >= 107400
+    #define BOOST_OVERWRITE_EXISTING boost::filesystem::copy_options::overwrite_existing
+#else
+    #define BOOST_OVERWRITE_EXISTING boost::filesystem::copy_option::overwrite_if_exists
+#endif
+
+
 /*
  * Log Singleton
  *
@@ -456,7 +464,7 @@ private:
         m_DbgClasses = {};                                                          // no default debug classes
         m_DbgToLogfile = false;                                                     // default is not to log debug records to the log file
         m_DbgLogfileId = -1;                                                        // default is not valid
-        m_Logfiles.empty();                                                         // default is no log files
+        m_Logfiles.clear();                                                         // default is no log files
         m_OpenStandardLogFileIds = {};                                              // no open COMPAS standard log files
 
         m_ObjectIdSwitching          = -1L;                                         // object id of the Star object switching stellar type - default none
