@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath('../compas_python_utils/'))
 # -- Project information -----------------------------------------------------
 
 project = 'COMPAS'
-copyright = '2021, 2022, 2023 The Authors'
+copyright = '2021, 2022, 2023, 2024 The Authors'
 author = 'TeamCOMPAS'
 
 
@@ -29,7 +29,7 @@ author = 'TeamCOMPAS'
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
-needs_sphinx = '4.3.2'
+#needs_sphinx = '4.3.2'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
