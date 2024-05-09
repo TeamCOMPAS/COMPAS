@@ -9,7 +9,7 @@ from compas_python_utils.cosmic_integration.binned_cosmic_integrator.bbh_populat
 
 HERE = os.path.dirname(__file__)
 TEST_CONFIG_DIR = os.path.join(HERE, "test_data")
-TEST_CONFIG_FNAME = os.path.join(TEST_CONFIG_DIR, "fiducial_bbh_config.yaml")
+TEST_GRID = os.path.join(TEST_CONFIG_DIR, "grid.txt")
 TEST_ARCHIVE_DIR = os.path.join(HERE, "test_artifacts")
 
 
@@ -26,7 +26,7 @@ def example_compas_output_path(clean=False):
     if not os.path.exists(compas_data_path) or clean:  # Check if path exists
         curr_dir = os.getcwd()
         os.chdir(TEST_CONFIG_DIR)
-        cmd = f"compas_run_submit {TEST_CONFIG_FNAME}"
+        cmd = f"compas_run_submit {TEST_GRID}"
         # run the command in shell "compas_run_submit {TEST_CONFIG_FNAME}" with subprocess
         subprocess.run(cmd, shell=True, check=True)
 
