@@ -11,7 +11,8 @@ HERE = os.path.dirname(__file__)
 TEST_CONFIG_DIR = os.path.join(HERE, "test_data")
 TEST_GRID = os.path.join(TEST_CONFIG_DIR, "grid.txt")
 TEST_ARCHIVE_DIR = os.path.join(HERE, "test_artifacts")
-
+REPO_ROOT = os.getenv("COMPAS_ROOT_DIR", os.path.abspath(os.path.join(HERE, "..")))
+COMPAS_EXE = os.path.join(REPO_ROOT, "src", "COMPAS")
 
 @pytest.fixture()
 def example_compas_output_path(clean=False):
@@ -26,7 +27,7 @@ def example_compas_output_path(clean=False):
     if not os.path.exists(compas_data_path) or clean:  # Check if path exists
         curr_dir = os.getcwd()
         os.chdir(TEST_CONFIG_DIR)
-        cmd = f"compas_run_submit --grid {TEST_GRID}"
+        cmd = f"{COMPAS_EXE} --detailed-output --grid {TEST_GRID}"
         # run the command in shell "compas_run_submit {TEST_CONFIG_FNAME}" with subprocess
         subprocess.run(cmd, shell=True, check=True)
 
