@@ -46,7 +46,7 @@ def test_fast_cosmic_integration(example_compas_output_path,  test_archive_dir, 
 def test_compas_output_has_dcos(example_compas_output_path):
     """Test that the COMPAS output has dco_type"""
     COMPAS = COMPASData(path=example_compas_output_path, lazyData=False)
-    COMPAS.setCOMPASDCOmask(types='BBH', withinHubbleTime=False, pessimistic=True, noRLOFafterCEE=True)
+    COMPAS.setCOMPASDCOmask(types='BBH', withinHubbleTime=False, pessimistic=False, noRLOFafterCEE=False)
     COMPAS.setCOMPASData()
     n_bin = len(COMPAS.seedsDCO)
     assert n_bin > 1
