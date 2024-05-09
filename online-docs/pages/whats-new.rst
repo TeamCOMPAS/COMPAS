@@ -6,6 +6,10 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.45.00 Apr 09, 2024**
+
+* Changed compiler standard in Makefile from ``c++11`` to ``c++17``.  This is required for ``boost v1.82`` and above. ``c++11`` can still be used if boost version is below ``v1.82``, but moving to ``c++17`` and boost ``v1.8x`` is preferred (and will eventually be mandatory). Tested with ``Ubuntu v20.04, g++ v11.04, and boost v1.74``; and ``macOS v14.1.1, clang v15.0.0, and boost v1.85``.
+
 **02.44.00 Apr 04, 2024**
 
 * Added 'realistic' tides option, which implements dynamical and equilibrium tides using the formalism described in Kapil et al. (2024). 
@@ -20,7 +24,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 **02.42.00 Jan 04, 2023**
 
 * Timesteps are now quantised to an integral multiple of 1e-12Myr.
-* New option provided to allow user-defined timesteps: ``--timesteps-filename`` (See :doc:`Timestep files <../"User guide"/timestep-files>`).
+* New option provided to allow user-defined timesteps: ``--timesteps-filename`` (See :doc:`./User guide/timestep-files`).
 * Code changes to make SSE and BSE evolution more consistent (See `PR 1052 <https://github.com/TeamCOMPAS/COMPAS/pull/1052>`_).
 
 **02.41.03 Dec 28, 2023**
