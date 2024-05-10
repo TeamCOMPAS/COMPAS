@@ -3,7 +3,6 @@ import h5py  as h5
 import os
 import time
 import matplotlib.pyplot as plt
-from astropy.cosmology import WMAP9 as cosmology
 import scipy
 from scipy.interpolate import interp1d
 from scipy.stats import norm as NormDist
@@ -12,8 +11,10 @@ from compas_python_utils.cosmic_integration import selection_effects
 import warnings
 import astropy.units as u
 import argparse
+import importlib
+from compas_python_utils.cosmic_integration.cosmology import get_cosmology
 
-def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10.0):
+def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10.0, cosmology=None):
     """ 
         Given limits on the redshift, create an array of redshifts, times, distances and volumes
 
@@ -30,6 +31,8 @@ def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=
             distances              --> [list of floats] Equivalent of redshifts but converted to luminosity distances
             shell_volumes          --> [list of floats] Equivalent of redshifts but converted to shell volumes
     """
+    cosmology = get_cosmology(cosmology)
+
     # create a list of redshifts and record lengths
     redshifts = np.arange(0, max_redshift + redshift_step, redshift_step)
     n_redshifts_detection = int(max_redshift_detection / redshift_step)
@@ -316,7 +319,7 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
                         min_logZ=-12.0, max_logZ=0.0, step_logZ=0.01,
                         sensitivity="O1", snr_threshold=8, 
                         Mc_max=300.0, Mc_step=0.1, eta_max=0.25, eta_step=0.01,
-                        snr_max=1000.0, snr_step=0.1):
+                        snr_max=1000.0, snr_step=0.1, cosmology=None):
     """
         The main function of this file. Finds the detection rate, formation rate and merger rate for each
         binary in a COMPAS file at a series of redshifts defined by input. Also returns relevant COMPAS
@@ -385,6 +388,8 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
             COMPAS                 --> [Object]         Relevant COMPAS data in COMPASData Class
     """
 
+    cosmology = get_cosmology(cosmology)
+
     # assert that input will not produce errors
     assert max_redshift_detection <= max_redshift, "Maximum detection redshift cannot be below maximum redshift"
     assert m1_min <= m1_max, "Minimum sampled primary mass cannot be above maximum sampled primary mass"
@@ -435,7 +440,7 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
         warnings.warn("Maximum chirp mass used for detectability calculation is below maximum binary chirp mass * (1+maximum redshift for detectability calculation)", stacklevel=2)
 
     # calculate the redshifts array and its equivalents
-    redshifts, n_redshifts_detection, times, time_first_SF, distances, shell_volumes = calculate_redshift_related_params(max_redshift, max_redshift_detection, redshift_step, z_first_SF)
+    redshifts, n_redshifts_detection, times, time_first_SF, distances, shell_volumes = calculate_redshift_related_params(max_redshift, max_redshift_detection, redshift_step, z_first_SF, cosmology)
 
     # find the star forming mass per year per Gpc^3 and convert to total number formed per year per Gpc^3
     sfr = find_sfr(redshifts, a = aSF, b = bSF, c = cSF, d = dSF) # functional form from Madau & Dickinson 2014
@@ -490,7 +495,7 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
 
 def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, COMPAS, n_redshifts_detection,
     maxz=1., sensitivity="O1", dco_type="BHBH", mu0=0.035, muz=-0.23, sigma0=0.39, sigmaz=0., alpha=0.,
-    append_binned_by_z = False, redshift_binsize=0.1):
+    append_binned_by_z = False, redshift_binsize=0.1, cosmology=None):
     """
         Append the formation rate, merger rate, detection rate and redshifts as a new group to your COMPAS output with weights hdf5 file
 
@@ -518,6 +523,9 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
         Returns:
             h_new                  --> [hdf5 file] Compas output file with a new group "rates" with the same shape as DoubleCompactObjects x redshifts
     """
+
+    cosmology = get_cosmology(cosmology)
+
     print('shape redshifts', np.shape(redshifts))
     print('shape COMPAS.sw_weights', np.shape(COMPAS.sw_weights) )
     print('COMPAS.DCOmask', COMPAS.DCOmask, ' was set for dco_type', dco_type)
@@ -802,14 +810,29 @@ def parse_cli_args():
     parser.add_argument("--delete", dest='delete_rates',
                         help="Delete the rate group from your hdf5 output file (groupname based on dP/dZ parameters)",
                         action='store_true', default=False)
+    parser.add_argument("--cosmology_name", dest='cosmology_name', help="Cosmology that is used for cosmic integration using the astropy.cosmology class: one of ['Planck13', 'Planck15', 'Planck18', 'WMAP1', 'WMAP3', 'WMAP5', 'WMAP9']", 
+                        type=str, default="Planck18")
 
     args = parser.parse_args()
     return args
+
+def set_cosmology(cosmology_name="Planck18"):
+    # Set cosmology using astropy, print a warning if TNG fit is used with Planck18 cosmology (since TNG uses Planck15)
+    if cosmology_name == "Planck18": print("USING PLANCK18 AS COSMOLOGY! If working with TNG fit, you may want to use Planck15 instead for self-consistency.")
+    else: print("Using %s as cosmology!"%cosmology_name)
+
+    return getattr(importlib.import_module('astropy.cosmology'), cosmology_name)
+
+
+
 
 
 def main():
     # Define command line options for the most commonly varied options
     args = parse_cli_args()
+    
+    cosmology = get_cosmology(args.cosmology_name)
+
 
     #####################################
     # Run the cosmic integration
@@ -838,7 +861,7 @@ def main():
         step_logZ=0.01,
         Mc_max=300.0, Mc_step=0.1,
         eta_max=0.25, eta_step=0.01,
-        snr_max=1000.0, snr_step=0.1)
+        snr_max=1000.0, snr_step=0.1, cosmology=cosmology)
     end_CI = time.time()
 
     #####################################
@@ -849,7 +872,7 @@ def main():
         append_rates(args.path, detection_rate, formation_rate, merger_rate, redshifts, COMPAS, n_redshifts_detection,
                      maxz=args.max_redshift_detection, sensitivity=args.sensitivity, dco_type=args.dco_type,
                      mu0=args.mu0, muz=args.muz, sigma0=args.sigma0, sigmaz=args.sigmaz, alpha=args.alpha,
-                     append_binned_by_z=False, redshift_binsize=0.05)
+                     append_binned_by_z=False, redshift_binsize=0.05, cosmology=cosmology)
 
     # or just delete this group if your hdf5 file is getting too big
     if args.delete_rates:

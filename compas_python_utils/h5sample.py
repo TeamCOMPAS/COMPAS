@@ -9,6 +9,7 @@ import sys
 
 import h5py
 import numpy as np
+import os
 
 from compas_python_utils.h5view import printSummary
 from compas_python_utils.h5copy import copyHDF5File
@@ -86,10 +87,17 @@ def sample_h5(
     with h5py.File(compas_h5_filepath, "r") as compas_h5_file:
         printSummary(compas_h5_filepath, compas_h5_file)
 
-    with h5py.File(output_filepath, 'w') as out_h5_file:
-        copyHDF5File(compas_h5_filepath, out_h5_file)
-        sampled_binary_seeds = np.random.choice(binary_seeds, size=n, replace=replace)
-        _sample(out_h5_file, seed_key, sampled_binary_seeds)
+    try:
+        with h5py.File(output_filepath, 'w') as out_h5_file:
+            copyHDF5File(compas_h5_filepath, out_h5_file)
+            sampled_binary_seeds = np.random.choice(binary_seeds, size=n, replace=replace)
+            _sample(out_h5_file, seed_key, sampled_binary_seeds)
+    except Exception as e:
+        print(f"Error sampling COMPAS h5 file: {e}")
+        # remove the output file if it was created
+        if os.path.exists(output_filepath):
+            os.remove(output_filepath)
+        return
 
     print("Sampled file summary:")
     with h5py.File(output_filepath, "r") as output_h5_file:
