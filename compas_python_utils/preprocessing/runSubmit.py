@@ -4,6 +4,7 @@ import os
 from subprocess import call
 import yaml
 import argparse
+import warnings
 
 # Check if we are using python 3
 python_version = sys.version_info[0]
@@ -11,7 +12,7 @@ print("python_version =", python_version)
 
 HERE = os.path.dirname(__file__)
 DEFAULT_CONFIG_FILE = os.path.join(HERE, 'compasConfigDefault.yaml')
-
+REPO_ROOT = os.path.abspath(os.path.join(HERE, "../../"))
 
 class pythonProgramOptions:
     """
@@ -42,10 +43,15 @@ class pythonProgramOptions:
         self.stringChoices = config['stringChoices'] if config['stringChoices'] else {}
         self.listChoices = config['listChoices'] if config['listChoices'] else {}
 
-        compas_executable_override = os.environ.get(
-            'COMPAS_EXECUTABLE_PATH',
-            os.path.join(os.environ.get('COMPAS_ROOT_DIR'), 'src/COMPAS')
-        )
+        compas_root_dir = os.environ.get('COMPAS_ROOT_DIR', REPO_ROOT)
+        if compas_root_dir is None:
+            warnings.warn(
+                'COMPAS_ROOT_DIR environment variable not set. Setting '
+                f'`export COMPAS_ROOT_DIR={REPO_ROOT}`'
+            )
+            os.environ['COMPAS_ROOT_DIR'] = REPO_ROOT
+        compas_exe = os.path.join(compas_root_dir, 'src/COMPAS')
+        compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH', compas_exe)
         print('compas_executable_override', compas_executable_override)
         self.compas_executable = compas_executable_override
 
@@ -148,14 +154,15 @@ class pythonProgramOptions:
         return
 
 
-def runSubmit(cli_args=[DEFAULT_CONFIG_FILE], execute=True):
+def runSubmit(cli_args=None, execute=True):
     parser = argparse.ArgumentParser(
         description='Run COMPAS using a config yaml (for settings refer to ./COMPAS --help)'
     )
-    parser.add_argument('config_file', type=str, default=DEFAULT_CONFIG_FILE)
+    parser.add_argument('config_file', type=str, nargs="?", default=DEFAULT_CONFIG_FILE)
+    parser.add_argument('--grid', type=str, default=None)
     args = parser.parse_args(cli_args)
     # -- Get the program options
-    myoptions = pythonProgramOptions(config_file=args.config_file)
+    myoptions = pythonProgramOptions(config_file=args.config_file, grid_filename=args.grid)
     print(myoptions.shellCommand)
     if execute:  # Execute COMPAS shell string
         call(myoptions.shellCommand, shell=True)
