@@ -103,8 +103,8 @@ are included: they can be included in the default log file record specifiers in 
 via the use of a log file definitions file (run-time configuration: see :doc:`./standard-logfiles-record-specification`).
 
 
-Compile-time configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+At compile-time
+~~~~~~~~~~~~~~~
 
 The property specifier ``PROGRAM_OPTION::NOTES`` is available to be included in any of the default log file record specifiers in
 ``constants.h``.  If the property specifier ``PROGRAM_OPTION::NOTES`` is included in a default log file record specifier:
@@ -119,8 +119,8 @@ Adding the property specifier ``PROGRAM_OPTION::NOTES`` to the default record sp
 in a log file via compile-time configuration is an all-or-nothing proposition.
 
 
-Run-time configuration
-~~~~~~~~~~~~~~~~~~~~~~
+At run-time
+~~~~~~~~~~~
 
 COMPAS provides functionality to allow users to change which properties are to be written to the standard log files at run-time:
 see :doc:`./standard-logfiles-record-specification`. The property specifier ``PROGRAM_OPTION::NOTES`` can be added to, or removed from,

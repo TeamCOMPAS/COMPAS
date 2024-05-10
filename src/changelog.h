@@ -1153,7 +1153,12 @@
 //                                      - set PISN massless remnant mass to zero (see issue #1051)
 // 02.44.05    JR - May 07, 2024     - Defect repair:
 //                                      - fix for HG-CHeB transition for low metallicities
+// 02.45.00    JR - May 09, 2024     - Enhancements:
+//                                      - changed compiler standard from c++11 to c++17 in Makefile - see issue #984
+//                                        (Tested ok with Ubuntu v20.04, g++ v11.04, and boost v1.74; and macOS v14.1.1, clang v15.0.0, and boost v1.85.)
+//                                      - added check for boost version to allow for deprecated filesystem option
+//                                      - added `requirements.in` file to online docs to specify requirements for latest dependencies
           
-const std::string VERSION_STRING = "02.44.05";
+const std::string VERSION_STRING = "02.45.00";
 
 # endif // __changelog_h__
