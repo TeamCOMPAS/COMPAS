@@ -422,7 +422,7 @@ void Log::Start(const string              p_LogBasePath,
                     try {                                                                                                   // yes - copy it
                         boost::filesystem::path srcPath(OPTIONS->GridFilename());                                           // grid file fully-qualified name
                         string dstFn = dstPath + srcPath.filename().string();                                               // fully-qualified grid filename (inside container)
-                        boost::filesystem::copy_file(OPTIONS->GridFilename(), dstFn, boost::filesystem::copy_option::overwrite_if_exists); // copy grid file - overwrite any existing file (shouldn't be one, but just in case we want this one)
+                        boost::filesystem::copy_file(OPTIONS->GridFilename(), dstFn, BOOST_OVERWRITE_EXISTING);             // copy grid file - overwrite any existing file (shouldn't be one, but just in case we want this one)
                     } catch(const boost::filesystem::filesystem_error& e) {
                         Squawk("ERROR: Unable to copy grid file " + OPTIONS->GridFilename() + " to output container " + dstPath); // announce error
                         m_Enabled = false;                                                                                  // fail
@@ -435,7 +435,7 @@ void Log::Start(const string              p_LogBasePath,
                     try {                                                                                                   // yes - copy it
                         boost::filesystem::path srcPath(OPTIONS->LogfileDefinitionsFilename());                             // logfile-definitions file fully-qualified name
                         string dstFn = dstPath + srcPath.filename().string();                                               // fully-qualified logfile-definitions filename (inside container)
-                        boost::filesystem::copy_file(OPTIONS->LogfileDefinitionsFilename(), dstFn, boost::filesystem::copy_option::overwrite_if_exists); // copy logfile-definitions file - overwrite any existing file (shouldn't be one, but just in case we want this one)
+                        boost::filesystem::copy_file(OPTIONS->LogfileDefinitionsFilename(), dstFn, BOOST_OVERWRITE_EXISTING); // copy logfile-definitions file - overwrite any existing file (shouldn't be one, but just in case we want this one)
                     } catch(const boost::filesystem::filesystem_error& e) {
                         Squawk("ERROR: Unable to copy logfile-definitions file " + OPTIONS->LogfileDefinitionsFilename() + " to output container " + dstPath); // announce error
                         m_Enabled = false;                                                                                  // fail

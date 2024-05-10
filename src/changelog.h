@@ -1145,13 +1145,20 @@
 //                                      - change to the core mass calculations at phase end for the CHeB phase - uses method from Hurley sse code rather Hurley et al. 2000
 //                                        prior to this change the CHeB core mass at phase end was > mass (which in turn caused a spike in luminosity and Teff).
 // 02.44.03    IM - May 06, 2024     - Defect repair, enhancement, minor cleanup:
-//					- updated Picker et al. (2024) coefficients for the 2-stage CE prescription
-//					- optimisticCE is now recorded only if the binary avoided merger (see issue #1014)
-// 02.33.04    IM - May 06, 2024     - Defect repair:
-//					- removed (incorrect) calculation of nuclear timescale (see issue #430)
-//				     	- replaced ApplyBlackHoleKicks() with ReweightBlackHoleKicksByMass() and now applying it only to BHs (see issue #1027)
-//					- set PISN massless remnant mass to zero (see issue #1051)
+//                                      - updated Picker et al. (2024) coefficients for the 2-stage CE prescription
+//                                      - optimisticCE is now recorded only if the binary avoided merger (see issue #1014)
+// 02.44.04    IM - May 06, 2024     - Defect repair:
+//                                      - removed (incorrect) calculation of nuclear timescale (see issue #430)
+//                                      - replaced ApplyBlackHoleKicks() with ReweightBlackHoleKicksByMass() and now applying it only to BHs (see issue #1027)
+//                                      - set PISN massless remnant mass to zero (see issue #1051)
+// 02.44.05    JR - May 07, 2024     - Defect repair:
+//                                      - fix for HG-CHeB transition for low metallicities
+// 02.45.00    JR - May 09, 2024     - Enhancements:
+//                                      - changed compiler standard from c++11 to c++17 in Makefile - see issue #984
+//                                        (Tested ok with Ubuntu v20.04, g++ v11.04, and boost v1.74; and macOS v14.1.1, clang v15.0.0, and boost v1.85.)
+//                                      - added check for boost version to allow for deprecated filesystem option
+//                                      - added `requirements.in` file to online docs to specify requirements for latest dependencies
           
-const std::string VERSION_STRING = "02.44.04";
+const std::string VERSION_STRING = "02.45.00";
 
 # endif // __changelog_h__
