@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Fri Apr 26 19:21:29 2024 by COMPAS v02.44.00
+##~!!~## File Created Mon May 13 21:03:19 2024 by COMPAS v02.46.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -282,3 +282,8 @@ listChoices:
 
 #    --log-classes: { }                                                    # Default: { }
 #    --debug-classes: { }                                                  # Default: { }
+
+
+### Additional COMPAS options not found in YAML template ###
+#    --mass-change-fraction: 0.000000                                      # Default: 0.000000
+#    --radial-change-fraction: 0.000000                                    # Default: 0.000000

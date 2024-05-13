@@ -766,6 +766,11 @@ Default = 4.2
 
 :ref:`Back to Top <options-props-top>`
 
+**--mass-change-fraction** |br|
+Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps. |br|
+Recommended value is 0.005.  A value of 0 means that this choice is ignored and previously suggested timesteps are used. |br|
+Default = 0
+
 **--mass-loss-prescription** |br|
 Mass loss prescription. |br|
 Options: { NONE, HURLEY, VINK } |br|
@@ -1065,6 +1070,11 @@ Default = FALSE
 
 :ref:`Back to Top <options-props-top>`
 
+**--radial-change-fraction** |br|
+Approximate desired fractional change in stellar radius on phase when setting SSE and BSE timesteps. |br|
+Recommended value is 0.005.  A value of 0 means that this choice is ignored and previously suggested timesteps are used. |br|
+Default = 0
+
 **--random-seed** |br|
 Value to use as the seed for the random number generator. |br|
 Default = 0
@@ -1356,8 +1366,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Administrative**
 
---mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-pulsars, --evolve-unbound-systems, --maximum-evolution-time, --maximum-number-timestep-iterations,
---random-seed, --timestep-multiplier, --timestep-filename
+--mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-pulsars, --evolve-unbound-systems, --mass-change-fraction, --maximum-evolution-time, --maximum-number-timestep-iterations,
+--radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename
 
 --grid, --grid-start-line, --grid-lines-to-process
 
