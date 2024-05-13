@@ -483,6 +483,8 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
             SHOW_WARN(ERROR::TIMESTEPS_EXHAUSTED);                                                                          // show warning
         }
         else {                                                                                                              // evolve one timestep
+            m_Star->UpdatePreviousTimestepDuration();
+            
             if (usingProvidedTimesteps) {                                                                                   // user-provided timesteps
                 // get new timestep
                 //   - don't quantise

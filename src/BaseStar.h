@@ -198,6 +198,9 @@ public:
             void                UpdateComponentVelocity(const Vector3d p_newVelocity);	
 
             void                UpdateMassTransferDonorHistory();
+    
+            void                UpdatePreviousTimestepDuration()                                { m_DtPrev = m_Dt; }
+
 
 
     // member functions - alphabetically
@@ -237,6 +240,8 @@ public:
     virtual DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                         const double p_AccretorMassRate,
                                                         const bool   p_IsHeRich)                                { return CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); } // Ignore the He content for non-WDs
+    
+            double          CalculateMassChangeTimescale() const                                                { return CalculateMassChangeTimescale_Static(m_StellarType, m_StellarTypePrev, m_Mass, m_MassPrev, m_DtPrev); }  // Use class member variables
 
             double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false);                                                               // JR: todo: better name?
 
@@ -267,6 +272,8 @@ public:
 
             double          CalculateZetaAdiabatic();
     virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                                     // Use inheritance hierarchy
+    
+            double          CalculateZetaEquilibrium();
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
             void            ClearSupernovaStash()                                                               { LOGGING->ClearSSESupernovaStash(); }                              // Clear contents of SSE supernova stash
@@ -292,7 +299,7 @@ public:
     virtual void            ResolveMassLoss(const bool p_UpdateMDt = true);
 
     virtual void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                     // Default does nothing, use inheritance for WDs.
-   
+       
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
     
             bool            ShouldEnvelopeBeExpelledByPulsations() const                                        { return false; }                                                   // Default is that there is no envelope expulsion by pulsations
@@ -518,6 +525,12 @@ protected:
             double              CalculateMassInterpolatedLambdaNanjing(const double p_Mass, const int p_Zind) const;
             double              CalculateZInterpolatedLambdaNanjing(const double p_Z, const int p_MassInd) const;
 
+    static  double              CalculateMassChangeTimescale_Static(const STELLAR_TYPE p_StellarType,
+                                                                    const STELLAR_TYPE p_StellarTypePrev,
+                                                                    const double       p_Mass,
+                                                                    const double       p_MassPrev,
+                                                                    const double       p_DtPrev);
+    
             void                CalculateMassCutoffs(const double p_Metallicity, const double p_LogMetallicityXi, DBL_VECTOR &p_MassCutoffs);
 
     static  double              CalculateMassLoss_Static(const double p_Mass, const double p_Mdot, const double p_Dt);
