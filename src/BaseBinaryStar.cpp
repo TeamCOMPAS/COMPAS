@@ -1867,12 +1867,12 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
     double massAplusMassD  = massA + massD;                                                                                     // accretor mass + donor mass
     double jOrb            = (massAtimesMassD / massAplusMassD) * std::sqrt(semiMajorAxis * G_AU_Msol_yr * massAplusMassD);     // orbital angular momentum
     double jLoss;                                                                                                               // specific angular momentum carried away by non-conservative mass transfer
-    
+        
     if (utils::Compare(p_DeltaMassDonor, 0.0) < 0) {                                                                            // mass loss from donor?
                                                                                                                                 // yes
         int numberIterations = fmax( floor (fabs(p_DeltaMassDonor/(MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP * massD))), 1.0);    // number of iterations
         double dM            = p_DeltaMassDonor / numberIterations;                                                             // mass change per time step
-
+        
         for(int i = 0; i < numberIterations ; i++) {
             jLoss          = CalculateGammaAngularMomentumLoss(massD, massA);
             jOrb           = jOrb + ((jLoss * jOrb * (1.0 - p_FractionAccreted) / massAplusMassD) * dM);
@@ -1998,18 +1998,28 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     // This passes the accretor's Roche lobe radius to m_Accretor->CalculateThermalMassAcceptanceRate()
     // just in case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE is used; otherwise, the radius input is ignored
     double accretorRLradius                   = CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL * m_SemiMajorAxis * (1.0 - m_Eccentricity);
-    bool donorIsHeRich                        = m_Donor->IsOneOf(He_RICH_TYPES); 
-    std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(m_Donor->CalculateThermalMassLossRate(),
+    bool donorIsHeRich                        = m_Donor->IsOneOf(He_RICH_TYPES);
+    
+    double jLoss    = m_JLoss;                                                                                                    // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
+
+    if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {           // arbitrary angular momentum loss prescription?
+        jLoss = CalculateGammaAngularMomentumLoss();                                                                            // no - re-calculate angular momentum
+    }
+
+    m_ZetaStar = m_Donor->CalculateZetaAdiabatic();
+    m_ZetaLobe = CalculateZetaRocheLobe(jLoss);
+    double zetaEquilibrium = m_Donor->CalculateZetaEquilibrium();
+   
+    double donorMassLossRate = m_Donor->CalculateThermalMassLossRate();                                                         // default is thermal mass loss rate from the donor
+    if(m_Donor->IsOneOf(ALL_MAIN_SEQUENCE) && utils::Compare(zetaEquilibrium, m_ZetaLobe) > 0)                                  // unless the equilibrium zeta is larger than the Roche lobe zeta for MS (including HeMS) donor
+        donorMassLossRate = m_Donor->Mass() / m_Donor -> CalculateRadialExpansionTimescale();                                   // in which case the donor transfers mass on its radial expansion timescale
+    
+    std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRate,
                                                                                         m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
                                                                                         donorIsHeRich);
 
     double aInitial = m_SemiMajorAxis;                                                                                          // semi-major axis in default units, AU, current timestep
     double aFinal;                                                                                                              // semi-major axis in default units, AU, after next timestep
-    double jLoss    = m_JLoss;                            		                                                                // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
-
-    if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {           // arbitrary angular momentum loss prescription?
-        jLoss = CalculateGammaAngularMomentumLoss();                                                                            // no - re-calculate angular momentum
-    }
 
     // Calculate conditions for automatic (in)stability for case BB
     bool caseBBAlwaysStable           = OPTIONS->CaseBBStabilityPrescription() == CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE;
@@ -2037,10 +2047,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         m_FractionAccreted = 1.0;                                                                                               // Accretion is assumed fully conservative for qCrit calculations
     }
     else {                                                                                                                      // Determine stability based on zetas
-
-        m_ZetaLobe = CalculateZetaRocheLobe(jLoss);
-        m_ZetaStar = m_Donor->CalculateZetaAdiabatic(); 
-
         isUnstable = (utils::Compare(m_ZetaStar, m_ZetaLobe) < 0);
     }
 
@@ -2643,7 +2649,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                                    // continue evolution
         // evolve the current binary up to the maximum evolution time (and number of steps)
-
+        
         double dt;                                                                                                                          // timestep
         if (usingProvidedTimesteps) {                                                                                                       // user-provided timesteps?
             // get new timestep
@@ -2783,6 +2789,10 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             }
 
             if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                            // continue evolution?
+                
+                m_Star1->UpdatePreviousTimestepDuration();
+                m_Star2->UpdatePreviousTimestepDuration();
+                
                 if (usingProvidedTimesteps) {                                                                                               // user-provided timesteps
                     // get new timestep
                     //   - don't quantise

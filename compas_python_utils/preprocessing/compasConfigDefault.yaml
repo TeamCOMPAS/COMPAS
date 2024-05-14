@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Fri Apr 26 19:21:29 2024 by COMPAS v02.44.00
+##~!!~## File Created Tue May 14 12:16:30 2024 by COMPAS v02.46.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -75,9 +75,11 @@ numericalChoices:
 #    --hdf5-chunk-size: 100000                                             # Default: 100000
 #    --hdf5-buffer-size: 1                                                 # Default: 1
 #    --log-level: 0                                                        # Default: 0
+#    --mass-change-fraction: 0.000000                                      # Default: 0.000000                                                                                                                                                           # approximate desired fractional changes in stellar mass per timestep
 #    --maximum-evolution-time: 13700.00                                    # Default: 13700.00                                                                                                                                                           # maximum physical time a system can be evolved [Myr]
 #    --maximum-number-timestep-iterations: 99999                           # Default: 99999
 #    --number-of-systems: 10                                               # Default: 10                                                                                                                                                                 # number of systems per batch
+#    --radial-change-fraction: 0.000000                                    # Default: 0.000000                                                                                                                                                           # approximate desired fractional changes in stellar radius per timestep
 #    --timestep-multiplier: 1.000000                                       # Default: 1.000000                                                                                                                                                           # optional multiplier relative to default time step duration
 
     ### STELLAR PROPERTIES
