@@ -91,6 +91,7 @@ namespace yaml {
             "    --check-photon-tiring-limit",
             "    --use-mass-loss",
             "    --expel-convective-envelope-above-luminosity-threshold",
+            "    --natal-kick-for-PPISN",
             "",
             "    ### BINARY PROPERTIES",
             "    --allow-touching-at-birth                                       # record binaries that have stars touching at birth in output files",

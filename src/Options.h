@@ -503,6 +503,7 @@ private:
         "metallicity-distribution",
         "mode",
 
+        "natal-kick-for-PPISN",
         "notes",
         "notes-hdrs",
         "neutrino-mass-loss-BH-formation",
@@ -603,6 +604,7 @@ private:
         "mass-change-fraction",
         "mode",
 
+        "natal-kick-for-PPISN",
         "notes",
         "notes-hdrs",
 
@@ -670,6 +672,7 @@ public:
             bool                                                m_HMXRBinaries;                                                 // Flag if we want to store HMXRBs in RLOF output file
             bool                                                m_EvolveDoubleWhiteDwarfs;                                      // Whether to evolve double white dwarfs or not
             bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
+            bool                                                m_NatalKickForPPISN;                                            // Flag if PPISN remnant should receive a non-zero natal kick
 	        bool                                                m_EvolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
 
             bool                                                m_DetailedOutput;                                               // Print detailed output details to file (default = false)
@@ -1413,6 +1416,7 @@ public:
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-NS", m_MullerMandelKickNS, true); }
     double                                      MullerMandelSigmaKick() const                                           { return OPT_VALUE("muller-mandel-sigma-kick", m_MullerMandelSigmaKick, true); }
 
+    bool                                        NatalKickForPPISN() const                                               { return OPT_VALUE("natal-kick-for-PPISN", m_NatalKickForPPISN, false); }
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-BH-formation-value", m_NeutrinoMassLossValueBH, true); }
 

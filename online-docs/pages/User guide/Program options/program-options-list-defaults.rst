@@ -903,6 +903,10 @@ Default = 0.3
 
 :ref:`Back to Top <options-props-top>`
 
+**--natal-kick-for-PPISN**
+Set to true if PPISN remnants should receive natal kicks via the same prescription as CCSN remnants; otherwise, they receive 0 natal kick. |br|
+Default = TRUE  
+
 **--neutrino-mass-loss-BH-formation** |br|
 Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not `MANDELMUELLER`). |br|
 Options: { FIXED_FRACTION, FIXED_MASS } |br|

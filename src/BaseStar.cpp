@@ -3935,11 +3935,17 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
 		    case SN_EVENT::AIC:                                                                     // AIC have 0 kick 
 		    case SN_EVENT::SNIA:                                                                    // SNIA have 0 kick 
 		    case SN_EVENT::HeSD:                                                                    // HeSD have 0 kick 
-			    sigma = 0;
+			    sigma = 0.0;
                 break;
 
-		    case SN_EVENT::CCSN:                                                                    // draw a random kick magnitude from the user selected distribution - sigma based on whether compact object is a NS or BH
+            case SN_EVENT::CCSN:
+		    case SN_EVENT::PPISN:                                                                   // draw a random kick magnitude from the user selected distribution - sigma based on whether compact object is a NS or BH
 
+                if( utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::PPISN && !OPTIONS->NatalKickForPPISN() ) {
+                    sigma = 0.0;
+                    break;
+                }
+                
                 switch (p_StellarType) {                                                            // which stellar type?
 
                     case STELLAR_TYPE::NEUTRON_STAR:
@@ -3956,8 +3962,7 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
 
                 break;
 
-            case SN_EVENT::PISN:                                                                    // not expected here
-            case SN_EVENT::PPISN:                                                                   // not expected here
+            case SN_EVENT::PISN:                                                                   // not expected here
                 error = ERROR::UNEXPECTED_SN_EVENT;
                 break;
 

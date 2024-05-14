@@ -2065,8 +2065,10 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         else {                                                                                      // Core Collapse Supernova
             stellarType = ResolveCoreCollapseSN();
         }
-            
-    	CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
+        
+        if(utils::SNEventType(m_SupernovaDetails.events.current)!=SN_EVENT::PISN)
+            CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
+        
         if ( !utils::IsOneOf(stellarType, { STELLAR_TYPE::NEUTRON_STAR })) {
             m_SupernovaDetails.rocketKickMagnitude = 0;                                             // Only NSs can get rocket kicks
         }
