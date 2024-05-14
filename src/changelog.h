@@ -1164,6 +1164,7 @@
 //                                      - mass transfer from main sequence donors (including HeMS) can now proceed on nuclear timescales -- approximated as the radial expansion timescales -- if equilibrium zetas are greater than Roche lobe zetas
 //                                      - removed the fixed constant MULLERMANDEL_MAXNS; instead, OPTIONS->MaximumNeutronStarMass() is used for consistency (see issue #1114)
 //                                      - corrected return units of CalculateRadialExpansionTimescale() to Myr
+//                                      - added option --natal-kick-for-PPISN; if set to true, PPISN remnants receive the same natal kick as other CCSN, otherwise (default) they receive no natal kick
 //                                      - updated documentation
           
 const std::string VERSION_STRING = "02.46.00";

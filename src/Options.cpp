@@ -161,6 +161,8 @@ void Options::OptionValues::Initialise() {
     m_EvolveDoubleWhiteDwarfs                                       = false;
     m_EvolvePulsars                                                 = false;
 	m_EvolveUnboundSystems                                          = true;
+    
+    m_NatalKickForPPISN                                             = false;
 
     m_DetailedOutput                                                = false;
     m_PopulationDataPrinting                                        = false;
@@ -821,6 +823,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "mass-transfer",                                                
             po::value<bool>(&p_Options->m_UseMassTransfer)->default_value(p_Options->m_UseMassTransfer)->implicit_value(true),                                                                    
             ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        
+        (
+            "natal-kick-for-PPISN",
+            po::value<bool>(&p_Options->m_NatalKickForPPISN)->default_value(p_Options->m_NatalKickForPPISN)->implicit_value(true),
+            ("Give non-zero natal kicks to PPISN remnants (default = " + std::string(p_Options->m_NatalKickForPPISN ? "TRUE" : "FALSE") + ")").c_str()
         )
 
         (
