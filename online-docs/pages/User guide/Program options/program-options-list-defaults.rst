@@ -767,8 +767,8 @@ Default = 4.2
 :ref:`Back to Top <options-props-top>`
 
 **--mass-change-fraction** |br|
-Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps. |br|
-Recommended value is 0.005.  A value of 0 means that this choice is ignored and previously suggested timesteps are used. |br|
+Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
+Recommended value is 0.005.  A value of 0 means that this choice is ignored and timestep estimates from earlier COMPAS version are used. |br|
 Default = 0
 
 **--mass-loss-prescription** |br|
@@ -1071,8 +1071,8 @@ Default = FALSE
 :ref:`Back to Top <options-props-top>`
 
 **--radial-change-fraction** |br|
-Approximate desired fractional change in stellar radius on phase when setting SSE and BSE timesteps. |br|
-Recommended value is 0.005.  A value of 0 means that this choice is ignored and previously suggested timesteps are used. |br|
+Approximate desired fractional change in stellar radius on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
+Recommended value is 0.005.  A value of 0 means that this choice is ignored and timestep estimates from earlier COMPAS version are used. |br|
 Default = 0
 
 **--random-seed** |br|
