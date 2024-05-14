@@ -655,8 +655,6 @@ protected:
     virtual bool                IsEndOfPhase() const                                                                    { return false; }
     virtual bool                IsSupernova() const                                                                     { return false; }
 
-            double              LimitTimestep(const double p_Dt);
-
     /*
      * Perturb Luminosity and Radius
      *

@@ -4168,34 +4168,6 @@ bool BaseStar::IsOneOf(const STELLAR_TYPE_LIST p_List) const {
 }
 
 
-/*
- * Limit timestep to 1% mass change
- *
- *
- * double LimitTimestep()
- *
- * @return                                      Timestep
- */
-double BaseStar::LimitTimestep(const double p_Dt) {
-
-    double dt = p_Dt;
-
-    // cap timestep to maximum of MAXIMUM_MASS_LOSS_FRACTION change in mass star.
-    if (OPTIONS->UseMassLoss()) {
-        double mDot     = CalculateMassLossRate();                                          // First, calculate mass loss rate
-        double massLoss = CalculateMassLoss_Static(m_Mass, mDot, dt);                       // Next, calculate mass loss - limited to (mass * MAXIMUM_MASS_LOSS_FRACTION)
-
-        if (utils::Compare(massLoss, 0.0) > 0) {                                            // No change if no mass loss
-            double dtWind = massLoss / (mDot * 1.0E6);                                      // Calculate timestep to match (possibly limited) mass loss
-                   dtWind = std::max(std::round(dtWind / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
-                   dt     = std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
-                   dt     = min(dt, dtWind);                                                // choose dt
-        }
-    }
-
-    return dt;
-}
-
 
 /*
  * Calculate next timestep for stellar evolution
@@ -4256,7 +4228,6 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
     // record some current values before they are (possibly) changed by evolution
     if (p_DeltaTime > 0.0) {                                                                        // don't use utils::Compare() here
             m_StellarTypePrev = m_StellarType;
-    //        m_DtPrev          = m_Dt;
             m_MassPrev        = m_Mass;
             m_RadiusPrev      = m_Radius;
     }
