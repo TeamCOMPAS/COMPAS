@@ -492,6 +492,7 @@ private:
         "logfile-type",
         "luminous-blue-variable-prescription",
 
+        "mass-change-fraction",
         "mass-loss-prescription",
         "mass-ratio-distribution",
         "mass-transfer",
@@ -523,6 +524,7 @@ private:
         "quiet", 
 
         "RSG-mass-loss",
+        "radial-change-fraction",
         "random-seed",
         "remnant-mass-prescription",
         "revised-energy-formalism-nandez-ivanova",
@@ -598,6 +600,7 @@ private:
         "logfile-system-parameters-record-types",
         "logfile-type",
 
+        "mass-change-fraction",
         "mode",
 
         "notes",
@@ -611,6 +614,7 @@ private:
 
         "quiet",
 
+        "radial-change-fraction",
         "random-seed",
         "rlof-printing",
 
@@ -693,8 +697,8 @@ public:
             unsigned long int                                   m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
             double                                              m_TimestepMultiplier;                                           // Multiplier for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
    
-            double m_MassChangeFraction;                                        // Approximate goal for fractional radial change per timestep
-            double m_RadialChangeFraction;                                      // Approximate goal for fractional radial change per timestep
+            double m_MassChangeFraction;                                                                                        // Approximate goal for fractional radial change per timestep
+            double m_RadialChangeFraction;                                                                                      // Approximate goal for fractional radial change per timestep
 
             std::streamsize                                     m_GridStartLine;                                                // The grid file line to start processing (0-based)
             std::streamsize                                     m_GridLinesToProcess;                                           // The number of grid file lines to process (starting at m_GridStartLine)
