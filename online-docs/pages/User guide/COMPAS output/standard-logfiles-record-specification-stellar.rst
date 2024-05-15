@@ -1437,60 +1437,6 @@ the other is printed in any file, but not both. If both are printed then the fil
 
 .. _stellar-props-N:
 
-:ref:`Back to Top <stellar-props-top>`
-
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
-   * - :cspan:`2` **NUCLEAR_TIMESCALE**
-     -
-   * - Data type:
-     - DOUBLE
-   * - COMPAS variable:
-     - BaseStar::m_NuclearTimescale
-   * - Description:
-     - Nuclear timescale (Myr).
-   * - Header Strings:
-     - Tau_Nuclear, Tau_Nuclear(1), Tau_Nuclear(2), Tau_Nuclear(SN), Tau_Nuclear(CP)
-
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
-   * - :cspan:`2` **NUCLEAR_TIMESCALE_POST_COMMON_ENVELOPE**
-     -
-   * - Data type:
-     - DOUBLE
-   * - COMPAS variable:
-     - BinaryConstituentStar::m_CEDetails.postCEE.nuclearTimescale
-   * - Description:
-     - Nuclear timescale immediately following common envelope event (Myr).
-   * -
-     - `Applies only to constituent stars of a binary system (i.e. does not apply to` ``SSE``\ `).`
-   * - Header Strings:
-     - Tau Nuclear>CE(1), Tau Nuclear>CE(2), Tau Nuclear>CE(SN), Tau Nuclear>CE(CP)
-
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
-   * - :cspan:`2` **NUCLEAR_TIMESCALE_PRE_COMMON_ENVELOPE**
-     -
-   * - Data type:
-     - DOUBLE
-   * - COMPAS variable:
-     - BinaryConstituentStar::m_CEDetails.preCEE.nuclearTimescale
-   * - Description:
-     - Nuclear timescale at the onset of unstable RLOF leading to the CE (Myr).
-   * -
-     - `Applies only to constituent stars of a binary system (i.e. does not apply to` ``SSE``\ `).`
-   * - Header Strings:
-     - Tau_Nuclear<CE(1), Tau_Nuclear<CE(2), Tau_Nuclear<CE(SN), Tau_Nuclear<CE(CP)
-
 .. _stellar-props-O:
 
 :ref:`Back to Top <stellar-props-top>`

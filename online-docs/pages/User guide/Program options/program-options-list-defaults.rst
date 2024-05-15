@@ -349,10 +349,6 @@ Default = 0.0
 Multiplication factor for Eddington accretion for NS & BH (i.e. > 1 is super-eddington and 0 is no accretion). |br|
 Default = 1.0
 
-**--enable-tides** |br|
-Enables tides. |br|
-Default = FALSE
-
 **--enable-warnings** |br|
 Display warning messages to stdout. |br|
 Default = FALSE
