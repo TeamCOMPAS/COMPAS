@@ -1896,14 +1896,14 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
  * Formula from M. Sluys notes "Binary evolution in a nutshell"
  *
  *
- * double CalculateZetaRocheLobe(const double p_jLoss, const double beta) const
+ * double CalculateZetaRocheLobe(const double p_jLoss, const double p_beta) const
  *
  * @param   [IN]    p_jLoss                     Specific angular momentum with which mass is lost during non-conservative mass transfer
  *                                              (Podsiadlowski et al. 1992, Beta: specific angular momentum of matter [2Pia^2/P])
- * @param   [IN]    beta                        Fraction of donated mass that is accreted by the accretor
+ * @param   [IN]    p_beta                      Fraction of donated mass that is accreted by the accretor
  * @return                                      Roche Lobe response
  */
-double BaseBinaryStar::CalculateZetaRocheLobe(const double p_jLoss, const double beta) const {
+double BaseBinaryStar::CalculateZetaRocheLobe(const double p_jLoss, const double p_beta) const {
 
     double donorMass    = m_Donor->Mass();                  // donor mass
     double accretorMass = m_Accretor->Mass();               // accretor mass
@@ -1911,9 +1911,9 @@ double BaseBinaryStar::CalculateZetaRocheLobe(const double p_jLoss, const double
     double q            = donorMass / accretorMass;
     double cbrt_q       = std::cbrt(q);
 
-    double k1 = -2.0 * (1.0 - (beta * q) - (1.0 - beta) * (gamma + 0.5) * (q / (1.0 + q)));
+    double k1 = -2.0 * (1.0 - (p_beta * q) - (1.0 - beta) * (gamma + 0.5) * (q / (1.0 + q)));
     double k2 = (2.0 / 3.0) - cbrt_q * (1.2 * cbrt_q + 1.0 / (1.0 + cbrt_q)) / (3.0 * (0.6 * cbrt_q * cbrt_q + log(1.0 + cbrt_q)));
-    double k3 = 1.0 + (beta * q);
+    double k3 = 1.0 + (p_beta * q);
 
     return k1 + (k2 * k3);
 }

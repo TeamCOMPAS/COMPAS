@@ -445,7 +445,7 @@ private:
                                    const double p_Mass,
                                    const double p_SemiMajorAxis) const          { return -(G_AU_Msol_yr * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
 
-    double CalculateZetaRocheLobe(const double p_jLoss, const double beta) const;
+    double CalculateZetaRocheLobe(const double p_jLoss, const double p_beta) const;
 
     double  CalculateTimeToCoalescence(double a0, double e0, double m1, double m2) const;
 
