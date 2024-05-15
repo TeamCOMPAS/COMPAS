@@ -3671,7 +3671,7 @@ double BaseStar::CalculateRadialExpansionTimescale_Static(const STELLAR_TYPE p_S
                                                           const double       p_RadiusPrev,
                                                           const double       p_DtPrev) {
 
-    return (p_StellarTypePrev == p_StellarType && utils::Compare(p_RadiusPrev, p_Radius) )
+    return (p_StellarTypePrev == p_StellarType && utils::Compare(p_RadiusPrev, p_Radius) != 0)
             ? (p_DtPrev * p_RadiusPrev) / fabs(p_Radius - p_RadiusPrev)
             : -1.0;
 }
