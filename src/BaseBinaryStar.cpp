@@ -1896,24 +1896,24 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
  * Formula from M. Sluys notes "Binary evolution in a nutshell"
  *
  *
- * double CalculateZetaRocheLobe()
+ * double CalculateZetaRocheLobe(const double p_jLoss, const double p_beta) const
  *
  * @param   [IN]    p_jLoss                     Specific angular momentum with which mass is lost during non-conservative mass transfer
  *                                              (Podsiadlowski et al. 1992, Beta: specific angular momentum of matter [2Pia^2/P])
+ * @param   [IN]    p_beta                      Fraction of donated mass that is accreted by the accretor
  * @return                                      Roche Lobe response
  */
-double BaseBinaryStar::CalculateZetaRocheLobe(const double p_jLoss) const {
+double BaseBinaryStar::CalculateZetaRocheLobe(const double p_jLoss, const double p_beta) const {
 
     double donorMass    = m_Donor->Mass();                  // donor mass
     double accretorMass = m_Accretor->Mass();               // accretor mass
-    double beta         = m_FractionAccreted;               // fraction of mass accreted by accretor
     double gamma        = p_jLoss;
     double q            = donorMass / accretorMass;
     double cbrt_q       = std::cbrt(q);
 
-    double k1 = -2.0 * (1.0 - (beta * q) - (1.0 - beta) * (gamma + 0.5) * (q / (1.0 + q)));
+    double k1 = -2.0 * (1.0 - (p_beta * q) - (1.0 - p_beta) * (gamma + 0.5) * (q / (1.0 + q)));
     double k2 = (2.0 / 3.0) - cbrt_q * (1.2 * cbrt_q + 1.0 / (1.0 + cbrt_q)) / (3.0 * (0.6 * cbrt_q * cbrt_q + log(1.0 + cbrt_q)));
-    double k3 = 1.0 + (beta * q);
+    double k3 = 1.0 + (p_beta * q);
 
     return k1 + (k2 * k3);
 }
@@ -1980,44 +1980,54 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         m_Flags.stellarMerger = true;
         return;
     }
-
+    
     if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                                                                               // both stars overflowing their Roche Lobe?
         m_CEDetails.CEEnow = true;                                                                                              // yes - common envelope event - no mass transfer
         return;                                                                                                                 // and return - nothing (else) to do
     }
-
+    
     // one, and only one, star is overflowing its Roche Lobe - resolve mass transfer
-
     m_Donor    = m_Star2->IsRLOF() ? m_Star2 : m_Star1;                                                                         // donor is primary unless secondary is overflowing its Roche Lobe
     m_Accretor = m_Star2->IsRLOF() ? m_Star1 : m_Star2;                                                                         // accretor is secondary unless secondary is overflowing its Roche Lobe
-
+    
     // Add event to MT history of the donor
     m_Donor->UpdateMassTransferDonorHistory();
-
+    
     // Calculate accretion fraction if stable
     // This passes the accretor's Roche lobe radius to m_Accretor->CalculateThermalMassAcceptanceRate()
     // just in case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE is used; otherwise, the radius input is ignored
     double accretorRLradius                   = CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL * m_SemiMajorAxis * (1.0 - m_Eccentricity);
     bool donorIsHeRich                        = m_Donor->IsOneOf(He_RICH_TYPES);
     
-    double jLoss    = m_JLoss;                                                                                                    // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
-
+    double jLoss    = m_JLoss;                                                                                                  // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
     if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {           // arbitrary angular momentum loss prescription?
         jLoss = CalculateGammaAngularMomentumLoss();                                                                            // no - re-calculate angular momentum
     }
-
-    m_ZetaStar = m_Donor->CalculateZetaAdiabatic();
-    m_ZetaLobe = CalculateZetaRocheLobe(jLoss);
-    double zetaEquilibrium = m_Donor->CalculateZetaEquilibrium();
-   
-    double donorMassLossRate = m_Donor->CalculateThermalMassLossRate();                                                         // default is thermal mass loss rate from the donor
-    if(m_Donor->IsOneOf(ALL_MAIN_SEQUENCE) && utils::Compare(zetaEquilibrium, m_ZetaLobe) > 0)                                  // unless the equilibrium zeta is larger than the Roche lobe zeta for MS (including HeMS) donor
-        donorMassLossRate = m_Donor->Mass() / m_Donor -> CalculateRadialExpansionTimescale();                                   // in which case the donor transfers mass on its radial expansion timescale
     
-    std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRate,
-                                                                                        m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
-                                                                                        donorIsHeRich);
-
+    double betaThermal  = 0.0;                                                                                                  // fraction of mass accreted if accretion proceeds on thermal timescale
+    double betaNuclear  = 0.0;                                                                                                  // fraction of mass accreted if accretion proceeds on nuclear timescale
+    double donorMassLossRateThermal = m_Donor->CalculateThermalMassLossRate();
+    double donorMassLossRateNuclear = m_Donor->CalculateNuclearMassLossRate();
+    
+    std::tie(std::ignore, betaThermal) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateThermal,
+                                                                                 m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
+                                                                                 donorIsHeRich);
+    std::tie(std::ignore, betaNuclear) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateNuclear,
+                                                                                 m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
+                                                                                 donorIsHeRich);
+    
+    m_ZetaStar = m_Donor->CalculateZetaAdiabatic();
+    double zetaEquilibrium = m_Donor->CalculateZetaEquilibrium();
+    
+    m_ZetaLobe = CalculateZetaRocheLobe(jLoss, betaNuclear);                                                                    // try nuclear timescale mass transfer first
+    if(m_Donor->IsOneOf(ALL_MAIN_SEQUENCE) && utils::Compare(zetaEquilibrium, m_ZetaLobe) > 0) {
+        m_FractionAccreted = betaNuclear;
+    }
+    else {
+        m_ZetaLobe = CalculateZetaRocheLobe(jLoss, betaThermal);
+        m_FractionAccreted = betaThermal;
+    }
+    
     double aInitial = m_SemiMajorAxis;                                                                                          // semi-major axis in default units, AU, current timestep
     double aFinal;                                                                                                              // semi-major axis in default units, AU, after next timestep
 
