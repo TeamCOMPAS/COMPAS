@@ -6,6 +6,12 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.46.00 May 13, 2024**
+
+* added options ``--radial-change-fraction`` and ``--mass-change-fraction``, as approximate desired fractional changes in stellar radius and mass on phase when setting SSE and BSE timesteps
+* the recommended values for both parameters are 0.005, but the default remains 0, which reproduces previous timestep choices
+* mass transfer from main sequence donors (including HeMS) can now proceed on nuclear timescales -- approximated as the radial expansion timescales -- if equilibrium zetas are greater than Roche lobe zetas
+
 **02.45.00 Apr 09, 2024**
 
 * Changed compiler standard in Makefile from ``c++11`` to ``c++17``.  This is required for ``boost v1.82`` and above. ``c++11`` can still be used if boost version is below ``v1.82``, but moving to ``c++17`` and boost ``v1.8x`` is preferred (and will eventually be mandatory). Tested with ``Ubuntu v20.04, g++ v11.04, and boost v1.74``; and ``macOS v14.1.1, clang v15.0.0, and boost v1.85``.

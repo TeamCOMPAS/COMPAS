@@ -491,16 +491,20 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
     return radiusEnvelope0 * std::sqrt(std::sqrt(1.0 - m_Tau));
 }
 
-
-// /*ILYA*/  to add description...
 /*
- * 
+ * Calculate the radial extent of the star's convective core (if it has one)
+ *
+ * Preliminary fit from Minori Shikauchi @ ZAMS, does not take evolution into account yet
+ *
+ *
+ * double CalculateRadialExtentConvectiveEnvelope()
+ *
+ * @return                                      Radial extent of the star's convective core in Rsol
  */
 double MainSequence::CalculateConvectiveCoreRadius() const {
-
     return utils::Compare(m_Mass, 1.25) < 0
             ? 0.0                                               // /*ILYA*/ To check
-            : m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57));    // Preliminary fit from Minori Shikauchi @ ZAMS, does not take evolution into account yet
+            : m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57));    
 }
 
 

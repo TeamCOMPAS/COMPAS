@@ -1011,7 +1011,7 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_Force) {
 
     if (p_Force || utils::Compare(m_HeCoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {                                       // Envelope lost, form an evolved naked helium giant
 
-        m_Mass       = std::min(m_HeCoreMass, m_Mass);
+        m_Mass       = std::min(m_CoreMass, m_Mass);
         m_HeCoreMass = m_Mass;
         m_Mass0      = m_Mass;
         m_CoreMass   = m_COCoreMass;
