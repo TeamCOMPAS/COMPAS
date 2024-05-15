@@ -63,7 +63,7 @@ protected:
     
             double          CalculateConvectiveCoreMass() const { return m_CoreMass; }
 
-            double          CalculateConvectiveCoreRadius () const                                                  { return min(5.0 * CalculateRemnantRadius(), m_Radius); }              // Last paragraph of section 6 of Hurley+ 2000
+            double          CalculateConvectiveCoreRadius () const                                                  { return std::min(5.0 * CalculateRemnantRadius(), m_Radius); }   // Last paragraph of section 6 of Hurley+ 2000
 
             double          CalculateCoreMassAtBAGB() const                                                         { return m_Mass0; }                                                     // McBAGB = M0 (Hurely et al. 2000, discussion just before eq 89)
             double          CalculateCoreMassAtPhaseEnd() const                                                     { return m_CoreMass; }                                                  // NO-OP

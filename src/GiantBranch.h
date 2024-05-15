@@ -25,7 +25,7 @@ protected:
 
     // member functions - alphabetically (sort of - some are grouped by functionality)
             double          CalculateConvectiveCoreMass() const { return m_CoreMass; }
-            double          CalculateConvectiveCoreRadius () const                      { return min(CalculateRemnantRadius (), m_Radius); }                            // Last paragraph of section 6 of Hurley+ 2000
+            double          CalculateConvectiveCoreRadius () const                      { return std::min(CalculateRemnantRadius (), m_Radius); }                       // Last paragraph of section 6 of Hurley+ 2000
             DBL_DBL         CalculateConvectiveEnvelopeMass() const;
     static  double          CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB);
             double          CalculateCoreMassAtBAGB(const double p_Mass) const;
