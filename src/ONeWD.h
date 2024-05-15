@@ -14,15 +14,22 @@ class ONeWD: virtual public BaseStar, public WhiteDwarfs {
 
 public:
 
-    ONeWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), WhiteDwarfs(p_BaseStar, false) {
+    ONeWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), WhiteDwarfs(p_BaseStar) {
         if (p_Initialise) Initialise();
     }
 
-    ONeWD& operator = (const BaseStar &p_BaseStar) {
-        static_cast<BaseStar&>(*this) = p_BaseStar;
-        Initialise();
-        return *this;
+    ONeWD* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        ONeWD* clone = new ONeWD(*this, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
     }
+
+    static ONeWD* Clone(ONeWD& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+        ONeWD* clone = new ONeWD(p_Star, p_Initialise); 
+        clone->SetPersistence(p_Persistence); 
+        return clone; 
+    }
+
 
     // member functions
     static double           CalculateLuminosityOnPhase_Static(const double p_Mass, 

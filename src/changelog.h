@@ -1095,14 +1095,14 @@
 //                                            HeMS::CalculateMomentOfInertia() falls back to MainSequence::CalculateMomentOfInertia()
 //                                            HeHG::CalculateMomentOfInertia() falls back to GiantBranch::CalculateMomentOfInertia()
 //                                      - Added sanity checks for mass and luminosity where necessary in variants of CalculateRadiusOnPhase_Static()
-// 02.42.00     JR - Jan 08, 2024    - Enhancements, defect repair, a little cleanup
+// 02.42.00     JR - Feb 20, 2024    - Enhancements, defect repair, a little cleanup
 //                                      - added `timesteps-filename` option to allow users to provide preset timesteps for both SSE and BSE
 //                                      - updated documentation for new option; updated `What's New`
 //                                      - SSE vs BSE consistency: modified SSE to evolve a single star exactly as the primary in a wide binary with small companion
 //                                      - quantised timesteps to an integral multiple of 1E-12Myr - new constant `TIMESTEP_QUANTUM` in constants.h
 //                                      - little bit of code cleanup
 //                                      - added warning for stellar type switch not taken - just a diagnostic for now
-// 02.42.01     JR - Jan 21, 2024    - Defect repair
+// 02.42.01     JR - Feb 25, 2024    - Defect repair
 //                                      - fix for issue 1066 - see issue/PR for explanation
 //                                      - cleaned up root solvers OmegaAfterSynchronisation(), MassLossToFitInsideRocheLobe(), and Mass0ToMatchDesiredCoreMass(), and their respective functors
 //                                      - MassLossToFitInsideRocheLobe(), and Mass0ToMatchDesiredCoreMass() now return -1.0 if no acceptable root found
@@ -1113,9 +1113,65 @@
 //                                      - Defect repair : Added explicit definition `bool isUnstable = false` to avoid confusion in BaseBinaryStar.cpp
 //                                      - Defect repair : Fixed erroneous core mass values in ResolveSNIa in WhiteDwarfs.cpp. Was previously 0 for all core masses. 
 //                                      - Enhancement: Added output parameter TZAMS for internal variable m_TZAMS
-// 02.43.00    RTW - Mar 26, 2023    - Enhancements:
+// 02.43.00    RTW - Mar 29, 2024    - Enhancement:
+//                                      - Added Hirai pulsar rocket kick, and related options
+// 02.43.01    SS - Apr 8, 2024      - Defect repair
+//                                      - Fix CalculateMassLossRateBjorklundEddingtonFactor to use LSOLW (in SI) rather than LSOL (in cgs)        
+// 02.43.02    JR - Apr 15, 2024     - Defect repair
+//                                      - Fix for issue #1074 - SSE Supernova records duplicated
+// 02.43.03    IM - Apr 15, 2024     - Enhancement
+//                                      - Updated fits for the mass and binding energy of the outer convective envelope based on Picker, Hirai, Mandel (2024)
+//                                      - Added functionality for CalculateConvectiveEnvelopeMass(), CalculateConvectiveCoreMass(), CalculateConvectiveCoreRadius()
+//                                   - Defect repair
+//                                      - Fixes to CalculateRadialExtentConvectiveEnvelope(), comments
+// 02.43.04    JR - Apr 20, 2024     - Defect repair, some code cleanup:
+//                                      - Defect repair: Issue #1084 - modified code to record desired persistence of objects so that cloned stars don't participate in logging etc.
+//                                      - Removed some unused code (as a result of the defect repair)
+//                                      - Some Code cleanup
+// 02.43.05    JR - Apr 21, 2024     - Defect repair, some code cleanup:
+//                                      - Last piece of no logging for clones - this prevents ephemeral clones from writing to or clearing the SSE SN stash.
+// 02.44.00    VK - Apr 04, 2024     - Enhancement:
+//                                      - Added realistic tides to binary evolution, based on the formalism described in Kapil et al. (2024). Functionality enabled by setting the new option `--tides-prescription` to the value `KAPIL2024` (default is `NONE`)
+//                                      - Removed old option `--enable-tides`, which can now be enabled by setting `--tides-prescription PERFECT`.
+//                                      - Dynamcial tides implementation follows Zahn, 1977, Kushnir et al., 2017, and Ahuir et al., 2021.
+//                                      - Equilibrium tides implementation follows Barker, 2020.
+//                                      - Secular evolution under the effect of tides follows Zahn, 1977, Eqs. (3.6) to (3.8)
+// 02.44.01    JR - May 02, 2024     - Defect repairs, some code cleanup:
+//                                      - defect repairs to address issues #978 and #1075 (discontinuous radius evolution/fluctuating radii)
+//                                           - the repairs made here are an attempt to ensure that COMPAS stellar evolution matches Hurley sse stellar evolution
+//                                           - see issue #978 for details of changes made and the reasons for the changes, as well as results of tests of the changes
+//                                      - a little code cleanup
+// 02.44.02    JR - May 03, 2024     - Defect repair:
+//                                      - change to the core mass calculations at phase end for the CHeB phase - uses method from Hurley sse code rather Hurley et al. 2000
+//                                        prior to this change the CHeB core mass at phase end was > mass (which in turn caused a spike in luminosity and Teff).
+// 02.44.03    IM - May 06, 2024     - Defect repair, enhancement, minor cleanup:
+//                                      - updated Picker et al. (2024) coefficients for the 2-stage CE prescription
+//                                      - optimisticCE is now recorded only if the binary avoided merger (see issue #1014)
+// 02.44.04    IM - May 06, 2024     - Defect repair:
+//                                      - removed (incorrect) calculation of nuclear timescale (see issue #430)
+//                                      - replaced ApplyBlackHoleKicks() with ReweightBlackHoleKicksByMass() and now applying it only to BHs (see issue #1027)
+//                                      - set PISN massless remnant mass to zero (see issue #1051)
+// 02.44.05    JR - May 07, 2024     - Defect repair:
+//                                      - fix for HG-CHeB transition for low metallicities
+// 02.45.00    JR - May 09, 2024     - Enhancements:
+//                                      - changed compiler standard from c++11 to c++17 in Makefile - see issue #984
+//                                        (Tested ok with Ubuntu v20.04, g++ v11.04, and boost v1.74; and macOS v14.1.1, clang v15.0.0, and boost v1.85.)
+//                                      - added check for boost version to allow for deprecated filesystem option
+//                                      - added `requirements.in` file to online docs to specify requirements for latest dependencies
+// 02.46.00    IM - May 13, 2024     - Enhancements, defect repair:
+//                                      - added options --radial-change-fraction and --mass-change-fraction, as approximate desired fractional changes in stellar radius and mass on phase when setting SSE and BSE timesteps
+//                                      - the recommended values for both parameters are 0.005, but the default remains 0, which reproduces previous timestep choices
+//                                      - mass transfer from main sequence donors (including HeMS) can now proceed on nuclear timescales -- approximated as the radial expansion timescales -- if equilibrium zetas are greater than Roche lobe zetas
+//                                      - removed the fixed constant MULLERMANDEL_MAXNS; instead, OPTIONS->MaximumNeutronStarMass() is used for consistency (see issue #1114)
+//                                      - corrected return units of CalculateRadialExpansionTimescale() to Myr
+//                                      - added option --natal-kick-for-PPISN; if set to true, PPISN remnants receive the same natal kick as other CCSN, otherwise (default) they receive no natal kick
+//                                      - updated documentation
+// 02.46.01    IM - May 15, 2024     - Defect repair
+//                                      - Corrected CalculateConvectiveCoreRadius()
+//                                      - Minor documentation and comment fixes
+// 02.47.00    RTW - May 15, 2024    - Enhancements:
 //                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
 
-const std::string VERSION_STRING = "02.43.00";
+const std::string VERSION_STRING = "02.47.00";
 
 # endif // __changelog_h__

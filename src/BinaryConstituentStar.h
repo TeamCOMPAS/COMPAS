@@ -16,10 +16,10 @@ class BinaryConstituentStar: virtual public Star {
 
 public:
 
-
     BinaryConstituentStar() : Star() {
-        m_ObjectId   = globalObjectId++;
-        m_ObjectType = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;
+        m_ObjectId          = globalObjectId++;
+        m_ObjectType        = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;
+        m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;
     };
 
     BinaryConstituentStar(const unsigned long int p_RandomSeed, 
@@ -29,10 +29,11 @@ public:
                           const KickParameters    p_KickParameters,
                           const double            p_RotationalVelocity = -1.0) : Star(p_RandomSeed, p_Mass, p_InitialStellarType, p_Metallicity, p_KickParameters, p_RotationalVelocity) {
 
-        m_ObjectId                 = globalObjectId++;
-        m_ObjectType               = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;
+        m_ObjectId                                   = globalObjectId++;
+        m_ObjectType                                 = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;
+        m_ObjectPersistence                          = OBJECT_PERSISTENCE::PERMANENT;
 
-        m_Companion                = nullptr;
+        m_Companion                                  = nullptr;
 
 
         m_CEDetails.bindingEnergy                    = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -49,14 +50,12 @@ public:
         m_CEDetails.preCEE.temperature               = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.preCEE.dynamicalTimescale        = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.preCEE.thermalTimescale          = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_CEDetails.preCEE.nuclearTimescale          = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.preCEE.radialExpansionTimescale  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_CEDetails.postCEE.luminosity               = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.temperature              = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.dynamicalTimescale       = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.thermalTimescale         = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_CEDetails.postCEE.nuclearTimescale         = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.radialExpansionTimescale = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_Flags.recycledNS                           = false;
@@ -83,8 +82,7 @@ public:
 
         m_ObjectId                 = globalObjectId++;                      // get unique object id (don't copy source)
         m_ObjectType               = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;  // can only copy from BINARY_CONSTITUENT_STAR
-
-        m_Companion                = nullptr;                               // don't point at source companion - this can be updated separately later
+        m_ObjectPersistence        = p_Star.m_ObjectPersistence;            // object persistence
 
         m_CEDetails                = p_Star.m_CEDetails;
 
@@ -101,44 +99,57 @@ public:
         m_OmegaTidesIndividualDiff = p_Star.m_OmegaTidesIndividualDiff;
 
         m_RLOFDetails              = p_Star.m_RLOFDetails;
+
+        // This BinaryConstituentStar's companion is an instance of the BinaryConstituentStar class
+        // Here we copy the pointer to the companion object - note that it could be a nullptr if the
+        // companion object has not yet been set.  Also note that when this BinaryConstituentStar
+        // star object is deleted (if it is deleted), the object to which m_Companion points will not
+        // be deleted as a result.
+        m_Companion                = p_Star.m_Companion;
     }
 
 
-    // Assignment overload
-    BinaryConstituentStar& operator = (const BinaryConstituentStar& p_Star) {
-
-        if (this != &p_Star) {                                                  // make sure we're not not copying ourselves...
-
-            m_ObjectId                 = globalObjectId++;                      // get unique object id (don't copy source)
-            m_ObjectType               = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;  // can only copy from BINARY_CONSTITUENT_STAR
-
-            m_Companion                = nullptr;                               // don't point at source companion - this can be updated separately later
-
-            m_CEDetails                = p_Star.m_CEDetails;
-
-            m_Flags                    = p_Star.m_Flags;
-            
-            m_MassTransferDiff         = p_Star.m_MassTransferDiff;
-            m_MassLossDiff             = p_Star.m_MassLossDiff;
-
-            m_OrbitalEnergyPreSN       = p_Star.m_OrbitalEnergyPreSN;
-            m_OrbitalEnergyPostSN      = p_Star.m_OrbitalEnergyPostSN;
-
-            m_FirstMassTransferEpisode = p_Star.m_FirstMassTransferEpisode;
-
-            m_OmegaTidesIndividualDiff = p_Star.m_OmegaTidesIndividualDiff;
-
-            m_RLOFDetails              = p_Star.m_RLOFDetails;
-        }
-        return *this;
+    /*
+     * This function should be used to clone a BinaryConstituentStar.
+     * 
+     * Important:
+     * 
+     * This function returns a pointer, created by the 'new' operator.  The 'new' operator dynamically allocates
+     * memory on the heap, not the stack, which is why it is available to the caller of this function after this
+     * function has exited and its stack frame collapsed.  It is the responsibility of the caller of this function
+     * to delete the pointer returned when it is no longer required so that the allocated memory is return to the
+     * pool of available memory - failing to do so will cause a memory leak and the program will eventually exhaust
+     * available memory and fail.  The preferred usage pattern is:
+     * 
+     *     T* ptr = Clone(obj, persistence)
+     *     ...
+     *     ...
+     *     delete ptr; ptr = nullptr;
+     * 
+     * 
+     * template <class T1>
+     * static BinaryConstituentStar* Clone(BinaryConstituentStar& p_Star, const OBJECT_PERSISTENCE p_Persistence)
+     * 
+     * @param   [IN]    p_Star                      (address of) The star to be cloned
+     * @param   [IN]    p_Persistence               Specifies the object persistence to be assigned to the cloned star.
+     *                                              If the cloned star is intended to be used temporarily (e.g. for hypothesis testing),
+     *                                              persistence should be EPHEMERAL, otherwise PERMANENT.
+     * @return                                      (pointer to) The cloned star
+     */
+    static BinaryConstituentStar* Clone(BinaryConstituentStar& p_Star, const OBJECT_PERSISTENCE p_Persistence) { 
+        BinaryConstituentStar* ptr = new BinaryConstituentStar(p_Star); 
+        ptr->SetPersistence(p_Persistence); 
+        return ptr;
     }
+    static BinaryConstituentStar* Clone(BinaryConstituentStar& p_Star) { return Clone(p_Star, p_Star.ObjectPersistence()); }
 
     ~BinaryConstituentStar() { }
 
 
     // object identifiers - all classes have these
-    OBJECT_ID       ObjectId() const                                                    { return m_ObjectId; }
-    OBJECT_TYPE     ObjectType() const                                                  { return m_ObjectType; }
+    OBJECT_ID           ObjectId() const                                                { return m_ObjectId; }
+    OBJECT_TYPE         ObjectType() const                                              { return m_ObjectType; }
+    OBJECT_PERSISTENCE  ObjectPersistence() const                                       { return m_ObjectPersistence; }
 
 
     // getters - alphabetically
@@ -168,9 +179,6 @@ public:
     double          MassPostCEE() const                                                 { return m_CEDetails.postCEE.mass; }
     double          MassPreCEE() const                                                  { return m_CEDetails.preCEE.mass; }
     double          MassTransferDiff() const                                            { return m_MassTransferDiff; }
-
-    double          NuclearTimescalePostCEE() const                                     { return m_CEDetails.postCEE.nuclearTimescale; }
-    double          NuclearTimescalePreCEE() const                                      { return m_CEDetails.preCEE.nuclearTimescale; }
 
     double          OmegaTidesIndividualDiff() const                                    { return m_OmegaTidesIndividualDiff; }
     double          OrbitalEnergyPostSN() const                                         { return m_OrbitalEnergyPostSN; };
@@ -233,11 +241,16 @@ public:
                                                                                                                            p_Stepsize, 
                                                                                                                            m_MassTransferDiff * MSOL_TO_KG, p_Epsilon); }  // JR: todo: revisit this
 
+    // setters
+    void            SetObjectId(const OBJECT_ID p_ObjectId)                             { m_ObjectId = p_ObjectId; }
+    void            SetPersistence(const OBJECT_PERSISTENCE p_Persistence)              { m_ObjectPersistence = p_Persistence; }
+
 
 private:
 
     OBJECT_ID               m_ObjectId;                             // Instantiated object's unique object id
     OBJECT_TYPE             m_ObjectType;                           // Instantiated object's object type
+    OBJECT_PERSISTENCE      m_ObjectPersistence;                    // Instantiated object's persistence (permanent or ephemeral)
 
     // member variables - alphabetically
 

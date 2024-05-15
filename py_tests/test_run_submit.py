@@ -10,7 +10,7 @@ from compas_python_utils.preprocessing.runSubmit import (
 def test_run_submit(tmp_path, capsys):
     """Capture the stdout from runSubmit(execute=False) and check that it is as expected"""
 
-    runSubmit(execute=False)
+    runSubmit(cli_args=[DEFAULT_CONFIG_FILE], execute=False)
     _check_if_expected_kwgs_in_stdout(capsys, ["COMPAS", "output-path"])
 
     temp_ini, ini_contents = _make_tmp_ini(tmp_path)
