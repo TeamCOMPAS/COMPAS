@@ -1911,7 +1911,7 @@ double BaseBinaryStar::CalculateZetaRocheLobe(const double p_jLoss, const double
     double q            = donorMass / accretorMass;
     double cbrt_q       = std::cbrt(q);
 
-    double k1 = -2.0 * (1.0 - (p_beta * q) - (1.0 - beta) * (gamma + 0.5) * (q / (1.0 + q)));
+    double k1 = -2.0 * (1.0 - (p_beta * q) - (1.0 - p_beta) * (gamma + 0.5) * (q / (1.0 + q)));
     double k2 = (2.0 / 3.0) - cbrt_q * (1.2 * cbrt_q + 1.0 / (1.0 + cbrt_q)) / (3.0 * (0.6 * cbrt_q * cbrt_q + log(1.0 + cbrt_q)));
     double k3 = 1.0 + (p_beta * q);
 
