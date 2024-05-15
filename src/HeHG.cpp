@@ -56,20 +56,15 @@ void HeHG::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
  */
 void HeHG::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
 #define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
-    GiantBranch::CalculateGBParams(p_Mass, p_GBParams);                         // calculate common values (actually, all)
+
+    HeMS::CalculateGBParams(p_Mass, p_GBParams);    // calculate common values
 
     // recalculate HeHG specific values
-
-	gbParams(B)      = CalculateCoreMass_Luminosity_B_Static();
-	gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass);
-
-    gbParams(Mx)     = GiantBranch::CalculateCoreMass_Luminosity_Mx_Static(p_GBParams);      // depends on B, D, p & q - recalculate if any of those are changed
-    gbParams(Lx)     = GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // JR: Added this - depends on B, D, p, q & Mx - recalculate if any of those are changed
 
 	gbParams(McBAGB) = CalculateCoreMassAtBAGB();
 	gbParams(McBGB)  = CalculateCoreMassAtBGB(p_Mass, p_GBParams);
 
-    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));   // JR: Added this
+    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));
 
 #undef gbParams
 }
@@ -436,17 +431,21 @@ bool HeHG::ShouldEvolveOnPhase() const {
  *     - m_COCoreMass
  *     - m_Age
  *
- * STELLAR_TYPE ResolveEnvelopeLoss()
+ * STELLAR_TYPE ResolveEnvelopeLoss(bool p_Force)
+ *
+ * @param   [IN]    p_Force                     Boolean to indicate whether the resolution of the loss of the envelope should be performed
+ *                                              without checking the precondition(s).
+ *                                              Default is false.
  *
  * @return                                      Stellar Type to which star should evolve after losing envelope
  */
-STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
+STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_Force) {
 
     STELLAR_TYPE stellarType = m_StellarType;
     
-    if(ShouldEnvelopeBeExpelledByPulsations())          { m_EnvelopeJustExpelledByPulsations = true; }
+    if (ShouldEnvelopeBeExpelledByPulsations()) m_EnvelopeJustExpelledByPulsations = true;
     
-    if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {        // Envelope lost - determine what type of star to form
+    if (p_Force || utils::Compare(m_COCoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {       // Envelope lost - determine what type of star to form
 
         m_Mass       = std::min(m_COCoreMass, m_Mass);
         m_CoreMass   = m_Mass;
@@ -456,7 +455,8 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
         m_Radius     = COWD::CalculateRadiusOnPhase_Static(m_Mass);
         m_Age        = 0.0;
         if (!IsSupernova()) {
-            stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;         //Note that this uses the CO core mass, rather than the core mass at base of AGB or He mass at He star birth suggested by Hurley+, 2000
+            // Note that this uses the CO core mass, rather than the core mass at base of AGB or He mass at He star birth suggested by Hurley+, 2000
+            stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
         }
     }
     return stellarType;

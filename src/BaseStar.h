@@ -205,8 +205,8 @@ public:
 
             void            CalculateBindingEnergies(const double p_CoreMass, const double p_EnvMass, const double p_Radius);
     
-    virtual double          CalculateConvectiveCoreMass () const {return 0.0;}
-    virtual double          CalculateConvectiveCoreRadius () const {return 0.0;}
+    virtual double          CalculateConvectiveCoreMass() const {return 0.0;}
+    virtual double          CalculateConvectiveCoreRadius() const {return 0.0;}
 
             double          CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda);
 
@@ -287,7 +287,7 @@ public:
     virtual void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
                                                    const double p_DonorThermalMassLossRate) { }                                                                                     // Default does nothing, only works for WDs.
 
-    virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                         { return m_StellarType; }
+    virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false)                                           { return m_StellarType; }
 
     virtual void            ResolveMassLoss(const bool p_UpdateMDt = true);
 
