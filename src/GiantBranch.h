@@ -25,6 +25,7 @@ protected:
 
     // member functions - alphabetically (sort of - some are grouped by functionality)
             double          CalculateConvectiveCoreMass() const { return m_CoreMass; }
+            double          CalculateConvectiveCoreRadius () const                      { return std::min(CalculateRemnantRadius (), m_Radius); }                       // Last paragraph of section 6 of Hurley+ 2000
             DBL_DBL         CalculateConvectiveEnvelopeMass() const;
     static  double          CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB);
             double          CalculateCoreMassAtBAGB(const double p_Mass) const;
@@ -46,7 +47,7 @@ protected:
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
     static  void            CalculateGBParams_Static(const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
-            void            CalculateGBParams()                                                             { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
+            void            CalculateGBParams()                                                             { CalculateGBParams(m_Mass0, m_GBParams); }                 // Use class member variables
 
     static  double          CalculateHRateConstant_Static(const double p_Mass);
     
