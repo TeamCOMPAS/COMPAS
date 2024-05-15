@@ -766,6 +766,11 @@ Default = 4.2
 
 :ref:`Back to Top <options-props-top>`
 
+**--mass-change-fraction** |br|
+Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
+Recommended value is 0.005.  A value of 0 means that this choice is ignored and timestep estimates from earlier COMPAS version are used. |br|
+Default = 0
+
 **--mass-loss-prescription** |br|
 Mass loss prescription. |br|
 Options: { NONE, HURLEY, VINK } |br|
@@ -897,6 +902,10 @@ Default = 0.3
 .. _options-props-N:
 
 :ref:`Back to Top <options-props-top>`
+
+**--natal-kick-for-PPISN**
+Set to true if PPISN remnants should receive natal kicks via the same prescription as CCSN remnants; otherwise, they receive 0 natal kick. |br|
+Default = TRUE  
 
 **--neutrino-mass-loss-BH-formation** |br|
 Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not `MANDELMUELLER`). |br|
@@ -1065,6 +1074,11 @@ Default = FALSE
 
 :ref:`Back to Top <options-props-top>`
 
+**--radial-change-fraction** |br|
+Approximate desired fractional change in stellar radius on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
+Recommended value is 0.005.  A value of 0 means that this choice is ignored and timestep estimates from earlier COMPAS version are used. |br|
+Default = 0
+
 **--random-seed** |br|
 Value to use as the seed for the random number generator. |br|
 Default = 0
@@ -1185,9 +1199,9 @@ Default = FALSE
 **--tides-prescription** |br|
 Prescription for tidal evolution of the binary. |br|
 Options: { NONE, PERFECT, KAPIL2024 } |br|
-``NONE`` disables tidal interactions
-``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization 
-``KAPIL2024`` uses the prescription from Kapil+ (2024) |br|
+``NONE`` disables tidal interactions.
+``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization. 
+``KAPIL2024`` uses the prescription from Kapil+ (2024). |br|
 Default = NONE
 
 **--timestep-filename** |br|
@@ -1356,8 +1370,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Administrative**
 
---mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-pulsars, --evolve-unbound-systems, --maximum-evolution-time, --maximum-number-timestep-iterations,
---random-seed, --timestep-multiplier, --timestep-filename
+--mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-pulsars, --evolve-unbound-systems, --mass-change-fraction, --maximum-evolution-time, --maximum-number-timestep-iterations,
+--radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename
 
 --grid, --grid-start-line, --grid-lines-to-process
 
