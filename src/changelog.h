@@ -1175,9 +1175,10 @@
 // 02.46.03    IM - May 15, 2024     - Enhancements
 //                                      - Create a new function, CalculateNuclearMassLossRate(), to compute the nuclear mass loss rate rather than CalculateRadialExpansionTimescale(), which can be unreliable during mass transfer
 //                                      - Update BaseBinaryStar::CalculateMassTransfer() to use this function and to correctly evaluate m_AccretionFraction and the corresponding zetaRocheLobe
-          
+// 02.46.04    IM - May 16, 2024     - Defect repair
+//                                      - Repaired a bug in GiantBranch::CalculateRemnantMassByMullerMandel() that could cause an infinite loop
 
                   
-const std::string VERSION_STRING = "02.46.03";
+const std::string VERSION_STRING = "02.46.04";
 
 # endif // __changelog_h__
