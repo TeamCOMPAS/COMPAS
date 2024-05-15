@@ -101,7 +101,7 @@ protected:
     bool            IsEndOfPhase() const                                                            { return !ShouldEvolveOnPhase(); }                                  // Phase ends when age at or after DU timescale, and no TPAGB
     bool            IsSupernova() const;
 
-    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
+    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
     void            ResolveHeliumFlash() {  }                                                                                                                           // NO-OP
     STELLAR_TYPE    ResolveSkippedPhase()                                                           { return m_StellarType; }                                           // NO-OP
 
