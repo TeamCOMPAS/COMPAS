@@ -740,7 +740,7 @@ See ``--logfile-common-envelopes-record-types`` for a detailed description of th
 The System Parameters logfile currently has only one record type defined (record type 1). |br|
 
 **--logfile-type** |br|
-The type of logfile to be produced by COMPAS. |br|
+The type of logfile to be produced by COMPAS. Options are: HDF5, CSV, TSV, TXT. |br|
 Default = ’HDF5’
 
 **--log-level** |br|
