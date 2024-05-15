@@ -2923,6 +2923,30 @@ double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) const
     }
 }
 
+/*
+ * Calculate the nuclear mass loss rate as the equal to the mass divide by the radial expansion timescale
+ * We do not use CalculateRadialExpansionTimescale(), however, since in the process of mass transfer the previous radius
+ * is determined by binary evolution, not nuclear timescale evolution
+ *
+ *
+ * double CalculateNuclearMassLossRate()
+ *
+ * @return                                      Nuclear mass loss rate
+ */
+double BaseStar::CalculateNuclearMassLossRate() {
+    
+    // We create and age it slightly to determine how the radius will change.
+    // To be sure the clone does not participate in logging, we set its persistence to EPHEMERAL.
+    BaseStar *clone = Clone(OBJECT_PERSISTENCE::EPHEMERAL, false);                              // do not re-initialise the clone
+    double timestep = std::max(1000.0*NUCLEAR_MINIMUM_TIMESTEP, m_Age/1.0E6);
+    clone->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, timestep, true, false);
+    double radiusAfterAging = clone->Radius();
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+    double radialExpansionTimescale = timestep * m_Radius / fabs(m_Radius - radiusAfterAging);
+    return m_Mass / radialExpansionTimescale;
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -3647,7 +3671,7 @@ double BaseStar::CalculateRadialExpansionTimescale_Static(const STELLAR_TYPE p_S
                                                           const double       p_RadiusPrev,
                                                           const double       p_DtPrev) {
 
-	return p_StellarTypePrev == p_StellarType && utils::Compare(p_RadiusPrev, p_Radius) != 0
+    return (p_StellarTypePrev == p_StellarType && utils::Compare(p_RadiusPrev, p_Radius) != 0)
             ? (p_DtPrev * p_RadiusPrev) / fabs(p_Radius - p_RadiusPrev)
             : -1.0;
 }
