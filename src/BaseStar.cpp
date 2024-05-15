@@ -3433,10 +3433,10 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     double omega_t_over_omega_c_10 = omega_t_10 / omegaConv;
     double nuTidal10               = vl_5;
     if (utils::Compare(omega_t_over_omega_c_10, 5.0) > 0) {             
-        nuTidal10 = vl_25_over_root20 * (omega_t_over_omega_c_10) * (omega_t_over_omega_c_10);
+        nuTidal10 = vl_25_over_root20 / (omega_t_over_omega_c_10) / (omega_t_over_omega_c_10);
     }
     else if (utils::Compare(omega_t_over_omega_c_10, 0.01) > 0) {
-        nuTidal10 = vl_over_2 * std::sqrt(omega_t_over_omega_c_10);    
+        nuTidal10 = vl_over_2 / std::sqrt(omega_t_over_omega_c_10);    
     }
     double Dnu10          = (99.0 / 14.0) * omega_t_10 * omega_t_10  * m2_over_M_2 * (rOut_7 - rIn_7) * rhoConv * nuTidal10 / a_4;
     double A10_1          = -G_AU_Msol_yr * p_M2 / a_2;
@@ -3450,10 +3450,10 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     double omega_t_over_omega_c_12 = omega_t_12 / omegaConv;
     double nuTidal12               = vl_5;
     if (utils::Compare(omega_t_over_omega_c_12, 5.0) > 0) {             
-        nuTidal12 = vl_25_over_root20 * (omega_t_over_omega_c_12) * (omega_t_over_omega_c_12);
+        nuTidal12 = vl_25_over_root20 / (omega_t_over_omega_c_12) / (omega_t_over_omega_c_12);
     }
     else if (utils::Compare(omega_t_over_omega_c_12, 0.01) > 0) {
-        nuTidal12 = vl_over_2 * std::sqrt(omega_t_over_omega_c_12);    
+        nuTidal12 = vl_over_2 / std::sqrt(omega_t_over_omega_c_12);    
     }
     double Dnu12          = (99.0 / 14.0) * omega_t_12 * omega_t_12  * m2_over_M_2 * (rOut_7 - rIn_7) * rhoConv * nuTidal12 / a_4;
     double A12_1          = -G_AU_Msol_yr * p_M2 / a_2;
@@ -3467,10 +3467,10 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     double omega_t_over_omega_c_22 = omega_t_22 / omegaConv;
     double nuTidal22               = vl_5;
     if (utils::Compare(omega_t_over_omega_c_22, 5.0) > 0) {             
-        nuTidal22 = vl_25_over_root20 * (omega_t_over_omega_c_22) * (omega_t_over_omega_c_22);
+        nuTidal22 = vl_25_over_root20 / (omega_t_over_omega_c_22) / (omega_t_over_omega_c_22);
     }
     else if (utils::Compare(omega_t_over_omega_c_22, 0.01) > 0) {
-        nuTidal22 = vl_over_2 * std::sqrt(omega_t_over_omega_c_22);    
+        nuTidal22 = vl_over_2 / std::sqrt(omega_t_over_omega_c_22);    
     }
     double Dnu22          = (28.0/3.0) * omega_t_22 * omega_t_22 * m2_over_M_2 * (rOut_9 - rIn_9)  * rhoConv * nuTidal22 / a_6;
     double A22_1          = -G_AU_Msol_yr * p_M2 / a_3;
@@ -3484,10 +3484,10 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     double omega_t_over_omega_c_32 = omega_t_32 / omegaConv;
     double nuTidal32               = vl_5;
     if (utils::Compare(omega_t_over_omega_c_32, 5.0) > 0) {             
-        nuTidal32 = vl_25_over_root20 * (omega_t_over_omega_c_32) * (omega_t_over_omega_c_32);
+        nuTidal32 = vl_25_over_root20 / (omega_t_over_omega_c_32) / (omega_t_over_omega_c_32);
     }
     else if (utils::Compare(omega_t_over_omega_c_32, 0.01) > 0) {
-        nuTidal32 = vl_over_2 * std::sqrt(omega_t_over_omega_c_32);    
+        nuTidal32 = vl_over_2 / std::sqrt(omega_t_over_omega_c_32);    
     }
     double Dnu32          = (1495.0 / 132.0) * omega_t_32 * omega_t_32  * m2_over_M_2 * (rOut_11 - rIn_11) * rhoConv * nuTidal32 / a_8;
     double A32_1          = -G_AU_Msol_yr * p_M2 / a_4;
