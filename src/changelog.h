@@ -1166,7 +1166,10 @@
 //                                      - corrected return units of CalculateRadialExpansionTimescale() to Myr
 //                                      - added option --natal-kick-for-PPISN; if set to true, PPISN remnants receive the same natal kick as other CCSN, otherwise (default) they receive no natal kick
 //                                      - updated documentation
+// 02.46.01    IM - May 15, 2024     - Defect repair
+//                                      - Corrected CalculateConvectiveCoreRadius()
+//                                      - Minor documentation and comment fixes
           
-const std::string VERSION_STRING = "02.46.00";
+const std::string VERSION_STRING = "02.46.01";
 
 # endif // __changelog_h__
