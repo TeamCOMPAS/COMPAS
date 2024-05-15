@@ -63,14 +63,15 @@ protected:
     
             double          CalculateConvectiveCoreMass() const { return m_CoreMass; }
 
+            double          CalculateConvectiveCoreRadius () const                                                  { return min(5.0 * CalculateRemnantRadius(), m_Radius); }              // Last paragraph of section 6 of Hurley+ 2000
+
             double          CalculateCoreMassAtBAGB() const                                                         { return m_Mass0; }                                                     // McBAGB = M0 (Hurely et al. 2000, discussion just before eq 89)
             double          CalculateCoreMassAtPhaseEnd() const                                                     { return m_CoreMass; }                                                  // NO-OP
             double          CalculateCoreMassOnPhase() const                                                        { return m_COCoreMass; }                                                // Mc(HeMS) = McCOMass
 
     static  double          CalculateCoreMass_Luminosity_B_Static()                                                 { return 4.1E4; }
-    static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                              { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }   // pow() is slow - use multiplication
+    static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                              { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }     // pow() is slow - use multiplication
 
-            double          CalculateConvectiveCoreRadius () const                      { return 5.0 * CalculateRemnantRadius (); }                                                         // Last paragraph of section 6 of Hurley+ 2000
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
             double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return 1.28; }                                                        // From BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
 
