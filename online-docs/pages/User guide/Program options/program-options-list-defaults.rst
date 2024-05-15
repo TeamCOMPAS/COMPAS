@@ -1199,9 +1199,9 @@ Default = FALSE
 **--tides-prescription** |br|
 Prescription for tidal evolution of the binary. |br|
 Options: { NONE, PERFECT, KAPIL2024 } |br|
-``NONE`` disables tidal interactions
-``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization 
-``KAPIL2024`` uses the prescription from Kapil+ (2024) |br|
+``NONE`` disables tidal interactions.
+``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization. 
+``KAPIL2024`` uses the prescription from Kapil+ (2024). |br|
 Default = NONE
 
 **--timestep-filename** |br|

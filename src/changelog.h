@@ -1169,7 +1169,10 @@
 // 02.46.01    IM - May 15, 2024     - Defect repair
 //                                      - Corrected CalculateConvectiveCoreRadius()
 //                                      - Minor documentation and comment fixes
-          
-const std::string VERSION_STRING = "02.46.01";
+// 02.46.02    VK - May 15, 2024     - Defect repair
+//                                      - Corrected CalculateImKlmEquilibrium()
+//                                      - Minor grammatical correction in tides documentation
+                  
+const std::string VERSION_STRING = "02.46.02";
 
 # endif // __changelog_h__
