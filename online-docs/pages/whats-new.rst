@@ -10,8 +10,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 * added options ``--radial-change-fraction`` and ``--mass-change-fraction``, as approximate desired fractional changes in stellar radius and mass on phase when setting SSE and BSE timesteps
 * the recommended values for both parameters are 0.005, but the default remains 0, which reproduces previous timestep choices
-* mass transfer from main sequence donors (including HeMS) can now proceed on nuclear timescales -- approximated as the radial expansion timescales -- if equilibrium 
-zetas are greater than Roche lobe zetas
+* mass transfer from main sequence donors (including HeMS) can now proceed on nuclear timescales -- approximated as the radial expansion timescales -- if equilibrium zetas are greater than Roche lobe zetas
 
 **02.45.00 Apr 09, 2024**
 
