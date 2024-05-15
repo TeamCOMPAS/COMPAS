@@ -1158,7 +1158,18 @@
 //                                        (Tested ok with Ubuntu v20.04, g++ v11.04, and boost v1.74; and macOS v14.1.1, clang v15.0.0, and boost v1.85.)
 //                                      - added check for boost version to allow for deprecated filesystem option
 //                                      - added `requirements.in` file to online docs to specify requirements for latest dependencies
+// 02.46.00    IM - May 13, 2024     - Enhancements, defect repair:
+//                                      - added options --radial-change-fraction and --mass-change-fraction, as approximate desired fractional changes in stellar radius and mass on phase when setting SSE and BSE timesteps
+//                                      - the recommended values for both parameters are 0.005, but the default remains 0, which reproduces previous timestep choices
+//                                      - mass transfer from main sequence donors (including HeMS) can now proceed on nuclear timescales -- approximated as the radial expansion timescales -- if equilibrium zetas are greater than Roche lobe zetas
+//                                      - removed the fixed constant MULLERMANDEL_MAXNS; instead, OPTIONS->MaximumNeutronStarMass() is used for consistency (see issue #1114)
+//                                      - corrected return units of CalculateRadialExpansionTimescale() to Myr
+//                                      - added option --natal-kick-for-PPISN; if set to true, PPISN remnants receive the same natal kick as other CCSN, otherwise (default) they receive no natal kick
+//                                      - updated documentation
+// 02.46.01    IM - May 15, 2024     - Defect repair
+//                                      - Corrected CalculateConvectiveCoreRadius()
+//                                      - Minor documentation and comment fixes
           
-const std::string VERSION_STRING = "02.45.00";
+const std::string VERSION_STRING = "02.46.01";
 
 # endif // __changelog_h__

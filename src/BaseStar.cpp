@@ -1324,6 +1324,29 @@ double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
     return ((2.0 / 3.0) * m / oneMinusM) - ((1.0 / 3.0) * (oneMinusM / (1.0 + (m + m)))) - (0.03 * m) + (0.2 * m / (1.0 + (1.0 / oneMinusM_6))); // eq (61) Soberman, Phinney, vdHeuvel (1997)
 }
 
+/*
+ * Calculate the Equilibrium zeta
+ *
+ *
+ * double CalculateZetaEquilibrium
+ *
+ * @return                                      Equilibrium zeta
+ */
+double BaseStar::CalculateZetaEquilibrium() {
+    
+    // We create a clone to add an arbitrary small amount of mass in order to determine how the radius will change
+    //
+    // To be sure the clone does not participate in logging, we set its persistence to EPHEMERAL.
+    
+    BaseStar *clone = Clone(OBJECT_PERSISTENCE::EPHEMERAL, false);                              // do not re-initialise the clone
+    double deltaMass = m_Mass/1.0E6;
+    clone->UpdateAttributesAndAgeOneTimestep(deltaMass, deltaMass, 0.0, true, false);
+    double radiusAfterMassGain = clone->Radius();
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+    double zetaEquilibrium = (radiusAfterMassGain - m_Radius) / deltaMass * m_Mass / m_Radius;  // dlnR / dlnM
+    return zetaEquilibrium;
+}
+    
 
 /*
  * Calculate the critical mass ratio for unstable mass transfer
@@ -2739,34 +2762,24 @@ double BaseStar::CalculateMassLoss_Static(const double p_Mass, const double p_Md
  */
 double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_UpdateMDt) {
 
-    double dt   = m_Dt;
-    double mDot = m_Mdot;
     double mass = m_Mass;
 
     if (OPTIONS->UseMassLoss()) {                                               // only if using mass loss (program option)
 
-        mDot            = CalculateMassLossRate();                              // calculate mass loss rate
-        double massLoss = CalculateMassLoss_Static(mass, mDot, dt);             // calculate mass loss - limited to (mass * MAXIMUM_MASS_LOSS_FRACTION)
+        double mDot     = CalculateMassLossRate();                              // calculate mass loss rate
+        if (p_UpdateMDot) m_Mdot = mDot;                                        // update class member variable if necessary
+        double massLoss = CalculateMassLoss_Static(mass, mDot, m_Dt);           // calculate mass loss - limited to (mass * MAXIMUM_MASS_LOSS_FRACTION)
 
         if (OPTIONS->CheckPhotonTiringLimit()) {
             double lim = m_Luminosity / (G_SOLAR_YEAR * m_Mass / m_Radius);     // calculate the photon tiring limit in Msol yr^-1 using Owocki & Gayley 1997, equation slightly clearer in Owocki+2004 Eq. 20
             massLoss   = std::min(massLoss, lim);                               // limit mass loss to the photon tiring limit
         }
 
-        // could do this without the test - we know the mass loss may already
-        // have been limited.  This way is probably marginally faster
-        if (utils::Compare(massLoss, (mass * MAXIMUM_MASS_LOSS_FRACTION)) < 0) {
-            mass -= massLoss;                                                   // new mass based on mass loss
-        }
-        else {
-            dt    = massLoss / (mDot * 1.0E6);                                  // new timestep to match limited mass loss
-            dt    = std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM;
-            mass -= massLoss;                                                   // new mass based on limited mass loss
-
-            if (p_UpdateMDt) m_Dt = dt;                                         // update class member variable if necessary
-        }
-
-        if (p_UpdateMDot) m_Mdot = mDot;                                        // update class member variable if necessary
+        mass -= massLoss;                                                       // new mass based on mass loss
+        
+        // update class member variable if necessary: new timestep to match limited mass loss
+        if (p_UpdateMDt & (utils::Compare(massLoss, (mass * MAXIMUM_MASS_LOSS_FRACTION)) >= 0) )
+            m_Dt = std::round(massLoss / (mDot * 1.0E6) / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM;
     }
 
     return mass;
@@ -3624,7 +3637,7 @@ double BaseStar::CalculateThermalTimescale(const double p_Radius) const {
  * @param   [IN]    p_Radius                    Current radius of star in Rsol
  * @param   [IN]    p_RadiusPrev                Previous radius of star in Rsol
  * @param   [IN]    p_DtPrev                    Previous timestep in Myr
- * @return                                      Radial expansion timescale in yr
+ * @return                                      Radial expansion timescale in Myr
  *                                              Returns -1.0 if radial expansion timescale can't be calculated
  *                                              (i.e. stellar type has changed or radius has not changed)
  */
@@ -3635,7 +3648,37 @@ double BaseStar::CalculateRadialExpansionTimescale_Static(const STELLAR_TYPE p_S
                                                           const double       p_DtPrev) {
 
 	return p_StellarTypePrev == p_StellarType && utils::Compare(p_RadiusPrev, p_Radius) != 0
-            ? (p_DtPrev * MYR_TO_YEAR * p_RadiusPrev) / (p_Radius - p_RadiusPrev)
+            ? (p_DtPrev * p_RadiusPrev) / fabs(p_Radius - p_RadiusPrev)
+            : -1.0;
+}
+
+/*
+ * Calculate mass change timescale
+ *
+ *
+ * double CalculateMassChangeTimescale_Static(const STELLAR_TYPE p_StellarType,
+ *                                                 const STELLAR_TYPE p_StellarTypePrev,
+ *                                                 const double       p_Mass,
+ *                                                 const double       p_MassPrev,
+ *                                                 const double       p_DtPrev)
+ *
+ * @param   [IN]    p_StellarType               Current stellar type of star
+ * @param   [IN]    p_StellarTypePrev           Previous stellar type of star
+ * @param   [IN]    p_Mass                      Current mass of star in Msol
+ * @param   [IN]    p_MassPrev                  Previous radius of star in Msol
+ * @param   [IN]    p_DtPrev                    Previous timestep in Myr
+ * @return                                      Mass change timescale in Myr
+ *                                              Returns -1.0 if mass change timescale can't be calculated
+ *                                              (i.e. stellar type has changed or mass has not changed)
+ */
+double BaseStar::CalculateMassChangeTimescale_Static(const STELLAR_TYPE p_StellarType,
+                                                     const STELLAR_TYPE p_StellarTypePrev,
+                                                     const double       p_Mass,
+                                                     const double       p_MassPrev,
+                                                     const double       p_DtPrev) {
+
+    return p_StellarTypePrev == p_StellarType && utils::Compare(p_MassPrev, p_Mass) != 0
+            ? (p_DtPrev * p_MassPrev) / fabs(p_Mass - p_MassPrev)
             : -1.0;
 }
 
@@ -3773,7 +3816,7 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
 	double muKick      = 0.0;
     double rand        = p_Rand;    //makes it possible to adjust if p_Rand is too low, to avoid getting stuck
 
-	if (utils::Compare(p_RemnantMass, MULLERMANDEL_MAXNS) <  0) {
+	if (utils::Compare(p_RemnantMass, OPTIONS->MaximumNeutronStarMass()) <  0) {
 		muKick = max(OPTIONS->MullerMandelKickMultiplierNS() * (p_COCoreMass - p_RemnantMass) / p_RemnantMass, 0.0);
 	}
 	else {
@@ -3892,11 +3935,17 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
 		    case SN_EVENT::AIC:                                                                     // AIC have 0 kick 
 		    case SN_EVENT::SNIA:                                                                    // SNIA have 0 kick 
 		    case SN_EVENT::HeSD:                                                                    // HeSD have 0 kick 
-			    sigma = 0;
+			    sigma = 0.0;
                 break;
 
-		    case SN_EVENT::CCSN:                                                                    // draw a random kick magnitude from the user selected distribution - sigma based on whether compact object is a NS or BH
+            case SN_EVENT::CCSN:
+		    case SN_EVENT::PPISN:                                                                   // draw a random kick magnitude from the user selected distribution - sigma based on whether compact object is a NS or BH
 
+                if( utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::PPISN && !OPTIONS->NatalKickForPPISN() ) {
+                    sigma = 0.0;
+                    break;
+                }
+                
                 switch (p_StellarType) {                                                            // which stellar type?
 
                     case STELLAR_TYPE::NEUTRON_STAR:
@@ -3913,8 +3962,7 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
 
                 break;
 
-            case SN_EVENT::PISN:                                                                    // not expected here
-            case SN_EVENT::PPISN:                                                                   // not expected here
+            case SN_EVENT::PISN:                                                                   // not expected here
                 error = ERROR::UNEXPECTED_SN_EVENT;
                 break;
 
@@ -4125,34 +4173,6 @@ bool BaseStar::IsOneOf(const STELLAR_TYPE_LIST p_List) const {
 }
 
 
-/*
- * Limit timestep to 1% mass change
- *
- *
- * double LimitTimestep()
- *
- * @return                                      Timestep
- */
-double BaseStar::LimitTimestep(const double p_Dt) {
-
-    double dt = p_Dt;
-
-    // cap timestep to maximum of MAXIMUM_MASS_LOSS_FRACTION change in mass star.
-    if (OPTIONS->UseMassLoss()) {
-        double mDot     = CalculateMassLossRate();                                          // First, calculate mass loss rate
-        double massLoss = CalculateMassLoss_Static(m_Mass, mDot, dt);                       // Next, calculate mass loss - limited to (mass * MAXIMUM_MASS_LOSS_FRACTION)
-
-        if (utils::Compare(massLoss, 0.0) > 0) {                                            // No change if no mass loss
-            double dtWind = massLoss / (mDot * 1.0E6);                                      // Calculate timestep to match (possibly limited) mass loss
-                   dtWind = std::max(std::round(dtWind / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
-                   dt     = std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
-                   dt     = min(dt, dtWind);                                                // choose dt
-        }
-    }
-
-    return dt;
-}
-
 
 /*
  * Calculate next timestep for stellar evolution
@@ -4173,11 +4193,21 @@ double BaseStar::CalculateTimestep() {
 
     CalculateGBParams();                                                                                    // calculate giant branch parameters
     CalculateTimescales();                                                                                  // calculate timescales
+    double radialExpansionTimescale = CalculateRadialExpansionTimescale();
+    double massChangeTimescale = CalculateMassChangeTimescale();
 
-    double dt = std::max(std::round(ChooseTimestep(m_Age) / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
-
-    return max(LimitTimestep(dt), NUCLEAR_MINIMUM_TIMESTEP);                                                // clamp timestep to minimum NUCLEAR_MINIMUM_TIMESTEP
+    double    dt = ChooseTimestep(m_Age);
+    
+    if( OPTIONS->RadialChangeFraction()!=0 && radialExpansionTimescale > 0.0 )                              // if radial expansion timescale was computed
+            dt = min(dt, OPTIONS->RadialChangeFraction()*radialExpansionTimescale);
+    if( OPTIONS->MassChangeFraction()!=0 && massChangeTimescale > 0.0 )                                     // if mass change timescale was computed
+            dt = min(dt, OPTIONS->MassChangeFraction()*massChangeTimescale);
+    
+    dt = max(round(dt/TIMESTEP_QUANTUM)*TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
+        
+    return dt;
 }
+
 
 
 /*
@@ -4202,12 +4232,11 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
 
     // record some current values before they are (possibly) changed by evolution
     if (p_DeltaTime > 0.0) {                                                                        // don't use utils::Compare() here
-        m_StellarTypePrev = m_StellarType;
-        m_DtPrev          = m_Dt;
-        m_MassPrev        = m_Mass;
-        m_RadiusPrev      = m_Radius;
+            m_StellarTypePrev = m_StellarType;
+            m_MassPrev        = m_Mass;
+            m_RadiusPrev      = m_Radius;
     }
-
+    
     // the GBParams and Timescale calculations need to be done
     // before taking the timestep - since the binary code ultimately
     // calls this UpdateAttributesAndAgeOneTimestep, the GBParams and
