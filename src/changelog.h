@@ -1169,10 +1169,15 @@
 // 02.46.01    IM - May 15, 2024     - Defect repair
 //                                      - Corrected CalculateConvectiveCoreRadius()
 //                                      - Minor documentation and comment fixes
-// 02.46.02    IM - May 15, 2024     - Enhancements
+// 02.46.02    VK - May 15, 2024     - Defect repair
+//                                      - Corrected CalculateImKlmEquilibrium()
+//                                      - Minor grammatical correction in tides documentation
+// 02.46.03    IM - May 15, 2024     - Enhancements
 //                                      - Create a new function, CalculateNuclearMassLossRate(), to compute the nuclear mass loss rate rather than CalculateRadialExpansionTimescale(), which can be unreliable during mass transfer
 //                                      - Update BaseBinaryStar::CalculateMassTransfer() to use this function and to correctly evaluate m_AccretionFraction and the corresponding zetaRocheLobe
           
-const std::string VERSION_STRING = "02.46.02";
+
+                  
+const std::string VERSION_STRING = "02.46.03";
 
 # endif // __changelog_h__
