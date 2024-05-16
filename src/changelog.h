@@ -1130,7 +1130,55 @@
 //                                      - Some Code cleanup
 // 02.43.05    JR - Apr 21, 2024     - Defect repair, some code cleanup:
 //                                      - Last piece of no logging for clones - this prevents ephemeral clones from writing to or clearing the SSE SN stash.
-const std::string VERSION_STRING = "02.43.05";
+// 02.44.00    VK - Apr 04, 2024     - Enhancement:
+//                                      - Added realistic tides to binary evolution, based on the formalism described in Kapil et al. (2024). Functionality enabled by setting the new option `--tides-prescription` to the value `KAPIL2024` (default is `NONE`)
+//                                      - Removed old option `--enable-tides`, which can now be enabled by setting `--tides-prescription PERFECT`.
+//                                      - Dynamcial tides implementation follows Zahn, 1977, Kushnir et al., 2017, and Ahuir et al., 2021.
+//                                      - Equilibrium tides implementation follows Barker, 2020.
+//                                      - Secular evolution under the effect of tides follows Zahn, 1977, Eqs. (3.6) to (3.8)
+// 02.44.01    JR - May 02, 2024     - Defect repairs, some code cleanup:
+//                                      - defect repairs to address issues #978 and #1075 (discontinuous radius evolution/fluctuating radii)
+//                                           - the repairs made here are an attempt to ensure that COMPAS stellar evolution matches Hurley sse stellar evolution
+//                                           - see issue #978 for details of changes made and the reasons for the changes, as well as results of tests of the changes
+//                                      - a little code cleanup
+// 02.44.02    JR - May 03, 2024     - Defect repair:
+//                                      - change to the core mass calculations at phase end for the CHeB phase - uses method from Hurley sse code rather Hurley et al. 2000
+//                                        prior to this change the CHeB core mass at phase end was > mass (which in turn caused a spike in luminosity and Teff).
+// 02.44.03    IM - May 06, 2024     - Defect repair, enhancement, minor cleanup:
+//                                      - updated Picker et al. (2024) coefficients for the 2-stage CE prescription
+//                                      - optimisticCE is now recorded only if the binary avoided merger (see issue #1014)
+// 02.44.04    IM - May 06, 2024     - Defect repair:
+//                                      - removed (incorrect) calculation of nuclear timescale (see issue #430)
+//                                      - replaced ApplyBlackHoleKicks() with ReweightBlackHoleKicksByMass() and now applying it only to BHs (see issue #1027)
+//                                      - set PISN massless remnant mass to zero (see issue #1051)
+// 02.44.05    JR - May 07, 2024     - Defect repair:
+//                                      - fix for HG-CHeB transition for low metallicities
+// 02.45.00    JR - May 09, 2024     - Enhancements:
+//                                      - changed compiler standard from c++11 to c++17 in Makefile - see issue #984
+//                                        (Tested ok with Ubuntu v20.04, g++ v11.04, and boost v1.74; and macOS v14.1.1, clang v15.0.0, and boost v1.85.)
+//                                      - added check for boost version to allow for deprecated filesystem option
+//                                      - added `requirements.in` file to online docs to specify requirements for latest dependencies
+// 02.46.00    IM - May 13, 2024     - Enhancements, defect repair:
+//                                      - added options --radial-change-fraction and --mass-change-fraction, as approximate desired fractional changes in stellar radius and mass on phase when setting SSE and BSE timesteps
+//                                      - the recommended values for both parameters are 0.005, but the default remains 0, which reproduces previous timestep choices
+//                                      - mass transfer from main sequence donors (including HeMS) can now proceed on nuclear timescales -- approximated as the radial expansion timescales -- if equilibrium zetas are greater than Roche lobe zetas
+//                                      - removed the fixed constant MULLERMANDEL_MAXNS; instead, OPTIONS->MaximumNeutronStarMass() is used for consistency (see issue #1114)
+//                                      - corrected return units of CalculateRadialExpansionTimescale() to Myr
+//                                      - added option --natal-kick-for-PPISN; if set to true, PPISN remnants receive the same natal kick as other CCSN, otherwise (default) they receive no natal kick
+//                                      - updated documentation
+// 02.46.01    IM - May 15, 2024     - Defect repair
+//                                      - Corrected CalculateConvectiveCoreRadius()
+//                                      - Minor documentation and comment fixes
+// 02.46.02    VK - May 15, 2024     - Defect repair
+//                                      - Corrected CalculateImKlmEquilibrium()
+//                                      - Minor grammatical correction in tides documentation
+// 02.46.03    IM - May 15, 2024     - Enhancements
+//                                      - Create a new function, CalculateNuclearMassLossRate(), to compute the nuclear mass loss rate rather than CalculateRadialExpansionTimescale(), which can be unreliable during mass transfer
+//                                      - Update BaseBinaryStar::CalculateMassTransfer() to use this function and to correctly evaluate m_AccretionFraction and the corresponding zetaRocheLobe
+// 02.46.04    IM - May 16, 2024     - Defect repair
+//                                      - Repaired a bug in GiantBranch::CalculateRemnantMassByMullerMandel() that could cause an infinite loop (see issue #1127)
 
+                  
+const std::string VERSION_STRING = "02.46.04";
 
 # endif // __changelog_h__

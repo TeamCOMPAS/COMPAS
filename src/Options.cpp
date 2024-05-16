@@ -161,6 +161,8 @@ void Options::OptionValues::Initialise() {
     m_EvolveDoubleWhiteDwarfs                                       = false;
     m_EvolvePulsars                                                 = false;
 	m_EvolveUnboundSystems                                          = true;
+    
+    m_NatalKickForPPISN                                             = false;
 
     m_DetailedOutput                                                = false;
     m_PopulationDataPrinting                                        = false;
@@ -193,9 +195,12 @@ void Options::OptionValues::Initialise() {
     // Specify how long to evolve for
     m_MaxEvolutionTime                                              = 13700.0;
     m_MaxNumberOfTimestepIterations                                 = 99999;
-    m_TimestepMultiplier                                            = 1.0;
     m_TimestepsFileName                                             = "";
 
+    m_TimestepMultiplier                                            = 1.0;
+    m_RadialChangeFraction                                          = 0.0;
+    m_MassChangeFraction                                            = 0.0;
+    
     // Initial mass options
     m_InitialMass                                                   = 5.0;
     m_InitialMass1                                                  = 5.0;
@@ -350,7 +355,7 @@ void Options::OptionValues::Initialise() {
 
 	m_MaximumNeutronStarMass                                        = 2.5;                                                  // StarTrack is 3.0
     
-    m_mCBUR1                                                        = MCBUR1HURLEY;                                         // MHurley value, Fryer+ and Belczynski+ use 1.83
+    m_mCBUR1                                                        = MCBUR1HURLEY;                                         // Hurley value, Fryer+ and Belczynski+ use 1.83
 
 
     // Output path
@@ -496,7 +501,8 @@ void Options::OptionValues::Initialise() {
 
 
     // Tides
-    m_EnableTides                                                   = false;                                                // default is no tides
+    m_TidesPrescription.type                                        = TIDES_PRESCRIPTION::NONE;
+    m_TidesPrescription.typeString                                  = TIDES_PRESCRIPTION_LABEL.at(m_TidesPrescription.type);
 
 
 	// Zetas
@@ -780,12 +786,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "enable-tides",                                               
-            po::value<bool>(&p_Options->m_EnableTides)->default_value(p_Options->m_EnableTides)->implicit_value(true),                                                                            
-            ("Enable tides (default = " + std::string(p_Options->m_EnableTides ? "TRUE" : "FALSE") + ")").c_str()
-        )
-
-        (
             "enable-warnings",                                             
             po::value<bool>(&p_Options->m_EnableWarnings)->default_value(p_Options->m_EnableWarnings)->implicit_value(true),                                                                      
             ("Display warning messages to stdout (default = " + std::string(p_Options->m_EnableWarnings ? "TRUE" : "FALSE") + ")").c_str()
@@ -826,6 +826,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "mass-transfer",                                                
             po::value<bool>(&p_Options->m_UseMassTransfer)->default_value(p_Options->m_UseMassTransfer)->implicit_value(true),                                                                    
             ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        
+        (
+            "natal-kick-for-PPISN",
+            po::value<bool>(&p_Options->m_NatalKickForPPISN)->default_value(p_Options->m_NatalKickForPPISN)->implicit_value(true),
+            ("Give non-zero natal kicks to PPISN remnants (default = " + std::string(p_Options->m_NatalKickForPPISN ? "TRUE" : "FALSE") + ")").c_str()
         )
 
         (
@@ -1307,6 +1313,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "mass-change-fraction",
+            po::value<double>(&p_Options->m_MassChangeFraction)->default_value(p_Options->m_MassChangeFraction),
+            ("Approximate goal for fractional mass change per timestep for SSE and BSE (default = " + std::to_string(p_Options->m_MassChangeFraction) + ")").c_str()
+        )
+        
+        (
             "mass-ratio,q",                                              
             po::value<double>(&p_Options->m_MassRatio)->default_value(p_Options->m_MassRatio),                                                                      
             ("Mass ratio m2/m1 used to determine secondary mass if not specified (default = " + std::to_string(p_Options->m_MassRatio) + ")").c_str()
@@ -1324,7 +1336,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "mass-transfer-fa",                                            
             po::value<double>(&p_Options->m_MassTransferFractionAccreted)->default_value(p_Options->m_MassTransferFractionAccreted),                                                              
-            ("Mass Transfer fraction accreted in FIXED prescription (default = " + std::to_string(p_Options->m_MassTransferFractionAccreted) + ", fully conservative)").c_str()
+            ("Mass Transfer fraction accreted in FIXED prescription (default = " + std::to_string(p_Options->m_MassTransferFractionAccreted) + ")").c_str()
         )
         (
             "mass-transfer-jloss",                                         
@@ -1359,7 +1371,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "mcbur1",                                                      
             po::value<double>(&p_Options->m_mCBUR1)->default_value(p_Options->m_mCBUR1),                                                                                                          
-            ("Minimum core mass at BAGB, in Msol, to avoid fully degenerate CO core  (default = " + std::to_string(p_Options->m_mCBUR1) + ")").c_str()
+            ("Minimum core mass at BAGB, in Msol, to avoid fully degenerate CO core (default = " + std::to_string(p_Options->m_mCBUR1) + ")").c_str()
         )
         (
             "metallicity,z",                                               
@@ -1472,7 +1484,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "pulsar-magnetic-field-decay-timescale",                       
             po::value<double>(&p_Options->m_PulsarMagneticFieldDecayTimescale)->default_value(p_Options->m_PulsarMagneticFieldDecayTimescale),                                                    
-            ("Timescale on which magnetic field decays, in Myrs (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescale) + ")").c_str()
+            ("Timescale on which magnetic field decays, in Myr (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescale) + ")").c_str()
         )
         (
             "pulsar-minimum-magnetic-field",                               
@@ -1480,6 +1492,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Minimum pulsar magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarLog10MinimumMagneticField) + ")").c_str()
         )
 
+        (
+            "radial-change-fraction",
+            po::value<double>(&p_Options->m_RadialChangeFraction)->default_value(p_Options->m_RadialChangeFraction),
+            ("Approximate goal for fractional radial change per timestep for SSE and BSE (default = " + std::to_string(p_Options->m_RadialChangeFraction) + ")").c_str()
+        )
+        
         (
             "rocket-kick-magnitude-1",
             po::value<double>(&p_Options->m_RocketKickMagnitude1)->default_value(p_Options->m_RocketKickMagnitude1),
@@ -1850,7 +1868,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_StellarZetaPrescription.typeString)->default_value(p_Options->m_StellarZetaPrescription.typeString),                                                            
             ("Prescription for stellar zeta (" + AllowedOptionValuesFormatted("stellar-zeta-prescription") + ", default = '" + p_Options->m_StellarZetaPrescription.typeString + "')").c_str()
         )
-
+        (
+            "tides-prescription",                            
+            po::value<std::string>(&p_Options->m_TidesPrescription.typeString)->default_value(p_Options->m_TidesPrescription.typeString),                                                                                                    
+            ("Tides Prescription (" + AllowedOptionValuesFormatted("tides-prescription") + ", default = '" + p_Options->m_TidesPrescription.typeString + "')").c_str()
+        )
         (
             "timesteps-filename",
             po::value<std::string>(&p_Options->m_TimestepsFileName)->default_value(p_Options->m_TimestepsFileName),
@@ -2272,6 +2294,10 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
         }
 
+        if (!DEFAULTED("tides-prescription")) {                                                                       // tides prescription
+            std::tie(found, m_TidesPrescription.type) = utils::GetMapKey(m_TidesPrescription.typeString, TIDES_PRESCRIPTION_LABEL, m_TidesPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Tides Prescription");
+        }
         if (!DEFAULTED("VMS-mass-loss")) {                                                                    // very massive mass loss prescription
             std::tie(found, m_VMSMassLoss.type) = utils::GetMapKey(m_VMSMassLoss.typeString, VMS_MASS_LOSS_LABEL, m_VMSMassLoss.type);
             COMPLAIN_IF(!found, "Unknown Very Massive Mass Loss Prescription");
@@ -2324,6 +2350,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
  
         COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
 
+        COMPLAIN_IF(m_MassChangeFraction < 0.0, "Mass change fraction per timestep (--mass-change-fraction) < 0");
+        
         COMPLAIN_IF(m_MassRatio <= 0.0 || m_MassRatio > 1.0, "Mass ratio (--mass-ratio) must be greater than 0 and less than or equal to 1");
 
         COMPLAIN_IF(m_MassRatioDistributionMin <= 0.0 || m_MassRatioDistributionMin > 1.0, "Minimum mass ratio (--mass-ratio-min) must be greater than 0 and less than or equal to 1");
@@ -2374,6 +2402,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale") && m_PulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
 
+        COMPLAIN_IF(m_RadialChangeFraction < 0.0, "Radial change fraction per timestep (--radial-change-fraction) < 0");
+        
         COMPLAIN_IF(!DEFAULTED("rotational-frequency")  && m_RotationalFrequency < 0.0, "Rotational frequency (--rotational-frequency) < 0");
         COMPLAIN_IF(!DEFAULTED("rotational-frequency-1") && m_RotationalFrequency1 < 0.0, "Primary rotational frequency (--rotational-frequency-1) < 0");
         COMPLAIN_IF(!DEFAULTED("rotational-frequency-2") && m_RotationalFrequency2 < 0.0, "Secondary rotational frequency (--rotational-frequency-2) < 0");
@@ -2540,6 +2570,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);         break;
         case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);             break;
         case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                        break;
+        case _("tides-prescription")                                : POPULATE_RET(TIDES_PRESCRIPTION_LABEL);                       break;
         case _("VMS-mass-loss")                                     : POPULATE_RET(VMS_MASS_LOSS_LABEL);                            break;
         case _("WR-mass-loss")                                      : POPULATE_RET(WR_MASS_LOSS_LABEL);                             break;
         default: break;
@@ -4546,7 +4577,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::LBV_FACTOR                                     : value = LuminousBlueVariableFactor();                                         break;
         case PROGRAM_OPTION::LBV_PRESCRIPTION                               : value = static_cast<int>(LuminousBlueVariablePrescription());                 break;
-
+            
         case PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION                         : value = static_cast<int>(MassLossPrescription());                             break;
 
         case PROGRAM_OPTION::MASS_RATIO                                     : value = MassRatio();                                                          break;                     
@@ -4661,6 +4692,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER             : value = SemiMajorAxisDistributionPower();                                     break;
 
         case PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION                      : value = static_cast<int>(StellarZetaPrescription());                          break;
+
+        case PROGRAM_OPTION::TIDES_PRESCRIPTION                             : value = static_cast<int>(TidesPrescription());                                break;
 
         case PROGRAM_OPTION::WR_FACTOR                                      : value = WolfRayetFactor();                                                    break;
 

@@ -531,7 +531,7 @@ double GiantBranch::CalculateLuminosityAtHeIgnition_Static(const double      p_M
 double GiantBranch::CalculateRemnantLuminosity() const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0)
+    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) > 0)
             ? HeMS::CalculateLuminosityAtZAMS_Static(m_CoreMass)
             : WhiteDwarfs::CalculateLuminosityOnPhase_Static(m_CoreMass, 0.0, m_Metallicity, WD_Baryon_Number.at(STELLAR_TYPE::HELIUM_WHITE_DWARF));
 
@@ -633,7 +633,7 @@ double GiantBranch::CalculateRadiusOnZAHB_Static(const double      p_Mass,
 double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    double RHeI = 0.0;                                                  // Radius at Helium Ignition
+    double RHeI = 0.0;                                                      // Radius at Helium Ignition
 
     double LHeI      = CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
     double RmHe      = CHeB::CalculateMinimumRadiusOnPhase_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
@@ -642,12 +642,12 @@ double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
     if (utils::Compare(p_Mass, massCutoffs(MFGB)) <= 0) {
         RHeI = RGB_LHeI;
     }
-    else if (utils::Compare(p_Mass, std::max(massCutoffs(MFGB), 12.0)) >= 0) {
+    else if (utils::Compare(p_Mass, std::max(massCutoffs(MFGB), HIGH_MASS_THRESHOLD)) >= 0) {
         double RAGB_LHeI = EAGB::CalculateRadiusOnPhase_Static(p_Mass, LHeI, massCutoffs(MHeF), m_BnCoefficients);
         RHeI             = std::min(RmHe, RAGB_LHeI);                        // Hurley et al. 2000, eq 55
     }
     else {
-        double mu = log10(p_Mass / 12.0) / log10(massCutoffs(MFGB) / 12.0);
+        double mu = log10(p_Mass / HIGH_MASS_THRESHOLD) / log10(massCutoffs(MFGB) / HIGH_MASS_THRESHOLD);
         RHeI      = RmHe * PPOW((RGB_LHeI / RmHe), mu);
     }
 
@@ -670,8 +670,7 @@ double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
  */
 double GiantBranch::CalculateRemnantRadius() const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
-
-    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0)
+    return (utils::Compare(m_Mass0, massCutoffs(MHeF)) > 0)
             ? HeMS::CalculateRadiusAtZAMS_Static(m_CoreMass)
             : WhiteDwarfs::CalculateRadiusOnPhase_Static(m_CoreMass);
 
@@ -838,9 +837,9 @@ double GiantBranch::CalculateCoreMassAtHeIgnition(const double p_Mass) const {
         double luminosity_MHeF = CalculateLuminosityAtHeIgnition_Static(massCutoffs(MHeF), m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
         double Mc_MHeF         = BaseStar::CalculateCoreMassGivenLuminosity_Static(luminosity_MHeF, m_GBParams);
         double McBAGB          = CalculateCoreMassAtBAGB(p_Mass);
-        double c               = (Mc_MHeF * Mc_MHeF * Mc_MHeF * Mc_MHeF) - (MC_L_C1 * PPOW(massCutoffs(MHeF), MC_L_C2)); // pow() is slow - use multiplication
+        double c               = (Mc_MHeF * Mc_MHeF * Mc_MHeF * Mc_MHeF) - (MC_L_C1 * PPOW(massCutoffs(MHeF), MC_L_C2));    // pow() is slow - use multiplication
 
-        coreMass               = std::min((0.95 * McBAGB), std::sqrt(std::sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));           // sqrt() is much faster than PPOW()
+        coreMass               = std::min((0.95 * McBAGB), std::sqrt(std::sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));    // sqrt() is much faster than PPOW()
     }
 
     return coreMass;
@@ -1025,14 +1024,14 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  * Follows the fits of Picker, Hirai, Mandel (2024), arXiv:2402.13180
  *
  *
- * double GiantBranch::CalculateConvectiveEnvelopeMass()
+ * std::tuple<double, double> GiantBranch::CalculateConvectiveEnvelopeMass()
  *
  * @return                                      Tuple containing the mass of the outer convective envelope and its maximum value
  */
 DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     
-    double MinterfMcoref = -0.021 * m_Log10Metallicity + 0.0038;                                                            // Eq. (8) of Picker+ 2024
-    double Tonset        = -139.8 * m_Log10Metallicity * m_Log10Metallicity - 981.7 * m_Log10Metallicity + 2798.3;          // Eq. (6) of Picker+ 2024
+    double MinterfMcoref = -0.023 * m_Log10Metallicity - 0.0023;                                                            // Eq. (8) of Picker+ 2024
+    double Tonset        = -129.7 * m_Log10Metallicity * m_Log10Metallicity - 920.1 * m_Log10Metallicity + 2887.1;          // Eq. (6) of Picker+ 2024
 
     // We need the temperature of the star just after BAGB, which is the temperature at the
     // start of the EAGB phase.  Since we are on the giant branch here, we can clone this
@@ -1117,6 +1116,7 @@ double GiantBranch::CalculateMomentOfInertia() const {
     
     return (0.1 * (m_Mass - m_CoreMass) * m_Radius * m_Radius) + (0.21 * m_CoreMass * Rc * Rc);
 }
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1274,16 +1274,16 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
     double pBH               = 0.0;
     double pCompleteCollapse = 0.0;
     
-    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
+    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0 || utils::Compare(p_HeCoreMass, OPTIONS->MaximumNeutronStarMass()) <= 0 ) {
 	    pBH = 0.0;
     }
     else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M3) < 0) {
     	pBH = 1.0 / (MULLERMANDEL_M3-MULLERMANDEL_M1) * (p_COCoreMass-MULLERMANDEL_M1);
     }
     else {
-	    pBH=1.0;
+	    pBH = 1.0;
     } 
- 
+
     if (utils::Compare(RAND->Random(0, 1), pBH) < 0) {  // this is a BH
         if (utils::Compare(p_COCoreMass, MULLERMANDEL_M4) < 0)
 		    pCompleteCollapse = 1.0 / (MULLERMANDEL_M4 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1);
@@ -1294,24 +1294,24 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
 		    remnantMass = p_HeCoreMass;
         }
 	    else {
-		    while (remnantMass<MULLERMANDEL_MAXNS || remnantMass > p_HeCoreMass) {
+		    while (remnantMass<OPTIONS->MaximumNeutronStarMass() || remnantMass > p_HeCoreMass) {
 			    remnantMass = MULLERMANDEL_MUBH * p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
 		    }
 	    }
     }
     else {                                              // this is an NS
 	    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
-		    while (remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > p_HeCoreMass) {
+		    while (remnantMass < MULLERMANDEL_MINNS || remnantMass > OPTIONS->MaximumNeutronStarMass() || remnantMass > p_HeCoreMass) {
 			    remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
 		    }
 	    }
 	    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
-            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > p_HeCoreMass) {
+            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > OPTIONS->MaximumNeutronStarMass() || remnantMass > p_HeCoreMass) {
                 remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
             }
         }
         else {
-            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > p_HeCoreMass) {
+            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > OPTIONS->MaximumNeutronStarMass() || remnantMass > p_HeCoreMass) {
                 remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
             }
         }
@@ -1769,7 +1769,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         stellarType = CalculateRemnantTypeByMuller2016(m_COCoreMass);
     }
     else if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::MULLERMANDEL) {
-        if (utils::Compare(m_Mass, MULLERMANDEL_MAXNS ) > 0)
+        if (utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0)
             stellarType = STELLAR_TYPE::BLACK_HOLE;
         else
             stellarType = STELLAR_TYPE::NEUTRON_STAR;
@@ -1898,6 +1898,10 @@ STELLAR_TYPE GiantBranch::ResolvePairInstabilitySN() {
     m_Luminosity  = 0.0;
     m_Radius      = 0.0;
     m_Temperature = 0.0;
+    m_Mass        = 0.0;
+    m_CoreMass    = 0.0;
+    m_COCoreMass  = 0.0;
+    m_HeCoreMass  = 0.0;
 
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
@@ -2061,8 +2065,10 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         else {                                                                                      // Core Collapse Supernova
             stellarType = ResolveCoreCollapseSN();
         }
-            
-    	CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
+        
+        if(utils::SNEventType(m_SupernovaDetails.events.current)!=SN_EVENT::PISN)
+            CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
+        
         if ( !utils::IsOneOf(stellarType, { STELLAR_TYPE::NEUTRON_STAR })) {
             m_SupernovaDetails.rocketKickMagnitude = 0;                                             // Only NSs can get rocket kicks
         }

@@ -49,14 +49,12 @@ public:
         m_CEDetails.preCEE.temperature               = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.preCEE.dynamicalTimescale        = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.preCEE.thermalTimescale          = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_CEDetails.preCEE.nuclearTimescale          = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.preCEE.radialExpansionTimescale  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_CEDetails.postCEE.luminosity               = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.temperature              = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.dynamicalTimescale       = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.thermalTimescale         = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_CEDetails.postCEE.nuclearTimescale         = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_CEDetails.postCEE.radialExpansionTimescale = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_Flags.recycledNS                           = false;
@@ -180,9 +178,6 @@ public:
     double          MassPostCEE() const                                                 { return m_CEDetails.postCEE.mass; }
     double          MassPreCEE() const                                                  { return m_CEDetails.preCEE.mass; }
     double          MassTransferDiff() const                                            { return m_MassTransferDiff; }
-
-    double          NuclearTimescalePostCEE() const                                     { return m_CEDetails.postCEE.nuclearTimescale; }
-    double          NuclearTimescalePreCEE() const                                      { return m_CEDetails.preCEE.nuclearTimescale; }
 
     double          OmegaTidesIndividualDiff() const                                    { return m_OmegaTidesIndividualDiff; }
     double          OrbitalEnergyPostSN() const                                         { return m_OrbitalEnergyPostSN; };

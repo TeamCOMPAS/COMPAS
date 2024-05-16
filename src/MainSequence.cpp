@@ -27,8 +27,8 @@
  */
 void MainSequence::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
 #define timescales(x) p_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-    timescales(tBGB)   = CalculateLifetimeToBGB(p_Mass);
-    timescales(tMS)    = CalculateLifetimeOnPhase(p_Mass, timescales(tBGB));
+    timescales(tBGB) = CalculateLifetimeToBGB(p_Mass);
+    timescales(tMS)  = CalculateLifetimeOnPhase(p_Mass, timescales(tBGB));
 #undef timescales
 }
 
@@ -489,10 +489,20 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
     return radiusEnvelope0 * std::sqrt(std::sqrt(1.0 - m_Tau));
 }
 
+/*
+ * Calculate the radial extent of the star's convective core (if it has one)
+ *
+ * Preliminary fit from Minori Shikauchi @ ZAMS, does not take evolution into account yet
+ *
+ *
+ * double CalculateRadialExtentConvectiveEnvelope()
+ *
+ * @return                                      Radial extent of the star's convective core in Rsol
+ */
 double MainSequence::CalculateConvectiveCoreRadius() const {
-    if (utils::Compare(m_Mass, 1.25) < 0)       // /*ILYA*/ To check
-        return 0.0;
-    return ( m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57))); // Preliminary fit from Minori Shikauchi @ ZAMS, does not take evolution into account yet
+    return utils::Compare(m_Mass, 1.25) < 0
+            ? 0.0                                               // /*ILYA*/ To check
+            : m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57));    
 }
 
 
@@ -629,7 +639,6 @@ void MainSequence::UpdateAgeAfterMassLoss() {
     m_Age *= tMSprime / tMS;
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                    MISCELLANEOUS FUNCTIONS / CONTROL FUNCTIONS                    //
@@ -664,10 +673,10 @@ void MainSequence::EvolveOneTimestepPreamble() {
 double MainSequence::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
-    double dtk = 1.0E-2 * timescales(tMS);
-    double dte = timescales(tMS) - p_Time;
+    double dtk = 1.0E-2 * timescales(tMS);  // 0.01 of MS timescale (sse uses 0.05)
+    double dte = timescales(tMS) - p_Time;  // time remaining on MS
 
-    if (utils::Compare(dte, dtk) < 0) {     // short enough to resolve the hook at the end of the MS for HM stars?
+    if (utils::Compare(dte, dtk) < 0) {     // short enough to resolve the hook at the end of the MS for HM stars? JAR: why not check for HM star?
         dtk /= 10.0;                        // no - go an order-of-magnitude shorter
     }
 

@@ -83,7 +83,7 @@ Default = FALSE
 :ref:`Back to Top <options-props-top>`
 
 **--black-hole-kicks** |br|
-Black hole kicks relative to NS kicks. |br|
+Black hole kicks relative to NS kicks (not relevant for `MANDELMUELLER` ``--remnant-mass-prescription``). |br|
 Options: { FULL, REDUCED, ZERO, FALLBACK } |br|
 Default = FALLBACK
 
@@ -349,10 +349,6 @@ Default = 0.0
 Multiplication factor for Eddington accretion for NS & BH (i.e. > 1 is super-eddington and 0 is no accretion). |br|
 Default = 1.0
 
-**--enable-tides** |br|
-Enables tides. |br|
-Default = FALSE
-
 **--enable-warnings** |br|
 Display warning messages to stdout. |br|
 Default = FALSE
@@ -512,8 +508,8 @@ Natal kick magnitude distribution. |br|
 Options: { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL } |br|
 ``ZERO`` assigns kick magnitudes of 0, ``FIXED`` always sets the magnitude to a fixed value based on supernova type, ``FLAT`` and ``MAXWELLIAN`` draw kicks from uniform or Maxwellian (e.g., Hobbs et al., 2005) distributions, respectively, ``BRAYELDRIDGE`` and ``MULLERMANDEL`` use momenum-preserving kicks from Bray & Eldrigde 2018 and Mandel & Mueller 2020, respectively, and ``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 (reduced by a factor of sqrt(3) in the latter case). |br|
 Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; 
-however, if using ``MULLERMANDEL``, it is recommended to keep them consistent by doing so for both. |br|
-Default = MAXWELLIAN
+however, the ``MULLERMANDEL`` kick prescription is intended to be consistently used with the ``MULLERMANDEL`` remnant mass prescription. |br|
+Default = MULLERMANDEL
 
 **--kick-magnitude-max** |br|
 Maximum drawn kick magnitude (:math:`km s^{−1}`). |br|
@@ -744,7 +740,7 @@ See ``--logfile-common-envelopes-record-types`` for a detailed description of th
 The System Parameters logfile currently has only one record type defined (record type 1). |br|
 
 **--logfile-type** |br|
-The type of logfile to be produced by COMPAS. |br|
+The type of logfile to be produced by COMPAS. Options are: HDF5, CSV, TSV, TXT. |br|
 Default = ’HDF5’
 
 **--log-level** |br|
@@ -769,6 +765,11 @@ Default = 4.2
 .. _options-props-M:
 
 :ref:`Back to Top <options-props-top>`
+
+**--mass-change-fraction** |br|
+Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
+Recommended value is 0.005.  A value of 0 means that this choice is ignored and timestep estimates from earlier COMPAS version are used. |br|
+Default = 0
 
 **--mass-loss-prescription** |br|
 Mass loss prescription. |br|
@@ -892,7 +893,7 @@ Default = 200.0
 
 **--muller-mandel-kick-multiplier-NS** |br|
 Scaling prefactor for NS kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
-Default = 400.0
+Default = 520.0
 
 **--muller-mandel-sigma-kick** |br|
 Scatter width for NS and BH kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
@@ -902,8 +903,12 @@ Default = 0.3
 
 :ref:`Back to Top <options-props-top>`
 
+**--natal-kick-for-PPISN**
+Set to true if PPISN remnants should receive natal kicks via the same prescription as CCSN remnants; otherwise, they receive 0 natal kick. |br|
+Default = TRUE  
+
 **--neutrino-mass-loss-BH-formation** |br|
-Assumption about neutrino mass loss during BH formation. |br|
+Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not `MANDELMUELLER`). |br|
 Options: { FIXED_FRACTION, FIXED_MASS } |br|
 Default = FIXED_MASS
 
@@ -1074,6 +1079,11 @@ Default = FALSE
 
 :ref:`Back to Top <options-props-top>`
 
+**--radial-change-fraction** |br|
+Approximate desired fractional change in stellar radius on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
+Recommended value is 0.005.  A value of 0 means that this choice is ignored and timestep estimates from earlier COMPAS version are used. |br|
+Default = 0
+
 **--random-seed** |br|
 Value to use as the seed for the random number generator. |br|
 Default = 0
@@ -1083,12 +1093,12 @@ Remnant mass prescription. |br|
 Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT } |br|
 Remnant mass recipes from Hurley, Pols, Tout (2000) for ``HURLEY2000``, Belczynski et al. 2002, Fryer et al. 2012,  Fryer et al. 2022, Mueller 2016, Mandel & Mueller 2020, and Schneider et al. 2020 (with the alternative prescription for effectively single stars from the same paper in the ``SCHNEIDER2020ALT`` case) |br|
 Note that this is independent from ``--kick-magnitude-distribution`` to provide flexibility; 
-however, if using ``MULLERMANDEL``, it is recommended to keep them consistent by doing so for both. |br|
-Default = FRYER2012
+however, the ``MULLERMANDEL`` kick prescription is intended to be consistently used with the ``MULLERMANDEL`` remnant mass prescription. |br|
+Default = MULLERMANDEL
 
 **--retain-core-mass-during-caseA-mass-transfer** |br|
 If set to true, preserve a larger donor core mass following case A mass transfer.  The core is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer. |br|
-Default = FALSE
+Default = TRUE
 
 **--revised-energy-formalism-nandez-ivanova** |br|
 Enable revised energy formalism of Nandez & Ivanova. |br|
@@ -1190,6 +1200,14 @@ Default = FALSE
 .. _options-props-T:
 
 :ref:`Back to Top <options-props-top>`
+
+**--tides-prescription** |br|
+Prescription for tidal evolution of the binary. |br|
+Options: { NONE, PERFECT, KAPIL2024 } |br|
+``NONE`` disables tidal interactions.
+``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization. 
+``KAPIL2024`` uses the prescription from Kapil+ (2024). |br|
+Default = NONE
 
 **--timestep-filename** |br|
 User-defined timesteps filename. (See :doc:`Timestep files <../timestep-files>`) |br|
@@ -1319,7 +1337,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
---circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --enable-tides
+--circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription
 
 --envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-formalism,
 --common-envelope-lambda-prescription, --common-envelope-lambda, 
@@ -1357,8 +1375,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Administrative**
 
---mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-pulsars, --evolve-unbound-systems, --maximum-evolution-time, --maximum-number-timestep-iterations,
---random-seed, --timestep-multiplier, --timestep-filename
+--mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-pulsars, --evolve-unbound-systems, --mass-change-fraction, --maximum-evolution-time, --maximum-number-timestep-iterations,
+--radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename
 
 --grid, --grid-start-line, --grid-lines-to-process
 

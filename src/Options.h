@@ -333,7 +333,6 @@ private:
         "eccentricity-distribution",
         "eccentricity-max",
         "eccentricity-min",
-        "enable-tides",
         "evolve-double-white-dwarfs",
         "evolve-pulsars",
         "evolve-unbound-systems",
@@ -447,7 +446,6 @@ private:
         "detailed-output",
 
         "eccentricity-distribution",
-        "enable-tides",
         "enable-warnings",
         "envelope-state-prescription",
         "errors-to-file",
@@ -496,6 +494,7 @@ private:
         "logfile-type",
         "luminous-blue-variable-prescription",
 
+        "mass-change-fraction",
         "mass-loss-prescription",
         "mass-ratio-distribution",
         "mass-transfer",
@@ -506,6 +505,7 @@ private:
         "metallicity-distribution",
         "mode",
 
+        "natal-kick-for-PPISN",
         "notes",
         "notes-hdrs",
         "neutrino-mass-loss-BH-formation",
@@ -528,6 +528,7 @@ private:
         "quiet", 
 
         "RSG-mass-loss",
+        "radial-change-fraction",
         "random-seed",
         "remnant-mass-prescription",
         "revised-energy-formalism-nandez-ivanova",
@@ -538,6 +539,8 @@ private:
         "stellar-zeta-prescription",
         "store-input-files",
         "switch-log",
+
+        "tides-prescription",
 
         "timesteps-filename",
 
@@ -601,8 +604,10 @@ private:
         "logfile-system-parameters-record-types",
         "logfile-type",
 
+        "mass-change-fraction",
         "mode",
 
+        "natal-kick-for-PPISN",
         "notes",
         "notes-hdrs",
 
@@ -614,6 +619,7 @@ private:
 
         "quiet",
 
+        "radial-change-fraction",
         "random-seed",
         "rlof-printing",
 
@@ -669,6 +675,7 @@ public:
             bool                                                m_HMXRBinaries;                                                 // Flag if we want to store HMXRBs in RLOF output file
             bool                                                m_EvolveDoubleWhiteDwarfs;                                      // Whether to evolve double white dwarfs or not
             bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
+            bool                                                m_NatalKickForPPISN;                                            // Flag if PPISN remnant should receive a non-zero natal kick
 	        bool                                                m_EvolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
 
             bool                                                m_DetailedOutput;                                               // Print detailed output details to file (default = false)
@@ -695,6 +702,9 @@ public:
             double                                              m_MaxEvolutionTime;                                             // Maximum time to evolve a binary by
             unsigned long int                                   m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
             double                                              m_TimestepMultiplier;                                           // Multiplier for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
+   
+            double m_MassChangeFraction;                                                                                        // Approximate goal for fractional radial change per timestep
+            double m_RadialChangeFraction;                                                                                      // Approximate goal for fractional radial change per timestep
 
             std::streamsize                                     m_GridStartLine;                                                // The grid file line to start processing (0-based)
             std::streamsize                                     m_GridLinesToProcess;                                           // The number of grid file lines to process (starting at m_GridStartLine)
@@ -933,7 +943,7 @@ public:
 
 
             // Tides
-            bool                                                m_EnableTides;                                                   // Whether to enable tides (default = False)
+            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                             // Which tides prescription (default = NONE)
 
 
             // Zetas
@@ -969,7 +979,7 @@ public:
             double                                              m_PulsarBirthSpinPeriodDistributionMin;                         // Minimum birth spin period (ms)
             double                                              m_PulsarBirthSpinPeriodDistributionMax;                         // Maximum birth spin period (ms)
 
-            double                                              m_PulsarMagneticFieldDecayTimescale;                            // Timescale on which magnetic field decays (Myrs)
+            double                                              m_PulsarMagneticFieldDecayTimescale;                            // Timescale on which magnetic field decays (Myr)
             double                                              m_PulsarMagneticFieldDecayMassscale;                            // Mass scale on which magnetic field decays during accretion (solar masses)
             double                                              m_PulsarLog10MinimumMagneticField;                              // log10 of the minimum pulsar magnetic field in Gauss
 
@@ -1248,7 +1258,6 @@ public:
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
     bool                                        DetailedOutput() const                                                  { return m_CmdLine.optionValues.m_DetailedOutput; }
 
-    bool                                        EnableTides() const                                                     { return OPT_VALUE("enable-tides", m_EnableTides, true); }
     bool                                        EnableWarnings() const                                                  { return m_CmdLine.optionValues.m_EnableWarnings; }
     bool                                        ErrorsToFile() const                                                    { return m_CmdLine.optionValues.m_ErrorsToFile; }
     double                                      Eccentricity() const                                                    { return OPT_VALUE("eccentricity", m_Eccentricity, true); }
@@ -1360,6 +1369,8 @@ public:
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
     LBV_PRESCRIPTION                            LuminousBlueVariablePrescription() const                                { return OPT_VALUE("luminous-blue-variable-prescription", m_LuminousBlueVariablePrescription.type, true); }
     
+    double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
+    
     MASS_LOSS_PRESCRIPTION                      MassLossPrescription() const                                            { return OPT_VALUE("mass-loss-prescription", m_MassLossPrescription.type, true); }
 
     double                                      MassRatio() const                                                       { return OPT_VALUE("mass-ratio", m_MassRatio, true); }
@@ -1410,6 +1421,7 @@ public:
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-NS", m_MullerMandelKickNS, true); }
     double                                      MullerMandelSigmaKick() const                                           { return OPT_VALUE("muller-mandel-sigma-kick", m_MullerMandelSigmaKick, true); }
 
+    bool                                        NatalKickForPPISN() const                                               { return OPT_VALUE("natal-kick-for-PPISN", m_NatalKickForPPISN, false); }
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-BH-formation-value", m_NeutrinoMassLossValueBH, true); }
 
@@ -1462,6 +1474,8 @@ public:
 
     bool                                        Quiet() const                                                           { return m_CmdLine.optionValues.m_Quiet; }
 
+    double                                      RadialChangeFraction() const                                            { return m_CmdLine.optionValues.m_RadialChangeFraction; }
+    
     unsigned long int                           RandomSeed() const                                                      { return OPT_VALUE("random-seed", m_RandomSeed, true); }
     unsigned long int                           RandomSeedCmdLine() const                                               { return m_CmdLine.optionValues.m_RandomSeed; }
     unsigned long int                           RandomSeedGridLine() const                                              { return m_GridLine.optionValues.m_RandomSeed; }
@@ -1507,6 +1521,8 @@ public:
     bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }
 
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
+
+    TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return OPT_VALUE("tides-prescription", m_TidesPrescription.type, true); }
 
     std::string                                 TimestepsFileName() const                                               { return OPT_VALUE("timesteps-filename", m_TimestepsFileName, true); }
     double                                      TimestepMultiplier() const                                              { return m_CmdLine.optionValues.m_TimestepMultiplier; }

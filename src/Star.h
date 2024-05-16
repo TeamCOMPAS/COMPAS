@@ -90,7 +90,6 @@ public:
     double              CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const                 { return m_Star->CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate); }
     double              CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                    { return m_Star->CalculateCriticalMassRatioHurleyHjellmingWebbink(); }
     double              CalculateDynamicalTimescale() const                                                         { return m_Star->CalculateDynamicalTimescale(); }
-    double              CalculateNuclearTimescale() const                                                           { return m_Star->CalculateNuclearTimescale(); }
     double              CalculateRadialExpansionTimescale() const                                                   { return m_Star->CalculateRadialExpansionTimescale(); }
     double              CalculateThermalTimescale() const                                                           { return m_Star->CalculateThermalTimescale(); }
     double              COCoreMass() const                                                                          { return m_Star->COCoreMass(); }
@@ -171,7 +170,11 @@ public:
     DBL_DBL         CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
     
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }
-
+    
+    DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)  { return m_Star->CalculateImKlmDynamical(p_Omega, p_SemiMajorAxis, p_M2); }
+    DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2){ return m_Star->CalculateImKlmEquilibrium(p_Omega, p_SemiMajorAxis, p_M2); }
+    DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)      { return m_Star->CalculateImKlmTidal(p_Omega, p_SemiMajorAxis, p_M2); }
+    
     void            CalculateLambdas()                                                                              { m_Star->CalculateLambdas(); }
     void            CalculateLambdas(const double p_EnvMass)                                                        { m_Star->CalculateLambdas(p_EnvMass); }
 
@@ -183,6 +186,8 @@ public:
 
     double          CalculateMomentOfInertia() const                                                                { return m_Star->CalculateMomentOfInertia(); }
     double          CalculateMomentOfInertiaAU() const                                                              { return m_Star->CalculateMomentOfInertiaAU(); }
+    
+    double          CalculateNuclearMassLossRate()                                                                  { return m_Star->CalculateNuclearMassLossRate(); }
     
     double          CalculateRadialExtentConvectiveEnvelope() { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
 
@@ -204,6 +209,7 @@ public:
 
     double          CalculateZetaAdiabatic()                                                                        { return m_Star->CalculateZetaAdiabatic(); }
     double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                          { return m_Star->CalculateZetaConstantsByEnvelope(p_ZetaPrescription); }
+    double          CalculateZetaEquilibrium()                                                                      { return m_Star->CalculateZetaEquilibrium(); }
 
     void            ClearCurrentSNEvent()                                                                           { m_Star->ClearCurrentSNEvent(); }
 
@@ -271,6 +277,9 @@ public:
                                                                                                                                                          p_Epsilon);}
 
     void            UpdateMinimumCoreMass()                                                                         { m_Star->UpdateMinimumCoreMass(); }
+    
+    void            UpdatePreviousTimestepDuration()                                                                { m_Star->UpdatePreviousTimestepDuration(); }
+    
     ACCRETION_REGIME WhiteDwarfAccretionRegime() const                                                              { return m_Star->WhiteDwarfAccretionRegime(); }
 
 private:

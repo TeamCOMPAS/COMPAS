@@ -446,9 +446,9 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
     
     if(ShouldEnvelopeBeExpelledByPulsations())          { m_EnvelopeJustExpelledByPulsations = true; }
     
-    if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {        // Envelope lost - determine what type of star to form
+    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {        // Envelope lost - determine what type of star to form
 
-        m_Mass       = std::min(m_COCoreMass, m_Mass);
+        m_Mass       = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_Mass;
         m_HeCoreMass = m_Mass;
         m_COCoreMass = m_Mass;
@@ -471,7 +471,7 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
  * @return                                      Boolean flag: true if star has gone Supernova, false if not
  */
 bool HeHG::IsSupernova() const {
-    if (utils::Compare(m_COCoreMass, m_Mass) == 0) {    // special case of ultra-stripped-star -- go SN immediately if over ECSN limit
+    if (utils::Compare(m_CoreMass, m_Mass) == 0) {      // special case of ultra-stripped-star -- go SN immediately if over ECSN limit
         return (utils::Compare(m_Mass, MECS) > 0);
     }
         
@@ -487,7 +487,7 @@ bool HeHG::IsSupernova() const {
  * @return                                      double: Initial supernova supernova mass variable
  */
 double HeHG::CalculateInitialSupernovaMass() const {
-    if (utils::Compare(m_COCoreMass, m_Mass) == 0) {    // special case of ultra-stripped-star -- use current mass
+    if (utils::Compare(m_CoreMass, m_Mass) == 0) {      // special case of ultra-stripped-star -- use current mass
         return std::max(m_Mass, m_GBParams[static_cast<int>(GBP::McBAGB)]);
     }
     return GiantBranch::CalculateInitialSupernovaMass();
