@@ -2021,7 +2021,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     }
     
 	// Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
-	if (!m_CEDetails.CEEnow && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                           // accretor is a neutron star
+	//if (!m_CEDetails.CEEnow && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                           // accretor is a neutron star
+    if ((!m_CEDetails.CEEnow || OPTIONS->NeutronStarAccretionInCE() != NS_ACCRETION_IN_CE::ZERO)  && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
         m_Donor->SetRLOFOntoNS();                                                                                               // donor donated mass to a neutron star
         m_Accretor->SetRecycledNS();                                                                                            // accretor is (was) a recycled NS
 	}
