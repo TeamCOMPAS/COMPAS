@@ -445,7 +445,7 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_Force) {
     
     if (ShouldEnvelopeBeExpelledByPulsations()) m_EnvelopeJustExpelledByPulsations = true;
     
-    if (p_Force || utils::Compare(m_COCoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {       // Envelope lost - determine what type of star to form
+    if (p_Force || utils::Compare(m_CoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {         // Envelope lost - determine what type of star to form
 
         m_Mass       = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_Mass;
