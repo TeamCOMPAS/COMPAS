@@ -1130,13 +1130,7 @@
 //                                      - Some Code cleanup
 // 02.43.05    JR - Apr 21, 2024     - Defect repair, some code cleanup:
 //                                      - Last piece of no logging for clones - this prevents ephemeral clones from writing to or clearing the SSE SN stash.
-// 02.44.00    YS - Apr 22, 2024      - Update to neutron star accretion treatments:
-//                                      - Fixes to MSP formation/NS in mass transfer treatments:
-//                                       1). Created a new function NS::PulsarAccretion() to calculate the pulsar evolution in stable mass transfer.
-//                                       2). In UpdateMagneticFieldAndSpin(), splitting stable mass transfer into smaller steps so that no negative spin period is present. 
-//                                       3). Adding a new programming option "NS-ACCRETION-IN-CE" for different treatment of how neutron star would behave when in CE. 
-//                                    - Includes SS's fix for issue #1076
-const std::string VERSION_STRING = "02.44.00";
+const std::string VERSION_STRING = "02.43.05";
 
 
 # endif // __changelog_h__
