@@ -1832,7 +1832,7 @@ STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
     }
     else {                                                                                  // -no, treat as ONeWD 
         
-        if(utils::Compare(m_COCoreMass,MCH) > 0){
+        if (utils::Compare(m_COCoreMass,MCH) > 0) {
             SHOW_WARN(ERROR::WHITE_DWARF_TOO_MASSIVE, "Setting mass to Chandraskhar mass.");
         }
         m_Mass       = std::min(m_COCoreMass,MCH);                                          // no WD masses above Chandrasekhar mass

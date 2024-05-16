@@ -35,6 +35,38 @@ void HeMS::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
 }
 
 
+/*
+ * Calculate Giant Branch (GB) parameters per Hurley et al. 2000
+ *
+ * Giant Branch Parameters depend on a star's mass, so this needs to be called at least each timestep
+ *
+ * Vectors are passed by reference here for performance - preference would be to pass const& and
+ * pass modified value back by functional return, but this way is faster - and this function is
+ * called many, many times.
+ *
+ * void CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)
+ *
+ * @param   [IN]        p_Mass                  Mass in Msol
+ * @param   [IN/OUT]    p_GBParams              Giant Branch Parameters - calculated here
+ */
+void HeMS::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
+#define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
+    GiantBranch::CalculateGBParams(p_Mass, p_GBParams);                                     // calculate common values (actually, all)
+
+    // recalculate HeMS specific values
+
+	gbParams(B)      = CalculateCoreMass_Luminosity_B_Static();
+	gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass);
+
+    gbParams(p)      = CalculateCoreMass_Luminosity_p_Static(p_Mass, m_MassCutoffs);
+    gbParams(q)      = CalculateCoreMass_Luminosity_q_Static(p_Mass, m_MassCutoffs);
+    
+    gbParams(Mx)     = GiantBranch::CalculateCoreMass_Luminosity_Mx_Static(p_GBParams);      // depends on B, D, p & q - recalculate if any of those are changed
+    gbParams(Lx)     = GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // JR: Added this - depends on B, D, p, q & Mx - recalculate if any of those are changed
+
+#undef gbParams
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                              LUMINOSITY CALCULATIONS                              //
@@ -297,7 +329,7 @@ double HeMS::CalculateMassLossRateFlexible2023() {
 
     double MdotWR = 0.0;
 
-    if(OPTIONS->WRMassLoss() == WR_MASS_LOSS::SANDERVINK2023){
+    if (OPTIONS->WRMassLoss() == WR_MASS_LOSS::SANDERVINK2023) {
 
         // Calculate Sander & Vink 2020 mass-loss rate
         double Mdot_SanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
@@ -314,7 +346,7 @@ double HeMS::CalculateMassLossRateFlexible2023() {
         MdotWR = std::max(Mdot_Sander2023, Mdot_Vink2017);
 
     }
-    else if(OPTIONS->WRMassLoss() == WR_MASS_LOSS::SHENAR2019){
+    else if (OPTIONS->WRMassLoss() == WR_MASS_LOSS::SHENAR2019) {
 
         // Mass loss rate for WR stars from Shenar+ 2019
         double Mdot_Shenar2019 = CalculateMassLossRateWolfRayetShenar2019();
@@ -326,7 +358,7 @@ double HeMS::CalculateMassLossRateFlexible2023() {
         MdotWR = std::max(Mdot_Shenar2019, Mdot_Vink2017);
 
     }
-    else{
+    else {
         MdotWR = CalculateMassLossRateBelczynski2010();
     }
 
@@ -457,17 +489,21 @@ double HeMS::ChooseTimestep(const double p_Time) const {
  *     - m_Age
  *
  *
- * STELLAR_TYPE ResolveEnvelopeLoss()
+ * STELLAR_TYPE ResolveEnvelopeLoss(bool p_Force)
+ *
+ * @param   [IN]    p_Force                     Boolean to indicate whether the resolution of the loss of the envelope should be performed
+ *                                              without checking the precondition(s).
+ *                                              Default is false.
  *
  * @return                                      Stellar Type to which star should evolve after losing envelope
  */
-STELLAR_TYPE HeMS::ResolveEnvelopeLoss(bool p_NoCheck) {
+STELLAR_TYPE HeMS::ResolveEnvelopeLoss(bool p_Force) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_Mass, 0.0) <= 0) {
+    if (p_Force || utils::Compare(m_Mass, 0.0) <= 0) {
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
-        m_Radius    = 0.0;   // massless remnant
+        m_Radius    = 0.0;
         m_Mass      = 0.0;
     }
 

@@ -65,12 +65,20 @@ protected:
             double          CalculateCOCoreMassOnPhase() const                                                      { return 0.0;  }                                                                // McCO(HeMS) = 0.0
 
             double          CalculateConvectiveCoreMass() const                                                     { return MainSequence::CalculateConvectiveCoreMass(); }                         // Temporary solution, until we have tested the rate at which the convective core recedes in HeMS stars
-            double          CalculateConvectiveCoreRadius () const                                                  { return 0.5 * m_Radius; }                                                      // Temporary solution, until we have tested the core radii of HeMS stars
+            double          CalculateConvectiveCoreRadius() const                                                   { return 0.5 * m_Radius; }                                                      // Temporary solution, until we have tested the core radii of HeMS stars
             double          CalculateCoreMassAtPhaseEnd() const                                                     { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase /*ILYA*/ To fix, not everything will become CO core
             double          CalculateCoreMassOnPhase() const                                                        { return 0.0; }                                                                 // Mc(HeMS) = 0.0
 
+    static  double          CalculateCoreMass_Luminosity_B_Static()                                                 { return 4.1E4; }
+    static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                              { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }   // pow() is slow - use multiplication
+    static  double          CalculateCoreMass_Luminosity_p_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs) { return 5.0; }
+    static  double          CalculateCoreMass_Luminosity_q_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs) { return 3.0; }
+
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
             double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return 0.33; }                                                                // As coded in BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
+
+            void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
+            void            CalculateGBParams()                                                                     { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
 
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_Mass; }                                                              // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase
@@ -127,7 +135,7 @@ protected:
 
             void            PerturbLuminosityAndRadius() { }                                                                                                                                        // NO-OP
 
-            STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
+            STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
             void            ResolveHeliumFlash() { }                                                                                                                                                // NO-OP
             STELLAR_TYPE    ResolveSkippedPhase()                                                                   { return m_StellarType; }                                                       // NO-OP
 
