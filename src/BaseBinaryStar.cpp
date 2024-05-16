@@ -2439,10 +2439,10 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     if (!m_Unbound && OPTIONS->TidesPrescription() != TIDES_PRESCRIPTION::NONE) {
 	
-    // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
-    if (utils::Compare(m_Omega, 0.0) == 0) {
-        m_Omega = OrbitalAngularVelocity(); 
-    }
+        // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
+        if (utils::Compare(m_Omega, 0.0) == 0) {
+            m_Omega = OrbitalAngularVelocity(); 
+        }
     
         if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024) {
             // Evolve binary semi-major axis, eccentricity, and spin of each star based on Kapil et al., 2024
