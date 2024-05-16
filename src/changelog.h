@@ -1180,7 +1180,7 @@
 // 02.46.05    JR - May 16, 2024     - Defect repair, minor cleanup:
 //                                      - fix for issue #744 - GB parameters `p` and `q` calculated differently for naked helium stars (see issue for details)
 //                                      - changed name of `ResolveEnvelopeLoss()` parameter `p_NoCheck` to `p_Force` (it is required, and now we understand why... see issue #873)
-//                                      - some clode cleanup
+//                                      - some code cleanup
 
                   
 const std::string VERSION_STRING = "02.46.05";
