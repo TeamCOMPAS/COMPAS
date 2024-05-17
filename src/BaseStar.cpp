@@ -2505,7 +2505,7 @@ double BaseStar::CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(c
     if (utils::Compare(teff, teffMin) > 0) {
         logMdotCorrected = logMdotUncorrected - 6.0 * log10(teff / teffRef);
     }
-    else{
+    else {
         logMdotCorrected = logMdotUncorrected;
     }
 
@@ -3273,7 +3273,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           
     }
 
-    double radiusAU = m_Radius * RSOL_TO_AU;
+    double radiusAU              = m_Radius * RSOL_TO_AU;
     double coreRadiusAU          = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
     double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
     double radiusIntershellAU    = radiusAU - convectiveEnvRadiusAU;                                    // Outer radial coordinate of radiative intershell

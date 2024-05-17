@@ -1177,8 +1177,12 @@
 //                                      - Update BaseBinaryStar::CalculateMassTransfer() to use this function and to correctly evaluate m_AccretionFraction and the corresponding zetaRocheLobe
 // 02.46.04    IM - May 16, 2024     - Defect repair
 //                                      - Repaired a bug in GiantBranch::CalculateRemnantMassByMullerMandel() that could cause an infinite loop (see issue #1127)
+// 02.46.05    JR - May 16, 2024     - Defect repair, minor cleanup:
+//                                      - fix for issue #744 - GB parameters `p` and `q` calculated differently for naked helium stars (see issue for details)
+//                                      - changed name of `ResolveEnvelopeLoss()` parameter `p_NoCheck` to `p_Force` (it is required, and now we understand why... see issue #873)
+//                                      - some code cleanup
 
                   
-const std::string VERSION_STRING = "02.46.04";
+const std::string VERSION_STRING = "02.46.05";
 
 # endif // __changelog_h__

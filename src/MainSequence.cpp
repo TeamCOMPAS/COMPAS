@@ -396,14 +396,15 @@ double MainSequence::CalculateRadiusAtPhaseEnd(const double p_Mass, const double
 
         RTMS = ((C_COEFF.at(1) * m_3) + (a[23] * PPOW(p_Mass, a[26])) + (a[24] * PPOW(p_Mass, a[26] + 1.5))) / (a[25] + m_5);
     }
-    else{   // for stars with masses between a17, a17 + 0.1 interpolate between the end points (y = mx + c)
+    else {
+        // for stars with masses between a17, a17 + 0.1 interpolate between the end points (y = mx + c)
 
         // pow() is slow - use multiplication
         double mA_3 = mAsterisk * mAsterisk * mAsterisk;
         double mA_5 = mA_3 * mAsterisk * mAsterisk;
 
-        double y2   = ((C_COEFF.at(1) * mA_3) + (a[23] * PPOW(mAsterisk, a[26])) + (a[24] * PPOW(mAsterisk, a[26] + 1.5))) / (a[25] + mA_5); // RTMS(mAsterisk)
-        double y1   = (a[18] + (a[19] * PPOW(a[17], a[21]))) / (a[20] + PPOW(a[17], a[22]));                                                  // RTMS(a17)
+        double y2   = ((C_COEFF.at(1) * mA_3) + (a[23] * PPOW(mAsterisk, a[26])) + (a[24] * PPOW(mAsterisk, a[26] + 1.5))) / (a[25] + mA_5);    // RTMS(mAsterisk)
+        double y1   = (a[18] + (a[19] * PPOW(a[17], a[21]))) / (a[20] + PPOW(a[17], a[22]));                                                    // RTMS(a17)
 
         double gradient  = (y2 - y1) / 0.1;
         double intercept = y1 - (gradient * a[17]);
@@ -483,9 +484,10 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
     if ( utils::Compare(m_Mass, 1.25) >= 0)
         radiusEnvelope0 = 0.0;
     else if (utils::Compare(m_Mass, 0.35) > 0) {
-        double radiusM035 = CalculateRadiusAtZAMS(0.35);          // uses radius of a 0.35 solar mass star at ZAMS rather than at fractional age Tau, but such low-mass stars only grow by a maximum factor of 1.5 [just above Eq. (10) in Hurley, Pols, Tout (2000), so this is a reasonable approximation
-        radiusEnvelope0 = radiusM035 * std::sqrt((1.25 - m_Mass) / 0.9);
+        double radiusM035 = CalculateRadiusAtZAMS(0.35);        // uses radius of a 0.35 solar mass star at ZAMS rather than at fractional age Tau, but such low-mass stars only grow by a maximum factor of 1.5 [just above Eq. (10) in Hurley, Pols, Tout (2000), so this is a reasonable approximation
+        radiusEnvelope0   = radiusM035 * std::sqrt((1.25 - m_Mass) / 0.9);
     }
+
     return radiusEnvelope0 * std::sqrt(std::sqrt(1.0 - m_Tau));
 }
 
@@ -704,17 +706,21 @@ double MainSequence::ChooseTimestep(const double p_Time) const {
  *     - m_Age
  *
  *
- * STELLAR_TYPE ResolveEnvelopeLoss()
+ * STELLAR_TYPE ResolveEnvelopeLoss(bool p_Force)
+ *
+ * @param   [IN]    p_Force                     Boolean to indicate whether the resolution of the loss of the envelope should be performed
+ *                                              without checking the precondition(s).
+ *                                              Default is false.
  *
  * @return                                      Stellar type to which star should evolve
  */
-STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
+STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_Force) {
 
     STELLAR_TYPE stellarType = m_StellarType;
     
-    if (p_NoCheck || utils::Compare(m_Mass, 0.0) <= 0) {
+    if (p_Force || utils::Compare(m_Mass, 0.0) <= 0) {      // envelope loss
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
-        m_Radius    = 0.0;   // massless remnant
+        m_Radius    = 0.0;
         m_Mass      = 0.0;
     }
     

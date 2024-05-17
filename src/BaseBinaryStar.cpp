@@ -1653,7 +1653,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 	// double common envelope phase prescription (Brown 1995) to calculate new semi-major axis
 	// due to the CEE as described in Belczynsky et al. 2002, eq. (12)
     
-    if( OPTIONS->CommonEnvelopeFormalism() == CE_FORMALISM::ENERGY ) {
+    if (OPTIONS->CommonEnvelopeFormalism() == CE_FORMALISM::ENERGY) {
         double k1         = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * m_MassEnv1 / m_Star1->Radius();
         double k2         = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * m_MassEnv2 / m_Star2->Radius();
         double k3         = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                         // assumes immediate circularisation at periastron at start of CE
@@ -1685,11 +1685,11 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         m_SemiMajorAxis   = aFinalRsol * RSOL_TO_AU;
 
         // Stage 2: radiative envelope removal on a thermal timescale; assumed to be fully non-conservative
-        if( utils::Compare(radiativeIntershellMass1, 0.0) > 0 ) {
+        if (utils::Compare(radiativeIntershellMass1, 0.0) > 0) {
             m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass1, -radiativeIntershellMass1, *m_Star2, 0.0);
         }
 
-        if( utils::Compare(radiativeIntershellMass2, 0.0) > 0 ) {
+        if (utils::Compare(radiativeIntershellMass2, 0.0) > 0) {
             m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass2, -radiativeIntershellMass2, *m_Star1, 0.0);
         }
     } 
@@ -1717,12 +1717,13 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     }
     else if ( (m_Star1->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) ||
               (m_Star2->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) ) {       // check if we have a non-MS radiative-envelope star
-        if(!OPTIONS->AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() ) {                                            // stellar merger
+        if (!OPTIONS->AllowRadiativeEnvelopeStarToSurviveCommonEnvelope()) {                                            // stellar merger
             m_CEDetails.optimisticCE = true;
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
             m_Flags.stellarMerger        = true;
         }
     }
+
 	if (!m_Flags.stellarMerger) {
 
         STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                             // star 1 stellar type before resolving envelope loss
@@ -2347,7 +2348,7 @@ void BaseBinaryStar::ResolveMassChanges() {
     m_SemiMajorAxis = m_SemiMajorAxisPrev + m_aMassLossDiff + m_aMassTransferDiff;
     
     //Envelope ejection for convective envelope stars exceeding threshold luminosity to mass ratio: assume the entire envelope was lost on timescales long relative to the orbit
-    if(m_Star1->EnvelopeJustExpelledByPulsations() || m_Star2->EnvelopeJustExpelledByPulsations()) {
+    if (m_Star1->EnvelopeJustExpelledByPulsations() || m_Star2->EnvelopeJustExpelledByPulsations()) {
         m_SemiMajorAxis /= (2.0 - ((m_Star1->MassPrev() + m_Star2->MassPrev()) / (m_Star1->Mass() + m_Star2->Mass()))); // update separation in response to pulsational mass loss
         m_Star1->ResetEnvelopeExpulsationByPulsations();
         m_Star2->ResetEnvelopeExpulsationByPulsations();
@@ -2438,10 +2439,10 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     if (!m_Unbound && OPTIONS->TidesPrescription() != TIDES_PRESCRIPTION::NONE) {
 	
-    // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
-    if (utils::Compare(m_Omega, 0.0) == 0) {
-        m_Omega = OrbitalAngularVelocity(); 
-    }
+        // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
+        if (utils::Compare(m_Omega, 0.0) == 0) {
+            m_Omega = OrbitalAngularVelocity(); 
+        }
     
         if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024) {
             // Evolve binary semi-major axis, eccentricity, and spin of each star based on Kapil et al., 2024

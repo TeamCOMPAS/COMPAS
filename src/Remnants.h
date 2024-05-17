@@ -29,7 +29,7 @@ protected:
     // member functions - alphabetically
     double          CalculateCOCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 
-    double          CalculateConvectiveCoreRadius () const                                                      { return m_Radius; }                                                                                  // All core
+    double          CalculateConvectiveCoreRadius() const                                                       { return m_Radius; }                                                    // All core
     DBL_DBL         CalculateConvectiveEnvelopeMass() const                                                     { return std::tuple<double, double> (0.0, 0.0); }
 
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
@@ -94,12 +94,12 @@ protected:
 
     void            PerturbLuminosityAndRadius() { }                                                                                                                                    // NO-OP
 
-    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false)                                                 { return BaseStar::ResolveEnvelopeLoss(p_NoCheck); }                    // Default to BaseStar
+    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false)                                                   { return BaseStar::ResolveEnvelopeLoss(p_Force); }                      // Default to BaseStar
 
     void            ResolveEnvelopeMassAtPhaseEnd(const double p_Tau) const                                     { ResolveEnvelopeMassOnPhase(p_Tau); }                                  // Same as on phase
     void            ResolveEnvelopeMassOnPhase(const double p_Tau) const { }                                                                                                            // NO-OP
 
-    void            ResolveMassLoss(const bool p_UpdateMDt = true) { }                                                                                                                                               // NO-OP
+    void            ResolveMassLoss(const bool p_UpdateMDt = true) { }                                                                                                                  // NO-OP
 
     STELLAR_TYPE    ResolveSkippedPhase()                                                                       { return BaseStar::ResolveSkippedPhase(); }                             // Default to BaseStar
                                                                                                                                                                                         //
