@@ -119,7 +119,7 @@ protected:
     bool            IsEndOfPhase() const                                        { return !ShouldEvolveOnPhase(); }                                              // Phase ends when age at or after He Burning
     bool            IsSupernova() const                                         { return false; }                                                               // Not here
 
-    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
+    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
     void            ResolveHeliumFlash() {  }                                                                                                                   // NO-OP
 
     bool            ShouldEnvelopeBeExpelledByPulsations() const { return ( OPTIONS->ExpelConvectiveEnvelopeAboveLuminosityThreshold() && DetermineEnvelopeType() == ENVELOPE::CONVECTIVE && utils::Compare( log10(m_Luminosity/m_Mass), OPTIONS->LuminosityToMassThreshold() ) >= 0 ) ; }                             // Envelope of convective star with luminosity to mass ratio beyond threshold should be expelled

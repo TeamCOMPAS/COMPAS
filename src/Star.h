@@ -159,8 +159,8 @@ public:
                                              const double p_EnvMass,
                                              const double p_Radius)                                                 { m_Star->CalculateBindingEnergies(p_CoreMass, p_EnvMass, p_Radius); }
 
-    double          CalculateConvectiveCoreMass () { return m_Star->CalculateConvectiveCoreMass(); }
-    double          CalculateConvectiveCoreRadius () { return m_Star->CalculateConvectiveCoreRadius(); }
+    double          CalculateConvectiveCoreMass()                                                                   { return m_Star->CalculateConvectiveCoreMass(); }
+    double          CalculateConvectiveCoreRadius()                                                                 { return m_Star->CalculateConvectiveCoreRadius(); }
 
     double          CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass,
                                                              const double p_ConvectiveEnvelopeMass,

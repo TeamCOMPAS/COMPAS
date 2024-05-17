@@ -46,7 +46,7 @@ protected:
             double          CalculateCOCoreMassAtPhaseEnd() const                                                   { return (utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0) ? m_COCoreMass : m_Mass; }
             double          CalculateCOCoreMassOnPhase() const                                                      { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                 // McCO(TPAGB) = Mc(TPAGB)Same as on phase
 
-            double          CalculateConvectiveCoreRadius () const                                                  { return std::min(5.0 * CalculateRemnantRadius(), m_Radius); }    // Last paragraph of section 6 of Hurley+ 2000
+            double          CalculateConvectiveCoreRadius() const                                                   { return std::min(5.0 * CalculateRemnantRadius(), m_Radius); }    // Last paragraph of section 6 of Hurley+ 2000
 
             double          CalculateCoreMassAtPhaseEnd() const                                                     { return m_CoreMass; }                                                                  // NO-OP
             double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const;
@@ -94,7 +94,7 @@ protected:
             bool            IsEndOfPhase() const                                                                    { return !ShouldEvolveOnPhase(); }                                                      // Phase ends when envelope loss or going supernova
             bool            IsSupernova() const                                                                     { return (utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0); } // Going supernova if still has envelope and core mass large enough
 
-            STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
+            STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
             void            ResolveHeliumFlash() { }                                                                                                                                                        // NO-OP
             STELLAR_TYPE    ResolveSkippedPhase()                                                                   { return m_StellarType; }                                                               // NO-OP
 
