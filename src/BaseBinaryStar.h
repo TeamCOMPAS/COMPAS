@@ -565,7 +565,7 @@ private:
             double donorMass    = m_Donor->Mass();
             double accretorMass = m_Accretor->Mass();
             
-            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -p_dM , *m_Accretor, m_FractionAccreted);
+            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(m_Donor->Mass(), -p_dM , *m_Accretor, m_FractionAccreted);
             double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (m_Binary->FractionAccreted() * p_dM)) * AU_TO_RSOL;
             
             double radiusAfterMassLoss =  m_Donor->CalculateRadiusOnPhase(donorMass-p_dM, m_Donor->Tau());
