@@ -1349,7 +1349,7 @@ the other is printed in any file, but not both. If both are printed then the fil
    * - COMPAS variable:
      - BaseStar::m_Mdot
    * - Description:
-     - Mass loss rate (\ :math:`M_\odot yr^{−1}`).
+     - Mass loss rate in winds (\ :math:`M_\odot yr^{−1}`).
    * - Header Strings:
      - Mdot, Mdot(1), Mdot(2), Mdot(SN), Mdot(CP)
 

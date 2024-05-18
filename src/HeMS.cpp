@@ -198,7 +198,7 @@ double HeMS::CalculateRadiusOnPhase_Static(const double p_Mass, const double p_T
  * @return                                      Radius at the end of the helium main sequence (RTHe)
  */
 double HeMS::CalculateRadiusAtPhaseEnd_Static(const double p_Mass) {
-    return CalculateRadiusAtZAMS_Static(p_Mass);
+    return CalculateRadiusOnPhase_Static(p_Mass, 1.0);
 }
 
 
