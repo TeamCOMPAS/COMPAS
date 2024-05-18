@@ -424,7 +424,7 @@ double MainSequence::CalculateRadiusAtPhaseEnd(const double p_Mass, const double
  * Hurley et al. 2000, eq 13
  *
  *
- * double CalculateRadiusOnPhase(const double p_Mass, const double, p_RZAMS, const double p_Time)
+ * double CalculateRadiusOnPhase(const double p_Mass, const double p_Time, const double p_RZAMS)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_Time                      Time (after ZAMS) in Myr
@@ -467,6 +467,59 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
 #undef timescales
 #undef a
 }
+
+
+/*
+ * Calculate radius on the Main Sequence
+ *
+ * Hurley et al. 2000, eq 13
+ *
+ *
+ * double CalculateRadiusOnPhase(const double p_Mass, const double p_Tau)
+ *
+ * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Tau                       Fractional age on Main Sequence
+ * @return                                      Radius on the Main Sequence in Rsol
+ */
+double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau) const {
+#define a m_AnCoefficients                                          // for convenience and readability - undefined at end of function
+
+    const double epsilon = 0.01;
+    double tBGB = CalculateLifetimeToBGB(p_Mass);
+    double tMS  = CalculateLifetimeOnPhase(p_Mass, tBGB);
+
+    double RZAMS  = CalculateRadiusAtZAMS(p_Mass);
+    double RTMS   = CalculateRadiusAtPhaseEnd(p_Mass, RZAMS);
+    double alphaR = CalculateAlphaR(p_Mass);
+    double betaR  = CalculateBetaR(p_Mass);
+    double deltaR = CalculateDeltaR(p_Mass);
+    double gamma  = CalculateGamma(p_Mass);
+
+    double mu     = std::max(0.5, (1.0 - (0.01 * std::max((a[6] / PPOW(p_Mass, a[7])), (a[8] + (a[9] / PPOW(p_Mass, a[10]))))))); // Hurley et al. 2000, eq 7
+    double tHook  = mu * tBGB;                                                                                      // Hurley et al. 2000, just after eq 5
+    double time   = tMS * p_Tau;
+    double tau1   = std::min(1.0, (time / tHook));                                                                            // Hurley et al. 2000, eq 14
+    double tau2   = std::max(0.0, std::min(1.0, (time - ((1.0 - epsilon) * tHook)) / (epsilon * tHook)));                     // Hurley et al. 2000, eq 15
+
+    // pow() is slow - use multipliaction where it makes sense
+    double tau_3  = p_Tau * p_Tau * p_Tau;
+    double tau_10 = tau_3 * tau_3 * tau_3 * p_Tau;
+    double tau_40 = tau_10 * tau_10 * tau_10 * tau_10;
+    double tau1_3 = tau1 * tau1 * tau1;
+    double tau2_3 = tau2 * tau2 * tau2;
+
+    double logRMS_RZAMS  = alphaR * p_Tau;                                                                                        // Hurley et al. 2000, eq 13, part 1
+           logRMS_RZAMS += betaR * tau_10;                                                                                      // Hurley et al. 2000, eq 13, part 2
+           logRMS_RZAMS += gamma * tau_40;                                                                                      // Hurley et al. 2000, eq 13, part 3
+           logRMS_RZAMS += (log10(RTMS / RZAMS) - alphaR - betaR - gamma) * tau_3;                                            // Hurley et al. 2000, eq 13, part 4
+           logRMS_RZAMS -= deltaR * (tau1_3 - tau2_3);                                                                          // Hurley et al. 2000, eq 13, part 5
+
+    return RZAMS * PPOW(10.0, logRMS_RZAMS);                                                                                   // rewrite Hurley et al. 2000, eq 13 for R(t)
+
+#undef a
+}
+
+
 
 
 /*
