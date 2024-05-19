@@ -75,6 +75,8 @@ public:
 
         m_MassEnv1                         = p_Star.m_MassEnv1;
         m_MassEnv2                         = p_Star.m_MassEnv2;
+        
+        m_MassLossRateInRLOF               = p_Star.m_MassLossRateInRLOF;
 
         m_aMassLossDiff                    = p_Star.m_aMassLossDiff;
 
@@ -341,6 +343,8 @@ private:
 
     double              m_MassEnv1;                                                         // Star1 envelope mass in Msol
     double              m_MassEnv2;                                                         // Star2 envelope mass in Msol
+    
+    double              m_MassLossRateInRLOF;                                               // Rate of mass loss from donor during mass transfer (Msol/Myr)
 
     double              m_aMassLossDiff;
 
@@ -560,25 +564,13 @@ private:
 
             double donorMass    = m_Donor->Mass();
             double accretorMass = m_Accretor->Mass();
-
-            BinaryConstituentStar *donorCopy = BinaryConstituentStar::Clone(*m_Donor, OBJECT_PERSISTENCE::EPHEMERAL);
             
-            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorCopy->Mass(), -p_dM , *m_Accretor, m_FractionAccreted);
+            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(m_Donor->Mass(), -p_dM , *m_Accretor, m_FractionAccreted);
             double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (m_Binary->FractionAccreted() * p_dM)) * AU_TO_RSOL;
             
-            (void)donorCopy->UpdateAttributes(-p_dM, -p_dM * donorCopy->Mass0() / donorCopy->Mass());
-            
-            // Modify donor Mass0 and Age for MS (including HeMS) and HG stars
-            donorCopy->UpdateInitialMass();                 // update initial mass (MS, HG & HeMS)  
-            donorCopy->UpdateAgeAfterMassLoss();            // update age (MS, HG & HeMS)
-            
-            (void)donorCopy->AgeOneTimestep(0.0);           // recalculate radius of star - don't age - just update values
-            
-            double thisRadiusAfterMassLoss = donorCopy->Radius();
-            
-            delete donorCopy; donorCopy = nullptr;
-            
-            return (RLRadius - thisRadiusAfterMassLoss);
+            double radiusAfterMassLoss =  m_Donor->CalculateRadiusOnPhase(donorMass-p_dM, m_Donor->Tau());
+                        
+            return (RLRadius - radiusAfterMassLoss);
         }
     private:
         BaseBinaryStar        *m_Binary;
@@ -586,6 +578,7 @@ private:
         BinaryConstituentStar *m_Accretor;
         ERROR                 *m_Error;
         double                 m_FractionAccreted;
+        double                 m_MassLossRateInRLOF;
     };
 
 
@@ -630,7 +623,11 @@ private:
         ERROR error       = ERROR::NONE;
         RadiusEqualsRocheLobeFunctor<double> func = RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor, p_FractionAccreted, &error); // no need to check error here
         while (!done) {                                                                                     // while no error and acceptable root found
-            bool isRising = func((const double)guess) >= func((const double)guess * factor) ? false : true; // gradient direction from guess to upper search increment
+            double semiMajorAxis = p_Binary->CalculateMassTransferOrbit(p_Donor->Mass(), -guess , *p_Accretor, p_FractionAccreted);
+            double RLRadius      = semiMajorAxis * (1.0 - p_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(p_Donor->Mass() - guess, p_Accretor->Mass() + (p_Binary->FractionAccreted() * guess)) * AU_TO_RSOL;
+            double radiusAfterMassLoss =  p_Donor->CalculateRadiusOnPhase(p_Donor->Mass()-guess, p_Donor->Tau());
+            bool isRising = radiusAfterMassLoss > RLRadius ? true : false;      // guess for direction of search
+            
 
             // run the root finder
             // regardless of any exceptions or errors, display any problems as a warning, then

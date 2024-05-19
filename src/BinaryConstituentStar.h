@@ -60,8 +60,8 @@ public:
         m_Flags.recycledNS                           = false;
         m_Flags.rlofOntoNS                           = false;
 
-        m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_MassLossDiff                               = DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_OrbitalEnergyPreSN                         = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_OrbitalEnergyPostSN                        = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -87,8 +87,8 @@ public:
 
         m_Flags                    = p_Star.m_Flags;
 
-        m_MassTransferDiff         = p_Star.m_MassTransferDiff;
         m_MassLossDiff             = p_Star.m_MassLossDiff;
+        m_MassTransferDiff         = p_Star.m_MassTransferDiff;
 
         m_OrbitalEnergyPreSN       = p_Star.m_OrbitalEnergyPreSN;
         m_OrbitalEnergyPostSN      = p_Star.m_OrbitalEnergyPostSN;
@@ -173,7 +173,6 @@ public:
     double          LambdaAtCEE() const                                                 { return m_CEDetails.lambda; }
     double          LuminosityPostCEE() const                                           { return m_CEDetails.postCEE.luminosity; }
     double          LuminosityPreCEE() const                                            { return m_CEDetails.preCEE.luminosity; }
-
     double          MassLossDiff() const                                                { return m_MassLossDiff; }
     double          MassPostCEE() const                                                 { return m_CEDetails.postCEE.mass; }
     double          MassPreCEE() const                                                  { return m_CEDetails.preCEE.mass; }
@@ -201,8 +200,6 @@ public:
 
     // setters
     void            SetCompanion(BinaryConstituentStar* p_Companion)                    { m_Companion = p_Companion; }                              // this star's companion star
-
-    void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
     void            SetMassTransferDiffAndResolveWDShellChange(const double p_MassTransferDiff);
 
     void            SetOrbitalEnergyPostSN(const double p_OrbitalEnergyPostSN)          { m_OrbitalEnergyPostSN = p_OrbitalEnergyPostSN; };
@@ -240,7 +237,7 @@ public:
                                                                                                                            p_Stepsize, 
                                                                                                                            m_MassTransferDiff * MSOL_TO_KG, p_Epsilon); }  // JR: todo: revisit this
 
-    // setters
+    void            SetMassLossDiff(const double p_MassLossDiff)                                { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
     void            SetObjectId(const OBJECT_ID p_ObjectId)                             { m_ObjectId = p_ObjectId; }
     void            SetPersistence(const OBJECT_PERSISTENCE p_Persistence)              { m_ObjectPersistence = p_Persistence; }
 

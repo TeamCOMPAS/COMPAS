@@ -208,6 +208,9 @@ typedef struct RLOFProperties {
     bool          isRLOF2;
 
     bool          isCE;
+    
+    double        massLossRateFromDonor;
+    double        accretionEfficiency;
 
 } RLOFPropertiesT;
 

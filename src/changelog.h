@@ -1181,8 +1181,13 @@
 //                                      - fix for issue #744 - GB parameters `p` and `q` calculated differently for naked helium stars (see issue for details)
 //                                      - changed name of `ResolveEnvelopeLoss()` parameter `p_NoCheck` to `p_Force` (it is required, and now we understand why... see issue #873)
 //                                      - some code cleanup
+// 02.47.00    IM - May 18, 2024     - Defect repair and enhancement
+//                                      - Equilibrium zeta and radial response of MS stars to mass loss are now calculated using CalculateRadiusOnPhase() rather than by cloning
+//                                      - MassLossToFitInsideRocheLobe() and associated functor updated, work more efficiently, no longer artificially fail, and also use CalculateRadiusOnPhase()
+//                                      - ROOT_ABS_TOLERANCE increased to avoid artificial failures on round-off errors
+//                                      - code cleanup and bug repairs elsewhere
 
                   
-const std::string VERSION_STRING = "02.46.05";
+const std::string VERSION_STRING = "02.47.00";
 
 # endif // __changelog_h__

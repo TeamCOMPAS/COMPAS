@@ -425,11 +425,15 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.props1.eventCounter                = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_RLOFDetails.props1.time                        = DEFAULT_INITIAL_DOUBLE_VALUE;
+    
+    m_RLOFDetails.props1.accretionEfficiency         = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.massLossRateFromDonor       = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_RLOFDetails.props1.isRLOF1                     = false;
     m_RLOFDetails.props1.isRLOF2                     = false;
 
     m_RLOFDetails.props1.isCE                        = false;
+
 
 	// RLOF details - properties 2
     m_RLOFDetails.props2.id = -1l;
@@ -453,6 +457,9 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.props2.eventCounter                = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_RLOFDetails.props2.time                        = DEFAULT_INITIAL_DOUBLE_VALUE;
+    
+    m_RLOFDetails.props2.accretionEfficiency         = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.massLossRateFromDonor       = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_RLOFDetails.props2.isRLOF1                     = false;
     m_RLOFDetails.props2.isRLOF2                     = false;
@@ -598,6 +605,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE:                        value = Radius2PostCEE();                                                   break;
         case BINARY_PROPERTY::RADIUS_2_PRE_COMMON_ENVELOPE:                         value = Radius2PreCEE();                                                    break;
         case BINARY_PROPERTY::RANDOM_SEED:                                          value = RandomSeed();                                                       break;
+        case BINARY_PROPERTY::RLOF_ACCRETION_EFFICIENCY:                            value = RLOFDetails().propsPostMT->accretionEfficiency;                     break;
+        case BINARY_PROPERTY::RLOF_MASS_LOSS_RATE:                                  value = RLOFDetails().propsPostMT->massLossRateFromDonor;                   break;
         case BINARY_PROPERTY::RLOF_POST_MT_COMMON_ENVELOPE:                         value = RLOFDetails().propsPostMT->isCE;                                    break;
         case BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY:                            value = RLOFDetails().propsPostMT->eccentricity;                            break;
         case BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER:                           value = RLOFDetails().propsPostMT->eventCounter;                            break;
@@ -922,6 +931,8 @@ void BaseBinaryStar::StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which) {
     rlofPropertiesToReset->isRLOF1                     = m_Star1->IsRLOF();
     rlofPropertiesToReset->isRLOF2                     = m_Star2->IsRLOF();
     rlofPropertiesToReset->isCE                        = m_CEDetails.CEEnow;
+    rlofPropertiesToReset->massLossRateFromDonor       = m_MassLossRateInRLOF;
+    rlofPropertiesToReset->accretionEfficiency         = m_FractionAccreted;
 }
 
 
@@ -2022,13 +2033,15 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     
     m_ZetaLobe = CalculateZetaRocheLobe(jLoss, betaNuclear);                                                                    // try nuclear timescale mass transfer first
     if(m_Donor->IsOneOf(ALL_MAIN_SEQUENCE) && utils::Compare(zetaEquilibrium, m_ZetaLobe) > 0) {
+        m_MassLossRateInRLOF = donorMassLossRateNuclear;
         m_FractionAccreted = betaNuclear;
     }
     else {
         m_ZetaLobe = CalculateZetaRocheLobe(jLoss, betaThermal);
+        m_MassLossRateInRLOF = donorMassLossRateThermal;
         m_FractionAccreted = betaThermal;
     }
-    
+        
     double aInitial = m_SemiMajorAxis;                                                                                          // semi-major axis in default units, AU, current timestep
     double aFinal;                                                                                                              // semi-major axis in default units, AU, after next timestep
 

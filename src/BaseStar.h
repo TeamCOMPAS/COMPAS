@@ -131,12 +131,12 @@ public:
             double              Luminosity() const                                              { return m_Luminosity; }
             double              Mass() const                                                    { return m_Mass; }
             double              Mass0() const                                                   { return m_Mass0; }
-            double              MinimumCoreMass() const                                         { return m_MinimumCoreMass; }
             double              MassPrev() const                                                { return m_MassPrev; }
             STYPE_VECTOR        MassTransferDonorHistory() const                                { return m_MassTransferDonorHistory; }
             std::string         MassTransferDonorHistoryString() const;
             double              Mdot() const                                                    { return m_Mdot; }
             double              Metallicity() const                                             { return m_Metallicity; }
+            double              MinimumCoreMass() const                                         { return m_MinimumCoreMass; }
             double              MZAMS() const                                                   { return m_MZAMS; }
             double              Omega() const                                                   { return m_Omega; }
             double              OmegaCHE() const                                                { return m_OmegaCHE; }
@@ -185,7 +185,7 @@ public:
 
 
     // setters
-            void                SetInitialType(const STELLAR_TYPE p_InitialType)                { m_InitialStellarType = p_InitialType; }                                           // JR Could do some sanity checks here
+            void                SetInitialType(const STELLAR_TYPE p_InitialType)                { m_InitialStellarType = p_InitialType; } // JR Could do some sanity checks here
             void                SetObjectId(const OBJECT_ID p_ObjectId)                         { m_ObjectId = p_ObjectId; }
             void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)          { m_ObjectPersistence = p_Persistence; }
 
@@ -257,6 +257,8 @@ public:
             double          CalculateRadialExpansionTimescale() const                                           { return CalculateRadialExpansionTimescale_Static(m_StellarType, m_StellarTypePrev, m_Radius, m_RadiusPrev, m_DtPrev); } // Use class member variables
     
     virtual double          CalculateRadialExtentConvectiveEnvelope() const                                     { return 0.0; }                                                     // default for stars with no convective envelope
+    
+    virtual double          CalculateRadiusOnPhase(const double p_Mass, const double p_Tau) const               { return 0.0; } // Only defined for MS stars
 
             void            CalculateSNAnomalies(const double p_Eccentricity);
 
@@ -395,8 +397,9 @@ protected:
     double                  m_Mass0;                                    // Current effective initial mass (Msol)
     double                  m_MinimumCoreMass;                          // Minimum core mass at end of main sequence (MS stars have no core in the Hurley prescription)
     double                  m_MinimumLuminosityOnPhase;                 // JR: Only required for CHeB stars, but only needs to be calculated once per star
-    double                  m_Mdot;                                     // Current mass loss rate (Msol per ?)
-    MASS_LOSS_TYPE          m_DominantMassLossRate;                     // Current dominant mass loss rate
+    double                  m_Mdot;                                     // Current mass loss rate in winds (Msol per yr)
+    MASS_LOSS_TYPE          m_DominantMassLossRate;                     // Current dominant type of wind mass loss
+
     double                  m_Mu;                                       // Current small envelope parameter mu
     double                  m_Omega;                                    // Current angular frequency (yr^-1)
     double                  m_Radius;                                   // Current radius (Rsol)
