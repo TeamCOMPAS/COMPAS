@@ -568,7 +568,7 @@ private:
             double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(m_Donor->Mass(), -p_dM , *m_Accretor, m_FractionAccreted);
             double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (m_Binary->FractionAccreted() * p_dM)) * AU_TO_RSOL;
             
-            double radiusAfterMassLoss =  m_Donor->CalculateRadiusOnPhase(donorMass-p_dM, m_Donor->Tau());
+            double radiusAfterMassLoss =  m_Donor->CalculateRadiusOnPhaseTau(donorMass-p_dM, m_Donor->Tau());
                         
             return (RLRadius - radiusAfterMassLoss);
         }
@@ -625,7 +625,7 @@ private:
         while (!done) {                                                                                     // while no error and acceptable root found
             double semiMajorAxis = p_Binary->CalculateMassTransferOrbit(p_Donor->Mass(), -guess , *p_Accretor, p_FractionAccreted);
             double RLRadius      = semiMajorAxis * (1.0 - p_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(p_Donor->Mass() - guess, p_Accretor->Mass() + (p_Binary->FractionAccreted() * guess)) * AU_TO_RSOL;
-            double radiusAfterMassLoss =  p_Donor->CalculateRadiusOnPhase(p_Donor->Mass()-guess, p_Donor->Tau());
+            double radiusAfterMassLoss =  p_Donor->CalculateRadiusOnPhaseTau(p_Donor->Mass()-guess, p_Donor->Tau());
             bool isRising = radiusAfterMassLoss > RLRadius ? true : false;      // guess for direction of search
             
 
