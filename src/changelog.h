@@ -1184,10 +1184,12 @@
 // 02.47.00    IM - May 18, 2024     - Defect repair and enhancement
 //                                      - Equilibrium zeta and radial response of MS stars to mass loss are now calculated using CalculateRadiusOnPhase() rather than by cloning
 //                                      - MassLossToFitInsideRocheLobe() and associated functor updated, work more efficiently, no longer artificially fail, and also use CalculateRadiusOnPhase()
+//                                      - Nuclear timescale mass transfer limited to accrete only the smaller of the desired total MT and rate*dt on a timestep of size dt
 //                                      - ROOT_ABS_TOLERANCE increased to avoid artificial failures on round-off errors
 //                                      - code cleanup and bug repairs elsewhere
-
+// 02.47.01    IM - May 20, 2024     - Defect repair
+//                                      - Renamed the version of CalculateRadiusOnPhase() that takes in mass and tau as arguments into CalculateRadiusOnPhaseTau() to avoid clash with the version that takes in mass and luminosity as arguments
                   
-const std::string VERSION_STRING = "02.47.00";
+const std::string VERSION_STRING = "02.47.01";
 
 # endif // __changelog_h__

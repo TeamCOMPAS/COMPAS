@@ -1147,9 +1147,10 @@ double CHeB::CalculateRadiusRho(const double p_Mass, const double p_Tau) const {
  * Hurley et al. 2000, eq 64
  *
  *
- * double CalculateRadiusOnPhase(const double p_Mass, const double p_Tau)
+ * double CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity, const double p_Tau)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Luminosity                Luminosity in Lsol
  * @param   [IN]    p_Tau                       CHeB relative age
  * @return                                      Radius during Core Helium Burning in Rsol
  */
