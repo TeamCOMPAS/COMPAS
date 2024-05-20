@@ -475,13 +475,13 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
  * Hurley et al. 2000, eq 13
  *
  *
- * double CalculateRadiusOnPhase(const double p_Mass, const double p_Tau)
+ * double CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_Tau                       Fractional age on Main Sequence
  * @return                                      Radius on the Main Sequence in Rsol
  */
-double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau) const {
+double MainSequence::CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const {
 #define a m_AnCoefficients                                          // for convenience and readability - undefined at end of function
 
     const double epsilon = 0.01;
