@@ -183,7 +183,7 @@ extern OBJECT_ID globalObjectId;                                                
 constexpr double FLOAT_TOLERANCE_ABSOLUTE               = 0.0000005;                                                // absolute tolerance for floating-point comparisons if COMPARE_GLOBAL_TOLERANCE is defined
 constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0000005;                                                // relative tolerance for floating-point comparisons if COMPARE_GLOBAL_TOLERANCE is defined
 
-constexpr double ROOT_ABS_TOLERANCE                     = 1.0E-9;                                                  // absolute tolerance for root finder
+constexpr double ROOT_ABS_TOLERANCE                     = 1.0E-6;                                                   // absolute tolerance for root finder
 constexpr double ROOT_REL_TOLERANCE                     = 1.0E-6;                                                   // relative tolerance for root finder
 
 
@@ -393,7 +393,7 @@ enum class DCO_RECORD_TYPE: unsigned int {                                      
 
 enum class PULSAR_RECORD_TYPE: unsigned int {                                                                       // BSE_PULSAR_EVOLUTION file record type
     DEFAULT = 1,                                                                                                    //  1 - record describes the initial state of the binary
-    POST_BINARY_TIMESTEP                                                                                            //  3 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
+    POST_BINARY_TIMESTEP                                                                                            //  2 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
 };
 
 enum class RLOF_RECORD_TYPE: unsigned int {                                                                         // BSE_RLOF_PARAMETERS file record type
@@ -2219,6 +2219,8 @@ enum class BINARY_PROPERTY: int {
     RADIUS_2_POST_COMMON_ENVELOPE,
     RADIUS_2_PRE_COMMON_ENVELOPE,
     RANDOM_SEED,
+    RLOF_ACCRETION_EFFICIENCY,
+    RLOF_MASS_LOSS_RATE,
     RLOF_POST_MT_COMMON_ENVELOPE,
     RLOF_POST_MT_ECCENTRICITY,
     RLOF_POST_MT_EVENT_COUNTER,
@@ -2350,6 +2352,8 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,                      "RADIUS_2_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RADIUS_2_PRE_COMMON_ENVELOPE,                       "RADIUS_2_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RANDOM_SEED,                                        "RANDOM_SEED" },
+    { BINARY_PROPERTY::RLOF_ACCRETION_EFFICIENCY,                                   "RLOF_ACCRETION_EFFICIENCY"},
+    { BINARY_PROPERTY::RLOF_MASS_LOSS_RATE,                                         "RLOF_MASS_LOSS_RATE"},
     { BINARY_PROPERTY::RLOF_POST_MT_COMMON_ENVELOPE,                       "RLOF_POST_MT_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY,                          "RLOF_POST_MT_ECCENTRICITY" },
     { BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER,                         "RLOF_POST_MT_EVENT_COUNTER" },
@@ -3093,6 +3097,8 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,           "Radius(2)>CE",              "Rsol",             24, 15}},
     { BINARY_PROPERTY::RADIUS_2_PRE_COMMON_ENVELOPE,                        { TYPENAME::DOUBLE,           "Radius(2)<CE",              "Rsol",             24, 15}},
     { BINARY_PROPERTY::RANDOM_SEED,                                         { TYPENAME::ULONGINT,         "SEED",                      "-",                12, 1 }},
+    { BINARY_PROPERTY::RLOF_ACCRETION_EFFICIENCY,                           {       TYPENAME::DOUBLE,           "Beta",                      "-",                24, 15}},
+    { BINARY_PROPERTY::RLOF_MASS_LOSS_RATE,                                 {       TYPENAME::DOUBLE,           "MassTransferRateDonor",     "Msol/Myr",         24, 15}},
     { BINARY_PROPERTY::RLOF_POST_MT_COMMON_ENVELOPE,                        { TYPENAME::BOOL,             "CEE>MT",                    "State",             0, 0 }},
     { BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY,                           { TYPENAME::DOUBLE,           "Eccentricity>MT",           "-",                24, 15}},
     { BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER,                          { TYPENAME::UINT,             "MT_Event_Counter",          "Count",             6, 1 }},
@@ -3577,6 +3583,8 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_2_PROPERTY::DOMINANT_MASS_LOSS_RATE,
     STAR_1_PROPERTY::MASS_TRANSFER_DIFF,
     STAR_2_PROPERTY::MASS_TRANSFER_DIFF,
+    STAR_1_PROPERTY::MDOT,
+    STAR_2_PROPERTY::MDOT,
     BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,
     BINARY_PROPERTY::TOTAL_ENERGY,
     STAR_1_PROPERTY::METALLICITY,
@@ -3593,7 +3601,9 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_1_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
     STAR_2_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
     STAR_1_PROPERTY::RADIAL_EXPANSION_TIMESCALE,
-    STAR_2_PROPERTY::RADIAL_EXPANSION_TIMESCALE
+    STAR_2_PROPERTY::RADIAL_EXPANSION_TIMESCALE,
+    BINARY_PROPERTY::RLOF_MASS_LOSS_RATE,
+    BINARY_PROPERTY::RLOF_ACCRETION_EFFICIENCY
 };
 
 
@@ -3679,6 +3689,8 @@ const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
     BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RLOF,
     BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1,
     BINARY_PROPERTY::RLOF_PRE_STEP_STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2,
+    BINARY_PROPERTY::RLOF_ACCRETION_EFFICIENCY,
+    BINARY_PROPERTY::RLOF_MASS_LOSS_RATE,
     STAR_1_PROPERTY::ZETA_SOBERMAN,
     STAR_1_PROPERTY::ZETA_SOBERMAN_HE,
     STAR_1_PROPERTY::ZETA_HURLEY,

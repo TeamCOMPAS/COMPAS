@@ -1334,16 +1334,10 @@ double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
  */
 double BaseStar::CalculateZetaEquilibrium() {
     
-    // We create a clone to add an arbitrary small amount of mass in order to determine how the radius will change
-    //
-    // To be sure the clone does not participate in logging, we set its persistence to EPHEMERAL.
-    
-    BaseStar *clone = Clone(OBJECT_PERSISTENCE::EPHEMERAL, false);                              // do not re-initialise the clone
-    double deltaMass = m_Mass/1.0E6;
-    clone->UpdateAttributesAndAgeOneTimestep(deltaMass, deltaMass, 0.0, true, false);
-    double radiusAfterMassGain = clone->Radius();
-    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
-    double zetaEquilibrium = (radiusAfterMassGain - m_Radius) / deltaMass * m_Mass / m_Radius;  // dlnR / dlnM
+    double deltaMass            = -m_Mass/1.0E5;
+    double currentRadius        = CalculateRadiusOnPhase();                                                     //do not trust m_Radius
+    double radiusAfterMassGain  = CalculateRadiusOnPhaseTau(m_Mass+deltaMass, m_Tau);
+    double zetaEquilibrium      = (radiusAfterMassGain - currentRadius) / deltaMass * m_Mass / currentRadius;   // dlnR / dlnM
     return zetaEquilibrium;
 }
     
@@ -2505,7 +2499,7 @@ double BaseStar::CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(c
     if (utils::Compare(teff, teffMin) > 0) {
         logMdotCorrected = logMdotUncorrected - 6.0 * log10(teff / teffRef);
     }
-    else{
+    else {
         logMdotCorrected = logMdotUncorrected;
     }
 
@@ -3273,7 +3267,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           
     }
 
-    double radiusAU = m_Radius * RSOL_TO_AU;
+    double radiusAU              = m_Radius * RSOL_TO_AU;
     double coreRadiusAU          = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
     double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
     double radiusIntershellAU    = radiusAU - convectiveEnvRadiusAU;                                    // Outer radial coordinate of radiative intershell
