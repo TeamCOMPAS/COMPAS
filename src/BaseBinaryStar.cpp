@@ -2109,10 +2109,10 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
         // If the current timestep is smaller than the donor's thermal timescale, only a fraction of the mass
         // that needs to be donated has time to be donated
-        double donorThermalTimescale = m_Donor->CalculateThermalTimescale();
-        if (p_Dt < donorThermalTimescale) {
-            massDiffDonor = (p_Dt / donorThermalTimescale) * massDiffDonor;
-        }
+        // double donorThermalTimescale = m_Donor->CalculateThermalTimescale();
+        // if (p_Dt < donorThermalTimescale) {
+        //     massDiffDonor = (p_Dt / donorThermalTimescale) * massDiffDonor;
+        // }
 
         if (!m_CEDetails.CEEnow) {                                                                                              // CE flagged?
                                                                                                                                 // no
