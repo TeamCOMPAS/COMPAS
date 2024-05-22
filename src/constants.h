@@ -2563,7 +2563,8 @@ enum class PROGRAM_OPTION: int {
 
     MT_FRACTION_ACCRETED,
     MT_JLOSS,
-    MT_JLOSS_MACLEOD_LINEAR_FRACTION,
+    MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN,
+    MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN,
     MT_REJUVENATION_PRESCRIPTION,
     MT_THERMALLY_LIMITED_VARIATION,
 
@@ -2782,7 +2783,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                             "MT_FRACTION_ACCRETED" },
     { PROGRAM_OPTION::MT_JLOSS,                                         "MT_JLOSS" },
-    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION,                 "MT_JLOSS_MACLEOD_LINEAR_FRACTION" },
+    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN,           "MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN" },
+    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN,       "MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN" },
     { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                     "MT_REJUVENATION_PRESCRIPTION" },
     { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                   "MT_THERMALLY_LIMITED_VARIATION" },
 
@@ -3304,7 +3306,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     
     { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                                     { TYPENAME::DOUBLE,     "MT_Fraction_Accreted",                   "-",         24, 15}},
     { PROGRAM_OPTION::MT_JLOSS,                                                 { TYPENAME::DOUBLE,     "MT_JLoss",                               "-",         24, 15}},
-    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION,                         { TYPENAME::DOUBLE,     "MT_JLoss_Macleod_Linear_Frac",           "-",         24, 15}},
+    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN,                   { TYPENAME::DOUBLE,     "MT_JLoss_Macleod_Linear_Frac_Degen",     "-",         24, 15}},
+    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN,               { TYPENAME::DOUBLE,     "MT_JLoss_Macleod_Linear_Frac_Non_Degen", "-",         24, 15}},
     { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                             { TYPENAME::INT,        "MT_Rejuvenation_Prscrptn",               "-",          4, 1 }},
     { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                           { TYPENAME::INT,        "MT_Thermally_Lmtd_Variation",            "-",          4, 1 }},
 

@@ -1835,7 +1835,10 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
             // interpolate in separation between a_acc and a_L2, both normalized to units of separation a
             double aL2    = std::sqrt(M_SQRT2);                                                                             // roughly, coincides with CIRCUMBINARY_RING def above
             double aAcc   = 1.0 / (1.0 + q);
-            double aGamma = aAcc + (aL2 - aAcc)*OPTIONS->MassTransferJlossMacLeodLinearFraction();
+            double fMacleod = m_Accretor->IsDegenerate() 
+                ? OPTIONS->MassTransferJlossMacLeodLinearFractionDegen() 
+                : OPTIONS->MassTransferJlossMacLeodLinearFractionNonDegen();
+            double aGamma = aAcc + (aL2 - aAcc)*fMacleod;
             gamma         = aGamma * aGamma * (1.0 + q) * (1.0 + q) / q;
             break;
         }
