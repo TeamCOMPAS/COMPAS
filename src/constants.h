@@ -4126,9 +4126,9 @@ const std::map<int, COMPASUnorderedMap<AB_TCoeff, double>> A_COEFF = {
     {81, {{ALPHA,  2.493000E0 }, {BETA,  1.147500E0 }, {GAMMA,  0.000000E0 }, {ETA,  0.000000E0 }, {MU,  0.000000E0 }}}
 };
 
-// Critial mass ratios and zetas, for a grid of masses and radii 
-// This is a subset of an unpublished table from Hongwei Ge, which replaces the previous table 3 from Ge et al. 2020. 
-// This table contains just the mass, logR, qCritSTD_full, qCritIC_full, qCritSTD_nonc, qCritIC_nonc, where
+// Critial mass ratios and zetas, for a grid of masses and radii. This is a subset of an unpublished table from 
+// Hongwei Ge, which replaces the previous table 3 from Ge et al. 2020. This table was used in Li et al. 2023 (A&A 669, A82 (2023)). 
+// It contains just the mass, logR, qCritSTD_full, qCritIC_full, qCritSTD_nonc, qCritIC_nonc, where
 // mass is in Msol, logR uses Rsol, and qCrit is the critical mass ratio for dynamically unstable mass transfer.
 // The STD and IC suffixes distinguish their adiabatic and isentropic models, respectively (see Ge et al. 2020).
 // The _full and _nonc suffixes distinguish their models using fully conservative MT and fully non-conservative MT, 

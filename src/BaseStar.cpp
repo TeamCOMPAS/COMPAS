@@ -1347,8 +1347,9 @@ double BaseStar::CalculateZetaEquilibrium() {
  *
  * double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, const double p_massTransferEfficiencyBeta)
  *
- * @param   [IN]    p_AccretorIsDegenerate      Whether or not the accretor is a degenerate star
- * @return                                      Critical mass ratio
+ * @param   [IN]    p_AccretorIsDegenerate       Whether or not the accretor is a degenerate star
+ * @param   [IN]    p_massTransferEfficiencyBeta Mass transfer accretion efficiency
+ * @return                                       Critical mass ratio
  */
 double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, const double p_massTransferEfficiencyBeta) {
     
@@ -1384,7 +1385,9 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, c
  * 
  * double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta) 
  * 
- * @return                                      Interpolated value of either the critical mass ratio or zeta for given stellar mass / radius
+ * @param   [IN]    p_qCritPrescription          Adopted critical mass ratio prescription
+ * @param   [IN]    p_massTransferEfficiencyBeta Mass transfer accretion efficiency
+ * @return                                       Interpolated value of either the critical mass ratio or zeta for given stellar mass / radius
  */ 
 double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta) {
 
@@ -1484,7 +1487,7 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
     double interpolatedQCritFull = qCritFullLowerMass + (upperMass - m_Mass) / (upperMass - lowerMass) * (qCritFullUpperMass - qCritFullLowerMass);
     double interpolatedQCritNonc = qCritNoncLowerMass + (upperMass - m_Mass) / (upperMass - lowerMass) * (qCritNoncUpperMass - qCritNoncLowerMass);
 
-    double interpolatedQCrit = p_massTransferEfficiencyBeta * interpolatedQCritNonc + (1-p_massTransferEfficiencyBeta)*interpolatedQCritFull;
+    double interpolatedQCrit = p_massTransferEfficiencyBeta * interpolatedQCritFull + (1.0 - p_massTransferEfficiencyBeta)*interpolatedQCritNonc;
     return interpolatedQCrit;
 }
 
