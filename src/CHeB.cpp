@@ -1147,9 +1147,10 @@ double CHeB::CalculateRadiusRho(const double p_Mass, const double p_Tau) const {
  * Hurley et al. 2000, eq 64
  *
  *
- * double CalculateRadiusOnPhase(const double p_Mass, const double p_Tau)
+ * double CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity, const double p_Tau)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Luminosity                Luminosity in Lsol
  * @param   [IN]    p_Tau                       CHeB relative age
  * @return                                      Radius during Core Helium Burning in Rsol
  */
@@ -1473,19 +1474,21 @@ double CHeB::ChooseTimestep(const double p_Time) const {
  *     - m_Age
  *
  *
- * STELLAR_TYPE ResolveEnvelopeLoss()
+ * STELLAR_TYPE ResolveEnvelopeLoss(bool p_Force)
+ *
+ * @param   [IN]    p_Force                     Boolean to indicate whether the resolution of the loss of the envelope should be performed
+ *                                              without checking the precondition(s).
+ *                                              Default is false.
  *
  * @return                                      Stellar Type to which star should evolve after losing envelope
  */
-STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_NoCheck) {
+STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_Force) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     STELLAR_TYPE stellarType = m_StellarType;
     
-    if (ShouldEnvelopeBeExpelledByPulsations()) {
-        m_EnvelopeJustExpelledByPulsations = true;
-    }
+    if (ShouldEnvelopeBeExpelledByPulsations()) m_EnvelopeJustExpelledByPulsations = true;
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations ) {  // Envelope loss
+    if (p_Force || utils::Compare(m_CoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations ) {    // Envelope loss
 
         m_Mass       = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_Mass;

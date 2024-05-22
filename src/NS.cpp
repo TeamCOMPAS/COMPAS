@@ -98,7 +98,7 @@ double NS::CalculateRadiusOnPhaseInKM_Static(const double p_Mass) {
             else if (utils::Compare(p_Mass, ARP3MaximumMass) > 0) {
                 radius = ARP3RadiusAtMaximumMass;
             }
-            else{
+            else {
                 radius = utils::SampleFromTabulatedCDF(p_Mass, ARP3MassRadiusRelation);
             }
         } break;
