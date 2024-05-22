@@ -370,6 +370,8 @@ private:
         "mass-transfer",
         "mass-transfer-fa",
         "mass-transfer-jloss",
+        "mass-transfer-jloss-macleod-linear-fraction-degen",
+        "mass-transfer-jloss-macleod-linear-fraction-non-degen",
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
