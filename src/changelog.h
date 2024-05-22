@@ -1192,6 +1192,6 @@
 // 02.48.00    RW - May 22, 2024     - Enhancements
 //                                      - Added separate options for MacLeod Linear AM loss for degenerate vs non-degenerate accretors
                   
-const std::string VERSION_STRING = "02.47.01";
+const std::string VERSION_STRING = "02.48.00";
 
 # endif // __changelog_h__
