@@ -161,6 +161,8 @@ void Options::OptionValues::Initialise() {
     m_EvolveDoubleWhiteDwarfs                                       = false;
     m_EvolvePulsars                                                 = false;
 	m_EvolveUnboundSystems                                          = true;
+    
+    m_NatalKickForPPISN                                             = false;
 
     m_DetailedOutput                                                = false;
     m_PopulationDataPrinting                                        = false;
@@ -193,9 +195,12 @@ void Options::OptionValues::Initialise() {
     // Specify how long to evolve for
     m_MaxEvolutionTime                                              = 13700.0;
     m_MaxNumberOfTimestepIterations                                 = 99999;
-    m_TimestepMultiplier                                            = 1.0;
     m_TimestepsFileName                                             = "";
 
+    m_TimestepMultiplier                                            = 1.0;
+    m_RadialChangeFraction                                          = 0.0;
+    m_MassChangeFraction                                            = 0.0;
+    
     // Initial mass options
     m_InitialMass                                                   = 5.0;
     m_InitialMass1                                                  = 5.0;
@@ -417,7 +422,8 @@ void Options::OptionValues::Initialise() {
 
     // Mass transfer angular momentum loss prescription options
     m_MassTransferJloss                                             = 1.0;
-    m_MassTransferJlossMacLeodLinearFraction                        = 0.5;
+    m_MassTransferJlossMacLeodLinearFractionDegen                   = 0.0;
+    m_MassTransferJlossMacLeodLinearFractionNonDegen                = 0.0;
     m_MassTransferAngularMomentumLossPrescription.type              = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION;
     m_MassTransferAngularMomentumLossPrescription.typeString        = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL.at(m_MassTransferAngularMomentumLossPrescription.type);
 
@@ -818,6 +824,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "mass-transfer",                                                
             po::value<bool>(&p_Options->m_UseMassTransfer)->default_value(p_Options->m_UseMassTransfer)->implicit_value(true),                                                                    
             ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        
+        (
+            "natal-kick-for-PPISN",
+            po::value<bool>(&p_Options->m_NatalKickForPPISN)->default_value(p_Options->m_NatalKickForPPISN)->implicit_value(true),
+            ("Give non-zero natal kicks to PPISN remnants (default = " + std::string(p_Options->m_NatalKickForPPISN ? "TRUE" : "FALSE") + ")").c_str()
         )
 
         (
@@ -1299,6 +1311,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "mass-change-fraction",
+            po::value<double>(&p_Options->m_MassChangeFraction)->default_value(p_Options->m_MassChangeFraction),
+            ("Approximate goal for fractional mass change per timestep for SSE and BSE (default = " + std::to_string(p_Options->m_MassChangeFraction) + ")").c_str()
+        )
+        
+        (
             "mass-ratio,q",                                              
             po::value<double>(&p_Options->m_MassRatio)->default_value(p_Options->m_MassRatio),                                                                      
             ("Mass ratio m2/m1 used to determine secondary mass if not specified (default = " + std::to_string(p_Options->m_MassRatio) + ")").c_str()
@@ -1324,9 +1342,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Fraction of specific angular momentum which non-accreted matter removes from the system (default = " + std::to_string(p_Options->m_MassTransferJloss) + ")").c_str()
         )
         (
-            "mass-transfer-jloss-macleod-linear-fraction",
-            po::value<double>(&p_Options->m_MassTransferJlossMacLeodLinearFraction)->default_value(p_Options->m_MassTransferJlossMacLeodLinearFraction),                                                                                    
-            ("Interpolation fraction for jloss prescription if --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossMacLeodLinearFraction) + ")").c_str()
+            "mass-transfer-jloss-macleod-linear-fraction-degen",
+            po::value<double>(&p_Options->m_MassTransferJlossMacLeodLinearFractionDegen)->default_value(p_Options->m_MassTransferJlossMacLeodLinearFractionDegen),                                                                                    
+            ("Interpolation fraction for jloss prescription for degenerate accretors, requires --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossMacLeodLinearFractionDegen) + ")").c_str()
+        )
+        (
+            "mass-transfer-jloss-macleod-linear-fraction-non-degen",
+            po::value<double>(&p_Options->m_MassTransferJlossMacLeodLinearFractionNonDegen)->default_value(p_Options->m_MassTransferJlossMacLeodLinearFractionNonDegen),                                                                                    
+            ("Interpolation fraction for jloss prescription for non-degenerate accretors, requires --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossMacLeodLinearFractionNonDegen) + ")").c_str()
         )
         (
             "mass-transfer-thermal-limit-C",                               
@@ -1472,6 +1495,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Minimum pulsar magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarLog10MinimumMagneticField) + ")").c_str()
         )
 
+        (
+            "radial-change-fraction",
+            po::value<double>(&p_Options->m_RadialChangeFraction)->default_value(p_Options->m_RadialChangeFraction),
+            ("Approximate goal for fractional radial change per timestep for SSE and BSE (default = " + std::to_string(p_Options->m_RadialChangeFraction) + ")").c_str()
+        )
+        
         (
             "rocket-kick-magnitude-1",
             po::value<double>(&p_Options->m_RocketKickMagnitude1)->default_value(p_Options->m_RocketKickMagnitude1),
@@ -2315,6 +2344,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
  
         COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
 
+        COMPLAIN_IF(m_MassChangeFraction < 0.0, "Mass change fraction per timestep (--mass-change-fraction) < 0");
+        
         COMPLAIN_IF(m_MassRatio <= 0.0 || m_MassRatio > 1.0, "Mass ratio (--mass-ratio) must be greater than 0 and less than or equal to 1");
 
         COMPLAIN_IF(m_MassRatioDistributionMin <= 0.0 || m_MassRatioDistributionMin > 1.0, "Minimum mass ratio (--mass-ratio-min) must be greater than 0 and less than or equal to 1");
@@ -2365,6 +2396,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale") && m_PulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
 
+        COMPLAIN_IF(m_RadialChangeFraction < 0.0, "Radial change fraction per timestep (--radial-change-fraction) < 0");
+        
         COMPLAIN_IF(!DEFAULTED("rotational-frequency")  && m_RotationalFrequency < 0.0, "Rotational frequency (--rotational-frequency) < 0");
         COMPLAIN_IF(!DEFAULTED("rotational-frequency-1") && m_RotationalFrequency1 < 0.0, "Primary rotational frequency (--rotational-frequency-1) < 0");
         COMPLAIN_IF(!DEFAULTED("rotational-frequency-2") && m_RotationalFrequency2 < 0.0, "Secondary rotational frequency (--rotational-frequency-2) < 0");
@@ -4537,7 +4570,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::LBV_FACTOR                                     : value = LuminousBlueVariableFactor();                                         break;
         case PROGRAM_OPTION::LBV_PRESCRIPTION                               : value = static_cast<int>(LuminousBlueVariablePrescription());                 break;
-
+            
         case PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION                         : value = static_cast<int>(MassLossPrescription());                             break;
 
         case PROGRAM_OPTION::MASS_RATIO                                     : value = MassRatio();                                                          break;                     
@@ -4582,7 +4615,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::MT_FRACTION_ACCRETED                           : value = MassTransferFractionAccreted();                                       break;
         case PROGRAM_OPTION::MT_JLOSS                                       : value = MassTransferJloss();                                                  break;
-        case PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION               : value = MassTransferJlossMacLeodLinearFraction();                             break; 
+        case PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN         : value = MassTransferJlossMacLeodLinearFractionDegen();                        break; 
+        case PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN     : value = MassTransferJlossMacLeodLinearFractionNonDegen();                     break; 
         case PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION                   : value = static_cast<int>(MassTransferRejuvenationPrescription());             break;
         case PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION                 : value = static_cast<int>(MassTransferThermallyLimitedVariation());            break;
 

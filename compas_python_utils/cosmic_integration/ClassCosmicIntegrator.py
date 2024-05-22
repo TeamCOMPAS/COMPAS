@@ -5,12 +5,11 @@ import os
 
 import scipy.special
 from   scipy.optimize import newton
-from   astropy.cosmology import FlatLambdaCDM
-from   astropy.cosmology import WMAP9 #as cosmo
 import astropy.units as u
 
 from . import ClassCOMPAS
 from . import ClassMSSFR
+from .cosmology import get_cosmology
 import selection_effects
 import totalMassEvolvedPerZ as MPZ
 class CosmicIntegrator(object):
@@ -57,10 +56,10 @@ class CosmicIntegrator(object):
         self.pathCOMPAS               = pathCOMPAS
 
         if Cosmology == 'WMAP':
-            self.cosmology            = WMAP9
+            self.cosmology            = get_cosmology('WMAP9')
         if Cosmology == 'Custom Flat':
-            self.cosmology            = FlatLambdaCDM(H0=hubbleConstant *\
-                                        u.km / u.s / u.Mpc, Om0=omegaMatter)
+            cosmo_kwargs = dict(H0=hubbleConstant * u.km / u.s / u.Mpc, Om0=omegaMatter)
+            self.cosmology            = get_cosmology(**cosmo_kwargs)
         self.redshiftFirstSFR         = redshiftFirstSFR
         self.ageFirstSFR              = self.cosmology.age(self.redshiftFirstSFR).value
         

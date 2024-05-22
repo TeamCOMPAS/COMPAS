@@ -885,18 +885,22 @@ double TPAGB::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time)
  *     - m_Age
  *
  *
- * STELLAR_TYPE ResolveEnvelopeLoss()
+ * STELLAR_TYPE ResolveEnvelopeLoss(bool p_Force)
+ *
+ * @param   [IN]    p_Force                     Boolean to indicate whether the resolution of the loss of the envelope should be performed
+ *                                              without checking the precondition(s).
+ *                                              Default is false.
  *
  * @return                                      Stellar Type to which star should evolve after losing envelope
  */
-STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_NoCheck) {
+STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_Force) {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
-    STELLAR_TYPE stellarType = m_StellarType;               // default is unchanged
+    STELLAR_TYPE stellarType = m_StellarType;
 
-    if(ShouldEnvelopeBeExpelledByPulsations())          { m_EnvelopeJustExpelledByPulsations = true; }
+    if (ShouldEnvelopeBeExpelledByPulsations()) m_EnvelopeJustExpelledByPulsations = true;
 
-    if (p_NoCheck || (utils::Compare(m_CoreMass, m_Mass)) >= 0 || m_EnvelopeJustExpelledByPulsations) {
+    if (p_Force || (utils::Compare(m_CoreMass, m_Mass)) >= 0 || m_EnvelopeJustExpelledByPulsations) {   // envelope loss
         
         m_Mass       = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_Mass;

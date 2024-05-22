@@ -1274,16 +1274,16 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
     double pBH               = 0.0;
     double pCompleteCollapse = 0.0;
     
-    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
+    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0 || utils::Compare(p_HeCoreMass, OPTIONS->MaximumNeutronStarMass()) <= 0 ) {
 	    pBH = 0.0;
     }
     else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M3) < 0) {
     	pBH = 1.0 / (MULLERMANDEL_M3-MULLERMANDEL_M1) * (p_COCoreMass-MULLERMANDEL_M1);
     }
     else {
-	    pBH=1.0;
+	    pBH = 1.0;
     } 
- 
+
     if (utils::Compare(RAND->Random(0, 1), pBH) < 0) {  // this is a BH
         if (utils::Compare(p_COCoreMass, MULLERMANDEL_M4) < 0)
 		    pCompleteCollapse = 1.0 / (MULLERMANDEL_M4 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1);
@@ -1294,24 +1294,24 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
 		    remnantMass = p_HeCoreMass;
         }
 	    else {
-		    while (remnantMass<MULLERMANDEL_MAXNS || remnantMass > p_HeCoreMass) {
+		    while (remnantMass<OPTIONS->MaximumNeutronStarMass() || remnantMass > p_HeCoreMass) {
 			    remnantMass = MULLERMANDEL_MUBH * p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
 		    }
 	    }
     }
     else {                                              // this is an NS
 	    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
-		    while (remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > p_HeCoreMass) {
+		    while (remnantMass < MULLERMANDEL_MINNS || remnantMass > OPTIONS->MaximumNeutronStarMass() || remnantMass > p_HeCoreMass) {
 			    remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
 		    }
 	    }
 	    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
-            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > p_HeCoreMass) {
+            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > OPTIONS->MaximumNeutronStarMass() || remnantMass > p_HeCoreMass) {
                 remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
             }
         }
         else {
-            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > MULLERMANDEL_MAXNS || remnantMass > p_HeCoreMass) {
+            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > OPTIONS->MaximumNeutronStarMass() || remnantMass > p_HeCoreMass) {
                 remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
             }
         }
@@ -1769,7 +1769,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         stellarType = CalculateRemnantTypeByMuller2016(m_COCoreMass);
     }
     else if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::MULLERMANDEL) {
-        if (utils::Compare(m_Mass, MULLERMANDEL_MAXNS ) > 0)
+        if (utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0)
             stellarType = STELLAR_TYPE::BLACK_HOLE;
         else
             stellarType = STELLAR_TYPE::NEUTRON_STAR;
@@ -1832,7 +1832,7 @@ STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
     }
     else {                                                                                  // -no, treat as ONeWD 
         
-        if(utils::Compare(m_COCoreMass,MCH) > 0){
+        if (utils::Compare(m_COCoreMass,MCH) > 0) {
             SHOW_WARN(ERROR::WHITE_DWARF_TOO_MASSIVE, "Setting mass to Chandraskhar mass.");
         }
         m_Mass       = std::min(m_COCoreMass,MCH);                                          // no WD masses above Chandrasekhar mass
@@ -2065,8 +2065,10 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         else {                                                                                      // Core Collapse Supernova
             stellarType = ResolveCoreCollapseSN();
         }
-            
-    	CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
+        
+        if(utils::SNEventType(m_SupernovaDetails.events.current)!=SN_EVENT::PISN)
+            CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
+        
         if ( !utils::IsOneOf(stellarType, { STELLAR_TYPE::NEUTRON_STAR })) {
             m_SupernovaDetails.rocketKickMagnitude = 0;                                             // Only NSs can get rocket kicks
         }

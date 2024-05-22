@@ -740,7 +740,7 @@ See ``--logfile-common-envelopes-record-types`` for a detailed description of th
 The System Parameters logfile currently has only one record type defined (record type 1). |br|
 
 **--logfile-type** |br|
-The type of logfile to be produced by COMPAS. |br|
+The type of logfile to be produced by COMPAS. Options are: HDF5, CSV, TSV, TXT. |br|
 Default = ’HDF5’
 
 **--log-level** |br|
@@ -765,6 +765,11 @@ Default = 4.2
 .. _options-props-M:
 
 :ref:`Back to Top <options-props-top>`
+
+**--mass-change-fraction** |br|
+Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
+Recommended value is 0.005.  A value of 0 means that this choice is ignored and timestep estimates from earlier COMPAS version are used. |br|
+Default = 0
 
 **--mass-loss-prescription** |br|
 Mass loss prescription. |br|
@@ -813,8 +818,13 @@ Specific angular momentum with which the non-accreted system leaves the system. 
 Used when ``--mass-transfer-angular-momentum-loss-prescription = ARBITRARY``, ignored otherwise. |br|
 Default = 1.0
 
-**--mass-transfer-jloss-macleod-linear-fraction** |br|
-Specific angular momentum interpolation fraction, linear between 0 and 1 corresponding to the accretor and L2 point. |br|
+**--mass-transfer-jloss-macleod-linear-fraction-degen** |br|
+Specific angular momentum interpolation fraction for degenerate accretors, linear between 0 and 1 corresponding to the accretor and L2 point. |br|
+Used when ``--mass-transfer-angular-momentum-loss-prescription = MACLEOD_LINEAR``, ignored otherwise. |br|
+Default = 0.5
+
+**--mass-transfer-jloss-macleod-linear-fraction-non-degen** |br|
+Specific angular momentum interpolation fraction for non-degenerate accretors, linear between 0 and 1 corresponding to the accretor and L2 point. |br|
 Used when ``--mass-transfer-angular-momentum-loss-prescription = MACLEOD_LINEAR``, ignored otherwise. |br|
 Default = 0.5
 
@@ -897,6 +907,10 @@ Default = 0.3
 .. _options-props-N:
 
 :ref:`Back to Top <options-props-top>`
+
+**--natal-kick-for-PPISN**
+Set to true if PPISN remnants should receive natal kicks via the same prescription as CCSN remnants; otherwise, they receive 0 natal kick. |br|
+Default = TRUE  
 
 **--neutrino-mass-loss-BH-formation** |br|
 Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not `MANDELMUELLER`). |br|
@@ -1065,6 +1079,11 @@ Default = FALSE
 
 :ref:`Back to Top <options-props-top>`
 
+**--radial-change-fraction** |br|
+Approximate desired fractional change in stellar radius on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
+Recommended value is 0.005.  A value of 0 means that this choice is ignored and timestep estimates from earlier COMPAS version are used. |br|
+Default = 0
+
 **--random-seed** |br|
 Value to use as the seed for the random number generator. |br|
 Default = 0
@@ -1185,9 +1204,9 @@ Default = FALSE
 **--tides-prescription** |br|
 Prescription for tidal evolution of the binary. |br|
 Options: { NONE, PERFECT, KAPIL2024 } |br|
-``NONE`` disables tidal interactions
-``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization 
-``KAPIL2024`` uses the prescription from Kapil+ (2024) |br|
+``NONE`` disables tidal interactions.
+``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization. 
+``KAPIL2024`` uses the prescription from Kapil+ (2024). |br|
 Default = NONE
 
 **--timestep-filename** |br|
@@ -1314,7 +1333,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --critical-mass-ratio-helium-HG-non-degenerate-accretor, --critical-mass-ratio-helium-MS-degenerate-accretor, --critical-mass-ratio-helium-MS-non-degenerate-accretor, 
 --critical-mass-ratio-helium-giant-degenerate-accretor, --critical-mass-ratio-helium-giant-non-degenerate-accretor, --critical-mass-ratio-white-dwarf-degenerate-accretor, 
 --critical-mass-ratio-white-dwarf-non-degenerate-accretor, --eddington-accretion-factor, --mass-transfer, --mass-transfer-accretion-efficiency-prescription, 
---mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-macleod-linear-fraction, 
+--mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-macleod-linear-fraction-degen, --mass-transfer-jloss-macleod-linear-fraction-non-degen, 
 --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
@@ -1356,8 +1375,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Administrative**
 
---mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-pulsars, --evolve-unbound-systems, --maximum-evolution-time, --maximum-number-timestep-iterations,
---random-seed, --timestep-multiplier, --timestep-filename
+--mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-pulsars, --evolve-unbound-systems, --mass-change-fraction, --maximum-evolution-time, --maximum-number-timestep-iterations,
+--radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename
 
 --grid, --grid-start-line, --grid-lines-to-process
 
