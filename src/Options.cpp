@@ -422,7 +422,8 @@ void Options::OptionValues::Initialise() {
 
     // Mass transfer angular momentum loss prescription options
     m_MassTransferJloss                                             = 1.0;
-    m_MassTransferJlossMacLeodLinearFraction                        = 0.5;
+    m_MassTransferJlossMacLeodLinearFractionDegen                   = 0.0;
+    m_MassTransferJlossMacLeodLinearFractionNonDegen                = 0.0;
     m_MassTransferAngularMomentumLossPrescription.type              = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION;
     m_MassTransferAngularMomentumLossPrescription.typeString        = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL.at(m_MassTransferAngularMomentumLossPrescription.type);
 
@@ -1341,9 +1342,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Fraction of specific angular momentum which non-accreted matter removes from the system (default = " + std::to_string(p_Options->m_MassTransferJloss) + ")").c_str()
         )
         (
-            "mass-transfer-jloss-macleod-linear-fraction",
-            po::value<double>(&p_Options->m_MassTransferJlossMacLeodLinearFraction)->default_value(p_Options->m_MassTransferJlossMacLeodLinearFraction),                                                                                    
-            ("Interpolation fraction for jloss prescription if --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossMacLeodLinearFraction) + ")").c_str()
+            "mass-transfer-jloss-macleod-linear-fraction-degen",
+            po::value<double>(&p_Options->m_MassTransferJlossMacLeodLinearFractionDegen)->default_value(p_Options->m_MassTransferJlossMacLeodLinearFractionDegen),                                                                                    
+            ("Interpolation fraction for jloss prescription for degenerate accretors, requires --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossMacLeodLinearFractionDegen) + ")").c_str()
+        )
+        (
+            "mass-transfer-jloss-macleod-linear-fraction-non-degen",
+            po::value<double>(&p_Options->m_MassTransferJlossMacLeodLinearFractionNonDegen)->default_value(p_Options->m_MassTransferJlossMacLeodLinearFractionNonDegen),                                                                                    
+            ("Interpolation fraction for jloss prescription for non-degenerate accretors, requires --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossMacLeodLinearFractionNonDegen) + ")").c_str()
         )
         (
             "mass-transfer-thermal-limit-C",                               
@@ -4609,7 +4615,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::MT_FRACTION_ACCRETED                           : value = MassTransferFractionAccreted();                                       break;
         case PROGRAM_OPTION::MT_JLOSS                                       : value = MassTransferJloss();                                                  break;
-        case PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION               : value = MassTransferJlossMacLeodLinearFraction();                             break; 
+        case PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN         : value = MassTransferJlossMacLeodLinearFractionDegen();                        break; 
+        case PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN     : value = MassTransferJlossMacLeodLinearFractionNonDegen();                     break; 
         case PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION                   : value = static_cast<int>(MassTransferRejuvenationPrescription());             break;
         case PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION                 : value = static_cast<int>(MassTransferThermallyLimitedVariation());            break;
 
