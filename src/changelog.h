@@ -1189,6 +1189,8 @@
 //                                      - code cleanup and bug repairs elsewhere
 // 02.47.01    IM - May 20, 2024     - Defect repair
 //                                      - Renamed the version of CalculateRadiusOnPhase() that takes in mass and tau as arguments into CalculateRadiusOnPhaseTau() to avoid clash with the version that takes in mass and luminosity as arguments
+// 02.48.00    RW - May 22, 2024     - Enhancements
+//                                      - Added separate options for MacLeod Linear AM loss for degenerate vs non-degenerate accretors
                   
 const std::string VERSION_STRING = "02.47.01";
 
