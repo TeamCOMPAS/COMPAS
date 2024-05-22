@@ -54,7 +54,7 @@ double HG::CalculateRho(const double p_Mass) const {
 double HG::CalculateLambdaDewi() const {
 
 	double lambda1 = std::min(0.80, (3.0 / (2.4 + PPOW(m_Mass,-3.0 / 2.0))) - (0.15 * log10(m_Luminosity)));                // (A.3) Claeys+2014
-	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
+	double lambda2 = 0.42 * PPOW(m_RInitial / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
 
     double lambdaCE;
@@ -370,7 +370,7 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
  *
  * JR: todo: the coefficients and factors here are hard-coded until I figure out an
  * efficient way of putting them in constants.h.  Because they are indexed by a few
- * things: stellar type, metallicity and ZAMS mass the easiet thing would be to  put
+ * things: stellar type, metallicity and Initial mass the easiet thing would be to  put
  * them in a map - but because they can be re-calculated at every timestep the hashing
  * overhead becomes a performance concern.  Vectors are a good alternative, but I need
  * to figure out how best to structure them for reasonable (and inuitive) access.

@@ -14,10 +14,10 @@ Star::Star() : m_Star(new BaseStar()) {
 }
 
 
-// Regular constructor - with parameters for RandomSeed, MZAMS, InitialStellarType, Metallicity, and KickParameters
+// Regular constructor - with parameters for RandomSeed, MInitial, InitialStellarType, Metallicity, and KickParameters
 
 Star::Star(const unsigned long int p_RandomSeed,
-           const double            p_MZAMS,
+           const double            p_MInitial,
            const STELLAR_TYPE      p_InitialStellarType,
            const double            p_Metallicity, 
            const KickParameters    p_KickParameters,
@@ -27,7 +27,7 @@ Star::Star(const unsigned long int p_RandomSeed,
     m_ObjectType        = OBJECT_TYPE::STAR;                                                                        // set object type
     m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;                                                            // set object persistence
 
-    m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_KickParameters, p_RotationalVelocity);            // create underlying BaseStar object
+    m_Star = new BaseStar(p_RandomSeed, p_MInitial, p_Metallicity, p_KickParameters, p_RotationalVelocity);            // create underlying BaseStar object
 
     // Set the stellar type
     // If user specified, set to the supplied type
@@ -42,7 +42,7 @@ Star::Star(const unsigned long int p_RandomSeed,
         if (OPTIONS->CHEMode() != CHE_MODE::NONE && utils::Compare(m_Star->Omega(), m_Star->OmegaCHE()) >= 0) {             // CHE?
             (void)SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                     // yes
         }
-        else if (p_MZAMS <= 0.7) {                                                                                          // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
+        else if (p_MInitial <= 0.7) {                                                                                          // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
             (void)SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                                                                  // MS <= 0.0 Msol
         }
         else {

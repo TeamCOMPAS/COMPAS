@@ -82,7 +82,7 @@ double TPAGB::CalculateLambdaDewi() const {
 
     double lambda3 = std::min(-0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                          // (A.4) Claeys+2014
     double lambda1 = std::max(1.0, std::max(lambda3, -3.5 - (0.75 * log10(m_Mass)) + log10(m_Luminosity)));                 // (A.5) Bottom, Claeys+2014
-	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
+	double lambda2 = 0.42 * PPOW(m_RInitial / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
 
     double lambdaCE;
@@ -381,7 +381,7 @@ double TPAGB::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zi
  *
  * JR: todo: the coefficients and factors here are hard-coded until I figure out an
  * efficient way of putting them in constants.h.  Because they are indexed by a few
- * things: stellar type, metallicity and ZAMS mass the easiet thing would be to  put
+ * things: stellar type, metallicity and Initial mass the easiet thing would be to  put
  * them in a map - but because they can be re-calculated at every timestep the hashing
  * overhead becomes a performance concern.  Vectors are a good alternative, but I need
  * to figure out how best to structure them for reasonable (and inuitive) access.
