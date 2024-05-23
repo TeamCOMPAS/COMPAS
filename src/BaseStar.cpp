@@ -1334,16 +1334,10 @@ double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
  */
 double BaseStar::CalculateZetaEquilibrium() {
     
-    // We create a clone to add an arbitrary small amount of mass in order to determine how the radius will change
-    //
-    // To be sure the clone does not participate in logging, we set its persistence to EPHEMERAL.
-    
-    BaseStar *clone = Clone(OBJECT_PERSISTENCE::EPHEMERAL, false);                              // do not re-initialise the clone
-    double deltaMass = m_Mass/1.0E6;
-    clone->UpdateAttributesAndAgeOneTimestep(deltaMass, deltaMass, 0.0, true, false);
-    double radiusAfterMassGain = clone->Radius();
-    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
-    double zetaEquilibrium = (radiusAfterMassGain - m_Radius) / deltaMass * m_Mass / m_Radius;  // dlnR / dlnM
+    double deltaMass            = -m_Mass/1.0E5;
+    double currentRadius        = CalculateRadiusOnPhase();                                                     //do not trust m_Radius
+    double radiusAfterMassGain  = CalculateRadiusOnPhaseTau(m_Mass+deltaMass, m_Tau);
+    double zetaEquilibrium      = (radiusAfterMassGain - currentRadius) / deltaMass * m_Mass / currentRadius;   // dlnR / dlnM
     return zetaEquilibrium;
 }
     
@@ -2505,7 +2499,7 @@ double BaseStar::CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(c
     if (utils::Compare(teff, teffMin) > 0) {
         logMdotCorrected = logMdotUncorrected - 6.0 * log10(teff / teffRef);
     }
-    else{
+    else {
         logMdotCorrected = logMdotUncorrected;
     }
 
@@ -2923,6 +2917,30 @@ double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) const
     }
 }
 
+/*
+ * Calculate the nuclear mass loss rate as the equal to the mass divide by the radial expansion timescale
+ * We do not use CalculateRadialExpansionTimescale(), however, since in the process of mass transfer the previous radius
+ * is determined by binary evolution, not nuclear timescale evolution
+ *
+ *
+ * double CalculateNuclearMassLossRate()
+ *
+ * @return                                      Nuclear mass loss rate
+ */
+double BaseStar::CalculateNuclearMassLossRate() {
+    
+    // We create and age it slightly to determine how the radius will change.
+    // To be sure the clone does not participate in logging, we set its persistence to EPHEMERAL.
+    BaseStar *clone = Clone(OBJECT_PERSISTENCE::EPHEMERAL, false);                              // do not re-initialise the clone
+    double timestep = std::max(1000.0*NUCLEAR_MINIMUM_TIMESTEP, m_Age/1.0E6);
+    clone->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, timestep, true, false);
+    double radiusAfterAging = clone->Radius();
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+    double radialExpansionTimescale = timestep * m_Radius / fabs(m_Radius - radiusAfterAging);
+    return m_Mass / radialExpansionTimescale;
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -3249,7 +3267,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           
     }
 
-    double radiusAU = m_Radius * RSOL_TO_AU;
+    double radiusAU              = m_Radius * RSOL_TO_AU;
     double coreRadiusAU          = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
     double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
     double radiusIntershellAU    = radiusAU - convectiveEnvRadiusAU;                                    // Outer radial coordinate of radiative intershell
@@ -3647,7 +3665,7 @@ double BaseStar::CalculateRadialExpansionTimescale_Static(const STELLAR_TYPE p_S
                                                           const double       p_RadiusPrev,
                                                           const double       p_DtPrev) {
 
-	return p_StellarTypePrev == p_StellarType && utils::Compare(p_RadiusPrev, p_Radius) != 0
+    return (p_StellarTypePrev == p_StellarType && utils::Compare(p_RadiusPrev, p_Radius) != 0)
             ? (p_DtPrev * p_RadiusPrev) / fabs(p_Radius - p_RadiusPrev)
             : -1.0;
 }

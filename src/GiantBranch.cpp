@@ -1274,16 +1274,16 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
     double pBH               = 0.0;
     double pCompleteCollapse = 0.0;
     
-    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
+    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0 || utils::Compare(p_HeCoreMass, OPTIONS->MaximumNeutronStarMass()) <= 0 ) {
 	    pBH = 0.0;
     }
     else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M3) < 0) {
     	pBH = 1.0 / (MULLERMANDEL_M3-MULLERMANDEL_M1) * (p_COCoreMass-MULLERMANDEL_M1);
     }
     else {
-	    pBH=1.0;
+	    pBH = 1.0;
     } 
- 
+
     if (utils::Compare(RAND->Random(0, 1), pBH) < 0) {  // this is a BH
         if (utils::Compare(p_COCoreMass, MULLERMANDEL_M4) < 0)
 		    pCompleteCollapse = 1.0 / (MULLERMANDEL_M4 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1);
@@ -1832,7 +1832,7 @@ STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
     }
     else {                                                                                  // -no, treat as ONeWD 
         
-        if(utils::Compare(m_COCoreMass,MCH) > 0){
+        if (utils::Compare(m_COCoreMass,MCH) > 0) {
             SHOW_WARN(ERROR::WHITE_DWARF_TOO_MASSIVE, "Setting mass to Chandraskhar mass.");
         }
         m_Mass       = std::min(m_COCoreMass,MCH);                                          // no WD masses above Chandrasekhar mass

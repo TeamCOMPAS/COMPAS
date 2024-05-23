@@ -52,7 +52,7 @@ protected:
         
         // update effective "initial" mass (m_Mass0) so that the core mass is at least equal to the minimum core mass but no more than total mass
         // (only relevant if RetainCoreMassDuringCaseAMassTransfer()) 
-        if(utils::Compare(CalculateCoreMassOnPhase(m_Mass0, m_Age), std::min(m_Mass, MinimumCoreMass())) < 0) {
+        if (utils::Compare(CalculateCoreMassOnPhase(m_Mass0, m_Age), std::min(m_Mass, MinimumCoreMass())) < 0) {
             double desiredCoreMass = std::min(m_Mass, MinimumCoreMass());                                                                                                       // desired core mass
             m_Mass0 = Mass0ToMatchDesiredCoreMass(this, desiredCoreMass);                                                                                                       // use root finder to find new core mass estimate
             if (m_Mass0 <= 0.0) {                                                                                                                                               // no root found - no solution for estimated core mass
@@ -122,7 +122,7 @@ protected:
     bool            IsEndOfPhase() const                                            { return !ShouldEvolveOnPhase(); }                                                          // Phase ends when age at or after Base Giant Branch MS timescale
     bool            IsSupernova() const                                             { return false; }                                                                           // Not here
 
-    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
+    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
     void            ResolveHeliumFlash() {  }                                                                                                                                   // NO-OP
     STELLAR_TYPE    ResolveSkippedPhase()                                           { return m_StellarType; }                                                                   // NO-OP
 
