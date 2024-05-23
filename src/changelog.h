@@ -1172,7 +1172,26 @@
 // 02.46.02    VK - May 15, 2024     - Defect repair
 //                                      - Corrected CalculateImKlmEquilibrium()
 //                                      - Minor grammatical correction in tides documentation
+// 02.46.03    IM - May 15, 2024     - Enhancements
+//                                      - Create a new function, CalculateNuclearMassLossRate(), to compute the nuclear mass loss rate rather than CalculateRadialExpansionTimescale(), which can be unreliable during mass transfer
+//                                      - Update BaseBinaryStar::CalculateMassTransfer() to use this function and to correctly evaluate m_AccretionFraction and the corresponding zetaRocheLobe
+// 02.46.04    IM - May 16, 2024     - Defect repair
+//                                      - Repaired a bug in GiantBranch::CalculateRemnantMassByMullerMandel() that could cause an infinite loop (see issue #1127)
+// 02.46.05    JR - May 16, 2024     - Defect repair, minor cleanup:
+//                                      - fix for issue #744 - GB parameters `p` and `q` calculated differently for naked helium stars (see issue for details)
+//                                      - changed name of `ResolveEnvelopeLoss()` parameter `p_NoCheck` to `p_Force` (it is required, and now we understand why... see issue #873)
+//                                      - some code cleanup
+// 02.47.00    IM - May 18, 2024     - Defect repair and enhancement
+//                                      - Equilibrium zeta and radial response of MS stars to mass loss are now calculated using CalculateRadiusOnPhase() rather than by cloning
+//                                      - MassLossToFitInsideRocheLobe() and associated functor updated, work more efficiently, no longer artificially fail, and also use CalculateRadiusOnPhase()
+//                                      - Nuclear timescale mass transfer limited to accrete only the smaller of the desired total MT and rate*dt on a timestep of size dt
+//                                      - ROOT_ABS_TOLERANCE increased to avoid artificial failures on round-off errors
+//                                      - code cleanup and bug repairs elsewhere
+// 02.47.01    IM - May 20, 2024     - Defect repair
+//                                      - Renamed the version of CalculateRadiusOnPhase() that takes in mass and tau as arguments into CalculateRadiusOnPhaseTau() to avoid clash with the version that takes in mass and luminosity as arguments
+// 02.48.00    RW - May 22, 2024     - Enhancements
+//                                      - Added separate options for MacLeod Linear AM loss for degenerate vs non-degenerate accretors
                   
-const std::string VERSION_STRING = "02.46.02";
+const std::string VERSION_STRING = "02.48.00";
 
 # endif // __changelog_h__

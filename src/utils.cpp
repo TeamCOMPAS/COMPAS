@@ -242,7 +242,7 @@ namespace utils {
 
         double delta = 1.0 * DEGREE;                                                                                // small angle () in radians - could be set by user in options
 
-        double rand = RAND->Random();                                                                               // do this here to be consistent with legacy code - allows comparison tests (won't work for long - soon there will be too many changes to the code...)
+        double rand  = RAND->Random();                                                                              // do this here to be consistent with legacy code - allows comparison tests (won't work for long - soon there will be too many changes to the code...)
 
         switch (p_KickDirectionDistribution) {                                                                      // which kick direction distribution?
 

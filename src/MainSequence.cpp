@@ -396,14 +396,15 @@ double MainSequence::CalculateRadiusAtPhaseEnd(const double p_Mass, const double
 
         RTMS = ((C_COEFF.at(1) * m_3) + (a[23] * PPOW(p_Mass, a[26])) + (a[24] * PPOW(p_Mass, a[26] + 1.5))) / (a[25] + m_5);
     }
-    else{   // for stars with masses between a17, a17 + 0.1 interpolate between the end points (y = mx + c)
+    else {
+        // for stars with masses between a17, a17 + 0.1 interpolate between the end points (y = mx + c)
 
         // pow() is slow - use multiplication
         double mA_3 = mAsterisk * mAsterisk * mAsterisk;
         double mA_5 = mA_3 * mAsterisk * mAsterisk;
 
-        double y2   = ((C_COEFF.at(1) * mA_3) + (a[23] * PPOW(mAsterisk, a[26])) + (a[24] * PPOW(mAsterisk, a[26] + 1.5))) / (a[25] + mA_5); // RTMS(mAsterisk)
-        double y1   = (a[18] + (a[19] * PPOW(a[17], a[21]))) / (a[20] + PPOW(a[17], a[22]));                                                  // RTMS(a17)
+        double y2   = ((C_COEFF.at(1) * mA_3) + (a[23] * PPOW(mAsterisk, a[26])) + (a[24] * PPOW(mAsterisk, a[26] + 1.5))) / (a[25] + mA_5);    // RTMS(mAsterisk)
+        double y1   = (a[18] + (a[19] * PPOW(a[17], a[21]))) / (a[20] + PPOW(a[17], a[22]));                                                    // RTMS(a17)
 
         double gradient  = (y2 - y1) / 0.1;
         double intercept = y1 - (gradient * a[17]);
@@ -423,7 +424,7 @@ double MainSequence::CalculateRadiusAtPhaseEnd(const double p_Mass, const double
  * Hurley et al. 2000, eq 13
  *
  *
- * double CalculateRadiusOnPhase(const double p_Mass, const double, p_RZAMS, const double p_Time)
+ * double CalculateRadiusOnPhase(const double p_Mass, const double p_Time, const double p_RZAMS)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_Time                      Time (after ZAMS) in Myr
@@ -469,6 +470,59 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
 
 
 /*
+ * Calculate radius on the Main Sequence
+ *
+ * Hurley et al. 2000, eq 13
+ *
+ *
+ * double CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau)
+ *
+ * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Tau                       Fractional age on Main Sequence
+ * @return                                      Radius on the Main Sequence in Rsol
+ */
+double MainSequence::CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const {
+#define a m_AnCoefficients                                          // for convenience and readability - undefined at end of function
+
+    const double epsilon = 0.01;
+    double tBGB = CalculateLifetimeToBGB(p_Mass);
+    double tMS  = CalculateLifetimeOnPhase(p_Mass, tBGB);
+
+    double RZAMS  = CalculateRadiusAtZAMS(p_Mass);
+    double RTMS   = CalculateRadiusAtPhaseEnd(p_Mass, RZAMS);
+    double alphaR = CalculateAlphaR(p_Mass);
+    double betaR  = CalculateBetaR(p_Mass);
+    double deltaR = CalculateDeltaR(p_Mass);
+    double gamma  = CalculateGamma(p_Mass);
+
+    double mu     = std::max(0.5, (1.0 - (0.01 * std::max((a[6] / PPOW(p_Mass, a[7])), (a[8] + (a[9] / PPOW(p_Mass, a[10]))))))); // Hurley et al. 2000, eq 7
+    double tHook  = mu * tBGB;                                                                                      // Hurley et al. 2000, just after eq 5
+    double time   = tMS * p_Tau;
+    double tau1   = std::min(1.0, (time / tHook));                                                                            // Hurley et al. 2000, eq 14
+    double tau2   = std::max(0.0, std::min(1.0, (time - ((1.0 - epsilon) * tHook)) / (epsilon * tHook)));                     // Hurley et al. 2000, eq 15
+
+    // pow() is slow - use multipliaction where it makes sense
+    double tau_3  = p_Tau * p_Tau * p_Tau;
+    double tau_10 = tau_3 * tau_3 * tau_3 * p_Tau;
+    double tau_40 = tau_10 * tau_10 * tau_10 * tau_10;
+    double tau1_3 = tau1 * tau1 * tau1;
+    double tau2_3 = tau2 * tau2 * tau2;
+
+    double logRMS_RZAMS  = alphaR * p_Tau;                                                                                        // Hurley et al. 2000, eq 13, part 1
+           logRMS_RZAMS += betaR * tau_10;                                                                                      // Hurley et al. 2000, eq 13, part 2
+           logRMS_RZAMS += gamma * tau_40;                                                                                      // Hurley et al. 2000, eq 13, part 3
+           logRMS_RZAMS += (log10(RTMS / RZAMS) - alphaR - betaR - gamma) * tau_3;                                            // Hurley et al. 2000, eq 13, part 4
+           logRMS_RZAMS -= deltaR * (tau1_3 - tau2_3);                                                                          // Hurley et al. 2000, eq 13, part 5
+
+    return RZAMS * PPOW(10.0, logRMS_RZAMS);                                                                                   // rewrite Hurley et al. 2000, eq 13 for R(t)
+
+#undef a
+}
+
+
+
+
+/*
  * Calculate the radial extent of the star's convective envelope (if it has one)
  *
  * Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 36-38
@@ -483,9 +537,10 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
     if ( utils::Compare(m_Mass, 1.25) >= 0)
         radiusEnvelope0 = 0.0;
     else if (utils::Compare(m_Mass, 0.35) > 0) {
-        double radiusM035 = CalculateRadiusAtZAMS(0.35);          // uses radius of a 0.35 solar mass star at ZAMS rather than at fractional age Tau, but such low-mass stars only grow by a maximum factor of 1.5 [just above Eq. (10) in Hurley, Pols, Tout (2000), so this is a reasonable approximation
-        radiusEnvelope0 = radiusM035 * std::sqrt((1.25 - m_Mass) / 0.9);
+        double radiusM035 = CalculateRadiusAtZAMS(0.35);        // uses radius of a 0.35 solar mass star at ZAMS rather than at fractional age Tau, but such low-mass stars only grow by a maximum factor of 1.5 [just above Eq. (10) in Hurley, Pols, Tout (2000), so this is a reasonable approximation
+        radiusEnvelope0   = radiusM035 * std::sqrt((1.25 - m_Mass) / 0.9);
     }
+
     return radiusEnvelope0 * std::sqrt(std::sqrt(1.0 - m_Tau));
 }
 
@@ -704,17 +759,21 @@ double MainSequence::ChooseTimestep(const double p_Time) const {
  *     - m_Age
  *
  *
- * STELLAR_TYPE ResolveEnvelopeLoss()
+ * STELLAR_TYPE ResolveEnvelopeLoss(bool p_Force)
+ *
+ * @param   [IN]    p_Force                     Boolean to indicate whether the resolution of the loss of the envelope should be performed
+ *                                              without checking the precondition(s).
+ *                                              Default is false.
  *
  * @return                                      Stellar type to which star should evolve
  */
-STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_NoCheck) {
+STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_Force) {
 
     STELLAR_TYPE stellarType = m_StellarType;
     
-    if (p_NoCheck || utils::Compare(m_Mass, 0.0) <= 0) {
+    if (p_Force || utils::Compare(m_Mass, 0.0) <= 0) {      // envelope loss
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
-        m_Radius    = 0.0;   // massless remnant
+        m_Radius    = 0.0;
         m_Mass      = 0.0;
     }
     

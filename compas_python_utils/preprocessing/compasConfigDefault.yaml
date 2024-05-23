@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Tue May 14 19:39:51 2024 by COMPAS v02.46.00
+##~!!~## File Created Wed May 22 09:44:33 2024 by COMPAS v02.48.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -138,7 +138,8 @@ numericalChoices:
 #    --critical-mass-ratio-white-dwarf-non-degenerate-accretor: 0.000000   # Default: 0.000000
 #    --mass-transfer-fa: 0.500000                                          # Default: 0.500000                                                                                                                                                           # Only if using mass-transfer-accretion-efficiency-prescription = 'FIXED'
 #    --mass-transfer-jloss: 1.000000                                       # Default: 1.000000                                                                                                                                                           # Only if using mass-transfer-angular-momentum-loss-prescription = 'FIXED'
-#    --mass-transfer-jloss-macleod-linear-fraction: 0.500000               # Default: 0.500000
+#    --mass-transfer-jloss-macleod-linear-fraction-degen: 0.000000         # Default: 0.000000
+#    --mass-transfer-jloss-macleod-linear-fraction-non-degen: 0.000000     # Default: 0.000000
 #    --mass-transfer-thermal-limit-C: 10.000000                            # Default: 10.000000
 #    --zeta-adiabatic-arbitrary: 10000.00                                  # Default: 10000.00
 #    --zeta-main-sequence: 2.000000                                        # Default: 2.000000
