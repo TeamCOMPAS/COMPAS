@@ -447,6 +447,8 @@ private:
 
     double  CalculateZetaRocheLobe(const double p_jLoss) const;
 
+    double CalculateTimestepBinary();
+    
     double  CalculateTimeToCoalescence(double a0, double e0, double m1, double m2) const;
 
     double  CalculateTotalEnergy(const double p_SemiMajorAxis,
