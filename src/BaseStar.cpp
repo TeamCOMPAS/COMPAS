@@ -1334,10 +1334,11 @@ double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
  */
 double BaseStar::CalculateZetaEquilibrium() {
     
-    double deltaMass            = -m_Mass/1.0E5;
-    double currentRadius        = CalculateRadiusOnPhase();                                                     //do not trust m_Radius
-    double radiusAfterMassGain  = CalculateRadiusOnPhaseTau(m_Mass+deltaMass, m_Tau);
+    double deltaMass            = -m_Mass / 1.0E5;
+    double currentRadius        = CalculateRadiusOnPhase();                                                     // do not trust m_Radius  JR: Ilya?
+    double radiusAfterMassGain  = CalculateRadiusOnPhaseTau(m_Mass + deltaMass, m_Tau);
     double zetaEquilibrium      = (radiusAfterMassGain - currentRadius) / deltaMass * m_Mass / currentRadius;   // dlnR / dlnM
+
     return zetaEquilibrium;
 }
     

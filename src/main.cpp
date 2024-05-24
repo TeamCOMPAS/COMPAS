@@ -687,6 +687,9 @@ int main(int argc, char * argv[]) {
 
             InitialiseProfiling;                                                                    // initialise profiling functionality
 
+            int objectsRequested = 0;                                                               // for logging
+            int objectsCreated   = 0;                                                               // for logging
+
             // start the logging service
             LOGGING->Start(OPTIONS->OutputPathString(),                                             // location of logfiles
                            OPTIONS->OutputContainerName(),                                          // directory to be created for logfiles
@@ -712,9 +715,6 @@ int main(int argc, char * argv[]) {
                     }
                 }
 
-                int objectsRequested = 0;                                                           // for logging
-                int objectsCreated   = 0;                                                           // for logging
-
                 if (programStatus == PROGRAM_STATUS::CONTINUE) {                                    // all ok?
 
                     if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) {                          // SSE?
@@ -729,10 +729,10 @@ int main(int argc, char * argv[]) {
                     }
 
                     programStatus = PROGRAM_STATUS::SUCCESS;                                        // set program status, and...
-                }
-                
-                LOGGING->Stop(std::make_tuple(objectsRequested, objectsCreated));                   // stop the logging service
+                }                
             }
+
+            LOGGING->Stop(std::make_tuple(objectsRequested, objectsCreated));                       // stop the logging service if necessary and cleanup
 
             ReportProfiling;                                                                        // report profiling statistics
         }
