@@ -598,22 +598,6 @@ Default = ’BSE_Common_Envelopes’
 **--logfile-common-envelopes-record-types** |br|
 Enabled record types for Common Envelopes logfile (BSE mode). |br|
 Default = -1 (all record types) |br|
-|br|
-The record types to be enabled are specified as a bitmap, with each bit corresponding to a record type.  To construct the bitmap, for each
-record type to be enabled, raise 2 to the power of (record type - 1), then sum the results - the sum is the bitmap, and the integer value to
-be entered for this option. |br|
-|br|
-Example: |br|
-|br|
-To enable record types 1, 4, and 9, the option value should be |br| |br|
-:math:`2^{(1 - 1)} + 2^{(4 - 1)} + 2^{(9 - 1)} = 2^0 + 2^3 + 2^8 = 1 + 8 + 256 = 265` |br| |br|
-:math:`265` as a binary number is written as :math:`0100001001`, with the 1st, 4th, and 9th bits enabled (counting 1-based from the 
-least-significant bit being the right-most), corresponding to the record types 1, 4, and 9 being enabled, and all other record types
-disabled. |br|
-|br|
-A value of -1 for the bitmap is shorthand for all bits enabled - all record types enabled. |br|
-|br|
-The Common Envelopes logfile currently has only one record type defined (record type 1). |br|
 
 **--logfile-definitions** |br|
 Filename for logfile record definitions file. |br|
@@ -626,55 +610,6 @@ Default = ’SSE_Detailed_Output’ for SSE mode; ’BSE_Detailed_Output’ for 
 **--logfile-detailed-output-record-types** |br|
 Enabled record types for the Detailed Output logfile. |br|
 Default = -1 (all record types) |br|
-See ``--logfile-common-envelopes-record-types`` for a detailed description of the value to be entered. |br|
-|br|
-The Detailed Output logfile currently has the following record types defined: |br|
-
-.. list-table::
-   :widths: 5 90 
-   :header-rows: 0
-   :class: aligned-text
-
-   * - 1
-     - describes the initial state of the binary
-   * - 2
-     - describes the state of the binary immediately following the stellar timestep
-   * -  
-     - (i.e. after the evolution of the constituent stars for a single timestep)
-   * - 3
-     - describes the state of the binary immediately following binary timestep
-   * -  
-     - (i.e. after the evolution of the binary system for a single timestep)
-   * - 4
-     - describes the state of the binary immediately following the completion of the timestep
-   * -  
-     - (i.e. after all changes to the binary and components)
-   * - 5
-     - describes the final state of the binary
-   * - 6
-     - describes the state of the binary immediately following a stellar type change during a common envelope event
-   * - 7
-     - describes the state of the binary immediately following a stellar type change during a mass transfer event
-   * - 8
-     - describes the state of the binary immediately following a stellar type change during mass resolution
-   * - 9
-     - describes the state of the binary immediately following a stellar type change during mass equilibration for CHE
-   * - 10
-     - describes the state of the binary immediately following a mass transfer event
-   * - 11
-     - describes the state of the binary immediately following winds mass loss
-   * - 12
-     - describes the state of the binary immediately following a common envelope event
-   * - 13
-     - describes the state of the binary immediately following a supernova event
-   * - 14
-     - describes the state of the binary immediately following mass resolution
-   * -
-     - (i.e. after winds mass loss & mass transfer complete)
-   * - 15
-     - describes the state of the binary immediately following a merger after mass resolution
-
-For the Detailed Output logfile, this option can be specified in a grid file, allowing the user to enable/disable different record types for each separate detailed output file. |br|
 
 **--logfile-double-compact-objects** |br|
 Filename for the Double Compact Objects logfile (BSE mode). |br|
@@ -683,9 +618,6 @@ Default = ’BSE_Double_Compact_Objects’
 **--logfile-double-compact-objects-record-types** |br|
 Enabled record types for the Double Compact Objects logfile (BSE mode). |br|
 Default = -1 (all record types) |br|
-See ``--logfile-common-envelopes-record-types`` for a detailed description of the value to be entered. |br|
-|br|
-The Double Compact Objects logfile currently has only one record type defined (record type 1). |br|
 
 **--logfile-name-prefix** |br|
 Prefix for logfile names. |br|
@@ -698,9 +630,6 @@ Default = ’BSE_Pulsar_Evolution’
 **--logfile-pulsar-evolution-record-types** |br|
 Enabled record types for the Pulsar Evolution logfile (BSE mode). |br|
 Default = -1 (all record types) |br|
-See ``--logfile-common-envelopes-record-types`` for a detailed description of the value to be entered. |br|
-|br|
-The Pulsar Evolution logfile currently has only one record type defined (record type 1). |br|
 
 **--logfile-rlof-parameters** |br|
 Filename for the RLOF Printing logfile (BSE mode). |br|
@@ -709,9 +638,6 @@ Default = ’BSE_RLOF’
 **--logfile-rlof-parameters-record-types** |br|
 Enabled record types for the RLOF Printing logfile (BSE mode). |br|
 Default = -1 (all record types) |br|
-See ``--logfile-common-envelopes-record-types`` for a detailed description of the value to be entered. |br|
-|br|
-The RLOF Printing logfile currently has only one record type defined (record type 1). |br|
 
 **--logfile-supernovae** |br|
 Filename for the Supernovae logfile. |br|
@@ -720,9 +646,6 @@ Default = ’SSE_Supernovae’ for SSE mode; ’BSE_Supernovae’ for BSE mode |
 **--logfile-supernovae-record-types** |br|
 Enabled record types for the Supernovae logfile. |br|
 Default = -1 (all record types) |br|
-See ``--logfile-common-envelopes-record-types`` for a detailed description of the value to be entered. |br|
-|br|
-The Supernovae logfile currently has only one record type defined (record type 1). |br|
 
 **--logfile-switch-log** |br|
 Filename for the Switch Log logfile. |br|
@@ -735,9 +658,6 @@ Default = ’SSE_System_Parameters’ for SSE mode; ’BSE_System_Parameters’ 
 **--logfile-system-parameters-record-types** |br|
 Enabled record types for the System Parameters logfile (BSE mode). |br|
 Default = -1 (all record types) |br|
-See ``--logfile-common-envelopes-record-types`` for a detailed description of the value to be entered. |br|
-|br|
-The System Parameters logfile currently has only one record type defined (record type 1). |br|
 
 **--logfile-type** |br|
 The type of logfile to be produced by COMPAS. Options are: HDF5, CSV, TSV, TXT. |br|
