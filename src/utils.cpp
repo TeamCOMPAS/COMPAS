@@ -1583,7 +1583,7 @@ namespace utils {
      * 
      * std::tuple<ERROR, std::string, STR_VECTOR> CreateDirectory(const std::string p_Path)
      * 
-     * @param   [IN]    p_Path                    Path specifying directoris to be created
+     * @param   [IN]    p_Path                    Path specifying directories to be created
      * @return                                    Tuple containing error value, error string, and vector of directories created
      *                                                The error value returned will be:
      *                                                    ERROR::NONE                                 if no error occurred
@@ -1602,7 +1602,7 @@ namespace utils {
         std::string errStr       = "";                                                          // error string - initially none
         STR_VECTOR  pathsCreated = {};                                                          // directories created - initially none
 
-        // create directories as necessay - top-down
+        // create directories as necessary - top-down
         const char sep   = boost::filesystem::path::preferred_separator;                        // platform-specific path separator
         std::string path = "";                                                                  // current path - the directory to be created
         for (const auto& name: boost::filesystem::path(p_Path)) {                               // parse the user-supplied path string
@@ -1640,7 +1640,7 @@ namespace utils {
      * Remove directories if they are empty
      *
      * Iterate in reverse order over the vector of paths passed (i.e. walk up the directory tree from the leaf) and
-     * remove emply directories - but stop at the first non-empty directory (or error).  
+     * remove empty directories - but stop at the first non-empty directory (or error).  
      * 
      * Returns a vector of paths not removed.
      * 

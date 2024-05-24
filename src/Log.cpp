@@ -265,7 +265,7 @@ void Log::Start(const string              p_LogBasePathString,
         m_ClockStart        = clock();                                                                                      // start CPU timer
 
         // enable logging
-        m_Enabled           = true;                                                                                         // logging emabled
+        m_Enabled           = true;                                                                                         // logging enabled
         m_LogBasePathString = p_LogBasePathString;                                                                          // set base path
         m_LogNamePrefix     = p_LogNamePrefix;                                                                              // set log file name prefix
         m_LogLevel          = p_LogLevel;                                                                                   // set log level
