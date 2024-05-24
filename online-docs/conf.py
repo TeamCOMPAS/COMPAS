@@ -104,7 +104,7 @@ html_theme = 'alabaster'
 #
 html_theme_options = {
 #    'prev_next_buttons_location': 'bottom'
-    'show_relbar_top': 'false',
+    'show_relbar_top': 'true',
     'show_relbar_bottom': 'true'
 }
 
@@ -122,6 +122,12 @@ html_static_path = ['_static']
 # 'searchbox.html']``.
 #
 # html_sidebars = {}
+html_sidebars = {
+    '**': [
+        'globaltoc.html',
+        'searchbox.html'
+    ]
+}
 
 html_show_sourcelink = False        # JR
 html_use_smartypants = False        # JR
