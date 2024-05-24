@@ -394,7 +394,7 @@ enum class DCO_RECORD_TYPE: unsigned int {                                      
 };
 
 enum class PULSAR_RECORD_TYPE: unsigned int {                                                                       // BSE_PULSAR_EVOLUTION file record type
-    DEFAULT = 1,                                                                                                    //  1 - record describes the initial state of the binary
+    POST_SN = 1,                                                                                                    //  1 - record was logged immediately following a supernova event
     POST_BINARY_TIMESTEP                                                                                            //  2 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
 };
 
@@ -1512,10 +1512,10 @@ enum class STELLAR_TYPE: int {                      // Hurley
     NEUTRON_STAR,                                   //  13
     BLACK_HOLE,                                     //  14
     MASSLESS_REMNANT,                               //  15
-    CHEMICALLY_HOMOGENEOUS,                         //  16  JR: this is here to preserve the Hurley type numbers, but note that Hurley type number progression doesn't necessarily indicate class inheritance
-    STAR,                                           //  17  JR: added this - star is created this way, then switches as required (down here so stellar types consistent with Hurley et al. 2000)
-    BINARY_STAR,                                    //  18  JR: added this - mainly for diagnostics
-    NONE                                            //  19  JR: added this - mainly for diagnostics
+    CHEMICALLY_HOMOGENEOUS,                         //  16  : this is here to preserve the Hurley type numbers, but note that Hurley type number progression doesn't necessarily indicate class inheritance
+    STAR,                                           //  17  : star is created this way, then switches as required (down here so stellar types consistent with Hurley et al. 2000)
+    BINARY_STAR,                                    //  18  : here mainly for diagnostics
+    NONE                                            //  19  : here mainly for diagnostics
 };
 
 
@@ -1711,12 +1711,12 @@ enum class GBP: int {
     D,                      // Hurley et al. 2000, p552, eq38 (does this represent something physical?  If so, what?  How should this be described?)
     p,                      // Hurley et al. 2000, p552, eq38 (does this represent something physical?  If so, what?  How should this be described?)
     q,                      // Hurley et al. 2000, p552, eq38 (does this represent something physical?  If so, what?  How should this be described?)
-    Lx,                     // Luminosity parameter on the first giant branch (FGB) Lx as a function of the core mass (really a function of Mx).        JR: ADDED THIS
+    Lx,                     // Luminosity parameter on the first giant branch (FGB) Lx as a function of the core mass (really a function of Mx).
     Mx,                     // Crosover point of high-luminosity and low-luminosity in core mass - luminosity relation. Hurley et al. 2000, p552, eq38
     McBGB,                  // Core mass at BGB (Base of Giant Branch)
     McBAGB,                 // Core mass at BAGB (Base of Asymptotic Giant Branch).  Hurley et al. 2000, eq 66 (also see eq 75 and discussion)
     McDU,                   // Core mass at second dredge up.  Hurley et al. 2000, eq 69
-    McSN,                   // Core mass at which the Asymptotic Giant Branch phase is terminated in a SN/loss of envelope                              JR: ADDED THIS
+    McSN,                   // Core mass at which the Asymptotic Giant Branch phase is terminated in a SN/loss of envelope
 
     COUNT                   // Sentinel for entry count
 };

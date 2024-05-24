@@ -420,8 +420,8 @@ void Options::OptionValues::Initialise() {
 
     // Mass transfer angular momentum loss prescription options
     m_MassTransferJloss                                             = 1.0;
-    m_MassTransferJlossMacLeodLinearFractionDegen                   = 0.0;
-    m_MassTransferJlossMacLeodLinearFractionNonDegen                = 0.0;
+    m_MassTransferJlossMacLeodLinearFractionDegen                   = 0.5;
+    m_MassTransferJlossMacLeodLinearFractionNonDegen                = 0.5;
     m_MassTransferAngularMomentumLossPrescription.type              = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION;
     m_MassTransferAngularMomentumLossPrescription.typeString        = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL.at(m_MassTransferAngularMomentumLossPrescription.type);
 
