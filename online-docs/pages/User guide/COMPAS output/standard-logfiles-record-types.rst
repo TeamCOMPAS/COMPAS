@@ -2,7 +2,7 @@ Standard log file record types
 ==============================
 
 All standard COMPAS logfiles, except the switch log files, have a record type property (column).  The record type property
-is an unsigned integer that can take any value in the rand :math:`0..4294967295`.
+is an unsigned integer that can take any value in the range :math:`0..4294967295`.
 
 The record type is used to differentiate records within a standard log file. The functionality was introduced primarily to
 support different types of records in the detailed output files (BSE and SSE), but has been extended to all other log files
