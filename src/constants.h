@@ -35,6 +35,7 @@
 
 typedef unsigned long int                                               OBJECT_ID;                  // OBJECT_ID type
 
+typedef std::vector<std::string>                                        STR_VECTOR;
 typedef std::vector<double>                                             DBL_VECTOR;
 typedef std::tuple <double, double>                                     DBL_DBL;
 typedef std::tuple <double, double, double>                             DBL_DBL_DBL;
@@ -368,6 +369,7 @@ enum class LOGFILETYPE: int { NONE, HDF5, CSV, TSV, TXT };                      
 
 const LOGFILETYPE DEFAULT_LOGFILE_TYPE                  = LOGFILETYPE::HDF5;                                        // Default logfile type
 const std::string DEFAULT_OUTPUT_CONTAINER_NAME         = "COMPAS_Output";                                          // Default name for output container (directory)
+const std::string DEFAULT_HDF5_FILE_NAME                = "COMPAS_Output";                                          // Default name for HDF5 output file
 const std::string DETAILED_OUTPUT_DIRECTORY_NAME        = "Detailed_Output";                                        // Name for detailed output directory within output container
 const std::string RUN_DETAILS_FILE_NAME                 = "Run_Details";                                            // Name for run details output file within output container
 
@@ -585,6 +587,7 @@ enum class ERROR: int {
     BOOST_OPTION_CMDLINE,                                           // failed to initialise Boost options descriptions for commandline options
     BOOST_OPTION_GRIDLINE,                                          // failed to initialise Boost options descriptions for grid line options
     BOOST_OPTION_INTERNAL_ERROR,                                    // Boost option internal error
+    DIRECTORY_NOT_EMPTY,                                            // Directory not empty
     EMPTY_FILE,                                                     // file is empty (contains no content)
     EMPTY_FILENAME,                                                 // filename is an empty string
     ERROR,                                                          // unspecified error
@@ -654,6 +657,8 @@ enum class ERROR: int {
     TOO_MANY_RLOF_ITERATIONS,                                       // too many iterations in RLOF root finder
     TOO_MANY_RLOF_TRIES,                                            // too many tries in RLOF root finder
     TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE,                           // too many timesteps in timesteps file (exceeds maximum)
+    UNABLE_TO_CREATE_DIRECTORY,                                     // unable to create directory
+    UNABLE_TO_REMOVE_DIRECTORY,                                     // unable to remove directory
     UNEXPECTED_END_OF_FILE,                                         // unexpected end of file
     UNEXPECTED_LOG_FILE_TYPE,                                       // unexpected log file type
     UNEXPECTED_SN_EVENT,                                            // unexpected supernova event in this context
@@ -738,6 +743,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::BOOST_OPTION_CMDLINE,                                  { ERROR_SCOPE::ALWAYS,              "Failed to initialise Boost options descriptions for commandline options" }},
     { ERROR::BOOST_OPTION_GRIDLINE,                                 { ERROR_SCOPE::ALWAYS,              "Failed to initialise Boost options descriptions for grid line options" }},
     { ERROR::BOOST_OPTION_INTERNAL_ERROR,                           { ERROR_SCOPE::ALWAYS,              "Internal error: Boost vm, option" }},
+    { ERROR::DIRECTORY_NOT_EMPTY,                                   { ERROR_SCOPE::ALWAYS,              "Directory not empty" }},
     { ERROR::EMPTY_FILE,                                            { ERROR_SCOPE::ALWAYS,              "File is empty" }},
     { ERROR::EMPTY_FILENAME,                                        { ERROR_SCOPE::ALWAYS,              "Filename is an empty string" }},
     { ERROR::ERROR,                                                 { ERROR_SCOPE::ALWAYS,              "Error!" }},
@@ -808,6 +814,8 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::TOO_MANY_RLOF_TRIES,                                   { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE,                  { ERROR_SCOPE::ALWAYS,              "Number of timesteps in timestpes file exceeds maximum timesteps" }},
+    { ERROR::UNABLE_TO_CREATE_DIRECTORY,                            { ERROR_SCOPE::ALWAYS,              "Unable to create directory" }},
+    { ERROR::UNABLE_TO_REMOVE_DIRECTORY,                            { ERROR_SCOPE::ALWAYS,              "Unable to remove directory" }},
     { ERROR::UNEXPECTED_END_OF_FILE,                                { ERROR_SCOPE::ALWAYS,              "Unexpected end of file" }},
     { ERROR::UNEXPECTED_LOG_FILE_TYPE,                              { ERROR_SCOPE::ALWAYS,              "Unexpected log file type" }},
     { ERROR::UNEXPECTED_SN_EVENT,                                   { ERROR_SCOPE::ALWAYS,              "Unexpected supernova event in this context" }},

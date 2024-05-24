@@ -1569,4 +1569,140 @@ namespace utils {
         return std::make_tuple(error, timesteps);
     }
 
+
+    /*
+     * Create directories, where they don't already exist, in the path supplied
+     *
+     * We could just use boost::create_directories() (or FS::create_directories() for c++17 or greater), but that
+     * would just create the directories as necessary and not report which directories in the path were pre-existing
+     * and which were newly created.  We want to be able to clean up any directories we created but didn't use (because
+     * we had an error somewhere perhaps...), and to do that we need to know which directories were actually created.
+     * 
+     * Returns a vector of paths not created.
+     * 
+     * 
+     * std::tuple<ERROR, std::string, STR_VECTOR> CreateDirectory(const std::string p_Path)
+     * 
+     * @param   [IN]    p_Path                    Path specifying directoris to be created
+     * @return                                    Tuple containing error value, error string, and vector of directories created
+     *                                                The error value returned will be:
+     *                                                    ERROR::NONE                                 if no error occurred
+     *                                                    ERROR::UNABLE_TO_CREATE_DIRECTORY           if any non-existent directory in the path supplied could not be created
+     *                                                The error string indicates the problematic path in the case an error occurred.
+     *                                                    The error string is only valid if error != ERROR::NONE
+     *                                                The returned vector contains string paths for each of the directories actually created.
+     *                                                    The returned vector will not contain names of directories in the path that already existed
+     *                                                    The content of the returned vector for directories created is only valid if error == ERROR::NONE,
+     */
+    std::tuple<ERROR, std::string, STR_VECTOR> CreateDirectories(const std::string p_Path) {
+
+        if (p_Path.empty()) return std::make_tuple(ERROR::NONE, "", STR_VECTOR({}));            // nothing to do
+
+        ERROR       error        = ERROR::NONE;                                                 // error - initially NONE
+        std::string errStr       = "";                                                          // error string - initially none
+        STR_VECTOR  pathsCreated = {};                                                          // directories created - initially none
+
+        // create directories as necessay - top-down
+        const char sep   = boost::filesystem::path::preferred_separator;                        // platform-specific path separator
+        std::string path = "";                                                                  // current path - the directory to be created
+        for (const auto& name: boost::filesystem::path(p_Path)) {                               // parse the user-supplied path string
+            if (!path.empty() && path[path.length() - 1] != sep) path += sep;                   // add separator to current path if necessary
+            path += name.c_str();                                                               // add directory name to current path
+            if (!path.empty() && !boost::filesystem::exists(path)) {
+                try {
+                    boost::system::error_code err;
+                    (void)boost::filesystem::create_directory(path, err);                       // create directory - let boost throw an exception if it fails
+                    if (err.value() == 0) {                                                     // ok?
+                        pathsCreated.push_back(boost::filesystem::canonical(path).string());    // yes - record creation
+                    }
+                    else  {                                                                     // not ok...
+                        error  = ERROR::UNABLE_TO_CREATE_DIRECTORY;                             // set error
+                        errStr = path;                                                          // ... and error string
+                    }            
+                }
+                catch (...) {                                                                   // unhandled problem...
+                    error  = ERROR::UNABLE_TO_CREATE_DIRECTORY;                                 // set error
+                    errStr = path;                                                              // ... and error string
+                }                
+            }
+
+            if (error != ERROR::NONE) {                                                         // problem?
+                std::tie(error, errStr, pathsCreated) = RemoveDirectories(pathsCreated);        // yes - clean up
+                break;
+            }
+        }
+
+        return std::make_tuple(error, errStr, pathsCreated);
+    }
+
+
+    /*
+     * Remove directories if they are empty
+     *
+     * Iterate in reverse order over the vector of paths passed (i.e. walk up the directory tree from the leaf) and
+     * remove emply directories - but stop at the first non-empty directory (or error).  
+     * 
+     * Returns a vector of paths not removed.
+     * 
+     * 
+     * std::tuple<ERROR, std::string, STR_VECTOR> RemoveDirectories(const STR_VECTOR p_Paths)
+     * 
+     * @param   [IN]    p_Path                    Vector of paths to be removed
+     * @return                                    Tuple containing error value, error string, and vector of directories not removed
+     *                                                The error value returned will be:
+     *                                                    ERROR::NONE                                 if no error occurred
+     *                                                    ERROR::UNABLE_TO_CREATE_DIRECTORY           if any non-existent directory in the path supplied could not be created
+     *                                                The error string indicates the problematic path in the case an error occurred.
+     *                                                    The error string is only valid if error != ERROR::NONE
+     *                                                The returned vector contains string paths for each of the directories from the input vector that were not removed,
+     *                                                    either because they were not empty or because an error occurred (check error element of tuple returned)
+     */
+    std::tuple<ERROR, std::string, STR_VECTOR> RemoveDirectories(const STR_VECTOR p_Paths) {
+
+        if (p_Paths.size() < 1) return std::make_tuple(ERROR::NONE, "", STR_VECTOR({}));                                    // nothing to do
+
+        ERROR       error          = ERROR::NONE;                                                                           // error - initially NONE
+        std::string errStr         = "";                                                                                    // error string - initially none
+        STR_VECTOR pathsNotRemoved = p_Paths;                                                                               // directories not removed - initially p_Paths
+
+        // remove directories as necessary - bottom-up - stop if error or not empty
+        std::string path;
+        boost::system::error_code err;
+        for (auto iter = p_Paths.rbegin(); iter != p_Paths.rend(); ++iter) {
+            path = *iter;
+            if (boost::filesystem::exists(path) && boost::filesystem::is_empty(path)) {                                     // directory exists and is empty?
+                try {
+                    (void)boost::filesystem::remove(path, err);                                                             // remove directory - let boost throw an exception if it fails
+                    if (err.value() == 0) {                                                                                 // ok?
+                                                                                                                            // yes
+                        // erase path removed from pathsNotRemoved vector
+                        // I could just use std::find() as the parameter to erase(), but this is safer
+                        STR_VECTOR::iterator idx = std::find(pathsNotRemoved.begin(), pathsNotRemoved.end(), path);         // get element index
+                        if (idx != pathsNotRemoved.end()) pathsNotRemoved.erase(idx);                                       // if found, erase it
+                    }
+                    else {                                                                                                  // not ok...
+                        error  = ERROR::UNABLE_TO_REMOVE_DIRECTORY;                                                         // set error
+                        errStr = path;                                                                                      // ... and error string
+                        break;
+                    }
+                }
+                catch (...) {                                                                                               // unhandled problem...
+                    error  = ERROR::UNABLE_TO_REMOVE_DIRECTORY;                                                             // set error
+                    errStr = path;                                                                                          // ... and error string
+                    break;
+                }                
+            }
+            else {                                                                                                          // problem...
+                // either the directory does not exist or is not empty
+                // if not empty we stop here - we don't want to delete anything other than empty directories
+                // if the directory does not exist we err on the side of caution, assume there's a problem, and stop here
+                error  = boost::filesystem::exists(path) ? ERROR::UNABLE_TO_REMOVE_DIRECTORY : ERROR::DIRECTORY_NOT_EMPTY;  // set error
+                errStr = path;                                                                                              // ... and error string
+                break;
+            }
+        }
+
+        return std::make_tuple(error, errStr, pathsNotRemoved);
+    }
+
 }

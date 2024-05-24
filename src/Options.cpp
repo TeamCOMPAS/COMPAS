@@ -360,8 +360,6 @@ void Options::OptionValues::Initialise() {
 
     // Output path
     m_OutputPathString                                              = ".";
-    m_DefaultOutputPath                                             = boost::filesystem::current_path();
-    m_OutputPath                                                    = m_DefaultOutputPath;
     m_OutputContainerName                                           = DEFAULT_OUTPUT_CONTAINER_NAME;
     
 
@@ -2370,17 +2368,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             WARNUSER_IF(m_Notes.size() > Options::Instance()->NotesHdrs().size(), "WARNING: Annotations: more notes than headers - extra notes ignored"); // yes - check counts
         }
 
-        if (!DEFAULTED("output-path")) {                                                                                            // user specified output path?
-                                                                                                                                    // yes
-            fs::path userPath = m_OutputPathString;                                                                                 // user-specifed path
-            if (fs::is_directory(userPath)) {                                                                                       // valid directory?
-                m_OutputPath = userPath;                                                                                            // yes - set outputPath to user-specified path
-            }
-            else {                                                                                                                  // not a valid directory
-                m_OutputPath = m_DefaultOutputPath;                                                                                 // use default path = CWD
-            }
-        }
-
         COMPLAIN_IF(m_OrbitalPeriodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
         COMPLAIN_IF(m_OrbitalPeriodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
         COMPLAIN_IF(m_OrbitalPeriodDistributionMax <= m_OrbitalPeriodDistributionMin, "Maximum orbital period (--orbital-period-max) must be > Minimum orbital period (--orbital-period-min)");
@@ -2853,7 +2840,8 @@ std::vector<OptionDetailsT> Options::OptionDetails(const OptionsDescriptorT &p_O
     // add other (calculated) options
 
     optionDetails.push_back({"useFixedUK", (p_Options.optionValues.m_UseFixedUK ? "TRUE" : "FALSE"), "CALCULATED", "BOOL", TYPENAME::BOOL, "", {}});            // useFixedUK
-    optionDetails.push_back({"actual-output-path", p_Options.optionValues.m_OutputPath.string(), "CALCULATED", "STRING", TYPENAME::STRING, "", {}});            // output-path
+//    optionDetails.push_back({"actual-output-path", p_Options.optionValues.m_OutputPathString, "CALCULATED", "STRING", TYPENAME::STRING, "", {}});               // output-path
+//    optionDetails.push_back({"actual-output-container", p_Options.optionValues.m_OutputContainerName, "CALCULATED", "STRING", TYPENAME::STRING, "", {}});       // output-container
     optionDetails.push_back({"fixedRandomSeed", (p_Options.optionValues.m_FixedRandomSeed ? "TRUE" : "FALSE"), "CALCULATED", "BOOL", TYPENAME::BOOL, "", {}});  // fixedRandomSeed
 
     return optionDetails;
