@@ -122,12 +122,12 @@ void HeHG::CalculateGBParams_Static(const double      p_Mass0,
 	gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass);
 
     gbParams(Mx)     = GiantBranch::CalculateCoreMass_Luminosity_Mx_Static(p_GBParams);      // depends on B, D, p & q - recalculate if any of those are changed
-    gbParams(Lx)     = GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // JR: Added this - depends on B, D, p, q & Mx - recalculate if any of those are changed
+    gbParams(Lx)     = GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // depends on B, D, p, q & Mx - recalculate if any of those are changed
 
 	gbParams(McBAGB) = p_Mass0;
 	gbParams(McBGB)  = GiantBranch::CalculateCoreMassAtBGB_Static(p_Mass, p_MassCutoffs, p_AnCoefficients, p_GBParams);
 
-    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));               // JR: Added this
+    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));
 
 #undef gbParams
 }
