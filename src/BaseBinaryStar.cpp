@@ -2759,7 +2759,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                        // continue evolution?
 
                     if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-                        (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_BINARY_TIMESTEP);                                     // print (log) pulsar evolution parameters                                                                              // print (log) pulsar evolution parameters 
+                        (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_BINARY_TIMESTEP);                                     // print (log) pulsar evolution parameters 
                     }
 
                     //(void)PrintBeBinary();                                                                                                  // print (log) BeBinary properties
