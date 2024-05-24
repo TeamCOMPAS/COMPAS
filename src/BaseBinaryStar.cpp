@@ -2068,10 +2068,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::NONE) {                                                        // Determine stability based on critical mass ratios
 
         // NOTE: Critical mass ratio is defined as mAccretor/mDonor
-        double qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate());
-
+        double qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate(), m_FractionAccreted);
         isUnstable = (m_Accretor->Mass() / m_Donor->Mass()) < qCrit;
-        m_FractionAccreted = 1.0;                                                                                               // Accretion is assumed fully conservative for qCrit calculations
     }
     else {                                                                                                                      // Determine stability based on zetas
         isUnstable = (utils::Compare(m_ZetaStar, m_ZetaLobe) < 0);
