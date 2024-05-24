@@ -394,8 +394,9 @@ enum class DCO_RECORD_TYPE: unsigned int {                                      
 };
 
 enum class PULSAR_RECORD_TYPE: unsigned int {                                                                       // BSE_PULSAR_EVOLUTION file record type
-    POST_SN = 1,                                                                                                    //  1 - record was logged immediately following a supernova event
-    POST_BINARY_TIMESTEP                                                                                            //  2 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
+    DEFAULT = 1,                                                                                                    // 1 - default BSE_PULSAR_EVOLUTION file record type
+    POST_SN,                                                                                                        // 2 - record was logged immediately following a supernova event
+    POST_BINARY_TIMESTEP                                                                                            // 3 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
 };
 
 enum class RLOF_RECORD_TYPE: unsigned int {                                                                         // BSE_RLOF_PARAMETERS file record type
