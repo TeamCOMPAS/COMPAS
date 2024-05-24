@@ -1192,7 +1192,7 @@
 // 02.48.00    RW - May 22, 2024     - Enhancements
 //                                      - Added separate options for MacLeod Linear AM loss for degenerate vs non-degenerate accretors
 //                                         - options added: `--mass-transfer-jloss-macleod-linear-fraction-degen` and `--mass-transfer-jloss-macleod-linear-fraction-non-degen`
-// 02.48.01    RW - May 24, 2024     - Defect repairs
+// 02.48.01    JR - May 24, 2024     - Defect repairs
 //                                      - Changed functionality of `output-path` option to create missing directories in the path (see issue #998 - technically not a defect, but close enough)
 //                                      - Fixed incorrect default values for options `--mass-transfer-jloss-macleod-linear-fraction-degen` and `--mass-transfer-jloss-macleod-linear-fraction-non-degen`
 //                                      - Changed BaseStar::UpdateAttributesAndAgeOneTimestepPreamble() so timescales are not recalculated when we know dT = 0
