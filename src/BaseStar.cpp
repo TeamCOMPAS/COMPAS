@@ -4215,12 +4215,12 @@ double BaseStar::CalculateTimestep() {
     double radialExpansionTimescale = CalculateRadialExpansionTimescale();
     double massChangeTimescale = CalculateMassChangeTimescale();
 
-    double    dt = ChooseTimestep(m_Age);
+    double dt = ChooseTimestep(m_Age);
     
     if( OPTIONS->RadialChangeFraction()!=0 && radialExpansionTimescale > 0.0 )                              // if radial expansion timescale was computed
-            dt = min(dt, OPTIONS->RadialChangeFraction()*radialExpansionTimescale);
+        dt = min(dt, OPTIONS->RadialChangeFraction()*radialExpansionTimescale);
     if( OPTIONS->MassChangeFraction()!=0 && massChangeTimescale > 0.0 )                                     // if mass change timescale was computed
-            dt = min(dt, OPTIONS->MassChangeFraction()*massChangeTimescale);
+        dt = min(dt, OPTIONS->MassChangeFraction()*massChangeTimescale);
     
     dt = max(round(dt/TIMESTEP_QUANTUM)*TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
         
@@ -4268,7 +4268,7 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
     // time.
 
     CalculateGBParams();                                                                            // calculate giant branch parameters
-    CalculateTimescales();                                                                          // calculate timescales
+    if (p_DeltaTime > 0.0) CalculateTimescales();                                                   // calculate timescales if necessary
 }
 
 
@@ -4314,7 +4314,8 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
  * STELLAR_TYPE UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
  *                                                const double p_DeltaMass0,
  *                                                const double p_DeltaTime,
- *                                                const bool   p_ForceRecalculate)
+ *                                                const bool   p_ForceRecalculate,
+ *                                                const bool   p_ResolveEnvelopeLoss)
  *
  * @param   [IN]    p_DeltaMass                 The change in mass to apply in Msol
  * @param   [IN]    p_DeltaMass0                The change in mass0 to apply in Msol
