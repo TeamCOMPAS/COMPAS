@@ -22,6 +22,7 @@ specified on the command line, not the values specified in a ``grid`` file (if u
    standard-logfiles-record-specifiers
    standard-logfiles-record-specification
    standard-logfiles-format
+   standard-logfiles-record-types
    standard-logfiles-annotations
    standard-logfiles-example-definitions-file
    standard-logfiles-default-record-specifications
