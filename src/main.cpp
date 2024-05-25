@@ -116,6 +116,19 @@ std::tuple<int, int> EvolveSingleStars() {
     std::time_t timeStart = std::chrono::system_clock::to_time_t(wallStart);
     SAY("Start generating stars at " << std::ctime(&timeStart));
 
+
+
+    struct sigaction sigAct;
+    memset(&sigAct, 0, sizeof(sigAct));
+    sigAct.sa_handler = SIGhandler;
+    sigAct.sa_flags   = SA_NODEFER | SA_NOMASK;
+    sigaction(SIGFPE, &sigAct, NULL);
+
+    feenableexcept(FE_ALL_EXCEPT); 
+
+
+
+
     // generate and evolve stars
 
     Star*  star      = nullptr;
@@ -135,6 +148,25 @@ std::tuple<int, int> EvolveSingleStars() {
         bool doneGridFile     = false;                                                                              // flags we're done with the grid file (for this commandline variation)
         bool processingGridLine = false;                                                                            // processing a gridfile line?
         while (!doneGridFile && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                    // for each star to be evolved
+
+
+
+
+        if (setjmp(FLOATING_POINT_ERROR)) {
+
+            SHOW_ERROR(ERROR::ERROR, "Floating point error!");
+            evolutionStatus = EVOLUTION_STATUS::ERROR;
+
+            sigaction(SIGFPE, &sigAct, NULL);
+
+            feenableexcept(FE_ALL_EXCEPT); 
+
+        }
+
+
+
+
+
 
             bool doneGridLine = false;                                                                              // flags we're done with this grid file line (if using a grid file)
             if (usingGrid) {                                                                                        // using grid file?
