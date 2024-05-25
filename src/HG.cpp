@@ -1004,6 +1004,25 @@ double HG::CalculateTauOnPhase() const {
 #undef timescales
 }
 
+/*
+ * Calculate the maximum timestep required so that the radial extent of the convective envelope grows by, at most, 1 percent of stellar radius.
+ * Relevant for the KAPIL2024 tides prescription.
+ * 
+ * Calculated assuming the envelope grows following Hurley, et al. 2000, Eq 39, and setting core radius ~ 0.
+ *
+ * double LimitTimestepFromRadialExtentConvectiveEnvelope(const double dt)
+ *
+ * @return                                      Minmimum of dt and time taken for the convective envelope to grow by 1 percent of stellar radius
+ */
+double HG::LimitTimestepFromRadialExtentConvectiveEnvelope(const double p_dt) const {
+#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
+    double tau_prime_sqrt = (0.01 + std::sqrt(m_Tau));              // assuming 
+    double tau_prime = tau_prime_sqrt * tau_prime_sqrt;
+    double dt_conv = (tau_prime - m_Tau) * (timescales(tBGB) - timescales(tMS));
+    return std::min(p_dt, dt_conv);
+#undef timescales
+
+}
 
 /*
  * Recalculates the star's age after mass loss
