@@ -2005,6 +2005,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     // Add event to MT history of the donor
     m_Donor->UpdateMassTransferDonorHistory();
     
+
     // Calculate accretion fraction if stable
     // This passes the accretor's Roche lobe radius to m_Accretor->CalculateThermalMassAcceptanceRate()
     // just in case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE is used; otherwise, the radius input is ignored
