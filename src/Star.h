@@ -192,8 +192,8 @@ public:
     
     double          CalculateRadialExtentConvectiveEnvelope() { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
 
-    double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const                           { return m_Star->CalculateRadiusOnPhaseTau(p_Mass, p_Tau); } 
-
+    double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const                        { return m_Star->CalculateRadiusOnPhaseTau(p_Mass, p_Tau); }
+    
     void            CalculateSNAnomalies(const double p_Eccentricity)                                               { m_Star->CalculateSNAnomalies(p_Eccentricity); }
     
     double          CalculateSNKickMagnitude(const double p_RemnantMass, 

@@ -443,6 +443,8 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
     if (utils::Compare(starToRocheLobeRadiusRatio, 1.0) >= 0) {                                                         // if star is equal to or larger than its Roche Lobe...
         m_RLOFDetails.isRLOF          = true;                                                                           // ... it is currently Roche Lobe overflowing
 		m_RLOFDetails.experiencedRLOF = true;                                                                           // ... and for future checks, did Roche Lobe overflow
+        std::cout<<"Setting flag"<<ExperiencedRLOF()<<"\n";
+
 	}
 
 	m_RLOFDetails.RLOFPostCEE = m_RLOFDetails.isRLOF && p_CommonEnvelope ? true : m_RLOFDetails.RLOFPostCEE;            // check for RLOF just after the CEE (if this flag was ever true for this system, it remains true)
