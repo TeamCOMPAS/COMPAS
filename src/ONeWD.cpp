@@ -33,12 +33,6 @@ bool ONeWD::IsSupernova() const {
  * @return                               Stellar type of the upcoming stage.
  */
 STELLAR_TYPE ONeWD::EvolveToNextPhase() {
-    STELLAR_TYPE stellarType;
-    if(Mass()>2)
-        std::cout<<"Seed"<<RandomSeed()<<"Pre-resolve mass"<<Mass()<<"\n";
-    stellarType = ResolveAIC();
-    if(Mass()>2)
-        std::cout<<"Type"<<(int)stellarType<<"Post-resolve mass"<<Mass()<<"\n";
-    return stellarType;
+    return ResolveAIC();
 }
 
