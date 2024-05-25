@@ -1199,12 +1199,14 @@
 //                                      - Added documentation for log file record type
 //                                      - Added "Quick Links" to documentation
 //                                      - Updated "What's New"
-// 02.49.00    RTW - May 08, 2024    - Enhancement:
+// 02.49.00    RTW - May 24, 2024    - Enhancement:
 //                                      - Updated the Ge et al. 2020 table for critical mass ratios, to include new values calculated for fully non-conservative MT. 
 //                                      - Modified the critical mass ratio calculator to interpolate between the fully conservative and fully non-conservative values,
-//                                      - albeit with fixed AM loss (isotropic re-emission).   
+//                                      - albeit with fixed AM loss (isotropic re-emission).
+// 02.49.01    IM - May 25, 2024     - Defect repair:
+//                                      - AIC now happens only when the mass of an ONeWD exceeds MCS, the Chandrasekhar mass, which requires accretion onto the WD (see Issue # #1138)
                   
-const std::string VERSION_STRING = "02.49.00";
+const std::string VERSION_STRING = "02.49.01";
 
 
 # endif // __changelog_h__
