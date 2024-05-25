@@ -273,7 +273,7 @@ public:
     virtual double          CalculateThermalTimescale() const                                                   { return CalculateThermalTimescale(m_Radius); }                     // Use inheritance hierarchy
 
             double          CalculateTimestep();
-
+        
             double          CalculateZetaAdiabatic();
     virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                                     // Use inheritance hierarchy
     
@@ -290,6 +290,8 @@ public:
             void            HaltWinds()                                                                         { m_Mdot = 0.0; }                                                   // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 
             double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription); 
+    
+    virtual double          LimitTimestepFromRadialExtentConvectiveEnvelope(const double p_dt) const            { return p_dt; }
 
             void            ResetEnvelopeExpulsationByPulsations()                                              { m_EnvelopeJustExpelledByPulsations = false; }
 

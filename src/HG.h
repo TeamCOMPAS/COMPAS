@@ -122,6 +122,8 @@ protected:
     bool            IsEndOfPhase() const                                            { return !ShouldEvolveOnPhase(); }                                                          // Phase ends when age at or after Base Giant Branch MS timescale
     bool            IsSupernova() const                                             { return false; }                                                                           // Not here
 
+    double          LimitTimestepFromRadialExtentConvectiveEnvelope(const double p_dt) const;
+
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
     void            ResolveHeliumFlash() {  }                                                                                                                                   // NO-OP
     STELLAR_TYPE    ResolveSkippedPhase()                                           { return m_StellarType; }                                                                   // NO-OP
