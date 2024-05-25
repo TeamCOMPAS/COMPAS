@@ -21,7 +21,7 @@ bool ONeWD::ShouldEvolveOnPhase() const {
  * @return                               Whether WD should undergo AIC
  */
 bool ONeWD::IsSupernova() const {
-    return (utils::Compare(m_Mass,MCH) > 0);      
+    return IsMassAboveChandrasekhar();
 }
 
 
