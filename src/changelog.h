@@ -1189,7 +1189,22 @@
 //                                      - code cleanup and bug repairs elsewhere
 // 02.47.01    IM - May 20, 2024     - Defect repair
 //                                      - Renamed the version of CalculateRadiusOnPhase() that takes in mass and tau as arguments into CalculateRadiusOnPhaseTau() to avoid clash with the version that takes in mass and luminosity as arguments
+// 02.48.00    RTW - May 22, 2024    - Enhancements
+//                                      - Added separate options for MacLeod Linear AM loss for degenerate vs non-degenerate accretors
+//                                         - options added: `--mass-transfer-jloss-macleod-linear-fraction-degen` and `--mass-transfer-jloss-macleod-linear-fraction-non-degen`
+// 02.48.01    JR - May 24, 2024     - Defect repairs
+//                                      - Changed functionality of `output-path` option to create missing directories in the path (see issue #998 - technically not a defect, but close enough)
+//                                      - Fixed incorrect default values for options `--mass-transfer-jloss-macleod-linear-fraction-degen` and `--mass-transfer-jloss-macleod-linear-fraction-non-degen`
+//                                      - Changed BaseStar::UpdateAttributesAndAgeOneTimestepPreamble() so timescales are not recalculated when we know dT = 0
+//                                      - Added documentation for log file record type
+//                                      - Added "Quick Links" to documentation
+//                                      - Updated "What's New"
+// 02.49.00    RTW - May 08, 2024    - Enhancement:
+//                                      - Updated the Ge et al. 2020 table for critical mass ratios, to include new values calculated for fully non-conservative MT. 
+//                                      - Modified the critical mass ratio calculator to interpolate between the fully conservative and fully non-conservative values,
+//                                      - albeit with fixed AM loss (isotropic re-emission).   
                   
-const std::string VERSION_STRING = "02.47.01";
+const std::string VERSION_STRING = "02.49.00";
+
 
 # endif // __changelog_h__
