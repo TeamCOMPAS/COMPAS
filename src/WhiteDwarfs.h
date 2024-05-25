@@ -79,7 +79,6 @@ protected:
 
             ENVELOPE         DetermineEnvelopeType() const                                  { return ENVELOPE::CONVECTIVE; }                            // Always CONVECTIVE
 
-            bool             IsMassAboveEcsnThreshold() const                               { return (utils::Compare(m_Mass, MECS) > 0); }              // Mass exceeds ECSN threshold mass
             bool             IsMassAboveChandrasekhar() const                               { return (utils::Compare(m_Mass, MCH) > 0); }               // Mass exceeds Chandrasekhar limit 
 
             STELLAR_TYPE     ResolveAIC();  
