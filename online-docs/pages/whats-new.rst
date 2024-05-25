@@ -6,6 +6,16 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**02.48.01 May 24, 2024**
+
+* changed functionality of ``--output-path`` option so that missing directories in the specified path are created.
+* Added "Quick Links" to online documentation.
+
+**02.48.00 May 22, 2024**
+
+* added options ``--mass-transfer-jloss-macleod-linear-fraction-degen`` and ``--mass-transfer-jloss-macleod-linear-fraction-non-degen`` to allow for different accretor AM response for degenerate and non-degenerate companions.
+* removed option ``--mass-transfer-jloss-macleod-linear-fraction`` (no longer required - see above).
+
 **02.46.00 May 13, 2024**
 
 * added options ``--radial-change-fraction`` and ``--mass-change-fraction``, as approximate desired fractional changes in stellar radius and mass on phase when setting SSE and BSE timesteps

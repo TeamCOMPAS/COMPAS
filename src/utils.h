@@ -1,6 +1,8 @@
 #ifndef __utils_h__
 #define __utils_h__
 
+#include <boost/filesystem.hpp>
+
 #include "constants.h"
 #include "typedefs.h"
 
@@ -142,6 +144,9 @@ namespace utils {
     std::string                         SplashScreen(const bool p_Print = true);
 
     std::tuple<ERROR, DBL_VECTOR>       ReadTimesteps(const std::string p_TimestepsFileName);
+
+    std::tuple<ERROR, std::string, STR_VECTOR> CreateDirectories(const std::string p_Path);
+    std::tuple<ERROR, std::string, STR_VECTOR> RemoveDirectories(const STR_VECTOR p_Paths);
 
 }
 

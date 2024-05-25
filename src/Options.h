@@ -370,6 +370,8 @@ private:
         "mass-transfer",
         "mass-transfer-fa",
         "mass-transfer-jloss",
+        "mass-transfer-jloss-macleod-linear-fraction-degen",
+        "mass-transfer-jloss-macleod-linear-fraction-non-degen",
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
@@ -826,8 +828,6 @@ public:
 
             // Setup default output directory and desired output directory
             std::string                                         m_OutputPathString;                                             // String to hold the output directory
-            boost::filesystem::path                             m_DefaultOutputPath;                                            // Default output location
-            boost::filesystem::path                             m_OutputPath;                                                   // Desired output location
             std::string                                         m_OutputContainerName;                                          // Name of output container (directory)
 
             // Mass loss options
@@ -872,7 +872,8 @@ public:
 	        ENUM_OPT<MT_THERMALLY_LIMITED_VARIATION>            m_MassTransferThermallyLimitedVariation;                        // Choose how to deal with mass transfer if it is set as thermally limited.
 
             double                                              m_MassTransferJloss;                                            // Specific angular momentum of the material leaving the system (not accreted)
-            double                                              m_MassTransferJlossMacLeodLinearFraction;                       // Linear interpolation fraction for jloss between accretor and L2 values
+            double                                              m_MassTransferJlossMacLeodLinearFractionDegen;                  // Linear interpolation fraction for jloss for degenerate accretors, between accretor and L2 position 
+            double                                              m_MassTransferJlossMacLeodLinearFractionNonDegen;               // Linear interpolation fraction for jloss for non-degenerate accretors, between accretor and L2 position 
             ENUM_OPT<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION>     m_MassTransferAngularMomentumLossPrescription;                  // Which mass transfer angular momentum loss prescription
 
             // Mass transfer rejuvenation prescription
@@ -1396,7 +1397,8 @@ public:
 
     double                                      MassTransferFractionAccreted() const                                    { return OPT_VALUE("mass-transfer-fa", m_MassTransferFractionAccreted, true); }
     double                                      MassTransferJloss() const                                               { return OPT_VALUE("mass-transfer-jloss", m_MassTransferJloss, true); }
-    double                                      MassTransferJlossMacLeodLinearFraction() const                          { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction", m_MassTransferJlossMacLeodLinearFraction, true); }
+    double                                      MassTransferJlossMacLeodLinearFractionDegen() const                     { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction-degen", m_MassTransferJlossMacLeodLinearFractionDegen, true); }
+    double                                      MassTransferJlossMacLeodLinearFractionNonDegen() const                  { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction-non-degen", m_MassTransferJlossMacLeodLinearFractionNonDegen, true); }
     MT_REJUVENATION_PRESCRIPTION                MassTransferRejuvenationPrescription() const                            { return OPT_VALUE("mass-transfer-rejuvenation-prescription", m_MassTransferRejuvenationPrescription.type, true); }
     MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return OPT_VALUE("mass-transfer-thermal-limit-accretor", m_MassTransferThermallyLimitedVariation.type, true); }
     double                                      MaxEvolutionTime() const                                                { return OPT_VALUE("maximum-evolution-time", m_MaxEvolutionTime, true); }
@@ -1437,7 +1439,7 @@ public:
     double                                      OrbitalPeriodDistributionMin() const                                    { return OPT_VALUE("orbital-period-min", m_OrbitalPeriodDistributionMin, true); }
 
     std::string                                 OutputContainerName() const                                             { return m_CmdLine.optionValues.m_OutputContainerName; }
-    std::string                                 OutputPathString() const                                                { return m_CmdLine.optionValues.m_OutputPath.string(); }
+    std::string                                 OutputPathString() const                                                { return m_CmdLine.optionValues.m_OutputPathString; }
 
     double                                      OverallWindMassLossMultiplier() const                                   { return OPT_VALUE("overall-wind-mass-loss-multiplier", m_OverallWindMassLossMultiplier, true); }
 
