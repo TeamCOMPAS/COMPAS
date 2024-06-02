@@ -2,6 +2,10 @@
 #include <stdarg.h>
 #include <algorithm>
 #include <cstring>
+#include <iomanip>
+#include <execinfo.h>
+#include <cxxabi.h>
+
 #include "profiling.h"
 #include "utils.h"
 #include "Rand.h"
@@ -1475,7 +1479,7 @@ namespace utils {
      *                                                ERROR::FILE_OPEN_ERROR                      if the timesteps file exists but could not be opened
      *                                                ERROR::FILE_READ_ERROR                      if the timesteps file could not be read
      *                                                ERROR::EMPTY_FILE                           if the timesteps file contains no content
-     *                                                ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE      if the file contains an invalid value for timestep
+     *                                                ERROR::INVALID_VALUE_IN_FILE                if the file contains an invalid value for timestep
      *                                                ERROR::TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE if the file contains too many timesteps (> maximum per OPTIONS)
      *                                              If the error returned is not ERROR:NONE, the content of the timesteps vector returned is not defined
      */
@@ -1517,12 +1521,12 @@ namespace utils {
                                     size_t lastChar;
                                     long double v = std::stold(rec, &lastChar);                                     // try conversion
                                     if (lastChar != (rec.size())) {                                                 // conversion valid only if rec completely consumed
-                                        error = ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE;                             // not a valid DOUBLE
+                                        error = ERROR::INVALID_VALUE_IN_FILE;                                       // not a valid DOUBLE
                                         break;                                                                      // stop processing
                                     }
 
                                     if (v < 0.0) {                                                                  // timestep must be >= 0.0
-                                       error = ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE;                              // not a valid timestep
+                                       error = ERROR::INVALID_VALUE_IN_FILE;                                        // not a valid timestep
                                        break;                                                                       // stop processing
                                     }
                                     else {                                                                          // ok - timestep >= 0.0
@@ -1536,11 +1540,11 @@ namespace utils {
                                     }
                                 }
                                 catch (const std::out_of_range& e) {                                                // conversion failed
-                                    error = ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE;                                 // not a valid DOUBLE
+                                    error = ERROR::INVALID_VALUE_IN_FILE;                                           // not a valid DOUBLE
                                     break;                                                                          // stop processing
                                 }
                                 catch (const std::invalid_argument& e) {                                            // conversion failed
-                                    error = ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE;                                 // not a valid DOUBLE
+                                    error = ERROR::INVALID_VALUE_IN_FILE;                                           // not a valid DOUBLE
                                     break;                                                                          // stop processing
                                 }
                             }
@@ -1705,4 +1709,72 @@ namespace utils {
         return std::make_tuple(error, errStr, pathsNotRemoved);
     }
 
+
+    /*
+     *
+     * DOCUMENTATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     */
+    STR_VECTOR GetStackTrace() {
+
+        STR_VECTOR  stackTrace = {};                                                                                // return vector containing stack trace strings
+
+        void*       trace[MAX_STACK_TRACE_SIZE];                                                                    // stack trace
+        char**      strings = (char **)NULL;                                                                        // stack trace strings
+        std::size_t traceSize = 0;                                                                                  // stack trace size
+        
+        traceSize = backtrace(trace, MAX_STACK_TRACE_SIZE);                                                         // get stack trace size
+        strings   = backtrace_symbols(trace, traceSize);                                                            // get stack trace with symbols
+
+        for (std::size_t idx = 1; idx < traceSize; ++idx) {                                                         // for each stack trace entry
+            // extract function name
+            // we don't have symbols for libraries (e.g. libc), so for non-COMPAS functions we insert
+            // "~~LIBFUNC~~" as the function name so the caller can identify non-COMPAS entries and
+            // handle them accordingly
+            size_t start = 0;
+            while (strings[idx][start] != '(' && strings[idx][start] != ' ' && strings[idx][start] != 0) ++start;   // find function name start position
+            size_t end = start;
+            while (strings[idx][end] != '+' && strings[idx][end] != 0) ++end;                                       // find function name end position
+
+            std::string funcName;                                                                                   // the extracted function name
+            std::size_t funcStrLen = end - start - 1;                                                               // length of (mangled) function string
+            if (funcStrLen < 1) funcName = "~~LIBFUNC~~";                                                           // library function
+            else {                                                                                                  // extract COMPAS function name
+                char* funcStr = new char[funcStrLen + 1];                                                           // allows for null terminator
+                strncpy(funcStr, &strings[idx][start + 1], funcStrLen);                                             // copy function name
+                funcStr[funcStrLen] = 0;                                                                            // make sure it is null-terminated
+                funcName = std::string(funcStr);                                                                    // function name
+
+                int status = -1;
+                char* demangledName = abi::__cxa_demangle(funcStr, NULL, NULL, &status);                            // try to demangle the function name
+                if (status == 0) funcName = std::string(demangledName);                                             // use the demangled name if available
+
+                delete[] demangledName;
+                delete[] funcStr;
+            }
+
+            stackTrace.push_back(funcName);                                                                         // add function name to stacktrace
+
+            if (funcName == "main") break;                                                                          // that's all we need
+        }
+        delete[] strings;
+
+        return stackTrace;
+    }
+
+
+    /*
+     *
+     * DOCUMENTATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     */
+    void ShowStackTrace() {
+
+        STR_VECTOR stackTrace = utils::GetStackTrace();
+
+        if (!stackTrace.empty()) {
+            std::cerr << "\nStack trace:\n";
+            for (std::size_t entry = 1; entry < stackTrace.size(); entry++) {               // ignore the eponymous entry
+                std::cerr << "    " << stackTrace[entry] << "\n";
+            }
+        }
+    }
 }

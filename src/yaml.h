@@ -278,6 +278,7 @@ namespace yaml {
             "",
             "    ### LOGISTICS",
             "    --add-options-to-sysparms",
+            "    --fp-error-mode                                                 # specifies floating-point error handling mode",
             "    --grid                                                          # grid file name (e.g. 'mygrid.txt')",
             "    --mode                                                          # evolving single (SSE) or binary stars (BSE)",
             "    --notes",

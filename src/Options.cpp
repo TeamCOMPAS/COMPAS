@@ -154,6 +154,8 @@ void Options::OptionValues::Initialise() {
     m_ErrorsToFile                                                  = false;
 
     m_EnableWarnings                                                = false;
+    m_FPErrorMode.type                                              = FP_ERROR_MODE::OFF;
+    m_FPErrorMode.typeString                                        = FP_ERROR_MODE_LABEL.at(m_FPErrorMode.type);
 
 	m_BeBinaries                                                    = false;
     m_HMXRBinaries                                                  = false;
@@ -422,6 +424,7 @@ void Options::OptionValues::Initialise() {
     m_MassTransferJloss                                             = 1.0;
     m_MassTransferJlossMacLeodLinearFractionDegen                   = 0.5;
     m_MassTransferJlossMacLeodLinearFractionNonDegen                = 0.5;
+    
     m_MassTransferAngularMomentumLossPrescription.type              = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION;
     m_MassTransferAngularMomentumLossPrescription.typeString        = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL.at(m_MassTransferAngularMomentumLossPrescription.type);
 
@@ -434,6 +437,7 @@ void Options::OptionValues::Initialise() {
 
     m_QCritPrescription.type                                        = QCRIT_PRESCRIPTION::NONE;                             // Assume no critical mass ratio prescription
     m_QCritPrescription.typeString                                  = QCRIT_PRESCRIPTION_LABEL.at(m_QCritPrescription.type);
+
     m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor   = 1.44;                                                 // Claeys+ 2014 = 1.44
     m_MassTransferCriticalMassRatioMSLowMassDegenerateAccretor      = 1.0;                                                  // Claeys+ 2014 = 1.0
 
@@ -1653,6 +1657,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "fp-error-mode",                                      
+            po::value<std::string>(&p_Options->m_FPErrorMode.typeString)->default_value(p_Options->m_FPErrorMode.typeString),                                                                  
+            ("Specifies the floating-point error handling mode (" + AllowedOptionValuesFormatted("fp-error-mode") + ", default = '" + p_Options->m_FPErrorMode.typeString + "')").c_str()
+        )
+        (
             "fryer-supernova-engine",                                      
             po::value<std::string>(&p_Options->m_FryerSupernovaEngine.typeString)->default_value(p_Options->m_FryerSupernovaEngine.typeString),                                                                  
             ("If using Fryer et al 2012 fallback prescription (" + AllowedOptionValuesFormatted("fryer-supernova-engine") + ", default = '" + p_Options->m_FryerSupernovaEngine.typeString + "')").c_str()
@@ -2153,6 +2162,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Eccentricity Distribution");
         }
 
+        if (!DEFAULTED("fp-error-mode")) {                                                                                          // floating-point error mode
+            std::tie(found, m_FPErrorMode.type) = utils::GetMapKey(m_FPErrorMode.typeString, FP_ERROR_MODE_LABEL, m_FPErrorMode.type);
+            COMPLAIN_IF(!found, "Unknown floating-point error mode");
+        }
+
         if (!DEFAULTED("fryer-supernova-engine")) {                                                                                 // Fryer et al. 2012 supernova engine
             std::tie(found, m_FryerSupernovaEngine.type) = utils::GetMapKey(m_FryerSupernovaEngine.typeString, SN_ENGINE_LABEL, m_FryerSupernovaEngine.type);
             COMPLAIN_IF(!found, "Unknown Fryer et al. Supernova Engine");
@@ -2524,6 +2538,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("critical-mass-ratio-prescription")                  : POPULATE_RET(QCRIT_PRESCRIPTION_LABEL);                       break;
         case _("envelope-state-prescription")                       : POPULATE_RET(ENVELOPE_STATE_PRESCRIPTION_LABEL);              break;
         case _("eccentricity-distribution")                         : POPULATE_RET(ECCENTRICITY_DISTRIBUTION_LABEL);                break;
+        case _("fp-error-mode")                                     : POPULATE_RET(FP_ERROR_MODE_LABEL);                            break;
         case _("fryer-supernova-engine")                            : POPULATE_RET(SN_ENGINE_LABEL);                                break;
         case _("initial-mass-function")                             : POPULATE_RET(INITIAL_MASS_FUNCTION_LABEL);                    break;
         case _("kick-direction")                                    : POPULATE_RET(KICK_DIRECTION_DISTRIBUTION_LABEL);              break;
@@ -4266,6 +4281,7 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
  * int ApplyNextGridLine()
  * 
  * @return                                      Int result:
+ *                                                  -3: Error reading grid file record: unexpected content in grid file (error value in grid file struct)
  *                                                  -2: Error reading grid file record: file read error (error value in grid file struct)
  *                                                  -1: Error reading grid file record: unexpected end of file (error value in grid file struct)
  *                                                   0: No record to read - end of file
@@ -4273,7 +4289,8 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
  */
 int Options::ApplyNextGridLine() {
 
-    int status = -1;                                                                                // default status is failure
+    int status       = -1;                                                                          // default status is unexpected end of file
+    m_Gridfile.error = ERROR::UNEXPECTED_END_OF_FILE;                                               // default
 
     if (m_Gridfile.handle.is_open()) {                                                              // file open?
 
@@ -4306,7 +4323,8 @@ int Options::ApplyNextGridLine() {
                     m_Gridfile.linesProcessed++;                                                    // increment lines processed
                     record = utils::ltrim(record);                                                  // trim leading white space
                     if (!record.empty() && record[0] != '#') {                                      // blank line or comment?
-                        status = InitialiseEvolvingObject(record) ? 1 : -1;                         // no - apply record and set status
+                        status = InitialiseEvolvingObject(record) ? 1 : -3;                         // no - apply record and set status
+                        m_Gridfile.error = status == 1 ? ERROR::NONE : ERROR::INVALID_VALUE_IN_FILE; // set grid file error
                         done = true;                                                                // we're done
                     }
                 }
@@ -4515,6 +4533,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR                     : value = EddingtonAccretionFactor();                                           break;
         case PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION                    : value = static_cast<int>(EnvelopeStatePrescription());                        break;
         case PROGRAM_OPTION::EVOLUTION_MODE                                 : value = static_cast<int>(EvolutionMode());                                    break;
+
+        case PROGRAM_OPTION::FP_ERROR_MODE                                  : value = static_cast<int>(FPErrorMode());                                      break;
 
         case PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE                         : value = static_cast<int>(FryerSupernovaEngine());                             break;
 

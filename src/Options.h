@@ -200,6 +200,8 @@ private:
         "enable-warnings",
         "errors-to-file",
 
+        "fp-error-mode",
+
         "grid",
         "grid-start-line",
         "grid-num-lines",
@@ -453,6 +455,7 @@ private:
         "evolve-pulsars",
         "evolve-unbound-systems",
 
+        "fp-error-mode",
         "fryer-supernova-engine",
 
         "grid",
@@ -569,6 +572,8 @@ private:
         "enable-warnings",
         "errors-to-file",
 
+        "fp-error-mode",
+
         "grid",
         "grid-start-line",
         "grid-num-lines",
@@ -666,6 +671,7 @@ public:
             bool                                                m_ErrorsToFile;                                                 // Flag used to determine whether error statements should also be written to a log file
 
             bool                                                m_EnableWarnings;                                               // Flag used to determine if warnings (via SHOW_WARN macros) should be displayed
+            ENUM_OPT<FP_ERROR_MODE>                             m_FPErrorMode;                                                  // Specifies the mode for floating-point error handling
 
             std::vector<std::string>                            m_Notes;                                                        // Notes contents - for user-defined annotations
             std::vector<std::string>                            m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
@@ -679,8 +685,8 @@ public:
 
             bool                                                m_DetailedOutput;                                               // Print detailed output details to file (default = false)
             bool                                                m_PopulationDataPrinting;                                       // Print certain data for small populations, but not for larger one
-            bool                                                m_PrintBoolAsString;                                            // flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
-            bool                                                m_Quiet;                                                        // suppress some output
+            bool                                                m_PrintBoolAsString;                                            // Flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
+            bool                                                m_Quiet;                                                        // Suppress some output
             bool                                                m_RlofPrinting;                                                 // RLOF printing
 
             bool                                                m_ShortHelp;                                                    // Flag to indicate whether user wants short help ('-h', just option names) or long help ('--help', plus descriptions)
@@ -1271,6 +1277,7 @@ public:
     bool                                        FixedRandomSeedCmdLine() const                                          { return m_CmdLine.optionValues.m_FixedRandomSeed; }
     bool                                        FixedRandomSeedGridLine() const                                         { return m_GridLine.optionValues.m_FixedRandomSeed; }
     double                                      FixedUK() const                                                         { return m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_FixedUK; }
+    FP_ERROR_MODE                               FPErrorMode() const                                                     { return m_CmdLine.optionValues.m_FPErrorMode.type; }
     SN_ENGINE                                   FryerSupernovaEngine() const                                            { return OPT_VALUE("fryer-supernova-engine", m_FryerSupernovaEngine.type, true); }
     double                                      Fryer22fmix() const                                                     { return OPT_VALUE("fryer-22-fmix", m_Fryer22fmix, true); }
     double                                      Fryer22Mcrit() const                                                    { return OPT_VALUE("fryer-22-mcrit", m_Fryer22Mcrit, true); }

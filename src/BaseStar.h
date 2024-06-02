@@ -186,6 +186,7 @@ public:
 
     // setters
             void                SetInitialType(const STELLAR_TYPE p_InitialType)                { m_InitialStellarType = p_InitialType; } // JR Could do some sanity checks here
+            void                SetError(const ERROR p_Error)                                   { m_Error = p_Error; }
             void                SetObjectId(const OBJECT_ID p_ObjectId)                         { m_ObjectId = p_ObjectId; }
             void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)          { m_ObjectPersistence = p_Persistence; }
 

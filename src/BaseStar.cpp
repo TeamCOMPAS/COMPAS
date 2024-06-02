@@ -1334,10 +1334,10 @@ double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
  */
 double BaseStar::CalculateZetaEquilibrium() {
     
-    double deltaMass            = -m_Mass / 1.0E5;
-    double currentRadius        = CalculateRadiusOnPhase();                                                     // do not trust m_Radius  JR: Ilya?
-    double radiusAfterMassGain  = CalculateRadiusOnPhaseTau(m_Mass + deltaMass, m_Tau);
-    double zetaEquilibrium      = (radiusAfterMassGain - currentRadius) / deltaMass * m_Mass / currentRadius;   // dlnR / dlnM
+    double deltaMass           = -m_Mass / 1.0E5;
+    double currentRadius       = CalculateRadiusOnPhase();                                                      // do not trust m_Radius  JR: Ilya?
+    double radiusAfterMassGain = CalculateRadiusOnPhaseTau(m_Mass + deltaMass, m_Tau);
+    double zetaEquilibrium     = (radiusAfterMassGain - currentRadius) / deltaMass * m_Mass / currentRadius;    // dlnR / dlnM
 
     return zetaEquilibrium;
 }
@@ -1355,9 +1355,8 @@ double BaseStar::CalculateZetaEquilibrium() {
 double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, const double p_massTransferEfficiencyBeta) {
     
         double qCrit = 0.0;
-        QCRIT_PRESCRIPTION qCritPrescription = OPTIONS->QCritPrescription();
 
-        switch (qCritPrescription) {
+        switch (OPTIONS->QCritPrescription()) {
             case QCRIT_PRESCRIPTION::GE20: 
             case QCRIT_PRESCRIPTION::GE20_IC:
                 qCrit = CalculateCriticalMassRatioGe20(qCritPrescription, p_massTransferEfficiencyBeta);   
@@ -1368,9 +1367,9 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, c
             case QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK:
                 qCrit = CalculateCriticalMassRatioHurleyHjellmingWebbink();
                 break;
+            case QCRIT_PRESCRIPTION::NONE:
             default:
-                m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                                     // set error value
-                SHOW_ERROR(m_Error);                                                             // warn that an error occurred
+                qCrit = 0.0;
         }
         return qCrit;
 }
