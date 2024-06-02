@@ -162,8 +162,8 @@ constexpr uint64_t _(char const* p_Str) {
 }
 
 
-
 extern OBJECT_ID globalObjectId;                                                                    // used to uniquely identify objects - used primarily for error printing
+
 
 // Constants in SI
 // CPLB: Use CODATA values where applicable http://physics.nist.gov/cuu/Constants/index.html
@@ -187,6 +187,7 @@ constexpr double FLOAT_TOLERANCE_RELATIVE               = 0.0000005;            
 constexpr double ROOT_ABS_TOLERANCE                     = 1.0E-6;                                                   // absolute tolerance for root finder
 constexpr double ROOT_REL_TOLERANCE                     = 1.0E-6;                                                   // relative tolerance for root finder
 
+constexpr std::size_t MAX_STACK_TRACE_SIZE              = 64;                                                       // for debugging - overkill, but just in case
 
 // initialisation constants
 constexpr double DEFAULT_INITIAL_DOUBLE_VALUE           = 0.0;                                                      // default initial value for double variables
@@ -611,6 +612,11 @@ enum class ERROR: int {
     FILE_OPEN_ERROR,                                                // error opening file
     FILE_READ_ERROR,                                                // error reading from file - data not read
     FILE_WRITE_ERROR,                                               // error writing to file - data not written
+    FLOATING_POINT_ERROR,                                           // unspecified floating-point error
+    FLOATING_POINT_DIVBYZERO,                                       // floating-point divide-by-zero
+    FLOATING_POINT_INVALID_ARGUMENT,                                // floating-point invalid
+    FLOATING_POINT_OVERFLOW,                                        // floating-point overflow
+    FLOATING_POINT_UNDERFLOW,                                       // floating-point underflow
     GRID_OPTIONS_ERROR,                                             // grid file options error
     HIGH_TEFF_WINDS,                                                // winds being used at high temperature
     INDEX_OUT_OF_RANGE,                                             // index supplied is out of range
@@ -624,7 +630,7 @@ enum class ERROR: int {
     INVALID_TYPE_MT_THERMAL_TIMESCALE,                              // invalid stellar type for thermal timescale calculation
     INVALID_TYPE_ZETA_CALCULATION,                                  // invalid stellar type for Zeta calculation
     INVALID_VALUE_FOR_BOOLEAN_OPTION,                               // invalid value specified for boolean option
-    INVALID_VALUE_IN_TIMESTEPS_FILE,                                // invalid value in timesteps file
+    INVALID_VALUE_IN_FILE,                                          // invalid value in file
     LAMBDA_NOT_POSITIVE,                                            // lambda is <= 0.0 - invalid
     LOW_GAMMA,                                                      // very massive mass-loss prescription being extrapolated to low gamma (<0.5)
     LOW_TEFF_WINDS,                                                 // winds being used at low temperature
@@ -693,7 +699,6 @@ enum class ERROR: int {
     UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,               // unknown pulsar birth magnetic field distribution
     UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                  // unknown pulsar birth spin period distribution
     UNKNOWN_Q_DISTRIBUTION,                                         // unknown q-distribution
-    UNKNOWN_QCRIT_PRESCRIPTION,                                     // unknown critical mass ratio prescription
     UNKNOWN_REMNANT_MASS_PRESCRIPTION,                              // unknown remnant mass prescription
     UNKNOWN_SN_ENGINE,                                              // unknown supernova engine
     UNKNOWN_SN_EVENT,                                               // unknown supernova event encountered
@@ -767,6 +772,11 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::FILE_OPEN_ERROR,                                       { ERROR_SCOPE::ALWAYS,              "Error opening file" }},
     { ERROR::FILE_READ_ERROR,                                       { ERROR_SCOPE::ALWAYS,              "Error reading from file - data not read" }},
     { ERROR::FILE_WRITE_ERROR,                                      { ERROR_SCOPE::ALWAYS,              "Error writing to file - data not written" }},
+    { ERROR::FLOATING_POINT_ERROR,                                  { ERROR_SCOPE::ALWAYS,              "Floating-point error" }},
+    { ERROR::FLOATING_POINT_DIVBYZERO,                              { ERROR_SCOPE::ALWAYS,              "Floating-point divide-by-zero" }},
+    { ERROR::FLOATING_POINT_INVALID_ARGUMENT,                       { ERROR_SCOPE::ALWAYS,              "Floating-point invalid argument" }},
+    { ERROR::FLOATING_POINT_OVERFLOW,                               { ERROR_SCOPE::ALWAYS,              "Floating-point overflow" }},
+    { ERROR::FLOATING_POINT_UNDERFLOW,                              { ERROR_SCOPE::ALWAYS,              "Floating-point underflow" }},
     { ERROR::GRID_OPTIONS_ERROR,                                    { ERROR_SCOPE::ALWAYS,              "Grid File Options error" }},
     { ERROR::HIGH_TEFF_WINDS,                                       { ERROR_SCOPE::ALWAYS,              "Winds being used at high temperature" }},
     { ERROR::INDEX_OUT_OF_RANGE,                                    { ERROR_SCOPE::ALWAYS,              "Index out of range" }},
@@ -780,7 +790,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::INVALID_TYPE_MT_THERMAL_TIMESCALE,                     { ERROR_SCOPE::ALWAYS,              "Invalid stellar type for thermal timescale calculation" }},
     { ERROR::INVALID_TYPE_ZETA_CALCULATION,                         { ERROR_SCOPE::ALWAYS,              "Invalid stellar type for Zeta calculation" }},
     { ERROR::INVALID_VALUE_FOR_BOOLEAN_OPTION,                      { ERROR_SCOPE::ALWAYS,              "Invalid value specified for BOOLEAN option" }},
-    { ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE,                       { ERROR_SCOPE::ALWAYS,              "Invalid value in timesteps file" }},
+    { ERROR::INVALID_VALUE_IN_FILE,                                 { ERROR_SCOPE::ALWAYS,              "Invalid value in file" }},
     { ERROR::LAMBDA_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Lambda <= 0.0" }},
     { ERROR::LOW_GAMMA,                                             { ERROR_SCOPE::ALWAYS,              "Very massive prescription being extrapolated to low gamma (<0.5)" }},
     { ERROR::LOW_TEFF_WINDS,                                        { ERROR_SCOPE::ALWAYS,              "Winds being used at low temperature" }},
@@ -849,7 +859,6 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,      { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth magnetic field distribution" }},
     { ERROR::UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,         { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth spin period distribution" }},
     { ERROR::UNKNOWN_Q_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown q-distribution" }},
-    { ERROR::UNKNOWN_QCRIT_PRESCRIPTION,                            { ERROR_SCOPE::ALWAYS,              "Unknown critical mass ratio prescription" }},
     { ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown remnant mass prescription" }},
     { ERROR::UNKNOWN_SN_ENGINE,                                     { ERROR_SCOPE::ALWAYS,              "Unknown supernova engine" }},
     { ERROR::UNKNOWN_SN_EVENT,                                      { ERROR_SCOPE::ALWAYS,              "Unknown supernova event" }},
@@ -863,6 +872,15 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNSUPPORTED_ZETA_PRESCRIPTION,                         { ERROR_SCOPE::ALWAYS,              "Unsupported stellar Zeta prescription" }},
     { ERROR::WARNING,                                               { ERROR_SCOPE::ALWAYS,              "Warning!" }},
     { ERROR::WHITE_DWARF_TOO_MASSIVE,                               { ERROR_SCOPE::ALWAYS,              "This white dwarf exceeds the Chandrasekhar mass limit" }}
+};
+
+
+// Floating-point error handling mode
+enum class FP_ERROR_MODE: int { OFF, ON, DEBUG };
+const COMPASUnorderedMap<FP_ERROR_MODE, std::string> FP_ERROR_MODE_LABEL = {
+    { FP_ERROR_MODE::OFF,   "OFF" },
+    { FP_ERROR_MODE::ON,    "ON" },
+    { FP_ERROR_MODE::DEBUG, "DEBUG" }
 };
 
 
@@ -885,7 +903,9 @@ enum class EVOLUTION_STATUS: int {
     DCO,
     WD_WD,
     MASSLESS_REMNANT,
-    UNBOUND
+    UNBOUND,
+    NOT_STARTED,
+    STARTED
 };
 
 // JR: deliberately kept these messages succinct (where I could) so running status doesn't scroll off the page...
@@ -907,7 +927,9 @@ const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL =
     { EVOLUTION_STATUS::DCO,                     "DCO formed" },
     { EVOLUTION_STATUS::WD_WD,                   "Double White Dwarf formed" },
     { EVOLUTION_STATUS::MASSLESS_REMNANT,        "Massless Remnant formed" },
-    { EVOLUTION_STATUS::UNBOUND,                 "Unbound binary" }
+    { EVOLUTION_STATUS::UNBOUND,                 "Unbound binary" },
+    { EVOLUTION_STATUS::NOT_STARTED,             "Simulation not started" },
+    { EVOLUTION_STATUS::STARTED,                 "Simulation started" }
 };
 
 
@@ -1545,6 +1567,7 @@ const COMPASUnorderedMap<STELLAR_TYPE, std::string> STELLAR_TYPE_LABEL = {
     { STELLAR_TYPE::NONE,                                      "Not_a_Star!" }
 };
 
+
 // (convenience) initializer list for "evolvable" stellar types
 // i.e. not STAR, BINARY_STAR, or NONE
 const std::initializer_list<STELLAR_TYPE> EVOLVABLE_TYPES = {
@@ -1566,6 +1589,7 @@ const std::initializer_list<STELLAR_TYPE> EVOLVABLE_TYPES = {
     STELLAR_TYPE::MASSLESS_REMNANT,
     STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS
 };
+
 
 // (convenience) initializer list for MAIN SEQUENCE stars (does not include NAKED_HELIUM_STAR_MS)
 const std::initializer_list<STELLAR_TYPE> MAIN_SEQUENCE = {
@@ -1590,6 +1614,22 @@ const std::initializer_list<STELLAR_TYPE> ALL_HERTZSPRUNG_GAP = {
     STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP
 };
 
+
+// (convenience) initializer list for non-COMPACT OBJECTS
+const std::initializer_list<STELLAR_TYPE> NON_COMPACT_OBJECTS = {
+    STELLAR_TYPE::MS_LTE_07,
+    STELLAR_TYPE::MS_GT_07,
+    STELLAR_TYPE::HERTZSPRUNG_GAP,
+    STELLAR_TYPE::FIRST_GIANT_BRANCH,
+    STELLAR_TYPE::CORE_HELIUM_BURNING,
+    STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,
+    STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_MS,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH,
+};
+
+
 // (convenience) initializer list for COMPACT OBJECTS
 const std::initializer_list<STELLAR_TYPE> COMPACT_OBJECTS = {
     STELLAR_TYPE::HELIUM_WHITE_DWARF,
@@ -1599,6 +1639,7 @@ const std::initializer_list<STELLAR_TYPE> COMPACT_OBJECTS = {
     STELLAR_TYPE::BLACK_HOLE,
     STELLAR_TYPE::MASSLESS_REMNANT
 };
+
 
 // (convenience) initializer list for GIANTS
 const std::initializer_list<STELLAR_TYPE> GIANTS = {
@@ -2486,6 +2527,8 @@ enum class PROGRAM_OPTION: int {
     ENVELOPE_STATE_PRESCRIPTION,
     EVOLUTION_MODE,
 
+    FP_ERROR_MODE,
+
     FRYER_SUPERNOVA_ENGINE,
 
     FRYER22_FMIX,
@@ -2705,6 +2748,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR,                       "EDDINGTON_ACCRETION_FACTOR" },
     { PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION,                      "ENVELOPE_STATE_PRESCRIPTION" },
     { PROGRAM_OPTION::EVOLUTION_MODE,                                   "EVOLUTION_MODE" },
+
+    { PROGRAM_OPTION::FP_ERROR_MODE,                                    "FP_ERROR_MODE" },
 
     { PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE,                           "FRYER_SUPERNOVA_ENGINE" },
 
@@ -3226,6 +3271,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR,                               { TYPENAME::DOUBLE,     "Eddington_Accr_Factor",                  "-",         24, 15}},
     { PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION,                              { TYPENAME::INT,        "Envelope_State_Prscrptn",                "-",          4, 1 }},
     { PROGRAM_OPTION::EVOLUTION_MODE,                                           { TYPENAME::INT,        "Evolution_Mode",                         "Mode",       4, 1 }},
+
+    { PROGRAM_OPTION::FP_ERROR_MODE,                                            { TYPENAME::INT,        "FP_Error_Mode",                          "Mode",       4, 1 }},
 
     { PROGRAM_OPTION::FRYER_SUPERNOVA_ENGINE,                                   { TYPENAME::INT,        "Fryer_SN_Engine",                        "-",          4, 1 }},
 
@@ -3869,6 +3916,7 @@ const ANY_PROPERTY_VECTOR SSE_SYSTEM_PARAMETERS_REC = {
     STAR_PROPERTY::MASS,
     STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,
     STAR_PROPERTY::EVOL_STATUS,
+    STAR_PROPERTY::ERROR,
     PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS,
     PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_BH,
     PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_FOR_ECSN,

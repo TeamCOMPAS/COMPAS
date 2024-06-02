@@ -2011,16 +2011,16 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     // Calculate accretion fraction if stable
     // This passes the accretor's Roche lobe radius to m_Accretor->CalculateThermalMassAcceptanceRate()
     // just in case MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE is used; otherwise, the radius input is ignored
-    double accretorRLradius                   = CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL * m_SemiMajorAxis * (1.0 - m_Eccentricity);
-    bool donorIsHeRich                        = m_Donor->IsOneOf(He_RICH_TYPES);
+    double accretorRLradius = CalculateRocheLobeRadius_Static(m_Accretor->Mass(), m_Donor->Mass()) * AU_TO_RSOL * m_SemiMajorAxis * (1.0 - m_Eccentricity);
+    bool donorIsHeRich      = m_Donor->IsOneOf(He_RICH_TYPES);
     
-    double jLoss    = m_JLoss;                                                                                                  // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
+    double jLoss = m_JLoss;                                                                                                     // specific angular momentum with which mass is lost during non-conservative mass transfer, current timestep
     if (OPTIONS->MassTransferAngularMomentumLossPrescription() != MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY) {           // arbitrary angular momentum loss prescription?
         jLoss = CalculateGammaAngularMomentumLoss();                                                                            // no - re-calculate angular momentum
     }
     
-    double betaThermal  = 0.0;                                                                                                  // fraction of mass accreted if accretion proceeds on thermal timescale
-    double betaNuclear  = 0.0;                                                                                                  // fraction of mass accreted if accretion proceeds on nuclear timescale
+    double betaThermal              = 0.0;                                                                                      // fraction of mass accreted if accretion proceeds on thermal timescale
+    double betaNuclear              = 0.0;                                                                                      // fraction of mass accreted if accretion proceeds on nuclear timescale
     double donorMassLossRateThermal = m_Donor->CalculateThermalMassLossRate();
     double donorMassLossRateNuclear = m_Donor->CalculateNuclearMassLossRate();
     
@@ -2031,18 +2031,18 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                                                                                  m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
                                                                                  donorIsHeRich);
     
-    m_ZetaStar = m_Donor->CalculateZetaAdiabatic();
+    m_ZetaStar             = m_Donor->CalculateZetaAdiabatic();
     double zetaEquilibrium = m_Donor->CalculateZetaEquilibrium();
     
     m_ZetaLobe = CalculateZetaRocheLobe(jLoss, betaNuclear);                                                                    // try nuclear timescale mass transfer first
     if(m_Donor->IsOneOf(ALL_MAIN_SEQUENCE) && utils::Compare(zetaEquilibrium, m_ZetaLobe) > 0) {
         m_MassLossRateInRLOF = donorMassLossRateNuclear;
-        m_FractionAccreted = betaNuclear;
+        m_FractionAccreted   = betaNuclear;
     }
     else {
         m_ZetaLobe = CalculateZetaRocheLobe(jLoss, betaThermal);
         m_MassLossRateInRLOF = donorMassLossRateThermal;
-        m_FractionAccreted = betaThermal;
+        m_FractionAccreted   = betaThermal;
     }
         
     double aInitial = m_SemiMajorAxis;                                                                                          // semi-major axis in default units, AU, current timestep
@@ -2066,13 +2066,12 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         if (!m_Donor->IsOneOf(GIANTS)) m_Flags.stellarMerger = true;
     }
     else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::NONE) {                                                        // Determine stability based on critical mass ratios
-
         // NOTE: Critical mass ratio is defined as mAccretor/mDonor
         double qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate(), m_FractionAccreted);
-        isUnstable = (m_Accretor->Mass() / m_Donor->Mass()) < qCrit;
+        isUnstable   = utils::Compare((m_Accretor->Mass() / m_Donor->Mass()), qCrit) < 0;
     }
     else {                                                                                                                      // Determine stability based on zetas
-        isUnstable = (utils::Compare(m_ZetaStar, m_ZetaLobe) < 0);
+        isUnstable   = (utils::Compare(m_ZetaStar, m_ZetaLobe) < 0);
     }
 
     // Evaluate separately for stable / unstable MT
@@ -2101,7 +2100,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 m_CEDetails.CEEnow = true;                                                                                      // flag CE
             }
             else {                                                                                                              // have required mass loss
-                if(utils::Compare(m_MassLossRateInRLOF,donorMassLossRateNuclear) <= 1)                                          // if transferring mass on nuclear timescale, limit mass loss amount based to rate * timestep (thermal timescale MT always happens in one timestep)
+                // *ilya* the follwing compare will always be true: utils::COmpare() returns -1 for <, 0 for =, and +1 for >
+                if(utils::Compare(m_MassLossRateInRLOF, donorMassLossRateNuclear) <= 1)                                         // if transferring mass on nuclear timescale, limit mass loss amount based to rate * timestep (thermal timescale MT always happens in one timestep)
                     massDiffDonor = std::min(massDiffDonor, m_MassLossRateInRLOF * m_Dt);
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
                 m_Donor->UpdateMinimumCoreMass();                                                                               // reset the minimum core mass following case A

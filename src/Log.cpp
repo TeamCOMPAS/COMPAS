@@ -309,7 +309,6 @@ void Log::Start(const string              p_LogBasePathString,
             boost::system::error_code err;
             ERROR                     error;
             std::string               errStr;
-            STR_VECTOR                pathsCreated;                                                                         // directories created
 
             // first check that the log base path exists - if it doesn't, create it
             // use boost filesystem here - easier...

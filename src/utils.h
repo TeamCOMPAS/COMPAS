@@ -148,6 +148,9 @@ namespace utils {
     std::tuple<ERROR, std::string, STR_VECTOR> CreateDirectories(const std::string p_Path);
     std::tuple<ERROR, std::string, STR_VECTOR> RemoveDirectories(const STR_VECTOR p_Paths);
 
+    STR_VECTOR                          GetStackTrace();
+    void                                ShowStackTrace();
+
 }
 
 #endif // __utils_h__

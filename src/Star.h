@@ -127,6 +127,7 @@ public:
     double              OmegaPrev() const                                                                           { return m_Star->OmegaPrev(); }
     double              Radius() const                                                                              { return m_Star->Radius(); }
     double              RadiusPrev() const                                                                          { return m_Star->RadiusPrev(); }
+    unsigned long int   RandomSeed() const                                                                          { return m_Star->RandomSeed(); }
     double              RZAMS() const                                                                               { return m_Star->RZAMS(); }
     SupernovaDetailsT   SN_Details() const                                                                          { return m_Star->SN_Details(); }
     double              SN_Phi() const                                                                              { return m_Star->SN_Phi(); }
