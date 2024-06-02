@@ -13,15 +13,15 @@ bool ONeWD::ShouldEvolveOnPhase() const {
 
 
 /*
- * List all conditions for SN (AIC or SN Ia) for ONeWD. 
+ * List all conditions for SN (AIC) for ONeWD.
  * Each condition should also be a separate clause in EvolveToNextPhase.
  *
  * bool IsSupernova()
  *
- * @return                               Whether WD should undergo AIC or SN Ia
+ * @return                               Whether WD should undergo AIC
  */
 bool ONeWD::IsSupernova() const {
-    return IsMassAboveEcsnThreshold();      
+    return IsMassAboveChandrasekhar();
 }
 
 
@@ -33,8 +33,6 @@ bool ONeWD::IsSupernova() const {
  * @return                               Stellar type of the upcoming stage.
  */
 STELLAR_TYPE ONeWD::EvolveToNextPhase() {
-    STELLAR_TYPE stellarType;
-    stellarType = ResolveAIC();
-    return stellarType;
+    return ResolveAIC();
 }
 
