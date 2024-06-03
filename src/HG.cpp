@@ -843,6 +843,23 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
 
+/*
+ * Calculate the mass of the convective envelope
+ *
+ * Based on section 7.2 (after Eq. 111) of Hurley, Pols, Tout (2000)
+ *
+ *
+ * double CalculateConvectiveEnvelopeMass() const
+ *
+ * @return                                      Mass of convective envelope in Msol
+ */
+DBL_DBL HG::CalculateConvectiveEnvelopeMass() const {
+
+    double massEnvelope_final = (m_Mass - CalculateConvectiveCoreMass());
+    double massEnvelope  = m_Tau * massEnvelope_final;
+    
+    return std::tuple<double, double> (massEnvelope, massEnvelope_final);
+}
 
 /*
  * Calculate core mass at the end of the Hertzsprung Gap
@@ -1016,7 +1033,7 @@ double HG::CalculateTauOnPhase() const {
  */
 double HG::LimitTimestepFromRadialExtentConvectiveEnvelope(const double p_dt) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-    double tau_prime_sqrt = (0.01 + std::sqrt(m_Tau));              // assuming 
+    double tau_prime_sqrt = (0.0001 + std::sqrt(m_Tau));              // assuming 
     double tau_prime = tau_prime_sqrt * tau_prime_sqrt;
     double dt_conv = (tau_prime - m_Tau) * (timescales(tBGB) - timescales(tMS));
     return std::min(p_dt, dt_conv);
