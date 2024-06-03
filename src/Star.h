@@ -86,7 +86,8 @@ public:
     double              BindingEnergy_Nanjing() const                                                               { return m_Star->BindingEnergy_Nanjing(); }
     double              BindingEnergy_Kruckow() const                                                               { return m_Star->BindingEnergy_Kruckow(); }
     double              BindingEnergy_Dewi() const                                                                  { return m_Star->BindingEnergy_Dewi(); }
-    double              CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) const                         { return m_Star->CalculateCriticalMassRatio(p_AccretorIsDegenerate); }
+    double              CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, 
+                                                   const double p_massTransferEfficiencyBeta) const                 { return m_Star->CalculateCriticalMassRatio(p_AccretorIsDegenerate, p_massTransferEfficiencyBeta); }
     double              CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const                 { return m_Star->CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate); }
     double              CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                    { return m_Star->CalculateCriticalMassRatioHurleyHjellmingWebbink(); }
     double              CalculateDynamicalTimescale() const                                                         { return m_Star->CalculateDynamicalTimescale(); }
@@ -192,8 +193,8 @@ public:
     
     double          CalculateRadialExtentConvectiveEnvelope() { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
 
-    double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const                           { return m_Star->CalculateRadiusOnPhaseTau(p_Mass, p_Tau); } 
-
+    double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const                        { return m_Star->CalculateRadiusOnPhaseTau(p_Mass, p_Tau); }
+    
     void            CalculateSNAnomalies(const double p_Eccentricity)                                               { m_Star->CalculateSNAnomalies(p_Eccentricity); }
     
     double          CalculateSNKickMagnitude(const double p_RemnantMass, 
@@ -225,7 +226,8 @@ public:
 
     double          EvolveOneTimestep(const double p_Dt, const bool p_Force = false);
 
-    double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription)                              { return m_Star->InterpolateGe20QCrit(p_qCritPrescription); }
+    double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
+                                         const double p_massTransferEfficiencyBeta)                                 { return m_Star->InterpolateGe20QCrit(p_qCritPrescription, p_massTransferEfficiencyBeta); }
     void            HaltWinds()                                                                                     { m_Star->HaltWinds(); }
 
     double          LimitTimestepFromRadialExtentConvectiveEnvelope(const double p_dt)                              { return m_Star->LimitTimestepFromRadialExtentConvectiveEnvelope(p_dt); }

@@ -360,8 +360,6 @@ void Options::OptionValues::Initialise() {
 
     // Output path
     m_OutputPathString                                              = ".";
-    m_DefaultOutputPath                                             = boost::filesystem::current_path();
-    m_OutputPath                                                    = m_DefaultOutputPath;
     m_OutputContainerName                                           = DEFAULT_OUTPUT_CONTAINER_NAME;
     
 
@@ -422,8 +420,8 @@ void Options::OptionValues::Initialise() {
 
     // Mass transfer angular momentum loss prescription options
     m_MassTransferJloss                                             = 1.0;
-    m_MassTransferJlossMacLeodLinearFractionDegen                   = 0.0;
-    m_MassTransferJlossMacLeodLinearFractionNonDegen                = 0.0;
+    m_MassTransferJlossMacLeodLinearFractionDegen                   = 0.5;
+    m_MassTransferJlossMacLeodLinearFractionNonDegen                = 0.5;
     m_MassTransferAngularMomentumLossPrescription.type              = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION;
     m_MassTransferAngularMomentumLossPrescription.typeString        = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL.at(m_MassTransferAngularMomentumLossPrescription.type);
 
@@ -1640,7 +1638,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "critical-mass-ratio-prescription",                                 
             po::value<std::string>(&p_Options->m_QCritPrescription.typeString)->default_value(p_Options->m_QCritPrescription.typeString),
-            ("Prescription for which critical mass ratio prescription to use, if any (" + AllowedOptionValuesFormatted("critical-mass-ratio-prescription") + ", default = '" + p_Options->m_QCritPrescription.typeString + "')").c_str()
+            ("Prescription for which critical mass ratio prescription to use, if any (Ge models are only defined for isotropic re-emission) (" + AllowedOptionValuesFormatted("critical-mass-ratio-prescription") + ", default = '" + p_Options->m_QCritPrescription.typeString + "')").c_str()
         )
         
         (
@@ -2376,17 +2374,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             WARNUSER_IF(m_Notes.size() > Options::Instance()->NotesHdrs().size(), "WARNING: Annotations: more notes than headers - extra notes ignored"); // yes - check counts
         }
 
-        if (!DEFAULTED("output-path")) {                                                                                            // user specified output path?
-                                                                                                                                    // yes
-            fs::path userPath = m_OutputPathString;                                                                                 // user-specifed path
-            if (fs::is_directory(userPath)) {                                                                                       // valid directory?
-                m_OutputPath = userPath;                                                                                            // yes - set outputPath to user-specified path
-            }
-            else {                                                                                                                  // not a valid directory
-                m_OutputPath = m_DefaultOutputPath;                                                                                 // use default path = CWD
-            }
-        }
-
         COMPLAIN_IF(m_OrbitalPeriodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
         COMPLAIN_IF(m_OrbitalPeriodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
         COMPLAIN_IF(m_OrbitalPeriodDistributionMax <= m_OrbitalPeriodDistributionMin, "Maximum orbital period (--orbital-period-max) must be > Minimum orbital period (--orbital-period-min)");
@@ -2859,7 +2846,8 @@ std::vector<OptionDetailsT> Options::OptionDetails(const OptionsDescriptorT &p_O
     // add other (calculated) options
 
     optionDetails.push_back({"useFixedUK", (p_Options.optionValues.m_UseFixedUK ? "TRUE" : "FALSE"), "CALCULATED", "BOOL", TYPENAME::BOOL, "", {}});            // useFixedUK
-    optionDetails.push_back({"actual-output-path", p_Options.optionValues.m_OutputPath.string(), "CALCULATED", "STRING", TYPENAME::STRING, "", {}});            // output-path
+//    optionDetails.push_back({"actual-output-path", p_Options.optionValues.m_OutputPathString, "CALCULATED", "STRING", TYPENAME::STRING, "", {}});               // output-path
+//    optionDetails.push_back({"actual-output-container", p_Options.optionValues.m_OutputContainerName, "CALCULATED", "STRING", TYPENAME::STRING, "", {}});       // output-container
     optionDetails.push_back({"fixedRandomSeed", (p_Options.optionValues.m_FixedRandomSeed ? "TRUE" : "FALSE"), "CALCULATED", "BOOL", TYPENAME::BOOL, "", {}});  // fixedRandomSeed
 
     return optionDetails;

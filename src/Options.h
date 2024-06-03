@@ -828,8 +828,6 @@ public:
 
             // Setup default output directory and desired output directory
             std::string                                         m_OutputPathString;                                             // String to hold the output directory
-            boost::filesystem::path                             m_DefaultOutputPath;                                            // Default output location
-            boost::filesystem::path                             m_OutputPath;                                                   // Desired output location
             std::string                                         m_OutputContainerName;                                          // Name of output container (directory)
 
             // Mass loss options
@@ -1441,7 +1439,7 @@ public:
     double                                      OrbitalPeriodDistributionMin() const                                    { return OPT_VALUE("orbital-period-min", m_OrbitalPeriodDistributionMin, true); }
 
     std::string                                 OutputContainerName() const                                             { return m_CmdLine.optionValues.m_OutputContainerName; }
-    std::string                                 OutputPathString() const                                                { return m_CmdLine.optionValues.m_OutputPath.string(); }
+    std::string                                 OutputPathString() const                                                { return m_CmdLine.optionValues.m_OutputPathString; }
 
     double                                      OverallWindMassLossMultiplier() const                                   { return OPT_VALUE("overall-wind-mass-loss-multiplier", m_OverallWindMassLossMultiplier, true); }
 
