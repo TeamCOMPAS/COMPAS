@@ -46,6 +46,8 @@ protected:
     double          CalculateCOCoreMassAtPhaseEnd() const                                           { return CalculateCOCoreMassOnPhase(); }                                                        // Same as on phase
     double          CalculateCOCoreMassOnPhase() const                                              { return 0.0; }                                                                                 // McCO(FGB) = 0.0
 
+    DBL_DBL         CalculateConvectiveEnvelopeMass() const                                         { return GiantBranch::CalculateConvectiveEnvelopeMass();}
+
     double          CalculateCoreMassAtPhaseEnd(const double p_Mass, const double p_Time) const     { return CalculateCoreMassOnPhase(p_Mass, p_Time); }                                            // Same as on phase
     double          CalculateCoreMassAtPhaseEnd() const                                             { return CalculateCoreMassAtPhaseEnd(m_Mass0, m_Age); }                                         // Use class member variables
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const;
@@ -81,7 +83,7 @@ protected:
     bool            IsEndOfPhase() const                                                            { return !ShouldEvolveOnPhase(); }                                                              // Phase ends when age at or after He ignition timescale
     bool            IsSupernova() const                                                             { return false; }                                                                               // Not here
     
-    double          LimitTimestepFromRadialExtentConvectiveEnvelope(const double p_dt) const          { return p_dt; }
+    double          LimitTimestepFromRadialExtentConvectiveEnvelope(const double p_dt) const        { return p_dt; }
 
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
     void            ResolveHeliumFlash();
