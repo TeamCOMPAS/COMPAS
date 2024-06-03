@@ -3291,7 +3291,8 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
     double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
     double radiusIntershellAU    = radiusAU - convectiveEnvRadiusAU;                                    // Outer radial coordinate of radiative intershell
 
-    double R3_over_G_M = (radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
+    double R_3              = radiusAU * radiusAU * radiusAU;
+    double R3_over_G_M      = (R_3 / G_AU_Msol_yr / m_Mass);
     double sqrt_R3_over_G_M = std::sqrt(R3_over_G_M);
 
     double k10GravityCore = 0.0;                                                                        // Gravity Wave dissipation, core boundary
@@ -3364,10 +3365,14 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double one_minus_alpha_2 = one_minus_alpha * one_minus_alpha;
         double one_minus_alpha_3 = 1.0 - alpha_3;
         double beta_2            = beta * beta;
-        double gamma             = alpha_3 * one_minus_beta / beta / one_minus_alpha_3;
+        
+        double rint_3            = radiusIntershellAU * radiusIntershellAU * radiusIntershellAU;
+        double rc_3              = coreRadiusAU * coreRadiusAU * coreRadiusAU;
+        double gamma             = (envMass / (R_3 - rint_3)) / (radIntershellMass / (rint_3 - rc_3));
         double one_minus_gamma   = 1.0 - gamma;
         double one_minus_gamma_2 = one_minus_gamma * one_minus_gamma;
         double alpha_2_3_minus_1 = (alpha * 2.0 / 3.0) - 1.0;
+        
         double Epsilon           = alpha_11 * one_minus_beta * one_minus_gamma_2 * alpha_2_3_minus_1 * alpha_2_3_minus_1 / beta_2 / one_minus_alpha_3 / one_minus_alpha_2;
 
         // (l=1, m=0), Gravity Wave dissipation from envelope boundary is always 0.0 since m=0.0
