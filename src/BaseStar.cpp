@@ -3357,7 +3357,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double alpha             = radiusIntershellAU / radiusAU;
         double one_minus_alpha   = 1.0 - alpha;
         double beta              = radIntershellMass / m_Mass;
-        double one_minus_beta    = 1.0 - beta;
+        double one_minus_beta    = envMass / m_Mass;
         double alpha_2           = alpha * alpha;
         double alpha_3           = alpha_2 * alpha;
         double alpha_5           = alpha_3 * alpha_2;
@@ -4246,8 +4246,8 @@ double BaseStar::CalculateTimestep() {
     if( OPTIONS->MassChangeFraction()!=0 && massChangeTimescale > 0.0 )                                     // if mass change timescale was computed
         dt = min(dt, OPTIONS->MassChangeFraction()*massChangeTimescale);
      
-    if( OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024 )
-            dt = LimitTimestepFromRadialExtentConvectiveEnvelope(dt);                                       // if KAPIL2024 tides are enabled, limit expansion rate of convective envelope
+    // if( OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024 )
+    //         dt = LimitTimestepFromRadialExtentConvectiveEnvelope(dt);                                       // if KAPIL2024 tides are enabled, limit expansion rate of convective envelope
 
     dt = max(round(dt/TIMESTEP_QUANTUM)*TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
         
