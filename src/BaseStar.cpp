@@ -3149,20 +3149,20 @@ double BaseStar::CalculateRotationalVelocity(double p_MInitial) const {
 
 /*
  * Calculate the initial angular frequency (in yr^-1) of a star with
- * Initial mass and radius MInitial and RInitial respectively
+ * Initial mass and radius Initial_Mass and Initial_Radius respectively
  *
  * Hurley et al. 2000, eq 108
  *
  *
- * double CalculateInitialAngularFrequency(const double p_MInitial, const double p_RInitial)
+ * double CalculateInitialAngularFrequency(const double p_Initial_Mass, const double p_Initial_Radius)
  *
- * @param   [IN]    p_MInitial                     Zero age main sequence mass in Msol
- * @param   [IN]    p_RInitial                     Zero age main sequence radius in Rsol
+ * @param   [IN]    p_Initial_Mass              Initial mass in Msol
+ * @param   [IN]    p_Initial_Radius            Initial radius in Rsol
  * @return                                      Initial angular frequency in yr^-1 - omega in Hurley et al. 2000
  */
-double BaseStar::CalculateInitialAngularFrequency(const double p_MInitial, const double p_RInitial) const {
-    double vRot = CalculateRotationalVelocity(p_MInitial);
-    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_RInitial;               // Hurley et al. 2000, eq 108
+double BaseStar::CalculateInitialAngularFrequency(const double p_Initial_Mass, const double p_Initial_Radius) const {
+    double vRot = CalculateRotationalVelocity(p_Initial_Mass);
+    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_Initial_Radius;               // Hurley et al. 2000, eq 108
 }
 
 

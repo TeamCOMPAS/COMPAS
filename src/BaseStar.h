@@ -22,7 +22,7 @@ public:
     BaseStar();
 
     BaseStar(const unsigned long int p_RandomSeed, 
-             const double            p_MInitial, 
+             const double            p_InitialMass, 
              const double            p_Metallicity, 
              const KickParameters    p_KickParameters,
              const double            p_RotationalVelocity = -1.0); 
@@ -105,6 +105,8 @@ public:
             bool                ExperiencedUSSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::USSN) == SN_EVENT::USSN; }
             double              HeCoreMass() const                                              { return m_HeCoreMass; }
             double              InitialLuminosity() const                                       { return m_InitialLuminosity; }
+            double              InitialMass() const                                             { return m_InitialMass; }
+            double              InitialOmega() const                                            { return m_InitialOmega; }
             double              InitialRadius() const                                           { return m_InitialRadius; }
             double              InitialTemperature() const                                      { return m_InitialTemperature; }
             bool                IsAIC() const                                                   { return (m_SupernovaDetails.events.current & SN_EVENT::AIC) == SN_EVENT::AIC; }
@@ -140,12 +142,11 @@ public:
             std::string         MassTransferDonorHistoryString() const;
             double              Mdot() const                                                    { return m_Mdot; }
             double              Metallicity() const                                             { return m_Metallicity; }
-            double              MInitial() const                                                   { return m_MInitial; }
+            double              MZAMS() const                                                   { return m_MZAMS; }
             double              Omega() const                                                   { return m_Omega; }
             double              OmegaCHE() const                                                { return m_OmegaCHE; }
             double              OmegaBreak() const                                              { return CalculateOmegaBreak(); }
             double              OmegaPrev() const                                               { return m_OmegaPrev; }
-            double              OmegaInitial() const                                               { return m_OmegaInitial; }
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
             double              Pulsar_MagneticField() const                                    { return m_PulsarDetails.magneticField; }
             double              Pulsar_SpinPeriod() const                                       { return m_PulsarDetails.spinPeriod; }
@@ -156,7 +157,7 @@ public:
             double              Radius() const                                                  { return m_Radius; }
             double              RadiusPrev() const                                              { return m_RadiusPrev; }
             unsigned long int   RandomSeed() const                                              { return m_RandomSeed; }
-            double              RInitial() const                                                   { return m_RInitial; }
+            double              RZAMS() const                                                   { return m_RZAMS; }
             double              SN_CoreMassAtCOFormation() const                                { return m_SupernovaDetails.coreMassAtCOFormation; }
             double              SN_COCoreMassAtCOFormation() const                              { return m_SupernovaDetails.COCoreMassAtCOFormation; }
             SupernovaDetailsT   SN_Details() const                                              { return m_SupernovaDetails; }
@@ -182,7 +183,7 @@ public:
             double              Temperature() const                                             { return m_Temperature; }
             double              Time() const                                                    { return m_Time; }
             double              Timescale(TIMESCALE p_Timescale) const                          { return m_Timescales[static_cast<int>(p_Timescale)]; }
-            double              TInitial() const                                                   { return m_TInitial; }
+            double              TZAMS() const                                                   { return m_TZAMS; }
     virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::NONE; }
             double              XExponent() const                                               { return m_XExponent; }
 
@@ -251,7 +252,7 @@ public:
     virtual double          CalculateMomentOfInertia() const                                                    { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                  // Defaults to MS. k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
     virtual double          CalculateMomentOfInertiaAU() const                                                  { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
         
-            double          CalculateOmegaCHE(const double p_MInitial, const double p_Metallicity) const;
+            double          CalculateOmegaCHE(const double p_InitialMass, const double p_Metallicity) const;
 
             double          CalculateRadialChange() const                                                       { return (utils::Compare(m_RadiusPrev,0)<=0)? 0 : std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; } // Return fractional radial change (if previous radius is negative or zero, return 0 to avoid NaN
 
@@ -374,21 +375,24 @@ protected:
     unsigned long int       m_RandomSeed;                               // Seeds the random number generator for this star
 
     // Zero Age Main Sequence
-    double                  m_LInitial;                                    // Initial Luminosity
-    double                  m_MInitial;                                    // Initial Mass
-    double                  m_OmegaInitial;                                // Initial Angular Frequency
-    double                  m_OmegaCHE;                                 // Minimum angular frequency at which CHE will occur (calculated at Initial)
-    double                  m_RInitial;                                    // Initial Radius
-    double                  m_TInitial;                                    // Initial Temperature
+    double                  m_InitialOmega;                                // Initial Angular Frequency
+    double                  m_LZAMS;                                    // ZAMS Luminosity
+    double                  m_MZAMS;                                    // ZAMS Mass
+    double                  m_OmegaCHE;                                 // Minimum angular frequency at which CHE will occur (calculated at ZAMS)
+    double                  m_RZAMS;                                    // ZAMS Radius
+    double                  m_TZAMS;                                    // ZAMS Temperature
 
+    // Initial values - distinct to ZAMS for stars that were initiated at later evolutionary phases
+    double                  m_InitialLuminosity;                        // Initial luminosity (Lsol)
+    double                  m_InitialMass;                              // Initial mass (Msol)
+    double                  m_InitialRadius;                            // Initial radius (Rsol)
+    double                  m_InitialTemperature;                       // Initial temperature (Tsol)
 
     // Effective Zero Age Main Sequence
     double                  m_LInitial0;                                   // Effective Initial Luminosity
     double                  m_RInitial0;                                   // Effective Initial Radius
     double                  m_TInitial0;                                   // Effective Initial Temperature
-    double                  m_InitialLuminosity;                        // Initial luminosity (Lsol)
-    double                  m_InitialRadius;                            // Initial radius (Rsol)
-    double                  m_InitialTemperature;                       // Initial temperature (Tsol)
+
 
     // Current timestep variables
     double                  m_Age;                                      // Current effective age (changes with mass loss/gain) (Myr)
@@ -610,7 +614,7 @@ protected:
 
             void                CalculateRCoefficients(const double p_LogMetallicityXi, DBL_VECTOR &p_RCoefficients);
 
-            double              CalculateRotationalVelocity(double p_MInitial) const;
+            double              CalculateRotationalVelocity(double p_InitialMass) const;
 
     virtual double              CalculateTauOnPhase() const                                                             { return m_Tau; }                                                           // Default is NO-OP
     virtual double              CalculateTauAtPhaseEnd() const                                                          { return m_Tau; }                                                           // Default is NO-OP
@@ -625,7 +629,7 @@ protected:
     virtual void                CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                             // Use class member variables
     virtual void                CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                                                              // Default is NO-OP
 
-            double              CalculateInitialAngularFrequency(const double p_MInitial, const double p_RInitial) const;
+            double              CalculateInitialAngularFrequency(const double p_InitialMass, const double p_InitialRadius) const;
 
             double              CalculateZetaAdiabaticHurley2002(const double p_CoreMass) const;
             double              CalculateZetaAdiabaticSPH(const double p_CoreMass) const;
