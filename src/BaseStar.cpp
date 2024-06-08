@@ -3399,7 +3399,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         // (l=2, m=2), Inertial Wave dissipation, convective envelope
         // IW dissipation is only efficient for highly spinning stars, as in Esseldeurs, et al., 2024 
         if (utils::Compare(two_OmegaSpin, p_Omega) >= 0) {                                                                            
-            double epsilonIW_2       = (omegaSpin / p_Omega) * (omegaSpin / p_Omega);
+            double epsilonIW_2       = omegaSpin * omegaSpin * R3_over_G_M;
             double one_minus_alpha_4 = one_minus_alpha_2 * one_minus_alpha_2;
             double bracket1          = 1.0 + (2.0 * alpha) + (3.0 * alpha_2) + (3.0 * alpha_3 / 2.0);
             double bracket2          = 1.0 + (one_minus_gamma / gamma) * alpha_3;
