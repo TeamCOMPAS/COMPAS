@@ -3400,6 +3400,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
             double bracket2          = 1.0 + (one_minus_gamma / gamma) * alpha_3;
             double bracket3          = 1.0 + (3.0 * gamma / 2.0) + (5.0 * alpha_3 / (2.0 * gamma) * (1.0 + (gamma / 2.0) - (3.0* gamma * gamma / 2.0))) - (9.0 / 4.0 * one_minus_gamma * alpha_5);
             k22InertialEnv           = (100.0 * M_PI / 63.0) * epsilonIW_2 * (alpha_5 / (1.0 - alpha_5)) * one_minus_gamma_2 * one_minus_alpha_4 * bracket1 * bracket1 * bracket2 / bracket3 / bracket3;
+            k22InertialEnv           = (w22 < 0.0 ? -std::abs(k22InertialEnv) : std::abs(k22InertialEnv));
         }
     }
 
