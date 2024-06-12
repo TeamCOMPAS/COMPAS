@@ -1285,21 +1285,25 @@ namespace utils {
      * 
      * Returns (in priority order):
      *
-     *    SN_EVENT::CCSN  iff CCSN  bit is set and USSN bit is not set
-     *    SN_EVENT::ECSN  iff ECSN  bit is set
-     *    SN_EVENT::PISN  iff PISN  bit is set
-     *    SN_EVENT::PPISN iff PPISN bit is set
-     *    SN_EVENT::USSN  iff USSN  bit is set
-     *    SN_EVENT::AIC   iff AIC   bit is set
-     *    SN_EVENT::SNIA  iff SNIA  bit is set and HeSD bit is not set
-     *    SN_EVENT::HeSD  iff HeSD  bit is set
-     *    SN_EVENT::NONE  otherwise
+     *    SN_EVENT::NONE    iff no bits are set
+     *    SN_EVENT::CCSN    iff CCSN  bit is set and USSN bit is not set
+     *    SN_EVENT::ECSN    iff ECSN  bit is set
+     *    SN_EVENT::PISN    iff PISN  bit is set
+     *    SN_EVENT::PPISN   iff PPISN bit is set
+     *    SN_EVENT::USSN    iff USSN  bit is set
+     *    SN_EVENT::AIC     iff AIC   bit is set
+     *    SN_EVENT::SNIA    iff SNIA  bit is set and HeSD bit is not set
+     *    SN_EVENT::HeSD    iff HeSD  bit is set
+     *    SN_EVENT::SNII    iff SNII  bit is set
+     *    SN_EVENT::UNKNOWN otherwise
      * 
      *
      * @param   [IN]    p_SNEvent                   SN_EVENT mask to check for SN event type
      * @return                                      SN_EVENT
      */
     SN_EVENT SNEventType(const SN_EVENT p_SNEvent) {
+
+        if (p_SNEvent == SN_EVENT::NONE)                                        return SN_EVENT::NONE;
 
         if ((p_SNEvent & (SN_EVENT::CCSN | SN_EVENT::USSN)) == SN_EVENT::CCSN ) return SN_EVENT::CCSN;
         if ((p_SNEvent & SN_EVENT::ECSN )                   == SN_EVENT::ECSN ) return SN_EVENT::ECSN;
@@ -1309,8 +1313,9 @@ namespace utils {
         if ((p_SNEvent & SN_EVENT::AIC  )                   == SN_EVENT::AIC  ) return SN_EVENT::AIC;
         if ((p_SNEvent & (SN_EVENT::SNIA | SN_EVENT::HeSD)) == SN_EVENT::SNIA ) return SN_EVENT::SNIA;
         if ((p_SNEvent & SN_EVENT::HeSD )                   == SN_EVENT::HeSD ) return SN_EVENT::HeSD;
+        if ((p_SNEvent & SN_EVENT::SNII )                   == SN_EVENT::HeSD ) return SN_EVENT::SNII;
 
-        return SN_EVENT::NONE;
+        return SN_EVENT::UNKNOWN;
     }
 
 
@@ -1338,7 +1343,7 @@ namespace utils {
      */
     std::tuple<ERROR, double, double> SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity) {
 
-        ERROR  error = ERROR::NONE;                                                                                                     // error
+        ERROR error = ERROR::NONE;                                                                                                      // error
 
         double e = p_Eccentricity;
         double M = p_MeanAnomaly;
@@ -1355,10 +1360,10 @@ namespace utils {
 
         if (iteration >= MAX_KEPLER_ITERATIONS) error = ERROR::NO_CONVERGENCE;                                                          // no convergence - set error
 
-        double nu = 2.0 * atan((std::sqrt((1.0 + e) / (1.0 - e))) * tan(0.5*E));                                                             // convert eccentric anomaly into true anomaly.  Equation (96) in my "A simple toy model" document
+        double nu = 2.0 * atan((std::sqrt((1.0 + e) / (1.0 - e))) * tan(0.5*E));                                                        // convert eccentric anomaly into true anomaly.  Equation (96) in "A simple toy model" document
 
-             if (utils::Compare(E, M_PI) >= 0 && utils::Compare(E, _2_PI) <= 0) nu += _2_PI;                                            // add 2PI if necessary
-        else if (utils::Compare(E, 0.0)  <  0 || utils::Compare(E, _2_PI) >  0) error = ERROR::OUT_OF_BOUNDS;                           // out of bounds - set error
+        if (utils::Compare(E, M_PI) >= 0 && utils::Compare(E, _2_PI) <= 0) nu += _2_PI;                                                 // add 2PI if necessary
+        else error = ERROR::OUT_OF_BOUNDS;                                                                                              // out of bounds - set error
 
         return std::make_tuple(error, E, nu);
     }

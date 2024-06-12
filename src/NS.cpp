@@ -7,7 +7,7 @@
  *
  * Hurley et al. 2000, eq 93
  *
- * Called (indirectly) from GiantBranch, so must be static.
+ * Called (indirectly) from GiantBranch, so must be static. (JR: is this still true - does this need to be static?)
  *
  *
  * double CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Time)
@@ -63,7 +63,7 @@ double NS::ChooseTimestep(const double p_Time) const {
  * Calculate Neutron Star radius according to selected equation of state (by commandline option)
  *
  *
- * double CalculateRadiusOnPhaseInKM_Static(const double p_Mass)
+ * double CalculateRadiusOnPhaseInKM_Static(const double p_Mass) (JR: does this need to be static?)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Radius of Neutron Star in km
@@ -104,11 +104,9 @@ double NS::CalculateRadiusOnPhaseInKM_Static(const double p_Mass) {
         } break;
 
         default:                                                                                                                // unknown equation-of-state
-            SHOW_WARN_STATIC(ERROR::UNKNOWN_NS_EOS,                                                                             // show warning
-                             "Using default NS radius = 10.0",
-                             OBJECT_TYPE::BASE_STAR,
-                             STELLAR_TYPE::NEUTRON_STAR);
+            SHOW_WARN_STATIC(ERROR::UNKNOWN_NS_EOS, "Using default NS radius = 10.0");                                          // show warning
             radius = 10.0;
+// JR: FIX THIS
 	}
 
 	return radius;
@@ -139,11 +137,11 @@ DBL_DBL_DBL NS::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
  * Calculate the spin period of a Pulsar at birth according to selected distribution (by commandline option)
  *
  *
- * double CalculatePulsarBirthSpinPeriod()
+ * double CalculatePulsarBirthSpinPeriod_Static() (JR: does this need to be static? And can we take "Pulsar" out of the name?)
  *
  * @return                                      Birth spin period of Pulsar in ms
  */
-double NS::CalculatePulsarBirthSpinPeriod() {
+double NS::CalculatePulsarBirthSpinPeriod_Static() {
 
 	double pSpin;
 
@@ -154,10 +152,8 @@ double NS::CalculatePulsarBirthSpinPeriod() {
             break;
 
         case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::FIXED:                                                                      // FIXED  constant value as used in default model in Oslowski et al 2011 https://arxiv.org/abs/0903.3538
-            SHOW_WARN_STATIC(ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                                          // show warning
-                             "Using spin = 0.0",
-                             OBJECT_TYPE::BASE_STAR,
-                             STELLAR_TYPE::NEUTRON_STAR);
+            SHOW_WARN_STATIC(ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, "Using spin = 0.0");                     // show warning
+// JR: FIX THIS
             pSpin = 0.0;
             break;
 
@@ -184,10 +180,8 @@ double NS::CalculatePulsarBirthSpinPeriod() {
             } break;
 
         default:                                                                                                                // unknown distribution
-            SHOW_WARN_STATIC(ERROR::UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                                              // show warning
-                             "Using spin = 0.0",
-                             OBJECT_TYPE::BASE_STAR,
-                             STELLAR_TYPE::NEUTRON_STAR);
+            SHOW_WARN_STATIC(ERROR::UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, "Using spin = 0.0");                         // show warning
+// JR: FIX THIS
             pSpin = 0.0;
     }
 
@@ -215,10 +209,8 @@ double NS::CalculatePulsarBirthMagneticField() {
             break;
 
         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FIXED:                                                                   // FIXED - set to a fixed constant value
-            SHOW_WARN_STATIC(ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,                                       // show warning
-                             "Using 0.0",
-                             OBJECT_TYPE::BASE_STAR,
-                             STELLAR_TYPE::NEUTRON_STAR);
+            SHOW_WARN(ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, "Using 0.0");                                // show warning
+// JR: FIX THIS
             log10B = 0.0;
             break;
 
@@ -253,10 +245,8 @@ double NS::CalculatePulsarBirthMagneticField() {
             } break;
 
         default:                                                                                                                // unknown distribution
-            SHOW_WARN_STATIC(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,                                           // show warning
-                             "Using 0.0",
-                             OBJECT_TYPE::BASE_STAR,
-                             STELLAR_TYPE::NEUTRON_STAR);
+            SHOW_WARN(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, "Using 0.0");                                    // show warning
+// JR: FIX THIS
             log10B = 0.0;
     }
 
@@ -347,7 +337,7 @@ double NS::CalculateSpinDownRate(const double p_Omega, const double p_MomentOfIn
 void NS::CalculateAndSetPulsarParameters() {
 
     m_PulsarDetails.magneticField     = PPOW(10.0, CalculatePulsarBirthMagneticField()) * GAUSS_TO_TESLA;                       // magnetic field in Gauss -> convert to Tesla
-    m_PulsarDetails.spinPeriod        = CalculatePulsarBirthSpinPeriod();                                                       // spin period in ms
+    m_PulsarDetails.spinPeriod        = CalculatePulsarBirthSpinPeriod_Static();                                                // spin period in ms
     m_PulsarDetails.spinFrequency     = _2_PI / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS);
     m_PulsarDetails.birthPeriod       = m_PulsarDetails.spinPeriod * SECONDS_IN_MS;                                             // convert from ms to s 
     

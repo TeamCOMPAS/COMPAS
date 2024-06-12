@@ -911,15 +911,15 @@ double GiantBranch::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDe
 
     double qCrit;
                                                                                                                             
-    if (p_AccretorIsDegenerate) {                                                                                           // Degenerate accretor
+    if (p_AccretorIsDegenerate) {                                                                                               // degenerate accretor
         qCrit = OPTIONS->MassTransferCriticalMassRatioGiantDegenerateAccretor();
     }
-    else {                                                                                                                  // Non-degenerate accretor 
+    else {                                                                                                                      // non-degenerate accretor 
         qCrit = OPTIONS->MassTransferCriticalMassRatioGiantNonDegenerateAccretor();
-        if (qCrit == -1) {                                                                                                  // Default value of -1 recalculates qCrit with the following function 
+        if (qCrit == -1) {                                                                                                      // default value of -1 recalculates qCrit with the following function 
             double coreMassRatio = m_HeCoreMass/m_Mass;
-            double x = BaseStar::CalculateGBRadiusXExponent();                                                              // x from Hurley et al 2000, Eq. 47 - Depends on composition
-            qCrit = 2.13/( 1.67 - x + 2*(coreMassRatio*coreMassRatio*coreMassRatio*coreMassRatio*coreMassRatio));           // Claeys+ 2014, Table 2
+            double x = BaseStar::CalculateGBRadiusXExponent();                                                                  // x from Hurley et al 2000, Eq. 47 - Depends on composition
+            qCrit = 2.13/( 1.67 - x + 2.0 * (coreMassRatio * coreMassRatio * coreMassRatio * coreMassRatio * coreMassRatio));   // Claeys+ 2014, Table 2
         }
     }
 
@@ -941,7 +941,7 @@ double GiantBranch::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDe
  */
 double GiantBranch::CalculateCriticalMassRatioHurleyHjellmingWebbink() const {
     
-    double qCrit = 0.362 + 1.0 / (3.0 * (1.0 - CoreMass() / Mass())); // Defined as mDonor/mAccretor in Hurley et al. 2002, equation found after eq. 57 (no label)
+    double qCrit = 0.362 + 1.0 / (3.0 * (1.0 - CoreMass() / Mass()));   // Defined as mDonor/mAccretor in Hurley et al. 2002, equation found after eq. 57 (no label)
     
     return 1.0 / qCrit;
 }
@@ -958,24 +958,24 @@ double GiantBranch::CalculateCriticalMassRatioHurleyHjellmingWebbink() const {
  */
 double GiantBranch::CalculateZetaConvectiveEnvelopeGiant(ZETA_PRESCRIPTION p_ZetaPrescription) {
     
-    double zeta = 0.0;                                            // default value
+    double zeta = 0.0;                                          // default value
 
-    switch (p_ZetaPrescription) {                                 // which prescription?
-        case ZETA_PRESCRIPTION::SOBERMAN:                         // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
-            zeta = CalculateZetaAdiabaticSPH(m_CoreMass);
-            break;
+    switch (p_ZetaPrescription) {                               // which prescription?
             
-        case ZETA_PRESCRIPTION::HURLEY:                          // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
+        case ZETA_PRESCRIPTION::HURLEY:                         // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
             zeta = CalculateZetaAdiabaticHurley2002(m_CoreMass);
             break;
             
-        case ZETA_PRESCRIPTION::ARBITRARY:                       // ARBITRARY: user program options thermal zeta value
+        case ZETA_PRESCRIPTION::ARBITRARY:                      // ARBITRARY: user program options thermal zeta value
             zeta = OPTIONS->ZetaAdiabaticArbitrary();
             break;
             
-        default:                                                    // unknown common envelope prescription - shouldn't happen
-            m_Error = ERROR::UNKNOWN_ZETA_PRESCRIPTION;          // set error value
-            SHOW_ERROR(m_Error);                                    // warn that an error occurred
+        default:                                                // shouldn't happen - assume SOBERMAN (this can only happen if someoned added a new ZETA prescription)
+            SHOW_WARN(ERROR::UNKNOWN_ZETA_PRESCRIPTION);        // show warning
+
+        case ZETA_PRESCRIPTION::SOBERMAN:                       // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
+            zeta = CalculateZetaAdiabaticSPH(m_CoreMass);
+            break;
     }
     
     return zeta;
@@ -999,7 +999,7 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
     double zeta = 0.0;                                              // default value
     
     // Use ZetaRadiativeEnvelopeGiant() for radiative envelope giant-like stars, CalculateZetaAdiabatic for convective-envelope giants
-    switch (DetermineEnvelopeType()) {                           // which envelope?
+    switch (DetermineEnvelopeType()) {                              // which envelope type?
         case ENVELOPE::RADIATIVE:
             zeta = OPTIONS->ZetaRadiativeEnvelopeGiant();
             break;
@@ -1008,9 +1008,9 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
             zeta = CalculateZetaConvectiveEnvelopeGiant(p_ZetaPrescription);
             break;
             
-        default:                                                    // shouldn't happen
-            m_Error = ERROR::INVALID_TYPE_ZETA_CALCULATION;         // set error value
-            SHOW_ERROR(m_Error);                                    // warn that an error occurred
+        default:                                                    // not ok... (this can only happen if someone added a new envelope type)
+            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_TYPE);              // throw error
+            break;
     }
     
     return zeta;
@@ -1710,7 +1710,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
         case REMNANT_MASS_PRESCRIPTION::HURLEY2000:                                                         // Hurley 2000
 
-            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // Not defined
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // not defined
             m_Mass                              = NS::CalculateRemnantMass_Static(m_COCoreMass);
             break;
 
@@ -1734,13 +1734,16 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         case REMNANT_MASS_PRESCRIPTION::MULLER2016:                                                         // Muller 2016
 
             m_Mass = CalculateRemnantMassByMuller2016(m_Mass, m_COCoreMass);
-            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // No subsequent kick adjustment by fallback fraction needed
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // no subsequent kick adjustment by fallback fraction needed
             break;
+
+        default:                                                                                            // shouldn't happen - assume MULLERMANDEL (this can only happen if someone added a new remnant mass prescription)
+            SHOW_WARN(ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION);                                            // show warning
 
         case REMNANT_MASS_PRESCRIPTION::MULLERMANDEL:                                                       // Mandel & Mueller, 2020
 
             m_Mass = CalculateRemnantMassByMullerMandel(m_COCoreMass, m_HeCoreMass);
-            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // No subsequent kick adjustment by fallback fraction needed
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // no subsequent kick adjustment by fallback fraction needed
             break;
 
         case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020:                                                      // Schneider 2020
@@ -1753,15 +1756,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
             m_Mass = CalculateRemnantMassBySchneider2020Alt(m_COCoreMass);
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0
-            break;
-
-        default:                                                                                            // unknown prescription
-
-            m_Mass                              = 0.0;
-            m_SupernovaDetails.fallbackFraction = 0.0;
-
-            m_Error = ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION;                                             // set error number
-            SHOW_ERROR(ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION, "Using default");                          // show error
+            break;           
     }
     
     // Set the stellar type to which the star should evolve (either use prescription or MAXIMUM_NS_MSS)
@@ -1816,36 +1811,38 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
  */
 STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
 
-    if (!m_MassTransferDonorHistory.empty() || (OPTIONS->AllowNonStrippedECSN())) {         // If progenitor has never been a MT donor, is it allowed to ECSN?
-                                                                                            // - yes
-        m_Mass       = MECS_REM;                                                            // defined in constants.h
+    STELLAR_TYPE stellarType = m_StellarType;                                                   // remnant stellar type
+
+    if (!m_MassTransferDonorHistory.empty() || (OPTIONS->AllowNonStrippedECSN())) {             // if progenitor has never been a MT donor, is it allowed to ECSN?
+                                                                                                // yes
+        m_Mass       = MECS_REM;                                                                // defined in constants.h
         m_CoreMass   = m_Mass;
         m_HeCoreMass = m_Mass;
         m_COCoreMass = m_Mass;
         m_Mass0      = m_Mass;
     
-        SetSNCurrentEvent(SN_EVENT::ECSN);                                                  // electron capture SN happening now
-        SetSNPastEvent(SN_EVENT::ECSN);                                                     // ... and will be a past event
+        SetSNCurrentEvent(SN_EVENT::ECSN);                                                      // electron capture SN happening now
+        SetSNPastEvent(SN_EVENT::ECSN);                                                         // ... and will be a past event
     
-        return STELLAR_TYPE::NEUTRON_STAR;
-
+        stellarType = STELLAR_TYPE::NEUTRON_STAR;
     }
-    else {                                                                                  // -no, treat as ONeWD 
+    else {                                                                                      // not allowed to ECSN, treat as ONeWD 
         
-        if (utils::Compare(m_COCoreMass,MCH) > 0) {
+        if (utils::Compare(m_COCoreMass, MCH) > 0) {
             SHOW_WARN(ERROR::WHITE_DWARF_TOO_MASSIVE, "Setting mass to Chandraskhar mass.");
         }
-        m_Mass       = std::min(m_COCoreMass,MCH);                                          // no WD masses above Chandrasekhar mass
+        m_Mass       = std::min(m_COCoreMass,MCH);                                              // no WD masses above Chandrasekhar mass
         m_CoreMass   = m_Mass;
         m_HeCoreMass = m_Mass;
         m_COCoreMass = m_Mass;
         m_Mass0      = m_Mass;
-        m_Radius     = WhiteDwarfs::CalculateRadiusOnPhase_Static(m_Mass);                  // radius is defined equivalently for all WDs
-        m_Luminosity = ONeWD::CalculateLuminosityOnPhase_Static(m_Mass, m_Time, m_Metallicity); //Need to get the luminosity for ONeWD specifically
+        m_Radius     = WhiteDwarfs::CalculateRadiusOnPhase_Static(m_Mass);                      // radius is defined equivalently for all WDs
+        m_Luminosity = ONeWD::CalculateLuminosityOnPhase_Static(m_Mass, m_Time, m_Metallicity); // need to set the luminosity for ONeWD specifically
     
-        return STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
-
+        stellarType = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }	    
+
+    return stellarType;
 }
 
 
@@ -1869,6 +1866,9 @@ STELLAR_TYPE GiantBranch::ResolveTypeIIaSN() {
 
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
+
+    SetSNCurrentEvent(SN_EVENT::SNII);                                                                  // type IIa SN happening now
+    SetSNPastEvent(SN_EVENT::SNII);                                                                     // ... and will be a past event
 
     return STELLAR_TYPE::MASSLESS_REMNANT;
 }
@@ -1935,13 +1935,11 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
         case PPI_PRESCRIPTION::COMPAS:                                                                  // Woosley 2017 https://arxiv.org/abs/1608.08939
             baryonicMass = m_HeCoreMass;                                                                // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static)
             m_Mass = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                                // convert to gravitational mass due to neutrino mass loss
-
             break;
 
         case PPI_PRESCRIPTION::STARTRACK:                                                               // Belczynski et al. 2016 https://arxiv.org/abs/1607.03116
             baryonicMass = std::min(m_HeCoreMass, STARTRACK_PPISN_HE_CORE_MASS);  // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static), limit helium core mass to 45 Msun
             m_Mass = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                                // convert to gravitational mass due to neutrino mass loss
-
             break;
 
         case PPI_PRESCRIPTION::MARCHANT: {                                                              // Marchant et al. 2018 https://arxiv.org/abs/1810.13412
@@ -1965,7 +1963,6 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
 
             baryonicMass = ratioOfRemnantToHeCoreMass * m_HeCoreMass;                                   // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static)
             m_Mass = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                                // convert to gravitational mass due to neutrino mass loss
-
             } break;
 
         case PPI_PRESCRIPTION::FARMER: {                                                                // Farmer et al. 2019 http://dx.doi.org/10.3847/1538-4357/ab518b
@@ -1989,7 +1986,6 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
             }
 
             m_Mass = std::min(totalMassPrePPISN, m_Mass);                                               // check if remnant mass is bigger than total mass    
-
             } break;
 
         default:                                                                                        // unknown prescription
@@ -2032,8 +2028,8 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (IsSupernova()) {                                                                            // has gone supernova
-                                                                                                    // no - resolve new supernova event
+    if (IsSupernova()) {                                                                            // is going supernova
+                                                                                                    // yes - resolve new supernova event
         // squirrel away some attributes before they get changed...
         m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;
         m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
@@ -2048,40 +2044,42 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
             utils::Compare(m_HeCoreMass, OPTIONS->PulsationalPairInstabilityLowerLimit()) >= 0 &&
             utils::Compare(m_HeCoreMass, OPTIONS->PulsationalPairInstabilityUpperLimit()) <= 0) {   // Pulsational Pair Instability Supernova
 
-            stellarType = ResolvePulsationalPairInstabilitySN();
+            stellarType = ResolvePulsationalPairInstabilitySN();                                    // BH or MR
         }
         else if (                        OPTIONS->UsePairInstabilitySupernovae()    &&
             utils::Compare(m_HeCoreMass, OPTIONS->PairInstabilityLowerLimit()) >= 0 &&
             utils::Compare(m_HeCoreMass, OPTIONS->PairInstabilityUpperLimit()) <= 0) {              // Pair Instability Supernova
 
-            stellarType = ResolvePairInstabilitySN();
+            stellarType = ResolvePairInstabilitySN();                                               // MR
         }
         else if (utils::Compare(snMass, OPTIONS->MCBUR1()) < 0) {                                   // Type IIa Supernova - like a Type Ia + H (see Hurley)
-            stellarType = ResolveTypeIIaSN();
+            stellarType = ResolveTypeIIaSN();                                                       // MR
         }
         else if (utils::Compare(snMass, MCBUR2) < 0) {                                              // Electron Capture Supernova
-            stellarType = ResolveElectronCaptureSN();
+            stellarType = ResolveElectronCaptureSN();                                               // NS or ONeWD
         }
         else {                                                                                      // Core Collapse Supernova
-            stellarType = ResolveCoreCollapseSN();
+            stellarType = ResolveCoreCollapseSN();                                                  // BH or NS
         }
         
-        if(utils::SNEventType(m_SupernovaDetails.events.current)!=SN_EVENT::PISN)
-            CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
+        // check if the SN actually happened
+        if (utils::IsOneOf(stellarType, { STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT })) {
+                                                                                                    // SN happened
+            if (utils::SNEventType(m_SupernovaDetails.events.current) != SN_EVENT::PISN && !utils::IsOneOf(stellarType, { STELLAR_TYPE::MASSLESS_REMNANT }))
+                CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, stellarType);
         
-        if ( !utils::IsOneOf(stellarType, { STELLAR_TYPE::NEUTRON_STAR })) {
-            m_SupernovaDetails.rocketKickMagnitude = 0;                                             // Only NSs can get rocket kicks
-        }
+            if (!utils::IsOneOf(stellarType, { STELLAR_TYPE::NEUTRON_STAR }))
+                m_SupernovaDetails.rocketKickMagnitude = 0;                                         // only NSs can get rocket kicks
 
-        // Stash SN details for later printing to the SSE Supernova log.
-        // Only if SSE (BSE does its own SN printing), and only if not an ephemeral clone
-        // Can't print it now because we may revert state (in Star::EvolveOneTimestep()).
-        // Will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state).
-        // Need to record the stellar type to which the star will switch if we don't revert state.
+            // Stash SN details for later printing to the SSE Supernova log.
+            // Only if SSE (BSE does its own SN printing), and only if not an ephemeral clone
+            // Can't print it now because we may revert state (in Star::EvolveOneTimestep()).
+            // Will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state).
+            // Need to record the stellar type to which the star will switch if we don't revert state.
 
-        if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) {
-            StashSupernovaDetails(stellarType);
-        }
+            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT)
+                StashSupernovaDetails(stellarType);
+       }
     }
 
     return stellarType;

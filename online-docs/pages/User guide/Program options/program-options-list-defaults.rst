@@ -284,14 +284,13 @@ Default = 1.280000
 **--critical-mass-ratio-prescription** |br|
 Which critical mass ratio stability prescription to use (if any).
 Options: { NONE, CLAEYS, GE20, GE20_IC, HURLEY_HJELLMING_WEBBINK } |br|
-``NONE`` defaults to the zeta prescription for stability, 
-``CLAEYS`` uses qCrit values from Claeys et al. 2014. 
-``GE20`` uses qCrit values from Ge et al. 2020 (adiabatic assumption). 
-``GE20_IC`` uses qCrit values from Ge et al. 2020 (isentropic envelope assumption).
+``ZERO``    uses 0.0, and defaults to the zeta prescription for stability. |br|
+``CLAEYS``  uses qCrit values from Claeys et al. 2014. |br|
+``GE20``    uses qCrit values from Ge et al. 2020 (adiabatic assumption). |br|
+``GE20_IC`` uses qCrit values from Ge et al. 2020 (isentropic envelope assumption). |br|
 ``HURLEY_HJELLMING_WEBBINK`` uses qCrit values from Hurley et al. 2002 (Hjellming & Webbink 1987 for mass transfer from a giant primary). |br|
-Warning: if running with ``--critical-mass-ratio-prescription``, zetas will not be computed, 
-so should not be trusted in the outputs. |br|
-Default = NONE
+Warning: if running with ``--critical-mass-ratio-prescription``, zetas will not be computed, so should not be trusted in the outputs. |br|
+Default = ZERO
 
 **--critical-mass-ratio-white-dwarf-degenerate-accretor** |br|
 Critical mass ratio for MT from a white dwarf to a degenerate accretor.
@@ -674,8 +673,11 @@ Default = 1.5
 
 **--luminous-blue-variable-prescription** |br|
 Luminous blue variable mass loss prescription. |br|
-Options: { NONE, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
-No LBV winds for ``NONE``,  Hurley, Pols, Tout (2000) LBV winds only for ``HURLEY`` LBV stars (or in addition to other winds for ``HURLEY_ADD``, Belzcynski et al. 2010 winds for ``BELCZYNSKI`` |br|
+Options: { ZERO, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
+``ZERO``       : No LBV winds |br|
+``HURLEY``     : Hurley, Pols, Tout (2000) |br|
+``HURLEY_ADD`` : ``HURLEY`` in addition to other winds |br|
+``BELCZYNSKI`` : Belzcynski et al. 2010 |br|
 Default = HURLEY_ADD
 
 **--luminosity-to-mass-threshold** |br|
@@ -869,10 +871,10 @@ Default = 10
 
 :ref:`Back to Top <options-props-top>`
 
-**--OB-mass-loss** |br|
+**--OB-mass-loss-prescription** |br|
 Main sequence mass loss prescription. |br|
-Options: { NONE, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018 } |br|
-NONE turns off mass loss for main sequence stars. Also available are Vink (2001, previous default), Vink (2021), Bjorklund (2022), and Krticka (2018).   |br|
+Options: { ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018 } |br|
+ZERO turns off mass loss for main sequence stars. Also available are Vink (2001, previous default), Vink (2021), Bjorklund (2022), and Krticka (2018).   |br|
 Default = VINK2021
 
 **--orbital-period** |br|
@@ -1073,8 +1075,8 @@ Default = ZERO
 
 **--RSG-mass-loss** |br|
 Red supergiant mass loss prescription. |br|
-Options: { NONE, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
-NONE turns off mass loss for giant (CHeB, FGB, AGB, TPAGB stellar types) stars below the RSG_MAXIMUM_TEMP. Also available are Vink and Sabhahit (2023), Beasor et al. (2020), Decin et al. (2023), Yang et al. (2023), Kee et. al (2021), and Nieuwenhuijzen and de Jager (1990, previous default).   |br|
+Options: { ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
+ZERO turns off mass loss for giant stars (stellar types CHeB, FGB, AGB, TPAGB) below the RSG_MAXIMUM_TEMP. Also available are Vink and Sabhahit (2023), Beasor et al. (2020), Decin et al. (2023), Yang et al. (2023), Kee et. al (2021), and Nieuwenhuijzen and de Jager (1990, previous default).   |br|
 Default = DECIN2023
 
 .. _options-props-S:
@@ -1157,10 +1159,10 @@ Default = TRUE
 **--version [ -v ]** |br|
 Prints COMPAS version string.
 
-**--VMS-mass-loss** |br|
+**--VMS-mass-loss-prescription** |br|
 Very massive main sequence mass loss prescription. |br|
-Options: { NONE, VINK2011, SABHAHIT2023, BESTENLEHNER2020 } |br|
-Applied above the VERY_MASSIVE_MINIMUM_MASS (100 Msol by default). NONE turns off mass loss. Also available are Vink (2011), Bestenlehner (2020), and Sabhahit (2023).   |br|
+Options: { ZERO, VINK2011, SABHAHIT2023, BESTENLEHNER2020 } |br|
+Applied above the VMS_MASS_THRESHOLD (100 Msol by default). ZERO turns off VMS mass loss. Also available are Vink (2011), Bestenlehner (2020), and Sabhahit (2023).   |br|
 Default = SABHAHIT2023
 
 .. _options-props-W:
@@ -1172,7 +1174,7 @@ Multiplicative constant for Wolf Rayet winds. Note that wind mass loss will also
 ``overall-wind-mass-loss-multiplier``. |br|
 Default = 1.0
 
-**--WR-mass-loss** |br|
+**--WR-mass-loss-prescription** |br|
 Wolf-Rayet mass loss prescription. |br|
 Options: { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 } |br|
 Selects between Belczynski (2010), Sander and Vink (2021 updated), and Shenar (2019).   |br|
@@ -1236,7 +1238,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, 
 --luminous-blue-variable-multiplier, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold,
---OB-mass-loss, --RSG-mass-loss, --VMS-mass-loss, --WR-mass-loss
+--OB-mass-loss-prescription, --RSG-mass-loss, --VMS-mass-loss, --WR-mass-loss
 
 --chemically-homogeneous-evolution
 

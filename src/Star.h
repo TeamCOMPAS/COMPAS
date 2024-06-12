@@ -61,20 +61,14 @@ public:
 
     Star(const Star& p_Star);
 
-    Star& operator = (const Star& p_Star);
-
-//    template <class T>
-//    static BaseStar* CloneStar(T& p_Star, const OBJECT_PERSISTENCE p_Persistence);
-//    template <class T>
-//    static BaseStar* CloneStar(T& p_Star)                                                                           { return CloneStar(p_Star, p_Star.ObjectPersistence()); }
+//    Star& operator = (const Star& p_Star);
 
     virtual ~Star() { delete m_Star; delete m_SaveStar; }
 
 
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const                                                                            { return m_ObjectId; }
-    OBJECT_ID           StarObjectId() const                                                                        { return m_ObjectId; }
-    OBJECT_TYPE         ObjectType() const                                                                          { return m_ObjectType; }
+    OBJECT_TYPE         ObjectType() const                                                                          { return OBJECT_TYPE::STAR; }
     OBJECT_PERSISTENCE  ObjectPersistence() const                                                                   { return m_ObjectPersistence; }
     STELLAR_TYPE        InitialStellarType() const                                                                  { return m_Star->InitialStellarType(); }
     STELLAR_TYPE        StellarType() const                                                                         { return m_Star->StellarType(); }
@@ -107,9 +101,12 @@ public:
     bool                IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
     bool                IsDegenerate() const                                                                        { return m_Star->IsDegenerate(); }
     bool                IsECSN() const                                                                              { return m_Star->IsECSN(); }
+    bool                IsHeSD() const                                                                              { return m_Star->IsHeSD(); }
     bool                IsOneOf(STELLAR_TYPE_LIST p_List) const                                                     { return m_Star->IsOneOf(p_List); }
     bool                IsPISN() const                                                                              { return m_Star->IsPISN(); }
     bool                IsPPISN() const                                                                             { return m_Star->IsPPISN(); }
+    bool                IsSNIA() const                                                                              { return m_Star->IsSNIA(); }
+    bool                IsSNII() const                                                                              { return m_Star->IsSNII(); }
     bool                IsUSSN() const                                                                              { return m_Star->IsUSSN(); }
     double              Lambda_Fixed() const                                                                        { return m_Star->Lambda_Fixed(); }
     double              Lambda_Loveridge() const                                                                    { return m_Star->Lambda_Loveridge(); }
@@ -203,8 +200,8 @@ public:
 								             const STELLAR_TYPE p_StellarType)                                      { return m_Star->CalculateSNKickMagnitude(p_RemnantMass, p_EjectaMass, p_StellarType); }
 
 
-    double          CalculateThermalMassAcceptanceRate(const double p_Radius) const                                 { return m_Star->CalculateThermalMassAcceptanceRate(p_Radius); }
-    double          CalculateThermalMassAcceptanceRate() const                                                      { return m_Star->CalculateThermalMassAcceptanceRate(); }
+    double          CalculateThermalMassAcceptanceRate(const double p_Radius)                                       { return m_Star->CalculateThermalMassAcceptanceRate(p_Radius); }
+    double          CalculateThermalMassAcceptanceRate()                                                            { return m_Star->CalculateThermalMassAcceptanceRate(); }
 
     double          CalculateThermalMassLossRate() const                                                            { return m_Star->CalculateThermalMassLossRate(); }
 
@@ -291,9 +288,10 @@ public:
 private:
 
     OBJECT_ID          m_ObjectId;              // instantiated object's unique object id
-    OBJECT_TYPE        m_ObjectType;            // instantiated object's object type
     OBJECT_PERSISTENCE m_ObjectPersistence;     // instantiated object's persistence
     long int           m_Id;                    // id used to name output files - uses p_Id as passed (usually the step number of multiple single stars being produced)
+
+    ERROR              m_Error;                 // Records most recent error encountered for this star - should be propagated to m_Star
 
     BaseStar          *m_Star;                  // pointer to current star
     BaseStar          *m_SaveStar;              // pointer to saved star

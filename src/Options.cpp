@@ -378,17 +378,17 @@ void Options::OptionValues::Initialise() {
     m_LuminousBlueVariablePrescription.type                         = LBV_PRESCRIPTION::HURLEY_ADD;
     m_LuminousBlueVariablePrescription.typeString                   = LBV_PRESCRIPTION_LABEL.at(m_LuminousBlueVariablePrescription.type);
 
-    m_OBMassLoss.type                                               = OB_MASS_LOSS::VINK2021;
-    m_OBMassLoss.typeString                                         = OB_MASS_LOSS_LABEL.at(m_OBMassLoss.type);
+    m_OBMassLossPrescription.type                                   = OB_MASS_LOSS_PRESCRIPTION::VINK2021;
+    m_OBMassLossPrescription.typeString                             = OB_MASS_LOSS_PRESCRIPTION_LABEL.at(m_OBMassLossPrescription.type);
 
-    m_VMSMassLoss.type                                              = VMS_MASS_LOSS::SABHAHIT2023;
-    m_VMSMassLoss.typeString                                        = VMS_MASS_LOSS_LABEL.at(m_VMSMassLoss.type);
+    m_VMSMassLossPrescription.type                                  = VMS_MASS_LOSS_PRESCRIPTION::SABHAHIT2023;
+    m_VMSMassLossPrescription.typeString                            = VMS_MASS_LOSS_PRESCRIPTION_LABEL.at(m_VMSMassLossPrescription.type);
 
-    m_RSGMassLoss.type                                              = RSG_MASS_LOSS::DECIN2023;
-    m_RSGMassLoss.typeString                                        = RSG_MASS_LOSS_LABEL.at(m_RSGMassLoss.type);
+    m_RSGMassLossPrescription.type                                  = RSG_MASS_LOSS_PRESCRIPTION::DECIN2023;
+    m_RSGMassLossPrescription.typeString                            = RSG_MASS_LOSS_PRESCRIPTION_LABEL.at(m_RSGMassLossPrescription.type);
 
-    m_WRMassLoss.type                                               = WR_MASS_LOSS::SANDERVINK2023;
-    m_WRMassLoss.typeString                                         = WR_MASS_LOSS_LABEL.at(m_WRMassLoss.type);
+    m_WRMassLossPrescription.type                                   = WR_MASS_LOSS_PRESCRIPTION::SANDERVINK2023;
+    m_WRMassLossPrescription.typeString                             = WR_MASS_LOSS_PRESCRIPTION_LABEL.at(m_WRMassLossPrescription.type);
 
     // Wind mass loss multiplicitive constants
     m_CoolWindMassLossMultiplier                                    = 1.0;
@@ -435,7 +435,7 @@ void Options::OptionValues::Initialise() {
     // Mass transfer critical mass ratios - defined here as (accretor mass / donor mass)
     // A value of 0.0 means the mass transfer will always be stable 
 
-    m_QCritPrescription.type                                        = QCRIT_PRESCRIPTION::NONE;                             // Assume no critical mass ratio prescription
+    m_QCritPrescription.type                                        = QCRIT_PRESCRIPTION::ZERO;                             // Assume no critical mass ratio prescription
     m_QCritPrescription.typeString                                  = QCRIT_PRESCRIPTION_LABEL.at(m_QCritPrescription.type);
 
     m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor   = 1.44;                                                 // Claeys+ 2014 = 1.44
@@ -1812,9 +1812,9 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "OB-mass-loss",                                      
-            po::value<std::string>(&p_Options->m_OBMassLoss.typeString)->default_value(p_Options->m_OBMassLoss.typeString),                                                                  
-            ("OB mass loss prescription (" + AllowedOptionValuesFormatted("OB-mass-loss") + ", default = '" + p_Options->m_OBMassLoss.typeString + "')").c_str()
+            "OB-mass-loss-prescription",                                      
+            po::value<std::string>(&p_Options->m_OBMassLossPrescription.typeString)->default_value(p_Options->m_OBMassLossPrescription.typeString),                                                                  
+            ("OB mass loss prescription (" + AllowedOptionValuesFormatted("OB-mass-loss-prescription") + ", default = '" + p_Options->m_OBMassLossPrescription.typeString + "')").c_str()
         )
         (
             "orbital-period-distribution",                              
@@ -1859,9 +1859,9 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Initial rotational velocity distribution (" + AllowedOptionValuesFormatted("rotational-velocity-distribution") + ", default = '" + p_Options->m_RotationalVelocityDistribution.typeString + "')").c_str()
         )
         (
-            "RSG-mass-loss",                                      
-            po::value<std::string>(&p_Options->m_RSGMassLoss.typeString)->default_value(p_Options->m_RSGMassLoss.typeString),                                                                  
-            ("RSG mass loss prescription (" + AllowedOptionValuesFormatted("RSG-mass-loss") + ", default = '" + p_Options->m_RSGMassLoss.typeString + "')").c_str()
+            "RSG-mass-loss-prescription",                                      
+            po::value<std::string>(&p_Options->m_RSGMassLossPrescription.typeString)->default_value(p_Options->m_RSGMassLossPrescription.typeString),                                                                  
+            ("RSG mass loss prescription (" + AllowedOptionValuesFormatted("RSG-mass-loss-prescription") + ", default = '" + p_Options->m_RSGMassLossPrescription.typeString + "')").c_str()
         )
 
         (
@@ -1891,14 +1891,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("User-supplied YAML template filename (default = " + p_Options->m_YAMLtemplate + ")").c_str()
         )
         (
-            "VMS-mass-loss",                                      
-            po::value<std::string>(&p_Options->m_VMSMassLoss.typeString)->default_value(p_Options->m_VMSMassLoss.typeString),                                                                  
-            ("Very massive star mass loss prescription (" + AllowedOptionValuesFormatted("VMS-mass-loss") + ", default = '" + p_Options->m_VMSMassLoss.typeString + "')").c_str()
+            "VMS-mass-loss-prescription",                                      
+            po::value<std::string>(&p_Options->m_VMSMassLossPrescription.typeString)->default_value(p_Options->m_VMSMassLossPrescription.typeString),                                                                  
+            ("Very massive star mass loss prescription (" + AllowedOptionValuesFormatted("VMS-mass-loss-prescription") + ", default = '" + p_Options->m_VMSMassLossPrescription.typeString + "')").c_str()
         )
         (
-            "WR-mass-loss",                                      
-            po::value<std::string>(&p_Options->m_WRMassLoss.typeString)->default_value(p_Options->m_WRMassLoss.typeString),                                                                  
-            ("WR mass loss prescription (" + AllowedOptionValuesFormatted("WR-mass-loss") + ", default = '" + p_Options->m_WRMassLoss.typeString + "')").c_str()
+            "WR-mass-loss-prescription",                                      
+            po::value<std::string>(&p_Options->m_WRMassLossPrescription.typeString)->default_value(p_Options->m_WRMassLossPrescription.typeString),                                                                  
+            ("WR mass loss prescription (" + AllowedOptionValuesFormatted("WR-mass-loss-prescription") + ", default = '" + p_Options->m_WRMassLossPrescription.typeString + "')").c_str()
         )
 
         // vector (list) options - alphabetically
@@ -2255,8 +2255,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
         }
 
-        if (!DEFAULTED("OB-mass-loss")) {                                                                    // OB (main sequence) loss prescription
-            std::tie(found, m_OBMassLoss.type) = utils::GetMapKey(m_OBMassLoss.typeString, OB_MASS_LOSS_LABEL, m_OBMassLoss.type);
+        if (!DEFAULTED("OB-mass-loss-prescriptiom")) {                                                                              // OB (main sequence) mass loss prescription
+            std::tie(found, m_OBMassLossPrescription.type) = utils::GetMapKey(m_OBMassLossPrescription.typeString, OB_MASS_LOSS_PRESCRIPTION_LABEL, m_OBMassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown OB Mass Loss Prescription");
         }
 
@@ -2285,8 +2285,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Rotational Velocity Distribution");
         }
 
-        if (!DEFAULTED("RSG-mass-loss")) {                                                                    // RSG mass loss prescription
-            std::tie(found, m_RSGMassLoss.type) = utils::GetMapKey(m_RSGMassLoss.typeString, RSG_MASS_LOSS_LABEL, m_RSGMassLoss.type);
+        if (!DEFAULTED("RSG-mass-loss-prescription")) {                                                                             // RSG mass loss prescription
+            std::tie(found, m_RSGMassLossPrescription.type) = utils::GetMapKey(m_RSGMassLossPrescription.typeString, RSG_MASS_LOSS_PRESCRIPTION_LABEL, m_RSGMassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown RSG Mass Loss Prescription");
         }
 
@@ -2300,17 +2300,17 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
         }
 
-        if (!DEFAULTED("tides-prescription")) {                                                                       // tides prescription
+        if (!DEFAULTED("tides-prescription")) {                                                                                     // tides prescription
             std::tie(found, m_TidesPrescription.type) = utils::GetMapKey(m_TidesPrescription.typeString, TIDES_PRESCRIPTION_LABEL, m_TidesPrescription.type);
             COMPLAIN_IF(!found, "Unknown Tides Prescription");
         }
-        if (!DEFAULTED("VMS-mass-loss")) {                                                                    // very massive mass loss prescription
-            std::tie(found, m_VMSMassLoss.type) = utils::GetMapKey(m_VMSMassLoss.typeString, VMS_MASS_LOSS_LABEL, m_VMSMassLoss.type);
+        if (!DEFAULTED("VMS-mass-loss-prescription")) {                                                                             // very massive mass loss prescription
+            std::tie(found, m_VMSMassLossPrescription.type) = utils::GetMapKey(m_VMSMassLossPrescription.typeString, VMS_MASS_LOSS_PRESCRIPTION_LABEL, m_VMSMassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown Very Massive Mass Loss Prescription");
         }
 
-        if (!DEFAULTED("WR-mass-loss")) {                                                                    // WR mass loss prescription
-            std::tie(found, m_WRMassLoss.type) = utils::GetMapKey(m_WRMassLoss.typeString, WR_MASS_LOSS_LABEL, m_WRMassLoss.type);
+        if (!DEFAULTED("WR-mass-loss-prescription")) {                                                                              // WR mass loss prescription
+            std::tie(found, m_WRMassLossPrescription.type) = utils::GetMapKey(m_WRMassLossPrescription.typeString, WR_MASS_LOSS_PRESCRIPTION_LABEL, m_WRMassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown WR Mass Loss Prescription");
         }
 
@@ -2555,19 +2555,19 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                           break;
         case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);          break;
         case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOSLabel);                                    break;
-        case _("OB-mass-loss")                                      : POPULATE_RET(OB_MASS_LOSS_LABEL);                             break;
+        case _("OB-mass-loss-prescription")                         : POPULATE_RET(OB_MASS_LOSS_PRESCRIPTION_LABEL);                break;
         case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);              break;
         case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL); break;
         case _("pulsar-birth-spin-period-distribution")             : POPULATE_RET(PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);    break;
         case _("pulsational-pair-instability-prescription")         : POPULATE_RET(PPI_PRESCRIPTION_LABEL);                         break;
-        case _("RSG-mass-loss")                                     : POPULATE_RET(RSG_MASS_LOSS_LABEL);                            break;
+        case _("RSG-mass-loss-prescription")                        : POPULATE_RET(RSG_MASS_LOSS_PRESCRIPTION_LABEL);               break;
         case _("remnant-mass-prescription")                         : POPULATE_RET(REMNANT_MASS_PRESCRIPTION_LABEL);                break;
         case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);         break;
         case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);             break;
         case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                        break;
         case _("tides-prescription")                                : POPULATE_RET(TIDES_PRESCRIPTION_LABEL);                       break;
-        case _("VMS-mass-loss")                                     : POPULATE_RET(VMS_MASS_LOSS_LABEL);                            break;
-        case _("WR-mass-loss")                                      : POPULATE_RET(WR_MASS_LOSS_LABEL);                             break;
+        case _("VMS-mass-loss-prescription")                        : POPULATE_RET(VMS_MASS_LOSS_PRESCRIPTION_LABEL);               break;
+        case _("WR-mass-loss-prescription")                         : POPULATE_RET(WR_MASS_LOSS_PRESCRIPTION_LABEL);                break;
         default: break;
     }
     return ret;
@@ -3149,7 +3149,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
     for (size_t idx = 0; idx < sArgStrings.size(); idx++) {
         args.push_back(sArgStrings[idx].c_str());
     }
-                 /***** << do *not* try this at home >> *****/
+         /***** <<< do *not* try this at home >>> *****/
     char **argStrings = const_cast<char**>(args.data());                                                                    // arg strings - as array of char*
 
     try {
