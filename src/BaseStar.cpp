@@ -3291,7 +3291,8 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
     double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
     double radiusIntershellAU    = radiusAU - convectiveEnvRadiusAU;                                    // Outer radial coordinate of radiative intershell
 
-    double R3_over_G_M = (radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
+    double R_3              = radiusAU * radiusAU * radiusAU;
+    double R3_over_G_M      = (R_3 / G_AU_Msol_yr / m_Mass);
     double sqrt_R3_over_G_M = std::sqrt(R3_over_G_M);
 
     double k10GravityCore = 0.0;                                                                        // Gravity Wave dissipation, core boundary
@@ -3313,7 +3314,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
     double w12 = ((p_Omega) - two_OmegaSpin);
     double w22 = ((p_Omega + p_Omega) - two_OmegaSpin);
     double w32 = ((p_Omega + p_Omega + p_Omega) - two_OmegaSpin);
-
+        
     if (utils::Compare(coreRadiusAU, 0.0) > 0 && utils::Compare(coreMass, 0.0) > 0) {                   // No GW dissipation from core boundary if no convective core
         double beta2Dynamical           = 1.0;
         double rhoFactorDynamcial       = 0.1;
@@ -3356,7 +3357,8 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double alpha             = radiusIntershellAU / radiusAU;
         double one_minus_alpha   = 1.0 - alpha;
         double beta              = radIntershellMass / m_Mass;
-        double one_minus_beta    = 1.0 - beta;
+        double one_minus_beta    = envMass / m_Mass;
+
         double alpha_2           = alpha * alpha;
         double alpha_3           = alpha_2 * alpha;
         double alpha_5           = alpha_3 * alpha_2;
@@ -3364,10 +3366,14 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double one_minus_alpha_2 = one_minus_alpha * one_minus_alpha;
         double one_minus_alpha_3 = 1.0 - alpha_3;
         double beta_2            = beta * beta;
-        double gamma             = alpha_3 * one_minus_beta / beta / one_minus_alpha_3;
+
+        double rint_3            = radiusIntershellAU * radiusIntershellAU * radiusIntershellAU;
+        double rc_3              = coreRadiusAU * coreRadiusAU * coreRadiusAU;
+        double gamma             = (envMass / (R_3 - rint_3)) / (radIntershellMass / (rint_3 - rc_3));
         double one_minus_gamma   = 1.0 - gamma;
         double one_minus_gamma_2 = one_minus_gamma * one_minus_gamma;
         double alpha_2_3_minus_1 = (alpha * 2.0 / 3.0) - 1.0;
+
         double Epsilon           = alpha_11 * one_minus_beta * one_minus_gamma_2 * alpha_2_3_minus_1 * alpha_2_3_minus_1 / beta_2 / one_minus_alpha_3 / one_minus_alpha_2;
 
         // (l=1, m=0), Gravity Wave dissipation from envelope boundary is always 0.0 since m=0.0
@@ -3394,12 +3400,13 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         // (l=2, m=2), Inertial Wave dissipation, convective envelope
         // IW dissipation is only efficient for highly spinning stars, as in Esseldeurs, et al., 2024 
         if (utils::Compare(two_OmegaSpin, p_Omega) >= 0) {                                                                            
-            double epsilonIW_2       = (omegaSpin / p_Omega) * (omegaSpin / p_Omega);
+            double epsilonIW_2       = omegaSpin * omegaSpin * R3_over_G_M;
             double one_minus_alpha_4 = one_minus_alpha_2 * one_minus_alpha_2;
             double bracket1          = 1.0 + (2.0 * alpha) + (3.0 * alpha_2) + (3.0 * alpha_3 / 2.0);
             double bracket2          = 1.0 + (one_minus_gamma / gamma) * alpha_3;
             double bracket3          = 1.0 + (3.0 * gamma / 2.0) + (5.0 * alpha_3 / (2.0 * gamma) * (1.0 + (gamma / 2.0) - (3.0* gamma * gamma / 2.0))) - (9.0 / 4.0 * one_minus_gamma * alpha_5);
             k22InertialEnv           = (100.0 * M_PI / 63.0) * epsilonIW_2 * (alpha_5 / (1.0 - alpha_5)) * one_minus_gamma_2 * one_minus_alpha_4 * bracket1 * bracket1 * bracket2 / bracket3 / bracket3;
+            k22InertialEnv           = (w22 < 0.0 ? -std::abs(k22InertialEnv) : std::abs(k22InertialEnv));
         }
     }
 
