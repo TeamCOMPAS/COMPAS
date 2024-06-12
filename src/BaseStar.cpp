@@ -3357,7 +3357,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double alpha             = radiusIntershellAU / radiusAU;
         double one_minus_alpha   = 1.0 - alpha;
         double beta              = radIntershellMass / m_Mass;
-        double one_minus_beta    = envMass / m_Mass;
+        double envMass_over_totalMass    = envMass / m_Mass;
 
         double alpha_2           = alpha * alpha;
         double alpha_3           = alpha_2 * alpha;
@@ -3374,7 +3374,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double one_minus_gamma_2 = one_minus_gamma * one_minus_gamma;
         double alpha_2_3_minus_1 = (alpha * 2.0 / 3.0) - 1.0;
 
-        double Epsilon           = alpha_11 * one_minus_beta * one_minus_gamma_2 * alpha_2_3_minus_1 * alpha_2_3_minus_1 / beta_2 / one_minus_alpha_3 / one_minus_alpha_2;
+        double Epsilon           = alpha_11 * envMass_over_totalMass * one_minus_gamma_2 * alpha_2_3_minus_1 * alpha_2_3_minus_1 / beta_2 / one_minus_alpha_3 / one_minus_alpha_2;
 
         // (l=1, m=0), Gravity Wave dissipation from envelope boundary is always 0.0 since m=0.0
 
