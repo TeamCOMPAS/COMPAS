@@ -3314,7 +3314,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
     double w12 = ((p_Omega) - two_OmegaSpin);
     double w22 = ((p_Omega + p_Omega) - two_OmegaSpin);
     double w32 = ((p_Omega + p_Omega + p_Omega) - two_OmegaSpin);
-
+        
     if (utils::Compare(coreRadiusAU, 0.0) > 0 && utils::Compare(coreMass, 0.0) > 0) {                   // No GW dissipation from core boundary if no convective core
         double beta2Dynamical           = 1.0;
         double rhoFactorDynamcial       = 0.1;
@@ -3358,6 +3358,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double one_minus_alpha   = 1.0 - alpha;
         double beta              = radIntershellMass / m_Mass;
         double one_minus_beta    = envMass / m_Mass;
+
         double alpha_2           = alpha * alpha;
         double alpha_3           = alpha_2 * alpha;
         double alpha_5           = alpha_3 * alpha_2;
@@ -3365,14 +3366,14 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double one_minus_alpha_2 = one_minus_alpha * one_minus_alpha;
         double one_minus_alpha_3 = 1.0 - alpha_3;
         double beta_2            = beta * beta;
-        
+
         double rint_3            = radiusIntershellAU * radiusIntershellAU * radiusIntershellAU;
         double rc_3              = coreRadiusAU * coreRadiusAU * coreRadiusAU;
         double gamma             = (envMass / (R_3 - rint_3)) / (radIntershellMass / (rint_3 - rc_3));
         double one_minus_gamma   = 1.0 - gamma;
         double one_minus_gamma_2 = one_minus_gamma * one_minus_gamma;
         double alpha_2_3_minus_1 = (alpha * 2.0 / 3.0) - 1.0;
-        
+
         double Epsilon           = alpha_11 * one_minus_beta * one_minus_gamma_2 * alpha_2_3_minus_1 * alpha_2_3_minus_1 / beta_2 / one_minus_alpha_3 / one_minus_alpha_2;
 
         // (l=1, m=0), Gravity Wave dissipation from envelope boundary is always 0.0 since m=0.0
