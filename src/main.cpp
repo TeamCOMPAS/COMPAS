@@ -872,21 +872,6 @@ int main(int argc, char * argv[]) {
                 feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);             // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
             }
 
-double m_uK = std::numeric_limits<double>::signaling_NaN();   // -- - Dimensionless kick magnitude
-try { 
-    std::cout << "USING M_UK!!!!\n";
-    double xxx = sqrt(-1);
-    double yyy = xxx/ 2.0;
-    if (std::fetestexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW)) std::cout << "fp exception!\n";
-    std::cout << "xxx = " << xxx << "\n";
-    std::cout << "yyy = " << yyy << "\n";
-}
-catch (const std::runtime_error& e) {
-    if (std::string(e.what()) == "FPE") THROW_ERROR_STATIC(ERROR::FLOATING_POINT_ERROR) // floating-point error
-    else                                THROW_ERROR_STATIC(ERROR::ERROR)                // unspecified error
-} 
-std::exit(1);
-
             InitialiseProfiling;                                                                    // initialise profiling functionality
 
             int objectsRequested = 0;                                                               // for logging
