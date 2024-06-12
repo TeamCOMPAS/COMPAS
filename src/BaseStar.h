@@ -69,7 +69,7 @@ public:
 
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const                                                        { return m_ObjectId; }
-    OBJECT_TYPE         ObjectType() const                                                      { return m_ObjectType; }
+    OBJECT_TYPE         ObjectType() const                                                      { return OBJECT_TYPE::BASE_STAR; }
     OBJECT_PERSISTENCE  ObjectPersistence() const                                               { return m_ObjectPersistence; }
     STELLAR_TYPE        InitialStellarType() const                                              { return m_InitialStellarType; }
     STELLAR_TYPE        StellarType() const                                                     { return m_StellarType; }
@@ -94,27 +94,30 @@ public:
             bool                EnvelopeJustExpelledByPulsations() const                        { return m_EnvelopeJustExpelledByPulsations; }
             ERROR               Error() const                                                   { return m_Error; }
             EVOLUTION_STATUS    EvolutionStatus() const                                         { return m_EvolutionStatus; }
-            bool                ExperiencedAIC() const                                          { return (m_SupernovaDetails.events.past & SN_EVENT::AIC) == SN_EVENT::AIC; }
-            bool                ExperiencedCCSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
-            bool                ExperiencedHeSD() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
-            bool                ExperiencedECSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
-            bool                ExperiencedPISN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::PISN) == SN_EVENT::PISN; }
-            bool                ExperiencedPPISN() const                                        { return (m_SupernovaDetails.events.past & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
-            bool                ExperiencedSNIA() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::SNIA) == SN_EVENT::SNIA; }
+            bool                ExperiencedAIC() const                                          { return utils::SNEventType(m_SupernovaDetails.events.past) == SN_EVENT::AIC; }
+            bool                ExperiencedCCSN() const                                         { return utils::SNEventType(m_SupernovaDetails.events.past) == SN_EVENT::CCSN; }
+            bool                ExperiencedHeSD() const                                         { return utils::SNEventType(m_SupernovaDetails.events.past) == SN_EVENT::HeSD; }
+            bool                ExperiencedECSN() const                                         { return utils::SNEventType(m_SupernovaDetails.events.past) == SN_EVENT::ECSN; }
+            bool                ExperiencedPISN() const                                         { return utils::SNEventType(m_SupernovaDetails.events.past) == SN_EVENT::PISN; }
+            bool                ExperiencedPPISN() const                                        { return utils::SNEventType(m_SupernovaDetails.events.past) == SN_EVENT::PPISN; }
+            bool                ExperiencedSNIA() const                                         { return utils::SNEventType(m_SupernovaDetails.events.past) == SN_EVENT::SNIA; }
+            bool                ExperiencedSNII() const                                         { return utils::SNEventType(m_SupernovaDetails.events.past) == SN_EVENT::SNII; }
             SN_EVENT            ExperiencedSN_Type() const                                      { return utils::SNEventType(m_SupernovaDetails.events.past); }
             bool                ExperiencedUSSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::USSN) == SN_EVENT::USSN; }
+            std::string         GetMassTransferDonorHistoryString() const;
             double              HeCoreMass() const                                              { return m_HeCoreMass; }
-            bool                IsAIC() const                                                   { return (m_SupernovaDetails.events.current & SN_EVENT::AIC) == SN_EVENT::AIC; }
-            bool                IsCCSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
-            bool                IsHeSD() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
+            bool                IsAIC() const                                                   { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::AIC; }
+            bool                IsCCSN() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::CCSN; }
+            bool                IsHeSD() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::HeSD; }
     virtual bool                IsDegenerate() const                                            { return false; }   // default is not degenerate - White Dwarfs, NS and BH are degenerate
-            bool                IsECSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
+            bool                IsECSN() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::ECSN; }
             bool                IsSN_NONE() const                                               { return m_SupernovaDetails.events.current == SN_EVENT::NONE; }
             bool                IsOneOf(const STELLAR_TYPE_LIST p_List) const;
-            bool                IsPISN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::PISN) == SN_EVENT::PISN; }
-            bool                IsPPISN() const                                                 { return (m_SupernovaDetails.events.current & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
-            bool                IsSNIA() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::SNIA) == SN_EVENT::SNIA; }
-            bool                IsUSSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::USSN) == SN_EVENT::USSN; }
+            bool                IsPISN() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::PISN; }
+            bool                IsPPISN() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::PPISN; }
+            bool                IsSNIA() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::SNIA; }
+            bool                IsSNII() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::SNII; }
+            bool                IsUSSN() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::USSN; }
             double              Lambda_Dewi() const                                             { return m_Lambdas.dewi; }
             double              Lambda_Fixed() const                                            { return m_Lambdas.fixed; }
             double              Lambda_Kruckow() const                                          { return m_Lambdas.kruckow; }
@@ -133,7 +136,6 @@ public:
             double              Mass0() const                                                   { return m_Mass0; }
             double              MassPrev() const                                                { return m_MassPrev; }
             STYPE_VECTOR        MassTransferDonorHistory() const                                { return m_MassTransferDonorHistory; }
-            std::string         MassTransferDonorHistoryString() const;
             double              Mdot() const                                                    { return m_Mdot; }
             double              Metallicity() const                                             { return m_Metallicity; }
             double              MinimumCoreMass() const                                         { return m_MinimumCoreMass; }
@@ -185,7 +187,7 @@ public:
 
 
     // setters
-            void                SetInitialType(const STELLAR_TYPE p_InitialType)                { m_InitialStellarType = p_InitialType; } // JR Could do some sanity checks here
+            void                SetInitialType(const STELLAR_TYPE p_InitialType)                { m_InitialStellarType = p_InitialType; } // JR: Could do some sanity checks here
             void                SetError(const ERROR p_Error)                                   { m_Error = p_Error; }
             void                SetObjectId(const OBJECT_ID p_ObjectId)                         { m_ObjectId = p_ObjectId; }
             void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)          { m_ObjectPersistence = p_Persistence; }
@@ -200,7 +202,7 @@ public:
 
             void                UpdateMassTransferDonorHistory();
     
-            void                UpdatePreviousTimestepDuration()                                { m_DtPrev = m_Dt; }
+            void                UpdatePreviousTimestepDuration()                                { m_DtPrev = m_Dt; } // JR: should there be any sanity checks here?
 
 
 
@@ -226,14 +228,14 @@ public:
                                                                                                                                                                                          
             double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
         
-            double          CalculateEddyTurnoverTimescale();
+            double          CalculateEddyTurnoverTimescale() const;
 
     virtual void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) { }                                                                                      // Default is NO-OP
     virtual void            CalculateGBParams()                                                                 { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
 
-    virtual DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2);  
-    virtual DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2);                                              
-    virtual DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2);                                                            
+    virtual DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const;  
+    virtual DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const ;                                              
+    virtual DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const;                                                            
 
             void            CalculateLambdas()                                                                  { CalculateLambdas(m_Mass - m_CoreMass); }                          // Use class member variables
             void            CalculateLambdas(const double p_EnvMass);
@@ -267,8 +269,8 @@ public:
 
             double          CalculateSNKickMagnitude(const double p_RemnantMass, const double p_EjectaMass, const STELLAR_TYPE p_StellarType);
 
-            double          CalculateThermalMassAcceptanceRate(const double p_Radius) const;
-            double          CalculateThermalMassAcceptanceRate() const                                          { return CalculateThermalMassAcceptanceRate(m_Radius); }
+            double          CalculateThermalMassAcceptanceRate(const double p_Radius);
+            double          CalculateThermalMassAcceptanceRate()                                                { return CalculateThermalMassAcceptanceRate(m_Radius); }
 
     virtual double          CalculateThermalMassLossRate() const                                                { return m_Mass / CalculateThermalTimescale(); }                    // Use class member variables - and inheritance hierarchy
 
@@ -358,7 +360,6 @@ public:
 protected:
 
     OBJECT_ID               m_ObjectId;                                 // Instantiated object's unique object id
-    OBJECT_TYPE             m_ObjectType;                               // Instantiated object's object type
     OBJECT_PERSISTENCE      m_ObjectPersistence;                        // Instantiated object's persistence (permanent or ephemeral)
     STELLAR_TYPE            m_InitialStellarType;                       // Stellar type at birth, defined in Hurley et al. 2000
     STELLAR_TYPE            m_StellarType;                              // Stellar type defined in Hurley et al. 2000
@@ -511,11 +512,11 @@ protected:
 
     static  double              CalculateInitialEnvelopeMass_Static(const double p_Mass);
 
-    virtual double              CalculateLambdaDewi() const                                                             { SHOW_WARN(ERROR::NO_LAMBDA_DEWI, "Default used: 1.0"); return 1.0; }      // Not supported: show error
+    virtual double              CalculateLambdaDewi() const                                                             { SHOW_WARN(ERROR::NO_LAMBDA_DEWI, "Default used: 1.0"); return 1.0; }      // Not supported: show warning JR: should this throw an error?
             double              CalculateLambdaKruckow(const double p_Radius, const double p_Alpha) const;
             double              CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss = false) const;
-    virtual double              CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: show error
-    virtual double              CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const             { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: show error
+    virtual double              CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: warning JR: should this throw an error?
+    virtual double              CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const             { SHOW_WARN(ERROR::NO_LAMBDA_NANJING, "Default used: 1.0"); return 1.0; }   // Not supported: warning JR: should this throw an error?
 
             void                CalculateLCoefficients(const double p_LogMetallicityXi, DBL_VECTOR &p_LCoefficients);
 
@@ -547,24 +548,24 @@ protected:
     virtual double              CalculateMassLossRate();
     virtual double              CalculateMassLossRateHurley();
             double              CalculateMassLossRateKudritzkiReimers() const;
-            double              CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBV_prescription);
-            double              CalculateMassLossRateLBVHurley(const double p_HD_limit_fac) const;
+            double              CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBVprescription);
+            double              CalculateMassLossRateLBVHurley(const double p_HDlimitfactor) const;
             double              CalculateMassLossRateLBVBelczynski() const;
             double              CalculateMassLossRateNieuwenhuijzenDeJager() const;
             double              CalculateMassLossRateBjorklundEddingtonFactor() const;
-            double              CalculateMassLossRateOB(const OB_MASS_LOSS p_OB_mass_loss);
+            double              CalculateMassLossRateOB(const OB_MASS_LOSS_PRESCRIPTION p_OBMassLossPrescription);
             double              CalculateMassLossRateOBBjorklund2022() const;
             double              CalculateMassLossRateOBVink2001() const;
             double              CalculateMassLossRateOBKrticka2018() const;
             double              CalculateMassLossRateOBVinkSander2021() const;
-            double              CalculateMassLossRateRSG(const RSG_MASS_LOSS p_RSG_mass_loss) const;
+            double              CalculateMassLossRateRSG(const RSG_MASS_LOSS_PRESCRIPTION p_RSG_mass_loss);
             double              CalculateMassLossRateRSGVinkSabhahit2023() const;
             double              CalculateMassLossRateRSGBeasor2020() const;
             double              CalculateMassLossRateRSGDecin2023() const;
             double              CalculateMassLossRateRSGYang2023() const;
             double              CalculateMassLossRateRSGKee2021() const;
             double              CalculateMassLossRateVassiliadisWood() const;
-            double              CalculateMassLossRateVMS(const VMS_MASS_LOSS p_VMS_mass_loss);
+            double              CalculateMassLossRateVMS(const VMS_MASS_LOSS_PRESCRIPTION p_VMS_mass_loss);
             double              CalculateMassLossRateVMSBestenlehner2020() const;
             double              CalculateMassLossRateVMSSabhahit2023() const;
             double              CalculateMassLossRateVMSVink2011() const;
@@ -609,7 +610,7 @@ protected:
 
             void                CalculateRCoefficients(const double p_LogMetallicityXi, DBL_VECTOR &p_RCoefficients);
 
-            double              CalculateRotationalVelocity(double p_MZAMS) const;
+            double              CalculateRotationalVelocity(double p_MZAMS);
 
     virtual double              CalculateTauOnPhase() const                                                             { return m_Tau; }                                                           // Default is NO-OP
     virtual double              CalculateTauAtPhaseEnd() const                                                          { return m_Tau; }                                                           // Default is NO-OP
@@ -624,7 +625,7 @@ protected:
     virtual void                CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                             // Use class member variables
     virtual void                CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                                                              // Default is NO-OP
 
-            double              CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) const;
+            double              CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS);
 
             double              CalculateZetaAdiabaticHurley2002(const double p_CoreMass) const;
             double              CalculateZetaAdiabaticSPH(const double p_CoreMass) const;
@@ -649,7 +650,7 @@ protected:
                                                     const double p_COCoreMass,
                                                     const double p_Rand,
                                                     const double p_EjectaMass,
-                                                    const double p_RemnantMass) const;
+                                                    const double p_RemnantMass);
 
             double              CalculateLambdaNanjing() const;
     

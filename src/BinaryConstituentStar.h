@@ -18,7 +18,6 @@ public:
 
     BinaryConstituentStar() : Star() {
         m_ObjectId          = globalObjectId++;
-        m_ObjectType        = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;
         m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;
     };
 
@@ -29,7 +28,6 @@ public:
                           const double            p_RotationalVelocity = -1.0) : Star(p_RandomSeed, p_Mass, p_Metallicity, p_KickParameters, p_RotationalVelocity) {
 
         m_ObjectId                                   = globalObjectId++;
-        m_ObjectType                                 = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;
         m_ObjectPersistence                          = OBJECT_PERSISTENCE::PERMANENT;
 
         m_Companion                                  = nullptr;
@@ -80,7 +78,6 @@ public:
     BinaryConstituentStar(const BinaryConstituentStar& p_Star) : Star(p_Star) {
 
         m_ObjectId                 = globalObjectId++;                      // get unique object id (don't copy source)
-        m_ObjectType               = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;  // can only copy from BINARY_CONSTITUENT_STAR
         m_ObjectPersistence        = p_Star.m_ObjectPersistence;            // object persistence
 
         m_CEDetails                = p_Star.m_CEDetails;
@@ -147,7 +144,7 @@ public:
 
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const                                                { return m_ObjectId; }
-    OBJECT_TYPE         ObjectType() const                                              { return m_ObjectType; }
+    OBJECT_TYPE         ObjectType() const                                              { return OBJECT_TYPE::BINARY_CONSTITUENT_STAR; }
     OBJECT_PERSISTENCE  ObjectPersistence() const                                       { return m_ObjectPersistence; }
 
 
@@ -168,7 +165,7 @@ public:
     double          HeCoreMassAtCEE() const                                             { return m_CEDetails.HeCoreMass; }
 
     bool            IsRLOF() const                                                      { return m_RLOFDetails.isRLOF; }
-    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN() || IsAIC(); }
+    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN() || IsAIC() || IsSNIA() || IsSNII() || IsHeSD(); }
 
     double          LambdaAtCEE() const                                                 { return m_CEDetails.lambda; }
     double          LuminosityPostCEE() const                                           { return m_CEDetails.postCEE.luminosity; }
@@ -245,7 +242,6 @@ public:
 private:
 
     OBJECT_ID               m_ObjectId;                             // Instantiated object's unique object id
-    OBJECT_TYPE             m_ObjectType;                           // Instantiated object's object type
     OBJECT_PERSISTENCE      m_ObjectPersistence;                    // Instantiated object's persistence (permanent or ephemeral)
 
     // member variables - alphabetically

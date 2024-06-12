@@ -5,12 +5,11 @@
  *
  * Brief description (full documentation comes later...):
  *
- * Errors are defined in the error catalog in constants.h (ERROR_CATALOG).  One day we
- * might move the catalog to a file so it can be changed without changing the code, or
- * even have multiple catalogs provided for internationalisation - but not now.
+ * Errors are defined in the error catalog in constants.h (enum class ERROR and unordered map ERROR_CATALOG).
+ * One day we might move the catalog to a file so it can be changed without changing the code, or even have multiple catalogs provided
+ * for internationalisation - but not now.
  *
- * Errors defined in the error catalog have a scope and message text.  The scope is used
- * to determine when/if an error should be printed.
+ * Errors defined in the error catalog have a scope and message text.  The scope is used to determine when/if an error should be printed.
  *
  * The current values for scope are:
  *
@@ -26,26 +25,26 @@
  *                           an object (i.e. will print twice if encountered in the same function name in different objects)
  *
  *
- * The Errors class provides methods to print both warnings and errors - essentially the same thing,
- * but warning messages are prefixed with "WARNING:", whereas error messages are prefixed with "ERROR:".
+ * The Errors class provides methods to print both warnings and errors - essentially the same thing, but warning messages are prefixed 
+ * with "WARNING:", whereas error messages are prefixed with "ERROR:".
  *
  * Errors and warnings are printed by using the macros defined in ErrorsMacros.h.  They are:
  *
  * Error macros:
  *
- *    SHOW_ERROR(error_number)                       : prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog)
- *    SHOW_ERROR(error_number, error_string)         : prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), and appends "error_string"
- *    SHOW_ERROR_IF(cond, error_number)              : prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog) if "cond" is TRUE
- *    SHOW_ERROR_IF(cond, error_number, error_string): prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), and appends "error_string", if "cond" is TRUE
+ *    SHOW_ERROR(error_number)                       : prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), and sets m_Error
+ *    SHOW_ERROR(error_number, error_string)         : prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), appends "error_string", and sets m_Error
+ *    SHOW_ERROR_IF(cond, error_number)              : if "cond" is TRUE, prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), and sets m_Error
+ *    SHOW_ERROR_IF(cond, error_number, error_string): if "cond" is TRUE, prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), appends "error_string", and sets m_Error
  *
  * Warning macros:
  *
  *    SHOW_WARN(error_number)                        : prints "WARNING: " followed by the error message associated with "error_number" (from the error catalog)
  *    SHOW_WARN(error_number, error_string)          : prints "WARNING: " followed by the error message associated with "error_number" (from the error catalog), and appends "error_string"
- *    SHOW_WARN_IF(cond, error_number)               : prints "WARNING: " followed by the error message associated with "error_number" (from the error catalog) if "cond" is TRUE
- *    SHOW_WARN_IF(cond, error_number, error_string) : prints "WARNING: " followed by the error message associated with "error_number" (from the error catalog), and appends "error_string", if "cond" is TRUE
+ *    SHOW_WARN_IF(cond, error_number)               : if "cond" is TRUE, prints "WARNING: " followed by the error message associated with "error_number" (from the error catalog)
+ *    SHOW_WARN_IF(cond, error_number, error_string) : if "cond" is TRUE, prints "WARNING: " followed by the error message associated with "error_number" (from the error catalog), and appends "error_string"
  *
- * Error and warning message always contain:
+ * Error and warning messages displayed using the SHOW_ERROR and SHOW_WARNING macros always contain:
  *
  *    The object id of the calling object
  *    The object type of the calling object
@@ -54,14 +53,70 @@
  *
  * Notes:
  *
- * Any object that uses the Error class (i.e. the SHOW_* macros) *must* expose the following functions:
+ * Any object that uses the  non-static SHOW_* macros *must* expose the following variable:
+ * 
+ *    ERROR m_Error
+ * 
+ *  and the followingfunctions:
  *
- *    OBJECT_ID           ObjectId() const                            { return m_ObjectId; }
- *    OBJECT_TYPE         ObjectType() const                          { return m_ObjectType; }
- *    STELLAR_TYPE        StellarType() const                         { return m_StellarType; }
+ *    OBJECT_ID    ObjectId()    (would typically return m_ObjectId)
+ *    OBJECT_TYPE  ObjectType()  (would typically return m_ObjectType)
+ *    STELLAR_TYPE StellarType() (would typically return m_StellarType)
  *
- * These functions are called by the SHOW_* macros.
- * If any of the functions are not applicable to the object, then they must return "*::NONE (all objects should implement ObjectId() correctly)
+ * The variable "m_Error" is set by the SHOW_ERROR* macros, and the functions are called, by the SHOW_ERROR* and SHOW_WARN* macros.
+ * If any of the functions are not applicable to the object, then they must return "*::NONE" (all objects should implement ObjectId() correctly)
+ * 
+ * (Setting the variable "m_Error" by the macros was a bit of a toss-up - I didn't want to obscure the fact that "m_Error" needs to be se when
+ * an error ocuurs so it can be written correctly to the log files, but I also wanted to ensure it was set.  Setting it with the macros seemd
+ * to be the best compromise - it ensure that "m_Error" is set (if the macros are called), but doesn't preclude developers from explicitly
+ * setting it in the code to make clear what is happening.)
+ * 
+ * 
+ * An additional set of macros is provided to be used in static functions and other functions that are not contained within an instantiated 
+ * object (e.g. main()).  These are:
+ * 
+ * Static error macros:
+ *
+ *    SHOW_ERROR_STATIC(error_number)                       : prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog)
+ *    SHOW_ERROR_STATIC(error_number, error_string)         : prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), and appends "error_string"
+ *    SHOW_ERROR_IF_STATIC(cond, error_number)              : if "cond" is TRUE, prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog)
+ *    SHOW_ERROR_IF_STATIC(cond, error_number, error_string): if "cond" is TRUE, prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), and appends "error_string"
+ *
+ * Static warning macros:
+ *
+ *    SHOW_WARN_STATIC(error_number)                        : prints "WARNING: " followed by the error message associated with "error_number" (from the error catalog)
+ *    SHOW_WARN_STATIC(error_number, error_string)          : prints "WARNING: " followed by the error message associated with "error_number" (from the error catalog), and appends "error_string"
+ *    SHOW_WARN_IF_STATIC(cond, error_number)               : if "cond" is TRUE, prints "WARNING: " followed by the error message associated with "error_number" (from the error catalog)
+ *    SHOW_WARN_IF_STATIC(cond, error_number, error_string) : if "cond" is TRUE, prints "WARNING: " followed by the error message associated with "error_number" (from the error catalog), and appends "error_string"
+ *
+ * Error and warning messages displayed using the static SHOW_ERROR and SHOW_WARNING macros will always contain:
+ *
+ *    The function name of the calling function
+ *
+ * but will not contain:
+ *
+ *    The object id of the calling object (not available in static functions)
+ *    The object type of the calling object (doesn't add enough information on its own)
+ *    The stellar type of the calling object (not available in static functions)
+ * 
+ * The static SHOW_ERROR* macros do not set the variable "m_Error", nor do the static SHOW_ERROR* and SHOW_WARN* macros call the functions listed above.
+ *
+ * 
+ * Another additional set of macros is provided, for both static and non-static functions, that will, after displaying an error (as described above),
+ * throw an exception and cause the ordinary program flow to be interrupted.  These are:
+ *
+ *    THROW_ERROR(error_number)                              : displays the error (as described above), sets m_Error, then throws exception
+ *    THROW_ERROR(error_number, error_string)                : displays the error (as described above), sets m_Error, then throws exception
+ *    THROW_ERROR_IF(cond, error_number)                     : if "cond" is TRUE, displays the error (as described above), sets m_Error, then throws exception
+ *    THROW_ERROR_IF(cond, error_number, error_string)       : if "cond" is TRUE, displays the error (as described above), sets m_Error, then throws exception
+ *
+ *    THROW_ERROR_STATIC(error_number)                       : displays the error (as described above), then throws exception
+ *    THROW_ERROR_STATIC(error_number, error_string)         : displays the error (as described above), then throws exception
+ *    THROW_ERROR_IF_STATIC(cond, error_number)              : if "cond" is TRUE, displays the error (as described above), then throws exception
+ *    THROW_ERROR_IF_STATIC(cond, error_number, error_string): if "cond" is TRUE, displays the error (as described above), then throws exception
+ * 
+ * In each case, the exception thrown by the THROW* macros is "error_number" cast as an integer, so it can be caught by using "catch (int e)" and inspecting "e".
+ * 
  */
 
 

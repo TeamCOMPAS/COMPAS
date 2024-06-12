@@ -145,9 +145,7 @@ public:
     BaseBinaryStar(const BaseBinaryStar& p_Star) {
 
         m_ObjectId          = globalObjectId++;                     // get unique object id (don't copy source)
-        m_ObjectType        = OBJECT_TYPE::BASE_BINARY_STAR;        // can only copy from BASE_BINARY_STAR
         m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;        // permanent - not an ephemeral clone
-        m_StellarType       = STELLAR_TYPE::BINARY_STAR;            // always
 
         CopyMemberVariables(p_Star);                                // copy member variables
     }
@@ -158,9 +156,9 @@ public:
 
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const                            { return m_ObjectId; }
-    OBJECT_TYPE         ObjectType() const                          { return m_ObjectType; }
+    OBJECT_TYPE         ObjectType() const                          { return OBJECT_TYPE::BASE_BINARY_STAR; }
     OBJECT_PERSISTENCE  ObjectPersistence() const                   { return m_ObjectPersistence; }
-    STELLAR_TYPE        StellarType() const                         { return m_StellarType; }
+    STELLAR_TYPE        StellarType() const                         { return STELLAR_TYPE::BINARY_STAR; }
     long int            Id() const                                  { return m_Id; }
 
 
@@ -290,9 +288,7 @@ private:
     BaseBinaryStar() { }
 
     OBJECT_ID           m_ObjectId;                                                         // Instantiated object's unique object id
-    OBJECT_TYPE         m_ObjectType;                                                       // Instantiated object's object type
     OBJECT_PERSISTENCE  m_ObjectPersistence;                                                // Instantiated object's persistence (permanent or ephemeral)
-    STELLAR_TYPE        m_StellarType;                                                      // Stellar type defined in Hurley et al. 2000
     long int            m_Id;                                                               // Id used to name detailed output file - uses p_Id as passed (usually the index number of multiple binaries being produced)
 
     ERROR               m_Error;                                                            // Records most recent error encountered for this binary
@@ -422,9 +418,9 @@ private:
 
     void    CalculateEnergyAndAngularMomentum();
 
-    double CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity);
-    double CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_I1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity);
-    double CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity);
+    double  CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Mass, const double p_Radius, const double p_Mass2);
+    double  CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Radius, const double p_MoI, const double p_Mass2);
+    double  CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Mass, const double p_Radius, const double p_Mass2);
 
     double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass);
     double  CalculateGammaAngularMomentumLoss()                                 { return CalculateGammaAngularMomentumLoss(m_Donor->Mass(), m_Accretor->Mass()); }
@@ -449,7 +445,7 @@ private:
                                    const double p_Mass,
                                    const double p_SemiMajorAxis) const          { return -(G_AU_Msol_yr * p_Mu * p_Mass) / (2.0 * p_SemiMajorAxis); }
 
-    double CalculateZetaRocheLobe(const double p_jLoss, const double p_beta) const;
+    double  CalculateZetaRocheLobe(const double p_jLoss, const double p_beta) const;
 
     double  CalculateTimeToCoalescence(double a0, double e0, double m1, double m2) const;
 
@@ -467,13 +463,15 @@ private:
 
     void    EvaluateSupernovae();
 
-    void    EvolveOneTimestep(const double p_Dt);
+    ERROR   EvolveOneTimestep(const double p_Dt);
     void    EvolveOneTimestepPreamble(const double p_Dt);
+
+    void    ProcessTides(const double p_Dt);
 
     void    ResolveCoalescence();
     void    ResolveCommonEnvelopeEvent();
     void    ResolveMassChanges();
-    bool    ResolveSupernova();
+    void    ResolveSupernova();
 
     void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
     void    SetRemainingValues();

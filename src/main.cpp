@@ -13,7 +13,6 @@
 
 #include <memory>
 #include <stdexcept> 
-#include <setjmp.h>
 #include <cstring>
 #include <execinfo.h>
 
@@ -124,7 +123,10 @@ void SIGFPEhandler(int p_Sig) {
             utils::ShowStackTrace(); 
         }        
     }
-    else std::cerr << "\nUnexpected signal encountered: program terminated\n";
+    else {
+        std::cerr << "\nUnexpected signal encountered: program terminated\n";
+        utils::ShowStackTrace(); 
+    }
     std::exit(1);                                               // catch-all in case we're here when we shouldn't be
 }
 
@@ -132,10 +134,10 @@ void SIGFPEhandler(int p_Sig) {
 class Star;
 class BinaryStar;
 
-OBJECT_ID          ObjectId()          { return m_ObjectId; }
-OBJECT_TYPE        ObjectType()        { return OBJECT_TYPE::MAIN; }
-OBJECT_PERSISTENCE ObjectPersistence() { return OBJECT_PERSISTENCE::PERMANENT; }
-STELLAR_TYPE       StellarType()       { return STELLAR_TYPE::NONE; }
+//OBJECT_ID          ObjectId()          { return m_ObjectId; }
+//OBJECT_TYPE        ObjectType()        { return OBJECT_TYPE::MAIN; }
+//OBJECT_PERSISTENCE ObjectPersistence() { return OBJECT_PERSISTENCE::PERMANENT; }
+//STELLAR_TYPE       StellarType()       { return STELLAR_TYPE::NONE; }
 
 
 // The following global variables support the BSE Switch Log file
@@ -146,7 +148,7 @@ STELLAR_TYPE       StellarType()       { return STELLAR_TYPE::NONE; }
 // implement it)
 
 BinaryStar* evolvingBinaryStar      = NULL;             // pointer to the currently evolving Binary Star
-bool        evolvingBinaryStarValid = false;            // flag to indicate whether the evolvingBinaryStar pointer is valid
+bool        evolvingBinaryStarValid = false;            // flag to indicate whether the evolving BinaryStar pointer is valid
 
 /*
  * SIGUSR1 signal handler
@@ -195,6 +197,28 @@ void SIGUSR1handler(int p_Sig) {
     }
 }
 
+/*
+ * SIGUSR2 signal handler
+ * 
+ * Only handles SIGUSR2.
+ * 
+ * DESCRIPTION HERE - JR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ * 
+ *   raise(SIGUSR2);
+ *
+ * void SIGUSR2handler(int p_Sig)
+ * 
+ * @param   [IN]        p_Sig                   The signal intercepted
+ *  
+ */
+void SIGUSR2handler(int p_Sig) {
+    if (p_Sig == SIGUSR2) {                                      // SIGUSR2?  Just silently ignore anything else...
+        std::cerr << "\nSIGUSR2 raised: program terminated\n";
+        utils::ShowStackTrace(); 
+        std::exit(1);
+    }
+}
+
 
 /*
  * Evolve single stars
@@ -209,8 +233,8 @@ std::tuple<int, int> EvolveSingleStars() {
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
     EVOLUTION_STATUS thisStarStatus  = EVOLUTION_STATUS::NOT_STARTED;
 
-    auto    wallStart  = std::chrono::system_clock::now();                                                          // start wall timer
-    clock_t clockStart = clock();                                                                                   // start CPU timer
+    auto    wallStart  = std::chrono::system_clock::now();                                                                  // start wall timer
+    clock_t clockStart = clock();                                                                                           // start CPU timer
 
     std::time_t timeStart = std::chrono::system_clock::to_time_t(wallStart);
     SAY("Start generating stars at " << std::ctime(&timeStart));
@@ -218,261 +242,271 @@ std::tuple<int, int> EvolveSingleStars() {
     // generate and evolve stars
 
     Star*  star      = nullptr;
-    bool   usingGrid = !OPTIONS->GridFilename().empty();                                                            // using grid file?
-    size_t index     = 0;                                                                                           // which star
+    bool   usingGrid = !OPTIONS->GridFilename().empty();                                                                    // using grid file?
+    size_t index     = 0;                                                                                                   // which star
 
     // The options specified by the user at the commandline are set to their initial values.
     // OPTIONS->AdvanceCmdLineOptionValues(), called at the end of the loop, advances the
     // options specified by the user at the commandline to their next variation (if necessary,
     // based on any ranges and/or sets specified by the user).
 
-    while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                         // while all ok
+    while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                 // while all ok
 
-        // generate and evolve stars
+        try {
 
-        int gridLineVariation   = 0;                                                                                // grid line variation number
-        bool doneGridFile       = false;                                                                            // flags we're done with the grid file (for this commandline variation)
-        bool processingGridLine = false;                                                                            // processing a gridfile line?
-        while (!doneGridFile && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                    // for each star to be evolved
+            // generate and evolve stars
 
-            try {
-                if (OPTIONS->FPErrorMode() != FP_ERROR_MODE::OFF) {                                                 // floating-point error handling mode on/debug?
-                    feclearexcept(FE_ALL_EXCEPT);                                                                   // yes - clear all FE traps
-                    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);                         // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
+            int gridLineVariation   = 0;                                                                                    // grid line variation number
+            bool doneGridFile       = false;                                                                                // flags we're done with the grid file (for this commandline variation)
+            bool processingGridLine = false;                                                                                // processing a gridfile line?
+            while (!doneGridFile && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                        // for each star to be evolved
+
+                if (OPTIONS->FPErrorMode() != FP_ERROR_MODE::OFF) {                                                         // floating-point error handling mode on/debug?
+                    feclearexcept(FE_ALL_EXCEPT);                                                                           // yes - clear all FE traps
+                    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);                                 // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
                 }
 
-            bool doneGridLine = false;                                                                              // initially
-            if (usingGrid) {                                                                                        // using grid file?
-                gridLineVariation = 0;                                                                              // yes - first variation of this grid line
-                int gridResult = OPTIONS->ApplyNextGridLine();                                                      // set options according to specified values in grid file              
-                ERROR error;
-                switch (gridResult) {                                                                               // handle result of grid file read
-                    case -1:                                                                                        // error - unexpected end of grid file
-                    case -2:                                                                                        // error - read error for grid file
-                    case -3: {                                                                                      // error - invalid value in grid file
-                        switch (gridResult) {
-                            case -1: error = ERROR::UNEXPECTED_END_OF_FILE; break;  
-                            case -2: error = ERROR::FILE_READ_ERROR; break;  
-                            case -3: error = ERROR::INVALID_VALUE_IN_FILE; break;
-                            default: error = ERROR::FILE_READ_ERROR; break;
-                        }
+                bool doneGridLine = false;                                                                                  // initially
+                if (usingGrid) {                                                                                            // using grid file?
+                    gridLineVariation = 0;                                                                                  // yes - first variation of this grid line
+                    int gridResult = OPTIONS->ApplyNextGridLine();                                                          // set options according to specified values in grid file              
+                    ERROR error;
+                    switch (gridResult) {                                                                                   // handle result of grid file read
+                        case -1:                                                                                            // error - unexpected end of grid file
+                        case -2:                                                                                            // error - read error for grid file
+                        case -3: {                                                                                          // error - invalid value in grid file
+                            switch (gridResult) {
+                                case -1: error = ERROR::UNEXPECTED_END_OF_FILE; break;  
+                                case -2: error = ERROR::FILE_READ_ERROR; break;  
+                                case -3: error = ERROR::INVALID_VALUE_IN_FILE; break;
+                                default: error = ERROR::FILE_READ_ERROR; break;
+                            }
 
-                        SHOW_ERROR(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'");                 // show error
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // stop evolution
-                    } break;
-                    case  0: {                                                                                      // end of file
-                        doneGridLine = true;                                                                        // flag we're done with this grid line
-                        doneGridFile = true;                                                                        // flag we're done with the grid file
-                        error = OPTIONS->RewindGridFile();                                                          // ready for next commandline options variation
-                        if (error != ERROR::NONE) {                                                                 // rewind ok?
-                            SHOW_ERROR(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'");             // no - show error (should never happen here - should be picked up at file open)
-                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // stop evolution
-                        }
+                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                                      // set status
+                            THROW_ERROR_STATIC(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'");             // throw error
                         } break;
-                    case  1:                                                                                        // grid line read
-                        processingGridLine = true;                                                                  // not done yet...
-                        break;
-                    default:                                                                
-                        SHOW_ERROR(ERROR::ERROR, "Accessing grid file '" + OPTIONS->GridFilename() + "'");          // unexpected error - show error
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // stop evolution
-                        break;
-                }
-            }
-            else {                                                                                                  // no, not using a grid file
-                doneGridFile = true;                                                                                // flag we're done with the grid file
-            }
 
+                        case  0: {                                                                                          // end of file
+                            doneGridLine = true;                                                                            // flag we're done with this grid line
+                            doneGridFile = true;                                                                            // flag we're done with the grid file
+                            error = OPTIONS->RewindGridFile();                                                              // ready for next commandline options variation
+                            if (error != ERROR::NONE) {                                                                     // rewind ok?
+                                evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // no - should never happen here - should be picked up at file open
+                                THROW_ERROR_STATIC(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'");         // throw error
+                            }
+                            } break;
 
-            // The options specified by the user in the grid file line are set to their initial values.
-            // (by OPTIONS->ApplyNextGridLine()).
-            // OPTIONS->AdvanceGridLineOptionValues(), called at the end of the loop, advances the
-            // options specified by the user in the grid file line to their next variation (if necessary,
-            // based on any ranges and/or sets specified by the user).
-            // Note that `doneGridLine` may be a proxy for the command line here (it is set FALSE even if
-            // there is no grid file - so the loop executes once to process the command line)
+                        case  1:                                                                                            // grid line read
+                            processingGridLine = true;                                                                      // not done yet...
+                            break;
 
-            while (!doneGridLine && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                // while all ok and not done
-
-                // Single stars (in SSE) are provided with a random seed that is used to seed the random 
-                // number generator.  The random number generator is re-seeded for each star.  Here we 
-                // generate the seed for the star being evolved - by this point we have picked up the 
-                // option value from either the commandline or the grid file.
-                //
-                // there are three scenarios:
-                //
-                // if the user did not specify a random seed, either on the commandline or in a grid file
-                // record, we use a randomly chosen seed, based on the system time.
-                //
-                // if the user specified a random seed on the commandline, and not in the grid file for
-                // the current star, the random seed specified on the commandline is used - and the offset 
-                // applied (the index of the star being evolved).  The index of the star being evolved 
-                // starts at 0 for the first star, and increments by 1 for each subsequent star evolved
-                // (so the base random seed specified by the user is also the initial random seed - the 
-                // random seed of the first star evolved)
-                //
-                // if the user specified a random seed in the grid file for the current star, regardless of
-                // whether a random seed was specified on the commandline, the random seed from the grid
-                // file is used, and an offset is added if the grid line also specified ranges or sets for
-                // and options (if no rangers or sets were specified on the grid line then no offset is added
-                // (i.e. the random seed specified is used as it)).  Note that in this scenario it is the 
-                // user's responsibility to ensure that there is no duplication of seeds.
-
-                unsigned long int randomSeed = 0l;                                                                  // random seed
-                OPTIONS_ORIGIN    optsOrigin = processingGridLine ? OPTIONS_ORIGIN::GRIDFILE : OPTIONS_ORIGIN::CMDLINE; // indicate which set of program options we're using
-                if (OPTIONS->FixedRandomSeedGridLine()) {                                                           // user specified a random seed in the grid file for this binary?
-                                                                                                                    // yes - use it (indexed)
-                    randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;              // random seed               
-                    if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
-                        SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                       // no - show error
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // and stop evolution
+                        default:                                                                                            // unexpected error
+                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                                      // set status
+                            THROW_ERROR_STATIC(ERROR::ERROR, "Accessing grid file '" + OPTIONS->GridFilename() + "'");      // throw error
+                            break;
                     }
                 }
-                else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                       // no - user specified a random seed on the commandline?
-                                                                                                                    // yes - use it (indexed)
-                    randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index;                           // random seed               
-                    if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
-                        SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                        // no - show error
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // and stop evolution
-                    }
-                }
-                else {                                                                                              // no
-                                                                                                                    // use default seed (based on system time) + id (index)
-                    randomSeed = RAND->DefaultSeed() + (unsigned long int)index;                                    // random seed               
-                    if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
-                        SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                        // no - show error
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // and stop evolution
-                    }
+                else {                                                                                                      // no, not using a grid file
+                    doneGridFile = true;                                                                                    // flag we're done with the grid file
                 }
 
-                if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                // ok?
-                                                                                                                    // yes - continue
-                    randomSeed = RAND->CurrentSeed();                                                               // current random seed - to pass to star object
 
-                    // the initial mass of the star is supplied - this is to allow binary stars to initialise
-                    // the masses of their constituent stars (rather than have the constituent stars sample 
-                    // their own mass).  Here we use the mass supplied by the user via the program options or, 
-                    // if no mass was supplied by the user, sample the mass from the IMF.
+                // The options specified by the user in the grid file line are set to their initial values.
+                // (by OPTIONS->ApplyNextGridLine()).
+                // OPTIONS->AdvanceGridLineOptionValues(), called at the end of the loop, advances the
+                // options specified by the user in the grid file line to their next variation (if necessary,
+                // based on any ranges and/or sets specified by the user).
+                // Note that `doneGridLine` may be a proxy for the command line here (it is set FALSE even if
+                // there is no grid file - so the loop executes once to process the command line)
 
-                    double initialMass = OPTIONS->OptionSpecified("initial-mass") == 1                              // user specified mass?
-                                            ? OPTIONS->InitialMass()                                                // yes, use it
-                                            : utils::SampleInitialMass(OPTIONS->InitialMassFunction(),              // no, sample it
-                                                                       OPTIONS->InitialMassFunctionMax(), 
-                                                                       OPTIONS->InitialMassFunctionMin(), 
-                                                                       OPTIONS->InitialMassFunctionPower());
+                while (!doneGridLine && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                    // while all ok and not done
 
-                    // the metallicity of the star is supplied - this is to allow binary stars to initialise
-                    // the metallicity of their constituent stars (rather than have the constituent stars sample 
-                    // their own metallicity).  Here we use the mmetallicityass supplied by the user via the program
-                    // options or, if no metallicity was supplied by the user, sample the metallicity.
-
-                    double metallicity = OPTIONS->OptionSpecified("metallicity") == 1                               // user specified metallicity?
-                                            ? OPTIONS->Metallicity()                                                // yes, use it
-                                            : utils::SampleMetallicity(OPTIONS->MetallicityDistribution(), 
-                                                                       OPTIONS->MetallicityDistributionMax(), 
-                                                                       OPTIONS->MetallicityDistributionMin());      // no, sample it
-
-
-
-                    // Single stars (in SSE) are provided with a kick structure that specifies the 
-                    // values of the random number to be used to generate to kick magnitude, and the
-                    // actual kick magnitude specified by the user via program option --kick-magnitude       
+                    // Single stars (in SSE) are provided with a random seed that is used to seed the random 
+                    // number generator.  The random number generator is re-seeded for each star.  Here we 
+                    // generate the seed for the star being evolved - by this point we have picked up the 
+                    // option value from either the commandline or the grid file.
                     //
-                    // See typedefs.h for the kick structure.
+                    // There are three scenarios:
                     //
-                    // We can't just pick up the values of the options inside Basestar.cpp because the
-                    // constituents of binaries get different values, so use different options. The
-                    // Basestar.cpp code doesn't know if the star is a single star (SSE) or a constituent
-                    // of a binary (BSE) - it only knows that it is a star - so we have to setup the kick
-                    // structure here.
+                    // if the user did not specify a random seed, either on the commandline or in a grid file
+                    // record, we use a randomly chosen seed, based on the system time.
                     //
-                    // for SSE only need magnitudeRandom and magnitude - other values can just be ignored
+                    // if the user specified a random seed on the commandline, and not in the grid file for
+                    // the current star, the random seed specified on the commandline is used - and the offset 
+                    // applied (the index of the star being evolved).  The index of the star being evolved 
+                    // starts at 0 for the first star, and increments by 1 for each subsequent star evolved
+                    // (so the base random seed specified by the user is also the initial random seed - the 
+                    // random seed of the first star evolved)
+                    //
+                    // if the user specified a random seed in the grid file for the current star, regardless of
+                    // whether a random seed was specified on the commandline, the random seed from the grid
+                    // file is used, and an offset is added if the grid line also specified ranges or sets for
+                    // and options (if no rangers or sets were specified on the grid line then no offset is added
+                    // (i.e. the random seed specified is used as it)).  Note that in this scenario it is the 
+                    // user's responsibility to ensure that there is no duplication of seeds.
 
-                    KickParameters kickParameters;
-                    kickParameters.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random") == 1;
-                    kickParameters.magnitudeRandom          = OPTIONS->KickMagnitudeRandom();
-                    kickParameters.magnitudeSpecified       = OPTIONS->OptionSpecified("kick-magnitude") == 1;
-                    kickParameters.magnitude                = OPTIONS->KickMagnitude();
+                    unsigned long int randomSeed = 0l;                                                                      // random seed
+                    OPTIONS_ORIGIN    optsOrigin = processingGridLine ? OPTIONS_ORIGIN::GRIDFILE : OPTIONS_ORIGIN::CMDLINE; // indicate which set of program options we're using
+                    if (OPTIONS->FixedRandomSeedGridLine()) {                                                               // user specified a random seed in the grid file for this binary?
+                                                                                                                                // yes - use it (indexed)
+                        randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;                  // random seed               
+                        if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                           // ok?
+                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                                      // no - set status
+                            THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                   // throw error
+                        }
+                    }
+                    else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                           // no - user specified a random seed on the commandline?
+                                                                                                                                // yes - use it (indexed)
+                        randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index;                               // random seed               
+                        if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                           // ok?
+                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                                      // no - set status
+                            THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                    // throw error
+                        }
+                    }
+                    else {                                                                                                  // no
+                                                                                                                                // use default seed (based on system time) + id (index)
+                        randomSeed = RAND->DefaultSeed() + (unsigned long int)index;                                        // random seed               
+                        if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                           // ok?
+                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                                      // no - set status
+                            THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                    // throw error
+                        }
+                    }
+
+                    if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                    // ok?
+                                                                                                                                // yes - continue
+                        randomSeed = RAND->CurrentSeed();                                                                   // current random seed - to pass to star object
+
+                        // the initial mass of the star is supplied - this is to allow binary stars to initialise
+                        // the masses of their constituent stars (rather than have the constituent stars sample 
+                        // their own mass).  Here we use the mass supplied by the user via the program options or, 
+                        // if no mass was supplied by the user, sample the mass from the IMF.
+
+                        double initialMass = OPTIONS->OptionSpecified("initial-mass") == 1                                  // user specified mass?
+                                                ? OPTIONS->InitialMass()                                                    // yes, use it
+                                                : utils::SampleInitialMass(OPTIONS->InitialMassFunction(),                  // no, sample it
+                                                                           OPTIONS->InitialMassFunctionMax(), 
+                                                                           OPTIONS->InitialMassFunctionMin(), 
+                                                                           OPTIONS->InitialMassFunctionPower());
+
+                        // the metallicity of the star is supplied - this is to allow binary stars to initialise
+                        // the metallicity of their constituent stars (rather than have the constituent stars sample 
+                        // their own metallicity).  Here we use the mmetallicityass supplied by the user via the program
+                        // options or, if no metallicity was supplied by the user, sample the metallicity.
+
+                        double metallicity = OPTIONS->OptionSpecified("metallicity") == 1                                   // user specified metallicity?
+                                                ? OPTIONS->Metallicity()                                                    // yes, use it
+                                                : utils::SampleMetallicity(OPTIONS->MetallicityDistribution(), 
+                                                                           OPTIONS->MetallicityDistributionMax(), 
+                                                                           OPTIONS->MetallicityDistributionMin());          // no, sample it
+
+                        // Single stars (in SSE) are provided with a kick structure that specifies the 
+                        // values of the random number to be used to generate to kick magnitude, and the
+                        // actual kick magnitude specified by the user via program option --kick-magnitude       
+                        //
+                        // See typedefs.h for the kick structure.
+                        //
+                        // We can't just pick up the values of the options inside Basestar.cpp because the
+                        // constituents of binaries get different values, so use different options. The
+                        // Basestar.cpp code doesn't know if the star is a single star (SSE) or a constituent
+                        // of a binary (BSE) - it only knows that it is a star - so we have to setup the kick
+                        // structure here.
+                        //
+                        // for SSE only need magnitudeRandom and magnitude - other values can just be ignored
+
+                        KickParameters kickParameters;
+                        kickParameters.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random") == 1;
+                        kickParameters.magnitudeRandom          = OPTIONS->KickMagnitudeRandom();
+                        kickParameters.magnitudeSpecified       = OPTIONS->OptionSpecified("kick-magnitude") == 1;
+                        kickParameters.magnitude                = OPTIONS->KickMagnitude();
                        
-                    // create the star
-                    delete star; star = nullptr;                                                                    // so we don't leak...
-                    star = OPTIONS->OptionSpecified("rotational-frequency") == 1                                    // user specified rotational frequency?
-                        ? new Star(randomSeed, initialMass, metallicity, kickParameters, OPTIONS->RotationalFrequency() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
-                        : new Star(randomSeed, initialMass, metallicity, kickParameters);                           // no - let it be calculated
+                        // create the star
+                        delete star; star = nullptr;                                                                        // so we don't leak...
+                        star = OPTIONS->OptionSpecified("rotational-frequency") == 1                                        // user specified rotational frequency?
+                                ? new Star(randomSeed, initialMass, metallicity, kickParameters, OPTIONS->RotationalFrequency() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
+                                : new Star(randomSeed, initialMass, metallicity, kickParameters);                           // no - let it be calculated
 
-                    thisStarStatus = EVOLUTION_STATUS::STARTED;
+                        thisStarStatus = EVOLUTION_STATUS::STARTED;
 
-                    thisStarStatus = star->Evolve(index);                                                           // evolve the star
+                        thisStarStatus = star->Evolve(index);                                                               // evolve the star
 
-                    // announce the result
-                    if (!OPTIONS->Quiet()) {                                                                        // quiet mode?
-                        SAY(index                                     <<                                            // announce result of evolving the star
-                            ": "                                      <<
-                            EVOLUTION_STATUS_LABEL.at(thisStarStatus) <<                  
-                            ": RandomSeed = "                         <<
-                            star->RandomSeed()                        <<
-                            ", Initial Mass = "                       <<
-                            star->MZAMS()                             <<
-                            ", Metallicity = "                        <<
-                            star->Metallicity()                       <<
-                            ", "                                      <<
-                            STELLAR_TYPE_LABEL.at(star->StellarType()));
-                    }
-
-                    if (!LOGGING->CloseStandardFile(LOGFILE::SSE_DETAILED_OUTPUT)) {                                // close SSE detailed output file if necessary
-                        SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                          // close failed - show warning
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // this will cause problems later - stop evolution
-                    }
-
-                    ERRORS->Clean();                                                                                // clean the dynamic error catalog
-
-                    index++;                                                                                        // next...
-
-                    if (usingGrid) {                                                                                // using grid file?
-                        gridLineVariation++;                                                                        // yes - increment grid line variation number
-                        int optionsStatus = OPTIONS->AdvanceGridLineOptionValues();                                 // apply next grid file options (ranges/sets)
-                        if (optionsStatus < 0) {                                                                    // ok?
-                            SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                   // no - show error
-                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // and stop evolution
+                        // announce the result
+                        if (!OPTIONS->Quiet()) {                                                                            // quiet mode?
+                            SAY(index                                     <<                                                // announce result of evolving the star
+                                ": "                                      <<
+                                EVOLUTION_STATUS_LABEL.at(thisStarStatus) <<                  
+                                ": RandomSeed = "                         <<
+                                star->RandomSeed()                        <<
+                                ", Initial Mass = "                       <<
+                                star->MZAMS()                             <<
+                                ", Metallicity = "                        <<
+                                star->Metallicity()                       <<
+                                ", "                                      <<
+                                STELLAR_TYPE_LABEL.at(star->StellarType()));
                         }
-                        else if (optionsStatus == 0) {                                                              // end of grid file options variations?
-                            doneGridLine = true;                                                                    // yes - we're done
+
+                        if (!LOGGING->CloseStandardFile(LOGFILE::SSE_DETAILED_OUTPUT)) {                                    // close SSE detailed output file if necessary
+                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                                      // close failed - this will cause problems later - set status
+                            THROW_ERROR_STATIC(ERROR::FILE_NOT_CLOSED);                                                     // throw error
                         }
+
+                        ERRORS->Clean();                                                                                    // clean the dynamic error catalog
+
+                        index++;                                                                                            // next...
+
+                        if (usingGrid) {                                                                                    // using grid file?
+                            gridLineVariation++;                                                                            // yes - increment grid line variation number
+                            int optionsStatus = OPTIONS->AdvanceGridLineOptionValues();                                     // apply next grid file options (ranges/sets)
+                            if (optionsStatus < 0) {                                                                        // ok?
+                                evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // no - set status
+                                THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                               // throw error
+                            }
+                            else if (optionsStatus == 0) {                                                                  // end of grid file options variations?
+                                doneGridLine = true;                                                                        // yes - we're done
+                            }
+                        }
+                        else doneGridLine = true;                                                                           // not using grid file - done    
                     }
-                    else doneGridLine = true;                                                                       // not using grid file - done    
                 }
             }
-            
-            }
-            catch (const std::runtime_error& e) {                                                                       // catch runtime exceptions
-                evolutionStatus = EVOLUTION_STATUS::ERROR;                                                              // evolution terminated
-//                if (std::string(e.what()) == "FPE") m_Star->SetError(ERROR::FLOATING_POINT_ERROR);                      // floating-point error
-//                else                                m_Star->SetError(ERROR::ERROR);                                     // unspecified error
-            }
-            catch (int e) {
-                evolutionStatus = EVOLUTION_STATUS::ERROR;                                                              // evolution terminated
-//                if (e != static_cast<int>(ERROR::NONE)) m_Star->SetError(static_cast<ERROR>(e));                        // specified errpr
-//                else                                    m_Star->SetError(ERROR::ERROR);                                 // unspecified error
-            }
-            catch (...) {
-                evolutionStatus = EVOLUTION_STATUS::ERROR;                                                              // evolution terminated
-//                m_Star->SetError(ERROR::ERROR);                                                                         // unspecified error
-            }
-
-
-        }
-        delete star; star = nullptr;                                                                                // so we don't leak...
+            delete star; star = nullptr;                                                                                    // so we don't leak...
     
-        if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                        // ok?
-            int optionsStatus = OPTIONS->AdvanceCmdLineOptionValues();                                              // yes - apply next commandline options (ranges/sets)
-            if (optionsStatus < 0) {                                                                                // ok?
-                SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                                // no - show error
-                evolutionStatus = EVOLUTION_STATUS::ERROR;                                                          // and stop evolution
-            }
-            else if (optionsStatus == 0) {                                                                          // end of options variations?
-                if (usingGrid || OPTIONS->CommandLineGrid() || (!usingGrid && index >= OPTIONS->nObjectsToEvolve())) { // created required number of stars?
-                    evolutionStatus = EVOLUTION_STATUS::DONE;                                                       // yes - we're done
+            if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                            // ok?
+                int optionsStatus = OPTIONS->AdvanceCmdLineOptionValues();                                                  // yes - apply next commandline options (ranges/sets)
+                if (optionsStatus < 0) {                                                                                    // ok?
+                    evolutionStatus = EVOLUTION_STATUS::ERROR;                                                              // no - set status
+                    THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                            // throw error
+                }
+                else if (optionsStatus == 0) {                                                                              // end of options variations?
+                    if (usingGrid || OPTIONS->CommandLineGrid() || (!usingGrid && index >= OPTIONS->nObjectsToEvolve())) {  // created required number of stars?
+                        evolutionStatus = EVOLUTION_STATUS::DONE;                                                           // yes - we're done
+                    }
                 }
             }
+        }
+
+        // if we catch an error here it happened outside the evolution of a star - meaning that there is a problem
+        // in recording the results of the evolution of the last star evolved, or in setting up the next star to be
+        // evolved - either way we should halt the program here because this could result in undefined behavious and
+        // results that can't be trusted. So here we just report the eroor, report what we got up to (how many stars
+        // were evolved before this happened), and terminate the program.
+
+        catch (const std::runtime_error& e) {                                                                               // catch runtime exceptions
+            // anything we catch here should not already have been displayed to the user,
+            // so display the error and flag termination (do not rethrow the error)
+            if (std::string(e.what()) == "FPE") SHOW_ERROR_STATIC(ERROR::FLOATING_POINT_ERROR)                              // floating-point error
+            else                                SHOW_ERROR_STATIC(ERROR::ERROR)                                             // unspecified error
+            evolutionStatus = EVOLUTION_STATUS::ERROR;                                                                      // set status
+        }
+        catch (int e) {                                                                                                     // catch errors thrown
+            // anything we catch here should already have been displayed to the user,
+            // so just flag termination
+            evolutionStatus = EVOLUTION_STATUS::ERROR;                                                                      // evolution terminated
+        }
+        catch (...) {                                                                                                       // catchall
+            // anything we catch here should not already have been displayed to the user,
+            // so display the error and flag termination (do not rethrow the error)
+            SHOW_ERROR_STATIC(ERROR::ERROR);                                                                                // unspecified error
+            evolutionStatus = EVOLUTION_STATUS::ERROR;                                                                      // evolution terminated
         }
     }
 
@@ -482,38 +516,38 @@ std::tuple<int, int> EvolveSingleStars() {
 
     // announce result
     if (!OPTIONS->Quiet()) {
-        if (evolutionStatus != EVOLUTION_STATUS::CONTINUE) {                                                        // shouldn't be
+        if (evolutionStatus != EVOLUTION_STATUS::CONTINUE) {                                                                // shouldn't be
             SAY("\n" << EVOLUTION_STATUS_LABEL.at(evolutionStatus));
         }
         else {
-            SHOW_WARN(ERROR::STELLAR_SIMULATION_STOPPED, EVOLUTION_STATUS_LABEL.at(EVOLUTION_STATUS::ERROR));       // show warning
+            SHOW_WARN_STATIC(ERROR::STELLAR_SIMULATION_STOPPED, EVOLUTION_STATUS_LABEL.at(EVOLUTION_STATUS::ERROR));        // show warning
         }
     }
 
     // close SSE logfiles
     // don't check result here - let log system handle it
-    (void)LOGGING->CloseAllStandardFiles();                                                                         // close any standard log files
+    (void)LOGGING->CloseAllStandardFiles();                                                                                 // close any standard log files
 
     // announce timing stats
-    double cpuSeconds = (clock() - clockStart) / (double) CLOCKS_PER_SEC;                                           // stop CPU timer and calculate seconds
+    double cpuSeconds = (clock() - clockStart) / (double) CLOCKS_PER_SEC;                                                   // stop CPU timer and calculate seconds
 
-    auto wallEnd = std::chrono::system_clock::now();                                                                // stop wall timer
-    std::time_t timeEnd = std::chrono::system_clock::to_time_t(wallEnd);                                            // get end time and date
+    auto wallEnd = std::chrono::system_clock::now();                                                                        // stop wall timer
+    std::time_t timeEnd = std::chrono::system_clock::to_time_t(wallEnd);                                                    // get end time and date
 
     SAY("\nEnd generating stars at " << std::ctime(&timeEnd));
     SAY("Clock time = " << cpuSeconds << " CPU seconds");
 
-    std::chrono::duration<double> wallSeconds = wallEnd - wallStart;                                                // elapsed seconds
+    std::chrono::duration<double> wallSeconds = wallEnd - wallStart;                                                        // elapsed seconds
 
-    int wallHH = (int)(wallSeconds.count() / 3600.0);                                                               // hours
-    int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                                   // minutes
-    int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));                  // seconds
+    int wallHH = (int)(wallSeconds.count() / 3600.0);                                                                       // hours
+    int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                                           // minutes
+    int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));                          // seconds
 
     SAY("Wall time  = " << std::setfill('0') << std::setw(2) << wallHH << ":" << 
                            std::setfill('0') << std::setw(2) << wallMM << ":" << 
-                           std::setfill('0') << std::setw(2) << wallSS << " (hh:mm:ss)");                           // Include 0 buffer 
+                           std::setfill('0') << std::setw(2) << wallSS << " (hh:mm:ss)");
 
-    return  std::make_tuple(nStarsRequested, index);
+    return std::make_tuple(nStarsRequested, index);
 }
 
 
@@ -527,8 +561,6 @@ std::tuple<int, int> EvolveSingleStars() {
  */
 std::tuple<int, int> EvolveBinaryStars() {
 
-    signal(SIGUSR1, SIGUSR1handler);                                                                                // install SIGUSR1 signal handler
-
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
     auto wallStart = std::chrono::system_clock::now();                                                              // start wall timer
@@ -540,6 +572,8 @@ std::tuple<int, int> EvolveBinaryStars() {
     BinaryStar* binary    = nullptr;
     bool        usingGrid = !OPTIONS->GridFilename().empty();                                                       // using grid file?
     size_t      index     = 0;                                                                                      // which binary
+
+    signal(SIGUSR1, SIGUSR1handler);                                                                                // install SIGUSR1 signal handler
 
     // The options specified by the user at the commandline are set to their initial values.
     // OPTIONS->AdvanceCmdLineOptionValues(), called at the end of the loop, advances the
@@ -560,30 +594,31 @@ std::tuple<int, int> EvolveBinaryStars() {
 
             bool doneGridLine = false;                                                                              // flags we're done with this grid file line (if using a grid file)
             if (usingGrid) {                                                                                        // using grid file?
-                gridLineVariation = 0;                                                                              // yes - first variation of this grid line
-                int gridResult = OPTIONS->ApplyNextGridLine();                                                      // yes - set options according to specified values in grid file              
+                gridLineVariation  = 0;                                                                             // yes - first variation of this grid line
+                int gridResult     = OPTIONS->ApplyNextGridLine();                                                  // set options according to specified values in grid file
+                std::string errStr = "Accessing grid file '" + OPTIONS->GridFilename() + "'";                       // common error string
                 switch (gridResult) {                                                                               // handle result of grid file read
                     case -1:                                                                                        // error - unexpected end of file grid file read
                     case -2: {                                                                                      // error - read error for grid file
                         ERROR error = gridResult == -1 ? ERROR::UNEXPECTED_END_OF_FILE : ERROR::FILE_READ_ERROR;    // set error
-                        SHOW_ERROR(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'");                 // show error
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // set status
+                        SHOW_ERROR_STATIC(error, errStr);                                                           // throw error
                     } break;
                     case  0: {                                                                                      // end of file
                         doneGridLine = true;                                                                        // flag we're done with this grid line
                         doneGridFile = true;                                                                        // flag we're done with the grid file
                         ERROR error = OPTIONS->RewindGridFile();                                                    // ready for next commandline options variation
                         if (error != ERROR::NONE) {                                                                 // rewind ok?
-                            SHOW_ERROR(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'");             // no - show error (should never happen here - should be picked up at file open)
-                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // stop evolution
+                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // no - set status (should never happen here - should be picked up at file open)
+                            SHOW_ERROR_STATIC(error, errStr);                                                       // throw error
                         }
                     } break;
                     case  1:                                                                                        // grid line read
                         processingGridLine = true;                                                                  // not done yet...
                         break;
-                    default:                                                                
-                        SHOW_ERROR(ERROR::ERROR, "Accessing grid file '" + OPTIONS->GridFilename() + "'");          // unexpected error - show error
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // stop evolution
+                    default:                                                                                        // unexpected error
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // set status
+                        SHOW_ERROR_STATIC(ERROR::ERROR, errStr);                                                    // throw error
                         break;
                 }
             }
@@ -639,31 +674,30 @@ std::tuple<int, int> EvolveBinaryStars() {
                                                                                                                     // yes - use it (indexed)
                     randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;              // random seed               
                     if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
-                        SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                       // no - show error
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // and stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // no - set status
+                        SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                // throw error
                     }
                 }
                 else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                       // no - user specified a random seed on the commandline?
                                                                                                                     // yes - use it (indexed)
                     randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed               
                     if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
-                        SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                        // no - show error
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // and stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // no - set status
+                        SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                 // throw error
                     }
                 }
                 else {                                                                                              // no
                                                                                                                     // use default seed (based on system time) + id (index)
                     randomSeed = RAND->DefaultSeed() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed               
                     if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
-                        SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                        // no - show error
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // and stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // no - set status
+                        SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                 // throw error
                     }
                 }
 
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                // ok?
                                                                                                                     // yes - continue
                     randomSeed = RAND->CurrentSeed();                                                               // current random seed - to pass to binary object
-
 
                     delete binary; binary = nullptr;                                                                // so we don't leak
                     binary = new BinaryStar(randomSeed, thisId);                                                    // generate binary according to the user options
@@ -674,7 +708,8 @@ std::tuple<int, int> EvolveBinaryStars() {
                     EVOLUTION_STATUS binaryStatus = binary->Evolve();                                               // evolve the binary
 
                     if (binaryStatus == EVOLUTION_STATUS::ERROR || binaryStatus == EVOLUTION_STATUS::SSE_ERROR) {   // ok?
-                        SHOW_ERROR(ERROR::BINARY_EVOLUTION_STOPPED, EVOLUTION_STATUS_LABEL.at(binaryStatus));       // no - show error
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // no - set status
+                        SHOW_ERROR_STATIC(ERROR::BINARY_EVOLUTION_STOPPED, EVOLUTION_STATUS_LABEL.at(binaryStatus)); // throw error
                     }
                 
                     // announce result of evolving the binary
@@ -699,8 +734,8 @@ std::tuple<int, int> EvolveBinaryStars() {
                     }
 
                     if (!LOGGING->CloseStandardFile(LOGFILE::BSE_DETAILED_OUTPUT)) {                                // close detailed output file if necessary
-                        SHOW_WARN(ERROR::FILE_NOT_CLOSED);                                                          // close failed - show warning
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // this will cause problems later - stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // close failed - this will cause problems later - stop evolution
+                        SHOW_ERROR_STATIC(ERROR::FILE_NOT_CLOSED);                                                  // throw error
                     }
 
                     ERRORS->Clean();                                                                                // clean the dynamic error catalog
@@ -709,8 +744,8 @@ std::tuple<int, int> EvolveBinaryStars() {
                         gridLineVariation++;                                                                        // yes - increment grid line variation number
                         int optionsStatus = OPTIONS->AdvanceGridLineOptionValues();                                 // apply next grid file options (ranges/sets)
                         if (optionsStatus < 0) {                                                                    // ok?
-                            SHOW_ERROR(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                   // no - show error
-                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // and stop evolution
+                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // no - set status
+                            SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                            // throw error
                         }
                         else if (optionsStatus == 0) {                                                              // end of grid file options variations?
                             doneGridLine = true;                                                                    // yes - we're done
@@ -727,8 +762,8 @@ std::tuple<int, int> EvolveBinaryStars() {
         if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                        // ok?
             int optionsStatus = OPTIONS->AdvanceCmdLineOptionValues();                                              // apply next commandline options (ranges/sets)
             if (optionsStatus < 0) {                                                                                // ok?
-                SHOW_ERROR(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                                // no - show error
-                evolutionStatus = EVOLUTION_STATUS::ERROR;                                                          // and stop evolution
+                evolutionStatus = EVOLUTION_STATUS::ERROR;                                                          // no - set status
+                SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                         // throw error
             }
             else if (optionsStatus == 0) {                                                                          // end of options variations?
                 if (usingGrid || OPTIONS->CommandLineGrid() || (!usingGrid && index >= OPTIONS->nObjectsToEvolve())) { // created required number of stars?
@@ -748,7 +783,7 @@ std::tuple<int, int> EvolveBinaryStars() {
             SAY("\n" << EVOLUTION_STATUS_LABEL.at(evolutionStatus));
         }
         else {
-            SHOW_WARN(ERROR::BINARY_SIMULATION_STOPPED, EVOLUTION_STATUS_LABEL.at(EVOLUTION_STATUS::ERROR));        // show warning
+            SHOW_WARN_STATIC(ERROR::BINARY_SIMULATION_STOPPED, EVOLUTION_STATUS_LABEL.at(EVOLUTION_STATUS::ERROR)); // show warning
         }
     }
 
@@ -773,7 +808,7 @@ std::tuple<int, int> EvolveBinaryStars() {
 
     SAY("Wall time  = " << std::setfill('0') << std::setw(4) << wallHH << ":" << 
                            std::setfill('0') << std::setw(2) << wallMM << ":" << 
-                           std::setfill('0') << std::setw(2) << wallSS << " (hhhh:mm:ss)");                         // Include 0 buffer 
+                           std::setfill('0') << std::setw(2) << wallSS << " (hhhh:mm:ss)");
 
     return std::make_tuple(nBinariesRequested, index);
 }
@@ -794,7 +829,11 @@ std::tuple<int, int> EvolveBinaryStars() {
  */
 int main(int argc, char * argv[]) {
 
+    signal(SIGUSR2, SIGUSR2handler);                                                                // install SIGUSR2 signal handler
+
     PROGRAM_STATUS programStatus = PROGRAM_STATUS::CONTINUE;                                        // status - initially ok
+
+    ERROR m_Error = ERROR::NONE;                                                                    // for error macros - spoof class member variable
 
     RAND->Initialise();                                                                             // initialise the random number service
     RAND->Seed(0l);                                                                                 // set seed to 0 - ensures repeatable results
@@ -833,6 +872,21 @@ int main(int argc, char * argv[]) {
                 feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);             // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
             }
 
+double m_uK = std::numeric_limits<double>::signaling_NaN();   // -- - Dimensionless kick magnitude
+try { 
+    std::cout << "USING M_UK!!!!\n";
+    double xxx = sqrt(-1);
+    double yyy = xxx/ 2.0;
+    if (std::fetestexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW)) std::cout << "fp exception!\n";
+    std::cout << "xxx = " << xxx << "\n";
+    std::cout << "yyy = " << yyy << "\n";
+}
+catch (const std::runtime_error& e) {
+    if (std::string(e.what()) == "FPE") THROW_ERROR_STATIC(ERROR::FLOATING_POINT_ERROR) // floating-point error
+    else                                THROW_ERROR_STATIC(ERROR::ERROR)                // unspecified error
+} 
+std::exit(1);
+
             InitialiseProfiling;                                                                    // initialise profiling functionality
 
             int objectsRequested = 0;                                                               // for logging
@@ -858,8 +912,8 @@ int main(int argc, char * argv[]) {
                 if (!OPTIONS->GridFilename().empty()) {                                             // have grid filename?
                     ERROR error = OPTIONS->OpenGridFile(OPTIONS->GridFilename());                   // yes - open grid file
                     if (error != ERROR::NONE) {                                                     // open ok?
-                        SHOW_ERROR(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'"); // no - show error
-                        programStatus = PROGRAM_STATUS::STOPPED;                                    // set status
+                        programStatus = PROGRAM_STATUS::STOPPED;                                    // no - set status
+                        SHOW_ERROR_STATIC(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'"); // throw error
                     }
                 }
 
@@ -887,6 +941,8 @@ int main(int argc, char * argv[]) {
     }
 
     RAND->Free();                                                                                   // release gsl dynamically allocated memory
+
+    if (m_Error == ERROR::NONE) m_Error = ERROR::NONE;                                              // does nothing other than avoid compiler warning
 
     return static_cast<int>(programStatus);                                                         // we're done
 }

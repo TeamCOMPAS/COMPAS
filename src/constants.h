@@ -7,6 +7,8 @@
 #include <map>
 #include <unordered_map>
 #include <fstream>
+#include <csignal>
+#include <limits>
 
 // the defaults size of the boost list that handles variant types is 20 - so only 20 variant types are allowed
 // we've exceeded that number - we're at 21 currently - so the size of the boost list needs to be increased
@@ -293,7 +295,9 @@ constexpr double BLACK_HOLE_LUMINOSITY                  = 1.0E-10;              
 constexpr double NEUTRON_STAR_MASS                      = 1.4;                                                      // Canonical NS mass in Msol
 constexpr double NEUTRON_STAR_RADIUS                    = (1.0 / 7.0) * 1.0E-4;                                     // 10km in Rsol.  Hurley et al. 2000, just after eq 93
 
-constexpr double HIGH_MASS_THRESHOLD                    = 12.0;                                                     // Mass (in solar masses) above which we consider stars to be high mass stars
+constexpr double MASSIVE_THRESHOLD                      = 8.0;                                                      // Mass (in solar masses) above which we consider stars to be "massive"
+constexpr double HIGH_MASS_THRESHOLD                    = 12.0;                                                     // Mass (in solar masses) above which Hurley considers stars to be high mass stars
+constexpr double VMS_MASS_THRESHOLD                     = 100.0;                                                    // Minimum mass for applying Very Massive (VMS) mass loss rates to be applied
 
 constexpr double MCH                                    = 1.44;                                                     // Chandrasekhar mass
 constexpr double MECS                                   = 1.38;                                                     // Mass of Neutron-Star (NS) formed in electron capture supernova (ECS). From Belczysnki+2008, before eq. 3.
@@ -304,7 +308,6 @@ constexpr double MCBUR2					                = 2.25;							                      
 
 constexpr double NJ_MINIMUM_LUMINOSITY                  = 4.0E3;                                                    // Minimum luminosity in Lsun needed for Nieuwenhuijzen & de Jager wind mass loss
 constexpr double VINK_MASS_LOSS_MINIMUM_TEMP            = 1.25E4;                                                   // Minimum temperature in K for Vink mass loss rates to be applied
-constexpr double VERY_MASSIVE_MINIMUM_MASS              = 100.0;                                                    // Minimum mass for applying Very Massive (VMS) mass rates to be applied
 constexpr double RSG_MAXIMUM_TEMP                       = 8.0E3;                                                    // Upper temperature in K for Red Supergiant (RSG) mass loss rates to be applied
 constexpr double VINK_MASS_LOSS_BISTABILITY_TEMP        = 2.5E4;                                                    // Temperature in K for bistability jump in Vink mass loss (assumed to be 25000K following Belczysnki+2010)
 constexpr double VINK_MASS_LOSS_MAXIMUM_TEMP            = 5.0E4;                                                    // Maximum temperature in K for Vink mass loss rates to be applied (show warning above this)
@@ -621,7 +624,6 @@ enum class ERROR: int {
     HIGH_TEFF_WINDS,                                                // winds being used at high temperature
     INDEX_OUT_OF_RANGE,                                             // index supplied is out of range
     INVALID_DATA_TYPE,                                              // invalid data type
-    INVALID_ENVELOPE_TYPE,                                          // invalid envelope type
     INVALID_INITIAL_ATTRIBUTES,                                     // initial values of stellar or binary attributes are not valid - can't evolve star or binary
     INVALID_MASS_TRANSFER_DONOR,                                    // mass transfer from NS, BH or Massless Remnant
     INVALID_RADIUS_INCREASE_ONCE,                                   // radius increased when it should have decreased (or at least remained static)
@@ -642,21 +644,23 @@ enum class ERROR: int {
     NO_LAMBDA_DEWI,                                                 // Dewi lambda calculation not supported for stellar type
     NO_LAMBDA_NANJING,                                              // Nanjing lambda calculation not supported for stellar type
     NO_REAL_ROOTS,                                                  // equation has no real roots
+    NO_TIMESTEPS_READ,                                              // no user timesteps read
     NOT_INITIALISED,                                                // object not initialised
     OPTION_NOT_SUPPORTED_IN_GRID_FILE,                              // option not supported in grid file
     OUT_OF_BOUNDS,                                                  // value out of bounds
     PROGRAM_OPTIONS_ERROR,                                          // program options error
     RADIUS_NOT_POSITIVE,                                            // radius is <= 0.0 - invalid
     RADIUS_NOT_POSITIVE_ONCE,                                       // radius is <= 0.0 - invalid
-    RESOLVE_SUPERNOVA_IMPROPERLY_CALLED,                            // ResolveSupernova() called, but m_Supernova->IsSNevent() is false
     ROOT_FINDER_FAILED,                                             // root finder threw an exception
     STELLAR_EVOLUTION_STOPPED,                                      // evolution of current star stopped
     STELLAR_SIMULATION_STOPPED,                                     // stellar simulation stopped
+    STEPS_UP,                                                       // allowed evolution timesteps exceeded
     SUGGEST_HELP,                                                   // suggest using --help
     SWITCH_NOT_TAKEN,                                               // switch to new stellar type not performed
     TIMESTEP_BELOW_MINIMUM,                                         // timestep too small - below minimum
     TIMESTEPS_EXHAUSTED,                                            // timesteps provided exhausted, but evolution not complete
     TIMESTEPS_NOT_CONSUMED,                                         // evolution complete, but provided timesteps not consumed
+    TIMES_UP,                                                       // allowed evolution time exceeded
     TOO_MANY_MASS0_ITERATIONS,                                      // too many iterations in MASS0 root finder
     TOO_MANY_MASS0_TRIES,                                           // too many tries in MASS0 root finder
     TOO_MANY_OMEGA_ITERATIONS,                                      // too many iterations in OMEGA root finder
@@ -669,6 +673,7 @@ enum class ERROR: int {
     UNEXPECTED_END_OF_FILE,                                         // unexpected end of file
     UNEXPECTED_LOG_FILE_TYPE,                                       // unexpected log file type
     UNEXPECTED_SN_EVENT,                                            // unexpected supernova event in this context
+    UNEXPECTED_STELLAR_TYPE,                                        // unexpected stellar type
     UNHANDLED_EXCEPTION,                                            // unhandled exception
     UNKNOWN_A_DISTRIBUTION,                                         // unknown a-distribution
     UNKNOWN_BH_KICK_OPTION,                                         // unknown black hole kick option (in program options)
@@ -679,6 +684,7 @@ enum class ERROR: int {
     UNKNOWN_CE_LAMBDA_PRESCRIPTION,                                 // unknown common envelope Lambda Prescription
     UNKNOWN_DATA_TYPE,                                              // unknown data type
     UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                            // unknown envelope state prescription
+    UNKNOWN_ENVELOPE_TYPE,                                          // unknown envelope type
     UNKNOWN_INITIAL_MASS_FUNCTION,                                  // unknown initial mass function
     UNKNOWN_KICK_DIRECTION_DISTRIBUTION,                            // unknown kick direction distribution
     UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION,                            // unknown kick magnitude distribution
@@ -693,20 +699,25 @@ enum class ERROR: int {
     UNKNOWN_MT_THERMALLY_LIMITED_VARIATION,                         // unknown mass transfer thermally limited variation
     UNKNOWN_NEUTRINO_MASS_LOSS_PRESCRIPTION,                        // unknown neutrino mass loss prescription
     UNKNOWN_NS_EOS,                                                 // unknown NS equation-of-state
+    UNKNOWN_OB_MASS_LOSS_PRESCRIPTION,                              // unknown OB mass loss prescription
     UNKNOWN_PPI_PRESCRIPTION,                                       // unknown pulsational pair instability prescription
     UNKNOWN_PROGRAM_OPTION,                                         // unknown program option
     UNKNOWN_PROPERTY_TYPE,                                          // unknown property type
     UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,               // unknown pulsar birth magnetic field distribution
     UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                  // unknown pulsar birth spin period distribution
     UNKNOWN_Q_DISTRIBUTION,                                         // unknown q-distribution
-    UNKNOWN_REMNANT_MASS_PRESCRIPTION,                              // unknown remnant mass prescription
+    UNKNOWN_QCRIT_PRESCRIPTION,                                     // Unknown QCRIT prescription
+    UNKNOWN_REMNANT_MASS_PRESCRIPTION,                              // unknown remnant mass prescriptrion
+    UNKNOWN_RSG_MASS_LOSS_PRESCRIPTION,                             // unknown RSG mass loss prescription
     UNKNOWN_SN_ENGINE,                                              // unknown supernova engine
     UNKNOWN_SN_EVENT,                                               // unknown supernova event encountered
     UNKNOWN_STELLAR_PROPERTY,                                       // unknown stellar property
     UNKNOWN_STELLAR_TYPE,                                           // unknown stellar type
+    UNKNOWN_TIDES_PRESCRIPTION,                                     // unknown tides prescription
+    UNKNOWN_VMS_MASS_LOSS_PRESCRIPTION,                             // unknown VMS mass loss prescription
     UNKNOWN_VROT_PRESCRIPTION,                                      // unknown rorational velocity prescription
-    UNKNOWN_ZETA_PRESCRIPTION,                                      // unknown stellar Zeta prescription
-    UNSUPPORTED_ZETA_PRESCRIPTION,                                  // unsupported common envelope Zeta prescription
+    UNKNOWN_WR_MASS_LOSS_PRESCRIPTION,                              // unknown WR mass loss prescription
+    UNKNOWN_ZETA_PRESCRIPTION,                                      // unknown stellar ZETA prescription
     UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,           // unsupported pulsar birth magnetic field distribution
     UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,              // unsupported pulsar birth spin period distribution
     UNSUPPORTED_MT_PRESCRIPTION,                                    // unsupported mass transfer prescription
@@ -781,7 +792,6 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::HIGH_TEFF_WINDS,                                       { ERROR_SCOPE::ALWAYS,              "Winds being used at high temperature" }},
     { ERROR::INDEX_OUT_OF_RANGE,                                    { ERROR_SCOPE::ALWAYS,              "Index out of range" }},
     { ERROR::INVALID_DATA_TYPE,                                     { ERROR_SCOPE::ALWAYS,              "Invalid data type" }},
-    { ERROR::INVALID_ENVELOPE_TYPE,                                 { ERROR_SCOPE::ALWAYS,              "Invalid envelope type" }},
     { ERROR::INVALID_INITIAL_ATTRIBUTES,                            { ERROR_SCOPE::ALWAYS,              "Initial attributes are not valid - evolution not possible" }},
     { ERROR::INVALID_MASS_TRANSFER_DONOR,                           { ERROR_SCOPE::ALWAYS,              "Mass transfer from NS, BH, or Massless Remnant" }},
     { ERROR::INVALID_RADIUS_INCREASE_ONCE,                          { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Unexpected Radius increase" }},
@@ -802,6 +812,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::NO_LAMBDA_DEWI,                                        { ERROR_SCOPE::ALWAYS,              "Dewi lambda calculation not supported for stellar type" }},
     { ERROR::NO_LAMBDA_NANJING,                                     { ERROR_SCOPE::ALWAYS,              "Nanjing lambda calculation not supported for stellar type" }},
     { ERROR::NO_REAL_ROOTS,                                         { ERROR_SCOPE::ALWAYS,              "No real roots" }},
+    { ERROR::NO_TIMESTEPS_READ,                                     { ERROR_SCOPE::ALWAYS,              "No user timesteps read" }},
     { ERROR::NONE,                                                  { ERROR_SCOPE::NEVER,               "No error" }},
     { ERROR::NOT_INITIALISED,                                       { ERROR_SCOPE::ALWAYS,              "Object not initialised" }},
     { ERROR::OPTION_NOT_SUPPORTED_IN_GRID_FILE,                     { ERROR_SCOPE::ALWAYS,              "Option not supported in grid file" }},
@@ -809,15 +820,16 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::PROGRAM_OPTIONS_ERROR,                                 { ERROR_SCOPE::ALWAYS,              "Commandline Options error" }},
     { ERROR::RADIUS_NOT_POSITIVE,                                   { ERROR_SCOPE::ALWAYS,              "Radius <= 0.0" }},
     { ERROR::RADIUS_NOT_POSITIVE_ONCE,                              { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Radius <= 0.0" }},
-    { ERROR::RESOLVE_SUPERNOVA_IMPROPERLY_CALLED,                   { ERROR_SCOPE::ALWAYS,              "ResolveSupernova() called, but m_Supernova->IsSNevent() is false" }},
     { ERROR::ROOT_FINDER_FAILED,                                    { ERROR_SCOPE::ALWAYS,              "Exception encountered in root finder" }},
     { ERROR::STELLAR_EVOLUTION_STOPPED,                             { ERROR_SCOPE::ALWAYS,              "Evolution of current star stopped" }},
     { ERROR::STELLAR_SIMULATION_STOPPED,                            { ERROR_SCOPE::ALWAYS,              "Stellar simulation stopped" }},
+    { ERROR::STEPS_UP,                                              { ERROR_SCOPE::ALWAYS,              "Allowed evolution timesteps exceeded" }},
     { ERROR::SUGGEST_HELP,                                          { ERROR_SCOPE::ALWAYS,              "Use option '-h' (or '--help') to see (descriptions of) available options" }},
     { ERROR::SWITCH_NOT_TAKEN,                                      { ERROR_SCOPE::ALWAYS,              "Switch to new stellar type not performed" }},
     { ERROR::TIMESTEP_BELOW_MINIMUM,                                { ERROR_SCOPE::ALWAYS,              "Timestep below minimum - timestep taken" }},
     { ERROR::TIMESTEPS_EXHAUSTED,                                   { ERROR_SCOPE::ALWAYS,              "Provided timesteps exhausted, but evolution not complete" }},
     { ERROR::TIMESTEPS_NOT_CONSUMED,                                { ERROR_SCOPE::ALWAYS,              "Evolution complete, but provided timesteps not consumed" }},
+    { ERROR::TIMES_UP,                                              { ERROR_SCOPE::ALWAYS,              "Allowed evolution time exceeded" }},
     { ERROR::TOO_MANY_MASS0_ITERATIONS,                             { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when looking for effective initial mass Mass_0 to match desired stellar core of HG star following case A mass transfer" }},
     { ERROR::TOO_MANY_MASS0_TRIES,                                  { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when looking for effective initial mass Mass_0 to match desired stellar core of HG star following case A mass transfer" }},
     { ERROR::TOO_MANY_OMEGA_ITERATIONS,                             { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when looking for omega when circularising and synchronising for tides" }},
@@ -830,6 +842,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNEXPECTED_END_OF_FILE,                                { ERROR_SCOPE::ALWAYS,              "Unexpected end of file" }},
     { ERROR::UNEXPECTED_LOG_FILE_TYPE,                              { ERROR_SCOPE::ALWAYS,              "Unexpected log file type" }},
     { ERROR::UNEXPECTED_SN_EVENT,                                   { ERROR_SCOPE::ALWAYS,              "Unexpected supernova event in this context" }},
+    { ERROR::UNEXPECTED_STELLAR_TYPE,                               { ERROR_SCOPE::ALWAYS,              "Unexpected stellar type" }},
     { ERROR::UNHANDLED_EXCEPTION,                                   { ERROR_SCOPE::ALWAYS,              "Unhandled exception" }},
     { ERROR::UNKNOWN_A_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown semi-major-axis distribution" }},
     { ERROR::UNKNOWN_BH_KICK_OPTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown black hole kick option" }},
@@ -840,6 +853,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown common envelope lambda prescription" }},
     { ERROR::UNKNOWN_DATA_TYPE,                                     { ERROR_SCOPE::ALWAYS,              "Unknown data type" }},
     { ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown envelope state prescription" }},
+    { ERROR::UNKNOWN_ENVELOPE_TYPE,                                 { ERROR_SCOPE::ALWAYS,              "Unknown envelope type" }},
     { ERROR::UNKNOWN_INITIAL_MASS_FUNCTION,                         { ERROR_SCOPE::ALWAYS,              "Unknown initial mass function (IMF)" }},
     { ERROR::UNKNOWN_KICK_DIRECTION_DISTRIBUTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown kick direction distribution" }},
     { ERROR::UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown kick magnitude distribution" }},
@@ -853,23 +867,25 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown mass loss prescription" }},
     { ERROR::UNKNOWN_NEUTRINO_MASS_LOSS_PRESCRIPTION,               { ERROR_SCOPE::ALWAYS,              "Unknown neutrino mass loss prescription" }},
     { ERROR::UNKNOWN_NS_EOS,                                        { ERROR_SCOPE::ALWAYS,              "Unknown NS equation-of-state" }},
+    { ERROR::UNKNOWN_OB_MASS_LOSS_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown OB mass loss prescription" }},
     { ERROR::UNKNOWN_PPI_PRESCRIPTION,                              { ERROR_SCOPE::ALWAYS,              "Unknown pulsational pair instability prescription" }},
     { ERROR::UNKNOWN_PROGRAM_OPTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown program option - property details not found" }},
     { ERROR::UNKNOWN_PROPERTY_TYPE,                                 { ERROR_SCOPE::ALWAYS,              "Unknown property type - property details not found" }},
     { ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,      { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth magnetic field distribution" }},
     { ERROR::UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,         { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth spin period distribution" }},
     { ERROR::UNKNOWN_Q_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown q-distribution" }},
+    { ERROR::UNKNOWN_QCRIT_PRESCRIPTION,                            { ERROR_SCOPE::ALWAYS,              "Unknown QCRIT prescription" }},
     { ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown remnant mass prescription" }},
     { ERROR::UNKNOWN_SN_ENGINE,                                     { ERROR_SCOPE::ALWAYS,              "Unknown supernova engine" }},
     { ERROR::UNKNOWN_SN_EVENT,                                      { ERROR_SCOPE::ALWAYS,              "Unknown supernova event" }},
     { ERROR::UNKNOWN_STELLAR_PROPERTY,                              { ERROR_SCOPE::ALWAYS,              "Unknown stellar property - property details not found" }},
     { ERROR::UNKNOWN_STELLAR_TYPE,                                  { ERROR_SCOPE::ALWAYS,              "Unknown stellar type" }},
+    { ERROR::UNKNOWN_TIDES_PRESCRIPTION,                            { ERROR_SCOPE::ALWAYS,              "Uknown tides prescription" }},
     { ERROR::UNKNOWN_VROT_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown rotational velocity prescription" }},
-    { ERROR::UNKNOWN_ZETA_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown stellar Zeta prescription" }},
+    { ERROR::UNKNOWN_ZETA_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown stellar ZETA prescription" }},
     { ERROR::UNSUPPORTED_MT_PRESCRIPTION,                           { ERROR_SCOPE::ALWAYS,              "Unsupported mass transfer prescription" }},
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,  { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth magnetic field distribution" }},
     { ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,     { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth spin period distribution" }},
-    { ERROR::UNSUPPORTED_ZETA_PRESCRIPTION,                         { ERROR_SCOPE::ALWAYS,              "Unsupported stellar Zeta prescription" }},
     { ERROR::WARNING,                                               { ERROR_SCOPE::ALWAYS,              "Warning!" }},
     { ERROR::WHITE_DWARF_TOO_MASSIVE,                               { ERROR_SCOPE::ALWAYS,              "This white dwarf exceeds the Chandrasekhar mass limit" }}
 };
@@ -891,7 +907,7 @@ enum class EVOLUTION_STATUS: int {
     ERROR,
     TIMES_UP,
     STEPS_UP,
-    NO_TIMESTEPS,
+    NO_TIMESTEPS_READ,
     TIMESTEPS_EXHAUSTED,
     TIMESTEPS_NOT_CONSUMED,
     SSE_ERROR,
@@ -915,7 +931,7 @@ const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL =
     { EVOLUTION_STATUS::ERROR,                   "Evolution stopped because an error occurred" },
     { EVOLUTION_STATUS::TIMES_UP,                "Allowed time exceeded" },
     { EVOLUTION_STATUS::STEPS_UP,                "Allowed timesteps exceeded" },
-    { EVOLUTION_STATUS::NO_TIMESTEPS,            "No user-provided timesteps read" },
+    { EVOLUTION_STATUS::NO_TIMESTEPS_READ,       "No user-provided timesteps read" },
     { EVOLUTION_STATUS::TIMESTEPS_EXHAUSTED,     "User-provided timesteps exhausted" },
     { EVOLUTION_STATUS::TIMESTEPS_NOT_CONSUMED,  "User-provided timesteps not consumed" },
     { EVOLUTION_STATUS::SSE_ERROR,               "SSE error for one of the constituent stars" },
@@ -1007,18 +1023,17 @@ const COMPASUnorderedMap<CE_FORMALISM, std::string> CE_FORMALISM_LABEL = {
 
 
 // Common envelope zeta prescription
-enum class ZETA_PRESCRIPTION: int { SOBERMAN, HURLEY, ARBITRARY, NONE };
+enum class ZETA_PRESCRIPTION: int { SOBERMAN, HURLEY, ARBITRARY };
 const COMPASUnorderedMap<ZETA_PRESCRIPTION, std::string> ZETA_PRESCRIPTION_LABEL = {
     { ZETA_PRESCRIPTION::SOBERMAN,  "SOBERMAN" },
     { ZETA_PRESCRIPTION::HURLEY,    "HURLEY" },
-    { ZETA_PRESCRIPTION::ARBITRARY, "ARBITRARY" },
-    { ZETA_PRESCRIPTION::NONE,      "NONE" },
+    { ZETA_PRESCRIPTION::ARBITRARY, "ARBITRARY" }
 };
 
 // Critical Mass Ratio prescription
-enum class QCRIT_PRESCRIPTION: int { NONE, CLAEYS, GE20, GE20_IC, HURLEY_HJELLMING_WEBBINK};
+enum class QCRIT_PRESCRIPTION: int { ZERO, CLAEYS, GE20, GE20_IC, HURLEY_HJELLMING_WEBBINK};
 const COMPASUnorderedMap<QCRIT_PRESCRIPTION, std::string> QCRIT_PRESCRIPTION_LABEL = {
-    { QCRIT_PRESCRIPTION::NONE,    "NONE" },
+    { QCRIT_PRESCRIPTION::ZERO,    "ZERO" },
     { QCRIT_PRESCRIPTION::CLAEYS,  "CLAEYS" },
     { QCRIT_PRESCRIPTION::GE20,    "GE20" },
     { QCRIT_PRESCRIPTION::GE20_IC, "GE20_IC" },
@@ -1132,61 +1147,61 @@ const COMPASUnorderedMap<INITIAL_MASS_FUNCTION, std::string> INITIAL_MASS_FUNCTI
     { INITIAL_MASS_FUNCTION::KROUPA,   "KROUPA" }
 };
 
+// Mass loss prescriptions
+enum class MASS_LOSS_PRESCRIPTION: int { ZERO, HURLEY, BELCZYNSKI2010, FLEXIBLE2023 };
+const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
+    { MASS_LOSS_PRESCRIPTION::ZERO,           "ZERO" },
+    { MASS_LOSS_PRESCRIPTION::HURLEY,         "HURLEY" },
+    { MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010, "BELCZYNSKI2010" },
+    { MASS_LOSS_PRESCRIPTION::FLEXIBLE2023,   "FLEXIBLE2023"}
+};
+
 // LBV Mass loss prescriptions
-enum class LBV_PRESCRIPTION: int { NONE, HURLEY_ADD, HURLEY, BELCZYNSKI };
+enum class LBV_PRESCRIPTION: int { ZERO, HURLEY_ADD, HURLEY, BELCZYNSKI };
 const COMPASUnorderedMap<LBV_PRESCRIPTION, std::string> LBV_PRESCRIPTION_LABEL = {
-    { LBV_PRESCRIPTION::NONE,       "NONE" },
+    { LBV_PRESCRIPTION::ZERO,       "ZERO" },
     { LBV_PRESCRIPTION::HURLEY_ADD, "HURLEY_ADD" },
     { LBV_PRESCRIPTION::HURLEY,     "HURLEY" },
     { LBV_PRESCRIPTION::BELCZYNSKI, "BELCZYNSKI" }
 };
 
 // OB (main sequence) Mass loss prescriptions
-enum class OB_MASS_LOSS: int { NONE, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018};
-const COMPASUnorderedMap<OB_MASS_LOSS, std::string> OB_MASS_LOSS_LABEL = {
-    { OB_MASS_LOSS::NONE,          "NONE" },
-    { OB_MASS_LOSS::VINK2001,      "VINK2001" },
-    { OB_MASS_LOSS::VINK2021,      "VINK2021" },
-    { OB_MASS_LOSS::BJORKLUND2022, "BJORKLUND2022" },
-    { OB_MASS_LOSS::KRTICKA2018,   "KRTICKA2018" },
-};
-
-// Very Massive Mass loss prescriptions
-enum class VMS_MASS_LOSS: int { NONE, VINK2011, BESTENLEHNER2020, SABHAHIT2023};
-const COMPASUnorderedMap<VMS_MASS_LOSS, std::string> VMS_MASS_LOSS_LABEL = {
-    { VMS_MASS_LOSS::NONE,             "NONE" },
-    { VMS_MASS_LOSS::VINK2011,         "VINK2011" },
-    { VMS_MASS_LOSS::BESTENLEHNER2020, "BESTENLEHNER2020" },
-    { VMS_MASS_LOSS::SABHAHIT2023,     "SABHAHIT2023" },
+enum class OB_MASS_LOSS_PRESCRIPTION: int { ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018};
+const COMPASUnorderedMap<OB_MASS_LOSS_PRESCRIPTION, std::string> OB_MASS_LOSS_PRESCRIPTION_LABEL = {
+    { OB_MASS_LOSS_PRESCRIPTION::ZERO,          "ZERO" },
+    { OB_MASS_LOSS_PRESCRIPTION::VINK2001,      "VINK2001" },
+    { OB_MASS_LOSS_PRESCRIPTION::VINK2021,      "VINK2021" },
+    { OB_MASS_LOSS_PRESCRIPTION::BJORKLUND2022, "BJORKLUND2022" },
+    { OB_MASS_LOSS_PRESCRIPTION::KRTICKA2018,   "KRTICKA2018" }
 };
 
 // RSG Mass loss prescriptions
-enum class RSG_MASS_LOSS: int { NONE, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90};
-const COMPASUnorderedMap<RSG_MASS_LOSS, std::string> RSG_MASS_LOSS_LABEL = {
-    { RSG_MASS_LOSS::NONE,             "NONE" },
-    { RSG_MASS_LOSS::VINKSABHAHIT2023, "VINKSABHAHIT2023" },
-    { RSG_MASS_LOSS::BEASOR2020,       "BEASOR2020" },
-    { RSG_MASS_LOSS::DECIN2023,        "DECIN2023" },
-    { RSG_MASS_LOSS::YANG2023,         "YANG2023" },
-    { RSG_MASS_LOSS::KEE2021,          "KEE2021" },
-    { RSG_MASS_LOSS::NJ90,             "NJ90" },
+enum class RSG_MASS_LOSS_PRESCRIPTION: int { ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90};
+const COMPASUnorderedMap<RSG_MASS_LOSS_PRESCRIPTION, std::string> RSG_MASS_LOSS_PRESCRIPTION_LABEL = {
+    { RSG_MASS_LOSS_PRESCRIPTION::ZERO,             "ZERO" },
+    { RSG_MASS_LOSS_PRESCRIPTION::VINKSABHAHIT2023, "VINKSABHAHIT2023" },
+    { RSG_MASS_LOSS_PRESCRIPTION::BEASOR2020,       "BEASOR2020" },
+    { RSG_MASS_LOSS_PRESCRIPTION::DECIN2023,        "DECIN2023" },
+    { RSG_MASS_LOSS_PRESCRIPTION::YANG2023,         "YANG2023" },
+    { RSG_MASS_LOSS_PRESCRIPTION::KEE2021,          "KEE2021" },
+    { RSG_MASS_LOSS_PRESCRIPTION::NJ90,             "NJ90" }
+};
+
+// Very Massive Mass loss prescriptions
+enum class VMS_MASS_LOSS_PRESCRIPTION: int { ZERO, VINK2011, BESTENLEHNER2020, SABHAHIT2023};
+const COMPASUnorderedMap<VMS_MASS_LOSS_PRESCRIPTION, std::string> VMS_MASS_LOSS_PRESCRIPTION_LABEL = {
+    { VMS_MASS_LOSS_PRESCRIPTION::ZERO,             "ZERO" },
+    { VMS_MASS_LOSS_PRESCRIPTION::VINK2011,         "VINK2011" },
+    { VMS_MASS_LOSS_PRESCRIPTION::BESTENLEHNER2020, "BESTENLEHNER2020" },
+    { VMS_MASS_LOSS_PRESCRIPTION::SABHAHIT2023,     "SABHAHIT2023" }
 };
 
 // WR Mass loss prescriptions
-enum class WR_MASS_LOSS: int { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 };
-const COMPASUnorderedMap<WR_MASS_LOSS, std::string> WR_MASS_LOSS_LABEL = {
-    { WR_MASS_LOSS::BELCZYNSKI2010, "BELCZYNSKI2010" },
-    { WR_MASS_LOSS::SANDERVINK2023, "SANDERVINK2023" },
-    { WR_MASS_LOSS::SHENAR2019,     "SHENAR2019" },
-};
-
-// Mass loss prescriptions
-enum class MASS_LOSS_PRESCRIPTION: int { NONE, HURLEY, BELCZYNSKI2010, FLEXIBLE2023 };
-const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
-    { MASS_LOSS_PRESCRIPTION::NONE,           "NONE" },
-    { MASS_LOSS_PRESCRIPTION::HURLEY,         "HURLEY" },
-    { MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010, "BELCZYNSKI2010" },
-    { MASS_LOSS_PRESCRIPTION::FLEXIBLE2023,   "FLEXIBLE2023"}
+enum class WR_MASS_LOSS_PRESCRIPTION: int { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 };
+const COMPASUnorderedMap<WR_MASS_LOSS_PRESCRIPTION, std::string> WR_MASS_LOSS_PRESCRIPTION_LABEL = {
+    { WR_MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010, "BELCZYNSKI2010" },
+    { WR_MASS_LOSS_PRESCRIPTION::SANDERVINK2023, "SANDERVINK2023" },
+    { WR_MASS_LOSS_PRESCRIPTION::SHENAR2019,     "SHENAR2019" }
 };
 
 
@@ -1200,7 +1215,7 @@ const COMPASUnorderedMap<MASS_RATIO_DISTRIBUTION, std::string> MASS_RATIO_DISTRI
 
 
 // Mass Transfer types
-enum class MASS_TRANSFER: int { NONE, STABLE_TIMESCALE_NUCLEAR, STABLE_TIMESCALE_THERMAL, UNSTABLE_TIMESCALE_THERMAL, UNSTABLE_TIMESCALE_DYNAMICAL};
+enum class MASS_TRANSFER: int { NONE, STABLE_TIMESCALE_NUCLEAR, STABLE_TIMESCALE_THERMAL, UNSTABLE_TIMESCALE_THERMAL, UNSTABLE_TIMESCALE_DYNAMICAL };
 const COMPASUnorderedMap<MASS_TRANSFER, std::string> MASS_TRANSFER_LABEL = {
     { MASS_TRANSFER::NONE,                         "No mass transfer" },
     { MASS_TRANSFER::STABLE_TIMESCALE_NUCLEAR,     "Nuclear timescale stable mass transfer" },
@@ -1211,7 +1226,7 @@ const COMPASUnorderedMap<MASS_TRANSFER, std::string> MASS_TRANSFER_LABEL = {
 
 
 // Mass transfer accretion efficiency prescriptions
-enum class MT_ACCRETION_EFFICIENCY_PRESCRIPTION: int { THERMALLY_LIMITED, FIXED_FRACTION};
+enum class MT_ACCRETION_EFFICIENCY_PRESCRIPTION: int { THERMALLY_LIMITED, FIXED_FRACTION };
 const COMPASUnorderedMap<MT_ACCRETION_EFFICIENCY_PRESCRIPTION, std::string> MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL = {
     { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED, "THERMAL" },
     { MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION,    "FIXED" }
@@ -1395,10 +1410,13 @@ const COMPASUnorderedMap<TIDES_PRESCRIPTION, std::string> TIDES_PRESCRIPTION_LAB
 // The values here for SN_EVENT are powers of 2 so that they can be used in a bit map
 // and manipulated with bit-wise logical operators
 //
-// Ordinarily we might expect that an SN event could be only one of CCSN, ECSN, PISN, PPISN, USSN, AIC, SNIA, or HeSD
+// Ordinarily we might expect that an SN event could be only one of
+//
+//    NONE, CCSN, ECSN, PISN, PPISN, USSN, AIC, SNIA, SNII, or HeSD
+//
 // Note that the CCSN value here replaces the SN value in the legacy code
 // The legacy code implemented these values as boolean flags, and the SN flag was always set when
-// the uSSN flag was set (but not the converse).  In the legacy code when the ECSN flag was set 
+// the USSN flag was set (but not the converse).  In the legacy code when the ECSN flag was set 
 // the SN flag was not set.  In the legacy code the PISN and PPISN flags were used to track history
 // and we only set for the "experienced" condition (I think).
 //
@@ -1413,15 +1431,17 @@ const COMPASUnorderedMap<TIDES_PRESCRIPTION, std::string> TIDES_PRESCRIPTION_LAB
 // A convenience function has been provided in utils.cpp to interpret the bit map (utils::SNEventType()).
 // Given an SN_EVENT bitmap (current or past), it returns (in priority order):
 //     
-//    SN_EVENT::CCSN  iff CCSN  bit is set and USSN bit is not set
-//    SN_EVENT::ECSN  iff ECSN  bit is set
-//    SN_EVENT::PISN  iff PISN  bit is set
-//    SN_EVENT::PPISN iff PPISN bit is set
-//    SN_EVENT::USSN  iff USSN  bit is set
-//    SN_EVENT::AIC   iff AIC   bit is set
-//    SN_EVENT::SNIA  iff SNIA  bit is set and HeSD bit is not set
-//    SN_EVENT::HeSD  iff HeSD  bit is set
-//    SN_EVENT::NONE  otherwise
+//    SN_EVENT::NONE    iff no bits are set
+//    SN_EVENT::CCSN    iff CCSN  bit is set and USSN bit is not set
+//    SN_EVENT::ECSN    iff ECSN  bit is set
+//    SN_EVENT::PISN    iff PISN  bit is set
+//    SN_EVENT::PPISN   iff PPISN bit is set
+//    SN_EVENT::USSN    iff USSN  bit is set
+//    SN_EVENT::AIC     iff AIC   bit is set
+//    SN_EVENT::SNIA    iff SNIA  bit is set and HeSD bit is not set
+//    SN_EVENT::HeSD    iff HeSD  bit is set
+//    SN_EVENT::SNII    iff SNII  bit is set
+//    SN_EVENT::UNKNOWN otherwise
 //
 enum class SN_EVENT: int { 
     NONE         = 0, 
@@ -1433,19 +1453,23 @@ enum class SN_EVENT: int {
     AIC          = 32,
     SNIA         = 64,
     HeSD         = 128,
+    SNII         = 256,
+    UNKNOWN      = 32768 // doesn't really matter what this is because the value is never used (as long as it's > sum of all the others)
 };
 ENABLE_BITMASK_OPERATORS(SN_EVENT);
 
 const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
-    { SN_EVENT::NONE,  "No Supernova" },
-    { SN_EVENT::CCSN,  "Core Collapse Supernova" },
-    { SN_EVENT::ECSN,  "Electron Capture Supernova" },
-    { SN_EVENT::PISN,  "Pair Instability Supernova" },
-    { SN_EVENT::PPISN, "Pulsational Pair Instability Supernova" },
-    { SN_EVENT::USSN,  "Ultra Stripped Supernova" },
-    { SN_EVENT::AIC,   "Accretion-Induced Collapse" }, 
-    { SN_EVENT::SNIA,  "Supernova Type Ia" }, 
-    { SN_EVENT::HeSD,  "Helium-shell detonation" }, 
+    { SN_EVENT::NONE,    "No Supernova" },
+    { SN_EVENT::CCSN,    "Core Collapse Supernova" },
+    { SN_EVENT::ECSN,    "Electron Capture Supernova" },
+    { SN_EVENT::PISN,    "Pair Instability Supernova" },
+    { SN_EVENT::PPISN,   "Pulsational Pair Instability Supernova" },
+    { SN_EVENT::USSN,    "Ultra Stripped Supernova" },
+    { SN_EVENT::AIC,     "Accretion-Induced Collapse" }, 
+    { SN_EVENT::SNIA,    "Supernova Type Ia" }, 
+    { SN_EVENT::HeSD,    "Helium-shell detonation" }, 
+    { SN_EVENT::SNII,    "Supernova Type IIa" },
+    { SN_EVENT::UNKNOWN, "Unknown Supernova Type" }
 };
 
 
@@ -1926,6 +1950,7 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     EXPERIENCED_PPISN,                               \
     EXPERIENCED_RLOF,                                \
     EXPERIENCED_SNIA,                                \
+    EXPERIENCED_SNII,                                \
     EXPERIENCED_SN_TYPE,                             \
     EXPERIENCED_USSN,                                \
     FALLBACK_FRACTION,                               \
@@ -1944,6 +1969,7 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     IS_PPISN,                                        \
     IS_RLOF,                                         \
     IS_SNIA,                                         \
+    IS_SNII,                                         \
     IS_USSN,                                         \
     KICK_MAGNITUDE,                                  \
     LAMBDA_AT_COMMON_ENVELOPE,                       \
@@ -2082,6 +2108,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::EXPERIENCED_PPISN,                               "EXPERIENCED_PPISN" },
     { STAR_PROPERTY::EXPERIENCED_RLOF,                                "EXPERIENCED_RLOF" },
     { STAR_PROPERTY::EXPERIENCED_SNIA,                                "EXPERIENCED_SNIA" },
+    { STAR_PROPERTY::EXPERIENCED_SNII,                                "EXPERIENCED_SNII" },
     { STAR_PROPERTY::EXPERIENCED_SN_TYPE,                             "EXPERIENCED_SN_TYPE" },
     { STAR_PROPERTY::EXPERIENCED_USSN,                                "EXPERIENCED_USSN" },
     { STAR_PROPERTY::FALLBACK_FRACTION,                               "FALLBACK_FRACTION" },
@@ -2100,6 +2127,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::IS_PPISN,                                        "IS_PPISN" },
     { STAR_PROPERTY::IS_RLOF,                                         "IS_RLOF" },
     { STAR_PROPERTY::IS_SNIA,                                         "IS_SNIA" },
+    { STAR_PROPERTY::IS_SNII,                                         "IS_SNII" },
     { STAR_PROPERTY::IS_USSN,                                         "IS_USSN" },
     { STAR_PROPERTY::KICK_MAGNITUDE,                                  "KICK_MAGNITUDE" },
     { STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                       "LAMBDA_AT_COMMON_ENVELOPE" },
@@ -2999,6 +3027,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::EXPERIENCED_PPISN,                                 { TYPENAME::BOOL,             "Experienced_PPISN",               "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_RLOF,                                  { TYPENAME::BOOL,             "Experienced_RLOF",                "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_SNIA,                                  { TYPENAME::BOOL,             "Experienced_SNIA",                "Event",             0, 0 }},
+    { ANY_STAR_PROPERTY::EXPERIENCED_SNII,                                  { TYPENAME::BOOL,             "Experienced_SNII",                "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_SN_TYPE,                               { TYPENAME::SN_EVENT,         "Experienced_SN_Type",             "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::EXPERIENCED_USSN,                                  { TYPENAME::BOOL,             "Experienced_USSN",                "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::FALLBACK_FRACTION,                                 { TYPENAME::DOUBLE,           "Fallback_Fraction",               "-",                24, 15}},
@@ -3017,6 +3046,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::IS_PPISN,                                          { TYPENAME::BOOL,             "PPISN",                           "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_RLOF,                                           { TYPENAME::BOOL,             "RLOF",                            "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_SNIA,                                           { TYPENAME::BOOL,             "SNIA",                            "State",             0, 0 }},
+    { ANY_STAR_PROPERTY::IS_SNII,                                           { TYPENAME::BOOL,             "SNII",                            "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_USSN,                                           { TYPENAME::BOOL,             "USSN",                            "State",             0, 0 }},
     { ANY_STAR_PROPERTY::KICK_MAGNITUDE,                                    { TYPENAME::DOUBLE,           "Applied_Kick_Magnitude",          "kms^-1",           24, 15}},
     { ANY_STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                         { TYPENAME::DOUBLE,           "Lambda@CE",                       "-",                24, 15}},

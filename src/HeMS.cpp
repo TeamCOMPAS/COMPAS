@@ -325,46 +325,60 @@ double HeMS::CalculateMassLossRateWolfRayetShenar2019() const {
  */
 double HeMS::CalculateMassLossRateFlexible2023() {
 
-    m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
-
     double MdotWR = 0.0;
 
-    if (OPTIONS->WRMassLoss() == WR_MASS_LOSS::SANDERVINK2023) {
+    m_DominantMassLossRate = MASS_LOSS_TYPE::WR;                                                                // set dominant mass loss rate
 
-        // Calculate Sander & Vink 2020 mass-loss rate
-        double Mdot_SanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
+    switch (OPTIONS->WRMassLossPrescription()) {                                                                // which WR mass loss prescription?
 
-        // Apply the Sander et al. 2023 temperature correction to the Sander & Vink 2020 rate
-        double Mdot_Sander2023     = CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(Mdot_SanderVink2020);
+        case WR_MASS_LOSS_PRESCRIPTION::SANDERVINK2023: {
+            // Calculate Sander & Vink 2020 mass-loss rate
+            double Mdot_SanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
 
-        // Calculate Vink 2017 mass-loss rate
-        double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
+            // Apply the Sander et al. 2023 temperature correction to the Sander & Vink 2020 rate
+            double Mdot_Sander2023 = CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(Mdot_SanderVink2020);
 
-        // Use whichever gives the highest mass loss rate -- will typically be Vink 2017 for
-        // low Mass or Luminosity, and Sander & Vink 2020 for high Mass or Luminosity
+            // Calculate Vink 2017 mass-loss rate
+            double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
 
-        MdotWR = std::max(Mdot_Sander2023, Mdot_Vink2017);
+            // Use whichever gives the highest mass loss rate -- will typically be Vink 2017 for
+            // low Mass or Luminosity, and Sander & Vink 2020 for high Mass or Luminosity
 
-    }
-    else if (OPTIONS->WRMassLoss() == WR_MASS_LOSS::SHENAR2019) {
+            MdotWR = std::max(Mdot_Sander2023, Mdot_Vink2017);
 
-        // Mass loss rate for WR stars from Shenar+ 2019
-        double Mdot_Shenar2019 = CalculateMassLossRateWolfRayetShenar2019();
+        } break;
 
-        // Calculate Vink 2017 mass-loss rate
-        double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
+        case WR_MASS_LOSS_PRESCRIPTION::SHENAR2019: {
+            // Mass loss rate for WR stars from Shenar+ 2019
+            double Mdot_Shenar2019 = CalculateMassLossRateWolfRayetShenar2019();
 
-        // Apply a minimum of Vink 2017 mass-loss rate to avoid extrapolating to low luminosity
-        MdotWR = std::max(Mdot_Shenar2019, Mdot_Vink2017);
+            // Calculate Vink 2017 mass-loss rate
+            double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
 
-    }
-    else {
-        MdotWR = CalculateMassLossRateBelczynski2010();
+            // Apply a minimum of Vink 2017 mass-loss rate to avoid extrapolating to low luminosity
+            MdotWR = std::max(Mdot_Shenar2019, Mdot_Vink2017);
+
+        } break;
+
+        case WR_MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010:
+            MdotWR = CalculateMassLossRateBelczynski2010();
+            break;
+
+        default:                                                                                                // unknown prescription
+            // the only way this can happen is if someone added a WR_MASS_LOSS_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            m_Error = ERROR::UNKNOWN_WR_MASS_LOSS_PRESCRIPTION;                                                 // set error value
+            THROW_ERROR(m_Error);                                                                               // throw error
     }
 
     return MdotWR;
-
 }
+
 
 /*
  * Determines if mass transfer is unstable according to the critical mass ratio.
