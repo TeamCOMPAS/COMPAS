@@ -1159,7 +1159,7 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
  * Mass Transfer, so some of the double episode cases here are a bit uncertain, and may
  * need to be refined at a later date.
  *
- * STELLAR_TYPE CalculateRemnantTypeBySchneider2020(const double p_COCoreMass)
+ * double CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool p_UseSchneiderAlt)
  *
  * @param   [IN]    p_COCoreMass                COCoreMass in Msol
  * @param   [IN]    p_UseSchneiderAlt           Whether to use the Schneider alt prescription 
@@ -1168,16 +1168,17 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
 double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool p_UseSchneiderAlt) {
 
     double logRemnantMass;
-    STYPE_VECTOR mtHist = MassTransferDonorHistory();
+
+    STYPE_VECTOR mtHist               = MassTransferDonorHistory();
     MT_CASE schneiderMassTransferCase = MT_CASE::OTHER;
 
-    // Determine which Schneider case prescription should be used. 
-    if (mtHist.size() == 0) {                                                                                           // No history of MT - effectively single star
+    // determine which Schneider case prescription should be used. 
+    if (mtHist.size() == 0) {                                                                                           // no history of MT - effectively single star
         schneiderMassTransferCase = MT_CASE::NONE;
     }
-    else { // (mtHist.size() > 0)                                                                                       // Star was MT donor at least once
+    else { // (mtHist.size() > 0)                                                                                       // star was MT donor at least once
 
-        STELLAR_TYPE mostRecentDonorType = mtHist[mtHist.size()-1];
+        STELLAR_TYPE mostRecentDonorType = mtHist[mtHist.size() - 1];
 
         if (utils::IsOneOf(mostRecentDonorType, { STELLAR_TYPE::MS_LTE_07, 
                                                   STELLAR_TYPE::MS_GT_07 })) {                                          // CASE A Mass Transfer - from MS
