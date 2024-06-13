@@ -16,6 +16,8 @@ class TPAGB: virtual public BaseStar, public EAGB {
 
 public:
 
+    TPAGB() { m_StellarType = STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH; };
+    
     TPAGB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), EAGB(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH;                                                                                                                            // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                                                     // Initialise if required

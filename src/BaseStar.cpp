@@ -1192,7 +1192,7 @@ double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Mass, con
 
     double lambda = 0.0;
 
-    std::vector<int> ind = utils::binarySearch(NANJING_MASSES, p_Mass);
+    std::vector<int> ind = utils::BinarySearch(NANJING_MASSES, p_Mass);
     int low = ind[0];
     int up  = ind[1];
     if ( (low < 0) && (up >= 0) ) {                                                                             // mass below range calculated by Xu & Li (2010)
@@ -1259,7 +1259,7 @@ double BaseStar::FindLambdaNanjingNearestMassIndex(const double p_Mass) const {
     
     if (p_Mass >= NANJING_MASSES_MIDPOINTS.back()) return NANJING_MASSES.size() - 1.0;                          // if M >= midpoint of uppermost bin, use lambda for the 100 Msun model
 
-    return utils::binarySearch(NANJING_MASSES_MIDPOINTS, p_Mass)[1];                                            // search for upper and lower mass bin edges
+    return utils::BinarySearch(NANJING_MASSES_MIDPOINTS, p_Mass)[1];                                            // search for upper and lower mass bin edges
 }
 
 
@@ -1428,7 +1428,7 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
     std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>> 
         radiiQCritsZetasFromGe20 = std::get<1>(GE20_QCRIT);
 
-    std::vector<int> ind = utils::binarySearch(massesFromGe20, m_Mass);
+    std::vector<int> ind = utils::BinarySearch(massesFromGe20, m_Mass);
     int lowerMassInd = ind[0];
     int upperMassInd = ind[1];
 
@@ -1466,7 +1466,7 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
     }
 
     // Get vector of radii from GE20_QCRIT for both lower and upper masses
-    std::vector<int> indR0 = utils::binarySearch(logRadiusVectorLowerMass, log10(m_Radius));
+    std::vector<int> indR0 = utils::BinarySearch(logRadiusVectorLowerMass, log10(m_Radius));
     int lowerRadiusLowerMassInd = indR0[0];
     int upperRadiusLowerMassInd = indR0[1];
 
@@ -1479,7 +1479,7 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
         upperRadiusLowerMassInd = logRadiusVectorLowerMass.size() - 1; 
     }
 
-    std::vector<int> indR1 = utils::binarySearch(logRadiusVectorUpperMass, log10(m_Radius));
+    std::vector<int> indR1 = utils::BinarySearch(logRadiusVectorUpperMass, log10(m_Radius));
     int lowerRadiusUpperMassInd = indR1[0];
     int upperRadiusUpperMassInd = indR1[1];
 

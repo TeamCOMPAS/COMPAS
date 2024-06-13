@@ -13,6 +13,8 @@ class MR: virtual public BaseStar, public Remnants {
 
 public:
 
+    MR() { m_StellarType = STELLAR_TYPE::MASSLESS_REMNANT; };
+    
     MR(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), Remnants(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::MASSLESS_REMNANT;                                                     // Set stellar type
         if (p_Initialise) Initialise();                                                                     // Initialise if required

@@ -291,6 +291,7 @@ public:
                                                       const double p_DonorThermalMassLossRate)                  { return ACCRETION_REGIME::NONE; }                                  // Placeholder, use inheritance for WDs
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
+    virtual MT_CASE         DetermineMassTransferTypeAsDonor() const                                            { return MT_CASE::OTHER; }                                          // Not A, B, C, or NONE
     
             void            HaltWinds()                                                                         { m_Mdot = 0.0; }                                                   // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 

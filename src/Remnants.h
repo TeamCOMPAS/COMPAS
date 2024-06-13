@@ -16,6 +16,8 @@ class Remnants: virtual public BaseStar, public HeGB {
 
 public:
 
+    Remnants(){};
+    
     Remnants(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HeGB(p_BaseStar, false) { }
 
 

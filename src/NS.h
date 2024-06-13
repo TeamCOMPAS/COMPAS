@@ -17,6 +17,8 @@ class NS: virtual public BaseStar, public Remnants {
 
 public:
 
+    NS() { m_StellarType = STELLAR_TYPE::NEUTRON_STAR; };
+    
     NS(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), Remnants(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::NEUTRON_STAR;                                                                                                                 // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                             // Initialise if required
@@ -36,16 +38,18 @@ public:
 
 
     // member functions - alphabetically
-    static  DBL_DBL_DBL     CalculateCoreCollapseSNParams_Static(const double p_Mass);
+    static  DBL_DBL_DBL CalculateCoreCollapseSNParams_Static(const double p_Mass);
 
-    static  double          CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Time);
+    static  double      CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Time);
 
-    static  double          CalculatePulsarBirthSpinPeriod_Static();
+    static  double      CalculatePulsarBirthSpinPeriod_Static();
 
-    static  double          CalculateRadiusOnPhaseInKM_Static(const double p_Mass);                                                                                 // Radius on phase in km
-    static  double          CalculateRadiusOnPhase_Static(const double p_Mass)      { return CalculateRadiusOnPhaseInKM_Static(p_Mass) * KM_TO_RSOL; }              // Radius on phase in Rsol  (JR: does this need to be static?  Same for CalculateRadiusOnPhaseInKM_Static())
+    static  double      CalculateRadiusOnPhaseInKM_Static(const double p_Mass);                                                                                 // Radius on phase in km
+    static  double      CalculateRadiusOnPhase_Static(const double p_Mass)      { return CalculateRadiusOnPhaseInKM_Static(p_Mass) * KM_TO_RSOL; }              // Radius on phase in Rsol  (JR: does this need to be static?  Same for CalculateRadiusOnPhaseInKM_Static())
 
-    static  double          CalculateRemnantMass_Static(const double p_COCoreMass)  { return 1.17 + (0.09 * p_COCoreMass); }                                        // Hurley et al., eq 92 (JR: Why is this in NS and not Remnants?)
+    static  double      CalculateRemnantMass_Static(const double p_COCoreMass)  { return 1.17 + (0.09 * p_COCoreMass); }                                        // Hurley et al., eq 92 (JR: Why is this in NS and not Remnants?)
+
+    MT_CASE             DetermineMassTransferTypeAsDonor() const                { return MT_CASE::NONE; }                                                       // Always NONE
 
 
 protected:

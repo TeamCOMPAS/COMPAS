@@ -27,7 +27,7 @@ namespace utils {
      *
      * std::vector<int> binarySearch(const std::vector<double> p_Arr, const double p_x)
      *
-     * @param   [IN]    p_Array             Sorted array to search over
+     * @param   [IN]    p_Arr               Sorted array to search over
      * @param   [IN]    p_x                 Value to search for
 
      * @return                              Vector containing indices of the lower and upper
@@ -36,7 +36,7 @@ namespace utils {
                                             is equal to an array element, return index of that
                                             element.
      */
-    std::vector<int> binarySearch(const std::vector<double> p_Arr, const double p_x) {
+    std::vector<int> BinarySearch(const std::vector<double> p_Arr, const double p_x) {
         int low = 0;
         int up = p_Arr.size() - 1;
         int mid = 0;

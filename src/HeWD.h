@@ -16,6 +16,8 @@ class HeWD: virtual public BaseStar, public WhiteDwarfs {
 
 public:
 
+    HeWD() { m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF; };
+    
     HeWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), WhiteDwarfs(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF;               // Set stellar type
         if (p_Initialise) Initialise();                                 // Initialise if required

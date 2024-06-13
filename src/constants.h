@@ -1251,7 +1251,7 @@ const COMPASUnorderedMap<MT_CASE, std::string> MT_CASE_LABEL = {
     { MT_CASE::A,    "Mass Transfer CASE A" },                          // mass transfer while donor is on main sequence
     { MT_CASE::B,    "Mass Transfer CASE B" },                          // donor star is in (or evolving to) Red Giant phase
     { MT_CASE::C,    "Mass Transfer CASE C" },                          // SuperGiant phase
-    { MT_CASE::OTHER,"Mass Transfer CASE OTHER: Some combination" }     // default value, or multiple MT events
+    { MT_CASE::OTHER,"Mass Transfer CASE OTHER: Multiple MT events" }   // default value, or multiple MT events
 };
 
 
