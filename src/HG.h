@@ -21,6 +21,8 @@ class HG: virtual public BaseStar, public GiantBranch {
 
 public:
 
+    HG() { m_StellarType = STELLAR_TYPE::HERTZSPRUNG_GAP; };
+    
     HG(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), GiantBranch(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::HERTZSPRUNG_GAP;                                                                                                                          // Set stellar type 
         if (p_Initialise) Initialise();                                                                                                                                         // Initialise if required
@@ -37,6 +39,8 @@ public:
         clone->SetPersistence(p_Persistence); 
         return clone; 
     }
+
+    MT_CASE DetermineMassTransferTypeAsDonor() const { return MT_CASE::B; }                                                                                                     // Always case B
 
 
 protected:

@@ -16,6 +16,8 @@ class MS_lte_07: virtual public BaseStar, public MainSequence {
 
 public:
 
+    MS_lte_07() { m_StellarType = STELLAR_TYPE::MS_LTE_07; };
+    
     MS_lte_07(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::MS_LTE_07;                                                    // Set stellar type
         if (p_Initialise) Initialise();                                                             // Initialise if required
@@ -44,10 +46,10 @@ protected:
 
     // member functions - alphabetically
     double      CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const ;
-    double      CalculateCriticalMassRatioHurleyHjellmingWebbink() const                      { return 1.44; }                                      // From BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
+    double      CalculateCriticalMassRatioHurleyHjellmingWebbink() const                    { return 1.44; }                    // From BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
     double      CalculateMassTransferRejuvenationFactor() const;
 
-    ENVELOPE    DetermineEnvelopeType() const                                                 { return ENVELOPE::CONVECTIVE; }                      // Always CONVECTIVE
+    ENVELOPE    DetermineEnvelopeType() const                                               { return ENVELOPE::CONVECTIVE; }    // Always CONVECTIVE
 };
 
 #endif // __MS_lte_07_h__

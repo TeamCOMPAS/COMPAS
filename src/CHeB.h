@@ -16,6 +16,8 @@ class CHeB: virtual public BaseStar, public FGB {
 
 public:
 
+    CHeB() { m_StellarType = STELLAR_TYPE::CORE_HELIUM_BURNING; };
+    
     CHeB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), FGB(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::CORE_HELIUM_BURNING;                                                                                                      // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                         // Initialise if required
@@ -108,7 +110,7 @@ protected:
     double          CalculateTauOnPhase() const;
 
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
-    void            CalculateTimescales()                                       { CalculateTimescales(m_Mass0, m_Timescales); }                        // Use class member variables
+    void            CalculateTimescales()                                       { CalculateTimescales(m_Mass0, m_Timescales); }                                 // Use class member variables
 
     double          ChooseTimestep(const double p_Time) const;
 

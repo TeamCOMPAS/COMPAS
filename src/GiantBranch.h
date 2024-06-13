@@ -17,6 +17,8 @@ class GiantBranch: virtual public BaseStar, public MainSequence {
 
 public:
 
+    GiantBranch(){};
+    
     GiantBranch(const BaseStar &p_BaseStar) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {}
 
 

@@ -16,6 +16,8 @@ class HeHG: virtual public BaseStar, public HeMS {
 
 public:
 
+    HeHG() { m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP; };
+    
     HeHG(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HeMS(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;                                                                                                                    // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                                     // Initialise if required

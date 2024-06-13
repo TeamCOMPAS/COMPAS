@@ -10,15 +10,15 @@ namespace utils {
 
 
     // object identifiers - all classes have these (adding here (no class) for error handling)
-    inline OBJECT_ID          ObjectId()          { return static_cast<int>(OBJECT_TYPE::UTILS); }  // object id for utils - ordinal value from enum
-    inline OBJECT_TYPE        ObjectType()        { return OBJECT_TYPE::UTILS; }                    // object type for utils - always "UTILS"
-    inline OBJECT_PERSISTENCE ObjectPersistence() { return OBJECT_PERSISTENCE::PERMANENT; }         // object persistence for utils - always "PERMANENT"
-    inline STELLAR_TYPE       StellarType()       { return STELLAR_TYPE::NONE; }                    // stellar type for utils - always "NONE"
+//    inline OBJECT_ID          ObjectId()          { return static_cast<int>(OBJECT_TYPE::UTILS); }  // object id for utils - ordinal value from enum
+//    inline OBJECT_TYPE        ObjectType()        { return OBJECT_TYPE::UTILS; }                    // object type for utils - always "UTILS"
+//    inline OBJECT_PERSISTENCE ObjectPersistence() { return OBJECT_PERSISTENCE::PERMANENT; }         // object persistence for utils - always "PERMANENT"
+//    inline STELLAR_TYPE       StellarType()       { return STELLAR_TYPE::NONE; }                    // stellar type for utils - always "NONE"
 
 
     // namespace functions - alphabetical (sort of)
 
-    std::vector<int>                    binarySearch(const std::vector<double> p_Arr, const double p_x);
+    std::vector<int>                    BinarySearch(const std::vector<double> p_Arr, const double p_x);
 
     double                              CalculateCDFKroupa(const double p_Mass, const double p_Max, const double p_Min);
 
@@ -150,6 +150,55 @@ namespace utils {
 
     STR_VECTOR                          GetStackTrace();
     void                                ShowStackTrace();
+
+
+
+
+/*
+ * Switch to required star type
+ *
+ * Instantiates new object of required class, deletes existing pointer to star object and
+ * replaces it with pointer to newly instantiated object
+ *
+ *
+ * STELLAR_TYPE SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialState)
+ *
+ * @param   [IN]    p_StellarType               StellarType to switch to
+ * @param   [IN]    p_SetInitialType            Indicates whether the initial stellar type of the star should be set to p_StellarType
+ *                                              (optional, default = false)
+ * @return                                      Stellar type of star before switch (previous stellar type)
+ */
+/*
+BaseStar* NewStar(const STELLAR_TYPE p_StellarType) {
+
+        BaseStar *ptr = nullptr;
+
+        switch (p_StellarType) {
+            case STELLAR_TYPE::MS_LTE_07                                : {ptr = new MS_lte_07();} break;
+            case STELLAR_TYPE::MS_GT_07                                 : {ptr = new MS_gt_07();} break;
+            case STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS                   : {ptr = new CH();} break;
+            case STELLAR_TYPE::HERTZSPRUNG_GAP                          : {ptr = new HG();} break;
+            case STELLAR_TYPE::FIRST_GIANT_BRANCH                       : {ptr = new FGB();} break;
+            case STELLAR_TYPE::CORE_HELIUM_BURNING                      : {ptr = new CHeB();} break;
+            case STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH            : {ptr = new EAGB();} break;
+            case STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH: {ptr = new TPAGB();} break;
+            case STELLAR_TYPE::NAKED_HELIUM_STAR_MS                     : {ptr = new HeMS();} break;
+            case STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP        : {ptr = new HeHG();} break;
+            case STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH           : {ptr = new HeGB();} break;
+            case STELLAR_TYPE::HELIUM_WHITE_DWARF                       : {ptr = new HeWD();} break;
+            case STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF                : {ptr = new COWD();} break;
+            case STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF                  : {ptr = new ONeWD();} break;
+            case STELLAR_TYPE::NEUTRON_STAR                             : {ptr = new NS();} break;
+            case STELLAR_TYPE::BLACK_HOLE                               : {ptr = new BH();} break;
+            case STELLAR_TYPE::MASSLESS_REMNANT                         : {ptr = new MR();} break;
+
+            default:                                                // not ok... (this can only happen if someone added a new stellar type)
+                THROW_ERROR_STATIC(ERROR::UNKNOWN_STELLAR_TYPE);    // throw error
+        }
+
+    return ptr;
+}
+*/
 
 }
 

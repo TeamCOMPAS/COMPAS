@@ -14,6 +14,8 @@ class COWD: virtual public BaseStar, public WhiteDwarfs {
 
 public:
 
+    COWD() { m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF; };
+    
     COWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), WhiteDwarfs(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                                // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                         // Initialise if required
