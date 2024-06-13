@@ -1205,12 +1205,14 @@
 //                                      - albeit with fixed AM loss (isotropic re-emission).
 // 02.49.01    IM - May 25, 2024     - Defect repair:
 //                                      - AIC now happens only when the mass of an ONeWD exceeds MCS, the Chandrasekhar mass, which requires accretion onto the WD (see Issue # #1138)
-// 02.49.02    VK - May 25, 2024     - Defect repairs:
+// 02.49.02    VK - June 11, 2024     - Defect repairs:
 //                                      - Fixed the sign of IW dissipation in dynamical tides to follow (2,2) mode synchronization.
 //                                      - Changed the definitions of beta and gamma in dynamical tides to be consistent with tri-layered stellar structures as well as bi-layered.
 //                                      - Fixed the definition of epsilon in IW dynamical tides to follow Ogilvie (2013) Eq. (42)
-                  
-const std::string VERSION_STRING = "02.49.02";
+// 02.49.03    VK - June 13, 2024     - Code cleanup:
+//                                      - Removed confusing definition of `one_minus_beta` in Dynamical tides code.
+                                   
+const std::string VERSION_STRING = "02.49.03";
 
 
 # endif // __changelog_h__
