@@ -2661,7 +2661,7 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
         else if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                           // cool stars, add Hurley et al 2000 winds (NJ90)
             otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // apply cool wind mass loss multiplier
         }                                                                                                           // change to Kelvin so it can be compared with values as stated in Vink prescription
-        else if (utils::Compare(m_MZAMS, VERY_MASSIVE_MINIMUM_MASS) >= 0) {
+        else if (utils::Compare(m_Mass, VERY_MASSIVE_MINIMUM_MASS) >= 0) {                                          // Changed from ZAMS to m_Mass (current)
             otherWindsRate         = CalculateMassLossRateVMS(OPTIONS->VMSMassLoss());        
             m_DominantMassLossRate = MASS_LOSS_TYPE::VMS;                                                           // massive MS, >100 Msol. Alternatively could use Luminosity or Gamma and Mass threshold                             
         }
