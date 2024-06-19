@@ -1211,8 +1211,15 @@
 //                                      - Fixed the definition of epsilon in IW dynamical tides to follow Ogilvie (2013) Eq. (42)
 // 02.49.03    VK - June 13, 2024     - Code cleanup:
 //                                      - Removed confusing definition of `one_minus_beta` in Dynamical tides code.
-                                   
-const std::string VERSION_STRING = "02.49.03";
+// 02.49.04    IM - June 19, 2024     - Defect repair, enhancement:
+//                                      - Corrected check for nuclear timescale (slow case A) mass transfer
+//                                      - Reduced MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP to 0.0001 to improve accuracy of orbital separation updates following mass transfer
+//                                      - Corrected temperature units in Picker formula for Tonset used in the calculation of the convective envelope mass
+//                                      - Code cleanup
+
+
+const std::string VERSION_STRING = "02.49.04";
+
 
 
 # endif // __changelog_h__
