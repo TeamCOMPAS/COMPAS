@@ -71,6 +71,11 @@ protected:
         m_InitialStellarType                       = m_StellarType;
         m_StellarTypePrev                          = m_StellarType;
         m_HeCoreMass                               = m_Mass;
+        // Set ZAMS values to -1. These shouldn't be used anyway.
+        m_MZAMS                                    = -1; 
+        m_RZAMS                                    = -1; 
+        m_LZAMS                                    = -1; 
+        m_TZAMS                                    = -1; 
     }
 
     // member functions - alphabetically

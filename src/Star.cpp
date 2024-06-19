@@ -17,7 +17,7 @@ Star::Star() : m_Star(new BaseStar()) {
 // Regular constructor - with parameters for RandomSeed, InitialMass, InitialStellarType, Metallicity, and KickParameters
 
 Star::Star(const unsigned long int p_RandomSeed,
-           const double            p_MInitial,
+           const double            p_InitialMass,
            const STELLAR_TYPE      p_InitialStellarType,
            const double            p_Metallicity, 
            const KickParameters    p_KickParameters,
@@ -27,14 +27,14 @@ Star::Star(const unsigned long int p_RandomSeed,
     m_ObjectType        = OBJECT_TYPE::STAR;                                                                        // set object type
     m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;                                                            // set object persistence
 
-    m_Star = new BaseStar(p_RandomSeed, p_MInitial, p_Metallicity, p_KickParameters, p_RotationalVelocity);            // create underlying BaseStar object
+    m_Star = new BaseStar(p_RandomSeed, p_InitialMass, p_Metallicity, p_KickParameters, p_RotationalVelocity);            // create underlying BaseStar object
 
     // Set the stellar type
     // If user specified, set to the supplied type
     // Otherwise, check if CHE 
     // If not, set to low mass or high mass MS as appropriate
 
-    if (!utils::IsOneOf(p_InitialStellarType, {STELLAR_TYPE::STAR})) {                                               // Stellar type set by user?
+    if (!utils::IsOneOf(p_InitialStellarType, {STELLAR_TYPE::STAR})) {                                               // Stellar type set by user? RTW: this is confusing, it's not clear that STAR just means default
         (void)SwitchTo(p_InitialStellarType, true);                                                                     // yes - switch to user supplied type
         (void)FastForward();                                                                                            // for non-MS stellar types, need to fast forward their attributes
     }
@@ -42,7 +42,7 @@ Star::Star(const unsigned long int p_RandomSeed,
         if (OPTIONS->CHEMode() != CHE_MODE::NONE && utils::Compare(m_Star->Omega(), m_Star->OmegaCHE()) >= 0) {             // CHE?
             (void)SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                     // yes
         }
-        else if (p_MInitial <= 0.7) {                                                                                          // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
+        else if (p_InitialMass <= 0.7) {                                                                                          // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
             (void)SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                                                                  // MS <= 0.0 Msol
         }
         else {

@@ -51,18 +51,6 @@ protected:
         m_AccretionRegime = ACCRETION_REGIME::NONE;
     }
 
-    void FastForward() {                                                                                                                                                        // Set stellar attributes for stars initialized to this stellar type
-
-        m_Radius                                   = CalculateRadiusOnPhase();
-        m_Luminosity                               = CalculateLuminosityOnPhase();
-    
-        m_InitialLuminosity                        = m_Luminosity;
-        m_InitialRadius                            = m_Radius;
-        m_InitialStellarType                       = m_StellarType;
-        m_StellarTypePrev                          = m_StellarType;
-    }
-
-
     // member functions
 
             double          CalculateLuminosityOnPhase(const double p_Mass,

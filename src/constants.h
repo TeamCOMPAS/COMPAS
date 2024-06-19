@@ -1949,6 +1949,7 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     MZAMS,                                           \
     OMEGA,                                           \
     OMEGA_BREAK,                                     \
+    OMEGA_ZAMS,                                     \
     ORBITAL_ENERGY_POST_SUPERNOVA,                   \
     ORBITAL_ENERGY_PRE_SUPERNOVA,                    \
     PULSAR_MAGNETIC_FIELD,                           \
@@ -2109,6 +2110,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::MZAMS,                                           "MZAMS" },
     { STAR_PROPERTY::OMEGA,                                           "OMEGA" },
     { STAR_PROPERTY::OMEGA_BREAK,                                     "OMEGA_BREAK" },
+    { STAR_PROPERTY::OMEGA_ZAMS,                                      "OMEGA_ZAMS" },
     { STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA,                   "ORBITAL_ENERGY_POST_SUPERNOVA" },
     { STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA,                    "ORBITAL_ENERGY_PRE_SUPERNOVA" },
     { STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,                           "PULSAR_MAGNETIC_FIELD" },
@@ -3026,6 +3028,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::MOMENT_OF_INERTIA,                                 { TYPENAME::DOUBLE,           "Moment_Of_Inertia",               "Msol Rsol^2",      24, 15}},
     { ANY_STAR_PROPERTY::OMEGA,                                             { TYPENAME::DOUBLE,           "Omega",                           "Hz",               24, 15}},
     { ANY_STAR_PROPERTY::OMEGA_BREAK,                                       { TYPENAME::DOUBLE,           "Omega_Break",                     "Hz",               24, 15}},
+    { ANY_STAR_PROPERTY::OMEGA_ZAMS,                                        { TYPENAME::DOUBLE,           "Omega_Zams",                      "Hz",               24, 15}},
     { ANY_STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA,                     { TYPENAME::DOUBLE,           "Orbital_Energy>SN",               "Msol^2AU^-1",      24, 15}},
     { ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA,                      { TYPENAME::DOUBLE,           "Orbital_Energy<SN",               "Msol^2AU^-1",      24, 15}},
     { ANY_STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,                             { TYPENAME::DOUBLE,           "Pulsar_Mag_Field",                "Tesla",            24, 15}},

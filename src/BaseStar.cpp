@@ -107,16 +107,19 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     // initialise remaining member variables
 
-    // Zero age main sequence parameters
-    m_InitialRadius                            = CalculateRadiusAtZAMS(m_InitialMass);
-    m_InitialLuminosity                        = CalculateLuminosityAtZAMS(m_InitialMass);
-    m_InitialTemperature                       = CalculateTemperatureOnPhase_Static(m_InitialLuminosity, m_InitialRadius);
+    // Zero age main sequence parameters - these are reset in the FastForward functions if the star is not initialized at ZAMS
+    m_MZAMS                                    = CalculateRadiusAtZAMS(m_MZAMS);
+    m_RZAMS                                    = CalculateRadiusAtZAMS(m_MZAMS);
+    m_LZAMS                                    = CalculateLuminosityAtZAMS(m_MZAMS);
+    m_TZAMS                                    = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
+    m_InitialRadius                            = m_RZAMS;
+    m_InitialLuminosity                        = m_LZAMS;
+    m_InitialTemperature                       = m_TZAMS;
 
-    m_OmegaCHE                                 = CalculateOmegaCHE(m_InitialMass, m_Metallicity);
-
+    m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
     m_InitialOmega                             = p_RotationalFrequency >= 0.0                           // valid rotational frequency passed in?
                                                     ? p_RotationalFrequency                             // yes - use it
-                                                    : CalculateInitialAngularFrequency(m_InitialMass, m_InitialRadius);  // no - calculate it
+                                                    : CalculateInitialAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
 
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
     m_InitialRadius0                           = m_InitialRadius;
@@ -325,9 +328,9 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::IS_HYDROGEN_POOR:                                   value = SN_IsHydrogenPoor();                                    break;
             case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
             case ANY_STAR_PROPERTY::INITIAL_LUMINOSITY:                                 value = InitialLuminosity();                                    break;
-            case ANY_STAR_PROPERTY::INITIAL_MASS:                                       value = InitialMass();                                                break;
+            case ANY_STAR_PROPERTY::INITIAL_MASS:                                       value = InitialMass();                                          break;
             case ANY_STAR_PROPERTY::INITIAL_RADIUS:                                     value = InitialRadius();                                        break;
-            case ANY_STAR_PROPERTY::INITIAL_OMEGA:                                      value = InitialOmega() / SECONDS_IN_YEAR;                          break;
+            case ANY_STAR_PROPERTY::INITIAL_OMEGA:                                      value = InitialOmega() / SECONDS_IN_YEAR;                       break;
             case ANY_STAR_PROPERTY::INITIAL_TEMPERATURE:                                value = InitialTemperature();                                   break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
@@ -358,8 +361,10 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::MEAN_ANOMALY:                                       value = SN_MeanAnomaly();                                       break;
             case ANY_STAR_PROPERTY::METALLICITY:                                        value = Metallicity();                                          break;
             case ANY_STAR_PROPERTY::MOMENT_OF_INERTIA:                                  value = CalculateMomentOfInertia();                             break;
+            case ANY_STAR_PROPERTY::MZAMS:                                              value = MZAMS();                                                break;
             case ANY_STAR_PROPERTY::OMEGA:                                              value = Omega() / SECONDS_IN_YEAR;                              break;
             case ANY_STAR_PROPERTY::OMEGA_BREAK:                                        value = OmegaBreak() / SECONDS_IN_YEAR;                         break;
+            case ANY_STAR_PROPERTY::OMEGA_ZAMS:                                         value = OmegaZAMS() / SECONDS_IN_YEAR;                          break;
             case ANY_STAR_PROPERTY::PULSAR_MAGNETIC_FIELD:                              value = Pulsar_MagneticField();                                 break;
             case ANY_STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE:                              value = Pulsar_SpinDownRate();                                  break;
             case ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY:                              value = Pulsar_SpinFrequency();                                 break;
@@ -372,6 +377,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::ROCKET_KICK_MAGNITUDE:                              value = SN_RocketKickMagnitude();                               break;
             case ANY_STAR_PROPERTY::ROCKET_KICK_PHI:                                    value = SN_RocketKickPhi();                                     break;
             case ANY_STAR_PROPERTY::ROCKET_KICK_THETA:                                  value = SN_RocketKickTheta();                                   break;
+            case ANY_STAR_PROPERTY::RZAMS:                                              value = RZAMS();                                                break;
             case ANY_STAR_PROPERTY::SN_TYPE:                                            value = SN_Type();                                              break;
             case ANY_STAR_PROPERTY::SPEED:                                              value = Speed();												break;
             case ANY_STAR_PROPERTY::STELLAR_TYPE:                                       value = StellarType();                                          break;
@@ -387,6 +393,8 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::TIMESCALE_MS:                                       value = Timescale(TIMESCALE::tMS);                              break;
             case ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION:             value = SN_TotalMassAtCOFormation();                            break;
             case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
+            case ANY_STAR_PROPERTY::TZAMS:                                              value = TZAMS()*TSOL;                                           break;
+            case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZetaAdiabaticHurley2002(m_CoreMass);           break;
             case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = CalculateZetaAdiabaticHurley2002(m_HeCoreMass);         break;
             case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = CalculateZetaAdiabaticSPH(m_CoreMass);                  break;
             case ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE:                                   value = CalculateZetaAdiabaticSPH(m_HeCoreMass);                break;
@@ -1087,6 +1095,7 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) const {
 	return logBindingEnergy;
 }
 
+// RTW TODO: In all the wind and binding energy functions below, you need to check whether they intrinsically use zams mass or initial mass!
 
 /*
  * Calculata lambda parameter from the so-called energy formalism of CE (Webbink 1984).
@@ -3183,7 +3192,7 @@ double BaseStar::CalculateOmegaBreak() const {
  *
  * double CalculateOmegaCHE(const double p_InitialMass, const double p_Metallicity)
  *
- * @param   [IN]        p_InitialMass                 Zero age main sequence mass in Msol
+ * @param   [IN]        p_InitialMass           Initial mass in Msol
  * @param   [IN]        p_Metallicity           Metallicity of the star
  * @return                                      Initial angular frequency in rad*s^-1
  */

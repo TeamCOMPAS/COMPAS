@@ -25,7 +25,7 @@ public:
              const double            p_InitialMass, 
              const double            p_Metallicity, 
              const KickParameters    p_KickParameters,
-             const double            p_RotationalVelocity = -1.0); 
+             const double            p_RotationalVelocity = -1.0);
 
 
     /*
@@ -147,6 +147,7 @@ public:
             double              OmegaCHE() const                                                { return m_OmegaCHE; }
             double              OmegaBreak() const                                              { return CalculateOmegaBreak(); }
             double              OmegaPrev() const                                               { return m_OmegaPrev; }
+            double              OmegaZAMS() const                                               { return m_OmegaZAMS; }
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
             double              Pulsar_MagneticField() const                                    { return m_PulsarDetails.magneticField; }
             double              Pulsar_SpinPeriod() const                                       { return m_PulsarDetails.spinPeriod; }
@@ -378,6 +379,7 @@ protected:
     double                  m_InitialOmega;                             // Initial Angular Frequency
     double                  m_LZAMS;                                    // ZAMS Luminosity
     double                  m_MZAMS;                                    // ZAMS Mass
+    double                  m_OmegaZAMS;                                // ZAMS Angular Frequency
     double                  m_OmegaCHE;                                 // Minimum angular frequency at which CHE will occur (calculated at ZAMS)
     double                  m_RZAMS;                                    // ZAMS Radius
     double                  m_TZAMS;                                    // ZAMS Temperature

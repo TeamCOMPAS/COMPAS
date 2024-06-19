@@ -59,17 +59,6 @@ protected:
         m_AccretionRegime          = ACCRETION_REGIME::NONE;
     }
 
-    void FastForward() {                                                                                                                                                        // Set stellar attributes for stars initialized to this stellar type
-
-        m_Radius                                   = CalculateRadiusOnPhase();
-        m_Luminosity                               = CalculateLuminosityOnPhase();
-    
-        m_InitialLuminosity                        = m_Luminosity;
-        m_InitialRadius                            = m_Radius;
-        m_InitialStellarType                       = m_StellarType;
-        m_StellarTypePrev                          = m_StellarType;
-    }
-
     // member functions - alphabetically
     double          CalculateLambdaDewi() const                                                             { return BaseStar::CalculateLambdaDewi(); }                                     // Not supported - use BaseStar
     double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }                 // Not supported - use BaseStar (0.0 are dummy values)    JR: todo: check this (type 10 not mentioned as not supported in original code)

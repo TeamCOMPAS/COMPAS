@@ -54,7 +54,7 @@ public:
     Star();
 
     Star(const unsigned long int p_RandomSeed, 
-         const double            p_MInitial, 
+         const double            p_InitialMass, 
          const STELLAR_TYPE      p_InitialStellarType,
          const double            p_Metallicity, 
          const KickParameters    p_KickParameters,

@@ -43,23 +43,11 @@ public:
     
     
 protected:
-    
+     
     void Initialise() {
         CalculateTimescales();                                                                                                                          // Initialise timescales
         m_Age = 0.0;                                                                                                                                    // Set age appropriately
-   }
-
-    void FastForward() {                                                                                                                                                        // Set stellar attributes for stars initialized to this stellar type
-
-        m_Radius                                   = CalculateRadiusOnPhase();
-        m_Luminosity                               = CalculateLuminosityOnPhase();
-    
-        m_InitialLuminosity                        = m_Luminosity;
-        m_InitialRadius                            = m_Radius;
-        m_InitialStellarType                       = m_StellarType;
-        m_StellarTypePrev                          = m_StellarType;
     }
-
 
     // member functions - alphabetically
     double  CalculateConvergedMassStepZetaNuclear() const                           { return 0.0; }
