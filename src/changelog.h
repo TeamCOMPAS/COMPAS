@@ -1214,6 +1214,7 @@
 // 02.49.04    IM - June 19, 2024     - Defect repair, enhancement:
 //                                      - Corrected check for nuclear timescale (slow case A) mass transfer
 //                                      - Reduced MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP to 0.0001 to improve accuracy of orbital separation updates following mass transfer
+//                                      - Corrected temperature units in Picker formula for Tonset used in the calculation of the convective envelope mass
 //                                      - Code cleanup
 
 
