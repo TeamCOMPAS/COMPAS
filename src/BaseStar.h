@@ -375,7 +375,7 @@ protected:
     unsigned long int       m_RandomSeed;                               // Seeds the random number generator for this star
 
     // Zero Age Main Sequence
-    double                  m_InitialOmega;                                // Initial Angular Frequency
+    double                  m_InitialOmega;                             // Initial Angular Frequency
     double                  m_LZAMS;                                    // ZAMS Luminosity
     double                  m_MZAMS;                                    // ZAMS Mass
     double                  m_OmegaCHE;                                 // Minimum angular frequency at which CHE will occur (calculated at ZAMS)
@@ -389,9 +389,9 @@ protected:
     double                  m_InitialTemperature;                       // Initial temperature (Tsol)
 
     // Effective Zero Age Main Sequence
-    double                  m_LInitial0;                                   // Effective Initial Luminosity
-    double                  m_RInitial0;                                   // Effective Initial Radius
-    double                  m_TInitial0;                                   // Effective Initial Temperature
+    double                  m_InitialLuminosity0;                       // Effective Initial Luminosity
+    double                  m_InitialRadius0;                           // Effective Initial Radius
+    double                  m_InitialTemperature0;                      // Effective Initial Temperature
 
 
     // Current timestep variables

@@ -1905,8 +1905,8 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     HE_CORE_MASS_AT_COMMON_ENVELOPE,                 \
     HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        \
     ID,                                              \
-    INITIAL_MASS,                                    \
     INITIAL_LUMINOSITY,                              \
+    INITIAL_MASS,                                    \
     INITIAL_OMEGA,                                   \
     INITIAL_RADIUS,                                  \
     INITIAL_STELLAR_TYPE,                            \
@@ -2069,8 +2069,8 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::INITIAL_MASS,                                    "INITIAL_MASS" },
     { STAR_PROPERTY::INITIAL_OMEGA,                                   "INITIAL_OMEGA" },
     { STAR_PROPERTY::INITIAL_RADIUS,                                  "INITIAL_RADIUS" },
-    { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "STELLAR_TYPE" },
-    { STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                       "STELLAR_TYPE_NAME" },
+    { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "INITIAL_STELLAR_TYPE" },
+    { STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                       "INITIAL_STELLAR_TYPE_NAME" },
     { STAR_PROPERTY::INITIAL_TEMPERATURE,                             "INITIAL_TEMPERATURE" },
     { STAR_PROPERTY::IS_AIC,                                          "IS_AIC" },
     { STAR_PROPERTY::IS_CCSN,                                         "IS_CCSN" },

@@ -311,7 +311,7 @@ void BaseBinaryStar::SetRemainingValues() {
             if (utils::Compare(m_Star1->Omega(), m_Star1->OmegaCHE()) >= 0) {                                                                               // star 1 CH?
                 if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not already Chemically Homogeneous
             }
-            else if (m_Star1->MInitial() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
+            else if (m_Star1->InitialMass() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
                 if (m_Star1->StellarType() != STELLAR_TYPE::MS_LTE_07) (void)m_Star1->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                              // MS <= 0.7 Msol - switch if necessary
             }
             else {
@@ -324,7 +324,7 @@ void BaseBinaryStar::SetRemainingValues() {
             if (utils::Compare(m_Star1->Omega(), m_Star2->OmegaCHE()) >= 0) {                                                                               // star 2 CH?
                 if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not already Chemically Homogeneous
             }
-            else if (m_Star2->MInitial() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
+            else if (m_Star2->InitialMass() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
                 if (m_Star2->StellarType() != STELLAR_TYPE::MS_LTE_07) (void)m_Star2->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                              // MS <= 0.0 Msol - switch if necessary
             }
             else {

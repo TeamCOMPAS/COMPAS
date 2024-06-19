@@ -51,7 +51,7 @@ protected:
     double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;
     double          CalculateLuminosityAtPhaseEnd() const                                   { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                      // Use class member variables
     double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const;
-    double          CalculateLuminosityOnPhase() const                                      { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LInitial0); }        // Use class member variables
+    double          CalculateLuminosityOnPhase() const                                      { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_InitialLuminosity0); }        // Use class member variables
 
     double          CalculateMomentOfInertia() const                                        { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                      // k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
 
@@ -61,8 +61,8 @@ protected:
 
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Time, const double p_RZAMS) const;
     double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_RZAMS) const;
-    double          CalculateRadiusAtPhaseEnd() const                                       { return CalculateRadiusAtPhaseEnd(m_Mass, m_RInitial); }                  // Use class member variables
-    double          CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase(m_Mass, m_Age, m_RInitial0); }             // Use class member variables
+    double          CalculateRadiusAtPhaseEnd() const                                       { return CalculateRadiusAtPhaseEnd(m_Mass, m_InitialRadius); }                  // Use class member variables
+    double          CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase(m_Mass, m_Age, m_InitialRadius0); }             // Use class member variables
 
     double          CalculateTauAtPhaseEnd() const                                          { return 1.0; }                                                         // tau = 1.0 at end of MS
     double          CalculateTauOnPhase() const;

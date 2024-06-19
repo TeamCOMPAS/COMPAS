@@ -121,13 +121,13 @@ public:
     double              Mass0() const                                                                               { return m_Star->Mass0(); }
     double              MassPrev() const                                                                            { return m_Star->MassPrev(); }
     double              Metallicity() const                                                                         { return m_Star->Metallicity(); }
-    double              MInitial() const                                                                               { return m_Star->MInitial(); }
+    double              InitialMass() const                                                                               { return m_Star->InitialMass(); }
     double              Omega() const                                                                               { return m_Star->Omega(); }
     double              OmegaCHE() const                                                                            { return m_Star->OmegaCHE(); }
     double              OmegaPrev() const                                                                           { return m_Star->OmegaPrev(); }
     double              Radius() const                                                                              { return m_Star->Radius(); }
     double              RadiusPrev() const                                                                          { return m_Star->RadiusPrev(); }
-    double              RInitial() const                                                                               { return m_Star->RInitial(); }
+    double              InitialRadius() const                                                                               { return m_Star->InitialRadius(); }
     SupernovaDetailsT   SN_Details() const                                                                          { return m_Star->SN_Details(); }
     double              SN_Phi() const                                                                              { return m_Star->SN_Phi(); }
     double              SN_Theta() const                                                                            { return m_Star->SN_Theta(); }

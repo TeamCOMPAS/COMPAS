@@ -14,7 +14,7 @@ Star::Star() : m_Star(new BaseStar()) {
 }
 
 
-// Regular constructor - with parameters for RandomSeed, MInitial, InitialStellarType, Metallicity, and KickParameters
+// Regular constructor - with parameters for RandomSeed, InitialMass, InitialStellarType, Metallicity, and KickParameters
 
 Star::Star(const unsigned long int p_RandomSeed,
            const double            p_MInitial,

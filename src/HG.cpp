@@ -54,7 +54,7 @@ double HG::CalculateRho(const double p_Mass) const {
 double HG::CalculateLambdaDewi() const {
 
 	double lambda1 = std::min(0.80, (3.0 / (2.4 + PPOW(m_Mass,-3.0 / 2.0))) - (0.15 * log10(m_Luminosity)));                // (A.3) Claeys+2014
-	double lambda2 = 0.42 * PPOW(m_RInitial / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
+	double lambda2 = 0.42 * PPOW(m_InitialRadius / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
 
     double lambdaCE;

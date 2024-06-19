@@ -61,9 +61,9 @@ protected:
 
     void FastForward() {                                                                                                                                                        // Set stellar attributes for stars initialized to this stellar type
 
-        m_Radius                                   = CalculateRadiusAtZAMS_Static(m_MInitial);
-        m_Luminosity                               = CalculateLuminosityAtZAMS_Static(m_MInitial);
-        m_Temperature                              = CalculateTemperatureOnPhase_Static(m_LInitial, m_RInitial);
+        m_Radius                                   = CalculateRadiusAtZAMS_Static(m_InitialMass);
+        m_Luminosity                               = CalculateLuminosityAtZAMS_Static(m_InitialMass);
+        m_Temperature                              = CalculateTemperatureOnPhase_Static(m_InitialLuminosity, m_InitialRadius);
 
         m_InitialLuminosity                        = m_Luminosity;
         m_InitialRadius                            = m_Radius;

@@ -82,7 +82,7 @@ double TPAGB::CalculateLambdaDewi() const {
 
     double lambda3 = std::min(-0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                          // (A.4) Claeys+2014
     double lambda1 = std::max(1.0, std::max(lambda3, -3.5 - (0.75 * log10(m_Mass)) + log10(m_Luminosity)));                 // (A.5) Bottom, Claeys+2014
-	double lambda2 = 0.42 * PPOW(m_RInitial / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
+	double lambda2 = 0.42 * PPOW(m_InitialRadius / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
 
     double lambdaCE;
