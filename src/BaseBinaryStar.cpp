@@ -1878,21 +1878,19 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
     double semiMajorAxis   = m_SemiMajorAxis;                                                                                   // new semi-major axis value - default is no change
     double massA           = p_Accretor.Mass();                                                                                 // accretor mass
     double massD           = p_DonorMass;                                                                                       // donor mass
-    double massAplusMassD  = massA + massD;                                                                                     // accretor mass + donor mass
     double jLoss;                                                                                                               // specific angular momentum carried away by non-conservative mass transfer
         
     if (utils::Compare(p_DeltaMassDonor, 0.0) < 0) {                                                                            // mass loss from donor?
                                                                                                                                 // yes
         int numberIterations = fmax( floor (fabs(p_DeltaMassDonor/(MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP * massD))), 1.0);    // number of iterations
         double dM            = p_DeltaMassDonor / numberIterations;                                                             // mass change per time step
-        
+                
         for(int i = 0; i < numberIterations ; i++) {
             jLoss          = CalculateGammaAngularMomentumLoss(massD, massA);
-            semiMajorAxis  = semiMajorAxis + (((-2.0 * dM / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis);
+            semiMajorAxis  = semiMajorAxis + (((-2.0 * dM / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / (massA + massD))))) * semiMajorAxis);
 
             massD          = massD + dM;
             massA          = massA - (dM * p_FractionAccreted);
-            massAplusMassD = massA + massD;
         }
     }
 
