@@ -1888,7 +1888,6 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
         
         for(int i = 0; i < numberIterations ; i++) {
             jLoss          = CalculateGammaAngularMomentumLoss(massD, massA);
-            //jOrb           = jOrb + ((jLoss * jOrb * (1.0 - p_FractionAccreted) / massAplusMassD) * dM);
             semiMajorAxis  = semiMajorAxis + (((-2.0 * dM / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis);
 
             massD          = massD + dM;
