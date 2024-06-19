@@ -1878,9 +1878,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
     double semiMajorAxis   = m_SemiMajorAxis;                                                                                   // new semi-major axis value - default is no change
     double massA           = p_Accretor.Mass();                                                                                 // accretor mass
     double massD           = p_DonorMass;                                                                                       // donor mass
-    double massAtimesMassD = massA * massD;                                                                                     // accretor mass * donor mass
     double massAplusMassD  = massA + massD;                                                                                     // accretor mass + donor mass
-    double jOrb            = (massAtimesMassD / massAplusMassD) * std::sqrt(semiMajorAxis * G_AU_Msol_yr * massAplusMassD);     // orbital angular momentum
     double jLoss;                                                                                                               // specific angular momentum carried away by non-conservative mass transfer
         
     if (utils::Compare(p_DeltaMassDonor, 0.0) < 0) {                                                                            // mass loss from donor?
@@ -1890,7 +1888,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
         
         for(int i = 0; i < numberIterations ; i++) {
             jLoss          = CalculateGammaAngularMomentumLoss(massD, massA);
-            jOrb           = jOrb + ((jLoss * jOrb * (1.0 - p_FractionAccreted) / massAplusMassD) * dM);
+            //jOrb           = jOrb + ((jLoss * jOrb * (1.0 - p_FractionAccreted) / massAplusMassD) * dM);
             semiMajorAxis  = semiMajorAxis + (((-2.0 * dM / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis);
 
             massD          = massD + dM;
