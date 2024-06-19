@@ -2101,7 +2101,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 m_CEDetails.CEEnow = true;                                                                                      // flag CE
             }
             else {                                                                                                              // have required mass loss
-                if(utils::Compare(m_MassLossRateInRLOF,donorMassLossRateNuclear) <= 1)                                          // if transferring mass on nuclear timescale, limit mass loss amount based to rate * timestep (thermal timescale MT always happens in one timestep)
+                if(utils::Compare(m_MassLossRateInRLOF,donorMassLossRateNuclear) == 0)                                          // if transferring mass on nuclear timescale, limit mass loss amount based to rate * timestep (thermal timescale MT always happens in one timestep)
                     massDiffDonor = std::min(massDiffDonor, m_MassLossRateInRLOF * m_Dt);
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
                 m_Donor->UpdateMinimumCoreMass();                                                                               // reset the minimum core mass following case A

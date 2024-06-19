@@ -1205,6 +1205,7 @@
 //                                      - albeit with fixed AM loss (isotropic re-emission).
 // 02.49.01    IM - May 25, 2024     - Defect repair:
 //                                      - AIC now happens only when the mass of an ONeWD exceeds MCS, the Chandrasekhar mass, which requires accretion onto the WD (see Issue # #1138)
+
                   
 const std::string VERSION_STRING = "02.49.01";
 
