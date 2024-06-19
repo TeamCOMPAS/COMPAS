@@ -1878,24 +1878,19 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
     double semiMajorAxis   = m_SemiMajorAxis;                                                                                   // new semi-major axis value - default is no change
     double massA           = p_Accretor.Mass();                                                                                 // accretor mass
     double massD           = p_DonorMass;                                                                                       // donor mass
-    double massAtimesMassD = massA * massD;                                                                                     // accretor mass * donor mass
-    double massAplusMassD  = massA + massD;                                                                                     // accretor mass + donor mass
-    double jOrb            = (massAtimesMassD / massAplusMassD) * std::sqrt(semiMajorAxis * G_AU_Msol_yr * massAplusMassD);     // orbital angular momentum
     double jLoss;                                                                                                               // specific angular momentum carried away by non-conservative mass transfer
         
     if (utils::Compare(p_DeltaMassDonor, 0.0) < 0) {                                                                            // mass loss from donor?
                                                                                                                                 // yes
         int numberIterations = fmax( floor (fabs(p_DeltaMassDonor/(MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP * massD))), 1.0);    // number of iterations
         double dM            = p_DeltaMassDonor / numberIterations;                                                             // mass change per time step
-        
+                
         for(int i = 0; i < numberIterations ; i++) {
             jLoss          = CalculateGammaAngularMomentumLoss(massD, massA);
-            jOrb           = jOrb + ((jLoss * jOrb * (1.0 - p_FractionAccreted) / massAplusMassD) * dM);
-            semiMajorAxis  = semiMajorAxis + (((-2.0 * dM / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis);
+            semiMajorAxis  = semiMajorAxis + (((-2.0 * dM / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / (massA + massD))))) * semiMajorAxis);
 
             massD          = massD + dM;
             massA          = massA - (dM * p_FractionAccreted);
-            massAplusMassD = massA + massD;
         }
     }
 
@@ -2101,7 +2096,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 m_CEDetails.CEEnow = true;                                                                                      // flag CE
             }
             else {                                                                                                              // have required mass loss
-                if(utils::Compare(m_MassLossRateInRLOF,donorMassLossRateNuclear) <= 1)                                          // if transferring mass on nuclear timescale, limit mass loss amount based to rate * timestep (thermal timescale MT always happens in one timestep)
+                if(utils::Compare(m_MassLossRateInRLOF,donorMassLossRateNuclear) == 0)                                          // if transferring mass on nuclear timescale, limit mass loss amount based to rate * timestep (thermal timescale MT always happens in one timestep)
                     massDiffDonor = std::min(massDiffDonor, m_MassLossRateInRLOF * m_Dt);
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
                 m_Donor->UpdateMinimumCoreMass();                                                                               // reset the minimum core mass following case A
