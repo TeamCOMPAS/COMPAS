@@ -1880,6 +1880,8 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
     double massD           = p_DonorMass;                                                                                       // donor mass
     double jLoss;                                                                                                               // specific angular momentum carried away by non-conservative mass transfer
         
+    std::cout<<"massD"<<massD<<"massA"<<massA<<"p_DeltaMassDonor"<<p_DeltaMassDonor<<"p_FractionAccreted"<<p_FractionAccreted<<"semiMajorAxis"<<semiMajorAxis<<std::endl;
+    
     if (utils::Compare(p_DeltaMassDonor, 0.0) < 0) {                                                                            // mass loss from donor?
                                                                                                                                 // yes
         int numberIterations = fmax( floor (fabs(p_DeltaMassDonor/(MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP * massD))), 1.0);    // number of iterations
@@ -1894,6 +1896,14 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
         }
     }
 
+    
+    
+    std::cout<<"massD"<<massD<<"massA"<<massA<<"p_DeltaMassDonor"<<p_DeltaMassDonor<<"p_FractionAccreted"<<p_FractionAccreted<<"semiMajorAxis"<<semiMajorAxis<<std::endl;
+    
+    
+    
+    
+    std::cout<<"massD"<<massD<<"massA"<<massA<<"p_DeltaMassDonor"<<p_DeltaMassDonor<<"p_FractionAccreted"<<p_FractionAccreted<<"semiMajorAxis"<<semiMajorAxis<<std::endl;
     return semiMajorAxis;
 }
 
