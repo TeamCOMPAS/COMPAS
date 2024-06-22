@@ -1216,9 +1216,11 @@
 //                                      - Reduced MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP to 0.0001 to improve accuracy of orbital separation updates following mass transfer
 //                                      - Corrected temperature units in Picker formula for Tonset used in the calculation of the convective envelope mass
 //                                      - Code cleanup
+// 02.49.05    IM - June 22, 2024     - Enhancement:
+//                                      - Replaced fixed-step, first-order integrator for orbital change after mass transfer with an adaptive-step, higher-order ODE integrator for improved speed and accuracy
 
 
-const std::string VERSION_STRING = "02.49.04";
+const std::string VERSION_STRING = "02.49.05";
 
 
 
