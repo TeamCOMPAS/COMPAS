@@ -426,8 +426,9 @@ private:
     double CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity);
     double CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_I1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity);
     double CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_M1, const double p_R1, const double p_M2, const double p_Omega, const double p_SemiMajorAxis, const double p_Eccentricity);
-
-    double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass);
+    
+    static double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate);
+    double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass)    { return CalculateGammaAngularMomentumLoss_Static(p_DonorMass, p_AccretorMass, m_Accretor->IsDegenerate()); }
     double  CalculateGammaAngularMomentumLoss()                                 { return CalculateGammaAngularMomentumLoss(m_Donor->Mass(), m_Accretor->Mass()); }
 
 
@@ -770,26 +771,6 @@ private:
         return root.first + (root.second - root.first) / 2.0;                                               // midway between brackets (could return brackets...)
     }
     
-    /*
-     * Right-hand side of differential equation for semi-major axis rate of change on mass transfer
-     *
-     * See Pols et al. notes; Belczynski et al. 2008, eq 32, 33
-     * Used for boost odeint solver in CalculateMassTransferOrbit()
-     *
-     *
-     * void SemimajorAxisDerivativeOnMassTransfer(double p_SemimajorAxis, double & p_dadm, double p_MassDonor, double p_MassAccretor)
-     *
-     * @param   [IN]    p_SemimajorAxis             Semimajor axis
-     * @param   [IN]    p_dadm                      Semimajor axis derivative with respect to change in donor mass
-     * @param   [IN]    p_MassDonor                 Mass of donor
-     * @param   [IN]    p_MassAccretor              Mass of accretor
-     */
-    void SemimajorAxisDerivativeOnMassTransfer(double p_SemimajorAxis, double & p_dadm, double p_MassDonor, double p_MassAccretor) {
-        double jLoss    = CalculateGammaAngularMomentumLoss(p_MassDonor, p_MassAccretor);         // specific angular momentum carried away by non-conservative mass transfer
-        p_dadm          = (((-2.0 / p_MassDonor) * (1.0 - (p_FractionAccreted * (p_MassDonor / p_MassAccretor)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (p_MassDonor / (p_MassAccretor + p_MassDonor))))) * p_SemimajorAxis);
-    }
-    
-  
 };
 
 #endif // __BaseBinaryStar_h__
