@@ -1825,14 +1825,15 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_D
 
 	double gamma;
 
-	switch (OPTIONS->MassTransferAngularMomentumLossPrescription()) {                                                       // which precription?
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS                : gamma = p_AccretorMass / p_DonorMass; break;     // vicinity of the donor
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION: gamma = p_DonorMass / p_AccretorMass; break;     // vicinity of the accretor
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING    : gamma = (M_SQRT2 * (p_DonorMass + p_AccretorMass) * (p_DonorMass + p_AccretorMass)) / (p_DonorMass * p_AccretorMass); break; // Based on the assumption that a_ring ~= 2*a*, Vinciguerra+, 2020 
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR       : {                                                // linear interpolation on separation between accretor and L2 point
+	switch (OPTIONS->MassTransferAngularMomentumLossPrescription()) {                                                                       // which precription?
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS                : gamma = p_AccretorMass / p_DonorMass; break;                     // vicinity of the donor
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION: gamma = p_DonorMass / p_AccretorMass; break;                     // vicinity of the accretor
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING    : 
+            gamma = (M_SQRT2 * (p_DonorMass + p_AccretorMass) * (p_DonorMass + p_AccretorMass)) / (p_DonorMass * p_AccretorMass); break;    // based on the assumption that a_ring ~= 2*a*, Vinciguerra+, 2020 
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR       : {                                                                // linear interpolation on separation between accretor and L2 point
             double q = p_AccretorMass / p_DonorMass;
             // interpolate in separation between a_acc and a_L2, both normalized to units of separation a
-            double aL2    = std::sqrt(M_SQRT2);                                                                             // roughly, coincides with CIRCUMBINARY_RING def above
+            double aL2    = std::sqrt(M_SQRT2);                                                                                             // roughly, coincides with CIRCUMBINARY_RING def above
             double aAcc   = 1.0 / (1.0 + q);
             double fMacleod = p_IsAccretorDegenerate
                 ? OPTIONS->MassTransferJlossMacLeodLinearFractionDegen()
@@ -1842,8 +1843,8 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_D
             break;
         }
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY            : gamma = OPTIONS->MassTransferJloss(); break;
-        default:                                                                                                            // unknown mass transfer angular momentum loss prescription - shouldn't happen
-            gamma   = 1.0;                                                                                                  // default value
+        default:                                                                                                                            // unknown mass transfer angular momentum loss prescription - shouldn't happen
+            gamma = 1.0;                                                                                                                    // default value
     }
 
     return gamma;
@@ -1872,31 +1873,29 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
                                                         BinaryConstituentStar& p_Accretor,
                                                   const double                 p_FractionAccreted) {
 
-    double semiMajorAxis    =   m_SemiMajorAxis;
+    double semiMajorAxis = m_SemiMajorAxis;
     
-    if (utils::Compare(p_DeltaMassDonor, 0.0) < 0) {                                                                            // mass loss from donor?
+    if (utils::Compare(p_DeltaMassDonor, 0.0) < 0) {    // mass loss from donor?
 
         controlled_stepper_type controlled_stepper;
         state_type x(1);
         x[0] = semiMajorAxis;
 
         // Use boost adaptive ODE solver for speed and accuracy
-        struct ode
-        {
+        struct ode {
             double p_MassDonor0, p_MassAccretor0, p_FractionAccreted;
             bool p_IsAccretorDegenerate;
             ode(double massDonor0, double massAccretor0, double fractionAccreted, bool isAccretorDegenerate) : p_MassDonor0(massDonor0), p_MassAccretor0(massAccretor0), p_FractionAccreted(fractionAccreted), p_IsAccretorDegenerate(isAccretorDegenerate) {}
 
-            void operator()( state_type const& x , state_type& dxdt , double p_MassChange ) const
-            {
-                double massD    = p_MassDonor0 + p_MassChange;
-                double massA    = p_MassAccretor0 - p_MassChange * p_FractionAccreted;
-                double jLoss    = CalculateGammaAngularMomentumLoss_Static(massD, massA, p_IsAccretorDegenerate);
-                dxdt[0]         = (-2.0 / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / (massA + massD)))) * x[0];
+            void operator()( state_type const& x , state_type& dxdt , double p_MassChange ) const {
+                double massD = p_MassDonor0 + p_MassChange;
+                double massA = p_MassAccretor0 - p_MassChange * p_FractionAccreted;
+                double jLoss = CalculateGammaAngularMomentumLoss_Static(massD, massA, p_IsAccretorDegenerate);
+                dxdt[0]      = (-2.0 / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / (massA + massD)))) * x[0];
             }
         };
 
-        integrate_adaptive( controlled_stepper , ode { p_DonorMass, p_Accretor.Mass(), p_FractionAccreted, m_Accretor->IsDegenerate() }, x , 0.0 , p_DeltaMassDonor , p_DeltaMassDonor/1000.0 );
+        integrate_adaptive( controlled_stepper , ode{ p_DonorMass, p_Accretor.Mass(), p_FractionAccreted, m_Accretor->IsDegenerate() }, x , 0.0 , p_DeltaMassDonor , p_DeltaMassDonor / 1000.0);
         semiMajorAxis = x[0];
     }
     

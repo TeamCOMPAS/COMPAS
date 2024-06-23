@@ -309,8 +309,8 @@ typedef struct StellarCEDetails {                      // Common Envelope detail
 
 
 // For boost ODE integrators, see https://www.boost.org/doc/libs/1_83_0/libs/numeric/odeint/doc/html/boost_numeric_odeint/tutorial/harmonic_oscillator.html
-typedef std::vector< double > state_type;
-typedef boost::numeric::odeint::runge_kutta_cash_karp54< state_type > error_stepper_type;
-typedef boost::numeric::odeint::controlled_runge_kutta< error_stepper_type > controlled_stepper_type;
+typedef DBL_VECTOR state_type;
+typedef boost::numeric::odeint::runge_kutta_cash_karp54<state_type> error_stepper_type;
+typedef boost::numeric::odeint::controlled_runge_kutta<error_stepper_type> controlled_stepper_type;
 
 #endif // __typedefs_h__
