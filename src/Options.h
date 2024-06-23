@@ -25,8 +25,8 @@
 
 #include <boost/any.hpp>
 
-//#include "constants.h"
 #include "typedefs.h"
+#include "ErrorCatalog.h"
 #include "profiling.h"
 #include "utils.h"
 #include "Rand.h"
@@ -740,7 +740,7 @@ public:
             ENUM_OPT<SEMI_MAJOR_AXIS_DISTRIBUTION>              m_SemiMajorAxisDistribution;                                    // Which semi-major axis distribution
             double                                              m_SemiMajorAxisDistributionMin;                                 // Minimum a in AU
             double                                              m_SemiMajorAxisDistributionMax;                                 // Maximum a in AU
-            double                                              m_SemiMajorAxisDistributionPower;                               // Set semi-major axis distribution power law slope by hand     ** JR: there is no option for this....
+            double                                              m_SemiMajorAxisDistributionPower;                               // Set semi-major axis distribution power law slope by hand     JR: there is no option for this... SHould it just be a constant? *Ilya*
 
             // Orbital period
             double                                              m_OrbitalPeriod;                                                // Orbital period in days
@@ -844,7 +844,7 @@ public:
 
             ENUM_OPT<MASS_LOSS_PRESCRIPTION>                    m_MassLossPrescription;                                         // Which mass loss prescription
 
-            ENUM_OPT<LBV_PRESCRIPTION>                          m_LuminousBlueVariablePrescription;                             // Which LBV mass loss prescription to use
+            ENUM_OPT<LBV_MASS_LOSS_PRESCRIPTION>                m_LBVMassLossPrescription;                                      // Which LBV mass loss prescription to use
             double                                              m_LuminousBlueVariableFactor;                                   // Multiplicitive factor for luminous blue variable (LBV) mass loss rates when using Belczynski’s prescription
             double                                              m_WolfRayetFactor;                                              // Multiplicitive factor for Wolf-Rayet (WR) wind mass loss rates
 
@@ -1113,7 +1113,7 @@ public:
 
     typedef std::tuple<TYPENAME, bool, std::string, std::string> ATTR;                  // <dataType, defaulted, typeStr, valueStr>
 
-    typedef std::tuple<std::string, std::string, std::string, std::string> OPTIONSTR;   // option strings for specified options: <asEntered, asEnteredDownshifted, longName, shortName>
+    typedef STR_STR_STR_STR OPTIONSTR;                                                  // option strings for specified options: <asEntered, asEnteredDownshifted, longName, shortName>
 
     // we have two structs:
     //    one for the commandline (program-level) options, and 
@@ -1177,8 +1177,6 @@ private:
 
     std::vector<OptionDetailsT> OptionDetails(const OptionsDescriptorT &p_Options);
 
-    int                         SetRandomSeed(OptionsDescriptorT &p_OptionsDescriptor, const unsigned long int p_RandomSeed);
-
 public:
 
     static Options*             Instance();
@@ -1194,7 +1192,7 @@ public:
     bool                        InitialiseEvolvingObject(const std::string p_OptionsString);
 
     ERROR                       OpenGridFile(const std::string p_GridFilename);
-    int                         OptionSpecified(const std::string p_OptionString);
+    bool                        OptionSpecified(const std::string p_OptionString);
 
     COMPAS_VARIABLE             OptionValue(const T_ANY_PROPERTY p_Property) const;
 
@@ -1204,8 +1202,9 @@ public:
 
     ERROR                       SeekToGridFileLine(const unsigned int p_Line);
 
-    int                         SetRandomSeed(const unsigned long int p_RandomSeed, const OPTIONS_ORIGIN p_OptionsSet);
+    std::string                 SetRandomSeed(const unsigned long int p_RandomSeed, const OPTIONS_ORIGIN p_OptionsSet);
 
+    void                        ShowDeprecations(const bool p_Commandline = true);
 
     // getters
 
@@ -1289,7 +1288,7 @@ public:
 
     size_t                                      HDF5ChunkSize() const                                                   { return m_CmdLine.optionValues.m_HDF5ChunkSize; }
     size_t                                      HDF5BufferSize() const                                                  { return m_CmdLine.optionValues.m_HDF5BufferSize; }
-    bool                                        HMXRBinaries() const                                                    { return OPT_VALUE("hmxr-binaries", m_HMXRBinaries, false); }
+    bool                                        HMXRBinaries() const                                                    { return OPT_VALUE("hmxr-binaries", m_HMXRBinaries, true); }
 
     double                                      InitialMass() const                                                     { return OPT_VALUE("initial-mass", m_InitialMass, true); }
     double                                      InitialMass1() const                                                    { return OPT_VALUE("initial-mass-1", m_InitialMass1, true); }
@@ -1316,9 +1315,9 @@ public:
     double                                      KickMagnitude1() const                                                  { return OPT_VALUE("kick-magnitude-1", m_KickMagnitude1, true); }
     double                                      KickMagnitude2() const                                                  { return OPT_VALUE("kick-magnitude-2", m_KickMagnitude2, true); }
 
-    double                                      KickMagnitudeRandom() const                                             { return OPT_VALUE("kick-magnitude-random", m_KickMagnitudeRandom, false); }
-    double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, false); }
-    double                                      KickMagnitudeRandom2() const                                            { return OPT_VALUE("kick-magnitude-random-2", m_KickMagnitudeRandom2, false); }
+    double                                      KickMagnitudeRandom() const                                             { return OPT_VALUE("kick-magnitude-random", m_KickMagnitudeRandom, true); }
+    double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, true); }
+    double                                      KickMagnitudeRandom2() const                                            { return OPT_VALUE("kick-magnitude-random-2", m_KickMagnitudeRandom2, true); }
 
     std::vector<std::string>                    LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
     std::string                                 LogfileBeBinaries() const                                               { return m_CmdLine.optionValues.m_LogfileBeBinaries; }
@@ -1371,7 +1370,7 @@ public:
     double                                      LuminosityToMassThreshold() const                                       { return OPT_VALUE("luminosity-to-mass-threshold", m_LuminosityToMassThreshold, true); }
 
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
-    LBV_PRESCRIPTION                            LuminousBlueVariablePrescription() const                                { return OPT_VALUE("luminous-blue-variable-prescription", m_LuminousBlueVariablePrescription.type, true); }
+    LBV_MASS_LOSS_PRESCRIPTION                  LuminousBlueVariablePrescription() const                                { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
     
     double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
     
@@ -1514,12 +1513,12 @@ public:
 
     void                                        ShowHelp()                                                              { PrintOptionHelp(!m_CmdLine.optionValues.m_ShortHelp); }
 
-    double                                      SN_MeanAnomaly1() const                                                 { return OPT_VALUE("kick-mean-anomaly-1", m_KickMeanAnomaly1, false); }
-    double                                      SN_MeanAnomaly2() const                                                 { return OPT_VALUE("kick-mean-anomaly-2", m_KickMeanAnomaly2, false); }
-    double                                      SN_Phi1() const                                                         { return OPT_VALUE("kick-phi-1", m_KickPhi1, false); }
-    double                                      SN_Phi2() const                                                         { return OPT_VALUE("kick-phi-2", m_KickPhi2, false); }
-    double                                      SN_Theta1() const                                                       { return OPT_VALUE("kick-theta-1", m_KickTheta1, false); }
-    double                                      SN_Theta2() const                                                       { return OPT_VALUE("kick-theta-2", m_KickTheta2, false); }
+    double                                      SN_MeanAnomaly1() const                                                 { return OPT_VALUE("kick-mean-anomaly-1", m_KickMeanAnomaly1, true); }
+    double                                      SN_MeanAnomaly2() const                                                 { return OPT_VALUE("kick-mean-anomaly-2", m_KickMeanAnomaly2, true); }
+    double                                      SN_Phi1() const                                                         { return OPT_VALUE("kick-phi-1", m_KickPhi1, true); }
+    double                                      SN_Phi2() const                                                         { return OPT_VALUE("kick-phi-2", m_KickPhi2, true); }
+    double                                      SN_Theta1() const                                                       { return OPT_VALUE("kick-theta-1", m_KickTheta1, true); }
+    double                                      SN_Theta2() const                                                       { return OPT_VALUE("kick-theta-2", m_KickTheta2, true); }
 
     bool                                        StoreInputFiles() const                                                 { return m_CmdLine.optionValues.m_StoreInputFiles; }
     bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }
@@ -1533,7 +1532,7 @@ public:
 
     bool                                        UseFixedUK() const                                                      { return (m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_UseFixedUK); }
     bool                                        UseMassLoss() const                                                     { return OPT_VALUE("use-mass-loss", m_UseMassLoss, true); }
-    bool                                        UseMassTransfer() const                                                 { return OPT_VALUE("mass-transfer", m_UseMassTransfer, true); }
+    bool                                        UseMassTransfer() const                                                 { return OPTIONS->OptionSpecified("use-mass-transfer") ? OPT_VALUE("use-mass-transfer", m_UseMassTransfer, true) : OPT_VALUE("mass-transfer", m_UseMassTransfer, true); } // mass-loss DEPRECATED June 2024 - remove end 2024
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
 

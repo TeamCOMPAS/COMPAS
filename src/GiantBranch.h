@@ -80,7 +80,7 @@ protected:
             double          CalculateFallbackMass(const double p_PreSNMass, const double p_ProtoMass, const double p_Fallback);
             double          CalculateGravitationalRemnantMass(const double p_BaryonicRemnantMass);
             double          CalculateProtoCoreMassDelayed(const double p_COCoreMass);
-            double          CalculateProtoCoreMassRapid();
+            double          CalculateProtoCoreMassRapid()                                                   { return 1.0; }
             double          CalculateRemnantMassByBelczynski2002(const double p_Mass, const double p_COCoreMass, const double p_FallbackFraction);
             DBL_DBL         CalculateRemnantMassByFryer2012(const double p_Mass, const double p_COCoreMass);
             DBL_DBL         CalculateRemnantMassByFryer2022(const double p_Mass, const double p_COCoreMass);
@@ -93,7 +93,7 @@ protected:
 
             double          CalculatePerturbationMu() const;
 
-            double          CalculateRadialExtentConvectiveEnvelope() const                                 { return (m_Radius - CalculateConvectiveCoreRadius()); }    //Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
+            double          CalculateRadialExtentConvectiveEnvelope() const                                 { return (m_Radius - CalculateConvectiveCoreRadius()); }            // Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
 
             double          CalculateRadiusAtHeIgnition(const double p_Mass) const;
             double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, m_BnCoefficients); }

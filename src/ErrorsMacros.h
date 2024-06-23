@@ -5,8 +5,8 @@
 #define GET_MACRO(_0, _1, _2, _3, _4, _5, NAME, ...) NAME
 
 #define SHOW_ERROR_0()
-#define SHOW_ERROR_1(error)                          { ERRORS->ShowIt(ERROR_PREFIX, error, "", ObjectId(), ObjectType(), StellarType(), __PRETTY_FUNCTION__); m_Error = error; }
-#define SHOW_ERROR_2(error, qualifyingStr)           { ERRORS->ShowIt(ERROR_PREFIX, error, qualifyingStr, ObjectId(), ObjectType(), StellarType(), __PRETTY_FUNCTION__); m_Error = error; }
+#define SHOW_ERROR_1(error)                          { ERRORS->ShowIt(ERROR_PREFIX, error, "", ObjectId(), ObjectType(), StellarType(), __PRETTY_FUNCTION__); }
+#define SHOW_ERROR_2(error, qualifyingStr)           { ERRORS->ShowIt(ERROR_PREFIX, error, qualifyingStr, ObjectId(), ObjectType(), StellarType(), __PRETTY_FUNCTION__); }
 #define SHOW_ERROR_3()
 #define SHOW_ERROR_4()
 #define SHOW_ERROR_5()

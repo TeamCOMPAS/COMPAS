@@ -32,10 +32,10 @@
  *
  * Error macros:
  *
- *    SHOW_ERROR(error_number)                       : prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), and sets m_Error
- *    SHOW_ERROR(error_number, error_string)         : prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), appends "error_string", and sets m_Error
- *    SHOW_ERROR_IF(cond, error_number)              : if "cond" is TRUE, prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), and sets m_Error
- *    SHOW_ERROR_IF(cond, error_number, error_string): if "cond" is TRUE, prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), appends "error_string", and sets m_Error
+ *    SHOW_ERROR(error_number)                       : prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog)
+ *    SHOW_ERROR(error_number, error_string)         : prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), appends "error_string"
+ *    SHOW_ERROR_IF(cond, error_number)              : if "cond" is TRUE, prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog)
+ *    SHOW_ERROR_IF(cond, error_number, error_string): if "cond" is TRUE, prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog), appends "error_string"
  *
  * Warning macros:
  *
@@ -53,23 +53,14 @@
  *
  * Notes:
  *
- * Any object that uses the  non-static SHOW_* macros *must* expose the following variable:
- * 
- *    ERROR m_Error
- * 
- *  and the followingfunctions:
+ * Any object that uses the  non-static SHOW_* macros *must* expose the following functions:
  *
  *    OBJECT_ID    ObjectId()    (would typically return m_ObjectId)
  *    OBJECT_TYPE  ObjectType()  (would typically return m_ObjectType)
  *    STELLAR_TYPE StellarType() (would typically return m_StellarType)
  *
- * The variable "m_Error" is set by the SHOW_ERROR* macros, and the functions are called, by the SHOW_ERROR* and SHOW_WARN* macros.
- * If any of the functions are not applicable to the object, then they must return "*::NONE" (all objects should implement ObjectId() correctly)
- * 
- * (Setting the variable "m_Error" by the macros was a bit of a toss-up - I didn't want to obscure the fact that "m_Error" needs to be se when
- * an error ocuurs so it can be written correctly to the log files, but I also wanted to ensure it was set.  Setting it with the macros seemd
- * to be the best compromise - it ensure that "m_Error" is set (if the macros are called), but doesn't preclude developers from explicitly
- * setting it in the code to make clear what is happening.)
+ * The functions are called, by the SHOW_ERROR* and SHOW_WARN* macros.  If any of the functions are not applicable to the object, then they
+ * must return "*::NONE" (all objects should implement ObjectId() correctly)
  * 
  * 
  * An additional set of macros is provided to be used in static functions and other functions that are not contained within an instantiated 
@@ -99,16 +90,14 @@
  *    The object type of the calling object (doesn't add enough information on its own)
  *    The stellar type of the calling object (not available in static functions)
  * 
- * The static SHOW_ERROR* macros do not set the variable "m_Error", nor do the static SHOW_ERROR* and SHOW_WARN* macros call the functions listed above.
- *
  * 
  * Another additional set of macros is provided, for both static and non-static functions, that will, after displaying an error (as described above),
  * throw an exception and cause the ordinary program flow to be interrupted.  These are:
  *
- *    THROW_ERROR(error_number)                              : displays the error (as described above), sets m_Error, then throws exception
- *    THROW_ERROR(error_number, error_string)                : displays the error (as described above), sets m_Error, then throws exception
- *    THROW_ERROR_IF(cond, error_number)                     : if "cond" is TRUE, displays the error (as described above), sets m_Error, then throws exception
- *    THROW_ERROR_IF(cond, error_number, error_string)       : if "cond" is TRUE, displays the error (as described above), sets m_Error, then throws exception
+ *    THROW_ERROR(error_number)                              : displays the error (as described above), then throws exception
+ *    THROW_ERROR(error_number, error_string)                : displays the error (as described above), then throws exception
+ *    THROW_ERROR_IF(cond, error_number)                     : if "cond" is TRUE, displays the error (as described above), then throws exception
+ *    THROW_ERROR_IF(cond, error_number, error_string)       : if "cond" is TRUE, displays the error (as described above), then throws exception
  *
  *    THROW_ERROR_STATIC(error_number)                       : displays the error (as described above), then throws exception
  *    THROW_ERROR_STATIC(error_number, error_string)         : displays the error (as described above), then throws exception
@@ -179,7 +168,7 @@ bool Errors::ShowIt(const std::string  p_Prefix,
             ERROR_SCOPE,                                                                                                                        //    scope
             bool,                                                                                                                               //    flag indicating if already printed
             std::vector<OBJECT_TYPE>,                                                                                                           //    object type
-            std::vector<STELLAR_TYPE>,                                                                                                          //    stellar type
+            ST_VECTOR,                                                                                                                          //    stellar type
             std::vector<OBJECT_ID>,                                                                                                             //    vector of non-stellar (main, utils, etc) object ids
             std::vector<OBJECT_ID>,                                                                                                             //    vector of stellar ids
             std::vector<std::string>,                                                                                                           //    vector of function names for non-stellar object ids
@@ -209,7 +198,7 @@ bool Errors::ShowIt(const std::string  p_Prefix,
 
             bool                      already             = std::get<1>(iter->second);                                                          // already printed once?
             std::vector<OBJECT_TYPE>  objectTypes         = std::get<2>(iter->second);                                                          // object types from which error already printed
-            std::vector<STELLAR_TYPE> stellarTypes        = std::get<3>(iter->second);                                                          // stellar types from which error already printed
+            ST_VECTOR stellarTypes                        = std::get<3>(iter->second);                                                          // stellar types from which error already printed
             std::vector<OBJECT_ID>    nonStellarObjectIds = std::get<4>(iter->second);                                                          // non-stellar object ids from which error already printed
             std::vector<OBJECT_ID>    stellarObjectIds    = std::get<5>(iter->second);                                                          // stellar object ids from which error already printed
             std::vector<std::string>  nonStellarFuncs     = std::get<6>(iter->second);                                                          // non-stellar functions from which error already printed
@@ -357,14 +346,14 @@ void Errors::Clean() {
         std::vector<OBJECT_ID> stellarObjectIds = std::get<5>(catalogIter.second);                                                                                      // stellar object ids
         if (stellarObjectIds.size() == 0) continue;                                                                                                                     // no stellar objectIds for this error
 
-        ERROR_SCOPE               scope               = std::get<0>(catalogIter.second);                                                                                // scope of error
-        bool                      already             = std::get<1>(catalogIter.second);                                                                                // already
-        std::vector<OBJECT_TYPE>  objectTypes         = std::get<2>(catalogIter.second);                                                                                // object types
-        std::vector<STELLAR_TYPE> stellarTypes        = std::get<3>(catalogIter.second);                                                                                // stellar types
-        std::vector<OBJECT_ID>    nonStellarObjectIds = std::get<4>(catalogIter.second);                                                                                // object ids
-        std::vector<std::string>  nonStellarFuncs     = std::get<6>(catalogIter.second);                                                                                // functions
-        std::vector<std::string>  stellarFuncs        = std::get<7>(catalogIter.second);                                                                                // functions
-        std::string               text                = std::get<8>(catalogIter.second);                                                                                // error text
+        ERROR_SCOPE              scope               = std::get<0>(catalogIter.second);                                                                                 // scope of error
+        bool                     already             = std::get<1>(catalogIter.second);                                                                                 // already
+        std::vector<OBJECT_TYPE> objectTypes         = std::get<2>(catalogIter.second);                                                                                 // object types
+        ST_VECTOR                stellarTypes        = std::get<3>(catalogIter.second);                                                                                 // stellar types
+        std::vector<OBJECT_ID>   nonStellarObjectIds = std::get<4>(catalogIter.second);                                                                                 // object ids
+        std::vector<std::string> nonStellarFuncs     = std::get<6>(catalogIter.second);                                                                                 // functions
+        std::vector<std::string> stellarFuncs        = std::get<7>(catalogIter.second);                                                                                 // functions
+        std::string              text                = std::get<8>(catalogIter.second);                                                                                 // error text
 
         stellarObjectIds.clear();                                                                                                                                       // clear stellar objectIds vector
         stellarFuncs.clear();                                                                                                                                           // clear stellar funcs vector

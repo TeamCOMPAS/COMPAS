@@ -15,22 +15,29 @@
  *
  * @return                                      Rejuvenation factor
  */
-double MS_lte_07::CalculateMassTransferRejuvenationFactor() const {
+double MS_lte_07::CalculateMassTransferRejuvenationFactor() {
 
-    double fRej = 1.0;                                                                              // default - Hurley et al. 2000
+    double fRej = 1.0;                                                                          // default - Hurley et al. 2000
 
-    switch (OPTIONS->MassTransferRejuvenationPrescription()) {                                      // which prescription?
+    switch (OPTIONS->MassTransferRejuvenationPrescription()) {                                  // which prescription?
 
-        case MT_REJUVENATION_PRESCRIPTION::NONE:                                                    // NONE: use default Hurley et al. 2000 prescription = 1.0
-        case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                                               // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf
+        case MT_REJUVENATION_PRESCRIPTION::NONE:                                                // NONE: use default Hurley et al. 2000 prescription = 1.0
+        case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                                           // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf
 
-            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {                                          // Rejuvenation factor is unity for mass losing stars
+            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {                                      // Rejuvenation factor is unity for mass losing stars  JR: do we really need this?  It's going to default to 1.0 if the condition is false anyway. *Ilya*
                 fRej = 1.0;
             }
             break;
 
-        default:                                                                                    // unknown prescription - use default Hurley et al. 2000 prescription = 1.0
-            SHOW_WARN(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION, "Using default fRej = 1.0");     // show warning
+        default:                                                                                // unknown prescription
+            // the only way this can happen is if someone added a MT_REJUVENATION_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION);                           // throw error
     }
 
     return fRej;

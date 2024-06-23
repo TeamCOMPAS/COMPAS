@@ -38,14 +38,14 @@ public:
 
 
     // member functions - alphabetically
-    static  double      CalculateAgeOnPhase_Static(const double p_Mass, const double p_CoreMass, const double p_tHeMS, const DBL_VECTOR &p_GBParams);
+    static  double  CalculateAgeOnPhase_Static(const double p_Mass, const double p_CoreMass, const double p_tHeMS, const DBL_VECTOR &p_GBParams);
 
-    static  double      CalculateCoreMassOnPhase_Static(const double p_Mass, const double p_Time, const double p_tHeMS, const DBL_VECTOR &p_GBParams);
+    static  double  CalculateCoreMassOnPhase_Static(const double p_Mass, const double p_Time, const double p_tHeMS, const DBL_VECTOR &p_GBParams);
 
-    static  double      CalculateLuminosityOnPhase_Static(const double p_CoreMass, const double p_GBPB, const double p_GBPD);
+    static  double  CalculateLuminosityOnPhase_Static(const double p_CoreMass, const double p_GBPB, const double p_GBPD);
 
-    double          CalculateRadialExtentConvectiveEnvelope() const                                 { return FGB::CalculateRadialExtentConvectiveEnvelope(); }                             
-    static  DBL_DBL     CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Luminosity);
+    double          CalculateRadialExtentConvectiveEnvelope() const                                                 { return FGB::CalculateRadialExtentConvectiveEnvelope(); }                             
+    static  DBL_DBL CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Luminosity);
 
 
 protected:

@@ -40,10 +40,10 @@ public:
 
         m_RandomSeed                       = p_Star.m_RandomSeed;
 
-        m_BeBinaryDetails                  = p_Star.m_BeBinaryDetails;
+//        m_BeBinaryDetails                  = p_Star.m_BeBinaryDetails;
 
-        m_BeBinaryDetails.currentProps     = p_Star.m_BeBinaryDetails.currentProps  == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
-        m_BeBinaryDetails.previousProps    = p_Star.m_BeBinaryDetails.previousProps == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
+//        m_BeBinaryDetails.currentProps     = p_Star.m_BeBinaryDetails.currentProps  == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
+//        m_BeBinaryDetails.previousProps    = p_Star.m_BeBinaryDetails.previousProps == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
 
         m_CircularizationTimescale         = p_Star.m_CircularizationTimescale;
 
@@ -163,7 +163,7 @@ public:
 
 
     // getters - alphabetically
-    BeBinaryDetailsT    BeBinaryDetails() const                     { return m_BeBinaryDetails; }
+//    BeBinaryDetailsT    BeBinaryDetails() const                     { return m_BeBinaryDetails; }
     bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
     unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
     double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
@@ -263,22 +263,22 @@ public:
     void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence) { m_ObjectPersistence = p_Persistence; }
 
     // member functions - alphabetically
-            COMPAS_VARIABLE     BinaryPropertyValue(const T_ANY_PROPERTY p_Property) const;
+            COMPAS_VARIABLE        BinaryPropertyValue(const T_ANY_PROPERTY p_Property) const;
 
-    static  double              CalculateRocheLobeRadius_Static(const double p_MassPrimary, const double p_MassSecondary);
+    static  double                 CalculateRocheLobeRadius_Static(const double p_MassPrimary, const double p_MassSecondary);
 
-            EVOLUTION_STATUS    Evolve();
+            EVOLUTION_STATUS       Evolve();
 
-            bool                PrintSwitchLog(const bool p_PrimarySwitching) {                                     // print to the switch log file
-                                    return OPTIONS->SwitchLog() ?                                                   // switch logging enabled?
-                                        (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT ?   // yes, logging enabled - is this a 'permanent' object (i.e. not an ephemeral clone)?
-                                            LOGGING->LogBSESwitchLog(this, p_PrimarySwitching) :                    // yes, permanent - log it
-                                            true                                                                    // no, ephemeral - ignore the log request
-                                        ) :
-                                        true;                                                                       // no - switch logging not enabled - ignore the log request
+            bool                   PrintSwitchLog(const bool p_PrimarySwitching) {                                      // print to the switch log file
+                                       return OPTIONS->SwitchLog()                                                      // switch logging enabled?
+                                           ? (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT    // yes, switch logging enabled - is this a 'permanent' object (i.e. not an ephemeral clone)?
+                                               ? LOGGING->LogBSESwitchLog(this, p_PrimarySwitching)                     // yes, permanent - log it
+                                               : true                                                                   // no, ephemeral - ignore the log request
+                                             )
+                                           : true;                                                                      // no - switch logging not enabled - ignore the log request
                                     }
 
-            COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
+            COMPAS_VARIABLE        PropertyValue(const T_ANY_PROPERTY p_Property) const;
 
             BinaryConstituentStar* Star1() { return m_Star1; }                              // Returns a pointer to the primary - here mainly to support the BSE Switch Log. Be careful!
             BinaryConstituentStar* Star2() { return m_Star2; }                              // Returns a pointer to the secondary - here mainly to support the BSE Switch Log. Be careful!
@@ -299,7 +299,7 @@ private:
 
     unsigned long int   m_RandomSeed;                                                       // Random seed for this binary
 
-    BeBinaryDetailsT    m_BeBinaryDetails;                                                  // BeBinary details
+//    BeBinaryDetailsT    m_BeBinaryDetails;                                                  // BeBinary details
 
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
 
@@ -311,7 +311,7 @@ private:
 
     double              m_Eccentricity;                                                     // Initial eccentricity
     double              m_EccentricityAtDCOFormation;                                       // Eccentricity at DCO formation
-    double              m_EccentricityInitial;                                              // Record initial eccentricity              JR: todo: check necessary
+    double              m_EccentricityInitial;                                              // Record initial eccentricity
     double              m_EccentricityPreSN;                                                // Eccentricity prior to supernova
     double              m_EccentricityPrev;                                                 // Eccentricity at previous timestep
 
@@ -356,7 +356,7 @@ private:
 
     double              m_SemiMajorAxis;                                                    // Semi-major axis
     double              m_SemiMajorAxisAtDCOFormation;                                      // Semi-major axis at DCO formation
-    double              m_SemiMajorAxisInitial;                                             // Record initial semi-major axis              JR: todo: check necessary
+    double              m_SemiMajorAxisInitial;                                             // Record initial semi-major axis
     double              m_SemiMajorAxisPreSN;                                               // Semi-major axis prior to supernova
     double              m_SemiMajorAxisPrev;                                                // Semi-major axis at previous timestep
 
@@ -365,7 +365,7 @@ private:
     double              m_SynchronizationTimescale;
 
     Vector3d            m_SystemicVelocity;                                                 // Systemic velocity vector, relative to ZAMS Center of Mass
-    Vector3d            m_NormalizedOrbitalAngularMomentumVector;                                     // Orbital AM vector postSN, in preSN frame
+    Vector3d            m_NormalizedOrbitalAngularMomentumVector;                           // Orbital AM vector postSN, in preSN frame
     double              m_ThetaE;                                                           // Euler Theta
     double              m_PhiE;                                                             // Euler Phi                
     double              m_PsiE;                                                             // Euler Psi
@@ -457,7 +457,7 @@ private:
                                  const double p_Star1MomentOfInertia,
                                  const double p_Star2MomentOfInertia) const;
 
-    double  CalculateTotalEnergy() const                                    { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateMomentOfInertiaAU(), m_Star2->CalculateMomentOfInertiaAU()); }
+    double  CalculateTotalEnergy() const                                        { return CalculateTotalEnergy(m_SemiMajorAxis, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateMomentOfInertiaAU(), m_Star2->CalculateMomentOfInertiaAU()); }
 
     void    EvaluateBinary(const double p_Dt);
 
@@ -487,9 +487,9 @@ private:
                             const double p_RocheLobe2to1);
 
     void    StashBeBinaryProperties();
-    void    StashRLOFProperties(const MASS_TRANSFER_TIMING p_Which);
+    void    StashRLOFProperties(const MT_TIMING p_Which);
 
-    void    UpdateSystemicVelocity(Vector3d p_newVelocity);
+    void    UpdateSystemicVelocity(Vector3d p_newVelocity)                      { m_SystemicVelocity += p_newVelocity; } 
 
     // printing functions
     
@@ -511,7 +511,7 @@ private:
         return LOGGING->LogCommonEnvelope(this, p_RecordType);
     }
     
-    bool PrintBeBinary(const BE_BINARY_RECORD_TYPE p_RecordType = BE_BINARY_RECORD_TYPE::DEFAULT);
+//    bool PrintBeBinary(const BE_BINARY_RECORD_TYPE p_RecordType = BE_BINARY_RECORD_TYPE::DEFAULT);
     
     bool PrintPulsarEvolutionParameters(const PULSAR_RECORD_TYPE p_RecordType = PULSAR_RECORD_TYPE::DEFAULT) const {
         return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_RecordType) : true;
@@ -560,13 +560,13 @@ private:
                 return 1000.0 * ROOT_ABS_TOLERANCE;         // arbitrary value to indicate no (sensible) solution found
             }
 
-            double donorMass    = m_Donor->Mass();
-            double accretorMass = m_Accretor->Mass();
+            double donorMass     = m_Donor->Mass();
+            double accretorMass  = m_Accretor->Mass();
             
             double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(m_Donor->Mass(), -p_dM , *m_Accretor, m_FractionAccreted);
             double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (m_Binary->FractionAccreted() * p_dM)) * AU_TO_RSOL;
             
-            double radiusAfterMassLoss =  m_Donor->CalculateRadiusOnPhaseTau(donorMass-p_dM, m_Donor->Tau());
+            double radiusAfterMassLoss = m_Donor->CalculateRadiusOnPhaseTau(donorMass-p_dM, m_Donor->Tau());
                         
             return (RLRadius - radiusAfterMassLoss);
         }
@@ -621,10 +621,11 @@ private:
         ERROR error       = ERROR::NONE;
         RadiusEqualsRocheLobeFunctor<double> func = RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor, p_FractionAccreted, &error); // no need to check error here
         while (!done) {                                                                                     // while no error and acceptable root found
-            double semiMajorAxis = p_Binary->CalculateMassTransferOrbit(p_Donor->Mass(), -guess , *p_Accretor, p_FractionAccreted);
-            double RLRadius      = semiMajorAxis * (1.0 - p_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(p_Donor->Mass() - guess, p_Accretor->Mass() + (p_Binary->FractionAccreted() * guess)) * AU_TO_RSOL;
+
+            double semiMajorAxis       = p_Binary->CalculateMassTransferOrbit(p_Donor->Mass(), -guess , *p_Accretor, p_FractionAccreted);
+            double RLRadius            = semiMajorAxis * (1.0 - p_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(p_Donor->Mass() - guess, p_Accretor->Mass() + (p_Binary->FractionAccreted() * guess)) * AU_TO_RSOL;
             double radiusAfterMassLoss =  p_Donor->CalculateRadiusOnPhaseTau(p_Donor->Mass()-guess, p_Donor->Tau());
-            bool isRising = radiusAfterMassLoss > RLRadius ? true : false;      // guess for direction of search
+            bool   isRising            = radiusAfterMassLoss > RLRadius ? true : false;                     // guess for direction of search
             
 
             // run the root finder
@@ -636,7 +637,7 @@ private:
             // shouldn't cause undue performance issues.
             try {
                 error = ERROR::NONE;
-                root = boost::math::tools::bracket_and_solve_root(func, guess, factor, isRising, utils::BracketTolerance, it); // find root
+                root  = boost::math::tools::bracket_and_solve_root(func, guess, factor, isRising, utils::BracketTolerance, it); // find root
                 // root finder returned without raising an exception
                 if (error != ERROR::NONE) { SHOW_WARN(error); }                                             // root finder encountered an error
                 else if (it >= maxit) { SHOW_WARN(ERROR::TOO_MANY_RLOF_ITERATIONS); }                       // too many root finder iterations
@@ -721,6 +722,7 @@ private:
         std::size_t tries = 0;                                                                              // number of tries
         bool done         = false;                                                                          // finished (found root or exceed maximum tries)?
         while (!done) {                                                                                     // while no acceptable root found
+
             bool isRising = func(p_Guess) >= func(p_Guess * factor) ? false : true;                         // gradient direction from guess to upper search increment
 
             // run the root finder

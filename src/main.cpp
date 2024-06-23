@@ -95,9 +95,11 @@ OBJECT_ID m_ObjectId     = 0;                                   // object id for
 //                                      and the SIGFPE signal handler is called, but instead of raising a runtime_error
 //                                      exception, the signal handler prints the stack trace that led to the error and
 //                                      halts execution of the program.  In this way, the user can determine where (to the
-//                                      function leve - we don't determine line numbers) the floating-point error occured.
+//                                      function leve l- we don't determine line numbers) the floating-point error occured.
 //
-//                                      Note here the cevaetas - not signal safe etc. <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+//                                      The construction of the stack trace in debug mode happens inside the signal handler,
+//                                      and the functions used to do that are generally not signal safe - but we call std::exit()
+//                                      anyway, so that shouldn't be a proble.
 //
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ FIX THIS - NO LONGE A GLOBAL 
 
@@ -106,7 +108,19 @@ OBJECT_ID m_ObjectId     = 0;                                   // object id for
  * 
  * Only handles SIGFPE.
  * 
- * DESCRIPTION HERE - JR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ * SIGFPE is a system generated signal raised when floating-point errors occur and
+ * floating-point traps are enabled.
+ * 
+ * We implement two active modes for floating-point error handling: ON and DEBUG (the
+ * third mode is OFF):
+ * 
+ *     OFF  : we just ignore the signal.
+ * 
+ *     ON   : we throw a runtime_error exception, with the what string set to "FPE",
+ *            which is the caught by catch blocks throughout the code and handled there.
+ *          
+ *     DEBUG: we construct and display a stack trace, then halt the program by calling
+ *            std::exit(1)
  * 
  * 
  * void SIGFPEhandler(int p_Sig)
@@ -115,29 +129,25 @@ OBJECT_ID m_ObjectId     = 0;                                   // object id for
  *  
  */
 void SIGFPEhandler(int p_Sig) {
-    if (p_Sig == SIGFPE) {                                      // SIGFPE?
-        FP_ERROR_MODE fpErrorMode = OPTIONS->FPErrorMode();
-        if (fpErrorMode == FP_ERROR_MODE::ON) throw std::runtime_error("FPE");
-        else if (fpErrorMode == FP_ERROR_MODE::DEBUG) {
-            std::cerr << "\nFloating-point error encountered: program terminated\n";
-            utils::ShowStackTrace(); 
+    if (p_Sig == SIGFPE) {                                                              // SIGFPE?
+                                                                                        // yes  
+        FP_ERROR_MODE fpErrorMode = OPTIONS->FPErrorMode();                             // mode = ON or DEBUG?
+        if (fpErrorMode == FP_ERROR_MODE::ON) throw std::runtime_error("FPE");          // yes - mode = ON
+        else if (fpErrorMode == FP_ERROR_MODE::DEBUG) {                                 // mode = DEBUG?
+            std::cerr << "\nFloating-point error encountered: program terminated\n";    // announce error
+            utils::ShowStackTrace();                                                    // construct and show stack trace
         }        
     }
-    else {
-        std::cerr << "\nUnexpected signal encountered: program terminated\n";
-        utils::ShowStackTrace(); 
+    else {                                                                              // not SIGFPE - can't jump back from here, so...
+        std::cerr << "\nUnexpected signal encountered: program terminated\n";           // announce error
+        utils::ShowStackTrace();                                                        // construct and show stack trace
     }
-    std::exit(1);                                               // catch-all in case we're here when we shouldn't be
+    std::exit(1);                                                                       // catch-all in case we're here when we shouldn't be
 }
 
 
 class Star;
 class BinaryStar;
-
-//OBJECT_ID          ObjectId()          { return m_ObjectId; }
-//OBJECT_TYPE        ObjectType()        { return OBJECT_TYPE::MAIN; }
-//OBJECT_PERSISTENCE ObjectPersistence() { return OBJECT_PERSISTENCE::PERMANENT; }
-//STELLAR_TYPE       StellarType()       { return STELLAR_TYPE::NONE; }
 
 
 // The following global variables support the BSE Switch Log file
@@ -197,14 +207,29 @@ void SIGUSR1handler(int p_Sig) {
     }
 }
 
+
 /*
  * SIGUSR2 signal handler
  * 
  * Only handles SIGUSR2.
  * 
- * DESCRIPTION HERE - JR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ * SIGUSR2 is a user generated signal - the system should not generate this signal,
+ * though it is possible to send the signal to a process via the Un*x kill command,
+ * or some other user-developed program that sends signals.  This code does some 
+ * rudimentary sanity checks, but it is possible that sending a SIGUSR2 signal to
+ * running COMPAS process via the Un*x kill command, or otherwise, might cause the
+ * program to dump a stack trace and halt - c'est la vie.
  * 
- *   raise(SIGUSR2);
+ * This signal handler, upon receipt of a SIGUSR2 signal, will construct and display
+ * a stack trace, then halt the program by calling std::exit(1).  This is useful for
+ * debugging code and the code path to a particular location in the code is not
+ * obvious.  Inserting a
+ * 
+ *     raise(SIGUSR2);
+ * 
+ * statement at the location will, when that statement is executed, cause a SIGUSR2
+ * signal to be raised, and that will inove t his signal handler which will then
+ * construct and display a stack trace, and halt the program.
  *
  * void SIGUSR2handler(int p_Sig)
  * 
@@ -345,35 +370,42 @@ std::tuple<int, int> EvolveSingleStars() {
                     // (i.e. the random seed specified is used as it)).  Note that in this scenario it is the 
                     // user's responsibility to ensure that there is no duplication of seeds.
 
+                    // show deprecation noitices if using a grid file (already done for commandline options)
+                    if (usingGrid) OPTIONS->ShowDeprecations(false);
+
+                    std::string       errorStr;                                                                             // error string
                     unsigned long int randomSeed = 0l;                                                                      // random seed
                     OPTIONS_ORIGIN    optsOrigin = processingGridLine ? OPTIONS_ORIGIN::GRIDFILE : OPTIONS_ORIGIN::CMDLINE; // indicate which set of program options we're using
                     if (OPTIONS->FixedRandomSeedGridLine()) {                                                               // user specified a random seed in the grid file for this binary?
-                                                                                                                                // yes - use it (indexed)
+                                                                                                                            // yes - use it (indexed)
                         randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;                  // random seed               
-                        if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                           // ok?
+                        errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                        // set it
+                        if (!errorStr.empty()) {                                                                            // ok?
                             evolutionStatus = EVOLUTION_STATUS::ERROR;                                                      // no - set status
-                            THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                   // throw error
+                            THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS, errorStr);                         // throw error
                         }
                     }
                     else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                           // no - user specified a random seed on the commandline?
-                                                                                                                                // yes - use it (indexed)
+                                                                                                                            // yes - use it (indexed)
                         randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index;                               // random seed               
-                        if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                           // ok?
+                        errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                        // set it
+                        if (!errorStr.empty()) {                                                                            // ok?
                             evolutionStatus = EVOLUTION_STATUS::ERROR;                                                      // no - set status
-                            THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                    // throw error
+                            THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS, errorStr);                          // throw error
                         }
                     }
                     else {                                                                                                  // no
-                                                                                                                                // use default seed (based on system time) + id (index)
+                                                                                                                            // use default seed (based on system time) + id (index)
                         randomSeed = RAND->DefaultSeed() + (unsigned long int)index;                                        // random seed               
-                        if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                           // ok?
+                        errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                        // set it
+                        if (!errorStr.empty()) {                                                                            // ok?
                             evolutionStatus = EVOLUTION_STATUS::ERROR;                                                      // no - set status
-                            THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                    // throw error
+                            THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS, errorStr);                          // throw error
                         }
                     }
 
                     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                    // ok?
-                                                                                                                                // yes - continue
+                                                                                                                            // yes - continue
                         randomSeed = RAND->CurrentSeed();                                                                   // current random seed - to pass to star object
 
                         // the initial mass of the star is supplied - this is to allow binary stars to initialise
@@ -381,7 +413,7 @@ std::tuple<int, int> EvolveSingleStars() {
                         // their own mass).  Here we use the mass supplied by the user via the program options or, 
                         // if no mass was supplied by the user, sample the mass from the IMF.
 
-                        double initialMass = OPTIONS->OptionSpecified("initial-mass") == 1                                  // user specified mass?
+                        double initialMass = OPTIONS->OptionSpecified("initial-mass")                                       // user specified mass?
                                                 ? OPTIONS->InitialMass()                                                    // yes, use it
                                                 : utils::SampleInitialMass(OPTIONS->InitialMassFunction(),                  // no, sample it
                                                                            OPTIONS->InitialMassFunctionMax(), 
@@ -393,7 +425,7 @@ std::tuple<int, int> EvolveSingleStars() {
                         // their own metallicity).  Here we use the mmetallicityass supplied by the user via the program
                         // options or, if no metallicity was supplied by the user, sample the metallicity.
 
-                        double metallicity = OPTIONS->OptionSpecified("metallicity") == 1                                   // user specified metallicity?
+                        double metallicity = OPTIONS->OptionSpecified("metallicity")                                        // user specified metallicity?
                                                 ? OPTIONS->Metallicity()                                                    // yes, use it
                                                 : utils::SampleMetallicity(OPTIONS->MetallicityDistribution(), 
                                                                            OPTIONS->MetallicityDistributionMax(), 
@@ -414,14 +446,14 @@ std::tuple<int, int> EvolveSingleStars() {
                         // for SSE only need magnitudeRandom and magnitude - other values can just be ignored
 
                         KickParameters kickParameters;
-                        kickParameters.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random") == 1;
+                        kickParameters.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random");
                         kickParameters.magnitudeRandom          = OPTIONS->KickMagnitudeRandom();
-                        kickParameters.magnitudeSpecified       = OPTIONS->OptionSpecified("kick-magnitude") == 1;
+                        kickParameters.magnitudeSpecified       = OPTIONS->OptionSpecified("kick-magnitude");
                         kickParameters.magnitude                = OPTIONS->KickMagnitude();
                        
                         // create the star
                         delete star; star = nullptr;                                                                        // so we don't leak...
-                        star = OPTIONS->OptionSpecified("rotational-frequency") == 1                                        // user specified rotational frequency?
+                        star = OPTIONS->OptionSpecified("rotational-frequency")                                             // user specified rotational frequency?
                                 ? new Star(randomSeed, initialMass, metallicity, kickParameters, OPTIONS->RotationalFrequency() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
                                 : new Star(randomSeed, initialMass, metallicity, kickParameters);                           // no - let it be calculated
 
@@ -484,10 +516,10 @@ std::tuple<int, int> EvolveSingleStars() {
             }
         }
 
-        // if we catch an error here it happened outside the evolution of a star - meaning that there is a problem
-        // in recording the results of the evolution of the last star evolved, or in setting up the next star to be
-        // evolved - either way we should halt the program here because this could result in undefined behavious and
-        // results that can't be trusted. So here we just report the eroor, report what we got up to (how many stars
+        // if we catch an error here it happened outside the evolution of a binary - meaning that there is a problem
+        // in recording the results of the evolution of the last binary evolved, or in setting up the next binary to be
+        // evolved - either way we should halt the program here because this could result in undefined behaviour and
+        // results that can't be trusted. So here we just report the error, report what we got up to (how many binaries
         // were evolved before this happened), and terminate the program.
 
         catch (const std::runtime_error& e) {                                                                               // catch runtime exceptions
@@ -582,6 +614,8 @@ std::tuple<int, int> EvolveBinaryStars() {
 
     while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                         // while all ok and not done
 
+        try {
+
         // generate and evolve binaries
 
         int  gridLineVariation  = 0;                                                                                // grid line variation number
@@ -665,33 +699,40 @@ std::tuple<int, int> EvolveBinaryStars() {
                 // and options (if no rangers or sets were specified on the grid line then no offset is added
                 // (i.e. the random seed specified is used as it)).  Note that in this scenario it is the 
                 // user's responsibility to ensure that there is no duplication of seeds.
+
+                // show deprecation noitices if using a grid file (already done for commandline options)
+                if (usingGrid) OPTIONS->ShowDeprecations(false);
              
                 unsigned long int thisId = index + gridLineVariation;                                               // set the id for the binary
 
+                std::string       errorStr;                                                                         // error string
                 unsigned long int randomSeed = 0l;                                                                  // random seed
                 OPTIONS_ORIGIN    optsOrigin = processingGridLine ? OPTIONS_ORIGIN::GRIDFILE : OPTIONS_ORIGIN::CMDLINE; // indicate which set of program options we're using
                 if (OPTIONS->FixedRandomSeedGridLine()) {                                                           // user specified a random seed in the grid file for this binary?
                                                                                                                     // yes - use it (indexed)
                     randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;              // random seed               
-                    if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
+                    errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                    // set it
+                    if (!errorStr.empty()) {                                                                        // ok?
                         evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // no - set status
-                        SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                                // throw error
+                        SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS, errorStr);                      // throw error
                     }
                 }
                 else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                       // no - user specified a random seed on the commandline?
                                                                                                                     // yes - use it (indexed)
                     randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed               
-                    if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
+                    errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                    // set it
+                    if (!errorStr.empty()) {                                                                        // ok?
                         evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // no - set status
-                        SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                 // throw error
+                        SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS, errorStr);                       // throw error
                     }
                 }
                 else {                                                                                              // no
                                                                                                                     // use default seed (based on system time) + id (index)
                     randomSeed = RAND->DefaultSeed() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed               
-                    if (OPTIONS->SetRandomSeed(randomSeed, optsOrigin) < 0) {                                       // ok?
+                    errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                    // set it
+                    if (!errorStr.empty()) {                                                                        // ok?
                         evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // no - set status
-                        SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                 // throw error
+                        SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS, errorStr);                       // throw error
                     }
                 }
 
@@ -705,32 +746,18 @@ std::tuple<int, int> EvolveBinaryStars() {
                     evolvingBinaryStar      = binary;                                                               // set global pointer to evolving binary (for BSE Switch Log)
                     evolvingBinaryStarValid = true;                                                                 // indicate that the global pointer is now valid (for BSE Switch Log)
 
-                    EVOLUTION_STATUS binaryStatus = binary->Evolve();                                               // evolve the binary
-
-                    if (binaryStatus == EVOLUTION_STATUS::ERROR || binaryStatus == EVOLUTION_STATUS::SSE_ERROR) {   // ok?
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // no - set status
-                        SHOW_ERROR_STATIC(ERROR::BINARY_EVOLUTION_STOPPED, EVOLUTION_STATUS_LABEL.at(binaryStatus)); // throw error
-                    }
+                    EVOLUTION_STATUS thisBinaryStatus = binary->Evolve();                                           // evolve the binary
                 
                     // announce result of evolving the binary
                     if (!OPTIONS->Quiet()) {                                                                        // quiet mode?
                                                                                                                     // no - announce result of evolving the binary
-                        if (OPTIONS->CHEMode() == CHE_MODE::NONE) {                                                 // CHE enabled?
-                            SAY(thisId                                     << ": "  <<                              // no - CHE not enabled - don't need initial stellar type
-                                EVOLUTION_STATUS_LABEL.at(binaryStatus)    << ": "  <<
-                                STELLAR_TYPE_LABEL.at(binary->Star1Type()) << " + " <<
-                                STELLAR_TYPE_LABEL.at(binary->Star2Type())
-                            );
-                        }
-                        else {                                                                                      // CHE enabled - show initial stellar type
-                            SAY(thisId                                            << ": "    <<
-                                EVOLUTION_STATUS_LABEL.at(binaryStatus)           << ": ("   <<
-                                STELLAR_TYPE_LABEL.at(binary->Star1InitialType()) << " -> "  <<
-                                STELLAR_TYPE_LABEL.at(binary->Star1Type())        << ") + (" <<
-                                STELLAR_TYPE_LABEL.at(binary->Star2InitialType()) << " -> "  <<
-                                STELLAR_TYPE_LABEL.at(binary->Star2Type())        <<  ")"
-                            );
-                        }
+                        SAY(thisId                                            << ": "    <<
+                            EVOLUTION_STATUS_LABEL.at(thisBinaryStatus)       << ": ("   <<
+                            STELLAR_TYPE_LABEL.at(binary->Star1InitialType()) << " -> "  <<
+                            STELLAR_TYPE_LABEL.at(binary->Star1Type())        << ") + (" <<
+                            STELLAR_TYPE_LABEL.at(binary->Star2InitialType()) << " -> "  <<
+                            STELLAR_TYPE_LABEL.at(binary->Star2Type())        <<  ")"
+                        );
                     }
 
                     if (!LOGGING->CloseStandardFile(LOGFILE::BSE_DETAILED_OUTPUT)) {                                // close detailed output file if necessary
@@ -770,6 +797,33 @@ std::tuple<int, int> EvolveBinaryStars() {
                     evolutionStatus = EVOLUTION_STATUS::DONE;                                                       // yes - we're done
                 }
             }
+        }
+
+        }
+
+        // if we catch an error here it happened outside the evolution of a star - meaning that there is a problem
+        // in recording the results of the evolution of the last star evolved, or in setting up the next star to be
+        // evolved - either way we should halt the program here because this could result in undefined behaviour and
+        // results that can't be trusted. So here we just report the error, report what we got up to (how many stars
+        // were evolved before this happened), and terminate the program.
+
+        catch (const std::runtime_error& e) {                                                                               // catch runtime exceptions
+            // anything we catch here should not already have been displayed to the user,
+            // so display the error and flag termination (do not rethrow the error)
+            if (std::string(e.what()) == "FPE") SHOW_ERROR_STATIC(ERROR::FLOATING_POINT_ERROR)                              // floating-point error
+            else                                SHOW_ERROR_STATIC(ERROR::ERROR)                                             // unspecified error
+            evolutionStatus = EVOLUTION_STATUS::ERROR;                                                                      // set status
+        }
+        catch (int e) {                                                                                                     // catch errors thrown
+            // anything we catch here should already have been displayed to the user,
+            // so just flag termination
+            evolutionStatus = EVOLUTION_STATUS::ERROR;                                                                      // evolution terminated
+        }
+        catch (...) {                                                                                                       // catchall
+            // anything we catch here should not already have been displayed to the user,
+            // so display the error and flag termination (do not rethrow the error)
+            SHOW_ERROR_STATIC(ERROR::ERROR);                                                                                // unspecified error
+            evolutionStatus = EVOLUTION_STATUS::ERROR;                                                                      // evolution terminated
         }
     }
     
@@ -833,8 +887,6 @@ int main(int argc, char * argv[]) {
 
     PROGRAM_STATUS programStatus = PROGRAM_STATUS::CONTINUE;                                        // status - initially ok
 
-    ERROR m_Error = ERROR::NONE;                                                                    // for error macros - spoof class member variable
-
     RAND->Initialise();                                                                             // initialise the random number service
     RAND->Seed(0l);                                                                                 // set seed to 0 - ensures repeatable results
 
@@ -845,19 +897,22 @@ int main(int argc, char * argv[]) {
     else {                                                                                          // yes - have commandline options
         if (OPTIONS->RequestedHelp()) {                                                             // user requested help?
             (void)utils::SplashScreen();                                                            // yes - show splash screen
+            OPTIONS->ShowDeprecations();                                                            // show deprecation noticess - do this all the time
             OPTIONS->ShowHelp();                                                                    // show help
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
         else if (OPTIONS->RequestedVersion()) {                                                     // user requested version?
             (void)utils::SplashScreen();                                                            // yes - show splash screen
+            OPTIONS->ShowDeprecations();                                                            // show deprecation noticess - do this all the time
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
         else if (!OPTIONS->YAMLfilename().empty()) {                                                // user requested YAML file creation?
             (void)utils::SplashScreen();                                                            // yes - show splash screen
+            OPTIONS->ShowDeprecations();                                                            // show deprecation noticess - do this all the time
             yaml::MakeYAMLfile(OPTIONS->YAMLfilename(), OPTIONS->YAMLtemplate());                   // create YAML file
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
-
+    
         if (programStatus == PROGRAM_STATUS::CONTINUE) {
 
             if (OPTIONS->FPErrorMode() != FP_ERROR_MODE::OFF) {                                     // floating-point error handling mode on/debug?
@@ -890,6 +945,7 @@ int main(int argc, char * argv[]) {
                            OPTIONS->LogfileType());                                                 // log file type
 
             (void)utils::SplashScreen();                                                            // announce ourselves
+            OPTIONS->ShowDeprecations();                                                            // show deprecation noticess - do this all the time
 
             if (!LOGGING->Enabled()) programStatus = PROGRAM_STATUS::LOGGING_FAILED;                // logging failed to start
             else {   
@@ -898,7 +954,7 @@ int main(int argc, char * argv[]) {
                     ERROR error = OPTIONS->OpenGridFile(OPTIONS->GridFilename());                   // yes - open grid file
                     if (error != ERROR::NONE) {                                                     // open ok?
                         programStatus = PROGRAM_STATUS::STOPPED;                                    // no - set status
-                        SHOW_ERROR_STATIC(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'"); // throw error
+                        SHOW_ERROR_STATIC(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'"); // show error
                     }
                 }
 
@@ -926,8 +982,6 @@ int main(int argc, char * argv[]) {
     }
 
     RAND->Free();                                                                                   // release gsl dynamically allocated memory
-
-    if (m_Error == ERROR::NONE) m_Error = ERROR::NONE;                                              // does nothing other than avoid compiler warning
 
     return static_cast<int>(programStatus);                                                         // we're done
 }

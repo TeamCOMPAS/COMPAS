@@ -45,16 +45,18 @@ protected:
     void Initialise() {
         m_Tau = 0.0;                                                                                      // Start of phase
         CalculateTimescales();                                                                                                                                                              // Initialise timescales
-        // JR: Age for HeHG is calculated before switching -
+        // Age for HeHG is calculated before switching -
         // can get here via EvolveOneTimestep() and ResolveEnvelopeLoss(),
         // and Age is calculated differently in those cases
         
-        //Update stellar properties at start of HeHG phase (since core definition changes)
+        // Update stellar properties at start of HeHG phase (since core definition changes)
         CalculateGBParams();
-        m_COCoreMass  = CalculateCOCoreMassOnPhase();
-        m_CoreMass    = CalculateCoreMassOnPhase();
-        m_HeCoreMass  = CalculateHeCoreMassOnPhase();
-        m_Luminosity  = CalculateLuminosityOnPhase();
+
+        m_COCoreMass = CalculateCOCoreMassOnPhase();
+        m_CoreMass   = CalculateCoreMassOnPhase();
+        m_HeCoreMass = CalculateHeCoreMassOnPhase();
+        m_Luminosity = CalculateLuminosityOnPhase();
+
         std::tie(m_Radius, std::ignore) = CalculateRadiusAndStellarTypeOnPhase();   // Update radius
     }
 
@@ -63,7 +65,7 @@ protected:
             double          CalculateCOCoreMassAtPhaseEnd() const                                                   { return m_COCoreMass; }  //*ILYA* check                                               // NO-OP
             double          CalculateCOCoreMassOnPhase() const;
     
-            double          CalculateConvectiveCoreMass() const { return m_CoreMass; }
+            double          CalculateConvectiveCoreMass() const                                                     { return m_CoreMass; }
 
             double          CalculateConvectiveCoreRadius () const                                                  { return std::min(5.0 * CalculateRemnantRadius(), m_Radius); }          // Last paragraph of section 6 of Hurley+ 2000
 
@@ -81,12 +83,12 @@ protected:
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_Mass; }                                                      // NO-OP
 
             double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
-            double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const             { return CalculateLambdaNanjingStarTrack(0.0, 0.0); }                   // 0.0 are dummy values that are not used
+            double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const { return CalculateLambdaNanjingStarTrack(0.0, 0.0); }        // 0.0 are dummy values that are not used
 
             double          CalculateLuminosityOnPhase() const;
             double          CalculateLuminosityAtPhaseEnd() const                                                   { return m_Luminosity; }                                                // NO-OP
 
-            double          CalculateMassTransferRejuvenationFactor() const;
+            double          CalculateMassTransferRejuvenationFactor();
 
             double          CalculateMomentOfInertia() const                                                        { return GiantBranch::CalculateMomentOfInertia(); }
 
@@ -136,7 +138,6 @@ protected:
 
             void            UpdateAgeAfterMassLoss()                                                                { GiantBranch::UpdateAgeAfterMassLoss(); }                              // Skip HeMS
             void            UpdateInitialMass()                                                                     { GiantBranch::UpdateInitialMass(); }                                   // Skip HeMS
-
 };
 
 #endif // __HeHG_h__

@@ -218,7 +218,10 @@ public:
 
     void            InitialiseMassTransfer(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
 
-    void            ResolveCommonEnvelopeAccretion(const double p_FinalMass);
+    void            ResolveCommonEnvelopeAccretion(const double p_FinalMass,
+                                                   const double p_CompanionMass     = 0.0,
+                                                   const double p_CompanionRadius   = 0.0,
+                                                   const double p_CompanionEnvelope = 0.0) { ResolveCommonEnvelopeAccretion(p_FinalMass, m_Companion->Mass(), m_Companion->Radius(), m_Companion->MassPreCEE() - m_Companion->CoreMassAtCEE()); }
 
     void            SetPostCEEValues();
     void            SetPreCEEValues();
@@ -232,9 +235,9 @@ public:
                                                const double p_Epsilon)                  { Star::UpdateMagneticFieldAndSpin(p_CommonEnvelope, 
                                                                                                                            ExperiencedRecycledNS(), 
                                                                                                                            p_Stepsize, 
-                                                                                                                           m_MassTransferDiff * MSOL_TO_KG, p_Epsilon); }  // JR: todo: revisit this
+                                                                                                                           m_MassTransferDiff * MSOL_TO_KG, p_Epsilon); }
 
-    void            SetMassLossDiff(const double p_MassLossDiff)                                { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
+    void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  Sanity check?
     void            SetObjectId(const OBJECT_ID p_ObjectId)                             { m_ObjectId = p_ObjectId; }
     void            SetPersistence(const OBJECT_PERSISTENCE p_Persistence)              { m_ObjectPersistence = p_Persistence; }
 
@@ -271,7 +274,6 @@ private:
 
 
 	// member functions - alphabetically 
-    double                  CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius) const;
 };
 
 #endif // __BinaryConstituentStar_h__

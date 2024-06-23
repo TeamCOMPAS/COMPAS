@@ -5,7 +5,7 @@
 #include "NS.h"
 #include "BH.h"
 
-#include "utils1.h"
+#include "stellarUtils.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ void GiantBranch::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timesca
  * @return                                      Core mass - Luminosity relation parameter B
  */
 double GiantBranch::CalculateCoreMass_Luminosity_B_Static(const double p_Mass) {
-    return std::max(3.0E4, (500.0 + (1.75E4 * PPOW(p_Mass, 0.6))));                 // RTW - Consider replacing this with a 3/5 root function (somehow) to avoid NaNs if the base is negative
+    return std::max(3.0E4, (500.0 + (1.75E4 * PPOW(p_Mass, 0.6))));
 }
 
 
@@ -187,7 +187,7 @@ double GiantBranch::CalculateCoreMass_Luminosity_q_Static(const double p_Mass, c
         if (utils::Compare(p_Mass, 2.5) >= 0) {
             q = 2.0;
         }
-        else {                                                          // Linear interpolation between end points
+        else {                                                          // linear interpolation between end points
             double gradient  = 1.0 / (massCutoffs(MHeF) - 2.5);
             double intercept = 2.0 - (2.5 * gradient);
             q = (gradient * p_Mass) + intercept;
@@ -786,9 +786,9 @@ double GiantBranch::CalculateCoreMassAtBGB_Static(const double      p_Mass,
 
     double luminosity = GiantBranch::CalculateLuminosityAtPhaseBase_Static(massCutoffs(MHeF), p_AnCoefficients);
     double Mc_MHeF    = BaseStar::CalculateCoreMassGivenLuminosity_Static(luminosity, p_GBParams);
-    double c          = (Mc_MHeF * Mc_MHeF * Mc_MHeF * Mc_MHeF) - (MC_L_C1 * PPOW(massCutoffs(MHeF), MC_L_C2));  // pow() is slow - use multiplication
+    double c          = (Mc_MHeF * Mc_MHeF * Mc_MHeF * Mc_MHeF) - (MC_L_C1 * PPOW(massCutoffs(MHeF), MC_L_C2));     // pow() is slow - use multiplication
 
-    return std::min((0.95 * gbParams(McBAGB)), std::sqrt(std::sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));               // sqrt is much faster than PPOW()
+    return std::min((0.95 * gbParams(McBAGB)), std::sqrt(std::sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));        // sqrt is much faster than PPOW()
 
 #undef massCutoffs
 #undef gbParams
@@ -877,18 +877,16 @@ double GiantBranch::CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB)
  * @return                                      Mass loss rate in Msol per year
  */
 double GiantBranch::CalculateMassLossRateHurley() {
+
     double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
     double rateKR = CalculateMassLossRateKudritzkiReimers();
     double rateWR = CalculateMassLossRateWolfRayet(m_Mu);
-    double dominantRate;
+
     m_DominantMassLossRate = MASS_LOSS_TYPE::GB;
-    if (utils::Compare(rateNJ, rateKR) > 0) {
-        dominantRate = rateNJ;
-    } else {
-        dominantRate = rateKR;
-    }
+    double dominantRate    = std::max(rateNJ, rateKR);
+
     if (utils::Compare(rateWR, dominantRate) > 0) {
-        dominantRate = rateWR;
+        dominantRate           = rateWR;
         m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
     }
 
@@ -913,15 +911,16 @@ double GiantBranch::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDe
 
     double qCrit;
                                                                                                                             
-    if (p_AccretorIsDegenerate) {                                                                                               // degenerate accretor
+    if (p_AccretorIsDegenerate) {                                                                                       // degenerate accretor
         qCrit = OPTIONS->MassTransferCriticalMassRatioGiantDegenerateAccretor();
     }
-    else {                                                                                                                      // non-degenerate accretor 
+    else {                                                                                                              // non-degenerate accretor 
         qCrit = OPTIONS->MassTransferCriticalMassRatioGiantNonDegenerateAccretor();
-        if (qCrit == -1) {                                                                                                      // default value of -1 recalculates qCrit with the following function 
-            double coreMassRatio = m_HeCoreMass/m_Mass;
-            double x = BaseStar::CalculateGBRadiusXExponent();                                                                  // x from Hurley et al 2000, Eq. 47 - Depends on composition
-            qCrit = 2.13/( 1.67 - x + 2.0 * (coreMassRatio * coreMassRatio * coreMassRatio * coreMassRatio * coreMassRatio));   // Claeys+ 2014, Table 2
+        if (qCrit < 0.0) {                                                                                              // default value of -1 recalculates qCrit with the following function 
+            double coreMassRatio   = m_HeCoreMass / m_Mass;
+            double coreMassRatio_4 = coreMassRatio * coreMassRatio * coreMassRatio * coreMassRatio * coreMassRatio;
+            double x               = BaseStar::CalculateGBRadiusXExponent();                                            // x from Hurley et al 2000, Eq. 47 - Depends on composition
+            qCrit                  = 2.13 / ( 1.67 - x + 2.0 * coreMassRatio_4);                                        // Claeys+ 2014, Table 2
         }
     }
 
@@ -960,24 +959,32 @@ double GiantBranch::CalculateCriticalMassRatioHurleyHjellmingWebbink() const {
  */
 double GiantBranch::CalculateZetaConvectiveEnvelopeGiant(ZETA_PRESCRIPTION p_ZetaPrescription) {
     
-    double zeta = 0.0;                                          // default value
+    double zeta = 0.0;                                                                                          // default value
 
-    switch (p_ZetaPrescription) {                               // which prescription?
+    switch (p_ZetaPrescription) {                                                                               // which prescription?
             
-        case ZETA_PRESCRIPTION::HURLEY:                         // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
+        case ZETA_PRESCRIPTION::HURLEY:                                                                         // HURLEY: Hurley, Tout, and Pols, 2002, eq 56
             zeta = CalculateZetaAdiabaticHurley2002(m_CoreMass);
             break;
             
-        case ZETA_PRESCRIPTION::ARBITRARY:                      // ARBITRARY: user program options thermal zeta value
+        case ZETA_PRESCRIPTION::ARBITRARY:                                                                      // ARBITRARY: user program options thermal zeta value
             zeta = OPTIONS->ZetaAdiabaticArbitrary();
             break;
-            
-        default:                                                // shouldn't happen - assume SOBERMAN (this can only happen if someoned added a new ZETA prescription)
-            SHOW_WARN(ERROR::UNKNOWN_ZETA_PRESCRIPTION);        // show warning
 
-        case ZETA_PRESCRIPTION::SOBERMAN:                       // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
+        case ZETA_PRESCRIPTION::SOBERMAN:                                                                       // SOBERMAN: Soberman, Phinney, and van den Heuvel, 1997, eq 61
             zeta = CalculateZetaAdiabaticSPH(m_CoreMass);
             break;
+
+        default:                                                                                                // unknown prescription
+            // the only ways this can happen are if someone added a ZETA_PRESCRIPTION
+            // and it isn't accounted for in this code, or if there is a defect in the code that causes
+            // this function to be called with a bad parameter.  We should not default here, with or without a
+            // warning - this is a code defect, so we flag it as an error and that will result in termination of
+            // the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from ZETA_PRESCRIPTION - or find and fix the code defect.
+
+            THROW_ERROR(ERROR::UNKNOWN_ZETA_PRESCRIPTION);                                                      // throw error             
     }
     
     return zeta;
@@ -998,10 +1005,9 @@ double GiantBranch::CalculateZetaConvectiveEnvelopeGiant(ZETA_PRESCRIPTION p_Zet
  */
 double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription) {
     
-    double zeta = 0.0;                                              // default value
+    double zeta = 0.0;                                                                              // default value
     
-    // Use ZetaRadiativeEnvelopeGiant() for radiative envelope giant-like stars, CalculateZetaAdiabatic for convective-envelope giants
-    switch (DetermineEnvelopeType()) {                              // which envelope type?
+    switch (DetermineEnvelopeType()) {                                                              // which envelope type?
         case ENVELOPE::RADIATIVE:
             zeta = OPTIONS->ZetaRadiativeEnvelopeGiant();
             break;
@@ -1009,10 +1015,21 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
         case ENVELOPE::CONVECTIVE:
             zeta = CalculateZetaConvectiveEnvelopeGiant(p_ZetaPrescription);
             break;
-            
-        default:                                                    // not ok... (this can only happen if someone added a new envelope type)
-            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_TYPE);              // throw error
+
+        case ENVELOPE::REMNANT:
+            zeta = 0.0;
             break;
+
+        default:                                                                                    // unknown envelope type
+            // the only way this can happen is if someone added a new envelope type (to ENVELOPE)
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because DetermineEnvelopeType() returned an envelope type this code doesn't account
+            // for, and that should be flagged as an error and result in termination of the evolution of the
+            // star or binary.
+            // The correct fix for this is to add code for the missing envelope type or, if the missing envelope
+            // tyoe is incorrect/superfluous, remove it from ENVELOPE.
+
+            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_TYPE);                                              // throw error
     }
     
     return zeta;
@@ -1171,8 +1188,8 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
 
     double logRemnantMass;
 
-    STYPE_VECTOR mtHist               = MassTransferDonorHistory();                                                     // mass transfer history vector
-    MT_CASE schneiderMassTransferCase = MT_CASE::OTHER;
+    ST_VECTOR mtHist                    = MassTransferDonorHistory();                                                   // mass transfer history vector
+    MT_CASE   schneiderMassTransferCase = MT_CASE::OTHER;
 
     // determine MT history - this wil tell us which Schneider MT case prescription should be used
     if (mtHist.size() == 0) {                                                                                           // no history of MT - effectively single star
@@ -1180,14 +1197,19 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
     }
     else {                                                                                                              // star was MT donor at least once
         // determine MT_CASE of most recent MT event
+        // JR: I have defined a new function for all stellar types: DetermineMassTransferTypeAsDonor()
+        //     that returns the mass transfer case - is this Schneider-specific?  i.e. should I have
+        //     called the new function DetermineSchneiderMassTransferTypeAsDonor()?  If so, it should
+        //     be changed before we merge this.  If not, we should change the variable name from
+        //     "schneiderMassTransferCase" to "massTransferCase".
+        // *Ilya*
         STELLAR_TYPE mostRecentDonorType = mtHist[mtHist.size() - 1];                                                   // stellar type at most recent MT event (as donor)
-
-        BaseStar* newStar         = utils1::NewStar(mostRecentDonorType);                                               // create new (empty) star of correct stellar type
-        schneiderMassTransferCase = newStar->DetermineMassTransferTypeAsDonor();                                        // get MT type as donor
+        BaseStar* newStar                = stellarUtils::NewStar(mostRecentDonorType);                                  // create new (empty) star of correct stellar type
+        schneiderMassTransferCase        = newStar->DetermineMassTransferTypeAsDonor();                                 // get MT type as donor
         delete newStar; newStar = nullptr;                                                                              // return the memory allocated for the new star
     }
 
-    // Apply the appropriate remnant mass prescription for the chosen MT case
+    // apply the appropriate remnant mass prescription for the chosen MT case
     switch (schneiderMassTransferCase) {                                                                                // which MT_CASE?
 
         case MT_CASE::NONE:                                                                                             // no history of MT
@@ -1231,16 +1253,30 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
             else                                               { logRemnantMass = 0.01795 * p_COCoreMass + 0.98797; }
             break;
 
+        // JR: The way this code is (and was) written, the naked helium stars, white dwarfs, NS, BH, and MR
+        //     all result in MT_CASE::OTHER.  Why should the error be ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION?
+        //     What are we really trying to flag here?  Did Schneider not tell us what to do for those stars?
+        //     Should we not be here for those stars?  Why are we defaulting here instead of throwing an error?
+        // *Ilya*
         case MT_CASE::OTHER:                                                                                            // in this context, not NONE, A, B, or C; possibly ultra-stripped
-            SHOW_WARN(ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION, "Using default, Mass_Remnant = 1.25");                // show warning 
+            SHOW_WARN(ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION, "Using default, remnant mass = 1.25");                // show warning 
 
-            logRemnantMass = 0.096910013;                                                                               // gives MassRemnant = 1.25  
-
-        default:                                                                                                        // Probably MT_CASE::OTHER, i.e ultra-stripped
+            logRemnantMass = 0.096910013008056;                                                                         // gives remnant mass = 1.25  
             break;
+
+        default:                                                                                                        // unknown MT_CASE
+            // the only way this can happen is if someone added an MT_CASE
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because DetermineMassTransferTypeAsDonor() returned an MT_CASE this code doesn't
+            // account for, and that should be flagged as an error and result in termination of the evolution
+            // of the star or binary.
+            // The correct fix for this is to add code for the missing MT_CASE or, if the missing MT_CASE is
+            // incorrect/superfluous, remove it from the possible MT_CASE values.
+
+            THROW_ERROR(ERROR::UNKNOWN_MT_CASE);                                                                        // throw error   
     }
     
-    // Convert to linear value, and limit to the pre-SN He Core mass
+    // convert to linear value, and limit to the pre-SN He Core mass
     return std::min(PPOW(10.0, logRemnantMass), m_SupernovaDetails.HeCoreMassAtCOFormation);
 }
 
@@ -1262,7 +1298,9 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
     double remnantMass       = 0.0;   
     double pBH               = 0.0;
     double pCompleteCollapse = 0.0;
-    
+   
+    std::size_t iterations = 0;
+
     if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0 || utils::Compare(p_HeCoreMass, OPTIONS->MaximumNeutronStarMass()) <= 0 ) {
 	    pBH = 0.0;
     }
@@ -1283,26 +1321,40 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
 		    remnantMass = p_HeCoreMass;
         }
 	    else {
-		    while (remnantMass<OPTIONS->MaximumNeutronStarMass() || remnantMass > p_HeCoreMass) {
-			    remnantMass = MULLERMANDEL_MUBH * p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
+		    while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS &&
+                  (utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) < 0 || utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+                remnantMass = MULLERMANDEL_MUBH * p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
 		    }
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // *Ilya* throw error, or show warning and accept remnantMass?
 	    }
     }
     else {                                              // this is an NS
 	    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
-		    while (remnantMass < MULLERMANDEL_MINNS || remnantMass > OPTIONS->MaximumNeutronStarMass() || remnantMass > p_HeCoreMass) {
+		    while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
+                  (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                || 
+                   utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 || 
+                   utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
 			    remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
 		    }
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // *Ilya* ditto above
 	    }
 	    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
-            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > OPTIONS->MaximumNeutronStarMass() || remnantMass > p_HeCoreMass) {
+            while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
+                  (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
+                   utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 || 
+                   utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
                 remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
             }
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // *Ilya* ditto above
         }
         else {
-            while (remnantMass < MULLERMANDEL_MINNS || remnantMass > OPTIONS->MaximumNeutronStarMass() || remnantMass > p_HeCoreMass) {
+            while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
+                  (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
+                   utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
+                   utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
                 remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
             }
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // *Ilya* ditto above
         }
     }
 
@@ -1382,7 +1434,7 @@ double GiantBranch::CalculateGravitationalRemnantMass(const double p_BaryonicRem
     if (utils::Compare(p_BaryonicRemnantMass, m_BaryonicMassOfMaximumNeutronStarMass) < 0) {
         std::tie(error, root) = utils::SolveQuadratic(0.075, 1.0, -p_BaryonicRemnantMass);                 // Neutron Star
         if (error == ERROR::NO_REAL_ROOTS) { 
-            SHOW_WARN(error, "No real roots for quadratic: using 0.0");                                    // show warning
+            SHOW_WARN(error, "No real roots for quadratic: using 0.0");                                    // show warning  JR: show warning or throw error *Ilya*
             root = 0.0;                                                                                    // should be returned as 0.0, but set it anyway
         }
     } 
@@ -1409,23 +1461,6 @@ double GiantBranch::CalculateGravitationalRemnantMass(const double p_BaryonicRem
  */
 double GiantBranch::CalculateFallbackMass(const double p_PreSNMass, const double p_ProtoMass, const double p_Fallback) {
     return p_Fallback * (p_PreSNMass - p_ProtoMass);
-}
-
-
-/*
- * Calculate the core mass of the proto compact object using the rapid prescription
- *
- * Fryer et al. 2012, eq 15 (based on Woosley et al. 2002)
- *
- * Sets Mproto = 1.0 Msol regardless of progenitor
- *
- *
- * double CalculateProtoCoreMassRapid()
- *
- * @return                                      Mass of Fe/Ni proto core in Msol (always 1.0)
- */
-double GiantBranch::CalculateProtoCoreMassRapid() {
-    return 1.0;
 }
 
 
@@ -1553,9 +1588,9 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const do
     double fallbackFraction         = 0.0;
     double gravitationalRemnantMass = 0.0;
 
-    switch (OPTIONS->FryerSupernovaEngine()) {                                                                                     // which SN_ENGINE?
+    switch (OPTIONS->FryerSupernovaEngine()) {                                                  // which SN_ENGINE?
 
-        case SN_ENGINE::DELAYED:                                                                            // DELAYED
+        case SN_ENGINE::DELAYED:
 
             mProto           = CalculateProtoCoreMassDelayed(p_COCoreMass);
             fallbackFraction = CalculateFallbackFractionDelayed(p_Mass, mProto, p_COCoreMass);
@@ -1565,7 +1600,7 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const do
             gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
             break;
 
-        case SN_ENGINE::RAPID:                                                                              // RAPID
+        case SN_ENGINE::RAPID:
 
             mProto           = CalculateProtoCoreMassRapid();
             fallbackFraction = CalculateFallbackFractionRapid(p_Mass, mProto, p_COCoreMass);
@@ -1574,9 +1609,16 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const do
             baryonicRemnantMass      = CalculateBaryonicRemnantMass(mProto, fallbackMass);
             gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
             break;
+    
+        default:                                                                                // unknown prescription
+            // the only way this can happen is if someone added an SN_ENGINE
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
 
-        default:                                                                                            // unknown SN_ENGINE
-            SHOW_WARN(ERROR::UNKNOWN_SN_ENGINE, "Using defaults");                                          // show warning
+            THROW_ERROR(ERROR::UNKNOWN_SN_ENGINE);                                              // throw error
     }
 
     return std::make_tuple(gravitationalRemnantMass, fallbackFraction);
@@ -1605,32 +1647,42 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const do
     double fallbackFraction         = 0.0;
     double gravitationalRemnantMass = 0.0;
 
-    baryonicRemnantMass  = 1.2 + 0.05 * OPTIONS->Fryer22fmix() + 0.01 * pow( (p_COCoreMass/OPTIONS->Fryer22fmix()), 2.0) + exp( OPTIONS->Fryer22fmix() * (p_COCoreMass - OPTIONS->Fryer22Mcrit()) ) ;  // equation 5. 
-    baryonicRemnantMass  = std::min(baryonicRemnantMass, p_Mass);// check that baryonicRemnantMass doesn't exceed the total mass
+    double fmix         = OPTIONS->Fryer22fmix();
+    double fact         = p_COCoreMass / fmix;
+    baryonicRemnantMass = 1.2 + 0.05 * fmix + 0.01 * fact * fact + exp(fmix * (p_COCoreMass - OPTIONS->Fryer22Mcrit())) ; // equation 5. 
+    baryonicRemnantMass = std::min(baryonicRemnantMass, p_Mass);                                // clamp baryonicRemnantMass to total mass
 
-    // Now the proto mass, which is only used for the calculation of kicks, will still be calculated using the DELAYED/RAPID prescriptions from Fryer 2012
-    switch (OPTIONS->FryerSupernovaEngine()) {                                                                                     // which SN_ENGINE?
+    // Now the proto mass, which is only used for the calculation of kicks, will
+    // still be calculated using the DELAYED/RAPID prescriptions from Fryer 2012
+    switch (OPTIONS->FryerSupernovaEngine()) {                                                  // which SN_ENGINE?
 
         case SN_ENGINE::DELAYED:  
-        mProto           = CalculateProtoCoreMassDelayed(p_COCoreMass);
+            mProto                   = CalculateProtoCoreMassDelayed(p_COCoreMass);
 
-        fallbackMass        = std::max(0.0, baryonicRemnantMass - mProto);                                      // fallbackMass larger than 0
-        fallbackFraction    = fallbackMass/(p_Mass - mProto);                                                   //
-        fallbackFraction    = std::max(0.0, std::min(1.0, fallbackFraction));                                   // make sure the fb fraction lies between 0-1
-        gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
-        break;
+            fallbackMass             = std::max(0.0, baryonicRemnantMass - mProto);             // fallbackMass larger than 0
+            fallbackFraction         = fallbackMass / (p_Mass - mProto);
+            fallbackFraction         = std::max(0.0, std::min(1.0, fallbackFraction));          // make sure the fb fraction lies between 0-1
+            gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
+            break;
 
         case SN_ENGINE::RAPID:  
-        mProto           = CalculateProtoCoreMassRapid();
+            mProto                   = CalculateProtoCoreMassRapid();
 
-        fallbackMass        = std::max(0.0, baryonicRemnantMass - mProto);                                      // fallbackMass larger than 0
-        fallbackFraction    = fallbackMass/(p_Mass - mProto);                                                   //
-        fallbackFraction    = std::max(0.0, std::min(1.0, fallbackFraction));                                   // make sure the fb fraction lies between 0-1
-        gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
-        break;
+            fallbackMass             = std::max(0.0, baryonicRemnantMass - mProto);             // fallbackMass larger than 0
+            fallbackFraction         = fallbackMass / (p_Mass - mProto);
+            fallbackFraction         = std::max(0.0, std::min(1.0, fallbackFraction));          // make sure the fb fraction lies between 0-1
+            gravitationalRemnantMass = CalculateGravitationalRemnantMass(baryonicRemnantMass);
+            break;
+    
+        default:                                                                                // unknown prescription
+            // the only way this can happen is if someone added an SN_ENGINE
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
 
-        default:                                                                                            // unknown SN_ENGINE
-        SHOW_WARN(ERROR::UNKNOWN_SN_ENGINE, "Using defaults");                                          // show warning
+            THROW_ERROR(ERROR::UNKNOWN_SN_ENGINE);                                              // throw error
     }
                                    
     return std::make_tuple(gravitationalRemnantMass, fallbackFraction);
@@ -1693,7 +1745,7 @@ double GiantBranch::CalculateRemnantMassByBelczynski2002(const double p_Mass, co
 STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
     STELLAR_TYPE stellarType = m_StellarType;
-    double mass = m_Mass;                                                                                   // initial mass
+    double mass              = m_Mass;                                                                      // initial mass
 
     switch (OPTIONS->RemnantMassPrescription()) {                                                           // which prescription?
 
@@ -1722,30 +1774,37 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
         case REMNANT_MASS_PRESCRIPTION::MULLER2016:                                                         // Muller 2016
 
-            m_Mass = CalculateRemnantMassByMuller2016(m_Mass, m_COCoreMass);
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // no subsequent kick adjustment by fallback fraction needed
+            m_Mass                              = CalculateRemnantMassByMuller2016(m_Mass, m_COCoreMass);
             break;
-
-        default:                                                                                            // shouldn't happen - assume MULLERMANDEL (this can only happen if someone added a new remnant mass prescription)
-            SHOW_WARN(ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION);                                            // show warning
 
         case REMNANT_MASS_PRESCRIPTION::MULLERMANDEL:                                                       // Mandel & Mueller, 2020
 
-            m_Mass = CalculateRemnantMassByMullerMandel(m_COCoreMass, m_HeCoreMass);
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // no subsequent kick adjustment by fallback fraction needed
+            m_Mass                              = CalculateRemnantMassByMullerMandel(m_COCoreMass, m_HeCoreMass);
             break;
 
         case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020:                                                      // Schneider 2020
 
-            m_Mass = CalculateRemnantMassBySchneider2020(m_COCoreMass);
-            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0  JR: ? JD? Simon?
+            m_Mass                              = CalculateRemnantMassBySchneider2020(m_COCoreMass);
             break;
 
         case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT:                                                   // Schneider 2020, alternative
 
-            m_Mass = CalculateRemnantMassBySchneider2020Alt(m_COCoreMass);
-            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0  JR: ? JD? Simon?
+            m_Mass                              = CalculateRemnantMassBySchneider2020Alt(m_COCoreMass);
             break;           
+    
+        default:                                                                                            // unknown prescription
+            // the only way this can happen is if someone added a REMNANT_MASS_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR(ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION);                                          // throw error
     }
     
     // Set the stellar type to which the star should evolve (either use prescription or MAXIMUM_NS_MSS)
@@ -1759,7 +1818,9 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
             stellarType = STELLAR_TYPE::NEUTRON_STAR;
     }
     else if (OPTIONS->RemnantMassPrescription() == REMNANT_MASS_PRESCRIPTION::HURLEY2000) {
-        stellarType = (utils::Compare(m_Mass, 1.8 ) > 0) ? STELLAR_TYPE::BLACK_HOLE : STELLAR_TYPE::NEUTRON_STAR; //Hurley+ 2000, Eq. (92)
+        stellarType = (utils::Compare(m_Mass, 1.8 ) > 0)
+                        ? STELLAR_TYPE::BLACK_HOLE
+                        : STELLAR_TYPE::NEUTRON_STAR;                                                       // Hurley+ 2000, Eq. (92)
     }
     else if (utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass()) > 0) {
         std::tie(m_Luminosity, m_Radius, m_Temperature) = BH::CalculateCoreCollapseSNParams_Static(m_Mass);
@@ -1810,17 +1871,17 @@ STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
         m_COCoreMass = m_Mass;
         m_Mass0      = m_Mass;
     
+        stellarType  = STELLAR_TYPE::NEUTRON_STAR;
+    
         SetSNCurrentEvent(SN_EVENT::ECSN);                                                      // electron capture SN happening now
         SetSNPastEvent(SN_EVENT::ECSN);                                                         // ... and will be a past event
-    
-        stellarType = STELLAR_TYPE::NEUTRON_STAR;
     }
     else {                                                                                      // not allowed to ECSN, treat as ONeWD 
         
         if (utils::Compare(m_COCoreMass, MCH) > 0) {
             SHOW_WARN(ERROR::WHITE_DWARF_TOO_MASSIVE, "Setting mass to Chandraskhar mass.");
         }
-        m_Mass       = std::min(m_COCoreMass,MCH);                                              // no WD masses above Chandrasekhar mass
+        m_Mass       = std::min(m_COCoreMass, MCH);                                             // no WD masses above Chandrasekhar mass
         m_CoreMass   = m_Mass;
         m_HeCoreMass = m_Mass;
         m_COCoreMass = m_Mass;
@@ -1828,7 +1889,7 @@ STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
         m_Radius     = WhiteDwarfs::CalculateRadiusOnPhase_Static(m_Mass);                      // radius is defined equivalently for all WDs
         m_Luminosity = ONeWD::CalculateLuminosityOnPhase_Static(m_Mass, m_Time, m_Metallicity); // need to set the luminosity for ONeWD specifically
     
-        stellarType = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
+        stellarType  = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }	    
 
     return stellarType;
@@ -1923,12 +1984,12 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
 
         case PPI_PRESCRIPTION::COMPAS:                                                                  // Woosley 2017 https://arxiv.org/abs/1608.08939
             baryonicMass = m_HeCoreMass;                                                                // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static)
-            m_Mass = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                                // convert to gravitational mass due to neutrino mass loss
+            m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
             break;
 
         case PPI_PRESCRIPTION::STARTRACK:                                                               // Belczynski et al. 2016 https://arxiv.org/abs/1607.03116
-            baryonicMass = std::min(m_HeCoreMass, STARTRACK_PPISN_HE_CORE_MASS);  // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static), limit helium core mass to 45 Msun
-            m_Mass = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                                // convert to gravitational mass due to neutrino mass loss
+            baryonicMass = std::min(m_HeCoreMass, STARTRACK_PPISN_HE_CORE_MASS);                        // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static), limit helium core mass to 45 Msun
+            m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
             break;
 
         case PPI_PRESCRIPTION::MARCHANT: {                                                              // Marchant et al. 2018 https://arxiv.org/abs/1810.13412
@@ -1951,23 +2012,24 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
                                                                               7.39643451E+03));
 
             baryonicMass = ratioOfRemnantToHeCoreMass * m_HeCoreMass;                                   // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static)
-            m_Mass = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                                // convert to gravitational mass due to neutrino mass loss
+            m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
             } break;
 
         case PPI_PRESCRIPTION::FARMER: {                                                                // Farmer et al. 2019 http://dx.doi.org/10.3847/1538-4357/ab518b
             double totalMassPrePPISN = m_Mass;                                                          // save the total stellar mass 
                                                                                                         // three cases:
-            if (m_COCoreMass < FARMER_PPISN_UPP_LIM_LIN_REGIME) {
+            if (utils::Compare(m_COCoreMass, FARMER_PPISN_UPP_LIM_LIN_REGIME) < 0) {
                 m_Mass = m_COCoreMass + 4.0;                                                            // a linear relation below CO core masses of 38 Msun
             }
-            else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_QUAD_REGIME) {                                 // a quadratic relation in CO core mass for 38 =< CO_core < 60
+            else if (utils::Compare(m_COCoreMass, FARMER_PPISN_UPP_LIM_QUAD_REGIME) < 0) {              // a quadratic relation in CO core mass for 38 =< CO_core < 60  JR: shouldn't have constants here (in the comment) - they may change
                 const double a1 = -0.096;
                 const double a2 = 8.564;
                 const double a3 = -2.07;
                 const double a4 = -152.97;
-                m_Mass    = a1 * PPOW(m_COCoreMass, 2.0)  + a2 * m_COCoreMass + a3 * m_Log10Metallicity + a4;
+
+                m_Mass = a1 * PPOW(m_COCoreMass, 2.0) + a2 * m_COCoreMass + a3 * m_Log10Metallicity + a4;
             }
-            else if (m_COCoreMass < FARMER_PPISN_UPP_LIM_INSTABILLITY) {                                // no remnant between 60 - 140 Msun
+            else if (utils::Compare(m_COCoreMass, FARMER_PPISN_UPP_LIM_INSTABILLITY) < 0) {             // no remnant between 60 - 140 Msun  JR: shouldn't have constants here (in the comment) - they may change
                 m_Mass = 0.0;
             }
             else {                                                                                      // BH mass becomes CO-core mass above the PISN gap
@@ -1976,10 +2038,16 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
 
             m_Mass = std::min(totalMassPrePPISN, m_Mass);                                               // check if remnant mass is bigger than total mass    
             } break;
-
+    
         default:                                                                                        // unknown prescription
-            SHOW_WARN(ERROR::UNKNOWN_PPI_PRESCRIPTION);                                                 // show warning
-            m_Mass = m_HeCoreMass;                                                                      // strip off the hydrogen envelope if any was left -- factor of 0.9 applied later
+            // the only way this can happen is if someone added a REMNANT_MASS_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR(ERROR::UNKNOWN_PPI_PRESCRIPTION);                                               // throw error
     }
 
     if (utils::Compare(m_Mass, 0.0) <= 0) {                                                             // remnant mass <= 0?
@@ -1994,6 +2062,7 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
         m_Luminosity  = BH::CalculateLuminosityOnPhase_Static();                                        // black hole luminosity
         m_Radius      = BH::CalculateRadiusOnPhase_Static(m_Mass);                                      // Schwarzschild radius (not correct for rotating BH)
         m_Temperature = CalculateTemperatureOnPhase(m_Luminosity, m_Radius);
+
         m_SupernovaDetails.fallbackFraction = 1.0;                                                      // fraction of mass that falls back
     }
 
@@ -2027,7 +2096,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
 
         double snMass = CalculateInitialSupernovaMass();                                            // calculate SN initial mass
         
-        SetSNHydrogenContent();                                                                     // ALEJANDRO - 04/05/2018 - Check if the SN is H-rich or H-poor. For now, classify it for all possible SNe and not only CCSN forming NS.
+        SetSNHydrogenContent();                                                                     // set H-rich or H-poor  JR: why don't we do this when we initialise the star at change of stellar type?
 
         if (                             OPTIONS->UsePulsationalPairInstability()              &&
             utils::Compare(m_HeCoreMass, OPTIONS->PulsationalPairInstabilityLowerLimit()) >= 0 &&
@@ -2041,7 +2110,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
 
             stellarType = ResolvePairInstabilitySN();                                               // MR
         }
-        else if (utils::Compare(snMass, OPTIONS->MCBUR1()) < 0) {                                   // Type IIa Supernova - like a Type Ia + H (see Hurley)
+        else if (utils::Compare(snMass, OPTIONS->MCBUR1()) < 0) {                                   // type IIa Supernova - like a Type Ia + H (see Hurley)
             stellarType = ResolveTypeIIaSN();                                                       // MR
         }
         else if (utils::Compare(snMass, MCBUR2) < 0) {                                              // Electron Capture Supernova

@@ -101,7 +101,7 @@ protected:
             double          CalculateMassLossRateFlexible2023();
             double          CalculateMassLossRateWolfRayetShenar2019() const;
             
-            double          CalculateMassTransferRejuvenationFactor() const;
+            double          CalculateMassTransferRejuvenationFactor();
 
             double          CalculateMomentOfInertia() const                                                        { return MainSequence::CalculateMomentOfInertia(); }
 

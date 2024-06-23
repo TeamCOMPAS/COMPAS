@@ -11,7 +11,7 @@ STELLAR_TYPE CH::EvolveToNextPhase() {
     }
     else {                                                                  // yes
         stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                   // evolve as HeMS star now
-        m_Age       = 0.0;                                                  // JR: can't use Hurley et al. 2000, eq 76 here - timescales(tHe) not calculated yet
+        m_Age       = 0.0;                                                  // can't use Hurley et al. 2000, eq 76 here - timescales(tHe) not calculated yet
         m_Tau       = 0.0;
         m_CHE       = true;                                                 // stayed on MS as CH
     }

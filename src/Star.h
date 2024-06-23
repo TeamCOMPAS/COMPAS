@@ -63,52 +63,6 @@ public:
 
     virtual ~Star() { delete m_Star; delete m_SaveStar; }
 
-/*
- * Switch to required star type
- *
- * Instantiates new object of required class, deletes existing pointer to star object and
- * replaces it with pointer to newly instantiated object
- *
- *
- * STELLAR_TYPE SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialState)
- *
- * @param   [IN]    p_StellarType               StellarType to switch to
- * @param   [IN]    p_SetInitialType            Indicates whether the initial stellar type of the star should be set to p_StellarType
- *                                              (optional, default = false)
- * @return                                      Stellar type of star before switch (previous stellar type)
- */
-
-BaseStar* NewStar(const STELLAR_TYPE p_StellarType) {
-std::cout << "NewStar@1, ST = " << (int)p_StellarType << "\n";
-
-        BaseStar *ptr;
-
-        switch (p_StellarType) {
-            case STELLAR_TYPE::MS_LTE_07                                : {ptr = new MS_lte_07();} break;
-            case STELLAR_TYPE::MS_GT_07                                 : {ptr = new MS_gt_07();} break;
-            case STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS                   : {ptr = new CH();} break;
-            case STELLAR_TYPE::HERTZSPRUNG_GAP                          : {ptr = new HG();} break;
-            case STELLAR_TYPE::FIRST_GIANT_BRANCH                       : {ptr = new FGB();} break;
-            case STELLAR_TYPE::CORE_HELIUM_BURNING                      : {ptr = new CHeB();} break;
-            case STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH            : {ptr = new EAGB();} break;
-            case STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH: {ptr = new TPAGB();} break;
-            case STELLAR_TYPE::NAKED_HELIUM_STAR_MS                     : {ptr = new HeMS();} break;
-            case STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP        : {ptr = new HeHG();} break;
-            case STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH           : {ptr = new HeGB();} break;
-            case STELLAR_TYPE::HELIUM_WHITE_DWARF                       : {ptr = new HeWD();} break;
-            case STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF                : {ptr = new COWD();} break;
-            case STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF                  : {ptr = new ONeWD();} break;
-            case STELLAR_TYPE::NEUTRON_STAR                             : {ptr = new NS();} break;
-            case STELLAR_TYPE::BLACK_HOLE                               : {ptr = new BH();} break;
-            case STELLAR_TYPE::MASSLESS_REMNANT                         : {ptr = new MR();} break;
-
-            default:                                                // not ok... (this can only happen if someone added a new stellar type)
-                THROW_ERROR_STATIC(ERROR::UNKNOWN_STELLAR_TYPE);    // throw error
-        }
-std::cout << "NewStar@2, ST = " << (int)(ptr->StellarType()) << "\n";
-
-    return ptr;
-}
 
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const                                                                            { return m_ObjectId; }
@@ -119,11 +73,11 @@ std::cout << "NewStar@2, ST = " << (int)(ptr->StellarType()) << "\n";
 
     // getters - alphabetically
     double              Age() const                                                                                 { return m_Star->Age(); }
-    double              BindingEnergy_Fixed() const                                                                 { return m_Star->BindingEnergy_Fixed(); }
-    double              BindingEnergy_Loveridge() const                                                             { return m_Star->BindingEnergy_Loveridge(); }
-    double              BindingEnergy_Nanjing() const                                                               { return m_Star->BindingEnergy_Nanjing(); }
-    double              BindingEnergy_Kruckow() const                                                               { return m_Star->BindingEnergy_Kruckow(); }
-    double              BindingEnergy_Dewi() const                                                                  { return m_Star->BindingEnergy_Dewi(); }
+    double              BindingEnergyFixed() const                                                                  { return m_Star->BindingEnergyFixed(); }
+    double              BindingEnergyLoveridge() const                                                              { return m_Star->BindingEnergyLoveridge(); }
+    double              BindingEnergyNanjing() const                                                                { return m_Star->BindingEnergyNanjing(); }
+    double              BindingEnergyKruckow() const                                                                { return m_Star->BindingEnergyKruckow(); }
+    double              BindingEnergyDewi() const                                                                   { return m_Star->BindingEnergyDewi(); }
     double              CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, 
                                                    const double p_massTransferEfficiencyBeta) const                 { return m_Star->CalculateCriticalMassRatio(p_AccretorIsDegenerate, p_massTransferEfficiencyBeta); }
     double              CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const                 { return m_Star->CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate); }
@@ -152,11 +106,11 @@ std::cout << "NewStar@2, ST = " << (int)(ptr->StellarType()) << "\n";
     bool                IsSNIA() const                                                                              { return m_Star->IsSNIA(); }
     bool                IsSNII() const                                                                              { return m_Star->IsSNII(); }
     bool                IsUSSN() const                                                                              { return m_Star->IsUSSN(); }
-    double              Lambda_Fixed() const                                                                        { return m_Star->Lambda_Fixed(); }
-    double              Lambda_Loveridge() const                                                                    { return m_Star->Lambda_Loveridge(); }
-    double              Lambda_Nanjing() const                                                                      { return m_Star->Lambda_Nanjing(); }
-    double              Lambda_Kruckow() const                                                                      { return m_Star->Lambda_Kruckow(); }
-    double              Lambda_Dewi() const                                                                         { return m_Star->Lambda_Dewi(); }
+    double              LambdaFixed() const                                                                         { return m_Star->LambdaFixed(); }
+    double              LambdaLoveridge() const                                                                     { return m_Star->LambdaLoveridge(); }
+    double              LambdaNanjing() const                                                                       { return m_Star->LambdaNanjing(); }
+    double              LambdaKruckow() const                                                                       { return m_Star->LambdaKruckow(); }
+    double              LambdaDewi() const                                                                          { return m_Star->LambdaDewi(); }
     double              Luminosity() const                                                                          { return m_Star->Luminosity(); }
     double              Mass() const                                                                                { return m_Star->Mass(); }
     double              Mass0() const                                                                               { return m_Star->Mass0(); }
@@ -260,7 +214,7 @@ std::cout << "NewStar@2, ST = " << (int)(ptr->StellarType()) << "\n";
     void            ClearCurrentSNEvent()                                                                           { m_Star->ClearCurrentSNEvent(); }
 
     ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
-                                              const double p_DonorThermalMassLossRate)                              { return m_Star->DetermineAccretionRegime(p_HeRich, p_DonorThermalMassLossRate); }  // Used in WDs
+                                              const double p_DonorThermalMassLossRate)                              { return m_Star->DetermineAccretionRegime(p_HeRich, p_DonorThermalMassLossRate); }
 
     ENVELOPE        DetermineEnvelopeType() const                                                                   { return m_Star->DetermineEnvelopeType(); }
 
@@ -275,11 +229,16 @@ std::cout << "NewStar@2, ST = " << (int)(ptr->StellarType()) << "\n";
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
 
     void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
-                                           const double p_DonorThermalMassLossRate)                                 { m_Star->ResolveAccretionRegime(p_Regime, p_DonorThermalMassLossRate); }  // Used in WDs
+                                           const double p_DonorThermalMassLossRate)                                 { m_Star->ResolveAccretionRegime(p_Regime, p_DonorThermalMassLossRate); }
+    
+    void            ResolveCommonEnvelopeAccretion(const double p_FinalMass,
+                                                   const double p_CompanionMass,
+                                                   const double p_CompanionRadius,
+                                                   const double p_CompanionEnvelope)                                { m_Star->ResolveCommonEnvelopeAccretion(p_FinalMass, p_CompanionMass, p_CompanionRadius, p_CompanionEnvelope); } 
 
     void            ResolveEnvelopeLossAndSwitch()                                                                  { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
 
-    void            ResolveShellChange(const double p_AccretedMass)                                                 { m_Star->ResolveShellChange(p_AccretedMass); }  // Used in WDs
+    void            ResolveShellChange(const double p_AccretedMass)                                                 { m_Star->ResolveShellChange(p_AccretedMass); }
 
     bool            RevertState();
 
@@ -334,8 +293,6 @@ private:
     OBJECT_ID          m_ObjectId;              // instantiated object's unique object id
     OBJECT_PERSISTENCE m_ObjectPersistence;     // instantiated object's persistence
     long int           m_Id;                    // id used to name output files - uses p_Id as passed (usually the step number of multiple single stars being produced)
-
-    ERROR              m_Error;                 // Records most recent error encountered for this star - should be propagated to m_Star
 
     BaseStar          *m_Star;                  // pointer to current star
     BaseStar          *m_SaveStar;              // pointer to saved star

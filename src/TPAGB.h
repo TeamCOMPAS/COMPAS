@@ -59,7 +59,7 @@ protected:
 
             double          CalculateLambdaDewi() const;
             double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
-            double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const;
+            double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const;
 
             double          CalculateLuminosityOnPhase(const double p_Time) const;
             double          CalculateLuminosityOnPhase() const                                                      { return CalculateLuminosityOnPhase(m_Age); }                                           // Use class member variables
