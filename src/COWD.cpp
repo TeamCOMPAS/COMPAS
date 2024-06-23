@@ -21,11 +21,12 @@ DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
 
     m_AccretionRegime = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate); 
                                                                                
-    double acceptanceRate   = 0.0;                                                       // Acceptance mass rate - default = 0.0
-    double fractionAccreted = 0.0;                                                       // Accretion fraction - default = 0.0
+    double acceptanceRate   = 0.0;                                                       // acceptance mass rate - default = 0.0
+    double fractionAccreted = 0.0;                                                       // accretion fraction - default = 0.0
 
     acceptanceRate = p_DonorMassRate * CalculateEtaHe(p_DonorMassRate);
     if (!p_IsHeRich) acceptanceRate *= CalculateEtaH(p_DonorMassRate);
+
     fractionAccreted = acceptanceRate / p_DonorMassRate;
 
     return std::make_tuple(acceptanceRate, fractionAccreted);
@@ -49,14 +50,14 @@ DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
  */
 ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorMassLossRate) {
 
-    double logMdot          = log10(p_DonorMassLossRate / MYR_TO_YEAR);                                                     // Logarithm of the accreted mass (M_sun/yr)
+    double logMdot          = log10(p_DonorMassLossRate / MYR_TO_YEAR);                                                     // logarithm of the accreted mass (M_sun/yr)
     ACCRETION_REGIME regime = ACCRETION_REGIME::NONE;
 
     if (p_HeRich) {
         // The following coefficients in logMassTransfer limits come from table A1 in Piersanti+ 2014.
         double logMassTransferCrit       = WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0 + WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1 * m_Mass;
         double logMassTransferStable     = WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_0 + WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_1 * m_Mass;  // Piersanti+2014 has several Flashes regimes. Here we group them into one.
-        double logMassTransferDetonation = WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_0 + WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_1 * m_Mass;  // Critical value for double detonation regime in Piersanti+ 2014
+        double logMassTransferDetonation = WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_0 + WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_1 * m_Mass;  // critical value for double detonation regime in Piersanti+ 2014
         if (utils::Compare(logMdot, logMassTransferStable) < 0) {
             if (utils::Compare(logMdot, logMassTransferDetonation) > 0) {
                 regime = ACCRETION_REGIME::HELIUM_FLASHES;
@@ -64,7 +65,7 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
             else {
                 regime = ACCRETION_REGIME::HELIUM_ACCUMULATION;
                 if ((utils::Compare(m_Mass, MASS_DOUBLE_DETONATION_CO) >= 0) && (utils::Compare(m_HeShell, WD_HE_SHELL_MCRIT_DETONATION) >= 0)) {
-                    m_HeShellDetonation = true;                                                                             // JR: Question: should this be set false if the condition is not satisfied?
+                    m_HeShellDetonation = true;                                                                             // JR: Question: should this be set false if the condition is not satisfied? *Ilya*
                 }
             }
         } 
@@ -74,7 +75,7 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
         else {
             regime = ACCRETION_REGIME::HELIUM_STABLE_BURNING;
             if ((utils::Compare(logMdot, COWD_LOG_MDOT_MIN_OFF_CENTER_IGNITION) > 0) && (utils::Compare(m_Mass, COWD_MASS_MIN_OFF_CENTER_IGNITION) > 0)) {
-                m_OffCenterIgnition = true;                                                                                 // JR: Question: should this be set false if the condition is not satisfied?
+                m_OffCenterIgnition = true;                                                                                 // JR: Question: should this be set false if the condition is not satisfied? *Ilya*
             }
         }
     } 

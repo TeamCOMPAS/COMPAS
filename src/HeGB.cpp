@@ -168,7 +168,7 @@ double HeGB::CalculateAgeOnPhase_Static(const double      p_Mass,
 
     return age;
 
-    // still confused as to why t <= tx translates to Mc >= Mx ?
+    // still confused as to why t <= tx (from Hurley eq 39) translates to Mc >= Mx (conditional above)?  *Ilya* Maybe I should check SSE...
 
 #undef gbParams
 }
@@ -246,4 +246,3 @@ double HeGB::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerat
                                                                                                                         
     return qCrit;
 }
-

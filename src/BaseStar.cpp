@@ -218,7 +218,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_PulsarDetails.birthSpinDownRate          = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // Mass Transfer Donor Type History
-    m_MassTransferDonorHistory                 = STYPE_VECTOR();
+    m_MassTransferDonorHistory                 = ST_VECTOR();
 
 }
 
@@ -244,31 +244,27 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
  *      PROGRAM_OPTION          - program option
  *
  * This function handles properties of type:
- *    STAR_PROPERTY, STAR_1_PROPERTY, STAR_2_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY only.
+ * 
+ *    STAR_PROPERTY, STAR_1_PROPERTY, STAR_2_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY
+ * 
+ * only - anything else will result in an error being thrown and the evolution of the star (or bianry)
+ * terminated.
  *
  * This is the function used to retrieve values for properties required to be printed.
  * This allows the composition of the log records to be dynamically modified - this is
  * how we allow users to specify what properties they want recorded in log files.
  *
- * The functional return is the value of the property requested.  The type of the
- * functional return is a tuple: std::tuple<bool, COMPAS_VARIABLE_TYPE>.  This type
- * is COMPAS_VARIABLE by typedef.
- *
- * The bool returned indicates whether the property value was retrieved ok: true = yes, fales = no
- * The COMPAS_VARIABLE_TYPE variable returned is a boost variant variable, the value of which is the
- * value of the underlying primitive variable.
+ * The functional return is the value of the property requested.  
  *
  *
- * COMPAS_VARIABLE StellarPropertyValue(const T_ANY_PROPERTY p_Property) const
+ * COMPAS_VARIABLE StellarPropertyValue(const T_ANY_PROPERTY p_Property)
  *
  * @param   [IN]    p_Property                  The property for which the value is required
  * @return                                      The value of the requested property
  */
 COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) const {
 
-    bool ok = true;                                                                                                     // default is no error
-
-    COMPAS_VARIABLE_TYPE value;
+    COMPAS_VARIABLE value;
 
     ANY_STAR_PROPERTY property;
 
@@ -280,123 +276,134 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_PROPERTY_TYPE::T_SUPERNOVA_PROPERTY: { SUPERNOVA_PROPERTY prop = boost::get<SUPERNOVA_PROPERTY>(p_Property); property = (ANY_STAR_PROPERTY)prop; } break;
         case ANY_PROPERTY_TYPE::T_COMPANION_PROPERTY: { COMPANION_PROPERTY prop = boost::get<COMPANION_PROPERTY>(p_Property); property = (ANY_STAR_PROPERTY)prop; } break;
 
-        default:                                                                                                        // unknown property type
-            ok    = false;                                                                                              // that's not ok...
-            value = "UNKNOWN";                                                                                          // default value
-            SHOW_WARN(ERROR::UNKNOWN_PROPERTY_TYPE);                                                                    // show warning
+        default:                                                                                                        // unexpected stellar property type
+            // the only ways this can happen are if someone added a stellar type property (into ANY_PROPERTY_TYPE)
+            // and it isn't accounted for in this code, or if there is a defect in the code that causes
+            // this function to be called with a bad parameter.  We should not default here, with or without a
+            // warning - this is a code defect, so we flag it as an error and that will result in termination of
+            // the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing property type or find and fix the code defect.
+
+            THROW_ERROR(ERROR::UNEXPECTED_STELLAR_PROPERTY_TYPE);                                                       // throw error
     }
 
-    if (ok) {
-        switch (property) {
-            case ANY_STAR_PROPERTY::AGE:                                                value = Age();                                                  break;
-            case ANY_STAR_PROPERTY::ANGULAR_MOMENTUM:                                   value = AngularMomentum();                                      break;
-            case ANY_STAR_PROPERTY::BINDING_ENERGY_FIXED:                               value = BindingEnergy_Fixed();                                  break;
-            case ANY_STAR_PROPERTY::BINDING_ENERGY_NANJING:                             value = BindingEnergy_Nanjing();                                break;
-            case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE:                           value = BindingEnergy_Loveridge();                              break;
-            case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS:                     value = BindingEnergy_LoveridgeWinds();                         break;
-            case ANY_STAR_PROPERTY::BINDING_ENERGY_KRUCKOW:                             value = BindingEnergy_Kruckow();                                break;
-            case ANY_STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE:               value = CHonMS();                                               break;
-            case ANY_STAR_PROPERTY::CO_CORE_MASS:                                       value = COCoreMass();                                           break;
-            case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_COCoreMassAtCOFormation();                           break;
-            case ANY_STAR_PROPERTY::CORE_MASS:                                          value = CoreMass();                                             break;
-            case ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION:              value = SN_CoreMassAtCOFormation();                             break;
-            case ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE:                               value = SN_DrawnKickMagnitude();                                break;
-            case ANY_STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE:                            value = DominantMassLossRate();                                 break;
-            case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
-            case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = CalculateDynamicalTimescale();                          break;
-            case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
-            case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass() - CoreMass();                                    break;
-            case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
-            case ANY_STAR_PROPERTY::EVOL_STATUS:                                        value = EvolutionStatus();                                      break;
-            case ANY_STAR_PROPERTY::EXPERIENCED_AIC:                                    value = ExperiencedAIC();                                       break;
-            case ANY_STAR_PROPERTY::EXPERIENCED_HeSD:                                   value = ExperiencedHeSD();                                      break;
-            case ANY_STAR_PROPERTY::EXPERIENCED_CCSN:                                   value = ExperiencedCCSN();                                      break;
-            case ANY_STAR_PROPERTY::EXPERIENCED_ECSN:                                   value = ExperiencedECSN();                                      break;
-            case ANY_STAR_PROPERTY::EXPERIENCED_PISN:                                   value = ExperiencedPISN();                                      break;
-            case ANY_STAR_PROPERTY::EXPERIENCED_PPISN:                                  value = ExperiencedPPISN();                                     break;
-            case ANY_STAR_PROPERTY::EXPERIENCED_SNIA:                                   value = ExperiencedSNIA();                                      break;
-            case ANY_STAR_PROPERTY::EXPERIENCED_SN_TYPE:                                value = ExperiencedSN_Type();                                   break;
-            case ANY_STAR_PROPERTY::EXPERIENCED_USSN:                                   value = ExperiencedUSSN();                                      break;
-            case ANY_STAR_PROPERTY::FALLBACK_FRACTION:                                  value = SN_FallbackFraction();                                  break;
-            case ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY:                        value = GetMassTransferDonorHistoryString();                    break;
-            case ANY_STAR_PROPERTY::HE_CORE_MASS:                                       value = HeCoreMass();                                           break;
-            case ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_HeCoreMassAtCOFormation();                           break;
-            case ANY_STAR_PROPERTY::IS_HYDROGEN_POOR:                                   value = SN_IsHydrogenPoor();                                    break;
-            case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
-            case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
-            case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
-            case ANY_STAR_PROPERTY::IS_AIC:                                             value = IsAIC();                                                break;
-            case ANY_STAR_PROPERTY::IS_CCSN:                                            value = IsCCSN();                                               break;
-            case ANY_STAR_PROPERTY::IS_HeSD:                                            value = IsHeSD();                                               break;
-            case ANY_STAR_PROPERTY::IS_ECSN:                                            value = IsECSN();                                               break;
-            case ANY_STAR_PROPERTY::IS_PISN:                                            value = IsPISN();                                               break;
-            case ANY_STAR_PROPERTY::IS_PPISN:                                           value = IsPPISN();                                              break;
-            case ANY_STAR_PROPERTY::IS_SNIA:                                            value = IsSNIA();                                               break;
-            case ANY_STAR_PROPERTY::IS_SNII:                                            value = IsSNII();                                               break;
-            case ANY_STAR_PROPERTY::IS_USSN:                                            value = IsUSSN();                                               break;
-            case ANY_STAR_PROPERTY::KICK_MAGNITUDE:                                     value = SN_KickMagnitude();                                     break;
-            case ANY_STAR_PROPERTY::LAMBDA_DEWI:                                        value = Lambda_Dewi();                                          break;
-            case ANY_STAR_PROPERTY::LAMBDA_FIXED:                                       value = Lambda_Fixed();                                         break;
-            case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW:                                     value = Lambda_Kruckow();                                       break;
-            case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_BOTTOM:                              value = Lambda_KruckowBottom();                                 break;
-            case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_MIDDLE:                              value = Lambda_KruckowMiddle();                                 break;
-            case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_TOP:                                 value = Lambda_KruckowTop();                                    break;
-            case ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE:                                   value = Lambda_Loveridge();                                     break;
-            case ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE_WINDS:                             value = Lambda_LoveridgeWinds();                                break;
-            case ANY_STAR_PROPERTY::LAMBDA_NANJING:                                     value = Lambda_Nanjing();                                       break;
-            case ANY_STAR_PROPERTY::LBV_PHASE_FLAG:                                     value = LBV_Phase_Flag();                                       break;
-            case ANY_STAR_PROPERTY::LUMINOSITY:                                         value = Luminosity();                                           break;
-            case ANY_STAR_PROPERTY::MASS:                                               value = Mass();                                                 break;
-            case ANY_STAR_PROPERTY::MASS_0:                                             value = Mass0();                                                break;
-            case ANY_STAR_PROPERTY::MDOT:                                               value = Mdot();                                                 break;
-            case ANY_STAR_PROPERTY::MEAN_ANOMALY:                                       value = SN_MeanAnomaly();                                       break;
-            case ANY_STAR_PROPERTY::METALLICITY:                                        value = Metallicity();                                          break;
-            case ANY_STAR_PROPERTY::MOMENT_OF_INERTIA:                                  value = CalculateMomentOfInertia();                             break;
-            case ANY_STAR_PROPERTY::MZAMS:                                              value = MZAMS();                                                break;
-            case ANY_STAR_PROPERTY::OMEGA:                                              value = Omega() / SECONDS_IN_YEAR;                              break;
-            case ANY_STAR_PROPERTY::OMEGA_BREAK:                                        value = OmegaBreak() / SECONDS_IN_YEAR;                         break;
-            case ANY_STAR_PROPERTY::OMEGA_ZAMS:                                         value = OmegaZAMS() / SECONDS_IN_YEAR;                          break;
-            case ANY_STAR_PROPERTY::PULSAR_MAGNETIC_FIELD:                              value = Pulsar_MagneticField();                                 break;
-            case ANY_STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE:                              value = Pulsar_SpinDownRate();                                  break;
-            case ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY:                              value = Pulsar_SpinFrequency();                                 break;
-            case ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD:                                 value = Pulsar_SpinPeriod();                                    break;
-            case ANY_STAR_PROPERTY::PULSAR_BIRTH_PERIOD:                                value = Pulsar_BirthPeriod();                                   break;
-            case ANY_STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE:                        value = Pulsar_BirthSpinDownRate();                             break;
-            case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE:                         value = CalculateRadialExpansionTimescale();                    break;
-            case ANY_STAR_PROPERTY::RADIUS:                                             value = Radius();                                               break;
-            case ANY_STAR_PROPERTY::RANDOM_SEED:                                        value = RandomSeed();                                           break;
-            case ANY_STAR_PROPERTY::ROCKET_KICK_MAGNITUDE:                              value = SN_RocketKickMagnitude();                               break;
-            case ANY_STAR_PROPERTY::ROCKET_KICK_PHI:                                    value = SN_RocketKickPhi();                                     break;
-            case ANY_STAR_PROPERTY::ROCKET_KICK_THETA:                                  value = SN_RocketKickTheta();                                   break;
-            case ANY_STAR_PROPERTY::RZAMS:                                              value = RZAMS();                                                break;
-            case ANY_STAR_PROPERTY::SN_TYPE:                                            value = SN_Type();                                              break;
-            case ANY_STAR_PROPERTY::SPEED:                                              value = Speed();												break;
-            case ANY_STAR_PROPERTY::STELLAR_TYPE:                                       value = StellarType();                                          break;
-            case ANY_STAR_PROPERTY::STELLAR_TYPE_NAME:                                  value = STELLAR_TYPE_LABEL.at(StellarType());                   break;
-            case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV:                                  value = StellarTypePrev();                                      break;
-            case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV_NAME:                             value = STELLAR_TYPE_LABEL.at(StellarTypePrev());               break;
-            case ANY_STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER:             value = SN_KickMagnitudeRandom();                               break;
-            case ANY_STAR_PROPERTY::SUPERNOVA_PHI:                                      value = SN_Phi();                                               break;
-            case ANY_STAR_PROPERTY::SUPERNOVA_THETA:                                    value = SN_Theta();                                             break;
-            case ANY_STAR_PROPERTY::TEMPERATURE:                                        value = Temperature() * TSOL;                                   break;
-            case ANY_STAR_PROPERTY::THERMAL_TIMESCALE:                                  value = CalculateThermalTimescale();                            break;
-            case ANY_STAR_PROPERTY::TIME:                                               value = Time();                                                 break;
-            case ANY_STAR_PROPERTY::TIMESCALE_MS:                                       value = Timescale(TIMESCALE::tMS);                              break;
-            case ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION:             value = SN_TotalMassAtCOFormation();                            break;
-            case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
-            case ANY_STAR_PROPERTY::TZAMS:                                              value = TZAMS() * TSOL;                                         break;
-            case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZetaAdiabaticHurley2002(m_CoreMass);           break;
-            case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = CalculateZetaAdiabaticHurley2002(m_HeCoreMass);         break;
-            case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = CalculateZetaAdiabaticSPH(m_CoreMass);                  break;
-            case ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE:                                   value = CalculateZetaAdiabaticSPH(m_HeCoreMass);                break;
-        default:                                                                                                        // unknown property
-            ok    = false;                                                                                              // that's not ok...
-            value = "UNKNOWN";                                                                                          // default value
-            SHOW_WARN(ERROR::UNKNOWN_STELLAR_PROPERTY);                                                                 // show warning
-        }
+    switch (property) {
+        case ANY_STAR_PROPERTY::AGE:                                                value = Age();                                                  break;
+        case ANY_STAR_PROPERTY::ANGULAR_MOMENTUM:                                   value = AngularMomentum();                                      break;
+        case ANY_STAR_PROPERTY::BINDING_ENERGY_FIXED:                               value = BindingEnergyFixed();                                   break;
+        case ANY_STAR_PROPERTY::BINDING_ENERGY_NANJING:                             value = BindingEnergyNanjing();                                 break;
+        case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE:                           value = BindingEnergyLoveridge();                               break;
+        case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS:                     value = BindingEnergyLoveridgeWinds();                          break;
+        case ANY_STAR_PROPERTY::BINDING_ENERGY_KRUCKOW:                             value = BindingEnergyKruckow();                                 break;
+        case ANY_STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE:               value = CHonMS();                                               break;
+        case ANY_STAR_PROPERTY::CO_CORE_MASS:                                       value = COCoreMass();                                           break;
+        case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_COCoreMassAtCOFormation();                           break;
+        case ANY_STAR_PROPERTY::CORE_MASS:                                          value = CoreMass();                                             break;
+        case ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION:              value = SN_CoreMassAtCOFormation();                             break;
+        case ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE:                               value = SN_DrawnKickMagnitude();                                break;
+        case ANY_STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE:                            value = DominantMassLossRate();                                 break;
+        case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
+        case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE:                                value = CalculateDynamicalTimescale();                          break;
+        case ANY_STAR_PROPERTY::ECCENTRIC_ANOMALY:                                  value = SN_EccentricAnomaly();                                  break;
+        case ANY_STAR_PROPERTY::ENV_MASS:                                           value = Mass() - CoreMass();                                    break;
+        case ANY_STAR_PROPERTY::ERROR:                                              value = Error();                                                break;
+        case ANY_STAR_PROPERTY::EVOL_STATUS:                                        value = EvolutionStatus();                                      break;
+        case ANY_STAR_PROPERTY::EXPERIENCED_AIC:                                    value = ExperiencedAIC();                                       break;
+        case ANY_STAR_PROPERTY::EXPERIENCED_HeSD:                                   value = ExperiencedHeSD();                                      break;
+        case ANY_STAR_PROPERTY::EXPERIENCED_CCSN:                                   value = ExperiencedCCSN();                                      break;
+        case ANY_STAR_PROPERTY::EXPERIENCED_ECSN:                                   value = ExperiencedECSN();                                      break;
+        case ANY_STAR_PROPERTY::EXPERIENCED_PISN:                                   value = ExperiencedPISN();                                      break;
+        case ANY_STAR_PROPERTY::EXPERIENCED_PPISN:                                  value = ExperiencedPPISN();                                     break;
+        case ANY_STAR_PROPERTY::EXPERIENCED_SNIA:                                   value = ExperiencedSNIA();                                      break;
+        case ANY_STAR_PROPERTY::EXPERIENCED_SNII:                                   value = ExperiencedSNII();                                      break;
+        case ANY_STAR_PROPERTY::EXPERIENCED_SN_TYPE:                                value = ExperiencedSN_Type();                                   break;
+        case ANY_STAR_PROPERTY::EXPERIENCED_USSN:                                   value = ExperiencedUSSN();                                      break;
+        case ANY_STAR_PROPERTY::FALLBACK_FRACTION:                                  value = SN_FallbackFraction();                                  break;
+        case ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY:                        value = GetMassTransferDonorHistoryString();                    break;
+        case ANY_STAR_PROPERTY::HE_CORE_MASS:                                       value = HeCoreMass();                                           break;
+        case ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_HeCoreMassAtCOFormation();                           break;
+        case ANY_STAR_PROPERTY::IS_HYDROGEN_POOR:                                   value = SN_IsHydrogenPoor();                                    break;
+        case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
+        case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
+        case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
+        case ANY_STAR_PROPERTY::IS_AIC:                                             value = IsAIC();                                                break;
+        case ANY_STAR_PROPERTY::IS_CCSN:                                            value = IsCCSN();                                               break;
+        case ANY_STAR_PROPERTY::IS_HeSD:                                            value = IsHeSD();                                               break;
+        case ANY_STAR_PROPERTY::IS_ECSN:                                            value = IsECSN();                                               break;
+        case ANY_STAR_PROPERTY::IS_PISN:                                            value = IsPISN();                                               break;
+        case ANY_STAR_PROPERTY::IS_PPISN:                                           value = IsPPISN();                                              break;
+        case ANY_STAR_PROPERTY::IS_SNIA:                                            value = IsSNIA();                                               break;
+        case ANY_STAR_PROPERTY::IS_SNII:                                            value = IsSNII();                                               break;
+        case ANY_STAR_PROPERTY::IS_USSN:                                            value = IsUSSN();                                               break;
+        case ANY_STAR_PROPERTY::KICK_MAGNITUDE:                                     value = SN_KickMagnitude();                                     break;
+        case ANY_STAR_PROPERTY::LAMBDA_DEWI:                                        value = LambdaDewi();                                           break;
+        case ANY_STAR_PROPERTY::LAMBDA_FIXED:                                       value = LambdaFixed();                                          break;
+        case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW:                                     value = LambdaKruckow();                                        break;
+        case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_BOTTOM:                              value = LambdaKruckowBottom();                                  break;
+        case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_MIDDLE:                              value = LambdaKruckowMiddle();                                  break;
+        case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_TOP:                                 value = LambdaKruckowTop();                                     break;
+        case ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE:                                   value = LambdaLoveridge();                                      break;
+        case ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE_WINDS:                             value = LambdaLoveridgeWinds();                                 break;
+        case ANY_STAR_PROPERTY::LAMBDA_NANJING:                                     value = LambdaNanjing();                                        break;
+        case ANY_STAR_PROPERTY::LBV_PHASE_FLAG:                                     value = LBV_PhaseFlag();                                        break;
+        case ANY_STAR_PROPERTY::LUMINOSITY:                                         value = Luminosity();                                           break;
+        case ANY_STAR_PROPERTY::MASS:                                               value = Mass();                                                 break;
+        case ANY_STAR_PROPERTY::MASS_0:                                             value = Mass0();                                                break;
+        case ANY_STAR_PROPERTY::MDOT:                                               value = Mdot();                                                 break;
+        case ANY_STAR_PROPERTY::MEAN_ANOMALY:                                       value = SN_MeanAnomaly();                                       break;
+        case ANY_STAR_PROPERTY::METALLICITY:                                        value = Metallicity();                                          break;
+        case ANY_STAR_PROPERTY::MOMENT_OF_INERTIA:                                  value = CalculateMomentOfInertia();                             break;
+        case ANY_STAR_PROPERTY::MZAMS:                                              value = MZAMS();                                                break;
+        case ANY_STAR_PROPERTY::OMEGA:                                              value = Omega() / SECONDS_IN_YEAR;                              break;
+        case ANY_STAR_PROPERTY::OMEGA_BREAK:                                        value = OmegaBreak() / SECONDS_IN_YEAR;                         break;
+        case ANY_STAR_PROPERTY::OMEGA_ZAMS:                                         value = OmegaZAMS() / SECONDS_IN_YEAR;                          break;
+        case ANY_STAR_PROPERTY::PULSAR_MAGNETIC_FIELD:                              value = PulsarMagneticField();                                  break;
+        case ANY_STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE:                              value = PulsarSpinDownRate();                                   break;
+        case ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY:                              value = PulsarSpinFrequency();                                  break;
+        case ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD:                                 value = PulsarSpinPeriod();                                     break;
+        case ANY_STAR_PROPERTY::PULSAR_BIRTH_PERIOD:                                value = PulsarBirthPeriod();                                    break;
+        case ANY_STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE:                        value = PulsarBirthSpinDownRate();                              break;
+        case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE:                         value = CalculateRadialExpansionTimescale();                    break;
+        case ANY_STAR_PROPERTY::RADIUS:                                             value = Radius();                                               break;
+        case ANY_STAR_PROPERTY::RANDOM_SEED:                                        value = RandomSeed();                                           break;
+        case ANY_STAR_PROPERTY::ROCKET_KICK_MAGNITUDE:                              value = SN_RocketKickMagnitude();                               break;
+        case ANY_STAR_PROPERTY::ROCKET_KICK_PHI:                                    value = SN_RocketKickPhi();                                     break;
+        case ANY_STAR_PROPERTY::ROCKET_KICK_THETA:                                  value = SN_RocketKickTheta();                                   break;
+        case ANY_STAR_PROPERTY::RZAMS:                                              value = RZAMS();                                                break;
+        case ANY_STAR_PROPERTY::SN_TYPE:                                            value = SN_Type();                                              break;
+        case ANY_STAR_PROPERTY::SPEED:                                              value = Speed();												break;
+        case ANY_STAR_PROPERTY::STELLAR_TYPE:                                       value = StellarType();                                          break;
+        case ANY_STAR_PROPERTY::STELLAR_TYPE_NAME:                                  value = STELLAR_TYPE_LABEL.at(StellarType());                   break;
+        case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV:                                  value = StellarTypePrev();                                      break;
+        case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV_NAME:                             value = STELLAR_TYPE_LABEL.at(StellarTypePrev());               break;
+        case ANY_STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER:             value = SN_KickMagnitudeRandom();                               break;
+        case ANY_STAR_PROPERTY::SUPERNOVA_PHI:                                      value = SN_Phi();                                               break;
+        case ANY_STAR_PROPERTY::SUPERNOVA_THETA:                                    value = SN_Theta();                                             break;
+        case ANY_STAR_PROPERTY::TEMPERATURE:                                        value = Temperature() * TSOL;                                   break;
+        case ANY_STAR_PROPERTY::THERMAL_TIMESCALE:                                  value = CalculateThermalTimescale();                            break;
+        case ANY_STAR_PROPERTY::TIME:                                               value = Time();                                                 break;
+        case ANY_STAR_PROPERTY::TIMESCALE_MS:                                       value = Timescale(TIMESCALE::tMS);                              break;
+        case ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION:             value = SN_TotalMassAtCOFormation();                            break;
+        case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
+        case ANY_STAR_PROPERTY::TZAMS:                                              value = TZAMS() * TSOL;                                         break;
+        case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZetaAdiabaticHurley2002(m_CoreMass);           break;
+        case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = CalculateZetaAdiabaticHurley2002(m_HeCoreMass);         break;
+        case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = CalculateZetaAdiabaticSPH(m_CoreMass);                  break;
+        case ANY_STAR_PROPERTY::ZETA_SOBERMAN_HE:                                   value = CalculateZetaAdiabaticSPH(m_HeCoreMass);                break;
+
+        default:                                                                                                        // unexpected stellar property
+            // the only ways this can happen are if someone added a stellar property (into ANY_STAR_PROPERTY),
+            // or allowed users to specify a stellar property (via the logfile definitions file), and it isn't
+            // accounted for in this code.  We should not default here, with or without a warning - this is a
+            // code defect, so we flag it as an error and that will result in termination of the evolution of
+            // the star or binary.
+            // The correct fix for this is to add code for the missing property, or prevent it from being 
+            // specified in the logfile definitions file.
+
+            THROW_ERROR(ERROR::UNEXPECTED_STELLAR_PROPERTY);                                                            // throw error
     }
 
-    return std::make_tuple(ok, value);
+    return value;
 }
 
 
@@ -414,18 +421,19 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
  *      PROGRAM_OPTION          - program option
  *
  * This function calls the appropriate helper function to retrieve the value.
+ * 
+ * This function handles properties of type:
+ * 
+ *    STAR_PROPERTY, PROGRAM_OPTION
+ * 
+ * only - anything else will result in an error being thrown and the evolution of the star (or bianry)
+ * terminated.
  *
  * This is the function used to retrieve values for properties required to be printed.
  * This allows the composition of the log records to be dynamically modified - this is
  * how we allow users to specify what properties they want recorded in log files.
  *
- * The functional return is the value of the property requested.  The type of the
- * functional return is a tuple: std::tuple<bool, COMPAS_VARIABLE_TYPE>.  This type
- * is COMPAS_VARIABLE by typedef.
- *
- * The bool returned indicates whether the property value was retrieved ok: true = yes, fales = no
- * The COMPAS_VARIABLE_TYPE variable returned is a boost variant variable, the value of which is the
- * value of the underlying primitive variable.
+ * The functional return is the value of the property requested.  
  *
  *
  * COMPAS_VARIABLE PropertyValue(const T_ANY_PROPERTY p_Property) const
@@ -435,27 +443,25 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
  */
 COMPAS_VARIABLE BaseStar::PropertyValue(const T_ANY_PROPERTY p_Property) const {
 
-    bool ok = true;                                                                                                             // default is no error
-
-    COMPAS_VARIABLE_TYPE value = 0.0;                                                                                           // default property value
+    COMPAS_VARIABLE value = 0.0;                                                                                                // default property value
 
     switch (boost::apply_visitor(VariantPropertyType(), p_Property)) {                                                          // which property type?
 
-        case ANY_PROPERTY_TYPE::T_STAR_PROPERTY:                                                                                // star property
-            std::tie(ok, value) = StellarPropertyValue(p_Property);
-            break;
+        case ANY_PROPERTY_TYPE::T_STAR_PROPERTY:  value = StellarPropertyValue(p_Property); break;                              // star property
+        case ANY_PROPERTY_TYPE::T_PROGRAM_OPTION: value = OPTIONS->OptionValue(p_Property); break;                              // program option
 
-        case ANY_PROPERTY_TYPE::T_PROGRAM_OPTION:                                                                               // program option
-            std::tie(ok, value) = OPTIONS->OptionValue(p_Property);
-            break;
+        default:                                                                                                                // unexpected property type
+            // the only ways this can happen are if someone added a stellar type property (into ANY_PROPERTY_TYPE)
+            // and it isn't accounted for in this code, or if there is a defect in the code that causes
+            // this function to be called with a bad parameter.  We should not default here, with or without a
+            // warning - this is a code defect, so we flag it as an error and that will result in termination of
+            // the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing property type or find and fix the code defect.
 
-        default:                                                                                                                // unknown property type
-            ok    = false;                                                                                                      // that's not ok...
-            value = "UNKNOWN";                                                                                                  // default value
-            SHOW_WARN(ERROR::UNKNOWN_PROPERTY_TYPE);                                                                            // show warning
+            THROW_ERROR(ERROR::UNEXPECTED_STELLAR_PROPERTY_TYPE);                                                               // throw error
     }
 
-    return std::make_tuple(ok, value);
+    return value;
 }
 
 
@@ -1121,23 +1127,22 @@ double BaseStar::CalculateLambdaNanjing() const {
     if (OPTIONS->CommonEnvelopeLambdaNanjingUseRejuvenatedMass()) mass = m_Mass0;                               // use rejuvenated mass to calculate lambda instead of true birth mass
     
     if (OPTIONS->CommonEnvelopeLambdaNanjingEnhanced()) {                                                       // if using enhanced Nanjing lambdas
+        STELLAR_POPULATION pop = utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) < 0 ? STELLAR_POPULATION::POPULATION_II : STELLAR_POPULATION::POPULATION_I;
         if (OPTIONS->CommonEnvelopeLambdaNanjingInterpolateInMass()) {
             if (OPTIONS->CommonEnvelopeLambdaNanjingInterpolateInMetallicity()) {
                 lambda = BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(mass, m_Metallicity);
             }
             else {
-                int Zind = utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) < 0 ? 0 : 1;
-                lambda   = BaseStar::CalculateMassInterpolatedLambdaNanjing(mass, Zind);
+                lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(mass, pop);
             }
         }
         else {
-            int massInd = BaseStar::FindLambdaNanjingNearestMassIndex(mass);                                    // do not interpolate in mass, so need to use nearest mass bin
+            int massIndex = BaseStar::FindLambdaNanjingNearestMassIndex(mass);                                  // do not interpolate in mass, so need to use nearest mass bin
             if (OPTIONS->CommonEnvelopeLambdaNanjingInterpolateInMetallicity()) {
-                lambda  = BaseStar::CalculateZInterpolatedLambdaNanjing(m_Metallicity, massInd);
+                lambda = BaseStar::CalculateZInterpolatedLambdaNanjing(m_Metallicity, massIndex);
             }
             else {
-                int Zind = utils::Compare(m_Metallicity, LAMBDA_NANJING_ZLIMIT) < 0 ? 0 : 1;
-                lambda   = BaseStar::CalculateLambdaNanjingEnhanced(massInd, Zind);
+                lambda = BaseStar::CalculateLambdaNanjingEnhanced(massIndex, pop);
             }
         }
     }
@@ -1163,14 +1168,14 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass,
 
     double lambda = 0.0;
     if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
-        lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 0);                                   // use lambda for pop. II metallicity
+        lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, STELLAR_POPULATION::POPULATION_II);   // use lambda for pop. II metallicity
     }
     else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) > 0) {
-        lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 1);                                   // use lambda for pop. I metallicity
+        lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, STELLAR_POPULATION::POPULATION_I);    // use lambda for pop. I metallicity
     }
     else {                                                                                                      // linear interpolation in logZ between pop. I and pop. II metallicities
-        double lambdaLow = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 0);
-        double lambdaUp  = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, 1);
+        double lambdaLow = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, STELLAR_POPULATION::POPULATION_II);
+        double lambdaUp  = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, STELLAR_POPULATION::POPULATION_I);
         lambda           = lambdaLow + (m_Log10Metallicity - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
     }
 
@@ -1182,31 +1187,32 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass,
  * Interpolate Nanjing lambda in mass for a given metallicity
  * 
  * 
- * double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Mass, const int p_Zind)
+ * double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Mass, const int p_StellarPop)
  * 
- * @param   [IN]    p_Zind                      Index of metallicity (0 = pop II metallicity, 1 = pop I metallicity)
+ * @param   [IN]    p_StellarPop                Stellar population (POP_I or POP_II)
  * @param   [IN]    p_Mass                      Mass / Msun to evaluate lambda with
  * @return                                      Common envelope lambda parameter
  */ 
-double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Mass, const int p_Zind) const {
+double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Mass, const STELLAR_POPULATION p_StellarPop) const {
 
     double lambda = 0.0;
 
-    std::vector<int> ind = utils::BinarySearch(NANJING_MASSES, p_Mass);
-    int low = ind[0];
-    int up  = ind[1];
+    INT_VECTOR ind = utils::BinarySearch(NANJING_MASSES, p_Mass);
+    int low        = ind[0];
+    int up         = ind[1];
+
     if ( (low < 0) && (up >= 0) ) {                                                                             // mass below range calculated by Xu & Li (2010)
-        lambda = CalculateLambdaNanjingEnhanced(0, p_Zind);                                                     // use lambda for minimum mass
+        lambda = CalculateLambdaNanjingEnhanced(0, p_StellarPop);                                               // use lambda for minimum mass
     }
     else if ( (low >= 0) && (up < 0) ) {                                                                        // mass above range calculated by Xu & Li (2010)
-        lambda = CalculateLambdaNanjingEnhanced(NANJING_MASSES.size() - 1, p_Zind);                             // use lambda for maximum mass
+        lambda = CalculateLambdaNanjingEnhanced(NANJING_MASSES.size() - 1, p_StellarPop);                       // use lambda for maximum mass
     }
     else if (low == up) {                                                                                       // mass is exactly equal to the mass of a model evolved by Xu & Li (2010)
-        lambda = CalculateLambdaNanjingEnhanced(low, p_Zind);
+        lambda = CalculateLambdaNanjingEnhanced(low, p_StellarPop);
     }
     else {                                                                                                      // linear interpolation between upper and lower mass bins
-        double lambdaLow = CalculateLambdaNanjingEnhanced(low, p_Zind);
-        double lambdaUp  = CalculateLambdaNanjingEnhanced(up, p_Zind);
+        double lambdaLow = CalculateLambdaNanjingEnhanced(low, p_StellarPop);
+        double lambdaUp  = CalculateLambdaNanjingEnhanced(up, p_StellarPop);
         lambda           = lambdaLow + (p_Mass - NANJING_MASSES[low]) / (NANJING_MASSES[up] - NANJING_MASSES[low]) * (lambdaUp - lambdaLow);
     }
 
@@ -1221,22 +1227,22 @@ double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Mass, con
  * double BaseStar::alculateZInterpolatedLambdaNanjing(const double p_Z, const int p_MassInd)
  * 
  * @param   [IN]    p_Z                         Metallicity
- * @param   [IN]    p_MassInd                   Index specifying donor mass (see NANJING_MASSES in constants.h)
+ * @param   [IN]    p_MassIndex                 Index specifying donor mass (see NANJING_MASSES in constants.h)
  * @return                                      Common envelope lambda parameter
  */ 
-double BaseStar::CalculateZInterpolatedLambdaNanjing(const double p_Z, const int p_MassInd) const {
+double BaseStar::CalculateZInterpolatedLambdaNanjing(const double p_Z, const int p_MassIndex) const {
 
     double lambda = 0.0;
     
     if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
-        lambda = CalculateLambdaNanjingEnhanced(p_MassInd, 0);                                                  // use lambda for pop. II metallicity
+        lambda = CalculateLambdaNanjingEnhanced(p_MassIndex, STELLAR_POPULATION::POPULATION_II);                // use lambda for pop. II metallicity
     }
     else if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPI_Z) > 0) {
-        lambda = CalculateLambdaNanjingEnhanced(p_MassInd, 1);                                                  // use lambda for pop. I metallicity
+        lambda = CalculateLambdaNanjingEnhanced(p_MassIndex, STELLAR_POPULATION::POPULATION_I);                 // use lambda for pop. I metallicity
     }
     else {                                                                                                      // linear interpolation in logZ between pop. I and pop. II metallicities
-        double lambdaLow = CalculateLambdaNanjingEnhanced(p_MassInd, 0);
-        double lambdaUp  = CalculateLambdaNanjingEnhanced(p_MassInd, 1);
+        double lambdaLow = CalculateLambdaNanjingEnhanced(p_MassIndex, STELLAR_POPULATION::POPULATION_II);
+        double lambdaUp  = CalculateLambdaNanjingEnhanced(p_MassIndex, STELLAR_POPULATION::POPULATION_I);
         lambda           = lambdaLow + (m_Log10Metallicity - LAMBDA_NANJING_POPII_LOGZ) / (LAMBDA_NANJING_POPI_LOGZ - LAMBDA_NANJING_POPII_LOGZ) * (lambdaUp - lambdaLow);
     }
 
@@ -1289,16 +1295,15 @@ double BaseStar::CalculateZetaAdiabatic() {
             zetaStar = CalculateZetaConstantsByEnvelope(OPTIONS->StellarZetaPrescription());
             break;
     
-        default:                                                                    // unknown prescription
+        default:                                                                        // unknown prescription
             // the only way this can happen is if someone added a ZETA_PRESCRIPTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
             // We are here because the user chose a prescription this code doesn't account for, and that should
-            // be flagged as an error and result in termination of the evolution of the binary.
+            // be flagged as an error and result in termination of the evolution of the star or binary.
             // The correct fix for this is to add code for the missing prescription or, if the missing
             // prescription is superfluous, remove it from the option.
 
-            m_Error = ERROR::UNKNOWN_ZETA_PRESCRIPTION;                             // set error value
-            THROW_ERROR(m_Error);                                                   // throw error
+            THROW_ERROR(ERROR::UNKNOWN_ZETA_PRESCRIPTION);                              // throw error
     }
 
     return zetaStar;
@@ -1378,29 +1383,34 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, c
         double qCrit = 0.0;
 
         switch (OPTIONS->QCritPrescription()) {
+
+            case QCRIT_PRESCRIPTION::NONE:    // DEPRECATED June 2024 - remove end 2024 
+            case QCRIT_PRESCRIPTION::ZERO:
+                qCrit = 0.0;
+                break;
+
             case QCRIT_PRESCRIPTION::GE20: 
             case QCRIT_PRESCRIPTION::GE20_IC:
                 qCrit = CalculateCriticalMassRatioGe20(OPTIONS->QCritPrescription(), p_massTransferEfficiencyBeta);   
                 break;
+
             case QCRIT_PRESCRIPTION::CLAEYS:
                 qCrit = CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate);
                 break;
+
             case QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK:
                 qCrit = CalculateCriticalMassRatioHurleyHjellmingWebbink();
                 break;
-            case QCRIT_PRESCRIPTION::ZERO:
-                qCrit = 0.0;
         
-            default:                                                                    // unknown prescription
+            default:                                                                        // unknown prescription
                 // the only way this can happen is if someone added a QCRIT_PRESCRIPTION
                 // and it isn't accounted for in this code.  We should not default here, with or without a warning.
                 // We are here because the user chose a prescription this code doesn't account for, and that should
-                // be flagged as an error and result in termination of the evolution of the binary.
+                // be flagged as an error and result in termination of the evolution of the star or binary.
                 // The correct fix for this is to add code for the missing prescription or, if the missing
                 // prescription is superfluous, remove it from the option.
 
-                m_Error = ERROR::UNKNOWN_QCRIT_PRESCRIPTION;                            // set error value
-                THROW_ERROR(m_Error);                                                   // throw error
+                THROW_ERROR(ERROR::UNKNOWN_QCRIT_PRESCRIPTION);                             // throw error
         }
 
         return qCrit;
@@ -1428,22 +1438,22 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
     std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>> 
         radiiQCritsZetasFromGe20 = std::get<1>(GE20_QCRIT);
 
-    std::vector<int> ind = utils::BinarySearch(massesFromGe20, m_Mass);
-    int lowerMassInd = ind[0];
-    int upperMassInd = ind[1];
+    INT_VECTOR indices = utils::BinarySearch(massesFromGe20, m_Mass);
+    int lowerMassIndex = indices[0];
+    int upperMassIndex = indices[1];
 
-    if (lowerMassInd == -1) {                                                   // if masses are out of range, set to endpoints
-        lowerMassInd = 0; 
-        upperMassInd = 1;
+    if (lowerMassIndex == -1) {                                                   // if masses are out of range, set to endpoints
+        lowerMassIndex = 0; 
+        upperMassIndex = 1;
     } 
-    else if (upperMassInd == -1) { 
-        lowerMassInd = massesFromGe20.size() - 2; 
-        upperMassInd = massesFromGe20.size() - 1;
+    else if (upperMassIndex == -1) { 
+        lowerMassIndex = massesFromGe20.size() - 2; 
+        upperMassIndex = massesFromGe20.size() - 1;
     } 
 
     // Get vector of radii from GE20_QCRIT for the lower and upper mass indices
-    std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsZetasFromGe20[lowerMassInd]);
-    std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsZetasFromGe20[upperMassInd]);
+    std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsZetasFromGe20[lowerMassIndex]);
+    std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsZetasFromGe20[upperMassIndex]);
 
     // Get the qCrit vector for the lower and upper mass bounds 
     std::vector<double> qCritFullVectorLowerMass;
@@ -1453,62 +1463,62 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
     
     // One of the following must be set - Full and Nonc distinguish fully conservative and non-conservative MT
     if (p_qCritPrescription == QCRIT_PRESCRIPTION::GE20) {
-        qCritFullVectorLowerMass = std::get<1>(radiiQCritsZetasFromGe20[lowerMassInd]);
-        qCritFullVectorUpperMass = std::get<1>(radiiQCritsZetasFromGe20[upperMassInd]);
-        qCritNoncVectorLowerMass = std::get<3>(radiiQCritsZetasFromGe20[lowerMassInd]);
-        qCritNoncVectorUpperMass = std::get<3>(radiiQCritsZetasFromGe20[upperMassInd]);
+        qCritFullVectorLowerMass = std::get<1>(radiiQCritsZetasFromGe20[lowerMassIndex]);
+        qCritFullVectorUpperMass = std::get<1>(radiiQCritsZetasFromGe20[upperMassIndex]);
+        qCritNoncVectorLowerMass = std::get<3>(radiiQCritsZetasFromGe20[lowerMassIndex]);
+        qCritNoncVectorUpperMass = std::get<3>(radiiQCritsZetasFromGe20[upperMassIndex]);
     }
     else if (p_qCritPrescription == QCRIT_PRESCRIPTION::GE20_IC) {
-        qCritFullVectorLowerMass = std::get<2>(radiiQCritsZetasFromGe20[lowerMassInd]);
-        qCritFullVectorUpperMass = std::get<2>(radiiQCritsZetasFromGe20[upperMassInd]);
-        qCritNoncVectorLowerMass = std::get<4>(radiiQCritsZetasFromGe20[lowerMassInd]);
-        qCritNoncVectorUpperMass = std::get<4>(radiiQCritsZetasFromGe20[upperMassInd]);
+        qCritFullVectorLowerMass = std::get<2>(radiiQCritsZetasFromGe20[lowerMassIndex]);
+        qCritFullVectorUpperMass = std::get<2>(radiiQCritsZetasFromGe20[upperMassIndex]);
+        qCritNoncVectorLowerMass = std::get<4>(radiiQCritsZetasFromGe20[lowerMassIndex]);
+        qCritNoncVectorUpperMass = std::get<4>(radiiQCritsZetasFromGe20[upperMassIndex]);
     }
 
     // Get vector of radii from GE20_QCRIT for both lower and upper masses
-    std::vector<int> indR0 = utils::BinarySearch(logRadiusVectorLowerMass, log10(m_Radius));
-    int lowerRadiusLowerMassInd = indR0[0];
-    int upperRadiusLowerMassInd = indR0[1];
+    INT_VECTOR indicesR0          = utils::BinarySearch(logRadiusVectorLowerMass, log10(m_Radius));
+    int lowerRadiusLowerMassIndex = indicesR0[0];
+    int upperRadiusLowerMassIndex = indicesR0[1];
 
-    if (lowerRadiusLowerMassInd == -1) {                                        // if radii are out of range, set to endpoints
-        lowerRadiusLowerMassInd = 0; 
-        upperRadiusLowerMassInd = 1; 
+    if (lowerRadiusLowerMassIndex == -1) {                                        // if radii are out of range, set to endpoints
+        lowerRadiusLowerMassIndex = 0; 
+        upperRadiusLowerMassIndex = 1; 
     }
-    else if (upperRadiusLowerMassInd == -1) {                                                   
-        lowerRadiusLowerMassInd = logRadiusVectorLowerMass.size() - 2; 
-        upperRadiusLowerMassInd = logRadiusVectorLowerMass.size() - 1; 
+    else if (upperRadiusLowerMassIndex == -1) {                                                   
+        lowerRadiusLowerMassIndex = logRadiusVectorLowerMass.size() - 2; 
+        upperRadiusLowerMassIndex = logRadiusVectorLowerMass.size() - 1; 
     }
 
-    std::vector<int> indR1 = utils::BinarySearch(logRadiusVectorUpperMass, log10(m_Radius));
-    int lowerRadiusUpperMassInd = indR1[0];
-    int upperRadiusUpperMassInd = indR1[1];
+    INT_VECTOR indicesR1          = utils::BinarySearch(logRadiusVectorUpperMass, log10(m_Radius));
+    int lowerRadiusUpperMassIndex = indicesR1[0];
+    int upperRadiusUpperMassIndex = indicesR1[1];
 
-    if (lowerRadiusUpperMassInd == -1) {                                        // if radii are out of range, set to endpoints
-        lowerRadiusUpperMassInd = 0; 
-        upperRadiusUpperMassInd = 1; 
+    if (lowerRadiusUpperMassIndex == -1) {                                        // if radii are out of range, set to endpoints
+        lowerRadiusUpperMassIndex = 0; 
+        upperRadiusUpperMassIndex = 1; 
     }
-    else if (upperRadiusUpperMassInd == -1) {                                                   
-        lowerRadiusUpperMassInd = logRadiusVectorUpperMass.size() - 2; 
-        upperRadiusUpperMassInd = logRadiusVectorUpperMass.size() - 1; 
+    else if (upperRadiusUpperMassIndex == -1) {                                                   
+        lowerRadiusUpperMassIndex = logRadiusVectorUpperMass.size() - 2; 
+        upperRadiusUpperMassIndex = logRadiusVectorUpperMass.size() - 1; 
     }
 
     // Set the 4 boundary points for the 2D interpolation
-    double qLowLowFull = qCritFullVectorLowerMass[lowerRadiusLowerMassInd];
-    double qLowUppFull = qCritFullVectorLowerMass[upperRadiusLowerMassInd];
-    double qUppLowFull = qCritFullVectorUpperMass[lowerRadiusUpperMassInd];
-    double qUppUppFull = qCritFullVectorUpperMass[upperRadiusUpperMassInd];
-    double qLowLowNonc = qCritNoncVectorLowerMass[lowerRadiusLowerMassInd];
-    double qLowUppNonc = qCritNoncVectorLowerMass[upperRadiusLowerMassInd];
-    double qUppLowNonc = qCritNoncVectorUpperMass[lowerRadiusUpperMassInd];
-    double qUppUppNonc = qCritNoncVectorUpperMass[upperRadiusUpperMassInd];
+    double qLowLowFull = qCritFullVectorLowerMass[lowerRadiusLowerMassIndex];
+    double qLowUppFull = qCritFullVectorLowerMass[upperRadiusLowerMassIndex];
+    double qUppLowFull = qCritFullVectorUpperMass[lowerRadiusUpperMassIndex];
+    double qUppUppFull = qCritFullVectorUpperMass[upperRadiusUpperMassIndex];
+    double qLowLowNonc = qCritNoncVectorLowerMass[lowerRadiusLowerMassIndex];
+    double qLowUppNonc = qCritNoncVectorLowerMass[upperRadiusLowerMassIndex];
+    double qUppLowNonc = qCritNoncVectorUpperMass[lowerRadiusUpperMassIndex];
+    double qUppUppNonc = qCritNoncVectorUpperMass[upperRadiusUpperMassIndex];
 
-    double lowerMass = massesFromGe20[lowerMassInd];
-    double upperMass = massesFromGe20[upperMassInd];
+    double lowerMass   = massesFromGe20[lowerMassIndex];
+    double upperMass   = massesFromGe20[upperMassIndex];
     
-    double lowerRadiusLowerMass = PPOW(10.0, logRadiusVectorLowerMass[lowerRadiusLowerMassInd]);
-    double upperRadiusLowerMass = PPOW(10.0, logRadiusVectorLowerMass[upperRadiusLowerMassInd]);
-    double lowerRadiusUpperMass = PPOW(10.0, logRadiusVectorUpperMass[lowerRadiusUpperMassInd]);
-    double upperRadiusUpperMass = PPOW(10.0, logRadiusVectorUpperMass[upperRadiusUpperMassInd]);
+    double lowerRadiusLowerMass = PPOW(10.0, logRadiusVectorLowerMass[lowerRadiusLowerMassIndex]);
+    double upperRadiusLowerMass = PPOW(10.0, logRadiusVectorLowerMass[upperRadiusLowerMassIndex]);
+    double lowerRadiusUpperMass = PPOW(10.0, logRadiusVectorUpperMass[lowerRadiusUpperMassIndex]);
+    double upperRadiusUpperMass = PPOW(10.0, logRadiusVectorUpperMass[upperRadiusUpperMassIndex]);
 
     // Interpolate on the radii first, then the masses, then on the mass transfer efficiency beta
     double qCritFullLowerMass    = qLowLowFull + (upperRadiusLowerMass - m_Radius) / (upperRadiusLowerMass - lowerRadiusLowerMass) * (qLowUppFull - qLowLowFull);
@@ -1730,25 +1740,25 @@ double BaseStar::CalculateInitialEnvelopeMass_Static(const double p_Mass) {
 /*
  * Calculate rejuvenation factor for stellar age based on mass lost/gained during mass transfer
  *
- * JR: This function returns 1.0 in all cases... Do we really need it?
+ * JR: This function returns 1.0 in all cases... Do we really need it?  Ilya?
  *
  *
  * double CalculateMassTransferRejuvenationFactor()
  *
  * @return                                      Rejuvenation factor
  */
-double BaseStar::CalculateMassTransferRejuvenationFactor() const {
+double BaseStar::CalculateMassTransferRejuvenationFactor() {
 
     double fRej;
-    switch (OPTIONS->MassTransferRejuvenationPrescription()) {                          // which prescription
+    switch (OPTIONS->MassTransferRejuvenationPrescription()) {                                  // which prescription
 
-        case MT_REJUVENATION_PRESCRIPTION::NONE:                                        // NONE - use default Hurley et al. 2000 prescription = 1.0
+        case MT_REJUVENATION_PRESCRIPTION::NONE:                                                // NONE - use default Hurley et al. 2000 prescription = 1.0
             fRej = 1.0;
             break;
 
-        case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                                   // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf
+        case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                                           // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf
 
-            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {                              // Rejuvenation factor is unity for mass losing stars
+            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {                                      // Rejuvenation factor is unity for mass losing stars  JR: do we really need this?  It's going to default to 1.0 if the condition is false anyway. *Ilya*
                 fRej = 1.0;
             }
             else {
@@ -1756,9 +1766,15 @@ double BaseStar::CalculateMassTransferRejuvenationFactor() const {
             }
             break;
 
-        default:                                                                        // unknown prescription - use default Hurley et al. 2000 prescription = 1.0
-            SHOW_WARN(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION, "Using default fRej = 1.0"); // show warning
-            fRej = 1.0;
+        default:                                                                                // unknown prescription
+            // the only way this can happen is if someone added a MT_REJUVENATION_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION);                           // throw error
     }
 
     return fRej;
@@ -1897,12 +1913,12 @@ double BaseStar::CalculateMassLossRateOBBjorklund2022() const {
  * Sets class member variable m_LBVphaseFlag if necessary
  * 
  *  
- * double CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBVprescription)
+ * double CalculateMassLossRateLBV(const LBV_MASS_LOSS_PRESCRIPTION p_LBVprescription)
  *
  * @param   [IN]    p_LBVprescription           Which LBV prescription to use
  * @return                                      LBV-like mass loss rate (in Msol yr^{-1})
  */
-double BaseStar::CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBVprescription) {
+double BaseStar::CalculateMassLossRateLBV(const LBV_MASS_LOSS_PRESCRIPTION p_LBVprescription) {
 
     double rate = 0.0;                                                                                                          // default return value
 
@@ -1912,27 +1928,31 @@ double BaseStar::CalculateMassLossRateLBV(const LBV_PRESCRIPTION p_LBVprescripti
         m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;                                                                           // set the dominant mass loss rate
         
         switch (p_LBVprescription) {                                                                                            // decide which LBV prescription to use
-            case LBV_PRESCRIPTION::ZERO:
+
+            case LBV_MASS_LOSS_PRESCRIPTION::NONE:    // DEPRECATED June 2024 - remove end 2024 
+            case LBV_MASS_LOSS_PRESCRIPTION::ZERO:
                 rate = 0.0;
                 break;
-            case LBV_PRESCRIPTION::HURLEY_ADD:
-            case LBV_PRESCRIPTION::HURLEY:
+            case LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD:
+            case LBV_MASS_LOSS_PRESCRIPTION::HURLEY:
                 rate = CalculateMassLossRateLBVHurley(HDlimitfactor);
                 break;
-            case LBV_PRESCRIPTION::BELCZYNSKI:
+            case LBV_MASS_LOSS_PRESCRIPTION::BELCZYNSKI:
                 rate = CalculateMassLossRateLBVBelczynski();
                 break;
 
             default:                                                                                                            // unknown prescription
-                // the only way this can happen is if someone added an LBV_PRESCRIPTION
-                // and it isn't accounted for in this code.  We should not default here, with or without a warning.
-                // We are here because the user chose a prescription this code doesn't account for, and that should
-                // be flagged as an error and result in termination of the evolution of the binary.
+                // the only ways this can happen are if someone added an LBV_MASS_LOSS_PRESCRIPTION
+                // and it isn't accounted for in this code, or if there is a defect in the code that causes
+                // this function to be called with a bad parameter.  We should not default here, with or without
+                // a warning.
+                // We are here because the user chose a prescription this code doesn't account for, or as a result
+                // of a code defect, and either of those should be flagged as an error and result in termination of
+                // the evolution of the star or binary.
                 // The correct fix for this is to add code for the missing prescription or, if the missing
-                // prescription is superfluous, remove it from the option.
+                // prescription is superfluous, remove it from the option, or find and fix the code defect.
 
-                m_Error = ERROR::UNKNOWN_LBV_PRESCRIPTION;                                                                      // set error value
-                THROW_ERROR(m_Error);                                                                                           // throw error
+                THROW_ERROR(ERROR::UNKNOWN_LBV_MASS_LOSS_PRESCRIPTION);                                                         // throw error
         }
     } else {
         rate = 0.0;                                                                                                             // no winds if it isn't an LBV star!
@@ -2340,7 +2360,7 @@ double BaseStar::CalculateMassLossRateVMSVink2011() const {
         rate = PPOW(10.0, (logMdotdiff + log10(rate2001)));
     }
     else {
-        SHOW_WARN(ERROR::LOW_GAMMA, "Mass Loss Rate defaulting to Vink2001, low Gamma");                        // gamma extrapolated outside fit range, default to Vink2001
+        SHOW_WARN(ERROR::LOW_GAMMA, "Mass Loss Rate defaulting to Vink2001, low Gamma");                        // gamma extrapolated outside fit range, default to Vink2001 JR: does this need a warning?  Isn't this just the way this prescription works? *Ilya*
         rate = rate2001;
     }
 
@@ -2395,32 +2415,25 @@ double BaseStar::CalculateMassLossRateOB(const OB_MASS_LOSS_PRESCRIPTION p_OB_Ma
     m_DominantMassLossRate = MASS_LOSS_TYPE::OB;                                                                // set dominant mass loss rate
     
     switch (p_OB_MassLossPrescription) {                                                                        // decide which prescription to use
-        case OB_MASS_LOSS_PRESCRIPTION::ZERO:
-            rate = 0.0;
-            break;
-        case OB_MASS_LOSS_PRESCRIPTION::VINK2001:
-            rate = CalculateMassLossRateOBVink2001();
-            break;
-        case OB_MASS_LOSS_PRESCRIPTION::VINK2021:
-            rate = CalculateMassLossRateOBVinkSander2021();
-            break;
-        case OB_MASS_LOSS_PRESCRIPTION::BJORKLUND2022:
-            rate = CalculateMassLossRateOBBjorklund2022();
-            break;
-        case OB_MASS_LOSS_PRESCRIPTION::KRTICKA2018:
-            rate = CalculateMassLossRateOBKrticka2018();
-            break;
+        case OB_MASS_LOSS_PRESCRIPTION::NONE:    // DEPRECATED June 2024 - remove end 2024 
+        case OB_MASS_LOSS_PRESCRIPTION::ZERO         : rate = 0.0; break;
+        case OB_MASS_LOSS_PRESCRIPTION::VINK2001     : rate = CalculateMassLossRateOBVink2001(); break;
+        case OB_MASS_LOSS_PRESCRIPTION::VINK2021     : rate = CalculateMassLossRateOBVinkSander2021(); break;
+        case OB_MASS_LOSS_PRESCRIPTION::BJORKLUND2022: rate = CalculateMassLossRateOBBjorklund2022(); break;
+        case OB_MASS_LOSS_PRESCRIPTION::KRTICKA2018  : rate = CalculateMassLossRateOBKrticka2018(); break;
 
         default:                                                                                                // unknown prescription
-            // the only way this can happen is if someone added an OB_MASS_LOSS_PRESCRIPTION
-            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
-            // We are here because the user chose a prescription this code doesn't account for, and that should
-            // be flagged as an error and result in termination of the evolution of the binary.
+            // the only ways this can happen are if someone added an OB_MASS_LOSS_PRESCRIPTION
+            // and it isn't accounted for in this code, or if there is a defect in the code that causes
+            // this function to be called with a bad parameter.  We should not default here, with or without
+            // a warning.
+            // We are here because the user chose a prescription this code doesn't account for, or as a result
+            // of a code defect, and either of those should be flagged as an error and result in termination of
+            // the evolution of the star or binary.
             // The correct fix for this is to add code for the missing prescription or, if the missing
-            // prescription is superfluous, remove it from the option.
+            // prescription is superfluous, remove it from the option, or find and fix the code defect.
 
-            m_Error = ERROR::UNKNOWN_OB_MASS_LOSS_PRESCRIPTION;                                                 // set error value
-            THROW_ERROR(m_Error);                                                                               // throw error
+            THROW_ERROR(ERROR::UNKNOWN_OB_MASS_LOSS_PRESCRIPTION);                                              // throw error
     }
 
     return rate;
@@ -2442,38 +2455,27 @@ double BaseStar::CalculateMassLossRateRSG(const RSG_MASS_LOSS_PRESCRIPTION p_RSG
     double rate = 0.0;                                                                                          // default return value                                                      
 
     switch (p_RSG_MassLossPrescription) {                                                                       // decide which prescription to use
-        case RSG_MASS_LOSS_PRESCRIPTION::ZERO:                     
-            rate = 0.0;
-            break;
-        case RSG_MASS_LOSS_PRESCRIPTION::VINKSABHAHIT2023:
-            rate = CalculateMassLossRateRSGVinkSabhahit2023();
-            break;            
-        case RSG_MASS_LOSS_PRESCRIPTION::BEASOR2020:
-            rate = CalculateMassLossRateRSGBeasor2020();
-            break;
-        case RSG_MASS_LOSS_PRESCRIPTION::DECIN2023:
-            rate = CalculateMassLossRateRSGDecin2023();
-            break;
-        case RSG_MASS_LOSS_PRESCRIPTION::YANG2023:
-            rate = CalculateMassLossRateRSGYang2023();
-            break;            
-        case RSG_MASS_LOSS_PRESCRIPTION::KEE2021:
-            rate = CalculateMassLossRateRSGKee2021();
-            break;
-        case RSG_MASS_LOSS_PRESCRIPTION::NJ90:
-            rate = CalculateMassLossRateNieuwenhuijzenDeJager();
-            break;
+        case RSG_MASS_LOSS_PRESCRIPTION::NONE:    // DEPRECATED June 2024 - remove end 2024 
+        case RSG_MASS_LOSS_PRESCRIPTION::ZERO            : rate = 0.0; break;
+        case RSG_MASS_LOSS_PRESCRIPTION::VINKSABHAHIT2023: rate = CalculateMassLossRateRSGVinkSabhahit2023(); break;            
+        case RSG_MASS_LOSS_PRESCRIPTION::BEASOR2020      : rate = CalculateMassLossRateRSGBeasor2020(); break;
+        case RSG_MASS_LOSS_PRESCRIPTION::DECIN2023       : rate = CalculateMassLossRateRSGDecin2023(); break;
+        case RSG_MASS_LOSS_PRESCRIPTION::YANG2023        : rate = CalculateMassLossRateRSGYang2023(); break;            
+        case RSG_MASS_LOSS_PRESCRIPTION::KEE2021         : rate = CalculateMassLossRateRSGKee2021(); break;
+        case RSG_MASS_LOSS_PRESCRIPTION::NJ90            : rate = CalculateMassLossRateNieuwenhuijzenDeJager(); break;
 
         default:                                                                                                // unknown prescription
-            // the only way this can happen is if someone added an RSG_MASS_LOSS_PRESCRIPTION
-            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
-            // We are here because the user chose a prescription this code doesn't account for, and that should
-            // be flagged as an error and result in termination of the evolution of the binary.
+            // the only ways this can happen are if someone added an RSG_MASS_LOSS_PRESCRIPTION
+            // and it isn't accounted for in this code, or if there is a defect in the code that causes
+            // this function to be called with a bad parameter.  We should not default here, with or without
+            // a warning.
+            // We are here because the user chose a prescription this code doesn't account for, or as a result
+            // of a code defect, and either of those should be flagged as an error and result in termination of
+            // the evolution of the star or binary.
             // The correct fix for this is to add code for the missing prescription or, if the missing
-            // prescription is superfluous, remove it from the option.
+            // prescription is superfluous, remove it from the option, or find and fix the code defect.
 
-            m_Error = ERROR::UNKNOWN_RSG_MASS_LOSS_PRESCRIPTION;                                                // set error value
-            THROW_ERROR(m_Error);                                                                               // throw error
+            THROW_ERROR(ERROR::UNKNOWN_RSG_MASS_LOSS_PRESCRIPTION);                                             // throw error
     }
 
     return rate;
@@ -2495,29 +2497,24 @@ double BaseStar::CalculateMassLossRateVMS(const VMS_MASS_LOSS_PRESCRIPTION p_VMS
     double rate = 0.0;                                                      
 
     switch (p_VMS_MassLossPrescription) {                                                                       // decide which prescription to use
-        case VMS_MASS_LOSS_PRESCRIPTION::ZERO:
-            rate = 0.0;
-            break;
-        case VMS_MASS_LOSS_PRESCRIPTION::BESTENLEHNER2020:
-            rate = CalculateMassLossRateVMSBestenlehner2020();
-            break;
-        case VMS_MASS_LOSS_PRESCRIPTION::VINK2011:
-            rate = CalculateMassLossRateVMSVink2011();
-            break;
-        case VMS_MASS_LOSS_PRESCRIPTION::SABHAHIT2023:
-            rate = CalculateMassLossRateVMSSabhahit2023();
-            break;
+        case VMS_MASS_LOSS_PRESCRIPTION::NONE:    // DEPRECATED June 2024 - remove end 2024 
+        case VMS_MASS_LOSS_PRESCRIPTION::ZERO            : rate = 0.0; break;
+        case VMS_MASS_LOSS_PRESCRIPTION::BESTENLEHNER2020: rate = CalculateMassLossRateVMSBestenlehner2020(); break;
+        case VMS_MASS_LOSS_PRESCRIPTION::VINK2011        : rate = CalculateMassLossRateVMSVink2011(); break;
+        case VMS_MASS_LOSS_PRESCRIPTION::SABHAHIT2023    : rate = CalculateMassLossRateVMSSabhahit2023(); break;
 
         default:                                                                                                // unknown prescription
-            // the only way this can happen is if someone added a VMS_MASS_LOSS_PRESCRIPTION
-            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
-            // We are here because the user chose a prescription this code doesn't account for, and that should
-            // be flagged as an error and result in termination of the evolution of the binary.
+            // the only ways this can happen are if someone added a VMS_MASS_LOSS_PRESCRIPTION
+            // and it isn't accounted for in this code, or if there is a defect in the code that causes
+            // this function to be called with a bad parameter.  We should not default here, with or without
+            // a warning.
+            // We are here because the user chose a prescription this code doesn't account for, or as a result
+            // of a code defect, and either of those should be flagged as an error and result in termination of
+            // the evolution of the star or binary.
             // The correct fix for this is to add code for the missing prescription or, if the missing
-            // prescription is superfluous, remove it from the option.
+            // prescription is superfluous, remove it from the option, or find and fix the code defect.
 
-            m_Error = ERROR::UNKNOWN_VMS_MASS_LOSS_PRESCRIPTION;                                                // set error value
-            THROW_ERROR(m_Error);                                                                               // throw error
+            THROW_ERROR(ERROR::UNKNOWN_VMS_MASS_LOSS_PRESCRIPTION);                                             // throw error
     }
 
     return rate;
@@ -2677,7 +2674,7 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
     double otherWindsRate = 0.0;
 
     if (m_DominantMassLossRate != MASS_LOSS_TYPE::LBV || 
-        OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_ADD ) {                             // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
+        OPTIONS->LuminousBlueVariablePrescription() == LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD ) {                   // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
 
         double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription
         if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, add Hurley et al 2000 winds
@@ -2722,7 +2719,7 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
 
     // calculate other winds rate
     if (m_DominantMassLossRate != MASS_LOSS_TYPE::LBV || 
-        OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_ADD ) {                             // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
+        OPTIONS->LuminousBlueVariablePrescription() == LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD ) {                   // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
 
         if ((utils::Compare(teff, RSG_MAXIMUM_TEMP) < 0) &&                                                         // teff < max temp for RSG winds?
             (utils::Compare(m_MZAMS, MASSIVE_THRESHOLD) >= 0) &&                                                    // ZAMS mass at or above massive threshold?
@@ -2772,12 +2769,13 @@ double BaseStar::CalculateMassLossRate() {
 
         switch (OPTIONS->MassLossPrescription()) {                                                              // which prescription?
 
+            case MASS_LOSS_PRESCRIPTION::NONE:    // DEPRECATED June 2024 - remove end 2024 
             case MASS_LOSS_PRESCRIPTION::ZERO:
                 mDot = 0.0;
                 break;
 
             case MASS_LOSS_PRESCRIPTION::HURLEY:
-                LBVRate        = CalculateMassLossRateLBV(LBV_PRESCRIPTION::HURLEY_ADD);
+                LBVRate        = CalculateMassLossRateLBV(LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD);
                 otherWindsRate = CalculateMassLossRateHurley();
                 if (utils::Compare(LBVRate, otherWindsRate) > 0) {
                     m_DominantMassLossRate = MASS_LOSS_TYPE::LBV;
@@ -2794,22 +2792,47 @@ double BaseStar::CalculateMassLossRate() {
                 break;
 
             default:                                                                                                // unknown prescription
-                // the only way this can happen is if someone added a VMS_MASS_LOSS_PRESCRIPTION
+                // the only way this can happen is if someone added a MASS_LOSS_PRESCRIPTION
                 // and it isn't accounted for in this code.  We should not default here, with or without a warning.
                 // We are here because the user chose a prescription this code doesn't account for, and that should
-                // be flagged as an error and result in termination of the evolution of the binary.
+                // be flagged as an error and result in termination of the evolution of the star or binary.
                 // The correct fix for this is to add code for the missing prescription or, if the missing
                 // prescription is superfluous, remove it from the option.
 
-                m_Error = ERROR::UNKNOWN_VMS_MASS_LOSS_PRESCRIPTION;                                                // set error value
-                THROW_ERROR(m_Error);                                                                               // throw error
+                THROW_ERROR(ERROR::UNKNOWN_VMS_MASS_LOSS_PRESCRIPTION);                                             // throw error
         }
 
         mDot = mDot * OPTIONS->OverallWindMassLossMultiplier();                                                     // apply overall wind mass loss multiplier
-
     }
 
     return mDot;
+}
+
+
+/*
+ * Calculate the nuclear mass loss rate as the equal to the mass divide by the radial expansion timescale
+ * We do not use CalculateRadialExpansionTimescale(), however, since in the process of mass transfer the previous radius
+ * is determined by binary evolution, not nuclear timescale evolution
+ *
+ *
+ * double CalculateNuclearMassLossRate()
+ *
+ * @return                                      Nuclear mass loss rate
+ */
+double BaseStar::CalculateNuclearMassLossRate() {
+    
+    // We create and age it slightly to determine how the radius will change.
+    // To be sure the clone does not participate in logging, we set its persistence to EPHEMERAL.
+    BaseStar *clone = Clone(OBJECT_PERSISTENCE::EPHEMERAL, false);                              // do not re-initialise the clone
+
+    double timestep = std::max(1000.0 * NUCLEAR_MINIMUM_TIMESTEP, m_Age / 1.0E6);
+    clone->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, timestep, true, false);
+    double radiusAfterAging = clone->Radius();
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+
+    double radialExpansionTimescale = timestep * m_Radius / fabs(m_Radius - radiusAfterAging);
+
+    return m_Mass / radialExpansionTimescale;
 }
 
 
@@ -2909,7 +2932,7 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
             if (IsSupernova() && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) ClearSupernovaStash();
         }
 
-        // JR: should we update the initial mass before or after we update the age after mass loss?
+        // JR: should we update the initial mass before or after we update the age after mass loss?  Or doesn't it really amtter? *Ilya*
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
         UpdateAgeAfterMassLoss();                                                                   // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                                      // apply age rejuvenation factor
@@ -2966,32 +2989,31 @@ double BaseStar::CalculateCoreMassGivenLuminosity_Static(const double p_Luminosi
  */
 DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
 
-    double acceptanceRate   = 0.0;                                                          // acceptance mass rate - default = 0.0
-    double fractionAccreted = 0.0;                                                          // accretion fraction - default  = 0.0
+    double acceptanceRate   = 0.0;                                                                      // acceptance mass rate - default = 0.0
+    double fractionAccreted = 0.0;                                                                      // accretion fraction - default  = 0.0
 
     switch (OPTIONS->MassTransferAccretionEfficiencyPrescription()) {
 
-        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED:                       // thermally limited mass transfer:
+        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED:                                   // thermally limited mass transfer:
 
             acceptanceRate   = min(OPTIONS->MassTransferCParameter() * p_AccretorMassRate, p_DonorMassRate);
             fractionAccreted = acceptanceRate / p_DonorMassRate;
             break;
 
-        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION:                          // fixed fraction of mass accreted, as in StarTrack
+        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION:                                      // fixed fraction of mass accreted, as in StarTrack
             fractionAccreted = OPTIONS->MassTransferFractionAccreted();
             acceptanceRate   = min(p_DonorMassRate, fractionAccreted * p_DonorMassRate);
             break;
 
-        default:                                                                            // unknown prescription
+        default:                                                                                        // unknown prescription
             // the only way this can happen is if someone added an MT_ACCRETION_EFFICIENCY_PRESCRIPTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
             // We are here because the user chose a prescription this code doesn't account for, and that should
-            // be flagged as an error and result in termination of the evolution of the binary.
+            // be flagged as an error and result in termination of the evolution of the star or binary.
             // The correct fix for this is to add code for the missing prescription or, if the missing
             // prescription is superfluous, remove it from the option.
 
-            m_Error = ERROR::UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION;                  // set error value
-            THROW_ERROR(m_Error);                                                           // throw error
+            THROW_ERROR(ERROR::UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION);                           // throw error
     }
 
     return std::make_tuple(acceptanceRate, fractionAccreted);
@@ -3022,12 +3044,11 @@ double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) {
             // the only way this can happen is if someone added an MT_THERMALLY_LIMITED_VARIATION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
             // We are here because the user chose a prescription this code doesn't account for, and that should
-            // be flagged as an error and result in termination of the evolution of the binary.
+            // be flagged as an error and result in termination of the evolution of the star or binary.
             // The correct fix for this is to add code for the missing prescription or, if the missing
             // prescription is superfluous, remove it from the option.
 
-            m_Error = ERROR::UNKNOWN_MT_THERMALLY_LIMITED_VARIATION;                                // set error value
-            THROW_ERROR(m_Error);                                                                   // throw error
+            THROW_ERROR(ERROR::UNKNOWN_MT_THERMALLY_LIMITED_VARIATION);                             // throw error
     }
 
     return acceptanceRate;
@@ -3035,29 +3056,105 @@ double BaseStar::CalculateThermalMassAcceptanceRate(const double p_Radius) {
 
 
 /*
- * Calculate the nuclear mass loss rate as the equal to the mass divide by the radial expansion timescale
- * We do not use CalculateRadialExpansionTimescale(), however, since in the process of mass transfer the previous radius
- * is determined by binary evolution, not nuclear timescale evolution
+ * Calculate the mass accreted by a Neutron Star given mass and radius of companion
+ *
+ * JR: todo: flesh-out this documentation
+ * JR: is this just for NS?  Maybe a change of name...
  *
  *
- * double CalculateNuclearMassLossRate()
+ * double CalculateMassAccretedForCO(const double p_Mass,
+ *                                   const double p_CompanionMass,
+ *                                   const double p_CompanionRadius,
+ *                                   const double p_CompanionEnvelope)
  *
- * @return                                      Nuclear mass loss rate
+ * @param   [IN]    p_Mass                      The mass of the accreting star (Msol)
+ * @param   [IN]    p_CompanionMass             The mass of the companion star (Msol)
+ * @param   [IN]    p_CompanionRadius           The radius of the companion star (Rsol)
+ * @param   [IN]    p_CompanionEnvelope         Envelope of the companion pre-CE
+ * @return                                      Mass accreted by the Neutron Star (Msol)
  */
-double BaseStar::CalculateNuclearMassLossRate() {
-    
-    // We create and age it slightly to determine how the radius will change.
-    // To be sure the clone does not participate in logging, we set its persistence to EPHEMERAL.
-    BaseStar *clone = Clone(OBJECT_PERSISTENCE::EPHEMERAL, false);                              // do not re-initialise the clone
+double BaseStar::CalculateMassAccretedForCO(const double p_Mass,
+                                            const double p_CompanionMass,
+                                            const double p_CompanionRadius,
+                                            const double p_CompanionEnvelope) const {
 
-    double timestep = std::max(1000.0 * NUCLEAR_MINIMUM_TIMESTEP, m_Age / 1.0E6);
-    clone->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, timestep, true, false);
-    double radiusAfterAging = clone->Radius();
-    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+     double deltaMass;
 
-    double radialExpansionTimescale = timestep * m_Radius / fabs(m_Radius - radiusAfterAging);
+     switch (OPTIONS->CommonEnvelopeMassAccretionPrescription()) {                                              // which prescription?
 
-    return m_Mass / radialExpansionTimescale;
+        case CE_ACCRETION_PRESCRIPTION::ZERO:                                                                   // ZERO
+            deltaMass = 0.0;
+            break;
+
+        case CE_ACCRETION_PRESCRIPTION::CONSTANT:                                                               // CONSTANT
+            deltaMass = OPTIONS->CommonEnvelopeMassAccretionConstant();                                         // use program option
+            break;
+
+        case CE_ACCRETION_PRESCRIPTION::UNIFORM:                                                                // UNIFORM
+            deltaMass = RAND->Random(OPTIONS->CommonEnvelopeMassAccretionMin(), OPTIONS->CommonEnvelopeMassAccretionMax()); // uniform random distribution - Oslowski+ (2011)
+            break;
+
+        case CE_ACCRETION_PRESCRIPTION::MACLEOD: {                                                              // MACLEOD
+                                                                                                                // linear regression estimated from Macleod+ (2015)
+            double mm = -1.0714285714285712E-05;                                                                // gradient of the linear fit for gradient
+            double cm =  0.00012057142857142856;                                                                // intercept of the linear fit for gradient
+            double mc =  0.01588571428571428;                                                                   // gradient of the linear fit for intercept
+            double cc = -0.15462857142857137;                                                                   // intercept of the linear fir for intercept
+            double m  = mm * p_CompanionMass + cm;                                                              // gradient of linear fit for mass
+            double c  = mc * p_CompanionMass + cc;                                                              // intercept of linear fit for mass
+
+            // calculate mass to accrete and clamp to minimum and maximum from program options
+            deltaMass = std::min(OPTIONS->CommonEnvelopeMassAccretionMax(), std::max(OPTIONS->CommonEnvelopeMassAccretionMin(), m * p_CompanionRadius + c));
+            } break;
+
+        case CE_ACCRETION_PRESCRIPTION::CHEVALIER:                                                              // CHEVALIER
+                                                                                                                // Model 2 from van Son et al. 2020
+            deltaMass = (p_Mass * p_CompanionMass) / (2.0 * (p_Mass + p_CompanionMass)) ;                       // Hoyle littleton accretion rate times inspiral time
+            break;
+
+        default:                                                                                                // unknown prescription
+            // the only way this can happen is if someone added a CE_ACCRETION_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR(ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION);                                              // throw error
+    }
+
+    deltaMass = std::min(p_CompanionEnvelope, deltaMass);                                                       // clamp the mass accretion to be no more than the envelope of the companion pre CE
+
+    return deltaMass;
+}
+
+
+/* 
+ * Resolve common envelope accretion
+ *
+ * For stellar types other than Black hole or Neutron Star just set the star's mass to the parameter passed
+ *
+ *
+ * void ResolveCommonEnvelopeAccretion(const double p_FinalMass, 
+                                       const double p_CompanionMass = 0.0,
+                                       const double p_CompanionRadius = 0.0,
+                                       const double p_CompanionEnvelope = 0.0)
+ *
+ * @param   [IN]    p_FinalMass                 Mass of the accreting object post mass transfer (Msol)
+ * @param   [IN]    p_CompanionMass             Mass of the companion (not used here)
+ * @param   [IN]    p_CompanionRadius           Radius of the companion (not used here)
+ * @param   [IN]    p_CompanionEnvelope         Envelope of the companion pre-CE  (not used here)
+ */
+void BaseStar::ResolveCommonEnvelopeAccretion(const double p_FinalMass, 
+                                              const double p_CompanionMass,
+                                              const double p_CompanionRadius,
+                                              const double p_CompanionEnvelope) {
+
+    // LvS: todo: more consistent super eddington accretion during CE should also affect e.g. MS stars
+    double deltaMass = p_FinalMass - Mass();
+    // JR: should m_MassTransferDiff updated here (as it is for Neutron Stars and Black Holes)? *Ilya*
+
+    ResolveAccretion(deltaMass);
 }
 
 
@@ -3072,8 +3169,8 @@ double BaseStar::CalculateNuclearMassLossRate() {
  */
 std::string BaseStar::GetMassTransferDonorHistoryString() const {
 
-    STYPE_VECTOR mtHistVec = m_MassTransferDonorHistory;      
-    std::string  mtHistStr = "";
+    ST_VECTOR   mtHistVec = m_MassTransferDonorHistory;      
+    std::string mtHistStr = "";
 
     if (mtHistVec.empty()) {                                                            // this star was never a donor for MT
         mtHistStr = "NA";
@@ -3264,6 +3361,8 @@ double BaseStar::CalculateOStarRotationalVelocity_Static(const double p_Xmin, co
         }
 
         // JR: should we issue a warning, or throw an error, if the root finder didn't actually find the roor here (i.e. we stopped because pf maxIter)?
+        // To be consistent, should we use the Boost root solver here?
+        // *Ilya* both questions above
 
     	gsl_root_fsolver_free(s);   // de-allocate memory for root solver
     }
@@ -3308,10 +3407,10 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
             // For lower mass stars, I don't know what updated results there are so default back to
             // Hurley et al. 2000 distribution for now
 
-            if (utils::Compare(p_MZAMS, 16.0) >= 0) {                   // JR: what does 16.0 represent?  Not another mass threshold that should be in constants.h ...?
+            if (utils::Compare(p_MZAMS, 16.0) >= 0) {                   // JR: what does 16.0 represent?  Not another mass threshold that should be in constants.h ...? *ilya*
                 vRot = CalculateOStarRotationalVelocity_Static(0.0, 800.0);
             }
-            else if (utils::Compare(p_MZAMS, 2.0) >= 0) {               // JR: what does 2.0 represent?  Not another mass threshold that should be in constants.h ...?
+            else if (utils::Compare(p_MZAMS, 2.0) >= 0) {               // JR: what does 2.0 represent?  Not another mass threshold that should be in constants.h ...? *Ilya*
                 vRot = utils::InverseSampleFromTabulatedCDF(RAND->Random(), BStarRotationalVelocityCDFTable);
             }
             else {
@@ -3325,12 +3424,11 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
             // the only way this can happen is if someone added a ROTATIONAL_VELOCITY_DISTRIBUTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
             // We are here because the user chose a prescription this code doesn't account for, and that should
-            // be flagged as an error and result in termination of the evolution of the binary.
+            // be flagged as an error and result in termination of the evolution of the star or binary.
             // The correct fix for this is to add code for the missing prescription or, if the missing
             // prescription is superfluous, remove it from the option.
 
-            m_Error = ERROR::UNKNOWN_VROT_PRESCRIPTION;                                             // set error value
-            THROW_ERROR(m_Error);                                                                   // throw error
+            THROW_ERROR(ERROR::UNKNOWN_VROT_PRESCRIPTION);                                          // throw error
     }
 
     return vRot;
@@ -3569,8 +3667,8 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         }
     }
 
-    // return ImKlmDynamical;
-    return std::make_tuple(k10GravityCore+k10GravityEnv, k12GravityCore+k12GravityEnv, k22GravityCore+k22GravityEnv+k22InertialEnv, k32GravityCore+k32GravityEnv);
+    // return ImKlmDynamical
+    return std::make_tuple(k10GravityCore + k10GravityEnv, k12GravityCore + k12GravityEnv, k22GravityCore + k22GravityEnv + k22InertialEnv, k32GravityCore + k32GravityEnv);
 }
 
 
@@ -3711,7 +3809,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     double k32Equilibrium = (3.0 / 2.0) * (16.0 * M_PI / 21.0) * G_AU_Msol_yr * Dnu32 / A32_2 / rOut_7 / omega_t_32;
     if (w32 < 0.0) k32Equilibrium = -std::abs(k32Equilibrium);
 
-    // return ImKlmEquilibrium;
+    // return ImKlmEquilibrium
     return std::make_tuple(k10Equilibrium, k12Equilibrium, k22Equilibrium, k32Equilibrium);
 }
 
@@ -4103,12 +4201,11 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
             // the only way this can happen is if someone added a KICK_MAGNITUDE_DISTRIBUTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
             // We are here because the user chose a prescription this code doesn't account for, and that should
-            // be flagged as an error and result in termination of the evolution of the binary.
+            // be flagged as an error and result in termination of the evolution of the star or binary.
             // The correct fix for this is to add code for the missing prescription or, if the missing
             // prescription is superfluous, remove it from the option.
 
-            m_Error = ERROR::UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION;                     // set error value
-            THROW_ERROR(m_Error);                                                               // throw error
+            THROW_ERROR(ERROR::UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION);                  // throw error
     }
 
     return kickMagnitude / OPTIONS->KickScalingFactor();
@@ -4177,27 +4274,25 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
 
             case SN_EVENT::NONE:                                                                    // no supernova event - shouldn't be here...
                 error = ERROR::EXPECTED_SN_EVENT;                                                   // set error value
-raise(SIGUSR2);
                 break;
 
             default:                                                                                // unknown SN event type
-                // the only way this can happen is if someone added an SN_EVENT
-                // and it isn't accounted for in this code.  We should not default here, with or without a warning.
-                // We are here because the user chose a prescription this code doesn't account for, and that should
-                // be flagged as an error and result in termination of the evolution of the binary.
+                // the only ways this can happen are if someone added an SN_EVENT
+                // and it isn't accounted for in this code, or if there is a defect in the code that causes
+                // m_SupernovaDetails.events.current to be invalid.  We should not default here, with or without
+                // a warning.
+                // We are here because an SN event occurred that this code doesn't account for, or as a result
+                // of a code defect, and either of those should be flagged as an error and result in termination of
+                // the evolution of the star or binary.
                 // The correct fix for this is to add code for the missing prescription or, if the missing
-                // prescription is superfluous, remove it from the option.
+                // prescription is superfluous, remove it from the option, or find and fix the code defect.
 
                 error = ERROR::UNKNOWN_SN_EVENT;                                                    // set error value
 	    }
     
 	    if (error == ERROR::NONE) {                                                                 // check for errors
                                                                                                     // no errors - draw kick magnitude
-            vK = DrawSNKickMagnitude(sigma, 
-                                    m_SupernovaDetails.COCoreMassAtCOFormation, 
-                                    m_SupernovaDetails.kickMagnitudeRandom,
-                                    p_EjectaMass, 
-                                    p_RemnantMass);
+            vK = DrawSNKickMagnitude(sigma, m_SupernovaDetails.COCoreMassAtCOFormation, m_SupernovaDetails.kickMagnitudeRandom, p_EjectaMass, p_RemnantMass);
         }
     }
     else {                                                                                          // user supplied kick parameters and wants to use supplied kick magnitude, so ...
@@ -4217,8 +4312,7 @@ raise(SIGUSR2);
         m_SupernovaDetails.kickMagnitude = vK;                                                      // updated kick magnitude
     }
     else {                                                                                          // error occurred
-        m_Error = error;                                                                            // set error value
-        THROW_ERROR(m_Error);                                                                       // throw error
+        THROW_ERROR(error);                                                                         // throw error
     }
 
     return vK;
@@ -4241,23 +4335,10 @@ void BaseStar::CalculateSNAnomalies(const double p_Eccentricity) {
 
     std::tie(error, m_SupernovaDetails.eccentricAnomaly, m_SupernovaDetails.trueAnomaly) = utils::SolveKeplersEquation(m_SupernovaDetails.meanAnomaly, p_Eccentricity);
 
-         if (error == ERROR::NO_CONVERGENCE) { THROW_ERROR(error, "Solving Kepler's equation"); }       // throw error
-    else if (error == ERROR::OUT_OF_BOUNDS ) { SHOW_WARN(error, "Eccentric anomaly"); }                 // eccentric anomaly out of bounds - show warning  JR: should this trow an error?
+         if (error == ERROR::NO_CONVERGENCE) { THROW_ERROR(error, "Solving Kepler's equation"); }       // no convergence - throw error   
+    else if (error == ERROR::OUT_OF_BOUNDS ) { THROW_ERROR(error, "Eccentric anomaly"); }               // eccentric anomaly out of bounds - throw error
 
     return;
-}
-
-
-/*
- * Update the current velocity vector of the star, adding to a previous one if it exists.
- *
- *
- * void BaseStar::UpdateComponentVelocity(const Vector3d p_newVelocity)
- *
- * @param   [IN]    p_newVelocity               The new velocity vector 
- */
-void BaseStar::UpdateComponentVelocity(const Vector3d p_NewVelocity) {
-    m_ComponentVelocity += p_NewVelocity;                       // Add new velocity to previous velocity   JR: should there be any sanity checks here?  If not, move this to the setters in the header file.
 }
 
 
@@ -4285,10 +4366,10 @@ double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_
     double bindingEnergy = 0.0;                                                         // default
 
 	if (utils::Compare(p_Radius, 0.0) <= 0) {                                           // positive radius?
-        SHOW_WARN(ERROR::RADIUS_NOT_POSITIVE, "Binding energy = 0.0");                  // warn radius not positive JR: should this throw an error?
+        SHOW_WARN(ERROR::RADIUS_NOT_POSITIVE, "Binding energy = 0.0");                  // warn radius not positive JR: should this throw an error? *Ilya*
 	}
 	else if (utils::Compare(p_Lambda, 0.0) <= 0) {                                      // positive lambda?
-        // Not necessarily zero as sometimes lambda is made 0, or maybe weird values for certain parameters of the fit. Not sure about the latter.
+        // Not necessarily zero as sometimes lambda is made 0, or maybe weird values for certain parameters of the fit. Not sure about the latter. JR: let's look at this... *Ilya*
         SHOW_WARN(ERROR::LAMBDA_NOT_POSITIVE, "Binding energy = 0.0");                  // warn lambda not positive
 	}
 	else {                                                                              // calculate binding energy
@@ -4508,9 +4589,9 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
  *      in which case no change is made to the star's age or the physical time attribute.
  *
  *
- * Checks whether the star: (JR: the first two comments below are not true - they probably were once, but not now... check why, and fix the code or fix the comments)
- *    - is a massless remnant (checked after applying p_DeltaMass and p_DeltaMass0, but before applying p_DeltaTime)
- *    - has become a supernova (checked after applying p_DeltaMass and p_DeltaMass0, but before applying p_DeltaTime)
+ * Before updating attributes we check whether the star:
+ *    - is a massless remnant - we don't update attributes of massless remnants
+ *    - has become a supernova - if so we resolve the supernova and do not update the attributes
  *    - should skip this phase for this timestep (checked after applying p_DeltaMass, p_DeltaMass0 and p_DeltaTime)
  *
  * If none of the above are true the star evolves on phase for the specified timestep (which may be 0, in which case
@@ -4518,7 +4599,7 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
  *
  * If p_DeltaMass, p_DeltaMass0 and p_DeltaTime are all passed as zero the checks for massless remnant and supernova
  * are performed (and consequential changes made), but no other changes to the star's attributes are made - unless
- * the p_ForceRecalculate parameter is set true.        JR: todo: I'm not convinced p_ForceRecalculate is necessary - check it
+ * the p_ForceRecalculate parameter is set true.
  *
  * The functional return is the stellar type to which the star should evolve.  The returned stellar type is just the
  * stellar type of the star upon entry if it should remain on phase.  The star's stellar type is not changed here.
@@ -4540,7 +4621,7 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
  *                                              JR: this is a bit of a kludge to resolve problems introduced by modifying stellar attributes in
  *                                                  anticipation of switching stellar type, but using those attributes before the actual switch
  *                                                  to the new stellar type - we need to resolve those situations in the code.
- *                                                  The bottom line is that this parameter is a temporary fix while I develop the permannet fix.
+ *                                                  The bottom line is that this parameter is a temporary fix while I develop the permanent fix.
  * @return                                      Stellar type to which star should evolve
  */
 STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,

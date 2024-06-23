@@ -49,7 +49,7 @@ private:
             ERROR_SCOPE,                    //    scope
             bool,                           //    flag indicating if already printed
             std::vector<OBJECT_TYPE>,       //    object type
-            std::vector<STELLAR_TYPE>,      //    stellar type
+            ST_VECTOR,                      //    stellar type
             std::vector<OBJECT_ID>,         //    vector of non-stellar (main, utils, etc) object ids
             std::vector<OBJECT_ID>,         //    vector of stellar ids
             std::vector<std::string>,       //    vector of function names for non-stellar object ids

@@ -81,7 +81,7 @@ protected:
 
     double          CalculateLambdaDewi() const;
     double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
-    double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const;
+    double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const;
 
     double          CalculateLifetimeOnBluePhase(const double p_Mass);
     double          CalculateLifetimeOnPhase(const double p_Mass);

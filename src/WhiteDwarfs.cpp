@@ -69,7 +69,7 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
     if (utils::Compare(logMassTransferRate, logMdotUppHe) >= 0) {
         etaHe = PPOW(10, logMdotUppHe - logMassTransferRate);
     } 
-    else if (utils::Compare(logMassTransferRate, logMdotMidHe) >= 0) {  // JR: do we need this since it's the default?  Or may it change here?  Or just here for clarity?
+    else if (utils::Compare(logMassTransferRate, logMdotMidHe) >= 0) {
         etaHe = 1.0;
     } 
     else if (utils::Compare(logMassTransferRate, logMdotLowHe) >= 0) {
@@ -192,8 +192,24 @@ void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
 	        m_HShell += p_AccretedMass;
             break;
 
-        default:
-            SHOW_WARN(ERROR::WARNING, "Accretion Regime not set for WD, no mass added to shell.");  // show warning 
+        case ACCRETION_REGIME::NONE:    // DEPRECATED June 2024 - remove end 2024 
+        case ACCRETION_REGIME::ZERO:
+            // JR: is this expected?  Is "ACCRETION_REGIME::NONE" (now ZER) actually a thing? Should we actually throw an error here? *Ilya*
+            SHOW_WARN(ERROR::UNEXPECTED_ACCRETION_REGIME, "No mass added to shell");        // show warning
+            break;
+
+        default:                                                                            // unknown stellar population
+            // the only ways this can happen are if someone added an ACCRETION_REGIME
+            // and it isn't accounted for in this code, or if there is a defect in the code that causes
+            // this function to be called with a bad parameter.  We should not default here, with or without
+            // a warning.
+            // We are here because the function was called with an accrestion regeime this code doesn't account
+            // for, or as a result of a code defect, and either of those should be flagged as an error and
+            // result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing population or, if the missing
+            // population is superfluous, remove it, or find and fix the code defect.
+
+            THROW_ERROR(ERROR::UNKNOWN_ACCRETION_REGIME);                                   // throw error
     }
 }
 

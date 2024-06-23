@@ -49,9 +49,9 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
     if (p_HeRich) {
         if (utils::Compare(Mdot, HEWD_HE_MDOT_CRIT) <= 0) {
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR;                     // Could lead to Sub CH SN Ia
-            double massSubCh = -4e8 * Mdot + 1.34;                                                      // Minimum mass for Sub-Ch Mass detonation. Eq 62, Belczynski+ 2008.
+            double massSubCh = -4.0e8 * Mdot + 1.34;                                                    // Minimum mass for Sub-Ch Mass detonation. Eq 62, Belczynski+ 2008.
             if (utils::Compare(m_Mass, massSubCh) >= 0 ) {
-                m_IsSubChandrasekharTypeIa = true;                                                      // JR: Question: should this be set false if the condition is not satisfied?
+                m_IsSubChandrasekharTypeIa = true;                                                      // JR: Question: should this be set false if the condition is not satisfied? *Ilya*
             }
         } 
         else {
@@ -60,7 +60,7 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
                 if (utils::Compare(Mdot, 1.64e-6) < 0) {                                                // Accretion limit from eq 61, Belczynski+ 2008.
                     double mCritHeShell = -7.8e-4 * Mdot + 1.34;                                        // Minimum shell mass of He for detonation. Eq 61, Belczynski+ 2008. This helium should not be burnt, but not implemented this yet. Ruiter+ 2014.
                     if (utils::Compare(m_HeShell, mCritHeShell) >= 0) {
-                        m_ShouldRejuvenate = true;                                                      // JR: Question: should this be set false if the condition is not satisfied?
+                        m_ShouldRejuvenate = true;                                                      // JR: Question: should this be set false if the condition is not satisfied? *Ilya*
                     }
                 } 
                 else {
@@ -102,7 +102,7 @@ STELLAR_TYPE HeWD::EvolveToNextPhase() {
         stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS; 
     }
     else {                                         
-        stellarType  = ResolveSNIa();       // Currently, assume a Type Ia from a HeWD is the same as other WDs. May want to vary in the future
+        stellarType  = ResolveSNIa();       // currently, assume a Type Ia from a HeWD is the same as other WDs. May want to vary in the future
     }
     return stellarType;
 }
