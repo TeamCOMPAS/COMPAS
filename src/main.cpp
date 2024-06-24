@@ -221,10 +221,10 @@ std::tuple<int, int> EvolveSingleStars() {
             while (!doneGridFile && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                        // for each star to be evolved
 
                 if (OPTIONS->FPErrorMode() != FP_ERROR_MODE::OFF) {                                                         // floating-point error handling mode on/debug?
-                    feclearexcept(FE_ALL_EXCEPT);                                                                           // yes - clear all FE traps
+                    std::feclearexcept(FE_ALL_EXCEPT);                                                                      // yes - clear all FE traps
                     feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);                                 // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
                 }
-
+                
                 bool doneGridLine = false;                                                                                  // initially
                 if (usingGrid) {                                                                                            // using grid file?
                     gridLineVariation = 0;                                                                                  // yes - first variation of this grid line
@@ -558,7 +558,7 @@ std::tuple<int, int> EvolveBinaryStars() {
         while (!doneGridFile && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                    // for each binary to be evolved
 
             if (OPTIONS->FPErrorMode() != FP_ERROR_MODE::OFF) {                                                     // floating-point error handling mode on/debug?
-                feclearexcept(FE_ALL_EXCEPT);                                                                       // yes - clear all FE traps
+                std::feclearexcept(FE_ALL_EXCEPT);                                                                  // yes - clear all FE traps
                 feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);                             // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
             }
 
@@ -854,7 +854,7 @@ int main(int argc, char * argv[]) {
                 sigAct.sa_flags   = SA_NODEFER;                                                     // don't defer further signals
                 sigaction(SIGFPE, &sigAct, NULL);                                                   // enable the signal handler
 
-                feclearexcept(FE_ALL_EXCEPT);                                                       // clear all FE traps
+                std::feclearexcept(FE_ALL_EXCEPT);                                                  // clear all FE traps
                 feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);             // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
             }
 

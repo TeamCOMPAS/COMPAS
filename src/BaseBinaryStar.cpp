@@ -2874,6 +2874,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             std::fetestexcept(FE_INVALID)   ||
             std::fetestexcept(FE_OVERFLOW)  ||
             std::fetestexcept(FE_UNDERFLOW)) m_Error = ERROR::FLOATING_POINT_ERROR;                                                 // floating-point error
+
+            std::feclearexcept(FE_ALL_EXCEPT);                                                                                      // clear all FE traps
             
     }
     catch (const std::runtime_error& e) {                                                                                           // catch runtime exceptions

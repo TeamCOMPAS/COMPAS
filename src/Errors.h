@@ -33,7 +33,7 @@
 // BINARY_PROPERTY::ERROR (BSE) to log files via the logfile-definitions file, the value of the error logged
 // to those files may be 0 (ERROR::NONE) even for stars or binaries that ere eventually teminated due to an
 // error - the error value is only set when the error occurs (and is thrown), so some records in some log files
-// may already have been written prior to the eoor being identified and evolution terniated.
+// may already have been written prior to the error being identified and evolution terniated.
 //
 //
 // Floating-point errors in C++
@@ -80,7 +80,7 @@
 //                                      evolution (and in this mode we can, and do, differentiate between DIVBYZERO,
 //                                      INVALID, OVERFLOW, and UNDERFLOW).  Note that an integer divide-by-zero will cause
 //                                      the excution of the program to halt (and, rather obtusely, will report
-//                                      "Floating point exception").
+//                                      "Floating point exception").  JR: check this - may not halt for indiv0 <-------------------------
 //
 //                                      This mode is enabled with the option '--fp_error-mode OFF'  (This is the default mode).
 //                             
@@ -105,7 +105,7 @@
 //
 //                                      The construction of the stack trace in debug mode happens inside the signal handler,
 //                                      and the functions used to do that are generally not signal safe - but we call std::exit()
-//                                      anyway, so that shouldn't be a proble.
+//                                      anyway, so that shouldn't be a problem.
 //
 //
 //                                      This mode is enabled with the option '--fp_error-mode DEBUG'
