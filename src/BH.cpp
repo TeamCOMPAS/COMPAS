@@ -79,25 +79,25 @@ DBL_DBL_DBL BH::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
 
     double vK;
 
-    switch (OPTIONS->BlackHoleKicks()) {                                                                // which BH kicks option specified?
+    switch (OPTIONS->BlackHoleKicksMode()) {                                                            // which BH kicks mode?
 
-        case BLACK_HOLE_KICKS::ZERO    : vK = 0.0; break;                                               // BH Kicks are set to zero regardless of BH mass or kick magnitude drawn.
+        case BLACK_HOLE_KICKS_MODE::ZERO    : vK = 0.0; break;                                          // BH Kicks are set to zero regardless of BH mass or kick magnitude drawn.
 
-        case BLACK_HOLE_KICKS::FULL    : vK = p_vK; break;                                              // BH receives full kick - no adjustment necessary
+        case BLACK_HOLE_KICKS_MODE::FULL    : vK = p_vK; break;                                         // BH receives full kick - no adjustment necessary
 
-        case BLACK_HOLE_KICKS::REDUCED : vK = p_vK * NEUTRON_STAR_MASS / p_BlackHoleMass; break;        // kick is reduced by the ratio of the neutron star mass to the black hole mass
+        case BLACK_HOLE_KICKS_MODE::REDUCED : vK = p_vK * NEUTRON_STAR_MASS / p_BlackHoleMass; break;   // kick is reduced by the ratio of the neutron star mass to the black hole mass
 
-        case BLACK_HOLE_KICKS::FALLBACK: vK = p_vK * (1.0 - p_FallbackFraction); break;                 // using the so-called 'fallback' prescription for BH kicks
+        case BLACK_HOLE_KICKS_MODE::FALLBACK: vK = p_vK * (1.0 - p_FallbackFraction); break;            // using the so-called 'fallback' mode for BH kicks
     
-        default:                                                                                        // unknown prescription
-            // the only way this can happen is if someone added a BLACK_HOLE_KICKS
+        default:                                                                                        // unknown mode
+            // the only way this can happen is if someone added a BLACK_HOLE_KICKS_MODE
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
-            // We are here because the user chose a prescription this code doesn't account for, and that should
-            // be flagged as an error and result in termination of the evolution of the star or binary.
-            // The correct fix for this is to add code for the missing prescription or, if the missing
-            // prescription is superfluous, remove it from the option.
+            // We are here because the user chose a mode this code doesn't account for, and that should be
+            // flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing mode or, if the missing mode is
+            // superfluous, remove it from the option.
 
-            THROW_ERROR(ERROR::UNKNOWN_BH_KICK_PRESCRIPTION);                                           // throw error
+            THROW_ERROR(ERROR::UNKNOWN_BH_KICK_MODE);                                                   // throw error
     }
 
     return vK;

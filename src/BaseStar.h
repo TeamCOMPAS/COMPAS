@@ -182,7 +182,7 @@ public:
             double              Time() const                                                    { return m_Time; }
             double              Timescale(TIMESCALE p_Timescale) const                          { return m_Timescales[static_cast<int>(p_Timescale)]; }
             double              TZAMS() const                                                   { return m_TZAMS; }
-    virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::NONE; }
+    virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::ZERO; }
             double              XExponent() const                                               { return m_XExponent; }
 
 
@@ -293,15 +293,14 @@ public:
             void            ClearSupernovaStash()                                                               { LOGGING->ClearSSESupernovaStash(); }                              // Clear contents of SSE supernova stash
 
     virtual ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
-                                                      const double p_DonorThermalMassLossRate)                  { return ACCRETION_REGIME::NONE; }                                  // Placeholder, use inheritance for WDs
+                                                      const double p_DonorThermalMassLossRate)                  { return ACCRETION_REGIME::ZERO; }                                  // Placeholder, use inheritance for WDs
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
     virtual MT_CASE         DetermineMassTransferTypeAsDonor() const                                            { return MT_CASE::OTHER; }                                          // Not A, B, C, or NONE
     
             void            HaltWinds()                                                                         { m_Mdot = 0.0; }                                                   // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 
-            double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription,
-                                                 const double p_massTransferEfficiencyBeta); 
+            double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta); 
 
             void            ResetEnvelopeExpulsationByPulsations()                                              { m_EnvelopeJustExpelledByPulsations = false; }
 
@@ -310,10 +309,10 @@ public:
     virtual void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
                                                    const double p_DonorThermalMassLossRate) { }                                                                                     // Default does nothing, only works for WDs.
 
-    virtual void            ResolveCommonEnvelopeAccretion(const double p_FinalMass,
+    virtual double          ResolveCommonEnvelopeAccretion(const double p_FinalMass,
                                                            const double p_CompanionMass     = 0.0,
                                                            const double p_CompanionRadius   = 0.0,
-                                                           const double p_CompanionEnvelope = 0.0);
+                                                           const double p_CompanionEnvelope = 0.0)              { return p_FinalMass - Mass(); }                                    // LvS: todo: more consistent super eddington accretion during CE should also affect e.g. MS stars
 
     virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false)                                           { return m_StellarType; }
 
@@ -702,7 +701,7 @@ protected:
     virtual STELLAR_TYPE        ResolveSkippedPhase()                                                                   { return EvolveToNextPhase(); }                                             // Default is evolve to next phase
     virtual STELLAR_TYPE        ResolveSupernova()                                                                      { return m_StellarType; }                                                   // Default is NO-OP
 
-            double              ReweightSupernovaKickByMass(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) { return p_vK; }                              // Default is not to re-weight, except for black holes where the --black-hole-kicks option is relevant
+            double              ReweightSupernovaKickByMass(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) { return p_vK; }                                      // Default is not to re-weight, except for black holes where the --black-hole-kicks-prescription option is relevant
 
     
     virtual void                SetSNHydrogenContent()                                                                  { m_SupernovaDetails.isHydrogenPoor = false; }                              // Default is false

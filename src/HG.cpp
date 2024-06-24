@@ -845,7 +845,7 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
         // this piece of code resets rx if the blue loop is relatively short
         // see Hurley sse, function tblf() in `zfuncs1.f`
         double r1 = 1.0 - rMinHe / ry;
-        r1        = std::max(r1, 1.0E-12);     // JR: I suspect this is where the check came from in the dicussion re blue loop in CHeB::CalculateTimescales() - I don't like this much... *Ilya*
+        r1        = std::max(r1, 1.0E-12);     // JR: I suspect this is where the check came from in the dicussion re blue loop in CHeB::CalculateTimescales() - I don't like this much... **Ilya**
 
         double tblf = (1.0 - b[47]) * PPOW(p_Mass, b[48]) * PPOW(r1, b[49]);                                        // calculate blue-loop fraction of He-burning
         tblf = std::min(1.0, std::max(0.0, tblf));                                                                  // clamp to [0.0, 1.0]
@@ -967,7 +967,7 @@ double HG::CalculateMassTransferRejuvenationFactor() {
         case MT_REJUVENATION_PRESCRIPTION::NONE:                                                // use default Hurley et al. 2000 prescription = 1.0
         case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                                           // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf
 
-            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {                                      // Rejuvenation factor is unity for mass losing stars  JR: do we really need this?  It's going to default to 1.0 if the condition is false anyway. *Ilya*
+            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {                                      // Rejuvenation factor is unity for mass losing stars  JR: do we really need this?  It's going to default to 1.0 if the condition is false anyway. **Ilya**
                 fRej = 1.0;
             }
             break;

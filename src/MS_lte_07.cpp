@@ -24,7 +24,7 @@ double MS_lte_07::CalculateMassTransferRejuvenationFactor() {
         case MT_REJUVENATION_PRESCRIPTION::NONE:                                                // NONE: use default Hurley et al. 2000 prescription = 1.0
         case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                                           // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf
 
-            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {                                      // Rejuvenation factor is unity for mass losing stars  JR: do we really need this?  It's going to default to 1.0 if the condition is false anyway. *Ilya*
+            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {                                      // Rejuvenation factor is unity for mass losing stars  JR: do we really need this?  It's going to default to 1.0 if the condition is false anyway. **Ilya**
                 fRej = 1.0;
             }
             break;

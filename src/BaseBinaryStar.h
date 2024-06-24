@@ -12,6 +12,7 @@
 #include "BinaryConstituentStar.h"
 
 #include <boost/math/tools/roots.hpp>
+#include <boost/numeric/odeint.hpp>
 
 //#include <boost/math/special_functions/next.hpp>    // For float_distance.
 //#include <boost/math/special_functions/cbrt.hpp>    // For boost::math::cbrt.
@@ -421,8 +422,9 @@ private:
     double  CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Mass, const double p_Radius, const double p_Mass2);
     double  CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Radius, const double p_MoI, const double p_Mass2);
     double  CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Mass, const double p_Radius, const double p_Mass2);
-
-    double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass);
+    
+    static double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate);
+    double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) { return CalculateGammaAngularMomentumLoss_Static(p_DonorMass, p_AccretorMass, m_Accretor->IsDegenerate()); }
     double  CalculateGammaAngularMomentumLoss()                                 { return CalculateGammaAngularMomentumLoss(m_Donor->Mass(), m_Accretor->Mass()); }
 
 
@@ -768,7 +770,7 @@ private:
 
         return root.first + (root.second - root.first) / 2.0;                                               // midway between brackets (could return brackets...)
     }
-  
+    
 };
 
 #endif // __BaseBinaryStar_h__

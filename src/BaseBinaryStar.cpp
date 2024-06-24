@@ -313,7 +313,7 @@ void BaseBinaryStar::SetRemainingValues() {
         if (utils::Compare(m_Star1->Omega(), m_Star1->OmegaCHE()) >= 0) {                                                                               // star 1 CH?
             if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not already Chemically Homogeneous
         }
-        else if (m_Star1->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
+        else if (m_Star1->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  (don't use utils::Compare() here)
             if (m_Star1->StellarType() != STELLAR_TYPE::MS_LTE_07) (void)m_Star1->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                              // MS <= 0.7 Msol - switch if necessary
         }
         else {
@@ -324,7 +324,7 @@ void BaseBinaryStar::SetRemainingValues() {
         if (utils::Compare(m_Star2->Omega(), m_Star2->OmegaCHE()) >= 0) {                                                                               // star 2 CH?
             if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not already Chemically Homogeneous
         }
-        else if (m_Star2->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  JR: don't use utils::Compare() here
+        else if (m_Star2->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  (don't use utils::Compare() here)
             if (m_Star2->StellarType() != STELLAR_TYPE::MS_LTE_07) (void)m_Star2->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                              // MS <= 0.0 Msol - switch if necessary
         }
         else {
@@ -1314,7 +1314,7 @@ void BaseBinaryStar::ResolveSupernova() {
         // answer - can we (e.g.) set them negative and then test their value whenever they are used?
         //
         // The only places I can see that they used is t hat they are exposed for printing, and part of the default
-        // record for the BSE Supernovae file. (see also OrbitalVelocityPreSN() and UK() in header file)  *Ilya*
+        // record for the BSE Supernovae file. (see also OrbitalVelocityPreSN() and UK() in header file)  **Ilya**
 
         m_OrbitalVelocityPreSN = std::numeric_limits<double>::signaling_NaN();
         m_uK                   = std::numeric_limits<double>::signaling_NaN();                                                  // dimensionless kick magnitude
@@ -1815,29 +1815,28 @@ double BaseBinaryStar::CalculateRocheLobeRadius_Static(const double p_MassPrimar
  * This is gamma (as in Pols's notes) or jloss (as in Belczynski et al. 2008
  * which is the fraction of specific angular momentum with which the non-accreted mass leaves the system.
  * Macleod_linear comes from Willcox et al. (2022)
- * 
- * 
+ *
  * Calculation is based on user-specified Angular Momentum Loss prescription
  *
  *
- * double CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass)
+ * double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate)
  *
  * @param   [IN]    p_DonorMass                 The mass of the donor (Msol)
  * @param   [IN]    p_AccretorMass              The mass of the accretor (Msol)
+ * @param   [IN]    p_IsAccretorDegenerate      True if the accretor is a degenerate star, false otherwise (need to know up front to keep this function static)
  * @return                                      The fraction of specific angular momentum with which the non-accreted mass leaves the system
  */
-double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) {
+double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate) {
 
 	double gamma;
 
 	switch (OPTIONS->MassTransferAngularMomentumLossPrescription()) {                                                               // which prescription?
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS:                                                                          // vicinity of the donor 
-            gamma = p_AccretorMass / p_DonorMass;
-            break;
 
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION:                                                          // vicinity of the accretor
-            gamma = p_DonorMass / p_AccretorMass;
-            break;
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS                : gamma = p_AccretorMass / p_DonorMass; break;             // vicinity of the donor 
+
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION: gamma = p_DonorMass / p_AccretorMass; break;             // vicinity of the accretor
+        
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY            : gamma = OPTIONS->MassTransferJloss(); break;
 
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING: {                                                            // based on the assumption that a_ring ~= 2*a*, Vinciguerra+, 2020 
             double sumMasses = p_DonorMass + p_AccretorMass;
@@ -1850,16 +1849,12 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
             double qPlus1   = 1.0 + q;
             double aL2      = std::sqrt(M_SQRT2);                                                                                   // roughly, coincides with CIRCUMBINARY_RING def above
             double aAcc     = 1.0 / qPlus1;
-            double fMacleod = m_Accretor->IsDegenerate() 
+            double fMacleod = p_IsAccretorDegenerate 
                                 ? OPTIONS->MassTransferJlossMacLeodLinearFractionDegen() 
                                 : OPTIONS->MassTransferJlossMacLeodLinearFractionNonDegen();
             double aGamma   = aAcc + (aL2 - aAcc) * fMacleod;
             gamma           = aGamma * aGamma * qPlus1 * qPlus1 / q;
             } break;
-        
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY :
-            gamma = OPTIONS->MassTransferJloss();
-            break;
 
         default:                                                                                                                    // unknown prescription
             // the only way this can happen is if someone added an MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION
@@ -1869,9 +1864,8 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
             // The correct fix for this is to add code for the missing prescription or, if the missing
             // prescription is superfluous, remove it from the option.
 
-            THROW_ERROR(ERROR::UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION);                                                      // throw error
+            THROW_ERROR_STATIC(ERROR::UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION);                                               // throw error
     }
-
     return gamma;
 }
 
@@ -1898,30 +1892,32 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
                                                         BinaryConstituentStar& p_Accretor,
                                                   const double                 p_FractionAccreted) {
 
-    double semiMajorAxis   = m_SemiMajorAxis;                                                                                   // new semi-major axis value - default is no change
-    double massA           = p_Accretor.Mass();                                                                                 // accretor mass
-    double massD           = p_DonorMass;                                                                                       // donor mass
-    double massAtimesMassD = massA * massD;                                                                                     // accretor mass * donor mass
-    double massAplusMassD  = massA + massD;                                                                                     // accretor mass + donor mass
-    double jOrb            = (massAtimesMassD / massAplusMassD) * std::sqrt(semiMajorAxis * G_AU_Msol_yr * massAplusMassD);     // orbital angular momentum
-    double jLoss;                                                                                                               // specific angular momentum carried away by non-conservative mass transfer
-        
-    if (utils::Compare(p_DeltaMassDonor, 0.0) < 0) {                                                                            // mass loss from donor?
-                                                                                                                                // yes
-        int numberIterations = fmax( floor (fabs(p_DeltaMassDonor/(MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP * massD))), 1.0);    // number of iterations
-        double dM            = p_DeltaMassDonor / numberIterations;                                                             // mass change per time step
-        
-        for(int i = 0; i < numberIterations ; i++) {
-            jLoss          = CalculateGammaAngularMomentumLoss(massD, massA);
-            jOrb           = jOrb + ((jLoss * jOrb * (1.0 - p_FractionAccreted) / massAplusMassD) * dM);
-            semiMajorAxis  = semiMajorAxis + (((-2.0 * dM / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis);
+    double semiMajorAxis = m_SemiMajorAxis;
+    
+    if (utils::Compare(p_DeltaMassDonor, 0.0) < 0) {    // mass loss from donor?
 
-            massD          = massD + dM;
-            massA          = massA - (dM * p_FractionAccreted);
-            massAplusMassD = massA + massD;
-        }
+        controlled_stepper_type controlled_stepper;
+        state_type x(1);
+        x[0] = semiMajorAxis;
+
+        // Use boost adaptive ODE solver for speed and accuracy
+        struct ode {
+            double p_MassDonor0, p_MassAccretor0, p_FractionAccreted;
+            bool p_IsAccretorDegenerate;
+            ode(double massDonor0, double massAccretor0, double fractionAccreted, bool isAccretorDegenerate) : p_MassDonor0(massDonor0), p_MassAccretor0(massAccretor0), p_FractionAccreted(fractionAccreted), p_IsAccretorDegenerate(isAccretorDegenerate) {}
+
+            void operator()( state_type const& x , state_type& dxdt , double p_MassChange ) const {
+                double massD = p_MassDonor0 + p_MassChange;
+                double massA = p_MassAccretor0 - p_MassChange * p_FractionAccreted;
+                double jLoss = CalculateGammaAngularMomentumLoss_Static(massD, massA, p_IsAccretorDegenerate);
+                dxdt[0]      = (-2.0 / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / (massA + massD)))) * x[0];
+            }
+        };
+
+        integrate_adaptive( controlled_stepper , ode{ p_DonorMass, p_Accretor.Mass(), p_FractionAccreted, m_Accretor->IsDegenerate() }, x , 0.0 , p_DeltaMassDonor , p_DeltaMassDonor / 1000.0);
+        semiMajorAxis = x[0];
     }
-
+    
     return semiMajorAxis;
 }
 
@@ -2087,7 +2083,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         isUnstable = true;
         if (!m_Donor->IsOneOf(GIANTS)) m_Flags.stellarMerger = true;
     }
-    else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::ZERO) {       // JR: maybe should be NONE??                    // determine stability based on critical mass ratios
+    else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::ZERO) {                                                        // determine stability based on critical mass ratios
         // NOTE: Critical mass ratio is defined as mAccretor/mDonor
         double qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate(), m_FractionAccreted);
         isUnstable   = utils::Compare((m_Accretor->Mass() / m_Donor->Mass()), qCrit) < 0;
@@ -2122,8 +2118,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 m_CEDetails.CEEnow = true;                                                                                      // flag CE
             }
             else {                                                                                                              // have required mass loss
-                // *ilya* the follwing compare will always be true: utils::COmpare() returns -1 for <, 0 for =, and +1 for >
-                if (utils::Compare(m_MassLossRateInRLOF, donorMassLossRateNuclear) == 0)                                        // if transferring mass on nuclear timescale, limit mass loss amount based to rate * timestep (thermal timescale MT always happens in one timestep)
+                if (utils::Compare(m_MassLossRateInRLOF,donorMassLossRateNuclear) == 0)                                         // if transferring mass on nuclear timescale, limit mass loss amount based to rate * timestep (thermal timescale MT always happens in one timestep)
                     massDiffDonor = std::min(massDiffDonor, m_MassLossRateInRLOF * m_Dt);
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
                 m_Donor->UpdateMinimumCoreMass();                                                                               // reset the minimum core mass following case A
@@ -2229,7 +2224,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
 			    // ALEJANDRO - 23/11/2016 - Bug fix for systems which enter MT being eccentric.
 			    // Previous values have to be the ones for periastron as later orbit is modified according to previous values.
 			    // If you don't do this, you end up modifying pre-MT pre-circularisation orbit
-			    // JR: todo: check that this is proper functionality, or just a kludge - if kludge, resolve it *Ilya*
+			    // JR: todo: check that this is proper functionality, or just a kludge - if kludge, resolve it **Ilya**
 			    m_SemiMajorAxisPrev = m_SemiMajorAxis;
 			    m_EccentricityPrev  = m_Eccentricity;
 		    }
@@ -2857,12 +2852,23 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
         (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::FINAL_STATE);                                                     // print (log) detailed output: this is the final state of the binary
 
-        (void)PrintBinarySystemParameters();                                                                                        // print (log) binary system parameters
-
         // if we trapped a floating-point error we set the star's error value to indicate a
         // floating-point error occured, but we don't terminate evolution (we can only have
         // floating-point errors trapped here if the user has not activated the floating-point
-        // error instrumentation)
+        // error instrumentation.  i.e --fp-error-mode OFF)
+
+        // **Ilya** - what's your pleasure?
+        // if we leave the following check in, almost all binaries will have error = floating_point_error
+        // in the BSE_SYSTEM_PARAMETERS log file, but their evolution status will not indicate an error
+        // (i.e. we did not terminate the evolution of the binary prematurely - we let it run to completion).
+        // This should be interpreted as the binary completed, but the error (floating_point_error) is
+        // informative only.  Note that this will only happen for floating-point-errors - all other errors
+        // will terminate the evolution of the binary.
+        // This is different from the catch for "FPE" below - in that case the user has set --fp-error-mode ON,
+        // so we terminate the binary if a floating-point error is encountered.
+        //
+        // If we take the following check out, then binaries that only had floating-point errors and ran to
+        // completion will have error = 0
 
         if (std::fetestexcept(FE_DIVBYZERO) ||
             std::fetestexcept(FE_INVALID)   ||
@@ -2894,6 +2900,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
     }
 
     m_EvolutionStatus = evolutionStatus;
+
+    (void)PrintBinarySystemParameters();                                                                                            // print (log) binary system parameters
 
     return evolutionStatus;
 }

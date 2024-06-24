@@ -1,20 +1,20 @@
 #ifndef __typedefs_h__
 #define __typedefs_h__
 
+
+// This is where developer-defined types are defined - except for types that pertain directly to
+// the COMPAS looging functionality (including the definition of the defaul record composition
+// for the various log files) - those are listed in LogTypedefs.h
+
+
 #include "EnumHash.h"
 #include "LogTypedefs.h"
 #include "ErrorCatalog.h"
+#include <boost/math/tools/roots.hpp>
+#include <boost/numeric/odeint.hpp>
 
 
-// JR: fix this   todo: clean this up and document it better
-
-
-
-
-
-
-
-
+// JR: todo: clean this up and document it better
 
 
 // Bitwise operators for Enum Class - |, |=, &, &=, ^, ^=, ~ only
@@ -99,11 +99,8 @@ operator ~(Enum rhs) {
 }
 
 
-
-
-
-
 // enum class types
+// ================
 //
 // listed alphabetically (with the exception of stellar types - listed first)
 // categories might work, but for now alphabetically makes things easy to find
@@ -293,8 +290,8 @@ enum class ACCRETION_REGIME: int {
     HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION
 };
 const COMPASUnorderedMap<ACCRETION_REGIME, std::string> ACCRETION_REGIME_LABEL = {
-    { ACCRETION_REGIME::NONE,                                        "No accretion regime" },
-    { ACCRETION_REGIME::ZERO,                                        "No accretion regime" },
+    { ACCRETION_REGIME::NONE,                                        "No accretion" },
+    { ACCRETION_REGIME::ZERO,                                        "No accretion" },
     { ACCRETION_REGIME::HELIUM_ACCUMULATION,                         "Helium piles up without burning, full efficiency" },
     { ACCRETION_REGIME::HELIUM_FLASHES,                              "Helium ignites in flashes, partial accretion efficiency" },
     { ACCRETION_REGIME::HELIUM_STABLE_BURNING,                       "Helium is burnt without flashes, full efficiency" },
@@ -317,12 +314,12 @@ const COMPASUnorderedMap<ADD_OPTIONS_TO_SYSPARMS, std::string> ADD_OPTIONS_TO_SY
 };
 
 // black hole kick options
-enum class BLACK_HOLE_KICKS: int { FULL, REDUCED, ZERO, FALLBACK };
-const COMPASUnorderedMap<BLACK_HOLE_KICKS, std::string> BLACK_HOLE_KICKS_LABEL = {
-    { BLACK_HOLE_KICKS::FULL,     "FULL" },     // FULL kicks
-    { BLACK_HOLE_KICKS::REDUCED,  "REDUCED" },  // REDUCED kicks
-    { BLACK_HOLE_KICKS::ZERO,     "ZERO" },     // ZERO kicks
-    { BLACK_HOLE_KICKS::FALLBACK, "FALLBACK" }  // FALLBACK kicks
+enum class BLACK_HOLE_KICKS_MODE: int { FULL, REDUCED, ZERO, FALLBACK };
+const COMPASUnorderedMap<BLACK_HOLE_KICKS_MODE, std::string> BLACK_HOLE_KICKS_MODE_LABEL = {
+    { BLACK_HOLE_KICKS_MODE::FULL,     "FULL" },     // FULL kicks
+    { BLACK_HOLE_KICKS_MODE::REDUCED,  "REDUCED" },  // REDUCED kicks
+    { BLACK_HOLE_KICKS_MODE::ZERO,     "ZERO" },     // ZERO kicks
+    { BLACK_HOLE_KICKS_MODE::FALLBACK, "FALLBACK" }  // FALLBACK kicks
 };
 
 // boost map update options for program options
@@ -649,7 +646,7 @@ const COMPASUnorderedMap<MT_CASE, std::string> MT_CASE_LABEL = {
 // mass transfer rejuvenation prescriptions
 // JR: why do we have "NONE" here?  Wherever we use MT_REJUVENATION_PRESCRIPTION::NONE we use "default - Hurley et al. 2000" and fRej = 1.0;
 //     why don't we just have "HURLEY" and "STARTRACK", and default to "HURLEY"?
-// *Ilya*
+// **Ilya**
 enum class MT_REJUVENATION_PRESCRIPTION: int { NONE, STARTRACK };
 const COMPASUnorderedMap<MT_REJUVENATION_PRESCRIPTION, std::string> MT_REJUVENATION_PRESCRIPTION_LABEL = {
     { MT_REJUVENATION_PRESCRIPTION::NONE,      "NONE" },
@@ -982,11 +979,12 @@ const COMPASUnorderedMap<WR_MASS_LOSS_PRESCRIPTION, std::string> WR_MASS_LOSS_PR
 };
 
 // common envelope zeta prescriptions
-enum class ZETA_PRESCRIPTION: int { SOBERMAN, HURLEY, ARBITRARY };
+enum class ZETA_PRESCRIPTION: int { SOBERMAN, HURLEY, ARBITRARY, NONE };
 const COMPASUnorderedMap<ZETA_PRESCRIPTION, std::string> ZETA_PRESCRIPTION_LABEL = {
     { ZETA_PRESCRIPTION::SOBERMAN,  "SOBERMAN" },
     { ZETA_PRESCRIPTION::HURLEY,    "HURLEY" },
-    { ZETA_PRESCRIPTION::ARBITRARY, "ARBITRARY" }
+    { ZETA_PRESCRIPTION::ARBITRARY, "ARBITRARY" },
+    { ZETA_PRESCRIPTION::NONE,      "NONE" }   // DEPRECATED June 2024 - remove end 2024
 };
 
 
@@ -1330,5 +1328,10 @@ typedef struct StellarCEDetails {                           // Common Envelope d
     double                 convectiveEnvelopeBindingEnergy; // for two-stage CE formalism
 } StellarCEDetailsT; // was CommonEnvelopeDetailsT;
 
+
+// For boost ODE integrators, see https://www.boost.org/doc/libs/1_83_0/libs/numeric/odeint/doc/html/boost_numeric_odeint/tutorial/harmonic_oscillator.html
+typedef DBL_VECTOR state_type;
+typedef boost::numeric::odeint::runge_kutta_cash_karp54<state_type> error_stepper_type;
+typedef boost::numeric::odeint::controlled_runge_kutta<error_stepper_type> controlled_stepper_type;
 
 #endif // __typedefs_h__

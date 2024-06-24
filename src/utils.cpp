@@ -260,7 +260,7 @@ namespace utils {
                                                                                                                     // (power law power = 0 = isotropic, +infinity = kick along pole, -infinity = kick in plane)
                 // Choose magnitude of power law distribution -- if using a negative power law that blows up at 0,
                 // need a lower cutoff (currently set at 1E-6), check it doesn't affect things too much
-                // *Ilya*
+                // **Ilya** is this reasonable?
                 double magnitude_of_cos_theta = utils::InverseSampleFromPowerLaw(p_KickDirectionPower, 1.0, 1E-6);
                 if (p_KickDirectionPower < 0.0) magnitude_of_cos_theta = 1.0 - magnitude_of_cos_theta;              // don't use utils::Compare() here
 

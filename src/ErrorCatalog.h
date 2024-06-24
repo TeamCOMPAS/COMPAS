@@ -1,17 +1,37 @@
 #ifndef __ErrorCatalog_h__
 #define __ErrorCatalog_h__
 
+
+// This is the COMPAS error catalogue.  The error catalogue defines symolic names for all COMPAS errors,
+// and correspoding error strings for those errors.
+//
+// To add a new error, add the symbolic name to the ERROR enum class, and the corresponding error string
+// to the ERROR_CATALOG map.
+// 
+// The key to the ERROR_CATALOG map is the symbolic name in the ERROR enum class.  The map entry is a
+// tuple containing the ERROR_SCOPE associated with the error (see below), and the error string.
+
 #include "constants.h"
 #include "EnumHash.h"
-
-// JR: fix this   document this
-
 
 #define ERR_MSG(x) std::get<1>(ERROR_CATALOG.at(x))                 // for convenience
 
 
-// JR: todo: DOCUMENT these
-enum class ERROR_SCOPE: int { NEVER, ALWAYS, FIRST, FIRST_IN_OBJECT_TYPE, FIRST_IN_STELLAR_TYPE, FIRST_IN_OBJECT_ID, FIRST_IN_FUNCTION };
+// The ERROR_SCOPE enum class, defined below, allows developers to specify when, if at all, a particular
+// error/warning should be displayed by the SHOW_WARN* and SHOW_ERROR* macros define in ErrorsMacros.h
+// (and by the ERRORS-SHowIt() function defined in Errors.h, which is used by the afrementioned macros):
+//
+//      NEVER                : the error/warning should never be displayed
+//      ALWAYS               : the error/warning should always be displayed
+//      FIRST                : the error/warning should only be displayed the first time it is encountered
+//      FIRST_IN_FUNCTION    : the error/warning should only be displayed the first time it is encountered for a function
+//      FIRST_IN_STELLAR_TYPE: the error/warning should only be displayed the first time it is encountered for a stellar type (see enum class STELLAR_TYPE in typedefs.h)
+//      FIRST_IN_OBJECT_TYPE : the error/warning should only be displayed the first time it is encountered for an object type (see enum class OBJECT_TYPE in typedefs.h)
+//      FIRST_IN_OBJECT_ID   : the error/warning should only be displayed the first time it is encountered for an object id (each object is assigned a unique object id - e.g. a star or binary, each constituent star of a binary)
+//
+// The THROW_ERROR* macros defined in ErrorsMacros.h are not affected by ERROR_SCOPE
+
+enum class ERROR_SCOPE: int { NEVER, ALWAYS, FIRST, FIRST_IN_FUNCTION, FIRST_IN_STELLAR_TYPE, FIRST_IN_OBJECT_TYPE, FIRST_IN_OBJECT_ID };
 
 
 // enum class ERROR
@@ -129,10 +149,11 @@ enum class ERROR: int {
     UNEXPECTED_STELLAR_PROPERTY,                                    // unexpected stellar property
     UNEXPECTED_STELLAR_PROPERTY_TYPE,                               // unexpected stellar property type
     UNEXPECTED_STELLAR_TYPE,                                        // unexpected stellar type
+    UNEXPECTED_ZETA_PRESCRIPTION,                                   // unexpected stellar zeta prescription  (remove when ZETA_PRESCRIPTION::NONE removed)
     UNHANDLED_EXCEPTION,                                            // unhandled exception
     UNKNOWN_A_DISTRIBUTION,                                         // unknown a-distribution
     UNKNOWN_ACCRETION_REGIME,                                       // unknown accretion regime
-    UNKNOWN_BH_KICK_PRESCRIPTION,                                   // unknown black hole kick prescription
+    UNKNOWN_BH_KICK_MODE,                                           // unknown black hole kick mode
     UNKNOWN_BINARY_PROPERTY,                                        // unknown binary property
     UNKNOWN_CASE_BB_STABILITY_PRESCRIPTION,                         // unknown case BB/BC mass transfer stability prescription
     UNKNOWN_CE_ACCRETION_PRESCRIPTION,                              // unknown common envelope accretion prescription
@@ -302,10 +323,11 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNEXPECTED_STELLAR_PROPERTY,                           { ERROR_SCOPE::ALWAYS,              "Unexpected stellar property" }},
     { ERROR::UNEXPECTED_STELLAR_PROPERTY_TYPE,                      { ERROR_SCOPE::ALWAYS,              "Unexpected stellar property type" }},
     { ERROR::UNEXPECTED_STELLAR_TYPE,                               { ERROR_SCOPE::ALWAYS,              "Unexpected stellar type" }},
+    { ERROR::UNEXPECTED_ZETA_PRESCRIPTION,                          { ERROR_SCOPE::ALWAYS,              "Unexpected stellar zeta prescription" }}, // remove when ZETA_PRESCROPTION::NONE is removed
     { ERROR::UNHANDLED_EXCEPTION,                                   { ERROR_SCOPE::ALWAYS,              "Unhandled exception" }},
     { ERROR::UNKNOWN_A_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown semi-major-axis distribution" }},
     { ERROR::UNKNOWN_ACCRETION_REGIME,                              { ERROR_SCOPE::ALWAYS,              "Unknown accretion regime" }},
-    { ERROR::UNKNOWN_BH_KICK_PRESCRIPTION,                          { ERROR_SCOPE::ALWAYS,              "Unknown black hole kick prescription" }},
+    { ERROR::UNKNOWN_BH_KICK_MODE,                                  { ERROR_SCOPE::ALWAYS,              "Unknown black hole kicks mode" }},
     { ERROR::UNKNOWN_BINARY_PROPERTY,                               { ERROR_SCOPE::ALWAYS,              "Unknown binary property" }},
     { ERROR::UNKNOWN_CASE_BB_STABILITY_PRESCRIPTION,                { ERROR_SCOPE::ALWAYS,              "Unknown case BB/BC mass transfer stability prescription" }},
     { ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown common envelope accretion prescription" }},
