@@ -80,7 +80,7 @@
 //                                      evolution (and in this mode we can, and do, differentiate between DIVBYZERO,
 //                                      INVALID, OVERFLOW, and UNDERFLOW).  Note that an integer divide-by-zero will cause
 //                                      the excution of the program to halt (and, rather obtusely, will report
-//                                      "Floating point exception").  JR: check this - may not halt for indiv0 <-------------------------
+//                                      "Floating point exception").
 //
 //                                      This mode is enabled with the option '--fp_error-mode OFF'  (This is the default mode).
 //                             
