@@ -6,6 +6,10 @@
 /*    commandline or in the grid file (e.g. "random-seed")                                */
 /*    The convention I've settled on is hyphenated lower case - I don't mind what         */
 /*    convention we settle on, as long as it's just one.                                  */
+/*    Try to be consistent with existing option names.  Foer example, if you are adding   */
+/*    a new prescription for something, make sure the option name ends with               */
+/*    "-prescription", or if you are adding a new distribution for something, make sure   */
+/*    the option name ends with "-distribution".                                          */
 /*                                                                                        */
 /* 2. Decide on a class member variable name for the option (e.g. m_RandomSeed).          */
 /*                                                                                        */
@@ -232,7 +236,7 @@ void Options::OptionValues::Initialise() {
     m_SemiMajorAxisDistribution.typeString                          = SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL.at(m_SemiMajorAxisDistribution.type);
     m_SemiMajorAxisDistributionMin                                  = 0.01;
     m_SemiMajorAxisDistributionMax                                  = 1000.0;
-    m_SemiMajorAxisDistributionPower                                = -1.0;                                                 // Why is this here - there is no corresponding option.  SHould it just be a constant? *Ilya*
+    m_SemiMajorAxisDistributionPower                                = -1.0;                                                 // Why is this here - there is no corresponding option.  Should it just be a constant? **Ilya**
 
     // Initial orbital period
     m_OrbitalPeriod                                                 = 0.1;                                                  // Only used if user specified and semi-major axis not specified
@@ -306,9 +310,9 @@ void Options::OptionValues::Initialise() {
     m_KickTheta1                                                    = 0.0;                                                  // actual value set later 
     m_KickTheta2                                                    = 0.0;                                                  // actual value set later
 
-    // Black hole kicks
-    m_BlackHoleKicks.type                                           = BLACK_HOLE_KICKS::FALLBACK;
-    m_BlackHoleKicks.typeString                                     = BLACK_HOLE_KICKS_LABEL.at(m_BlackHoleKicks.type);
+    // Black hole kicks mode
+    m_BlackHoleKicksMode.type                                       = BLACK_HOLE_KICKS_MODE::FALLBACK;
+    m_BlackHoleKicksMode.typeString                                 = BLACK_HOLE_KICKS_MODE_LABEL.at(m_BlackHoleKicksMode.type);
 
     // Rocket kicks
     m_RocketKickMagnitude1                                          = 0.0;
@@ -318,7 +322,7 @@ void Options::OptionValues::Initialise() {
     m_RocketKickTheta1		                                        = 0.0;	
     m_RocketKickTheta2		                                        = 0.0;	
 
-    // Chemically Homogeneous Evolution
+    // Chemically Homogeneous Evolution Mode
     m_CheMode.type                                                  = CHE_MODE::PESSIMISTIC;
     m_CheMode.typeString                                            = CHE_MODE_LABEL.at(m_CheMode.type);
 
@@ -888,7 +892,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Enable mass loss (default = " + std::string(p_Options->m_UseMassLoss ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "use-mass-transfer",    // replaces DEPRECATED "mass-transfer"                                                 
+            "use-mass-transfer",                                                
             po::value<bool>(&p_Options->m_UseMassTransfer)->default_value(p_Options->m_UseMassTransfer)->implicit_value(true),                                                                    
             ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
         )
@@ -1602,9 +1606,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "black-hole-kicks",                                            
-            po::value<std::string>(&p_Options->m_BlackHoleKicks.typeString)->default_value(p_Options->m_BlackHoleKicks.typeString),                                                                              
-            ("Black hole kicks relative to NS kicks (" + AllowedOptionValuesFormatted("black-hole-kicks") + ", default = '" + p_Options->m_BlackHoleKicks.typeString + "')").c_str()
+            "black-hole-kicks",     // DEPRECATED June 2024 - remove end 2024                                             
+            po::value<std::string>(&p_Options->m_BlackHoleKicksMode.typeString)->default_value(p_Options->m_BlackHoleKicksMode.typeString),                                                                              
+            ("Black hole kicks relative to NS kicks (" + AllowedOptionValuesFormatted("black-hole-kicks") + ", default = '" + p_Options->m_BlackHoleKicksMode.typeString + "')").c_str()
+        )
+        (
+            "black-hole-kicks-mode",                                          
+            po::value<std::string>(&p_Options->m_BlackHoleKicksMode.typeString)->default_value(p_Options->m_BlackHoleKicksMode.typeString),                                                                              
+            ("Black hole kicks prescription (" + AllowedOptionValuesFormatted("black-hole-kicks-mode") + ", default = '" + p_Options->m_BlackHoleKicksMode.typeString + "')").c_str()
         )
 
         (
@@ -1613,9 +1622,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Case BB/BC mass transfer stability prescription (" + AllowedOptionValuesFormatted("case-BB-stability-prescription") + ", default = '" + p_Options->m_CaseBBStabilityPrescription.typeString + "')").c_str()
         )
         (
-            "chemically-homogeneous-evolution",                            
+            "chemically-homogeneous-evolution",     // DEPRECATED June 2024 - remove end 2024                              
             po::value<std::string>(&p_Options->m_CheMode.typeString)->default_value(p_Options->m_CheMode.typeString),                                                                                                    
             ("Chemically Homogeneous Evolution (" + AllowedOptionValuesFormatted("chemically-homogeneous-evolution") + ", default = '" + p_Options->m_CheMode.typeString + "')").c_str()
+        )
+        (
+            "chemically-homogeneous-evolution-mode",                            
+            po::value<std::string>(&p_Options->m_CheMode.typeString)->default_value(p_Options->m_CheMode.typeString),                                                                                                    
+            ("Chemically Homogeneous Evolution mode (" + AllowedOptionValuesFormatted("chemically-homogeneous-evolution-mode") + ", default = '" + p_Options->m_CheMode.typeString + "')").c_str()
         )
         (
             "common-envelope-formalism",
@@ -1678,9 +1692,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "kick-direction",                                              
+            "kick-direction",       // DEPRECATED June 2024 - remove end 2024                                               
             po::value<std::string>(&p_Options->m_KickDirectionDistribution.typeString)->default_value(p_Options->m_KickDirectionDistribution.typeString),                                                        
             ("Natal kick direction distribution (" + AllowedOptionValuesFormatted("kick-direction") + ", default = '" + p_Options->m_KickDirectionDistribution.typeString + "')").c_str()
+        )
+        (
+            "kick-direction-distribution",
+            po::value<std::string>(&p_Options->m_KickDirectionDistribution.typeString)->default_value(p_Options->m_KickDirectionDistribution.typeString),                                                        
+            ("Natal kick direction distribution (" + AllowedOptionValuesFormatted("kick-direction-distribution") + ", default = '" + p_Options->m_KickDirectionDistribution.typeString + "')").c_str()
         )
         (
             "kick-magnitude-distribution",                                 
@@ -1752,7 +1771,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("File type for logfiles (" + AllowedOptionValuesFormatted("logfile-type") + ", default = '" + p_Options->m_LogfileType.typeString + "')").c_str()
         )
         (
-            "LBV-mass-loss-prescription",       // replaces DEPRECATED "luminous-blue-variable-prescription"                                      
+            "LBV-mass-loss-prescription",
             po::value<std::string>(&p_Options->m_LBVMassLossPrescription.typeString)->default_value(p_Options->m_LBVMassLossPrescription.typeString),                                                                  
             ("LBV Mass loss prescription (" + AllowedOptionValuesFormatted("LBV-mass-loss-prescription") + ", default = '" + p_Options->m_LBVMassLossPrescription.typeString + "')").c_str()
         )
@@ -1788,9 +1807,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Mass Transfer Rejuvenation prescription (" + AllowedOptionValuesFormatted("mass-transfer-rejuvenation-prescription") + ", default = '" + p_Options->m_MassTransferRejuvenationPrescription.typeString + "')").c_str()
         )
         (
-            "mass-transfer-thermal-limit-accretor",                        
+            "mass-transfer-thermal-limit-accretor",     // DEPRECATED June 2024 - remove end 2024                         
             po::value<std::string>(&p_Options->m_MassTransferThermallyLimitedVariation.typeString)->default_value(p_Options->m_MassTransferThermallyLimitedVariation.typeString),                                
             ("Mass Transfer Thermal Accretion limit (" + AllowedOptionValuesFormatted("mass-transfer-thermal-limit-accretor") + ", default = '" + p_Options->m_MassTransferThermallyLimitedVariation.typeString + "')").c_str()
+        )
+        (
+            "mass-transfer-thermal-limit-accretor-multiplier",
+            po::value<std::string>(&p_Options->m_MassTransferThermallyLimitedVariation.typeString)->default_value(p_Options->m_MassTransferThermallyLimitedVariation.typeString),                                
+            ("Mass Transfer Thermal Accretion limit (" + AllowedOptionValuesFormatted("mass-transfer-thermal-limit-accretor-multiplier") + ", default = '" + p_Options->m_MassTransferThermallyLimitedVariation.typeString + "')").c_str()
         )
         (
             "metallicity-distribution",                                 
@@ -1820,7 +1844,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("OB mass loss prescription (" + AllowedOptionValuesFormatted("OB-mass-loss") + ", default = '" + p_Options->m_OBMassLossPrescription.typeString + "')").c_str()
         )
         (
-            "OB-mass-loss-prescription",        // replaces DEPRECATED "OB-mass-loss"                                       
+            "OB-mass-loss-prescription",
             po::value<std::string>(&p_Options->m_OBMassLossPrescription.typeString)->default_value(p_Options->m_OBMassLossPrescription.typeString),                                                                  
             ("OB mass loss prescription (" + AllowedOptionValuesFormatted("OB-mass-loss-prescription") + ", default = '" + p_Options->m_OBMassLossPrescription.typeString + "')").c_str()
         )
@@ -1872,7 +1896,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("RSG mass loss prescription (" + AllowedOptionValuesFormatted("RSG-mass-loss") + ", default = '" + p_Options->m_RSGMassLossPrescription.typeString + "')").c_str()
         )
         (
-            "RSG-mass-loss-prescription",       // replaces DEPRECATED "RSG-mass-loss"                                       
+            "RSG-mass-loss-prescription",
             po::value<std::string>(&p_Options->m_RSGMassLossPrescription.typeString)->default_value(p_Options->m_RSGMassLossPrescription.typeString),                                                                  
             ("RSG mass loss prescription (" + AllowedOptionValuesFormatted("RSG-mass-loss-prescription") + ", default = '" + p_Options->m_RSGMassLossPrescription.typeString + "')").c_str()
         )
@@ -1909,7 +1933,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Very massive star mass loss prescription (" + AllowedOptionValuesFormatted("VMS-mass-loss") + ", default = '" + p_Options->m_VMSMassLossPrescription.typeString + "')").c_str()
         )
         (
-            "VMS-mass-loss-prescription",       // replaces DEPRECATED "VMS-mass-loss"                                       
+            "VMS-mass-loss-prescription",
             po::value<std::string>(&p_Options->m_VMSMassLossPrescription.typeString)->default_value(p_Options->m_VMSMassLossPrescription.typeString),                                                                  
             ("Very massive star mass loss prescription (" + AllowedOptionValuesFormatted("VMS-mass-loss-prescription") + ", default = '" + p_Options->m_VMSMassLossPrescription.typeString + "')").c_str()
         )
@@ -1919,7 +1943,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("WR mass loss prescription (" + AllowedOptionValuesFormatted("WR-mass-loss") + ", default = '" + p_Options->m_WRMassLossPrescription.typeString + "')").c_str()
         )
         (
-            "WR-mass-loss-prescription",        // replaces DEPRECATED "WR-mass-loss"                                       
+            "WR-mass-loss-prescription",
             po::value<std::string>(&p_Options->m_WRMassLossPrescription.typeString)->default_value(p_Options->m_WRMassLossPrescription.typeString),                                                                  
             ("WR mass loss prescription (" + AllowedOptionValuesFormatted("WR-mass-loss-prescription") + ", default = '" + p_Options->m_WRMassLossPrescription.typeString + "')").c_str()
         )
@@ -2140,19 +2164,27 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Add Options to SysParms Option");
         }
 
-        if (!DEFAULTED("black-hole-kicks")) {                                                                                       // black hole kicks
-            std::tie(found, m_BlackHoleKicks.type) = utils::GetMapKey(m_BlackHoleKicks.typeString, BLACK_HOLE_KICKS_LABEL, m_BlackHoleKicks.type);
-            COMPLAIN_IF(!found, "Unknown Black Hole Kicks Option");
+        if (!DEFAULTED("black-hole-kicks")) {       // DEPRECATED June 2024 - remove end 2024                                       // black hole kicks
+            std::tie(found, m_BlackHoleKicksMode.type) = utils::GetMapKey(m_BlackHoleKicksMode.typeString, BLACK_HOLE_KICKS_MODE_LABEL, m_BlackHoleKicksMode.type);
+            COMPLAIN_IF(!found, "Unknown Black Hole Kicks Prescription");
+        }
+        if (!DEFAULTED("black-hole-kicks-mode")) {                                                                                  // black hole kicks mode
+            std::tie(found, m_BlackHoleKicksMode.type) = utils::GetMapKey(m_BlackHoleKicksMode.typeString, BLACK_HOLE_KICKS_MODE_LABEL, m_BlackHoleKicksMode.type);
+            COMPLAIN_IF(!found, "Unknown Black Hole Kicks Prescription");
         }
 
-        if (!DEFAULTED("case-BB-stability-prescription")) {                                                                         //case BB/BC mass transfer stability prescription
+        if (!DEFAULTED("case-BB-stability-prescription")) {                                                                         // case BB/BC mass transfer stability prescription
             std::tie(found, m_CaseBBStabilityPrescription.type) = utils::GetMapKey(m_CaseBBStabilityPrescription.typeString, CASE_BB_STABILITY_PRESCRIPTION_LABEL, m_CaseBBStabilityPrescription.type);
             COMPLAIN_IF(!found, "Unknown Case BB/BC Mass Transfer Stability Prescription");
         }
            
-        if (!DEFAULTED("chemically-homogeneous-evolution")) {                                                                       // Chemically Homogeneous Evolution
+        if (!DEFAULTED("chemically-homogeneous-evolution")) {   // DEPRECATED June 2024 - remove end 2024                           // Chemically Homogeneous Evolution
             std::tie(found, m_CheMode.type) = utils::GetMapKey(m_CheMode.typeString, CHE_MODE_LABEL, m_CheMode.type);
-            COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution Option");
+            COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution mode");
+        }
+        if (!DEFAULTED("chemically-homogeneous-evolution-mode")) {                                                                  // Chemically Homogeneous Evolution mode
+            std::tie(found, m_CheMode.type) = utils::GetMapKey(m_CheMode.typeString, CHE_MODE_LABEL, m_CheMode.type);
+            COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution mode");
         }
 
         if (!DEFAULTED("common-envelope-formalism")) {                                                                              // common envelope formalism
@@ -2200,7 +2232,12 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Initial Mass Function");
         }
 
-        if (!DEFAULTED("kick-direction")) {                                                                                         // kick direction
+        if (!DEFAULTED("kick-direction")) {     // DEPRECATED June 2024 - remove end 2024                                           // kick direction
+            std::tie(found, m_KickDirectionDistribution.type) = utils::GetMapKey(m_KickDirectionDistribution.typeString, KICK_DIRECTION_DISTRIBUTION_LABEL, m_KickDirectionDistribution.type);
+            COMPLAIN_IF(!found, "Unknown Kick Direction Distribution");
+        }
+
+        if (!DEFAULTED("kick-direction-distribution")) {                                                                            // kick direction distribution
             std::tie(found, m_KickDirectionDistribution.type) = utils::GetMapKey(m_KickDirectionDistribution.typeString, KICK_DIRECTION_DISTRIBUTION_LABEL, m_KickDirectionDistribution.type);
             COMPLAIN_IF(!found, "Unknown Kick Direction Distribution");
         }
@@ -2249,9 +2286,22 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Mass Transfer Rejuvenation Prescription");
         }
 
-        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-thermal-limit-accretor")) {                                              // mass transfer accretor thermal limit
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-thermal-limit-accretor")) { // DEPRECATED June 2024 - remove end 2024    // mass transfer accretor thermal limit
             std::tie(found, m_MassTransferThermallyLimitedVariation.type) = utils::GetMapKey(m_MassTransferThermallyLimitedVariation.typeString, MT_THERMALLY_LIMITED_VARIATION_LABEL, m_MassTransferThermallyLimitedVariation.type);
-            COMPLAIN_IF(!found, "Unknown Mass Transfer Accretor Thermal Limit");
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Accretor Thermal Limit Multiplier");
+
+            if (m_MassTransferThermallyLimitedVariation.type == MT_THERMALLY_LIMITED_VARIATION::C_FACTOR) {
+                m_MassTransferCParameter = DEFAULTED("mass-transfer-thermal-limit-C") ? 10.0 : m_MassTransferCParameter;            // JR: this constant should be in constants.h
+            }
+
+            if (m_MassTransferThermallyLimitedVariation.type == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE) {
+                m_MassTransferCParameter = DEFAULTED("mass-transfer-thermal-limit-C") ? 1.0 : m_MassTransferCParameter;             // JR: this constant should be in constants.h
+            }
+        }
+
+        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-thermal-limit-accretor-multiplier")) {                                   // mass transfer accretor thermal limit multiplier
+            std::tie(found, m_MassTransferThermallyLimitedVariation.type) = utils::GetMapKey(m_MassTransferThermallyLimitedVariation.typeString, MT_THERMALLY_LIMITED_VARIATION_LABEL, m_MassTransferThermallyLimitedVariation.type);
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Accretor Thermal Limit Multiplier");
 
             if (m_MassTransferThermallyLimitedVariation.type == MT_THERMALLY_LIMITED_VARIATION::C_FACTOR) {
                 m_MassTransferCParameter = DEFAULTED("mass-transfer-thermal-limit-C") ? 10.0 : m_MassTransferCParameter;
@@ -2573,9 +2623,11 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
     switch (_(p_OptionString.c_str())) {    // which option?
 
         case _("add-options-to-sysparms")                           : POPULATE_RET(ADD_OPTIONS_TO_SYSPARMS_LABEL);                  break;
-        case _("black-hole-kicks")                                  : POPULATE_RET(BLACK_HOLE_KICKS_LABEL);                         break;
+        case _("black-hole-kicks")                                  : POPULATE_RET(BLACK_HOLE_KICKS_MODE_LABEL);                    break; // DEPRECATED June 2024 - remove end 2024
+        case _("black-hole-kicks-mode")                             : POPULATE_RET(BLACK_HOLE_KICKS_MODE_LABEL);                    break;
         case _("case-BB-stability-prescription")                    : POPULATE_RET(CASE_BB_STABILITY_PRESCRIPTION_LABEL);           break;
-        case _("chemically-homogeneous-evolution")                  : POPULATE_RET(CHE_MODE_LABEL);                                 break;
+        case _("chemically-homogeneous-evolution")                  : POPULATE_RET(CHE_MODE_LABEL);                                 break; // DEPRECATED June 2024 - remove end 2024
+        case _("chemically-homogeneous-evolution-mode")             : POPULATE_RET(CHE_MODE_LABEL);                                 break;
         case _("common-envelope-formalism")                         : POPULATE_RET(CE_FORMALISM_LABEL);                             break;
         case _("common-envelope-lambda-prescription")               : POPULATE_RET(CE_LAMBDA_PRESCRIPTION_LABEL);                   break;
         case _("common-envelope-mass-accretion-prescription")       : POPULATE_RET(CE_ACCRETION_PRESCRIPTION_LABEL);                break;
@@ -2585,7 +2637,8 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("fp-error-mode")                                     : POPULATE_RET(FP_ERROR_MODE_LABEL);                            break;
         case _("fryer-supernova-engine")                            : POPULATE_RET(SN_ENGINE_LABEL);                                break;
         case _("initial-mass-function")                             : POPULATE_RET(INITIAL_MASS_FUNCTION_LABEL);                    break;
-        case _("kick-direction")                                    : POPULATE_RET(KICK_DIRECTION_DISTRIBUTION_LABEL);              break;
+        case _("kick-direction")                                    : POPULATE_RET(KICK_DIRECTION_DISTRIBUTION_LABEL);              break; // DEPRECATED June 2024 - remove end 2024
+        case _("kick-direction-distribution")                       : POPULATE_RET(KICK_DIRECTION_DISTRIBUTION_LABEL);              break;
         case _("kick-magnitude-distribution")                       : POPULATE_RET(KICK_MAGNITUDE_DISTRIBUTION_LABEL);              break;
         case _("logfile-type")                                      : POPULATE_RET(LOGFILETYPELabel);                               break;
         case _("LBV-mass-loss-prescription")                        : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);               break;
@@ -2595,7 +2648,8 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("mass-transfer-accretion-efficiency-prescription")   : POPULATE_RET(MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL);     break;
         case _("mass-transfer-angular-momentum-loss-prescription")  : POPULATE_RET(MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL);    break;
         case _("mass-transfer-rejuvenation-prescription")           : POPULATE_RET(MT_REJUVENATION_PRESCRIPTION_LABEL);             break;
-        case _("mass-transfer-thermal-limit-accretor")              : POPULATE_RET(MT_THERMALLY_LIMITED_VARIATION_LABEL);           break;
+        case _("mass-transfer-thermal-limit-accretor")              : POPULATE_RET(MT_THERMALLY_LIMITED_VARIATION_LABEL);           break; // DEPRECATED June 2024 - remove end 2024
+        case _("mass-transfer-thermal-limit-accretor-multiplier")   : POPULATE_RET(MT_THERMALLY_LIMITED_VARIATION_LABEL);           break;
         case _("metallicity-distribution")                          : POPULATE_RET(METALLICITY_DISTRIBUTION_LABEL);                 break;
         case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                           break;
         case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);          break;
@@ -2606,6 +2660,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL); break;
         case _("pulsar-birth-spin-period-distribution")             : POPULATE_RET(PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);    break;
         case _("pulsational-pair-instability-prescription")         : POPULATE_RET(PPI_PRESCRIPTION_LABEL);                         break;
+        case _("RSG-mass-loss")                                     : POPULATE_RET(RSG_MASS_LOSS_PRESCRIPTION_LABEL);               break; // DEPRECATED June 2024 - remove end 2024
         case _("RSG-mass-loss-prescription")                        : POPULATE_RET(RSG_MASS_LOSS_PRESCRIPTION_LABEL);               break;
         case _("remnant-mass-prescription")                         : POPULATE_RET(REMNANT_MASS_PRESCRIPTION_LABEL);                break;
         case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);         break;
@@ -4537,7 +4592,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
 //        case PROGRAM_OPTION::BE_BINARIES                                    : value = BeBinaries();                                                         break;
 
-        case PROGRAM_OPTION::BLACK_HOLE_KICKS                               : value = static_cast<int>(BlackHoleKicks());                                   break;
+        case PROGRAM_OPTION::BLACK_HOLE_KICKS                               : value = static_cast<int>(BlackHoleKicksMode());                               break; // DEPRECATED June 2024 - remove end 2024
+        case PROGRAM_OPTION::BLACK_HOLE_KICKS_MODE                          : value = static_cast<int>(BlackHoleKicksMode());                               break;
     
         case PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION                 : value = static_cast<int>(CaseBBStabilityPrescription());                      break;
     
@@ -4588,6 +4644,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN                      : value = InitialMassFunctionMin();                                             break;
         case PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER                     : value = InitialMassFunctionPower();                                           break;
 
+        case PROGRAM_OPTION::KICK_DIRECTION                                 : value = static_cast<int>(KickDirectionDistribution());                        break; // DEPRECATED June 2024 - remove end 2024
         case PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION                    : value = static_cast<int>(KickDirectionDistribution());                        break;
         case PROGRAM_OPTION::KICK_DIRECTION_POWER                           : value = KickDirectionPower();                                                 break;
         case PROGRAM_OPTION::KICK_SCALING_FACTOR                            : value = KickScalingFactor();                                                  break;
@@ -4615,7 +4672,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::KICK_THETA_2                                   : value = SN_Theta2();                                                          break;
 
         case PROGRAM_OPTION::LBV_FACTOR                                     : value = LuminousBlueVariableFactor();                                         break;
-        case PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION                     : value = static_cast<int>(LuminousBlueVariablePrescription());                 break;
+        case PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION                     : value = static_cast<int>(LBVMassLossPrescription());                          break;
+        case PROGRAM_OPTION::LBV_PRESCRIPTION                               : value = static_cast<int>(LBVMassLossPrescription());                          break; // DEPRECATED June 2024 - remove end 2024
             
         case PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION                         : value = static_cast<int>(MassLossPrescription());                             break;
 
@@ -4846,22 +4904,28 @@ std::string Options::SetRandomSeed(const unsigned long int p_RandomSeed, const O
 void Options::ShowDeprecations(const bool p_Commandline) {
 
     static std::vector<std::tuple<std::string, std::string, bool>> options = {
-        { "luminous-blue-variable-prescription", "LBV-mass-loss-prescription", false },
-        { "mass-transfer",                       "use-mass-transfer",          false },
-        { "OB-mass-loss",                        "OB-mass-loss-prescription",  false },
-        { "RSG-mass-loss",                       "RSG-mass-loss-prescription", false },
-        { "VMS-mass-loss",                       "VMS-mass-loss-prescription", false },
-        { "WR-mass-loss",                        "WR-mass-loss-prescription",  false }
+        { "black-hole-kicks",                      "black-hole-kicks-mode",                           false },
+        { "chemically-homogeneous-evolution-mode", "chemically-homogeneous-evolution-mode",           false },
+        { "kick-direction",                        "kick-direction-distribution",                     false },
+        { "luminous-blue-variable-prescription",   "LBV-mass-loss-prescription",                      false },
+        { "mass-transfer",                         "use-mass-transfer",                               false },
+        { "mass-transfer-thermal-limit-accretor",  "mass-transfer-thermal-limit-accretor-multiplier", false },
+        { "OB-mass-loss",                          "OB-mass-loss-prescription",                       false },
+        { "RSG-mass-loss",                         "RSG-mass-loss-prescription",                      false },
+        { "VMS-mass-loss",                         "VMS-mass-loss-prescription",                      false },
+        { "WR-mass-loss",                          "WR-mass-loss-prescription",                       false }
     };
 
     static std::vector<std::tuple<std::string, std::string, std::string, bool>> values = {
         { "critical-mass-ratio-prescription",    "NONE", "ZERO", false },
-        { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
         { "LBV-mass-loss-prescription",          "NONE", "ZERO", false },
+        { "logfile-type",                        "NONE", "",     false },
+        { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
         { "OB-mass-loss",                        "NONE", "ZERO", false },
         { "OB-mass-loss-prescription",           "NONE", "ZERO", false },
         { "RSG-mass-loss",                       "NONE", "ZERO", false },
         { "RSG-mass-loss-prescription",          "NONE", "ZERO", false },
+        { "stellar-zeta-prescription",           "NONE", "",     false },
         { "VMS-mass-loss",                       "NONE", "ZERO", false },
         { "VMS-mass-loss-prescription",          "NONE", "ZERO", false },
         { "WR-mass-loss",                        "NONE", "ZERO", false },

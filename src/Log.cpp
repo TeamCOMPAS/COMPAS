@@ -3,10 +3,7 @@
 // This is where all logging and debugging is performed.
 //
 // JR: todo: complete this documentation
-// JR: todo: move error/warning strings to error catalogue in constants.h
 // JR: todo: clean up use of Squawk() vs SAY() etc
-
-// JR: fix this
 
 #include "Log.h"
 
@@ -1797,7 +1794,7 @@ bool Log::Error(const string p_ErrStr) {
  * These functions are higher-level functions for logging the various SSE and BSE records
  * to COMPAS "standrad log files" (pre-defined logfiles with pre-defined default record definitions)
  *
- * JR: fix this   todo: complete this documentation
+ * JR: todo: complete this documentation
  */
 
 
@@ -3405,9 +3402,9 @@ bool Log::UpdateAllLogfileRecordSpecs() {
 
     // read and parse the file records
 
-    TOKEN_TYPE expecting            = TOKEN_TYPE::LOGFILE_RECORD_NAME;                                                          // token type we're expecting to see - initially a logfile record name
-    LOGFILE currentLogfile          = LOGFILE::NONE;                                                                            // the logfile definition being modified
-    LOGFILE_TYPE currentLogfileType = LOGFILE_TYPE::NONE;                                                                       // the type of the logfile definition being modified (STELLAR or BINARY)
+    TOKEN_TYPE expecting             = TOKEN_TYPE::LOGFILE_RECORD_NAME;                                                         // token type we're expecting to see - initially a logfile record name
+    LOGFILE currentLogfile           = LOGFILE::NONE;                                                                           // the logfile definition being modified
+    LOGFILE_CLASS currentLogfileType = LOGFILE_CLASS::NONE;                                                                     // the class of the logfile definition being modified (STELLAR, BINARY, or NONE)
 
     string recIn;                                                                                                               // input record
     string parseRec;                                                                                                            // record to be parsed - input record after stripping spaces and comments
@@ -3601,7 +3598,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                             error = ERROR::UNKNOWN_STELLAR_PROPERTY;                                            // no - set error
                                         }
                                         else {                                                                                  // found known property name
-                                            if (currentLogfileType == LOGFILE_TYPE::STELLAR) {                                  // current logfile type STELLAR?
+                                            if (currentLogfileType == LOGFILE_CLASS::STELLAR) {                                 // current logfile class STELLAR?
                                                                                                                                 // yes - ok
                                                 if (addAssign)                                                                  // add property?
                                                     addProps.push_back(property);                                               // yes - add it to 'add' list
@@ -3628,7 +3625,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                             error = ERROR::UNKNOWN_STELLAR_PROPERTY;                                            // no - set error
                                         }
                                         else {                                                                                  // found known property name
-                                            if (currentLogfileType == LOGFILE_TYPE::BINARY) {                                   // current logfile type BINARY?
+                                            if (currentLogfileType == LOGFILE_CLASS::BINARY) {                                  // current logfile class BINARY?
                                                                                                                                 // yes - ok
                                                 if (addAssign) {                                                                // add property?
                                                     switch (propertyType) {                                                     // yes - add it to 'add' list
@@ -3668,7 +3665,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                             error = ERROR::UNKNOWN_BINARY_PROPERTY;                                             // no - set error
                                         }
                                         else {                                                                                  // found known property name
-                                            if (currentLogfileType == LOGFILE_TYPE::BINARY) {                                   // current logfile type BINARY?
+                                            if (currentLogfileType == LOGFILE_CLASS::BINARY) {                                  // current logfile class BINARY?
                                                                                                                                 // yes - ok
                                                 if (addAssign)                                                                  // add property?
                                                     addProps.push_back(property);                                               // yes - add it to 'add' list

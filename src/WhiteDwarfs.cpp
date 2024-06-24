@@ -194,7 +194,7 @@ void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
 
         case ACCRETION_REGIME::NONE:    // DEPRECATED June 2024 - remove end 2024 
         case ACCRETION_REGIME::ZERO:
-            // JR: is this expected?  Is "ACCRETION_REGIME::NONE" (now ZER) actually a thing? Should we actually throw an error here? *Ilya*
+            // JR: is this expected?  Is "ACCRETION_REGIME::NONE" (now ZERO) actually a thing? Should we actually throw an error here? **Ilya**
             SHOW_WARN(ERROR::UNEXPECTED_ACCRETION_REGIME, "No mass added to shell");        // show warning
             break;
 

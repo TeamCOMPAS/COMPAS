@@ -51,7 +51,7 @@ DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
 ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorMassLossRate) {
 
     double logMdot          = log10(p_DonorMassLossRate / MYR_TO_YEAR);                                                     // logarithm of the accreted mass (M_sun/yr)
-    ACCRETION_REGIME regime = ACCRETION_REGIME::NONE;
+    ACCRETION_REGIME regime = ACCRETION_REGIME::ZERO;
 
     if (p_HeRich) {
         // The following coefficients in logMassTransfer limits come from table A1 in Piersanti+ 2014.
@@ -65,7 +65,7 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
             else {
                 regime = ACCRETION_REGIME::HELIUM_ACCUMULATION;
                 if ((utils::Compare(m_Mass, MASS_DOUBLE_DETONATION_CO) >= 0) && (utils::Compare(m_HeShell, WD_HE_SHELL_MCRIT_DETONATION) >= 0)) {
-                    m_HeShellDetonation = true;                                                                             // JR: Question: should this be set false if the condition is not satisfied? *Ilya*
+                    m_HeShellDetonation = true;                                                                             // JR: Question: should this be set false if the condition is not satisfied? **Ilya**
                 }
             }
         } 
@@ -75,7 +75,7 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
         else {
             regime = ACCRETION_REGIME::HELIUM_STABLE_BURNING;
             if ((utils::Compare(logMdot, COWD_LOG_MDOT_MIN_OFF_CENTER_IGNITION) > 0) && (utils::Compare(m_Mass, COWD_MASS_MIN_OFF_CENTER_IGNITION) > 0)) {
-                m_OffCenterIgnition = true;                                                                                 // JR: Question: should this be set false if the condition is not satisfied? *Ilya*
+                m_OffCenterIgnition = true;                                                                                 // JR: Question: should this be set false if the condition is not satisfied? **Ilya**
             }
         }
     } 

@@ -231,10 +231,10 @@ public:
     void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
                                            const double p_DonorThermalMassLossRate)                                 { m_Star->ResolveAccretionRegime(p_Regime, p_DonorThermalMassLossRate); }
     
-    void            ResolveCommonEnvelopeAccretion(const double p_FinalMass,
+    double          ResolveCommonEnvelopeAccretion(const double p_FinalMass,
                                                    const double p_CompanionMass,
                                                    const double p_CompanionRadius,
-                                                   const double p_CompanionEnvelope)                                { m_Star->ResolveCommonEnvelopeAccretion(p_FinalMass, p_CompanionMass, p_CompanionRadius, p_CompanionEnvelope); } 
+                                                   const double p_CompanionEnvelope)                                { return m_Star->ResolveCommonEnvelopeAccretion(p_FinalMass, p_CompanionMass, p_CompanionRadius, p_CompanionEnvelope); } 
 
     void            ResolveEnvelopeLossAndSwitch()                                                                  { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
 

@@ -221,7 +221,13 @@ public:
     void            ResolveCommonEnvelopeAccretion(const double p_FinalMass,
                                                    const double p_CompanionMass     = 0.0,
                                                    const double p_CompanionRadius   = 0.0,
-                                                   const double p_CompanionEnvelope = 0.0) { ResolveCommonEnvelopeAccretion(p_FinalMass, m_Companion->Mass(), m_Companion->Radius(), m_Companion->MassPreCEE() - m_Companion->CoreMassAtCEE()); }
+                                                   const double p_CompanionEnvelope = 0.0) { m_MassTransferDiff = Star::ResolveCommonEnvelopeAccretion(p_FinalMass,
+                                                                                                                                                       m_Companion->Mass(),
+                                                                                                                                                       m_Companion->Radius(),
+                                                                                                                                                       m_Companion->MassPreCEE() - m_Companion->CoreMassAtCEE());
+                                                                                             ResolveAccretion(m_MassTransferDiff);
+                                                     
+                                                                                           } // Note: this sets m_MassTransferDiff always - previously it was only for NS /*ilya*/ 
 
     void            SetPostCEEValues();
     void            SetPreCEEValues();

@@ -153,9 +153,9 @@ double NS::CalculateBirthSpinPeriod() {
             break;
 
         // JR: Unsupported?  This is the only places in the code PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::FIXED
-        // appears - can we remove FIXED from the available options so the user can't choose it - if we ever
-        // decide to support it we can put it back in then.  It seems a little abstruse to present it to users
-        // as an option only to say we don't support it once they choose it. *Ilya*
+        // appears - can we remove FIXED from the available options so the user can't choose it (deprecate it)?
+        // If we ever decide to support it we can put it back in then.  It doesn't seem right to present it to
+        // users as an option only to say we don't support it once they choose it. **Ilya**
         case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::FIXED:                                                      // FIXED  constant value as used in default model in Oslowski et al 2011 https://arxiv.org/abs/0903.3538
             SHOW_WARN_STATIC(ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, "Using spin = 0.0");     // show warning
             pSpin = 0.0;
@@ -175,7 +175,7 @@ double NS::CalculateBirthSpinPeriod() {
             // pulsarBirthSpinPeriodDistributionFaucherGiguereKaspi2006Mean = 300.0;
             // pulsarBirthSpinPeriodDistributionFaucherGiguereKaspi2006Std = 150.0;
 
-            // JR: will they ever change?  Aren't they from the paper?  Why options? *Ilya*
+            // JR: will they ever change?  Aren't they from the paper?  Why options? **Ilya**
 
             double mean  = 300.0;
             double sigma = 150.0;
@@ -183,7 +183,7 @@ double NS::CalculateBirthSpinPeriod() {
             // this should terminate naturally, but just in case we add a guard
             std::size_t iterations = 0;
             do { pSpin = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_SPIN_ITERATIONS && utils::Compare(pSpin, 0.0) < 0);
-            if (iterations >= PULSAR_SPIN_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_SPIN_ITERATIONS);      // *Ilya* throw error, or show warning and accept pSpin?
+            if (iterations >= PULSAR_SPIN_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_SPIN_ITERATIONS);      // **Ilya** throw error, or show warning and accept pSpin?
 
             } break;
 
@@ -222,9 +222,9 @@ double NS::CalculateBirthMagneticField() {
             break;
 
         // JR: Unsupported?  This is the only places in the code PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FIXED
-        // appears - can we remove FIXED from the available options so the user can't choose it - if we ever
-        // decide to support it we can put it back in then.  It seems a little abstruse to present it to users
-        // as an option only to say we don't support it once they choose it. *Ilya*
+        // appears - can we remove FIXED from the available options so the user can't choose it (deprecate it)?
+        // If we ever decide to support it we can put it back in then.  It doesn't seem right to present it to
+        // users as an option only to say we don't support it once they choose it. **Ilya**
         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FIXED:                                                   // FIXED - set to a fixed constant value
             SHOW_WARN(ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, "Using 0.0");                // show warning
             log10B = 0.0;
@@ -253,7 +253,7 @@ double NS::CalculateBirthMagneticField() {
             // pulsarBirthMagneticFieldDistributionFaucherGiguereKaspi2006Mean = 12.65
             // pulsarBirthMagneticFieldDistributionFaucherGiguereKaspi2006Std = 0.55
 
-            // JR: will they ever change?  Aren't they from the paper?  Why options? *Ilya*
+            // JR: will they ever change?  Aren't they from the paper?  Why options? **Ilya**
 
             double mean  = 12.65;
             double sigma = 0.55;
@@ -524,25 +524,25 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
  * For Black holes or Neutron Stars calculate the mass accreted during a CE
  *
  *
- * void ResolveCommonEnvelopeAccretion(const double p_FinalMass, 
- *                                     const double p_CompanionMass, 
- *                                     const double p_CompanionRadius, 
- *                                     const double p_CompanionEnvelope)
+ * double ResolveCommonEnvelopeAccretion(const double p_FinalMass, 
+ *                                       const double p_CompanionMass, 
+ *                                       const double p_CompanionRadius, 
+ *                                       const double p_CompanionEnvelope)
  *
  * @param   [IN]    p_FinalMass                 Mass of the accreting object post mass transfer (Msol) (not used here)
  * @param   [IN]    p_CompanionMass             Mass of the companion
  * @param   [IN]    p_CompanionRadius           Radius of the companion
  * @param   [IN]    p_CompanionEnvelope         Envelope of the companion pre-CE
+ * @return                                      Mass delta                                      
  * 
  */
-void NS::ResolveCommonEnvelopeAccretion(const double p_FinalMass,
-                                        const double p_CompanionMass,
-                                        const double p_CompanionRadius,
-                                        const double p_CompanionEnvelope) {
+double NS::ResolveCommonEnvelopeAccretion(const double p_FinalMass,
+                                          const double p_CompanionMass,
+                                          const double p_CompanionRadius,
+                                          const double p_CompanionEnvelope) {
 
-    double deltaMass   = CalculateMassAccretedForCO(Mass(), p_CompanionMass, p_CompanionRadius, p_CompanionEnvelope);
-    //m_MassTransferDiff = deltaMass;
+    double deltaMass = CalculateMassAccretedForCO(Mass(), p_CompanionMass, p_CompanionRadius, p_CompanionEnvelope);
 
-    ResolveAccretion(deltaMass);
+    return deltaMass;
 }
 

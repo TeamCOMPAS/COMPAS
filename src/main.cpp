@@ -37,72 +37,6 @@ OBJECT_ID globalObjectId = 1;                                   // used to uniqu
 OBJECT_ID m_ObjectId     = 0;                                   // object id for main - always 0
 
 
-// The following variable supports the floating-point error instrumentation
-//
-// In C++ implentations that implement the IEEE floating-point standard, in ordinary operation, the division of a
-// finite non-zero floating-point value by 0[.0] is well-defined and results in +infinity if the value is > zero,
-// -infinity if the value is < zero, and NaN if the value is = 0.0, and in each case program execution continue
-// uninterrupted.  Integer division by 0 is undefined and results in a floating-point exception and the process
-// is halted.
-//
-// The GNU C++ implementation allows us to trap the following floating-pont errors:
-//
-// DIVBYZERO : division by zero, or some other asymptotically infinite result (from finite arguments).
-// INEXACT   : a value cannot be represented with exact accuracy (e.g. 0.1, 1.0/3.0, and sqrt(2.0)).
-// INVALID   : at least one of the arguments to a floating-point library function is a value for which the function
-//             is not defined (e.g. sqrt(-1.0))
-// OVERFLOW  : the result of an operation is too large in magnitude to be represented as a value of the return type.
-// UNDERFLOW : the result is too small in magnitude to be represented as a value of the return type.
-//
-// The instrumentation implemented traps DIVBYZERO, INVALID, OVERFLOW, and UNDERFLOW.  Trapping INEXACT would mean
-// we'd trap on just about every floating-point calculation (it's really just informational - we know there are many
-// values we can't represent exactly in base-2).
-//
-// When an enabled floating-point trap is encountered, a SIGFPE signal is raised.  If we don't have a signal handler
-// installed for SIGFPE the program is terminated with a floating-point exception.  If we do have a signal handler
-// installed for SIGFPE, that signal handler is called.  Ordinarily, once the SIGFPE signal handler is called, there
-// is no going back - after doing whetever we need to do to manage the signal, the only valid operation is to exit the
-// program, or to longjmp to a specific location in the code.  Fortunately the GNU C++ designers have given us another
-// option: if we compile with the -fnon-call-exceptions compiler flag, then we can raise an exception safely from the
-// SIGFPE signal handler because the throw is just a non-local transfer of control (just like a longjmp), and then we
-// can just catch the exception raised.
-//
-// We have 3 modes for the floating-point error instrumentation:
-//
-//    0: instrumentation not active   - this is just the default behaviour of the C++ comoiler, as described in the first
-//                                      paragraph above.  In this mode, the program execution will not be interrupted in
-//                                      the event of a floating-point error, but the error reported in the system
-//                                      parameters file will be set to indicate if a floating-point error occurred during
-//                                      evolution (and in this mode we can, and do, differentiate between DIVBYZERO,
-//                                      INVALID, OVERFLOW, and UNDERFLOW).  Note that an integer divide-by-zero will cause
-//                                      the excution of the program to halt (and, rather obtusely, will report
-//                                      "Floating point exception").
-//
-//                                      This is the default mode.
-//                             
-//    1: floating-point traps enabled - floating-point traps DIVBYZERO, INVALID, OVERFLOW, and UNDERFLOW are enabled.
-//                                      In this mode, when a floating-point operation traps, a SIGFPE is raised and the
-//                                      SIGFPE signal handler is called, and the signal handler raises a runtime_error
-//                                      exception, with a what argument of "FPE" (and in this mode we cannot, and do not,
-//                                      differentiate between DIVBYZERO, INVALID, OVERFLOW, and UNDERFLOW).  The exception
-//                                      raised will cause the execution of the program to halt if it is not caught and
-//                                      managed.  We catch runtime_error exceptions in Star::Evolve() for SSE mode, in 
-//                                      BaseBinaryStar::Evolve() for BSE mode, and in main() for errors that might occur
-//                                      outside the evolution of stars or binaries.
-//
-//    2: debug mode                   - floating-point traps DIVBYZERO, INVALID, OVERFLOW, and UNDERFLOW are enabled.  As
-//                                      for mode 1, in this mode, when a floating-point operation traps, a SIGFPE is raised
-//                                      and the SIGFPE signal handler is called, but instead of raising a runtime_error
-//                                      exception, the signal handler prints the stack trace that led to the error and
-//                                      halts execution of the program.  In this way, the user can determine where (to the
-//                                      function leve l- we don't determine line numbers) the floating-point error occured.
-//
-//                                      The construction of the stack trace in debug mode happens inside the signal handler,
-//                                      and the functions used to do that are generally not signal safe - but we call std::exit()
-//                                      anyway, so that shouldn't be a proble.
-//
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ FIX THIS - NO LONGE A GLOBAL 
-
 /*
  * SIGFPE signal handler
  * 
@@ -132,7 +66,7 @@ void SIGFPEhandler(int p_Sig) {
     if (p_Sig == SIGFPE) {                                                              // SIGFPE?
                                                                                         // yes  
         FP_ERROR_MODE fpErrorMode = OPTIONS->FPErrorMode();                             // mode = ON or DEBUG?
-        if (fpErrorMode == FP_ERROR_MODE::ON) throw std::runtime_error("FPE");          // yes - mode = ON
+        if (fpErrorMode == FP_ERROR_MODE::ON) throw std::runtime_error("FPE");          // mode = ON
         else if (fpErrorMode == FP_ERROR_MODE::DEBUG) {                                 // mode = DEBUG?
             std::cerr << "\nFloating-point error encountered: program terminated\n";    // announce error
             utils::ShowStackTrace();                                                    // construct and show stack trace
@@ -228,7 +162,7 @@ void SIGUSR1handler(int p_Sig) {
  *     raise(SIGUSR2);
  * 
  * statement at the location will, when that statement is executed, cause a SIGUSR2
- * signal to be raised, and that will inove t his signal handler which will then
+ * signal to be raised, and that will invoke this signal handler which will then
  * construct and display a stack trace, and halt the program.
  *
  * void SIGUSR2handler(int p_Sig)
@@ -623,6 +557,11 @@ std::tuple<int, int> EvolveBinaryStars() {
         bool processingGridLine = false;                                                                            // processing a gridfile line?
         while (!doneGridFile && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                    // for each binary to be evolved
 
+            if (OPTIONS->FPErrorMode() != FP_ERROR_MODE::OFF) {                                                     // floating-point error handling mode on/debug?
+                feclearexcept(FE_ALL_EXCEPT);                                                                       // yes - clear all FE traps
+                feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);                             // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
+            }
+
             evolvingBinaryStar      = NULL;                                                                         // unset global pointer to evolving binary (for BSE Switch Log)
             evolvingBinaryStarValid = false;                                                                        // indicate that the global pointer is not (yet) valid (for BSE Switch log)
 
@@ -635,24 +574,21 @@ std::tuple<int, int> EvolveBinaryStars() {
                     case -1:                                                                                        // error - unexpected end of file grid file read
                     case -2: {                                                                                      // error - read error for grid file
                         ERROR error = gridResult == -1 ? ERROR::UNEXPECTED_END_OF_FILE : ERROR::FILE_READ_ERROR;    // set error
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // set status
-                        SHOW_ERROR_STATIC(error, errStr);                                                           // throw error
+                        THROW_ERROR_STATIC(error, errStr);                                                          // throw error
                     } break;
                     case  0: {                                                                                      // end of file
                         doneGridLine = true;                                                                        // flag we're done with this grid line
                         doneGridFile = true;                                                                        // flag we're done with the grid file
                         ERROR error = OPTIONS->RewindGridFile();                                                    // ready for next commandline options variation
                         if (error != ERROR::NONE) {                                                                 // rewind ok?
-                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // no - set status (should never happen here - should be picked up at file open)
-                            SHOW_ERROR_STATIC(error, errStr);                                                       // throw error
+                            THROW_ERROR_STATIC(error, errStr);                                                      // throw error
                         }
                     } break;
                     case  1:                                                                                        // grid line read
                         processingGridLine = true;                                                                  // not done yet...
                         break;
                     default:                                                                                        // unexpected error
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // set status
-                        SHOW_ERROR_STATIC(ERROR::ERROR, errStr);                                                    // throw error
+                        THROW_ERROR_STATIC(ERROR::ERROR, errStr);                                                   // throw error
                         break;
                 }
             }
@@ -713,8 +649,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                     randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;              // random seed               
                     errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                    // set it
                     if (!errorStr.empty()) {                                                                        // ok?
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // no - set status
-                        SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS, errorStr);                      // throw error
+                        THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS, errorStr);                     // throw error
                     }
                 }
                 else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                       // no - user specified a random seed on the commandline?
@@ -722,8 +657,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                     randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed               
                     errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                    // set it
                     if (!errorStr.empty()) {                                                                        // ok?
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // no - set status
-                        SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS, errorStr);                       // throw error
+                        THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS, errorStr);                      // throw error
                     }
                 }
                 else {                                                                                              // no
@@ -731,8 +665,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                     randomSeed = RAND->DefaultSeed() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed               
                     errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                    // set it
                     if (!errorStr.empty()) {                                                                        // ok?
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // no - set status
-                        SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS, errorStr);                       // throw error
+                        THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS, errorStr);                      // throw error
                     }
                 }
 
@@ -761,8 +694,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                     }
 
                     if (!LOGGING->CloseStandardFile(LOGFILE::BSE_DETAILED_OUTPUT)) {                                // close detailed output file if necessary
-                        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                  // close failed - this will cause problems later - stop evolution
-                        SHOW_ERROR_STATIC(ERROR::FILE_NOT_CLOSED);                                                  // throw error
+                        THROW_ERROR_STATIC(ERROR::FILE_NOT_CLOSED);                                                 // close failed - this will cause problems later - throw error
                     }
 
                     ERRORS->Clean();                                                                                // clean the dynamic error catalog
@@ -771,8 +703,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                         gridLineVariation++;                                                                        // yes - increment grid line variation number
                         int optionsStatus = OPTIONS->AdvanceGridLineOptionValues();                                 // apply next grid file options (ranges/sets)
                         if (optionsStatus < 0) {                                                                    // ok?
-                            evolutionStatus = EVOLUTION_STATUS::ERROR;                                              // no - set status
-                            SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                            // throw error
+                            THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS);                           // no - throw error
                         }
                         else if (optionsStatus == 0) {                                                              // end of grid file options variations?
                             doneGridLine = true;                                                                    // yes - we're done
@@ -790,7 +721,7 @@ std::tuple<int, int> EvolveBinaryStars() {
             int optionsStatus = OPTIONS->AdvanceCmdLineOptionValues();                                              // apply next commandline options (ranges/sets)
             if (optionsStatus < 0) {                                                                                // ok?
                 evolutionStatus = EVOLUTION_STATUS::ERROR;                                                          // no - set status
-                SHOW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                         // throw error
+                THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS);                                        // throw error
             }
             else if (optionsStatus == 0) {                                                                          // end of options variations?
                 if (usingGrid || OPTIONS->CommandLineGrid() || (!usingGrid && index >= OPTIONS->nObjectsToEvolve())) { // created required number of stars?
@@ -953,8 +884,8 @@ int main(int argc, char * argv[]) {
                 if (!OPTIONS->GridFilename().empty()) {                                             // have grid filename?
                     ERROR error = OPTIONS->OpenGridFile(OPTIONS->GridFilename());                   // yes - open grid file
                     if (error != ERROR::NONE) {                                                     // open ok?
-                        programStatus = PROGRAM_STATUS::STOPPED;                                    // no - set status
-                        SHOW_ERROR_STATIC(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'"); // show error
+                        programStatus = PROGRAM_STATUS::STOPPED;                                    // no - set status - stop evolution
+                        SHOW_ERROR_STATIC(error, "Accessing grid file '" + OPTIONS->GridFilename() + "'"); // show error (don't throw here - nothing to catch it)
                     }
                 }
 

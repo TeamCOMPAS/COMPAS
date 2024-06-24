@@ -825,7 +825,7 @@ double CHeB::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p
 
 /*
  * Calculate minimum luminosity during Core Helium Burning
- * for intermediate mass (IM) stars JR: is there a check for IM? Or should we remove the caveat? *Ilya*
+ * for intermediate mass (IM) stars JR: is there a check for IM? Or should we remove the caveat/qualifier? **Ilya**
  *
  * Hurley et al. 2000, eq 51
  *

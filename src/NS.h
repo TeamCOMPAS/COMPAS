@@ -40,7 +40,7 @@ public:
     // member functions - alphabetically
     static  DBL_DBL_DBL CalculateCoreCollapseSNParams_Static(const double p_Mass);
 
-    static  double      CalculateRemnantMass_Static(const double p_COCoreMass)  { return 1.17 + (0.09 * p_COCoreMass); }                                        // Hurley et al., eq 92 (JR: Why is this in NS and not Remnants?) *Ilya*
+    static  double      CalculateRemnantMass_Static(const double p_COCoreMass)  { return 1.17 + (0.09 * p_COCoreMass); }                                        // Hurley et al., eq 92 (JR: Why is this in NS and not Remnants?) **Ilya**
 
     MT_CASE             DetermineMassTransferTypeAsDonor() const                { return MT_CASE::NONE; }                                                       // Always NONE
 
@@ -91,7 +91,7 @@ protected:
 
             STELLAR_TYPE    EvolveToNextPhase()                                 { return STELLAR_TYPE::BLACK_HOLE; }
 
-            void            ResolveCommonEnvelopeAccretion(const double p_FinalMass,
+            double          ResolveCommonEnvelopeAccretion(const double p_FinalMass,
                                                            const double p_CompanionMass     = 0.0,
                                                            const double p_CompanionRadius   = 0.0,
                                                            const double p_CompanionEnvelope = 0.0);

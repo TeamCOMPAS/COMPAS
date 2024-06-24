@@ -377,7 +377,8 @@ private:
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
-        "mass-transfer-thermal-limit-accretor",
+        "mass-transfer-thermal-limit-accretor",  // DEPRECATED June 2024 - remove end 2024
+        "mass-transfer-thermal-limit-accretor-multiplier",
         "mass-transfer-thermal-limit-C",
         "maximum-mass-donor-nandez-ivanova",
         "minimum-secondary-mass",
@@ -429,11 +430,13 @@ private:
 
         //"be-binaries",
 
-        "black-hole-kicks",
+        "black-hole-kicks", // DEPRECATED June 2024 - remove end 2024
+        "black-hole-kicks-mode",
 
         "case-BB-stability-prescription",
         "check-photon-tiring-limit",
-        "chemically-homogeneous-evolution",
+        "chemically-homogeneous-evolution", // DEPRECATED June 2024 - remove end 2024
+        "chemically-homogeneous-evolution-mode",
         "circularise-binary-during-mass-transfer",
         "common-envelope-allow-main-sequence-survive",
         "common-envelope-formalism",
@@ -469,8 +472,11 @@ private:
 
         "initial-mass-function", "i",
 
-        "kick-direction",
+        "kick-direction",   // DEPRECATED June 2024 - remove end 2024
+        "kick-direction-distribution",
         "kick-magnitude-distribution", 
+
+        "LBV-mass-loss-prescription",
 
         "log-level", 
         "log-classes",
@@ -495,16 +501,18 @@ private:
         "logfile-system-parameters",
         "logfile-system-parameters-record-types",
         "logfile-type",
-        "luminous-blue-variable-prescription",
+
+        "luminous-blue-variable-prescription",  // DEPRECATED June 2024 - remove end 2024
 
         "mass-change-fraction",
         "mass-loss-prescription",
         "mass-ratio-distribution",
-        "mass-transfer",
+        "mass-transfer",    // DEPRECATED June 2024 - remove end 2024
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
-        "mass-transfer-thermal-limit-accretor",
+        "mass-transfer-thermal-limit-accretor", // DEPRECATED June 2024 - remove end 2024
+        "mass-transfer-thermal-limit-accretor-multiplier",
         "metallicity-distribution",
         "mode",
 
@@ -514,7 +522,8 @@ private:
         "neutrino-mass-loss-BH-formation",
         "neutron-star-equation-of-state",
 
-        "OB-mass-loss",
+        "OB-mass-loss", // DEPRECATED June 2024 - remove end 2024
+        "OB-mass-loss-prescription",
         "orbital-period-distribution",
         "output-container", "c",
         "outputPath", "o",
@@ -529,7 +538,8 @@ private:
 
         "quiet", 
 
-        "RSG-mass-loss",
+        "RSG-mass-loss",    // DEPRECATED June 2024 - remove end 2024
+        "RSG-mass-loss-prescription",
         "radial-change-fraction",
         "random-seed",
         "remnant-mass-prescription",
@@ -547,11 +557,14 @@ private:
         "timesteps-filename",
 
         "use-mass-loss",
+        "use-mass-transfer",
 
-        "VMS-mass-loss",
+        "VMS-mass-loss",    // DEPRECATED June 2024 - remove end 2024
+        "VMW-mass-loss-prescription",
         "version", "v",
 
-        "WR-mass-loss"
+        "WR-mass-loss",     // DEPRECATED June 2024 - remove end 2024
+        "WR-mass-loss-prescription",
 
         "yaml-template"
     };
@@ -787,10 +800,10 @@ public:
 
             double                                              m_MullerMandelKickBH;                                           // Multiplier for BH kicks per Mandel and Mueller, 2020
             double                                              m_MullerMandelKickNS;                                           // Multiplier for NS kicks per Mandel and Mueller, 2020
-            double                                              m_MullerMandelSigmaKick;                                           // Scatter for kicks per Mandel and Mueller, 2020
+            double                                              m_MullerMandelSigmaKick;                                        // Scatter for kicks per Mandel and Mueller, 2020
 
             // Black hole kicks
-            ENUM_OPT<BLACK_HOLE_KICKS>                          m_BlackHoleKicks;                                               // Which black hole kicks mode
+            ENUM_OPT<BLACK_HOLE_KICKS_MODE>                     m_BlackHoleKicksMode;                                           // Which black hole kicks mode
 
             // Rocket kicks
             double                                              m_RocketKickMagnitude1;                                         // Rocket kick magnitude primary - only for neutron stars
@@ -1220,13 +1233,13 @@ public:
 
     bool                                        BeBinaries() const                                                      { return OPT_VALUE("be-binaries", m_BeBinaries, true); }
 
-    BLACK_HOLE_KICKS                            BlackHoleKicks() const                                                  { return OPT_VALUE("black-hole-kicks", m_BlackHoleKicks.type, true); }
+    BLACK_HOLE_KICKS_MODE                       BlackHoleKicksMode() const                                              { return OPTIONS->OptionSpecified("black-hole-kicks-mode") ? OPT_VALUE("black-hole-kicks-mode", m_BlackHoleKicksMode.type, true) : OPT_VALUE("black-hole-kicks", m_BlackHoleKicksMode.type, true); } // black-hole-kicks DEPRECATED June 2024 - remove end 2024
     
     CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-BB-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
     
     bool                                        CheckPhotonTiringLimit() const                                          { return OPT_VALUE("check-photon-tiring-limit", m_CheckPhotonTiringLimit, true); }
 
-    CHE_MODE                                    CHEMode() const                                                         { return OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); }
+    CHE_MODE                                    CHEMode() const                                                         { return OPTIONS->OptionSpecified("chemically-homogeneous-evolution-mode") ? OPT_VALUE("chemically-homogeneous-evolution-mode", m_CheMode.type, true) : OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); } // chemically-homogeneous-evolution DEPRECATED June 2024 - remove end 2024
 
     bool                                        CirculariseBinaryDuringMassTransfer() const                             { return OPT_VALUE("circularise-binary-during-mass-transfer", m_CirculariseBinaryDuringMassTransfer, true); }
 
@@ -1299,7 +1312,7 @@ public:
     double                                      InitialMassFunctionMin() const                                          { return OPT_VALUE("initial-mass-min", m_InitialMassFunctionMin, true); }
     double                                      InitialMassFunctionPower() const                                        { return OPT_VALUE("initial-mass-power", m_InitialMassFunctionPower, true); }
 
-    KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return OPT_VALUE("kick-direction", m_KickDirectionDistribution.type, true); }
+    KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return OPTIONS->OptionSpecified("kick-direction-distribution") ? OPT_VALUE("kick-direction-distribution", m_KickDirectionDistribution.type, true) : OPT_VALUE("kick-direction", m_KickDirectionDistribution.type, true); } // kick-direction DEPRECATED June 2024 - remove end 2024
     double                                      KickDirectionPower() const                                              { return OPT_VALUE("kick-direction-power", m_KickDirectionPower, true); }
     double                                      KickScalingFactor() const                                               { return OPT_VALUE("kick-scaling-factor", m_KickScalingFactor, true); }
     KICK_MAGNITUDE_DISTRIBUTION                 KickMagnitudeDistribution() const                                       { return OPT_VALUE("kick-magnitude-distribution", m_KickMagnitudeDistribution.type, true); }
@@ -1370,7 +1383,7 @@ public:
     double                                      LuminosityToMassThreshold() const                                       { return OPT_VALUE("luminosity-to-mass-threshold", m_LuminosityToMassThreshold, true); }
 
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
-    LBV_MASS_LOSS_PRESCRIPTION                  LuminousBlueVariablePrescription() const                                { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
+    LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPTIONS->OptionSpecified("LBV-mass-loss-prescription") ? OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true) : OPT_VALUE("luminous-blue-variable-prescription", m_LBVMassLossPrescription.type, true); } // luminous-blue-variable-prescription DEPRECATED June 2024 - remove end 2024
     
     double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
     
@@ -1407,7 +1420,7 @@ public:
     double                                      MassTransferJlossMacLeodLinearFractionDegen() const                     { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction-degen", m_MassTransferJlossMacLeodLinearFractionDegen, true); }
     double                                      MassTransferJlossMacLeodLinearFractionNonDegen() const                  { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction-non-degen", m_MassTransferJlossMacLeodLinearFractionNonDegen, true); }
     MT_REJUVENATION_PRESCRIPTION                MassTransferRejuvenationPrescription() const                            { return OPT_VALUE("mass-transfer-rejuvenation-prescription", m_MassTransferRejuvenationPrescription.type, true); }
-    MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return OPT_VALUE("mass-transfer-thermal-limit-accretor", m_MassTransferThermallyLimitedVariation.type, true); }
+    MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return OPTIONS->OptionSpecified("mass-transfer-thermal-limit-accretor-multiplier") ? OPT_VALUE("mass-transfer-thermal-limit-accretor-multiplier", m_MassTransferThermallyLimitedVariation.type, true) : OPT_VALUE("mass-transfer-thermal-limit-accretor", m_MassTransferThermallyLimitedVariation.type, true); } // mass-transfer-thermal-limit-accretor DEPRECATED June 2024 - remove end 2024
     double                                      MaxEvolutionTime() const                                                { return OPT_VALUE("maximum-evolution-time", m_MaxEvolutionTime, true); }
     double                                      MaximumNeutronStarMass() const                                          { return OPT_VALUE("maximum-neutron-star-mass", m_MaximumNeutronStarMass, true); }
     unsigned long int                           MaxNumberOfTimestepIterations() const                                   { return OPT_VALUE("maximum-number-timestep-iterations", m_MaxNumberOfTimestepIterations, true); }
@@ -1437,8 +1450,8 @@ public:
     std::vector<std::string>                    NotesHdrs() const                                                       { return m_CmdLine.optionValues.m_NotesHdrs; }
  
     size_t                                      nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
-    OB_MASS_LOSS_PRESCRIPTION                   OBMassLossPrescription() const                                          { return OPT_VALUE("OB-mass-loss-prescription", m_OBMassLossPrescription.type, true); }
-    bool                                        OptimisticCHE() const                                                   { CHE_MODE che = OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); return che == CHE_MODE::OPTIMISTIC; }
+    OB_MASS_LOSS_PRESCRIPTION                   OBMassLossPrescription() const                                          { return OPTIONS->OptionSpecified("OB-mass-loss-prescription") ? OPT_VALUE("OB-mass-loss-prescription", m_OBMassLossPrescription.type, true) : OPT_VALUE("OB-mass-loss", m_OBMassLossPrescription.type, true); } // OB-mass-loss DEPRECATED June 2024 - remove end 2024
+    bool                                        OptimisticCHE() const                                                   { return CHEMode() == CHE_MODE::OPTIMISTIC; }
 
     double                                      OrbitalPeriod() const                                                   { return OPT_VALUE("orbital-period", m_OrbitalPeriod, true); }
     ORBITAL_PERIOD_DISTRIBUTION                 OrbitalPeriodDistribution() const                                       { return OPT_VALUE("orbital-period-distribution", m_OrbitalPeriodDistribution.type, true); }
@@ -1503,7 +1516,7 @@ public:
     double                                      RotationalFrequency() const                                             { return OPT_VALUE("rotational-frequency", m_RotationalFrequency, true); }
     double                                      RotationalFrequency1() const                                            { return OPT_VALUE("rotational-frequency-1", m_RotationalFrequency1, true); }
     double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
-    RSG_MASS_LOSS_PRESCRIPTION                  RSGMassLossPrescription() const                                         { return OPT_VALUE("RSG-mass-loss-prescription", m_RSGMassLossPrescription.type, true); }
+    RSG_MASS_LOSS_PRESCRIPTION                  RSGMassLossPrescription() const                                         { return OPTIONS->OptionSpecified("RSG-mass-loss-prescription") ? OPT_VALUE("RSG-mass-loss-prescription", m_RSGMassLossPrescription.type, true) : OPT_VALUE("RSG-mass-loss", m_RSGMassLossPrescription.type, true); } // RSG-mass-loss DEPRECATED June 2024 - remove end 2024
 
     double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis, true); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }
@@ -1536,10 +1549,9 @@ public:
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
 
-    VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true); }
+    VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPTIONS->OptionSpecified("VMS-mass-loss-prescription") ? OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true) : OPT_VALUE("VMS-mass-loss", m_VMSMassLossPrescription.type, true); } // VMS-mass-loss DEPRECATED June 2024 - remove end 2024
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
-    WR_MASS_LOSS_PRESCRIPTION                   WRMassLossPrescription() const                                          { return OPT_VALUE("WR-mass-loss-prescription", m_WRMassLossPrescription.type, true); }
-
+    WR_MASS_LOSS_PRESCRIPTION                   WRMassLossPrescription() const                                          { return OPTIONS->OptionSpecified("WR-mass-loss-prescription") ? OPT_VALUE("WR-mass-loss-prescription", m_WRMassLossPrescription.type, true) : OPT_VALUE("WR-mass-loss", m_WRMassLossPrescription.type, true); } // WR-mass-loss DEPRECATED June 2024 - remove end 2024
     std::string                                 YAMLfilename() const                                                    { return m_CmdLine.optionValues.m_YAMLfilename; }
     std::string                                 YAMLtemplate() const                                                    { return m_CmdLine.optionValues.m_YAMLtemplate; }
 

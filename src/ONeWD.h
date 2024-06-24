@@ -51,7 +51,7 @@ protected:
         m_Age             = 0.0;                                                                                                                                                // Set age appropriately
         m_HShell          = 0.0;                                                                                                                                    // Initialize hydrogen shell
         m_HeShell         = 0.0;                                                                                                                                    // Initialize helium shell
-        m_AccretionRegime = ACCRETION_REGIME::NONE;
+        m_AccretionRegime = ACCRETION_REGIME::ZERO;
     }
 
 

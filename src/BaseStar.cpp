@@ -1294,7 +1294,11 @@ double BaseStar::CalculateZetaAdiabatic() {
         case ZETA_PRESCRIPTION::ARBITRARY:
             zetaStar = CalculateZetaConstantsByEnvelope(OPTIONS->StellarZetaPrescription());
             break;
-    
+
+        case ZETA_PRESCRIPTION::NONE:       // remove when ZETA_PRESCRIPTION::NONE removed
+            SHOW_WARN(ERROR::UNEXPECTED_ZETA_PRESCRIPTION);
+            break;
+
         default:                                                                        // unknown prescription
             // the only way this can happen is if someone added a ZETA_PRESCRIPTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
@@ -1740,7 +1744,7 @@ double BaseStar::CalculateInitialEnvelopeMass_Static(const double p_Mass) {
 /*
  * Calculate rejuvenation factor for stellar age based on mass lost/gained during mass transfer
  *
- * JR: This function returns 1.0 in all cases... Do we really need it?  Ilya?
+ * JR: This function returns 1.0 in all cases... Do we really need it? **Ilya**
  *
  *
  * double CalculateMassTransferRejuvenationFactor()
@@ -1758,7 +1762,7 @@ double BaseStar::CalculateMassTransferRejuvenationFactor() {
 
         case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                                           // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf
 
-            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {                                      // Rejuvenation factor is unity for mass losing stars  JR: do we really need this?  It's going to default to 1.0 if the condition is false anyway. *Ilya*
+            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {                                      // Rejuvenation factor is unity for mass losing stars  JR: do we really need this?  It's going to default to 1.0 if the condition is false anyway. **Ilya**
                 fRej = 1.0;
             }
             else {
@@ -2360,7 +2364,7 @@ double BaseStar::CalculateMassLossRateVMSVink2011() const {
         rate = PPOW(10.0, (logMdotdiff + log10(rate2001)));
     }
     else {
-        SHOW_WARN(ERROR::LOW_GAMMA, "Mass Loss Rate defaulting to Vink2001, low Gamma");                        // gamma extrapolated outside fit range, default to Vink2001 JR: does this need a warning?  Isn't this just the way this prescription works? *Ilya*
+        SHOW_WARN(ERROR::LOW_GAMMA, "Mass Loss Rate defaulting to Vink2001, low Gamma");                        // gamma extrapolated outside fit range, default to Vink2001 JR: does this need a warning?  Isn't this just the way this prescription works? **Ilya**
         rate = rate2001;
     }
 
@@ -2670,11 +2674,11 @@ double BaseStar::CalculateMassLossRateHurley() {
 double BaseStar::CalculateMassLossRateBelczynski2010() {
     m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;                                                                  // reset dominant mass loss rate
 
-    double LBVRate = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                         // start with LBV winds (can be, and is often, 0.0)
+    double LBVRate = CalculateMassLossRateLBV(OPTIONS->LBVMassLossPrescription());                                  // start with LBV winds (can be, and is often, 0.0)
     double otherWindsRate = 0.0;
 
     if (m_DominantMassLossRate != MASS_LOSS_TYPE::LBV || 
-        OPTIONS->LuminousBlueVariablePrescription() == LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD ) {                   // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
+        OPTIONS->LBVMassLossPrescription() == LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD ) {                            // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
 
         double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription
         if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, add Hurley et al 2000 winds
@@ -2713,13 +2717,13 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
 
     m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
 
-    double LBVRate         = CalculateMassLossRateLBV(OPTIONS->LuminousBlueVariablePrescription());                 // start with LBV winds (can be, and is often, 0.0)
+    double LBVRate         = CalculateMassLossRateLBV(OPTIONS->LBVMassLossPrescription());                          // start with LBV winds (can be, and is often, 0.0)
     double otherWindsRate  = 0.0;
     double teff            = TSOL * m_Temperature;    
 
     // calculate other winds rate
     if (m_DominantMassLossRate != MASS_LOSS_TYPE::LBV || 
-        OPTIONS->LuminousBlueVariablePrescription() == LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD ) {                   // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
+        OPTIONS->LBVMassLossPrescription() == LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD ) {                            // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
 
         if ((utils::Compare(teff, RSG_MAXIMUM_TEMP) < 0) &&                                                         // teff < max temp for RSG winds?
             (utils::Compare(m_MZAMS, MASSIVE_THRESHOLD) >= 0) &&                                                    // ZAMS mass at or above massive threshold?
@@ -2932,7 +2936,7 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
             if (IsSupernova() && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) ClearSupernovaStash();
         }
 
-        // JR: should we update the initial mass before or after we update the age after mass loss?  Or doesn't it really amtter? *Ilya*
+        // JR: should we update the initial mass before or after we update the age after mass loss?  Or doesn't it really matter? **Ilya**
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
         UpdateAgeAfterMassLoss();                                                                   // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                                      // apply age rejuvenation factor
@@ -3126,35 +3130,6 @@ double BaseStar::CalculateMassAccretedForCO(const double p_Mass,
     deltaMass = std::min(p_CompanionEnvelope, deltaMass);                                                       // clamp the mass accretion to be no more than the envelope of the companion pre CE
 
     return deltaMass;
-}
-
-
-/* 
- * Resolve common envelope accretion
- *
- * For stellar types other than Black hole or Neutron Star just set the star's mass to the parameter passed
- *
- *
- * void ResolveCommonEnvelopeAccretion(const double p_FinalMass, 
-                                       const double p_CompanionMass = 0.0,
-                                       const double p_CompanionRadius = 0.0,
-                                       const double p_CompanionEnvelope = 0.0)
- *
- * @param   [IN]    p_FinalMass                 Mass of the accreting object post mass transfer (Msol)
- * @param   [IN]    p_CompanionMass             Mass of the companion (not used here)
- * @param   [IN]    p_CompanionRadius           Radius of the companion (not used here)
- * @param   [IN]    p_CompanionEnvelope         Envelope of the companion pre-CE  (not used here)
- */
-void BaseStar::ResolveCommonEnvelopeAccretion(const double p_FinalMass, 
-                                              const double p_CompanionMass,
-                                              const double p_CompanionRadius,
-                                              const double p_CompanionEnvelope) {
-
-    // LvS: todo: more consistent super eddington accretion during CE should also affect e.g. MS stars
-    double deltaMass = p_FinalMass - Mass();
-    // JR: should m_MassTransferDiff updated here (as it is for Neutron Stars and Black Holes)? *Ilya*
-
-    ResolveAccretion(deltaMass);
 }
 
 
@@ -3362,7 +3337,7 @@ double BaseStar::CalculateOStarRotationalVelocity_Static(const double p_Xmin, co
 
         // JR: should we issue a warning, or throw an error, if the root finder didn't actually find the roor here (i.e. we stopped because pf maxIter)?
         // To be consistent, should we use the Boost root solver here?
-        // *Ilya* both questions above
+        // **Ilya** both questions above
 
     	gsl_root_fsolver_free(s);   // de-allocate memory for root solver
     }
@@ -3407,10 +3382,10 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
             // For lower mass stars, I don't know what updated results there are so default back to
             // Hurley et al. 2000 distribution for now
 
-            if (utils::Compare(p_MZAMS, 16.0) >= 0) {                   // JR: what does 16.0 represent?  Not another mass threshold that should be in constants.h ...? *ilya*
+            if (utils::Compare(p_MZAMS, 16.0) >= 0) {                   // JR: what does 16.0 represent?  Not another mass threshold that should be in constants.h ...? /*ilya*/
                 vRot = CalculateOStarRotationalVelocity_Static(0.0, 800.0);
             }
-            else if (utils::Compare(p_MZAMS, 2.0) >= 0) {               // JR: what does 2.0 represent?  Not another mass threshold that should be in constants.h ...? *Ilya*
+            else if (utils::Compare(p_MZAMS, 2.0) >= 0) {               // JR: what does 2.0 represent?  Not another mass threshold that should be in constants.h ...? **Ilya**
                 vRot = utils::InverseSampleFromTabulatedCDF(RAND->Random(), BStarRotationalVelocityCDFTable);
             }
             else {
@@ -4366,10 +4341,10 @@ double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_
     double bindingEnergy = 0.0;                                                         // default
 
 	if (utils::Compare(p_Radius, 0.0) <= 0) {                                           // positive radius?
-        SHOW_WARN(ERROR::RADIUS_NOT_POSITIVE, "Binding energy = 0.0");                  // warn radius not positive JR: should this throw an error? *Ilya*
+        SHOW_WARN(ERROR::RADIUS_NOT_POSITIVE, "Binding energy = 0.0");                  // warn radius not positive JR: should this throw an error? **Ilya**
 	}
 	else if (utils::Compare(p_Lambda, 0.0) <= 0) {                                      // positive lambda?
-        // Not necessarily zero as sometimes lambda is made 0, or maybe weird values for certain parameters of the fit. Not sure about the latter. JR: let's look at this... *Ilya*
+        // Not necessarily zero as sometimes lambda is made 0, or maybe weird values for certain parameters of the fit. Not sure about the latter. JR: let's look at this... **Ilya**
         SHOW_WARN(ERROR::LAMBDA_NOT_POSITIVE, "Binding energy = 0.0");                  // warn lambda not positive
 	}
 	else {                                                                              // calculate binding energy

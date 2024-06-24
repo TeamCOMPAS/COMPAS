@@ -53,7 +53,7 @@ protected:
         m_HeShell           = 0.0;                                                                                                                              // Initialize helium shell
         m_HeShellDetonation = false;
         m_OffCenterIgnition = false;
-        m_AccretionRegime   = ACCRETION_REGIME::NONE;
+        m_AccretionRegime   = ACCRETION_REGIME::ZERO;
     }
 
 

@@ -1,12 +1,19 @@
 #ifndef __LogTypedefs_h__
 #define __LogTypedefs_h__
 
+
+// This is where developer-defined types that pertain directly to the COMPAS looging functionality
+// (including the definitions of the default record composition for the various log files) are
+// defined.  Non-logging tyedefs are listed in typedefs.h
+
+
 #include "constants.h"
 
 
 // logfile file types
-enum class LOGFILETYPE: int { HDF5, CSV, TSV, TXT };                        // Need this declared here so can declare the constant...
+enum class LOGFILETYPE: int { NONE, HDF5, CSV, TSV, TXT };                  // need this declared here so can declare the constant...
 const COMPASUnorderedMap<LOGFILETYPE, std::string> LOGFILETYPELabel = {     // file types
+    { LOGFILETYPE::NONE, "NONE" },   // DEPRECATED June 2024 - remove end 2024
     { LOGFILETYPE::HDF5, "HDF5" },
     { LOGFILETYPE::CSV,  "CSV" },
     { LOGFILETYPE::TSV,  "TSV" },
@@ -101,9 +108,37 @@ const std::initializer_list<TYPENAME> FLOAT_TYPES = {
 enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
 
 
+//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//  !!!                                                                             !!!
+//  !!!   Do not change the following enum classes and maps unless you are adding   !!!
+//  !!!   or deleting a new property (or changing the name of an existing property  !!!
+//  !!!   for some reason)                                                          !!!
+//  !!!                                                                             !!!
+//  !!!   The STAR_PROPERTIES #define below defines the STELLAR variables allowed   !!!
+//  !!!   for logfile record definition - if a property is not on the list it       !!!
+//  !!!   cannot be selected for inclusion in a logfile via the                     !!!
+//  !!!   --logfile-definitions option.                                             !!!                                            
+//  !!!                                                                             !!!
+//  !!!   The enum classes STAR_PROPERTY, BINARY_PROPERTY, and PROGRAM_OPTION       !!!
+//  !!!   defined below defines the STELLAR and BINARY properties, and the          !!!
+//  !!!   PROGRAM_OPTIONs allowed for logfile record definition - if a property is  !!!
+//  !!!   not on those lists it cannot be selected for inclusion in a logfile via   !!!
+//  !!!   --logfile-definitions option.                                             !!!                                            
+//  !!!                                                                             !!!
+//  !!!   *NOTE*                                                                    !!!
+//  !!!   The following enum classes anad maps are not where header strings should  !!!
+//  !!!   be changed!  These classes and maps are a lookup facility for the logfile !!!
+//  !!!   definitions file parser.                                                  !!!
+//  !!!                                                                             !!!
+//  !!!   Header strings are in the following maps, and should be changed there:    !!!
+//  !!!                                                                             !!!
+//  !!!   std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL    !!!
+//  !!!   std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL      !!!
+//  !!!                                                                             !!!
+//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 // The #define below defines the STELLAR variables allowed for logfile record definition
-// Add new property names here to make the property available for specification  in a logfile
+// Add new property names here to make the property available for specification in a logfile
 // #define is used so that the same list of variables can be used for the various stellar property enum classes (see below)
 #define STAR_PROPERTIES                              \
     NONE,                                            \
@@ -234,25 +269,11 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     ZETA_SOBERMAN,                                   \
     ZETA_SOBERMAN_HE
 
+
 // enum class STAR_PROPERTY
 // Symbolic names for variables of an individual star that can be selected for printing
 // STAR_PROPERTY refers to an individual star of type BaseStar for SSE (differences are where the data comes from, and the column header)
 enum class STAR_PROPERTY: int { STAR_PROPERTIES };
-
-//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//  !!!                                                                             !!!
-//  !!!   Do not change the following map unless you are adding or deleting a new   !!!
-//  !!!   property (or changing the name of an existing property for some reason)   !!!
-//  !!!                                                                             !!!
-//  !!!             This is not where header strings should be changed!             !!!
-//  !!!       This is a lookup table for the logfile definitions file parser.       !!!
-//  !!!                                                                             !!!
-//  !!!   Header strings are in the following maps, and should be changed there:    !!!
-//  !!!                                                                             !!!
-//  !!!   std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL    !!!
-//  !!!   std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL      !!!
-//  !!!                                                                             !!!
-//  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 // map STAR PROPERTY to string identifying the property
 // for lookup by the printing functions
@@ -706,7 +727,8 @@ enum class PROGRAM_OPTION: int {
 
     //BE_BINARIES,
 
-    BLACK_HOLE_KICKS,
+    BLACK_HOLE_KICKS, // DEPRECATED June 2024 - remove end 2024
+    BLACK_HOLE_KICKS_MODE,
     
     CASE_BB_STABILITY_PRESCRIPTION,
     
@@ -757,6 +779,7 @@ enum class PROGRAM_OPTION: int {
     INITIAL_MASS_FUNCTION_MIN,
     INITIAL_MASS_FUNCTIONPOWER,
 
+    KICK_DIRECTION, // DEPRECATED June 2024 - remove end 2024
     KICK_DIRECTION_DISTRIBUTION,
     KICK_DIRECTION_POWER,
     KICK_SCALING_FACTOR,
@@ -784,6 +807,7 @@ enum class PROGRAM_OPTION: int {
     KICK_THETA_2,
 
     LBV_FACTOR,
+    LBV_PRESCRIPTION, // DEPRECATED June 2024 - remove end 2024
     LBV_MASS_LOSS_PRESCRIPTION,
     MASS_LOSS_PRESCRIPTION,
 
@@ -928,7 +952,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     //{ PROGRAM_OPTION::BE_BINARIES,                                    "BE_BINARIES" },
 
-    { PROGRAM_OPTION::BLACK_HOLE_KICKS,                                 "BLACK_HOLE_KICKS" },
+    { PROGRAM_OPTION::BLACK_HOLE_KICKS,                                 "BLACK_HOLE_KICKS" }, // DEPRECATED June 2024 - remove end 2024
+    { PROGRAM_OPTION::BLACK_HOLE_KICKS_MODE,                            "BLACK_HOLE_KICKS_MODE" },
     
     { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                   "CASE_BB_STABILITY_PRESCRIPTION" },
     
@@ -976,7 +1001,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                        "INITIAL_MASS_FUNCTION_MAX" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                        "INITIAL_MASS_FUNCTION_MIN" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                       "INITIAL_MASS_FUNCTIONPOWER" },
-
+    { PROGRAM_OPTION::KICK_DIRECTION,                                   "KICK_DIRECTION_DISTRIBUTION" }, // DEPRECATED June 2024 - remove end 2024
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                      "KICK_DIRECTION_DISTRIBUTION" },
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                             "KICK_DIRECTION_POWER" },
     { PROGRAM_OPTION::KICK_SCALING_FACTOR,                              "KICK_SCALING_FACTOR" },
@@ -1004,6 +1029,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::KICK_THETA_2,                                     "KICK_THETA_2" },
 
     { PROGRAM_OPTION::LBV_FACTOR,                                       "LBV_FACTOR" },
+    { PROGRAM_OPTION::LBV_PRESCRIPTION,                                 "LBV_MASS_LOSS_PRESCRIPTION" }, // DEPRECATED June 2024 - remove end 2024
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                       "LBV_MASS_LOSS_PRESCRIPTION" },
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                           "MASS_LOSS_PRESCRIPTION" },
 
@@ -1152,7 +1178,6 @@ public:
 };
 
 
-
 // Property types
 enum class PROPERTY_TYPE: int { NONE, STAR_PROPERTY, STAR_1_PROPERTY, STAR_2_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY, ANY_STAR_PROPERTY, BINARY_PROPERTY, PROGRAM_OPTION };
 const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
@@ -1166,11 +1191,6 @@ const COMPASUnorderedMap<PROPERTY_TYPE, std::string> PROPERTY_TYPE_LABEL = {
     { PROPERTY_TYPE::BINARY_PROPERTY,    "BINARY_PROPERTY" },
     { PROPERTY_TYPE::PROGRAM_OPTION,     "PROGRAM_OPTION" }
 };
-
-
-
-
-
 
 
 // typedef for property details
@@ -1549,6 +1569,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::KICK_THETA_2,                                             { TYPENAME::DOUBLE,     "Kick_Theta(2)",                          "-",         24, 15}},
 
     { PROGRAM_OPTION::LBV_FACTOR,                                               { TYPENAME::DOUBLE,     "LBV_Factor",                             "-",         24, 15}},
+    { PROGRAM_OPTION::LBV_PRESCRIPTION,                                         { TYPENAME::INT,        "LBV_Mass_Loss_Prscrptn",                 "-",          4, 1 }}, // DEPRECATED June 2024 - remove end 2024
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                               { TYPENAME::INT,        "LBV_Mass_Loss_Prscrptn",                 "-",          4, 1 }},
 
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                                   { TYPENAME::INT,        "Mass_Loss_Prscrptn",                     "-",          4, 1 }},
@@ -1674,7 +1695,6 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 };
 
 
-
 // enum class LOGFILE
 // Symbolic names for logfiles
 enum class LOGFILE: int {
@@ -1698,8 +1718,6 @@ enum class LOGFILE: int {
     SSE_SWITCH_LOG,
     SSE_SYSTEM_PARAMETERS
 };
-
-
 
 
 // Logfile record types
@@ -2258,64 +2276,35 @@ const ANY_PROPERTY_VECTOR SSE_SYSTEM_PARAMETERS_REC = {
 };
 
 
-
-
-
-
-
-
-// enum class LOGFILE_TYPE
+// enum class LOGFILE_CLASS
 // Symbolic names for logfile types
-enum class LOGFILE_TYPE: int { NONE, STELLAR, BINARY };
+enum class LOGFILE_CLASS: int { NONE, STELLAR, BINARY };
 
 // descriptors for logfiles
 // unordered_map - key is integer logfile (from enum class LOGFILE above)
 // fields are: {default filename, record descriptor, short file name, short record name, type}
 // (the short names are for logfile definitions file parsing)
-typedef std::tuple<std::string, ANY_PROPERTY_VECTOR, std::string, std::string, LOGFILE_TYPE> LOGFILE_DESCRIPTOR_T;
+typedef std::tuple<std::string, ANY_PROPERTY_VECTOR, std::string, std::string, LOGFILE_CLASS> LOGFILE_DESCRIPTOR_T;
 const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
-    { LOGFILE::NONE,                       { "" ,                              {},                             "",                "",                    LOGFILE_TYPE::NONE}},
+    { LOGFILE::NONE,                       { "" ,                              {},                             "",                "",                    LOGFILE_CLASS::NONE}},
 
-    { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                      {},                             "",                "",                    LOGFILE_TYPE::NONE }},
-    { LOGFILE::ERROR_LOG,                  { "Error_Log",                      {},                             "",                "",                    LOGFILE_TYPE::NONE }},
+    { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                      {},                             "",                "",                    LOGFILE_CLASS::NONE }},
+    { LOGFILE::ERROR_LOG,                  { "Error_Log",                      {},                             "",                "",                    LOGFILE_CLASS::NONE }},
 
-//    { LOGFILE::BSE_BE_BINARIES,            { "BSE_BE_Binaries",                BSE_BE_BINARIES_REC,            "BSE_BE_BINARIES", "BSE_BE_BINARIES_REC", LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_COMMON_ENVELOPES,       { "BSE_Common_Envelopes",           BSE_COMMON_ENVELOPES_REC,       "BSE_CEE",         "BSE_CEE_REC",         LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",            BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, { "BSE_Double_Compact_Objects",     BSE_DOUBLE_COMPACT_OBJECTS_REC, "BSE_DCO",         "BSE_DCO_REC",         LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_PULSAR_EVOLUTION,       { "BSE_Pulsar_Evolution",           BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",     "BSE_PULSARS_REC",     LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_RLOF_PARAMETERS,        { "BSE_RLOF",                       BSE_RLOF_PARAMETERS_REC,        "BSE_RLOF",        "BSE_RLOF_REC",        LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_SUPERNOVAE,             { "BSE_Supernovae",                 BSE_SUPERNOVAE_REC,             "BSE_SNE",         "BSE_SNE_REC",         LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_SWITCH_LOG,             { "BSE_Switch_Log",                 BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",  "BSE_SWITCH_REC",      LOGFILE_TYPE::BINARY }},
-    { LOGFILE::BSE_SYSTEM_PARAMETERS,      { "BSE_System_Parameters",          BSE_SYSTEM_PARAMETERS_REC,      "BSE_SYSPARMS",    "BSE_SYSPARMS_REC",    LOGFILE_TYPE::BINARY }},
+//    { LOGFILE::BSE_BE_BINARIES,            { "BSE_BE_Binaries",                BSE_BE_BINARIES_REC,            "BSE_BE_BINARIES", "BSE_BE_BINARIES_REC", LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_COMMON_ENVELOPES,       { "BSE_Common_Envelopes",           BSE_COMMON_ENVELOPES_REC,       "BSE_CEE",         "BSE_CEE_REC",         LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",            BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, { "BSE_Double_Compact_Objects",     BSE_DOUBLE_COMPACT_OBJECTS_REC, "BSE_DCO",         "BSE_DCO_REC",         LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_PULSAR_EVOLUTION,       { "BSE_Pulsar_Evolution",           BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",     "BSE_PULSARS_REC",     LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_RLOF_PARAMETERS,        { "BSE_RLOF",                       BSE_RLOF_PARAMETERS_REC,        "BSE_RLOF",        "BSE_RLOF_REC",        LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_SUPERNOVAE,             { "BSE_Supernovae",                 BSE_SUPERNOVAE_REC,             "BSE_SNE",         "BSE_SNE_REC",         LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_SWITCH_LOG,             { "BSE_Switch_Log",                 BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",  "BSE_SWITCH_REC",      LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_SYSTEM_PARAMETERS,      { "BSE_System_Parameters",          BSE_SYSTEM_PARAMETERS_REC,      "BSE_SYSPARMS",    "BSE_SYSPARMS_REC",    LOGFILE_CLASS::BINARY }},
 
-    { LOGFILE::SSE_DETAILED_OUTPUT,        { "SSE_Detailed_Output",            SSE_DETAILED_OUTPUT_REC,        "SSE_DETAILED",    "SSE_DETAILED_REC",    LOGFILE_TYPE::STELLAR }},
-    { LOGFILE::SSE_SUPERNOVAE,             { "SSE_Supernovae",                 SSE_SUPERNOVAE_REC,             "SSE_SNE",         "SSE_SNE_REC",         LOGFILE_TYPE::STELLAR }},
-    { LOGFILE::SSE_SWITCH_LOG,             { "SSE_Switch_Log",                 SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",  "SSE_SWITCH_REC",      LOGFILE_TYPE::STELLAR }},
-    { LOGFILE::SSE_SYSTEM_PARAMETERS,      { "SSE_System_Parameters",          SSE_SYSTEM_PARAMETERS_REC,      "SSE_SYSPARMS",    "SSE_SYSPARMS_REC",    LOGFILE_TYPE::STELLAR }}
+    { LOGFILE::SSE_DETAILED_OUTPUT,        { "SSE_Detailed_Output",            SSE_DETAILED_OUTPUT_REC,        "SSE_DETAILED",    "SSE_DETAILED_REC",    LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_SUPERNOVAE,             { "SSE_Supernovae",                 SSE_SUPERNOVAE_REC,             "SSE_SNE",         "SSE_SNE_REC",         LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_SWITCH_LOG,             { "SSE_Switch_Log",                 SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",  "SSE_SWITCH_REC",      LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_SYSTEM_PARAMETERS,      { "SSE_System_Parameters",          SSE_SYSTEM_PARAMETERS_REC,      "SSE_SYSPARMS",    "SSE_SYSPARMS_REC",    LOGFILE_CLASS::STELLAR }}
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif // __LogTypedefs_h__

@@ -1051,6 +1051,7 @@ DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     
     double MinterfMcoref = -0.023 * m_Log10Metallicity - 0.0023;                                                            // Eq. (8) of Picker+ 2024
     double Tonset        = -129.7 * m_Log10Metallicity * m_Log10Metallicity - 920.1 * m_Log10Metallicity + 2887.1;          // Eq. (6) of Picker+ 2024
+    Tonset              /= TSOL;                                                                                            // convert to solar units
 
     // We need the temperature of the star just after BAGB, which is the temperature at the
     // start of the EAGB phase.  Since we are on the giant branch here, we can clone this
@@ -1202,7 +1203,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
         //     called the new function DetermineSchneiderMassTransferTypeAsDonor()?  If so, it should
         //     be changed before we merge this.  If not, we should change the variable name from
         //     "schneiderMassTransferCase" to "massTransferCase".
-        // *Ilya*
+        // **Ilya**
         STELLAR_TYPE mostRecentDonorType = mtHist[mtHist.size() - 1];                                                   // stellar type at most recent MT event (as donor)
         BaseStar* newStar                = stellarUtils::NewStar(mostRecentDonorType);                                  // create new (empty) star of correct stellar type
         schneiderMassTransferCase        = newStar->DetermineMassTransferTypeAsDonor();                                 // get MT type as donor
@@ -1257,7 +1258,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
         //     all result in MT_CASE::OTHER.  Why should the error be ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION?
         //     What are we really trying to flag here?  Did Schneider not tell us what to do for those stars?
         //     Should we not be here for those stars?  Why are we defaulting here instead of throwing an error?
-        // *Ilya*
+        // **Ilya**
         case MT_CASE::OTHER:                                                                                            // in this context, not NONE, A, B, or C; possibly ultra-stripped
             SHOW_WARN(ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION, "Using default, remnant mass = 1.25");                // show warning 
 
@@ -1325,7 +1326,7 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
                   (utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) < 0 || utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
                 remnantMass = MULLERMANDEL_MUBH * p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
 		    }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // *Ilya* throw error, or show warning and accept remnantMass?
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // **Ilya** throw error, or show warning and accept remnantMass?
 	    }
     }
     else {                                              // this is an NS
@@ -1336,7 +1337,7 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
                    utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
 			    remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
 		    }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // *Ilya* ditto above
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // **Ilya** ditto above
 	    }
 	    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
             while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
@@ -1345,7 +1346,7 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
                    utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
                 remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
             }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // *Ilya* ditto above
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // **Ilya** ditto above
         }
         else {
             while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
@@ -1354,7 +1355,7 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
                    utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
                 remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
             }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // *Ilya* ditto above
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // **Ilya** ditto above
         }
     }
 
@@ -1434,7 +1435,7 @@ double GiantBranch::CalculateGravitationalRemnantMass(const double p_BaryonicRem
     if (utils::Compare(p_BaryonicRemnantMass, m_BaryonicMassOfMaximumNeutronStarMass) < 0) {
         std::tie(error, root) = utils::SolveQuadratic(0.075, 1.0, -p_BaryonicRemnantMass);                 // Neutron Star
         if (error == ERROR::NO_REAL_ROOTS) { 
-            SHOW_WARN(error, "No real roots for quadratic: using 0.0");                                    // show warning  JR: show warning or throw error *Ilya*
+            SHOW_WARN(error, "No real roots for quadratic: using 0.0");                                    // show warning  JR: show warning or throw error **Ilya**
             root = 0.0;                                                                                    // should be returned as 0.0, but set it anyway
         }
     } 

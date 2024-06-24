@@ -508,12 +508,23 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
 
         (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::FINAL_STATE);                         // log detailed output record 
 
-        (void)m_Star->PrintSystemParameters();                                                                  // log system parameters record
-
         // if we trapped a floating-point error we set the star's error value to indicate a
         // floating-point error occured, but we don't terminate evolution (we can only have
         // floating-point errors trapped here if the user has not activated the floating-point
         // error instrumentation)
+
+        // **Ilya** - what's your pleasure?
+        // if we leave the following check in, almost all stars will have error = floating_point_error
+        // in the SSE_SYSTEM_PARAMETERS log file, but their evolution status will not indicate an error
+        // (i.e. we did not terminate the evolution of the star prematurely - we let it run to completion).
+        // This should be interpreted as the star completed, but the error (floating_point_error) is
+        // informative only.  Note that this will only happen for floating-point-errors - all other errors
+        // will terminate the evolution of the binary.
+        // This is different from the catch for "FPE" below - in that case the user has set --fp-error-mode ON,
+        // so we terminate the star if a floating-point error is encountered.
+        //
+        // If we take the following check out, then binaries that only had floating-point errors and ran to
+        // completion will have error = 0
 
         if (std::fetestexcept(FE_DIVBYZERO) ||
             std::fetestexcept(FE_INVALID)   ||
@@ -545,6 +556,8 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
     }
 
     m_Star->SetEvolutionStatus(evolutionStatus);                                                                // set evolution final outcome for star
+
+    (void)m_Star->PrintSystemParameters();                                                                      // log system parameters record
 
     return evolutionStatus;
 }

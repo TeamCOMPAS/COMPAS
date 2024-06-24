@@ -242,9 +242,6 @@ constexpr int    MAX_TIMESTEP_RETRIES                   = 30;                   
 constexpr double MAXIMUM_MASS_LOSS_FRACTION             = 0.01;                                                     // Maximum allowable mass loss - 1.0% (of mass) expressed as a fraction
 constexpr double MAXIMUM_RADIAL_CHANGE                  = 0.01;                                                     // Maximum allowable radial change - 1% (of radius) expressed as a fraction
 constexpr double MINIMUM_MASS_SECONDARY                 = 4.0;                                                      // Minimum mass of secondary to evolve
-
-constexpr double MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP= 0.001;                                                    // Maximal fraction of donor mass that can be transferred in one step of stable mass transfer
-
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
 constexpr double LAMBDA_NANJING_POPI_Z                  = 0.02;                                                     // Population I metallicity in Xu & Li (2010)
 constexpr double LAMBDA_NANJING_POPII_Z                 = 0.001;                                                    // Population II metallicity in Xu & Li (2010)
@@ -385,7 +382,7 @@ constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_0        = -9.21757267;
 constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_1        = 3.57319872;
 constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_2        = -1.2137735;
 
-// coefficients for the calculation of initial angular frequency for Chemicall Homogeneous Evolution
+// coefficients for the calculation of initial angular frequency for Chemically Homogeneous Evolution
 // Mandel from Butler 2018
 const DBL_VECTOR CHE_Coefficients = { 5.7914E-04, -1.9196E-06, -4.0602E-07, 1.0150E-08, -9.1792E-11, 2.9051E-13 };
 
