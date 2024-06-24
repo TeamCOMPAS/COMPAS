@@ -449,30 +449,31 @@ class Log {
 private:
 
     Log() {                                                                         // constructor - initialise variables
-        m_Enabled = false;                                                          // logging disabled initially
-        m_HDF5ContainerId = -1;                                                     // no HDF5 container file open initially
-        m_Run_Details_H5_File.fileId = -1;                                          // no HDF5 file id for run details file initially
+        m_Enabled                     = false;                                      // logging disabled initially
+        m_HDF5ContainerId             = -1;                                         // no HDF5 container file open initially
+        m_Run_Details_H5_File.fileId  = -1;                                         // no HDF5 file id for run details file initially
         m_Run_Details_H5_File.groupId = -1;                                         // no HDF5 group id for run details file initially
-        m_HDF5DetailedId = -1;                                                      // no HDF5 detailed file open initially
-        m_LogBasePath = ".";                                                        // default log file base path
-        m_LogContainerName = DEFAULT_OUTPUT_CONTAINER_NAME;                         // default log file container name                        
-        m_LogNamePrefix = "";                                                       // default log file name prefix
-        m_LogfileType = DEFAULT_LOGFILE_TYPE;                                       // default log file type
-        m_LogLevel = 0;                                                             // default log level - log everything
-        m_LogClasses = {};                                                          // no default log classes
-        m_DbgLevel = 0;                                                             // default debug level - debug everything
-        m_DbgClasses = {};                                                          // no default debug classes
-        m_DbgToLogfile = false;                                                     // default is not to log debug records to the log file
-        m_DbgLogfileId = -1;                                                        // default is not valid
+        m_HDF5DetailedId              = -1;                                         // no HDF5 detailed file open initially
+        m_LogBasePathString           = ".";                                        // default log file base path string (CWD)
+        m_LogPathsCreated             = {};                                         // assume already exists (for now)
+        m_LogContainerName            = DEFAULT_OUTPUT_CONTAINER_NAME;              // default log file container name                        
+        m_LogNamePrefix               = "";                                         // default log file name prefix
+        m_LogfileType                 = DEFAULT_LOGFILE_TYPE;                       // default log file type
+        m_LogLevel                    = 0;                                          // default log level - log everything
+        m_LogClasses                  = {};                                         // no default log classes
+        m_DbgLevel                    = 0;                                          // default debug level - debug everything
+        m_DbgClasses                  = {};                                         // no default debug classes
+        m_DbgToLogfile                = false;                                      // default is not to log debug records to the log file
+        m_DbgLogfileId                = -1;                                         // default is not valid
         m_Logfiles.clear();                                                         // default is no log files
-        m_OpenStandardLogFileIds = {};                                              // no open COMPAS standard log files
+        m_OpenStandardLogFileIds      = {};                                         // no open COMPAS standard log files
 
-        m_ObjectIdSwitching          = -1L;                                         // object id of the Star object switching stellar type - default none
-        m_ObjectSwitchingType        = OBJECT_TYPE::NONE;                           // object type of the Star object switching stellar type - default NONE
-        m_ObjectSwitchingPersistence = OBJECT_PERSISTENCE::PERMANENT;               // object persistence of the Star object switching stellar type - default permanent
-        m_TypeSwitchingFrom          = STELLAR_TYPE::NONE;                          // stellar type from which the Star object is switching - default NONE
-        m_TypeSwitchingTo            = STELLAR_TYPE::NONE;                          // stellar type to which the Star object is switching - default NONE
-        m_PrimarySwitching           = false;                                       // Star switching is primary star of binary - default false
+        m_ObjectIdSwitching           = -1L;                                        // object id of the Star object switching stellar type - default none
+        m_ObjectSwitchingType         = OBJECT_TYPE::NONE;                          // object type of the Star object switching stellar type - default NONE
+        m_ObjectSwitchingPersistence  = OBJECT_PERSISTENCE::PERMANENT;              // object persistence of the Star object switching stellar type - default permanent
+        m_TypeSwitchingFrom           = STELLAR_TYPE::NONE;                         // stellar type from which the Star object is switching - default NONE
+        m_TypeSwitchingTo             = STELLAR_TYPE::NONE;                         // stellar type to which the Star object is switching - default NONE
+        m_PrimarySwitching            = false;                                      // Star switching is primary star of binary - default false
 
         m_SSESupernovae_DelayedWrite.logRecordType       = 0;                       // delayed log record type for SSE_Supernovae file - initially 0 (set later)
         m_SSESupernovae_DelayedWrite.logRecordString     = "";                      // delayed log record (string) for SSE_Supernovae file - initially empty
@@ -497,7 +498,8 @@ private:
     hid_t                       m_HDF5ContainerId;                                  // HDF5 container id
     hid_t                       m_HDF5DetailedId;                                   // HDF5 detailed output id
 
-    string                      m_LogBasePath;                                      // base path for log files
+    string                      m_LogBasePathString;                                // base path string for log files
+    STR_VECTOR                  m_LogPathsCreated;                                  // vector of directories created for logging (may be empty if pre-existing)
     string                      m_LogContainerName;                                 // container (directory) name for log files
     string                      m_LogNamePrefix;                                    // prefix for log files
 
@@ -1160,7 +1162,6 @@ public:
 
     void   Say(const string p_SayClass, const int p_SayLevel, const string p_SayStr);
 
-
     // SetSwitchParameters is called by Star::SwitchTo to set the parameters 
     // to be written to the BSE Switch Log file
     void   SetSwitchParameters(const OBJECT_ID          p_ObjectIdSwitching,
@@ -1178,8 +1179,6 @@ public:
     OBJECT_ID          ObjectIdSwitching()          { return m_ObjectIdSwitching; }
     OBJECT_TYPE        ObjectSwitchingType()        { return m_ObjectSwitchingType; }
     OBJECT_PERSISTENCE ObjectSwitchingPersistence() { return m_ObjectSwitchingPersistence; }
-
-
 
     // standard logfile logging functions
 

@@ -1189,7 +1189,39 @@
 //                                      - code cleanup and bug repairs elsewhere
 // 02.47.01    IM - May 20, 2024     - Defect repair
 //                                      - Renamed the version of CalculateRadiusOnPhase() that takes in mass and tau as arguments into CalculateRadiusOnPhaseTau() to avoid clash with the version that takes in mass and luminosity as arguments
-                  
-const std::string VERSION_STRING = "02.47.01";
+// 02.48.00    RTW - May 22, 2024    - Enhancements
+//                                      - Added separate options for MacLeod Linear AM loss for degenerate vs non-degenerate accretors
+//                                         - options added: `--mass-transfer-jloss-macleod-linear-fraction-degen` and `--mass-transfer-jloss-macleod-linear-fraction-non-degen`
+// 02.48.01    JR - May 24, 2024     - Defect repairs
+//                                      - Changed functionality of `output-path` option to create missing directories in the path (see issue #998 - technically not a defect, but close enough)
+//                                      - Fixed incorrect default values for options `--mass-transfer-jloss-macleod-linear-fraction-degen` and `--mass-transfer-jloss-macleod-linear-fraction-non-degen`
+//                                      - Changed BaseStar::UpdateAttributesAndAgeOneTimestepPreamble() so timescales are not recalculated when we know dT = 0
+//                                      - Added documentation for log file record type
+//                                      - Added "Quick Links" to documentation
+//                                      - Updated "What's New"
+// 02.49.00    RTW - May 24, 2024    - Enhancement:
+//                                      - Updated the Ge et al. 2020 table for critical mass ratios, to include new values calculated for fully non-conservative MT. 
+//                                      - Modified the critical mass ratio calculator to interpolate between the fully conservative and fully non-conservative values,
+//                                      - albeit with fixed AM loss (isotropic re-emission).
+// 02.49.01    IM - May 25, 2024     - Defect repair:
+//                                      - AIC now happens only when the mass of an ONeWD exceeds MCS, the Chandrasekhar mass, which requires accretion onto the WD (see Issue # #1138)
+// 02.49.02    VK - June 11, 2024     - Defect repairs:
+//                                      - Fixed the sign of IW dissipation in dynamical tides to follow (2,2) mode synchronization.
+//                                      - Changed the definitions of beta and gamma in dynamical tides to be consistent with tri-layered stellar structures as well as bi-layered.
+//                                      - Fixed the definition of epsilon in IW dynamical tides to follow Ogilvie (2013) Eq. (42)
+// 02.49.03    VK - June 13, 2024     - Code cleanup:
+//                                      - Removed confusing definition of `one_minus_beta` in Dynamical tides code.
+// 02.49.04    IM - June 19, 2024     - Defect repair, enhancement:
+//                                      - Corrected check for nuclear timescale (slow case A) mass transfer
+//                                      - Reduced MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP to 0.0001 to improve accuracy of orbital separation updates following mass transfer
+//                                      - Corrected temperature units in Picker formula for Tonset used in the calculation of the convective envelope mass
+//                                      - Code cleanup
+// 02.49.05    IM - June 22, 2024     - Enhancement:
+//                                      - Replaced fixed-step, first-order integrator for orbital change after mass transfer with an adaptive-step, higher-order ODE integrator for improved speed and accuracy
+
+
+const std::string VERSION_STRING = "02.49.05";
+
+
 
 # endif // __changelog_h__

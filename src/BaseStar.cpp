@@ -1334,10 +1334,10 @@ double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
  */
 double BaseStar::CalculateZetaEquilibrium() {
     
-    double deltaMass            = -m_Mass/1.0E5;
-    double currentRadius        = CalculateRadiusOnPhase();                                                     //do not trust m_Radius
-    double radiusAfterMassGain  = CalculateRadiusOnPhaseTau(m_Mass+deltaMass, m_Tau);
-    double zetaEquilibrium      = (radiusAfterMassGain - currentRadius) / deltaMass * m_Mass / currentRadius;   // dlnR / dlnM
+    double deltaMass            = -m_Mass / 1.0E5;
+    double radiusAfterMassGain  = CalculateRadiusOnPhaseTau(m_Mass + deltaMass, m_Tau);
+    double zetaEquilibrium      = (radiusAfterMassGain - m_Radius) / deltaMass * m_Mass / m_Radius;   // dlnR / dlnM
+
     return zetaEquilibrium;
 }
     
@@ -1345,12 +1345,13 @@ double BaseStar::CalculateZetaEquilibrium() {
 /*
  * Calculate the critical mass ratio for unstable mass transfer
  *
- * double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) 
+ * double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, const double p_massTransferEfficiencyBeta)
  *
- * @param   [IN]    p_AccretorIsDegenerate      Whether or not the accretor is a degenerate star
- * @return                                      Critical mass ratio
+ * @param   [IN]    p_AccretorIsDegenerate       Whether or not the accretor is a degenerate star
+ * @param   [IN]    p_massTransferEfficiencyBeta Mass transfer accretion efficiency
+ * @return                                       Critical mass ratio
  */
-double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) {                                           
+double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, const double p_massTransferEfficiencyBeta) {
     
         double qCrit = 0.0;
         QCRIT_PRESCRIPTION qCritPrescription = OPTIONS->QCritPrescription();
@@ -1358,7 +1359,7 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) {
         switch (qCritPrescription) {
             case QCRIT_PRESCRIPTION::GE20: 
             case QCRIT_PRESCRIPTION::GE20_IC:
-                qCrit = CalculateCriticalMassRatioGe20(qCritPrescription);   
+                qCrit = CalculateCriticalMassRatioGe20(qCritPrescription, p_massTransferEfficiencyBeta);   
                 break;
             case QCRIT_PRESCRIPTION::CLAEYS:
                 qCrit = CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate);
@@ -1379,18 +1380,21 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate) {
  * 
  * Function takes input QCRIT_PRESCRIPTION, currently either of the prescriptions for critical mass ratios
  * from Ge et al. (2020), GE20 or GE20_IC. The first is the full adiabatic response, the second assumes
- * artificially isentropic envelopes.
+ * artificially isentropic envelopes. From private communication with Ge, we have an updated datatable that
+ * includes qCrit for fully conservative and fully non-conservative MT, so we now interpolate on those as well.
  * 
- * double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription) 
+ * double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta) 
  * 
- * @return                                      Interpolated value of either the critical mass ratio or zeta for given stellar mass / radius
+ * @param   [IN]    p_qCritPrescription          Adopted critical mass ratio prescription
+ * @param   [IN]    p_massTransferEfficiencyBeta Mass transfer accretion efficiency
+ * @return                                       Interpolated value of either the critical mass ratio or zeta for given stellar mass / radius
  */ 
-double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription) {
+double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta) {
 
-    // Get vector of masses from GE20_QCRIT_AND_ZETA
-    std::vector<double> massesFromGe20 = std::get<0>(GE20_QCRIT_AND_ZETA);
+    // Get vector of masses from GE20_QCRIT
+    std::vector<double> massesFromGe20 = std::get<0>(GE20_QCRIT);
     std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>> 
-        radiiQCritsZetasFromGe20 = std::get<1>(GE20_QCRIT_AND_ZETA);
+        radiiQCritsZetasFromGe20 = std::get<1>(GE20_QCRIT);
 
     std::vector<int> ind = utils::binarySearch(massesFromGe20, m_Mass);
     int lowerMassInd = ind[0];
@@ -1398,42 +1402,48 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
 
     if (lowerMassInd == -1) {                                                   // if masses are out of range, set to endpoints
         lowerMassInd = 0; 
-        upperMassInd = 0;
+        upperMassInd = 1;
     } 
     else if (upperMassInd == -1) { 
-        lowerMassInd = massesFromGe20.size() - 1; 
+        lowerMassInd = massesFromGe20.size() - 2; 
         upperMassInd = massesFromGe20.size() - 1;
     } 
 
-    // Get vector of radii from GE20_QCRIT_AND_ZETA for the lower and upper mass indices
+    // Get vector of radii from GE20_QCRIT for the lower and upper mass indices
     std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsZetasFromGe20[lowerMassInd]);
     std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsZetasFromGe20[upperMassInd]);
 
     // Get the qCrit vector for the lower and upper mass bounds 
-    std::vector<double> qCritVectorLowerMass;
-    std::vector<double> qCritVectorUpperMass;
+    std::vector<double> qCritFullVectorLowerMass;
+    std::vector<double> qCritFullVectorUpperMass;
+    std::vector<double> qCritNoncVectorLowerMass;
+    std::vector<double> qCritNoncVectorUpperMass;
     
-    // One of the following must be set
+    // One of the following must be set - Full and Nonc distinguish fully conservative and non-conservative MT
     if (p_qCritPrescription == QCRIT_PRESCRIPTION::GE20) {
-        qCritVectorLowerMass = std::get<1>(radiiQCritsZetasFromGe20[lowerMassInd]);
-        qCritVectorUpperMass = std::get<1>(radiiQCritsZetasFromGe20[upperMassInd]);
+        qCritFullVectorLowerMass = std::get<1>(radiiQCritsZetasFromGe20[lowerMassInd]);
+        qCritFullVectorUpperMass = std::get<1>(radiiQCritsZetasFromGe20[upperMassInd]);
+        qCritNoncVectorLowerMass = std::get<3>(radiiQCritsZetasFromGe20[lowerMassInd]);
+        qCritNoncVectorUpperMass = std::get<3>(radiiQCritsZetasFromGe20[upperMassInd]);
     }
     else if (p_qCritPrescription == QCRIT_PRESCRIPTION::GE20_IC) {
-        qCritVectorLowerMass = std::get<2>(radiiQCritsZetasFromGe20[lowerMassInd]);
-        qCritVectorUpperMass = std::get<2>(radiiQCritsZetasFromGe20[upperMassInd]);
+        qCritFullVectorLowerMass = std::get<2>(radiiQCritsZetasFromGe20[lowerMassInd]);
+        qCritFullVectorUpperMass = std::get<2>(radiiQCritsZetasFromGe20[upperMassInd]);
+        qCritNoncVectorLowerMass = std::get<4>(radiiQCritsZetasFromGe20[lowerMassInd]);
+        qCritNoncVectorUpperMass = std::get<4>(radiiQCritsZetasFromGe20[upperMassInd]);
     }
 
-    // Get vector of radii from GE20_QCRIT_AND_ZETA for both lower and upper masses
+    // Get vector of radii from GE20_QCRIT for both lower and upper masses
     std::vector<int> indR0 = utils::binarySearch(logRadiusVectorLowerMass, log10(m_Radius));
     int lowerRadiusLowerMassInd = indR0[0];
     int upperRadiusLowerMassInd = indR0[1];
 
     if (lowerRadiusLowerMassInd == -1) {                                        // if radii are out of range, set to endpoints
         lowerRadiusLowerMassInd = 0; 
-        upperRadiusLowerMassInd = 0; 
+        upperRadiusLowerMassInd = 1; 
     }
     else if (upperRadiusLowerMassInd == -1) {                                                   
-        lowerRadiusLowerMassInd = logRadiusVectorLowerMass.size() - 1; 
+        lowerRadiusLowerMassInd = logRadiusVectorLowerMass.size() - 2; 
         upperRadiusLowerMassInd = logRadiusVectorLowerMass.size() - 1; 
     }
 
@@ -1443,18 +1453,22 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
 
     if (lowerRadiusUpperMassInd == -1) {                                        // if radii are out of range, set to endpoints
         lowerRadiusUpperMassInd = 0; 
-        upperRadiusUpperMassInd = 0; 
+        upperRadiusUpperMassInd = 1; 
     }
     else if (upperRadiusUpperMassInd == -1) {                                                   
-        lowerRadiusUpperMassInd = logRadiusVectorUpperMass.size() - 1; 
+        lowerRadiusUpperMassInd = logRadiusVectorUpperMass.size() - 2; 
         upperRadiusUpperMassInd = logRadiusVectorUpperMass.size() - 1; 
     }
 
     // Set the 4 boundary points for the 2D interpolation
-    double qLowLow = qCritVectorLowerMass[lowerRadiusLowerMassInd];
-    double qLowUpp = qCritVectorLowerMass[upperRadiusLowerMassInd];
-    double qUppLow = qCritVectorUpperMass[lowerRadiusUpperMassInd];
-    double qUppUpp = qCritVectorUpperMass[upperRadiusUpperMassInd];
+    double qLowLowFull = qCritFullVectorLowerMass[lowerRadiusLowerMassInd];
+    double qLowUppFull = qCritFullVectorLowerMass[upperRadiusLowerMassInd];
+    double qUppLowFull = qCritFullVectorUpperMass[lowerRadiusUpperMassInd];
+    double qUppUppFull = qCritFullVectorUpperMass[upperRadiusUpperMassInd];
+    double qLowLowNonc = qCritNoncVectorLowerMass[lowerRadiusLowerMassInd];
+    double qLowUppNonc = qCritNoncVectorLowerMass[upperRadiusLowerMassInd];
+    double qUppLowNonc = qCritNoncVectorUpperMass[lowerRadiusUpperMassInd];
+    double qUppUppNonc = qCritNoncVectorUpperMass[upperRadiusUpperMassInd];
 
     double lowerMass = massesFromGe20[lowerMassInd];
     double upperMass = massesFromGe20[upperMassInd];
@@ -1464,11 +1478,16 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
     double lowerRadiusUpperMass = PPOW(10.0, logRadiusVectorUpperMass[lowerRadiusUpperMassInd]);
     double upperRadiusUpperMass = PPOW(10.0, logRadiusVectorUpperMass[upperRadiusUpperMassInd]);
 
-    // Interpolate on the radii first, then the masses
-    double qCritLowerMass    = qLowLow + (upperRadiusLowerMass - m_Radius) / (upperRadiusLowerMass - lowerRadiusLowerMass) * (qLowUpp - qLowLow);
-    double qCritUpperMass    = qUppLow + (upperRadiusUpperMass - m_Radius) / (upperRadiusUpperMass - lowerRadiusUpperMass) * (qUppUpp - qUppLow);
-    double interpolatedQCrit = qCritLowerMass + (upperMass - m_Mass) / (upperMass - lowerMass) * (qCritUpperMass - qCritLowerMass);
+    // Interpolate on the radii first, then the masses, then on the mass transfer efficiency beta
+    double qCritFullLowerMass    = qLowLowFull + (upperRadiusLowerMass - m_Radius) / (upperRadiusLowerMass - lowerRadiusLowerMass) * (qLowUppFull - qLowLowFull);
+    double qCritFullUpperMass    = qUppLowFull + (upperRadiusUpperMass - m_Radius) / (upperRadiusUpperMass - lowerRadiusUpperMass) * (qUppUppFull - qUppLowFull);
+    double qCritNoncLowerMass    = qLowLowNonc + (upperRadiusLowerMass - m_Radius) / (upperRadiusLowerMass - lowerRadiusLowerMass) * (qLowUppNonc - qLowLowNonc);
+    double qCritNoncUpperMass    = qUppLowNonc + (upperRadiusUpperMass - m_Radius) / (upperRadiusUpperMass - lowerRadiusUpperMass) * (qUppUppNonc - qUppLowNonc);
 
+    double interpolatedQCritFull = qCritFullLowerMass + (upperMass - m_Mass) / (upperMass - lowerMass) * (qCritFullUpperMass - qCritFullLowerMass);
+    double interpolatedQCritNonc = qCritNoncLowerMass + (upperMass - m_Mass) / (upperMass - lowerMass) * (qCritNoncUpperMass - qCritNoncLowerMass);
+
+    double interpolatedQCrit = p_massTransferEfficiencyBeta * interpolatedQCritFull + (1.0 - p_massTransferEfficiencyBeta)*interpolatedQCritNonc;
     return interpolatedQCrit;
 }
 
@@ -3272,7 +3291,8 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
     double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
     double radiusIntershellAU    = radiusAU - convectiveEnvRadiusAU;                                    // Outer radial coordinate of radiative intershell
 
-    double R3_over_G_M = (radiusAU * radiusAU * radiusAU / G_AU_Msol_yr / m_Mass);
+    double R_3              = radiusAU * radiusAU * radiusAU;
+    double R3_over_G_M      = (R_3 / G_AU_Msol_yr / m_Mass);
     double sqrt_R3_over_G_M = std::sqrt(R3_over_G_M);
 
     double k10GravityCore = 0.0;                                                                        // Gravity Wave dissipation, core boundary
@@ -3294,7 +3314,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
     double w12 = ((p_Omega) - two_OmegaSpin);
     double w22 = ((p_Omega + p_Omega) - two_OmegaSpin);
     double w32 = ((p_Omega + p_Omega + p_Omega) - two_OmegaSpin);
-
+        
     if (utils::Compare(coreRadiusAU, 0.0) > 0 && utils::Compare(coreMass, 0.0) > 0) {                   // No GW dissipation from core boundary if no convective core
         double beta2Dynamical           = 1.0;
         double rhoFactorDynamcial       = 0.1;
@@ -3337,7 +3357,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double alpha             = radiusIntershellAU / radiusAU;
         double one_minus_alpha   = 1.0 - alpha;
         double beta              = radIntershellMass / m_Mass;
-        double one_minus_beta    = 1.0 - beta;
+
         double alpha_2           = alpha * alpha;
         double alpha_3           = alpha_2 * alpha;
         double alpha_5           = alpha_3 * alpha_2;
@@ -3345,11 +3365,15 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double one_minus_alpha_2 = one_minus_alpha * one_minus_alpha;
         double one_minus_alpha_3 = 1.0 - alpha_3;
         double beta_2            = beta * beta;
-        double gamma             = alpha_3 * one_minus_beta / beta / one_minus_alpha_3;
+
+        double rint_3            = radiusIntershellAU * radiusIntershellAU * radiusIntershellAU;
+        double rc_3              = coreRadiusAU * coreRadiusAU * coreRadiusAU;
+        double gamma             = (envMass / (R_3 - rint_3)) / (radIntershellMass / (rint_3 - rc_3));
         double one_minus_gamma   = 1.0 - gamma;
         double one_minus_gamma_2 = one_minus_gamma * one_minus_gamma;
         double alpha_2_3_minus_1 = (alpha * 2.0 / 3.0) - 1.0;
-        double Epsilon           = alpha_11 * one_minus_beta * one_minus_gamma_2 * alpha_2_3_minus_1 * alpha_2_3_minus_1 / beta_2 / one_minus_alpha_3 / one_minus_alpha_2;
+
+        double Epsilon           = alpha_11 * envMass / m_Mass * one_minus_gamma_2 * alpha_2_3_minus_1 * alpha_2_3_minus_1 / beta_2 / one_minus_alpha_3 / one_minus_alpha_2;
 
         // (l=1, m=0), Gravity Wave dissipation from envelope boundary is always 0.0 since m=0.0
 
@@ -3375,12 +3399,13 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         // (l=2, m=2), Inertial Wave dissipation, convective envelope
         // IW dissipation is only efficient for highly spinning stars, as in Esseldeurs, et al., 2024 
         if (utils::Compare(two_OmegaSpin, p_Omega) >= 0) {                                                                            
-            double epsilonIW_2       = (omegaSpin / p_Omega) * (omegaSpin / p_Omega);
+            double epsilonIW_2       = omegaSpin * omegaSpin * R3_over_G_M;
             double one_minus_alpha_4 = one_minus_alpha_2 * one_minus_alpha_2;
             double bracket1          = 1.0 + (2.0 * alpha) + (3.0 * alpha_2) + (3.0 * alpha_3 / 2.0);
             double bracket2          = 1.0 + (one_minus_gamma / gamma) * alpha_3;
             double bracket3          = 1.0 + (3.0 * gamma / 2.0) + (5.0 * alpha_3 / (2.0 * gamma) * (1.0 + (gamma / 2.0) - (3.0* gamma * gamma / 2.0))) - (9.0 / 4.0 * one_minus_gamma * alpha_5);
             k22InertialEnv           = (100.0 * M_PI / 63.0) * epsilonIW_2 * (alpha_5 / (1.0 - alpha_5)) * one_minus_gamma_2 * one_minus_alpha_4 * bracket1 * bracket1 * bracket2 / bracket3 / bracket3;
+            k22InertialEnv           = (w22 < 0.0 ? -std::abs(k22InertialEnv) : std::abs(k22InertialEnv));
         }
     }
 
@@ -4214,12 +4239,12 @@ double BaseStar::CalculateTimestep() {
     double radialExpansionTimescale = CalculateRadialExpansionTimescale();
     double massChangeTimescale = CalculateMassChangeTimescale();
 
-    double    dt = ChooseTimestep(m_Age);
+    double dt = ChooseTimestep(m_Age);
     
     if( OPTIONS->RadialChangeFraction()!=0 && radialExpansionTimescale > 0.0 )                              // if radial expansion timescale was computed
-            dt = min(dt, OPTIONS->RadialChangeFraction()*radialExpansionTimescale);
+        dt = min(dt, OPTIONS->RadialChangeFraction()*radialExpansionTimescale);
     if( OPTIONS->MassChangeFraction()!=0 && massChangeTimescale > 0.0 )                                     // if mass change timescale was computed
-            dt = min(dt, OPTIONS->MassChangeFraction()*massChangeTimescale);
+        dt = min(dt, OPTIONS->MassChangeFraction()*massChangeTimescale);
     
     dt = max(round(dt/TIMESTEP_QUANTUM)*TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
         
@@ -4267,7 +4292,7 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
     // time.
 
     CalculateGBParams();                                                                            // calculate giant branch parameters
-    CalculateTimescales();                                                                          // calculate timescales
+    if (p_DeltaTime > 0.0) CalculateTimescales();                                                   // calculate timescales if necessary
 }
 
 
@@ -4313,7 +4338,8 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
  * STELLAR_TYPE UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
  *                                                const double p_DeltaMass0,
  *                                                const double p_DeltaTime,
- *                                                const bool   p_ForceRecalculate)
+ *                                                const bool   p_ForceRecalculate,
+ *                                                const bool   p_ResolveEnvelopeLoss)
  *
  * @param   [IN]    p_DeltaMass                 The change in mass to apply in Msol
  * @param   [IN]    p_DeltaMass0                The change in mass0 to apply in Msol

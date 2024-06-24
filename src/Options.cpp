@@ -360,8 +360,6 @@ void Options::OptionValues::Initialise() {
 
     // Output path
     m_OutputPathString                                              = ".";
-    m_DefaultOutputPath                                             = boost::filesystem::current_path();
-    m_OutputPath                                                    = m_DefaultOutputPath;
     m_OutputContainerName                                           = DEFAULT_OUTPUT_CONTAINER_NAME;
     
 
@@ -422,7 +420,8 @@ void Options::OptionValues::Initialise() {
 
     // Mass transfer angular momentum loss prescription options
     m_MassTransferJloss                                             = 1.0;
-    m_MassTransferJlossMacLeodLinearFraction                        = 0.5;
+    m_MassTransferJlossMacLeodLinearFractionDegen                   = 0.5;
+    m_MassTransferJlossMacLeodLinearFractionNonDegen                = 0.5;
     m_MassTransferAngularMomentumLossPrescription.type              = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION;
     m_MassTransferAngularMomentumLossPrescription.typeString        = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL.at(m_MassTransferAngularMomentumLossPrescription.type);
 
@@ -1344,9 +1343,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Fraction of specific angular momentum which non-accreted matter removes from the system (default = " + std::to_string(p_Options->m_MassTransferJloss) + ")").c_str()
         )
         (
-            "mass-transfer-jloss-macleod-linear-fraction",
-            po::value<double>(&p_Options->m_MassTransferJlossMacLeodLinearFraction)->default_value(p_Options->m_MassTransferJlossMacLeodLinearFraction),                                                                                    
-            ("Interpolation fraction for jloss prescription if --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossMacLeodLinearFraction) + ")").c_str()
+            "mass-transfer-jloss-macleod-linear-fraction-degen",
+            po::value<double>(&p_Options->m_MassTransferJlossMacLeodLinearFractionDegen)->default_value(p_Options->m_MassTransferJlossMacLeodLinearFractionDegen),                                                                                    
+            ("Interpolation fraction for jloss prescription for degenerate accretors, requires --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossMacLeodLinearFractionDegen) + ")").c_str()
+        )
+        (
+            "mass-transfer-jloss-macleod-linear-fraction-non-degen",
+            po::value<double>(&p_Options->m_MassTransferJlossMacLeodLinearFractionNonDegen)->default_value(p_Options->m_MassTransferJlossMacLeodLinearFractionNonDegen),                                                                                    
+            ("Interpolation fraction for jloss prescription for non-degenerate accretors, requires --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossMacLeodLinearFractionNonDegen) + ")").c_str()
         )
         (
             "mass-transfer-thermal-limit-C",                               
@@ -1637,7 +1641,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "critical-mass-ratio-prescription",                                 
             po::value<std::string>(&p_Options->m_QCritPrescription.typeString)->default_value(p_Options->m_QCritPrescription.typeString),
-            ("Prescription for which critical mass ratio prescription to use, if any (" + AllowedOptionValuesFormatted("critical-mass-ratio-prescription") + ", default = '" + p_Options->m_QCritPrescription.typeString + "')").c_str()
+            ("Prescription for which critical mass ratio prescription to use, if any (Ge models are only defined for isotropic re-emission) (" + AllowedOptionValuesFormatted("critical-mass-ratio-prescription") + ", default = '" + p_Options->m_QCritPrescription.typeString + "')").c_str()
         )
         
         (
@@ -2382,17 +2386,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             WARNUSER_IF(m_Notes.size() > Options::Instance()->NotesHdrs().size(), "WARNING: Annotations: more notes than headers - extra notes ignored"); // yes - check counts
         }
 
-        if (!DEFAULTED("output-path")) {                                                                                            // user specified output path?
-                                                                                                                                    // yes
-            fs::path userPath = m_OutputPathString;                                                                                 // user-specifed path
-            if (fs::is_directory(userPath)) {                                                                                       // valid directory?
-                m_OutputPath = userPath;                                                                                            // yes - set outputPath to user-specified path
-            }
-            else {                                                                                                                  // not a valid directory
-                m_OutputPath = m_DefaultOutputPath;                                                                                 // use default path = CWD
-            }
-        }
-
         COMPLAIN_IF(m_OrbitalPeriodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
         COMPLAIN_IF(m_OrbitalPeriodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
         COMPLAIN_IF(m_OrbitalPeriodDistributionMax <= m_OrbitalPeriodDistributionMin, "Maximum orbital period (--orbital-period-max) must be > Minimum orbital period (--orbital-period-min)");
@@ -2866,7 +2859,8 @@ std::vector<OptionDetailsT> Options::OptionDetails(const OptionsDescriptorT &p_O
     // add other (calculated) options
 
     optionDetails.push_back({"useFixedUK", (p_Options.optionValues.m_UseFixedUK ? "TRUE" : "FALSE"), "CALCULATED", "BOOL", TYPENAME::BOOL, "", {}});            // useFixedUK
-    optionDetails.push_back({"actual-output-path", p_Options.optionValues.m_OutputPath.string(), "CALCULATED", "STRING", TYPENAME::STRING, "", {}});            // output-path
+//    optionDetails.push_back({"actual-output-path", p_Options.optionValues.m_OutputPathString, "CALCULATED", "STRING", TYPENAME::STRING, "", {}});               // output-path
+//    optionDetails.push_back({"actual-output-container", p_Options.optionValues.m_OutputContainerName, "CALCULATED", "STRING", TYPENAME::STRING, "", {}});       // output-container
     optionDetails.push_back({"fixedRandomSeed", (p_Options.optionValues.m_FixedRandomSeed ? "TRUE" : "FALSE"), "CALCULATED", "BOOL", TYPENAME::BOOL, "", {}});  // fixedRandomSeed
 
     return optionDetails;
@@ -4622,7 +4616,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::MT_FRACTION_ACCRETED                           : value = MassTransferFractionAccreted();                                       break;
         case PROGRAM_OPTION::MT_JLOSS                                       : value = MassTransferJloss();                                                  break;
-        case PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION               : value = MassTransferJlossMacLeodLinearFraction();                             break; 
+        case PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN         : value = MassTransferJlossMacLeodLinearFractionDegen();                        break; 
+        case PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN     : value = MassTransferJlossMacLeodLinearFractionNonDegen();                     break; 
         case PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION                   : value = static_cast<int>(MassTransferRejuvenationPrescription());             break;
         case PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION                 : value = static_cast<int>(MassTransferThermallyLimitedVariation());            break;
 
