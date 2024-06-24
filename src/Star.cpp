@@ -456,7 +456,7 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
             ERROR error;
             std::tie(error, timesteps) = utils::ReadTimesteps(OPTIONS->TimestepsFileName());                    // read timesteps from file
             if (error != ERROR::NONE) {                                                                         // ok?
-                    THROW_ERROR(error, ERR_MSG(ERROR::NO_TIMESTEPS_READ));                                      // no - throw error - this is not what the user asked for
+                THROW_ERROR(error, ERR_MSG(ERROR::NO_TIMESTEPS_READ));                                          // no - throw error - this is not what the user asked for
             }
             else usingProvidedTimesteps = true;                                                                 // have user-provided timesteps
         }
@@ -531,6 +531,7 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
             std::fetestexcept(FE_OVERFLOW)  ||
             std::fetestexcept(FE_UNDERFLOW)) m_Star->SetError(ERROR::FLOATING_POINT_ERROR);                     // floating-point error
     
+        std::feclearexcept(FE_ALL_EXCEPT);                                                                      // clear all FE traps
     }
     catch (const std::runtime_error& e) {                                                                       // catch runtime exceptions
         // anything we catch here should not already have been displayed to the user,
