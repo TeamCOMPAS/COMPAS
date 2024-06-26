@@ -3349,8 +3349,12 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         k32GravityCore = E2Dynamical * (w32 < 0.0 ? -std::abs(s32_8_3) : s32_8_3);    
     }
 
-    // No GW or IW dissipation from envelope if no convective envelope
-    if (utils::Compare(convectiveEnvRadiusAU, 0.0) > 0 && utils::Compare(envMass, 0.0) > 0) {                                                 
+    double rint_3            = radiusIntershellAU * radiusIntershellAU * radiusIntershellAU;
+    double rc_3              = coreRadiusAU * coreRadiusAU * coreRadiusAU;
+    double gamma             = (envMass / (R_3 - rint_3)) / (radIntershellMass / (rint_3 - rc_3));
+
+    // No GW or IW dissipation from envelope if no convective envelope, or if convective envelope is denser than radiative intershell
+    if (utils::Compare(convectiveEnvRadiusAU, 0.0) > 0 && utils::Compare(envMass, 0.0) > 0 && utils::Compare(gamma, 1.0) < 0) {                                                 
         double dyn_prefactor = 3.207452512782476;                                                       // 3^(11/3) * Gamma(1/3)^2 / 40 PI
         double dNdlnr_cbrt = std::cbrt(G_AU_Msol_yr * radIntershellMass / radiusIntershellAU / (radiusAU - radiusIntershellAU) / (radiusAU - radiusIntershellAU));
         
@@ -3366,9 +3370,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double one_minus_alpha_3 = 1.0 - alpha_3;
         double beta_2            = beta * beta;
 
-        double rint_3            = radiusIntershellAU * radiusIntershellAU * radiusIntershellAU;
-        double rc_3              = coreRadiusAU * coreRadiusAU * coreRadiusAU;
-        double gamma             = (envMass / (R_3 - rint_3)) / (radIntershellMass / (rint_3 - rc_3));
+       
         double one_minus_gamma   = 1.0 - gamma;
         double one_minus_gamma_2 = one_minus_gamma * one_minus_gamma;
         double alpha_2_3_minus_1 = (alpha * 2.0 / 3.0) - 1.0;
