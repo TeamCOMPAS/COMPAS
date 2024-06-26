@@ -3278,19 +3278,19 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
     
     double radIntershellMass = m_Mass - coreMass - envMass;                                             // Refers to the combined mass of non-convective layers
 
-    // There should be no Dynamical tides if the entire star is convective, i.e. if there are no convective-radiative boundaries. 
-    // If so, return 0.0 for all dynamical components of ImKlm.
-    // Check mass rather than radial extent, since radiative mass can currently be non-zero for GB stars following Picker+ 2024 (radial extent will be 0 following Hurley 2000).
-    // This condition should be true for low-mass MS stars (<= 0.35 Msol) at ZAMS.
-    if (utils::Compare(radIntershellMass, 0.0) <= 0) {
-        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           
-    }
-
     double radiusAU              = m_Radius * RSOL_TO_AU;
     double coreRadiusAU          = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
     double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
     double radiusIntershellAU    = radiusAU - convectiveEnvRadiusAU;                                    // Outer radial coordinate of radiative intershell
 
+    // There should be no Dynamical tides if the entire star is convective, i.e. if there are no convective-radiative boundaries. 
+    // If so, return 0.0 for all dynamical components of ImKlm.
+    // Check mass rather than radial extent, since radiative mass can currently be non-zero for GB stars following Picker+ 2024 (radial extent will be 0 following Hurley 2000).
+    // This condition should be true for low-mass MS stars (<= 0.35 Msol) at ZAMS.
+    if (utils::Compare(radIntershellMass, 0.0) <= 0 || utils::Compare(radiusIntershellAU, coreRadiusAU) <= 0) {
+        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           
+    }
+ 
     double R_3              = radiusAU * radiusAU * radiusAU;
     double R3_over_G_M      = (R_3 / G_AU_Msol_yr / m_Mass);
     double sqrt_R3_over_G_M = std::sqrt(R3_over_G_M);
@@ -3434,9 +3434,11 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     // No contribution from convective core; only convective envelope.
 
     double rEnvAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
+    double envMass, envMassMax;
+    std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
 
-    if (utils::Compare(rEnvAU, 0.0) <= 0) return std::make_tuple(0.0, 0.0, 0.0, 0.0);           // skip calculations if there is no convective envelope (to avoid Imk22 = NaN)
-
+    if (utils::Compare(rEnvAU, 0.0) <= 0 || utils::Compare(envMass, 0.0) <= 0 || std::isnan(envMass)) return std::make_tuple(0.0, 0.0, 0.0, 0.0);           // skip calculations if there is no convective envelope (to avoid Imk22 = NaN)
+    
     double rOutAU = m_Radius * RSOL_TO_AU;                                                      // outer boundary of convective envelope
     double rInAU  = (rOutAU - rEnvAU);                                                          // inner boundary of convective envelope
 
@@ -3462,9 +3464,6 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
 
     double omegaSpin     = m_Omega;
     double two_OmegaSpin = omegaSpin + omegaSpin;
-
-    double envMass, envMassMax;
-    std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
 
     double rhoConv     = envMass / (4.0 * M_PI * (rOut_3 - rIn_3) / 3.0);
     double lConv       = rEnvAU;                                                                // Set length scale to height of convective envelope
