@@ -76,7 +76,7 @@ protected:
     double          CalculateCOCoreMassAtPhaseEnd() const                           { return 0.0; }                                                                             // McCO(HG) = 0.0
     double          CalculateCOCoreMassOnPhase() const                              { return 0.0; }                                                                             // McCO(HG) = 0.0
 
-    DBL_DBL         CalculateConvectiveEnvelopeMass() const;
+    // DBL_DBL         CalculateConvectiveEnvelopeMass() const;
 
     double          CalculateCoreMassAt2ndDredgeUp(const DBL_VECTOR &p_GBParams)    { return p_GBParams[static_cast<int>(GBP::McDU)]; }                                         // NO-OP
     double          CalculateCoreMassAtPhaseEnd(const double p_Mass) const;
@@ -123,8 +123,6 @@ protected:
 
     bool            IsEndOfPhase() const                                            { return !ShouldEvolveOnPhase(); }                                                          // Phase ends when age at or after Base Giant Branch MS timescale
     bool            IsSupernova() const                                             { return false; }                                                                           // Not here
-
-    double          LimitTimestepFromRadialExtentConvectiveEnvelope(const double p_dt) const;
 
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
     void            ResolveHeliumFlash() {  }                                                                                                                                   // NO-OP
