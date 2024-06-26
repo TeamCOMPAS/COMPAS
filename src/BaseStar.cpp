@@ -4245,9 +4245,6 @@ double BaseStar::CalculateTimestep() {
     if( OPTIONS->MassChangeFraction()!=0 && massChangeTimescale > 0.0 )                                     // if mass change timescale was computed
         dt = min(dt, OPTIONS->MassChangeFraction()*massChangeTimescale);
      
-    // if( OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024 )
-    //         dt = LimitTimestepFromRadialExtentConvectiveEnvelope(dt);                                       // if KAPIL2024 tides are enabled, limit expansion rate of convective envelope
-
     dt = max(round(dt/TIMESTEP_QUANTUM)*TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
         
     return dt;
