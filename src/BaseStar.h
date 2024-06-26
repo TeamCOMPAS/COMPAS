@@ -294,8 +294,6 @@ public:
             double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription,
                                                  const double p_massTransferEfficiencyBeta); 
     
-    virtual double          LimitTimestepFromRadialExtentConvectiveEnvelope(const double p_dt) const            { return p_dt; }
-
             void            ResetEnvelopeExpulsationByPulsations()                                              { m_EnvelopeJustExpelledByPulsations = false; }
 
             void            ResolveAccretion(const double p_AccretionMass)                                      { m_Mass = std::max(0.0, m_Mass + p_AccretionMass); }               // Handles donation and accretion - won't let mass go negative

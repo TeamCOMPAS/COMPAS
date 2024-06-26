@@ -230,8 +230,6 @@ public:
                                          const double p_massTransferEfficiencyBeta)                                 { return m_Star->InterpolateGe20QCrit(p_qCritPrescription, p_massTransferEfficiencyBeta); }
     void            HaltWinds()                                                                                     { m_Star->HaltWinds(); }
 
-    double          LimitTimestepFromRadialExtentConvectiveEnvelope(const double p_dt)                              { return m_Star->LimitTimestepFromRadialExtentConvectiveEnvelope(p_dt); }
-
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
 
     void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
