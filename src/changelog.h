@@ -1218,9 +1218,14 @@
 //                                      - Code cleanup
 // 02.49.05    IM - June 22, 2024     - Enhancement:
 //                                      - Replaced fixed-step, first-order integrator for orbital change after mass transfer with an adaptive-step, higher-order ODE integrator for improved speed and accuracy
+// 02.50.00    YS - Jun 27, 2024      - Update to neutron star accretion treatments:
+//                                      - Fixes to MSP formation/NS in mass transfer treatments:
+//                                       1). Created a new function NS::PulsarAccretion() to calculate the pulsar evolution in stable mass transfer.
+//                                       2). In UpdateMagneticFieldAndSpin(), splitting stable mass transfer into smaller steps so that no negative spin period is present. 
+//                                       3). Adding a new programming option "NS-ACCRETION-IN-CE" for different treatment of how neutron star would behave when in CE. 
 
 
-const std::string VERSION_STRING = "02.49.05";
+const std::string VERSION_STRING = "02.50.00";
 
 
 

@@ -581,8 +581,6 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             m_PulsarDetails.spinFrequency = std::get<1>(accretionResults);
             m_AngularMomentum_CGS         = std::get<3>(accretionResults);
             m_PulsarDetails.spinDownRate  = std::get<2>(accretionResults);
-            //m_PulsarDetails.spinDownRate  = CalculateSpinDownRate(m_PulsarDetails.spinFrequency,m_MomentOfInertia_CGS , m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM );    
-
             }
         }
         
@@ -606,7 +604,6 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             m_PulsarDetails.magneticField = newPulsarMagneticField * GAUSS_TO_TESLA;
             m_PulsarDetails.spinFrequency = m_AngularMomentum_CGS / MoI ;
             m_PulsarDetails.spinDownRate  = Jacc/ p_Stepsize  /MoI;
-            // m_PulsarDetails.spinDownRate  = CalculateSpinDownRate(m_PulsarDetails.spinFrequency,m_MomentOfInertia_CGS , m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM ); 
         }
    
     else if ((p_CommonEnvelope) && (NSCE == 0)) {
