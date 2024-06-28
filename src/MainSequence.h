@@ -88,6 +88,9 @@ protected:
     bool            ShouldEvolveOnPhase() const                                             { return (m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]); }    // Evolve on MS phase if age in MS timescale
 
     void            UpdateInitialMass()                                                     { m_Mass0 = m_Mass; }                                                   // Per Hurley et al. 2000, section 7.1
+   
+    void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass);
+    
     void            UpdateAgeAfterMassLoss();                                                                                                                       // Per Hurley et al. 2000, section 7.1
     
     void            UpdateMinimumCoreMass();                                                                                                                        // Set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass

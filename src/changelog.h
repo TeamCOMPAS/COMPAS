@@ -1218,9 +1218,13 @@
 //                                      - Code cleanup
 // 02.49.05    IM - June 22, 2024     - Enhancement:
 //                                      - Replaced fixed-step, first-order integrator for orbital change after mass transfer with an adaptive-step, higher-order ODE integrator for improved speed and accuracy
+// 02.50.00    IM - June 28, 2024     - Enhancement:
+//                                      - Change TPAGB::IsSupernova() so that stars with base of AGB core masses below MCBUR1 remain on the TPAGB until they make WDs; remove ResolveTypeIIaSN() functionality.
+//                                      - Add --evolve-main-sequence-mergers option which allows for main sequence merger products to continue evolution
+//                                      - Update HG::CalculateRadialExtentConvectiveEnvelope() to use a combination of Hurley & Picker to avoid excessively high convective envelope densities
 
 
-const std::string VERSION_STRING = "02.49.05";
+const std::string VERSION_STRING = "02.50.00";
 
 
 
