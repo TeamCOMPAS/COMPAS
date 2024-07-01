@@ -1211,6 +1211,9 @@
 //                                      - Fixed the definition of epsilon in IW dynamical tides to follow Ogilvie (2013) Eq. (42)
 // 02.49.03    VK - June 13, 2024     - Code cleanup:
 //                                      - Removed confusing definition of `one_minus_beta` in Dynamical tides code.
+// 02.49.04    JDM - July 1, 2024     - Defect repairs:
+//                                      - Changed the VERY_MASSIVE_MINIMUM_MASS threshold to use m_Mass (current), rather than m_ZAMS.                                      
+//                                      - Lowered VINK_MASS_LOSS_MINIMUM_TEMP from 12.5 to 8kK, to eliminate the short interval during CHeB when WR winds were active between the RSG and OB temperature ranges, at low Z.
                                    
 const std::string VERSION_STRING = "02.49.03";
 
