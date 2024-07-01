@@ -1211,10 +1211,17 @@
 //                                      - Fixed the definition of epsilon in IW dynamical tides to follow Ogilvie (2013) Eq. (42)
 // 02.49.03    VK - June 13, 2024     - Code cleanup:
 //                                      - Removed confusing definition of `one_minus_beta` in Dynamical tides code.
+// 02.49.04    IM - June 19, 2024     - Defect repair, enhancement:
+//                                      - Corrected check for nuclear timescale (slow case A) mass transfer
+//                                      - Reduced MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP to 0.0001 to improve accuracy of orbital separation updates following mass transfer
+//                                      - Corrected temperature units in Picker formula for Tonset used in the calculation of the convective envelope mass
+//                                      - Code cleanup
+// 02.49.05    IM - June 22, 2024     - Enhancement:
+//                                      - Replaced fixed-step, first-order integrator for orbital change after mass transfer with an adaptive-step, higher-order ODE integrator for improved speed and accuracy
 // 02.49.06    JDM - July 1, 2024     - Defect repairs:
 //                                      - Changed the VERY_MASSIVE_MINIMUM_MASS threshold to use m_Mass (current), rather than m_ZAMS.                                      
 //                                      - Lowered VINK_MASS_LOSS_MINIMUM_TEMP from 12.5 to 8kK, to eliminate the short interval during CHeB when WR winds were active between the RSG and OB temperature ranges, at low Z.
-                                   
+
 const std::string VERSION_STRING = "02.49.06";
 
 
