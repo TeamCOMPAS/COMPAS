@@ -1810,19 +1810,18 @@ double BaseBinaryStar::CalculateRocheLobeRadius_Static(const double p_MassPrimar
  * which is the fraction of specific angular momentum with which the non-accreted mass leaves the system.
  * Macleod_linear comes from Willcox et al. (2022)
  *
- * Updates class member variable m_Error      JR: todo: revisit error handling (this could be a const function)
- * 
  * 
  * Calculation is based on user-specified Angular Momentum Loss prescription
  *
  *
- * double CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass)
+ * double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate)
  *
  * @param   [IN]    p_DonorMass                 The mass of the donor (Msol)
  * @param   [IN]    p_AccretorMass              The mass of the accretor (Msol)
+ * @param   [IN]    p_IsAccretorDegenerate      True if the accretor is a degenerate star, false otherwise (need to know up front to keep this function static)
  * @return                                      The fraction of specific angular momentum with which the non-accreted mass leaves the system
  */
-double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) {
+double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate) {
 
 	double gamma;
 
@@ -1835,8 +1834,8 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
             // interpolate in separation between a_acc and a_L2, both normalized to units of separation a
             double aL2    = std::sqrt(M_SQRT2);                                                                             // roughly, coincides with CIRCUMBINARY_RING def above
             double aAcc   = 1.0 / (1.0 + q);
-            double fMacleod = m_Accretor->IsDegenerate() 
-                ? OPTIONS->MassTransferJlossMacLeodLinearFractionDegen() 
+            double fMacleod = p_IsAccretorDegenerate
+                ? OPTIONS->MassTransferJlossMacLeodLinearFractionDegen()
                 : OPTIONS->MassTransferJlossMacLeodLinearFractionNonDegen();
             double aGamma = aAcc + (aL2 - aAcc)*fMacleod;
             gamma         = aGamma * aGamma * (1.0 + q) * (1.0 + q) / q;
@@ -1845,8 +1844,6 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss(const double p_DonorMas
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY            : gamma = OPTIONS->MassTransferJloss(); break;
         default:                                                                                                            // unknown mass transfer angular momentum loss prescription - shouldn't happen
             gamma   = 1.0;                                                                                                  // default value
-            m_Error = ERROR::UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION;                                                 // set error value
-            SHOW_WARN(m_Error);                                                                                             // warn that an error occurred
     }
 
     return gamma;
@@ -1875,30 +1872,34 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
                                                         BinaryConstituentStar& p_Accretor,
                                                   const double                 p_FractionAccreted) {
 
-    double semiMajorAxis   = m_SemiMajorAxis;                                                                                   // new semi-major axis value - default is no change
-    double massA           = p_Accretor.Mass();                                                                                 // accretor mass
-    double massD           = p_DonorMass;                                                                                       // donor mass
-    double massAtimesMassD = massA * massD;                                                                                     // accretor mass * donor mass
-    double massAplusMassD  = massA + massD;                                                                                     // accretor mass + donor mass
-    double jOrb            = (massAtimesMassD / massAplusMassD) * std::sqrt(semiMajorAxis * G_AU_Msol_yr * massAplusMassD);     // orbital angular momentum
-    double jLoss;                                                                                                               // specific angular momentum carried away by non-conservative mass transfer
-        
+    double semiMajorAxis    =   m_SemiMajorAxis;
+    
     if (utils::Compare(p_DeltaMassDonor, 0.0) < 0) {                                                                            // mass loss from donor?
-                                                                                                                                // yes
-        int numberIterations = fmax( floor (fabs(p_DeltaMassDonor/(MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP * massD))), 1.0);    // number of iterations
-        double dM            = p_DeltaMassDonor / numberIterations;                                                             // mass change per time step
-        
-        for(int i = 0; i < numberIterations ; i++) {
-            jLoss          = CalculateGammaAngularMomentumLoss(massD, massA);
-            jOrb           = jOrb + ((jLoss * jOrb * (1.0 - p_FractionAccreted) / massAplusMassD) * dM);
-            semiMajorAxis  = semiMajorAxis + (((-2.0 * dM / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / massAplusMassD)))) * semiMajorAxis);
 
-            massD          = massD + dM;
-            massA          = massA - (dM * p_FractionAccreted);
-            massAplusMassD = massA + massD;
-        }
+        controlled_stepper_type controlled_stepper;
+        state_type x(1);
+        x[0] = semiMajorAxis;
+
+        // Use boost adaptive ODE solver for speed and accuracy
+        struct ode
+        {
+            double p_MassDonor0, p_MassAccretor0, p_FractionAccreted;
+            bool p_IsAccretorDegenerate;
+            ode(double massDonor0, double massAccretor0, double fractionAccreted, bool isAccretorDegenerate) : p_MassDonor0(massDonor0), p_MassAccretor0(massAccretor0), p_FractionAccreted(fractionAccreted), p_IsAccretorDegenerate(isAccretorDegenerate) {}
+
+            void operator()( state_type const& x , state_type& dxdt , double p_MassChange ) const
+            {
+                double massD    = p_MassDonor0 + p_MassChange;
+                double massA    = p_MassAccretor0 - p_MassChange * p_FractionAccreted;
+                double jLoss    = CalculateGammaAngularMomentumLoss_Static(massD, massA, p_IsAccretorDegenerate);
+                dxdt[0]         = (-2.0 / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / (massA + massD)))) * x[0];
+            }
+        };
+
+        integrate_adaptive( controlled_stepper , ode { p_DonorMass, p_Accretor.Mass(), p_FractionAccreted, m_Accretor->IsDegenerate() }, x , 0.0 , p_DeltaMassDonor , p_DeltaMassDonor/1000.0 );
+        semiMajorAxis = x[0];
     }
-
+    
     return semiMajorAxis;
 }
 
@@ -2101,7 +2102,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 m_CEDetails.CEEnow = true;                                                                                      // flag CE
             }
             else {                                                                                                              // have required mass loss
-                if(utils::Compare(m_MassLossRateInRLOF,donorMassLossRateNuclear) <= 1)                                          // if transferring mass on nuclear timescale, limit mass loss amount based to rate * timestep (thermal timescale MT always happens in one timestep)
+                if(utils::Compare(m_MassLossRateInRLOF,donorMassLossRateNuclear) == 0)                                          // if transferring mass on nuclear timescale, limit mass loss amount based to rate * timestep (thermal timescale MT always happens in one timestep)
                     massDiffDonor = std::min(massDiffDonor, m_MassLossRateInRLOF * m_Dt);
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
                 m_Donor->UpdateMinimumCoreMass();                                                                               // reset the minimum core mass following case A
