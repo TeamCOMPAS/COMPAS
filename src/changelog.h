@@ -1218,10 +1218,11 @@
 //                                      - Code cleanup
 // 02.49.05    IM - June 22, 2024     - Enhancement:
 //                                      - Replaced fixed-step, first-order integrator for orbital change after mass transfer with an adaptive-step, higher-order ODE integrator for improved speed and accuracy
+// 02.49.06    JDM - July 1, 2024     - Defect repairs:
+//                                      - Changed the VERY_MASSIVE_MINIMUM_MASS threshold to use m_Mass (current), rather than m_ZAMS.                                      
+//                                      - Lowered VINK_MASS_LOSS_MINIMUM_TEMP from 12.5 to 8kK, to eliminate the short interval during CHeB when WR winds were active between the RSG and OB temperature ranges, at low Z.
 
-
-const std::string VERSION_STRING = "02.49.05";
-
+const std::string VERSION_STRING = "02.49.06";
 
 
 # endif // __changelog_h__
