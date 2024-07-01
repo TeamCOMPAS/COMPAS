@@ -1215,7 +1215,7 @@
 //                                      - Changed the VERY_MASSIVE_MINIMUM_MASS threshold to use m_Mass (current), rather than m_ZAMS.                                      
 //                                      - Lowered VINK_MASS_LOSS_MINIMUM_TEMP from 12.5 to 8kK, to eliminate the short interval during CHeB when WR winds were active between the RSG and OB temperature ranges, at low Z.
                                    
-const std::string VERSION_STRING = "02.49.03";
+const std::string VERSION_STRING = "02.49.04";
 
 
 # endif // __changelog_h__
