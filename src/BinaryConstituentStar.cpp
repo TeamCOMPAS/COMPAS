@@ -287,7 +287,7 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
             // for, and that should be flagged as an error and result in termination of the evolution of the
             // star or binary.
             // The correct fix for this is to add code for the missing envelope type or, if the missing envelope
-            // tyoe is incorrect/superfluous, remove it from ENVELOPE.
+            // type is incorrect/superfluous, remove it from ENVELOPE.
 
             THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_TYPE);                                                                                  // throw error
         }
@@ -350,7 +350,7 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
             // for, and that should be flagged as an error and result in termination of the evolution of the
             // star or binary.
             // The correct fix for this is to add code for the missing envelope type or, if the missing envelope
-            // tyoe is incorrect/superfluous, remove it from ENVELOPE.
+            // type is incorrect/superfluous, remove it from ENVELOPE.
 
             THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_TYPE);                                              // throw error
 	}

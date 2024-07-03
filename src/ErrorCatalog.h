@@ -3,7 +3,7 @@
 
 
 // This is the COMPAS error catalogue.  The error catalogue defines symolic names for all COMPAS errors,
-// and correspoding error strings for those errors.
+// and corresponding error strings for those errors.
 //
 // To add a new error, add the symbolic name to the ERROR enum class, and the corresponding error string
 // to the ERROR_CATALOG map.
@@ -365,7 +365,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_STELLAR_POPULATION,                            { ERROR_SCOPE::ALWAYS,              "Unknown stellar population" }},
     { ERROR::UNKNOWN_STELLAR_PROPERTY,                              { ERROR_SCOPE::ALWAYS,              "Unknown stellar property" }},
     { ERROR::UNKNOWN_STELLAR_TYPE,                                  { ERROR_SCOPE::ALWAYS,              "Unknown stellar type" }},
-    { ERROR::UNKNOWN_TIDES_PRESCRIPTION,                            { ERROR_SCOPE::ALWAYS,              "Uknown tides prescription" }},
+    { ERROR::UNKNOWN_TIDES_PRESCRIPTION,                            { ERROR_SCOPE::ALWAYS,              "Unknown tides prescription" }},
     { ERROR::UNKNOWN_VMS_MASS_LOSS_PRESCRIPTION,                    { ERROR_SCOPE::ALWAYS,              "Unknown VMS mass loss prescription" }},
     { ERROR::UNKNOWN_VROT_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown rotational velocity prescription" }},
     { ERROR::UNKNOWN_ZETA_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown stellar ZETA prescription" }},

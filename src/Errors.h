@@ -12,12 +12,12 @@
 // occurs, and record in the (SSE/BSE) system parameters file the fact that an error occurred, and an error number
 // identifying the error that occurred.  This way users can check the system paramers file at the completion of a
 // run for the disposition of a star or binary and, if the evolution of that star or binary was stopped because an
-// error occured, the actual error that occurred.  Possible dispositions (for both stars and binaries) are given in
+// error occurred, the actual error that occurred.  Possible dispositions (for both stars and binaries) are given in
 // the 'EVOLUTION_STATUS' enum class and associate label map in 'typedefs.h'.
 //
 // The error-handling code implemented in v03.00.00 allows developers to terminate evolution of a star or binary if
-// they determine that a condition encoutered is sufficiently severe that allowing the evolution of the star or
-// binary to continue would produce inconsistent or untrustable results.  In those cases, the devlopers would
+// they determine that a condition encountered is sufficiently severe that allowing the evolution of the star or
+// binary to continue would produce inconsistent or untrustable results.  In those cases, the developers would
 // terminate the evolution of the star or binary via the use of the THROW_ERROR* macros (defined in 'ErrorsMacros.h').
 //
 // Developers should use the SHOW_WARN* macros (defined in 'ErrorsMacros.h') to alert users to conditions they want
@@ -31,7 +31,7 @@
 // throughout the code - it is set in the appropriate catch blocks.  m_Error is the error value written to the
 // log files.  Note that it is possible that if users choose to add the STAR_PROPERTY::ERROR (SSE) or 
 // BINARY_PROPERTY::ERROR (BSE) to log files via the logfile-definitions file, the value of the error logged
-// to those files may be 0 (ERROR::NONE) even for stars or binaries that ere eventually teminated due to an
+// to those files may be 0 (ERROR::NONE) even for stars or binaries that ere eventually terminated due to an
 // error - the error value is only set when the error occurs (and is thrown), so some records in some log files
 // may already have been written prior to the error being identified and evolution terniated.
 //
@@ -39,8 +39,8 @@
 // Floating-point errors in C++
 // ============================
 //
-// In C++ implentations that implement the IEEE floating-point standard, in ordinary operation, the division of a
-// finite non-zero floating-point value by 0[.0] is well-defined and results in +infinity if the value is > zero,
+// In C++ implementations that implement the IEEE floating-point standard, in ordinary operation, the division of
+// a finite non-zero floating-point value by 0[.0] is well-defined and results in +infinity if the value is > zero,
 // -infinity if the value is < zero, and NaN if the value is = 0.0, and in each case program execution continues
 // uninterrupted.  Integer division by 0 is undefined and results in a floating-point exception and the process
 // is halted.
@@ -79,7 +79,7 @@
 //                                      parameters file will be set to indicate if a floating-point error occurred during
 //                                      evolution (and in this mode we can, and do, differentiate between DIVBYZERO,
 //                                      INVALID, OVERFLOW, and UNDERFLOW).  Note that an integer divide-by-zero will cause
-//                                      the excution of the program to halt (and, rather obtusely, will report
+//                                      the execution of the program to halt (and, rather obtusely, will report
 //                                      "Floating point exception").
 //
 //                                      This mode is enabled with the option '--fp-error-mode OFF'  (This is the default mode).
@@ -101,7 +101,7 @@
 //                                      and the SIGFPE signal handler is called, but instead of raising a runtime_error
 //                                      exception, the signal handler prints the stack trace that led to the error and
 //                                      halts execution of the program.  In this way, the user can determine where (to the
-//                                      function leve l- we don't determine line numbers) the floating-point error occured.
+//                                      function level - we don't determine line numbers) the floating-point error occurred.
 //
 //                                      The construction of the stack trace in debug mode happens inside the signal handler,
 //                                      and the functions used to do that are generally not signal safe - but we call std::exit()
