@@ -82,7 +82,7 @@
 //                                      the excution of the program to halt (and, rather obtusely, will report
 //                                      "Floating point exception").
 //
-//                                      This mode is enabled with the option '--fp_error-mode OFF'  (This is the default mode).
+//                                      This mode is enabled with the option '--fp-error-mode OFF'  (This is the default mode).
 //                             
 //    1: floating-point traps enabled - floating-point traps DIVBYZERO, INVALID, OVERFLOW, and UNDERFLOW are enabled.
 //                                      In this mode, when a floating-point operation traps, a SIGFPE is raised and the
@@ -94,7 +94,7 @@
 //                                      BaseBinaryStar::Evolve() for BSE mode, and in main() for errors that might occur
 //                                      outside the evolution of stars or binaries.
 //
-//                                      This mode is enabled with the option '--fp_error-mode ON'
+//                                      This mode is enabled with the option '--fp-error-mode ON'
 //
 //    2: debug mode                   - floating-point traps DIVBYZERO, INVALID, OVERFLOW, and UNDERFLOW are enabled.  As
 //                                      for mode 1, in this mode, when a floating-point operation traps, a SIGFPE is raised
@@ -108,7 +108,7 @@
 //                                      anyway, so that shouldn't be a problem.
 //
 //
-//                                      This mode is enabled with the option '--fp_error-mode DEBUG'
+//                                      This mode is enabled with the option '--fp-error-mode DEBUG'
 
 
 

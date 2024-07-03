@@ -1218,7 +1218,7 @@
 //                                      - Code cleanup
 // 02.49.05    IM - June 22, 2024     - Enhancement:
 //                                      - Replaced fixed-step, first-order integrator for orbital change after mass transfer with an adaptive-step, higher-order ODE integrator for improved speed and accuracy
-// 03.009.00   JR - June 24, 2024     - Enhancements, defect repairs, deprecations, code cleanup:
+// 03.00.00   JR - June 24, 2024     - Enhancements, defect repairs, deprecations, code cleanup:
 //                                         1. implementation of more coherent and robust error handling
 //                                         2. added source files (all are .h file, so the makefile does not need to change)
 //                                         3. (this will be controversial) deprecation of some program options, and some program option values
