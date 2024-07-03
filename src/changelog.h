@@ -1225,8 +1225,16 @@
 //                                      - Change TPAGB::IsSupernova() so that stars with base of AGB core masses below MCBUR1 remain on the TPAGB until they make WDs; remove ResolveTypeIIaSN() functionality.
 //                                      - Add --evolve-main-sequence-mergers option which allows for main sequence merger products to continue evolution
 //                                      - Update HG::CalculateRadialExtentConvectiveEnvelope() to use a combination of Hurley & Picker to avoid excessively high convective envelope densities
+// 02.51.00    YS - Jul 03, 2024      - Update to neutron star accretion treatments:
+//                                      - Fixes to MSP formation/NS in mass transfer treatments:
+//                                       1). Created a new function NS::PulsarAccretion() to calculate the pulsar evolution in stable mass transfer.
+//                                       2). In UpdateMagneticFieldAndSpin(), splitting stable mass transfer into smaller steps so that no negative spin period is present. 
+//                                       3). Adding a new programming option "NS-ACCRETION-IN-CE" for different treatment of how neutron star would behave when in CE. 
 
-const std::string VERSION_STRING = "02.50.00";
+
+const std::string VERSION_STRING = "02.51.00";
+
+
 
 
 # endif // __changelog_h__

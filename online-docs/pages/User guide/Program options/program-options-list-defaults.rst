@@ -845,6 +845,11 @@ Default = FIXED_MASS
 Amount of mass lost in neutrinos during BH formation (either as fraction or in solar masses, depending on the value of ``--neutrino-mass-loss-bh-formation``). |br|
 Default = 0.1
 
+**--neutron-star-accretion-in-ce** |br|
+Neutron star accretion behavior in common envelope. |br|
+Options: { ZERO, DISK, SURFACE } |br|
+Default = ZERO
+
 **--neutron-star-equation-of-state** |br|
 Neutron star equation of state. |br|
 Options: { SSE, ARP3 } |br|
