@@ -817,7 +817,7 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 //
 // Ordinarily we might expect that an SN event could be only one of
 //
-//    NONE, CCSN, ECSN, PISN, PPISN, USSN, AIC, SNIA, SNII, or HeSD
+//    NONE, CCSN, ECSN, PISN, PPISN, USSN, AIC, SNIA, or HeSD
 //
 // Note that the CCSN value here replaces the SN value in the legacy code
 // The legacy code implemented these values as boolean flags, and the SN flag was always set when
@@ -845,7 +845,6 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 //    SN_EVENT::AIC     iff AIC   bit is set
 //    SN_EVENT::SNIA    iff SNIA  bit is set and HeSD bit is not set
 //    SN_EVENT::HeSD    iff HeSD  bit is set
-//    SN_EVENT::SNII    iff SNII  bit is set
 //    SN_EVENT::UNKNOWN otherwise
 //
 enum class SN_EVENT: int { 
@@ -858,7 +857,6 @@ enum class SN_EVENT: int {
     AIC          = 32,
     SNIA         = 64,
     HeSD         = 128,
-    SNII         = 256,
     UNKNOWN      = 32768 // doesn't really matter what this is because the value is never used (as long as it's > sum of all the others)
 };
 const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
@@ -871,7 +869,6 @@ const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
     { SN_EVENT::AIC,     "Accretion-Induced Collapse" }, 
     { SN_EVENT::SNIA,    "Supernova Type Ia" }, 
     { SN_EVENT::HeSD,    "Helium-shell detonation" }, 
-    { SN_EVENT::SNII,    "Supernova Type IIa" },
     { SN_EVENT::UNKNOWN, "Unknown Supernova Type" }
 };
 ENABLE_BITMASK_OPERATORS(SN_EVENT);

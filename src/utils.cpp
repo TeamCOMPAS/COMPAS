@@ -1314,7 +1314,6 @@ namespace utils {
      *    SN_EVENT::AIC     iff AIC   bit is set
      *    SN_EVENT::SNIA    iff SNIA  bit is set and HeSD bit is not set
      *    SN_EVENT::HeSD    iff HeSD  bit is set
-     *    SN_EVENT::SNII    iff SNII  bit is set
      *    SN_EVENT::UNKNOWN otherwise
      * 
      *
@@ -1333,7 +1332,6 @@ namespace utils {
         if ((p_SNEvent & SN_EVENT::AIC  )                   == SN_EVENT::AIC  ) return SN_EVENT::AIC;
         if ((p_SNEvent & (SN_EVENT::SNIA | SN_EVENT::HeSD)) == SN_EVENT::SNIA ) return SN_EVENT::SNIA;
         if ((p_SNEvent & SN_EVENT::HeSD )                   == SN_EVENT::HeSD ) return SN_EVENT::HeSD;
-        if ((p_SNEvent & SN_EVENT::SNII )                   == SN_EVENT::HeSD ) return SN_EVENT::SNII;
 
         return SN_EVENT::UNKNOWN;
     }

@@ -182,6 +182,7 @@ constexpr double RSOL                                   = 6.957E8;              
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
 constexpr double LOG10_ZSOL                             = -1.698970004336019;                                       // log10(ZSOL) - for performance
 constexpr double ZSOL_ASPLUND                           = 0.0142;                                                   // Solar Metallicity (Asplund+ 2010) used in initial condition
+constexpr double YSOL                                   = 0.2485;                                                   // Asplund+ 2009
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
 constexpr double LSOL                                   = 3.844E33;                                                 // Solar Luminosity in erg/s
 constexpr double LSOLW                                  = 3.844E26;                                                 // Solar luminosity (in W)
@@ -219,7 +220,7 @@ constexpr double MCBUR1HURLEY					        = 1.6;							                         
 constexpr double MCBUR2					                = 2.25;							                            // Core mass at base of the AGB above which the CO core is completely non-degenerate
 
 constexpr double NJ_MINIMUM_LUMINOSITY                  = 4.0E3;                                                    // Minimum luminosity in Lsun needed for Nieuwenhuijzen & de Jager wind mass loss
-constexpr double VINK_MASS_LOSS_MINIMUM_TEMP            = 1.25E4;                                                   // Minimum temperature in K for Vink mass loss rates to be applied
+constexpr double VINK_MASS_LOSS_MINIMUM_TEMP            = 8.0E3;                                                    // Minimum temperature in K for Vink mass loss rates to be applied (12.5kK in Vink+Sander 2021)
 constexpr double RSG_MAXIMUM_TEMP                       = 8.0E3;                                                    // Upper temperature in K for Red Supergiant (RSG) mass loss rates to be applied
 constexpr double VINK_MASS_LOSS_BISTABILITY_TEMP        = 2.5E4;                                                    // Temperature in K for bistability jump in Vink mass loss (assumed to be 25000K following Belczysnki+2010)
 constexpr double VINK_MASS_LOSS_MAXIMUM_TEMP            = 5.0E4;                                                    // Maximum temperature in K for Vink mass loss rates to be applied (show warning above this)

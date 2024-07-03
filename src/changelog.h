@@ -1205,30 +1205,35 @@
 //                                      - albeit with fixed AM loss (isotropic re-emission).
 // 02.49.01    IM - May 25, 2024     - Defect repair:
 //                                      - AIC now happens only when the mass of an ONeWD exceeds MCS, the Chandrasekhar mass, which requires accretion onto the WD (see Issue # #1138)
-// 02.49.02    VK - June 11, 2024     - Defect repairs:
+// 02.49.02    VK - June 11, 2024    - Defect repairs:
 //                                      - Fixed the sign of IW dissipation in dynamical tides to follow (2,2) mode synchronization.
 //                                      - Changed the definitions of beta and gamma in dynamical tides to be consistent with tri-layered stellar structures as well as bi-layered.
 //                                      - Fixed the definition of epsilon in IW dynamical tides to follow Ogilvie (2013) Eq. (42)
-// 02.49.03    VK - June 13, 2024     - Code cleanup:
+// 02.49.03    VK - June 13, 2024    - Code cleanup:
 //                                      - Removed confusing definition of `one_minus_beta` in Dynamical tides code.
-// 02.49.04    IM - June 19, 2024     - Defect repair, enhancement:
+// 02.49.04    IM - June 19, 2024    - Defect repair, enhancement:
 //                                      - Corrected check for nuclear timescale (slow case A) mass transfer
 //                                      - Reduced MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP to 0.0001 to improve accuracy of orbital separation updates following mass transfer
 //                                      - Corrected temperature units in Picker formula for Tonset used in the calculation of the convective envelope mass
 //                                      - Code cleanup
-// 02.49.05    IM - June 22, 2024     - Enhancement:
+// 02.49.05    IM - June 22, 2024    - Enhancement:
 //                                      - Replaced fixed-step, first-order integrator for orbital change after mass transfer with an adaptive-step, higher-order ODE integrator for improved speed and accuracy
+// 02.49.06    JDM - July 01, 2024   - Defect repairs:
+//                                      - Changed the VERY_MASSIVE_MINIMUM_MASS threshold to use m_Mass (current), rather than m_ZAMS.                                      
+//                                      - Lowered VINK_MASS_LOSS_MINIMUM_TEMP from 12.5 to 8kK, to eliminate the short interval during CHeB when WR winds were active between the RSG and OB temperature ranges, at low Z.
+// 02.50.00    IM - July 03, 2024    - Enhancement:
+//                                      - Change TPAGB::IsSupernova() so that stars with base of AGB core masses below MCBUR1 remain on the TPAGB until they make WDs; remove ResolveTypeIIaSN() functionality.
+//                                      - Add --evolve-main-sequence-mergers option which allows for main sequence merger products to continue evolution
+//                                      - Update HG::CalculateRadialExtentConvectiveEnvelope() to use a combination of Hurley & Picker to avoid excessively high convective envelope densities
 // 03.00.00   JR - June 24, 2024     - Enhancements, defect repairs, deprecations, code cleanup:
 //                                         1. implementation of more coherent and robust error handling
 //                                         2. added source files (all are .h file, so the makefile does not need to change)
 //                                         3. (this will be controversial) deprecation of some program options, and some program option values
-//                                         4. Added SN type SNII and supporting functions etc. The code as is is dysfunctional for typeIIA SN (I know they're a made-up type, but we call the function to resolve one about 0.7% of the time - we need to resolve that).  For now, what I've implemented resolves it - we can change it if it's wrong.
-//                                         5. Fixed what I believe was a defect in `utils::SolveKeplersEquation()` that was causing erroneous "out-of-bounds" warnings for the eccentric anomaly
-//                                         6. Added debug functionality to show stack trace and halt the program - see the discussion and implementation of the SIGUSR2 signal handler in `main.cpp`.
-//                                         7. code cleanup
+//                                         4. Fixed what I believe was a defect in `utils::SolveKeplersEquation()` that was causing erroneous "out-of-bounds" warnings for the eccentric anomaly
+//                                         5. Added debug functionality to show stack trace and halt the program - see the discussion and implementation of the SIGUSR2 signal handler in `main.cpp`.
+//                                         6. code cleanup
 
 const std::string VERSION_STRING = "03.00.00";
-
 
 
 # endif // __changelog_h__

@@ -101,7 +101,6 @@ public:
             bool                ExperiencedPISN() const                                         { return utils::SNEventType(m_SupernovaDetails.events.past) == SN_EVENT::PISN; }
             bool                ExperiencedPPISN() const                                        { return utils::SNEventType(m_SupernovaDetails.events.past) == SN_EVENT::PPISN; }
             bool                ExperiencedSNIA() const                                         { return utils::SNEventType(m_SupernovaDetails.events.past) == SN_EVENT::SNIA; }
-            bool                ExperiencedSNII() const                                         { return utils::SNEventType(m_SupernovaDetails.events.past) == SN_EVENT::SNII; }
             SN_EVENT            ExperiencedSN_Type() const                                      { return utils::SNEventType(m_SupernovaDetails.events.past); }
             bool                ExperiencedUSSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::USSN) == SN_EVENT::USSN; }
             std::string         GetMassTransferDonorHistoryString() const;
@@ -116,7 +115,6 @@ public:
             bool                IsPISN() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::PISN; }
             bool                IsPPISN() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::PPISN; }
             bool                IsSNIA() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::SNIA; }
-            bool                IsSNII() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::SNII; }
             bool                IsUSSN() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::USSN; }
             double              LambdaDewi() const                                              { return m_Lambdas.dewi; }
             double              LambdaFixed() const                                             { return m_Lambdas.fixed; }
@@ -327,6 +325,7 @@ public:
             void            StashSupernovaDetails(const STELLAR_TYPE p_StellarType,
                                                   const SSE_SN_RECORD_TYPE p_RecordType = SSE_SN_RECORD_TYPE::DEFAULT) { LOGGING->StashSSESupernovaDetails(this, p_StellarType, p_RecordType); }
 
+    virtual void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass) { }                                                                                             // Default is NO-OP
     virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
 
             STELLAR_TYPE    UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,

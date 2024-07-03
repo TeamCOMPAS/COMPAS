@@ -165,6 +165,7 @@ void Options::OptionValues::Initialise() {
     m_HMXRBinaries                                                  = false;
 
     m_EvolveDoubleWhiteDwarfs                                       = false;
+    m_EvolveMainSequenceMergers                                     = false;
     m_EvolvePulsars                                                 = false;
 	m_EvolveUnboundSystems                                          = true;
     
@@ -797,6 +798,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "evolve-double-white-dwarfs",                                              
             po::value<bool>(&p_Options->m_EvolveDoubleWhiteDwarfs)->default_value(p_Options->m_EvolveDoubleWhiteDwarfs)->implicit_value(true),                                                                        
             ("Evolve Double White Dwarfs (default = " + std::string(p_Options->m_EvolveDoubleWhiteDwarfs ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "evolve-main-sequence-mergers",
+            po::value<bool>(&p_Options->m_EvolveMainSequenceMergers)->default_value(p_Options->m_EvolveMainSequenceMergers)->implicit_value(true),
+            ("Continue evolving main sequence merger products (default = " + std::string(p_Options->m_EvolveMainSequenceMergers ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "evolve-pulsars",                                              

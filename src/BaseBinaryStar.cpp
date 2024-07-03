@@ -1789,6 +1789,39 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     (void)PrintCommonEnvelope();                                                                                        // print (log) common envelope details
 }
 
+/*
+ * Resolve a main-sequence merger event
+ *
+ * Star1 will become the merger product; Star2 will become a massless remnant
+ *
+ * void ResolveMainSequenceMerger()
+ *
+ */
+void BaseBinaryStar::ResolveMainSequenceMerger() {
+    if (!(m_Star1->IsOneOf(MAIN_SEQUENCE) && m_Star2->IsOneOf(MAIN_SEQUENCE) && OPTIONS->EvolveMainSequenceMergers()))
+        return;                                                                                 // nothing to do if does not satisfy conditions for MS merger
+	
+    double mass1 = m_Star1->Mass();
+    double mass2 = m_Star2->Mass();
+    double tau1  = m_Star1->Tau();
+    double tau2  = m_Star2->Tau();
+
+    // /*ILYA*/ temporary solution, should use TAMS core mass
+    double TAMSCoreMass1 = 0.3 * mass1;
+    double TAMSCoreMass2 = 0.3 * mass2;                            
+     
+    double q   = std::min(mass1 / mass2, mass2 / mass1);
+    double phi = 0.3 * q / (1.0 + q) / (1.0 + q);                                               // fraction of mass lost in merger, Wang+ 2022, https://www.nature.com/articles/s41550-021-01597-5
+	
+    double finalMass               = (1.0 - phi) * (mass1 + mass2);
+    double initialHydrogenFraction = 1.0 - YSOL - m_Star1->Metallicity();                       // assume helium fraction independent of metallicity
+    double finalHydrogenMass       = finalMass * initialHydrogenFraction - tau1 * TAMSCoreMass1 * initialHydrogenFraction - tau2 * TAMSCoreMass2 * initialHydrogenFraction;
+    
+    m_Star1->UpdateAfterMerger(finalMass, finalHydrogenMass);
+    
+    m_Star2->SwitchTo(STELLAR_TYPE::MASSLESS_REMNANT);
+}
+
 
 /*
  * Calculate the Roche Lobe radius given the input masses
@@ -2688,13 +2721,13 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
     try {
 
-        if (HasStarsTouching()) {                                                                                                   // check if stars are touching
+        if (HasStarsTouching()) {                                                                                                       // check if stars are touching
             m_Flags.stellarMerger        = true;
             m_Flags.stellarMergerAtBirth = true;
-            evolutionStatus              = EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH;                                               // binary components are touching - merger at birth
+            evolutionStatus              = EVOLUTION_STATUS::STELLAR_MERGER_AT_BIRTH;                                                   // binary components are touching - merger at birth
         }
 
-        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::INITIAL_STATE);                                                   // print (log) detailed output: this is the initial state of the binary
+        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::INITIAL_STATE);                                                       // print (log) detailed output: this is the initial state of the binary
 
         if (OPTIONS->PopulationDataPrinting()) {
             SAY("\nGenerating a new binary - " << m_Id);
@@ -2703,154 +2736,159 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             SAY("RandomSeed " << m_RandomSeed);
         }
 
-        if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                        // continue evolution
+        if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                            // continue evolution
 
             // if the user provided timestep values, get them now
-            bool usingProvidedTimesteps = false;                                                                                    // using user-provided timesteps?
+            bool usingProvidedTimesteps = false;                                                                                        // using user-provided timesteps?
             DBL_VECTOR timesteps;
-            if (!OPTIONS->TimestepsFileName().empty()) {                                                                            // have timesteps filename?
-                                                                                                                                    // yes
-                std::tie(error, timesteps) = utils::ReadTimesteps(OPTIONS->TimestepsFileName());                                    // read timesteps from file
-                if (error != ERROR::NONE) {                                                                                         // ok?
-                    THROW_ERROR(error, ERR_MSG(ERROR::NO_TIMESTEPS_READ));                                                          // no - throw error - this is not what the user asked for
+            if (!OPTIONS->TimestepsFileName().empty()) {                                                                                // have timesteps filename?
+                                                                                                                                        // yes
+                std::tie(error, timesteps) = utils::ReadTimesteps(OPTIONS->TimestepsFileName());                                        // read timesteps from file
+                if (error != ERROR::NONE) {                                                                                             // ok?
+                    THROW_ERROR(error, ERR_MSG(ERROR::NO_TIMESTEPS_READ));                                                              // no - throw error - this is not what the user asked for
                 }
-                else usingProvidedTimesteps = true;                                                                                 // have user-provided timesteps
+                else usingProvidedTimesteps = true;                                                                                     // have user-provided timesteps
             }
 
             // evolve the current binary up to the maximum evolution time (and number of steps)
 
-            double dt;                                                                                                              // timestep
-            if (usingProvidedTimesteps) {                                                                                           // user-provided timesteps?
+            double dt;                                                                                                                  // timestep
+            if (usingProvidedTimesteps) {                                                                                               // user-provided timesteps?
                 // get new timestep
                 //   - don't quantise
                 //   - don't apply timestep multiplier
                 // (we assume user wants the timesteps in the file)
                 dt = timesteps[0];
             }
-            else {                                                                                                                  // no - not using user-provided timesteps
-                dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier() / 1000.0; // calculate timestep - make first step small
-                dt = std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);                      // quantised
+            else {                                                                                                                      // no - not using user-provided timesteps
+                dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier() / 1000.0;     // calculate timestep - make first step small
+                dt = std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);                          // quantised
             }
 
-            unsigned long int stepNum = 1;                                                                                          // initialise step number
+            unsigned long int stepNum = 1;                                                                                              // initialise step number
 
-            while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                 // perform binary evolution - iterate over timesteps until told to stop
+            while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                     // perform binary evolution - iterate over timesteps until told to stop
 
-                error = EvolveOneTimestep(dt);                                                                                      // evolve the binary system one timestep
-                if (error != ERROR::NONE) {                                                                                         // SSE error for either constituent star?
-                    evolutionStatus = EVOLUTION_STATUS::SSE_ERROR;                                                                  // yes - stop evolution
+                error = EvolveOneTimestep(dt);                                                                                          // evolve the binary system one timestep
+                if (error != ERROR::NONE) {                                                                                             // SSE error for either constituent star?
+                    evolutionStatus = EVOLUTION_STATUS::SSE_ERROR;                                                                      // yes - stop evolution
                 }
-                else {                                                                                                              // continue evolution
+                else {                                                                                                                  // continue evolution
 
-                    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_STELLAR_TIMESTEP);                               // print (log) detailed output
+                    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_STELLAR_TIMESTEP);                                   // print (log) detailed output
 
-                    if (OPTIONS->RLOFPrinting()) StashRLOFProperties(MT_TIMING::PRE_MT);                                            // stash properties immediately pre-Mass Transfer 
+                    if (OPTIONS->RLOFPrinting()) StashRLOFProperties(MT_TIMING::PRE_MT);                                                // stash properties immediately pre-Mass Transfer 
 
-                    EvaluateBinary(dt);                                                                                             // evaluate the binary at this timestep
+                    EvaluateBinary(dt);                                                                                                 // evaluate the binary at this timestep
 
-                    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_BINARY_TIMESTEP);                                // print (log) detailed output
+                    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_BINARY_TIMESTEP);                                    // print (log) detailed output
                 
-                    (void)PrintRLOFParameters();                                                                                    // print (log) RLOF parameters
+                    (void)PrintRLOFParameters();                                                                                        // print (log) RLOF parameters
 
                     // check for reasons to not continue evolution
-                    if (StellarMerger()) {                                                                                          // have stars merged?
-                        evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                         // for now, stop evolution
+                    if (StellarMerger() && !HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                             // have stars merged without merger already being resolved?
+                        if (m_Star1->IsOneOf(MAIN_SEQUENCE) && m_Star2->IsOneOf(MAIN_SEQUENCE) && OPTIONS->EvolveMainSequenceMergers()) // yes - both MS and evolving MS merger products?
+                            ResolveMainSequenceMerger();                                                                                // yes - handle main sequence mergers gracefully; no need to change evolution status
+                        else
+                            evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                         // no - for now, stop evolution
                     }
-                    else if (HasStarsTouching()) {                                                                                  // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
-                        evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                         // yes - stop evolution
+                    else if (HasStarsTouching()) {                                                                                      // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
+                        evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                             // yes - stop evolution
                     }
-                    else if (IsUnbound()) {                                                                                         // binary is unbound?
-                        m_Flags.mergesInHubbleTime = false;                                                                         // yes - won't merge in a Hubble time
+                    else if (IsUnbound()) {                                                                                             // binary is unbound?
+                        m_Flags.mergesInHubbleTime = false;                                                                             // yes - won't merge in a Hubble time
 
-                        if (IsDCO()) {                                                                                              // DCO (has two COs)?
-                            if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                               // DCO not yet evaluated
-                                m_DCOFormationTime = m_Time;                                                                        // set the DCO formation time
+                        if (IsDCO()) {                                                                                                  // DCO (has two COs)?
+                            if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                                   // DCO not yet evaluated
+                                m_DCOFormationTime = m_Time;                                                                            // set the DCO formation time
                             }
                         }
 
-                        if (!OPTIONS->EvolveUnboundSystems() || IsDCO()) {                                                          // should we evolve unbound systems?
-                            evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                            // no - stop evolution
+                        if (!OPTIONS->EvolveUnboundSystems() || IsDCO()) {                                                              // should we evolve unbound systems?
+                            evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                // no - stop evolution
                         }
                     }
 
-                    if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                            // continue evolution?
+                    if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                // continue evolution?
 
                         if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-                            (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_BINARY_TIMESTEP);                         // print (log) pulsar evolution parameters 
+                            (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_BINARY_TIMESTEP);                             // print (log) pulsar evolution parameters 
                         }
 
-                        //(void)PrintBeBinary();                                                                                      // print (log) BeBinary properties
+                        //(void)PrintBeBinary();                                                                                          // print (log) BeBinary properties
                         
-                        if (IsDCO() && !IsUnbound()) {                                                                              // bound double compact object?
-                            if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                               // DCO not yet evaluated -- to ensure that the coalescence is only resolved once
-                                ResolveCoalescence();                                                                               // yes - resolve coalescence
-                                m_DCOFormationTime = m_Time;                                                                        // set the DCO formation time
+                        if (IsDCO() && !IsUnbound()) {                                                                                  // bound double compact object?
+                            if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                                   // DCO not yet evaluated -- to ensure that the coalescence is only resolved once
+                                ResolveCoalescence();                                                                                   // yes - resolve coalescence
+                                m_DCOFormationTime = m_Time;                                                                            // set the DCO formation time
                             }
 
-                            if (!(OPTIONS->EvolvePulsars() && HasOneOf({ STELLAR_TYPE::NEUTRON_STAR }))) {                          // evolve pulsar?
-                                evolutionStatus = EVOLUTION_STATUS::DCO;                                                            // no - have DCO - stop evolving
+                            if (!(OPTIONS->EvolvePulsars() && HasOneOf({ STELLAR_TYPE::NEUTRON_STAR }))) {                              // evolve pulsar?
+                                evolutionStatus = EVOLUTION_STATUS::DCO;                                                                // no - have DCO - stop evolving
                             }
                         }
 
                         // check whether to continue evolution
-                        if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                        // continue evolution?
+                        if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                            // continue evolution?
 
                             // check for other reasons to stop evolution
-                            if (IsDCO() && m_Time > (m_DCOFormationTime + m_TimeToCoalescence) && !IsUnbound()) {                   // evolution time exceeds DCO merger time?
-                                evolutionStatus = EVOLUTION_STATUS::DCO_MERGER_TIME;                                                // yes - stop evolution
+                            if (IsDCO() && m_Time > (m_DCOFormationTime + m_TimeToCoalescence) && !IsUnbound()) {                       // evolution time exceeds DCO merger time?
+                                evolutionStatus = EVOLUTION_STATUS::DCO_MERGER_TIME;                                                    // yes - stop evolution
                             }
-                            else if (m_Time > OPTIONS->MaxEvolutionTime()) {                                                        // evolution time exceeds maximum?
-                                evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                                       // yes - stop evolution
+                            else if (m_Time > OPTIONS->MaxEvolutionTime()) {                                                            // evolution time exceeds maximum?
+                                evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                                           // yes - stop evolution
                             }
-                            else if (!OPTIONS->EvolveDoubleWhiteDwarfs() && IsWDandWD()) {                                          // double WD and their evolution is not enabled?
-                                evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                          // yes - do not evolve double WD systems
+                            else if (!OPTIONS->EvolveDoubleWhiteDwarfs() && IsWDandWD()) {                                              // double WD and their evolution is not enabled?
+                                evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                              // yes - do not evolve double WD systems
                             }
-                            else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                // at least one massless remnant?
-                                evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                               // yes - stop evolution
+                            else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) && !OPTIONS->EvolveMainSequenceMergers()) {           // at least one massless remnant and not evolving MS merger products?
+                                evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                                   // yes - stop evolution
                             }
                         }
                     }
                 }
 
-                (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                                      // print (log) detailed output: this is after all changes made in the timestep
+                (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                                          // print (log) detailed output: this is after all changes made in the timestep
 
-                if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) evolutionStatus = EVOLUTION_STATUS::STEPS_UP;              // number of timesteps for evolution exceeds maximum
-                else if (evolutionStatus == EVOLUTION_STATUS::CONTINUE && usingProvidedTimesteps && stepNum >= timesteps.size()) {  // using user-provided timesteps and all consumed
-                    evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_EXHAUSTED;                                                        // yes - set status
-                    SHOW_WARN(ERROR::TIMESTEPS_EXHAUSTED);                                                                          // show warning
+                if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) evolutionStatus = EVOLUTION_STATUS::STEPS_UP;                  // number of timesteps for evolution exceeds maximum
+                else if (evolutionStatus == EVOLUTION_STATUS::CONTINUE && usingProvidedTimesteps && stepNum >= timesteps.size()) {      // using user-provided timesteps and all consumed
+                    evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_EXHAUSTED;                                                            // yes - set status
+                    SHOW_WARN(ERROR::TIMESTEPS_EXHAUSTED);                                                                              // show warning
                 }
 
-                if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                // continue evolution?
+                if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
                 
                     m_Star1->UpdatePreviousTimestepDuration();
                     m_Star2->UpdatePreviousTimestepDuration();
                 
-                    if (usingProvidedTimesteps) {                                                                                   // user-provided timesteps
+                    if (usingProvidedTimesteps) {                                                                                       // user-provided timesteps
                         // get new timestep
                         //   - don't quantise
                         //   - don't apply timestep multiplier
                         // (we assume user wants the timesteps in the file)
                         dt = timesteps[stepNum];
                     }
-                    else {                                                                                                          // not using user-provided timesteps
-                        dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();  // calculate new timestep
-                        dt = std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);              // quantised
+                    else {                                                                                                              // not using user-provided timesteps
+                        dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();      // calculate new timestep
+                        dt = std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);                  // quantised
                     }
 
-                    if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt < NUCLEAR_MINIMUM_TIMESTEP) {
-                        dt = NUCLEAR_MINIMUM_TIMESTEP;                                                                              // but not less than minimum
+                    /*ILYA*/
+                    //if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt < NUCLEAR_MINIMUM_TIMESTEP) {
+                    if (dt < NUCLEAR_MINIMUM_TIMESTEP) {
+                        dt = NUCLEAR_MINIMUM_TIMESTEP;                                                                                  // but not less than minimum
 		            }
-                    stepNum++;                                                                                                      // increment stepNum
+                    stepNum++;                                                                                                          // increment stepNum
                 }
             }
 
-            if (usingProvidedTimesteps && timesteps.size() > stepNum) {                                                             // all user-defined timesteps consumed?
-                evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_NOT_CONSUMED;                                                         // no - set status
-                SHOW_WARN(ERROR::TIMESTEPS_NOT_CONSUMED);                                                                           // show warning
+            if (usingProvidedTimesteps && timesteps.size() > stepNum) {                                                                 // all user-defined timesteps consumed?
+                evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_NOT_CONSUMED;                                                             // no - set status
+                SHOW_WARN(ERROR::TIMESTEPS_NOT_CONSUMED);                                                                               // show warning
             }
         }
 
-        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::FINAL_STATE);                                                     // print (log) detailed output: this is the final state of the binary
+        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::FINAL_STATE);                                                         // print (log) detailed output: this is the final state of the binary
 
         // if we trapped a floating-point error we set the star's error value to indicate a
         // floating-point error occured, but we don't terminate evolution (we can only have
@@ -2873,37 +2911,37 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
         if (std::fetestexcept(FE_DIVBYZERO) ||
             std::fetestexcept(FE_INVALID)   ||
             std::fetestexcept(FE_OVERFLOW)  ||
-            std::fetestexcept(FE_UNDERFLOW)) m_Error = ERROR::FLOATING_POINT_ERROR;                                                 // floating-point error
+            std::fetestexcept(FE_UNDERFLOW)) m_Error = ERROR::FLOATING_POINT_ERROR;                                                     // floating-point error
 
-            std::feclearexcept(FE_ALL_EXCEPT);                                                                                      // clear all FE traps
+            std::feclearexcept(FE_ALL_EXCEPT);                                                                                          // clear all FE traps
             
     }
-    catch (const std::runtime_error& e) {                                                                                           // catch runtime exceptions
+    catch (const std::runtime_error& e) {                                                                                               // catch runtime exceptions
         // anything we catch here should not already have been displayed to the user,
         // so set the error value, display the error, and flag termination (do not rethrow the error)
-        if (std::string(e.what()) == "FPE") m_Error = ERROR::FLOATING_POINT_ERROR;                                                  // floating-point error
-        else                                m_Error = ERROR::ERROR;                                                                 // unspecified error
-        SHOW_ERROR(m_Error);                                                                                                        // display error (don't throw here - handled by returning status)
-        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                                                  // evolution terminated
+        if (std::string(e.what()) == "FPE") m_Error = ERROR::FLOATING_POINT_ERROR;                                                      // floating-point error
+        else                                m_Error = ERROR::ERROR;                                                                     // unspecified error
+        SHOW_ERROR(m_Error);                                                                                                            // display error (don't throw here - handled by returning status)
+        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                                                      // evolution terminated
     }
     catch (int e) {
         // anything we catch here should already have been displayed to the user,
         // so just ensure error value is set and flag termination (do not rethrow the error)
-        if (e != static_cast<int>(ERROR::NONE)) m_Error = static_cast<ERROR>(e);                                                    // specified errpr
-        else                                    m_Error = ERROR::ERROR;                                                             // unspecified error
-        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                                                  // evolution terminated
+        if (e != static_cast<int>(ERROR::NONE)) m_Error = static_cast<ERROR>(e);                                                        // specified errpr
+        else                                    m_Error = ERROR::ERROR;                                                                 // unspecified error
+        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                                                      // evolution terminated
     }
     catch (...) {
         // anything we catch here should not already have been displayed to the user,
         // so set the error value, display the error, and flag termination (do not rethrow the error)
-        m_Error = ERROR::ERROR;                                                                                                     // unspecified error
-        SHOW_ERROR(m_Error);                                                                                                        // display error (don't throw here - handled by returning status)
-        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                                                  // evolution terminated
+        m_Error = ERROR::ERROR;                                                                                                         // unspecified error
+        SHOW_ERROR(m_Error);                                                                                                            // display error (don't throw here - handled by returning status)
+        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                                                      // evolution terminated
     }
 
     m_EvolutionStatus = evolutionStatus;
 
-    (void)PrintBinarySystemParameters();                                                                                            // print (log) binary system parameters
+    (void)PrintBinarySystemParameters();                                                                                                // print (log) binary system parameters
 
     return evolutionStatus;
 }

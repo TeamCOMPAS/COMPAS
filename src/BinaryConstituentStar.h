@@ -165,7 +165,7 @@ public:
     double          HeCoreMassAtCEE() const                                             { return m_CEDetails.HeCoreMass; }
 
     bool            IsRLOF() const                                                      { return m_RLOFDetails.isRLOF; }
-    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN() || IsAIC() || IsSNIA() || IsSNII() || IsHeSD(); }
+    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN() || IsAIC() || IsSNIA() || IsHeSD(); }
 
     double          LambdaAtCEE() const                                                 { return m_CEDetails.lambda; }
     double          LuminosityPostCEE() const                                           { return m_CEDetails.postCEE.luminosity; }
