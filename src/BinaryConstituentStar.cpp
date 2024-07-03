@@ -26,13 +26,7 @@ class BaseBinaryStar;
  * This allows the composition of the log records to be dynamically modified - this is
  * how we allow users to specify what properties they want recorded in log files.
  *
- * The functional return is the value of the property requested.  The type of the
- * functional return is a tuple: std::tuple<bool, COMPAS_VARIABLE_TYPE>.  This type
- * is COMPAS_VARIABLE by typedef.
- *
- * The bool returned indicates whether the property value was retrieved ok: true = yes, false = no
- * The COMPAS_VARIABLE_TYPE variable returned is a boost variant variable, the value of which is the
- * value of the underlying primitive variable.
+ * The functional return is the value of the property requested.
  *
  *
  * COMPAS_VARIABLE StellarPropertyValue(const T_ANY_PROPERTY p_Property) const
@@ -42,9 +36,7 @@ class BaseBinaryStar;
  */
 COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) const {
 
-    bool ok = true;                                                                                                     // default is no error
-
-    COMPAS_VARIABLE_TYPE value;
+    COMPAS_VARIABLE value;
 
     ANY_STAR_PROPERTY property;
 
@@ -56,108 +48,51 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
         case ANY_PROPERTY_TYPE::T_SUPERNOVA_PROPERTY: { SUPERNOVA_PROPERTY prop = boost::get<SUPERNOVA_PROPERTY>(p_Property); property = (ANY_STAR_PROPERTY)prop; } break;
         case ANY_PROPERTY_TYPE::T_COMPANION_PROPERTY: { COMPANION_PROPERTY prop = boost::get<COMPANION_PROPERTY>(p_Property); property = (ANY_STAR_PROPERTY)prop; } break;
 
-        default:                                                                                                        // unknown property type
-            ok    = false;                                                                                              // that's not ok...
-            value = "UNKNOWN";                                                                                          // default value
-            SHOW_WARN(ERROR::UNKNOWN_PROPERTY_TYPE);                                                                    // show warning
+        default:                                                                                                                // unexpected property type
+            // the only ways this can happen are if someone added a stellar type property (into ANY_PROPERTY_TYPE)
+            // and it isn't accounted for in this code, or if there is a defect in the code that causes
+            // this function to be called with a bad parameter.  We should not default here, with or without a
+            // warning - this is a code defect, so we flag it as an error and that will result in termination of
+            // the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing property type or find and fix the code defect.
+
+            THROW_ERROR(ERROR::UNEXPECTED_STELLAR_PROPERTY_TYPE);                                                               // throw error
     }
 
-    if (ok) {
+    switch (property) {
+        case ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE:                  value = BindingEnergyAtCEE();                           break;
+        case ANY_STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE:                 value = BindingEnergyPreCEE();                          break;
+        case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE:                    value = COCoreMassAtCEE();                              break;
+        case ANY_STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE:                       value = CoreMassAtCEE();                                break;
+        case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE_POST_COMMON_ENVELOPE:           value = DynamicalTimescalePostCEE();                    break;
+        case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE_PRE_COMMON_ENVELOPE:            value = DynamicalTimescalePreCEE();                     break;
+        case ANY_STAR_PROPERTY::EXPERIENCED_RLOF:                                   value = ExperiencedRLOF();                              break;
+        case ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMMON_ENVELOPE:                    value = HeCoreMassAtCEE();                              break;
+        case ANY_STAR_PROPERTY::IS_RLOF:                                            value = IsRLOF();                                       break;
+        case ANY_STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE:                          value = LambdaAtCEE();                                  break;
+        case ANY_STAR_PROPERTY::LUMINOSITY_POST_COMMON_ENVELOPE:                    value = LuminosityPostCEE();                            break;
+        case ANY_STAR_PROPERTY::LUMINOSITY_PRE_COMMON_ENVELOPE:                     value = LuminosityPreCEE();                             break;
+        case ANY_STAR_PROPERTY::MASS_LOSS_DIFF:                                     value = MassLossDiff();                                 break;
+        case ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF:                                 value = MassTransferDiff();                             break;
+        case ANY_STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA:                      value = OrbitalEnergyPostSN();                          break;
+        case ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA:                       value = OrbitalEnergyPreSN();                           break;
+        case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE:    value = RadialExpansionTimescalePostCEE();              break;
+        case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE:     value = RadialExpansionTimescalePreCEE();               break;
+        case ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR:                              value = ExperiencedRecycledNS();                        break;
+        case ANY_STAR_PROPERTY::RLOF_ONTO_NS:                                       value = ExperiencedRLOFOntoNS();                        break;
+        case ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE:                   value = TemperaturePostCEE() * TSOL;                    break;
+        case ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE:                    value = TemperaturePreCEE() * TSOL;                     break;
+        case ANY_STAR_PROPERTY::THERMAL_TIMESCALE_POST_COMMON_ENVELOPE:             value = ThermalTimescalePostCEE();                      break;
+        case ANY_STAR_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE:              value = ThermalTimescalePreCEE();                       break;
 
-        switch (property) {
-            case ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE:                  value = BindingEnergyAtCEE();                           break;
-            case ANY_STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE:                 value = BindingEnergyPreCEE();                          break;
-            case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE:                    value = COCoreMassAtCEE();                              break;
-            case ANY_STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE:                       value = CoreMassAtCEE();                                break;
-            case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE_POST_COMMON_ENVELOPE:           value = DynamicalTimescalePostCEE();                    break;
-            case ANY_STAR_PROPERTY::DYNAMICAL_TIMESCALE_PRE_COMMON_ENVELOPE:            value = DynamicalTimescalePreCEE();                     break;
-            case ANY_STAR_PROPERTY::EXPERIENCED_RLOF:                                   value = ExperiencedRLOF();                              break;
-            case ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMMON_ENVELOPE:                    value = HeCoreMassAtCEE();                              break;
-            case ANY_STAR_PROPERTY::IS_RLOF:                                            value = IsRLOF();                                       break;
-            case ANY_STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE:                          value = LambdaAtCEE();                                  break;
-            case ANY_STAR_PROPERTY::LUMINOSITY_POST_COMMON_ENVELOPE:                    value = LuminosityPostCEE();                            break;
-            case ANY_STAR_PROPERTY::LUMINOSITY_PRE_COMMON_ENVELOPE:                     value = LuminosityPreCEE();                             break;
-            case ANY_STAR_PROPERTY::MASS_LOSS_DIFF:                                     value = MassLossDiff();                             break;
-            case ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF:                                 value = MassTransferDiff();                             break;
-            case ANY_STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA:                      value = OrbitalEnergyPostSN();                          break;
-            case ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA:                       value = OrbitalEnergyPreSN();                           break;
-            case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE:    value = RadialExpansionTimescalePostCEE();              break;
-            case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE:     value = RadialExpansionTimescalePreCEE();               break;
-            case ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR:                              value = ExperiencedRecycledNS();                        break;
-            case ANY_STAR_PROPERTY::RLOF_ONTO_NS:                                       value = ExperiencedRLOFOntoNS();                        break;
-            case ANY_STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE:                   value = TemperaturePostCEE() * TSOL;                    break;
-            case ANY_STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE:                    value = TemperaturePreCEE() * TSOL;                     break;
-            case ANY_STAR_PROPERTY::THERMAL_TIMESCALE_POST_COMMON_ENVELOPE:             value = ThermalTimescalePostCEE();                      break;
-            case ANY_STAR_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE:              value = ThermalTimescalePreCEE();                       break;
-
-            default:                                                                                                    // not a constitient star property - try underlying star
-                std::tie(ok, value) = Star::StellarPropertyValue(p_Property);
-        }
+        default:
+            // not a constitient star property
+            // try underlying star - any errors will be handled there
+            value = Star::StellarPropertyValue(p_Property);
     }
 
-    return std::make_tuple(ok, value);
+    return value;
 }
-
-
-/*
- * Calculate the mass accreted by a Neutron Star given mass and radius of companion
- *
- * JR: todo: flesh-out this documentation
- *
- *
- * double CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius)
- *
- * @param   [IN]    p_Mass                      The mass of the accreting star (Msol)
- * @param   [IN]    p_CompanionMass             The mass of the companion star (Msol)
- * @param   [IN]    p_CompanionRadius           The radius of the companion star (Rsol)
- * @return                                      Mass accreted by the Neutron Star (Msol)
- */
-double BinaryConstituentStar::CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius) const {
-
-     double deltaMass;
-
-     switch (OPTIONS->CommonEnvelopeMassAccretionPrescription()) {                                              // which prescription?
-
-        case CE_ACCRETION_PRESCRIPTION::ZERO:                                                                   // ZERO
-            deltaMass = 0.0;
-            break;
-
-        case CE_ACCRETION_PRESCRIPTION::CONSTANT:                                                               // CONSTANT
-            deltaMass = OPTIONS->CommonEnvelopeMassAccretionConstant();                                         // use program option
-            break;
-
-        case CE_ACCRETION_PRESCRIPTION::UNIFORM:                                                                // UNIFORM
-            deltaMass = RAND->Random(OPTIONS->CommonEnvelopeMassAccretionMin(), OPTIONS->CommonEnvelopeMassAccretionMax()); // uniform random distribution - Oslowski+ (2011)
-            break;
-
-        case CE_ACCRETION_PRESCRIPTION::MACLEOD: {                                                              // MACLEOD
-                                                                                                                // linear regression estimated from Macleod+ (2015)
-            double mm = -1.0714285714285712E-05;                                                                // gradient of the linear fit for gradient
-            double cm =  0.00012057142857142856;                                                                // intercept of the linear fit for gradient
-            double mc =  0.01588571428571428;                                                                   // gradient of the linear fit for intercept
-            double cc = -0.15462857142857137;                                                                   // intercept of the linear fir for intercept
-            double m  = mm * p_CompanionMass + cm ;                                                             // gradient of linear fit for mass
-            double c  = mc * p_CompanionMass + cc ;                                                             // intercept of linear fit for mass
-
-            // calculate mass to accrete and clamp to minimum and maximum from program options
-            deltaMass = std::min(OPTIONS->CommonEnvelopeMassAccretionMax(), std::max(OPTIONS->CommonEnvelopeMassAccretionMin(), m * p_CompanionRadius + c));
-            } break;
-
-        case CE_ACCRETION_PRESCRIPTION::CHEVALIER:                                                                // CHEVALIER
-                                                                                                                  // Model 2 from van Son et al. 2020
-            deltaMass = (p_Mass * p_CompanionMass) / (2.0 * (p_Mass + p_CompanionMass)) ;                         // Hoyle littleton accretion rate times inspiral time
-            break;
-
-        default:                                                                                                  // unknown common envelope accretion prescription - shouldn't happen
-            deltaMass = 0.0;                                                                                      // default value
-            SHOW_WARN(ERROR::UNKNOWN_CE_ACCRETION_PRESCRIPTION, "NS/BH accreted mass = 0.0");                     // warn that an error occurred
-    }
-
-    deltaMass = std::min(m_Companion->MassPreCEE() - m_Companion->CoreMassAtCEE(), deltaMass);                    // clamp the mass accretion to be no more than the envelope of the companion pre CE
-
-    return deltaMass;
-}
-
 
 
 /*
@@ -242,82 +177,60 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
     m_CEDetails.COCoreMass = COCoreMass();
     m_CEDetails.CoreMass   = CoreMass();
 
-    m_CEDetails.lambda     = 0.0;                                               // default
+    m_CEDetails.lambda     = 0.0;                                                                               // default
 
-    switch (OPTIONS->CommonEnvelopeLambdaPrescription()) {                      // which common envelope lambda prescription?
+    switch (OPTIONS->CommonEnvelopeLambdaPrescription()) {                                                      // which common envelope lambda prescription?
 
         case CE_LAMBDA_PRESCRIPTION::FIXED:
-            m_CEDetails.lambda        = Lambda_Fixed();
-            m_CEDetails.bindingEnergy = BindingEnergy_Fixed();
+            m_CEDetails.lambda        = LambdaFixed();
+            m_CEDetails.bindingEnergy = BindingEnergyFixed();
             break;
 
         case CE_LAMBDA_PRESCRIPTION::LOVERIDGE:
-            m_CEDetails.lambda        = Lambda_Loveridge();
-            m_CEDetails.bindingEnergy = BindingEnergy_Loveridge();
+            m_CEDetails.lambda        = LambdaLoveridge();
+            m_CEDetails.bindingEnergy = BindingEnergyLoveridge();
             break;
 
         case CE_LAMBDA_PRESCRIPTION::NANJING:
-            m_CEDetails.lambda        = Lambda_Nanjing();
-            m_CEDetails.bindingEnergy = BindingEnergy_Nanjing();
+            m_CEDetails.lambda        = LambdaNanjing();
+            m_CEDetails.bindingEnergy = BindingEnergyNanjing();
             break;
 
         case CE_LAMBDA_PRESCRIPTION::KRUCKOW:
-            m_CEDetails.lambda        = Lambda_Kruckow();
-            m_CEDetails.bindingEnergy = BindingEnergy_Kruckow();
+            m_CEDetails.lambda        = LambdaKruckow();
+            m_CEDetails.bindingEnergy = BindingEnergyKruckow();
             break;
             
         case CE_LAMBDA_PRESCRIPTION::DEWI:
-            m_CEDetails.lambda        = Lambda_Dewi();
-            m_CEDetails.bindingEnergy = BindingEnergy_Dewi();
+            m_CEDetails.lambda        = LambdaDewi();
+            m_CEDetails.bindingEnergy = BindingEnergyDewi();
             break;
-            
-        default:                                                                // unknown prescription
-            SHOW_WARN(ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION, "Lambda = 0.0");   // show warning
+
+        default:                                                                                                // unknown prescription
+            // the only way this can happen is if someone added a CE_LAMBDA_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR(ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION);                                                 // throw error            
     }
 
-    if (utils::Compare(m_CEDetails.lambda, 0.0) <= 0) m_CEDetails.lambda = 0.0; // force non-positive lambda to 0
+    if (utils::Compare(m_CEDetails.lambda, 0.0) <= 0) m_CEDetails.lambda = 0.0;                                 // force non-positive lambda to 0
 
-    m_CEDetails.lambda *= OPTIONS->CommonEnvelopeLambdaMultiplier();            // multiply by constant (program option, default = 1.0)
+    m_CEDetails.lambda *= OPTIONS->CommonEnvelopeLambdaMultiplier();                                            // multiply by constant (program option, default = 1.0)
     
-    // Properties relevant for the Hirai & Mandel (2022) formalism
+    // properties relevant for the Hirai & Mandel (2022) formalism
     double maxConvectiveEnvelopeMass;
     std::tie(m_CEDetails.convectiveEnvelopeMass, maxConvectiveEnvelopeMass) = CalculateConvectiveEnvelopeMass();
-    m_CEDetails.radiativeIntershellMass         = Mass() - CoreMass() - m_CEDetails.convectiveEnvelopeMass;
-    if ( OPTIONS->CommonEnvelopeFormalism() == CE_FORMALISM::TWO_STAGE )
+    m_CEDetails.radiativeIntershellMass = Mass() - CoreMass() - m_CEDetails.convectiveEnvelopeMass;
+
+    if (OPTIONS->CommonEnvelopeFormalism() == CE_FORMALISM::TWO_STAGE)
         m_CEDetails.lambda = CalculateConvectiveEnvelopeLambdaPicker(m_CEDetails.convectiveEnvelopeMass, maxConvectiveEnvelopeMass);
 
     m_CEDetails.convectiveEnvelopeBindingEnergy = CalculateConvectiveEnvelopeBindingEnergy(Mass(), m_CEDetails.convectiveEnvelopeMass, Radius(), m_CEDetails.lambda);
 }
-
-
-/* 
- * Resolve common envelope accretion
- *
- * For stellar types other than Black hole or Neutron Star just set the star's mass to the parameter passed
- * For Black holes or Neutron Stars calculate the mass accreted during a CE
- *
- *
- * void ResolveCommonEnvelopeAccretion(const double p_FinalMass)
- *
- * @param   [IN]    p_FinalMass                 Mass of the accreting object post mass transfer (Msol)
- * @param   [IN]    p_StellarType               Stellar type of the accreting object pre mass transfer 
- */
-void BinaryConstituentStar::ResolveCommonEnvelopeAccretion(double p_FinalMass) {
-
-    double deltaMass;
-    
-    // LvS: todo: more consistent super eddington accretion during CE should also affect e.g. MS stars
-    if (IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE})) {                          
-        deltaMass = CalculateMassAccretedForCO(Mass(), m_Companion->Mass(), m_Companion->Radius());
-        m_MassTransferDiff = deltaMass;
-    }
-    else {
-        deltaMass = p_FinalMass - Mass();
-        // JR: todo: why isn't m_MassTransferDiff updated here (as it is for Neutron Stars)?
-    }
-    ResolveAccretion(deltaMass);
-}
-
 
 
 /*
@@ -340,31 +253,43 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
 
 	switch (DetermineEnvelopeType()) {
 
-            case ENVELOPE::CONVECTIVE: {                                                                                                    // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
+        case ENVELOPE::CONVECTIVE: {                                                                                                    // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
 
 	        double tauConv          = CalculateEddyTurnoverTimescale();
-	        double fConv            = 1.0;                                                                                                  // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
+	        double fConv            = 1.0;                                                                                              // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
             double fConvOverTauConv = fConv / tauConv;
-            double rOverAPow8       = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;                                // use multiplication - pow() is slow
+            double rOverAPow8       = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;                            // use multiplication - pow() is slow
 
 	        timescale               = 1.0 / (fConvOverTauConv * ((Mass() - CoreMass()) / Mass()) * q2 * (1.0 + q2) * rOverAPow8);
-            } break;
+        } break;
 
-            case ENVELOPE::RADIATIVE: {                                                                                                     // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
+        case ENVELOPE::RADIATIVE: {                                                                                                     // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
 
-                double rInAU                  = Radius() * RSOL_TO_AU;
-                double rInAUPow3              = rInAU * rInAU * rInAU;                                                                      // use multiplication - pow() is slow
-                double rOverAPow10            = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;    // use multiplication - pow() is slow
-                double rOverAPow21Over2       = rOverAPow10 * rOverA * std::sqrt(rOverA);                                                   // sqrt() is faster than pow()
+            double rInAU                  = Radius() * RSOL_TO_AU;
+            double rInAUPow3              = rInAU * rInAU * rInAU;                                                                      // use multiplication - pow() is slow
+            double rOverAPow10            = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;    // use multiplication - pow() is slow
+            double rOverAPow21Over2       = rOverAPow10 * rOverA * std::sqrt(rOverA);                                                   // sqrt() is faster than pow()
 
-		        double	secondOrderTidalCoeff = 1.592E-09 * PPOW(Mass(), 2.84);                                                             // aka E_2.    
-		        double	freeFallFactor        = std::sqrt(G_AU_Msol_yr * Mass() / rInAUPow3);
+		    double	secondOrderTidalCoeff = 1.592E-09 * PPOW(Mass(), 2.84);                                                             // aka E_2.    
+		    double	freeFallFactor        = std::sqrt(G_AU_Msol_yr * Mass() / rInAUPow3);
 		
-		        timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * PPOW(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
+		    timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * PPOW(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
             } break;
 
-            default:                                                                                                                        // all other envelope types (remnants?)
-                timescale = 0.0;
+        case ENVELOPE::REMNANT:                                                                                                         // remnants
+            timescale = 0.0;
+            break;
+
+        default:                                                                                                                        // unknown envelope type
+            // the only way this can happen is if someone added a new envelope type (to ENVELOPE)
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because DetermineEnvelopeType() returned an envelope type this code doesn't account
+            // for, and that should be flagged as an error and result in termination of the evolution of the
+            // star or binary.
+            // The correct fix for this is to add code for the missing envelope type or, if the missing envelope
+            // tyoe is incorrect/superfluous, remove it from ENVELOPE.
+
+            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_TYPE);                                                                                  // throw error
         }
 
 	return timescale;
@@ -394,19 +319,19 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 
 	switch (DetermineEnvelopeType()) {
 
-            case ENVELOPE::CONVECTIVE: {                                            // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
+            case ENVELOPE::CONVECTIVE: {                                                            // solve for stars with convective envelope, according to tides section (see Hurley et al. 2002, subsection 2.3.1)
 
                 double tauConv = CalculateEddyTurnoverTimescale();
-                double fConv   = 1.0;	                                            // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
+                double fConv   = 1.0;                                                               // currently, as COMPAS doesn't have rotating stars tested, we set f_conv = 1 always.
                 double kOverTc = (2.0 / 21.0) * (fConv / tauConv) * ((Mass() - CoreMass()) / Mass());
 
                 timescale      = 1.0 / (3.0 * kOverTc * q2 * gyrationRadiusSquared_1 * rOverA_6);
             } break;
 
-            case ENVELOPE::RADIATIVE: {                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
+            case ENVELOPE::RADIATIVE: {                                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
 
-                double coeff2          = 5.0 * PPOW(2.0, 5.0 / 3.0);                // JR: todo: replace this with a constant (calculated) value?
-                double e2              = 1.592E-9 * PPOW(Mass(), 2.84);             // second order tidal coefficient (a.k.a. E_2)
+                double coeff2          = 15.874010519681995;                                        // 5.0 * PPOW(2.0, 5.0 / 3.0) = 5.0 * 3.174802103936399
+                double e2              = 1.592E-9 * PPOW(Mass(), 2.84);                             // second order tidal coefficient (a.k.a. E_2)
                 double rAU             = Radius() * RSOL_TO_AU;
                 double rAU_3           = rAU * rAU * rAU;
                 double freeFallFactor  = std::sqrt(G_AU_Msol_yr * Mass() / rAU_3);
@@ -414,8 +339,20 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 		        timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * PPOW(1.0 + q2, 5.0 / 6.0) * e2 * PPOW(rOverA, 17.0 / 2.0));
             } break;
 
-            default:                                                                // all other envelope types (remnants?)
-                timescale = 1.0 / ((1.0 / 1.3E7) * PPOW(Luminosity() / Mass(), 5.0 / 7.0) * rOverA_6);
+        case ENVELOPE::REMNANT:                                                                     // remnants
+            timescale = 1.0 / ((1.0 / 1.3E7) * PPOW(Luminosity() / Mass(), 5.0 / 7.0) * rOverA_6);
+            break;
+
+        default:                                                                                    // unknown envelope type
+            // the only way this can happen is if someone added a new envelope type (to ENVELOPE)
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because DetermineEnvelopeType() returned an envelope type this code doesn't account
+            // for, and that should be flagged as an error and result in termination of the evolution of the
+            // star or binary.
+            // The correct fix for this is to add code for the missing envelope type or, if the missing envelope
+            // tyoe is incorrect/superfluous, remove it from ENVELOPE.
+
+            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_TYPE);                                              // throw error
 	}
 
 	return timescale;

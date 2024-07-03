@@ -2,10 +2,15 @@
 #include <stdarg.h>
 #include <algorithm>
 #include <cstring>
+#include <iomanip>
+#include <execinfo.h>
+#include <cxxabi.h>
+
 #include "profiling.h"
 #include "utils.h"
 #include "Rand.h"
 #include "changelog.h"
+
 
 /*
  * utility functions that don't belong in any class
@@ -21,18 +26,18 @@ namespace utils {
      * For a given number x and a sorted array arr, return the lower and upper bin edges of x in arr.
      *
      *
-     * std::vector<int> binarySearch(const std::vector<double> p_Arr, const double p_x)
+     * INT_VECTOR binarySearch(const std::vector<double> p_Arr, const double p_x)
      *
-     * @param   [IN]    p_Array             Sorted array to search over
+     * @param   [IN]    p_Arr               Sorted array to search over
      * @param   [IN]    p_x                 Value to search for
-
+     * 
      * @return                              Vector containing indices of the lower and upper
-                                            bin edges containing x. If x < min(Arr), return
-                                            {-1, 0}. If x > max(Arr), return {0, -1}. If x
-                                            is equal to an array element, return index of that
-                                            element.
+     *                                      bin edges containing x. If x < min(Arr), return
+     *                                      {-1, 0}. If x > max(Arr), return {0, -1}. If x
+     *                                      is equal to an array element, return index of that
+     *                                      element.
      */
-    std::vector<int> binarySearch(const std::vector<double> p_Arr, const double p_x) {
+    INT_VECTOR BinarySearch(const std::vector<double> p_Arr, const double p_x) {
         int low = 0;
         int up = p_Arr.size() - 1;
         int mid = 0;
@@ -41,14 +46,14 @@ namespace utils {
         if      (p_x < p_Arr[low]) { return {-1, 0}; }
         else if (p_x > p_Arr[up])  { return {0, -1}; }
 
-        while(1) {
-            mid = roundl( 0.5*(up + low) );
-            if (std::abs(low - up) == 1) { return {low, low+1}; }    // arr(low) < x < arr(up), so return low
-            else if (p_x == p_Arr[low])  { return {low, low}; }      // arr(low) = x. In this case, return low = up
-            else if (p_x == p_Arr[up])   { return {up, up}; }        // arr(up) = x. In this case, return low = up
-            else if (p_x == p_Arr[mid])  { return {mid, mid}; }      // arr(mid) = x. In this case, return low = up = mid
-            else if (p_x < p_Arr[mid])   { up = mid; }               // Bring down upper bound
-            else                         { low = mid; }              // Bring up lower bound
+        while(1) {                                                      // this cannot hang - eventually one of the returns must happen
+            mid = roundl(0.5 * (up + low));
+            if (std::abs(low - up) == 1) { return {low, low + 1}; }     // arr(low) < x < arr(up), so return low
+            else if (p_x == p_Arr[low])  { return {low, low}; }         // arr(low) = x. In this case, return low = up
+            else if (p_x == p_Arr[up])   { return {up, up}; }           // arr(up) = x. In this case, return low = up
+            else if (p_x == p_Arr[mid])  { return {mid, mid}; }         // arr(mid) = x. In this case, return low = up = mid
+            else if (p_x < p_Arr[mid])   { up  = mid; }                 // bring down upper bound
+            else                         { low = mid; }                 // bring up lower bound
         }
     }
 
@@ -255,7 +260,7 @@ namespace utils {
                                                                                                                     // (power law power = 0 = isotropic, +infinity = kick along pole, -infinity = kick in plane)
                 // Choose magnitude of power law distribution -- if using a negative power law that blows up at 0,
                 // need a lower cutoff (currently set at 1E-6), check it doesn't affect things too much
-                // JR: todo: should these be in constants.h?
+                // **Ilya** is this reasonable?
                 double magnitude_of_cos_theta = utils::InverseSampleFromPowerLaw(p_KickDirectionPower, 1.0, 1E-6);
                 if (p_KickDirectionPower < 0.0) magnitude_of_cos_theta = 1.0 - magnitude_of_cos_theta;              // don't use utils::Compare() here
 
@@ -796,7 +801,7 @@ namespace utils {
      * This only works with ASCII data, but I think that's all we need
      *
      *
-     * bool std::string ToLower(std::string p_Str)
+     * std::string std::string ToLower(std::string p_Str)
      *
      * @param   [IN]    p_Str                       String to be downshifted
      * @return                                      Downshifted string
@@ -813,7 +818,7 @@ namespace utils {
      * This only works with ASCII data, but I think that's all we need
      *
      *
-     * bool std::string ToUpper(std::string p_Str)
+     * std::string std::string ToUpper(std::string p_Str)
      *
      * @param   [IN]    p_Str                       String to be upshifted
      * @return                                      Upshifted string
@@ -1076,7 +1081,7 @@ namespace utils {
                                 ? PPOW(rand * (KROUPA_POWER_PLUS1_2 / C2) + PPOW(p_Min, KROUPA_POWER_PLUS1_2), ONE_OVER_KROUPA_POWER_2_PLUS1)
                                 : PPOW((rand - B) * (KROUPA_POWER_PLUS1_3 / C3) + KROUPA_BREAK_2_PLUS1_3, ONE_OVER_KROUPA_POWER_3_PLUS1);
                 }
-                // JR: no other case possible - as long as p_Min < p_Max (currently enforced in Options.cpp)
+                // no other case possible - as long as p_Min < p_Max (currently enforced in Options.cpp)
                 break;
 
             default:                                                                                                // unknown IMF
@@ -1203,14 +1208,14 @@ namespace utils {
      * Draw semi-major axis from the distribution specified by the user
      * 
      * 
-     * double SampleSemiMajorAxisDistribution(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
-     *                                        const double                       p_AdistMax, 
-     *                                        const double                       p_AdistMin, 
-     *                                        const double                       p_AdistPower, 
-     *                                        const double                       p_PdistMax, 
-     *                                        const double                       p_PdistMin, 
-     *                                        const double                       p_Mass1, 
-     *                                        const double                       p_Mass2)
+     * std::tuple<ERROR, double> SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
+     *                                               const double                       p_AdistMax, 
+     *                                               const double                       p_AdistMin, 
+     *                                               const double                       p_AdistPower, 
+     *                                               const double                       p_PdistMax, 
+     *                                               const double                       p_PdistMin, 
+     *                                               const double                       p_Mass1, 
+     *                                               const double                       p_Mass2)
      *
      * @param   [IN]    p_Adist                     The distribution to use to draw semi-major axis
      * @param   [IN]    p_AdistMax                  Semi-major axis distribution maximum
@@ -1220,27 +1225,35 @@ namespace utils {
      * @param   [IN]    p_PdistMin                  Period distribution minimum (for SANA2012 distribution)
      * @param   [IN]    p_Mass1                     Mass of the primary
      * @param   [IN]    p_Mass2                     Mass of the secondary
-     * @return                                      Semi-major axis in AU
+     * @return                                      tuple containing error value and semi-major axis in AU
+     *                                              if error is:
+     *                                                  ERROR::NONE, the returned semi-major axis is valid
+     *                                                  ERROR::NO_CONRGENCE, the sampling did not converge,
+     *                                                  and the returned semi-major axis should be used with caution
+     *                                                  ERROR::UNKNOWN_SEMI_MAJOR_AXIS_DISTRIBUTION the SEMI_MAJOR_AXIS_DISTRIBUTION
+     *                                                  passed in p_Adist is unknown, and the returned semi-major axis will be 0.0
      */
-    double SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
-                               const double                       p_AdistMax, 
-                               const double                       p_AdistMin, 
-                               const double                       p_AdistPower, 
-                               const double                       p_PdistMax, 
-                               const double                       p_PdistMin, 
-                               const double                       p_Mass1, 
-                               const double                       p_Mass2) {
+    std::tuple<ERROR, double> SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
+                                                  const double                       p_AdistMax, 
+                                                  const double                       p_AdistMin, 
+                                                  const double                       p_AdistPower, 
+                                                  const double                       p_PdistMax, 
+                                                  const double                       p_PdistMin, 
+                                                  const double                       p_Mass1, 
+                                                  const double                       p_Mass2) {
 
-        double semiMajorAxis;
+        ERROR error = ERROR::NONE;
 
-        switch (p_Adist) {                                                                                              // which distribution?
+        double semiMajorAxis = 0.0;
 
-            case SEMI_MAJOR_AXIS_DISTRIBUTION::FLATINLOG:                                                               // FLAT IN LOG
+        switch (p_Adist) {                                                                                                      // which distribution?
+
+            case SEMI_MAJOR_AXIS_DISTRIBUTION::FLATINLOG:                                                                       // FLAT IN LOG
 
                 semiMajorAxis = utils::InverseSampleFromPowerLaw(-1.0, p_AdistMax, p_AdistMin);
                 break;
 
-            case SEMI_MAJOR_AXIS_DISTRIBUTION::DUQUENNOYMAYOR1991:                                                      // Duquennoy & Mayor (1991) period distribution
+            case SEMI_MAJOR_AXIS_DISTRIBUTION::DUQUENNOYMAYOR1991: {                                                            // Duquennoy & Mayor (1991) period distribution
                 // http://adsabs.harvard.edu/abs/1991A%26A...248..485D
                 // See also the period distribution (Figure 1) of M35 in Geller+ 2013 https://arxiv.org/abs/1210.1575
                 // See also the period distribution (Figure 13) of local solar type binaries from Raghavan et al 2010 https://arxiv.org/abs/1007.0414
@@ -1248,31 +1261,42 @@ namespace utils {
                 // Sampling function taken from binpop.f in NBODY6
 
                 // Make sure that the drawn semi-major axis is in the range specified by the user
-                do {                                                                                                    // JR: todo: catch for non-convergence?
+                size_t samples = 0;
+                do {
                     double periodInDays = PPOW(10.0, 2.3 * std::sqrt(-2.0 * log(RAND->Random())) * cos(_2_PI * RAND->Random()) + 4.8);
-                    semiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);      // convert period in days to semi-major axis in AU
-                } while (semiMajorAxis < p_AdistMin || semiMajorAxis > p_AdistMax);                                     // JR: don't use utils::Compare() here
-                break;
+                    semiMajorAxis       = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);        // convert period in days to semi-major axis in AU
+                } while (samples++ < SEMI_MAJOR_AXIS_SAMPLES && (semiMajorAxis < p_AdistMin || semiMajorAxis > p_AdistMax));    // JR: don't use utils::Compare() here
+                if (samples >= SEMI_MAJOR_AXIS_SAMPLES) error = ERROR::NO_CONVERGENCE;                                          // check for non-comvergence - set error value
+                } break;
 
-            case SEMI_MAJOR_AXIS_DISTRIBUTION::SANA2012: {                                                              // Sana et al 2012
+            case SEMI_MAJOR_AXIS_DISTRIBUTION::SANA2012: {                                                                      // Sana et al 2012
                 // http://science.sciencemag.org/content/sci/337/6093/444.full.pdf
                 // distribution of semi-major axes. Sana et al fit for the orbital period, which we sample in here, before returning the semi major axis
                 // Taken from table S3 in http://science.sciencemag.org/content/sci/suppl/2012/07/25/337.6093.444.DC1/1223344.Sana.SM.pdf
                 // See also de Mink and Belczynski 2015 http://arxiv.org/pdf/1506.03573v2.pdf
 
-                double logPeriodMin = p_PdistMin > 1.0 ? log(p_PdistMin) : 0.0;                                         // smallest initial log period  JR: don't use utils::Compare() here
-                double logPeriodMax = p_PdistMax > 1.0 ? log(p_PdistMax) : 0.0;                                         // largest initial log period   JR: don't use utils::Compare() here
+                double logPeriodMin = p_PdistMin > 1.0 ? log(p_PdistMin) : 0.0;                                                 // smallest initial log period  JR: don't use utils::Compare() here
+                double logPeriodMax = p_PdistMax > 1.0 ? log(p_PdistMax) : 0.0;                                                 // largest initial log period   JR: don't use utils::Compare() here
 
-                double periodInDays = exp(utils::InverseSampleFromPowerLaw(-0.55, logPeriodMax, logPeriodMin));         // draw a period in days from their distribution
-
-                semiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);          // convert period in days to semi-major axis in AU
+                double periodInDays = exp(utils::InverseSampleFromPowerLaw(-0.55, logPeriodMax, logPeriodMin));                 // draw a period in days from their distribution
+                semiMajorAxis       = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(p_Mass1, p_Mass2, periodInDays);            // convert period in days to semi-major axis in AU
                 } break;
 
-            default:                                                                                                    // unknown distribution
-                semiMajorAxis = utils::InverseSampleFromPowerLaw(-1.0, 100.0, 0.5);                                     // calculate semiMajorAxis using power law with default values
+            default:                                                                                                            // unknown stellar population
+                // the only ways this can happen are if someone added a SEMI_MAJOR_AXIS_DISTRIBUTION
+                // and it isn't accounted for in this code, or if there is a defect in the code that causes
+                // this function to be called with a bad parameter.  We should not default here, with or without
+                // a warning.
+                // We are here because the function was called with a distribution this code doesn't account
+                // for, or as a result of a code defect, and either of those should be flagged as an error and
+                // result in termination of the evolution of the star or binary.
+                // The correct fix for this is to add code for the missing distribution or, if the missing
+                // distribution is superfluous, remove it, or find and fix the code defect.
+
+                error = ERROR::UNKNOWN_SEMI_MAJOR_AXIS_DISTRIBUTION;                                                            // set error value
         }
 
-        return semiMajorAxis;
+        return std::make_tuple(error, semiMajorAxis);
     }
 
 
@@ -1281,21 +1305,24 @@ namespace utils {
      * 
      * Returns (in priority order):
      *
-     *    SN_EVENT::CCSN  iff CCSN  bit is set and USSN bit is not set
-     *    SN_EVENT::ECSN  iff ECSN  bit is set
-     *    SN_EVENT::PISN  iff PISN  bit is set
-     *    SN_EVENT::PPISN iff PPISN bit is set
-     *    SN_EVENT::USSN  iff USSN  bit is set
-     *    SN_EVENT::AIC   iff AIC   bit is set
-     *    SN_EVENT::SNIA  iff SNIA  bit is set and HeSD bit is not set
-     *    SN_EVENT::HeSD  iff HeSD  bit is set
-     *    SN_EVENT::NONE  otherwise
+     *    SN_EVENT::NONE    iff no bits are set
+     *    SN_EVENT::CCSN    iff CCSN  bit is set and USSN bit is not set
+     *    SN_EVENT::ECSN    iff ECSN  bit is set
+     *    SN_EVENT::PISN    iff PISN  bit is set
+     *    SN_EVENT::PPISN   iff PPISN bit is set
+     *    SN_EVENT::USSN    iff USSN  bit is set
+     *    SN_EVENT::AIC     iff AIC   bit is set
+     *    SN_EVENT::SNIA    iff SNIA  bit is set and HeSD bit is not set
+     *    SN_EVENT::HeSD    iff HeSD  bit is set
+     *    SN_EVENT::UNKNOWN otherwise
      * 
      *
      * @param   [IN]    p_SNEvent                   SN_EVENT mask to check for SN event type
      * @return                                      SN_EVENT
      */
     SN_EVENT SNEventType(const SN_EVENT p_SNEvent) {
+
+        if (p_SNEvent == SN_EVENT::NONE)                                        return SN_EVENT::NONE;
 
         if ((p_SNEvent & (SN_EVENT::CCSN | SN_EVENT::USSN)) == SN_EVENT::CCSN ) return SN_EVENT::CCSN;
         if ((p_SNEvent & SN_EVENT::ECSN )                   == SN_EVENT::ECSN ) return SN_EVENT::ECSN;
@@ -1306,7 +1333,7 @@ namespace utils {
         if ((p_SNEvent & (SN_EVENT::SNIA | SN_EVENT::HeSD)) == SN_EVENT::SNIA ) return SN_EVENT::SNIA;
         if ((p_SNEvent & SN_EVENT::HeSD )                   == SN_EVENT::HeSD ) return SN_EVENT::HeSD;
 
-        return SN_EVENT::NONE;
+        return SN_EVENT::UNKNOWN;
     }
 
 
@@ -1334,7 +1361,7 @@ namespace utils {
      */
     std::tuple<ERROR, double, double> SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity) {
 
-        ERROR  error = ERROR::NONE;                                                                                                     // error
+        ERROR error = ERROR::NONE;                                                                                                      // error
 
         double e = p_Eccentricity;
         double M = p_MeanAnomaly;
@@ -1351,10 +1378,11 @@ namespace utils {
 
         if (iteration >= MAX_KEPLER_ITERATIONS) error = ERROR::NO_CONVERGENCE;                                                          // no convergence - set error
 
-        double nu = 2.0 * atan((std::sqrt((1.0 + e) / (1.0 - e))) * tan(0.5*E));                                                             // convert eccentric anomaly into true anomaly.  Equation (96) in my "A simple toy model" document
+        double nu = 2.0 * atan((std::sqrt((1.0 + e) / (1.0 - e))) * tan(0.5 * E));                                                      // convert eccentric anomaly into true anomaly.  Equation (96) in "A simple toy model" document
 
-             if (utils::Compare(E, M_PI) >= 0 && utils::Compare(E, _2_PI) <= 0) nu += _2_PI;                                            // add 2PI if necessary
-        else if (utils::Compare(E, 0.0)  <  0 || utils::Compare(E, _2_PI) >  0) error = ERROR::OUT_OF_BOUNDS;                           // out of bounds - set error
+        if (utils::Compare(E, M_PI) >= 0 && utils::Compare(E, _2_PI) <= 0) nu += _2_PI;                                                 // add 2PI if necessary
+
+        if (utils::Compare(E, 0.0) < 0 && utils::Compare(E, _2_PI) > 0) error = ERROR::OUT_OF_BOUNDS;                                   // E < 0 or E > 2pi
 
         return std::make_tuple(error, E, nu);
     }
@@ -1389,7 +1417,7 @@ namespace utils {
 
         double root = 0.0;                                          // root found
 
-        // JR: check < 0 first so don't have to check = 0.0 (will almost never happen after calculation - need epsilon)
+        // check < 0 first so don't have to check = 0.0
         if (discriminant < 0.0) {                                   // no real roots? (leave this as an absolute compare)
             error = ERROR::NO_REAL_ROOTS;                           // no real roots - set error
         }
@@ -1475,7 +1503,7 @@ namespace utils {
      *                                                ERROR::FILE_OPEN_ERROR                      if the timesteps file exists but could not be opened
      *                                                ERROR::FILE_READ_ERROR                      if the timesteps file could not be read
      *                                                ERROR::EMPTY_FILE                           if the timesteps file contains no content
-     *                                                ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE      if the file contains an invalid value for timestep
+     *                                                ERROR::INVALID_VALUE_IN_FILE                if the file contains an invalid value for timestep
      *                                                ERROR::TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE if the file contains too many timesteps (> maximum per OPTIONS)
      *                                              If the error returned is not ERROR:NONE, the content of the timesteps vector returned is not defined
      */
@@ -1517,12 +1545,12 @@ namespace utils {
                                     size_t lastChar;
                                     long double v = std::stold(rec, &lastChar);                                     // try conversion
                                     if (lastChar != (rec.size())) {                                                 // conversion valid only if rec completely consumed
-                                        error = ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE;                             // not a valid DOUBLE
+                                        error = ERROR::INVALID_VALUE_IN_FILE;                                       // not a valid DOUBLE
                                         break;                                                                      // stop processing
                                     }
 
                                     if (v < 0.0) {                                                                  // timestep must be >= 0.0
-                                       error = ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE;                              // not a valid timestep
+                                       error = ERROR::INVALID_VALUE_IN_FILE;                                        // not a valid timestep
                                        break;                                                                       // stop processing
                                     }
                                     else {                                                                          // ok - timestep >= 0.0
@@ -1536,11 +1564,11 @@ namespace utils {
                                     }
                                 }
                                 catch (const std::out_of_range& e) {                                                // conversion failed
-                                    error = ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE;                                 // not a valid DOUBLE
+                                    error = ERROR::INVALID_VALUE_IN_FILE;                                           // not a valid DOUBLE
                                     break;                                                                          // stop processing
                                 }
                                 catch (const std::invalid_argument& e) {                                            // conversion failed
-                                    error = ERROR::INVALID_VALUE_IN_TIMESTEPS_FILE;                                 // not a valid DOUBLE
+                                    error = ERROR::INVALID_VALUE_IN_FILE;                                           // not a valid DOUBLE
                                     break;                                                                          // stop processing
                                 }
                             }
@@ -1705,4 +1733,72 @@ namespace utils {
         return std::make_tuple(error, errStr, pathsNotRemoved);
     }
 
+
+    /*
+     *
+     * DOCUMENTATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     */
+    STR_VECTOR GetStackTrace() {
+
+        STR_VECTOR  stackTrace = {};                                                                                // return vector containing stack trace strings
+
+        void*       trace[MAX_STACK_TRACE_SIZE];                                                                    // stack trace
+        char**      strings = (char **)NULL;                                                                        // stack trace strings
+        std::size_t traceSize = 0;                                                                                  // stack trace size
+        
+        traceSize = backtrace(trace, MAX_STACK_TRACE_SIZE);                                                         // get stack trace size
+        strings   = backtrace_symbols(trace, traceSize);                                                            // get stack trace with symbols
+
+        for (std::size_t idx = 1; idx < traceSize; ++idx) {                                                         // for each stack trace entry
+            // extract function name
+            // we don't have symbols for libraries (e.g. libc), so for non-COMPAS functions we insert
+            // "~~LIBFUNC~~" as the function name so the caller can identify non-COMPAS entries and
+            // handle them accordingly
+            size_t start = 0;
+            while (strings[idx][start] != '(' && strings[idx][start] != ' ' && strings[idx][start] != 0) ++start;   // find function name start position
+            size_t end = start;
+            while (strings[idx][end] != '+' && strings[idx][end] != 0) ++end;                                       // find function name end position
+
+            std::string funcName;                                                                                   // the extracted function name
+            std::size_t funcStrLen = end - start - 1;                                                               // length of (mangled) function string
+            if (funcStrLen < 1) funcName = "~~LIBFUNC~~";                                                           // library function
+            else {                                                                                                  // extract COMPAS function name
+                char* funcStr = new char[funcStrLen + 1];                                                           // allows for null terminator
+                strncpy(funcStr, &strings[idx][start + 1], funcStrLen);                                             // copy function name
+                funcStr[funcStrLen] = 0;                                                                            // make sure it is null-terminated
+                funcName = std::string(funcStr);                                                                    // function name
+
+                int status = -1;
+                char* demangledName = abi::__cxa_demangle(funcStr, NULL, NULL, &status);                            // try to demangle the function name
+                if (status == 0) funcName = std::string(demangledName);                                             // use the demangled name if available
+
+                delete[] demangledName;
+                delete[] funcStr;
+            }
+
+            stackTrace.push_back(funcName);                                                                         // add function name to stacktrace
+
+            if (funcName == "main") break;                                                                          // that's all we need
+        }
+        delete[] strings;
+
+        return stackTrace;
+    }
+
+
+    /*
+     *
+     * DOCUMENTATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     */
+    void ShowStackTrace() {
+
+        STR_VECTOR stackTrace = utils::GetStackTrace();
+
+        if (!stackTrace.empty()) {
+            std::cerr << "\nStack trace:\n";
+            for (std::size_t entry = 1; entry < stackTrace.size(); entry++) {               // ignore the eponymous entry
+                std::cerr << "    " << stackTrace[entry] << "\n";
+            }
+        }
+    }
 }

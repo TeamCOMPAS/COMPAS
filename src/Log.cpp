@@ -3,7 +3,6 @@
 // This is where all logging and debugging is performed.
 //
 // JR: todo: complete this documentation
-// JR: todo: move error/warning strings to error catalogue in constants.h
 // JR: todo: clean up use of Squawk() vs SAY() etc
 
 #include "Log.h"
@@ -223,16 +222,16 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
  * Any error here disables logging.
  *
  *
- * Start(const string              p_LogBasePath,
- *       const string              p_LogContainerName,
- *       const string              p_LogNamePrefix,
- *       const int                 p_LogLevel,
- *       const std::vector<string> p_LogClasses,
- *       const int                 p_DbgLevel,
- *       const std::vector<string> p_DbgClasses,
- *       const bool                p_DbgToFile,
- *       const bool                p_ErrToFile,
- *       const string              p_LogfileType)
+ * Start(const string     p_LogBasePath,
+ *       const string     p_LogContainerName,
+ *       const string     p_LogNamePrefix,
+ *       const int        p_LogLevel,
+ *       const STR_VECTOR p_LogClasses,
+ *       const int        p_DbgLevel,
+ *       const STR_VECTOR p_DbgClasses,
+ *       const bool       p_DbgToFile,
+ *       const bool       p_ErrToFile,
+ *       const string     p_LogfileType)
  *
  * @param   [IN]    p_LogBasePathString         The path string at which log files should be created
  * @param   [IN]    p_LogContainerName          The name of the directory that should be created at p_LogBasePath to hold all log files
@@ -245,16 +244,16 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
  * @param   [IN]    p_ErrorsToFile              Boolean indicating whether error records should also be written to a log file
  * @param   [IN]    p_LogfileType               Log file type
  */
-void Log::Start(const string              p_LogBasePathString,
-                const string              p_LogContainerName,
-                const string              p_LogNamePrefix,
-                const int                 p_LogLevel,
-                const std::vector<string> p_LogClasses,
-                const int                 p_DbgLevel,
-                const std::vector<string> p_DbgClasses,
-                const bool                p_DbgToLogfile,
-                const bool                p_ErrorsToLogfile,
-                const LOGFILETYPE         p_LogfileType) {
+void Log::Start(const string      p_LogBasePathString,
+                const string      p_LogContainerName,
+                const string      p_LogNamePrefix,
+                const int         p_LogLevel,
+                const STR_VECTOR  p_LogClasses,
+                const int         p_DbgLevel,
+                const STR_VECTOR  p_DbgClasses,
+                const bool        p_DbgToLogfile,
+                const bool        p_ErrorsToLogfile,
+                const LOGFILETYPE p_LogfileType) {
 
     H5Eset_auto (0, NULL, NULL);
 
@@ -285,21 +284,21 @@ void Log::Start(const string              p_LogBasePathString,
         // may be changed if a logfile definitions file is present and processed.
 
         // BSE
-        if (NotesPropertyPresent(m_BSE_BE_Binaries_Rec)) m_BSE_BE_Binaries_Notes = std::vector<bool>(m_BSE_BE_Binaries_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_CEE_Rec        )) m_BSE_CEE_Notes         = std::vector<bool>(m_BSE_CEE_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_DCO_Rec        )) m_BSE_DCO_Notes         = std::vector<bool>(m_BSE_DCO_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_Detailed_Rec   )) m_BSE_Detailed_Notes    = std::vector<bool>(m_BSE_Detailed_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_Pulsars_Rec    )) m_BSE_Pulsars_Notes     = std::vector<bool>(m_BSE_Pulsars_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_RLOF_Rec       )) m_BSE_RLOF_Notes        = std::vector<bool>(m_BSE_RLOF_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_SNE_Rec        )) m_BSE_SNE_Notes         = std::vector<bool>(m_BSE_SNE_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_Switch_Rec     )) m_BSE_Switch_Notes      = std::vector<bool>(m_BSE_Switch_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_SysParms_Rec   )) m_BSE_SysParms_Notes    = std::vector<bool>(m_BSE_SysParms_Notes.size(), true);
+//        if (NotesPropertyPresent(m_BSE_BE_Binaries_Rec)) m_BSE_BE_Binaries_Notes = BOOL_VECTOR(m_BSE_BE_Binaries_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_CEE_Rec        )) m_BSE_CEE_Notes         = BOOL_VECTOR(m_BSE_CEE_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_DCO_Rec        )) m_BSE_DCO_Notes         = BOOL_VECTOR(m_BSE_DCO_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Detailed_Rec   )) m_BSE_Detailed_Notes    = BOOL_VECTOR(m_BSE_Detailed_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Pulsars_Rec    )) m_BSE_Pulsars_Notes     = BOOL_VECTOR(m_BSE_Pulsars_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_RLOF_Rec       )) m_BSE_RLOF_Notes        = BOOL_VECTOR(m_BSE_RLOF_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_SNE_Rec        )) m_BSE_SNE_Notes         = BOOL_VECTOR(m_BSE_SNE_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Switch_Rec     )) m_BSE_Switch_Notes      = BOOL_VECTOR(m_BSE_Switch_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_SysParms_Rec   )) m_BSE_SysParms_Notes    = BOOL_VECTOR(m_BSE_SysParms_Notes.size(), true);
 
         // SSE
-        if (NotesPropertyPresent(m_SSE_Detailed_Rec   )) m_SSE_Detailed_Notes    = std::vector<bool>(m_SSE_Detailed_Notes.size(), true);
-        if (NotesPropertyPresent(m_SSE_SNE_Rec        )) m_SSE_SNE_Notes         = std::vector<bool>(m_SSE_SNE_Notes.size(), true);
-        if (NotesPropertyPresent(m_SSE_Switch_Rec     )) m_SSE_Switch_Notes      = std::vector<bool>(m_SSE_Switch_Notes.size(), true);
-        if (NotesPropertyPresent(m_SSE_SysParms_Rec   )) m_SSE_SysParms_Notes    = std::vector<bool>(m_SSE_SysParms_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_Detailed_Rec   )) m_SSE_Detailed_Notes    = BOOL_VECTOR(m_SSE_Detailed_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_SNE_Rec        )) m_SSE_SNE_Notes         = BOOL_VECTOR(m_SSE_SNE_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_Switch_Rec     )) m_SSE_Switch_Notes      = BOOL_VECTOR(m_SSE_Switch_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_SysParms_Rec   )) m_SSE_SysParms_Notes    = BOOL_VECTOR(m_SSE_SysParms_Notes.size(), true);
 
         // process the logfile definitions file if specified
         m_Enabled = UpdateAllLogfileRecordSpecs();                                                                          // update all logfile record specifications - disable logging upon failure
@@ -309,7 +308,6 @@ void Log::Start(const string              p_LogBasePathString,
             boost::system::error_code err;
             ERROR                     error;
             std::string               errStr;
-            STR_VECTOR                pathsCreated;                                                                         // directories created
 
             // first check that the log base path exists - if it doesn't, create it
             // use boost filesystem here - easier...
@@ -1070,7 +1068,7 @@ void Log::Squawk(const string p_SquawkStr) {
  * Determine whether record should be logged/debug string should be written based on log/debug classes and log/debug level.
  *
  *
- * bool DoIt(const string p_Class, const int p_Level, const std::vector<string> p_EnabledClasses, const int p_EnabledLevel)
+ * bool DoIt(const string p_Class, const int p_Level, const STR_VECTOR p_EnabledClasses, const int p_EnabledLevel)
  *
  * @param   [IN]    p_Class                     The class (logging or debug) of the record being evaluated
  * @param   [IN]    p_Level                     The level (logging or debug) of the record being evaluated
@@ -1078,7 +1076,7 @@ void Log::Squawk(const string p_SquawkStr) {
  * @param   [IN]    p_EnabledLevel              The application logging or debug level
  * @return                                      Boolean indicating whether record should be logged/debug string should be written
  */
-bool Log::DoIt(const string p_Class, const int p_Level, const std::vector<string> p_EnabledClasses, const int p_EnabledLevel) {
+bool Log::DoIt(const string p_Class, const int p_Level, const STR_VECTOR p_EnabledClasses, const int p_EnabledLevel) {
     
     bool doIt = (p_Level <= p_EnabledLevel);                                                                    // first check level
 
@@ -1173,23 +1171,23 @@ bool Log::Write(const int p_LogfileId, const string p_LogClass, const int p_LogL
  * Disable the specified log file if errors occur.
  *
  *
- * bool Write(const id                                p_LogfileId, 
- *            const string                            p_LogClass, 
- *            const int                               p_LogLevel, 
- *            const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, 
- *            const bool                              p_Flush)
+ * bool Write(const id                           p_LogfileId, 
+ *            const string                       p_LogClass, 
+ *            const int                          p_LogLevel, 
+ *            const std::vector<COMPAS_VARIABLE> p_LogRecordValues, 
+ *            const bool                         p_Flush)
  *
  * @param   [IN]    p_LogfileId                 The id of the log file to which the log string should be written
  * @param   [IN]    p_LogClass                  Class to determine if string should be written
  * @param   [IN]    p_LogLevel                  Level to determine if string should be written
- * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE_TYPE values to be written
+ * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE values to be written
  * @return                                      Boolean indicating whether record was written successfully
  */
-bool Log::Write(const int                               p_LogfileId, 
-                const string                            p_LogClass, 
-                const int                               p_LogLevel, 
-                const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, 
-                const bool                              p_Flush) {
+bool Log::Write(const int                          p_LogfileId, 
+                const string                       p_LogClass, 
+                const int                          p_LogLevel, 
+                const std::vector<COMPAS_VARIABLE> p_LogRecordValues, 
+                const bool                         p_Flush) {
 
     bool result = false;
 
@@ -1322,13 +1320,13 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
         if (dType == H5T_NATIVE_UCHAR) {
             bool buf[bufSize];
             for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<bool>(p_H5file.dataSets[p_DataSetIdx].buf[i]);
-            std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);                                  // guaranteed to release memory
+            COMPAS_VARIABLE_VECTOR().swap(p_H5file.dataSets[p_DataSetIdx].buf);                                  // guaranteed to release memory
             ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
         }
         else if (dType == H5T_NATIVE_SHORT) {
             short int buf[bufSize];
             for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<short int>(p_H5file.dataSets[p_DataSetIdx].buf[i]);
-            std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);
+            COMPAS_VARIABLE_VECTOR().swap(p_H5file.dataSets[p_DataSetIdx].buf);
             ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
         }
         else if (dType == H5T_NATIVE_INT) {
@@ -1351,7 +1349,7 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
                 }
                 buf[i] = v;
             }
-            std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);
+            COMPAS_VARIABLE_VECTOR().swap(p_H5file.dataSets[p_DataSetIdx].buf);
             if (ok >=0) {                                                                                                   // data formatted ok?
                 ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);                            // yes - write it
             }
@@ -1359,43 +1357,43 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
         else if (dType == H5T_NATIVE_LONG) {
             long int buf[bufSize];
             for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<long int>(p_H5file.dataSets[p_DataSetIdx].buf[i]);
-            std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);
+            COMPAS_VARIABLE_VECTOR().swap(p_H5file.dataSets[p_DataSetIdx].buf);
             ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
         }
         else if (dType == H5T_NATIVE_USHORT) {
             unsigned short int buf[bufSize];
             for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<unsigned short int>(p_H5file.dataSets[p_DataSetIdx].buf[i]);
-            std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);
+            COMPAS_VARIABLE_VECTOR().swap(p_H5file.dataSets[p_DataSetIdx].buf);
             ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
         }
         else if (dType == H5T_NATIVE_UINT) {
             unsigned int buf[bufSize];
             for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<unsigned int>(p_H5file.dataSets[p_DataSetIdx].buf[i]);
-            std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);
+            COMPAS_VARIABLE_VECTOR().swap(p_H5file.dataSets[p_DataSetIdx].buf);
             ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
         }
         else if (dType == H5T_NATIVE_ULONG) {
             unsigned long int buf[bufSize];
             for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<unsigned long int>(p_H5file.dataSets[p_DataSetIdx].buf[i]);
-            std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);
+            COMPAS_VARIABLE_VECTOR().swap(p_H5file.dataSets[p_DataSetIdx].buf);
             ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
         }
         else if (dType == H5T_NATIVE_FLOAT) {
             float buf[bufSize];
             for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<float>(p_H5file.dataSets[p_DataSetIdx].buf[i]);
-            std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);
+            COMPAS_VARIABLE_VECTOR().swap(p_H5file.dataSets[p_DataSetIdx].buf);
             ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
         }
         else if (dType == H5T_NATIVE_DOUBLE) {
             double buf[bufSize];
             for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<double>(p_H5file.dataSets[p_DataSetIdx].buf[i]);
-            std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);
+            COMPAS_VARIABLE_VECTOR().swap(p_H5file.dataSets[p_DataSetIdx].buf);
             ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
         }
         else if (dType == H5T_NATIVE_LDOUBLE) {
             long double buf[bufSize];
             for (size_t i = 0; i < bufSize; i++) buf[i] = boost::get<long double>(p_H5file.dataSets[p_DataSetIdx].buf[i]);
-            std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);
+            COMPAS_VARIABLE_VECTOR().swap(p_H5file.dataSets[p_DataSetIdx].buf);
             ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)&buf);
         }
         else if (p_H5file.dataSets[p_DataSetIdx].dataType == TYPENAME::STRING) {
@@ -1420,7 +1418,7 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
                         
                 buf[i] = fixedLength ? utils::PadTrailingSpaces(v, elemLen) : v;
             }
-            std::vector<COMPAS_VARIABLE_TYPE>().swap(p_H5file.dataSets[p_DataSetIdx].buf);
+            COMPAS_VARIABLE_VECTOR().swap(p_H5file.dataSets[p_DataSetIdx].buf);
 
             // write the strings - need c-style char array
             if (fixedLength) {                                                                                              // fixed-length string?
@@ -1470,15 +1468,15 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
  * Disable the specified log file if errors occur.
  *
  *
- * bool Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const bool p_Flush)
+ * bool Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE> p_LogRecordValues, const bool p_Flush)
  *
  * @param   [IN]    p_LogfileId                 The id of the log file to which the multi-value record should be written
- * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE_TYPE values to be written
+ * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE values to be written
  * @param   [IN]    p_Flush                     Boolean indicating whether the writebuffer should be flushed regardless of chunk size (optional, default = false)
  *                                              If p_Flush is true, no data is added to the write buffer, and the entire write buffer is written to the file
  * @return                                      Boolean indicating whether record was written successfully
  */
-bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const bool p_Flush) {
+bool Log::Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE> p_LogRecordValues, const bool p_Flush) {
 
     herr_t ok = 0;
 
@@ -1577,15 +1575,15 @@ bool Log::Put(const int p_LogfileId, const string p_LogClass, const int p_LogLev
  * Disable the specified log file if errors occur.
  *
  *
- * bool Put(const id p_LogfileId, const string p_LogClass, const int p_LogLevel, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues)
+ * bool Put(const id p_LogfileId, const string p_LogClass, const int p_LogLevel, const COMPAS_VARIABLE_VECTOR p_LogRecordValues)
  *
  * @param   [IN]    p_LogfileId                 The id of the log file to which the log record values should be written
  * @param   [IN]    p_LogClass                  Class to determine if log record values should be written
  * @param   [IN]    p_LogLevel                  Level to determine if log record values should be written
- * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE_TYPE values to be written
+ * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE values to be written
  * @return                                      Boolean indicating whether log record values were written successfully
  */
-bool Log::Put(const int p_LogfileId, const string p_LogClass, const int p_LogLevel, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues) {
+bool Log::Put(const int p_LogfileId, const string p_LogClass, const int p_LogLevel, const COMPAS_VARIABLE_VECTOR p_LogRecordValues) {
 
     bool result = false;
 
@@ -1666,13 +1664,13 @@ bool Log::Put_(const int p_LogfileId, const string p_LogStr, const string p_Labe
  * Disable the specified log file if errors occur.
  *
  *
- * bool Put_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues)
+ * bool Put_(const int p_LogfileId, const COMPAS_VARIABLE_VECTOR p_LogRecordValues)
  *
  * @param   [IN]    p_LogfileId                 The id of the log file to which the log string should be written
- * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE_TYPE values to be written
+ * @param   [IN]    p_LogRecordValues           Vector of COMPAS_VARIABLE values to be written
  * @return                                      Boolean indicating whether record was written successfully
  */
-bool Log::Put_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues) {
+bool Log::Put_(const int p_LogfileId, const COMPAS_VARIABLE_VECTOR p_LogRecordValues) {
 
     bool result = false;
 
@@ -2046,7 +2044,7 @@ std::tuple<bool, LOGFILE> Log::GetStandardLogfileKey(const int p_FileId) {
  * future, but for now this will have to suffice.
  *
  *
- * std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>, std::vector<bool>> GetStandardLogFileRecordDetails(const LOGFILE p_Logfile)
+ * std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> GetStandardLogFileRecordDetails(const LOGFILE p_Logfile)
  *
  * @param   [IN]    p_Logfile                   Logfile for which details are to be retrieved (see enum class LOGFILE in constants.h)
  * @return                                      Tuple containing:
@@ -2054,21 +2052,21 @@ std::tuple<bool, LOGFILE> Log::GetStandardLogfileKey(const int p_FileId) {
  *                                                 - vector of format strings
  *                                                 - vector of annotations
  */
-std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>, std::vector<bool>> Log::GetStandardLogFileRecordDetails(const LOGFILE p_Logfile) {
+std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFileRecordDetails(const LOGFILE p_Logfile) {
 
-    ANY_PROPERTY_VECTOR  recordProperties = {};                                                                                     // default is empty
-    std::vector<string>  fmtVector = {};                                                                                            // default is empty
-    std::vector<bool>  annotations = {};                                                                                            // default is empty
+    ANY_PROPERTY_VECTOR recordProperties = {};                                                                                      // default is empty
+    STR_VECTOR          fmtVector        = {};                                                                                      // default is empty
+    BOOL_VECTOR         annotations      = {};                                                                                      // default is empty
 
     try {
         // get record properties for this file
 
         switch (p_Logfile) {                                                                                                        // which logfile?
 
-            case LOGFILE::BSE_BE_BINARIES:                                                                                          // BSE_BE_BINARIES
-                recordProperties = m_BSE_BE_Binaries_Rec;                                                                           // record properties
-                annotations      = m_BSE_BE_Binaries_Notes;                                                                         // logfile annotations
-                break;
+//            case LOGFILE::BSE_BE_BINARIES:                                                                                          // BSE_BE_BINARIES
+//                recordProperties = m_BSE_BE_Binaries_Rec;                                                                           // record properties
+//                annotations      = m_BSE_BE_Binaries_Notes;                                                                         // logfile annotations
+//                break;
 
             case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                     // BSE_COMMON_ENVELOPES
                 recordProperties = m_BSE_CEE_Rec;                                                                                   // record properties
@@ -2421,12 +2419,12 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
         try {                                                                                                                                   // get record properties for this file
             switch (p_Logfile) {                                                                                                                // which logfile?
 
-                case LOGFILE::BSE_BE_BINARIES:                                                                                                  // BSE_BE_BINARIES
-                    fileDetails.filename         = OPTIONS->LogfileBeBinaries();
-                    fileDetails.recordTypes      = OPTIONS->LogfileBeBinariesRecordTypes();
-                    fileDetails.recordProperties = m_BSE_BE_Binaries_Rec;
-                    fileDetails.annotations      = m_BSE_BE_Binaries_Notes;
-                    break;
+//                case LOGFILE::BSE_BE_BINARIES:                                                                                                  // BSE_BE_BINARIES
+//                    fileDetails.filename         = OPTIONS->LogfileBeBinaries();
+//                    fileDetails.recordTypes      = OPTIONS->LogfileBeBinariesRecordTypes();
+//                    fileDetails.recordProperties = m_BSE_BE_Binaries_Rec;
+//                    fileDetails.annotations      = m_BSE_BE_Binaries_Notes;
+//                    break;
 
                 case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                             // BSE_COMMON_ENVELOPES
                     fileDetails.filename         = OPTIONS->LogfileCommonEnvelopes();
@@ -3066,8 +3064,8 @@ void Log::PrintLogfileRecordDetails(const ANY_PROPERTY_VECTOR& p_LogfileRecord, 
  *                               bool                      p_UseDefaultProps,
  *                               const ANY_PROPERTY_VECTOR p_AddProps,
  *                               const ANY_PROPERTY_VECTOR p_SubtractProps,
- *                               const std::vector<bool>   p_AddNotes,
- *                               const std::vector<bool>   p_SubtractNotes)
+ *                               const BOOL_VECTOR         p_AddNotes,
+ *                               const BOOL_VECTOR         p_SubtractNotes)
  *
  * 
  * @param   [IN]    p_Logfile                   the logfile for which the record specifier should be updated
@@ -3085,14 +3083,14 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
                                    bool                      p_UseDefaultProps,
                                    const ANY_PROPERTY_VECTOR p_AddProps,
                                    const ANY_PROPERTY_VECTOR p_SubtractProps,
-                                   const std::vector<bool>   p_AddNotes,
-                                   const std::vector<bool>   p_SubtractNotes) {
+                                   const BOOL_VECTOR         p_AddNotes,
+                                   const BOOL_VECTOR         p_SubtractNotes) {
 
     ANY_PROPERTY_VECTOR baseProps = {};                                                                                 // base props for the given logfile
-    std::vector<bool>   baseNotes;                                                                                      // base annotations for the given logfile
+    BOOL_VECTOR         baseNotes;                                                                                      // base annotations for the given logfile
 
     ANY_PROPERTY_VECTOR newProps = {};                                                                                  // new props for the given logfile
-    std::vector<bool>   newNotes;                                                                                       // new annotations for the given logfile
+    BOOL_VECTOR         newNotes;                                                                                       // new annotations for the given logfile
 
     // initialise baseProps, baseNotes, and newNotes
     // if p_UseDefaultProps is TRUE, baseProps is initialised to the default record specifier for the file,
@@ -3102,10 +3100,10 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
     // annotations vector for the file makes updating the vector correctly easier.
 
     switch (p_Logfile) {
-        case LOGFILE::BSE_BE_BINARIES:
-            if (p_UseDefaultProps) baseProps = m_BSE_BE_Binaries_Rec;
-            baseNotes = m_BSE_BE_Binaries_Notes;
-            break;
+//        case LOGFILE::BSE_BE_BINARIES:
+//            if (p_UseDefaultProps) baseProps = m_BSE_BE_Binaries_Rec;
+//            baseNotes = m_BSE_BE_Binaries_Notes;
+//            break;
         case LOGFILE::BSE_COMMON_ENVELOPES:
             if (p_UseDefaultProps) baseProps = m_BSE_CEE_Rec;
             baseNotes = m_BSE_CEE_Notes;
@@ -3244,7 +3242,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
 
     // replace existing props and annotations vector for given logfile
     switch (p_Logfile) {
-        case LOGFILE::BSE_BE_BINARIES           : m_BSE_BE_Binaries_Rec = newProps; m_BSE_BE_Binaries_Notes = newNotes; break;
+//        case LOGFILE::BSE_BE_BINARIES           : m_BSE_BE_Binaries_Rec = newProps; m_BSE_BE_Binaries_Notes = newNotes; break;
         case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec         = newProps; m_BSE_CEE_Notes         = newNotes; break;
         case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec    = newProps; m_BSE_Detailed_Notes    = newNotes; break;
         case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec         = newProps; m_BSE_DCO_Notes         = newNotes; break;
@@ -3396,17 +3394,17 @@ bool Log::UpdateAllLogfileRecordSpecs() {
 
     std::vector<std::tuple<string, std::size_t>> strTokens = {};                                                                // parsed tokens - token value and column position
 
-    bool useDefaultProps;                                                                                                       // indicates whether the default props for a logfile should be the base set of props
+    bool                useDefaultProps;                                                                                        // indicates whether the default props for a logfile should be the base set of props
     ANY_PROPERTY_VECTOR addProps;                                                                                               // properties user wants added to the base properties
     ANY_PROPERTY_VECTOR subtractProps;                                                                                          // properties user wants subtracted from the base properties
-    std::vector<bool>   addNotes = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);                                       // annotations (notes) user wants added to the base properties
-    std::vector<bool>   subtractNotes = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);                                  // annotations (notes) user wants subtracted from the base properties
+    BOOL_VECTOR         addNotes      = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);                                        // annotations (notes) user wants added to the base properties
+    BOOL_VECTOR         subtractNotes = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);                                        // annotations (notes) user wants subtracted from the base properties
 
     // read and parse the file records
 
-    TOKEN_TYPE expecting            = TOKEN_TYPE::LOGFILE_RECORD_NAME;                                                          // token type we're expecting to see - initially a logfile record name
-    LOGFILE currentLogfile          = LOGFILE::NONE;                                                                            // the logfile definition being modified
-    LOGFILE_TYPE currentLogfileType = LOGFILE_TYPE::NONE;                                                                       // the type of the logfile definition being modified (STELLAR or BINARY)
+    TOKEN_TYPE expecting             = TOKEN_TYPE::LOGFILE_RECORD_NAME;                                                         // token type we're expecting to see - initially a logfile record name
+    LOGFILE currentLogfile           = LOGFILE::NONE;                                                                           // the logfile definition being modified
+    LOGFILE_CLASS currentLogfileType = LOGFILE_CLASS::NONE;                                                                     // the class of the logfile definition being modified (STELLAR, BINARY, or NONE)
 
     string recIn;                                                                                                               // input record
     string parseRec;                                                                                                            // record to be parsed - input record after stripping spaces and comments
@@ -3484,8 +3482,8 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                         currentLogfileType = std::get<4>(LOGFILE_DESCRIPTOR.at(currentLogfile));                                // and type (STELLAR or BINARY)
                         addProps      = {};                                                                                     // start with empty set of properties to be added
                         subtractProps = {};                                                                                     // start with empty set of properties to be subtracted
-                        addNotes      = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);                                  // start with no annotations to be added       
-                        subtractNotes = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);                                  // start with no annotations to be subtracted
+                        addNotes      = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);                                        // start with no annotations to be added       
+                        subtractNotes = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);                                        // start with no annotations to be subtracted
 
                         expecting = TOKEN_TYPE::ASSIGN;                                                                         // now expecting assignment operator {"=", "-=", "+="}
                     }
@@ -3600,7 +3598,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                             error = ERROR::UNKNOWN_STELLAR_PROPERTY;                                            // no - set error
                                         }
                                         else {                                                                                  // found known property name
-                                            if (currentLogfileType == LOGFILE_TYPE::STELLAR) {                                  // current logfile type STELLAR?
+                                            if (currentLogfileType == LOGFILE_CLASS::STELLAR) {                                 // current logfile class STELLAR?
                                                                                                                                 // yes - ok
                                                 if (addAssign)                                                                  // add property?
                                                     addProps.push_back(property);                                               // yes - add it to 'add' list
@@ -3627,7 +3625,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                             error = ERROR::UNKNOWN_STELLAR_PROPERTY;                                            // no - set error
                                         }
                                         else {                                                                                  // found known property name
-                                            if (currentLogfileType == LOGFILE_TYPE::BINARY) {                                   // current logfile type BINARY?
+                                            if (currentLogfileType == LOGFILE_CLASS::BINARY) {                                  // current logfile class BINARY?
                                                                                                                                 // yes - ok
                                                 if (addAssign) {                                                                // add property?
                                                     switch (propertyType) {                                                     // yes - add it to 'add' list
@@ -3667,7 +3665,7 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                             error = ERROR::UNKNOWN_BINARY_PROPERTY;                                             // no - set error
                                         }
                                         else {                                                                                  // found known property name
-                                            if (currentLogfileType == LOGFILE_TYPE::BINARY) {                                   // current logfile type BINARY?
+                                            if (currentLogfileType == LOGFILE_CLASS::BINARY) {                                  // current logfile class BINARY?
                                                                                                                                 // yes - ok
                                                 if (addAssign)                                                                  // add property?
                                                     addProps.push_back(property);                                               // yes - add it to 'add' list

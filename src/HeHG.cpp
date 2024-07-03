@@ -32,7 +32,7 @@ void HeHG::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
     double LTHe = HeMS::CalculateLuminosityAtPhaseEnd(p_Mass);
 
     timescales(tinf1_HeGB) = timescales(tHeMS) + (1.0 / ((p1 * gbParams(AHe) * gbParams(D))) * PPOW((gbParams(D) / LTHe), p1_p));
-    timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * PPOW((LTHe / gbParams(Lx)), p1_p);
+    timescales(tx_HeGB)    = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * PPOW((LTHe / gbParams(Lx)), p1_p);
     timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
 
 #undef gbParams
@@ -233,7 +233,7 @@ double HeHG::CalculateCOCoreMassOnPhase() const {
  *
  * @return                                      Rejuvenation factor
  */
-double HeHG::CalculateMassTransferRejuvenationFactor() const {
+double HeHG::CalculateMassTransferRejuvenationFactor() {
 
     double fRej = 1.0;
 
@@ -242,13 +242,20 @@ double HeHG::CalculateMassTransferRejuvenationFactor() const {
         case MT_REJUVENATION_PRESCRIPTION::NONE:                        // use default Hurley et al. 2000 prescription = 1.0
         case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                   // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf
 
-            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {              // Rejuvenation factor is unity for mass losing stars
+            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {              // Rejuvenation factor is unity for mass losing stars  JR: do we really need this?  It's going to default to 1.0 if the condition is false anyway. **Ilya**
                 fRej = 1.0;
             }
             break;
 
-        default:                                                        // unknown prescription - use default Hurley et al. 2000 prescription = 1.0
-            SHOW_WARN(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION);     // show warning
+        default:                                                                                // unknown prescription
+            // the only way this can happen is if someone added a MT_REJUVENATION_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION);                           // throw error
     }
 
     return fRej;
@@ -289,15 +296,18 @@ double HeHG::CalculatePerturbationMu() const {
  *
  * double CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity)
  *
+ * @param   [IN]    p_Mass                      Mass
+ * @param   [IN]    p_Metallicity               Metallicity
+ * 
  * @return                                      Nanjing lambda for use in common envelope
  */
 double HeHG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
 
-    double rMin = 0.25;                              // minimum considered radius: Natasha       JR: todo: should this be in constants.h?
-	double rMax = 120.0;                             // maximum considered radius: Natasha       JR: todo: should this be in constants.h?
+    double rMin = 0.25;                              // minimum considered radius: Natasha       JR: should this be in constants.h? Maybe not... Who is Natasha?  **Ilya**
+	double rMax = 120.0;                             // maximum considered radius: Natasha       JR: should this be in constants.h? Maybe not... Who is Natasha?  **Ilya**
 
-	double rMinLambda = 0.3 * PPOW(rMin, -0.8);       // JR: todo: should this be in constants.h?
-	double rMaxLambda = 0.3 * PPOW(rMax, -0.8);       // JR: todo: should this be in constants.h?
+	double rMinLambda = 0.3 * PPOW(rMin, -0.8);       // JR: todo: should this be in constants.h?       JR: should this be in constants.h? Maybe not...  **Ilya**
+	double rMaxLambda = 0.3 * PPOW(rMax, -0.8);       // JR: todo: should this be in constants.h?       JR: should this be in constants.h? Maybe not...  **Ilya**
 
 	return m_Radius < rMin ? rMinLambda : (m_Radius > rMax ? rMaxLambda : 0.3 * PPOW(m_Radius, -0.8));
 }
@@ -320,7 +330,7 @@ double HeHG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p
  */
 ENVELOPE HeHG::DetermineEnvelopeType() const {
     
-    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type is RADIATIVE
+    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type
     
     switch (OPTIONS->EnvelopeStatePrescription()) {                                                  // which envelope prescription?
             
@@ -328,16 +338,25 @@ ENVELOPE HeHG::DetermineEnvelopeType() const {
             envelope = ENVELOPE::RADIATIVE;                                                          // default treatment
             break;
             
-        case ENVELOPE_STATE_PRESCRIPTION::HURLEY: // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG, but we approximate it as already convective here
+        case ENVELOPE_STATE_PRESCRIPTION::HURLEY:
+            // eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual
+            // growth of convective envelope over HG, but we approximate it as already convective here
             envelope = ENVELOPE::CONVECTIVE;
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
             envelope =  utils::Compare(Temperature() *  TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
-            
-        default:                                                                                    // unknown prescription - use default envelope type
-            SHOW_WARN(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION, "Using Envelope = CONVECTIVE");   // show warning
+
+        default:                                                                                    // unknown prescription
+            // the only way this can happen is if someone added an ENVELOPE_STATE_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION);                                // throw error                
     }
     
     return envelope;
@@ -455,7 +474,7 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_Force) {
         m_Radius     = COWD::CalculateRadiusOnPhase_Static(m_Mass);
         m_Age        = 0.0;
         if (!IsSupernova()) {
-            // Note that this uses the CO core mass, rather than the core mass at base of AGB or He mass at He star birth suggested by Hurley+, 2000
+            // note that this uses the CO core mass, rather than the core mass at base of AGB or He mass at He star birth suggested by Hurley+, 2000
             stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
         }
     }
