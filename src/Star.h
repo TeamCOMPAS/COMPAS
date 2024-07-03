@@ -63,10 +63,6 @@ public:
 
     Star& operator = (const Star& p_Star);
 
-//    template <class T>
-//    static BaseStar* CloneStar(T& p_Star, const OBJECT_PERSISTENCE p_Persistence);
-//    template <class T>
-//    static BaseStar* CloneStar(T& p_Star)                                                                           { return CloneStar(p_Star, p_Star.ObjectPersistence()); }
 
     virtual ~Star() { delete m_Star; delete m_SaveStar; }
 
@@ -254,6 +250,7 @@ public:
 
     STELLAR_TYPE    SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
 
+    void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass)                                         { m_Star->UpdateAfterMerger(p_Mass, p_HydrogenMass); }
     void            UpdateAgeAfterMassLoss()                                                                        { m_Star->UpdateAgeAfterMassLoss(); }
 
     void            UpdateAttributes()                                                                              { (void)UpdateAttributes(0.0, 0.0, true); }
