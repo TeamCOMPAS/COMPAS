@@ -524,6 +524,8 @@ private:
     bool PrintSupernovaDetails(const BSE_SN_RECORD_TYPE p_RecordType = BSE_SN_RECORD_TYPE::DEFAULT) const {
         return LOGGING->LogBSESupernovaDetails(this, p_RecordType);
     }
+    
+    void ResolveMainSequenceMerger();
 
     bool ShouldResolveNeutrinoRocketMechanism() const { 
         return (OPTIONS->RocketKickMagnitude1() > 0) || (OPTIONS->RocketKickMagnitude2() > 0);
