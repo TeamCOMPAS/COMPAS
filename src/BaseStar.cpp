@@ -315,7 +315,6 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::EXPERIENCED_PISN:                                   value = ExperiencedPISN();                                      break;
         case ANY_STAR_PROPERTY::EXPERIENCED_PPISN:                                  value = ExperiencedPPISN();                                     break;
         case ANY_STAR_PROPERTY::EXPERIENCED_SNIA:                                   value = ExperiencedSNIA();                                      break;
-        case ANY_STAR_PROPERTY::EXPERIENCED_SNII:                                   value = ExperiencedSNII();                                      break;
         case ANY_STAR_PROPERTY::EXPERIENCED_SN_TYPE:                                value = ExperiencedSN_Type();                                   break;
         case ANY_STAR_PROPERTY::EXPERIENCED_USSN:                                   value = ExperiencedUSSN();                                      break;
         case ANY_STAR_PROPERTY::FALLBACK_FRACTION:                                  value = SN_FallbackFraction();                                  break;
@@ -333,7 +332,6 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::IS_PISN:                                            value = IsPISN();                                               break;
         case ANY_STAR_PROPERTY::IS_PPISN:                                           value = IsPPISN();                                              break;
         case ANY_STAR_PROPERTY::IS_SNIA:                                            value = IsSNIA();                                               break;
-        case ANY_STAR_PROPERTY::IS_SNII:                                            value = IsSNII();                                               break;
         case ANY_STAR_PROPERTY::IS_USSN:                                            value = IsUSSN();                                               break;
         case ANY_STAR_PROPERTY::KICK_MAGNITUDE:                                     value = SN_KickMagnitude();                                     break;
         case ANY_STAR_PROPERTY::LAMBDA_DEWI:                                        value = LambdaDewi();                                           break;
@@ -2734,7 +2732,7 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
         else if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                           // cool stars, add Hurley et al 2000 winds (NJ90)
             otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // apply cool wind mass loss multiplier
         }
-        else if (utils::Compare(m_MZAMS, VMS_MASS_THRESHOLD) >= 0) {                                                // ZAMS mass at or above VMS winds threshold?
+        else if (utils::Compare(m_Mass, VMS_MASS_THRESHOLD) >= 0) {                                                 // mass at or above VMS winds threshold?
             otherWindsRate         = CalculateMassLossRateVMS(OPTIONS->VMSMassLossPrescription());                  // yes - use VMS mass loss rate
             m_DominantMassLossRate = MASS_LOSS_TYPE::VMS;                                                           // set dominant mass loss rate                             
         }
@@ -4243,7 +4241,6 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
                 break;
 
             case SN_EVENT::PISN:                                                                    // not expected here
-            case SN_EVENT::SNII:                                                                    // not expected here
                 error = ERROR::UNEXPECTED_SN_EVENT;                                                 // set error value
                 break;
 

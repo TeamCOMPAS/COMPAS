@@ -788,7 +788,7 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_Force) {
  * option is specified, otherwise it is left unchanged.
  *
  *
- * STELLAR_TYPE UpdateMinimumCoreMass()
+ * void UpdateMinimumCoreMass()
  *
  */
 void MainSequence::UpdateMinimumCoreMass()
@@ -809,4 +809,32 @@ void MainSequence::UpdateMinimumCoreMass()
 
         m_MinimumCoreMass   = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass);    // update minimum core mass
     }
+}
+
+
+/*
+ * Sets the mass and age of a merge product of two main sequence stars
+ * (note: treats merger products as main-sequence stars, not CHE, and does not check for MS_lte_07)
+ *
+ * Uses prescription of Wang et al., 2022, https://www.nature.com/articles/s41550-021-01597-5
+ *
+ * void UpdateAfterMerger(double p_Mass, double p_HydrogenMass)
+ *
+ * @param   [IN]    p_Mass                      New value of stellar mass
+ * @param   [IN]    p_HydrogenMass              Desired value of hydrogen mass of merger remnant
+ *
+ */
+void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass)
+{
+    m_Mass            = p_Mass;
+    m_Mass0           = m_Mass;
+    m_MinimumCoreMass = 0.0;
+    
+    double TAMSCoreMass = 0.3 * m_Mass;                                                                         // /*ILYA*/ temporary solution, should use TAMS core mass
+    
+    double initialHydrogenFraction = 1.0 - YSOL - m_Metallicity;                                                // assume helium fraction independent of metallicity
+    
+    m_Tau = (m_Mass * initialHydrogenFraction - p_HydrogenMass) / TAMSCoreMass / initialHydrogenFraction;       // p_HydrogenMass = m_Mass * initialHydrogenFraction - m_Tau * TAMSCoreMass * initialHydrogenFraction; assumes uniform rate of H fusion on main sequence
+    
+    UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);
 }

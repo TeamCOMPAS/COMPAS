@@ -530,7 +530,7 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
             std::fetestexcept(FE_INVALID)   ||
             std::fetestexcept(FE_OVERFLOW)  ||
             std::fetestexcept(FE_UNDERFLOW)) m_Star->SetError(ERROR::FLOATING_POINT_ERROR);                     // floating-point error
-    
+
         std::feclearexcept(FE_ALL_EXCEPT);                                                                      // clear all FE traps
     }
     catch (const std::runtime_error& e) {                                                                       // catch runtime exceptions

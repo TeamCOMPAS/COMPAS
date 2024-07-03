@@ -79,6 +79,7 @@ namespace yaml {
             "    --detailed-output                                               # WARNING! this creates a data heavy file",
             "    --enable-warnings                                               # option to enable/disable warning messages",
             "    --errors-to-file",
+            "    --evolve-main-sequence-mergers",
             "    --evolve-unbound-systems",
             "    --population-data-printing",
             "    --print-bool-as-string",

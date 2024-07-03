@@ -104,7 +104,6 @@ public:
     bool                IsPISN() const                                                                              { return m_Star->IsPISN(); }
     bool                IsPPISN() const                                                                             { return m_Star->IsPPISN(); }
     bool                IsSNIA() const                                                                              { return m_Star->IsSNIA(); }
-    bool                IsSNII() const                                                                              { return m_Star->IsSNII(); }
     bool                IsUSSN() const                                                                              { return m_Star->IsUSSN(); }
     double              LambdaFixed() const                                                                         { return m_Star->LambdaFixed(); }
     double              LambdaLoveridge() const                                                                     { return m_Star->LambdaLoveridge(); }
@@ -255,6 +254,7 @@ public:
 
     STELLAR_TYPE    SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
 
+    void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass)                                         { m_Star->UpdateAfterMerger(p_Mass, p_HydrogenMass); }
     void            UpdateAgeAfterMassLoss()                                                                        { m_Star->UpdateAgeAfterMassLoss(); }
 
     void            UpdateAttributes()                                                                              { (void)UpdateAttributes(0.0, 0.0, true); }
