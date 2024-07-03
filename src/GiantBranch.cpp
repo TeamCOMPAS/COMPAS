@@ -1027,7 +1027,7 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
             // for, and that should be flagged as an error and result in termination of the evolution of the
             // star or binary.
             // The correct fix for this is to add code for the missing envelope type or, if the missing envelope
-            // tyoe is incorrect/superfluous, remove it from ENVELOPE.
+            // type is incorrect/superfluous, remove it from ENVELOPE.
 
             THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_TYPE);                                              // throw error
     }
@@ -1192,7 +1192,7 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
     ST_VECTOR mtHist                    = MassTransferDonorHistory();                                                   // mass transfer history vector
     MT_CASE   schneiderMassTransferCase = MT_CASE::OTHER;
 
-    // determine MT history - this wil tell us which Schneider MT case prescription should be used
+    // determine MT history - this will tell us which Schneider MT case prescription should be used
     if (mtHist.size() == 0) {                                                                                           // no history of MT - effectively single star
         schneiderMassTransferCase = MT_CASE::NONE;
     }
