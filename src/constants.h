@@ -267,6 +267,7 @@ constexpr double RSOL                                   = 6.957E8;              
 constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
 constexpr double LOG10_ZSOL                             = -1.698970004336019;                                       // log10(ZSOL) - for performance
 constexpr double ZSOL_ASPLUND                           = 0.0142;                                                   // Solar Metallicity (Asplund+ 2010) used in initial condition
+constexpr double YSOL                                   = 0.2485;                                                   // Asplund+ 2009
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
 constexpr double LSOL                                   = 3.844E33;                                                 // Solar Luminosity in erg/s
 constexpr double LSOLW                                  = 3.844E26;                                                 // Solar luminosity (in W)
@@ -882,7 +883,8 @@ enum class EVOLUTION_STATUS: int {
     DCO,
     WD_WD,
     MASSLESS_REMNANT,
-    UNBOUND
+    UNBOUND,
+    MASSLESS_AND_COMPACT
 };
 
 // JR: deliberately kept these messages succinct (where I could) so running status doesn't scroll off the page...
@@ -904,7 +906,8 @@ const COMPASUnorderedMap<EVOLUTION_STATUS, std::string> EVOLUTION_STATUS_LABEL =
     { EVOLUTION_STATUS::DCO,                     "DCO formed" },
     { EVOLUTION_STATUS::WD_WD,                   "Double White Dwarf formed" },
     { EVOLUTION_STATUS::MASSLESS_REMNANT,        "Massless Remnant formed" },
-    { EVOLUTION_STATUS::UNBOUND,                 "Unbound binary" }
+    { EVOLUTION_STATUS::UNBOUND,                 "Unbound binary" },
+    { EVOLUTION_STATUS::MASSLESS_AND_COMPACT,    "Massless remnant and compact object binary"}
 };
 
 
