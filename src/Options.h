@@ -679,6 +679,7 @@ public:
             bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
             bool                                                m_NatalKickForPPISN;                                            // Flag if PPISN remnant should receive a non-zero natal kick
 	        bool                                                m_EvolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
+            bool                                                m_EvolveMainSequenceMergers;                                    // Option to evolve binaries in which two stars merged on the main sequence
 
             bool                                                m_DetailedOutput;                                               // Print detailed output details to file (default = false)
             bool                                                m_PopulationDataPrinting;                                       // Print certain data for small populations, but not for larger one
@@ -1269,6 +1270,7 @@ public:
     ENVELOPE_STATE_PRESCRIPTION                 EnvelopeStatePrescription() const                                       { return OPT_VALUE("envelope-state-prescription", m_EnvelopeStatePrescription.type, true); }
     EVOLUTION_MODE                              EvolutionMode() const                                                   { return m_CmdLine.optionValues.m_EvolutionMode.type; }
     bool                                        EvolveDoubleWhiteDwarfs() const                                         { return OPT_VALUE("evolve-double-white-dwarfs", m_EvolveDoubleWhiteDwarfs, true); }
+    bool                                        EvolveMainSequenceMergers() const                                       { return OPT_VALUE("evolve-main-sequence-mergers", m_EvolveMainSequenceMergers, true); }
     bool                                        EvolvePulsars() const                                                   { return OPT_VALUE("evolve-pulsars", m_EvolvePulsars, true); }
     bool                                        EvolveUnboundSystems() const                                            { return OPT_VALUE("evolve-unbound-systems", m_EvolveUnboundSystems, true); }
     bool                                        ExpelConvectiveEnvelopeAboveLuminosityThreshold() const                 { return OPT_VALUE("expel-convective-envelope-above-luminosity-threshold", m_ExpelConvectiveEnvelopeAboveLuminosityThreshold, true); }
