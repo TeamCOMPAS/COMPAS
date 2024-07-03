@@ -827,8 +827,8 @@ void MainSequence::UpdateMinimumCoreMass()
  */
 void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass)
 {
-    m_Mass = p_Mass;
-    m_Mass0 = m_Mass;
+    m_Mass            = p_Mass;
+    m_Mass0           = m_Mass;
     m_MinimumCoreMass = 0.0;
     
     double TAMSCoreMass = 0.3 * m_Mass;                                                                         // /*ILYA*/ temporary solution, should use TAMS core mass
