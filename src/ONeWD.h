@@ -51,7 +51,6 @@ protected:
         m_AccretionRegime = ACCRETION_REGIME::NONE;
     }
 
-
     // member functions
 
             double          CalculateLuminosityOnPhase(const double p_Mass,

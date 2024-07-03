@@ -1112,7 +1112,7 @@
 // 02.42.02    RTW - Mar 21, 2024    - Minor edits:
 //                                      - Defect repair : Added explicit definition `bool isUnstable = false` to avoid confusion in BaseBinaryStar.cpp
 //                                      - Defect repair : Fixed erroneous core mass values in ResolveSNIa in WhiteDwarfs.cpp. Was previously 0 for all core masses. 
-//                                      - Enhancement: Added output parameter TZAMS for internal variable m_TZAMS
+//                                      - Enhancement: Added output parameter TZAMS for internal variable m_InitialTemperature
 // 02.43.00    RTW - Mar 29, 2024    - Enhancement:
 //                                      - Added Hirai pulsar rocket kick, and related options
 // 02.43.01    SS - Apr 8, 2024      - Defect repair
@@ -1169,7 +1169,9 @@
 // 02.46.01    IM - May 15, 2024     - Defect repair
 //                                      - Corrected CalculateConvectiveCoreRadius()
 //                                      - Minor documentation and comment fixes
-          
-const std::string VERSION_STRING = "02.46.01";
+// 02.47.00    RTW - May 15, 2024    - Enhancements:
+//                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
+
+const std::string VERSION_STRING = "02.47.00";
 
 # endif // __changelog_h__

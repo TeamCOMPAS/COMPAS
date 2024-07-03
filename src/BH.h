@@ -43,13 +43,12 @@ public:
     
     
 protected:
-    
+     
     void Initialise() {
         CalculateTimescales();                                                                                                                          // Initialise timescales
         m_Age = 0.0;                                                                                                                                    // Set age appropriately
     }
-    
-    
+
     // member functions - alphabetically
     double  CalculateConvergedMassStepZetaNuclear() const                           { return 0.0; }
     

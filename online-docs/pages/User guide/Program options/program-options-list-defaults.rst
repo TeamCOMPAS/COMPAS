@@ -469,6 +469,24 @@ Default = 5.0
 Single power law power to generate primary mass using ``POWERLAW`` IMF. |br|
 Default = 0.0
 
+**--initial-stellar-type** |br|
+Initial stellar type for a single star when evolving in SSE mode. |br|
+Options: { MS, HeMS, HeWD, COWD, ONeWD, NS, BH } |br|
+Corresponding to Main Sequence, Helium Main Sequence, Helium White Dwarf, Carbon-Oxygen White Dwarf, Oxygen-Neon White Dwarf, Neutron Star, and Black Hole.
+Default = MS
+
+**--initial-stellar-type-1** |br|
+Initial stellar type for the primary star when evolving in BSE mode |br|
+Options: { MS, HeMS, HeWD, COWD, ONeWD, NS, BH } |br|
+Corresponding to Main Sequence, Helium Main Sequence, Helium White Dwarf, Carbon-Oxygen White Dwarf, Oxygen-Neon White Dwarf, Neutron Star, and Black Hole.
+Default = MS
+
+**--initial-stellar-type-2** |br|
+Initial stellar type for the secondary star when evolving in BSE mode |br|
+Options: { MS, HeMS, HeWD, COWD, ONeWD, NS, BH } |br|
+Corresponding to Main Sequence, Helium Main Sequence, Helium White Dwarf, Carbon-Oxygen White Dwarf, Oxygen-Neon White Dwarf, Neutron Star, and Black Hole.
+Default = MS
+
 .. _options-props-J:
 
 .. _options-props-K:
@@ -1290,6 +1308,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Initial conditions**
 
 --initial-mass-function, --initial-mass, --initial-mass-1, --initial-mass-2, --initial-mass-min, --initial-mass-max, --initial-mass-power
+
+--initial-stellar-type, --initial-stellar-type-1, --initial-stellar-type-2
 
 --mass-ratio-distribution, --mass-ratio, --mass-ratio-min, --mass-ratio-max, --minimum-secondary-mass
 

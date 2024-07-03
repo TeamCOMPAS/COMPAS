@@ -54,7 +54,8 @@ public:
     Star();
 
     Star(const unsigned long int p_RandomSeed, 
-         const double            p_MZAMS, 
+         const double            p_InitialMass, 
+         const STELLAR_TYPE      p_InitialStellarType,
          const double            p_Metallicity, 
          const KickParameters    p_KickParameters,
          const double            p_RotationalVelocity = -1.0); 
@@ -120,13 +121,13 @@ public:
     double              Mass0() const                                                                               { return m_Star->Mass0(); }
     double              MassPrev() const                                                                            { return m_Star->MassPrev(); }
     double              Metallicity() const                                                                         { return m_Star->Metallicity(); }
-    double              MZAMS() const                                                                               { return m_Star->MZAMS(); }
+    double              InitialMass() const                                                                               { return m_Star->InitialMass(); }
     double              Omega() const                                                                               { return m_Star->Omega(); }
     double              OmegaCHE() const                                                                            { return m_Star->OmegaCHE(); }
     double              OmegaPrev() const                                                                           { return m_Star->OmegaPrev(); }
     double              Radius() const                                                                              { return m_Star->Radius(); }
     double              RadiusPrev() const                                                                          { return m_Star->RadiusPrev(); }
-    double              RZAMS() const                                                                               { return m_Star->RZAMS(); }
+    double              InitialRadius() const                                                                               { return m_Star->InitialRadius(); }
     SupernovaDetailsT   SN_Details() const                                                                          { return m_Star->SN_Details(); }
     double              SN_Phi() const                                                                              { return m_Star->SN_Phi(); }
     double              SN_Theta() const                                                                            { return m_Star->SN_Theta(); }
@@ -219,6 +220,10 @@ public:
     EVOLUTION_STATUS Evolve(const long int p_Id);
 
     double          EvolveOneTimestep(const double p_Dt, const bool p_Force = false);
+
+    void            FastForward()                                                                                   { m_Star->FastForward(); }
+
+    void            IncrementOmega(const double p_OmegaDelta)                                                       { m_Star->IncrementOmega(p_OmegaDelta); }
 
     double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription)                              { return m_Star->InterpolateGe20QCrit(p_qCritPrescription); }
     void            HaltWinds()                                                                                     { m_Star->HaltWinds(); }

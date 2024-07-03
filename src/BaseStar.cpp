@@ -28,7 +28,7 @@ BaseStar::BaseStar() {
 
 
 BaseStar::BaseStar(const unsigned long int p_RandomSeed, 
-                   const double            p_MZAMS,
+                   const double            p_InitialMass,
                    const double            p_Metallicity,
                    const KickParameters    p_KickParameters,
                    const double            p_RotationalFrequency) {
@@ -50,7 +50,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     // Initialise member variables from input parameters
     // (kick parameters initialised below - see m_SupernovaDetails)
     m_RandomSeed          = p_RandomSeed;
-    m_MZAMS               = p_MZAMS;
+    m_InitialMass         = p_InitialMass;
     m_Metallicity         = p_Metallicity;
 
     // Initialise metallicity dependent values
@@ -107,32 +107,35 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     // initialise remaining member variables
 
-    // Zero age main sequence parameters
+    // Zero age main sequence parameters - these are reset in the FastForward functions if the star is not initialized at ZAMS
+    m_MZAMS                                    = CalculateRadiusAtZAMS(m_MZAMS);
     m_RZAMS                                    = CalculateRadiusAtZAMS(m_MZAMS);
     m_LZAMS                                    = CalculateLuminosityAtZAMS(m_MZAMS);
     m_TZAMS                                    = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
+    m_InitialRadius                            = m_RZAMS;
+    m_InitialLuminosity                        = m_LZAMS;
+    m_InitialTemperature                       = m_TZAMS;
 
     m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
-
-    m_OmegaZAMS                                = p_RotationalFrequency >= 0.0                           // valid rotational frequency passed in?
+    m_InitialOmega                             = p_RotationalFrequency >= 0.0                           // valid rotational frequency passed in?
                                                     ? p_RotationalFrequency                             // yes - use it
-                                                    : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
+                                                    : CalculateInitialAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
 
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
-    m_RZAMS0                                   = m_RZAMS;
-    m_LZAMS0                                   = m_LZAMS;
+    m_InitialRadius0                           = m_InitialRadius;
+    m_InitialLuminosity0                       = m_InitialLuminosity;
 
     // Current timestep attributes
     m_Time                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Dt                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Tau                                      = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
-    m_Mass                                     = m_MZAMS;
-    m_Mass0                                    = m_MZAMS;
+    m_Mass                                     = m_InitialMass;
+    m_Mass0                                    = m_InitialMass;
     m_MinimumCoreMass                          = 0.0;
-    m_Luminosity                               = m_LZAMS;
-    m_Radius                                   = m_RZAMS;
-    m_Temperature                              = m_TZAMS;
+    m_Luminosity                               = m_InitialLuminosity;
+    m_Radius                                   = m_InitialRadius;
+    m_Temperature                              = m_InitialTemperature;
 	m_ComponentVelocity						   = Vector3d();
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -142,7 +145,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Mdot                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_DominantMassLossRate                     = MASS_LOSS_TYPE::NONE;
 
-    m_Omega                                    = m_OmegaZAMS;
+    m_Omega                                    = m_InitialOmega;
 
     m_MinimumLuminosityOnPhase                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_LBVphaseFlag                             = false;
@@ -150,10 +153,10 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     // Previous timestep attributes
     m_StellarTypePrev                          = m_StellarType;
-    m_MassPrev                                 = m_MZAMS;
-    m_RadiusPrev                               = m_RZAMS;
+    m_MassPrev                                 = m_InitialMass;
+    m_RadiusPrev                               = m_InitialRadius;
     m_DtPrev                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_OmegaPrev                                = m_OmegaZAMS;
+    m_OmegaPrev                                = m_InitialOmega;
     
     // Lambdas
 	m_Lambdas.dewi                             = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -324,6 +327,11 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
             case ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_HeCoreMassAtCOFormation();                           break;
             case ANY_STAR_PROPERTY::IS_HYDROGEN_POOR:                                   value = SN_IsHydrogenPoor();                                    break;
             case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
+            case ANY_STAR_PROPERTY::INITIAL_LUMINOSITY:                                 value = InitialLuminosity();                                    break;
+            case ANY_STAR_PROPERTY::INITIAL_MASS:                                       value = InitialMass();                                          break;
+            case ANY_STAR_PROPERTY::INITIAL_RADIUS:                                     value = InitialRadius();                                        break;
+            case ANY_STAR_PROPERTY::INITIAL_OMEGA:                                      value = InitialOmega() / SECONDS_IN_YEAR;                       break;
+            case ANY_STAR_PROPERTY::INITIAL_TEMPERATURE:                                value = InitialTemperature();                                   break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
             case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
             case ANY_STAR_PROPERTY::IS_AIC:                                             value = IsAIC();                                                break;
@@ -1079,14 +1087,15 @@ double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) const {
         logBindingEnergy += lCoefficients.alpha_mr * utils::intPow(log10(m_Mass), lCoefficients.m) * utils::intPow(log10(m_Radius + deltaR), lCoefficients.r);
     }
 
-    double MZAMS_Mass = (m_MZAMS - m_Mass) / m_MZAMS;                                       // Should m_ZAMS really be m_Mass0 (i.e., account for change in effective mass through mass loss in winds, MS mass transfer?)
-    logBindingEnergy *= p_IsMassLoss ? 1.0 + (0.25 * MZAMS_Mass * MZAMS_Mass) : 1.0;        // apply mass-loss correction factor (lambda)
+    double MassLossFrac = (m_InitialMass - m_Mass) / m_InitialMass;                         // TODO! - address this comment: Should m_InitialMass really be m_Mass0 (i.e., account for change in effective mass through mass loss in winds, MS mass transfer?)
+    logBindingEnergy *= p_IsMassLoss ? 1.0 + (0.25 * MassLossFrac * MassLossFrac) : 1.0;    // apply mass-loss correction factor (lambda)
 
     logBindingEnergy += 33.29866;                                                           // + logBE0
 
 	return logBindingEnergy;
 }
 
+// RTW TODO: In all the wind and binding energy functions below, you need to check whether they intrinsically use zams mass or initial mass!
 
 /*
  * Calculata lambda parameter from the so-called energy formalism of CE (Webbink 1984).
@@ -1117,7 +1126,7 @@ double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass,
  */ 
 double BaseStar::CalculateLambdaNanjing() const {
 
-    double mass   = m_MZAMS;
+    double mass   = m_InitialMass;
     double lambda = 0.0;
     if (OPTIONS->CommonEnvelopeLambdaNanjingUseRejuvenatedMass()) mass = m_Mass0;                               // Use rejuvenated mass to calculate lambda instead of true birth mass
     
@@ -2131,7 +2140,7 @@ double BaseStar::CalculateMassLossRateOBKrticka2018() const {
  */
 double BaseStar::CalculateMassLossRateRSGBeasor2020() const {
 
-    double logMdot = (-21.5 - 0.15 * m_MZAMS) + (3.6 * log10(m_Luminosity));                                // Further correction by Beasor+
+    double logMdot = (-21.5 - 0.15 * m_InitialMass) + (3.6 * log10(m_Luminosity));                                // Further correction by Beasor+
 
     return PPOW(10.0, logMdot);
 }
@@ -2148,7 +2157,7 @@ double BaseStar::CalculateMassLossRateRSGBeasor2020() const {
  * @return                                      Mass loss rate for RSG stars in Msol yr^-1
  */
 double BaseStar::CalculateMassLossRateRSGDecin2023() const {
-    return PPOW(10.0, -20.63 - 0.16 * m_MZAMS + 3.47 * log10(m_Luminosity));
+    return PPOW(10.0, -20.63 - 0.16 * m_InitialMass + 3.47 * log10(m_Luminosity));
 }
 
 
@@ -2640,7 +2649,7 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
         OPTIONS->LuminousBlueVariablePrescription() == LBV_PRESCRIPTION::HURLEY_ADD ) {                             // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
 
         if ((utils::Compare(teff, RSG_MAXIMUM_TEMP) < 0) && 
-            (utils::Compare(m_MZAMS, 8.0) >= 0)          &&                                                         // JR: We shouldn't have undocumented magic numbers in the code... This is an accepted threshold, so let's document it and give it a name.
+            (utils::Compare(m_InitialMass, 8.0) >= 0)          &&                                                         // JR: We shouldn't have undocumented magic numbers in the code... This is an accepted threshold, so let's document it and give it a name.
             IsOneOf(GIANTS)) {                                                                                      // RSG criteria, below 8kK, above 8Msol, and core helium burning giant(CHeB, FGB, EAGB, TPAGB) 
             otherWindsRate         = CalculateMassLossRateRSG(OPTIONS->RSGMassLoss()); 
             m_DominantMassLossRate = MASS_LOSS_TYPE::RSG;
@@ -2648,7 +2657,7 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
         else if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                           // cool stars, add Hurley et al 2000 winds (NJ90)
             otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // apply cool wind mass loss multiplier
         }                                                                                                           // change to Kelvin so it can be compared with values as stated in Vink prescription
-        else if (utils::Compare(m_MZAMS, VERY_MASSIVE_MINIMUM_MASS) >= 0) {
+        else if (utils::Compare(m_InitialMass, VERY_MASSIVE_MINIMUM_MASS) >= 0) {
             otherWindsRate         = CalculateMassLossRateVMS(OPTIONS->VMSMassLoss());        
             m_DominantMassLossRate = MASS_LOSS_TYPE::VMS;                                                           // massive MS, >100 Msol. Alternatively could use Luminosity or Gamma and Mass threshold                             
         }
@@ -3088,17 +3097,17 @@ double BaseStar::CalculateOStarRotationalVelocity_Static(const double p_Xmin, co
 
 
 /*
- * Calculate the initial rotational velocity (in km s^-1 ) of a star with ZAMS mass MZAMS
+ * Calculate the initial rotational velocity (in km s^-1 ) of a star with Initial mass InitialMass
  *
  * Distribution used is determined by program option "rotationalVelocityDistribution"
  *
  *
- * double CalculateRotationalVelocity(double p_MZAMS)
+ * double CalculateRotationalVelocity(double p_InitialMass)
  *
- * @param   [IN]    p_MZAMS                     Zero age main sequence mass in Msol
+ * @param   [IN]    p_InitialMass                     Zero age main sequence mass in Msol
  * @return                                      Initial equatorial rotational velocity in km s^-1 - vRot in Hurley et al. 2000
  */
-double BaseStar::CalculateRotationalVelocity(double p_MZAMS) const {
+double BaseStar::CalculateRotationalVelocity(double p_InitialMass) const {
 
     double vRot = 0.0;
 
@@ -3109,7 +3118,7 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) const {
         case ROTATIONAL_VELOCITY_DISTRIBUTION::HURLEY:                                  // HURLEY
 
             // Hurley et al. 2000, eq 107 (uses fit from Lang 1992)
-            vRot = (330.0 * PPOW(p_MZAMS, 3.3)) / (15.0 + PPOW(p_MZAMS, 3.45));
+            vRot = (330.0 * PPOW(p_InitialMass, 3.3)) / (15.0 + PPOW(p_InitialMass, 3.45));
             break;
 
         case ROTATIONAL_VELOCITY_DISTRIBUTION::VLTFLAMES:                               // VLTFLAMES
@@ -3121,16 +3130,16 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) const {
             // For lower mass stars, I don't know what updated results there are so default back to
             // Hurley et al. 2000 distribution for now
 
-            if (utils::Compare(p_MZAMS, 16.0) >= 0) {
+            if (utils::Compare(p_InitialMass, 16.0) >= 0) {
                 vRot = CalculateOStarRotationalVelocity_Static(0.0, 800.0);
             }
-            else if (utils::Compare(p_MZAMS, 2.0) >= 0) {
+            else if (utils::Compare(p_InitialMass, 2.0) >= 0) {
                 vRot = utils::InverseSampleFromTabulatedCDF(RAND->Random(), BStarRotationalVelocityCDFTable);
             }
             else {
                 // Don't know what better to use for low mass stars so for now
                 // default to Hurley et al. 2000, eq 107 (uses fit from Lang 1992)
-                vRot = (330.0 * PPOW(p_MZAMS, 3.3)) / (15.0 + PPOW(p_MZAMS, 3.45));
+                vRot = (330.0 * PPOW(p_InitialMass, 3.3)) / (15.0 + PPOW(p_InitialMass, 3.45));
             }
             break;
 
@@ -3143,20 +3152,20 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) const {
 
 /*
  * Calculate the initial angular frequency (in yr^-1) of a star with
- * ZAMS mass and radius MZAMS and RZAMS respectively
+ * Initial mass and radius Initial_Mass and Initial_Radius respectively
  *
  * Hurley et al. 2000, eq 108
  *
  *
- * double CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS)
+ * double CalculateInitialAngularFrequency(const double p_Initial_Mass, const double p_Initial_Radius)
  *
- * @param   [IN]    p_MZAMS                     Zero age main sequence mass in Msol
- * @param   [IN]    p_RZAMS                     Zero age main sequence radius in Rsol
+ * @param   [IN]    p_Initial_Mass              Initial mass in Msol
+ * @param   [IN]    p_Initial_Radius            Initial radius in Rsol
  * @return                                      Initial angular frequency in yr^-1 - omega in Hurley et al. 2000
  */
-double BaseStar::CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS) const {
-    double vRot = CalculateRotationalVelocity(p_MZAMS);
-    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_RZAMS;               // Hurley et al. 2000, eq 108
+double BaseStar::CalculateInitialAngularFrequency(const double p_Initial_Mass, const double p_Initial_Radius) const {
+    double vRot = CalculateRotationalVelocity(p_Initial_Mass);
+    return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_Initial_Radius;               // Hurley et al. 2000, eq 108
 }
 
 
@@ -3176,25 +3185,25 @@ double BaseStar::CalculateOmegaBreak() const {
 
 /*
  * Calculate the minimum rotational frequency (in yr^-1) at which CHE will occur
- * for a star with ZAMS mass MZAMS
+ * for a star with Initial mass InitialMass
  *
  * Mandel's fit from Butler 2018
  *
  *
- * double CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity)
+ * double CalculateOmegaCHE(const double p_InitialMass, const double p_Metallicity)
  *
- * @param   [IN]        p_MZAMS                 Zero age main sequence mass in Msol
+ * @param   [IN]        p_InitialMass           Initial mass in Msol
  * @param   [IN]        p_Metallicity           Metallicity of the star
  * @return                                      Initial angular frequency in rad*s^-1
  */
-double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) const {
+double BaseStar::CalculateOmegaCHE(const double p_InitialMass, const double p_Metallicity) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
-    double mRatio = p_MZAMS;                                                                        // in MSol, so ratio is just p_MZAMS
+    double mRatio = p_InitialMass;                                                                        // in MSol, so ratio is just p_InitialMass
 
     // calculate omegaCHE(M, Z = 0.004)
     double omegaZ004 = 0.0;
-    if (utils::Compare(p_MZAMS, massCutoffs(MCHE)) <= 0) {
+    if (utils::Compare(p_InitialMass, massCutoffs(MCHE)) <= 0) {
         for (std::size_t i = 0; i < CHE_Coefficients.size(); i++) {
             omegaZ004 += CHE_Coefficients[i] * utils::intPow(mRatio, i) / PPOW(mRatio, 0.4);
         }

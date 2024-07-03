@@ -43,7 +43,7 @@ protected:
     }
 
     // member functions
-    double          CalculateRadiusOnPhase() const      { return m_RZAMS; }                                                                                                         // Constant from birth
+    double          CalculateRadiusOnPhase() const      { return m_InitialRadius; }                                                                                                         // Constant from birth
     double          CalculateRadiusAtPhaseEnd() const   { return CalculateRadiusOnPhase(); }                                                                                        // Same as on phase
 
     STELLAR_TYPE    EvolveToNextPhase();

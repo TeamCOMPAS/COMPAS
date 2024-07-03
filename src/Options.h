@@ -296,6 +296,7 @@ private:
         // trying to keep enties alphabetical so easier to find specific entries
 
         "initial-mass",
+        "initial-stellar-type",
 
         "kick-magnitude",
         "kick-magnitude-random",
@@ -339,6 +340,8 @@ private:
 
         "initial-mass-1",
         "initial-mass-2",
+        "initial-stellar-type-1",
+        "initial-stellar-type-2",
 
         "kick-magnitude-1",
         "kick-magnitude-2",
@@ -718,6 +721,11 @@ public:
             double                                              m_InitialMassFunctionMin;                                       // Minimum mass to generate in Msol
             double                                              m_InitialMassFunctionMax;                                       // Maximum mass to generate in Msol
             double                                              m_InitialMassFunctionPower;                                     // single IMF power law set manually
+
+            // Initial stellar type
+            ENUM_OPT<STELLAR_TYPE>                              m_InitialStellarType;                                           // Initial stellar type of single star (SSE)
+            ENUM_OPT<STELLAR_TYPE>                              m_InitialStellarType1;                                          // Initial stellar type of primary (BSE)
+            ENUM_OPT<STELLAR_TYPE>                              m_InitialStellarType2;                                          // Initial stellar type of secondary (BSE)
 
             // Mass ratio
             double                                              m_MassRatio;                                                    // Mass ratio for BSE
@@ -1290,6 +1298,10 @@ public:
     double                                      InitialMassFunctionMax() const                                          { return OPT_VALUE("initial-mass-max", m_InitialMassFunctionMax, true); }
     double                                      InitialMassFunctionMin() const                                          { return OPT_VALUE("initial-mass-min", m_InitialMassFunctionMin, true); }
     double                                      InitialMassFunctionPower() const                                        { return OPT_VALUE("initial-mass-power", m_InitialMassFunctionPower, true); }
+
+    STELLAR_TYPE                                InitialStellarType() const                                              { return OPT_VALUE("initial-stellar-type", m_InitialStellarType.type, true); }
+    STELLAR_TYPE                                InitialStellarType1() const                                             { return OPT_VALUE("initial-stellar-type-1", m_InitialStellarType1.type, true); }
+    STELLAR_TYPE                                InitialStellarType2() const                                             { return OPT_VALUE("initial-stellar-type-2", m_InitialStellarType2.type, true); }
 
     KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return OPT_VALUE("kick-direction", m_KickDirectionDistribution.type, true); }
     double                                      KickDirectionPower() const                                              { return OPT_VALUE("kick-direction-power", m_KickDirectionPower, true); }

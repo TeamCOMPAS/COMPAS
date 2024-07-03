@@ -653,8 +653,8 @@ void MainSequence::UpdateAgeAfterMassLoss() {
  * void EvolveOneTimestepPreamble()
  */
 void MainSequence::EvolveOneTimestepPreamble() {
-    m_LZAMS0 = CalculateLuminosityAtZAMS(m_Mass0);
-    m_RZAMS0 = CalculateRadiusAtZAMS(m_Mass0);
+    m_InitialLuminosity0 = CalculateLuminosityAtZAMS(m_Mass0);
+    m_InitialRadius0 = CalculateRadiusAtZAMS(m_Mass0);
 }
 
 

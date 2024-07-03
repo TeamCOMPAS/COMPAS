@@ -364,7 +364,7 @@ private:
 
     double              m_SynchronizationTimescale;
 
-    Vector3d            m_SystemicVelocity;                                                 // Systemic velocity vector, relative to ZAMS Center of Mass
+    Vector3d            m_SystemicVelocity;                                                 // Systemic velocity vector, relative to initial Center of Mass
     Vector3d            m_NormalizedOrbitalAngularMomentumVector;                                     // Orbital AM vector postSN, in preSN frame
     double              m_ThetaE;                                                           // Euler Theta
     double              m_PhiE;                                                             // Euler Phi                

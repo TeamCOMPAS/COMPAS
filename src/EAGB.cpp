@@ -363,7 +363,7 @@ double EAGB::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zin
  *
  * JR: todo: the coefficients and factors here are hard-coded until I figure out an
  * efficient way of putting them in constants.h.  Because they are indexed by a few
- * things: stellar type, metallicity and ZAMS mass the easiet thing would be to  put
+ * things: stellar type, metallicity and Initial mass the easiet thing would be to  put
  * them in a map - but because they can be re-calculated at every timestep the hashing
  * overhead becomes a performance concern.  Vectors are a good alternative, but I need
  * to figure out how best to structure them for reasonable (and inuitive) access.

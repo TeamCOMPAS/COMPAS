@@ -212,6 +212,13 @@ void Options::OptionValues::Initialise() {
     m_InitialMassFunctionMax                                        = 150.0;
     m_InitialMassFunctionPower                                      = 0.0;
 
+    // Initial stellar type 
+    m_InitialStellarType.type                                      = STELLAR_TYPE::STAR;                                 // Default reverts to Main Sequence later 
+    m_InitialStellarType.typeString                                = INITIAL_STELLAR_TYPE_LABEL.at(m_InitialStellarType.type);   // Default reverts to Main Sequence later
+    m_InitialStellarType1.type                                     = STELLAR_TYPE::STAR;                                 // Default reverts to Main Sequence later
+    m_InitialStellarType1.typeString                               = INITIAL_STELLAR_TYPE_LABEL.at(m_InitialStellarType.type);   // Default reverts to Main Sequence later
+    m_InitialStellarType2.type                                     = STELLAR_TYPE::STAR;                                 // Default reverts to Main Sequence later
+    m_InitialStellarType2.typeString                               = INITIAL_STELLAR_TYPE_LABEL.at(m_InitialStellarType.type);   // Default reverts to Main Sequence later
 
     // Initial mass ratio
     m_MassRatio                                                     = 1.0;
@@ -221,7 +228,6 @@ void Options::OptionValues::Initialise() {
     m_MassRatioDistributionMax                                      = 1.0;
 
     m_MinimumMassSecondary                                          = 0.1;
-
 
     // Initial orbit options
     m_SemiMajorAxis                                                 = 0.1;
@@ -1665,6 +1671,23 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_InitialMassFunction.typeString)->default_value(p_Options->m_InitialMassFunction.typeString),                                                                    
             ("Initial mass function (" + AllowedOptionValuesFormatted("initial-mass-function") + ", default = '" + p_Options->m_InitialMassFunction.typeString + "')").c_str()
         )
+        
+        (
+            "initial-stellar-type",                                            
+            po::value<std::string>(&p_Options->m_InitialStellarType.typeString)->default_value(p_Options->m_InitialStellarType.typeString),                                                                          
+            ("Initial stellar type (Hurley type) for the star (SSE) (options: [ MS, HeMS, HeWD, COWD, ONeWD, NS, BH ], default = " + p_Options->m_InitialStellarType.typeString + ")").c_str()
+        )
+        (
+            "initial-stellar-type-1",                                            
+            po::value<std::string>(&p_Options->m_InitialStellarType1.typeString)->default_value(p_Options->m_InitialStellarType1.typeString),                                                                          
+            ("Initial stellar type (Hurley type) for the primary star (BSE) (options: [ MS, HeMS, HeWD, COWD, ONeWD, NS, BH ], default = " + p_Options->m_InitialStellarType1.typeString + ")").c_str()
+        )
+        (
+            "initial-stellar-type-2",                                            
+            po::value<std::string>(&p_Options->m_InitialStellarType2.typeString)->default_value(p_Options->m_InitialStellarType2.typeString),                                                                          
+            ("Initial stellar type (Hurley type) for the secondary star (BSE) (options: [ MS, HeMS, HeWD, COWD, ONeWD, NS, BH ], default = " + p_Options->m_InitialStellarType2.typeString + ")").c_str()
+        )
+
 
         (
             "kick-direction",                                              
@@ -2157,6 +2180,19 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (!DEFAULTED("initial-mass-function")) {                                                                                  // initial mass function
             std::tie(found, m_InitialMassFunction.type) = utils::GetMapKey(m_InitialMassFunction.typeString, INITIAL_MASS_FUNCTION_LABEL, m_InitialMassFunction.type);
             COMPLAIN_IF(!found, "Unknown Initial Mass Function");
+        }
+
+        if (!DEFAULTED("initial-stellar-type")) {                                                                                  // initial stellar type
+            std::tie(found, m_InitialStellarType.type) = utils::GetMapKey(m_InitialStellarType.typeString, INITIAL_STELLAR_TYPE_LABEL, m_InitialStellarType.type);
+            COMPLAIN_IF(!found || !utils::IsOneOf(m_InitialStellarType.type, INITIAL_STELLAR_TYPE),   "Initial stellar type (--initial-stellar-type) must be one of { MS, HeMS, HeWD, COWD, ONeWD, NS, BH }");
+        }
+        if (!DEFAULTED("initial-stellar-type-1")) {                                                                                // initial primary stellar type
+            std::tie(found, m_InitialStellarType1.type) = utils::GetMapKey(m_InitialStellarType1.typeString, INITIAL_STELLAR_TYPE_LABEL, m_InitialStellarType1.type);
+            COMPLAIN_IF(!found || !utils::IsOneOf(m_InitialStellarType1.type, INITIAL_STELLAR_TYPE),   "Initial primary stellar type (--initial-stellar-type-1) must be one of { MS, HeMS, HeWD, COWD, ONeWD, NS, BH }");
+        }
+        if (!DEFAULTED("initial-stellar-type-2")) {                                                                                // initial secondary stellar type
+            std::tie(found, m_InitialStellarType2.type) = utils::GetMapKey(m_InitialStellarType2.typeString, INITIAL_STELLAR_TYPE_LABEL, m_InitialStellarType2.type);
+            COMPLAIN_IF(!found || !utils::IsOneOf(m_InitialStellarType2.type, INITIAL_STELLAR_TYPE),   "Initial secondary stellar type (--initial-stellar-type-2) must be one of { MS, HeMS, HeWD, COWD, ONeWD, NS, BH }");
         }
 
         if (!DEFAULTED("kick-direction")) {                                                                                         // kick direction
@@ -4535,6 +4571,10 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX                      : value = InitialMassFunctionMax();                                             break;
         case PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN                      : value = InitialMassFunctionMin();                                             break;
         case PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER                     : value = InitialMassFunctionPower();                                           break;
+
+        case PROGRAM_OPTION::INITIAL_STELLAR_TYPE                           : value = InitialStellarType();                                                 break;
+        case PROGRAM_OPTION::INITIAL_STELLAR_TYPE_1                         : value = InitialStellarType1();                                                break;
+        case PROGRAM_OPTION::INITIAL_STELLAR_TYPE_2                         : value = InitialStellarType2();                                                break;
 
         case PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION                    : value = static_cast<int>(KickDirectionDistribution());                        break;
         case PROGRAM_OPTION::KICK_DIRECTION_POWER                           : value = KickDirectionPower();                                                 break;

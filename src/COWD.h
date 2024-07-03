@@ -55,7 +55,6 @@ protected:
         m_AccretionRegime   = ACCRETION_REGIME::NONE;
     }
 
-
     double          CalculateLuminosityOnPhase(const double p_Mass,
                                                const double p_Time,
                                                const double p_Metallicity) const    { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
