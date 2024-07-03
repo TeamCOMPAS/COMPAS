@@ -3,7 +3,7 @@
 
 
 // This is where developer-defined types are defined - except for types that pertain directly to
-// the COMPAS looging functionality (including the definition of the defaul record composition
+// the COMPAS looging functionality (including the definition of the default record composition
 // for the various log files) - those are listed in LogTypedefs.h
 
 
@@ -119,7 +119,7 @@ operator ~(Enum rhs) {
 // some typedefs are listed after enum classes (because they may use enum classes)
 
 
-// we list stellar types and assciated initialiser lists first so they are
+// we list stellar types and associated initialiser lists first so they are
 // grouped and easy to find
 //
 // these are symolic names for the stellar types from Hurley et al. 2000

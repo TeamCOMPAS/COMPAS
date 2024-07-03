@@ -21,7 +21,7 @@
 #include "constants.h"
 #include "typedefs.h"
 
-#include "errors.h"
+#include "Errors.h"
 #include "profiling.h"
 #include "utils.h"
 #include "yaml.h"

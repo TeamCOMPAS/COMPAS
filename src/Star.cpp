@@ -509,7 +509,7 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
         (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::FINAL_STATE);                         // log detailed output record 
 
         // if we trapped a floating-point error we set the star's error value to indicate a
-        // floating-point error occured, but we don't terminate evolution (we can only have
+        // floating-point error occurred, but we don't terminate evolution (we can only have
         // floating-point errors trapped here if the user has not activated the floating-point
         // error instrumentation)
 

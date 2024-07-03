@@ -247,7 +247,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
  * 
  *    STAR_PROPERTY, STAR_1_PROPERTY, STAR_2_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY
  * 
- * only - anything else will result in an error being thrown and the evolution of the star (or bianry)
+ * only - anything else will result in an error being thrown and the evolution of the star (or binary)
  * terminated.
  *
  * This is the function used to retrieve values for properties required to be printed.
@@ -424,7 +424,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
  * 
  *    STAR_PROPERTY, PROGRAM_OPTION
  * 
- * only - anything else will result in an error being thrown and the evolution of the star (or bianry)
+ * only - anything else will result in an error being thrown and the evolution of the star (or binary)
  * terminated.
  *
  * This is the function used to retrieve values for properties required to be printed.
@@ -2736,7 +2736,7 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
             otherWindsRate         = CalculateMassLossRateVMS(OPTIONS->VMSMassLossPrescription());                  // yes - use VMS mass loss rate
             m_DominantMassLossRate = MASS_LOSS_TYPE::VMS;                                                           // set dominant mass loss rate                             
         }
-        else {                                                                                                      // othwerwise...
+        else {                                                                                                      // otherwise...
             otherWindsRate         = CalculateMassLossRateOB(OPTIONS->OBMassLossPrescription());                    // use OB mass loss rate
             m_DominantMassLossRate = MASS_LOSS_TYPE::OB;                                                            // set dominant mass loss rate
         }

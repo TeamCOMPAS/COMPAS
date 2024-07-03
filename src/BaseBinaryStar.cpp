@@ -715,7 +715,7 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
  * 
  *    STAR_1_PROPERTY, STAR_2_PROPERTY, SUPERNOVA_PROPERTY, COMPANION_PROPERTY, BINARY_PROPERTY, PROGRAM_OPTION
  * 
- * only - anything else will result in an error being thrown and the evolution of the star (or bianry)
+ * only - anything else will result in an error being thrown and the evolution of the star (or binary)
  * terminated.
  * 
  * This function calls the appropriate helper function to retrieve the value.
@@ -1296,7 +1296,7 @@ void BaseBinaryStar::ResolveSupernova() {
         // the calculation, so inf or -inf would ensue).  The IEEE floating-point standard does not require
         // that the process/thread be terminated whenever a calculation, or assignment, results in NaN.
         //
-        // Assiging nan("") to a variable is equvalent to assigning std::numeric_limits<double>::quiet_NaN()
+        // Assigning nan("") to a variable is equivalent to assigning std::numeric_limits<double>::quiet_NaN()
         // to the variable, and the use of a variable that has been set to std::numeric_limits<double>::quiet_NaN()
         // just propagates std::numeric_limits<double>::quiet_NaN() (i.e. any assignments or calculations using
         // the variable will result in std::numeric_limits<double>::quiet_NaN()), without the ability to trap
@@ -1306,7 +1306,7 @@ void BaseBinaryStar::ResolveSupernova() {
         // so we use std::numeric_limits<double>::signaling_NaN() here.  However, just assigning another
         // variable a variable that has been set to std::numeric_limits<double>::signaling_NaN() will not
         // trap - only the result of a calculation using the variable will trap.  Furthrmore, we will only
-        // signal these errors if the FPE error handling is emabled by `--fp-error-mode ON (or DEBUG)` - if
+        // signal these errors if the FPE error handling is enabled by `--fp-error-mode ON (or DEBUG)` - if
         // the floating point error handling is not enabled, even the use of std::numeric_limits<double>::signaling_NaN()
         // just results in otyher variables being silently set to std::numeric_limits<double>::signaling_NaN().
         //
@@ -2616,7 +2616,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
 
-    ProcessTides(p_Dt);                                                                                                 // prcess tides if required
+    ProcessTides(p_Dt);                                                                                                 // process tides if required
 
     // assign new values to "previous" values, for following timestep
     m_EccentricityPrev  = m_Eccentricity;
@@ -2891,7 +2891,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
         (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::FINAL_STATE);                                                         // print (log) detailed output: this is the final state of the binary
 
         // if we trapped a floating-point error we set the star's error value to indicate a
-        // floating-point error occured, but we don't terminate evolution (we can only have
+        // floating-point error occurred, but we don't terminate evolution (we can only have
         // floating-point errors trapped here if the user has not activated the floating-point
         // error instrumentation.  i.e --fp-error-mode OFF)
 
