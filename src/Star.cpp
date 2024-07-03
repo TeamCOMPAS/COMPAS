@@ -1,13 +1,12 @@
 #include "Star.h"
 #include <algorithm>
 #include <csignal>
-
+#include <fenv.h>
 
 // Default constructor
 Star::Star() : m_Star(new BaseStar()) {
 
     m_ObjectId          = globalObjectId++;                                                                         // set object id
-    m_ObjectType        = OBJECT_TYPE::STAR;                                                                        // set object type
     m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;                                                            // set object persistence
 
     m_SaveStar = nullptr;
@@ -22,7 +21,6 @@ Star::Star(const unsigned long int p_RandomSeed,
            const double            p_RotationalVelocity) {
 
     m_ObjectId          = globalObjectId++;                                                                         // set object id
-    m_ObjectType        = OBJECT_TYPE::STAR;                                                                        // set object type
     m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;                                                            // set object persistence
 
     m_Star = new BaseStar(p_RandomSeed, p_MZAMS, p_Metallicity, p_KickParameters, p_RotationalVelocity);            // create underlying BaseStar object
@@ -48,7 +46,6 @@ Star::Star(const unsigned long int p_RandomSeed,
 Star::Star(const Star& p_Star) {
 
     m_ObjectId          = globalObjectId++;                                                                                             // set object id
-    m_ObjectType        = OBJECT_TYPE::STAR;                                                                                            // set object type
     m_ObjectPersistence = p_Star.ObjectPersistence();                                                                                   // set object persistence
 
     m_Star     = p_Star.m_Star ? static_cast<BaseStar*>(p_Star.m_Star->Clone(OBJECT_PERSISTENCE::PERMANENT, false)) : nullptr;          // copy underlying BaseStar object
@@ -98,7 +95,18 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
             case STELLAR_TYPE::NEUTRON_STAR                             : {ptr = new NS(*m_Star);} break;
             case STELLAR_TYPE::BLACK_HOLE                               : {ptr = new BH(*m_Star);} break;
             case STELLAR_TYPE::MASSLESS_REMNANT                         : {ptr = new MR(*m_Star);} break;
-            default: break;                                             // avoids compiler warning - this should never happen
+
+            default:                                                                    // unknown stellar type
+                // the only ways this can happen are if someone added a STELLAR_TYPE
+                // and it isn't accounted for in this code, or if there is a defect in the code that causes
+                // this function to be called with a bad parameter.  We should not default here, with or without
+                // a warning.
+                // We are here because the user chose a prescription this code doesn't account for, and that should
+                // be flagged as an error and result in termination of the evolution of the star or binary.
+                // The correct fix for this is to add code for the missing prescription or, if the missing
+                // prescription is superfluous, remove it from the option.
+
+                THROW_ERROR(ERROR::UNKNOWN_STELLAR_TYPE);                               // throw error
         }
 
         if (ptr) {
@@ -112,7 +120,7 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
 
         if (utils::IsOneOf(stellarTypePrev, EVOLVABLE_TYPES) && OPTIONS->SwitchLog()) {                     // star should be evolving from one of the evolvable types (We don't want the initial switch from Star->MS.  Not necessary for BSE (handled differently), but no harm)
         
-            LOGGING->SetSwitchParameters(m_ObjectId, m_ObjectType, m_ObjectPersistence, stellarTypePrev, p_StellarType);  // store switch details to LOGGING service
+            LOGGING->SetSwitchParameters(m_ObjectId, ObjectType(), m_ObjectPersistence, stellarTypePrev, p_StellarType);  // store switch details to LOGGING service
             if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::BSE) {                                          // BSE?
                 raise(SIGUSR1);                                                                             // signal to BSE that switch is occurring
             }
@@ -189,7 +197,7 @@ bool Star::RevertState() {
  *      of mass loss (see section 7.1).  We should really separate the different uses of Mass0 in the code and
  *      use a different variable - initial mass shouldn't change (other than to initial mass upon entering a
  *      stellar phase - it doesn't make a lot of sense for initial mass to change during evolution through the
- *      phase).         JR: todo: action this paragraph.
+ *      phase).         JR: todo
  *
  *    - if required, the star is aged by the amount passed as the p_DeltaTime parameter, and the simulation time is
  *      advanced by the same amount, before other attributes are updated.  The p_deltaTime parameter may be zero,
@@ -206,7 +214,7 @@ bool Star::RevertState() {
  *
  * If p_DeltaMass, p_DeltaMass0 and p_DeltaTime are all passed as zero the checks for massless remnant and supernova
  * are performed (and consequential changes made), but no other changes to the star's attributes are made - unless
- * the p_ForceRecalculate parameter is set true.        JR: todo: I'm not convinced p_ForceRecalculate is necessary - check it
+ * the p_ForceRecalculate parameter is set true.
  *
  * The functional return is the stellar type to which the star should evolve.  The returned stellar type is just the
  * stellar type of the star upon entry if it should remain on phase.
@@ -241,13 +249,14 @@ STELLAR_TYPE Star::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
         STELLAR_TYPE stellarTypePrev = SwitchTo(stellarType);                               // yes - switch
         m_Star->SetStellarTypePrev(stellarTypePrev);                                        // record previous stellar type
         
-        // recalculate stellar attributes after switching if necessary - transition may not be continuous (e.g. CH -> HeMS)
-        // (this could get recursive, but shouldn't...)
+        // recalculate stellar attributes after switching if necessary - transition may not be continuous
+        // this is a bit of a kludge just for CH -> HeMS  JR: should revisit the best way to do this
         if (stellarTypePrev == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS && 
                 stellarType == STELLAR_TYPE::NAKED_HELIUM_STAR_MS) {                        // discontinuous transition?
             if (UpdateAttributes(0.0, 0.0, true) != stellarType) {                          // yes - recalculate stellar attributes
-                // JR: need to revisit this - should we (queue) switch here?
-                SHOW_WARN(ERROR::SWITCH_NOT_TAKEN);                                         // show warning if we think we should switch again...
+                // JR: need to revisit this - should we actually switch here
+                // (or maybe queue a switch - not sure that's even possible...)?
+                SHOW_WARN(ERROR::SWITCH_NOT_TAKEN);                                         // show warning if we think we should switch again - really for diagnostics/stats (how often does this happen?)
             }
         }
     }
@@ -277,20 +286,10 @@ STELLAR_TYPE Star::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
  *      of mass loss (see section 7.1).  We should really separate the different uses of Mass0 in the code and
  *      use a different variable - initial mass shouldn't change (other than to initial mass upon entering a
  *      stellar phase - it doesn't make a lot of sense for initial mass to change during evolution through the
- *      phase).         JR: todo: action this paragraph.
+ *      phase).         JR: todo
  *
  *
- * Checks whether the star:
- *    - is a massless remnant (checked after applying p_DeltaMass and p_DeltaMass0)  <--- JR: this is no longer true (it may have been once)
- *    - has become a supernova (checked after applying p_DeltaMass and p_DeltaMass0)  <--- JR this is no longer true (it may have been once)  This causes different behaviour SSE vs BSE
- *    - should skip this phase for this timestep (checked after applying p_DeltaMass and p_DeltaMass0)
- *
- * If none of the above are true the star's attributes are updated based on the mass changes required and the star's
- * current phase, then the need to evolve the star off phase is checked.
- *
- * If p_DeltaMass and p_DeltaMass0 are both passed as zero the checks for massless remnant and supernova are performed
- * (and consequential changes made), but no other changes to the star's attributes are made - unless the p_ForceRecalculate
- * parameter is set true.        JR: todo: I'm not convinced p_ForceRecalculate is necessary - check it
+ * See BaseStar::UpdateAttributesAndAgeOneTimestep() (called indirectly from here) for details of operation.
  *
  * The functional return is the stellar type to which the star has evolved (if it evolved off the current phase).
  * The returned stellar type is just the stellar type of the star upon entry if it remained on the current phase.
@@ -323,7 +322,9 @@ STELLAR_TYPE Star::UpdateAttributes(const double p_DeltaMass, const double p_Del
  * The functional return is the stellar type to which the star should evolve.  The returned stellar
  * type is just the stellar type of the star upon entry if it should remain on phase.
  *
- * If the parameter p_Switch is true the star will switch to the new stellar type before returning
+ * If the parameter p_Switch is true the star will switch to the new stellar type before returning.
+ * 
+ * This function is called from SSE code (Star::EvolveOneTimeStep()), and BSE code (BaseBinaryStar::EvolveOneTimestep())
  *
  *
  * STELLAR_TYPESTELLAR_TYPE AgeOneTimestep(const double p_Dt, bool p_Switch)
@@ -388,20 +389,19 @@ double Star::EvolveOneTimestep(const double p_Dt, const bool p_Force) {
                 takeTimestep = true;                                                                            // yes - just take the last timestep
                 SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                                       // announce the problem if required and plough on regardless...
             }
-            else {                                                                                              // not at or below dynamical - reduce timestep and try again
+            else {                                                                                              // not at or below minimum - reduce timestep and try again
                 retryCount++;                                                                                   // increment retry count
                 if (retryCount > MAX_TIMESTEP_RETRIES) {                                                        // too many retries?
                     takeTimestep = true;                                                                        // yes - take the last timestep anyway
-                    SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                                   // announce the problem if required and plough on regardless...
+                    SHOW_WARN(ERROR::TOO_MANY_RETRIES);                                                         // announce the problem if required and plough on regardless...
                 }
                 else {                                                                                          // not too many retries - retry with smaller timestep
                     if (RevertState()) {                                                                        // revert to last state ok?
-                        dt = dt / 2.0;                                                                          // yes - halve the timestep (limit to minimum)      JR: probably should be dt = max(dt / 2.0, minTimestep);
+                        dt = std::max(dt / 2.0, minTimestep);                                                   // yes - halve the timestep - but clamp to minimum
                         takeTimestep = false;                                                                   // previous timestep discarded - use new one
                     }
                     else {                                                                                      // revert failed
-                        takeTimestep = true;                                                                    // take the last timestep anyway
-                        SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                               // announce the problem if required and plough on regardless...
+                        THROW_ERROR(ERROR::REVERT_FAILED);                                                      // throw error
                     }
                 }
             }
@@ -430,92 +430,135 @@ double Star::EvolveOneTimestep(const double p_Dt, const bool p_Force) {
  *
  * EVOLUTION_STATUS Evolve(const long int p_Id)
  *
- * @param   [IN]    p_Id                        The mass id (e.g. step number) for this star - can be used to name logfiles for this star
- * @return                                      Status.  One of {EVOLUTION_STATUS::DONE, EVOLUTION_STATUS::STEPS_UP, EVOLUTION_STATUS::TIMES_UP}
+ * @param   [IN]    p_Id                        The id (e.g. step number) for this star - can be used to name logfiles for this star
+ * @return                                      Status
  */
 EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
 
     EVOLUTION_STATUS evolutionStatus = EVOLUTION_STATUS::CONTINUE;
 
-    m_Id = p_Id;                                                                                                            // store the id
+    try {
 
-    // evolve the star
+        m_Id = p_Id;                                                                                            // store the id
 
-    m_Star->CalculateGBParams();                                                                                            // calculate giant branch parameters - in case for some reason star is initially not MS
+        // evolve the star
 
-    double dt = 0.0;
+        m_Star->CalculateGBParams();                                                                            // calculate giant branch parameters - in case for some reason star is initially not MS
 
-    (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::INITIAL_STATE);                                       // log record
+        double dt = 0.0;
 
-    bool usingProvidedTimesteps = false;                                                                                    // using user-provided timesteps?
-    DBL_VECTOR timesteps;
-    if (!OPTIONS->TimestepsFileName().empty()) {                                                                            // have timesteps filename?
-                                                                                                                            // yes
-        ERROR error;
-        std::tie(error, timesteps) = utils::ReadTimesteps(OPTIONS->TimestepsFileName());                                    // read timesteps from file
-        if (error != ERROR::NONE) {                                                                                         // ok?
-            evolutionStatus = EVOLUTION_STATUS::NO_TIMESTEPS;                                                               // no - set status
-            SHOW_WARN(error);                                                                                               // show warning
+        (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::INITIAL_STATE);                       // log detailed output record 
+
+        bool usingProvidedTimesteps = false;                                                                    // using user-provided timesteps?
+        DBL_VECTOR timesteps;
+        if (!OPTIONS->TimestepsFileName().empty()) {                                                            // have timesteps filename?
+                                                                                                                // yes
+            ERROR error;
+            std::tie(error, timesteps) = utils::ReadTimesteps(OPTIONS->TimestepsFileName());                    // read timesteps from file
+            if (error != ERROR::NONE) {                                                                         // ok?
+                THROW_ERROR(error, ERR_MSG(ERROR::NO_TIMESTEPS_READ));                                          // no - throw error - this is not what the user asked for
+            }
+            else usingProvidedTimesteps = true;                                                                 // have user-provided timesteps
         }
-        else usingProvidedTimesteps = true;                                                                                 // have user-provided timesteps
-    }
 
-    // JR: todo:
-    // m_Error seems to be set ad hoc for SSE, and doesn't actually stop the evolution
-    // we should be more rigorous in checking/setting error conditions, and stop the evolution for catastrophic errors
-
-    unsigned long int stepNum = 0;                                                                                          // initialise step number
-    while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {
-        if (m_Star->Time() > OPTIONS->MaxEvolutionTime()) {
-            evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                                                   // out of time...
-        }
-        else if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) {
-            evolutionStatus = EVOLUTION_STATUS::STEPS_UP;                                                                   // out of steps...
-        }
-        else if (!m_Star->IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07, STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, STELLAR_TYPE::HERTZSPRUNG_GAP,
-                                    STELLAR_TYPE::FIRST_GIANT_BRANCH, STELLAR_TYPE::CORE_HELIUM_BURNING, STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH, STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
-                                    STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {
-
-            evolutionStatus = EVOLUTION_STATUS::DONE;                                                                       // we're done
-        }
-        else if (usingProvidedTimesteps && stepNum >= timesteps.size()) {
-            evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_EXHAUSTED;                                                        // using user-provided timesteps and all consumed
-            SHOW_WARN(ERROR::TIMESTEPS_EXHAUSTED);                                                                          // show warning
-        }
-        else {                                                                                                              // evolve one timestep
-            m_Star->UpdatePreviousTimestepDuration();
+        unsigned long int stepNum = 0;                                                                          // initialise step number
+        while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {
+            if (m_Star->Time() > OPTIONS->MaxEvolutionTime()) {                                                 // out of time?
+                evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                                   // set status
+            }
+            else if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) {                                     // out of timesteps?
+                evolutionStatus = EVOLUTION_STATUS::STEPS_UP;                                                   // set status
+            }
+            else if (!m_Star->IsOneOf(NON_COMPACT_OBJECTS)) {                                                   // compact object?
+                evolutionStatus = EVOLUTION_STATUS::DONE;                                                       // yes - we're done
+            }
+            else if (usingProvidedTimesteps && stepNum >= timesteps.size()) {                                   // using user-provided timesteps and all consumed?
+                evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_EXHAUSTED;                                        // yes - set status
+                SHOW_WARN(ERROR::TIMESTEPS_EXHAUSTED);                                                          // show warning
+            }
+            else {                                                                                              // evolve one timestep
+                m_Star->UpdatePreviousTimestepDuration();
             
-            if (usingProvidedTimesteps) {                                                                                   // user-provided timesteps
-                // get new timestep
-                //   - don't quantise
-                //   - don't apply timestep multiplier
-                // (we assume user wants the timesteps in the file)
-                dt = timesteps[stepNum];
-            }
-            else {                                                                                                          // not using user-provided timesteps
-                dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();                                           // calculate new timestep   
-                dt = std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM;                                                  // quantised
-            }
-            stepNum++;                                                                                                      // increment step number                                                      
+                if (usingProvidedTimesteps) {                                                                   // user-provided timesteps
+                    // get new timestep
+                    //   - don't quantise
+                    //   - don't apply timestep multiplier
+                    // (we assume user wants the timesteps in the file)
+                    dt = timesteps[stepNum];
+                }
+                else {                                                                                          // not using user-provided timesteps
+                    dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();                           // calculate new timestep   
+                    dt = std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM;                                  // quantised
+                }
+                stepNum++;                                                                                      // increment step number                                                      
 
-            EvolveOneTimestep(dt, true);                                                                                    // evolve for timestep
-            UpdateAttributes(0.0, 0.0, true);                                                                               // JR: if this is not included, BSE and SSE are out of sync by 1 timestep.  If we remove this, we have to change BSE accordingly.  Not sure which one is right yet... (or if that actually matters)
-            (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                          // log record
+                EvolveOneTimestep(dt, true);                                                                    // evolve for timestep
+                UpdateAttributes(0.0, 0.0, true);                                                               // keeps SSE in sync with BSE
+
+                (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);          // log detailed output record  
+            }
         }
+
+        if (usingProvidedTimesteps && timesteps.size() > stepNum) {                                             // all user-defined timesteps consumed?
+            evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_NOT_CONSUMED;                                         // no - set status
+            SHOW_WARN(ERROR::TIMESTEPS_NOT_CONSUMED);                                                           // show warning
+        }
+
+        (void)m_Star->PrintStashedSupernovaDetails();                                                           // print final stashed SSE Supernova log record if necessary
+
+        (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::FINAL_STATE);                         // log detailed output record 
+
+        // if we trapped a floating-point error we set the star's error value to indicate a
+        // floating-point error occured, but we don't terminate evolution (we can only have
+        // floating-point errors trapped here if the user has not activated the floating-point
+        // error instrumentation)
+
+        // **Ilya** - what's your pleasure?
+        // if we leave the following check in, almost all stars will have error = floating_point_error
+        // in the SSE_SYSTEM_PARAMETERS log file, but their evolution status will not indicate an error
+        // (i.e. we did not terminate the evolution of the star prematurely - we let it run to completion).
+        // This should be interpreted as the star completed, but the error (floating_point_error) is
+        // informative only.  Note that this will only happen for floating-point-errors - all other errors
+        // will terminate the evolution of the binary.
+        // This is different from the catch for "FPE" below - in that case the user has set --fp-error-mode ON,
+        // so we terminate the star if a floating-point error is encountered.
+        //
+        // If we take the following check out, then binaries that only had floating-point errors and ran to
+        // completion will have error = 0
+
+        if (std::fetestexcept(FE_DIVBYZERO) ||
+            std::fetestexcept(FE_INVALID)   ||
+            std::fetestexcept(FE_OVERFLOW)  ||
+            std::fetestexcept(FE_UNDERFLOW)) m_Star->SetError(ERROR::FLOATING_POINT_ERROR);                     // floating-point error
+
+        std::feclearexcept(FE_ALL_EXCEPT);                                                                      // clear all FE traps
+    }
+    catch (const std::runtime_error& e) {                                                                       // catch runtime exceptions
+        // anything we catch here should not already have been displayed to the user,
+        // so set the error value, display the error, and flag termination (do not rethrow the error)
+        if (std::string(e.what()) == "FPE") m_Star->SetError(ERROR::FLOATING_POINT_ERROR);                      // floating-point error
+        else                                m_Star->SetError(ERROR::ERROR);                                     // unspecified error
+        SHOW_ERROR(m_Star->Error());                                                                            // display error (don't throw here - handled by returning status)
+        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                              // evolution terminated
+    }
+    catch (int e) {
+        // anything we catch here should already have been displayed to the user,
+        // so just ensure error value is set and flag termination (do not rethrow the error)
+        if (e != static_cast<int>(ERROR::NONE)) m_Star->SetError(static_cast<ERROR>(e));                        // specified errpr
+        else                                    m_Star->SetError(ERROR::ERROR);                                 // unspecified error
+        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                              // evolution terminated
+    }
+    catch (...) {
+        // anything we catch here should not already have been displayed to the user,
+        // so set the error value, display the error, and flag termination (do not rethrow the error)
+        m_Star->SetError(ERROR::ERROR);                                                                         // unspecified error
+        SHOW_ERROR(m_Star->Error());                                                                            // display error (don't throw here - handled by returning status)
+        evolutionStatus = EVOLUTION_STATUS::ERROR;                                                              // evolution terminated
     }
 
-    if (usingProvidedTimesteps && timesteps.size() > stepNum) {                                                             // all user-defined timesteps consumed?
-        evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_NOT_CONSUMED;                                                         // no - set status
-        SHOW_WARN(ERROR::TIMESTEPS_NOT_CONSUMED);                                                                           // show warning
-    }
+    m_Star->SetEvolutionStatus(evolutionStatus);                                                                // set evolution final outcome for star
 
-    (void)m_Star->PrintStashedSupernovaDetails();                                                                           // print final stashed SSE Supernova log record if necessary
-
-    (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::FINAL_STATE);                                         // log record
-
-    m_Star->SetEvolutionStatus(evolutionStatus);                                                                            // set evolution final outcome for star
-
-    (void)m_Star->PrintSystemParameters();                                                                                  // log system parameters
+    (void)m_Star->PrintSystemParameters();                                                                      // log system parameters record
 
     return evolutionStatus;
 }

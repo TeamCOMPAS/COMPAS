@@ -16,9 +16,9 @@ class Remnants: virtual public BaseStar, public HeGB {
 
 public:
 
+    Remnants(){};
+    
     Remnants(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HeGB(p_BaseStar, false) { }
-
-//    Remnants& operator = (const BaseStar &p_BaseStar) { static_cast<BaseStar&>(*this) = p_BaseStar; return *this; }
 
 
     // member functions
@@ -42,15 +42,13 @@ protected:
 
     double          CalculateHeCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 
-    DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, 
-                                        const double p_M2)                                                      { return std::make_tuple(0.0, 0.0, 0.0, 0.0); }                         // Default is no tidal response
-    DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, 
-                                        const double p_M2)                                                      { return std::make_tuple(0.0, 0.0, 0.0, 0.0); }                         // Default is no tidal response
+    DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const   { return std::make_tuple(0.0, 0.0, 0.0, 0.0); }              // Default is no tidal response
+    DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const { return std::make_tuple(0.0, 0.0, 0.0, 0.0); }              // Default is no tidal response
 
     double          CalculateInitialSupernovaMass() const                                                       { return GiantBranch::CalculateInitialSupernovaMass(); }                // Use GiantBranch
 
-    double          CalculateLambdaDewi() const                                                                 { return BaseStar::CalculateLambdaDewi(); }                             // Not supported - use BaseStar
-    double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const      { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }         // Not supported - use BaseStar (0.0 are dummy values)      JR: todo: check this (type 10 not mentioned as not supported in original code)
+    double          CalculateLambdaDewi() const                                                                 { return BaseStar::CalculateLambdaDewi(); }
+    double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const      { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }
 
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                 const double p_AccretorMassRate);

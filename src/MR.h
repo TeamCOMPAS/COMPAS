@@ -3,6 +3,7 @@
 
 #include "constants.h"
 #include "typedefs.h"
+#include "limits.h"
 
 #include "Remnants.h"
 
@@ -13,6 +14,8 @@ class MR: virtual public BaseStar, public Remnants {
 
 public:
 
+    MR() { m_StellarType = STELLAR_TYPE::MASSLESS_REMNANT; };
+    
     MR(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), Remnants(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::MASSLESS_REMNANT;                                                     // Set stellar type
         if (p_Initialise) Initialise();                                                                     // Initialise if required
@@ -50,6 +53,8 @@ protected:
     // member functions
    	 double     CalculateMomentOfInertia() const        { return 0.0; }                                     // No moment of inertia for massless remnants - use 0.0
    	 double     CalculateMomentOfInertiaAU() const      { return 0.0; }                                     // No moment of inertia for massless remnants - use 0.0
+    
+     double     CalculateTimestep() const               { return std::numeric_limits<double>::max(); }                                                              // Can take arbitrarily long time steps for massless remnants -- nothing is happening
 
      void       SetPulsarParameters() const { }                                                             // NO-OP
 
