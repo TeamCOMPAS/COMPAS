@@ -303,7 +303,7 @@ constexpr double MCBUR1HURLEY					        = 1.6;							                         
 constexpr double MCBUR2					                = 2.25;							                            // Core mass at base of the AGB above which the CO core is completely non-degenerate
 
 constexpr double NJ_MINIMUM_LUMINOSITY                  = 4.0E3;                                                    // Minimum luminosity in Lsun needed for Nieuwenhuijzen & de Jager wind mass loss
-constexpr double VINK_MASS_LOSS_MINIMUM_TEMP            = 1.25E4;                                                   // Minimum temperature in K for Vink mass loss rates to be applied
+constexpr double VINK_MASS_LOSS_MINIMUM_TEMP            = 8.0E3;                                                    // Minimum temperature in K for Vink mass loss rates to be applied (12.5kK in Vink+Sander 2021)
 constexpr double VERY_MASSIVE_MINIMUM_MASS              = 100.0;                                                    // Minimum mass for applying Very Massive (VMS) mass rates to be applied
 constexpr double RSG_MAXIMUM_TEMP                       = 8.0E3;                                                    // Upper temperature in K for Red Supergiant (RSG) mass loss rates to be applied
 constexpr double VINK_MASS_LOSS_BISTABILITY_TEMP        = 2.5E4;                                                    // Temperature in K for bistability jump in Vink mass loss (assumed to be 25000K following Belczysnki+2010)
