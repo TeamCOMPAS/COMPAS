@@ -371,6 +371,10 @@ Default = FALSE
 Continue evolving double white dwarf systems after their formation. |br|
 Default = FALSE
 
+**--evolve-main-sequence-mergers** |br|
+Continue evolving the remnant after a main sequence merger. |br|
+Default = FALSE
+
 **--evolve-pulsars** |br|
 Evolve pulsar properties of Neutron Stars. |br|
 Default = FALSE
@@ -1295,7 +1299,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Administrative**
 
---mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-pulsars, --evolve-unbound-systems, --mass-change-fraction, --maximum-evolution-time, --maximum-number-timestep-iterations,
+--mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-main-sequence-mergers, --evolve-pulsars, --evolve-unbound-systems, --mass-change-fraction, 
+--maximum-evolution-time, --maximum-number-timestep-iterations,
 --radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename
 
 --grid, --grid-start-line, --grid-lines-to-process
