@@ -1793,22 +1793,27 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
  */
 void BaseBinaryStar::ResolveMainSequenceMerger() {
     if (!(m_Star1->IsOneOf(MAIN_SEQUENCE) && m_Star2->IsOneOf(MAIN_SEQUENCE) && OPTIONS->EvolveMainSequenceMergers()))
-        return;                                                                                 // Nothing to do if does not satisfy conditions for MS merger
-    double mass1 = m_Star1->Mass(), mass2 = m_Star2->Mass();
-    double tau1 = m_Star1->Tau(), tau2 = m_Star2->Tau();
-    
-    double TAMSCoreMass1 = 0.3 * mass1, TAMSCoreMass2 = 0.3 * mass2;                            // /*ILYA*/ temporary solution, should use TAMS core mass
+        return;                                                                                 // nothing to do if does not satisfy conditions for MS merger
+	
+    double mass1 = m_Star1->Mass();
+    double mass2 = m_Star2->Mass();
+    double tau1  = m_Star1->Tau();
+    double tau2  = m_Star2->Tau();
+
+    // /*ILYA*/ temporary solution, should use TAMS core mass
+    double TAMSCoreMass1 = 0.3 * mass1;
+    double TAMSCoreMass2 = 0.3 * mass2;                            
      
-    double q = std::min(mass1/mass2, mass2/mass1);
-    double phi = 0.3*q/(1.0+q)/(1.0+q);                                                         // fraction of mass lost in merger, Wang+ 2022, https://www.nature.com/articles/s41550-021-01597-5
-    double finalMass = (1.0 - phi) * (mass1 + mass2);
+    double q   = std::min(mass1 / mass2, mass2 / mass1);
+    double phi = 0.3 * q / (1.0 + q) / (1.0 + q);                                               // fraction of mass lost in merger, Wang+ 2022, https://www.nature.com/articles/s41550-021-01597-5
+	
+    double finalMass               = (1.0 - phi) * (mass1 + mass2);
     double initialHydrogenFraction = 1.0 - YSOL - m_Star1->Metallicity();                       // assume helium fraction independent of metallicity
-    double finalHydrogenMass = finalMass * initialHydrogenFraction - tau1 * TAMSCoreMass1 * initialHydrogenFraction - tau2 * TAMSCoreMass2 * initialHydrogenFraction;
+    double finalHydrogenMass       = finalMass * initialHydrogenFraction - tau1 * TAMSCoreMass1 * initialHydrogenFraction - tau2 * TAMSCoreMass2 * initialHydrogenFraction;
     
     m_Star1->UpdateAfterMerger(finalMass, finalHydrogenMass);
     
     m_Star2->SwitchTo(STELLAR_TYPE::MASSLESS_REMNANT);
-    
 }
 
 
@@ -2735,14 +2740,14 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             else if (!OPTIONS->EvolveDoubleWhiteDwarfs() && IsWDandWD()) {                                                                  // double WD and their evolution is not enabled?
                 evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                                                  // yes - do not evolve double WD systems
             }
-            else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) && !OPTIONS->EvolveMainSequenceMergers()) {                                   // at least one massless remnant
+            else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) && !OPTIONS->EvolveMainSequenceMergers()) {                               // at least one massless remnant and not evolving MS merger products?
                 evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                                                       // yes - stop evolution
             }
-            else if (StellarMerger() && !HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                            // have stars merged without merger already being resolved?
-                if (m_Star1->IsOneOf(MAIN_SEQUENCE) && m_Star2->IsOneOf(MAIN_SEQUENCE) && OPTIONS->EvolveMainSequenceMergers())
-                    ResolveMainSequenceMerger();                                                                                            // handle main sequence mergers gracefully; no need to change evolution status
+            else if (StellarMerger() && !HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                    // have stars merged without merger already being resolved?
+                if (m_Star1->IsOneOf(MAIN_SEQUENCE) && m_Star2->IsOneOf(MAIN_SEQUENCE) && OPTIONS->EvolveMainSequenceMergers())             // yes - both MS and evolving MS merger products?
+                    ResolveMainSequenceMerger();                                                                                            // yes - handle main sequence mergers gracefully; no need to change evolution status
                 else
-                   evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                    // for now, stop evolution
+                    evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                     // no - for now, stop evolution
             }
             else if (HasStarsTouching()) {                                                                                                  // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                 evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                         // yes - stop evolution
@@ -2751,7 +2756,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 m_Unbound       = true;                                                                                                     // yes - set the unbound flag (should already be set)
                 evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                                // stop evolution
             }
-            else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) && HasOneOf({ STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF, STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE }) ) {      // one compoent is a massless remnant, the other is a compact object
+            else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) && HasOneOf({ STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF, STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE }) ) {      // one component is a massless remnant, the other is a compact object
                 evolutionStatus = EVOLUTION_STATUS::MASSLESS_AND_COMPACT;
             }
             else {                                                                                                                          // continue evolution
@@ -2767,11 +2772,11 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 (void)PrintRLOFParameters();                                                                                                // print (log) RLOF parameters
                 
                 // check for problems/reasons to not continue evolution
-                if (StellarMerger() && !HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                                 // have stars merged without merger already being resolved?
-                    if (m_Star1->IsOneOf(MAIN_SEQUENCE) && m_Star2->IsOneOf(MAIN_SEQUENCE) && OPTIONS->EvolveMainSequenceMergers())
-                        ResolveMainSequenceMerger();                                                                                            // handle main sequence mergers gracefully; no need to change evolution status
+                if (StellarMerger() && !HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                     // have stars merged without merger already being resolved?
+                    if (m_Star1->IsOneOf(MAIN_SEQUENCE) && m_Star2->IsOneOf(MAIN_SEQUENCE) && OPTIONS->EvolveMainSequenceMergers())         // yes - both MS and evolving MS merger products?
+                        ResolveMainSequenceMerger();                                                                                        // yes - handle main sequence mergers gracefully; no need to change evolution status
                     else
-                       evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                    // for now, stop evolution
+                        evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                 // no - for now, stop evolution
                 }
                 else if (HasStarsTouching()) {                                                                                              // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                     evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                     // yes - stop evolution
@@ -2829,14 +2834,14 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                         else if (!OPTIONS->EvolveDoubleWhiteDwarfs() && IsWDandWD()) {                                                      // double WD and their evolution is not enabled?
                             evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                                      // yes - do not evolve double WD systems
                         }
-                        else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) && !OPTIONS->EvolveMainSequenceMergers()) {                                   // at least one massless remnant
+                        else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) && !OPTIONS->EvolveMainSequenceMergers()) {                   // at least one massless remnant and not evolving MS merger products?
                             evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                                           // yes - stop evolution
                         }
-                        else if (StellarMerger() && !HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                                                                     // have stars merged without merger already being resolved?
-                            if (m_Star1->IsOneOf(MAIN_SEQUENCE) && m_Star2->IsOneOf(MAIN_SEQUENCE) && OPTIONS->EvolveMainSequenceMergers())
-                                ResolveMainSequenceMerger();                                                                                            // handle main sequence mergers gracefully; no need to change evolution status
+                        else if (StellarMerger() && !HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                        // have stars merged without merger already being resolved?
+                            if (m_Star1->IsOneOf(MAIN_SEQUENCE) && m_Star2->IsOneOf(MAIN_SEQUENCE) && OPTIONS->EvolveMainSequenceMergers()) // yes - both MS and evolving MS merger products?
+                                ResolveMainSequenceMerger();                                                                                // handle main sequence mergers gracefully; no need to change evolution status
                             else
-                               evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                                    // for now, stop evolution
+                                evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                         // no - for now, stop evolution
                         }
                         else if (HasStarsTouching()) {                                                                                      // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                             evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                             // yes - stop evolution
@@ -2878,7 +2883,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 //if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt < NUCLEAR_MINIMUM_TIMESTEP) {
                 if (dt < NUCLEAR_MINIMUM_TIMESTEP) {
                     dt = NUCLEAR_MINIMUM_TIMESTEP;                                                                                          // but not less than minimum
-		        }
+		}
                 stepNum++;                                                                                                                  // increment stepNum
             }
         }
