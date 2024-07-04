@@ -1858,7 +1858,7 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_D
 
 	double gamma;
 
-	switch (OPTIONS->MassTransferAngularMomentumLossPrescription()) {                                                                       // which precription?
+	switch (OPTIONS->MassTransferAngularMomentumLossPrescription()) {                                                                       // which prescription?
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS                : gamma = p_AccretorMass / p_DonorMass; break;                     // vicinity of the donor
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION: gamma = p_DonorMass / p_AccretorMass; break;                     // vicinity of the accretor
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING    : 
