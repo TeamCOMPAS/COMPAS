@@ -1859,22 +1859,22 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_D
 	double gamma;
 
 	switch (OPTIONS->MassTransferAngularMomentumLossPrescription()) {                                                                       // which prescription?
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS                : gamma = p_AccretorMass / p_DonorMass; break;                     // vicinity of the donor
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION: gamma = p_DonorMass / p_AccretorMass; break;                     // vicinity of the accretor
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING    : 
-            gamma = (M_SQRT2 * (p_DonorMass + p_AccretorMass) * (p_DonorMass + p_AccretorMass)) / (p_DonorMass * p_AccretorMass); break;    // based on the assumption that a_ring ~= 2*a*, Vinciguerra+, 2020 
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR       : {                                                                // linear interpolation on separation between accretor and L2 point
-            double q = p_AccretorMass / p_DonorMass;
-            // interpolate in separation between a_acc and a_L2, both normalized to units of separation a
-            double aL2    = std::sqrt(M_SQRT2);                                                                                             // roughly, coincides with CIRCUMBINARY_RING def above
-            double aAcc   = 1.0 / (1.0 + q);
-            double fMacleod = p_IsAccretorDegenerate
-                ? OPTIONS->MassTransferJlossMacLeodLinearFractionDegen()
-                : OPTIONS->MassTransferJlossMacLeodLinearFractionNonDegen();
-            double aGamma = aAcc + (aL2 - aAcc)*fMacleod;
-            gamma         = aGamma * aGamma * (1.0 + q) * (1.0 + q) / q;
-            break;
-        }
+            case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS                : gamma = p_AccretorMass / p_DonorMass; break;                     // vicinity of the donor
+            case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION: gamma = p_DonorMass / p_AccretorMass; break;                     // vicinity of the accretor
+            case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING    : 
+                gamma = (M_SQRT2 * (p_DonorMass + p_AccretorMass) * (p_DonorMass + p_AccretorMass)) / (p_DonorMass * p_AccretorMass); break;    // based on the assumption that a_ring ~= 2*a*, Vinciguerra+, 2020 
+            case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR       : {                                                                // linear interpolation on separation between accretor and L2 point
+                double q = p_AccretorMass / p_DonorMass;
+                // interpolate in separation between a_acc and a_L2, both normalized to units of separation a
+                double aL2    = std::sqrt(M_SQRT2);                                                                                             // roughly, coincides with CIRCUMBINARY_RING def above
+                double aAcc   = 1.0 / (1.0 + q);
+                double fMacleod = p_IsAccretorDegenerate
+                		    ? OPTIONS->MassTransferJlossMacLeodLinearFractionDegen()
+                		    : OPTIONS->MassTransferJlossMacLeodLinearFractionNonDegen();
+                double aGamma = aAcc + (aL2 - aAcc)*fMacleod;
+                gamma         = aGamma * aGamma * (1.0 + q) * (1.0 + q) / q;
+                break;
+            }
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY            : gamma = OPTIONS->MassTransferJloss(); break;
         default:                                                                                                                            // unknown mass transfer angular momentum loss prescription - shouldn't happen
             gamma = 1.0;                                                                                                                    // default value
