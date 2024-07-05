@@ -102,12 +102,16 @@ protected:
 
     double          CalculateMassTransferRejuvenationFactor() const;
 
-    double          CalculateRadialExtentConvectiveEnvelope() const { return (std::sqrt(m_Tau) * (m_Radius - CalculateConvectiveCoreRadius())); }                               // Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 39-40
+    double          CalculateRadialExtentConvectiveEnvelope() const {
+        double envMass, envMassMax;
+        std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
+        return (std::sqrt(envMass / envMassMax) * (m_Radius - CalculateConvectiveCoreRadius()));                                                                                // combination of Hurley et al. 2000, end of sec. 7.2, and Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 39-40
+    }
 
     double          CalculateRadiusAtPhaseEnd(const double p_Mass) const;
     double          CalculateRadiusAtPhaseEnd() const                               { return CalculateRadiusAtPhaseEnd(m_Mass); }                                               // Use class member variables
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS) const;
-    double          CalculateRadiusOnPhase() const                                  { return CalculateRadiusOnPhase(m_Mass0, m_Tau, m_RZAMS0); }                                 // Use class member variables
+    double          CalculateRadiusOnPhase() const                                  { return CalculateRadiusOnPhase(m_Mass0, m_Tau, m_RZAMS0); }                                // Use class member variables
 
     double          CalculateRho(const double p_Mass) const;
 
@@ -131,6 +135,7 @@ protected:
     bool            ShouldEvolveOnPhase() const                                     { return (utils::Compare(m_Age, m_Timescales[static_cast<int>(TIMESCALE::tBGB)]) < 0); }    // Evolve on HG phase if age < Base Giant Branch timescale
     bool            ShouldSkipPhase() const                                         { return false; }                                                                           // Never skip HG phase
 
+    void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass) { }                                                                                                 // Nothing to do for stars beyond the Main Sequence for now
     void            UpdateAgeAfterMassLoss();                                                                                                                                   // Per Hurley et al. 2000, section 7.1
 
     void            UpdateInitialMass();                                                   // Per Hurley et al. 2000, section 7.1
