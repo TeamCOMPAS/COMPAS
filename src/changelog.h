@@ -1225,8 +1225,10 @@
 //                                      - Change TPAGB::IsSupernova() so that stars with base of AGB core masses below MCBUR1 remain on the TPAGB until they make WDs; remove ResolveTypeIIaSN() functionality.
 //                                      - Add --evolve-main-sequence-mergers option which allows for main sequence merger products to continue evolution
 //                                      - Update HG::CalculateRadialExtentConvectiveEnvelope() to use a combination of Hurley & Picker to avoid excessively high convective envelope densities
+// 02.50.01    JR - July 04, 2024     - Defect repair:
+//                                      - Fix for issue #1160: added prefix "PO_" to all program option header strings to differentiate from stellar/binary properties.
 
-const std::string VERSION_STRING = "02.50.00";
+const std::string VERSION_STRING = "02.50.01";
 
 
 # endif // __changelog_h__
