@@ -11,6 +11,7 @@ import h5py as h5
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import argparse
+import tempfile
 
 HERE = os.path.dirname(os.path.realpath(__file__))
 
@@ -31,10 +32,18 @@ def main():
 
 
 def run_main_plotter(data_path, outdir='.', show=True):
-    Data = h5.File(data_path, 'r')
+
+    ### Collect the raw data and mask for just the end-of-timesteps events
+    RawData = h5.File(data_path, 'r')
+    tf = tempfile.TemporaryFile()
+    Data = h5.File(tf, 'w')
+    maskRecordType4 = RawData['Record_Type'][()] == 4     # Filter first for only end-of-timestep events
+    for key in RawData.keys():
+        Data.create_dataset(key, data=RawData[key][()][maskRecordType4])
+    print(np.unique(Data['Record_Type'][()]))
 
     ### Collect the important events in the detailed evolution
-    events = allEvents(Data).allEvents  # Calculate the events here, for use in plot sizing parameters
+    events = allEvents(Data).allEvents                 # Calculate the events here, for use in plot sizing parameters
     printEvolutionaryHistory(events=events)
 
     ### Produce the two plots
@@ -73,7 +82,6 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
     if num_events == 1:
         stopTimeAt = Data['Time'][-1] * 1.05            # Plot all the way to the end of the run if no events beyond ZAMS
     mask = Data['Time'][()] < stopTimeAt                # Mask the data to not include the 'End' events
-    mask &= Data['Record_Type'][()] == 4                # Only include end-of-timestep events
 
     rcParams.update(fontparams)  # Set configurations for uniform plot output
 
@@ -120,7 +128,6 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
     fig.tight_layout(h_pad=1, w_pad=1, rect=(0.08, 0.08, .98, .98), pad=0.)  # (left, bottom, right, top)
 
     plt.savefig(f'{outdir}/detailedEvolutionPlot.eps', bbox_inches='tight', pad_inches=0, format='eps')
-    return fig
 
 
 ######## Plotting functions
@@ -309,7 +316,7 @@ def plotVanDenHeuvel(events=None, outdir='.'):
         axs[ii].yaxis.set_label_position("right")
         plt.subplots_adjust(hspace=0)
 
-        if ii == 0:
+        if (ii == 0) or (ii == num_events - 1): 
             pltString = "$t$ = {:.1f} Myr, $a$ = {:.1f} $R_\odot$ \n $M_1$ = {:.1f} $M_\odot$, $M_2$ = {:.1f} $M_\odot$ \n" + \
                         events[ii].eventString
             pltString = pltString.format(events[ii].time, events[ii].a, events[ii].m1, events[ii].m2)
@@ -409,14 +416,6 @@ class Event(object):
             self.m1prev = Data['Mass(1)'][ii - 1]
             self.m2prev = Data['Mass(2)'][ii - 1]
             self.aprev = Data['SemiMajorAxis'][ii - 1]
-        # Cheap kludge for SN separations - later, should clean up when detailed printing is called
-        if eventClass == 'SN':
-            try:  # Bad form to do a try except, but this works for now
-                self.a = Data['SemiMajorAxis'][ii + 1]
-                self.aprev = Data['SemiMajorAxis'][ii]
-            except:
-                self.a = Data['SemiMajorAxis'][ii]
-                self.aprev = Data['SemiMajorAxis'][ii - 1]
         self.stype1 = Data['Stellar_Type(1)'][ii]
         self.stype2 = Data['Stellar_Type(2)'][ii]
         self.stypeName1 = stellarTypeMap[self.stype1]

@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Fri May 24 17:23:10 2024 by COMPAS v02.48.01
+##~!!~## File Created Fri Jun 28 13:22:54 2024 by COMPAS v02.50.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -13,6 +13,7 @@ booleanChoices:
 #    --detailed-output: False                                              # Default: False                                                                                                                                                              # WARNING! this creates a data heavy file
 #    --enable-warnings: False                                              # Default: False                                                                                                                                                              # option to enable/disable warning messages
 #    --errors-to-file: False                                               # Default: False
+#    --evolve-main-sequence-mergers: False                                 # Default: False
 #    --evolve-unbound-systems: True                                        # Default: True
 #    --population-data-printing: False                                     # Default: False
 #    --print-bool-as-string: False                                         # Default: False
