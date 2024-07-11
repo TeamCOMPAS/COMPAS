@@ -37,12 +37,12 @@ a system, evolution of that system will be stopped, and the evoltion status and 
 When floating-point error checking is OFF (``--fp-error-mode OFF``), floating-point errors that occur during the evolution of a 
 system will not cause the evolution of that system to stop. However, if a floating-point error does occur during evolution while
 floating-point error checking is off, the error value in the COMPAS output files will still indicate that a floating-point error
-occured. If that happens, users should use the results of the evolution of an affected system with caution.
+occurred. If that happens, users should use the results of the evolution of an affected system with caution.
 
 When floating-point error checking is in debug mode (``--fp-error-mode DEBUG``), any floating-point errors encountered will cause
 COMPAS to display a stack trace and halt execution. The stack trace displayed will allow developers to determine the location of
 the code (to function level) that caused the floatig-point error and implement a code repair.
- 
+
 Note that ``--fp-error-mode OFF`` is the default.
 
 .. toctree::
