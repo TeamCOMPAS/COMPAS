@@ -1293,10 +1293,6 @@ double BaseStar::CalculateZetaAdiabatic() {
             zetaStar = CalculateZetaConstantsByEnvelope(OPTIONS->StellarZetaPrescription());
             break;
 
-        case ZETA_PRESCRIPTION::NONE:       // remove when ZETA_PRESCRIPTION::NONE removed
-            SHOW_WARN(ERROR::UNEXPECTED_ZETA_PRESCRIPTION);
-            break;
-
         default:                                                                        // unknown prescription
             // the only way this can happen is if someone added a ZETA_PRESCRIPTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.

@@ -17,7 +17,7 @@ by this guide.
    ./object-ids
    ./Services/services
    ./floating-point-comparisons
-   ./constants-dot-h
+   ./Headers/headers
    ./changelog
    ./Programming style/programming-style
    ./Developer build/developer-building-compas

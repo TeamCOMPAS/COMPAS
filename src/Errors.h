@@ -5,7 +5,7 @@
 // Early versions of COMPAS (versions prior to v03.00.00) did not have a coherent, robust error-handling strategy.
 // In those versions, errors were typically displayed as either errors or warnings (depending on the severity) as
 // they occurred, and evolution of the star (SSE mode) or binary (BSE mode) continued - users were expected to
-// check errors or warnings displayed and use results with appropriate caution.  This was no ideal.
+// check errors or warnings displayed and use results with appropriate caution.  This was not ideal.
 //
 // In COMPAS version 03.00.00 the error handling philosophy was changed, and more coherent and robust error-handling
 // code was implemented.  The new error-handling philosophy is to stop evolution of a star or binary if an error
@@ -17,7 +17,7 @@
 //
 // The error-handling code implemented in v03.00.00 allows developers to terminate evolution of a star or binary if
 // they determine that a condition encountered is sufficiently severe that allowing the evolution of the star or
-// binary to continue would produce inconsistent or untrustable results.  In those cases, the developers would
+// binary to continue would produce inconsistent or untrustable results.  In those cases, the developers should
 // terminate the evolution of the star or binary via the use of the THROW_ERROR* macros (defined in 'ErrorsMacros.h').
 //
 // Developers should use the SHOW_WARN* macros (defined in 'ErrorsMacros.h') to alert users to conditions they want
@@ -27,13 +27,13 @@
 // The SHOW_ERROR* macros (defined in 'ErrorsMacros.h') should be used sparingly - generally only in catch blocks
 // for errors thrown, or in the (very few) sections of the code not covered by catch blocks.
 //
-// The class member variable m_Error (BaseStar for SSE, BaseBinaryStar for BSE) should not be set explicitly
-// throughout the code - it is set in the appropriate catch blocks.  m_Error is the error value written to the
-// log files.  Note that it is possible that if users choose to add the STAR_PROPERTY::ERROR (SSE) or 
-// BINARY_PROPERTY::ERROR (BSE) to log files via the logfile-definitions file, the value of the error logged
-// to those files may be 0 (ERROR::NONE) even for stars or binaries that ere eventually terminated due to an
-// error - the error value is only set when the error occurs (and is thrown), so some records in some log files
-// may already have been written prior to the error being identified and evolution terniated.
+// The class member variable m_Error (in the BaseStar class for SSE; BaseBinaryStar for BSE) should not be set explicitly
+// throughout the code - it is set in the appropriate catch blocks.  m_Error is the error value written to the log files.
+// Note that it is possible that if users choose to add the STAR_PROPERTY::ERROR (SSE) or BINARY_PROPERTY::ERROR (BSE) to
+// log files via the logfile-definitions file, the value of the error logged to those files may be 0 (ERROR::NONE) even for
+// stars or binaries that ere eventually terminated due to an error - the error value is only set when the error occurs
+// (and is thrown), so some records in some log files may already have been written prior to the error being identified and
+// evolution terminated.
 //
 //
 // Floating-point errors in C++
@@ -45,7 +45,7 @@
 // uninterrupted.  Integer division by 0 is undefined and results in a floating-point exception and the process
 // is halted.
 //
-// The GNU C++ implementation allows us to trap the following floating-pont errors:
+// The GNU C++ implementation allows us to trap the following floating-point errors:
 //
 // DIVBYZERO : division by zero, or some other asymptotically infinite result (from finite arguments).
 // INEXACT   : a value cannot be represented with exact accuracy (e.g. 0.1, 1.0/3.0, and sqrt(2.0)).
@@ -56,12 +56,12 @@
 //
 // When an enabled floating-point trap is encountered, a SIGFPE signal is raised.  If we don't have a signal handler
 // installed for SIGFPE the program is terminated with a floating-point exception.  If we do have a signal handler
-// installed for SIGFPE, that signal handler is called.  Ordinarily, once the SIGFPE signal handler is called, there
-// is no going back - after doing whetever we need to do to manage the signal, the only valid operation is to exit the
-// program, or to longjmp to a specific location in the code.  Fortunately the GNU C++ designers have given us another
-// option: if we compile with the -fnon-call-exceptions compiler flag, then we can raise an exception safely from the
-// SIGFPE signal handler because the throw is just a non-local transfer of control (just like a longjmp), and then we
-// can just catch the exception raised.
+// installed for SIGFPE, that signal handler is invoked.  Ordinarily, once the SIGFPE signal handler is invoked, there
+// is no going back - after doing whetever we need to do to manage the signal, the only valid operations are to exit
+// the program, or to longjmp to a specific location in the code.  Fortunately the GNU C++ designers have given us another
+// option: if we compile with the -fnon-call-exceptions compiler flag we can raise an exception safely from the SIGFPE
+// signal handler because the throw is just a non-local transfer of control (just like a longjmp), and then we can just
+// catch the exception raised.
 //
 //
 // Floating-point errors in COMPAS
@@ -73,7 +73,7 @@
 //
 // We have 3 modes for the floating-point error instrumentation:
 //
-//    0: instrumentation not active   - this is just the default behaviour of the C++ comoiler, as described in the first
+//    0: instrumentation not active   - this is just the default behaviour of the C++ compiler, as described in the first
 //                                      paragraph above.  In this mode, the program execution will not be interrupted in
 //                                      the event of a floating-point error, but the error reported in the system
 //                                      parameters file will be set to indicate if a floating-point error occurred during
