@@ -6,7 +6,7 @@
 /*    commandline or in the grid file (e.g. "random-seed")                                */
 /*    The convention I've settled on is hyphenated lower case - I don't mind what         */
 /*    convention we settle on, as long as it's just one.                                  */
-/*    Try to be consistent with existing option names.  Foer example, if you are adding   */
+/*    Try to be consistent with existing option names.  For example, if you are adding    */
 /*    a new prescription for something, make sure the option name ends with               */
 /*    "-prescription", or if you are adding a new distribution for something, make sure   */
 /*    the option name ends with "-distribution".                                          */
@@ -58,10 +58,10 @@
 /*    m_KickPhi1 etc.).                                                                   */
 /*                                                                                        */
 /* 9. If the option is a string option with multiple-choices - in that the user can       */
-/*    select from a list of possible values recorded in constants.h in an ENUM CLASS and  */
-/*    corresponding COMPASUnorderedMap labels map - then add the option to the function   */
-/*    AllowedOptionValues() here so that we can easily extract the allowed values for     */
-/*    that option.                                                                        */
+/*    select from a list of possible values recorded in typedefs.h or LogTypedefs.h in    */
+/*    an ENUM CLASS and corresponding COMPASUnorderedMap labels map - then add the option */
+/*    to the function AllowedOptionValues() here so that we can easily extract the        */
+/*    allowed values for that option.                                                     */
 /*                                                                                        */
 /* 10. Add the new option to one or more of the following vectors in Options.h, as        */
 /*     required:                                                                          */
@@ -79,7 +79,7 @@
 /*     Read the explanations for each of the vectors in Options.h to get a better idea of */
 /*     what they are for and where the new option should go.                              */
 /*                                                                                        */
-/* 11. Add the new option to the following structures in constants.h (only required if    */
+/* 11. Add the new option to the following structures in LogTypedefs.h (only required if  */
 /*     the option is required to be available for printing in the logfiles):              */
 /*                                                                                        */
 /*        - enum class PROGRAM_OPTION                                                     */
@@ -90,7 +90,9 @@
 /*     option value for printing in the output (log) files.  Only required if the option  */
 /*     is required to be available for printing in the logfiles.                          */
 /*                                                                                        */
-/* 13. Add the new option to the default YAML file template in yaml.h if required.        */ 
+/* 13. Add the new option to the default YAML file template in yaml.h if required. While  */
+/*     this is not mandatory, it does help to keep the YAML file ordered and consequently */
+/*     relatively easy to read and search for options.                                    */ 
 /*                                                                                        */
 /******************************************************************************************/
 
@@ -582,7 +584,6 @@ void Options::OptionValues::Initialise() {
     m_LogfileType.type                                              = LOGFILETYPE::HDF5;
     m_LogfileType.typeString                                        = LOGFILETYPELabel.at(m_LogfileType.type);
 
-//    m_LogfileBeBinaries                                             = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES));
     m_LogfileBeBinariesRecordTypes                                  = -1;                                                                   // all record types
     m_LogfileCommonEnvelopes                                        = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));
     m_LogfileCommonEnvelopesRecordTypes                             = -1;                                                                   // all record types
@@ -4596,8 +4597,6 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH                        : value = AllowTouchingAtBirth();                                               break;
         case PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION    : value = AngularMomentumConservationDuringCircularisation();                   break;
 
-//        case PROGRAM_OPTION::BE_BINARIES                                    : value = BeBinaries();                                                         break;
-
         case PROGRAM_OPTION::BLACK_HOLE_KICKS                               : value = static_cast<int>(BlackHoleKicksMode());                               break; // DEPRECATED June 2024 - remove end 2024
         case PROGRAM_OPTION::BLACK_HOLE_KICKS_MODE                          : value = static_cast<int>(BlackHoleKicksMode());                               break;
     
@@ -4911,7 +4910,7 @@ void Options::ShowDeprecations(const bool p_Commandline) {
 
     static std::vector<std::tuple<std::string, std::string, bool>> options = {
         { "black-hole-kicks",                      "black-hole-kicks-mode",                           false },
-        { "chemically-homogeneous-evolution-mode", "chemically-homogeneous-evolution-mode",           false },
+        { "chemically-homogeneous-evolution",      "chemically-homogeneous-evolution-mode",           false },
         { "kick-direction",                        "kick-direction-distribution",                     false },
         { "luminous-blue-variable-prescription",   "LBV-mass-loss-prescription",                      false },
         { "mass-transfer",                         "use-mass-transfer",                               false },
@@ -4925,13 +4924,11 @@ void Options::ShowDeprecations(const bool p_Commandline) {
     static std::vector<std::tuple<std::string, std::string, std::string, bool>> values = {
         { "critical-mass-ratio-prescription",    "NONE", "ZERO", false },
         { "LBV-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "logfile-type",                        "NONE", "",     false },
         { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
         { "OB-mass-loss",                        "NONE", "ZERO", false },
         { "OB-mass-loss-prescription",           "NONE", "ZERO", false },
         { "RSG-mass-loss",                       "NONE", "ZERO", false },
         { "RSG-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "stellar-zeta-prescription",           "NONE", "",     false },
         { "VMS-mass-loss",                       "NONE", "ZERO", false },
         { "VMS-mass-loss-prescription",          "NONE", "ZERO", false },
         { "WR-mass-loss",                        "NONE", "ZERO", false },
@@ -4989,7 +4986,7 @@ void Options::ShowDeprecations(const bool p_Commandline) {
                 if (valueStr.length() > 2) valueStr = valueStr.substr(1, valueStr.size() - 2);                                                              // strip ' from both ends
 
                 std::string depecatedValueStr = std::get<1>(tuple);                                                                                         // deprecated value string
-                if (!defaulted && utils::Equals(depecatedValueStr, valueStr)) {                                                                            // option value not defaulted, and deprecated?
+                if (!defaulted && utils::Equals(depecatedValueStr, valueStr)) {                                                                             // option value not defaulted, and deprecated?
                                                                                                                                                             // yes - show deprecation notice
                     std::string outStr = "DEPRECATION NOTICE: option value '" + depecatedValueStr + "' for option '--" + optionStr + "' has been deprecated and will soon be removed.";
 
