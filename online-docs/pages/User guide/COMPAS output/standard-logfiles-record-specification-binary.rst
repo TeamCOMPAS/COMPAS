@@ -246,6 +246,7 @@ Binary Properties
      - `derived from` BaseBinaryStar::m_Error
    * - Description:
      - Error number (if error condition exists, else 0).
+       Refer to :doc:`../Handling errors/error-table` for possible values.
    * - Header String:
      - Error
 
@@ -261,48 +262,8 @@ Binary Properties
    * - COMPAS variable:
      - `derived from` BaseBinaryStar::m_EvolutionStatus
    * - Description:
-     - Final evolution status (reason binary evolution was stopped). Will be printed as one of:
-
-        .. list-table::
-           :widths: 35 5
-           :header-rows: 0
-           :class: aligned-text
-
-           * - Simulation completed 
-             - = 1
-           * - Evolution stopped because an error occurred 
-             - = 2
-           * - Allowed time exceeded 
-             - = 3
-           * - Allowed timesteps exceeded 
-             - = 4
-           * - No user-provided timesteps read
-             - = 5
-           * - User-provided timesteps exhausted
-             - = 6
-           * - User-provided timesteps not consumed
-             - = 7
-           * - SSE error for one of the constituent stars 
-             - = 8
-           * - Error evolving binary 
-             - = 9
-           * - Time exceeded DCO merger time 
-             - = 10
-           * - Stars touching 
-             - = 11
-           * - Stars merged 
-             - = 12
-           * - Stars merged at birth 
-             - = 13
-           * - DCO formed 
-             - = 14
-           * - Double White Dwarf formed 
-             - = 15
-           * - Massless Remnant formed 
-             - = 16
-           * - Unbound binary 
-             - = 17
-                  
+     - Final evolution status.
+       Refer to :doc:`../Handling errors/evolution-status-table` for possible values.
    * - Header Strings:
      - Evolution_Status
 

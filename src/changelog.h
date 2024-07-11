@@ -1233,7 +1233,7 @@
 //                                         3. (this will be controversial) deprecation of some program options, and some program option values
 //                                         4. Fixed what I believe was a defect in `utils::SolveKeplersEquation()` that was causing erroneous "out-of-bounds" warnings for the eccentric anomaly
 //                                         5. Added debug functionality to show stack trace and halt the program - see the discussion and implementation of the SIGUSR2 signal handler in `main.cpp`.
-//                                         6. code cleanup
+//                                         6. code cleanup (including removal of unused BE Binaries code)
 
 const std::string VERSION_STRING = "03.00.00";
 

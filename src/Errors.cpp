@@ -52,16 +52,6 @@
  *    The function name of the calling function
  *
  * Notes:
- *
- * Any object that uses the  non-static SHOW_* macros *must* expose the following functions:
- *
- *    OBJECT_ID    ObjectId()    (would typically return m_ObjectId)
- *    OBJECT_TYPE  ObjectType()  (would typically return m_ObjectType)
- *    STELLAR_TYPE StellarType() (would typically return m_StellarType)
- *
- * The functions are called, by the SHOW_ERROR* and SHOW_WARN* macros.  If any of the functions are not applicable to the object, then they
- * must return "*::NONE" (all objects should implement ObjectId() correctly)
- * 
  * 
  * An additional set of macros is provided to be used in static functions and other functions that are not contained within an instantiated 
  * object (e.g. main()).  These are:
@@ -80,7 +70,7 @@
  *    SHOW_WARN_IF_STATIC(cond, error_number)               : if "cond" is TRUE, prints "WARNING: " followed by the error message associated with "error_number" (from the error catalog)
  *    SHOW_WARN_IF_STATIC(cond, error_number, error_string) : if "cond" is TRUE, prints "WARNING: " followed by the error message associated with "error_number" (from the error catalog), and appends "error_string"
  *
- * Error and warning messages displayed using the static SHOW_ERROR and SHOW_WARNING macros will always contain:
+ * Error and warning messages displayed using the static SHOW_ERROR(_IF) and SHOW_WARN(_IF) macros will always contain:
  *
  *    The function name of the calling function
  *
@@ -89,7 +79,17 @@
  *    The object id of the calling object (not available in static functions)
  *    The object type of the calling object (doesn't add enough information on its own)
  *    The stellar type of the calling object (not available in static functions)
+ *
  * 
+ * Any object that uses the non-static SHOW_* macros *must* expose the following functions:
+ *
+ *    OBJECT_ID    ObjectId()    (would typically return m_ObjectId)
+ *    OBJECT_TYPE  ObjectType()  (would typically return m_ObjectType)
+ *    STELLAR_TYPE StellarType() (would typically return m_StellarType)
+ *
+ * The functions are called, by the SHOW_ERROR* and SHOW_WARN* macros.  If any of the functions are not applicable to the object, then they
+ * must return "*::NONE" (all objects should implement ObjectId() correctly)
+ *  
  * 
  * Another additional set of macros is provided, for both static and non-static functions, that will, after displaying an error (as described above),
  * throw an exception and cause the ordinary program flow to be interrupted.  These are:

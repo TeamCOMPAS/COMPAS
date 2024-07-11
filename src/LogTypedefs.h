@@ -11,9 +11,8 @@
 
 
 // logfile file types
-enum class LOGFILETYPE: int { NONE, HDF5, CSV, TSV, TXT };                  // need this declared here so can declare the constant...
+enum class LOGFILETYPE: int { HDF5, CSV, TSV, TXT };                        // need this declared here so can declare the constant...
 const COMPASUnorderedMap<LOGFILETYPE, std::string> LOGFILETYPELabel = {     // file types
-    { LOGFILETYPE::NONE, "NONE" },   // DEPRECATED June 2024 - remove end 2024
     { LOGFILETYPE::HDF5, "HDF5" },
     { LOGFILETYPE::CSV,  "CSV" },
     { LOGFILETYPE::TSV,  "TSV" },
@@ -447,16 +446,6 @@ enum class ANY_STAR_PROPERTY: int { STAR_PROPERTIES };
 // and BINARY_PROPERTY_DETAIL
 enum class BINARY_PROPERTY: int {
     NONE,
-//    BE_BINARY_CURRENT_COMPANION_LUMINOSITY,
-//    BE_BINARY_CURRENT_COMPANION_MASS,
-//    BE_BINARY_CURRENT_COMPANION_RADIUS,
-//    BE_BINARY_CURRENT_COMPANION_TEFF,
-//    BE_BINARY_CURRENT_DT,
-//    BE_BINARY_CURRENT_ECCENTRICITY,
-//    BE_BINARY_CURRENT_ID,
-//    BE_BINARY_CURRENT_NS_MASS,
-//    BE_BINARY_CURRENT_SEMI_MAJOR_AXIS,
-//    BE_BINARY_CURRENT_TOTAL_TIME,
     CIRCULARIZATION_TIMESCALE,
     COMMON_ENVELOPE_AT_LEAST_ONCE,
     COMMON_ENVELOPE_EVENT_COUNT,
@@ -578,16 +567,6 @@ enum class BINARY_PROPERTY: int {
 // and BINARY_PROPERTY_DETAIL
 const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::NONE,                                               "NONE" },
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_LUMINOSITY,             "BE_BINARY_CURRENT_COMPANION_LUMINOSITY" },
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_MASS,                   "BE_BINARY_CURRENT_COMPANION_MASS" },
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_RADIUS,                 "BE_BINARY_CURRENT_COMPANION_RADIUS" },
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_TEFF,                   "BE_BINARY_CURRENT_COMPANION_TEFF" },
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_DT,                               "BE_BINARY_CURRENT_DT" },
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_ECCENTRICITY,                     "BE_BINARY_CURRENT_ECCENTRICITY" },
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_ID,                               "BE_BINARY_CURRENT_ID" },
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_NS_MASS,                          "BE_BINARY_CURRENT_NS_MASS" },
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_SEMI_MAJOR_AXIS,                  "BE_BINARY_CURRENT_SEMI_MAJOR_AXIS" },
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_TOTAL_TIME,                       "BE_BINARY_CURRENT_TOTAL_TIME" },
     { BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE,                          "CIRCULARIZATION_TIMESCALE" },
     { BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE,                      "COMMON_ENVELOPE_AT_LEAST_ONCE" },
     { BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT,                        "COMMON_ENVELOPE_EVENT_COUNT" },
@@ -720,8 +699,6 @@ enum class PROGRAM_OPTION: int {
     ALLOW_RLOF_AT_BIRTH,
     ALLOW_TOUCHING_AT_BIRTH,
     ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,
-
-    //BE_BINARIES,
 
     BLACK_HOLE_KICKS, // DEPRECATED June 2024 - remove end 2024
     BLACK_HOLE_KICKS_MODE,
@@ -945,8 +922,6 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH,                              "ALLOW_RLOF_AT_BIRTH" },
     { PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH,                          "ALLOW_TOUCHING_AT_BIRTH" },
     { PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,      "ANG_MOM_CONSERVATION_DURING_CIRCULARISATION" },
-
-    //{ PROGRAM_OPTION::BE_BINARIES,                                    "BE_BINARIES" },
 
     { PROGRAM_OPTION::BLACK_HOLE_KICKS,                                 "BLACK_HOLE_KICKS" }, // DEPRECATED June 2024 - remove end 2024
     { PROGRAM_OPTION::BLACK_HOLE_KICKS_MODE,                            "BLACK_HOLE_KICKS_MODE" },
@@ -1346,16 +1321,6 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
 // Properties only need to be here if they are required to be available for printing in 
 // the logfiles - all keys present here should also be in BINARY_PROPERTY and BINARY_PROPERTY_LABEL
 const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_LUMINOSITY,              { TYPENAME::DOUBLE,           "Companion_Lum",             "Lsol",             24, 15}},
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_MASS,                    { TYPENAME::DOUBLE,           "Companion_Mass",            "Msol",             24, 15}},
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_RADIUS,                  { TYPENAME::DOUBLE,           "Companion_Radius",          "Rsol",             24, 15}},
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_TEFF,                    { TYPENAME::DOUBLE,           "Companion_Teff",            "K",                24, 15}},
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_DT,                                { TYPENAME::DOUBLE,           "dT",                        "Myr",              24, 15}},
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_ECCENTRICITY,                      { TYPENAME::DOUBLE,           "Eccentricity",              "-",                24, 15}},
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_ID,                                { TYPENAME::OBJECT_ID,        "ID",                        "-",                12, 1 }},
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_NS_MASS,                           { TYPENAME::DOUBLE,           "NS_Mass",                   "Msol",             24, 15}},
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_SEMI_MAJOR_AXIS,                   { TYPENAME::DOUBLE,           "SemiMajorAxis",             "Rsol",             24, 15}},
-//    { BINARY_PROPERTY::BE_BINARY_CURRENT_TOTAL_TIME,                        { TYPENAME::DOUBLE,           "Total_Time",                "Myr",              24, 15}},
     { BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE,                           { TYPENAME::DOUBLE,           "Tau_Circ",                  "Myr",              24, 15}},
     { BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE,                       { TYPENAME::BOOL,             "CEE",                       "Event",             0, 0 }},
     { BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT,                         { TYPENAME::UINT,             "CE_Event_Counter",          "Count",             6, 1 }},
@@ -1488,9 +1453,9 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::ALLOW_RLOF_AT_BIRTH,                                      { TYPENAME::BOOL,       "PO_Allow_RLOF@Birth",                       "Flag",       0, 0 }},
     { PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH,                                  { TYPENAME::BOOL,       "PO_Allow_Touching@Birth",                   "Flag",       0, 0 }},
     { PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,              { TYPENAME::BOOL,       "PO_Conserve_AngMom@Circ",                   "Flag",       0, 0 }},
-    //{ PROGRAM_OPTION::BE_BINARIES,                                              { TYPENAME::BOOL,       "PO_Be_Binaries",                            "Flag",       0, 0 }},
 
-    { PROGRAM_OPTION::BLACK_HOLE_KICKS,                                         { TYPENAME::INT,        "PO_BH_Kicks",                               "-",          4, 1 }},
+    { PROGRAM_OPTION::BLACK_HOLE_KICKS,                                         { TYPENAME::INT,        "PO_BH_Kicks",                               "-",          4, 1 }}, // DEPRECATED June 2024 - remove end 2024
+    { PROGRAM_OPTION::BLACK_HOLE_KICKS_MODE,                                    { TYPENAME::INT,        "PO_BH_Kicks_Mode",                          "-",          4, 1 }},
     
     { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                           { TYPENAME::INT,        "PO_BB_Mass_xFer_Stblty_Prscrptn",           "-",          4, 1 }},
     
@@ -1700,7 +1665,6 @@ enum class LOGFILE: int {
     DEBUG_LOG,
     ERROR_LOG,
 
-//    BSE_BE_BINARIES,
     BSE_COMMON_ENVELOPES,
     BSE_DETAILED_OUTPUT,
     BSE_DOUBLE_COMPACT_OBJECTS,
@@ -1720,10 +1684,6 @@ enum class LOGFILE: int {
 // Logfile record types
 // Note all enum classes for log record types start at 1 (and *must* start at 1)
 typedef unsigned int LOGRECORDTYPE;
-
-//enum class BE_BINARY_RECORD_TYPE: unsigned int {                                                                    // BSE_BE_BINARIES file record type
-//    DEFAULT = 1                                                                                                     // 1 - default BSE_BE_BINARIES file record type
-//};
 
 enum class CE_RECORD_TYPE: unsigned int {                                                                           // BSE_COMMON_ENVELOPES file record type
     DEFAULT = 1                                                                                                     // 1 - default BSE_COMMON_ENVELOPES file record type
@@ -1815,25 +1775,6 @@ const COMPASUnorderedMap<RUN_DETAILS_COLUMNS, std::tuple<std::string, TYPENAME, 
 
 
 // BSE output record definitions
-
-// BSE_BE_BINARY_REC
-//
-// Default record definition for the BeBinaries logfile
-//
-//const ANY_PROPERTY_VECTOR BSE_BE_BINARIES_REC = {
-//    BINARY_PROPERTY::BE_BINARY_CURRENT_ID,
-//    BINARY_PROPERTY::RANDOM_SEED,
-//    BINARY_PROPERTY::BE_BINARY_CURRENT_DT,
-//    BINARY_PROPERTY::BE_BINARY_CURRENT_TOTAL_TIME,
-//    BINARY_PROPERTY::BE_BINARY_CURRENT_NS_MASS,
-//    BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_MASS,
-//    BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_LUMINOSITY,
-//    BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_TEFF,
-//    BINARY_PROPERTY::BE_BINARY_CURRENT_COMPANION_RADIUS,
-//    BINARY_PROPERTY::BE_BINARY_CURRENT_SEMI_MAJOR_AXIS,
-//    BINARY_PROPERTY::BE_BINARY_CURRENT_ECCENTRICITY
-//};
-
 
 // BSE_COMMON_ENVELOPES_REC
 //
@@ -2288,7 +2229,6 @@ const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
     { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                      {},                             "",                "",                    LOGFILE_CLASS::NONE }},
     { LOGFILE::ERROR_LOG,                  { "Error_Log",                      {},                             "",                "",                    LOGFILE_CLASS::NONE }},
 
-//    { LOGFILE::BSE_BE_BINARIES,            { "BSE_BE_Binaries",                BSE_BE_BINARIES_REC,            "BSE_BE_BINARIES", "BSE_BE_BINARIES_REC", LOGFILE_CLASS::BINARY }},
     { LOGFILE::BSE_COMMON_ENVELOPES,       { "BSE_Common_Envelopes",           BSE_COMMON_ENVELOPES_REC,       "BSE_CEE",         "BSE_CEE_REC",         LOGFILE_CLASS::BINARY }},
     { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",            BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_CLASS::BINARY }},
     { LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, { "BSE_Double_Compact_Objects",     BSE_DOUBLE_COMPACT_OBJECTS_REC, "BSE_DCO",         "BSE_DCO_REC",         LOGFILE_CLASS::BINARY }},
