@@ -284,7 +284,6 @@ void Log::Start(const string      p_LogBasePathString,
         // may be changed if a logfile definitions file is present and processed.
 
         // BSE
-//        if (NotesPropertyPresent(m_BSE_BE_Binaries_Rec)) m_BSE_BE_Binaries_Notes = BOOL_VECTOR(m_BSE_BE_Binaries_Notes.size(), true);
         if (NotesPropertyPresent(m_BSE_CEE_Rec        )) m_BSE_CEE_Notes         = BOOL_VECTOR(m_BSE_CEE_Notes.size(), true);
         if (NotesPropertyPresent(m_BSE_DCO_Rec        )) m_BSE_DCO_Notes         = BOOL_VECTOR(m_BSE_DCO_Notes.size(), true);
         if (NotesPropertyPresent(m_BSE_Detailed_Rec   )) m_BSE_Detailed_Notes    = BOOL_VECTOR(m_BSE_Detailed_Notes.size(), true);
@@ -2063,11 +2062,6 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
 
         switch (p_Logfile) {                                                                                                        // which logfile?
 
-//            case LOGFILE::BSE_BE_BINARIES:                                                                                          // BSE_BE_BINARIES
-//                recordProperties = m_BSE_BE_Binaries_Rec;                                                                           // record properties
-//                annotations      = m_BSE_BE_Binaries_Notes;                                                                         // logfile annotations
-//                break;
-
             case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                     // BSE_COMMON_ENVELOPES
                 recordProperties = m_BSE_CEE_Rec;                                                                                   // record properties
                 annotations      = m_BSE_CEE_Notes;                                                                                 // logfile annotations
@@ -2418,13 +2412,6 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
     if (logfile == m_OpenStandardLogFileIds.end()) {                                                                                            // doesn't exist
         try {                                                                                                                                   // get record properties for this file
             switch (p_Logfile) {                                                                                                                // which logfile?
-
-//                case LOGFILE::BSE_BE_BINARIES:                                                                                                  // BSE_BE_BINARIES
-//                    fileDetails.filename         = OPTIONS->LogfileBeBinaries();
-//                    fileDetails.recordTypes      = OPTIONS->LogfileBeBinariesRecordTypes();
-//                    fileDetails.recordProperties = m_BSE_BE_Binaries_Rec;
-//                    fileDetails.annotations      = m_BSE_BE_Binaries_Notes;
-//                    break;
 
                 case LOGFILE::BSE_COMMON_ENVELOPES:                                                                                             // BSE_COMMON_ENVELOPES
                     fileDetails.filename         = OPTIONS->LogfileCommonEnvelopes();
@@ -3100,10 +3087,6 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
     // annotations vector for the file makes updating the vector correctly easier.
 
     switch (p_Logfile) {
-//        case LOGFILE::BSE_BE_BINARIES:
-//            if (p_UseDefaultProps) baseProps = m_BSE_BE_Binaries_Rec;
-//            baseNotes = m_BSE_BE_Binaries_Notes;
-//            break;
         case LOGFILE::BSE_COMMON_ENVELOPES:
             if (p_UseDefaultProps) baseProps = m_BSE_CEE_Rec;
             baseNotes = m_BSE_CEE_Notes;
@@ -3242,7 +3225,6 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
 
     // replace existing props and annotations vector for given logfile
     switch (p_Logfile) {
-//        case LOGFILE::BSE_BE_BINARIES           : m_BSE_BE_Binaries_Rec = newProps; m_BSE_BE_Binaries_Notes = newNotes; break;
         case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec         = newProps; m_BSE_CEE_Notes         = newNotes; break;
         case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec    = newProps; m_BSE_Detailed_Notes    = newNotes; break;
         case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec         = newProps; m_BSE_DCO_Notes         = newNotes; break;
@@ -3300,7 +3282,6 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *                  "BSE_SNE_REC"            |				# BSE only
  *                  "BSE_CEE_REC"            |				# BSE only
  *                  "BSE_RLOF_REC"           |				# BSE only
- *                  "BSE_BE_BINARIES_REC"    |				# BSE only
  *                  "BSE_PULSARS_REC"        |				# BSE only
  *                  "BSE_DETAILED_REC"	     |				# BSE only
  *                  "BSE_SWITCH_REC"		   			    # BSE only

@@ -2,7 +2,7 @@
 #define __ErrorCatalog_h__
 
 
-// This is the COMPAS error catalogue.  The error catalogue defines symolic names for all COMPAS errors,
+// This is the COMPAS error catalogue.  The error catalogue defines symbolic names for all COMPAS errors,
 // and corresponding error strings for those errors.
 //
 // To add a new error, add the symbolic name to the ERROR enum class, and the corresponding error string
@@ -18,8 +18,8 @@
 
 
 // The ERROR_SCOPE enum class, defined below, allows developers to specify when, if at all, a particular
-// error/warning should be displayed by the SHOW_WARN* and SHOW_ERROR* macros define in ErrorsMacros.h
-// (and by the ERRORS-SHowIt() function defined in Errors.h, which is used by the afrementioned macros):
+// error/warning should be displayed by the SHOW_WARN* and SHOW_ERROR* macros defined in ErrorsMacros.h
+// (and by the ERRORS-SHowIt() function defined in Errors.h, which is used by the aforementioned macros):
 //
 //      NEVER                : the error/warning should never be displayed
 //      ALWAYS               : the error/warning should always be displayed
@@ -39,7 +39,6 @@ enum class ERROR_SCOPE: int { NEVER, ALWAYS, FIRST, FIRST_IN_FUNCTION, FIRST_IN_
 // Listed alphabetically (except for 'NONE' - first so ERROR = 0 = NONE)
 enum class ERROR: int {
     NONE,                                                           // no error
-    AGE_NEGATIVE_ONCE,                                              // age is < 0.0 - invalid
     AMBIGUOUS_REMNANT_MASS_PRESCRIPTION,                            // remnant mass unclear from available parameters
     ARGUMENT_RANGE_COUNT_EXPECTED_ULINT,                            // expected an unsigned long integer for range count for option
     ARGUMENT_RANGE_NOT_SUPPORTED,                                   // argument range not supported for option 
@@ -119,7 +118,6 @@ enum class ERROR: int {
     STELLAR_EVOLUTION_STOPPED,                                      // evolution of current star stopped
     STELLAR_SIMULATION_STOPPED,                                     // stellar simulation stopped
     STEPS_UP,                                                       // allowed evolution timesteps exceeded
-    SUGGEST_HELP,                                                   // suggest using --help
     SWITCH_NOT_TAKEN,                                               // switch to new stellar type not performed
     TIMESTEP_BELOW_MINIMUM,                                         // timestep too small - below minimum
     TIMESTEPS_EXHAUSTED,                                            // timesteps provided exhausted, but evolution not complete
@@ -149,7 +147,6 @@ enum class ERROR: int {
     UNEXPECTED_STELLAR_PROPERTY,                                    // unexpected stellar property
     UNEXPECTED_STELLAR_PROPERTY_TYPE,                               // unexpected stellar property type
     UNEXPECTED_STELLAR_TYPE,                                        // unexpected stellar type
-    UNEXPECTED_ZETA_PRESCRIPTION,                                   // unexpected stellar zeta prescription  (remove when ZETA_PRESCRIPTION::NONE removed)
     UNHANDLED_EXCEPTION,                                            // unhandled exception
     UNKNOWN_A_DISTRIBUTION,                                         // unknown a-distribution
     UNKNOWN_ACCRETION_REGIME,                                       // unknown accretion regime
@@ -199,7 +196,10 @@ enum class ERROR: int {
     UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,           // unsupported pulsar birth magnetic field distribution
     UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,              // unsupported pulsar birth spin period distribution
     WARNING,                                                        // unspecified warning
-    WHITE_DWARF_TOO_MASSIVE                                         // a white dwarf exceeds the Chandrasekhar mass limit
+    WHITE_DWARF_TOO_MASSIVE,                                        // a white dwarf exceeds the Chandrasekhar mass limit
+
+    // not alphabetical - here to keep "real" error numbers consecutive
+    SUGGEST_HELP                                                    // suggest using --help
 };
 
 
@@ -212,8 +212,7 @@ enum class ERROR: int {
 // listed alphabetically
 
 const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATALOG = {
-    { ERROR::AGE_NEGATIVE_ONCE,                                     { ERROR_SCOPE::FIRST_IN_FUNCTION,   "Age < 0.0" }},
-    { ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION,                   { ERROR_SCOPE::ALWAYS,              "Insufficient information to prescribe remnant mass." }},
+    { ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION,                   { ERROR_SCOPE::ALWAYS,              "Insufficient information to prescribe remnant mass" }},
     { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP,                      { ERROR_SCOPE::ALWAYS,              "Expected a floating point number for range start and increment for option" }},
     { ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT,                   { ERROR_SCOPE::ALWAYS,              "Expected an unsigned long integer for range count for option" }},
     { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_INT,                     { ERROR_SCOPE::ALWAYS,              "Expected an integer for range parameters for option" }},
@@ -254,7 +253,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::FILE_OPEN_ERROR,                                       { ERROR_SCOPE::ALWAYS,              "Error opening file" }},
     { ERROR::FILE_READ_ERROR,                                       { ERROR_SCOPE::ALWAYS,              "Error reading from file - data not read" }},
     { ERROR::FILE_WRITE_ERROR,                                      { ERROR_SCOPE::ALWAYS,              "Error writing to file - data not written" }},
-    { ERROR::FLOATING_POINT_ERROR,                                  { ERROR_SCOPE::ALWAYS,              "Floating-point error" }},
+    { ERROR::FLOATING_POINT_ERROR,                                  { ERROR_SCOPE::ALWAYS,              "Unspecified floating-point error" }},
     { ERROR::FLOATING_POINT_DIVBYZERO,                              { ERROR_SCOPE::ALWAYS,              "Floating-point divide-by-zero" }},
     { ERROR::FLOATING_POINT_INVALID_ARGUMENT,                       { ERROR_SCOPE::ALWAYS,              "Floating-point invalid argument" }},
     { ERROR::FLOATING_POINT_OVERFLOW,                               { ERROR_SCOPE::ALWAYS,              "Floating-point overflow" }},
@@ -323,7 +322,6 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNEXPECTED_STELLAR_PROPERTY,                           { ERROR_SCOPE::ALWAYS,              "Unexpected stellar property" }},
     { ERROR::UNEXPECTED_STELLAR_PROPERTY_TYPE,                      { ERROR_SCOPE::ALWAYS,              "Unexpected stellar property type" }},
     { ERROR::UNEXPECTED_STELLAR_TYPE,                               { ERROR_SCOPE::ALWAYS,              "Unexpected stellar type" }},
-    { ERROR::UNEXPECTED_ZETA_PRESCRIPTION,                          { ERROR_SCOPE::ALWAYS,              "Unexpected stellar zeta prescription" }}, // remove when ZETA_PRESCROPTION::NONE is removed
     { ERROR::UNHANDLED_EXCEPTION,                                   { ERROR_SCOPE::ALWAYS,              "Unhandled exception" }},
     { ERROR::UNKNOWN_A_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown semi-major-axis distribution" }},
     { ERROR::UNKNOWN_ACCRETION_REGIME,                              { ERROR_SCOPE::ALWAYS,              "Unknown accretion regime" }},

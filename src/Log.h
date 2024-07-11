@@ -560,7 +560,6 @@ private:
 
     // logfile record specifications
     // BSE
-//    ANY_PROPERTY_VECTOR m_BSE_BE_Binaries_Rec = BSE_BE_BINARIES_REC;                // default specification
     ANY_PROPERTY_VECTOR m_BSE_CEE_Rec         = BSE_COMMON_ENVELOPES_REC;           // default specification
     ANY_PROPERTY_VECTOR m_BSE_DCO_Rec         = BSE_DOUBLE_COMPACT_OBJECTS_REC;     // default specification
     ANY_PROPERTY_VECTOR m_BSE_Detailed_Rec    = BSE_DETAILED_OUTPUT_REC;            // default specification
@@ -591,7 +590,6 @@ private:
     // has the right defaults when processing any log definitions file.
 
     // BSE
-//    BOOL_VECTOR m_BSE_BE_Binaries_Notes = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_BSE_CEE_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_BSE_DCO_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_BSE_Detailed_Notes    = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
@@ -1188,10 +1186,6 @@ public:
     bool CloseAllStandardFiles();
 
     std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> GetStandardLogFileRecordDetails(const LOGFILE p_Logfile);
-
-//    template <class T>
-//    bool LogBeBinary(const T* const p_Binary,
-//                     const BE_BINARY_RECORD_TYPE p_RecordType)                      { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES)), 0, LOGFILE::BSE_BE_BINARIES, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
 
     template <class T>
     bool LogBSEDetailedOutput(const T* const p_Binary, 
