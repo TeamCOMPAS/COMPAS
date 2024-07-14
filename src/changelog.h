@@ -1231,9 +1231,10 @@
 //                                         1. implementation of more coherent and robust error handling
 //                                         2. added source files (all are .h file, so the makefile does not need to change)
 //                                         3. (this will be controversial) deprecation of some program options, and some program option values
-//                                         4. Fixed what I believe was a defect in `utils::SolveKeplersEquation()` that was causing erroneous "out-of-bounds" warnings for the eccentric anomaly
-//                                         5. Added debug functionality to show stack trace and halt the program - see the discussion and implementation of the SIGUSR2 signal handler in `main.cpp`.
-//                                         6. code cleanup (including removal of unused BE Binaries code)
+//                                         4. fixed what I believe was a defect in `utils::SolveKeplersEquation()` that was causing erroneous "out-of-bounds" warnings for the eccentric anomaly
+//                                         5. added debug functionality to show stack trace and halt the program - see the discussion and implementation of the SIGUSR2 signal handler in `main.cpp`.
+//                                         6. removed BaseBinaryStar class variable m_UK and associated printing functionality - this is trivial to compute in post-processing
+//                                         7. code cleanup (including removal of unused BE Binaries code)
 
 const std::string VERSION_STRING = "03.00.00";
 

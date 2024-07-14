@@ -385,7 +385,6 @@ void BaseBinaryStar::SetRemainingValues() {
 	m_ZetaStar	                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     // Initialise other parameters to 0
-    m_uK                                             = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_CosIPrime                                      = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_IPrime                                         = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_TimeToCoalescence                              = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -562,7 +561,6 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE:                            value = CircularizationTimescale();                                         break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_AT_LEAST_ONCE:                        value = CEAtLeastOnce();                                                    break;
         case BINARY_PROPERTY::COMMON_ENVELOPE_EVENT_COUNT:                          value = CommonEnvelopeEventCount();                                         break;
-        case BINARY_PROPERTY::DIMENSIONLESS_KICK_MAGNITUDE:                         value = UK();                                                               break;
         case BINARY_PROPERTY::UNBOUND:                                              value = Unbound();                                                          break;
         case BINARY_PROPERTY::DOUBLE_CORE_COMMON_ENVELOPE:                          value = DoubleCoreCE();                                                     break;
         case BINARY_PROPERTY::DT:                                                   value = Dt();                                                               break;
@@ -1108,79 +1106,85 @@ void BaseBinaryStar::ResolveCoalescence() {
 
 
 /*
-* Calculate the change in eccentricity based on secular equations for tidal evolution given the tidal Love number
-* Zahn, 1977, Eq. (3.7)
-*
-*
-* double BaseBinaryStar::CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Mass, const double p_Radius, const double p_Mass2)
-*
-* @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
-* @param   [IN]    p_Mass                      Mass of star (Msol)
-* @param   [IN]    p_Radius                    Radius of star (Rsol)
-* @param   [IN]    p_Mass2                     Mass of companion star (Msol)
-* @return                                      Change in Eccentricity for binary (1/yr)
-*/    
-double BaseBinaryStar::CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Mass, const double p_Radius, const double p_Mass2) {
+ * Calculate the change in eccentricity based on secular equations for tidal evolution given the tidal Love number
+ * Zahn, 1977, Eq. (3.7)
+ *
+ *
+ * double BaseBinaryStar::CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star)
+ *
+ * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
+ * @param   [IN]    p_Star                      Star for which impact on eccentricity is to be calculated
+ * @return                                      Change in Eccentricity for binary (1/yr)
+ */    
+double BaseBinaryStar::CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star) {
     
+    double massStar      = p_Star->Mass();
+    double radiusStar    = p_Star->Radius();
+    double massCompanion = p_Star == m_Star1 ? m_Star2->Mass() : m_Star1->Mass();
+
     double ImK10, ImK12, ImK22, ImK32;
     std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
 
-    double R1_AU       = p_Radius * RSOL_TO_AU;
+    double R1_AU       = radiusStar * RSOL_TO_AU;
     double R1_over_a   = R1_AU / m_SemiMajorAxis;
     double R1_over_a_8 = R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a;
 
-    return -(3.0 / 4.0) * (m_Eccentricity / m_Omega) * (1.0 + (p_Mass2 / p_Mass)) * (G_AU_Msol_yr * p_Mass2 / R1_AU / R1_AU / R1_AU) * R1_over_a_8 * ((3.0 * ImK10 / 2.0) - (ImK12 / 4.0) - ImK22 + (49.0 * ImK32 / 4.0));
+    return -(3.0 / 4.0) * (m_Eccentricity / m_Omega) * (1.0 + (massCompanion / massStar)) * (G_AU_Msol_yr * massCompanion / R1_AU / R1_AU / R1_AU) * R1_over_a_8 * ((3.0 * ImK10 / 2.0) - (ImK12 / 4.0) - ImK22 + (49.0 * ImK32 / 4.0));
 }
 
 
 /*
-* Calculate the change in spin based on secular equations for tidal evolution given the tidal Love number
-* Zahn, 1977, Eq. (3.8)
-*
-*
-* double BaseBinaryStar::CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Radius, const double p_MoI, const double p_Mass2)
-*
-* @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
-* @param   [IN]    p_Radius                    Radius of star (Rsol)
-* @param   [IN]    p_MoI                       Moment of Inertia of star (Msol * AU^2)
-* @param   [IN]    p_Mass2                     Mass of companion star (Msol)
-* @return                                      Change in Omega for star (1/yr/yr)
-*/    
-double BaseBinaryStar::CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Radius, const double p_MoI, const double p_Mass2) {
-    
+ * Calculate the change in spin based on secular equations for tidal evolution given the tidal Love number
+ * Zahn, 1977, Eq. (3.8)
+ *
+ *
+ * double BaseBinaryStar::CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star)
+ *
+ * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
+ * @param   [IN]    p_Star                      Star for which impact on spin is to be calculated
+ * @return                                      Change in Omega for star (1/yr/yr)
+ */    
+double BaseBinaryStar::CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star) {
+ 
+    double MoIstar       = p_Star->CalculateMomentOfInertiaAU();
+    double radiusStar    = p_Star->Radius();
+    double massCompanion = p_Star == m_Star1 ? m_Star2->Mass() : m_Star1->Mass();
+
     double ImK10, ImK12, ImK22, ImK32;
     std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
 
-    double R1_AU       = p_Radius * RSOL_TO_AU;
+    double R1_AU       = radiusStar * RSOL_TO_AU;
     double R1_over_a   = R1_AU / m_SemiMajorAxis;
     double R1_over_a_6 = R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a;
 
-    return (3.0 / 2.0) * (1.0 / p_MoI) * (G_AU_Msol_yr * p_Mass2 * p_Mass2 / R1_AU) * R1_over_a_6 * (ImK22 + ((m_Eccentricity * m_Eccentricity) *  ((ImK12 / 4.0) - (5.0 * ImK22) + (49.0 * ImK32 / 4.0))));
+    return (3.0 / 2.0) * (1.0 / MoIstar) * (G_AU_Msol_yr * massCompanion * massCompanion / R1_AU) * R1_over_a_6 * (ImK22 + ((m_Eccentricity * m_Eccentricity) *  ((ImK12 / 4.0) - (5.0 * ImK22) + (49.0 * ImK32 / 4.0))));
 }
 
 /*
-* Calculate the change in semi-major axis based on secular equations for tidal evolution given the tidal Love number
-* Zahn, 1977, Eq. (3.6)
-*
-*
-* double BaseBinaryStar::CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Mass, const double p_Radius, const double p_Mass2)
-*
-* @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
-* @param   [IN]    p_Mass                      Mass of star (Msol)
-* @param   [IN]    p_Radius                    Radius of star (Rsol)
-* @param   [IN]    p_Mass2                     Mass of companion star (Msol)
-* @return                                      Change in semi-major axis for binary (AU/yr)
-*/    
-double BaseBinaryStar::CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Mass, const double p_Radius, const double p_Mass2) {
+ * Calculate the change in semi-major axis based on secular equations for tidal evolution given the tidal Love number
+ * Zahn, 1977, Eq. (3.6)
+ *
+ *
+ * double BaseBinaryStar::CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star)
+ *
+ * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
+ * @param   [IN]    p_Star                      Star for which impact on semi-major axis is to be calculated
+ * @return                                      Change in semi-major axis for binary (AU/yr)
+ */    
+double BaseBinaryStar::CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star) {
+    
+    double massStar      = p_Star->Mass();
+    double radiusStar    = p_Star->Radius();
+    double massCompanion = p_Star == m_Star1 ? m_Star2->Mass() : m_Star1->Mass();
     
     double ImK10, ImK12, ImK22, ImK32;
     std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
 
-    double R1_AU       = p_Radius * RSOL_TO_AU;
+    double R1_AU       = radiusStar * RSOL_TO_AU;
     double R1_over_a   = R1_AU / m_SemiMajorAxis;
     double R1_over_a_7 = R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a;
 
-    return -(3.0 / m_Omega) * (1.0 + (p_Mass2 / p_Mass)) * (G_AU_Msol_yr * p_Mass2/ R1_AU / R1_AU) * R1_over_a_7 * (ImK22 + ((m_Eccentricity * m_Eccentricity) * ((3.0 * ImK10 / 4.0) + (ImK12 / 8.0) - (5.0 * ImK22) + (147.0 * ImK32 / 8.0))));
+    return -(3.0 / m_Omega) * (1.0 + (massCompanion / massStar)) * (G_AU_Msol_yr * massCompanion / R1_AU / R1_AU) * R1_over_a_7 * (ImK22 + ((m_Eccentricity * m_Eccentricity) * ((3.0 * ImK10 / 4.0) + (ImK12 / 8.0) - (5.0 * ImK22) + (147.0 * ImK32 / 8.0))));
 }
 
 
@@ -1259,36 +1263,7 @@ void BaseBinaryStar::ResolveSupernova() {
                                                                                                                                 // yes
         m_Supernova->UpdateComponentVelocity( (natalKickVector+rocketKickVector).ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));        // only need to update the velocity of the star undergoing SN
 
-        // The quantities below are meaningless in this context, so they are set to nan to avoid misuse
-        //
-        // JR: setting variable to plain old NaN does not do anything to avoid the misuse (or use) of the 
-        // variables.  If a variable is set to NaN, and it is later used in come calculation, the result of
-        // the calculation will (almost always) be NaN (it's possible a divide-by-zero might be trapped in
-        // the calculation, so inf or -inf would ensue).  The IEEE floating-point standard does not require
-        // that the process/thread be terminated whenever a calculation, or assignment, results in NaN.
-        //
-        // Assigning nan("") to a variable is equivalent to assigning std::numeric_limits<double>::quiet_NaN()
-        // to the variable, and the use of a variable that has been set to std::numeric_limits<double>::quiet_NaN()
-        // just propagates std::numeric_limits<double>::quiet_NaN() (i.e. any assignments or calculations using
-        // the variable will result in std::numeric_limits<double>::quiet_NaN()), without the ability to trap
-        // its use.
-        //
-        // Using std::numeric_limits<double>::signaling_NaN() will allow us to trap the use of the variable,
-        // so we use std::numeric_limits<double>::signaling_NaN() here.  However, just assigning another
-        // variable a variable that has been set to std::numeric_limits<double>::signaling_NaN() will not
-        // trap - only the result of a calculation using the variable will trap.  Furthrmore, we will only
-        // signal these errors if the FPE error handling is enabled by `--fp-error-mode ON (or DEBUG)` - if
-        // the floating point error handling is not enabled, even the use of std::numeric_limits<double>::signaling_NaN()
-        // just results in otyher variables being silently set to std::numeric_limits<double>::signaling_NaN().
-        //
-        // So, even though we can trap the use of these variable, maybe setting them to NaN is not the best
-        // answer - can we (e.g.) set them negative and then test their value whenever they are used?
-        //
-        // The only places I can see that they used is t hat they are exposed for printing, and part of the default
-        // record for the BSE Supernovae file. (see also OrbitalVelocityPreSN() and UK() in header file)  **Ilya**
-
-        m_OrbitalVelocityPreSN = std::numeric_limits<double>::signaling_NaN();
-        m_uK                   = std::numeric_limits<double>::signaling_NaN();                                                  // dimensionless kick magnitude
+        m_OrbitalVelocityPreSN = 0.0;
     }
     else {                                                                                                                      // no, not unbound - evaluate orbital changes and calculate velocities
         // Evolve SN out of binary       
@@ -1324,7 +1299,6 @@ void BaseBinaryStar::ResolveSupernova() {
                                                     (G_km_Msol_s * totalMassPrev) - separationVectorPrev.hat;                   // Laplace-Runge-Lenz vector (magnitude = eccentricity)
 
         m_OrbitalVelocityPreSN = relativeVelocityVectorPrev.mag;                                                                // pre-SN orbital velocity (km/s) 
-        m_uK                   = m_Supernova->SN_KickMagnitude() / m_OrbitalVelocityPreSN;                                      // dimensionless kick magnitude
 
         // Note: In the following,
         // orbitalAngularMomentumVectorPrev defines the Z-axis, 
@@ -1842,7 +1816,7 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_D
         
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY            : gamma = OPTIONS->MassTransferJloss(); break;
 
-        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING: {                                                            // based on the assumption that a_ring ~= 2*a*, Vinciguerra+, 2020 
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING: {                                                            // based on the assumption that a_ring = 2*a, Vinciguerra+, 2020 
             double sumMasses = p_DonorMass + p_AccretorMass;
             gamma            = (M_SQRT2 * sumMasses * sumMasses) / (p_DonorMass * p_AccretorMass);
             } break;
@@ -2122,7 +2096,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 m_CEDetails.CEEnow = true;                                                                                      // flag CE
             }
             else {                                                                                                              // have required mass loss
-                if (utils::Compare(m_MassLossRateInRLOF,donorMassLossRateNuclear) == 0)                                         // if transferring mass on nuclear timescale, limit mass loss amount based to rate * timestep (thermal timescale MT always happens in one timestep)
+                if (utils::Compare(m_MassLossRateInRLOF,donorMassLossRateNuclear) == 0)                                         // if transferring mass on nuclear timescale, limit mass loss amount to rate * timestep (thermal timescale MT always happens in one timestep)
                     massDiffDonor = std::min(massDiffDonor, m_MassLossRateInRLOF * m_Dt);
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
                 m_Donor->UpdateMinimumCoreMass();                                                                               // reset the minimum core mass following case A
@@ -2215,7 +2189,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
 		    m_MassTransfer     = true;                                                                                          // ... mass transfer
             m_CEDetails.CEEnow = false;                                                                                         // no common envelope
 
-		    if (OPTIONS->CirculariseBinaryDuringMassTransfer()) {                                                               // circularise binary to the periapsis separation?
+		    if (OPTIONS->CirculariseBinaryDuringMassTransfer()) {                                                               // circularise binary
                 m_SemiMajorAxis *= OPTIONS->AngularMomentumConservationDuringCircularisation()                                  // yes - conserve angular momentum?
                                         ? (1.0 - (m_Eccentricity * m_Eccentricity))                                             // yes - conserve angular momentum
                                         : (1.0 - m_Eccentricity);                                                               // no - angular momentum not conserved, circularise at periapsis
@@ -2225,10 +2199,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
                 m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                           // re-initialise mass transfer for star1
                 m_Star2->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                           // re-initialise mass transfer for star2
                 
-			    // ALEJANDRO - 23/11/2016 - Bug fix for systems which enter MT being eccentric.
-			    // Previous values have to be the ones for periastron as later orbit is modified according to previous values.
-			    // If you don't do this, you end up modifying pre-MT pre-circularisation orbit
-			    // JR: todo: check that this is proper functionality, or just a kludge - if kludge, resolve it **Ilya**
+			    // Update previous timestep values to those of the circularised binary to serve as a baseline for future updates.
 			    m_SemiMajorAxisPrev = m_SemiMajorAxis;
 			    m_EccentricityPrev  = m_Eccentricity;
 		    }
@@ -2418,21 +2389,12 @@ void BaseBinaryStar::ResolveMassChanges() {
  */
 void BaseBinaryStar::ProcessTides(const double p_Dt) {
 
-    double m1, m2, r1, r2, MoI1, MoI2;
-
     if (!m_Unbound) {                                                                                                           // binary bound?
                                                                                                                                 // yes - process tides if enabled
         if (OPTIONS->TidesPrescription() != TIDES_PRESCRIPTION::NONE) {                                                         // tides enabled?
 
             // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
             if (utils::Compare(m_Omega, 0.0) == 0) m_Omega = OrbitalAngularVelocity();
-
-            m1   = m_Star1->Mass();                                                                                             // mass of primary
-            m2   = m_Star2->Mass();                                                                                             // mass of secondary
-            r1   = m_Star1->Radius();                                                                                           // radius of primary
-            r2   = m_Star2->Radius();                                                                                           // radius of secondary
-            MoI1 = m_Star1->CalculateMomentOfInertiaAU();                                                                       // moment of inertia of primary
-            MoI2 = m_Star2->CalculateMomentOfInertiaAU();                                                                       // moment of inertia of secondary
         }
 
         switch (OPTIONS->TidesPrescription()) {                                                                                 // which tides prescription?
@@ -2442,17 +2404,17 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
 
                 // Evolve binary semi-major axis, eccentricity, and spin of each star based on Kapil et al., 2024
 
-                DBL_DBL_DBL_DBL ImKlm1   = m_Star1->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m2);
-                DBL_DBL_DBL_DBL ImKlm2   = m_Star2->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m1);
+                DBL_DBL_DBL_DBL ImKlm1   = m_Star1->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star2->Mass());
+                DBL_DBL_DBL_DBL ImKlm2   = m_Star2->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star1->Mass());
 
-                double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(ImKlm1, m1, r1, m2);                                  // change in sem-major axis
-                double DSemiMajorAxis2Dt = CalculateDSemiMajorAxisTidalDt(ImKlm2, m2, r2, m1);                                  // change in sem-major axis
+                double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1);                                     // change in semi-major axis from star1
+                double DSemiMajorAxis2Dt = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2);                                     // change in semi-major axis from star2
 
-                double DEccentricity1Dt  = CalculateDEccentricityTidalDt(ImKlm1, m1, r1, m2);                                   // change in eccentricity
-                double DEccentricity2Dt  = CalculateDEccentricityTidalDt(ImKlm2, m2, r2, m1);                                   // change in eccentricity
+                double DEccentricity1Dt  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1);                                      // change in eccentricity from star1
+                double DEccentricity2Dt  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);                                      // change in eccentricity from star2
 
-                double DOmega1Dt         = CalculateDOmegaTidalDt(ImKlm1, r1, MoI1, m2);                                        // change in spin
-                double DOmega2Dt         = CalculateDOmegaTidalDt(ImKlm2, r2, MoI2, m1);                                        // change in spin
+                double DOmega1Dt         = CalculateDOmegaTidalDt(ImKlm1, m_Star1);                                             // change in spin from star1
+                double DOmega2Dt         = CalculateDOmegaTidalDt(ImKlm2, m_Star2);                                             // change in spin from star2
 
                 m_Star1->SetOmega(m_Star1->Omega() + (DOmega1Dt * p_Dt * MYR_TO_YEAR));                                         // evolve star 1 spin
                 m_Star2->SetOmega(m_Star2->Omega() + (DOmega2Dt * p_Dt * MYR_TO_YEAR));                                         // evolve star 2 spin
@@ -2469,14 +2431,14 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
                 // find omega assuming instantaneous synchronisation
                 // use current value of m_Omega as best guess for root
 
-                m_Omega = OmegaAfterSynchronisation(m1, m2, MoI1, MoI2, m_TotalAngularMomentum, m_Omega);
+                m_Omega = OmegaAfterSynchronisation(m_Star1->Mass(), m_Star2->Mass(), m_Star1->CalculateMomentOfInertiaAU(), m_Star2->CalculateMomentOfInertiaAU(), m_TotalAngularMomentum, m_Omega);
 
                 if (m_Omega >= 0.0) {                                                                                           // root found?
                                                                                                                                 // yes
                     m_Star1->SetOmega(m_Omega);                                                                                 // synchronise star 1
                     m_Star2->SetOmega(m_Omega);                                                                                 // synchronise star 2
 
-                    m_SemiMajorAxis        = std::cbrt(G_AU_Msol_yr * (m1 + m2) / m_Omega / m_Omega);                           // re-calculate semi-major axis
+                    m_SemiMajorAxis        = std::cbrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / m_Omega / m_Omega); // re-calculate semi-major axis
                     m_Eccentricity         = 0.0;                                                                               // circularise
                     m_TotalAngularMomentum = CalculateAngularMomentum();                                                        // re-calculate total angular momentum
                 }
@@ -2486,21 +2448,21 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
                     // place the constituent star closest to RLOF at RLOF and use that to
                     // calculate semi-major axis, then use that to calculate m_Omega
 
-                    double ratio1 = m_Star1->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m1);                                   // star 1 ratio of radius to Roche lobe radius
-                    double ratio2 = m_Star2->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m2);                                   // star 2 ratio of radius to Roche lobe radius
+                    double ratio1 = m_Star1->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Star1->Mass());                      // star 1 ratio of radius to Roche lobe radius
+                    double ratio2 = m_Star2->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Star2->Mass());                      // star 2 ratio of radius to Roche lobe radius
 
                     double radius;
                     double mass1;
                     double mass2;
                     if (ratio1 >= ratio2) {                                                                                     // star 1 closer to RLOF than star 2 (or same)?
-                        radius = r1;                                                                                            // yes - use star 1 to calculate semi-major axis at RLOF
-                        mass1  = m1;
-                        mass2  = m2;
+                        radius = m_Star1->Radius();                                                                             // yes - use star 1 to calculate semi-major axis at RLOF
+                        mass1  = m_Star1->Mass();
+                        mass2  = m_Star2->Mass();
                     }
                     else {                                                                                                      // no - star 2 closer to RLOF than star 1
-                        radius = r2;                                                                                            // use star 2 to calculate semi-major axis at RLOF
-                        mass1  = m2;
-                        mass2  = m1;
+                        radius = m_Star2->Radius();                                                                             // use star 2 to calculate semi-major axis at RLOF
+                        mass1  = m_Star2->Mass();
+                        mass2  = m_Star1->Mass();
                     }
             
                     m_Eccentricity  = 0.0;                                                                                      // assume circular
@@ -2844,8 +2806,6 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                         dt = std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);                  // quantised
                     }
 
-                    /*ILYA*/
-                    //if ((m_Star1->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) || m_Star2->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) || dt < NUCLEAR_MINIMUM_TIMESTEP) {
                     if (dt < NUCLEAR_MINIMUM_TIMESTEP) {
                         dt = NUCLEAR_MINIMUM_TIMESTEP;                                                                                  // but not less than minimum
 		            }
@@ -2861,23 +2821,12 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
         (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::FINAL_STATE);                                                         // print (log) detailed output: this is the final state of the binary
 
-        // if we trapped a floating-point error we set the star's error value to indicate a
+        // if we trapped a floating-point error we set the binary's error value to indicate a
         // floating-point error occurred, but we don't terminate evolution (we can only have
         // floating-point errors trapped here if the user has not activated the floating-point
         // error instrumentation.  i.e --fp-error-mode OFF)
-
-        // **Ilya** - what's your pleasure?
-        // if we leave the following check in, almost all binaries will have error = floating_point_error
-        // in the BSE_SYSTEM_PARAMETERS log file, but their evolution status will not indicate an error
-        // (i.e. we did not terminate the evolution of the binary prematurely - we let it run to completion).
-        // This should be interpreted as the binary completed, but the error (floating_point_error) is
-        // informative only.  Note that this will only happen for floating-point-errors - all other errors
-        // will terminate the evolution of the binary.
-        // This is different from the catch for "FPE" below - in that case the user has set --fp-error-mode ON,
-        // so we terminate the binary if a floating-point error is encountered.
-        //
-        // If we take the following check out, then binaries that only had floating-point errors and ran to
-        // completion will have error = 0
+        // Set the error here so that users know that a floating-point error occurred, even though
+        // the evolution of the binary was not terminated bacause an error occurred.
 
         if (std::fetestexcept(FE_DIVBYZERO) ||
             std::fetestexcept(FE_INVALID)   ||
