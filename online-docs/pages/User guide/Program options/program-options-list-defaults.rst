@@ -762,7 +762,7 @@ Luminous blue variable mass loss prescription. |br|
 Options: { NONE, ZERO, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
 ``NONE``       : No LBV winds |br|
 ``ZERO``       : No LBV winds |br|
-``HURLEY``     : Hurley, Pols, Tout (2000) |br|
+``HURLEY``     : Hurley, Pols, Tout (2000) LBV winds only for LBV stars |br|
 ``HURLEY_ADD`` : ``HURLEY`` in addition to other winds |br|
 ``BELCZYNSKI`` : Belzcynski et al. 2010 |br|
 Default = HURLEY_ADD |br|
@@ -1188,7 +1188,7 @@ Default = ZERO
 **--RSG-mass-loss** |br|
 Red supergiant mass loss prescription. |br|
 Options: { NONE, ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
-NONE/ZERO turns off mass loss for giant stars (stellar types CHeB, FGB, AGB, TPAGB) below the ``RSG_MAXIMUM_TEMP``. |br|
+NONE/ZERO turns off mass loss for giant stars (stellar types CHeB, FGB, EAGB, TPAGB) below the ``RSG_MAXIMUM_TEMP``. |br|
 Default = DECIN2023 |br|
 DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--RSG-mass-loss-prescription`` in future. |br|
 DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
@@ -1196,7 +1196,7 @@ DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated an
 **--RSG-mass-loss-prescription** |br|
 Red supergiant mass loss prescription. |br|
 Options: { NONE, ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
-NONE/ZERO turns off mass loss for giant stars (stellar types CHeB, FGB, AGB, TPAGB) below the ``RSG_MAXIMUM_TEMP``. |br|
+NONE/ZERO turns off mass loss for giant stars (stellar types CHeB, FGB, EAGB, TPAGB) below the ``RSG_MAXIMUM_TEMP``. |br|
 Default = DECIN2023 |br|
 DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 

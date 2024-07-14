@@ -124,8 +124,6 @@ public:
         m_OrbitalEnergyPrev                = p_Star.m_OrbitalEnergyPrev;
         m_OrbitalEnergy                    = p_Star.m_OrbitalEnergy;
 
-        m_uK                               = p_Star.m_uK;
-
         m_ZetaLobe                         = p_Star.m_ZetaLobe;
         m_ZetaStar                         = p_Star.m_ZetaStar;
 
@@ -255,7 +253,6 @@ public:
     double              TimeToCoalescence() const                   { return m_TimeToCoalescence; }
     double              TotalAngularMomentum() const                { return m_TotalAngularMomentum; }
     double              TotalEnergy() const                         { return m_TotalEnergy; }
-    double              UK() const                                  { return m_uK; }
     double              ZetaLobe() const                    	    { return m_ZetaLobe; }
     double              ZetaStar() const                            { return m_ZetaStar; }
 
@@ -387,8 +384,6 @@ private:
 	double              m_OrbitalEnergyPrev;
 	double              m_OrbitalEnergy;
 
-    double              m_uK;
-
     double              m_ZetaLobe;
     double              m_ZetaStar;
 
@@ -419,9 +414,9 @@ private:
 
     void    CalculateEnergyAndAngularMomentum();
 
-    double  CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Mass, const double p_Radius, const double p_Mass2);
-    double  CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Radius, const double p_MoI, const double p_Mass2);
-    double  CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const double p_Mass, const double p_Radius, const double p_Mass2);
+    double  CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star);
+    double  CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star);
+    double  CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star);
     
     static double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate);
     double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) { return CalculateGammaAngularMomentumLoss_Static(p_DonorMass, p_AccretorMass, m_Accretor->IsDegenerate()); }
