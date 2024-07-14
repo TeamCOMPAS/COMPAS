@@ -90,22 +90,6 @@ Binary Properties
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **DIMENSIONLESS_KICK_MAGNITUDE**
-     -
-   * - Data type:
-     - DOUBLE
-   * - COMPAS variable:
-     - BaseBinaryStar::m_uK
-   * - Description:
-     - Dimensionless kick magnitude supplied by user (see option --fix-dimensionless-kick-magnitude).
-   * - Header String:
-     - Kick_Magnitude(uK)
-
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
    * - :cspan:`2` **DOUBLE_CORE_COMMON_ENVELOPE**
      -
    * - Data type:
@@ -551,6 +535,7 @@ Binary Properties
      - BaseBinaryStar::m_OrbitalVelocityPreSN
    * - Description:
      - Orbital velocity immediately prior to supernova event (\ :math:`km s^{-1}`).
+       Will be 0.0 for unbound binaries.
    * - Header String:
      - Orbital_Velocity<SN
 
