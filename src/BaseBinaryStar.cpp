@@ -2826,7 +2826,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
         // floating-point errors trapped here if the user has not activated the floating-point
         // error instrumentation.  i.e --fp-error-mode OFF)
         // Set the error here so that users know that a floating-point error occurred, even though
-        // the evolution of the binary was not terminated bacause an error occurred.
+        // the evolution of the binary was not terminated because an error occurred.
 
         if (std::fetestexcept(FE_DIVBYZERO) ||
             std::fetestexcept(FE_INVALID)   ||
