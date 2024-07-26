@@ -168,7 +168,7 @@ constexpr double DEGREE                                 = M_PI / 180.0;         
 
 constexpr double GAMMA_E                                = 0.57721566490153286;                                      // Euler's Constant
 
-constexpr double H0                                     = 67.8;                                                     // Hubble's Constant in km s^-1 Mpc^-1  (from plank approx 67.80±0.77) CPLB: Use WMAP value
+constexpr double H0                                     = 67.8;                                                     // Hubble's Constant in km s^-1 Mpc^-1  (from Planck approx 67.80±0.77) CPLB: Use WMAP value
 constexpr double H0SI                                   = H0 * 1000.0 / 3.0E22;                                     // Hubble's Constant in SI units, s^-1
 constexpr double HUBBLE_TIME                            = 1 / H0SI;                                                 // Hubble time in s
 
