@@ -174,6 +174,8 @@ that ere eventually terminated due to an error - the error value is only set whe
 log files may already have been written prior to the error being identified and evolution terminated.
 
 
+.. _developer-guide-fp-errors:
+
 Floating-point errors in C++
 ----------------------------
 
