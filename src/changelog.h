@@ -1230,7 +1230,15 @@
 // 03.00.00    JR - June 24, 2024    - Enhancements, defect repairs, deprecations, code cleanup:
 //                                         1. implementation of more coherent and robust error handling
 //                                         2. added source files (all are .h file, so the makefile does not need to change)
-//                                         3. (this will be controversial) deprecation of some program options, and some program option values
+//                                            The added source files are mostly the result of separating out sections of the constants.h file.
+//                                            I believe it had become too unwieldy, and sectioning it out seemed to be the reasonable thing to do.
+//                                            I broke constants.h into 5 separate files:
+//                                               a. constants.h    - pretty-much just contains constants now
+//                                               b. typedefs.h     - an existing file, but I moved the enum class declarations and associated label maps, except those that pertain directly to logging, from constants.h to typedefs.h
+//                                               c. LogTypedefs.h  - new file containing logging-related type definitions, including things like definitions of the default record composition for the various log files
+//                                               d. ErrorCatalog.h - new file containing the COMPAS error catalog - this where symbolic names for errors are defined, and contains the mapping from symbolic name to error string
+//                                               e. EnumHash.h     - contains the hash function for enum class types
+//                                         3. deprecation of some program options, and some program option values
 //                                         4. fixed what I believe was a defect in `utils::SolveKeplersEquation()` that was causing erroneous "out-of-bounds" warnings for the eccentric anomaly
 //                                         5. added debug functionality to show stack trace and halt the program - see the discussion and implementation of the SIGUSR2 signal handler in `main.cpp`.
 //                                         6. removed BaseBinaryStar class variable m_UK and associated printing functionality - this is trivial to compute in post-processing
