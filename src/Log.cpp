@@ -602,7 +602,7 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
                 // program options datasets
 
                 try {
-                    for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                                    // for eav program option
+                    for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                                    // for each program option
 
                         h5DatasetName = m_OptionDetails[idx].optionStr;                                                                 // dataset name
                         string strValue = m_OptionDetails[idx].valueStr;                                                                // value formatted as string
@@ -639,7 +639,7 @@ void Log::Stop(std::tuple<int, int> p_ObjectStats) {
                                 ok = false;                                                                                             // fail
                             }
                             else {                                                                                                      // write succeeded
-                            // Derivation
+                                // Derivation
                                 dSetIdx += 1;                                                                                           // incremement dataset
                                 m_Run_Details_H5_File.dataSets[dSetIdx].buf.push_back(m_OptionDetails[idx].sourceStr);                  // add write data to buffer
                                 if (!WriteHDF5_(m_Run_Details_H5_File, RUN_DETAILS_FILE_NAME, dSetIdx)) {                               // write to file ok?
