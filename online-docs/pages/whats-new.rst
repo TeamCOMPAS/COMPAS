@@ -9,7 +9,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 **03.00.00 Jul 26, 2024**
 
 This is a major release of COMPAS. There are some significant changes in COMPAS operation and functionality in this release. The major change, and the impetus for
-the release, is the implemntation of a new, coherent, robust, error handling strategy.
+the release, is the implementation of a new, coherent, robust, error handling strategy.
 
 Early versions of COMPAS (versions prior to v03.00.00) did not have a coherent, robust, error-handling strategy. In those versions, errors were typically displayed
 as either errors or warnings (depending on the severity) as they occurred, and evolution of the star (SSE mode) or binary (BSE mode) continued - users were expected
