@@ -1679,7 +1679,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     }
     else if ( (m_Star1->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) ||
               (m_Star2->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) ) {       // check if we have a non-MS radiative-envelope star
-        if (!OPTIONS->AllowRadiativeEnvelopeStarToSurviveCommonEnvelope()) {                                            // stellar merger
+        if (!OPTIONS->AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() && OPTIONS->CommonEnvelopeFormalism()!=CE_FORMALISM::TWO_STAGE) {                                            // stellar merger
             m_CEDetails.optimisticCE = true;
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
             m_Flags.stellarMerger        = true;
@@ -1759,7 +1759,7 @@ void BaseBinaryStar::ResolveMainSequenceMerger() {
     double phi = 0.3 * q / (1.0 + q) / (1.0 + q);                                               // fraction of mass lost in merger, Wang+ 2022, https://www.nature.com/articles/s41550-021-01597-5
 	
     double finalMass               = (1.0 - phi) * (mass1 + mass2);
-    double initialHydrogenFraction = 1.0 - YSOL - m_Star1->Metallicity();                       // assume helium fraction independent of metallicity
+    double initialHydrogenFraction = 1.0 - MESAZAMSHeliumFractionByMetallicity(m_Star1->Metallicity()) - m_Star1->Metallicity();
     double finalHydrogenMass       = finalMass * initialHydrogenFraction - tau1 * TAMSCoreMass1 * initialHydrogenFraction - tau2 * TAMSCoreMass2 * initialHydrogenFraction;
     
     m_Star1->UpdateAfterMerger(finalMass, finalHydrogenMass);

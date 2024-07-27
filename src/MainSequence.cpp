@@ -832,7 +832,7 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass)
     
     double TAMSCoreMass = 0.3 * m_Mass;                                                                         // /*ILYA*/ temporary solution, should use TAMS core mass
     
-    double initialHydrogenFraction = 1.0 - YSOL - m_Metallicity;                                                // assume helium fraction independent of metallicity
+    double initialHydrogenFraction = 1.0 - MESAZAMSHeliumFractionByMetallicity(m_Metallicity) - m_Metallicity;
     
     m_Tau = (m_Mass * initialHydrogenFraction - p_HydrogenMass) / TAMSCoreMass / initialHydrogenFraction;       // p_HydrogenMass = m_Mass * initialHydrogenFraction - m_Tau * TAMSCoreMass * initialHydrogenFraction; assumes uniform rate of H fusion on main sequence
     
