@@ -1205,30 +1205,47 @@
 //                                      - albeit with fixed AM loss (isotropic re-emission).
 // 02.49.01    IM - May 25, 2024     - Defect repair:
 //                                      - AIC now happens only when the mass of an ONeWD exceeds MCS, the Chandrasekhar mass, which requires accretion onto the WD (see Issue # #1138)
-// 02.49.02    VK - June 11, 2024     - Defect repairs:
+// 02.49.02    VK - June 11, 2024    - Defect repairs:
 //                                      - Fixed the sign of IW dissipation in dynamical tides to follow (2,2) mode synchronization.
 //                                      - Changed the definitions of beta and gamma in dynamical tides to be consistent with tri-layered stellar structures as well as bi-layered.
 //                                      - Fixed the definition of epsilon in IW dynamical tides to follow Ogilvie (2013) Eq. (42)
-// 02.49.03    VK - June 13, 2024     - Code cleanup:
+// 02.49.03    VK - June 13, 2024    - Code cleanup:
 //                                      - Removed confusing definition of `one_minus_beta` in Dynamical tides code.
-// 02.49.04    IM - June 19, 2024     - Defect repair, enhancement:
+// 02.49.04    IM - June 19, 2024    - Defect repair, enhancement:
 //                                      - Corrected check for nuclear timescale (slow case A) mass transfer
 //                                      - Reduced MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP to 0.0001 to improve accuracy of orbital separation updates following mass transfer
 //                                      - Corrected temperature units in Picker formula for Tonset used in the calculation of the convective envelope mass
 //                                      - Code cleanup
-// 02.49.05    IM - June 22, 2024     - Enhancement:
+// 02.49.05    IM - June 22, 2024    - Enhancement:
 //                                      - Replaced fixed-step, first-order integrator for orbital change after mass transfer with an adaptive-step, higher-order ODE integrator for improved speed and accuracy
-// 02.49.06    JDM - July 01, 2024    - Defect repairs:
+// 02.49.06    JDM - July 01, 2024   - Defect repairs:
 //                                      - Changed the VERY_MASSIVE_MINIMUM_MASS threshold to use m_Mass (current), rather than m_ZAMS.                                      
 //                                      - Lowered VINK_MASS_LOSS_MINIMUM_TEMP from 12.5 to 8kK, to eliminate the short interval during CHeB when WR winds were active between the RSG and OB temperature ranges, at low Z.
-// 02.50.00    IM - July 03, 2024     - Enhancement:
+// 02.50.00    IM - July 03, 2024    - Enhancement:
 //                                      - Change TPAGB::IsSupernova() so that stars with base of AGB core masses below MCBUR1 remain on the TPAGB until they make WDs; remove ResolveTypeIIaSN() functionality.
 //                                      - Add --evolve-main-sequence-mergers option which allows for main sequence merger products to continue evolution
 //                                      - Update HG::CalculateRadialExtentConvectiveEnvelope() to use a combination of Hurley & Picker to avoid excessively high convective envelope densities
-// 02.50.01    JR - July 04, 2024     - Defect repair:
+// 02.50.01    JR - July 04, 2024    - Defect repair:
 //                                      - Fix for issue #1160: added prefix "PO_" to all program option header strings to differentiate from stellar/binary properties.
+// 03.00.00    JR - June 24, 2024    - Enhancements, defect repairs, deprecations, code cleanup:
+//                                         1. implementation of more coherent and robust error handling
+//                                         2. added source files (all are .h file, so the makefile does not need to change)
+//                                            The added source files are mostly the result of separating out sections of the constants.h file.
+//                                            I believe it had become too unwieldy, and sectioning it out seemed to be the reasonable thing to do.
+//                                            I broke constants.h into 5 separate files:
+//                                               a. constants.h    - pretty-much just contains constants now
+//                                               b. typedefs.h     - an existing file, but I moved the enum class declarations and associated label maps, except those that pertain directly to logging, from constants.h to typedefs.h
+//                                               c. LogTypedefs.h  - new file containing logging-related type definitions, including things like definitions of the default record composition for the various log files
+//                                               d. ErrorCatalog.h - new file containing the COMPAS error catalog - this where symbolic names for errors are defined, and contains the mapping from symbolic name to error string
+//                                               e. EnumHash.h     - contains the hash function for enum class types
+//                                         3. deprecation of some program options, and some program option values
+//                                         4. fixed what I believe was a defect in `utils::SolveKeplersEquation()` that was causing erroneous "out-of-bounds" warnings for the eccentric anomaly
+//                                         5. added debug functionality to show stack trace and halt the program - see the discussion and implementation of the SIGUSR2 signal handler in `main.cpp`.
+//                                         6. removed BaseBinaryStar class variable m_UK and associated printing functionality - this is trivial to compute in post-processing
+//                                         7. corrected the Hurley remnant mass prescription CalculateRemnantMass_Static() to handle black hole formation
+//                                         8. code cleanup (including removal of unused BE Binaries code)
 
-const std::string VERSION_STRING = "02.50.01";
+const std::string VERSION_STRING = "03.00.00";
 
 
 # endif // __changelog_h__

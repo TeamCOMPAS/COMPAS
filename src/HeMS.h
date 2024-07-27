@@ -19,6 +19,8 @@ class HeMS: virtual public BaseStar, public TPAGB {
 
 public:
 
+    HeMS() { m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS; };
+    
     HeMS(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), TPAGB(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                                                                                                                                         // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                                             // Initialise if required
@@ -48,6 +50,8 @@ public:
     static DBL_DBL  CalculateRadiusAtPhaseEnd_Static(const double p_Mass, const double p_Luminosity);
     static double   CalculateRadiusAtZAMS_Static(const double p_Mass);
     static double   CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Tau);
+
+    MT_CASE         DetermineMassTransferTypeAsDonor() const                                                        { return MT_CASE::OTHER; }                                                      // Not A, B, C, or NONE
 
 
 protected:
@@ -97,7 +101,7 @@ protected:
             double          CalculateMassLossRateFlexible2023();
             double          CalculateMassLossRateWolfRayetShenar2019() const;
             
-            double          CalculateMassTransferRejuvenationFactor() const;
+            double          CalculateMassTransferRejuvenationFactor();
 
             double          CalculateMomentOfInertia() const                                                        { return MainSequence::CalculateMomentOfInertia(); }
 

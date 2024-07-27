@@ -716,7 +716,6 @@ void MainSequence::EvolveOneTimestepPreamble() {
 /*
  * Choose timestep for evolution
  *
- * Can obviously do this your own way
  * Given in the discussion in Hurley et al. 2000
  *
  *

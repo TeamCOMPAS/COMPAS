@@ -120,7 +120,25 @@ Following is an alphabetical list of program option properties available for inc
    * - COMPAS variable:
      - Options::m_BlackHoleKicks
    * - Description:
-     - Value of program option ``--black-hole-kicks``
+     - Value of program option ``--black-hole-kicks`` |br|
+   * - Header String:
+     - PO_BH_Kicks
+
+DEPRECATION NOTICE: property ``BLACK_HOLE_KICKS`` has been deprecated and will soon be removed. Please use ``BLACK_HOLE_KICKS_MODE`` in future.
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **BLACK_HOLE_KICKS_MODE**
+     -
+   * - Data type:
+     - INT
+   * - COMPAS variable:
+     - Options::m_BlackHoleKicks
+   * - Description:
+     - Value of program option ``--black-hole-kicks-mode`` |br|
    * - Header String:
      - PO_BH_Kicks
 
@@ -605,7 +623,7 @@ Following is an alphabetical list of program option properties available for inc
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **KICK_DIRECTION_DISTRIBUTION**
+   * - :cspan:`2` **KICK_DIRECTION**
      -
    * - Data type:
      - INT
@@ -613,6 +631,24 @@ Following is an alphabetical list of program option properties available for inc
      - Options::m_KickDirectionDistribution
    * - Description:
      - Value of program option ``--kick-direction``
+   * - Header String:
+     - PO_Kick_Direction_Dstrbtn
+
+DEPRECATION NOTICE: property ``KICK_DIRECTION`` has been deprecated and will soon be removed. Please use ``KICK_DIRECTION_DISTRIBUTION`` in future.
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **KICK_DIRECTION_DISTRIBUTION**
+     -
+   * - Data type:
+     - INT
+   * - COMPAS variable:
+     - Options::m_KickDirectionDistribution
+   * - Description:
+     - Value of program option ``--kick-direction-distribution``
    * - Header String:
      - PO_Kick_Direction_Dstrbtn
 
@@ -971,6 +1007,26 @@ Following is an alphabetical list of program option properties available for inc
      - Value of program option ``--luminous-blue-variable-prescription``
    * - Header String:
      - PO_LBV_Mass_Loss_Prscrptn
+
+DEPRECATION NOTICE: property ``LBV_PRESCRIPTION`` has been deprecated and will soon be removed. Please use ``LBV_MASS_LOSS_PRESCRIPTION`` in future.
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **LBV_MASS_LOSS_PRESCRIPTION**
+     -
+   * - Data type:
+     - INT
+   * - COMPAS variable:
+     - Options::m_LuminousBlueVariablePrescription
+   * - Description:
+     - Value of program option ``--LBV-mass-loss-prescription``
+   * - Header String:
+     - PO_LBV_Mass_Loss_Prscrptn
+
+:ref:`Back to Top <spec-options-props-top>`
 
 .. _spec-options-props-M:
 

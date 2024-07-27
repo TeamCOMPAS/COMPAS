@@ -5,35 +5,29 @@
 
 #include "constants.h"
 #include "typedefs.h"
+#include "ErrorCatalog.h"
+
 
 namespace utils {
 
-
-    // object identifiers - all classes have these (adding here (no class) for error handling)
-    inline OBJECT_ID          ObjectId()          { return static_cast<int>(OBJECT_TYPE::UTILS); }  // object id for utils - ordinal value from enum
-    inline OBJECT_TYPE        ObjectType()        { return OBJECT_TYPE::UTILS; }                    // object type for utils - always "UTILS"
-    inline OBJECT_PERSISTENCE ObjectPersistence() { return OBJECT_PERSISTENCE::PERMANENT; }         // object persistence for utils - always "PERMANENT"
-    inline STELLAR_TYPE       StellarType()       { return STELLAR_TYPE::NONE; }                    // stellar type for utils - always "NONE"
-
-
     // namespace functions - alphabetical (sort of)
 
-    std::vector<int>                    binarySearch(const std::vector<double> p_Arr, const double p_x);
+    INT_VECTOR  BinarySearch(const std::vector<double> p_Arr, const double p_x);
 
-    double                              CalculateCDFKroupa(const double p_Mass, const double p_Max, const double p_Min);
+    double      CalculateCDFKroupa(const double p_Mass, const double p_Max, const double p_Min);
 
-    std::string                         CentreJustify(const std::string p_Str, std::size_t p_Width);
+    std::string CentreJustify(const std::string p_Str, std::size_t p_Width);
 
-    int                                 Compare(const double p_X, const double p_Y, const double p_Tolerance = -1.0, const bool p_Absolute = true);
+    int         Compare(const double p_X, const double p_Y, const double p_Tolerance = -1.0, const bool p_Absolute = true);
 
-    double                              ConvertPeriodInDaysToSemiMajorAxisInAU(const double p_Mass1, const double p_Mass2, const double p_Period);
+    double      ConvertPeriodInDaysToSemiMajorAxisInAU(const double p_Mass1, const double p_Mass2, const double p_Period);
 
-    DBL_DBL                             DrawKickDirection(const KICK_DIRECTION_DISTRIBUTION p_KickDirectionDistribution, const double p_KickDirectionPower);
+    DBL_DBL     DrawKickDirection(const KICK_DIRECTION_DISTRIBUTION p_KickDirectionDistribution, const double p_KickDirectionPower);
     
-    bool                                Equals(std::string p_Str1, std::string p_Str2);
+    bool        Equals(std::string p_Str1, std::string p_Str2);
 
-    bool                                FileExists(const std::string& p_Filename);
-    bool                                FileExists(const char *p_Filename);
+    bool        FileExists(const std::string& p_Filename);
+    bool        FileExists(const char *p_Filename);
 
     /*
      * Generic function to find an element in a vector
@@ -124,7 +118,7 @@ namespace utils {
     double                              SampleMassRatio(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min);
     double                              SampleMetallicity(const METALLICITY_DISTRIBUTION p_Zdist, const double p_Max, const double p_Min);
     double                              SampleOrbitalPeriod(const ORBITAL_PERIOD_DISTRIBUTION p_Pdist, const double p_PdistMax, const double p_PdistMin);
-    double                              SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
+    std::tuple<ERROR, double>           SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
                                                             const double                       p_AdistMax, 
                                                             const double                       p_AdistMin, 
                                                             const double                       p_AdistPower, 
@@ -148,6 +142,8 @@ namespace utils {
     std::tuple<ERROR, std::string, STR_VECTOR> CreateDirectories(const std::string p_Path);
     std::tuple<ERROR, std::string, STR_VECTOR> RemoveDirectories(const STR_VECTOR p_Paths);
 
+    STR_VECTOR                          GetStackTrace();
+    void                                ShowStackTrace();
 }
 
 #endif // __utils_h__

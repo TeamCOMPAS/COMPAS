@@ -21,6 +21,8 @@ class HG: virtual public BaseStar, public GiantBranch {
 
 public:
 
+    HG() { m_StellarType = STELLAR_TYPE::HERTZSPRUNG_GAP; };
+    
     HG(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), GiantBranch(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::HERTZSPRUNG_GAP;                                                                                                                          // Set stellar type 
         if (p_Initialise) Initialise();                                                                                                                                         // Initialise if required
@@ -38,30 +40,32 @@ public:
         return clone; 
     }
 
+    MT_CASE DetermineMassTransferTypeAsDonor() const { return MT_CASE::B; }                                                                                                     // Always case B
+
 
 protected:
 
     void Initialise() {
 
         m_Tau = 0.0;                                                                                                                                                            // Start of phase
-        CalculateTimescales();                                                                                                                                                  // Initialise timescales
-        m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];                                                                                                                 // Set age appropriately
-        
+
         // update stellar properties at start of HG phase (since core definition changes)
         CalculateGBParams();
-        
+        CalculateTimescales();
+                                                                                                                                                                                // Initialise timescales
+        m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];                                                                                                                 // Set age appropriately
+
         // update effective "initial" mass (m_Mass0) so that the core mass is at least equal to the minimum core mass but no more than total mass
         // (only relevant if RetainCoreMassDuringCaseAMassTransfer()) 
         if (utils::Compare(CalculateCoreMassOnPhase(m_Mass0, m_Age), std::min(m_Mass, MinimumCoreMass())) < 0) {
             double desiredCoreMass = std::min(m_Mass, MinimumCoreMass());                                                                                                       // desired core mass
             m_Mass0 = Mass0ToMatchDesiredCoreMass(this, desiredCoreMass);                                                                                                       // use root finder to find new core mass estimate
             if (m_Mass0 <= 0.0) {                                                                                                                                               // no root found - no solution for estimated core mass
-                // if no root found we keep m_Mass0 equal to the total mass
-                m_Mass0 = m_Mass;
+                m_Mass0 = m_Mass;                                                                                                                                               // if no root found we keep m_Mass0 equal to the total mass
             }
+            CalculateGBParams();
             CalculateTimescales();
             m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
-            CalculateGBParams();
         }
         m_CoreMass   = CalculateCoreMassOnPhase();
         m_COCoreMass = CalculateCOCoreMassOnPhase();
@@ -91,14 +95,14 @@ protected:
     
     double          CalculateLambdaDewi() const;
     double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
-    double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const;
+    double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const;
 
     double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;
     double          CalculateLuminosityAtPhaseEnd() const                           { return CalculateLuminosityAtPhaseEnd(m_Mass0);}                                           // Use class member variables
     double          CalculateLuminosityOnPhase(const double p_Age, const double p_Mass) const;
     double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Age, m_Mass0); }                                      // Use class member variables
 
-    double          CalculateMassTransferRejuvenationFactor() const;
+    double          CalculateMassTransferRejuvenationFactor()			    { return 1.0; }
 
     double          CalculateRadialExtentConvectiveEnvelope() const {
         double envMass, envMassMax;
@@ -136,7 +140,7 @@ protected:
     void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass) { }                                                                                                 // Nothing to do for stars beyond the Main Sequence for now
     void            UpdateAgeAfterMassLoss();                                                                                                                                   // Per Hurley et al. 2000, section 7.1
 
-    void            UpdateInitialMass();                                                   // Per Hurley et al. 2000, section 7.1
+    void            UpdateInitialMass();                                                                                                                                        // Per Hurley et al. 2000, section 7.1
 
        
     /*
@@ -170,9 +174,9 @@ protected:
             // To ensure the clone does not participate in logging, we set its persistence to EPHEMERAL.
 
             HG *clone = m_Star->Clone(OBJECT_PERSISTENCE::EPHEMERAL, false);
-            clone->UpdateAttributesAndAgeOneTimestep(0.0, p_GuessMass0 - clone->Mass0(), 0.0, true);    // update clone's mass and age it one timestep 
-            double coreMassEstimate = clone->CalculateCoreMassOnPhase(p_GuessMass0, clone->Age());      // calculate clone's core mass
-            delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+            clone->UpdateAttributesAndAgeOneTimestep(0.0, p_GuessMass0 - clone->Mass0(), 0.0, true);        // update clone's mass and age it one timestep 
+            double coreMassEstimate = clone->CalculateCoreMassOnPhase(p_GuessMass0, clone->Age());          // calculate clone's core mass
+            delete clone; clone = nullptr;                                                                  // return the memory allocated for the clone
 
             return (coreMassEstimate - m_DesiredCoreMass);
         }
@@ -196,8 +200,8 @@ protected:
      */
     double Mass0ToMatchDesiredCoreMass(HG *p_Star, double p_DesiredCoreMass) {
 
-        const boost::uintmax_t maxit = ADAPTIVE_MASS0_MAX_ITERATIONS;                                       // Limit to maximum iterations.
-        boost::uintmax_t it          = maxit;                                                               // Initially our chosen max iterations, but updated with actual.
+        const boost::uintmax_t maxit = ADAPTIVE_MASS0_MAX_ITERATIONS;                                       // limit to maximum iterations.
+        boost::uintmax_t it          = maxit;                                                               // initially our chosen max iterations, but updated with actual.
 
         // find root
         // we use an iterative algorithm to find the root here:
@@ -209,7 +213,7 @@ protected:
         //       - if we reach the maximum number of search step reduction iterations, or the search step factor reduces to 1.0 (so search step size = 0.0),
         //         we stop and return a negative value for the root (indicating no root found)
 
-        double guess      = p_Star->Mass();                                                                 // Rough guess at solution
+        double guess      = p_Star->Mass();                                                                 // rough guess at solution
         
         double factorFrac = ADAPTIVE_MASS0_SEARCH_FACTOR_FRAC;                                              // search step size factor fractional part
         double factor     = 1.0 + factorFrac;                                                               // factor to determine search step size (size = guess * factor)
@@ -219,6 +223,7 @@ protected:
         bool done         = false;                                                                          // finished (found root or exceed maximum tries)?
         Mass0YieldsDesiredCoreMassFunctor<double> func = Mass0YieldsDesiredCoreMassFunctor<double>(p_Star, p_DesiredCoreMass);
         while (!done) {                                                                                     // while no acceptable root found
+        
             bool isRising = func((const double)guess) >= func((const double)guess * factor) ? false : true; // gradient direction from guess to upper search increment
 
             // run the root finder
@@ -262,7 +267,7 @@ protected:
             }
         }
         
-        return root.first + (root.second - root.first) / 2.0;                                               // Midway between brackets is our result, if necessary we could return the result as an interval here.
+        return root.first + (root.second - root.first) / 2.0;                                               // midway between brackets is our result, if necessary we could return the result as an interval here.
     }
 };
 

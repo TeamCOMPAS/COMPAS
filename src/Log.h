@@ -17,6 +17,8 @@
 #include "hdf5.h"
 
 #include "typedefs.h"
+#include "ErrorCatalog.h"
+#include "LogTypedefs.h"
 #include "profiling.h"
 #include "utils.h"
 
@@ -397,8 +399,8 @@ public:
     string operator()(const SN_EVENT               v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_STATE               v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const EVOLUTION_STATUS       v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const std::vector<string>    v, const string fmtStr) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v[0].c_str()); }
-    string operator()(const std::vector<string>    v, const string fmtStr, const size_t idx) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v[idx].c_str()); }
+    string operator()(const STR_VECTOR             v, const string fmtStr) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v[0].c_str()); }
+    string operator()(const STR_VECTOR             v, const string fmtStr, const size_t idx) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v[idx].c_str()); }
 };
 
 
@@ -439,8 +441,8 @@ public:
     string operator()(const SN_EVENT               v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_STATE               v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const EVOLUTION_STATUS       v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const std::vector<string>    v) const { string fmt = "%-30s"; return utils::vFormat(fmt.c_str(), v[0].c_str()); }
-    string operator()(const std::vector<string>    v, const size_t idx) const { string fmt ="%-30s"; return utils::vFormat(fmt.c_str(), v[idx].c_str()); }
+    string operator()(const STR_VECTOR             v) const { string fmt = "%-30s"; return utils::vFormat(fmt.c_str(), v[0].c_str()); }
+    string operator()(const STR_VECTOR             v, const size_t idx) const { string fmt ="%-30s"; return utils::vFormat(fmt.c_str(), v[idx].c_str()); }
 };
 
 
@@ -527,11 +529,11 @@ private:
         size_t  IOBufSize;                                                          //    - IO buffer size
 
         struct h5DataSetsT {                                                        // attributes of HDF5 datasets
-            hid_t                             dataSetId;                            //    - HDF5 dataset id
-            hid_t                             h5DataType;                           //    - HDF5 datatype
-            TYPENAME                          dataType;                             //    - COMPAS data type
-            STRING_QUALIFIER                  stringType;                           //    - Qualifier for string datatype - fixed or variable length
-            std::vector<COMPAS_VARIABLE_TYPE> buf;                                  //    - write buffer - for chunking
+            hid_t                  dataSetId;                                       //    - HDF5 dataset id
+            hid_t                  h5DataType;                                      //    - HDF5 datatype
+            TYPENAME               dataType;                                        //    - COMPAS data type
+            STRING_QUALIFIER       stringType;                                      //    - Qualifier for string datatype - fixed or variable length
+            COMPAS_VARIABLE_VECTOR buf;                                             //    - write buffer - for chunking
         };
 
         std::vector<h5DataSetsT> dataSets;                                          // details of datasets
@@ -558,7 +560,6 @@ private:
 
     // logfile record specifications
     // BSE
-    ANY_PROPERTY_VECTOR m_BSE_BE_Binaries_Rec = BSE_BE_BINARIES_REC;                // default specification
     ANY_PROPERTY_VECTOR m_BSE_CEE_Rec         = BSE_COMMON_ENVELOPES_REC;           // default specification
     ANY_PROPERTY_VECTOR m_BSE_DCO_Rec         = BSE_DOUBLE_COMPACT_OBJECTS_REC;     // default specification
     ANY_PROPERTY_VECTOR m_BSE_Detailed_Rec    = BSE_DETAILED_OUTPUT_REC;            // default specification
@@ -589,21 +590,20 @@ private:
     // has the right defaults when processing any log definitions file.
 
     // BSE
-    std::vector<bool> m_BSE_BE_Binaries_Notes = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);
-    std::vector<bool> m_BSE_CEE_Notes         = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);
-    std::vector<bool> m_BSE_DCO_Notes         = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);
-    std::vector<bool> m_BSE_Detailed_Notes    = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);
-    std::vector<bool> m_BSE_Pulsars_Notes     = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);
-    std::vector<bool> m_BSE_RLOF_Notes        = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);
-    std::vector<bool> m_BSE_SNE_Notes         = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);
-    std::vector<bool> m_BSE_Switch_Notes      = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);
-    std::vector<bool> m_BSE_SysParms_Notes    = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_CEE_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_DCO_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_Detailed_Notes    = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_Pulsars_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_RLOF_Notes        = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_SNE_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_Switch_Notes      = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_SysParms_Notes    = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
 
     // SSE
-    std::vector<bool> m_SSE_Detailed_Notes    = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);
-    std::vector<bool> m_SSE_SNE_Notes         = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);
-    std::vector<bool> m_SSE_Switch_Notes      = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);
-    std::vector<bool> m_SSE_SysParms_Notes    = std::vector<bool>(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_SSE_Detailed_Notes    = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_SSE_SNE_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_SSE_Switch_Notes      = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_SSE_SysParms_Notes    = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
 
 
     // the following block of variables support the BSE Switch Log file
@@ -625,12 +625,12 @@ private:
     // (I don't think we need it, it would probably soak up too much memory if over-used, and it might just cause confusion)
 
     struct delayedWriteDetailsT {                                                   // attributes of delayed writes
-        LOGRECORDTYPE                     logRecordType;                            // log record type
-        string                            logRecordString;                          // log record to be written to log file in delayed write
-        std::vector<COMPAS_VARIABLE_TYPE> logRecordValues;                          // log record property values be written to log file in delayed write
-        ANY_PROPERTY_VECTOR               logRecordProperties;                      // logfile record properties
-        std::vector<string>               logRecordFmtVector;                       // logfile format vector
-        std::vector<bool>                 logFileAnnotations;                       // logfile annotations vector
+        LOGRECORDTYPE          logRecordType;                                       // log record type
+        string                 logRecordString;                                     // log record to be written to log file in delayed write
+        COMPAS_VARIABLE_VECTOR logRecordValues;                                     // log record property values be written to log file in delayed write
+        ANY_PROPERTY_VECTOR    logRecordProperties;                                 // logfile record properties
+        STR_VECTOR             logRecordFmtVector;                                  // logfile format vector
+        BOOL_VECTOR            logFileAnnotations;                                  // logfile annotations vector
     };
 
     delayedWriteDetailsT m_SSESupernovae_DelayedWrite;                              // SSE_Supernovae delayed write details    
@@ -652,7 +652,7 @@ private:
         if (IsValidId(p_LogfileId)) {
             m_Logfiles[p_LogfileId].active          = false;                        // not active
             m_Logfiles[p_LogfileId].logfiletype     = LOGFILE::NONE;
-            m_Logfiles[p_LogfileId].filetype        = LOGFILETYPE::NONE;
+            m_Logfiles[p_LogfileId].filetype        = OPTIONS->LogfileType();
             m_Logfiles[p_LogfileId].name            = "";
             m_Logfiles[p_LogfileId].timestamp       = false;
             m_Logfiles[p_LogfileId].label           = false;
@@ -662,14 +662,14 @@ private:
         }
     }
 
-    bool DoIt(const string p_Class, const int p_Level, const std::vector<string> p_EnabledClasses, const int p_EnabledLevel);
+    bool DoIt(const string p_Class, const int p_Level, const STR_VECTOR p_EnabledClasses, const int p_EnabledLevel);
     void Say_(const string p_SayStr);
     bool Write_(const int p_LogfileId, const string p_LogStr);
-    bool Write_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const bool p_Flush = false);
+    bool Write_(const int p_LogfileId, const COMPAS_VARIABLE_VECTOR p_LogRecordValues, const bool p_Flush = false);
     bool WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t p_DataSetIdx);
     bool Flush_(const int p_LogfileId) { return Write_(p_LogfileId, {}, true); }
     bool Put_(const int p_LogfileId, const string p_LogStr, const string p_Label = "");
-    bool Put_(const int p_LogfileId, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues);
+    bool Put_(const int p_LogfileId, const COMPAS_VARIABLE_VECTOR p_LogRecordValues);
     bool Debug_(const string p_DbgStr);
     bool Close_(const int p_LogfileId);
 
@@ -707,15 +707,15 @@ private:
      * 
      *
      * template <class T1, typename T2>
-     * std::tuple<std::string, std::vector<COMPAS_VARIABLE_TYPE>> GetLogStandardRecord(const LOGFILE             p_LogFile,
-     *                                                                                 const LOGRECORDTYPE       p_RecordType,
-     *                                                                                 const T1* const           p_Star,
-     *                                                                                 const ANY_PROPERTY_VECTOR p_RecordProperties,
-     *                                                                                 const std::vector<string> p_FmtVector,
-     *                                                                                 const std::vector<bool>   p_Annotations,
-     *                                                                                 const bool                p_UseSpecifiedValue,
-     *                                                                                 const ANY_STAR_PROPERTY   p_SpecifiedProperty,
-     *                                                                                 const T2                  p_SpecifiedPropertyValue)
+     * std::tuple<std::string, COMPAS_VARIABLE_VECTOR> GetLogStandardRecord(const LOGFILE             p_LogFile,
+     *                                                                      const LOGRECORDTYPE       p_RecordType,
+     *                                                                      const T1* const           p_Star,
+     *                                                                      const ANY_PROPERTY_VECTOR p_RecordProperties,
+     *                                                                      const STR_VECTOR          p_FmtVector,
+     *                                                                      const BOOL_VECTOR         p_Annotations,
+     *                                                                      const bool                p_UseSpecifiedValue,
+     *                                                                      const ANY_STAR_PROPERTY   p_SpecifiedProperty,
+     *                                                                      const T2                  p_SpecifiedPropertyValue)
      *
      * @param   [IN]    p_LogFile                   The logfile for which the record should be constructed
      * @param   [IN]    p_RecordType                The logfile record type
@@ -733,15 +733,15 @@ private:
      *                                                  - Vector of property values - empty vector if an error occurred
      */
     template <class T1, typename T2>
-    std::tuple<std::string, std::vector<COMPAS_VARIABLE_TYPE>> GetLogStandardRecord(const LOGFILE             p_LogFile,
-                                                                                    const LOGRECORDTYPE       p_RecordType,
-                                                                                    const T1* const           p_Star,
-                                                                                    const ANY_PROPERTY_VECTOR p_RecordProperties,
-                                                                                    const std::vector<string> p_FmtVector,
-                                                                                    const std::vector<bool>   p_Annotations,
-                                                                                    const bool                p_UseSpecifiedValue,
-                                                                                    const ANY_STAR_PROPERTY   p_SpecifiedProperty,
-                                                                                    const T2                  p_SpecifiedPropertyValue) {
+    std::tuple<std::string, COMPAS_VARIABLE_VECTOR> GetLogStandardRecord(const LOGFILE             p_LogFile,
+                                                                         const LOGRECORDTYPE       p_RecordType,
+                                                                         const T1* const           p_Star,
+                                                                         const ANY_PROPERTY_VECTOR p_RecordProperties,
+                                                                         const STR_VECTOR          p_FmtVector,
+                                                                         const BOOL_VECTOR         p_Annotations,
+                                                                         const bool                p_UseSpecifiedValue,
+                                                                         const ANY_STAR_PROPERTY   p_SpecifiedProperty,
+                                                                         const T2                  p_SpecifiedPropertyValue) {
 
         bool ok = true;                                                                                                         // initially
 
@@ -750,7 +750,7 @@ private:
         // construct log record from current data
 
         string logRecord = "";                                                                                                  // for CSV, TSV, TXT files: the record to be written to the log file
-        std::vector<COMPAS_VARIABLE_TYPE> logRecordValues = {};                                                                 // for HDF5 files: vector of values to be written
+        COMPAS_VARIABLE_VECTOR logRecordValues = {};                                                                            // for HDF5 files: vector of values to be written
                                                              
         // set delimiter based on logfile type
         string delimiter = "";                                                                                                  // default
@@ -765,8 +765,8 @@ private:
         // get values
         //    - format for printing for CSV, TSV and TXT files
         //    - record for HDF5 files
-        COMPAS_VARIABLE_TYPE value;                                                                                             // property value
-        string               valueStr;                                                                                          // string for formatted value
+        COMPAS_VARIABLE value;                                                                                                  // property value
+        string          valueStr;                                                                                               // string for formatted value
 
         int index = 0;
         for (auto &property : p_RecordProperties) {                                                                             // for each property to be included in the log record
@@ -833,7 +833,7 @@ private:
                     }
                 }
                 else {                                                                                                          // use current value
-                    std::tie(ok, value) = p_Star->PropertyValue(property);                                                      // get property flag and value
+                    value = p_Star->PropertyValue(property);                                                                    // get property value
                     if (ok) {                                                                                                   // have valid property value
                         if (hdf5) {                                                                                             // yes - HDF5 file?
                             logRecordValues.push_back(value);                                                                   // yes - add value to vector of values
@@ -939,12 +939,12 @@ private:
      * 
      */
     template <class T>
-    std::tuple<string, std::vector<COMPAS_VARIABLE_TYPE>> GetLogStandardRecord(const LOGFILE             p_LogFile,
-                                                                               const LOGRECORDTYPE       p_RecordType,
-                                                                               const T* const            p_Star,
-                                                                               const ANY_PROPERTY_VECTOR p_RecordProperties,
-                                                                               const std::vector<string> p_FmtVector,
-                                                                               const std::vector<bool>   p_Annotations) {
+    std::tuple<string, COMPAS_VARIABLE_VECTOR> GetLogStandardRecord(const LOGFILE             p_LogFile,
+                                                                    const LOGRECORDTYPE       p_RecordType,
+                                                                    const T* const            p_Star,
+                                                                    const ANY_PROPERTY_VECTOR p_RecordProperties,
+                                                                    const STR_VECTOR          p_FmtVector,
+                                                                    const BOOL_VECTOR         p_Annotations) {
 
         return GetLogStandardRecord(p_LogFile, 
                                     p_RecordType,
@@ -1010,7 +1010,7 @@ private:
             if (((1 << (p_RecordType - 1)) & fileDetails.recordTypes) > 0) {                                                // yes - record type enabled?
                                                                                                                             // yes - proceed
                 string logRecordString;                                                                                     // for CSV, TSV, TXT files: the record to be written to the log file
-                std::vector<COMPAS_VARIABLE_TYPE> logRecordValues;                                                          // for HDF5 files: vector of values to be written
+                COMPAS_VARIABLE_VECTOR logRecordValues;                                                                     // for HDF5 files: vector of values to be written
 
                 // construct the record - gets both string and vector of values
                 std::tie(logRecordString, logRecordValues) = GetLogStandardRecord(p_LogFile, p_RecordType, p_Star, fileDetails.recordProperties, fileDetails.fmtStrings, fileDetails.annotations);
@@ -1075,13 +1075,13 @@ private:
      * @param   [IN]    p_LogRecordValues           The previously constructed string to be written to the file
      */
     template <class T>
-    bool LogStandardRecord(const string                            p_LogClass,
-                           const int                               p_LogLevel,
-                           const LOGFILE                           p_LogFile,
-                           const LOGRECORDTYPE                     p_RecordType,
-                           const T* const                          p_Star,
-                           const string                            p_FileSuffix,
-                           const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues) {
+    bool LogStandardRecord(const string                 p_LogClass,
+                           const int                    p_LogLevel,
+                           const LOGFILE                p_LogFile,
+                           const LOGRECORDTYPE          p_RecordType,
+                           const T* const               p_Star,
+                           const string                 p_FileSuffix,
+                           const COMPAS_VARIABLE_VECTOR p_LogRecordValues) {
 
         bool ok = true;                                                                                                     // initially
 
@@ -1111,8 +1111,8 @@ private:
                                   bool                      p_UseDefaultProps,
                                   const ANY_PROPERTY_VECTOR p_AddProps,
                                   const ANY_PROPERTY_VECTOR p_SubtractProps,
-                                  const std::vector<bool>   p_AddNotes,
-                                  const std::vector<bool>   p_SubtractNotes);
+                                  const BOOL_VECTOR         p_AddNotes,
+                                  const BOOL_VECTOR         p_SubtractNotes);
 
     bool UpdateAllLogfileRecordSpecs();
 
@@ -1129,16 +1129,16 @@ public:
 
 
     // member functions
-    void   Start(const string              p_LogBasePath,
-                 const string              p_LogContainerName,
-                 const string              p_LogNamePrefix,
-                 const int                 p_LogLevel,
-                 const std::vector<string> p_LogClasses,
-                 const int                 p_DbgLevel,
-                 const std::vector<string> p_DbgClasses,
-                 const bool                p_DbgToFile,
-                 const bool                p_ErrorsToFile,
-                 const LOGFILETYPE         p_LogfileType);
+    void   Start(const string      p_LogBasePath,
+                 const string      p_LogContainerName,
+                 const string      p_LogNamePrefix,
+                 const int         p_LogLevel,
+                 const STR_VECTOR  p_LogClasses,
+                 const int         p_DbgLevel,
+                 const STR_VECTOR  p_DbgClasses,
+                 const bool        p_DbgToFile,
+                 const bool        p_ErrorsToFile,
+                 const LOGFILETYPE p_LogfileType);
 
     void   Stop(std::tuple<int, int> p_ObjectStats = std::make_tuple(0, 0));
 
@@ -1148,10 +1148,10 @@ public:
     bool   Close(const int p_LogfileId);
 
     bool   Write(const int p_LogfileId, const string p_LogClass, const int p_LogLevel, const string p_LogStr);
-    bool   Write(const int p_LogfileId, const string p_LogClass, const int p_LogLevel, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues, const bool p_Flush = false);
+    bool   Write(const int p_LogfileId, const string p_LogClass, const int p_LogLevel, const COMPAS_VARIABLE_VECTOR p_LogRecordValues, const bool p_Flush = false);
     
     bool   Put(const int p_LogfileId, const string p_LogClass, const int p_LogLevel, const string p_LogStr);
-    bool   Put(const int p_LogfileId, const string p_LogClass, const int p_LogLevel, const std::vector<COMPAS_VARIABLE_TYPE> p_LogRecordValues);
+    bool   Put(const int p_LogfileId, const string p_LogClass, const int p_LogLevel, const COMPAS_VARIABLE_VECTOR p_LogRecordValues);
 
     bool   Debug(const string p_DbgClass, const int p_DbgLevel, const string p_DbgStr);
     bool   DebugWait(const string p_DbgClass, const int p_DbgLevel, const string p_DbgStr);
@@ -1185,11 +1185,7 @@ public:
     bool CloseStandardFile(const LOGFILE p_LogFile, const bool p_Erase = true);
     bool CloseAllStandardFiles();
 
-    std::tuple<ANY_PROPERTY_VECTOR, std::vector<string>, std::vector<bool>> GetStandardLogFileRecordDetails(const LOGFILE p_Logfile);
-
-    template <class T>
-    bool LogBeBinary(const T* const p_Binary,
-                     const BE_BINARY_RECORD_TYPE p_RecordType)                      { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_BE_BINARIES)), 0, LOGFILE::BSE_BE_BINARIES, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
+    std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> GetStandardLogFileRecordDetails(const LOGFILE p_Logfile);
 
     template <class T>
     bool LogBSEDetailedOutput(const T* const p_Binary, 
