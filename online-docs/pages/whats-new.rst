@@ -49,8 +49,7 @@ the period of deprecation if deprecated program options are used.
 As well as deprecating some program options, some program option values have been deprecated and replaced by new values that are more consistent with the
 naming convention we are trying to maintain. The program option value deprecated, and their replacements, are:
 
-1. `--critical-mass-ratio-prescription`   , value `NONE` replaced by `ZERO`
-#. `--LBV-mass-loss-prescription`         , value `NONE` replaced by `ZERO`
+1. `--LBV-mass-loss-prescription`         , value `NONE` replaced by `ZERO`
 #. `--luminous-blue-variable-prescription`, value `NONE` replaced by `ZERO`
 #. `--OB-mass-loss`                       , value `NONE` replaced by `ZERO`
 #. `--OB-mass-loss-prescription`          , value `NONE` replaced by `ZERO`

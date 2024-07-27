@@ -442,7 +442,7 @@ void Options::OptionValues::Initialise() {
     // Mass transfer critical mass ratios - defined here as (accretor mass / donor mass)
     // A value of 0.0 means the mass transfer will always be stable 
 
-    m_QCritPrescription.type                                        = QCRIT_PRESCRIPTION::ZERO;                             // Assume no critical mass ratio prescription
+    m_QCritPrescription.type                                        = QCRIT_PRESCRIPTION::NONE;                             // Assume no critical mass ratio prescription
     m_QCritPrescription.typeString                                  = QCRIT_PRESCRIPTION_LABEL.at(m_QCritPrescription.type);
 
     m_MassTransferCriticalMassRatioMSLowMassNonDegenerateAccretor   = 1.44;                                                 // Claeys+ 2014 = 1.44
@@ -1661,7 +1661,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "critical-mass-ratio-prescription",                                 
             po::value<std::string>(&p_Options->m_QCritPrescription.typeString)->default_value(p_Options->m_QCritPrescription.typeString),
-            ("Prescription for which critical mass ratio prescription to use, if any (Ge models are only defined for isotropic re-emission) (" + AllowedOptionValuesFormatted("critical-mass-ratio-prescription") + ", default = '" + p_Options->m_QCritPrescription.typeString + "')").c_str()
+            ("Prescription for which critical mass ratio threshold to use, if any (Ge models are only defined for conservative mass transfer) (" + AllowedOptionValuesFormatted("critical-mass-ratio-prescription") + ", default = '" + p_Options->m_QCritPrescription.typeString + "')").c_str()
         )
         
         (
@@ -4922,7 +4922,6 @@ void Options::ShowDeprecations(const bool p_Commandline) {
     };
 
     static std::vector<std::tuple<std::string, std::string, std::string, bool>> values = {
-        { "critical-mass-ratio-prescription",    "NONE", "ZERO", false },
         { "LBV-mass-loss-prescription",          "NONE", "ZERO", false },
         { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
         { "OB-mass-loss",                        "NONE", "ZERO", false },

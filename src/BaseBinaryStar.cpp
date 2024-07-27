@@ -2061,7 +2061,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         isUnstable = true;
         if (!m_Donor->IsOneOf(GIANTS)) m_Flags.stellarMerger = true;
     }
-    else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::ZERO) {                                                        // determine stability based on critical mass ratios
+    else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::NONE) {                                                        // determine stability based on critical mass ratios
         // NOTE: Critical mass ratio is defined as mAccretor/mDonor
         double qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate(), m_FractionAccreted);
         isUnstable   = utils::Compare((m_Accretor->Mass() / m_Donor->Mass()), qCrit) < 0;

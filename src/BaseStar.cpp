@@ -1382,11 +1382,6 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, c
 
         switch (OPTIONS->QCritPrescription()) {
 
-            case QCRIT_PRESCRIPTION::NONE:    // DEPRECATED June 2024 - remove end 2024 
-            case QCRIT_PRESCRIPTION::ZERO:
-                qCrit = 0.0;
-                break;
-
             case QCRIT_PRESCRIPTION::GE20: 
             case QCRIT_PRESCRIPTION::GE20_IC:
                 qCrit = CalculateCriticalMassRatioGe20(OPTIONS->QCritPrescription(), p_massTransferEfficiencyBeta);   
