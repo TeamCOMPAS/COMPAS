@@ -587,7 +587,7 @@ protected:
             double              CalculateMassLossRateHeliumStarVink2017() const;
     virtual double              CalculateMassLossRateWolfRayetShenar2019() const;
 
-    virtual double              CalculateMassTransferRejuvenationFactor();
+    virtual double              CalculateMassTransferRejuvenationFactor()                                               { return 1.0; }
 
             double              CalculateMaximumCoreMass(double p_Mass) const;
 

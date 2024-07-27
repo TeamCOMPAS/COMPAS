@@ -842,8 +842,8 @@ Default = 0.5
 
 **--mass-transfer-rejuvenation-prescription** |br|
 Mass Transfer Rejuvenation prescription. |br|
-Options: { NONE, STARTRACK } |br|
-``NONE`` uses the Hurley, Pols, Tout (2000) model. |br|
+Options: { HURLEY, STARTRACK } |br|
+``HURLEY`` uses the Hurley, Pols, Tout (2000) model. |br|
 ``STARTRACK`` uses the model from Belczynski et al. 2008 |br|
 Default = STARTRACK
 

@@ -88,7 +88,7 @@ protected:
             double          CalculateLuminosityOnPhase() const;
             double          CalculateLuminosityAtPhaseEnd() const                                                   { return m_Luminosity; }                                                // NO-OP
 
-            double          CalculateMassTransferRejuvenationFactor();
+            double          CalculateMassTransferRejuvenationFactor()                                               { return 1.0; }
 
             double          CalculateMomentOfInertia() const                                                        { return GiantBranch::CalculateMomentOfInertia(); }
 

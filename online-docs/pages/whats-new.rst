@@ -64,6 +64,8 @@ Deprecated program option values will still be available, in tandem with their r
 after which time the deprecated option values will be removed and only their replacements will be valid option values. Appropriate warning messages will be displayed
 in the period of deprecation if deprecated program option values are used.
 
+Finally, for program option `--mt-rejuvenation-prescription`, the value `NONE` was replaced by `HURLEY`
+
 
 **02.48.01 May 24, 2024**
 

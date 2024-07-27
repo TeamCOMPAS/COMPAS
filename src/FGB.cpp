@@ -132,7 +132,7 @@ double FGB::CalculateTauOnPhase() const {
 double FGB::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 
-    double dtk = utils::Compare(p_Time, timescales(tMx_FGB)) <= 0       // ah because timescales[4,5,6] are not calculated yet   JR: todo: ?but... timescales[4] is used if this is true...? (and 5 if not)  **Ilya** was this your comment or mine?
+    double dtk = utils::Compare(p_Time, timescales(tMx_FGB)) <= 0       // ah because timescales[4,5,6] are not calculated yet   JR: todo: ?but... timescales[4] is used if this is true...? (and 5 if not) 
             ? 0.02 * (timescales(tinf1_FGB) - p_Time)
             : 0.02 * (timescales(tinf2_FGB) - p_Time);
 

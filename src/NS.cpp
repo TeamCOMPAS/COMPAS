@@ -171,19 +171,13 @@ double NS::CalculateBirthSpinPeriod() {
 
         case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL: {                                                   // NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
 
-            // Values hard-coded for now, can make them options if necessary
-            // pulsarBirthSpinPeriodDistributionFaucherGiguereKaspi2006Mean = 300.0;
-            // pulsarBirthSpinPeriodDistributionFaucherGiguereKaspi2006Std = 150.0;
-
-            // JR: will they ever change?  Aren't they from the paper?  Why options? **Ilya**
-
             double mean  = 300.0;
             double sigma = 150.0;
 
             // this should terminate naturally, but just in case we add a guard
             std::size_t iterations = 0;
             do { pSpin = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_SPIN_ITERATIONS && utils::Compare(pSpin, 0.0) < 0);
-            if (iterations >= PULSAR_SPIN_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_SPIN_ITERATIONS);      // **Ilya** throw error, or show warning and accept pSpin?
+            if (iterations >= PULSAR_SPIN_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_SPIN_ITERATIONS);
 
             } break;
 
@@ -248,12 +242,6 @@ double NS::CalculateBirthMagneticField() {
             } break;
 
         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL: {                                             // LOG NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
-
-            // Values hard-coded for now, can make them options if necessary
-            // pulsarBirthMagneticFieldDistributionFaucherGiguereKaspi2006Mean = 12.65
-            // pulsarBirthMagneticFieldDistributionFaucherGiguereKaspi2006Std = 0.55
-
-            // JR: will they ever change?  Aren't they from the paper?  Why options? **Ilya**
 
             double mean  = 12.65;
             double sigma = 0.55;

@@ -515,12 +515,12 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
         // Set the error here so that users know that a floating-point error occurred, even though
         // the evolution of the star was not terminated because an error occurred.
 
-        if (std::fetestexcept(FE_DIVBYZERO) ||
-            std::fetestexcept(FE_INVALID)   ||
-            std::fetestexcept(FE_OVERFLOW)  ||
-            std::fetestexcept(FE_UNDERFLOW)) m_Star->SetError(ERROR::FLOATING_POINT_ERROR);                     // floating-point error
+        if (fetestexcept(FE_DIVBYZERO) ||
+            fetestexcept(FE_INVALID)   ||
+            fetestexcept(FE_OVERFLOW)  ||
+            fetestexcept(FE_UNDERFLOW)) m_Star->SetError(ERROR::FLOATING_POINT_ERROR);                     // floating-point error
 
-        std::feclearexcept(FE_ALL_EXCEPT);                                                                      // clear all FE traps
+        feclearexcept(FE_ALL_EXCEPT);                                                                      // clear all FE traps
     }
     catch (const std::runtime_error& e) {                                                                       // catch runtime exceptions
         // anything we catch here should not already have been displayed to the user,

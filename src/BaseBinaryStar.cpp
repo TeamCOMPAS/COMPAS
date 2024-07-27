@@ -128,10 +128,10 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
                 if (OPTIONS->OptionSpecified("semi-major-axis-distribution") ||                                                         // user specified semi-major axis distribution, or
                    !OPTIONS->OptionSpecified("orbital-period-distribution" )) {                                                         // user did not specify oprbital period distribution
                     ERROR error;
-                    std::tie(error, m_SemiMajorAxis) = utils::SampleSemiMajorAxis(OPTIONS->SemiMajorAxisDistribution(),                 // yes, sample from semi-major axis distribution (might be default)                          
+                    std::tie(error, m_SemiMajorAxis) = utils::SampleSemiMajorAxis(OPTIONS->SemiMajorAxisDistribution(),                 // yes, sample from semi-major axis distribution (might be default), assumes Opik's law (-1.0 exponent)
                                                                                   OPTIONS->SemiMajorAxisDistributionMax(), 
                                                                                   OPTIONS->SemiMajorAxisDistributionMin(),
-                                                                                  OPTIONS->SemiMajorAxisDistributionPower(), 
+                                                                                  OPIKS_LAW_SEMIMAJOR_AXIS_DISTRIBUTION_POWER,
                                                                                   OPTIONS->OrbitalPeriodDistributionMax(), 
                                                                                   OPTIONS->OrbitalPeriodDistributionMin(), 
                                                                                   mass1, 
@@ -2828,12 +2828,12 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
         // Set the error here so that users know that a floating-point error occurred, even though
         // the evolution of the binary was not terminated because an error occurred.
 
-        if (std::fetestexcept(FE_DIVBYZERO) ||
-            std::fetestexcept(FE_INVALID)   ||
-            std::fetestexcept(FE_OVERFLOW)  ||
-            std::fetestexcept(FE_UNDERFLOW)) m_Error = ERROR::FLOATING_POINT_ERROR;                                                     // floating-point error
+        if (fetestexcept(FE_DIVBYZERO) ||
+            fetestexcept(FE_INVALID)   ||
+            fetestexcept(FE_OVERFLOW)  ||
+            fetestexcept(FE_UNDERFLOW)) m_Error = ERROR::FLOATING_POINT_ERROR;                                                     // floating-point error
 
-            std::feclearexcept(FE_ALL_EXCEPT);                                                                                          // clear all FE traps
+            feclearexcept(FE_ALL_EXCEPT);                                                                                          // clear all FE traps
             
     }
     catch (const std::runtime_error& e) {                                                                                               // catch runtime exceptions

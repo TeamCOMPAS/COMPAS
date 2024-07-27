@@ -890,7 +890,6 @@ enum class PROGRAM_OPTION: int {
     SEMI_MAJOR_AXIS_DISTRIBUTION,
     SEMI_MAJOR_AXIS_DISTRIBUTION_MAX,
     SEMI_MAJOR_AXIS_DISTRIBUTION_MIN,
-    SEMI_MAJOR_AXIS_DISTRIBUTION_POWER,
 
     STELLAR_ZETA_PRESCRIPTION,
 
@@ -1110,7 +1109,6 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION,                     "SEMI_MAJOR_AXIS_DISTRIBUTION" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX,                 "SEMI_MAJOR_AXIS_DISTRIBUTION_MAX" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MIN,                 "SEMI_MAJOR_AXIS_DISTRIBUTION_MIN" },
-    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER,               "SEMI_MAJOR_AXIS_DISTRIBUTION_POWER" },
 
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                        "STELLAR_ZETA_PRESCRIPTION" },
 
@@ -1640,7 +1638,6 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION,                             { TYPENAME::INT,        "PO_Semi-Major_Axis_Dstrbtn",                "-",          4, 1 }},
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX,                         { TYPENAME::DOUBLE,     "PO_Semi-Major_Axis_Dstrbtn_Max",            "AU",        24, 15}},
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MIN,                         { TYPENAME::DOUBLE,     "PO_Semi-Major_Axis_Dstrbtn_Min",            "AU",        24, 15}},
-    { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER,                       { TYPENAME::DOUBLE,     "PO_Semi-Major_Axis_Dstrbtn_Power",          "-",         24, 15}},
 
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                                { TYPENAME::INT,        "PO_Stellar_Zeta_Prscrptn",                  "-",          4, 1 }},
 

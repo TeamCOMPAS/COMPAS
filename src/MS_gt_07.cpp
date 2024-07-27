@@ -38,7 +38,7 @@ double MS_gt_07::CalculateMassTransferRejuvenationFactor() {
 
     switch (OPTIONS->MassTransferRejuvenationPrescription()) {                                  // which prescription?
 
-        case MT_REJUVENATION_PRESCRIPTION::NONE:                                                // NONE: use default Hurley et al. 2000 prescription = 1.0
+        case MT_REJUVENATION_PRESCRIPTION::HURLEY:                                              // use default Hurley et al. 2000 prescription = 1.0
             break;
 
         case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                                           // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf

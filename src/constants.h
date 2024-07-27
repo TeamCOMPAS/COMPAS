@@ -212,6 +212,7 @@ constexpr double MASSIVE_THRESHOLD                      = 8.0;                  
 constexpr double HIGH_MASS_THRESHOLD                    = 12.0;                                                     // Mass (in solar masses) above which Hurley considers stars to be high mass stars
 constexpr double VMS_MASS_THRESHOLD                     = 100.0;                                                    // Minimum mass for applying Very Massive (VMS) mass loss rates to be applied
 
+constexpr double FRYER_PROTO_CORE_MASS_RAPID            = 1.0;                                                      // Proto neutron star core mass in the Fryer+ 2012 rapid prescription (Eq. 15)
 constexpr double MCH                                    = 1.44;                                                     // Chandrasekhar mass
 constexpr double MECS                                   = 1.38;                                                     // Mass of Neutron-Star (NS) formed in electron capture supernova (ECS). From Belczysnki+2008, before eq. 3.
 constexpr double MECS_REM                               = 1.26;                                                     // Gravitational mass of Neutron-Star (NS) formed in electron capture supernova (ECS). From Belczysnki+2008, eq. 3
@@ -340,6 +341,8 @@ constexpr double KROUPA_BREAK_1_POWER_1_2               = 0.08;                 
 constexpr double KROUPA_BREAK_2_PLUS1_2                 = 1.23114441334491628;                                      // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_2);
 constexpr double KROUPA_BREAK_2_PLUS1_3                 = 2.46228882668983257;                                      // pow(KROUPA_BREAK_2, KROUPA_POWER_PLUS1_3);
 constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                                                      // pow(KROUPA_BREAK_2, (KROUPA_POWER_2 - KROUPA_POWER_3));
+
+constexpr double OPIKS_LAW_SEMIMAJOR_AXIS_DISTRIBUTION_POWER =  -1.0;
 
 // Constants for the Muller and Mandel remnant mass and kick prescriptions
 constexpr double MULLERMANDEL_M1                        = 2.0;	

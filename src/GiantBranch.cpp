@@ -1190,30 +1190,25 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
     double logRemnantMass;
 
     ST_VECTOR mtHist                    = MassTransferDonorHistory();                                                   // mass transfer history vector
-    MT_CASE   schneiderMassTransferCase = MT_CASE::OTHER;
+    MT_CASE   massTransferCase = MT_CASE::OTHER;
 
     // determine MT history - this will tell us which Schneider MT case prescription should be used
     if (mtHist.size() == 0) {                                                                                           // no history of MT - effectively single star
-        schneiderMassTransferCase = MT_CASE::NONE;
+        massTransferCase = MT_CASE::NONE;
     }
     else {                                                                                                              // star was MT donor at least once
         // determine MT_CASE of most recent MT event
-        // JR: I have defined a new function for all stellar types: DetermineMassTransferTypeAsDonor()
-        //     that returns the mass transfer case - is this Schneider-specific?  i.e. should I have
-        //     called the new function DetermineSchneiderMassTransferTypeAsDonor()?  If so, it should
-        //     be changed before we merge this.  If not, we should change the variable name from
-        //     "schneiderMassTransferCase" to "massTransferCase".
-        // **Ilya**
         STELLAR_TYPE mostRecentDonorType = mtHist[mtHist.size() - 1];                                                   // stellar type at most recent MT event (as donor)
         BaseStar* newStar                = stellarUtils::NewStar(mostRecentDonorType);                                  // create new (empty) star of correct stellar type
-        schneiderMassTransferCase        = newStar->DetermineMassTransferTypeAsDonor();                                 // get MT type as donor
+        massTransferCase        = newStar->DetermineMassTransferTypeAsDonor();                                          // get MT type as donor
         delete newStar; newStar = nullptr;                                                                              // return the memory allocated for the new star
     }
 
     // apply the appropriate remnant mass prescription for the chosen MT case
-    switch (schneiderMassTransferCase) {                                                                                // which MT_CASE?
+    switch (massTransferCase) {                                                                                         // which MT_CASE?
 
         case MT_CASE::NONE:                                                                                             // no history of MT
+        case MT_CASE::OTHER:                                                                                            // if MT happens from naked He stars, WDs, etc., assume that the core properties are not affected
             if (!p_UseSchneiderAlt) {                                                                                   // use standard or alternative remnant mass prescription for effectively single stars?
                      // standard prescription
                      if (utils::Compare(p_COCoreMass, 6.357)  < 0) { logRemnantMass = log10(0.03357 * p_COCoreMass + 1.31780); }
@@ -1252,17 +1247,6 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
             else if (utils::Compare(p_COCoreMass, 7.311)  < 0) { logRemnantMass = 0.05264 * p_COCoreMass + 0.58531; }
             else if (utils::Compare(p_COCoreMass, 14.008) < 0) { logRemnantMass = log10(0.03781 * p_COCoreMass + 1.36363); }
             else                                               { logRemnantMass = 0.01795 * p_COCoreMass + 0.98797; }
-            break;
-
-        // JR: The way this code is (and was) written, the naked helium stars, white dwarfs, NS, BH, and MR
-        //     all result in MT_CASE::OTHER.  Why should the error be ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION?
-        //     What are we really trying to flag here?  Did Schneider not tell us what to do for those stars?
-        //     Should we not be here for those stars?  Why are we defaulting here instead of throwing an error?
-        // **Ilya**
-        case MT_CASE::OTHER:                                                                                            // in this context, not NONE, A, B, or C; possibly ultra-stripped
-            SHOW_WARN(ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION, "Using default, remnant mass = 1.25");                // show warning 
-
-            logRemnantMass = 0.096910013008056;                                                                         // gives remnant mass = 1.25  
             break;
 
         default:                                                                                                        // unknown MT_CASE
@@ -1326,7 +1310,7 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
                   (utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) < 0 || utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
                 remnantMass = MULLERMANDEL_MUBH * p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
 		    }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // **Ilya** throw error, or show warning and accept remnantMass?
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);
 	    }
     }
     else {                                              // this is an NS
@@ -1337,7 +1321,7 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
                    utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
 			    remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
 		    }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // **Ilya** ditto above
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);
 	    }
 	    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
             while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
@@ -1346,7 +1330,7 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
                    utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
                 remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
             }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // **Ilya** ditto above
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);
         }
         else {
             while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
@@ -1355,7 +1339,7 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
                    utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
                 remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
             }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);   // **Ilya** ditto above
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);
         }
     }
 
@@ -1434,10 +1418,8 @@ double GiantBranch::CalculateGravitationalRemnantMass(const double p_BaryonicRem
     
     if (utils::Compare(p_BaryonicRemnantMass, m_BaryonicMassOfMaximumNeutronStarMass) < 0) {
         std::tie(error, root) = utils::SolveQuadratic(0.075, 1.0, -p_BaryonicRemnantMass);                 // Neutron Star
-        if (error == ERROR::NO_REAL_ROOTS) { 
-            SHOW_WARN(error, "No real roots for quadratic: using 0.0");                                    // show warning  JR: show warning or throw error **Ilya**
-            root = 0.0;                                                                                    // should be returned as 0.0, but set it anyway
-        }
+        if (error == ERROR::NO_REAL_ROOTS)
+            THROW_ERROR(error);
     } 
     else {                                                                                                 // Black hole
         root = BH::CalculateNeutrinoMassLoss_Static(p_BaryonicRemnantMass);                                // Convert to gravitational mass due to neutrino mass loss
@@ -1603,7 +1585,7 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2012(const do
 
         case SN_ENGINE::RAPID:
 
-            mProto           = CalculateProtoCoreMassRapid();
+            mProto           = FRYER_PROTO_CORE_MASS_RAPID;
             fallbackFraction = CalculateFallbackFractionRapid(p_Mass, mProto, p_COCoreMass);
             fallbackMass     = CalculateFallbackMass(p_Mass, mProto, fallbackFraction);
 
@@ -1667,7 +1649,7 @@ std::tuple<double, double> GiantBranch::CalculateRemnantMassByFryer2022(const do
             break;
 
         case SN_ENGINE::RAPID:  
-            mProto                   = CalculateProtoCoreMassRapid();
+            mProto                   = FRYER_PROTO_CORE_MASS_RAPID;
 
             fallbackMass             = std::max(0.0, baryonicRemnantMass - mProto);             // fallbackMass larger than 0
             fallbackFraction         = fallbackMass / (p_Mass - mProto);
@@ -1753,7 +1735,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         case REMNANT_MASS_PRESCRIPTION::HURLEY2000:                                                         // Hurley 2000
 
             m_SupernovaDetails.fallbackFraction = 0.0;                                                      // not defined
-            m_Mass                              = NS::CalculateRemnantMass_Static(m_COCoreMass);
+            m_Mass                              = Remnants::CalculateRemnantMass_Static(m_COCoreMass);
             break;
 
         case REMNANT_MASS_PRESCRIPTION::BELCZYNSKI2002:                                                     // Belczynski 2002

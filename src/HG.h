@@ -102,7 +102,7 @@ protected:
     double          CalculateLuminosityOnPhase(const double p_Age, const double p_Mass) const;
     double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Age, m_Mass0); }                                      // Use class member variables
 
-    double          CalculateMassTransferRejuvenationFactor();
+    double          CalculateMassTransferRejuvenationFactor()			    { return 1.0; }
 
     double          CalculateRadialExtentConvectiveEnvelope() const {
         double envMass, envMassMax;
