@@ -1244,8 +1244,14 @@
 //                                         6. removed BaseBinaryStar class variable m_UK and associated printing functionality - this is trivial to compute in post-processing
 //                                         7. corrected the Hurley remnant mass prescription CalculateRemnantMass_Static() to handle black hole formation
 //                                         8. code cleanup (including removal of unused BE Binaries code)
+// 03.00.01    IM - July 28, 2024    - Enhancements, defect repairs, code cleanup:
+//                                      - Fixed coefficient typo in HeWD::DetermineAccretionRegime()
+//                                      - Added the function MESAZAMSHeliumFractionByMetallicity() to compute the ZAMS He mass fraction in the same way as MESA default
+//                                      - Always allow radiative-envelope donors to survive CE in the TWO_STAGE CE formalism (with documentation clarification)
+//                                      - Set the maximum convective envelope mass to the total envelope mass for intermediate mass stars, where the Picker+ (2024) fits are invalid
 
-const std::string VERSION_STRING = "03.00.00";
+
+const std::string VERSION_STRING = "03.00.01";
 
 
 # endif // __changelog_h__

@@ -21,9 +21,9 @@ code effectively ignored these errors (for a detailed explanation of why this wa
 
 In COMPAS version 03.00.00 the error handling philosophy has changed, and more coherent and robust error-handling code implemented. The new error-handling philosophy
 is to stop evolution of a star or binary if an error occurs (including, optionally by a program option, floating-point errors), and record in the (SSE/BSE) system
-parameters file the fact that an error occurred, and an error number identifying the error that occurred. This way users can check the system paramers file at the
-completion of a run for the disposition of a star or binary and, if the evolution of that star or binary was stopped because an error occurred, the actual error that
-occurred.
+parameters file the fact that an error occurred, and an error number identifying the error that occurred. This way users can check the system parameters file 
+at the completion of a run for the disposition of a star or binary and, if the evolution of that star or binary was stopped because an error occurred, the 
+actual error that occurred.
 
 Users should refer to the Error Handling documentation in the User Guide (See :doc:`./User guide/Handling errors/handling-errors`).
 Developers should refer to the Error Handling documentation in the Developer Guide (See :doc:`./Developer guide/Services/services-error-handling`).
