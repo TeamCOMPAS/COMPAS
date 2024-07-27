@@ -239,7 +239,6 @@ void Options::OptionValues::Initialise() {
     m_SemiMajorAxisDistribution.typeString                          = SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL.at(m_SemiMajorAxisDistribution.type);
     m_SemiMajorAxisDistributionMin                                  = 0.01;
     m_SemiMajorAxisDistributionMax                                  = 1000.0;
-    m_SemiMajorAxisDistributionPower                                = -1.0;                                                 // Why is this here - there is no corresponding option.  Should it just be a constant? **Ilya**
 
     // Initial orbital period
     m_OrbitalPeriod                                                 = 0.1;                                                  // Only used if user specified and semi-major axis not specified
@@ -4791,7 +4790,6 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION                   : value = static_cast<int>(SemiMajorAxisDistribution());                        break;
         case PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX               : value = SemiMajorAxisDistributionMax();                                       break;
         case PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MIN               : value = SemiMajorAxisDistributionMin();                                       break;
-        case PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_POWER             : value = SemiMajorAxisDistributionPower();                                     break;
 
         case PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION                      : value = static_cast<int>(StellarZetaPrescription());                          break;
 

@@ -13,9 +13,9 @@
  * https://ui.adsabs.harvard.edu/abs/2008ApJS..174..223B/abstract
  *
  *
- * DBL_DBL CalculateMassAcceptanceRate(const double p_LogDonorMassRate, const bool p_IsHeRich)
+ * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich)
  *
- * @param   [IN]    p_LogDonorMassRate          Logarithm of the mass transfer rate of the donor
+ * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
  * @param   [IN]    p_IsHeRich                  Material is He-rich or not
  * @return                                      Tuple containing the Maximum Mass Acceptance Rate (Msun/yr) and Retention Efficiency Parameter
  */
@@ -48,8 +48,8 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
     ACCRETION_REGIME regime;
     if (p_HeRich) {
         if (utils::Compare(Mdot, HEWD_HE_MDOT_CRIT) <= 0) {
-            regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR;                     // Could lead to Sub CH SN Ia
-            double massSubCh = -4.0e8 * Mdot + 1.34;                                                    // Minimum mass for Sub-Ch Mass detonation. Eq 62, Belczynski+ 2008.
+            regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR;                     // Could lead to Sub-Chandrasekhar SN Ia
+            double massSubCh = -4.0e8 * Mdot + 1.34;                                                    // Minimum mass for Sub-Chandrasekhar Mass detonation. Eq 62, Belczynski+ 2008.
             if (utils::Compare(m_Mass, massSubCh) >= 0 ) {
                 m_IsSubChandrasekharTypeIa = true;                                                      // JR: Question: should this be set false if the condition is not satisfied? **Ilya**
             }

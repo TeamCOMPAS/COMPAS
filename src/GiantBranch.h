@@ -80,7 +80,6 @@ protected:
             double          CalculateFallbackMass(const double p_PreSNMass, const double p_ProtoMass, const double p_Fallback);
             double          CalculateGravitationalRemnantMass(const double p_BaryonicRemnantMass);
             double          CalculateProtoCoreMassDelayed(const double p_COCoreMass);
-            double          CalculateProtoCoreMassRapid()                                                   { return 1.0; }
             double          CalculateRemnantMassByBelczynski2002(const double p_Mass, const double p_COCoreMass, const double p_FallbackFraction);
             DBL_DBL         CalculateRemnantMassByFryer2012(const double p_Mass, const double p_COCoreMass);
             DBL_DBL         CalculateRemnantMassByFryer2022(const double p_Mass, const double p_COCoreMass);

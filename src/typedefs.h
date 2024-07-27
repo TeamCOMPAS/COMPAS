@@ -644,13 +644,10 @@ const COMPASUnorderedMap<MT_CASE, std::string> MT_CASE_LABEL = {
 };
 
 // mass transfer rejuvenation prescriptions
-// JR: why do we have "NONE" here?  Wherever we use MT_REJUVENATION_PRESCRIPTION::NONE we use "default - Hurley et al. 2000" and fRej = 1.0;
-//     why don't we just have "HURLEY" and "STARTRACK", and default to "HURLEY"?
-// **Ilya**
-enum class MT_REJUVENATION_PRESCRIPTION: int { NONE, STARTRACK };
+enum class MT_REJUVENATION_PRESCRIPTION: int { HURLEY, STARTRACK };
 const COMPASUnorderedMap<MT_REJUVENATION_PRESCRIPTION, std::string> MT_REJUVENATION_PRESCRIPTION_LABEL = {
-    { MT_REJUVENATION_PRESCRIPTION::NONE,      "NONE" },
-    { MT_REJUVENATION_PRESCRIPTION::STARTRACK, "STARTRACK" }
+    { MT_REJUVENATION_PRESCRIPTION::HURLEY,     "HURLEY" },
+    { MT_REJUVENATION_PRESCRIPTION::STARTRACK,  "STARTRACK" }
 };
 
 // mass transfer thermally limited variation options

@@ -227,7 +227,7 @@ public:
                                                                                                                                                        m_Companion->MassPreCEE() - m_Companion->CoreMassAtCEE());
                                                                                              ResolveAccretion(m_MassTransferDiff);
                                                      
-                                                                                           } // Note: this sets m_MassTransferDiff always - previously it was only for NS /*ilya*/ 
+                                                                                           }  
 
     void            SetPostCEEValues();
     void            SetPreCEEValues();

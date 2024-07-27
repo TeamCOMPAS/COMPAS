@@ -17,7 +17,7 @@
 //
 // The error-handling code implemented in v03.00.00 allows developers to terminate evolution of a star or binary if
 // they determine that a condition encountered is sufficiently severe that allowing the evolution of the star or
-// binary to continue would produce inconsistent or untrustable results.  In those cases, the developers should
+// binary to continue would produce inconsistent or untrustworthy results.  In those cases, the developers should
 // terminate the evolution of the star or binary via the use of the THROW_ERROR* macros (defined in 'ErrorsMacros.h').
 //
 // Developers should use the SHOW_WARN* macros (defined in 'ErrorsMacros.h') to alert users to conditions they want

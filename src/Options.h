@@ -754,7 +754,6 @@ public:
             ENUM_OPT<SEMI_MAJOR_AXIS_DISTRIBUTION>              m_SemiMajorAxisDistribution;                                    // Which semi-major axis distribution
             double                                              m_SemiMajorAxisDistributionMin;                                 // Minimum a in AU
             double                                              m_SemiMajorAxisDistributionMax;                                 // Maximum a in AU
-            double                                              m_SemiMajorAxisDistributionPower;                               // Set semi-major axis distribution power law slope by hand     JR: there is no option for this... SHould it just be a constant? *Ilya*
 
             // Orbital period
             double                                              m_OrbitalPeriod;                                                // Orbital period in days
@@ -1524,7 +1523,6 @@ public:
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }
     double                                      SemiMajorAxisDistributionMax() const                                    { return OPT_VALUE("semi-major-axis-max", m_SemiMajorAxisDistributionMax, true); }
     double                                      SemiMajorAxisDistributionMin() const                                    { return OPT_VALUE("semi-major-axis-min", m_SemiMajorAxisDistributionMin, true); }
-    double                                      SemiMajorAxisDistributionPower() const                                  { return m_CmdLine.optionValues.m_SemiMajorAxisDistributionPower; }     // JR: no option implemented - always -1.0
 
     void                                        ShowHelp()                                                              { PrintOptionHelp(!m_CmdLine.optionValues.m_ShortHelp); }
 

@@ -1382,6 +1382,10 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, c
 
         switch (OPTIONS->QCritPrescription()) {
 
+            case QCRIT_PRESCRIPTION::NONE:                                                  // a safe placeholder; really, we should not be calling this function if there is the prescription is "NONE"
+                qCrit = 0.0;
+                break;
+                
             case QCRIT_PRESCRIPTION::GE20: 
             case QCRIT_PRESCRIPTION::GE20_IC:
                 qCrit = CalculateCriticalMassRatioGe20(OPTIONS->QCritPrescription(), p_massTransferEfficiencyBeta);   
@@ -1727,50 +1731,6 @@ double BaseStar::CalculateInitialEnvelopeMass_Static(const double p_Mass) {
     }
 
     return envMass;
-}
-
-
-/*
- * Calculate rejuvenation factor for stellar age based on mass lost/gained during mass transfer
- *
- * JR: This function returns 1.0 in all cases... Do we really need it? **Ilya**
- *
- *
- * double CalculateMassTransferRejuvenationFactor()
- *
- * @return                                      Rejuvenation factor
- */
-double BaseStar::CalculateMassTransferRejuvenationFactor() {
-
-    double fRej;
-    switch (OPTIONS->MassTransferRejuvenationPrescription()) {                                  // which prescription
-
-        case MT_REJUVENATION_PRESCRIPTION::NONE:                                                // NONE - use default Hurley et al. 2000 prescription = 1.0
-            fRej = 1.0;
-            break;
-
-        case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                                           // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf
-
-            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {                                      // Rejuvenation factor is unity for mass losing stars  JR: do we really need this?  It's going to default to 1.0 if the condition is false anyway. **Ilya**
-                fRej = 1.0;
-            }
-            else {
-                fRej = 1.0;
-            }
-            break;
-
-        default:                                                                                // unknown prescription
-            // the only way this can happen is if someone added a MT_REJUVENATION_PRESCRIPTION
-            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
-            // We are here because the user chose a prescription this code doesn't account for, and that should
-            // be flagged as an error and result in termination of the evolution of the star or binary.
-            // The correct fix for this is to add code for the missing prescription or, if the missing
-            // prescription is superfluous, remove it from the option.
-
-            THROW_ERROR(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION);                           // throw error
-    }
-
-    return fRej;
 }
 
 
@@ -2331,7 +2291,7 @@ double BaseStar::CalculateMassLossRateVMSBestenlehner2020() const {
 
 
 /*
- * Calculate mass loss rate for very massive (>100 Msol) OB stars using a fit to the Vink 2011 mass loss rates
+ * Calculate the mass loss rate for very massive OB stars using a fit to the Vink 2011 mass loss rate
  *
  * https://arxiv.org/pdf/1105.0556.pdf
  *
@@ -2342,19 +2302,13 @@ double BaseStar::CalculateMassLossRateVMSBestenlehner2020() const {
  */
 double BaseStar::CalculateMassLossRateVMSVink2011() const {
 
-    double rate;
+    double rate = CalculateMassLossRateOBVink2001();
 
     double Gamma    = EDDINGTON_PARAMETER_FACTOR * m_Luminosity / m_Mass;                                       // Eddington Parameter, independent of surface composition
-    double rate2001 = CalculateMassLossRateOBVink2001();
 
-    double logMdotdiff;
-    if (utils::Compare(Gamma, 0.5) > 0) {                                                                       // ensure that the prescription isn't extrapolated to low gamma
-        logMdotdiff = 0.04468 + (0.3091 * Gamma) + (0.2434 * Gamma * Gamma);
-        rate = PPOW(10.0, (logMdotdiff + log10(rate2001)));
-    }
-    else {
-        SHOW_WARN(ERROR::LOW_GAMMA, "Mass Loss Rate defaulting to Vink2001, low Gamma");                        // gamma extrapolated outside fit range, default to Vink2001 JR: does this need a warning?  Isn't this just the way this prescription works? **Ilya**
-        rate = rate2001;
+    if (utils::Compare(Gamma, 0.5) > 0) {                                                                       // apply this correction to high gamma only
+        double logMdotdiff = 0.04468 + (0.3091 * Gamma) + (0.2434 * Gamma * Gamma);
+        rate = PPOW(10.0, (logMdotdiff + log10(rate)));
     }
 
     return rate;
@@ -2803,7 +2757,7 @@ double BaseStar::CalculateMassLossRate() {
 
 
 /*
- * Calculate the nuclear mass loss rate as the equal to the mass divide by the radial expansion timescale
+ * Calculate the nuclear mass loss rate as the mass divided by the radial expansion timescale
  * We do not use CalculateRadialExpansionTimescale(), however, since in the process of mass transfer the previous radius
  * is determined by binary evolution, not nuclear timescale evolution
  *
@@ -3326,7 +3280,7 @@ double BaseStar::CalculateOStarRotationalVelocity_Static(const double p_Xmin, co
 
         // JR: should we issue a warning, or throw an error, if the root finder didn't actually find the roor here (i.e. we stopped because pf maxIter)?
         // To be consistent, should we use the Boost root solver here?
-        // **Ilya** both questions above
+        // **Ilya** both questions above -- IM: yes to both, TBC
 
     	gsl_root_fsolver_free(s);   // de-allocate memory for root solver
     }

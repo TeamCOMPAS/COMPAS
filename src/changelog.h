@@ -1242,7 +1242,8 @@
 //                                         4. fixed what I believe was a defect in `utils::SolveKeplersEquation()` that was causing erroneous "out-of-bounds" warnings for the eccentric anomaly
 //                                         5. added debug functionality to show stack trace and halt the program - see the discussion and implementation of the SIGUSR2 signal handler in `main.cpp`.
 //                                         6. removed BaseBinaryStar class variable m_UK and associated printing functionality - this is trivial to compute in post-processing
-//                                         7. code cleanup (including removal of unused BE Binaries code)
+//                                         7. corrected the Hurley remnant mass prescription CalculateRemnantMass_Static() to handle black hole formation
+//                                         8. code cleanup (including removal of unused BE Binaries code)
 
 const std::string VERSION_STRING = "03.00.00";
 
