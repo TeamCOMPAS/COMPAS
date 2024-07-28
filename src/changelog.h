@@ -1249,6 +1249,8 @@
 //                                      - Added the function MESAZAMSHeliumFractionByMetallicity() to compute the ZAMS He mass fraction in the same way as MESA default
 //                                      - Always allow radiative-envelope donors to survive CE in the TWO_STAGE CE formalism (with documentation clarification)
 //                                      - Set the maximum convective envelope mass to the total envelope mass for intermediate mass stars, where the Picker+ (2024) fits are invalid
+//                                      - Stop evolution on massless remnant + remnant, regardless of --evolve-main-sequence-merger-products (no further evolution expected)
+//                                      - Corrected rejuvenation of main sequence merger products
 
 
 const std::string VERSION_STRING = "03.00.01";
