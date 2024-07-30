@@ -65,7 +65,7 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
             else {
                 regime = ACCRETION_REGIME::HELIUM_ACCUMULATION;
                 if ((utils::Compare(m_Mass, MASS_DOUBLE_DETONATION_CO) >= 0) && (utils::Compare(m_HeShell, WD_HE_SHELL_MCRIT_DETONATION) >= 0)) {
-                    m_HeShellDetonation = true;                                                                             // JR: Question: should this be set false if the condition is not satisfied? **Ilya**
+                    m_HeShellDetonation = true;
                 }
             }
         } 
@@ -75,7 +75,7 @@ ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
         else {
             regime = ACCRETION_REGIME::HELIUM_STABLE_BURNING;
             if ((utils::Compare(logMdot, COWD_LOG_MDOT_MIN_OFF_CENTER_IGNITION) > 0) && (utils::Compare(m_Mass, COWD_MASS_MIN_OFF_CENTER_IGNITION) > 0)) {
-                m_OffCenterIgnition = true;                                                                                 // JR: Question: should this be set false if the condition is not satisfied? **Ilya**
+                m_OffCenterIgnition = true;
             }
         }
     } 

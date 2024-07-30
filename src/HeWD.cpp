@@ -51,16 +51,16 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const bool p_HeRich, const doubl
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_SUB_CHANDRASEKHAR;                     // Could lead to Sub-Chandrasekhar SN Ia
             double massSubCh = -4.0e8 * Mdot + 1.34;                                                    // Minimum mass for Sub-Chandrasekhar Mass detonation. Eq 62, Belczynski+ 2008.
             if (utils::Compare(m_Mass, massSubCh) >= 0 ) {
-                m_IsSubChandrasekharTypeIa = true;                                                      // JR: Question: should this be set false if the condition is not satisfied? **Ilya**
+                m_IsSubChandrasekharTypeIa = true;
             }
         } 
         else {
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_IGNITION;                              // Could lift degeneracy and evolve into He MS. Requires minimum mass ! on top of the shell size
             if (utils::Compare(m_Mass, HEWD_MINIMUM_MASS_IGNITION) >= 0) {
                 if (utils::Compare(Mdot, 1.64e-6) < 0) {                                                // Accretion limit from eq 61, Belczynski+ 2008.
-                    double mCritHeShell = -7.8e-4 * Mdot + 1.34;                                        // Minimum shell mass of He for detonation. Eq 61, Belczynski+ 2008. This helium should not be burnt, but not implemented this yet. Ruiter+ 2014.
+                    double mCritHeShell = -7.8e-4 * Mdot + 0.13;                                        // Minimum shell mass of He for detonation. Eq 61, Belczynski+ 2008. This helium should not be burnt, but not implemented this yet. Ruiter+ 2014.
                     if (utils::Compare(m_HeShell, mCritHeShell) >= 0) {
-                        m_ShouldRejuvenate = true;                                                      // JR: Question: should this be set false if the condition is not satisfied? **Ilya**
+                        m_ShouldRejuvenate = true;
                     }
                 } 
                 else {
