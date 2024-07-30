@@ -826,15 +826,21 @@ void MainSequence::UpdateMinimumCoreMass()
  */
 void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass)
 {
+    #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
+
     m_Mass            = p_Mass;
     m_Mass0           = m_Mass;
     m_MinimumCoreMass = 0.0;
+        
+    double initialHydrogenFraction = 1.0 - utils::MESAZAMSHeliumFractionByMetallicity(m_Metallicity) - m_Metallicity;
     
-    double TAMSCoreMass = 0.3 * m_Mass;                                                                         // /*ILYA*/ temporary solution, should use TAMS core mass
+    CalculateTimescales();
+            
+    m_Tau = (initialHydrogenFraction - p_HydrogenMass / m_Mass) / initialHydrogenFraction;       // assumes uniformly mixed merger product and a uniform rate of H fusion on main sequence
     
-    double initialHydrogenFraction = 1.0 - YSOL - m_Metallicity;                                                // assume helium fraction independent of metallicity
-    
-    m_Tau = (m_Mass * initialHydrogenFraction - p_HydrogenMass) / TAMSCoreMass / initialHydrogenFraction;       // p_HydrogenMass = m_Mass * initialHydrogenFraction - m_Tau * TAMSCoreMass * initialHydrogenFraction; assumes uniform rate of H fusion on main sequence
+    m_Age = m_Tau * timescales(tMS);
     
     UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);
+    
+    #undef timescales
 }

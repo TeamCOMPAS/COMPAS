@@ -1679,7 +1679,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     }
     else if ( (m_Star1->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) ||
               (m_Star2->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) ) {       // check if we have a non-MS radiative-envelope star
-        if (!OPTIONS->AllowRadiativeEnvelopeStarToSurviveCommonEnvelope()) {                                            // stellar merger
+        if (!OPTIONS->AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() && OPTIONS->CommonEnvelopeFormalism()!=CE_FORMALISM::TWO_STAGE) {                                            // stellar merger
             m_CEDetails.optimisticCE = true;
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
             m_Flags.stellarMerger        = true;
@@ -1753,13 +1753,14 @@ void BaseBinaryStar::ResolveMainSequenceMerger() {
 
     // /*ILYA*/ temporary solution, should use TAMS core mass
     double TAMSCoreMass1 = 0.3 * mass1;
-    double TAMSCoreMass2 = 0.3 * mass2;                            
-     
+    double TAMSCoreMass2 = 0.3 * mass2;
+    
     double q   = std::min(mass1 / mass2, mass2 / mass1);
     double phi = 0.3 * q / (1.0 + q) / (1.0 + q);                                               // fraction of mass lost in merger, Wang+ 2022, https://www.nature.com/articles/s41550-021-01597-5
 	
     double finalMass               = (1.0 - phi) * (mass1 + mass2);
-    double initialHydrogenFraction = 1.0 - YSOL - m_Star1->Metallicity();                       // assume helium fraction independent of metallicity
+    double initialHydrogenFraction = 1.0 - utils::MESAZAMSHeliumFractionByMetallicity(m_Star1->Metallicity()) - m_Star1->Metallicity();
+    std::cout<<"initialHydrogenFraction pre Merger"<<initialHydrogenFraction<<std::endl;
     double finalHydrogenMass       = finalMass * initialHydrogenFraction - tau1 * TAMSCoreMass1 * initialHydrogenFraction - tau2 * TAMSCoreMass2 * initialHydrogenFraction;
     
     m_Star1->UpdateAfterMerger(finalMass, finalHydrogenMass);
@@ -2774,7 +2775,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                             else if (!OPTIONS->EvolveDoubleWhiteDwarfs() && IsWDandWD()) {                                              // double WD and their evolution is not enabled?
                                 evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                              // yes - do not evolve double WD systems
                             }
-                            else if (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) && !OPTIONS->EvolveMainSequenceMergers()) {           // at least one massless remnant and not evolving MS merger products?
+                            else if ((HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) && !OPTIONS->EvolveMainSequenceMergers()) || IsMRandRemant()) {           // at least one massless remnant and not evolving MS merger products, or is MR + stellar remnant
                                 evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                                   // yes - stop evolution
                             }
                         }

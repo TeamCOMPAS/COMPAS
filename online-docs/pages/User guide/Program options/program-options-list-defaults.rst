@@ -133,7 +133,8 @@ Allow main sequence accretors to survive common envelope evolution if other crit
 Default = TRUE
 
 **--common-envelope-allow-radiative-envelope-survive** |br| 
-Allow binaries with an evolved component with a radiative envelope to survive the common envelope phase. |br|
+Allow binaries with an evolved component with a radiative envelope to survive the common envelope phase (they always survive in the 
+`--common-envelope-formalism TWO_STAGE` option). |br|
 Default = FALSE
 
 **--common-envelope-alpha** |br|
@@ -148,7 +149,8 @@ Default = 1.0
 **--common-envelope-formalism** |br|
 CE formalism prescription. |br|
 Options: { ENERGY, TWO_STAGE } |br|
-``ENERGY`` is the standard alpha-lambda formalism; ``TWO_STAGE`` is the formalism of Hirai & Mandel (2022) |br| 
+``ENERGY`` is the standard alpha-lambda formalism; ``TWO_STAGE`` is the formalism of Hirai & Mandel (2022) -- the latter always allows radiative-envelope 
+donors to survive CE, so `--common-envelope-allow-radiative-envelope-survive` option is ignored |br| 
 Default = ENERGY
 
 **--common-envelope-lambda** |br|
