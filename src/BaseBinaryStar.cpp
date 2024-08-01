@@ -1199,23 +1199,14 @@ double BaseBinaryStar::CalculateTimestepBinary(){
     DBL_DBL_DBL_DBL ImKlm1 = m_Star1->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star2->Mass());
     DBL_DBL_DBL_DBL ImKlm2 = m_Star2->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star1->Mass());
 
-    double DSemiMajorAxis1Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1->Mass(), m_Star1->Radius(), m_Star2->Mass(),
-                                                            m_Omega, m_SemiMajorAxis, m_Eccentricity);
+    double DSemiMajorAxis1Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1);
+    double DSemiMajorAxis2Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2);
 
-    double DSemiMajorAxis2Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2->Mass(), m_Star2->Radius(), m_Star1->Mass(),
-                                                            m_Omega, m_SemiMajorAxis, m_Eccentricity);
-
-    double DEccentricity1Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1->Mass(), m_Star1->Radius(), m_Star2->Mass(),
-                                                            m_Omega, m_SemiMajorAxis, m_Eccentricity);
-
-    double DEccentricity2Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2->Mass(), m_Star2->Radius(), m_Star1->Mass(),
-                                                            m_Omega, m_SemiMajorAxis, m_Eccentricity);
+    double DEccentricity1Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1);
+    double DEccentricity2Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);
                                                 
-    double DOmega1Dt_tidal         =  CalculateDOmegaTidalDt(ImKlm1, m_Star1->Mass(), m_Star1->Radius(), m_Star1->CalculateMomentOfInertiaAU(), m_Star2->Mass(),
-                                                            m_Omega, m_SemiMajorAxis, m_Eccentricity);
-
-    double DOmega2Dt_tidal         =  CalculateDOmegaTidalDt(ImKlm2,  m_Star2->Mass(), m_Star2->Radius(), m_Star2->CalculateMomentOfInertiaAU(), m_Star1->Mass(),
-                                                            m_Omega, m_SemiMajorAxis, m_Eccentricity);
+    double DOmega1Dt_tidal         =  CalculateDOmegaTidalDt(ImKlm1, m_Star1);
+    double DOmega2Dt_tidal         =  CalculateDOmegaTidalDt(ImKlm2,  m_Star2);
                                                             
     double DaDt_tidal = 0.01 * m_SemiMajorAxis * std::min(std::abs(1./DSemiMajorAxis1Dt_tidal), std::abs(1./DSemiMajorAxis2Dt_tidal)) * YEAR_TO_MYR;
     double DeDt_tidal = 0.01 * m_Eccentricity * std::min(std::abs(1./DEccentricity1Dt_tidal), std::abs(1./DEccentricity2Dt_tidal)) * YEAR_TO_MYR;
