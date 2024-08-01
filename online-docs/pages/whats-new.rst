@@ -6,6 +6,67 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**03.00.00 Jul 26, 2024**
+
+This is a major release of COMPAS. There are some significant changes in COMPAS operation and functionality in this release. The major change, and the impetus for
+the release, is the implementation of a new, coherent, robust, error handling strategy.
+
+Early versions of COMPAS (versions prior to v03.00.00) did not have a coherent, robust, error-handling strategy. In those versions, errors were typically displayed
+as either errors or warnings (depending on the severity) as they occurred, and evolution of the star (SSE mode) or binary (BSE mode) continued - users were expected
+to check errors or warnings displayed and use results with appropriate caution.  This was not ideal.
+
+In addition, earlier versions of COMPAS did not handle floating-point errors (divide-by-zero, invalid-parameters (e.g. :math:`\sqrt{-2.0}`), etc.) well - in fact the
+code effectively ignored these errors (for a detailed explanation of why this was so, refer to the Error Handling documentation in the Developer Guide
+(See :ref:`developer-guide-fp-errors`).
+
+In COMPAS version 03.00.00 the error handling philosophy has changed, and more coherent and robust error-handling code implemented. The new error-handling philosophy
+is to stop evolution of a star or binary if an error occurs (including, optionally by a program option, floating-point errors), and record in the (SSE/BSE) system
+parameters file the fact that an error occurred, and an error number identifying the error that occurred. This way users can check the system parameters file 
+at the completion of a run for the disposition of a star or binary and, if the evolution of that star or binary was stopped because an error occurred, the 
+actual error that occurred.
+
+Users should refer to the Error Handling documentation in the User Guide (See :doc:`./User guide/Handling errors/handling-errors`).
+Developers should refer to the Error Handling documentation in the Developer Guide (See :doc:`./Developer guide/Services/services-error-handling`).
+
+In addition to the new error handling strategy, a number of program options have been deprecated and replaced by new program options that are more consistent with the
+naming convention we are trying to maintain. The program options deprecated, and their replacements, are:
+
+1. `--mass-transfer`                       , replaced by `--use-mass-transfer` (to be consistent with `--use-mass-loss`)
+#. `--luminous-blue-variable-prescription` , replaced by `--LBV-mass-loss-prescription` (to be consistent with other 'prescription'-type options)
+#. `--OB-mass-loss`                        , replaced by `--OB-mass-loss-prescription` (to be consistent with other 'prescription'-type options)
+#. `--RSG-mass-loss`                       , replaced by `--RSG-mass-loss-prescription` (to be consistent with other 'prescription'- type options)
+#. `--VMS-mass-loss`                       , replaced by `--VMS-mass-loss-prescription` (to be consistent with other 'prescription'- type options)
+#. `--WR-mass-loss`                        , replaced by `--WR-mass-loss-prescription` (to be consistent with other 'prescription'- type options)
+#. `--kick-direction`                      , replaced by `--kick-direction-distribution` (to be consistent with other 'distribution'-type options)
+#. `--mass-transfer-thermal-limit-accretor`, replaced by `--mass-transfer-thermal-limit-accretor-multiplier` (for consistency and to better describe the option)
+#. `--black-hole-kicks`                    , replaced by `--black-hole-kicks-mode` (for consistency and to better describe the option) 
+#. `--chemically-homogeneous-evolution`    , replaced by `--chemically-homogeneous-evolution-mode` (for consistency and to better describe the option)
+
+Deprecated program options will still be available, in tandem with their replacements, for some time (at least six months from the release date of v03.00.00),
+after which time the deprecated options will be removed and only their replacements will be valid options. Appropriate warning messages will be displayed in
+the period of deprecation if deprecated program options are used.
+
+As well as deprecating some program options, some program option values have been deprecated and replaced by new values that are more consistent with the
+naming convention we are trying to maintain. The program option value deprecated, and their replacements, are:
+
+1. `--LBV-mass-loss-prescription`         , value `NONE` replaced by `ZERO`
+#. `--luminous-blue-variable-prescription`, value `NONE` replaced by `ZERO`
+#. `--OB-mass-loss`                       , value `NONE` replaced by `ZERO`
+#. `--OB-mass-loss-prescription`          , value `NONE` replaced by `ZERO`
+#. `--RSG-mass-loss`                      , value `NONE` replaced by `ZERO`
+#. `--RSG-mass-loss-prescription`         , value `NONE` replaced by `ZERO`
+#. `--VMS-mass-loss`                      , value `NONE` replaced by `ZERO`
+#. `--VMS-mass-loss-prescription`         , value `NONE` replaced by `ZERO`
+#. `--WR-mass-loss`                       , value `NONE` replaced by `ZERO`
+#. `--WR-mass-loss-prescription`          , value `NONE` replaced by `ZERO`
+
+Deprecated program option values will still be available, in tandem with their replacements, for some time (at least six months from the release date of v03.00.00),
+after which time the deprecated option values will be removed and only their replacements will be valid option values. Appropriate warning messages will be displayed
+in the period of deprecation if deprecated program option values are used.
+
+Finally, for program option `--mt-rejuvenation-prescription`, the value `NONE` was replaced by `HURLEY`
+
+
 **02.48.01 May 24, 2024**
 
 * changed functionality of ``--output-path`` option so that missing directories in the specified path are created.
@@ -88,7 +149,7 @@ Added mass accretion prescription during CE ``CHEVALIER`` for option ``--common-
 
 **02.35.02 Feb 19, 2023**
 
-* Changed ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1`` and ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2`` to be the Roche lobe radius as computed at periapsis, in units of \ :math:`R_\odot`.
+* Changed ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1`` and ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2`` to be the Roche lobe radius as computed at periapsis, in units of :math:`R_\odot`.
 * Changed header string for ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1`` from ``'RocheLobe(1)|a'`` to ``'RocheLobe(1)'`` - same change made for ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2``.
 * Removed ``BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1`` (header string ``'Radius(1)|RL'``) and ``BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2`` (header string ``'Radius(2)|RL'``) from ``BSE_DETAILED_OUTPUT_REC`` (BSE detailed output file default record).  Note that both variables are still selectable for output via the logfile-definitions file.
 

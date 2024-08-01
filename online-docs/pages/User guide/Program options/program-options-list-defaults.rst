@@ -85,6 +85,12 @@ Default = FALSE
 **--black-hole-kicks** |br|
 Black hole kicks relative to NS kicks (not relevant for `MANDELMUELLER` ``--remnant-mass-prescription``). |br|
 Options: { FULL, REDUCED, ZERO, FALLBACK } |br|
+Default = FALLBACK |br|
+DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--black-hole-kicks-mode`` in future.
+
+**--black-hole-kicks-mode** |br|
+Black hole kicks relative to NS kicks (not relevant for `MANDELMUELLER` ``--remnant-mass-prescription``). |br|
+Options: { FULL, REDUCED, ZERO, FALLBACK } |br|
 Default = FALLBACK
 
 .. _options-props-C:
@@ -105,7 +111,14 @@ Default = FALSE
 Chemically Homogeneous Evolution mode. See :cite:`Riley2021` for details of the implementation
 of Chemically Homogeneous Evolution in COMPAS |br|
 Options: { NONE, OPTIMISTIC, PESSIMISTIC } |br|
-Default = PESSIMISTIC
+Default = PESSIMISTIC |br|
+DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--chemically-homogeneous-evolution-mode`` in future.
+
+**--chemically-homogeneous-evolution-mode** |br|
+Chemically Homogeneous Evolution mode. See :cite:`Riley2021` for details of the implementation
+of Chemically Homogeneous Evolution in COMPAS |br|
+Options: { NONE, OPTIMISTIC, PESSIMISTIC } |br|
+Default = PESSIMISTIC |br|
 
 **--circulariseBinaryDuringMassTransfer** |br|
 Circularise binary when it enters a Mass Transfer episode. |br|
@@ -120,7 +133,8 @@ Allow main sequence accretors to survive common envelope evolution if other crit
 Default = TRUE
 
 **--common-envelope-allow-radiative-envelope-survive** |br| 
-Allow binaries with an evolved component with a radiative envelope to survive the common envelope phase. |br|
+Allow binaries with an evolved component with a radiative envelope to survive the common envelope phase (they always survive in the 
+`--common-envelope-formalism TWO_STAGE` option). |br|
 Default = FALSE
 
 **--common-envelope-alpha** |br|
@@ -135,7 +149,8 @@ Default = 1.0
 **--common-envelope-formalism** |br|
 CE formalism prescription. |br|
 Options: { ENERGY, TWO_STAGE } |br|
-``ENERGY`` is the standard alpha-lambda formalism; ``TWO_STAGE`` is the formalism of Hirai & Mandel (2022) |br| 
+``ENERGY`` is the standard alpha-lambda formalism; ``TWO_STAGE`` is the formalism of Hirai & Mandel (2022) -- the latter always allows radiative-envelope 
+donors to survive CE, so `--common-envelope-allow-radiative-envelope-survive` option is ignored |br| 
 Default = ENERGY
 
 **--common-envelope-lambda** |br|
@@ -212,96 +227,111 @@ Creates new YAML file.  Argument is filename for new YAML file. |br|
 Default = None - name must be supplied if option is present.
 
 **--critical-mass-ratio-HG-degenerate-accretor** |br|
-Critical mass ratio for MT from a HG star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 0.210000
+Critical mass ratio for MT from a HG star to a degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 0.21
 
 **--critical-mass-ratio-HG-non-degenerate-accretor** |br|
-Critical mass ratio for MT from a HG star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 0.250000
+Critical mass ratio for MT from a HG star to a non-degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 0.25
 
 **--critical-mass-ratio-MS-high-mass-degenerate-accretor** |br|
-Critical mass ratio for MT from a MS star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 0.000000
+Critical mass ratio for MT from a MS star to a degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 0.0
 
 **--critical-mass-ratio-MS-high-mass-non-degenerate-accretor** |br|
-Critical mass ratio for MT from a MS star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 0.625000
+Critical mass ratio for MT from a MS star to a non-degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 0.625
 
 **--critical-mass-ratio-MS-low-mass-degenerate-accretor** |br|
-Critical mass ratio for MT from a MS star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 1.000000
+Critical mass ratio for MT from a MS star to a degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 1.0
 
 **--critical-mass-ratio-MS-low-mass-non-degenerate-accretor** |br|
-Critical mass ratio for MT from a MS star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 1.440000
+Critical mass ratio for MT from a MS star to a non-degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 1.44
 
 **--critical-mass-ratio-giant-degenerate-accretor** |br|
-Critical mass ratio for MT from a giant star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 0.870000
+Critical mass ratio for MT from a giant star to a degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 0.87
 
 **--critical-mass-ratio-giant-non-degenerate-accretor** |br|
-Critical mass ratio for MT from a giant star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Critical mass ratio for MT from a giant star to a non-degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
 Default shows -1, but this translates to a function of the core mass ratio, as described in Claeys+ 2014. 
 
 **--critical-mass-ratio-helium-HG-degenerate-accretor** |br|
-Critical mass ratio for MT from a helium HG star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 0.210000
+Critical mass ratio for MT from a helium HG star to a degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 0.21
 
 **--critical-mass-ratio-helium-HG-non-degenerate-accretor** |br|
-Critical mass ratio for MT from a helium HG star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 0.250000
+Critical mass ratio for MT from a helium HG star to a non-degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 0.25
 
 **--critical-mass-ratio-helium-MS-degenerate-accretor** |br|
-Critical mass ratio for MT from a helium MS star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 0.000000
+Critical mass ratio for MT from a helium MS star to a degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 0.0
 
 **--critical-mass-ratio-helium-MS-non-degenerate-accretor** |br|
-Critical mass ratio for MT from a helium MS star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 0.000000
+Critical mass ratio for MT from a helium MS star to a non-degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 0.0
 
 **--critical-mass-ratio-helium-giant-degenerate-accretor** |br|
-Critical mass ratio for MT from a helium giant star to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 0.870000
+Critical mass ratio for MT from a helium giant star to a degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 0.87
 
 **--critical-mass-ratio-helium-giant-non-degenerate-accretor** |br|
-Critical mass ratio for MT from a helium giant star to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 1.280000
+Critical mass ratio for MT from a helium giant star to a non-degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 1.28
 
 **--critical-mass-ratio-prescription** |br|
-Which critical mass ratio stability prescription to use (if any).
-Options: { NONE, CLAEYS, GE20, GE20_IC, HURLEY_HJELLMING_WEBBINK } |br|
-``NONE`` defaults to the zeta prescription for stability, 
-``CLAEYS`` uses qCrit values from Claeys et al. 2014. 
-``GE20`` uses qCrit values from Ge et al. 2020 (adiabatic assumption). 
-``GE20_IC`` uses qCrit values from Ge et al. 2020 (isentropic envelope assumption).
+Critical mass ratio stability prescription (if any). |br|
+Options: { NONE, ZERO, CLAEYS, GE20, GE20_IC, HURLEY_HJELLMING_WEBBINK } |br|
+``NONE``    defaults to the zeta prescription for stability. |br|
+``CLAEYS``  uses qCrit values from Claeys et al. 2014. |br|
+``GE20``    uses qCrit values from Ge et al. 2020 (adiabatic assumption). |br|
+``GE20_IC`` uses qCrit values from Ge et al. 2020 (isentropic envelope assumption). |br|
 ``HURLEY_HJELLMING_WEBBINK`` uses qCrit values from Hurley et al. 2002 (Hjellming & Webbink 1987 for mass transfer from a giant primary). |br|
-Warning: if running with ``--critical-mass-ratio-prescription``, zetas will not be computed, 
-so should not be trusted in the outputs. |br|
-Default = NONE
+Warning: if running with ``--critical-mass-ratio-prescription``, zetas will not be computed, so should not be trusted in the outputs. |br|
+Default = NONE |br|
 
 **--critical-mass-ratio-white-dwarf-degenerate-accretor** |br|
-Critical mass ratio for MT from a white dwarf to a degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 1.600000
+Critical mass ratio for MT from a white dwarf to a degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 1.6
 
 **--critical-mass-ratio-white-dwarf-non-degenerate-accretor** |br|
-Critical mass ratio for MT from a white dwarf to a non-degenerate accretor.
-0 is always stable, <0 is disabled. Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default = 0.000000
+Critical mass ratio for MT from a white dwarf to a non-degenerate accretor. |br|
+0 is always stable, < 0 is disabled. |br|
+Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
+Default = 0.0
 
 .. _options-props-D:
 
@@ -356,7 +386,9 @@ Default = FALSE
 **--envelope-state-prescription** |br|
 Prescription for determining whether the envelope of the star is convective or radiative. |br|
 Options: { LEGACY, HURLEY, FIXED_TEMPERATURE } |br|
-``LEGACY`` refers to the model used in Stevenson et al., 2017; ``HURLEY`` refers to the model of Hurley, Pols, Tout, 2002; and ``FIXED_TEMPERATURE`` assumes that a deep convective envelope developes only when the temperature drops below ``CONVECTIVE_BOUNDARY_TEMPERATURE`` (Klencki et al., 2020) |br|
+``LEGACY`` refers to the model used in Stevenson et al., 2017 |br|
+``HURLEY`` refers to the model of Hurley, Pols, Tout, 2002 |br|
+``FIXED_TEMPERATURE`` assumes that a deep convective envelope developes only when the temperature drops below ``CONVECTIVE_BOUNDARY_TEMPERATURE`` (Klencki et al., 2020) |br|
 Default = LEGACY
 
 **--errors-to-file** |br|
@@ -391,16 +423,22 @@ Default = TRUE
 Fix dimensionless kick magnitude to this value. |br|
 Default = n/a (not used if option not present)
 
+**--fp-error-mode** |br|
+Specifies the floating-point error handling mode. |br|
+Options: { OFF, ON, DEBUG } |br|
+Default = OFF |br|
+Refer to :doc:`../Handling errors/handling-errors` for a discussion of the option values.
+
 **--fryer-supernova-engine** |br|
 Supernova engine type if using the remnant mass prescription from :cite:`Fryer2012`. |br|
-Options: { DELAYED, RAPID }
+Options: { DELAYED, RAPID } |br|
 Default = DELAYED
 
 **--fryer-22-fmix** |br|
 Parameter describing the mixing growth time when using the 'FRYER2022' remnant mass distribution  :cite:`Fryer2022`. |br|
-Default = 0.5, which is closest to the 'DELAYED' remnant mass prescription from :cite:`Fryer2012`. A value of 4.0 is closest to  the 'RAPID' remnant mass prescription from :cite:`Fryer2012`. |br|
-If the FALLBACK option is used for the kicks, then the proto core masses will be determined by the fryer-supernova-engine option. |br| 
-
+Default = 0.5, which is closest to the 'DELAYED' remnant mass prescription from :cite:`Fryer2012`. |br|
+A value of 4.0 is closest to  the 'RAPID' remnant mass prescription from :cite:`Fryer2012`. |br|
+If the FALLBACK option is used for the kicks, then the proto core masses will be determined by the fryer-supernova-engine option.
 
 **--fryer-22-mcrit** |br|
 Critical CO core mass for black hole formation when using the 'FRYER2022' remnant mass distribution :cite:`Fryer2022`. |br|
@@ -458,7 +496,9 @@ Default = Sampled from IMF
 **--initial-mass-function [ -i ]** |br|
 Initial mass function. |br|
 Options: { SALPETER, POWERLAW, UNIFORM, KROUPA } |br|
-``SALPETER`` and ``KROUPA`` use the IMFs of Salpeter 1955 and Kroupa 2001, ``POWERLAW`` samples from a single power law with slope ``--initial-mass-power``, and ``UNIFORM`` samples uniformly between ``--initial-mass-min`` and ``--initial-mass-min`` |br|
+``SALPETER`` and ``KROUPA`` use the IMFs of Salpeter 1955 and Kroupa 2001 |br|
+``POWERLAW`` samples from a single power law with slope ``--initial-mass-power`` |br|
+``UNIFORM`` samples uniformly between ``--initial-mass-min`` and ``--initial-mass-min`` |br|
 Default = KROUPA
 
 **--initial-mass-max** |br|
@@ -482,8 +522,23 @@ Default = 0.0
 **--kick-direction** |br|
 Natal kick direction distribution. |br|
 Options: { ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES } |br|
-Kick angles are defined relative to the spin axis.  ``INPLANE`` and ``PERPENDICULAR`` are strictly in the equatorial plane or in polar directions, while ``WEDGE`` and ``POLES`` are preferentially but exactly in the equatorial plane or in polar directions with 1 degree scales, respectively;  ``POWERLAW`` quantifies the preference for polar vs planar kicks with the ``--kick-direction-power`` parameter. |br|
-Default = ISOTROPIC
+Kick angles are defined relative to the spin axis. |br|
+``INPLANE`` and ``PERPENDICULAR`` are strictly in the equatorial plane or in polar directions. |br|
+``WEDGE`` and ``POLES`` are preferentially but exactly in the equatorial plane or in polar directions with 1 degree scales, respectively. |br|
+``POWERLAW`` quantifies the preference for polar vs planar kicks with the ``--kick-direction-power`` parameter. |br|
+Default = ISOTROPIC |br|
+DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--kick-direction-distribution`` in future.
+
+**--kick-direction-distribution** |br|
+Natal kick direction distribution. |br|
+Options: { ISOTROPIC, INPLANE, PERPENDICULAR, POWERLAW, WEDGE, POLES } |br|
+Kick angles are defined relative to the spin axis. |br|
+``INPLANE`` and ``PERPENDICULAR`` are strictly in the equatorial plane or in polar directions. |br|
+``WEDGE`` and ``POLES`` are preferentially but exactly in the equatorial plane or in polar directions with 1 degree scales, respectively. |br|
+``POWERLAW`` quantifies the preference for polar vs planar kicks with the ``--kick-direction-power`` parameter. |br|
+Default = ISOTROPIC |br|
+
+
 
 **--kick-direction-power** |br|
 Power for power law kick direction distribution, where 0.0 = isotropic, +ve = polar, -ve = in plane. |br|
@@ -510,7 +565,11 @@ Default = 0.0
 **--kick-magnitude-distribution** |br|
 Natal kick magnitude distribution. |br|
 Options: { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL } |br|
-``ZERO`` assigns kick magnitudes of 0, ``FIXED`` always sets the magnitude to a fixed value based on supernova type, ``FLAT`` and ``MAXWELLIAN`` draw kicks from uniform or Maxwellian (e.g., Hobbs et al., 2005) distributions, respectively, ``BRAYELDRIDGE`` and ``MULLERMANDEL`` use momenum-preserving kicks from Bray & Eldrigde 2018 and Mandel & Mueller 2020, respectively, and ``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 (reduced by a factor of sqrt(3) in the latter case). |br|
+``ZERO`` assigns kick magnitudes of 0.0. |br|
+``FIXED`` always sets the magnitude to a fixed value based on supernova type. |br|
+``FLAT`` and ``MAXWELLIAN`` draw kicks from uniform or Maxwellian (e.g., Hobbs et al., 2005) distributions, respectively. |br|
+``BRAYELDRIDGE`` and ``MULLERMANDEL`` use momentum-preserving kicks from Bray & Eldrigde 2018 and Mandel & Mueller 2020, respectively. |br|
+``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 (reduced by a factor of sqrt(3) in the latter case). |br|
 Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; 
 however, the ``MULLERMANDEL`` kick prescription is intended to be consistently used with the ``MULLERMANDEL`` remnant mass prescription. |br|
 Default = MULLERMANDEL
@@ -521,37 +580,44 @@ Must be > 0 if using ``--kick-magnitude-distribution = FLAT``. |br|
 Default = −1.0
 
 **--kick-magnitude-random** |br|
-CDF value to be used to draw the kick magnitude for a single star when evolving in SSE mode, should the star undergo a supernova event and should the chosen distribution sample from a cumulative distribution function. |br|
+CDF value to be used to draw the kick magnitude for a single star when evolving in SSE mode, should the star undergo a
+supernova event and should the chosen distribution sample from a cumulative distribution function. |br|
 Must be a floating-point number in the range :math:`[0.0, 1.0)`. |br|
 The specified value for this option will be used in preference to any specified value for ``--kick-magnitude``. |br|
 Default = Random number drawn uniformly from :math:`[0.0, 1.0)`
 
 **--kick-magnitude-random-1** |br|
-CDF value to be used to draw the kick magnitude for the primary star of a binary system when evolving in BSE mode, should the star undergo a supernova event and should the chosen distribution sample from a cumulative distribution function. |br|
+CDF value to be used to draw the kick magnitude for the primary star of a binary system when evolving in BSE mode,
+should the star undergo a supernova event and should the chosen distribution sample from a cumulative distribution function. |br|
 Must be a floating-point number in the range :math:`[0.0, 1.0)`. |br|
 The specified value for this option will be used in preference to any specified value for ``--kick-magnitude-1``. |br|
 Default = Random number drawn uniformly from :math:`[0.0, 1.0)`
 
 **--kick-magnitude-random-2** |br|
-CDF value to be used to draw the kick magnitude for the secondary star of a binary system when evolving in BSE mode, should the star undergo a supernova event and should the chosen distribution sample from a cumulative distribution function. |br|
+CDF value to be used to draw the kick magnitude for the secondary star of a binary system when evolving in BSE mode,
+should the star undergo a supernova event and should the chosen distribution sample from a cumulative distribution function. |br|
 Must be a floating-point number in the range :math:`[0.0, 1.0)`. |br|
 The specified value for this option will be used in preference to any specified value for ``--kick-magnitude-2``. |br|
 Default = Random number drawn uniformly from :math:`[0.0, 1.0)`
 
 **--kick-magnitude-sigma-CCSN-BH** |br|
-Sigma for chosen kick magnitude distribution for black holes (:math:`km s^{−1}`); ignored if not needed for the chosen kick magnitude distribution. |br|
+Sigma for chosen kick magnitude distribution for black holes (:math:`km s^{−1}`). |br|
+Ignored if not needed for the chosen kick magnitude distribution. |br|
 Default = 265.0
 
 **--kick-magnitude-sigma-CCSN-NS** |br|
-Sigma for chosen kick magnitude distribution for neutron stars (:math:`km s^{−1}`); ignored if not needed for the chosen kick magnitude distribution. |br|
+Sigma for chosen kick magnitude distribution for neutron stars (:math:`km s^{−1}`). |br|
+Ignored if not needed for the chosen kick magnitude distribution. |br|
 Default = 265.0
 
 **--kick-magnitude-sigma-ECSN** |br|
-Sigma for chosen kick magnitude distribution for ECSN (:math:`km s^{−1}`); ignored if not needed for the chosen kick magnitude distribution. |br|
+Sigma for chosen kick magnitude distribution for ECSN (:math:`km s^{−1}`). |br|
+Ignored if not needed for the chosen kick magnitude distribution. |br|
 Default = 30.0
 
 **--kick-magnitude-sigma-USSN** |br|
-Sigma for chosen kick magnitude distribution for USSN (:math:`km s^{−1}`); ignored if not needed for the chosen kick magnitude distribution. |br|
+Sigma for chosen kick magnitude distribution for USSN (:math:`km s^{−1}`). |br|
+Ignored if not needed for the chosen kick magnitude distribution. |br|
 Default = 30.0
 
 **--kick-mean-anomaly-1** |br|
@@ -567,7 +633,8 @@ Must be a floating-point number in the range :math:`[0.0, 2\pi)`. |br|
 Default = Random number drawn uniformly from :math:`[0.0, 2\pi)`
 
 **--kick-phi-1** |br|
-The angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the primary star of a binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
+The angle between ’x’ and ’y’, both in the orbital plane of the supernova vector, for the primary star of
+a binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
 Default = Drawn according to specified ``--kick-direction`` distribution
 
 **--kick-phi-2** |br|
@@ -580,16 +647,29 @@ Arbitrary factor used to scale kicks. |br|
 Default = 1.0
 
 **--kick-theta-1** |br|
-The angle between the orbital plane and the ’z’ axis of the supernova vector for the primary star of a binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
+The angle between the orbital plane and the ’z’ axis of the supernova vector for the primary star of a
+binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
 Default = Drawn according to specified ``--kick-direction`` distribution
 
 **--kick-theta-2** |br|
-The angle between the orbital plane and the ’z’ axis of the supernova vector for the secondary star of a binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
+The angle between the orbital plane and the ’z’ axis of the supernova vector for the secondary star of a
+binary system when evolving in BSE mode, should it undergo a supernova event (radians). |br|
 Default = Drawn according to specified ``--kick-direction`` distribution
 
 .. _options-props-L:
 
 :ref:`Back to Top <options-props-top>`
+
+**--LBV-mass-loss-prescription** |br|
+Luminous blue variable mass loss prescription. |br|
+Options: { NONE, ZERO, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
+``NONE``       : No LBV winds |br|
+``ZERO``       : No LBV winds |br|
+``HURLEY``     : Hurley, Pols, Tout (2000) |br|
+``HURLEY_ADD`` : ``HURLEY`` in addition to other winds |br|
+``BELCZYNSKI`` : Belzcynski et al. 2010 |br|
+Default = HURLEY_ADD |br|
+DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 **--log-classes** |br|
 Logging classes to be enabled (vector). |br|
@@ -678,12 +758,19 @@ Default = 1.5
 
 **--luminous-blue-variable-prescription** |br|
 Luminous blue variable mass loss prescription. |br|
-Options: { NONE, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
-No LBV winds for ``NONE``,  Hurley, Pols, Tout (2000) LBV winds only for ``HURLEY`` LBV stars (or in addition to other winds for ``HURLEY_ADD``, Belzcynski et al. 2010 winds for ``BELCZYNSKI`` |br|
-Default = HURLEY_ADD
+Options: { NONE, ZERO, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
+``NONE``       : No LBV winds |br|
+``ZERO``       : No LBV winds |br|
+``HURLEY``     : Hurley, Pols, Tout (2000) LBV winds only for LBV stars |br|
+``HURLEY_ADD`` : ``HURLEY`` in addition to other winds |br|
+``BELCZYNSKI`` : Belzcynski et al. 2010 |br|
+Default = HURLEY_ADD |br|
+DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--LBV-mass-loss-prescription`` in future. |br|
+DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 **--luminosity-to-mass-threshold** |br|
-Threshold log_10(Luminosity/Mass) (in solar units) above which, if the option ``expel-convective-envelope-above-luminosity-threshold`` is set to TRUE, pulsations eject the convective envelope |br|
+Threshold :math:`\log_{10}(Luminosity/Mass)` (in solar units) above which, if the option
+``expel-convective-envelope-above-luminosity-threshold`` is set to TRUE, pulsations eject the convective envelope |br|
 Default = 4.2
 
 .. _options-props-M:
@@ -692,8 +779,9 @@ Default = 4.2
 
 **--mass-change-fraction** |br|
 Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
-Recommended value is 0.005.  A value of 0 means that this choice is ignored and timestep estimates from earlier COMPAS version are used. |br|
-Default = 0
+Recommended value is 0.005. |br|
+A value of 0.0 means that this choice is ignored, and timestep estimates will be calculated by COMPAS. |br|
+Default = 0.0
 
 **--mass-loss-prescription** |br|
 Mass loss prescription. |br|
@@ -702,12 +790,13 @@ Default = VINK
 
 **--mass-ratio [ -q ]** |br|
 Mass ratio :math:`\frac{m2}{m1}` used to determine secondary mass if not specified via ``--initial-mass-2``. |br|
-Default = Value is sampled if option not specified.
+Default: value is sampled if option not specified.
 
 **--mass-ratio-distribution** |br|
 Initial mass ratio distribution for :math:`q = \frac{m2}{m1}`. |br|
 Options: { FLAT, DUQUENNOYMAYOR1991, SANA2012 } |br|
-``FLAT`` is uniform in the mass ratio between ``--mass-ratio-min`` and ``--mass-ratio-max``, the other prescriptions follow Duquennoy & Mayor 1991 and Sana et al. 2012 |br|
+``FLAT`` is uniform in the mass ratio between ``--mass-ratio-min`` and ``--mass-ratio-max``. |br|
+Other prescriptions follow Duquennoy & Mayor 1991 and Sana et al. 2012 |br|
 Default = FLAT
 
 **--mass-ratio-max** |br|
@@ -720,7 +809,8 @@ Default = 0.01
 
 **--mass-transfer** |br|
 Enable mass transfer. |br|
-Default = TRUE
+Default = TRUE |br|
+DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--use-mass-transfer`` in future.
 
 **--mass-transfer-accretion-efficiency-prescription** |br|
 Mass transfer accretion efficiency prescription. |br|
@@ -754,11 +844,18 @@ Default = 0.5
 
 **--mass-transfer-rejuvenation-prescription** |br|
 Mass Transfer Rejuvenation prescription. |br|
-Options: { NONE, STARTRACK } |br|
-``NONE`` uses the Hurley, Pols, Tout (2000) model, ``STARTRACK`` uses the model from Belczynski et al. 2008 |br|
+Options: { HURLEY, STARTRACK } |br|
+``HURLEY`` uses the Hurley, Pols, Tout (2000) model. |br|
+``STARTRACK`` uses the model from Belczynski et al. 2008 |br|
 Default = STARTRACK
 
 **--mass-transfer-thermal-limit-accretor** |br|
+Mass Transfer Thermal Accretion limit multiplier. |br|
+Options: { CFACTOR, ROCHELOBE } |br|
+Default = CFACTOR |br|
+DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--mass-transfer-thermal-limit-accretor-multiplier`` in future.
+
+**--mass-transfer-thermal-limit-accretor-multiplier** |br|
 Mass Transfer Thermal Accretion limit multiplier. |br|
 Options: { CFACTOR, ROCHELOBE } |br|
 Default = CFACTOR
@@ -796,7 +893,8 @@ Default = 0.0142
 **--metallicity-distribution** |br|
 Metallicity distribution. |br|
 Options: { ZSOLAR, LOGUNIFORM } |br|
-``ZSOLAR`` uses ``ZSOL_ASPLUND`` for all initial metallicities, ``LOGUNIFORM`` draws the metallicity uniformly in the log between ``--metallicity-min`` and ``--metallicity-max`` |br|
+``ZSOLAR`` uses ``ZSOL_ASPLUND`` for all initial metallicities. |br|
+``LOGUNIFORM`` draws the metallicity uniformly in the log between ``--metallicity-min`` and ``--metallicity-max`` |br|
 Default = ZSOLAR
 
 **--metallicity-max** |br|
@@ -809,7 +907,7 @@ Default = 0.0001
 
 **--minimum-secondary-mass** |br|
 Minimum mass of secondary to generate (:math:`M_\odot`). |br|
-Default = 0.1 if ``--initial-mass-2`` specified; value of ``--initial-mass-min`` if ``--initial-mass-2`` not specified.
+Defaults to 0.1 if ``--initial-mass-2`` is specified, otherwise value of ``--initial-mass-min``.
 
 **--mode** |br|
 The mode of evolution. |br|
@@ -833,7 +931,8 @@ Default = 0.3
 :ref:`Back to Top <options-props-top>`
 
 **--natal-kick-for-PPISN**
-Set to true if PPISN remnants should receive natal kicks via the same prescription as CCSN remnants; otherwise, they receive 0 natal kick. |br|
+TRUE indicates PPISN remnants will receive natal kicks via the same prescription as CCSN remnants. |br|
+FALSE indicates PPISN remnants will receive no natal kicks. |br|
 Default = TRUE  
 
 **--neutrino-mass-loss-BH-formation** |br|
@@ -875,14 +974,23 @@ Default = 10
 
 **--OB-mass-loss** |br|
 Main sequence mass loss prescription. |br|
-Options: { NONE, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018 } |br|
-NONE turns off mass loss for main sequence stars. Also available are Vink (2001, previous default), Vink (2021), Bjorklund (2022), and Krticka (2018).   |br|
-Default = VINK2021
+Options: { NONE, ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018 } |br|
+NONE/ZERO turns off mass loss for main sequence stars.|br|
+Default = VINK2021 |br|
+DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--OB-mass-loss-prescription`` in future. |br|
+DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
+
+**--OB-mass-loss-prescription** |br|
+Main sequence mass loss prescription. |br|
+Options: { NONE, ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018 } |br|
+NONE/ZERO turns off mass loss for main sequence stars.|br|
+Default = VINK2021 |br|
+DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 **--orbital-period** |br|
 Initial orbital period for a binary star when evolving in BSE mode (days). |br|
 Used only if the semi-major axis is not specified via ``--semi-major-axis``. |br|
-Default = Value is sampled if option not specified.
+Default: value is sampled if option not specified.
 
 **--orbital-period-distribution** |br|
 Initial orbital period distribution. |br|
@@ -908,7 +1016,7 @@ Default = Current working directory (CWD)
 **--overall-wind-mass-loss-multiplier** |br|
 Multiplicative constant for overall wind mass loss. |br|
 Note that this multiplication factor is applied after the ``luminous-blue-variable-multiplier``,
-the ``wolf-rayet-multiplier`` and the ``cool-wind-mass-loss-multiplier``. |br|
+the ``wolf-rayet-multiplier``, and the ``cool-wind-mass-loss-multiplier``. |br|
 Default = 1.0
 
 .. _options-props-P:
@@ -988,7 +1096,8 @@ Default = TRUE
 **--pulsational-pair-instability-prescription** |br|
 Pulsational pair instability prescription. |br|
 Options: { COMPAS, STARTRACK, MARCHANT, FARMER } |br|
-``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, all as implemented in Stevenson et al. 2019, ``FARMER`` follows Farmer et al. 2019 |br|
+``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, all as implemented in Stevenson et al. 2019. |br|
+``FARMER`` follows Farmer et al. 2019 |br|
 Default = MARCHANT
 
 .. _options-props-Q:
@@ -1005,7 +1114,8 @@ Default = FALSE
 
 **--radial-change-fraction** |br|
 Approximate desired fractional change in stellar radius on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
-Recommended value is 0.005.  A value of 0 means that this choice is ignored and timestep estimates from earlier COMPAS version are used. |br|
+Recommended value is 0.005. |br|
+A value of 0.0 means that this choice is ignored and timestep estimates will be calculated by COMPAS. |br|
 Default = 0
 
 **--random-seed** |br|
@@ -1015,13 +1125,12 @@ Default = 0
 **--remnant-mass-prescription** |br|
 Remnant mass prescription. |br|
 Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT } |br|
-Remnant mass recipes from Hurley, Pols, Tout (2000) for ``HURLEY2000``, Belczynski et al. 2002, Fryer et al. 2012,  Fryer et al. 2022, Mueller 2016, Mandel & Mueller 2020, and Schneider et al. 2020 (with the alternative prescription for effectively single stars from the same paper in the ``SCHNEIDER2020ALT`` case) |br|
-Note that this is independent from ``--kick-magnitude-distribution`` to provide flexibility; 
-however, the ``MULLERMANDEL`` kick prescription is intended to be consistently used with the ``MULLERMANDEL`` remnant mass prescription. |br|
 Default = MULLERMANDEL
 
 **--retain-core-mass-during-caseA-mass-transfer** |br|
-If set to true, preserve a larger donor core mass following case A mass transfer.  The core is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer. |br|
+If TRUE, preserve a larger donor core mass following case A mass transfer. |br|
+The core is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor,
+scaled by the fraction of the donor's MS lifetime at mass transfer. |br|
 Default = TRUE
 
 **--revised-energy-formalism-nandez-ivanova** |br|
@@ -1032,7 +1141,6 @@ Default = FALSE
 Print RLOF events to logfile. |br|
 Default = TRUE
 
-
 **--rocket-kick-magnitude-1** |br|
 Magnitude of post-SN pulsar rocket kick for the primary, in km/s. |br|
 Default = 0.0 
@@ -1042,11 +1150,11 @@ Magnitude of post-SN pulsar rocket kick for the secondary, in km/s. |br|
 Default = 0.0 
 
 **--rocket-kick-phi-1** |br|
-The in-plane angle [0, 2pi) of the rocket kick velocity that primary neutron star receives following the supernova. |br|
+The in-plane angle :math:`[0.0, 2pi)` of the rocket kick velocity that primary neutron star receives following the supernova. |br|
 Default = 0.0 
 
 **--rocket-kick-phi-2** |br|
-The in-plane angle [0, 2pi) of the rocket kick velocity that secondary neutron star receives following the supernova. |br|
+The in-plane angle :math:`[0.0, 2pi)` of the rocket kick velocity that secondary neutron star receives following the supernova. |br|
 Default = 0.0 
 
 **--rocket-kick-theta-1** |br|
@@ -1054,7 +1162,7 @@ The polar angle [0, pi] of the rocket kick velocity that primary neutron star re
 Default = 0.0 
 
 **--rocket-kick-theta-2** |br|
-The polar angle [0, pi] of the rocket kick velocity that secondary neutron star receives following the supernova. 0 is aligned with orbital AM. |br|
+The polar angle :math:`[0, pi]`` of the rocket kick velocity that secondary neutron star receives following the supernova. 0 is aligned with orbital AM. |br|
 Default = 0.0 
 
 **--rotational-frequency** |br|
@@ -1072,14 +1180,24 @@ Default = 0.0 (``--rotational-velocity-distribution`` used if ``--rotational-fre
 **--rotational-velocity-distribution** |br|
 Initial rotational velocity distribution. |br|
 Options: { ZERO, HURLEY, VLTFLAMES } |br|
-``ZERO`` sets all initial rotational velocities to 0, while ``HURLEY`` and ``VLTFLAMES`` sample them from the Hurley, Pols, Tout (2000) and Ramirez-Agudelo et al. (2013,2015), respectively |br|
+``ZERO`` sets all initial rotational velocities to 0.0. |br|
+``HURLEY`` and ``VLTFLAMES`` sample initial rotational velocities from the Hurley, Pols, Tout (2000) and Ramirez-Agudelo et al. (2013,2015), respectively |br|
 Default = ZERO
 
 **--RSG-mass-loss** |br|
 Red supergiant mass loss prescription. |br|
-Options: { NONE, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
-NONE turns off mass loss for giant (CHeB, FGB, AGB, TPAGB stellar types) stars below the RSG_MAXIMUM_TEMP. Also available are Vink and Sabhahit (2023), Beasor et al. (2020), Decin et al. (2023), Yang et al. (2023), Kee et. al (2021), and Nieuwenhuijzen and de Jager (1990, previous default).   |br|
-Default = DECIN2023
+Options: { NONE, ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
+NONE/ZERO turns off mass loss for giant stars (stellar types CHeB, FGB, EAGB, TPAGB) below the ``RSG_MAXIMUM_TEMP``. |br|
+Default = DECIN2023 |br|
+DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--RSG-mass-loss-prescription`` in future. |br|
+DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
+
+**--RSG-mass-loss-prescription** |br|
+Red supergiant mass loss prescription. |br|
+Options: { NONE, ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
+NONE/ZERO turns off mass loss for giant stars (stellar types CHeB, FGB, EAGB, TPAGB) below the ``RSG_MAXIMUM_TEMP``. |br|
+Default = DECIN2023 |br|
+DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 .. _options-props-S:
 
@@ -1092,7 +1210,6 @@ Default = 0.1
 **--semi-major-axis-distribution [ -a ]** |br|
 Initial semi-major axis distribution. |br|
 Options: { FLATINLOG, DUQUENNOYMAYOR1991, SANA2012 } |br|
-Flat-in-log (Opik 1924), Duquennoy & Mayor (1991) or Sana et al. (2012) distributions |BR|
 Default = FLATINLOG
 
 **--semi-major-axis-max** |br|
@@ -1104,13 +1221,13 @@ Minimum semi-major axis to generate (AU). |br|
 Default = 0.01
 
 **--stellar-zeta-prescription** |br|
-Prescription for convective donor radial response zeta. 
+Prescription for convective donor radial response zeta. |br|
 Options: { SOBERMAN, HURLEY, ARBITRARY } |br|
-The prescription only applies to stars with convective envelopes.
+The prescription only applies to stars with convective envelopes. |br|
 Stars with radiative envelopes take the values from ``--zeta-main-sequence`` or ``--zeta-radiative-giant-star``. |br|
-``SOBERMAN`` uses zeta from Soberman, Phinney, and van den Heuvel (1997) 
-``HURLEY`` uses zeta from Hurley, Pols, Tout (2002) 
-``ARBITRARY`` uses fixed value set in ``--zeta-adiabatic-arbitrary`` |br|
+``SOBERMAN`` uses zeta from Soberman, Phinney, and van den Heuvel (1997). |br|
+``HURLEY`` uses zeta from Hurley, Pols, Tout (2002). |br|
+``ARBITRARY`` uses fixed value set in ``--zeta-adiabatic-arbitrary``. |br|
 Default = SOBERMAN
 
 **--store-input-files** |br|
@@ -1128,8 +1245,8 @@ Default = FALSE
 **--tides-prescription** |br|
 Prescription for tidal evolution of the binary. |br|
 Options: { NONE, PERFECT, KAPIL2024 } |br|
-``NONE`` disables tidal interactions.
-``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization. 
+``NONE`` disables tidal interactions. |br|
+``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization. |br|
 ``KAPIL2024`` uses the prescription from Kapil+ (2024). |br|
 Default = NONE
 
@@ -1147,11 +1264,19 @@ Default = 1.0
 
 **--use-mass-loss** |br|
 Enable mass loss through winds. |br|
-Note that setting this option to false can have unexpected consequences, e.g., TPAGB stars that are prevented from losing mass 
-cannot become white dwarfs, so will end up as massless remnants.  This is a useful option for testing, but this setting is not recommended
-for production. It is better to use specific wind prescription controls, such as --cool-wind-mass-loss-multiplier, 
---luminous-blue-variable-prescription, --luminous-blue-variable-multiplier, 
---mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier . |br|
+Default = TRUE
+Note that setting this option to FALSE can have unexpected consequences, e.g., TPAGB stars that are prevented from losing mass 
+cannot become white dwarfs, so will become massless remnants.  This is a useful option for testing, but this setting is not recommended
+for production. It is better to use specific wind prescription controls, such as: |br|
+``--cool-wind-mass-loss-multiplier`` |br|
+``--LBV-mass-loss-prescription`` |br|
+``--luminous-blue-variable-multiplier`` |br|
+``--mass-loss-prescription`` |br|
+``--overall-wind-mass-loss-multiplier`` |br|
+``--wolf-rayet-multiplier`` |br|
+
+**--use-mass-transfer** |br|
+Enable mass transfer. |br|
 Default = TRUE
 
 .. _options-props-V:
@@ -1163,9 +1288,20 @@ Prints COMPAS version string.
 
 **--VMS-mass-loss** |br|
 Very massive main sequence mass loss prescription. |br|
-Options: { NONE, VINK2011, SABHAHIT2023, BESTENLEHNER2020 } |br|
-Applied above the VERY_MASSIVE_MINIMUM_MASS (100 Msol by default). NONE turns off mass loss. Also available are Vink (2011), Bestenlehner (2020), and Sabhahit (2023).   |br|
-Default = SABHAHIT2023
+Options: { NONE, ZERO, VINK2011, SABHAHIT2023, BESTENLEHNER2020 } |br|
+Applied above the VMS_MASS_THRESHOLD (:math:`100 M_\odot`) by default. |br|
+NONE/ZERO turns off VMS mass loss. |br|
+Default = SABHAHIT2023 |br|
+DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--VMS-mass-loss-prescription`` in future. |br|
+DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
+
+**--VMS-mass-loss-prescription** |br|
+Very massive main sequence mass loss prescription. |br|
+Options: { NONE, ZERO, VINK2011, SABHAHIT2023, BESTENLEHNER2020 } |br|
+Applied above the VMS_MASS_THRESHOLD (:math:`100 M_\odot`) by default. |br|
+NONE/ZERO turns off VMS mass loss. |br|
+Default = SABHAHIT2023 |br|
+DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 .. _options-props-W:
 
@@ -1179,7 +1315,12 @@ Default = 1.0
 **--WR-mass-loss** |br|
 Wolf-Rayet mass loss prescription. |br|
 Options: { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 } |br|
-Selects between Belczynski (2010), Sander and Vink (2021 updated), and Shenar (2019).   |br|
+Default = SANDERVINK2023 |br|
+DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--WR-mass-loss-prescription`` in future.
+
+**--WR-mass-loss-prescription** |br|
+Wolf-Rayet mass loss prescription. |br|
+Options: { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 } |br|
 Default = SANDERVINK2023
 
 .. _options-props-X:
@@ -1237,12 +1378,12 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Stellar evolution and winds**
 
---use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, 
+--use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
 --luminous-blue-variable-multiplier, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold,
---OB-mass-loss, --RSG-mass-loss, --VMS-mass-loss, --WR-mass-loss
+--OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 
---chemically-homogeneous-evolution
+--chemically-homogeneous-evolution, --chemically-homogeneous-evolution-mode
 
 :ref:`Back to Top <options-props-top>`
 
@@ -1256,9 +1397,9 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --critical-mass-ratio-giant-degenerate-accretor, --critical-mass-ratio-giant-non-degenerate-accretor, --critical-mass-ratio-helium-HG-degenerate-accretor,
 --critical-mass-ratio-helium-HG-non-degenerate-accretor, --critical-mass-ratio-helium-MS-degenerate-accretor, --critical-mass-ratio-helium-MS-non-degenerate-accretor, 
 --critical-mass-ratio-helium-giant-degenerate-accretor, --critical-mass-ratio-helium-giant-non-degenerate-accretor, --critical-mass-ratio-white-dwarf-degenerate-accretor, 
---critical-mass-ratio-white-dwarf-non-degenerate-accretor, --eddington-accretion-factor, --mass-transfer, --mass-transfer-accretion-efficiency-prescription, 
+--critical-mass-ratio-white-dwarf-non-degenerate-accretor, --eddington-accretion-factor, --mass-transfer, --use-mass-transfer, --mass-transfer-accretion-efficiency-prescription, 
 --mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-macleod-linear-fraction-degen, --mass-transfer-jloss-macleod-linear-fraction-non-degen, 
---mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
+--mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-accretor-multiplier, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
 --circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription
@@ -1287,11 +1428,11 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --pulsar-magnetic-field-decay-massscale, --pulsar-magnetic-field-decay-timescale, --pulsar-minimum-magnetic-field
 
 --kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, 
---black-hole-kicks, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, 
+--black-hole-kicks, --black-hole-kicks-mode, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, 
 --kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH, 
 --muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick
 
---kick-direction, --kick-direction-power, --kick-mean-anomaly-1, --kick-mean-anomaly-2, --kick-phi-1, --kick-phi-2, --kick-theta-1, --kick-theta-2
+--kick-direction, --kick-direction-distribution, --kick-direction-power, --kick-mean-anomaly-1, --kick-mean-anomaly-2, --kick-phi-1, --kick-phi-2, --kick-theta-1, --kick-theta-2
 
 :ref:`Back to Top <options-props-top>`
 
@@ -1302,6 +1443,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --mode, --number-of-systems, --evolve-double-white-dwarfs, --evolve-main-sequence-mergers, --evolve-pulsars, --evolve-unbound-systems, --mass-change-fraction, 
 --maximum-evolution-time, --maximum-number-timestep-iterations,
 --radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename
+
+--fp-error-mode
 
 --grid, --grid-start-line, --grid-lines-to-process
 

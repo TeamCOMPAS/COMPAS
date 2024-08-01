@@ -16,6 +16,8 @@ class CH: virtual public BaseStar, public MS_gt_07 {
 
 public:
 
+    CH() { m_StellarType = STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS; };
+    
     CH(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), MS_gt_07(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS;                                                                                                                       // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                             // Initialise if required

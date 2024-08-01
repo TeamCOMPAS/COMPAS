@@ -16,6 +16,8 @@ class FGB: virtual public BaseStar, public HG {
 
 public:
 
+    FGB() { m_StellarType = STELLAR_TYPE::FIRST_GIANT_BRANCH; };
+    
     FGB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HG(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::FIRST_GIANT_BRANCH;                                                                                                                                           // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                                             // Initialise if required
