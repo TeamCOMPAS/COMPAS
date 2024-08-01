@@ -14,7 +14,11 @@ class MainSequence: virtual public BaseStar {
 
 public:
 
+    MainSequence(){};
+
     MainSequence(const BaseStar& p_BaseStar) : BaseStar(p_BaseStar) {}
+
+    MT_CASE DetermineMassTransferTypeAsDonor() const                                        { return MT_CASE::A; }                                                  // Always case A
 
 
 protected:

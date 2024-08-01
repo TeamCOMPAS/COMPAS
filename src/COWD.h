@@ -14,6 +14,8 @@ class COWD: virtual public BaseStar, public WhiteDwarfs {
 
 public:
 
+    COWD() { m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF; };
+    
     COWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), WhiteDwarfs(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF;                                                                                                // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                         // Initialise if required
@@ -41,8 +43,7 @@ public:
                                                                                                                                             p_Metallicity, 
                                                                                                                                             WD_Baryon_Number.at(STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF)); }
 
-    ACCRETION_REGIME DetermineAccretionRegime(const bool   p_HeRich,
-                                              const double p_DonorThermalMassLossRate);                                                                         // To check the current accretion regime and mass retention. Can also change flags related to SN events.
+    ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate);                                                    // Get the current accretion regime. Can also change flags related to SN events.
 
 protected:
 
@@ -52,7 +53,7 @@ protected:
         m_HeShell           = 0.0;                                                                                                                              // Initialize helium shell
         m_HeShellDetonation = false;
         m_OffCenterIgnition = false;
-        m_AccretionRegime   = ACCRETION_REGIME::NONE;
+        m_AccretionRegime   = ACCRETION_REGIME::ZERO;
     }
 
 
