@@ -2519,7 +2519,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     if ((m_CEDetails.CEEnow || StellarMerger()) &&                                                                      // CEE or merger?
         !(OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))
-        && !HasOneOf({STELLAR_TYPE::MASSLESS_REMNANT}) ) {                  // yes - avoid CEE if CH+CH
+        && !HasOneOf({STELLAR_TYPE::MASSLESS_REMNANT}) ) {                                                              // yes - avoid CEE if CH+CH or one star is a massless remnant
 
         ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
         (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_CEE);                                            // print (log) detailed output
