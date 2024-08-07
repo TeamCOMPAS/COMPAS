@@ -903,7 +903,7 @@ private:
             }
 
             // we add the record type column to the end of the log record here for all logfiles
-            // except the switch files (BSE_SWITCH_LOG and SSE_SWOTCH_LOG).
+            // except the switch files (BSE_SWITCH_LOG and SSE_SWITCH_LOG).
             //
             // This is hard-coded here rather than in the *_PROPERTY_DETAIL maps in constants.h
             // so that it will always be present in the logfile - this way users can't add or 

@@ -2624,6 +2624,7 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
         OPTIONS->LBVMassLossPrescription() == LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD ) {                            // check whether we should add other winds to the LBV winds (always for HURLEY_ADD prescription, only if not in LBV regime for others)
 
         double teff = m_Temperature * TSOL;                                                                         // change to Kelvin so it can be compared with values as stated in Vink prescription
+        
         if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) < 0) {                                                // cool stars, add Hurley et al 2000 winds
             otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // apply cool wind mass loss multiplier
         }
@@ -2662,7 +2663,7 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
 
     double LBVRate         = CalculateMassLossRateLBV(OPTIONS->LBVMassLossPrescription());                          // start with LBV winds (can be, and is often, 0.0)
     double otherWindsRate  = 0.0;
-    double teff            = TSOL * m_Temperature;    
+    double teff            = TSOL * m_Temperature;
 
     // calculate other winds rate
     if (m_DominantMassLossRate != MASS_LOSS_TYPE::LBV || 
