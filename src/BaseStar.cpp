@@ -2662,7 +2662,7 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
 
     double LBVRate         = CalculateMassLossRateLBV(OPTIONS->LBVMassLossPrescription());                          // start with LBV winds (can be, and is often, 0.0)
     double otherWindsRate  = 0.0;
-    double teff            = TSOL * m_Temperature;    
+    double teff            = TSOL * m_Temperature;
 
     // calculate other winds rate
     if (m_DominantMassLossRate != MASS_LOSS_TYPE::LBV || 

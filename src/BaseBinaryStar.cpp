@@ -1760,8 +1760,9 @@ void BaseBinaryStar::ResolveMainSequenceMerger() {
 	
     double finalMass               = (1.0 - phi) * (mass1 + mass2);
     double initialHydrogenFraction = 1.0 - utils::MESAZAMSHeliumFractionByMetallicity(m_Star1->Metallicity()) - m_Star1->Metallicity();
-    std::cout<<"initialHydrogenFraction pre Merger"<<initialHydrogenFraction<<std::endl;
     double finalHydrogenMass       = finalMass * initialHydrogenFraction - tau1 * TAMSCoreMass1 * initialHydrogenFraction - tau2 * TAMSCoreMass2 * initialHydrogenFraction;
+    
+    m_SemiMajorAxis = std::numeric_limits<float>::infinity();                                   // set separation to infinity to avoid subsequent fake interactions with a massless companion (RLOF, CE, etc.)
     
     m_Star1->UpdateAfterMerger(finalMass, finalHydrogenMass);
     
@@ -1993,6 +1994,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         m_Flags.stellarMerger = true;
         return;
     }
+    
+    if (HasOneOf({STELLAR_TYPE::MASSLESS_REMNANT})) return;                                                                     // one of the stars is already a massless remnant, nothing to do
     
     if (m_Star1->IsRLOF() && m_Star2->IsRLOF()) {                                                                               // both stars overflowing their Roche Lobe?
         m_CEDetails.CEEnow = true;                                                                                              // yes - common envelope event - no mass transfer
@@ -2354,8 +2357,9 @@ void BaseBinaryStar::ResolveMassChanges() {
     m_Star2->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star2
     m_Star2->UpdateAttributes(0.0, 0.0, true);
     
-    // update binary
-    m_SemiMajorAxis = m_SemiMajorAxisPrev + m_aMassLossDiff + m_aMassTransferDiff;
+    // update binary separation, but only if semimajor axis not already infinite and binary does not contain a massless remnant
+    if(!isinf(m_SemiMajorAxis) && !HasOneOf({STELLAR_TYPE::MASSLESS_REMNANT}))
+        m_SemiMajorAxis = m_SemiMajorAxisPrev + m_aMassLossDiff + m_aMassTransferDiff;
     
     //Envelope ejection for convective envelope stars exceeding threshold luminosity to mass ratio: assume the entire envelope was lost on timescales long relative to the orbit
     if (m_Star1->EnvelopeJustExpelledByPulsations() || m_Star2->EnvelopeJustExpelledByPulsations()) {
@@ -2514,7 +2518,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_WINDS);                                              // print (log) detailed output
 
     if ((m_CEDetails.CEEnow || StellarMerger()) &&                                                                      // CEE or merger?
-        !(OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))) {                  // yes - avoid CEE if CH+CH
+        !(OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS}))
+        && !HasOneOf({STELLAR_TYPE::MASSLESS_REMNANT}) ) {                                                              // yes - avoid CEE if CH+CH or one star is a massless remnant
 
         ResolveCommonEnvelopeEvent();                                                                                   // resolve CEE - immediate event
         (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_CEE);                                            // print (log) detailed output

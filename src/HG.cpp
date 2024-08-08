@@ -1089,7 +1089,7 @@ double HG::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     double dtk = 0.05 * (timescales(tBGB) - timescales(tMS));
-    double dte = timescales(tBGB) - p_Time;
+    double dte = timescales(tBGB) - p_Time;    
 
     return std::max(std::min(dtk, dte), NUCLEAR_MINIMUM_TIMESTEP);
 

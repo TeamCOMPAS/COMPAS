@@ -1251,9 +1251,13 @@
 //                                      - Set the maximum convective envelope mass to the total envelope mass for intermediate mass stars, where the Picker+ (2024) fits are invalid
 //                                      - Stop evolution on massless remnant + remnant, regardless of --evolve-main-sequence-merger-products (no further evolution expected)
 //                                      - Corrected rejuvenation of main sequence merger products
+// 03.00.02   IM - Aug 7, 2024      - Enhancements, defect repairs, code cleanup:
+//                                      - Continue evolution of main sequence merger products beyond the main sequence
+//                                      - Remove spurious print statement
+//                                      - Typo fixes
 
 
-const std::string VERSION_STRING = "03.00.01";
+const std::string VERSION_STRING = "03.00.02";
 
 
 # endif // __changelog_h__

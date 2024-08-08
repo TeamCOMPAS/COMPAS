@@ -835,6 +835,7 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass)
     double initialHydrogenFraction = 1.0 - utils::MESAZAMSHeliumFractionByMetallicity(m_Metallicity) - m_Metallicity;
     
     CalculateTimescales();
+    CalculateGBParams();
             
     m_Tau = (initialHydrogenFraction - p_HydrogenMass / m_Mass) / initialHydrogenFraction;       // assumes uniformly mixed merger product and a uniform rate of H fusion on main sequence
     
