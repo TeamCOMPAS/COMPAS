@@ -1255,7 +1255,7 @@
 //                                      - Continue evolution of main sequence merger products beyond the main sequence
 //                                      - Remove spurious print statement
 //                                      - Typo fixes
-// 03.00.02   JR - Aug 21, 2024     - Defect repair:
+// 03.00.03   JR - Aug 21, 2024     - Defect repair:
 //                                      - Fix for issue 1184: Segmentation Fault (Core Dumped) Encountered in COMPAS V3.0 with "--common-envelope-formalism TWO_STAGE"
 
 
