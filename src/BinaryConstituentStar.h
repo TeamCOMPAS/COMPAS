@@ -241,9 +241,6 @@ public:
 
 private:
 
-//    OBJECT_ID               m_ObjectId;                             // Instantiated object's unique object id
-//    OBJECT_PERSISTENCE      m_ObjectPersistence;                    // Instantiated object's persistence (permanent or ephemeral)
-
     // member variables - alphabetically
 
     StellarCEDetailsT       m_CEDetails;                            // Common envelope details
