@@ -1163,7 +1163,7 @@ public:
     void   Say(const string p_SayClass, const int p_SayLevel, const string p_SayStr);
 
     // SetSwitchParameters is called by Star::SwitchTo to set the parameters 
-    // to be written to the BSE Switch Log file
+    // to be written to the Switch Log file
     void   SetSwitchParameters(const OBJECT_ID          p_ObjectIdSwitching,
                                const OBJECT_TYPE        p_ObjectSwitchingType,
                                const OBJECT_PERSISTENCE p_ObjectSwitchingPersistence, 
