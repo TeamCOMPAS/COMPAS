@@ -16,19 +16,13 @@ class BinaryConstituentStar: virtual public Star {
 
 public:
 
-    BinaryConstituentStar() : Star() {
-        m_ObjectId          = globalObjectId++;
-        m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;
-    };
+    BinaryConstituentStar() : Star() { };
 
     BinaryConstituentStar(const unsigned long int p_RandomSeed, 
                           const double            p_Mass, 
                           const double            p_Metallicity, 
                           const KickParameters    p_KickParameters,
                           const double            p_RotationalVelocity = -1.0) : Star(p_RandomSeed, p_Mass, p_Metallicity, p_KickParameters, p_RotationalVelocity) {
-
-        m_ObjectId                                   = globalObjectId++;
-        m_ObjectPersistence                          = OBJECT_PERSISTENCE::PERMANENT;
 
         m_Companion                                  = nullptr;
 
@@ -76,9 +70,6 @@ public:
 
     // Copy constructor
     BinaryConstituentStar(const BinaryConstituentStar& p_Star) : Star(p_Star) {
-
-        m_ObjectId                 = globalObjectId++;                      // get unique object id (don't copy source)
-        m_ObjectPersistence        = p_Star.m_ObjectPersistence;            // object persistence
 
         m_CEDetails                = p_Star.m_CEDetails;
 
@@ -250,8 +241,8 @@ public:
 
 private:
 
-    OBJECT_ID               m_ObjectId;                             // Instantiated object's unique object id
-    OBJECT_PERSISTENCE      m_ObjectPersistence;                    // Instantiated object's persistence (permanent or ephemeral)
+//    OBJECT_ID               m_ObjectId;                             // Instantiated object's unique object id
+//    OBJECT_PERSISTENCE      m_ObjectPersistence;                    // Instantiated object's persistence (permanent or ephemeral)
 
     // member variables - alphabetically
 
