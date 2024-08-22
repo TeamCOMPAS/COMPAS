@@ -119,7 +119,7 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
         // write to switch log file if required
 
         if (utils::IsOneOf(stellarTypePrev, EVOLVABLE_TYPES) && OPTIONS->SwitchLog()) {                     // star should be evolving from one of the evolvable types (We don't want the initial switch from Star->MS.  Not necessary for BSE (handled differently), but no harm)
-        
+
             LOGGING->SetSwitchParameters(m_ObjectId, ObjectType(), m_ObjectPersistence, stellarTypePrev, p_StellarType);  // store switch details to LOGGING service
             if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::BSE) {                                          // BSE?
                 raise(SIGUSR1);                                                                             // signal to BSE that switch is occurring

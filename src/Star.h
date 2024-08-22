@@ -290,14 +290,17 @@ public:
 
 private:
 
-    OBJECT_ID          m_ObjectId;              // instantiated object's unique object id
-    OBJECT_PERSISTENCE m_ObjectPersistence;     // instantiated object's persistence
-    long int           m_Id;                    // id used to name output files - uses p_Id as passed (usually the step number of multiple single stars being produced)
+    long int  m_Id;                             // id used to name output files - uses p_Id as passed (usually the step number of multiple single stars being produced)
 
-    BaseStar          *m_Star;                  // pointer to current star
-    BaseStar          *m_SaveStar;              // pointer to saved star
+    BaseStar *m_Star;                           // pointer to current star
+    BaseStar *m_SaveStar;                       // pointer to saved star
 
     std::vector<double> m_Timesteps;            // timesteps vector - for debugging/testing
+
+protected:
+
+    OBJECT_ID          m_ObjectId;              // instantiated object's unique object id
+    OBJECT_PERSISTENCE m_ObjectPersistence;     // instantiated object's persistence
 
 };
 
