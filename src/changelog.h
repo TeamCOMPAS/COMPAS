@@ -1255,9 +1255,13 @@
 //                                      - Continue evolution of main sequence merger products beyond the main sequence
 //                                      - Remove spurious print statement
 //                                      - Typo fixes
+// 03.00.03   JR - Aug 22, 2024     - Defect repairs:
+//                                      - Reinstate correctly functioning code for floating-point error handling for Linux
+//                                      - Disable floating-point error handling for MacOS - until I can figure out how to
+//                                        make it work properly for both INTEL and ARM architectures.
 
 
-const std::string VERSION_STRING = "03.00.02";
+const std::string VERSION_STRING = "03.00.03";
 
 
 # endif // __changelog_h__
