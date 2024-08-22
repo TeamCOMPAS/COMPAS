@@ -1257,9 +1257,11 @@
 //                                      - Typo fixes
 // 03.00.03   JR - Aug 21, 2024     - Defect repair:
 //                                      - Fix for issue 1184: Segmentation Fault (Core Dumped) Encountered in COMPAS V3.0 with "--common-envelope-formalism TWO_STAGE"
+// 03.00.04   JR - Aug 22, 2024     - Defect repairs:
+//                                      - Fix for issue #1182: Switch log issue
 
 
-const std::string VERSION_STRING = "03.00.03";
+const std::string VERSION_STRING = "03.00.04";
 
 
 # endif // __changelog_h__
