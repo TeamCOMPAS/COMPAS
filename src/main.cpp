@@ -866,8 +866,8 @@ int main(int argc, char * argv[]) {
                 sigAct.sa_flags   = SA_NODEFER;                                                     // don't defer further signals
                 sigaction(SIGFPE, &sigAct, NULL);                                                   // enable the signal handler
 
-                feclearexcept(FE_ALL_EXCEPT);                                                       // yes - clear all FE traps
-                feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);             // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
+                (void)feclearexcept(FE_ALL_EXCEPT);                                                 // clear all FE traps
+                (void)feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);       // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
             }
             else (void)fedisableexcept(FE_ALL_EXCEPT);                                              // disable all FE traps
 
