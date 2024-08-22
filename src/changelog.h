@@ -1255,9 +1255,11 @@
 //                                      - Continue evolution of main sequence merger products beyond the main sequence
 //                                      - Remove spurious print statement
 //                                      - Typo fixes
+// 03.00.03   JR - Aug 22, 2024     - Defect repairs:
+//                                      - Fix for issue #1182: Switch log issue
 
 
-const std::string VERSION_STRING = "03.00.02";
+const std::string VERSION_STRING = "03.00.03";
 
 
 # endif // __changelog_h__
