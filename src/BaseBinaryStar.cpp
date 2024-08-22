@@ -1883,10 +1883,10 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
         // Use boost adaptive ODE solver for speed and accuracy
         struct ode {
             double p_MassDonor0, p_MassAccretor0, p_FractionAccreted;
-            bool p_IsAccretorDegenerate;
+            bool   p_IsAccretorDegenerate;
             ode(double massDonor0, double massAccretor0, double fractionAccreted, bool isAccretorDegenerate) : p_MassDonor0(massDonor0), p_MassAccretor0(massAccretor0), p_FractionAccreted(fractionAccreted), p_IsAccretorDegenerate(isAccretorDegenerate) {}
 
-            void operator()( state_type const& x , state_type& dxdt , double p_MassChange ) const {
+            void operator()(state_type const& x, state_type& dxdt, double p_MassChange ) const {
                 double massD = p_MassDonor0 + p_MassChange;
                 double massA = p_MassAccretor0 - p_MassChange * p_FractionAccreted;
                 double jLoss = CalculateGammaAngularMomentumLoss_Static(massD, massA, p_IsAccretorDegenerate);
@@ -1894,7 +1894,7 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
             }
         };
 
-        integrate_adaptive( controlled_stepper , ode{ p_DonorMass, p_Accretor.Mass(), p_FractionAccreted, m_Accretor->IsDegenerate() }, x , 0.0 , p_DeltaMassDonor , p_DeltaMassDonor / 1000.0);
+        integrate_adaptive(controlled_stepper, ode{ p_DonorMass, p_Accretor.Mass(), p_FractionAccreted, p_Accretor.IsDegenerate() }, x, 0.0, p_DeltaMassDonor, p_DeltaMassDonor / 1000.0);
         semiMajorAxis = x[0];
     }
     

@@ -1255,13 +1255,16 @@
 //                                      - Continue evolution of main sequence merger products beyond the main sequence
 //                                      - Remove spurious print statement
 //                                      - Typo fixes
-// 03.00.03   JR - Aug 22, 2024     - Defect repairs:
+// 03.00.03   JR - Aug 21, 2024     - Defect repair:
+//                                      - Fix for issue 1184: Segmentation Fault (Core Dumped) Encountered in COMPAS V3.0 with "--common-envelope-formalism TWO_STAGE"
+// 03.00.04   JR - Aug 22, 2024     - Defect repairs:
+//                                      - Fix for issue #1182: Switch log issue
+// 03.00.05   JR - Aug 22, 2024     - Defect repairs:
 //                                      - Reinstate correctly functioning code for floating-point error handling for Linux
 //                                      - Disable floating-point error handling for MacOS - until I can figure out how to
 //                                        make it work properly for both INTEL and ARM architectures.
 
 
-const std::string VERSION_STRING = "03.00.03";
-
+const std::string VERSION_STRING = "03.00.05";
 
 # endif // __changelog_h__
