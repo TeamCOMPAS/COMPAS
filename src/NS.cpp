@@ -152,15 +152,6 @@ double NS::CalculateBirthSpinPeriod() {
             pSpin = 0.0;
             break;
 
-        // JR: Unsupported?  This is the only places in the code PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::FIXED
-        // appears - can we remove FIXED from the available options so the user can't choose it (deprecate it)?
-        // If we ever decide to support it we can put it back in then.  It doesn't seem right to present it to
-        // users as an option only to say we don't support it once they choose it. **Ilya**
-        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::FIXED:                                                      // FIXED  constant value as used in default model in Oslowski et al 2011 https://arxiv.org/abs/0903.3538
-            SHOW_WARN_STATIC(ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, "Using spin = 0.0");     // show warning
-            pSpin = 0.0;
-            break;
-
         case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM: {                                                  // UNIFORM distribution between minimum and maximum value as in Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (default Pmin = and Pmax = )
                                                                                                                 // and also Kiel et al 2008 https://arxiv.org/abs/0805.0059 (default Pmin = 10 ms and Pmax 100 ms, section 3.4)
             double maximum = OPTIONS->PulsarBirthSpinPeriodDistributionMax();
@@ -212,15 +203,6 @@ double NS::CalculateBirthMagneticField() {
     switch (OPTIONS->PulsarBirthMagneticFieldDistribution()) {                                                  // which distribution?
 
         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO:                                                    // ZERO
-            log10B = 0.0;
-            break;
-
-        // JR: Unsupported?  This is the only places in the code PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FIXED
-        // appears - can we remove FIXED from the available options so the user can't choose it (deprecate it)?
-        // If we ever decide to support it we can put it back in then.  It doesn't seem right to present it to
-        // users as an option only to say we don't support it once they choose it. **Ilya**
-        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FIXED:                                                   // FIXED - set to a fixed constant value
-            SHOW_WARN(ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, "Using 0.0");                // show warning
             log10B = 0.0;
             break;
 

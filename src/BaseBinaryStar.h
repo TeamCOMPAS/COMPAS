@@ -41,11 +41,6 @@ public:
 
         m_RandomSeed                       = p_Star.m_RandomSeed;
 
-//        m_BeBinaryDetails                  = p_Star.m_BeBinaryDetails;
-
-//        m_BeBinaryDetails.currentProps     = p_Star.m_BeBinaryDetails.currentProps  == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
-//        m_BeBinaryDetails.previousProps    = p_Star.m_BeBinaryDetails.previousProps == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
-
         m_CircularizationTimescale         = p_Star.m_CircularizationTimescale;
 
         m_CEDetails                        = p_Star.m_CEDetails;
@@ -162,7 +157,6 @@ public:
 
 
     // getters - alphabetically
-//    BeBinaryDetailsT    BeBinaryDetails() const                     { return m_BeBinaryDetails; }
     bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
     unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
     double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
@@ -186,7 +180,6 @@ public:
     bool                ImmediateRLOFPostCEE() const                { return m_RLOFDetails.immediateRLOFPostCEE; }
     STELLAR_TYPE        InitialStellarType1() const                 { return m_Star1->InitialStellarType(); }
     STELLAR_TYPE        InitialStellarType2() const                 { return m_Star2->InitialStellarType(); }
-    bool                IsBeBinary() const                          { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07}); }
     bool                IsHMXRBinary() const;
     bool                IsBHandBH() const                           { return HasTwoOf({STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsDCO() const                               { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE}); }
@@ -297,8 +290,6 @@ private:
     EVOLUTION_STATUS    m_EvolutionStatus;                                                  // Records the status of the evolution of the star
 
     unsigned long int   m_RandomSeed;                                                       // Random seed for this binary
-
-//    BeBinaryDetailsT    m_BeBinaryDetails;                                                  // BeBinary details
 
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
 
@@ -484,7 +475,6 @@ private:
                             const double p_RocheLobe1to2,
                             const double p_RocheLobe2to1);
 
-    void    StashBeBinaryProperties();
     void    StashRLOFProperties(const MT_TIMING p_Which);
 
     void    UpdateSystemicVelocity(Vector3d p_newVelocity)                      { m_SystemicVelocity += p_newVelocity; } 
