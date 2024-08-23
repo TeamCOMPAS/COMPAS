@@ -313,10 +313,6 @@ Following is a list of COMPAS error numbers, corresponding symbolic name, and me
    Unknown rotational velocity prescription
 #. UNKNOWN_ZETA_PRESCRIPTION |br|
    Unknown stellar ZETA prescription
-#. UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION |br|
-   Unsupported pulsar birth magnetic field distribution
-#. UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION |br|
-   Unsupported pulsar birth spin period distribution
 #. WARNING |br|
    Unspecified warning
 #. WHITE_DWARF_TOO_MASSIVE |br|
