@@ -748,20 +748,18 @@ const COMPASUnorderedMap<PPI_PRESCRIPTION, std::string> PPI_PRESCRIPTION_LABEL =
 enum class PROGRAM_STATUS: int { SUCCESS, CONTINUE, STOPPED, ERROR_IN_COMMAND_LINE, LOGGING_FAILED, ERROR_UNHANDLED_EXCEPTION };
 
 // pulsar birth magnetic field distributions
-enum class PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION: int { ZERO, FIXED, FLATINLOG, UNIFORM, LOGNORMAL };
+enum class PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION: int { ZERO, FLATINLOG, UNIFORM, LOGNORMAL };
 const COMPASUnorderedMap<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, std::string> PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL = {
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO,      "ZERO" },
-    { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FIXED,     "FIXED" },
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLATINLOG, "FLATINLOG" },
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::UNIFORM,   "UNIFORM" },
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL, "LOGNORMAL" }
 };
 
 // pulsar birth spin period distributions
-enum class PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION: int { ZERO, FIXED, UNIFORM, NORMAL };
+enum class PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION: int { ZERO, UNIFORM, NORMAL };
 const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL = {
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::ZERO,    "ZERO" },
-    { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::FIXED,   "FIXED" },
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM, "UNIFORM" },
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL,  "NORMAL" }
 };
@@ -1241,35 +1239,6 @@ typedef struct StellarRLOFDetails {                         // RLOF details pert
     bool experiencedRLOF;
     bool RLOFPostCEE;
 } StellarRLOFDetailsT;
-
-
-// BeBinary properties
-// JR: add descriptive comments
-//typedef struct BeBinaryProperties {
-//    OBJECT_ID id;
-//
-//    double    dt;
-//    double    totalTime;
-//
-//    double    massNS;
-//
-//    double    companionMass;
-//    double    companionLuminosity;
-//    double    companionTeff;
-//    double    companionRadius;
-//
-//    double    semiMajorAxis;
-//    double    eccentricity;
-//} BeBinaryPropertiesT;
-
-// JR: add descriptive comments
-//typedef struct BeBinaryDetails {
-//    BeBinaryPropertiesT  props1;
-//    BeBinaryPropertiesT  props2;
-//    BeBinaryPropertiesT* currentProps;
-//    BeBinaryPropertiesT* previousProps;
-//} BeBinaryDetailsT;
-
 
 // Common Envelope properties
 // JR: add descriptive comments
