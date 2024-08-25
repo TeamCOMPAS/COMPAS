@@ -193,8 +193,6 @@ enum class ERROR: int {
     UNKNOWN_VROT_PRESCRIPTION,                                      // unknown rorational velocity prescription
     UNKNOWN_WR_MASS_LOSS_PRESCRIPTION,                              // unknown WR mass loss prescription
     UNKNOWN_ZETA_PRESCRIPTION,                                      // unknown stellar ZETA prescription
-    UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,           // unsupported pulsar birth magnetic field distribution
-    UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,              // unsupported pulsar birth spin period distribution
     WARNING,                                                        // unspecified warning
     WHITE_DWARF_TOO_MASSIVE,                                        // a white dwarf exceeds the Chandrasekhar mass limit
 
@@ -367,8 +365,6 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_VMS_MASS_LOSS_PRESCRIPTION,                    { ERROR_SCOPE::ALWAYS,              "Unknown VMS mass loss prescription" }},
     { ERROR::UNKNOWN_VROT_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown rotational velocity prescription" }},
     { ERROR::UNKNOWN_ZETA_PRESCRIPTION,                             { ERROR_SCOPE::ALWAYS,              "Unknown stellar ZETA prescription" }},
-    { ERROR::UNSUPPORTED_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,  { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth magnetic field distribution" }},
-    { ERROR::UNSUPPORTED_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,     { ERROR_SCOPE::ALWAYS,              "Unsupported pulsar birth spin period distribution" }},
     { ERROR::WARNING,                                               { ERROR_SCOPE::ALWAYS,              "Warning!" }},
     { ERROR::WHITE_DWARF_TOO_MASSIVE,                               { ERROR_SCOPE::ALWAYS,              "This white dwarf exceeds the Chandrasekhar mass limit" }},
     { ERROR::UNKNOWN_WR_MASS_LOSS_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown WR mass loss prescription" }}

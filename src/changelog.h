@@ -1257,18 +1257,22 @@
 //                                      - Typo fixes
 // 03.00.03   JR - Aug 21, 2024     - Defect repair:
 //                                      - Fix for issue 1184: Segmentation Fault (Core Dumped) Encountered in COMPAS V3.0 with "--common-envelope-formalism TWO_STAGE"
-// 03.00.04   JR - Aug 22, 2024     - Defect repairs:
+// 03.00.04   JR - Aug 22, 2024     - Defect repair:
 //                                      - Fix for issue #1182: Switch log issue
-// 03.00.05   JR - Aug 22, 2024     - Defect repairs:
+// 03.00.05   JR - Aug 22, 2024     - Defect repair:
 //                                      - Reinstate correctly functioning code for floating-point error handling for Linux
 //                                      - Disable floating-point error handling for MacOS - until I can figure out how to
 //                                        make it work properly for both INTEL and ARM architectures.
-// 03.01.00    APB - Aug 24, 2024   - Enhancement:
+// 03.01.00   APB - Aug 24, 2024    - Enhancement:
 //                                      - Implemented gravitational radiation at each timestep of binary evolution. Available with new '--emit-gravitational-radiation' option.  Updates time step dynamically if required.
-// 03.01.01    JR - Aug 24, 2024    - Defect repair:
+// 03.01.01   JR - Aug 24, 2024     - Defect repair:
 //                                      - Fix bad merge - use this version instead of v03.01.00
+// 03.01.02   JR - Aug 24, 2024     - Defect repair, code cleanup:
+//                                      - Fix for issue #1179: Remove unsupported option value (FIXED) for options PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION and PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION
+//                                      - Remove BeBinary-related code (mostly already commented)
+//                                      - Fix typos in comments in BaseBinaryStar.cpp
 
 
-const std::string VERSION_STRING = "03.01.01";
+const std::string VERSION_STRING = "03.01.02";
 
 # endif // __changelog_h__
