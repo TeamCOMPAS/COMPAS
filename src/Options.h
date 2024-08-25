@@ -335,6 +335,7 @@ private:
         "eccentricity-distribution",
         "eccentricity-max",
         "eccentricity-min",
+        "emit-gravitational-radiation",
         "evolve-double-white-dwarfs",
         "evolve-pulsars",
         "evolve-unbound-systems",
@@ -451,6 +452,7 @@ private:
         "detailed-output",
 
         "eccentricity-distribution",
+        "emit-gravitational-radiation",
         "enable-warnings",
         "envelope-state-prescription",
         "errors-to-file",
@@ -689,13 +691,14 @@ public:
             std::vector<std::string>                            m_Notes;                                                        // Notes contents - for user-defined annotations
             std::vector<std::string>                            m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
 
-	        bool                                                m_BeBinaries;													// Flag if we want to print BeBinaries (main.cpp)
+	    bool                                                m_BeBinaries;							// Flag if we want to print BeBinaries (main.cpp)
             bool                                                m_HMXRBinaries;                                                 // Flag if we want to store HMXRBs in RLOF output file
             bool                                                m_EvolveDoubleWhiteDwarfs;                                      // Whether to evolve double white dwarfs or not
             bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
             bool                                                m_NatalKickForPPISN;                                            // Flag if PPISN remnant should receive a non-zero natal kick
-	        bool                                                m_EvolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
+	    bool                                                m_EvolveUnboundSystems;						// Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
             bool                                                m_EvolveMainSequenceMergers;                                    // Option to evolve binaries in which two stars merged on the main sequence
+            bool                                                m_EmitGravitationalRadiation;                                   // Option to emit gravitational radiation for each timestep of binary evolution
 
             bool                                                m_DetailedOutput;                                               // Print detailed output details to file (default = false)
             bool                                                m_PopulationDataPrinting;                                       // Print certain data for small populations, but not for larger one
@@ -1286,6 +1289,7 @@ public:
     bool                                        EvolveMainSequenceMergers() const                                       { return OPT_VALUE("evolve-main-sequence-mergers", m_EvolveMainSequenceMergers, true); }
     bool                                        EvolvePulsars() const                                                   { return OPT_VALUE("evolve-pulsars", m_EvolvePulsars, true); }
     bool                                        EvolveUnboundSystems() const                                            { return OPT_VALUE("evolve-unbound-systems", m_EvolveUnboundSystems, true); }
+    bool                                        EmitGravitationalRadiation() const                                      { return OPT_VALUE("emit-gravitational-radiation", m_EmitGravitationalRadiation, true); }
     bool                                        ExpelConvectiveEnvelopeAboveLuminosityThreshold() const                 { return OPT_VALUE("expel-convective-envelope-above-luminosity-threshold", m_ExpelConvectiveEnvelopeAboveLuminosityThreshold, true); }
 
     bool                                        FixedRandomSeedCmdLine() const                                          { return m_CmdLine.optionValues.m_FixedRandomSeed; }
