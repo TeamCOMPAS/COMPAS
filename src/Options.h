@@ -691,12 +691,11 @@ public:
             std::vector<std::string>                            m_Notes;                                                        // Notes contents - for user-defined annotations
             std::vector<std::string>                            m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
 
-	    bool                                                m_BeBinaries;							// Flag if we want to print BeBinaries (main.cpp)
             bool                                                m_HMXRBinaries;                                                 // Flag if we want to store HMXRBs in RLOF output file
             bool                                                m_EvolveDoubleWhiteDwarfs;                                      // Whether to evolve double white dwarfs or not
             bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
             bool                                                m_NatalKickForPPISN;                                            // Flag if PPISN remnant should receive a non-zero natal kick
-	    bool                                                m_EvolveUnboundSystems;						// Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
+	        bool                                                m_EvolveUnboundSystems;                                         // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
             bool                                                m_EvolveMainSequenceMergers;                                    // Option to evolve binaries in which two stars merged on the main sequence
             bool                                                m_EmitGravitationalRadiation;                                   // Option to emit gravitational radiation for each timestep of binary evolution
 
