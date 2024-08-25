@@ -2731,39 +2731,14 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
             while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                     // perform binary evolution - iterate over timesteps until told to stop
 
-                stepNum++;                                                                                                              // increment stepNum
-
-                // if user selects to emit GWs, calculate the effects of radiation
-                //     - note that this is placed before ChooseTimestep() is called because
-                //       the timestep is a function of gravitational radiation
-                if (OPTIONS->EmitGravitationalRadiation()) {
-                    CalculateGravitationalRadiation();
-                }
-
-                if (stepNum > 1) {                                                                                                      // after the first timestep, set previous timestep
-                    m_Star2->UpdatePreviousTimestepDuration();
-                    m_Star1->UpdatePreviousTimestepDuration();
-                }
-                if (usingProvidedTimesteps) {                                                                                           // user-provided timesteps?
-                    // select a timestep
-                    //   - don't quantise
-                    //   - don't apply timestep multiplier
-                    // (we assume user wants the timesteps in the file)
-                    dt = timesteps[stepNum - 1];
-                }
-                else {                                                                                                                  // no - not using user-provided timesteps
-                    dt = ChooseTimestep(dt);
-                }
-
                 error = EvolveOneTimestep(dt);                                                                                          // evolve the binary system one timestep
-
                 if (error != ERROR::NONE) {                                                                                             // SSE error for either constituent star?
                     evolutionStatus = EVOLUTION_STATUS::SSE_ERROR;                                                                      // yes - stop evolution
                 }
                 else {                                                                                                                  // continue evolution
-		    
+
                     if (OPTIONS->EmitGravitationalRadiation()) {                                                                        // emitting GWs?
-                        EmitGravitationalWave(dt);                                                                                      // yes - emit gravitational wave
+                        EmitGravitationalWave(dt);                                                                                      // yes - emit graviataional wave
                     }
 
                     (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_STELLAR_TIMESTEP);                                   // print (log) detailed output
@@ -2856,7 +2831,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                     m_Star2->UpdatePreviousTimestepDuration();
                     m_Star1->UpdatePreviousTimestepDuration();
-
+                
                     if (usingProvidedTimesteps) {                                                                                       // user-provided timesteps?
                         // select a timestep
                         //   - don't quantise
