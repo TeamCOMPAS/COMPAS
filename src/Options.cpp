@@ -170,7 +170,8 @@ void Options::OptionValues::Initialise() {
     m_EvolveMainSequenceMergers                                     = false;
     m_EvolvePulsars                                                 = false;
 	m_EvolveUnboundSystems                                          = true;
-    
+    m_EmitGravitationalRadiation                                    = false;
+
     m_NatalKickForPPISN                                             = false;
 
     m_DetailedOutput                                                = false;
@@ -813,6 +814,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "evolve-unbound-systems",                                      
             po::value<bool>(&p_Options->m_EvolveUnboundSystems)->default_value(p_Options->m_EvolveUnboundSystems)->implicit_value(true),                                                          
             ("Continue evolving stars even if the binary is disrupted (default = " + std::string(p_Options->m_EvolveUnboundSystems ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "emit-gravitational-radiation",                                      
+            po::value<bool>(&p_Options->m_EmitGravitationalRadiation)->default_value(p_Options->m_EmitGravitationalRadiation)->implicit_value(false),                                                          
+            ("Emit gravitational radiation at each timestep of binary evolution (default = " + std::string(p_Options->m_EmitGravitationalRadiation ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "expel-convective-envelope-above-luminosity-threshold",
