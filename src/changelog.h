@@ -1265,8 +1265,10 @@
 //                                        make it work properly for both INTEL and ARM architectures.
 // 03.01.00    APB - Aug 24, 2024   - Enhancement:
 //                                      - Implemented gravitational radiation at each timestep of binary evolution. Available with new '--emit-gravitational-radiation' option.  Updates time step dynamically if required.
+// 03.01.01    JR - Aug 24, 2024    - Defect repair:
+//                                      - Fix bad merge - use this version instead of v03.01.00
 
 
-const std::string VERSION_STRING = "03.01.00";
+const std::string VERSION_STRING = "03.01.01";
 
 # endif // __changelog_h__
