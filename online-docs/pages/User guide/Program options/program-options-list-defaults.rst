@@ -1057,7 +1057,7 @@ Default = FALSE
 
 **--pulsar-birth-magnetic-field-distribution** |br|
 Pulsar birth magnetic field distribution. |br|
-Options: { ZERO, FIXED, FLATINLOG, UNIFORM, LOGNORMAL } |br|
+Options: { ZERO, FLATINLOG, UNIFORM, LOGNORMAL } |br|
 Default = ZERO
 
 **--pulsar-birth-magnetic-field-distribution-max** |br|
@@ -1070,7 +1070,7 @@ Default = 11.0
 
 **--pulsar-birth-spin-period-distribution** |br|
 Pulsar birth spin period distribution. |br|
-Options: { ZERO, FIXED, UNIFORM, NORMAL } |br|
+Options: { ZERO, UNIFORM, NORMAL } |br|
 Default = ZERO
 
 **--pulsar-birth-spin-period-distribution-max** |br|

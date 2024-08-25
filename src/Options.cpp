@@ -163,7 +163,6 @@ void Options::OptionValues::Initialise() {
     m_FPErrorMode.type                                              = FP_ERROR_MODE::OFF;
     m_FPErrorMode.typeString                                        = FP_ERROR_MODE_LABEL.at(m_FPErrorMode.type);
 
-	m_BeBinaries                                                    = false;
     m_HMXRBinaries                                                  = false;
 
     m_EvolveDoubleWhiteDwarfs                                       = false;
@@ -584,7 +583,6 @@ void Options::OptionValues::Initialise() {
     m_LogfileType.type                                              = LOGFILETYPE::HDF5;
     m_LogfileType.typeString                                        = LOGFILETYPELabel.at(m_LogfileType.type);
 
-    m_LogfileBeBinariesRecordTypes                                  = -1;                                                                   // all record types
     m_LogfileCommonEnvelopes                                        = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));
     m_LogfileCommonEnvelopesRecordTypes                             = -1;                                                                   // all record types
     m_LogfileDetailedOutput                                         = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT));     // assume BSE - get real answer when we know mode
@@ -721,13 +719,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = " + std::string(p_Options->m_AngularMomentumConservationDuringCircularisation ? "TRUE" : "FALSE") + ")").c_str()
         )
 
-        /*
-        (
-            "BE-binaries",                                                  
-            po::value<bool>(&p_Options->m_BeBinaries)->default_value(p_Options->m_BeBinaries)->implicit_value(true),                                                                              
-            ("Enable Be Binaries study (default = " + std::string(p_Options->m_BeBinaries ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        */
         (
             "check-photon-tiring-limit",
             po::value<bool>(&p_Options->m_CheckPhotonTiringLimit)->default_value(p_Options->m_CheckPhotonTiringLimit)->implicit_value(true),                            
@@ -951,13 +942,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("HDF5 file dataset IO buffer size (number of chunks, default = " + std::to_string(p_Options->m_HDF5BufferSize) + ")").c_str()
         )
 
-        /*
-        (
-            "logfile-BE-binaries-record-types",                                     
-            po::value<int>(&p_Options->m_LogfileBeBinariesRecordTypes)->default_value(p_Options->m_LogfileBeBinariesRecordTypes),                                                                              
-            ("Enabled record types for BSE Be Binaries logfile (default = " + std::to_string(p_Options->m_LogfileBeBinariesRecordTypes) + ")").c_str()
-        )
-        */
         (
             "logfile-common-envelopes-record-types",                                
             po::value<int>(&p_Options->m_LogfileCommonEnvelopesRecordTypes)->default_value(p_Options->m_LogfileCommonEnvelopesRecordTypes),                                                                    
@@ -1719,13 +1703,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Natal kick magnitude distribution (" + AllowedOptionValuesFormatted("kick-magnitude-distribution") + ", default = '" + p_Options->m_KickMagnitudeDistribution.typeString + "')").c_str()
         )
 
-        /*
-        (
-            "logfile-BE-binaries",                                     
-            po::value<std::string>(&p_Options->m_LogfileBeBinaries)->default_value(p_Options->m_LogfileBeBinaries),                                                                              
-            ("Filename for BSE Be Binaries logfile (default = " + p_Options->m_LogfileBeBinaries + ")").c_str()
-        )
-        */
 
         (
             "logfile-rlof-parameters",                                 

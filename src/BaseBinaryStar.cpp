@@ -477,42 +477,6 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.propsPreMT                         = &m_RLOFDetails.props2;
 
 
-    // BeBinary details - properties 1
-//    m_BeBinaryDetails.props1.id                      = -1l;
-//
-//    m_BeBinaryDetails.props1.dt                      = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props1.totalTime               = DEFAULT_INITIAL_DOUBLE_VALUE;
-//
-//    m_BeBinaryDetails.props1.massNS                  = DEFAULT_INITIAL_DOUBLE_VALUE;
-//
-//    m_BeBinaryDetails.props1.companionMass           = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props1.companionLuminosity     = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props1.companionTeff           = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props1.companionRadius         = DEFAULT_INITIAL_DOUBLE_VALUE;
-//
-//    m_BeBinaryDetails.props1.semiMajorAxis           = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props1.eccentricity            = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-    // BeBinary details - properties 2
-//    m_BeBinaryDetails.props2.id                      = -1l;
-//
-//    m_BeBinaryDetails.props2.dt                      = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props2.totalTime               = DEFAULT_INITIAL_DOUBLE_VALUE;
-//
-//    m_BeBinaryDetails.props2.massNS                  = DEFAULT_INITIAL_DOUBLE_VALUE;
-//
-//    m_BeBinaryDetails.props2.companionMass           = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props2.companionLuminosity     = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props2.companionTeff           = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props2.companionRadius         = DEFAULT_INITIAL_DOUBLE_VALUE;
-//
-//    m_BeBinaryDetails.props2.semiMajorAxis           = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props2.eccentricity            = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-    // BeBinary details - current/prev props pointers
-//    m_BeBinaryDetails.currentProps                   = &m_BeBinaryDetails.props1;
-//    m_BeBinaryDetails.previousProps                  = &m_BeBinaryDetails.props2;
-
     // pointers
 
     m_Donor                                          = nullptr;
@@ -910,43 +874,6 @@ void BaseBinaryStar::StashRLOFProperties(const MT_TIMING p_Which) {
     rlofPropertiesToReset->massLossRateFromDonor       = m_MassLossRateInRLOF;
     rlofPropertiesToReset->accretionEfficiency         = m_FractionAccreted;
 }
-
-
-/*
- * Squirrel BeBinaries properties away
- *
- * Various binary property values are stashed into the m_BeBinaryDetails.currentProps struct for use/printing later
- * The existing m_BeBinaryDetails.currentProps struct is copied to the m_BeBinaryDetails.previousProps struct first
- * (actually there is no copying - just switch pointers...)
- *
- *
- * void StashBeBinaryProperties()
- */
-//void BaseBinaryStar::StashBeBinaryProperties() {
-//
-//    if (!OPTIONS->BeBinaries() || !IsBeBinary()) return;                                                            // nothing to do;
-//
-//    // switch previous<->current (preserves existing current as (new) previous)
-//    BeBinaryPropertiesT* tmp        = m_BeBinaryDetails.previousProps;                                              // save pointer to existing previous props
-//    m_BeBinaryDetails.previousProps = m_BeBinaryDetails.currentProps;                                               // existing current props become new previous props (values will be preserved)
-//    m_BeBinaryDetails.currentProps  = tmp;                                                                          // new current props points at existing previous (values will be replaced)
-//
-//    // now save (new) current
-//    m_BeBinaryDetails.currentProps->id            = m_ObjectId;                                                      // object id
-//    m_BeBinaryDetails.currentProps->dt            = m_Dt;                                                            // timestep
-//    m_BeBinaryDetails.currentProps->totalTime     = m_BeBinaryDetails.previousProps->dt + m_Dt;                      // total time - accumulate, don't just replace
-//    m_BeBinaryDetails.currentProps->semiMajorAxis = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol
-//    m_BeBinaryDetails.currentProps->eccentricity  = m_Eccentricity;                                                  // eccentricity
-//
-//    BinaryConstituentStar* neutronStar   = m_Star1->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR }) ? m_Star1 : m_Star2;    // pointer to neutron star
-//    BinaryConstituentStar* companionStar = m_Star1->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR }) ? m_Star2 : m_Star1;    // pointer to companion
-//
-//    m_BeBinaryDetails.currentProps->massNS              = neutronStar->Mass();                                      // neutron star mass
-//    m_BeBinaryDetails.currentProps->companionMass       = companionStar->Mass();                                    // companion mass
-//    m_BeBinaryDetails.currentProps->companionLuminosity = companionStar->Luminosity();                              // companion luminosity
-//    m_BeBinaryDetails.currentProps->companionTeff       = companionStar->Temperature();                             // companion temperature
-//    m_BeBinaryDetails.currentProps->companionRadius     = companionStar->Radius();                                  // companion radius
-//}
 
 
 /*
@@ -2791,7 +2718,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             else {                                                                                                                      // no - not using user-provided timesteps
                 // if user selects to emit GWs, calculate the effects of radiation
                 //     - note that this is placed before the call to ChooseTimestep() because when
-                //       emitting GWs the timestep is a function of graviational radiation
+                //       emitting GWs the timestep is a function of gravitational radiation
                 if (OPTIONS->EmitGravitationalRadiation()) {
                     CalculateGravitationalRadiation();
                 }
@@ -2853,8 +2780,6 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                         if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
                             (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_BINARY_TIMESTEP);                             // print (log) pulsar evolution parameters 
                         }
-
-                        //(void)PrintBeBinary();                                                                                          // print (log) BeBinary properties
                         
                         if (IsDCO() && !IsUnbound()) {                                                                                  // bound double compact object?
                             if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                                   // DCO not yet evaluated -- to ensure that the coalescence is only resolved once
@@ -2899,7 +2824,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                     // if user selects to emit GWs, calculate the effects of radiation
                     //     - note that this is placed before the call to ChooseTimestep() because when
-                    //       emitting GWs the timestep is a function of graviational radiation                    
+                    //       emitting GWs the timestep is a function of gravitational radiation                    
                     if (OPTIONS->EmitGravitationalRadiation()) {
                         CalculateGravitationalRadiation();
                     }
