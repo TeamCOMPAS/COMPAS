@@ -370,11 +370,14 @@ private:
 
     double              m_TotalEnergy;
 
-	double              m_OrbitalAngularMomentumPrev;
-	double              m_OrbitalAngularMomentum;
+    double              m_OrbitalAngularMomentumPrev;
+    double              m_OrbitalAngularMomentum;
 
-	double              m_OrbitalEnergyPrev;
-	double              m_OrbitalEnergy;
+    double              m_DaDtGW;                                                           // Change in semi-major axis per time due to gravitational radiation
+    double              m_DeDtGW;                                                           // Change in eccentricity per time due to gravitational radiation
+
+    double              m_OrbitalEnergyPrev;
+    double              m_OrbitalEnergy;
 
     double              m_ZetaLobe;
     double              m_ZetaStar;
@@ -403,6 +406,11 @@ private:
                                      const double p_Star2MomentOfInertia) const;
 
     double  CalculateAngularMomentum() const                                    { return CalculateAngularMomentum(m_SemiMajorAxis, m_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateMomentOfInertiaAU(), m_Star2->CalculateMomentOfInertiaAU()); }
+
+    void    CalculateGravitationalRadiation();
+    void    EmitGravitationalWave(const double p_Dt);
+
+    double  ChooseTimestep(const double p_Multiplier);
 
     void    CalculateEnergyAndAngularMomentum();
 

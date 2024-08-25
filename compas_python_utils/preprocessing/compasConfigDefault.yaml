@@ -15,6 +15,7 @@ booleanChoices:
 #    --errors-to-file: False                                               # Default: False
 #    --evolve-main-sequence-mergers: False                                 # Default: False
 #    --evolve-unbound-systems: True                                        # Default: True
+#    --emit-gravitational-radiation: False                                 # Default: False
 #    --population-data-printing: False                                     # Default: False
 #    --print-bool-as-string: False                                         # Default: False
 #    --quiet: False                                                        # Default: False
