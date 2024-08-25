@@ -2830,10 +2830,6 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 error = EvolveOneTimestep(dt);                                                                                          // evolve the binary system one timestep
 
-                if (OPTIONS->EmitGravitationalRadiation()) {
-                    EmitGravitationalWave(dt);                                                                                          // emit a graviataional wave
-                }
-
                 if (error != ERROR::NONE) {                                                                                             // SSE error for either constituent star?
                     evolutionStatus = EVOLUTION_STATUS::SSE_ERROR;                                                                      // yes - stop evolution
                 }
