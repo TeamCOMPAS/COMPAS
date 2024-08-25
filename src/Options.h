@@ -1033,7 +1033,6 @@ public:
             std::string                                         m_LogfileSupernovae;                                            // output file name: supernovae
             std::string                                         m_LogfileCommonEnvelopes;                                       // output file name: common envelopes
             std::string                                         m_LogfileRLOFParameters;                                        // output file name: Roche Lobe overflow
-            std::string                                         m_LogfileBeBinaries;                                            // output file name: Be Binaries
             std::string                                         m_LogfilePulsarEvolution;                                       // output file name: pulsar evolution
             std::string                                         m_LogfileSwitchLog;                                             // output file name: switch log
 
@@ -1043,7 +1042,6 @@ public:
             int                                                 m_LogfileSupernovaeRecordTypes;                                 // enabled record types: supernovae
             int                                                 m_LogfileCommonEnvelopesRecordTypes;                            // enabled record types: common envelopes
             int                                                 m_LogfileRLOFParametersRecordTypes;                             // enabled record types: Roche Lobe overflow
-            int                                                 m_LogfileBeBinariesRecordTypes;                                 // enabled record types: Be Binaries
             int                                                 m_LogfilePulsarEvolutionRecordTypes;                            // enabled record types: pulsar evolution
 
             ENUM_OPT<ADD_OPTIONS_TO_SYSPARMS>                   m_AddOptionsToSysParms;                                         // Whether/when to add program option columns to BSE/SSE sysparms file
@@ -1233,7 +1231,6 @@ public:
     bool                                        AllowTouchingAtBirth() const                                            { return OPT_VALUE("allow-touching-at-birth", m_AllowTouchingAtBirth, true); }
     bool                                        AngularMomentumConservationDuringCircularisation() const                { return OPT_VALUE("angular-momentum-conservation-during-circularisation", m_AngularMomentumConservationDuringCircularisation, true); }
 
-    bool                                        BeBinaries() const                                                      { return OPT_VALUE("be-binaries", m_BeBinaries, true); }
 
     BLACK_HOLE_KICKS_MODE                       BlackHoleKicksMode() const                                              { return OPTIONS->OptionSpecified("black-hole-kicks-mode") ? OPT_VALUE("black-hole-kicks-mode", m_BlackHoleKicksMode.type, true) : OPT_VALUE("black-hole-kicks", m_BlackHoleKicksMode.type, true); } // black-hole-kicks DEPRECATED June 2024 - remove end 2024
     
@@ -1337,8 +1334,6 @@ public:
     double                                      KickMagnitudeRandom2() const                                            { return OPT_VALUE("kick-magnitude-random-2", m_KickMagnitudeRandom2, true); }
 
     std::vector<std::string>                    LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
-    std::string                                 LogfileBeBinaries() const                                               { return m_CmdLine.optionValues.m_LogfileBeBinaries; }
-    int                                         LogfileBeBinariesRecordTypes() const                                    { return m_CmdLine.optionValues.m_LogfileBeBinariesRecordTypes; }
     std::string                                 LogfileCommonEnvelopes() const                                          { return m_CmdLine.optionValues.m_LogfileCommonEnvelopes; }
     int                                         LogfileCommonEnvelopesRecordTypes() const                               { return m_CmdLine.optionValues.m_LogfileCommonEnvelopesRecordTypes; }
     std::string                                 LogfileDefinitionsFilename() const                                      { return m_CmdLine.optionValues.m_LogfileDefinitionsFilename; }
