@@ -357,6 +357,8 @@ void Options::OptionValues::Initialise() {
     m_UsePulsationalPairInstability                                 = true;
     m_PulsationalPairInstabilityLowerLimit                          = 35.0;                                                 // Belczynski+ 2016 is 45 Msol
     m_PulsationalPairInstabilityUpperLimit                          = 60.0;                                                 // Belczynski+ 2016 is 65 Msol
+    
+    m_PulsationalPairInstabilityCOCoreShiftHendriks                 = 0.0;                                                  // Shift in CO Core mass in Hendriks+23
 
     m_PulsationalPairInstabilityPrescription.type                   = PPI_PRESCRIPTION::MARCHANT;
     m_PulsationalPairInstabilityPrescription.typeString             = PPI_PRESCRIPTION_LABEL.at(m_PulsationalPairInstabilityPrescription.type);
@@ -1458,6 +1460,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "PPI-upper-limit",                                             
             po::value<double>(&p_Options->m_PulsationalPairInstabilityUpperLimit)->default_value(p_Options->m_PulsationalPairInstabilityUpperLimit),                                              
             ("Maximum core mass for PPI, in Msol (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityUpperLimit) + ")").c_str()
+        )
+        (
+            "PPI-CO-Core-Shift-Hendriks",
+            po::value<double>(&p_Options->m_PulsationalPairInstabilityCOCoreShiftHendriks)->default_value(p_Options->m_PulsationalPairInstabilityCOCoreShiftHendriks),                                              
+            ("Shift in CO core mass for PPI (in Msol) for the Hendriks+23 PPI Prescriptions (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityCOCoreShiftHendriks) + ")").c_str()
         )
         (
             "pulsar-birth-magnetic-field-distribution-max",                
@@ -4748,6 +4755,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::PPI_PRESCRIPTION                               : value = static_cast<int>(PulsationalPairInstabilityPrescription());           break;
         case PROGRAM_OPTION::PPI_LOWER_LIMIT                                : value = PulsationalPairInstabilityLowerLimit();                               break;
         case PROGRAM_OPTION::PPI_UPPER_LIMIT                                : value = PulsationalPairInstabilityUpperLimit();                               break;
+        case PROGRAM_OPTION::PPI_CO_CORE_SHIFT_HENDRIKS                     : value = PulsationalPairInstabilityCOCoreShiftHendriks();                      break;
 
         case PROGRAM_OPTION::QCRIT_PRESCRIPTION                             : value = static_cast<int>(QCritPrescription());                                break;
 
