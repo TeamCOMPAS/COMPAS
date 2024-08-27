@@ -1271,8 +1271,11 @@
 //                                      - Fix for issue #1179: Remove unsupported option value (FIXED) for options PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION and PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION
 //                                      - Remove BeBinary-related code (mostly already commented)
 //                                      - Fix typos in comments in BaseBinaryStar.cpp
+// 03.01.03   JR - Aug 27, 2024     - Defect repair, code cleanup:
+//                                      - Fix for issue #1202: Missing system in system parameters file when using range
+//                                      - Remove extraneous references to "kick_direction" in LogTypedefs.h (added in error in v03.00.00)
 
 
-const std::string VERSION_STRING = "03.01.02";
+const std::string VERSION_STRING = "03.01.03";
 
 # endif // __changelog_h__
