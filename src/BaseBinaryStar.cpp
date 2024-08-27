@@ -2787,7 +2787,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                                 m_DCOFormationTime = m_Time;                                                                            // set the DCO formation time
                             }
 
-                            if (!(OPTIONS->EvolvePulsars() && HasOneOf({ STELLAR_TYPE::NEUTRON_STAR }))) {                              // evolve pulsar?
+                            if (!(OPTIONS->EvolvePulsars() && HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) &&                              // evolve pulsar?
+                                !(OPTIONS->EvolveDoubleWhiteDwarfs() && IsWDandWD())) {                                                 // no - evolve WDWD?
                                 evolutionStatus = EVOLUTION_STATUS::DCO;                                                                // no - have DCO - stop evolving
                             }
                         }
