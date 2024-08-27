@@ -1996,6 +1996,42 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
             m_Mass = std::min(totalMassPrePPISN, m_Mass);                                               // check if remnant mass is bigger than total mass    
             } break;
     
+        case PPI_PRESCRIPTION::HENDRIKS: {    
+            // Prescription from Hendriks et al. 2023 (https://arxiv.org/abs/2309.09339)
+            // Based on Renzo et al. 2022 (https://iopscience.iop.org/article/10.3847/2515-5172/ac503e)
+            // 
+            // Suggest using --PPI-upper-limit 80.0 and --PISN-lower-limit 80.0
+
+            double DeltaMPPICOShift = OPTIONS->PulsationalPairInstabilityCOCoreShiftHendriks();
+            double DeltaMPPIExtraML = 0.0; // Make an option? Currently does nothing
+            
+            double PPIOnset        = m_COCoreMass - DeltaMPPICOShift - 34.8;
+            double PPIOnsetSquared = PPIOnset * PPIOnset;
+            double PPIOnsetCubed   = PPIOnsetSquared * PPIOnset;
+
+            double firstTerm  = (0.0006 * m_Log10Metallicity + 0.0054) * PPIOnsetCubed;
+            double secondTerm = 0.0013 * PPIOnsetSquared;
+
+            double DeltaMPPI = firstTerm - secondTerm + DeltaMPPIExtraML;
+
+            // If DeltaMPPI < 0, set equal to 0
+            if(DeltaMPPI < 0){
+                DeltaMPPI = 0.0;
+            }
+
+            // Remove the hydrogen envelope
+            double DeltaMenv = m_Mass - m_HeCoreMass;
+
+            double compactObjectMass = m_Mass - DeltaMenv - DeltaMPPI;
+
+            // Ensure that the compact object mass doesn't become negative
+            if(compactObjectMass <= 0.0){
+                compactObjectMass = 0.0;
+            }
+            m_Mass = compactObjectMass;
+
+        } break;
+
         default:                                                                                        // unknown prescription
             // the only way this can happen is if someone added a REMNANT_MASS_PRESCRIPTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
