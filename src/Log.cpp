@@ -1878,7 +1878,7 @@ PROPERTY_DETAILS Log::ProgramOptionDetails(const PROGRAM_OPTION p_Property, cons
     PROPERTY_DETAILS details;
 
     // PROGRAM_OPTION::NOTES is special
-    // There are no entry for PROGRAM_OPTION::NOTES in the PROGRAM_OPTION_DETAIL map
+    // There are no entries for PROGRAM_OPTION::NOTES in the PROGRAM_OPTION_DETAIL map
     // (at least there shouldn't be - and if there is we just ignore it)
     // We construct the PROPERTY_DETAILS tuple for PROGRAM_OPTION::NOTES here
 
@@ -2108,6 +2108,7 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
                                                                                                                                     // yes - add program options
                     // iterate over the PROGRAM_OPTION_DETAIL map and add each entry to the recordProperties vector
                     // unfortunately no guarantee of order since it is an unordered map
+
                     for (auto& iter: PROGRAM_OPTION_DETAIL) {                                                                       // for each entry
                         T_ANY_PROPERTY thisProp = iter.first;                                                                       // program option
                         if (std::find(recordProperties.begin(), recordProperties.end(), thisProp) == recordProperties.end()) {      // already exists in recordProperties vector?
