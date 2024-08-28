@@ -2003,32 +2003,18 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
             // Suggest using --PPI-upper-limit 80.0 and --PISN-lower-limit 80.0
 
             double DeltaMPPICOShift = OPTIONS->PulsationalPairInstabilityCOCoreShiftHendriks();
-            double DeltaMPPIExtraML = 0.0; // Make an option? Currently does nothing
-            
+            double DeltaMPPIExtraML = 0.0; 								// Make an option? Currently does nothing
+
+	    // Equation (6) of Hendricks et al. 2023			
             double PPIOnset        = m_COCoreMass - DeltaMPPICOShift - 34.8;
             double PPIOnsetSquared = PPIOnset * PPIOnset;
             double PPIOnsetCubed   = PPIOnsetSquared * PPIOnset;
-
             double firstTerm  = (0.0006 * m_Log10Metallicity + 0.0054) * PPIOnsetCubed;
             double secondTerm = 0.0013 * PPIOnsetSquared;
-
             double DeltaMPPI = firstTerm - secondTerm + DeltaMPPIExtraML;
+	    DeltaMPPI = std::min(DeltaMPPI, 0.0);							// DeltaMPPI, the amount of the He core that's lost in pulsations, is non-negative
 
-            // If DeltaMPPI < 0, set equal to 0
-            if(DeltaMPPI < 0){
-                DeltaMPPI = 0.0;
-            }
-
-            // Remove the hydrogen envelope
-            double DeltaMenv = m_Mass - m_HeCoreMass;
-
-            double compactObjectMass = m_Mass - DeltaMenv - DeltaMPPI;
-
-            // Ensure that the compact object mass doesn't become negative
-            if(compactObjectMass <= 0.0){
-                compactObjectMass = 0.0;
-            }
-            m_Mass = compactObjectMass;
+	    m_Mass = std::min(m_HeCoreMass - DeltaMPPI, 0.0);						// Remnant mass should be non-negative		
 
         } break;
 
