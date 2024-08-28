@@ -1940,12 +1940,12 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
     switch (OPTIONS->PulsationalPairInstabilityPrescription()) {                                        // which prescription?
 
         case PPI_PRESCRIPTION::COMPAS:                                                                  // Woosley 2017 https://arxiv.org/abs/1608.08939
-            baryonicMass = m_HeCoreMass;                                                                // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static)
+            baryonicMass = m_HeCoreMass;                                                                // strip off the hydrogen envelope if any was left
             m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
             break;
 
         case PPI_PRESCRIPTION::STARTRACK:                                                               // Belczynski et al. 2016 https://arxiv.org/abs/1607.03116
-            baryonicMass = std::min(m_HeCoreMass, STARTRACK_PPISN_HE_CORE_MASS);                        // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static), limit helium core mass to 45 Msun
+            baryonicMass = std::min(m_HeCoreMass, STARTRACK_PPISN_HE_CORE_MASS);                        // strip off the hydrogen envelope if any was left, limit to STARTRACK_PPISN_HE_CORE_MASS (default 45 Msun)
             m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
             break;
 
@@ -1968,7 +1968,7 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
                                                                             (-1.13694590E+03 * m_HeCoreMass) +
                                                                               7.39643451E+03));
 
-            baryonicMass = ratioOfRemnantToHeCoreMass * m_HeCoreMass;                                   // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static)
+            baryonicMass = ratioOfRemnantToHeCoreMass * m_HeCoreMass;                                   // strip off the hydrogen envelope if any was left
             m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
             } break;
 
@@ -2005,7 +2005,7 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
             double DeltaMPPICOShift = OPTIONS->PulsationalPairInstabilityCOCoreShiftHendriks();
             double DeltaMPPIExtraML = 0.0; 								// Make an option? Currently does nothing
 
-	        // Equation (6) of Hendricks et al. 2023			
+	    // Equation (6) of Hendricks et al. 2023			
             double PPIOnset        = m_COCoreMass - DeltaMPPICOShift - 34.8;
             double PPIOnsetSquared = PPIOnset * PPIOnset;
             double PPIOnsetCubed   = PPIOnsetSquared * PPIOnset;
@@ -2014,7 +2014,7 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
             double DeltaMPPI  = firstTerm - secondTerm + DeltaMPPIExtraML;
 	    
             DeltaMPPI = std::max(DeltaMPPI, 0.0);							// DeltaMPPI, the amount of the He core that's lost in pulsations, is non-negative
-	        m_Mass = std::max(m_HeCoreMass - DeltaMPPI, 0.0);				// Remnant mass should be non-negative		
+	    m_Mass = std::max(m_HeCoreMass - DeltaMPPI, 0.0);						// Remnant mass should be non-negative		
 
         } break;
 
