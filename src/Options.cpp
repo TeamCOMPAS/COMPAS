@@ -164,6 +164,7 @@ void Options::OptionValues::Initialise() {
     m_FPErrorMode.typeString                                        = FP_ERROR_MODE_LABEL.at(m_FPErrorMode.type);
 
     m_HMXRBinaries                                                  = false;
+    m_WDBinariesAsDCO                                               = false;
 
     m_EvolveDoubleWhiteDwarfs                                       = false;
     m_EvolveMainSequenceMergers                                     = false;
@@ -821,6 +822,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "hmxr-binaries",
             po::value<bool>(&p_Options->m_HMXRBinaries)->default_value(p_Options->m_HMXRBinaries)->implicit_value(true),
             ("Store HMXRB candidates in BSE_RLOF output file (default = " + std::string(p_Options->m_HMXRBinaries ? "TRUE" : "FALSE") + ")").c_str()
+        )
+
+        (
+            "include-WD-binaries-as-DCO",
+            po::value<bool>(&p_Options->m_WDBinariesAsDCO)->default_value(p_Options->m_WDBinariesAsDCO)->implicit_value(true),
+            ("Store WD binaries in BSE_Double_Compact_Objects output file (default = " + std::string(p_Options->m_WDBinariesAsDCO ? "TRUE" : "FALSE") + ")").c_str()
         )
 
         (
