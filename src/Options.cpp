@@ -2507,6 +2507,12 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(!DEFAULTED("semi-major-axis") && m_SemiMajorAxis <= 0.0, "Semi-major axis (--semi-major-axis) <= 0");           // semi-major axis must be > 0.0
         COMPLAIN_IF(!DEFAULTED("orbital-period")  && m_OrbitalPeriod <= 0.0, "Orbital period (--orbital-period) <= 0");             // orbital period must be > 0.0
 
+        COMPLAIN_IF(m_PulsationalPairInstabilityCOCoreShiftHendriks < -38.0, "CO Core Shift parameter (--PPI-CO-Core-Shift-Hendriks) should be >-38.0")                                                         // Don't allow to shift the onset of PPI below 0 solar masses; realistic values should be much closer to 0 
+        COMPLAIN_IF(m_PairInstabilityLowerLimit < 0.0, "Pair instability lower limit (--PISN-lower-limit) < 0.0")                                                                                               // Lower limit should be > 0
+        COMPLAIN_IF(m_PairInstabilityUpperLimit < m_PairInstabilityLowerLimit, "Pair instability upper limit below lower limit (--PISN-upper-limit < --PISN-lower-limit)")                                      // Upper limit should be higher than lower limit
+        COMPLAIN_IF(m_PulsationalPairInstabilityLowerLimit < 0.0, "Pulsational pair instability lower limit (--PPI-lower-limit) < 0.0")                                                                         // Lower limit should be > 0
+        COMPLAIN_IF(m_PulsationalPairInstabilityUpperLimit < m_PulsationalPairInstabilityLowerLimit, "Pulsational pair instability upper limit below lower limit (--PPI-upper-limit < --PPI-lower-limit)) ")    // upper limit should be higher than lower limit
+
         COMPLAIN_IF(m_KickMagnitude  < 0.0, "Kick magnitude (--kick-magnitude) must be >= 0");
         COMPLAIN_IF(m_KickMagnitude1 < 0.0, "Kick magnitude (--kick-magnitude-1) must be >= 0");
         COMPLAIN_IF(m_KickMagnitude2 < 0.0, "Kick magnitude (--kick-magnitude-2) must be >= 0");
