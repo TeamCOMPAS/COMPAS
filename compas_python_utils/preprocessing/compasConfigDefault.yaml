@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Fri Jul 26 19:54:32 2024 by COMPAS v03.00.00
+##~!!~## File Created Wed Aug 28 15:17:36 2024 by COMPAS v03.01.04
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -11,11 +11,11 @@ booleanChoices:
     ### LOGISTICS
 #    --debug-to-file: False                                                # Default: False
 #    --detailed-output: False                                              # Default: False                                                                                                                                                              # WARNING! this creates a data heavy file
+#    --emit-gravitational-radiation: False                                 # Default: False
 #    --enable-warnings: False                                              # Default: False                                                                                                                                                              # option to enable/disable warning messages
 #    --errors-to-file: False                                               # Default: False
 #    --evolve-main-sequence-mergers: False                                 # Default: False
 #    --evolve-unbound-systems: True                                        # Default: True
-#    --emit-gravitational-radiation: False                                 # Default: False
 #    --population-data-printing: False                                     # Default: False
 #    --print-bool-as-string: False                                         # Default: False
 #    --quiet: False                                                        # Default: False
@@ -31,6 +31,7 @@ booleanChoices:
 
     ### BINARY PROPERTIES
 #    --allow-touching-at-birth: False                                      # Default: False                                                                                                                                                              # record binaries that have stars touching at birth in output files
+#    --include-WD-binaries-as-DCO: False                                   # Default: False                                                                                                                                                              # record WD binaries in the BSE DCO file
 
     ### MASS TRANSFER
 #    --angular-momentum-conservation-during-circularisation: False         # Default: False
@@ -251,11 +252,11 @@ stringChoices:
 
     ### MASS TRANSFER
 #    --case-BB-stability-prescription: 'ALWAYS_STABLE'                     # Default: 'ALWAYS_STABLE'               # Options: ['ALWAYS_UNSTABLE','TREAT_AS_OTHER_MT','ALWAYS_STABLE_ONTO_NSBH','ALWAYS_STABLE']
-#    --critical-mass-ratio-prescription: 'ZERO'                            # Default: 'ZERO'                        # Options: ['HURLEY_HJELLMING_WEBBINK','GE20_IC','GE20','CLAEYS','ZERO','NONE']
+#    --critical-mass-ratio-prescription: 'NONE'                            # Default: 'NONE'                        # Options: ['HURLEY_HJELLMING_WEBBINK','GE20_IC','GE20','CLAEYS','NONE']
 #    --stellar-zeta-prescription: 'SOBERMAN'                               # Default: 'SOBERMAN'                    # Options: ['ARBITRARY','HURLEY','SOBERMAN']
 #    --mass-transfer-angular-momentum-loss-prescription: 'ISOTROPIC'       # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
 #    --mass-transfer-accretion-efficiency-prescription: 'THERMAL'          # Default: 'THERMAL'                     # Options: ['FIXED','THERMAL']
-#    --mass-transfer-rejuvenation-prescription: 'STARTRACK'                # Default: 'STARTRACK'                   # Options: ['STARTRACK','NONE']
+#    --mass-transfer-rejuvenation-prescription: 'STARTRACK'                # Default: 'STARTRACK'                   # Options: ['STARTRACK','HURLEY']
 #    --mass-transfer-thermal-limit-accretor: 'CFACTOR'                     # Default: 'CFACTOR'                     # Options: ['ROCHELOBE','CFACTOR']
 #    --mass-transfer-thermal-limit-accretor-multiplier: 'CFACTOR'          # Default: 'CFACTOR'                     # Options: ['ROCHELOBE','CFACTOR']
 
@@ -276,8 +277,8 @@ stringChoices:
 #    --kick-direction-distribution: 'ISOTROPIC'                            # Default: 'ISOTROPIC'                   # Options: ['POLES','WEDGE','POWERLAW','PERPENDICULAR','INPLANE','ISOTROPIC']
 #    --neutron-star-equation-of-state: 'SSE'                               # Default: 'SSE'                         # Options: ['ARP3','SSE']
 #    --neutrino-mass-loss-BH-formation: 'FIXED_MASS'                       # Default: 'FIXED_MASS'                  # Options: ['FIXED_MASS','FIXED_FRACTION']
-#    --pulsar-birth-magnetic-field-distribution: 'ZERO'                    # Default: 'ZERO'                        # Options: ['LOGNORMAL','UNIFORM','FLATINLOG','FIXED','ZERO']
-#    --pulsar-birth-spin-period-distribution: 'ZERO'                       # Default: 'ZERO'                        # Options: ['NORMAL','UNIFORM','FIXED','ZERO']
+#    --pulsar-birth-magnetic-field-distribution: 'ZERO'                    # Default: 'ZERO'                        # Options: ['LOGNORMAL','UNIFORM','FLATINLOG','ZERO']
+#    --pulsar-birth-spin-period-distribution: 'ZERO'                       # Default: 'ZERO'                        # Options: ['NORMAL','UNIFORM','ZERO']
 #    --remnant-mass-prescription: 'MULLERMANDEL'                           # Default: 'MULLERMANDEL'                # Options: ['SCHNEIDER2020ALT','SCHNEIDER2020','MULLERMANDEL','MULLER2016','FRYER2022','FRYER2012','BELCZYNSKI2002','HURLEY2000']
 
     ### LOGFILES AND OUTPUTS 

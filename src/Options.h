@@ -340,6 +340,7 @@ private:
         "evolve-pulsars",
         "evolve-unbound-systems",
 
+        "include-WD-binaries-as-DCO",
         "initial-mass-1",
         "initial-mass-2",
 
