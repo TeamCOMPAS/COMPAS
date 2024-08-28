@@ -1278,6 +1278,7 @@
 //                                      - Added functionality to allow users to specify if WD-binaries should be included in the BSE DCO file
 //                                        New option: --include-WD-binaries-as-DCO
 //                                        See "What's New" and option documentation for details.
+//                                        (Issue #1170)
 
 
 const std::string VERSION_STRING = "03.01.04";
