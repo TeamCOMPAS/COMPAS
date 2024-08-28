@@ -1274,8 +1274,11 @@
 // 03.01.03   JR - Aug 27, 2024     - Defect repair, code cleanup:
 //                                      - Fix for issue #1202: Missing system in system parameters file when using range
 //                                      - Remove extraneous references to "kick_direction" in LogTypedefs.h (added in error in v03.00.00)
+// 03.01.04   SS - Aug 28, 2024     - Enhancement:
+//                                      - Add Hendriks+23 pulsational pair instability prescription 
+//
 
 
-const std::string VERSION_STRING = "03.01.03";
+const std::string VERSION_STRING = "03.01.04";
 
 # endif // __changelog_h__

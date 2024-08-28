@@ -6,6 +6,12 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**03.01.04 Aug 28, 2024**
+
+* Minor bug fixes
+* New option `'HENDRIKS'` for `--pulsational-pair-instability-prescription` implementing the prescription for pulsational pair instability mass-loss from Hendricks et al. 2023 (https://arxiv.org/abs/2309.09339). 
+* New command line option `--PPI-CO-Core-Shift-Hendriks` for use with the above prescription (see Hendriks+ for an explanation)
+
 **03.01.00 Aug 24, 2024**
 
 * New option to emit gravitational radiation at each timestep of binary evolution: ``--emit-gravitational-radiation``. The effects of radiation are approximated by the change in semimajor axis and eccentricity from Peters 1946 equations 5.6 and 5.7.  Reduce timestep if required to keep orbital separation change per step due to GW radiation within ~ 1%.
