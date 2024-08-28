@@ -485,6 +485,11 @@ Prints COMPAS help (-h is short form, --help includes more information).
 
 :ref:`Back to Top <options-props-top>`
 
+**--include-WD-binaries-as-DCO** |br|
+When Enabled, changes the definition of "Double Compact Object" from a binary comprised of any two of {Neutron Star, Black Hole} |br|
+to a binary star comprised of any two of {Helium White Dwarf, Carbon-Oxygen White Dwarf, Oxygen-Neon White Dwarf, Neutron Star, Black Hole}. |br|
+Default = FALSE
+
 **--initial-mass** |br|
 Initial mass for a single star when evolving in SSE mode (:math:`M_\odot`). |br|
 Default = Sampled from IMF
@@ -1444,8 +1449,10 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Administrative**
 
---mode, --number-of-systems, --emit-gravitational-radiation, --evolve-double-white-dwarfs, --evolve-main-sequence-mergers, --evolve-pulsars, --evolve-unbound-systems, --mass-change-fraction, 
---maximum-evolution-time, --maximum-number-timestep-iterations,
+--mode, --number-of-systems, 
+--emit-gravitational-radiation, --evolve-double-white-dwarfs, --evolve-main-sequence-mergers, --evolve-pulsars, --evolve-unbound-systems, 
+--include-WD-binaries-as-DCO,
+--mass-change-fraction, --maximum-evolution-time, --maximum-number-timestep-iterations,
 --radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename
 
 --fp-error-mode

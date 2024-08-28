@@ -472,6 +472,7 @@ private:
         "help", "h",
         "hmxr-binaries",
 
+        "include-WD-binaries-as-DCO",
         "initial-mass-function", "i",
 
         "kick-direction",   // DEPRECATED June 2024 - remove end 2024
