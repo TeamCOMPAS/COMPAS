@@ -1464,7 +1464,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "PPI-CO-Core-Shift-Hendriks",
             po::value<double>(&p_Options->m_PulsationalPairInstabilityCOCoreShiftHendriks)->default_value(p_Options->m_PulsationalPairInstabilityCOCoreShiftHendriks),                                              
-            ("Shift in CO core mass for PPI (in Msol) for the Hendriks+23 PPI Prescriptions (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityCOCoreShiftHendriks) + ")").c_str()
+            ("Shift in CO core mass for PPI (in Msol) for the Hendriks+23 PPI prescription (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityCOCoreShiftHendriks) + ")").c_str()
         )
         (
             "pulsar-birth-magnetic-field-distribution-max",                
