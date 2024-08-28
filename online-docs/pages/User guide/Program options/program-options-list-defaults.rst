@@ -486,7 +486,7 @@ Prints COMPAS help (-h is short form, --help includes more information).
 :ref:`Back to Top <options-props-top>`
 
 **--include-WD-binaries-as-DCO** |br|
-When Enabled, changes the definition of "Double Compact Object" from a binary comprised of any two of {Neutron Star, Black Hole} |br|
+When enabled, changes the definition of "Double Compact Object" from a binary comprised of any two of {Neutron Star, Black Hole} |br|
 to a binary star comprised of any two of {Helium White Dwarf, Carbon-Oxygen White Dwarf, Oxygen-Neon White Dwarf, Neutron Star, Black Hole}. |br|
 Default = FALSE
 
