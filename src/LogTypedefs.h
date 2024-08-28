@@ -750,7 +750,6 @@ enum class PROGRAM_OPTION: int {
     INITIAL_MASS_FUNCTION_MIN,
     INITIAL_MASS_FUNCTIONPOWER,
 
-    KICK_DIRECTION, // DEPRECATED June 2024 - remove end 2024
     KICK_DIRECTION_DISTRIBUTION,
     KICK_DIRECTION_POWER,
     KICK_SCALING_FACTOR,
@@ -969,7 +968,6 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                        "INITIAL_MASS_FUNCTION_MAX" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                        "INITIAL_MASS_FUNCTION_MIN" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                       "INITIAL_MASS_FUNCTIONPOWER" },
-    { PROGRAM_OPTION::KICK_DIRECTION,                                   "KICK_DIRECTION_DISTRIBUTION" }, // DEPRECATED June 2024 - remove end 2024
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                      "KICK_DIRECTION_DISTRIBUTION" },
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                             "KICK_DIRECTION_POWER" },
     { PROGRAM_OPTION::KICK_SCALING_FACTOR,                              "KICK_SCALING_FACTOR" },
@@ -1526,7 +1524,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::KICK_THETA_2,                                             { TYPENAME::DOUBLE,     "PO_Kick_Theta(2)",                          "-",         24, 15}},
 
     { PROGRAM_OPTION::LBV_FACTOR,                                               { TYPENAME::DOUBLE,     "PO_LBV_Factor",                             "-",         24, 15}},
-    { PROGRAM_OPTION::LBV_PRESCRIPTION,                                         { TYPENAME::INT,        "PO_LBV_Mass_Loss_Prscrptn",                 "-",          4, 1 }}, // DEPRECATED June 2024 - remove end 2024
+    { PROGRAM_OPTION::LBV_PRESCRIPTION,                                         { TYPENAME::INT,        "PO_LBV_Mass_Loss_Prscrptn (depr)",          "-",          4, 1 }}, // DEPRECATED June 2024 - remove end 2024
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                               { TYPENAME::INT,        "PO_LBV_Mass_Loss_Prscrptn",                 "-",          4, 1 }},
 
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                                   { TYPENAME::INT,        "PO_Mass_Loss_Prscrptn",                     "-",          4, 1 }},
