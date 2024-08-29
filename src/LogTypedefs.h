@@ -852,6 +852,7 @@ enum class PROGRAM_OPTION: int {
     PPI_LOWER_LIMIT,
     PPI_PRESCRIPTION,
     PPI_UPPER_LIMIT,
+    PPI_CO_CORE_SHIFT_HENDRIKS,
 
     PULSAR_MAGNETIC_FIELD_DISTRIBUTION,
     PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX,
@@ -1070,6 +1071,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::PPI_LOWER_LIMIT,                                  "PPI_LOWER_LIMIT" },
     { PROGRAM_OPTION::PPI_PRESCRIPTION,                                 "PPI_PRESCRIPTION" },
     { PROGRAM_OPTION::PPI_UPPER_LIMIT,                                  "PPI_UPPER_LIMIT" },
+    { PROGRAM_OPTION::PPI_CO_CORE_SHIFT_HENDRIKS,                       "PPI_CO_CORE_SHIFT_HENDRIKS"},
 
     { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION,               "PULSAR_MAGNETIC_FIELD_DISTRIBUTION" },
     { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX,           "PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX" },
@@ -1599,6 +1601,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::PPI_LOWER_LIMIT,                                          { TYPENAME::DOUBLE,     "PO_PPI_Lower_Limit",                        "Msol",      24, 15}},
     { PROGRAM_OPTION::PPI_PRESCRIPTION,                                         { TYPENAME::INT,        "PO_PPI_Prscrptn",                           "-",          4, 1 }},
     { PROGRAM_OPTION::PPI_UPPER_LIMIT,                                          { TYPENAME::DOUBLE,     "PO_PPI_Upper_Limit",                        "Msol",      24, 15}},
+    { PROGRAM_OPTION::PPI_CO_CORE_SHIFT_HENDRIKS,                               { TYPENAME::DOUBLE,     "PO_PPI_CO_CORE_SHIFT_HENDRIKS",             "Msol",      24, 15}},
 
     { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION,                       { TYPENAME::INT,        "PO_Pulsar_Mag_Field_Dstrbtn",               "-",          4, 1 }},
     { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX,                   { TYPENAME::DOUBLE,     "PO_Pulsar_Mag_Field_Dstrbtn_Max",           "AU",        24, 15}},
