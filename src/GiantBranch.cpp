@@ -2005,16 +2005,17 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
             double DeltaMPPICOShift = OPTIONS->PulsationalPairInstabilityCOCoreShiftHendriks();
             double DeltaMPPIExtraML = 0.0; 								// Make an option? Currently does nothing
 
-	    // Equation (6) of Hendricks et al. 2023			
+            // Equation (6) of Hendricks et al. 2023			
             double PPIOnset        = m_COCoreMass - DeltaMPPICOShift - 34.8;
             double PPIOnsetSquared = PPIOnset * PPIOnset;
             double PPIOnsetCubed   = PPIOnsetSquared * PPIOnset;
             double firstTerm  = (0.0006 * m_Log10Metallicity + 0.0054) * PPIOnsetCubed;
             double secondTerm = 0.0013 * PPIOnsetSquared;
             double DeltaMPPI  = firstTerm - secondTerm + DeltaMPPIExtraML;
-	    
-            DeltaMPPI = std::max(DeltaMPPI, 0.0);							// DeltaMPPI, the amount of the He core that's lost in pulsations, is non-negative
-	    m_Mass = std::max(m_HeCoreMass - DeltaMPPI, 0.0);						// Remnant mass should be non-negative		
+            
+            DeltaMPPI = std::max(DeltaMPPI, 0.0);						// DeltaMPPI, the amount of the He core that's lost in pulsations, is non-negative
+            m_Mass = std::max(m_HeCoreMass - DeltaMPPI, 0.0);			// Remnant mass should be non-negative		
+            m_Mass = m_Mass > 10.0 ? m_Mass : 0.0;                      // If the predicted remnant mass is below 10 Msun, set it equal to 0 (assume a PISN)
 
         } break;
 
