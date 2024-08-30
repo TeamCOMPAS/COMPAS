@@ -67,8 +67,8 @@ protected:
     double          CalculateLuminosityOnPhase() const     
 
     // Mass loss rate
-    double          CalculateMassLossRateVink();
-    double          CalculateMassLossRateNEW
+    double          CalculateMassLossRateBelczynski2010();
+    double          CalculateMassLossRateMerritt2024();
     double          CalculateMassLossRateWeightOB(const double p_HeliumAbundanceSurface);
     
     // Radius
