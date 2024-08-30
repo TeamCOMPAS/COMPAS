@@ -1593,6 +1593,22 @@ DEPRECATION NOTICE: property ``LBV_PRESCRIPTION`` has been deprecated and will s
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **PPI_CO_CORE_SHIFT_HENDRIKS**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_PulsationalPairInstabilityCOCoreShiftHendriks
+   * - Description:
+     - Value of program option ``--PPI-CO-Core-Shift-Hendriks``
+   * - Header String:
+     - PO_PPI_CO_CORE_SHIFT_HENDRIKS
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **PPI_LOWER_LIMIT**
      -
    * - Data type:

@@ -849,6 +849,8 @@ public:
             double                                              m_PulsationalPairInstabilityLowerLimit;                         // Maximum core mass leading to PPI
             double                                              m_PulsationalPairInstabilityUpperLimit;                         // Minimum core mass leading to PPI
 
+            double                                              m_PulsationalPairInstabilityCOCoreShiftHendriks;                // Shift in CO Core mass for PPI from Hendriks+23
+            
             ENUM_OPT<PPI_PRESCRIPTION>                          m_PulsationalPairInstabilityPrescription;                       // Which PPI prescription
 
 	        double                                              m_MaximumNeutronStarMass;						                // Maximum mass of a neutron star allowed, set to default in StarTrack
@@ -1491,7 +1493,8 @@ public:
     PPI_PRESCRIPTION                            PulsationalPairInstabilityPrescription() const                          { return OPT_VALUE("pulsational-pair-instability-prescription", m_PulsationalPairInstabilityPrescription.type, true); }
     double                                      PulsationalPairInstabilityLowerLimit() const                            { return OPT_VALUE("PPI-lower-limit", m_PulsationalPairInstabilityLowerLimit, true); }
     double                                      PulsationalPairInstabilityUpperLimit() const                            { return OPT_VALUE("PPI-upper-limit", m_PulsationalPairInstabilityUpperLimit, true); }
-
+    double                                      PulsationalPairInstabilityCOCoreShiftHendriks() const                   { return OPT_VALUE("PPI-CO-Core-Shift-Hendriks", m_PulsationalPairInstabilityCOCoreShiftHendriks, true); }
+    
     QCRIT_PRESCRIPTION                          QCritPrescription() const                                               { return OPT_VALUE("critical-mass-ratio-prescription", m_QCritPrescription.type, true); }
 
     bool                                        Quiet() const                                                           { return m_CmdLine.optionValues.m_Quiet; }

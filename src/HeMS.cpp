@@ -324,11 +324,11 @@ double HeMS::CalculateMassLossRateWolfRayetShenar2019() const {
  * Calculate the mass loss rate for helium stars in the updated prescription
  * Uses Sander & Vink 2020 for Wolf--Rayet stars
  * 
- * double CalculateMassLossRateFlexible2023()
+ * double CalculateMassLossRateMerritt2024()
  *
  * @return                                      Mass loss rate in Msol per year
  */
-double HeMS::CalculateMassLossRateFlexible2023() {
+double HeMS::CalculateMassLossRateMerritt2024() {
 
     double MdotWR = 0.0;
 
