@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Wed Aug 28 15:17:36 2024 by COMPAS v03.01.04
+##~!!~## File Created Fri Aug 30 12:00:32 2024 by COMPAS v03.01.06
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -195,6 +195,7 @@ numericalChoices:
 #    --pisn-upper-limit: 135.00                                            # Default: 135.00                                                                                                                                                             # Maximum core mass for PISN [Msol]
 #    --ppi-lower-limit: 35.000000                                          # Default: 35.000000                                                                                                                                                          # Minimum core mass for PPI [Msol]
 #    --ppi-upper-limit: 60.000000                                          # Default: 60.000000                                                                                                                                                          # Maximum core mass for PPI [Msol]
+#    --ppi-co-core-shift-hendriks: 0.000000                                # Default: 0.000000                                                                                                                                                           # CO Core shift for PPI [Msol] from Hendriks+23
 #    --rocket-kick-magnitude-1: 0.000000                                   # Default: 0.000000                                                                                                                                                           # (BSE) rocket kick magnitude for the primary should it undergo a supernova event [km/s]
 #    --rocket-kick-magnitude-2: 0.000000                                   # Default: 0.000000                                                                                                                                                           # (BSE) rocket kick magnitude for the secondary should it undergo a supernova event [km/s]
 #    --rocket-kick-theta-1: 0.000000                                       # Default: 0.000000                                                                                                                                                           # (BSE) angle between the orbital plane and the 'z' axis of the rocket kick for the primary star [radians]
@@ -231,7 +232,7 @@ stringChoices:
 #    --initial-mass-function: 'KROUPA'                                     # Default: 'KROUPA'                      # Options: ['KROUPA','UNIFORM','POWERLAW','SALPETER']
 #    --LBV-mass-loss-prescription: 'HURLEY_ADD'                            # Default: 'HURLEY_ADD'                  # Options: ['BELCZYNSKI','HURLEY','HURLEY_ADD','ZERO','NONE']
 #    --luminous-blue-variable-prescription: 'HURLEY_ADD'                   # Default: 'HURLEY_ADD'                  # Options: ['BELCZYNSKI','HURLEY','HURLEY_ADD','ZERO','NONE']
-#    --mass-loss-prescription: 'FLEXIBLE2023'                              # Default: 'FLEXIBLE2023'                # Options: ['FLEXIBLE2023','BELCZYNSKI2010','HURLEY','ZERO','NONE']
+#    --mass-loss-prescription: 'MERRITT2024'                               # Default: 'MERRITT2024'                 # Options: ['MERRITT2024','BELCZYNSKI2010','HURLEY','ZERO','NONE']
 #    --OB-mass-loss: 'VINK2021'                                            # Default: 'VINK2021'                    # Options: ['KRTICKA2018','BJORKLUND2022','VINK2021','VINK2001','ZERO','NONE']
 #    --OB-mass-loss-prescription: 'VINK2021'                               # Default: 'VINK2021'                    # Options: ['KRTICKA2018','BJORKLUND2022','VINK2021','VINK2001','ZERO','NONE']
 #    --RSG-mass-loss: 'DECIN2023'                                          # Default: 'DECIN2023'                   # Options: ['NJ90','KEE2021','YANG2023','DECIN2023','BEASOR2020','VINKSABHAHIT2023','ZERO','NONE']
@@ -241,7 +242,7 @@ stringChoices:
 #    --WR-mass-loss: 'SANDERVINK2023'                                      # Default: 'SANDERVINK2023'              # Options: ['SHENAR2019','SANDERVINK2023','BELCZYNSKI2010']
 #    --WR-mass-loss-prescription: 'SANDERVINK2023'                         # Default: 'SANDERVINK2023'              # Options: ['SHENAR2019','SANDERVINK2023','BELCZYNSKI2010']
 #    --metallicity-distribution: 'ZSOLAR'                                  # Default: 'ZSOLAR'                      # Options: ['LOGUNIFORM','ZSOLAR']
-#    --pulsational-pair-instability-prescription: 'MARCHANT'               # Default: 'MARCHANT'                    # Options: ['FARMER','MARCHANT','STARTRACK','COMPAS']
+#    --pulsational-pair-instability-prescription: 'MARCHANT'               # Default: 'MARCHANT'                    # Options: ['HENDRIKS','FARMER','MARCHANT','STARTRACK','COMPAS']
 
     ### BINARY PROPERTIES
 #    --eccentricity-distribution: 'ZERO'                                   # Default: 'ZERO'                        # Options: ['SANA2012','DUQUENNOYMAYOR1991','GELLER+2013','THERMAL','FLAT','ZERO']
