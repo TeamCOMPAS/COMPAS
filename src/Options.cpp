@@ -4925,6 +4925,7 @@ void Options::ShowDeprecations(const bool p_Commandline) {
     static std::vector<std::tuple<std::string, std::string, std::string, bool>> values = {
         { "LBV-mass-loss-prescription",          "NONE", "ZERO", false },
         { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
+        { "mass-loss-prescription",              "NONE", "ZERO", false },
         { "OB-mass-loss",                        "NONE", "ZERO", false },
         { "OB-mass-loss-prescription",           "NONE", "ZERO", false },
         { "RSG-mass-loss",                       "NONE", "ZERO", false },
