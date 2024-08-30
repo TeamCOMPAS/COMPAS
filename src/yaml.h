@@ -97,6 +97,7 @@ namespace yaml {
             "",
             "    ### BINARY PROPERTIES",
             "    --allow-touching-at-birth                                       # record binaries that have stars touching at birth in output files",
+            "    --include-WD-binaries-as-DCO                                    # record WD binaries in the BSE DCO file",
             "",
             "    ### MASS TRANSFER",
             "    --angular-momentum-conservation-during-circularisation",
