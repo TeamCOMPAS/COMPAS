@@ -181,7 +181,13 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     HE_CORE_MASS,                                    \
     HE_CORE_MASS_AT_COMMON_ENVELOPE,                 \
     HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        \
+    HELIUM_ABUNDANCE_CORE,                           \
+    HELIUM_ABUNDANCE_SURFACE,                        \
+    HYDROGEN_ABUNDANCE_CORE,                         \
+    HYDROGEN_ABUNDANCE_SURFACE,                      \
     ID,                                              \
+    INITIAL_HELIUM_ABUNDANCE,                        \
+    INITIAL_HYDROGEN_ABUNDANCE,                      \
     INITIAL_STELLAR_TYPE,                            \
     INITIAL_STELLAR_TYPE_NAME,                       \
     IS_AIC,                                          \
@@ -320,7 +326,14 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::HE_CORE_MASS,                                    "HE_CORE_MASS" },
     { STAR_PROPERTY::HE_CORE_MASS_AT_COMMON_ENVELOPE,                 "HE_CORE_MASS_AT_COMMON_ENVELOPE" },
     { STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        "HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION" },
+    { STAR_PROPERTY::HELIUM_ABUNDANCE_CORE,                           "HELIUM_ABUNDANCE_CORE" },
+    { STAR_PROPERTY::HELIUM_ABUNDANCE_SURFACE,                        "HELIUM_ABUNDANCE_SURFACE" },
+    { STAR_PROPERTY::HYDROGEN_ABUNDANCE_CORE,                         "HYDROGEN_ABUNDANCE_CORE" },
+    { STAR_PROPERTY::HYDROGEN_ABUNDANCE_SURFACE,                      "HYDROGEN_ABUNDANCE_SURFACE" },
     { STAR_PROPERTY::ID,                                              "ID" },
+    { STAR_PROPERTY::INITIAL_HELIUM_ABUNDANCE,                        "INITIAL_HELIUM_ABUNDANCE" },
+    { STAR_PROPERTY::INITIAL_HYDROGEN_ABUNDANCE,                      "INITIAL_HYDROGEN_ABUNDANCE" },
+    { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "INITIAL_STELLAR_TYPE" },
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "INITIAL_STELLAR_TYPE" },
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                       "INITIAL_STELLAR_TYPE_NAME" },
     { STAR_PROPERTY::IS_AIC,                                          "IS_AIC" },
@@ -1224,7 +1237,13 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::HE_CORE_MASS,                                      { TYPENAME::DOUBLE,           "Mass_He_Core",                    "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,           "Mass_He_Core@CE",                 "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,          { TYPENAME::DOUBLE,           "Mass_He_Core@CO",                 "Msol",             24, 15}},
+    { ANY_STAR_PROPERTY::HELIUM_ABUNDANCE_SURFACE,                          { TYPENAME::DOUBLE,           "Helium_Abundance_Surface",        "-",                24, 15}},
+    { ANY_STAR_PROPERTY::HELIUM_ABUNDANCE_CORE,                             { TYPENAME::DOUBLE,           "Helium_Abundance_Core",           "-",                24, 15}},
+    { ANY_STAR_PROPERTY::HYDROGEN_ABUNDANCE_SURFACE,                        { TYPENAME::DOUBLE,           "Hydrogen_Abundance_Surface",      "-",                24, 15}},
+    { ANY_STAR_PROPERTY::HYDROGEN_ABUNDANCE_CORE,                           { TYPENAME::DOUBLE,           "Hydrogen_Abundance_Core",         "-",                24, 15}},
     { ANY_STAR_PROPERTY::ID,                                                { TYPENAME::OBJECT_ID,        "ID",                              "-",                12, 1 }},
+    { ANY_STAR_PROPERTY::INITIAL_HELIUM_ABUNDANCE,                          { TYPENAME::DOUBLE,           "Helium_Abundance@ZAMS",           "-",                24, 15}},
+    { ANY_STAR_PROPERTY::INITIAL_HYDROGEN_ABUNDANCE,                        { TYPENAME::DOUBLE,           "Hydrogen_Abundance@ZAMS",         "-",                24, 15}},
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE,                              { TYPENAME::STELLAR_TYPE,     "Stellar_Type@ZAMS",               "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                         { TYPENAME::STRING,           "Stellar_Type@ZAMS",               "-",                42, 1 }},
     { ANY_STAR_PROPERTY::IS_AIC,                                            { TYPENAME::BOOL,             "AIC",                             "State",             0, 0 }},

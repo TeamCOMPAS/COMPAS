@@ -91,6 +91,7 @@ public:
             int                 DominantMassLossRate() const                                    { return static_cast<int>(m_DominantMassLossRate); }
             double              Dt() const                                                      { return m_Dt; }
             double              DtPrev() const                                                  { return m_DtPrev; }
+            double              EddingtonParameter() const                                      { return m_Luminosity / CalculateEddingtonLuminosity(); }
             bool                EnvelopeJustExpelledByPulsations() const                        { return m_EnvelopeJustExpelledByPulsations; }
             ERROR               Error() const                                                   { return m_Error; }
             EVOLUTION_STATUS    EvolutionStatus() const                                         { return m_EvolutionStatus; }
@@ -105,6 +106,10 @@ public:
             bool                ExperiencedUSSN() const                                         { return (m_SupernovaDetails.events.past & SN_EVENT::USSN) == SN_EVENT::USSN; }
             std::string         GetMassTransferDonorHistoryString() const;
             double              HeCoreMass() const                                              { return m_HeCoreMass; }
+            double              HeliumAbundanceCore() const                                     { return m_HeliumAbundanceCore; }
+            double              HeliumAbundanceSurface() const                                  { return m_HeliumAbundanceSurface;} 
+            double              HydrogenAbundanceCore() const                                   { return m_HydrogenAbundanceCore; }
+            double              HydrogenAbundanceSurface() const                                { return m_HydrogenAbundanceSurface; }
             bool                IsAIC() const                                                   { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::AIC; }
             bool                IsCCSN() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::CCSN; }
             bool                IsHeSD() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::HeSD; }
@@ -226,10 +231,15 @@ public:
                                                                                                                                                                                          
             double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
         
+            double          CalculateEddingtonLuminosity() const                                                { return CalculateEddingtonLuminosity_Static(m_Mass, m_HeliumAbundanceSurface); }             // Use class member variables
+
             double          CalculateEddyTurnoverTimescale() const;
 
     virtual void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) { }                                                                                      // Default is NO-OP
     virtual void            CalculateGBParams()                                                                 { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
+
+            double          CalculateInitialHeliumAbundance()                                                   { return 0.24 + 2.0 * m_Metallicity; }                              // Pols et al. 1998 
+            double          CalculateInitialHydrogenAbundance()                                                 { return 0.76 - 3.0 * m_Metallicity; }                              // Pols et al. 1998 
 
     virtual DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const;  
     virtual DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const ;                                              
@@ -259,6 +269,8 @@ public:
             double          CalculateNuclearMassLossRate();
         
             double          CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) const;
+
+            double          CalculateOpacity() const                                                            { return CalculateOpacity_Static(m_HeliumAbundanceSurface); }       // Use class member variables
 
             double          CalculateRadialChange() const                                                       { return (utils::Compare(m_RadiusPrev,0)<=0)? 0 : std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; } // Return fractional radial change (if previous radius is negative or zero, return 0 to avoid NaN
 
@@ -385,6 +397,8 @@ protected:
     unsigned long int       m_RandomSeed;                               // Seeds the random number generator for this star
 
     // Zero Age Main Sequence
+    double                  m_initialHeliumAbundance;                   // Initial helium abundance (Y)
+    double                  m_initialHydrogenAbundance;                 // Initial hydrogen abundance (X)
     double                  m_LZAMS;                                    // ZAMS Luminosity
     double                  m_MZAMS;                                    // ZAMS Mass
     double                  m_OmegaZAMS;                                // ZAMS Angular Frequency
@@ -405,6 +419,10 @@ protected:
     double                  m_Dt;                                       // Size of current timestep (Myr)
     bool                    m_EnvelopeJustExpelledByPulsations;         // Flag to know if the convective envelope has just been expelled by pulsations
     double                  m_HeCoreMass;                               // Current He core mass (Msol)
+    double                  m_HeliumAbundanceCore;                      // Helium abundance in the core
+    double                  m_HeliumAbundanceSurface;                   // Helium abundance at the surface
+    double                  m_HydrogenAbundanceCore;                    // Hydrogen abundance in the core
+    double                  m_HydrogenAbundanceSurface;                 // Hydrogen abundance at the surface
     bool                    m_LBVphaseFlag;                             // Flag to know if the star satisfied the conditions, at any point in its evolution, to be considered a Luminous Blue Variable (LBV)
     double                  m_Luminosity;                               // Current luminosity (Lsol)
     double                  m_Mass;                                     // Current mass (Msol)
@@ -510,11 +528,18 @@ protected:
     static  double              CalculateDynamicalTimescale_Static(const double p_Mass, const double p_Radius);
 
     virtual double              CalculateEddingtonCriticalRate() const                                                  { return 2.08E-3 / 1.7 * m_Radius * MYR_TO_YEAR * OPTIONS->EddingtonAccretionFactor() ; } // Hurley+, 2002, Eq. (67)
+    static  double              CalculateEddingtonLuminosity_Static(const double p_Mass, const double p_HeliumAbundanceSurface);
 
             double              CalculateGBRadiusXExponent() const;
 
     virtual double              CalculateHeCoreMassAtPhaseEnd() const                                                   { return m_HeCoreMass; }                                                    // Default is NO-OP
     virtual double              CalculateHeCoreMassOnPhase() const                                                      { return m_HeCoreMass; }                                                    // Default is NO-OP
+
+    virtual double              CalculateHeliumAbundanceCoreOnPhase() const                                             { return m_HeliumAbundanceCore; }                                           // Default is NO-OP
+    virtual double              CalculateHeliumAbundanceSurfaceOnPhase() const                                          { return m_HeliumAbundanceSurface; }                                        // Default is NO-OP
+
+    virtual double              CalculateHydrogenAbundanceCoreOnPhase() const                                           { return m_HydrogenAbundanceCore; }                                         // Default is NO-OP
+    virtual double              CalculateHydrogenAbundanceSurfaceOnPhase() const                                        { return m_HydrogenAbundanceSurface; }                                      // Default is NO-OP
 
     static  double              CalculateHeRateConstant_Static()                                                        { return HE_RATE_CONSTANT; }                                                // Only >= CHeB stars need AHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
     static  double              CalculateHHeRateConstant_Static()                                                       { return HHE_RATE_CONSTANT; }                                               // Only TPAGB stars need AHHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
@@ -592,6 +617,8 @@ protected:
             double              CalculateMaximumCoreMass(double p_Mass) const;
 
             double              CalculateOmegaBreak() const;
+
+    static  double              CalculateOpacity_Static(const double p_HeliumAbundanceSurface);
 
     static  double              CalculateOStarRotationalVelocityAnalyticCDF_Static(const double p_Ve);
     static  double              CalculateOStarRotationalVelocityAnalyticCDFInverse_Static(double p_Ve, void *p_Params);

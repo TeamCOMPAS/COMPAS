@@ -116,6 +116,15 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
                                                     ? p_RotationalFrequency                             // yes - use it
                                                     : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
 
+    // Initial abundances
+    m_initialHeliumAbundance   = CalculateInitialHeliumAbundance();
+    m_HeliumAbundanceCore      = m_initialHeliumAbundance;
+    m_HeliumAbundanceSurface   = m_initialHeliumAbundance;
+
+    m_initialHydrogenAbundance = CalculateInitialHydrogenAbundance();
+    m_HydrogenAbundanceCore    = m_initialHydrogenAbundance;
+    m_HydrogenAbundanceSurface = m_initialHydrogenAbundance;
+
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
     m_RZAMS0                                   = m_RZAMS;
     m_LZAMS0                                   = m_LZAMS;
@@ -321,8 +330,14 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY:                        value = GetMassTransferDonorHistoryString();                    break;
         case ANY_STAR_PROPERTY::HE_CORE_MASS:                                       value = HeCoreMass();                                           break;
         case ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_HeCoreMassAtCOFormation();                           break;
+        case ANY_STAR_PROPERTY::HELIUM_ABUNDANCE_CORE:                              value = HeliumAbundanceCore();                                  break;
+        case ANY_STAR_PROPERTY::HELIUM_ABUNDANCE_SURFACE:                           value = HeliumAbundanceSurface();                               break;
+        case ANY_STAR_PROPERTY::HYDROGEN_ABUNDANCE_CORE:                            value = HydrogenAbundanceCore();                                break;
+        case ANY_STAR_PROPERTY::HYDROGEN_ABUNDANCE_SURFACE:                         value = HydrogenAbundanceSurface();                             break;
         case ANY_STAR_PROPERTY::IS_HYDROGEN_POOR:                                   value = SN_IsHydrogenPoor();                                    break;
         case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
+        case ANY_STAR_PROPERTY::INITIAL_HELIUM_ABUNDANCE:                           value = CalculateInitialHeliumAbundance();                      break;
+        case ANY_STAR_PROPERTY::INITIAL_HYDROGEN_ABUNDANCE:                         value = CalculateInitialHydrogenAbundance();                    break;
         case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
         case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
         case ANY_STAR_PROPERTY::IS_AIC:                                             value = IsAIC();                                                break;
@@ -1798,6 +1813,50 @@ double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() const {
 
 
 /*
+ * Calculate the opacity for this star (e.g., to determine the Eddington luminosity)
+ *
+ * See text surrounding Equation 6 in Bjorklund et al. 2022 (https://arxiv.org/abs/2203.08218)
+ *
+ * double CalculateOpacity_Static
+ * 
+ * @return                                      Opacity in SI units (m^2/kg)
+ *
+ */
+double BaseStar::CalculateOpacity_Static(const double p_HeliumAbundanceSurface) {
+
+    const double iHe = 2.0;                                             // Helium ionisation state - For O stars, doubly ionised helium
+    double YHe = p_HeliumAbundanceSurface;                              // Star's surface helium abundance 
+
+    double kappa_e_cgs = 0.4 * (1.0 + iHe * YHe) / (1.0 + 4.0 * YHe);   // cgs units cm^2/g
+    double kappa_e_SI  = kappa_e_cgs * OPACITY_CGS_TO_SI;               // Convert to SI units - m^2/kg
+
+    return kappa_e_SI;
+}
+
+/*
+ * Calculate the Eddington Luminosity L_edd for this star
+ *
+ * See e.g., above Equation 6 in Bjorklund et al. 2022 (https://arxiv.org/abs/2203.08218)
+ * 
+ * double CalculateEddingtonLuminosity_Static
+ * 
+ * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_HeliumAbundanceSurface    Helium abundance
+ * @return                                      Eddington luminosity in solar luminosities
+ *
+ */
+double BaseStar::CalculateEddingtonLuminosity_Static(const double p_Mass, const double p_HeliumAbundanceSurface) {
+
+    double kappa_SI = CalculateOpacity_Static(p_HeliumAbundanceSurface);   // Determine opacity
+    
+    double top   = 4.0 * M_PI * G * C * p_Mass * MSOL_TO_KG;
+    double bot   = kappa_SI;
+    double L_Edd = top / bot;
+
+    return L_Edd;
+}
+
+/*
  * Calculate the Eddington factor (L/L_Edd) as required by CalculateMassLossRateBjorklund
  * see text surrounding Equation 6 in https://arxiv.org/abs/2203.08218
  * 
@@ -1810,12 +1869,14 @@ double BaseStar::CalculateMassLossRateBjorklundEddingtonFactor() const {
 
     const double iHe  = 2.0;
     const double YHe  = 0.1;                                                // assumed constant by Bjorklund et al.
-    double kappa_e    = 0.4 * (1.0 + iHe * YHe) / (1.0 + 4.0 * YHe);        // cm^2/g
-    double kappa_e_SI = kappa_e * OPACITY_CGS_TO_SI;                        // m^2/kg
-    double top        = kappa_e_SI * m_Luminosity * LSOLW;
-    double bottom     = 4.0 * M_PI * G * C * m_Mass * MSOL_TO_KG; 
+    
+    double kappa_e_SI = CalculateOpacity_Static(YHe);                       // m^2/kg
 
-    return top / bottom;
+    double Ledd       = CalculateEddingtonLuminosity_Static(m_Mass, YHe);   // W
+
+    double LoverLedd  = (m_Luminosity * LSOLW) / Ledd;                      // Dimensionless
+
+    return LoverLedd;
 }
 
 
@@ -4601,6 +4662,12 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
         
         m_Luminosity      = CalculateLuminosityOnPhase();
 
+        // Calculate abundances
+        m_HeliumAbundanceCore      = CalculateHeliumAbundanceCoreOnPhase();
+        m_HeliumAbundanceSurface   = CalculateHeliumAbundanceSurfaceOnPhase();
+        m_HydrogenAbundanceCore    = CalculateHydrogenAbundanceCoreOnPhase();
+        m_HydrogenAbundanceSurface = CalculateHydrogenAbundanceSurfaceOnPhase();  
+        
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // radius and possibly new stellar type
 
         m_Mu              = CalculatePerturbationMuOnPhase();
