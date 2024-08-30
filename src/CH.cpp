@@ -335,16 +335,100 @@ double CH::CalculateMassLossRateWeightOB(const double p_HeliumAbundanceSurface){
     return weight;
 }
 
-double CH::CalculateMassLossRateMerritt2024(){
+/*
+ * Calculate the dominant mass loss mechanism and associated rate for the star 
+ * at the current evolutionary phase
+ * 
+ * According to Belczynski et al. 2010 prescription - based on implementation in StarTrack
+ *
+ * Modifications for CH stars
+ * 
+ * double CalculateMassLossRateBelczynski2010()
+ *
+ * @return                                      Mass loss rate in Msol per year
+ */
+double CH::CalculateMassLossRateBelczynski2010() {
+
+    // Define variables
+    double Mdot    = 0.0;
+    double Mdot_OB = 0.0;
+    double Mdot_WR = 0.0;
+    double weight  = 1.0;           // Initialised to 1.0 to allow us to use the OB mass loss rate by default
     
+    // Convert temperature to Kelvin as needed by Vink prescription
+    double teff = m_Temperature * TSOL;            
+
+    // Calculate OB mass loss rate according to the Vink et al. formalism
+    Mdot_OB = BaseStar::CalculateMassLossRateBelczynski2010();
+
+    // If user wants to transition between OB and WR mass loss rates
+    if (OPTIONS->ScaleCHEMassLossWithSurfaceHeliumAbundance()){
+
+        // Calculate WR mass loss rate
+        Mdot_WR = BaseStar::CalculateMassLossRateWolfRayetZDependent(0.0);
+
+        // Calculate weight for combining these into total mass-loss rate
+        weight = CalculateMassLossRateWeightOB(m_HeliumAbundanceSurface);
+
+    }
+
+    // Finally, combine each of these prescriptions according to the weight
+    Mdot = (weight * Mdot_OB) + ((1.0 - weight) * Mdot_WR);
+
+    // Enhance mass loss rate due to rotation
+    Mdot *= CalculateMassLossRateEnhancementRotation();
+
+    return Mdot;
 }
 
+/*
+ * Calculate the dominant mass loss mechanism and associated rate for the star 
+ * at the current evolutionary phase
+ * 
+ * According to Merritt et al. 2024 prescription
+ *
+ * Modifications for CH stars
+ * 
+ * double CalculateMassLossRateMerritt2024()
+ * 
+ * @return                                      Mass loss rate in Msol per year
+ */
+double CH::CalculateMassLossRateMerritt2024() {
+    
+    // Define variables
+    double Mdot    = 0.0;
+    double Mdot_OB = 0.0;
+    double Mdot_WR = 0.0;
+    double weight  = 1.0;           // Initialised to 1.0 to allow us to use the OB mass loss rate by default
+    
+    // Convert temperature to Kelvin as needed by Vink prescription
+    double teff = m_Temperature * TSOL;            
 
+    // Calculate OB mass loss rate according to the chosen prescription
+    Mdot_OB = BaseStar::CalculateMassLossRateOB(OPTIONS->OBMassLossPrescription());  
 
+    // If user wants to transition between OB and WR mass loss rates
+    if (OPTIONS->ScaleCHEMassLossWithSurfaceHeliumAbundance()){
 
+        // Calculate WR mass loss rate
+        Mdot_WR = HeMS::CalculateMassLossRateMerritt2024();
 
+        // Calculate weight for combining these into total mass-loss rate
+        weight = CalculateMassLossRateWeightOB(m_HeliumAbundanceSurface);
 
+    }
 
+    // Set dominant mass loss rate
+    m_DominantMassLossRate = weight == 0 ? MASS_LOSS_TYPE::WR : MASS_LOSS_TYPE::OB;   
+
+    // Finally, combine each of these prescriptions according to the weight
+    Mdot = (weight * Mdot_OB) + ((1.0 - weight) * Mdot_WR);
+
+    // Enhance mass loss rate due to rotation
+    Mdot *= CalculateMassLossRateEnhancementRotation();
+
+    return Mdot;
+}
 
 STELLAR_TYPE CH::EvolveToNextPhase() {
 
