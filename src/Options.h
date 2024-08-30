@@ -340,6 +340,7 @@ private:
         "evolve-pulsars",
         "evolve-unbound-systems",
 
+        "include-WD-binaries-as-DCO",
         "initial-mass-1",
         "initial-mass-2",
 
@@ -472,6 +473,7 @@ private:
         "help", "h",
         "hmxr-binaries",
 
+        "include-WD-binaries-as-DCO",
         "initial-mass-function", "i",
 
         "kick-direction",   // DEPRECATED June 2024 - remove end 2024
@@ -691,13 +693,17 @@ public:
             std::vector<std::string>                            m_Notes;                                                        // Notes contents - for user-defined annotations
             std::vector<std::string>                            m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
 
-            bool                                                m_HMXRBinaries;                                                 // Flag if we want to store HMXRBs in RLOF output file
             bool                                                m_EvolveDoubleWhiteDwarfs;                                      // Whether to evolve double white dwarfs or not
-            bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
-            bool                                                m_NatalKickForPPISN;                                            // Flag if PPISN remnant should receive a non-zero natal kick
-	        bool                                                m_EvolveUnboundSystems;                                         // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
             bool                                                m_EvolveMainSequenceMergers;                                    // Option to evolve binaries in which two stars merged on the main sequence
+            bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
+	        bool                                                m_EvolveUnboundSystems;                                         // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
+
             bool                                                m_EmitGravitationalRadiation;                                   // Option to emit gravitational radiation for each timestep of binary evolution
+
+            bool                                                m_HMXRBinaries;                                                 // Flag if we want to store HMXRBs in RLOF output file
+            bool                                                m_WDBinariesAsDCO;                                              // Flag if we want to store WD binariess in DCO output file
+
+            bool                                                m_NatalKickForPPISN;                                            // Flag if PPISN remnant should receive a non-zero natal kick
 
             bool                                                m_DetailedOutput;                                               // Print detailed output details to file (default = false)
             bool                                                m_PopulationDataPrinting;                                       // Print certain data for small populations, but not for larger one
@@ -1306,6 +1312,7 @@ public:
     size_t                                      HDF5BufferSize() const                                                  { return m_CmdLine.optionValues.m_HDF5BufferSize; }
     bool                                        HMXRBinaries() const                                                    { return OPT_VALUE("hmxr-binaries", m_HMXRBinaries, true); }
 
+    bool                                        IncludeWDBinariesAsDCO() const                                          { return OPT_VALUE("include-WD-binaries-as-DCO", m_WDBinariesAsDCO, true); }
     double                                      InitialMass() const                                                     { return OPT_VALUE("initial-mass", m_InitialMass, true); }
     double                                      InitialMass1() const                                                    { return OPT_VALUE("initial-mass-1", m_InitialMass1, true); }
     double                                      InitialMass2() const                                                    { return OPT_VALUE("initial-mass-2", m_InitialMass2, true); }

@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Fri Aug 30 10:40:27 2024 by COMPAS v03.01.02
+##~!!~## File Created Fri Aug 30 12:00:32 2024 by COMPAS v03.01.06
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -31,6 +31,7 @@ booleanChoices:
 
     ### BINARY PROPERTIES
 #    --allow-touching-at-birth: False                                      # Default: False                                                                                                                                                              # record binaries that have stars touching at birth in output files
+#    --include-WD-binaries-as-DCO: False                                   # Default: False                                                                                                                                                              # record WD binaries in the BSE DCO file
 
     ### MASS TRANSFER
 #    --angular-momentum-conservation-during-circularisation: False         # Default: False
