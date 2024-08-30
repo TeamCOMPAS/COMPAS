@@ -261,6 +261,7 @@ namespace yaml {
             "    --pisn-upper-limit                                              # Maximum core mass for PISN [Msol]",
             "    --ppi-lower-limit                                               # Minimum core mass for PPI [Msol]",
             "    --ppi-upper-limit                                               # Maximum core mass for PPI [Msol]",
+            "    --ppi-co-core-shift-hendriks                                    # CO Core shift for PPI [Msol] from Hendriks+23",
             "    --rocket-kick-magnitude-1                                       # (BSE) rocket kick magnitude for the primary should it undergo a supernova event [km/s]",
             "    --rocket-kick-magnitude-2                                       # (BSE) rocket kick magnitude for the secondary should it undergo a supernova event [km/s]",
             "    --rocket-kick-theta-1                                           # (BSE) angle between the orbital plane and the 'z' axis of the rocket kick for the primary star [radians]",

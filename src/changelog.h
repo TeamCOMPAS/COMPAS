@@ -1274,13 +1274,19 @@
 // 03.01.03   JR - Aug 27, 2024     - Defect repair, code cleanup:
 //                                      - Fix for issue #1202: Missing system in system parameters file when using range
 //                                      - Remove extraneous references to "kick_direction" in LogTypedefs.h (added in error in v03.00.00)
-// 03.01.04   JR - Aug 28, 2024     - Enhancement:
+// 03.01.04   SS - Aug 28, 2024     - Enhancement:
+//                                      - Add Hendriks+23 pulsational pair instability prescription 
+// 03.01.05   JDM - Aug 30, 2024    - Defect repair, minor cleanup:
+//                                      - Related to issue #502: added HG to allowed RSG stellar type check, preventing GB winds from being applied during HG.
+//                                      - Changed all "FLEXIBLE2023" naming to "MERRITT2024"
+// 03.01.06   JR - Aug 28, 2024     - Enhancement:
 //                                      - Added functionality to allow users to specify if WD-binaries should be included in the BSE DCO file
 //                                        New option: --include-WD-binaries-as-DCO
 //                                        See "What's New" and option documentation for details.
 //                                        (Issue #1170)
+//                                      - added deprecation notice for '--mass-loss-prescription NONE' (should use ZERO) - missed in v03.00.00
 
 
-const std::string VERSION_STRING = "03.01.04";
+const std::string VERSION_STRING = "03.01.06";
 
 # endif // __changelog_h__
