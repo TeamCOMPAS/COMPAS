@@ -45,12 +45,45 @@ protected:
     }
 
     // member functions
+
+    // Abundances
+    double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;
+    double          CalculateHeliumAbundanceSurfaceOnPhase(const double p_Tau) const;
+
+    double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;
+    double          CalculateHydrogenAbundanceSurfaceOnPhase(const double p_Tau) const;
+
+    // Lifetime
+    double          CalculateLogLifetimeRatio(const double p_Mass) const;
+    double          CalculateLifetimeRatio(const double p_Mass) const;
+
+    // Luminosity
+    double          CalculateLogLuminosityRatio(const double p_Mass, const double p_Tau) const;
+
+    double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;
+    double          CalculateLuminosityAtPhaseEnd() const                                   { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                      // Use class member variables
+
+    double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const;
+    double          CalculateLuminosityOnPhase() const     
+
+    // Mass loss rate
+    double          CalculateMassLossRateVink();
+    double          CalculateMassLossRateNEW
+    double          CalculateMassLossRateWeightOB(const double p_HeliumAbundanceSurface);
+    
+    // Radius
     double          CalculateRadiusOnPhase() const      { return m_RZAMS; }                                                                                                         // Constant from birth
     double          CalculateRadiusAtPhaseEnd() const   { return CalculateRadiusOnPhase(); }                                                                                        // Same as on phase
+
+    // Timescales
+    void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
+    void            CalculateTimescales()  
 
     STELLAR_TYPE    EvolveToNextPhase();
 
     bool            ShouldEvolveOnPhase() const         { return m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)] && (OPTIONS->OptimisticCHE() || m_Omega >= m_OmegaCHE); }   // Evolve on CHE phase if age in MS timescale and spinning at least as fast as CHE threshold
+
+    void            UpdateAgeAfterMassLoss();  
 
 };
 
