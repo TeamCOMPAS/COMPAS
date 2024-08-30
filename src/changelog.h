@@ -1271,7 +1271,7 @@
 //                                      - Fix for issue #1179: Remove unsupported option value (FIXED) for options PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION and PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION
 //                                      - Remove BeBinary-related code (mostly already commented)
 //                                      - Fix typos in comments in BaseBinaryStar.cpp
-// 03.01.03   JDM - Aug 27, 2024    - Defect repair, minor cleanup:
+// 03.01.05   JDM - Aug 30, 2024    - Defect repair, minor cleanup:
 //                                      - Related to issue #502: added HG to allowed RSG stellar type check, preventing GB winds from being applied during HG.
 //                                      - Changed all "FLEXIBLE2023" naming to "MERRITT2024"
 
