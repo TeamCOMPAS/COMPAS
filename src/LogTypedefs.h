@@ -750,7 +750,6 @@ enum class PROGRAM_OPTION: int {
     INITIAL_MASS_FUNCTION_MIN,
     INITIAL_MASS_FUNCTIONPOWER,
 
-    KICK_DIRECTION, // DEPRECATED June 2024 - remove end 2024
     KICK_DIRECTION_DISTRIBUTION,
     KICK_DIRECTION_POWER,
     KICK_SCALING_FACTOR,
@@ -853,6 +852,7 @@ enum class PROGRAM_OPTION: int {
     PPI_LOWER_LIMIT,
     PPI_PRESCRIPTION,
     PPI_UPPER_LIMIT,
+    PPI_CO_CORE_SHIFT_HENDRIKS,
 
     PULSAR_MAGNETIC_FIELD_DISTRIBUTION,
     PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX,
@@ -969,7 +969,6 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                        "INITIAL_MASS_FUNCTION_MAX" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                        "INITIAL_MASS_FUNCTION_MIN" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                       "INITIAL_MASS_FUNCTIONPOWER" },
-    { PROGRAM_OPTION::KICK_DIRECTION,                                   "KICK_DIRECTION_DISTRIBUTION" }, // DEPRECATED June 2024 - remove end 2024
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                      "KICK_DIRECTION_DISTRIBUTION" },
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                             "KICK_DIRECTION_POWER" },
     { PROGRAM_OPTION::KICK_SCALING_FACTOR,                              "KICK_SCALING_FACTOR" },
@@ -1072,6 +1071,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::PPI_LOWER_LIMIT,                                  "PPI_LOWER_LIMIT" },
     { PROGRAM_OPTION::PPI_PRESCRIPTION,                                 "PPI_PRESCRIPTION" },
     { PROGRAM_OPTION::PPI_UPPER_LIMIT,                                  "PPI_UPPER_LIMIT" },
+    { PROGRAM_OPTION::PPI_CO_CORE_SHIFT_HENDRIKS,                       "PPI_CO_CORE_SHIFT_HENDRIKS"},
 
     { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION,               "PULSAR_MAGNETIC_FIELD_DISTRIBUTION" },
     { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX,           "PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX" },
@@ -1526,7 +1526,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::KICK_THETA_2,                                             { TYPENAME::DOUBLE,     "PO_Kick_Theta(2)",                          "-",         24, 15}},
 
     { PROGRAM_OPTION::LBV_FACTOR,                                               { TYPENAME::DOUBLE,     "PO_LBV_Factor",                             "-",         24, 15}},
-    { PROGRAM_OPTION::LBV_PRESCRIPTION,                                         { TYPENAME::INT,        "PO_LBV_Mass_Loss_Prscrptn",                 "-",          4, 1 }}, // DEPRECATED June 2024 - remove end 2024
+    { PROGRAM_OPTION::LBV_PRESCRIPTION,                                         { TYPENAME::INT,        "PO_LBV_Mass_Loss_Prscrptn (depr)",          "-",          4, 1 }}, // DEPRECATED June 2024 - remove end 2024
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                               { TYPENAME::INT,        "PO_LBV_Mass_Loss_Prscrptn",                 "-",          4, 1 }},
 
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                                   { TYPENAME::INT,        "PO_Mass_Loss_Prscrptn",                     "-",          4, 1 }},
@@ -1601,6 +1601,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::PPI_LOWER_LIMIT,                                          { TYPENAME::DOUBLE,     "PO_PPI_Lower_Limit",                        "Msol",      24, 15}},
     { PROGRAM_OPTION::PPI_PRESCRIPTION,                                         { TYPENAME::INT,        "PO_PPI_Prscrptn",                           "-",          4, 1 }},
     { PROGRAM_OPTION::PPI_UPPER_LIMIT,                                          { TYPENAME::DOUBLE,     "PO_PPI_Upper_Limit",                        "Msol",      24, 15}},
+    { PROGRAM_OPTION::PPI_CO_CORE_SHIFT_HENDRIKS,                               { TYPENAME::DOUBLE,     "PO_PPI_CO_CORE_SHIFT_HENDRIKS",             "Msol",      24, 15}},
 
     { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION,                       { TYPENAME::INT,        "PO_Pulsar_Mag_Field_Dstrbtn",               "-",          4, 1 }},
     { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX,                   { TYPENAME::DOUBLE,     "PO_Pulsar_Mag_Field_Dstrbtn_Max",           "AU",        24, 15}},

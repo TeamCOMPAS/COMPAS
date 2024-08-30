@@ -194,6 +194,7 @@ numericalChoices:
 #    --pisn-upper-limit: 135.00                                            # Default: 135.00                                                                                                                                                             # Maximum core mass for PISN [Msol]
 #    --ppi-lower-limit: 35.000000                                          # Default: 35.000000                                                                                                                                                          # Minimum core mass for PPI [Msol]
 #    --ppi-upper-limit: 60.000000                                          # Default: 60.000000                                                                                                                                                          # Maximum core mass for PPI [Msol]
+#    --ppi-co-core-shift-hendriks: 0.000000                                # Default: 0.000000                                                                                                                                                           # CO Core shift for PPI [Msol] from Hendriks+23
 #    --rocket-kick-magnitude-1: 0.000000                                   # Default: 0.000000                                                                                                                                                           # (BSE) rocket kick magnitude for the primary should it undergo a supernova event [km/s]
 #    --rocket-kick-magnitude-2: 0.000000                                   # Default: 0.000000                                                                                                                                                           # (BSE) rocket kick magnitude for the secondary should it undergo a supernova event [km/s]
 #    --rocket-kick-theta-1: 0.000000                                       # Default: 0.000000                                                                                                                                                           # (BSE) angle between the orbital plane and the 'z' axis of the rocket kick for the primary star [radians]
@@ -240,7 +241,7 @@ stringChoices:
 #    --WR-mass-loss: 'SANDERVINK2023'                                      # Default: 'SANDERVINK2023'              # Options: ['SHENAR2019','SANDERVINK2023','BELCZYNSKI2010']
 #    --WR-mass-loss-prescription: 'SANDERVINK2023'                         # Default: 'SANDERVINK2023'              # Options: ['SHENAR2019','SANDERVINK2023','BELCZYNSKI2010']
 #    --metallicity-distribution: 'ZSOLAR'                                  # Default: 'ZSOLAR'                      # Options: ['LOGUNIFORM','ZSOLAR']
-#    --pulsational-pair-instability-prescription: 'MARCHANT'               # Default: 'MARCHANT'                    # Options: ['FARMER','MARCHANT','STARTRACK','COMPAS']
+#    --pulsational-pair-instability-prescription: 'MARCHANT'               # Default: 'MARCHANT'                    # Options: ['HENDRIKS','FARMER','MARCHANT','STARTRACK','COMPAS']
 
     ### BINARY PROPERTIES
 #    --eccentricity-distribution: 'ZERO'                                   # Default: 'ZERO'                        # Options: ['SANA2012','DUQUENNOYMAYOR1991','GELLER+2013','THERMAL','FLAT','ZERO']

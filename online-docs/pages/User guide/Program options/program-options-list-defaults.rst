@@ -1047,6 +1047,10 @@ Default = 135.0
 Print details of population. |br|
 Default = FALSE
 
+**--PPI-CO-Core-Shift-Hendriks** |br|
+Shift in CO core mass for PPI (in Msol) for the Hendriks+23 PPI prescription
+Default = 0.0
+
 **--PPI-lower-limit** |br|
 Minimum core mass for PPI (:math:`M_\odot`). |br|
 Default = 35.0
@@ -1103,7 +1107,8 @@ Default = TRUE
 
 **--pulsational-pair-instability-prescription** |br|
 Pulsational pair instability prescription. |br|
-Options: { COMPAS, STARTRACK, MARCHANT, FARMER } |br|
+Options: { HENDRIKS, COMPAS, STARTRACK, MARCHANT, FARMER } |br|
+``HENDRIKS`` implements the prescription from Hendriks et al. 2023 |br|
 ``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, all as implemented in Stevenson et al. 2019. |br|
 ``FARMER`` follows Farmer et al. 2019 |br|
 Default = MARCHANT
@@ -1429,7 +1434,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --remnant-mass-prescription, --fryer-supernova-engine, --fryer-22-fmix, --fryer-22-mcrit, --maximum-neutron-star-mass, --mcbur1, --allow-non-stripped-ECSN, 
 --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state, --pair-instability-supernovae, --PISN-lower-limit, 
---PISN-upper-limit, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
+--PISN-upper-limit, --PPI-CO-Core-Shift-Hendriks, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 
 --pulsar-birth-magnetic-field-distribution, --pulsar-birth-magnetic-field-distribution-min, --pulsar-birth-magnetic-field-distribution-max, 
 --pulsar-birth-spin-period-distribution, --pulsar-birth-spin-period-distribution-min, --pulsar-birth-spin-period-distribution-max, 
