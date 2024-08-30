@@ -587,14 +587,6 @@ enum class MASS_CUTOFF: int {
     COUNT                   // Sentinel for entry count
 };
 
-// main sequence core mass prescription
-enum class CORE_MASS_PRESCRIPTION: int { NONE, MANDEL, SHIKAUCHI };
-const COMPASUnorderedMap<CORE_MASS_PRESCRIPTION, std::string> CORE_MASS_PRESCRIPTION_LABEL = {
-    { CORE_MASS_PRESCRIPTION::NONE,           "NONE" },     // DEPRECATED June 2024 - remove end 2024
-    { CORE_MASS_PRESCRIPTION::MANDEL,         "MANDEL" },
-    { CORE_MASS_PRESCRIPTION::SHIKAUCHI,      "SHIKAUCHI" }
-};
-
 // mass loss prescriptions
 enum class MASS_LOSS_PRESCRIPTION: int { NONE, ZERO, HURLEY, BELCZYNSKI2010, MERRITT2024 };
 const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
