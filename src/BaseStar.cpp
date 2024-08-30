@@ -2652,11 +2652,11 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
  * Mass loss rates for luminous blue variables are still given as defined elsewhere in the code
  * 
  *
- * double CalculateMassLossRateFlexible2023()
+ * double CalculateMassLossRateMerritt2024()
  * 
  * @return                  Mass loss rate in Msol per year
  */
-double BaseStar::CalculateMassLossRateFlexible2023() {
+double BaseStar::CalculateMassLossRateMerritt2024() {
 
     m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
 
@@ -2670,7 +2670,7 @@ double BaseStar::CalculateMassLossRateFlexible2023() {
 
         if ((utils::Compare(teff, RSG_MAXIMUM_TEMP) < 0) &&                                                         // teff < max temp for RSG winds?
             (utils::Compare(m_MZAMS, MASSIVE_THRESHOLD) >= 0) &&                                                    // ZAMS mass at or above massive threshold?
-            IsOneOf(GIANTS)) {                                                                                      // core helium burning giant(CHeB, FGB, EAGB, TPAGB)?
+            (IsOneOf(GIANTS) || m_StellarType == STELLAR_TYPE::HERTZSPRUNG_GAP)) {                                  // must be core helium burning giant(CHeB, FGB, EAGB, TPAGB), or HG
             otherWindsRate         = CalculateMassLossRateRSG(OPTIONS->RSGMassLossPrescription());                  // yes - use RSG mass loss rate
             m_DominantMassLossRate = MASS_LOSS_TYPE::RSG;                                                           // set dominant mass loss rate
         }                                                                      
@@ -2734,8 +2734,8 @@ double BaseStar::CalculateMassLossRate() {
                 mDot = CalculateMassLossRateBelczynski2010();
                 break;
 
-            case MASS_LOSS_PRESCRIPTION::FLEXIBLE2023:
-                mDot = CalculateMassLossRateFlexible2023();
+            case MASS_LOSS_PRESCRIPTION::MERRITT2024:
+                mDot = CalculateMassLossRateMerritt2024();
                 break;
 
             default:                                                                                                // unknown prescription

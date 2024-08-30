@@ -1277,8 +1277,10 @@
 // 03.01.04   SS - Aug 28, 2024     - Enhancement:
 //                                      - Add Hendriks+23 pulsational pair instability prescription 
 //
+// 03.01.05   JDM - Aug 30, 2024    - Defect repair, minor cleanup:
+//                                      - Related to issue #502: added HG to allowed RSG stellar type check, preventing GB winds from being applied during HG.
+//                                      - Changed all "FLEXIBLE2023" naming to "MERRITT2024"
 
-
-const std::string VERSION_STRING = "03.01.04";
+const std::string VERSION_STRING = "03.01.05";
 
 # endif // __changelog_h__
