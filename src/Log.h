@@ -903,7 +903,7 @@ private:
             }
 
             // we add the record type column to the end of the log record here for all logfiles
-            // except the switch files (BSE_SWITCH_LOG and SSE_SWOTCH_LOG).
+            // except the switch files (BSE_SWITCH_LOG and SSE_SWITCH_LOG).
             //
             // This is hard-coded here rather than in the *_PROPERTY_DETAIL maps in constants.h
             // so that it will always be present in the logfile - this way users can't add or 
@@ -1163,7 +1163,7 @@ public:
     void   Say(const string p_SayClass, const int p_SayLevel, const string p_SayStr);
 
     // SetSwitchParameters is called by Star::SwitchTo to set the parameters 
-    // to be written to the BSE Switch Log file
+    // to be written to the Switch Log file
     void   SetSwitchParameters(const OBJECT_ID          p_ObjectIdSwitching,
                                const OBJECT_TYPE        p_ObjectSwitchingType,
                                const OBJECT_PERSISTENCE p_ObjectSwitchingPersistence, 

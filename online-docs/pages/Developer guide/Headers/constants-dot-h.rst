@@ -9,6 +9,6 @@ Any new constants being added to COMPAS should be added here.
 
 Refer to ``EnumHash.h`` for the definition of the type alias ``COMPASUnorderedMap``.
 
-``constants.h`` also contains a the global declaration for the global object identifier ``globalObjectId``, and a few ``typedef`` declarations
+``constants.h`` also contains the global declaration for the global object identifier ``globalObjectId``, and a few ``typedef`` declarations
 (at the head of the file) that are commonly used type definitions that we make glbally available by declaring them in ``constants.h`` (which
 is included in all other source files).

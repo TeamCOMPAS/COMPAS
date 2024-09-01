@@ -1251,9 +1251,42 @@
 //                                      - Set the maximum convective envelope mass to the total envelope mass for intermediate mass stars, where the Picker+ (2024) fits are invalid
 //                                      - Stop evolution on massless remnant + remnant, regardless of --evolve-main-sequence-merger-products (no further evolution expected)
 //                                      - Corrected rejuvenation of main sequence merger products
+// 03.00.02   IM - Aug 7, 2024      - Enhancements, defect repairs, code cleanup:
+//                                      - Continue evolution of main sequence merger products beyond the main sequence
+//                                      - Remove spurious print statement
+//                                      - Typo fixes
+// 03.00.03   JR - Aug 21, 2024     - Defect repair:
+//                                      - Fix for issue 1184: Segmentation Fault (Core Dumped) Encountered in COMPAS V3.0 with "--common-envelope-formalism TWO_STAGE"
+// 03.00.04   JR - Aug 22, 2024     - Defect repair:
+//                                      - Fix for issue #1182: Switch log issue
+// 03.00.05   JR - Aug 22, 2024     - Defect repair:
+//                                      - Reinstate correctly functioning code for floating-point error handling for Linux
+//                                      - Disable floating-point error handling for MacOS - until I can figure out how to
+//                                        make it work properly for both INTEL and ARM architectures.
+// 03.01.00   APB - Aug 24, 2024    - Enhancement:
+//                                      - Implemented gravitational radiation at each timestep of binary evolution. Available with new '--emit-gravitational-radiation' option.  Updates time step dynamically if required.
+// 03.01.01   JR - Aug 24, 2024     - Defect repair:
+//                                      - Fix bad merge - use this version instead of v03.01.00
+// 03.01.02   JR - Aug 24, 2024     - Defect repair, code cleanup:
+//                                      - Fix for issue #1179: Remove unsupported option value (FIXED) for options PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION and PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION
+//                                      - Remove BeBinary-related code (mostly already commented)
+//                                      - Fix typos in comments in BaseBinaryStar.cpp
+// 03.01.03   JR - Aug 27, 2024     - Defect repair, code cleanup:
+//                                      - Fix for issue #1202: Missing system in system parameters file when using range
+//                                      - Remove extraneous references to "kick_direction" in LogTypedefs.h (added in error in v03.00.00)
+// 03.01.04   SS - Aug 28, 2024     - Enhancement:
+//                                      - Add Hendriks+23 pulsational pair instability prescription 
+// 03.01.05   JDM - Aug 30, 2024    - Defect repair, minor cleanup:
+//                                      - Related to issue #502: added HG to allowed RSG stellar type check, preventing GB winds from being applied during HG.
+//                                      - Changed all "FLEXIBLE2023" naming to "MERRITT2024"
+// 03.01.06   JR - Aug 28, 2024     - Enhancement:
+//                                      - Added functionality to allow users to specify if WD-binaries should be included in the BSE DCO file
+//                                        New option: --include-WD-binaries-as-DCO
+//                                        See "What's New" and option documentation for details.
+//                                        (Issue #1170)
+//                                      - added deprecation notice for '--mass-loss-prescription NONE' (should use ZERO) - missed in v03.00.00
 
 
-const std::string VERSION_STRING = "03.00.01";
-
+const std::string VERSION_STRING = "03.01.06";
 
 # endif // __changelog_h__

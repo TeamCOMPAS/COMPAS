@@ -1940,12 +1940,12 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
     switch (OPTIONS->PulsationalPairInstabilityPrescription()) {                                        // which prescription?
 
         case PPI_PRESCRIPTION::COMPAS:                                                                  // Woosley 2017 https://arxiv.org/abs/1608.08939
-            baryonicMass = m_HeCoreMass;                                                                // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static)
+            baryonicMass = m_HeCoreMass;                                                                // strip off the hydrogen envelope if any was left
             m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
             break;
 
         case PPI_PRESCRIPTION::STARTRACK:                                                               // Belczynski et al. 2016 https://arxiv.org/abs/1607.03116
-            baryonicMass = std::min(m_HeCoreMass, STARTRACK_PPISN_HE_CORE_MASS);                        // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static), limit helium core mass to 45 Msun
+            baryonicMass = std::min(m_HeCoreMass, STARTRACK_PPISN_HE_CORE_MASS);                        // strip off the hydrogen envelope if any was left, limit to STARTRACK_PPISN_HE_CORE_MASS (default 45 Msun)
             m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
             break;
 
@@ -1968,7 +1968,7 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
                                                                             (-1.13694590E+03 * m_HeCoreMass) +
                                                                               7.39643451E+03));
 
-            baryonicMass = ratioOfRemnantToHeCoreMass * m_HeCoreMass;                                   // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static)
+            baryonicMass = ratioOfRemnantToHeCoreMass * m_HeCoreMass;                                   // strip off the hydrogen envelope if any was left
             m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
             } break;
 
@@ -1996,6 +1996,29 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
             m_Mass = std::min(totalMassPrePPISN, m_Mass);                                               // check if remnant mass is bigger than total mass    
             } break;
     
+        case PPI_PRESCRIPTION::HENDRIKS: {    
+            // Prescription from Hendriks et al. 2023 (https://arxiv.org/abs/2309.09339)
+            // Based on Renzo et al. 2022 (https://iopscience.iop.org/article/10.3847/2515-5172/ac503e)
+            // 
+            // Suggest using --PPI-upper-limit 80.0 and --PISN-lower-limit 80.0
+
+            double DeltaMPPICOShift = OPTIONS->PulsationalPairInstabilityCOCoreShiftHendriks();
+            double DeltaMPPIExtraML = 0.0; 								// Make an option? Currently does nothing
+
+            // Equation (6) of Hendricks et al. 2023			
+            double PPIOnset        = m_COCoreMass - DeltaMPPICOShift - 34.8;
+            double PPIOnsetSquared = PPIOnset * PPIOnset;
+            double PPIOnsetCubed   = PPIOnsetSquared * PPIOnset;
+            double firstTerm  = (0.0006 * m_Log10Metallicity + 0.0054) * PPIOnsetCubed;
+            double secondTerm = 0.0013 * PPIOnsetSquared;
+            double DeltaMPPI  = firstTerm - secondTerm + DeltaMPPIExtraML;
+            
+            DeltaMPPI = std::max(DeltaMPPI, 0.0);						// DeltaMPPI, the amount of the He core that's lost in pulsations, is non-negative
+            m_Mass = std::max(m_HeCoreMass - DeltaMPPI, 0.0);			// Remnant mass should be non-negative		
+            m_Mass = m_Mass > 10.0 ? m_Mass : 0.0;                      // If the predicted remnant mass is below 10 Msun, set it equal to 0 (assume a PISN)
+
+        } break;
+
         default:                                                                                        // unknown prescription
             // the only way this can happen is if someone added a REMNANT_MASS_PRESCRIPTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.

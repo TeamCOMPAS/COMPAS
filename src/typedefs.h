@@ -580,13 +580,13 @@ enum class MASS_CUTOFF: int {
 };
 
 // mass loss prescriptions
-enum class MASS_LOSS_PRESCRIPTION: int { NONE, ZERO, HURLEY, BELCZYNSKI2010, FLEXIBLE2023 };
+enum class MASS_LOSS_PRESCRIPTION: int { NONE, ZERO, HURLEY, BELCZYNSKI2010, MERRITT2024 };
 const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
     { MASS_LOSS_PRESCRIPTION::NONE,           "NONE" },     // DEPRECATED June 2024 - remove end 2024
     { MASS_LOSS_PRESCRIPTION::ZERO,           "ZERO" },
     { MASS_LOSS_PRESCRIPTION::HURLEY,         "HURLEY" },
     { MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010, "BELCZYNSKI2010" },
-    { MASS_LOSS_PRESCRIPTION::FLEXIBLE2023,   "FLEXIBLE2023" }
+    { MASS_LOSS_PRESCRIPTION::MERRITT2024,   "MERRITT2024" }
 };
 
 // symbolic names for mass loss rate type
@@ -736,32 +736,31 @@ const COMPASUnorderedMap<ORBITAL_PERIOD_DISTRIBUTION, std::string> ORBITAL_PERIO
 };
 
 // pulsational pair instability prescriptions
-enum class PPI_PRESCRIPTION: int { COMPAS, STARTRACK, MARCHANT, FARMER };
+enum class PPI_PRESCRIPTION: int { COMPAS, STARTRACK, MARCHANT, FARMER, HENDRIKS };
 const COMPASUnorderedMap<PPI_PRESCRIPTION, std::string> PPI_PRESCRIPTION_LABEL = {
     { PPI_PRESCRIPTION::COMPAS,    "COMPAS" },
     { PPI_PRESCRIPTION::STARTRACK, "STARTRACK" },
     { PPI_PRESCRIPTION::MARCHANT,  "MARCHANT" },
-    { PPI_PRESCRIPTION::FARMER,    "FARMER" }
+    { PPI_PRESCRIPTION::FARMER,    "FARMER" },
+    { PPI_PRESCRIPTION::HENDRIKS,  "HENDRIKS" } 
 };
 
 // program status
 enum class PROGRAM_STATUS: int { SUCCESS, CONTINUE, STOPPED, ERROR_IN_COMMAND_LINE, LOGGING_FAILED, ERROR_UNHANDLED_EXCEPTION };
 
 // pulsar birth magnetic field distributions
-enum class PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION: int { ZERO, FIXED, FLATINLOG, UNIFORM, LOGNORMAL };
+enum class PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION: int { ZERO, FLATINLOG, UNIFORM, LOGNORMAL };
 const COMPASUnorderedMap<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, std::string> PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL = {
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO,      "ZERO" },
-    { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FIXED,     "FIXED" },
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLATINLOG, "FLATINLOG" },
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::UNIFORM,   "UNIFORM" },
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL, "LOGNORMAL" }
 };
 
 // pulsar birth spin period distributions
-enum class PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION: int { ZERO, FIXED, UNIFORM, NORMAL };
+enum class PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION: int { ZERO, UNIFORM, NORMAL };
 const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL = {
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::ZERO,    "ZERO" },
-    { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::FIXED,   "FIXED" },
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM, "UNIFORM" },
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL,  "NORMAL" }
 };
@@ -1241,35 +1240,6 @@ typedef struct StellarRLOFDetails {                         // RLOF details pert
     bool experiencedRLOF;
     bool RLOFPostCEE;
 } StellarRLOFDetailsT;
-
-
-// BeBinary properties
-// JR: add descriptive comments
-//typedef struct BeBinaryProperties {
-//    OBJECT_ID id;
-//
-//    double    dt;
-//    double    totalTime;
-//
-//    double    massNS;
-//
-//    double    companionMass;
-//    double    companionLuminosity;
-//    double    companionTeff;
-//    double    companionRadius;
-//
-//    double    semiMajorAxis;
-//    double    eccentricity;
-//} BeBinaryPropertiesT;
-
-// JR: add descriptive comments
-//typedef struct BeBinaryDetails {
-//    BeBinaryPropertiesT  props1;
-//    BeBinaryPropertiesT  props2;
-//    BeBinaryPropertiesT* currentProps;
-//    BeBinaryPropertiesT* previousProps;
-//} BeBinaryDetailsT;
-
 
 // Common Envelope properties
 // JR: add descriptive comments

@@ -41,11 +41,6 @@ public:
 
         m_RandomSeed                       = p_Star.m_RandomSeed;
 
-//        m_BeBinaryDetails                  = p_Star.m_BeBinaryDetails;
-
-//        m_BeBinaryDetails.currentProps     = p_Star.m_BeBinaryDetails.currentProps  == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
-//        m_BeBinaryDetails.previousProps    = p_Star.m_BeBinaryDetails.previousProps == &(p_Star.m_BeBinaryDetails.props1) ? &(m_BeBinaryDetails.props1) : &(m_BeBinaryDetails.props2);
-
         m_CircularizationTimescale         = p_Star.m_CircularizationTimescale;
 
         m_CEDetails                        = p_Star.m_CEDetails;
@@ -162,7 +157,6 @@ public:
 
 
     // getters - alphabetically
-//    BeBinaryDetailsT    BeBinaryDetails() const                     { return m_BeBinaryDetails; }
     bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
     unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
     double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
@@ -186,10 +180,12 @@ public:
     bool                ImmediateRLOFPostCEE() const                { return m_RLOFDetails.immediateRLOFPostCEE; }
     STELLAR_TYPE        InitialStellarType1() const                 { return m_Star1->InitialStellarType(); }
     STELLAR_TYPE        InitialStellarType2() const                 { return m_Star2->InitialStellarType(); }
-    bool                IsBeBinary() const                          { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07}); }
     bool                IsHMXRBinary() const;
     bool                IsBHandBH() const                           { return HasTwoOf({STELLAR_TYPE::BLACK_HOLE}); }
-    bool                IsDCO() const                               { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE}); }
+    bool                IsDCO() const                               { return !OPTIONS->IncludeWDBinariesAsDCO()
+                                                                                ? HasTwoOf({STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE})
+                                                                                : HasTwoOf({STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF});
+                                                                    }
     bool                IsNSandBH() const                           { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsNSandNS() const                           { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR}); }
     bool                IsMRandRemant() const                       { return HasOneOf({STELLAR_TYPE::MASSLESS_REMNANT}) && HasOneOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF, STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE}); }
@@ -298,8 +294,6 @@ private:
 
     unsigned long int   m_RandomSeed;                                                       // Random seed for this binary
 
-//    BeBinaryDetailsT    m_BeBinaryDetails;                                                  // BeBinary details
-
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
 
     double              m_CircularizationTimescale;
@@ -379,11 +373,14 @@ private:
 
     double              m_TotalEnergy;
 
-	double              m_OrbitalAngularMomentumPrev;
-	double              m_OrbitalAngularMomentum;
+    double              m_OrbitalAngularMomentumPrev;
+    double              m_OrbitalAngularMomentum;
 
-	double              m_OrbitalEnergyPrev;
-	double              m_OrbitalEnergy;
+    double              m_DaDtGW;                                                           // Change in semi-major axis per time due to gravitational radiation
+    double              m_DeDtGW;                                                           // Change in eccentricity per time due to gravitational radiation
+
+    double              m_OrbitalEnergyPrev;
+    double              m_OrbitalEnergy;
 
     double              m_ZetaLobe;
     double              m_ZetaStar;
@@ -412,6 +409,11 @@ private:
                                      const double p_Star2MomentOfInertia) const;
 
     double  CalculateAngularMomentum() const                                    { return CalculateAngularMomentum(m_SemiMajorAxis, m_Eccentricity, m_Star1->Mass(), m_Star2->Mass(), m_Star1->Omega(), m_Star2->Omega(), m_Star1->CalculateMomentOfInertiaAU(), m_Star2->CalculateMomentOfInertiaAU()); }
+
+    void    CalculateGravitationalRadiation();
+    void    EmitGravitationalWave(const double p_Dt);
+
+    double  ChooseTimestep(const double p_Multiplier);
 
     void    CalculateEnergyAndAngularMomentum();
 
@@ -486,7 +488,6 @@ private:
                             const double p_RocheLobe1to2,
                             const double p_RocheLobe2to1);
 
-    void    StashBeBinaryProperties();
     void    StashRLOFProperties(const MT_TIMING p_Which);
 
     void    UpdateSystemicVelocity(Vector3d p_newVelocity)                      { m_SystemicVelocity += p_newVelocity; } 
