@@ -77,7 +77,7 @@ bool BinaryStar::PrintSwitchLog() {
     OBJECT_ID secondaryObjectId = m_BinaryStar->Star2()->ObjectId();
     OBJECT_ID objectIdSwitching = LOGGING->ObjectIdSwitching();
 
-         if (objectIdSwitching == primaryObjectId  ) result = m_BinaryStar->PrintSwitchLog(true);   // primary
+    if (objectIdSwitching == primaryObjectId  ) result = m_BinaryStar->PrintSwitchLog(true);        // primary
     else if (objectIdSwitching == secondaryObjectId) result = m_BinaryStar->PrintSwitchLog(false);  // secondary
     else if (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT) {              // permenent object (i.e not a clone)?
         SHOW_WARN(ERROR::OUT_OF_BOUNDS, "Expected primary or secondary for BSE Switch Log");        // yes - emit warning

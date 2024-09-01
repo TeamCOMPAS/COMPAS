@@ -33,6 +33,16 @@
 #include "Star.h"
 #include "BinaryStar.h"
 
+
+// disable floating-point error traps for MacOS for now - until I can work out how
+// to do it properly for both INTEL and ARM architectures (Linux works ok).
+#ifdef __APPLE__
+    int feclearexcept(int p_Exceptions) { return 0; };  // no-op for macos for now
+    int feenableexcept(int p_Exceptions) { return 0;};  // no-op for macos for now
+    int fedisableexcept(int p_Exceptions) { return 0;}; // no-op for macos for now
+#endif
+
+
 OBJECT_ID globalObjectId = 1;                                   // used to uniquely identify objects - used primarily for error printing
 OBJECT_ID m_ObjectId     = 0;                                   // object id for main - always 0
 
@@ -221,9 +231,10 @@ std::tuple<int, int> EvolveSingleStars() {
             while (!doneGridFile && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                        // for each star to be evolved
 
                 if (OPTIONS->FPErrorMode() != FP_ERROR_MODE::OFF) {                                                         // floating-point error handling mode on/debug?
-                    feclearexcept(FE_ALL_EXCEPT);                                                                      // yes - clear all FE traps
-                    feraiseexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);                                 // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
+                    (void)feclearexcept(FE_ALL_EXCEPT);                                                                     // yes - clear all FE traps
+                    (void)feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);                           // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
                 }
+                else (void)fedisableexcept(FE_ALL_EXCEPT);                                                                  // disable all FE traps
                 
                 bool doneGridLine = false;                                                                                  // initially
                 if (usingGrid) {                                                                                            // using grid file?
@@ -558,9 +569,10 @@ std::tuple<int, int> EvolveBinaryStars() {
         while (!doneGridFile && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                    // for each binary to be evolved
 
             if (OPTIONS->FPErrorMode() != FP_ERROR_MODE::OFF) {                                                     // floating-point error handling mode on/debug?
-                feclearexcept(FE_ALL_EXCEPT);                                                                  // yes - clear all FE traps
-                feraiseexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);                             // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
+                (void)feclearexcept(FE_ALL_EXCEPT);                                                                 // yes - clear all FE traps
+                (void)feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);                       // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
             }
+            else (void)fedisableexcept(FE_ALL_EXCEPT);                                                              // disable all FE traps
 
             evolvingBinaryStar      = NULL;                                                                         // unset global pointer to evolving binary (for BSE Switch Log)
             evolvingBinaryStarValid = false;                                                                        // indicate that the global pointer is not (yet) valid (for BSE Switch log)
@@ -854,9 +866,10 @@ int main(int argc, char * argv[]) {
                 sigAct.sa_flags   = SA_NODEFER;                                                     // don't defer further signals
                 sigaction(SIGFPE, &sigAct, NULL);                                                   // enable the signal handler
 
-                feclearexcept(FE_ALL_EXCEPT);                                                  // clear all FE traps
-                feraiseexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);             // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
+                (void)feclearexcept(FE_ALL_EXCEPT);                                                 // clear all FE traps
+                (void)feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);       // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
             }
+            else (void)fedisableexcept(FE_ALL_EXCEPT);                                              // disable all FE traps
 
             InitialiseProfiling;                                                                    // initialise profiling functionality
 

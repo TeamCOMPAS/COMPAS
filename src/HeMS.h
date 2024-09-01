@@ -98,7 +98,7 @@ protected:
 
             double          CalculateMassLossRateHurley();
             double          CalculateMassLossRateBelczynski2010();
-            double          CalculateMassLossRateFlexible2023();
+            double          CalculateMassLossRateMerritt2024();
             double          CalculateMassLossRateWolfRayetShenar2019() const;
             
             double          CalculateMassTransferRejuvenationFactor();
