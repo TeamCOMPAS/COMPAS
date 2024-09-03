@@ -8,6 +8,25 @@
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
 
+/*
+ * Calculate the helium abundance in the core of the star
+ * 
+ * Currently just a simple linear model. Should be updated to match detailed models.
+ *
+ * double CalculateHeliumAbundanceCore(p_Tau)
+ * 
+ * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
+ * 
+ * @return                                      Helium abundance in the core (Y_c)
+ */
+double HeMS::CalculateHeliumAbundanceCore(const double p_Tau) const {
+
+    double heliumAbundanceCoreMax = 1.0 - m_Metallicity;
+
+    double heliumAbundanceCore = heliumAbundanceCoreMax * (1.0 - p_Tau);
+
+    return heliumAbundanceCore;
+}
 
 /*
  * Calculate timescales in units of Myr

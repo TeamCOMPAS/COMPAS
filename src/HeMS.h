@@ -87,6 +87,10 @@ protected:
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_Mass; }                                                              // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase
 
+            // Abundances
+            double          CalculateHeliumAbundanceCore(const double p_Tau) const;
+            double          CalculateHydrogenAbundanceCore(const double p_Tau) const                                { return 0.0; }
+
             double          CalculateInitialSupernovaMass() const                                                   { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
 
             double          CalculateLambdaDewi() const                                                             { return 0.5; }
