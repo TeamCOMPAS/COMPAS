@@ -15,7 +15,7 @@ name: COMPAS compile test
 jobs:
   compas:
     env:
-      ARTIFACT_NAME: detailedEvolutionPlot.eps
+      ARTIFACT_NAME: detailedEvolutionPlot.png
       ARTIFACT_PATH: py_tests/test_artifacts
 
     name: Build COMPAS
