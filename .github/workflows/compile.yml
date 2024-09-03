@@ -21,6 +21,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install dependencies on Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt update
+          sudo apt install -y g++ libboost-all-dev libgsl-dev libhdf5-serial-dev
+          sudo apt-get install -y texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra texlive-xetex latexmk xindy dvipng cm-super
+          sudo apt-get install -y python3-dev python3-pip python3-venv python3-wheel
+
+      - name: Install dependencies on macOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          brew install gsl boost hdf5 mactex basictex
+          sudo tlmgr update --self
+          sudo tlmgr install dvipng texliveonfly environ adjustbox tcolorbox collectbox ucs trimspaces titling enumitem rsfs
+
+      - name: Install dependencies on Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install gsl boost hdf5 miktex
+          miktexsetup finish
+          initexmf --update-fndb
+          initexmf --mkmaps
+          initexmf --update
+
       - name: Build and test
         run: |
           cd src && make -j $(nproc) -f Makefile
