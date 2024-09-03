@@ -1748,6 +1748,29 @@ double BaseStar::CalculateInitialEnvelopeMass_Static(const double p_Mass) {
     return envMass;
 }
 
+/*
+ * Calculate mass loss rate enhancement for rapidly rotating stars
+ *
+ * Langer 1998 (https://ui.adsabs.harvard.edu/abs/1998A%26A...329..551L/abstract) eq 3
+ * 
+ * The exponent originally comes from Bjorkman & Cassinelli 1993 (https://ui.adsabs.harvard.edu/abs/1993ApJ...409..429B/abstract),
+ * based on a fit to data from Friend & Abbott 1986 (https://ui.adsabs.harvard.edu/abs/1986ApJ...311..701F/abstract) 
+ *
+ * double CalculateMassLossRateEnhancementRotation()
+ *
+ * @return                                      Mass loss enhancement factor for rapidly rotating stars
+ */
+double BaseStar::CalculateMassLossRateEnhancementRotation() {
+
+    const double exponent = -0.43;           
+    double enhancement = 1.0;               // By default, no enhancement
+
+    if(OPTIONS->EnableRotationallyEnhancedMassLoss()){
+        enhancement = PPOW((1.0 - m_Omega/OmegaBreak()), exponent);
+    }
+
+    return enhancement;
+}
 
 /*
  * Calculate the mass loss rate on the AGB based on the Mira pulsation period (P0)
@@ -4667,7 +4690,7 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
         m_HeliumAbundanceSurface   = CalculateHeliumAbundanceSurfaceOnPhase();
         m_HydrogenAbundanceCore    = CalculateHydrogenAbundanceCoreOnPhase();
         m_HydrogenAbundanceSurface = CalculateHydrogenAbundanceSurfaceOnPhase();  
-        
+
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // radius and possibly new stellar type
 
         m_Mu              = CalculatePerturbationMuOnPhase();
