@@ -163,14 +163,15 @@ void Options::OptionValues::Initialise() {
     m_FPErrorMode.type                                              = FP_ERROR_MODE::OFF;
     m_FPErrorMode.typeString                                        = FP_ERROR_MODE_LABEL.at(m_FPErrorMode.type);
 
-	m_BeBinaries                                                    = false;
     m_HMXRBinaries                                                  = false;
+    m_WDBinariesAsDCO                                               = false;
 
     m_EvolveDoubleWhiteDwarfs                                       = false;
     m_EvolveMainSequenceMergers                                     = false;
     m_EvolvePulsars                                                 = false;
 	m_EvolveUnboundSystems                                          = true;
-    
+    m_EmitGravitationalRadiation                                    = false;
+
     m_NatalKickForPPISN                                             = false;
 
     m_DetailedOutput                                                = false;
@@ -357,6 +358,8 @@ void Options::OptionValues::Initialise() {
     m_UsePulsationalPairInstability                                 = true;
     m_PulsationalPairInstabilityLowerLimit                          = 35.0;                                                 // Belczynski+ 2016 is 45 Msol
     m_PulsationalPairInstabilityUpperLimit                          = 60.0;                                                 // Belczynski+ 2016 is 65 Msol
+    
+    m_PulsationalPairInstabilityCOCoreShiftHendriks                 = 0.0;                                                  // Shift in CO Core mass in Hendriks+23
 
     m_PulsationalPairInstabilityPrescription.type                   = PPI_PRESCRIPTION::MARCHANT;
     m_PulsationalPairInstabilityPrescription.typeString             = PPI_PRESCRIPTION_LABEL.at(m_PulsationalPairInstabilityPrescription.type);
@@ -378,7 +381,7 @@ void Options::OptionValues::Initialise() {
     m_ExpelConvectiveEnvelopeAboveLuminosityThreshold               = false;
     m_LuminosityToMassThreshold                                     = 4.2;      // Podsiadlowski, private communication
 
-    m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::FLEXIBLE2023;
+    m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::MERRITT2024;
     m_MassLossPrescription.typeString                               = MASS_LOSS_PRESCRIPTION_LABEL.at(m_MassLossPrescription.type);
 
     m_LBVMassLossPrescription.type                                  = LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD;
@@ -583,7 +586,6 @@ void Options::OptionValues::Initialise() {
     m_LogfileType.type                                              = LOGFILETYPE::HDF5;
     m_LogfileType.typeString                                        = LOGFILETYPELabel.at(m_LogfileType.type);
 
-    m_LogfileBeBinariesRecordTypes                                  = -1;                                                                   // all record types
     m_LogfileCommonEnvelopes                                        = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));
     m_LogfileCommonEnvelopesRecordTypes                             = -1;                                                                   // all record types
     m_LogfileDetailedOutput                                         = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT));     // assume BSE - get real answer when we know mode
@@ -720,13 +722,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Conserve angular momentum when binary is circularised when entering a Mass Transfer episode (default = " + std::string(p_Options->m_AngularMomentumConservationDuringCircularisation ? "TRUE" : "FALSE") + ")").c_str()
         )
 
-        /*
-        (
-            "BE-binaries",                                                  
-            po::value<bool>(&p_Options->m_BeBinaries)->default_value(p_Options->m_BeBinaries)->implicit_value(true),                                                                              
-            ("Enable Be Binaries study (default = " + std::string(p_Options->m_BeBinaries ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        */
         (
             "check-photon-tiring-limit",
             po::value<bool>(&p_Options->m_CheckPhotonTiringLimit)->default_value(p_Options->m_CheckPhotonTiringLimit)->implicit_value(true),                            
@@ -815,6 +810,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Continue evolving stars even if the binary is disrupted (default = " + std::string(p_Options->m_EvolveUnboundSystems ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
+            "emit-gravitational-radiation",                                      
+            po::value<bool>(&p_Options->m_EmitGravitationalRadiation)->default_value(p_Options->m_EmitGravitationalRadiation)->implicit_value(false),                                                          
+            ("Emit gravitational radiation at each timestep of binary evolution (default = " + std::string(p_Options->m_EmitGravitationalRadiation ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
             "expel-convective-envelope-above-luminosity-threshold",
             po::value<bool>(&p_Options->m_ExpelConvectiveEnvelopeAboveLuminosityThreshold)->default_value(p_Options->m_ExpelConvectiveEnvelopeAboveLuminosityThreshold)->implicit_value(true),
             ("Expel convective envelope if luminosity to mass ratio exceeds threshold given by m_LuminosityToMassThreshold  (default = " + std::string(p_Options->m_ExpelConvectiveEnvelopeAboveLuminosityThreshold ? "TRUE" : "FALSE") + ")").c_str()
@@ -824,6 +824,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "hmxr-binaries",
             po::value<bool>(&p_Options->m_HMXRBinaries)->default_value(p_Options->m_HMXRBinaries)->implicit_value(true),
             ("Store HMXRB candidates in BSE_RLOF output file (default = " + std::string(p_Options->m_HMXRBinaries ? "TRUE" : "FALSE") + ")").c_str()
+        )
+
+        (
+            "include-WD-binaries-as-DCO",
+            po::value<bool>(&p_Options->m_WDBinariesAsDCO)->default_value(p_Options->m_WDBinariesAsDCO)->implicit_value(true),
+            ("Store WD binaries in BSE_Double_Compact_Objects output file (default = " + std::string(p_Options->m_WDBinariesAsDCO ? "TRUE" : "FALSE") + ")").c_str()
         )
 
         (
@@ -945,13 +951,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("HDF5 file dataset IO buffer size (number of chunks, default = " + std::to_string(p_Options->m_HDF5BufferSize) + ")").c_str()
         )
 
-        /*
-        (
-            "logfile-BE-binaries-record-types",                                     
-            po::value<int>(&p_Options->m_LogfileBeBinariesRecordTypes)->default_value(p_Options->m_LogfileBeBinariesRecordTypes),                                                                              
-            ("Enabled record types for BSE Be Binaries logfile (default = " + std::to_string(p_Options->m_LogfileBeBinariesRecordTypes) + ")").c_str()
-        )
-        */
         (
             "logfile-common-envelopes-record-types",                                
             po::value<int>(&p_Options->m_LogfileCommonEnvelopesRecordTypes)->default_value(p_Options->m_LogfileCommonEnvelopesRecordTypes),                                                                    
@@ -1470,6 +1469,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Maximum core mass for PPI, in Msol (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityUpperLimit) + ")").c_str()
         )
         (
+            "PPI-CO-Core-Shift-Hendriks",
+            po::value<double>(&p_Options->m_PulsationalPairInstabilityCOCoreShiftHendriks)->default_value(p_Options->m_PulsationalPairInstabilityCOCoreShiftHendriks),                                              
+            ("Shift in CO core mass for PPI (in Msol) for the Hendriks+23 PPI prescription (default = " + std::to_string(p_Options->m_PulsationalPairInstabilityCOCoreShiftHendriks) + ")").c_str()
+        )
+        (
             "pulsar-birth-magnetic-field-distribution-max",                
             po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMax)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMax),                                        
             ("Maximum pulsar birth magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMax) + ")").c_str()
@@ -1713,13 +1717,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Natal kick magnitude distribution (" + AllowedOptionValuesFormatted("kick-magnitude-distribution") + ", default = '" + p_Options->m_KickMagnitudeDistribution.typeString + "')").c_str()
         )
 
-        /*
-        (
-            "logfile-BE-binaries",                                     
-            po::value<std::string>(&p_Options->m_LogfileBeBinaries)->default_value(p_Options->m_LogfileBeBinaries),                                                                              
-            ("Filename for BSE Be Binaries logfile (default = " + p_Options->m_LogfileBeBinaries + ")").c_str()
-        )
-        */
 
         (
             "logfile-rlof-parameters",                                 
@@ -2516,6 +2513,12 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(!DEFAULTED("semi-major-axis") && m_SemiMajorAxis <= 0.0, "Semi-major axis (--semi-major-axis) <= 0");           // semi-major axis must be > 0.0
         COMPLAIN_IF(!DEFAULTED("orbital-period")  && m_OrbitalPeriod <= 0.0, "Orbital period (--orbital-period) <= 0");             // orbital period must be > 0.0
+
+        COMPLAIN_IF(m_PulsationalPairInstabilityCOCoreShiftHendriks < -38.0, "CO Core Shift parameter (--PPI-CO-Core-Shift-Hendriks) should be >-38.0")                                                         // Don't allow to shift the onset of PPI below 0 solar masses; realistic values should be much closer to 0 
+        COMPLAIN_IF(m_PairInstabilityLowerLimit < 0.0, "Pair instability lower limit (--PISN-lower-limit) < 0.0")                                                                                               // Lower limit should be > 0
+        COMPLAIN_IF(m_PairInstabilityUpperLimit < m_PairInstabilityLowerLimit, "Pair instability upper limit below lower limit (--PISN-upper-limit < --PISN-lower-limit)")                                      // Upper limit should be higher than lower limit
+        COMPLAIN_IF(m_PulsationalPairInstabilityLowerLimit < 0.0, "Pulsational pair instability lower limit (--PPI-lower-limit) < 0.0")                                                                         // Lower limit should be > 0
+        COMPLAIN_IF(m_PulsationalPairInstabilityUpperLimit < m_PulsationalPairInstabilityLowerLimit, "Pulsational pair instability upper limit below lower limit (--PPI-upper-limit < --PPI-lower-limit)) ")    // upper limit should be higher than lower limit
 
         COMPLAIN_IF(m_KickMagnitude  < 0.0, "Kick magnitude (--kick-magnitude) must be >= 0");
         COMPLAIN_IF(m_KickMagnitude1 < 0.0, "Kick magnitude (--kick-magnitude-1) must be >= 0");
@@ -4648,7 +4651,6 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN                      : value = InitialMassFunctionMin();                                             break;
         case PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER                     : value = InitialMassFunctionPower();                                           break;
 
-        case PROGRAM_OPTION::KICK_DIRECTION                                 : value = static_cast<int>(KickDirectionDistribution());                        break; // DEPRECATED June 2024 - remove end 2024
         case PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION                    : value = static_cast<int>(KickDirectionDistribution());                        break;
         case PROGRAM_OPTION::KICK_DIRECTION_POWER                           : value = KickDirectionPower();                                                 break;
         case PROGRAM_OPTION::KICK_SCALING_FACTOR                            : value = KickScalingFactor();                                                  break;
@@ -4765,6 +4767,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::PPI_PRESCRIPTION                               : value = static_cast<int>(PulsationalPairInstabilityPrescription());           break;
         case PROGRAM_OPTION::PPI_LOWER_LIMIT                                : value = PulsationalPairInstabilityLowerLimit();                               break;
         case PROGRAM_OPTION::PPI_UPPER_LIMIT                                : value = PulsationalPairInstabilityUpperLimit();                               break;
+        case PROGRAM_OPTION::PPI_CO_CORE_SHIFT_HENDRIKS                     : value = PulsationalPairInstabilityCOCoreShiftHendriks();                      break;
 
         case PROGRAM_OPTION::QCRIT_PRESCRIPTION                             : value = static_cast<int>(QCritPrescription());                                break;
 
@@ -4922,6 +4925,7 @@ void Options::ShowDeprecations(const bool p_Commandline) {
     static std::vector<std::tuple<std::string, std::string, std::string, bool>> values = {
         { "LBV-mass-loss-prescription",          "NONE", "ZERO", false },
         { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
+        { "mass-loss-prescription",              "NONE", "ZERO", false },
         { "OB-mass-loss",                        "NONE", "ZERO", false },
         { "OB-mass-loss-prescription",           "NONE", "ZERO", false },
         { "RSG-mass-loss",                       "NONE", "ZERO", false },

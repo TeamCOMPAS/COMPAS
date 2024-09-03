@@ -335,10 +335,12 @@ private:
         "eccentricity-distribution",
         "eccentricity-max",
         "eccentricity-min",
+        "emit-gravitational-radiation",
         "evolve-double-white-dwarfs",
         "evolve-pulsars",
         "evolve-unbound-systems",
 
+        "include-WD-binaries-as-DCO",
         "initial-mass-1",
         "initial-mass-2",
 
@@ -451,6 +453,7 @@ private:
         "detailed-output",
 
         "eccentricity-distribution",
+        "emit-gravitational-radiation",
         "enable-warnings",
         "envelope-state-prescription",
         "errors-to-file",
@@ -470,6 +473,7 @@ private:
         "help", "h",
         "hmxr-binaries",
 
+        "include-WD-binaries-as-DCO",
         "initial-mass-function", "i",
 
         "kick-direction",   // DEPRECATED June 2024 - remove end 2024
@@ -689,13 +693,17 @@ public:
             std::vector<std::string>                            m_Notes;                                                        // Notes contents - for user-defined annotations
             std::vector<std::string>                            m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
 
-	        bool                                                m_BeBinaries;													// Flag if we want to print BeBinaries (main.cpp)
-            bool                                                m_HMXRBinaries;                                                 // Flag if we want to store HMXRBs in RLOF output file
             bool                                                m_EvolveDoubleWhiteDwarfs;                                      // Whether to evolve double white dwarfs or not
-            bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
-            bool                                                m_NatalKickForPPISN;                                            // Flag if PPISN remnant should receive a non-zero natal kick
-	        bool                                                m_EvolveUnboundSystems;							                // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
             bool                                                m_EvolveMainSequenceMergers;                                    // Option to evolve binaries in which two stars merged on the main sequence
+            bool                                                m_EvolvePulsars;                                                // Whether to evolve pulsars or not
+	        bool                                                m_EvolveUnboundSystems;                                         // Option to chose if unbound systems are evolved until death or the evolution stops after the system is unbound during a SN.
+
+            bool                                                m_EmitGravitationalRadiation;                                   // Option to emit gravitational radiation for each timestep of binary evolution
+
+            bool                                                m_HMXRBinaries;                                                 // Flag if we want to store HMXRBs in RLOF output file
+            bool                                                m_WDBinariesAsDCO;                                              // Flag if we want to store WD binariess in DCO output file
+
+            bool                                                m_NatalKickForPPISN;                                            // Flag if PPISN remnant should receive a non-zero natal kick
 
             bool                                                m_DetailedOutput;                                               // Print detailed output details to file (default = false)
             bool                                                m_PopulationDataPrinting;                                       // Print certain data for small populations, but not for larger one
@@ -841,6 +849,8 @@ public:
             double                                              m_PulsationalPairInstabilityLowerLimit;                         // Maximum core mass leading to PPI
             double                                              m_PulsationalPairInstabilityUpperLimit;                         // Minimum core mass leading to PPI
 
+            double                                              m_PulsationalPairInstabilityCOCoreShiftHendriks;                // Shift in CO Core mass for PPI from Hendriks+23
+            
             ENUM_OPT<PPI_PRESCRIPTION>                          m_PulsationalPairInstabilityPrescription;                       // Which PPI prescription
 
 	        double                                              m_MaximumNeutronStarMass;						                // Maximum mass of a neutron star allowed, set to default in StarTrack
@@ -1031,7 +1041,6 @@ public:
             std::string                                         m_LogfileSupernovae;                                            // output file name: supernovae
             std::string                                         m_LogfileCommonEnvelopes;                                       // output file name: common envelopes
             std::string                                         m_LogfileRLOFParameters;                                        // output file name: Roche Lobe overflow
-            std::string                                         m_LogfileBeBinaries;                                            // output file name: Be Binaries
             std::string                                         m_LogfilePulsarEvolution;                                       // output file name: pulsar evolution
             std::string                                         m_LogfileSwitchLog;                                             // output file name: switch log
 
@@ -1041,7 +1050,6 @@ public:
             int                                                 m_LogfileSupernovaeRecordTypes;                                 // enabled record types: supernovae
             int                                                 m_LogfileCommonEnvelopesRecordTypes;                            // enabled record types: common envelopes
             int                                                 m_LogfileRLOFParametersRecordTypes;                             // enabled record types: Roche Lobe overflow
-            int                                                 m_LogfileBeBinariesRecordTypes;                                 // enabled record types: Be Binaries
             int                                                 m_LogfilePulsarEvolutionRecordTypes;                            // enabled record types: pulsar evolution
 
             ENUM_OPT<ADD_OPTIONS_TO_SYSPARMS>                   m_AddOptionsToSysParms;                                         // Whether/when to add program option columns to BSE/SSE sysparms file
@@ -1231,7 +1239,6 @@ public:
     bool                                        AllowTouchingAtBirth() const                                            { return OPT_VALUE("allow-touching-at-birth", m_AllowTouchingAtBirth, true); }
     bool                                        AngularMomentumConservationDuringCircularisation() const                { return OPT_VALUE("angular-momentum-conservation-during-circularisation", m_AngularMomentumConservationDuringCircularisation, true); }
 
-    bool                                        BeBinaries() const                                                      { return OPT_VALUE("be-binaries", m_BeBinaries, true); }
 
     BLACK_HOLE_KICKS_MODE                       BlackHoleKicksMode() const                                              { return OPTIONS->OptionSpecified("black-hole-kicks-mode") ? OPT_VALUE("black-hole-kicks-mode", m_BlackHoleKicksMode.type, true) : OPT_VALUE("black-hole-kicks", m_BlackHoleKicksMode.type, true); } // black-hole-kicks DEPRECATED June 2024 - remove end 2024
     
@@ -1286,6 +1293,7 @@ public:
     bool                                        EvolveMainSequenceMergers() const                                       { return OPT_VALUE("evolve-main-sequence-mergers", m_EvolveMainSequenceMergers, true); }
     bool                                        EvolvePulsars() const                                                   { return OPT_VALUE("evolve-pulsars", m_EvolvePulsars, true); }
     bool                                        EvolveUnboundSystems() const                                            { return OPT_VALUE("evolve-unbound-systems", m_EvolveUnboundSystems, true); }
+    bool                                        EmitGravitationalRadiation() const                                      { return OPT_VALUE("emit-gravitational-radiation", m_EmitGravitationalRadiation, true); }
     bool                                        ExpelConvectiveEnvelopeAboveLuminosityThreshold() const                 { return OPT_VALUE("expel-convective-envelope-above-luminosity-threshold", m_ExpelConvectiveEnvelopeAboveLuminosityThreshold, true); }
 
     bool                                        FixedRandomSeedCmdLine() const                                          { return m_CmdLine.optionValues.m_FixedRandomSeed; }
@@ -1304,6 +1312,7 @@ public:
     size_t                                      HDF5BufferSize() const                                                  { return m_CmdLine.optionValues.m_HDF5BufferSize; }
     bool                                        HMXRBinaries() const                                                    { return OPT_VALUE("hmxr-binaries", m_HMXRBinaries, true); }
 
+    bool                                        IncludeWDBinariesAsDCO() const                                          { return OPT_VALUE("include-WD-binaries-as-DCO", m_WDBinariesAsDCO, true); }
     double                                      InitialMass() const                                                     { return OPT_VALUE("initial-mass", m_InitialMass, true); }
     double                                      InitialMass1() const                                                    { return OPT_VALUE("initial-mass-1", m_InitialMass1, true); }
     double                                      InitialMass2() const                                                    { return OPT_VALUE("initial-mass-2", m_InitialMass2, true); }
@@ -1334,8 +1343,6 @@ public:
     double                                      KickMagnitudeRandom2() const                                            { return OPT_VALUE("kick-magnitude-random-2", m_KickMagnitudeRandom2, true); }
 
     std::vector<std::string>                    LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
-    std::string                                 LogfileBeBinaries() const                                               { return m_CmdLine.optionValues.m_LogfileBeBinaries; }
-    int                                         LogfileBeBinariesRecordTypes() const                                    { return m_CmdLine.optionValues.m_LogfileBeBinariesRecordTypes; }
     std::string                                 LogfileCommonEnvelopes() const                                          { return m_CmdLine.optionValues.m_LogfileCommonEnvelopes; }
     int                                         LogfileCommonEnvelopesRecordTypes() const                               { return m_CmdLine.optionValues.m_LogfileCommonEnvelopesRecordTypes; }
     std::string                                 LogfileDefinitionsFilename() const                                      { return m_CmdLine.optionValues.m_LogfileDefinitionsFilename; }
@@ -1486,7 +1493,8 @@ public:
     PPI_PRESCRIPTION                            PulsationalPairInstabilityPrescription() const                          { return OPT_VALUE("pulsational-pair-instability-prescription", m_PulsationalPairInstabilityPrescription.type, true); }
     double                                      PulsationalPairInstabilityLowerLimit() const                            { return OPT_VALUE("PPI-lower-limit", m_PulsationalPairInstabilityLowerLimit, true); }
     double                                      PulsationalPairInstabilityUpperLimit() const                            { return OPT_VALUE("PPI-upper-limit", m_PulsationalPairInstabilityUpperLimit, true); }
-
+    double                                      PulsationalPairInstabilityCOCoreShiftHendriks() const                   { return OPT_VALUE("PPI-CO-Core-Shift-Hendriks", m_PulsationalPairInstabilityCOCoreShiftHendriks, true); }
+    
     QCRIT_PRESCRIPTION                          QCritPrescription() const                                               { return OPT_VALUE("critical-mass-ratio-prescription", m_QCritPrescription.type, true); }
 
     bool                                        Quiet() const                                                           { return m_CmdLine.optionValues.m_Quiet; }

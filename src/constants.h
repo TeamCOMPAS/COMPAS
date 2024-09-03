@@ -189,7 +189,8 @@ constexpr double LSOLW                                  = 3.844E26;             
 
 constexpr double AU                                     = 149597870700.0;                                           // 1 AU (Astronomical Unit) in metres
 constexpr double KM                                     = 1000.0;                                                   // 1 km (Kilometre) in metres
-constexpr double C                                      = 3.0E8;                                                    // Speed of light in m s^-1
+constexpr double C                                      = 299792458.0;                                              // Speed of light in m s^-1
+constexpr double C_AU_yr                                = C / KM * KM_TO_AU * SECONDS_IN_YEAR;                      // Speed of light in AU yr^-1
 
 constexpr double MU_0                                   = 4.0 * M_PI * 1.0E-7;                                      // Vacuum permeability in m kg s-2 A-2
 
