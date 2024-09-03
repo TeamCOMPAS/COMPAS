@@ -20,9 +20,15 @@
 #                  - Compiles the project using all available CPU cores for faster build times.
 #                    '-j $(nproc)' specifies the number of jobs to run simultaneously.
 #
-# Note: Adjust library paths using environment variables:
+# Library Configuration:
+#   Adjust library paths using environment variables:
 #   GSL_PREFIX, BOOST_PREFIX, HDF5_PREFIX
 #   Example: make GSL_PREFIX=/custom/path
+#
+# HDF5 Configuration:
+#   Ensure HDF5_PREFIX is set correctly:
+#   make HDF5_PREFIX=/path/to/hdf5
+#   or set HDF5_DIR environment variable before running make.
 #
 # Use pkg-config for dependencies if available; otherwise, default paths are used.
 
@@ -37,51 +43,51 @@ HDF5_PREFIX ?= /usr
 # Use pkg-config if available
 PKG_CONFIG ?= pkg-config
 
-# Check if pkg-config is available and the libraries are registered
+# Check if pkg-config is available
 ifeq ($(shell which $(PKG_CONFIG) 2>/dev/null),)
   $(warning pkg-config not found, falling back to default paths)
   USE_PKG_CONFIG := 0
 else
-  ifeq ($(shell $(PKG_CONFIG) --exists gsl && echo yes),yes)
-    USE_PKG_CONFIG := 1
+  USE_PKG_CONFIG := 1
+endif
+
+# Function to set flags using pkg-config or defaults
+define set_pkg_config_flags
+  ifeq ($(USE_PKG_CONFIG),1)
+    ifeq ($(shell $(PKG_CONFIG) --exists $(1) && echo yes),yes)
+      $(2)_CFLAGS := $(shell $(PKG_CONFIG) --cflags $(1))
+      $(2)_LIBS := $(shell $(PKG_CONFIG) --libs $(1))
+    else
+      $(warning $(1) not found in pkg-config, falling back to default paths)
+      $(2)_CFLAGS := -I$($(2)_PREFIX)/include
+      $(2)_LIBS := -L$($(2)_PREFIX)/lib $(3)
+    endif
   else
-    $(warning gsl not found in pkg-config, falling back to default paths)
-    USE_PKG_CONFIG := 0
+    $(2)_CFLAGS := -I$($(2)_PREFIX)/include
+    $(2)_LIBS := -L$($(2)_PREFIX)/lib $(3)
   endif
-endif
+endef
 
-# Set include and lib directories based on pkg-config or prefix
-ifeq ($(USE_PKG_CONFIG),1)
-  GSL_CFLAGS := $(shell $(PKG_CONFIG) --cflags gsl)
-  GSL_LIBS := $(shell $(PKG_CONFIG) --libs gsl)
-else
-  GSL_CFLAGS := -I$(GSL_PREFIX)/include
-  GSL_LIBS := -L$(GSL_PREFIX)/lib -lgsl -lgslcblas
-endif
-
-# Always use default paths for HDF5
-HDF5_CFLAGS := -I$(HDF5_PREFIX)/include
-HDF5_LIBS := -L$(HDF5_PREFIX)/lib -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5
-
-# Boost doesn't typically use pkg-config
-BOOST_CFLAGS := -I$(BOOST_PREFIX)/include
-BOOST_LIBS := -L$(BOOST_PREFIX)/lib -lboost_filesystem -lboost_program_options -lboost_system
+# Use pkg-config for GSL, Boost, and HDF5
+$(eval $(call set_pkg_config_flags,gsl,GSL,-lgsl -lgslcblas))
+$(eval $(call set_pkg_config_flags,boost,BOOST,-lboost_filesystem -lboost_program_options -lboost_system))
+$(eval $(call set_pkg_config_flags,hdf5,HDF5,-lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5))
 
 EXE := COMPAS
 
-# build COMPAS
+# Build COMPAS
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
   $(info Building $(EXE) with $(CPP))
 endif
 
 OPTFLAGS :=
 ifneq ($(filter fast,$(MAKECMDGOALS)),)
-  $(info Adding optimisation flags into the compilation - will take longer to build)
+  $(info Adding optimization flags into the compilation - will take longer to build)
   OPTFLAGS += -march=native -O3
 endif
 
 ifneq ($(filter staticfast,$(MAKECMDGOALS)),)
-  $(info Adding optimisation flags into the (static) compilation - will take longer to build)
+  $(info Adding optimization flags into the (static) compilation - will take longer to build)
   OPTFLAGS += -march=native -O3
 endif
 
@@ -130,10 +136,14 @@ $(EXE)_STATIC: $(OBJI)
 .cpp.o: $(SOURCES) $(INCL) Makefile
 	$(CPP) $(CXXFLAGS) $(ICFLAGS) -c $?
 
-.phony: clean static fast staticfast
+.PHONY: clean static fast staticfast
 
 fast: $(EXE)
 staticfast: $(EXE)_STATIC
 
 clean:
 	rm -f $(OBJI) $(EXE) $(EXE)_STATIC
+
+# Debug target to print variables
+print-%:
+	@echo $* = $($*)
