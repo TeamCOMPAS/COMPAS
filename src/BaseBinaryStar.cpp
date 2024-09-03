@@ -477,42 +477,6 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.propsPreMT                         = &m_RLOFDetails.props2;
 
 
-    // BeBinary details - properties 1
-//    m_BeBinaryDetails.props1.id                      = -1l;
-//
-//    m_BeBinaryDetails.props1.dt                      = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props1.totalTime               = DEFAULT_INITIAL_DOUBLE_VALUE;
-//
-//    m_BeBinaryDetails.props1.massNS                  = DEFAULT_INITIAL_DOUBLE_VALUE;
-//
-//    m_BeBinaryDetails.props1.companionMass           = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props1.companionLuminosity     = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props1.companionTeff           = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props1.companionRadius         = DEFAULT_INITIAL_DOUBLE_VALUE;
-//
-//    m_BeBinaryDetails.props1.semiMajorAxis           = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props1.eccentricity            = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-    // BeBinary details - properties 2
-//    m_BeBinaryDetails.props2.id                      = -1l;
-//
-//    m_BeBinaryDetails.props2.dt                      = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props2.totalTime               = DEFAULT_INITIAL_DOUBLE_VALUE;
-//
-//    m_BeBinaryDetails.props2.massNS                  = DEFAULT_INITIAL_DOUBLE_VALUE;
-//
-//    m_BeBinaryDetails.props2.companionMass           = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props2.companionLuminosity     = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props2.companionTeff           = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props2.companionRadius         = DEFAULT_INITIAL_DOUBLE_VALUE;
-//
-//    m_BeBinaryDetails.props2.semiMajorAxis           = DEFAULT_INITIAL_DOUBLE_VALUE;
-//    m_BeBinaryDetails.props2.eccentricity            = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-    // BeBinary details - current/prev props pointers
-//    m_BeBinaryDetails.currentProps                   = &m_BeBinaryDetails.props1;
-//    m_BeBinaryDetails.previousProps                  = &m_BeBinaryDetails.props2;
-
     // pointers
 
     m_Donor                                          = nullptr;
@@ -910,43 +874,6 @@ void BaseBinaryStar::StashRLOFProperties(const MT_TIMING p_Which) {
     rlofPropertiesToReset->massLossRateFromDonor       = m_MassLossRateInRLOF;
     rlofPropertiesToReset->accretionEfficiency         = m_FractionAccreted;
 }
-
-
-/*
- * Squirrel BeBinaries properties away
- *
- * Various binary property values are stashed into the m_BeBinaryDetails.currentProps struct for use/printing later
- * The existing m_BeBinaryDetails.currentProps struct is copied to the m_BeBinaryDetails.previousProps struct first
- * (actually there is no copying - just switch pointers...)
- *
- *
- * void StashBeBinaryProperties()
- */
-//void BaseBinaryStar::StashBeBinaryProperties() {
-//
-//    if (!OPTIONS->BeBinaries() || !IsBeBinary()) return;                                                            // nothing to do;
-//
-//    // switch previous<->current (preserves existing current as (new) previous)
-//    BeBinaryPropertiesT* tmp        = m_BeBinaryDetails.previousProps;                                              // save pointer to existing previous props
-//    m_BeBinaryDetails.previousProps = m_BeBinaryDetails.currentProps;                                               // existing current props become new previous props (values will be preserved)
-//    m_BeBinaryDetails.currentProps  = tmp;                                                                          // new current props points at existing previous (values will be replaced)
-//
-//    // now save (new) current
-//    m_BeBinaryDetails.currentProps->id            = m_ObjectId;                                                      // object id
-//    m_BeBinaryDetails.currentProps->dt            = m_Dt;                                                            // timestep
-//    m_BeBinaryDetails.currentProps->totalTime     = m_BeBinaryDetails.previousProps->dt + m_Dt;                      // total time - accumulate, don't just replace
-//    m_BeBinaryDetails.currentProps->semiMajorAxis = m_SemiMajorAxis * AU_TO_RSOL;                                    // semi-major axis - change units to Rsol
-//    m_BeBinaryDetails.currentProps->eccentricity  = m_Eccentricity;                                                  // eccentricity
-//
-//    BinaryConstituentStar* neutronStar   = m_Star1->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR }) ? m_Star1 : m_Star2;    // pointer to neutron star
-//    BinaryConstituentStar* companionStar = m_Star1->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR }) ? m_Star2 : m_Star1;    // pointer to companion
-//
-//    m_BeBinaryDetails.currentProps->massNS              = neutronStar->Mass();                                      // neutron star mass
-//    m_BeBinaryDetails.currentProps->companionMass       = companionStar->Mass();                                    // companion mass
-//    m_BeBinaryDetails.currentProps->companionLuminosity = companionStar->Luminosity();                              // companion luminosity
-//    m_BeBinaryDetails.currentProps->companionTeff       = companionStar->Temperature();                             // companion temperature
-//    m_BeBinaryDetails.currentProps->companionRadius     = companionStar->Radius();                                  // companion radius
-//}
 
 
 /*
@@ -2491,6 +2418,93 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
 
 
 /*
+ * Calculate and emit gravitational radiation.
+ *
+ * This function uses Peters 1964 to approximate the effects of GW emission with two steps:
+ * - Calculate the change in semi-major axis (m_SemiMajorAxis) per time given by eq 5.6.
+ * - Calculate the change in eccentricity (m_Eccentricity) per time given by eq 5.7.
+ * 
+ * m_DaDtGW and m_DeDtGW are updated so that they can be used to calculate the timestep dynamically.
+ * 
+ *
+ * void CalculateGravitationalRadiation()
+ */
+void BaseBinaryStar::CalculateGravitationalRadiation() {
+
+    // Useful values
+    double eccentricitySquared = m_Eccentricity * m_Eccentricity;
+    double oneMinusESq         = 1.0 - eccentricitySquared;
+    double oneMinusESq_5       = oneMinusESq * oneMinusESq * oneMinusESq * oneMinusESq * oneMinusESq;
+    double G_AU_Msol_yr_3      = G_AU_Msol_yr * G_AU_Msol_yr * G_AU_Msol_yr;
+    double C_AU_Yr_5           = C_AU_yr * C_AU_yr * C_AU_yr * C_AU_yr * C_AU_yr;
+    double m_SemiMajorAxis_3   = m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis;
+    double massAndGAndCTerm    = G_AU_Msol_yr_3 * m_Star1->Mass() * m_Star2->Mass() * (m_Star1->Mass() + m_Star2->Mass()) / C_AU_Yr_5;						// G^3 * m1 * m2(m1 + m2) / c^5 in units of Msol, AU and yr
+
+    // Approximate rate of change in semimajor axis
+    double numeratorA   = -64.0 * massAndGAndCTerm;
+    double denominatorA = 5.0 * m_SemiMajorAxis_3 * std::sqrt(oneMinusESq_5 * oneMinusESq * oneMinusESq);
+    m_DaDtGW            = (numeratorA / denominatorA) * (1.0 + (73.0 / 24.0) * eccentricitySquared + (37.0 / 96.0) * eccentricitySquared * eccentricitySquared) * MYR_TO_YEAR;  // units of AU Myr^-1
+
+    // Approximate rate of change in eccentricity
+    double numeratorE   = -304.0 * m_Eccentricity * massAndGAndCTerm;
+    double denominatorE = 15.0 * m_SemiMajorAxis_3 * m_SemiMajorAxis * std::sqrt(oneMinusESq_5);
+    m_DeDtGW            = (numeratorE / denominatorE) * (1.0 + (121.0 / 304.0) * eccentricitySquared) * YEAR_TO_MYR;									// units of Myr^-1
+}
+
+
+/*
+ * Emit a GW based on the effects calculated by BaseBinaryStar::CalculateGravitationalRadiation().
+ * 
+ * This function updates the semi-major axis, eccentricity, and previous eccentricity values
+ * (m_SemiMajorAxis, m_Eccentricity, m_SemiMajorAxisPrev, and m_EccentricityPrev) as a result of emitting GWs.
+ * 
+ *
+ * void EmitGravitationalRadiation(const double p_Dt)
+ *
+ * @param   [IN]    p_Dt                        timestep in Myr
+ */
+void BaseBinaryStar::EmitGravitationalWave(const double p_Dt) {
+
+    // Update semimajor axis
+    double aNew     = m_SemiMajorAxis + (m_DaDtGW * p_Dt);
+    m_SemiMajorAxis = utils::Compare(aNew, 0.0) > 0 ? aNew : 1E-20;  // if <0, set to arbitrarily small number
+
+    // Update the eccentricity
+    m_Eccentricity += m_DeDtGW * p_Dt;
+
+    // Save values as previous timestep	
+    m_SemiMajorAxisPrev = m_SemiMajorAxis;	
+    m_EccentricityPrev  = m_Eccentricity;
+}
+
+
+/* 
+ * Choose a timestep based on the parameters of the binary.
+ *
+ * Returns a timestep based on the minimal timesteps of the component stars, 
+ * adjusted if relevant by the orbital evolution due to GW radiation
+ * 
+ *
+ * double ChooseTimestep(const double p_Multiplier)
+ * 
+ * @param   [IN]    p_Multiplier                timestep multiplier
+ * @return                                      new timestep in Myr
+ */
+double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
+
+    double dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep());                   // timestep based on orbital timescale
+
+    if (OPTIONS->EmitGravitationalRadiation()) {                                                        // emitting GWs?
+        dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
+    }
+
+    dt *= p_Multiplier;	
+
+    return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);    // quantised and not less than minimum
+}
+
+
+/*
  * Evaluate the binary system
  *
  *    - calculate any mass transfer
@@ -2697,14 +2711,23 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 //   - don't quantise
                 //   - don't apply timestep multiplier
                 // (we assume user wants the timesteps in the file)
+                // 
+                // Open question: should we clamp this to NUCLEAR_MINIMUM_TIMESTEP?
                 dt = timesteps[0];
             }
             else {                                                                                                                      // no - not using user-provided timesteps
-                dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier() / 1000.0;     // calculate timestep - make first step small
-                dt = std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);                          // quantised
+                // if user selects to emit GWs, calculate the effects of radiation
+                //     - note that this is placed before the call to ChooseTimestep() because when
+                //       emitting GWs the timestep is a function of gravitational radiation
+                if (OPTIONS->EmitGravitationalRadiation()) {
+                    CalculateGravitationalRadiation();
+                }
+
+                // we want the first timestep to be small - calculate timestep and divide by 1000.0
+                dt = ChooseTimestep(OPTIONS->TimestepMultiplier() / 1000.0);                                                            // calculate timestep - make first step small
             }
 
-            unsigned long int stepNum = 1;                                                                                              // initialise step number
+            unsigned long int stepNum = 1; 
 
             while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                     // perform binary evolution - iterate over timesteps until told to stop
 
@@ -2713,6 +2736,10 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                     evolutionStatus = EVOLUTION_STATUS::SSE_ERROR;                                                                      // yes - stop evolution
                 }
                 else {                                                                                                                  // continue evolution
+
+                    if (OPTIONS->EmitGravitationalRadiation()) {                                                                        // emitting GWs?
+                        EmitGravitationalWave(dt);                                                                                      // yes - emit graviataional wave
+                    }
 
                     (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_STELLAR_TIMESTEP);                                   // print (log) detailed output
 
@@ -2753,8 +2780,6 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                         if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
                             (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_BINARY_TIMESTEP);                             // print (log) pulsar evolution parameters 
                         }
-
-                        //(void)PrintBeBinary();                                                                                          // print (log) BeBinary properties
                         
                         if (IsDCO() && !IsUnbound()) {                                                                                  // bound double compact object?
                             if (m_DCOFormationTime == DEFAULT_INITIAL_DOUBLE_VALUE) {                                                   // DCO not yet evaluated -- to ensure that the coalescence is only resolved once
@@ -2762,7 +2787,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                                 m_DCOFormationTime = m_Time;                                                                            // set the DCO formation time
                             }
 
-                            if (!(OPTIONS->EvolvePulsars() && HasOneOf({ STELLAR_TYPE::NEUTRON_STAR }))) {                              // evolve pulsar?
+                            if (!(OPTIONS->EvolvePulsars() && HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) &&                              // evolve pulsar?
+                                !(OPTIONS->EvolveDoubleWhiteDwarfs() && IsWDandWD())) {                                                 // no - evolve WDWD?
                                 evolutionStatus = EVOLUTION_STATUS::DCO;                                                                // no - have DCO - stop evolving
                             }
                         }
@@ -2796,25 +2822,30 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 }
 
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
-                
-                    m_Star1->UpdatePreviousTimestepDuration();
+
+                    // if user selects to emit GWs, calculate the effects of radiation
+                    //     - note that this is placed before the call to ChooseTimestep() because when
+                    //       emitting GWs the timestep is a function of gravitational radiation                    
+                    if (OPTIONS->EmitGravitationalRadiation()) {
+                        CalculateGravitationalRadiation();
+                    }
+
                     m_Star2->UpdatePreviousTimestepDuration();
+                    m_Star1->UpdatePreviousTimestepDuration();
                 
-                    if (usingProvidedTimesteps) {                                                                                       // user-provided timesteps
-                        // get new timestep
+                    if (usingProvidedTimesteps) {                                                                                       // user-provided timesteps?
+                        // select a timestep
                         //   - don't quantise
                         //   - don't apply timestep multiplier
                         // (we assume user wants the timesteps in the file)
+                        // 
+                        // Open question: should we clamp this to NUCLEAR_MINIMUM_TIMESTEP?
                         dt = timesteps[stepNum];
                     }
-                    else {                                                                                                              // not using user-provided timesteps
-                        dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep()) * OPTIONS->TimestepMultiplier();      // calculate new timestep
-                        dt = std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);                  // quantised
+                    else {                                                                                                              // no - not using user-provided timesteps
+                        dt = ChooseTimestep(OPTIONS->TimestepMultiplier());
                     }
 
-                    if (dt < NUCLEAR_MINIMUM_TIMESTEP) {
-                        dt = NUCLEAR_MINIMUM_TIMESTEP;                                                                                  // but not less than minimum
-		            }
                     stepNum++;                                                                                                          // increment stepNum
                 }
             }
