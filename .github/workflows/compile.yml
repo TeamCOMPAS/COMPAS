@@ -1,0 +1,27 @@
+name: COMPAS compile test
+'on':
+  workflow_dispatch: null
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - src/**
+      - .github/workflows/**
+  push:
+    branches:
+      - dev
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build and test
+        run: |
+          cd src && make -j $(nproc) -f Makefile
+          ./COMPAS -v
