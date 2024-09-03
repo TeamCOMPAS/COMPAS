@@ -581,6 +581,7 @@ protected:
 
     virtual double              CalculateMassLossRate();
     virtual double              CalculateMassLossRateHurley();
+            double              CalculateMassLossRateEnhancementRotation();
             double              CalculateMassLossRateKudritzkiReimers() const;
             double              CalculateMassLossRateLBV(const LBV_MASS_LOSS_PRESCRIPTION p_LBVprescription);
             double              CalculateMassLossRateLBVHurley(const double p_HDlimitfactor) const;
