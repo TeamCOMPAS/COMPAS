@@ -17,6 +17,8 @@ jobs:
     env:
       ARTIFACT_NAME: detailedEvolutionPlot.eps
       ARTIFACT_PATH: py_tests/test_artifacts
+      COMPAS_EXECUTABLE_PATH: src/COMPAS
+
     name: Build COMPAS
     runs-on: '${{ matrix.os}}'
     container: '${{matrix.container}}'
@@ -49,8 +51,8 @@ jobs:
           pip install -e .[dev]
       - name: Run example COMPAS job
         run: |
-          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
-          cd ${GITHUB_WORKSPACE}/misc/examples/methods_paper_plots/detailed_evolution
+          export 
+          cd ${GITHUB_WORKSPACE}/py_tests/test_data/
           chmod 755 run.sh
           cat run.sh
           ./run.sh
