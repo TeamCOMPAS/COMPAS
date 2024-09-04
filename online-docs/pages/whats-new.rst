@@ -6,6 +6,15 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**03.02.00 Sep 4, 2024**
+
+Added new functionality to improve modelling of chemically homogeneous evolution (CHE). The default behaviour remains unchanged.
+
+* New command line option option `--enable-rotationally-enhanced-mass-loss` to enable rotationally enhanced mass loss following Langer (1998)
+* New command line option option `--enhance-CHE-lifetimes-luminosities` to enhance CHE lifetimes and luminosities following detailed models from Szecsi et al. (2015) 
+* New command line option option `--scale-CHE-mass-loss-with-surface-helium-abundance` to switch from OB to WR mass loss for CH stars towards the end of the main sequence
+* New command line option option `--scale-terminal-wind-velocity-with-metallicity-power` to scale the terminal wind velocity with the metallicity
+
 **03.01.06 Aug 30, 2024**
 
 Added functionality to allow users to specify if WD-binaries should be included in the BSE DCO file via new option ``--include-WD-binaries-as-DCO``.

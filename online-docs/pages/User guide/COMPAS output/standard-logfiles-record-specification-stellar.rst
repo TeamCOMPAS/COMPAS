@@ -724,6 +724,70 @@ Following is an alphabetical list of stellar properties available for inclusion 
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **HELIUM_ABUNDANCE_CORE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_HeliumAbundanceCore
+   * - Description:
+     - Helium abundance in the core (Yc).
+   * - Header Strings:
+     - Helium_Abundance_Core
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **HELIUM_ABUNDANCE_SURFACE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_HeliumAbundanceSurface
+   * - Description:
+     - Helium abundance at the surface (Ys).
+   * - Header Strings:
+     - Helium_Abundance_Surface
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **HYDROGEN_ABUNDANCE_CORE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_HydrogenAbundanceCore
+   * - Description:
+     - Hydrogen abundance in the core (Xc).
+   * - Header Strings:
+     - Hydrogen_Abundance_Core
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **HYDROGEN_ABUNDANCE_SURFACE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_HydrogenAbundanceSurface
+   * - Description:
+     - Hydrogen abundance at the surface (Xs).
+   * - Header Strings:
+     - Hydrogen_Abundance_Surface
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **HE_CORE_MASS**
      -
    * - Data type:
