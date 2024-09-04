@@ -9,7 +9,7 @@
  * 
  * Should be updated to match detailed models.
  *
- * double CalculateHeliumAbundanceCore(p_Tau)
+ * double CalculateHeliumAbundanceCoreOnPhase(p_Tau)
  * 
  * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
  *
@@ -29,7 +29,7 @@ double CH::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
  * 
  * Since the star is homogeneous, the core and the surface have the same abundances
  * 
- * double CalculateHeliumAbundanceSurface(p_Tau)
+ * double CalculateHeliumAbundanceSurfaceOnPhase(p_Tau)
  * 
  * @param   [IN]    p_Tau                      Fraction of main sequence lifetime
  *
@@ -50,7 +50,7 @@ double CH::CalculateHeliumAbundanceSurfaceOnPhase(const double p_Tau) const {
  * 
  * Should be updated to match detailed models.
  *
- * double CalculateHydrogenAbundanceCore(p_Tau)
+ * double CalculateHydrogenAbundanceCoreOnPhase(p_Tau)
  * 
  * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
  *
@@ -68,7 +68,7 @@ double CH::CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const {
  * 
  * Since the star is homogeneous, the core and the surface have the same abundances
  *
- * double CalculateHydrogenAbundanceCore(p_Tau)
+ * double CalculateHydrogenAbundanceSurfaceOnPhase(p_Tau)
  * 
  * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
  * 
@@ -151,7 +151,7 @@ double CH::CalculateLogLuminosityRatio(const double p_Mass, const double p_Tau) 
 
     // If user wants to increase CH MS luminosity, calculate the ratio of CH to MS luminosity
     if (OPTIONS->EnhanceCHELifetimesLuminosities()) {
-
+        
         // Polynomial fits to the ratio of logL in models from Szecsi et al., derived using np.polynomial.Polynomial
         double x = log10(p_Mass);
 
@@ -353,10 +353,7 @@ double CH::CalculateMassLossRateBelczynski2010() {
     double Mdot    = 0.0;
     double Mdot_OB = 0.0;
     double Mdot_WR = 0.0;
-    double weight  = 1.0;           // Initialised to 1.0 to allow us to use the OB mass loss rate by default
-    
-    // Convert temperature to Kelvin as needed by Vink prescription
-    double teff = m_Temperature * TSOL;            
+    double weight  = 1.0;           // Initialised to 1.0 to allow us to use the OB mass loss rate by default 
 
     // Calculate OB mass loss rate according to the Vink et al. formalism
     Mdot_OB = BaseStar::CalculateMassLossRateBelczynski2010();
@@ -371,6 +368,9 @@ double CH::CalculateMassLossRateBelczynski2010() {
         weight = CalculateMassLossRateWeightOB(m_HeliumAbundanceSurface);
 
     }
+
+    // Set dominant mass loss rate
+    m_DominantMassLossRate = weight == 0 ? MASS_LOSS_TYPE::WR : MASS_LOSS_TYPE::OB;   
 
     // Finally, combine each of these prescriptions according to the weight
     Mdot = (weight * Mdot_OB) + ((1.0 - weight) * Mdot_WR);
@@ -401,17 +401,20 @@ double CH::CalculateMassLossRateMerritt2024() {
     double Mdot_WR = 0.0;
     double weight  = 1.0;           // Initialised to 1.0 to allow us to use the OB mass loss rate by default
     
-    // Convert temperature to Kelvin as needed by Vink prescription
-    double teff = m_Temperature * TSOL;            
-
     // Calculate OB mass loss rate according to the chosen prescription
     Mdot_OB = BaseStar::CalculateMassLossRateOB(OPTIONS->OBMassLossPrescription());  
 
     // If user wants to transition between OB and WR mass loss rates
     if (OPTIONS->ScaleCHEMassLossWithSurfaceHeliumAbundance()){
 
-        // Calculate WR mass loss rate
-        Mdot_WR = HeMS::CalculateMassLossRateMerritt2024();
+        // Here we are going to pretend that this CH star is an HeMS star by
+        // cloning it, so that we can ask it what its mass loss rate would be if it were
+        // a HeMS star
+        //HeMS *clone = HeMS::Clone(static_cast<BaseStar&>(*this), OBJECT_PERSISTENCE::EPHEMERAL, false);        // Do not initialise so that we can use same mass, luminosity, radius etc
+        HeMS *clone = HeMS::Clone((HeMS&)static_cast<const CH&>(*this), OBJECT_PERSISTENCE::EPHEMERAL, false);   // Do not initialise so that we can use same mass, luminosity, radius etc
+        
+        Mdot_WR = clone->CalculateMassLossRateMerritt2024();       // Calculate WR mass loss rate              
+        delete clone; clone = nullptr;    
 
         // Calculate weight for combining these into total mass-loss rate
         weight = CalculateMassLossRateWeightOB(m_HeliumAbundanceSurface);

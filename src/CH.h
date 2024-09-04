@@ -8,6 +8,7 @@
 
 #include "BaseStar.h"
 #include "MS_gt_07.h"
+#include "HeMS.h"
 
 class BaseStar;
 class MS_gt_07;
@@ -23,6 +24,8 @@ public:
         if (p_Initialise) Initialise();                                                                                                                                             // Initialise if required
     }
 
+    virtual ~CH () {}
+    
     CH* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
         CH* clone = new CH(*this, p_Initialise); 
         clone->SetPersistence(p_Persistence); 
@@ -48,10 +51,14 @@ protected:
 
     // Abundances
     double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;
+    double          CalculateHeliumAbundanceCoreOnPhase() const;
     double          CalculateHeliumAbundanceSurfaceOnPhase(const double p_Tau) const;
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const;
 
     double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;
+    double          CalculateHydrogenAbundanceCoreOnPhase() const;
     double          CalculateHydrogenAbundanceSurfaceOnPhase(const double p_Tau) const;
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const;
 
     // Lifetime
     double          CalculateLogLifetimeRatio(const double p_Mass) const;
@@ -64,7 +71,7 @@ protected:
     double          CalculateLuminosityAtPhaseEnd() const                                   { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                      // Use class member variables
 
     double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const;
-    double          CalculateLuminosityOnPhase() const     
+    double          CalculateLuminosityOnPhase() const { return m_Luminosity; }    
 
     // Mass loss rate
     double          CalculateMassLossRateBelczynski2010();
@@ -77,7 +84,7 @@ protected:
 
     // Timescales
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
-    void            CalculateTimescales()  
+    void            CalculateTimescales();  
 
     STELLAR_TYPE    EvolveToNextPhase();
 
