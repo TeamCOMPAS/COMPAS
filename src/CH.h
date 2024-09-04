@@ -25,7 +25,7 @@ public:
     }
 
     virtual ~CH () {}
-    
+
     CH* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
         CH* clone = new CH(*this, p_Initialise); 
         clone->SetPersistence(p_Persistence); 
@@ -51,15 +51,15 @@ protected:
 
     // Abundances
     double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;
-    double          CalculateHeliumAbundanceCoreOnPhase() const;
+    double          CalculateHeliumAbundanceCoreOnPhase() const { return BaseStar::CalculateHeliumAbundanceCoreOnPhase(); };
     double          CalculateHeliumAbundanceSurfaceOnPhase(const double p_Tau) const;
-    double          CalculateHeliumAbundanceSurfaceOnPhase() const;
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const { return BaseStar::CalculateHeliumAbundanceSurfaceOnPhase(); };
 
     double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;
-    double          CalculateHydrogenAbundanceCoreOnPhase() const;
+    double          CalculateHydrogenAbundanceCoreOnPhase() const { return BaseStar::CalculateHydrogenAbundanceCoreOnPhase(); };
     double          CalculateHydrogenAbundanceSurfaceOnPhase(const double p_Tau) const;
-    double          CalculateHydrogenAbundanceSurfaceOnPhase() const;
-
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const { return BaseStar::CalculateHydrogenAbundanceSurfaceOnPhase(); };
+    
     // Lifetime
     double          CalculateLogLifetimeRatio(const double p_Mass) const;
     double          CalculateLifetimeRatio(const double p_Mass) const;
@@ -84,7 +84,7 @@ protected:
 
     // Timescales
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
-    void            CalculateTimescales();  
+    void            CalculateTimescales() { return BaseStar::CalculateTimescales(); };  
 
     STELLAR_TYPE    EvolveToNextPhase();
 
