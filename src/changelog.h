@@ -1285,8 +1285,16 @@
 //                                        See "What's New" and option documentation for details.
 //                                        (Issue #1170)
 //                                      - added deprecation notice for '--mass-loss-prescription NONE' (should use ZERO) - missed in v03.00.00
+// 03.02.00   SS - Sep 4, 2024      - Enhancement:
+//                                      - Improvements to modelling of chemically homogeneous evolution
+//                                      - New options: --enable-rotationally-enhanced-mass-loss,
+//                                        --enhance-CHE-lifetimes-luminosities, --scale-CHE-mass-loss-with-surface-helium-abundance,
+//                                        --scale-terminal-wind-velocity-with-metallicity-power
+//                                      - To facilitate --scale-CHE-mass-loss-with-surface-helium-abundance, added basic tracking of 
+//                                        tracking of surface and core hydrogen and helium abundances for CH stars.
+//                                        See "What's New" and option documentation for details
+//
 
-
-const std::string VERSION_STRING = "03.01.06";
+const std::string VERSION_STRING = "03.02.00";
 
 # endif // __changelog_h__
