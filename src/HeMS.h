@@ -46,6 +46,8 @@ public:
     static double   CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Tau);
     static double   CalculateLuminosityAtPhaseEnd_Static(const double p_Mass);
 
+           double   CalculateMassLossRateBelczynski2010();
+           double   CalculateMassLossRateMerritt2024();
 
     static DBL_DBL  CalculateRadiusAtPhaseEnd_Static(const double p_Mass, const double p_Luminosity);
     static double   CalculateRadiusAtZAMS_Static(const double p_Mass);
@@ -101,10 +103,8 @@ protected:
             double          CalculateLuminosityOnPhase() const                                                      { return CalculateLuminosityOnPhase(m_Mass, m_Tau); }                           // Use class member variables
 
             double          CalculateMassLossRateHurley();
-            double          CalculateMassLossRateBelczynski2010();
-            double          CalculateMassLossRateMerritt2024();
             double          CalculateMassLossRateWolfRayetShenar2019() const;
-            
+
             double          CalculateMassTransferRejuvenationFactor();
 
             double          CalculateMomentOfInertia() const                                                        { return MainSequence::CalculateMomentOfInertia(); }
