@@ -1890,11 +1890,8 @@ double BaseStar::CalculateEddingtonLuminosity_Static(const double p_Mass, const 
  */
 double BaseStar::CalculateMassLossRateBjorklundEddingtonFactor() const {
 
-    const double iHe  = 2.0;
     const double YHe  = 0.1;                                                // assumed constant by Bjorklund et al.
-    
-    double kappa_e_SI = CalculateOpacity_Static(YHe);                       // m^2/kg
-
+        
     double Ledd       = CalculateEddingtonLuminosity_Static(m_Mass, YHe);   // W
 
     double LoverLedd  = (m_Luminosity * LSOLW) / Ledd;                      // Dimensionless

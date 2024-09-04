@@ -238,8 +238,8 @@ public:
     virtual void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) { }                                                                                      // Default is NO-OP
     virtual void            CalculateGBParams()                                                                 { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
 
-            double          CalculateInitialHeliumAbundance()                                                   { return 0.24 + 2.0 * m_Metallicity; }                              // Pols et al. 1998 
-            double          CalculateInitialHydrogenAbundance()                                                 { return 0.76 - 3.0 * m_Metallicity; }                              // Pols et al. 1998 
+            double          CalculateInitialHeliumAbundance() const                                             { return 0.24 + 2.0 * m_Metallicity; }                              // Pols et al. 1998 
+            double          CalculateInitialHydrogenAbundance() const                                           { return 0.76 - 3.0 * m_Metallicity; }                              // Pols et al. 1998 
 
     virtual DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const;  
     virtual DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const ;                                              
