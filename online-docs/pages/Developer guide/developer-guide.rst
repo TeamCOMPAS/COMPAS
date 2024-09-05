@@ -16,7 +16,7 @@ This guide covers the C++ COMPAS population synthesis code.
    ./object-ids
    ./Services/services
    ./floating-point-comparisons
-   ./constants-dot-h
+   ./Headers/headers
    ./changelog
    ./Programming style/programming-style
    ./Developer build/developer-building-compas

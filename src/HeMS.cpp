@@ -35,6 +35,39 @@ void HeMS::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
 }
 
 
+/*
+ * Calculate Giant Branch (GB) parameters per Hurley et al. 2000
+ *
+ * Giant Branch Parameters depend on a star's mass, so this needs to be called at least each timestep
+ *
+ * Vectors are passed by reference here for performance - preference would be to pass const& and
+ * pass modified value back by functional return, but this way is faster - and this function is
+ * called many, many times.
+ *
+ * void CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)
+ *
+ * @param   [IN]        p_Mass                  Mass in Msol
+ * @param   [IN/OUT]    p_GBParams              Giant Branch Parameters - calculated here
+ */
+void HeMS::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
+#define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
+
+    GiantBranch::CalculateGBParams(p_Mass, p_GBParams);                                 // calculate common values (actually, all)
+
+    // recalculate HeMS specific values
+
+	gbParams(B) = CalculateCoreMass_Luminosity_B_Static();
+	gbParams(D) = CalculateCoreMass_Luminosity_D_Static(p_Mass);
+
+    gbParams(p) = CalculateCoreMass_Luminosity_p_Static(p_Mass, m_MassCutoffs);
+    gbParams(q) = CalculateCoreMass_Luminosity_q_Static(p_Mass, m_MassCutoffs);
+    
+    gbParams(Mx) = GiantBranch::CalculateCoreMass_Luminosity_Mx_Static(p_GBParams);      // depends on B, D, p & q - recalculate if any of those are changed
+    gbParams(Lx) = GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // depends on B, D, p, q & Mx - recalculate if any of those are changed
+
+#undef gbParams
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                              LUMINOSITY CALCULATIONS                              //
@@ -166,7 +199,7 @@ double HeMS::CalculateRadiusOnPhase_Static(const double p_Mass, const double p_T
  * @return                                      Radius at the end of the helium main sequence (RTHe)
  */
 double HeMS::CalculateRadiusAtPhaseEnd_Static(const double p_Mass) {
-    return CalculateRadiusAtZAMS_Static(p_Mass);
+    return CalculateRadiusOnPhase_Static(p_Mass, 1.0);
 }
 
 
@@ -187,21 +220,28 @@ double HeMS::CalculateRadiusAtPhaseEnd_Static(const double p_Mass) {
  *
  * @return                                      Rejuvenation factor
  */
-double HeMS::CalculateMassTransferRejuvenationFactor() const {
+double HeMS::CalculateMassTransferRejuvenationFactor() {
 
-    double fRej = 1.0;                                                                              // default value
+    double fRej = 1.0;                                                                          // default value
 
     switch (OPTIONS->MassTransferRejuvenationPrescription()) {
 
-        case MT_REJUVENATION_PRESCRIPTION::NONE:                                                    // use default Hurley et al. 2000 prescription = 1.0
+        case MT_REJUVENATION_PRESCRIPTION::HURLEY:                                              // use default Hurley et al. 2000 prescription = 1.0
             break;
 
-        case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                                               // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf
-            fRej = utils::Compare(m_Mass, m_MassPrev) <= 0 ? 1.0 : m_MassPrev / m_Mass;             // rejuvenation factor is unity for mass losing stars
+        case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                                           // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf
+            fRej = utils::Compare(m_Mass, m_MassPrev) <= 0 ? 1.0 : m_MassPrev / m_Mass;         // rejuvenation factor is unity for mass losing stars
             break;
 
-        default:                                                                                    // shouldn't get here - use default Hurley et al. 2000 prescription = 1.0
-            SHOW_WARN(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION, "Using default fRej = 1.0");     // show warning
+        default:                                                                                // unknown prescription
+            // the only way this can happen is if someone added a MT_REJUVENATION_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION);                           // throw error
     }
 
     return fRej;
@@ -222,15 +262,12 @@ double HeMS::CalculateMassLossRateHurley() {
     double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
     double rateKR = CalculateMassLossRateKudritzkiReimers();
     double rateWR = CalculateMassLossRateWolfRayet(0.0);        // use mu = 0.0 for Helium stars
-    double dominantRate;
+
     m_DominantMassLossRate = MASS_LOSS_TYPE::GB;
-    if (utils::Compare(rateNJ, rateKR) > 0) {
-        dominantRate = rateNJ;
-    } else {
-        dominantRate = rateKR;
-    }
+    double dominantRate    = std::max(rateNJ, rateKR);
+
     if (utils::Compare(rateWR, dominantRate) > 0) {
-        dominantRate = rateWR;
+        dominantRate           = rateWR;
         m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
     }
 
@@ -287,52 +324,65 @@ double HeMS::CalculateMassLossRateWolfRayetShenar2019() const {
  * Calculate the mass loss rate for helium stars in the updated prescription
  * Uses Sander & Vink 2020 for Wolf--Rayet stars
  * 
- * double CalculateMassLossRateFlexible2023()
+ * double CalculateMassLossRateMerritt2024()
  *
  * @return                                      Mass loss rate in Msol per year
  */
-double HeMS::CalculateMassLossRateFlexible2023() {
-
-    m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
+double HeMS::CalculateMassLossRateMerritt2024() {
 
     double MdotWR = 0.0;
 
-    if(OPTIONS->WRMassLoss() == WR_MASS_LOSS::SANDERVINK2023){
+    m_DominantMassLossRate = MASS_LOSS_TYPE::WR;                                                                // set dominant mass loss rate
 
-        // Calculate Sander & Vink 2020 mass-loss rate
-        double Mdot_SanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
+    switch (OPTIONS->WRMassLossPrescription()) {                                                                // which WR mass loss prescription?
 
-        // Apply the Sander et al. 2023 temperature correction to the Sander & Vink 2020 rate
-        double Mdot_Sander2023     = CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(Mdot_SanderVink2020);
+        case WR_MASS_LOSS_PRESCRIPTION::SANDERVINK2023: {
+            // calculate Sander & Vink 2020 mass-loss rate
+            double Mdot_SanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
 
-        // Calculate Vink 2017 mass-loss rate
-        double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
+            // apply the Sander et al. 2023 temperature correction to the Sander & Vink 2020 rate
+            double Mdot_Sander2023 = CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(Mdot_SanderVink2020);
 
-        // Use whichever gives the highest mass loss rate -- will typically be Vink 2017 for
-        // low Mass or Luminosity, and Sander & Vink 2020 for high Mass or Luminosity
+            // calculate Vink 2017 mass-loss rate
+            double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
 
-        MdotWR = std::max(Mdot_Sander2023, Mdot_Vink2017);
+            // use whichever gives the highest mass loss rate -- will typically be Vink 2017 for
+            // low Mass or Luminosity, and Sander & Vink 2020 for high Mass or Luminosity
 
-    }
-    else if(OPTIONS->WRMassLoss() == WR_MASS_LOSS::SHENAR2019){
+            MdotWR = std::max(Mdot_Sander2023, Mdot_Vink2017);
 
-        // Mass loss rate for WR stars from Shenar+ 2019
-        double Mdot_Shenar2019 = CalculateMassLossRateWolfRayetShenar2019();
+        } break;
 
-        // Calculate Vink 2017 mass-loss rate
-        double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
+        case WR_MASS_LOSS_PRESCRIPTION::SHENAR2019: {
+            // mass loss rate for WR stars from Shenar+ 2019
+            double Mdot_Shenar2019 = CalculateMassLossRateWolfRayetShenar2019();
 
-        // Apply a minimum of Vink 2017 mass-loss rate to avoid extrapolating to low luminosity
-        MdotWR = std::max(Mdot_Shenar2019, Mdot_Vink2017);
+            // calculate Vink 2017 mass-loss rate
+            double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
 
-    }
-    else{
-        MdotWR = CalculateMassLossRateBelczynski2010();
+            // apply a minimum of Vink 2017 mass-loss rate to avoid extrapolating to low luminosity
+            MdotWR = std::max(Mdot_Shenar2019, Mdot_Vink2017);
+
+        } break;
+
+        case WR_MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010:
+            MdotWR = CalculateMassLossRateBelczynski2010();
+            break;
+
+        default:                                                                                                // unknown prescription
+            // the only way this can happen is if someone added a WR_MASS_LOSS_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR(ERROR::UNKNOWN_WR_MASS_LOSS_PRESCRIPTION);                                              // throw error
     }
 
     return MdotWR;
-
 }
+
 
 /*
  * Determines if mass transfer is unstable according to the critical mass ratio.
@@ -418,7 +468,6 @@ void HeMS::UpdateAgeAfterMassLoss() {
 /*
  * Choose timestep for evolution
  *
- * Can obviously do this your own way
  * Given in the discussion in Hurley et al. 2000
  *
  *
@@ -457,17 +506,21 @@ double HeMS::ChooseTimestep(const double p_Time) const {
  *     - m_Age
  *
  *
- * STELLAR_TYPE ResolveEnvelopeLoss()
+ * STELLAR_TYPE ResolveEnvelopeLoss(bool p_Force)
+ *
+ * @param   [IN]    p_Force                     Boolean to indicate whether the resolution of the loss of the envelope should be performed
+ *                                              without checking the precondition(s).
+ *                                              Default is false.
  *
  * @return                                      Stellar Type to which star should evolve after losing envelope
  */
-STELLAR_TYPE HeMS::ResolveEnvelopeLoss(bool p_NoCheck) {
+STELLAR_TYPE HeMS::ResolveEnvelopeLoss(bool p_Force) {
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_Mass, 0.0) <= 0) {
+    if (p_Force || utils::Compare(m_Mass, 0.0) <= 0) {
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
-        m_Radius    = 0.0;   // massless remnant
+        m_Radius    = 0.0;
         m_Mass      = 0.0;
     }
 

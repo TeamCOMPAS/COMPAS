@@ -38,7 +38,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--add-options-to-sysparms``
    * - Header String:
-     - Add_Options_To_SysParms
+     - PO_Add_Options_To_SysParms
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -54,7 +54,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--common-envelope-allow-main-sequence-survive``
    * - Header String:
-     - Allow_MS_To_Survive_CE
+     - PO_Allow_MS_To_Survive_CE
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -70,7 +70,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--allow-rlof-at-birth``
    * - Header String:
-     - Allow_RLOF@\ Birth
+     - PO_Allow_RLOF@\ Birth
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -86,7 +86,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--allow-touching-at-birth``
    * - Header String:
-     - Allow_Touching@\ Birth
+     - PO_Allow_Touching@\ Birth
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -102,7 +102,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--angular-momentum-conservation-during-circularisation``
    * - Header String:
-     - Conserve_AngMom@\ Circ
+     - PO_Conserve_AngMom@\ Circ
 
 .. _spec-options-props-B:
 
@@ -120,9 +120,27 @@ Following is an alphabetical list of program option properties available for inc
    * - COMPAS variable:
      - Options::m_BlackHoleKicks
    * - Description:
-     - Value of program option ``--black-hole-kicks``
+     - Value of program option ``--black-hole-kicks`` |br|
    * - Header String:
-     - BH_Kicks
+     - PO_BH_Kicks
+
+DEPRECATION NOTICE: property ``BLACK_HOLE_KICKS`` has been deprecated and will soon be removed. Please use ``BLACK_HOLE_KICKS_MODE`` in future.
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **BLACK_HOLE_KICKS_MODE**
+     -
+   * - Data type:
+     - INT
+   * - COMPAS variable:
+     - Options::m_BlackHoleKicks
+   * - Description:
+     - Value of program option ``--black-hole-kicks-mode`` |br|
+   * - Header String:
+     - PO_BH_Kicks
 
 .. _spec-options-props-C:
 
@@ -142,7 +160,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--case-BB-stability-prescription``
    * - Header String:
-     - BB_Mass_xFer_Stblty_Prscrptn
+     - PO_BB_Mass_xFer_Stblty_Prscrptn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -158,7 +176,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--chemically-homogeneous-evolution``
    * - Header String:
-     - CHE_Mode
+     - PO_CHE_Mode
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -174,7 +192,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--circularise-binary-during-mass-transfer``
    * - Header String:
-     - Circularise@\ MT
+     - PO_Circularise@\ MT
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -190,7 +208,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--common-envelope-alpha``
    * - Header String:
-     - CE_Alpha
+     - PO_CE_Alpha
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -206,7 +224,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--common-envelope-alpha-thermal``
    * - Header String:
-     - CE_Alpha_Thermal
+     - PO_CE_Alpha_Thermal
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -222,7 +240,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--common-envelope-lambda``
    * - Header String:
-     - CE_Lambda
+     - PO_CE_Lambda
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -238,7 +256,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--common-envelope-lambda-multiplier``
    * - Header String:
-     - CE_Lambda_Multiplier
+     - PO_CE_Lambda_Multiplier
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -254,7 +272,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--common-envelope-lambda-prescription``
    * - Header String:
-     - CE_Lambda_Prscrptn
+     - PO_CE_Lambda_Prscrptn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -270,7 +288,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--common-envelope-mass-accretion-constant``
    * - Header String:
-     - CE_Mass_Accr_Constant
+     - PO_CE_Mass_Accr_Constant
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -286,7 +304,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--common-envelope-mass-accretion-max``
    * - Header String:
-     - CE_Mass_Accr_Max
+     - PO_CE_Mass_Accr_Max
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -302,7 +320,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--common-envelope-mass-accretion-min``
    * - Header String:
-     - CE_Mass_Accr_Min
+     - PO_CE_Mass_Accr_Min
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -318,7 +336,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--common-envelope-mass-accretion-prescription``
    * - Header String:
-     - CE_Mass_Accr_Prscrptn
+     - PO_CE_Mass_Accr_Prscrptn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -334,7 +352,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--common-envelope-recombination-energy-density``
    * - Header String:
-     - CE_Recomb_Enrgy_Dnsty
+     - PO_CE_Recomb_Enrgy_Dnsty
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -350,7 +368,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--common-envelope-slope-kruckow``
    * - Header String:
-     - CE_Slope_Kruckow
+     - PO_CE_Slope_Kruckow
 
 .. _spec-options-props-D:
 
@@ -372,7 +390,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--eccentricity``
    * - Header String:
-     - Eccentricity
+     - PO_Eccentricity
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -388,7 +406,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--eccentricity-distribution``
    * - Header String:
-     - Eccentricity_Dstrbtn
+     - PO_Eccentricity_Dstrbtn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -404,7 +422,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--eccentricity-max``
    * - Header String:
-     - Eccentricity_Dstrbtn_Max
+     - PO_Eccentricity_Dstrbtn_Max
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -420,7 +438,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--eccentricity-min``
    * - Header String:
-     - Eccentricity_Dstrbtn_Min
+     - PO_Eccentricity_Dstrbtn_Min
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -436,7 +454,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--eddington-accretion-factor``
    * - Header String:
-     - Eddington_Accr_Factor
+     - PO_Eddington_Accr_Factor
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -452,7 +470,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--envelope-state-prescription``
    * - Header String:
-     - Envelope_State_Prscrptn
+     - PO_Envelope_State_Prscrptn
 
 .. _spec-options-props-F:
 
@@ -472,7 +490,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--fryer-supernova-engine``
    * - Header String:
-     - Fryer_SN_Engine
+     - PO_Fryer_SN_Engine
 
 .. _spec-options-props-G:
 
@@ -496,7 +514,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--initial-mass``
    * - Header String:
-     - Initial_Mass
+     - PO_Initial_Mass
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -512,7 +530,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--initial-mass-1``
    * - Header String:
-     - Initial_Mass(1)
+     - PO_Initial_Mass(1)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -528,7 +546,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--initial-mass-2``
    * - Header String:
-     - Initial_Mass(2)
+     - PO_Initial_Mass(2)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -544,7 +562,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--initial-mass-function``
    * - Header String:
-     - Initial_Mass_Function
+     - PO_Initial_Mass_Function
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -560,7 +578,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--initial-mass-max``
    * - Header String:
-     - Initial_Mass_Func_Max
+     - PO_Initial_Mass_Func_Max
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -576,7 +594,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--initial-mass-min``
    * - Header String:
-     - Initial_Mass_Func_Min
+     - PO_Initial_Mass_Func_Min
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -592,13 +610,31 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--initial-mass-power``
    * - Header String:
-     - Initial_Mass_Func_Power
+     - PO_Initial_Mass_Func_Power
 
 .. _spec-options-props-J:
 
 .. _spec-options-props-K:
 
 :ref:`Back to Top <spec-options-props-top>`
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **KICK_DIRECTION**
+     -
+   * - Data type:
+     - INT
+   * - COMPAS variable:
+     - Options::m_KickDirectionDistribution
+   * - Description:
+     - Value of program option ``--kick-direction``
+   * - Header String:
+     - PO_Kick_Direction_Dstrbtn
+
+DEPRECATION NOTICE: property ``KICK_DIRECTION`` has been deprecated and will soon be removed. Please use ``KICK_DIRECTION_DISTRIBUTION`` in future.
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -612,9 +648,9 @@ Following is an alphabetical list of program option properties available for inc
    * - COMPAS variable:
      - Options::m_KickDirectionDistribution
    * - Description:
-     - Value of program option ``--kick-direction``
+     - Value of program option ``--kick-direction-distribution``
    * - Header String:
-     - Kick_Direction_Dstrbtn
+     - PO_Kick_Direction_Dstrbtn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -630,7 +666,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-direction-power``
    * - Header String:
-     - Kick_Direction_Power
+     - PO_Kick_Direction_Power
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -646,7 +682,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-scaling-factor``
    * - Header String:
-     - Kick_Scaling_Factor
+     - PO_Kick_Scaling_Factor
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -662,7 +698,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-magnitude``
    * - Header String:
-     - Kick_Magnitude
+     - PO_Kick_Magnitude
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -678,7 +714,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-magnitude-1``
    * - Header String:
-     - Kick_Magnitude(1)
+     - PO_Kick_Magnitude(1)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -694,7 +730,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-magnitude-2``
    * - Header String:
-     - Kick_Magnitude(2)
+     - PO_Kick_Magnitude(2)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -710,7 +746,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-magnitude-distribution``
    * - Header String:
-     - Kick_Magnitude_Dstrbtn
+     - PO_Kick_Magnitude_Dstrbtn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -726,7 +762,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-magnitude-max``
    * - Header String:
-     - Kick_Magnitude_Dstrbtn_Max
+     - PO_Kick_Magnitude_Dstrbtn_Max
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -742,7 +778,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-magnitude-sigma-CCSN-BH``
    * - Header String:
-     - Sigma_Kick_CCSN_BH
+     - PO_Sigma_Kick_CCSN_BH
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -758,7 +794,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-magnitude-sigma-CCSN-NS``
    * - Header String:
-     - Sigma_Kick_CCSN_NS
+     - PO_Sigma_Kick_CCSN_NS
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -774,7 +810,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-magnitude-sigma-ECSN``
    * - Header String:
-     - Sigma_Kick_ECSN
+     - PO_Sigma_Kick_ECSN
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -790,7 +826,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-magnitude-sigma-USSN``
    * - Header String:
-     - Sigma_Kick_USSN
+     - PO_Sigma_Kick_USSN
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -806,7 +842,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-mean-anomaly-1``
    * - Header String:
-     - Kick_Mean_Anomaly(1)
+     - PO_Kick_Mean_Anomaly(1)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -822,7 +858,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-mean-anomaly-2``
    * - Header String:
-     - Kick_Mean_Anomaly(2)
+     - PO_Kick_Mean_Anomaly(2)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -838,7 +874,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-magnitude-random``
    * - Header String:
-     - Kick_Magnitude_Random
+     - PO_Kick_Magnitude_Random
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -854,7 +890,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-magnitude-random-1``
    * - Header String:
-     - Kick_Magnitude_Random(1)
+     - PO_Kick_Magnitude_Random(1)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -870,7 +906,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-magnitude-random-2``
    * - Header String:
-     - Kick_Magnitude_Random(2)
+     - PO_Kick_Magnitude_Random(2)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -886,7 +922,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-phi-1``
    * - Header String:
-     - Kick_Mean_Phi(1)
+     - PO_Kick_Mean_Phi(1)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -902,7 +938,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-phi-2``
    * - Header String:
-     - Kick_Mean_Phi(2)
+     - PO_Kick_Mean_Phi(2)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -918,7 +954,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-theta-1``
    * - Header String:
-     - Kick_Mean_Theta(1)
+     - PO_Kick_Mean_Theta(1)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -934,7 +970,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--kick-theta-2``
    * - Header String:
-     - Kick_Mean_Theta(2)
+     - PO_Kick_Mean_Theta(2)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -950,7 +986,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--luminous-blue-variable-multiplier``
    * - Header String:
-     - LBV_Factor
+     - PO_LBV_Factor
 
 .. _spec-options-props-L:
 
@@ -970,7 +1006,27 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--luminous-blue-variable-prescription``
    * - Header String:
-     - LBV_Mass_Loss_Prscrptn
+     - PO_LBV_Mass_Loss_Prscrptn
+
+DEPRECATION NOTICE: property ``LBV_PRESCRIPTION`` has been deprecated and will soon be removed. Please use ``LBV_MASS_LOSS_PRESCRIPTION`` in future.
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **LBV_MASS_LOSS_PRESCRIPTION**
+     -
+   * - Data type:
+     - INT
+   * - COMPAS variable:
+     - Options::m_LuminousBlueVariablePrescription
+   * - Description:
+     - Value of program option ``--LBV-mass-loss-prescription``
+   * - Header String:
+     - PO_LBV_Mass_Loss_Prscrptn
+
+:ref:`Back to Top <spec-options-props-top>`
 
 .. _spec-options-props-M:
 
@@ -990,7 +1046,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--mass-loss-prescription``
    * - Header String:
-     - Mass_Loss_Prscrptn
+     - PO_Mass_Loss_Prscrptn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1006,7 +1062,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``-``-mass-ratio``
    * - Header String:
-     - Mass_Ratio
+     - PO_Mass_Ratio
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1022,7 +1078,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--mass-ratio-distribution``
    * - Header String:
-     - Mass_Ratio_Dstrbtn
+     - PO_Mass_Ratio_Dstrbtn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1038,7 +1094,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--mass-ratio-max``
    * - Header String:
-     - Mass_Ratio_Dstrbtn_Max
+     - PO_Mass_Ratio_Dstrbtn_Max
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1054,7 +1110,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--mass-ratio-min``
    * - Header String:
-     - Mass_Ratio_Dstrbtn_Min
+     - PO_Mass_Ratio_Dstrbtn_Min
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1070,7 +1126,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--maximum-evolution-time``
    * - Header String:
-     - Max_Evolution_Time
+     - PO_Max_Evolution_Time
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1086,7 +1142,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--maximum-mass-donor-nandez-ivanova``
    * - Header String:
-     - Max_Donor_Mass
+     - PO_Max_Donor_Mass
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1102,7 +1158,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--maximum-neutron-star-mass``
    * - Header String:
-     - Max_NS_Mass
+     - PO_Max_NS_Mass
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1118,7 +1174,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--maximum-number-timestep-iterations``
    * - Header String:
-     - Max_Timesteps
+     - PO_Max_Timesteps
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1134,7 +1190,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--mcbur1``
    * - Header String:
-     - MCBUR1
+     - PO_MCBUR1
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1150,7 +1206,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--metallicity``
    * - Header String:
-     - Metallicity
+     - PO_Metallicity
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1166,7 +1222,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--metallicity-distribution``
    * - Header String:
-     - Metallicity_Dstrbtn
+     - PO_Metallicity_Dstrbtn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1182,7 +1238,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--metallicity-max``
    * - Header String:
-     - Metallicity_Dstrbtn_Max
+     - PO_Metallicity_Dstrbtn_Max
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1198,7 +1254,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--metallicity-min``
    * - Header String:
-     - Metallicity_Dstrbtn_Min
+     - PO_Metallicity_Dstrbtn_Min
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1214,7 +1270,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--minimum-secondary-mass``
    * - Header String:
-     - Min_Secondary_Mass
+     - PO_Min_Secondary_Mass
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1230,7 +1286,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--mass-transfer-accretion-efficiency-prescription``
    * - Header String:
-     - MT_Acc_Efficiency_Prscrptn
+     - PO_MT_Acc_Efficiency_Prscrptn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1246,7 +1302,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--mass-transfer-angular-momentum-loss-prescription``
    * - Header String:
-     - MT_AngMom_Loss_Prscrptn
+     - PO_MT_AngMom_Loss_Prscrptn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1262,7 +1318,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--mass-transfer-fa``
    * - Header String:
-     - MT_Fraction_Accreted
+     - PO_MT_Fraction_Accreted
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1278,7 +1334,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--mass-transfer-jloss``
    * - Header String:
-     - MT_JLoss
+     - PO_MT_JLoss
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1294,7 +1350,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--mass-transfer-thermal-limit-C``
    * - Header String:
-     - MT_Thermal_Limit_C
+     - PO_MT_Thermal_Limit_C
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1310,7 +1366,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--mass-transfer-rejuvenation-prescription``
    * - Header String:
-     - MT_Rejuvenation_Prscrptn
+     - PO_MT_Rejuvenation_Prscrptn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1326,7 +1382,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--mass-transfer-thermal-limit-accretor``
    * - Header String:
-     - MT_Thermally_Lmtd_Variation
+     - PO_MT_Thermally_Lmtd_Variation
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1342,7 +1398,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--muller-mandel-kick-multiplier-BH``
    * - Header String:
-     - MM_Kick_Multiplier_BH
+     - PO_MM_Kick_Multiplier_BH
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1358,7 +1414,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--muller-mandel-kick-multiplier-NS``
    * - Header String:
-     - MM_Kick_Multiplier_NS
+     - PO_MM_Kick_Multiplier_NS
 
 .. _spec-options-props-N:
 
@@ -1378,7 +1434,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--neutrino-mass-loss-BH-formation``
    * - Header String:
-     - Neutrino_Mass_Loss_Assmptn
+     - PO_Neutrino_Mass_Loss_Assmptn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1394,7 +1450,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--neutrino-mass-loss-BH-formation-value``
    * - Header String:
-     - Neutrino_Mass_Loss_Value
+     - PO_Neutrino_Mass_Loss_Value
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1426,7 +1482,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--neutron-star-equation-of-state``
    * - Header String:
-     - NS_EOS
+     - PO_NS_EOS
 
 .. _spec-options-props-O:
 
@@ -1446,7 +1502,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--orbital-period``
    * - Header String:
-     - Orbital_Period
+     - PO_Orbital_Period
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1462,7 +1518,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--orbital-period-distribution``
    * - Header String:
-     - Orbital_Period_Dstrbtn
+     - PO_Orbital_Period_Dstrbtn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1478,7 +1534,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--orbital-period-max``
    * - Header String:
-     - Orbital_Period_Max
+     - PO_Orbital_Period_Max
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1494,7 +1550,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--orbital-period-min``
    * - Header String:
-     - Orbital_Period_Min
+     - PO_Orbital_Period_Min
 
 .. _spec-options-props-P:
 
@@ -1514,7 +1570,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--PISN-lower-limit``
    * - Header String:
-     - PISN_Lower_Limit
+     - PO_PISN_Lower_Limit
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1530,7 +1586,23 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--PISN-upper-limit``
    * - Header String:
-     - PISN_Upper_Limit
+     - PO_PISN_Upper_Limit
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **PPI_CO_CORE_SHIFT_HENDRIKS**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_PulsationalPairInstabilityCOCoreShiftHendriks
+   * - Description:
+     - Value of program option ``--PPI-CO-Core-Shift-Hendriks``
+   * - Header String:
+     - PO_PPI_CO_CORE_SHIFT_HENDRIKS
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1546,7 +1618,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--PPI-lower-limit``
    * - Header String:
-     - PPI_Lower_Limit
+     - PO_PPI_Lower_Limit
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1562,7 +1634,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--pulsational-pair-instability-prescription``
    * - Header String:
-     - PPI_Prscrptn
+     - PO_PPI_Prscrptn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1578,7 +1650,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--PPI-upper-limit``
    * - Header String:
-     - PPI_Upper_Limit
+     - PO_PPI_Upper_Limit
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1594,7 +1666,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--pulsar-birth-magnetic-field-distribution``
    * - Header String:
-     - Pulsar_Mag_Field_Dstrbtn
+     - PO_Pulsar_Mag_Field_Dstrbtn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1610,7 +1682,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--pulsar-birth-magnetic-field-distribution-max``
    * - Header String:
-     - Pulsar_Mag_Field_Dstrbtn_Max
+     - PO_Pulsar_Mag_Field_Dstrbtn_Max
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1626,7 +1698,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--pulsar-birth-magnetic-field-distribution-min``
    * - Header String:
-     - Pulsar_Mag_Field_Dstrbtn_Min
+     - PO_Pulsar_Mag_Field_Dstrbtn_Min
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1642,7 +1714,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--pulsar-birth-spin-period-distribution``
    * - Header String:
-     - Pulsar_Spin_Period_Dstrbtn
+     - PO_Pulsar_Spin_Period_Dstrbtn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1658,7 +1730,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--pulsar-birth-spin-period-distribution-max``
    * - Header String:
-     - Pulsar_Spin_Period_Dstrbtn_Max
+     - PO_Pulsar_Spin_Period_Dstrbtn_Max
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1674,7 +1746,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--pulsar-birth-spin-period-distribution-min``
    * - Header String:
-     - Pulsar_Spin_Period_Dstrbtn_Min
+     - PO_Pulsar_Spin_Period_Dstrbtn_Min
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1690,7 +1762,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--pulsar-magnetic-field-decay-massscale``
    * - Header String:
-     - Pulsar_Mag_Field_Decay_mScale
+     - PO_Pulsar_Mag_Field_Decay_mScale
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1706,7 +1778,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--pulsar-magnetic-field-decay-timescale``
    * - Header String:
-     - Pulsar_Mag_Field_Decay_tScale
+     - PO_Pulsar_Mag_Field_Decay_tScale
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1722,7 +1794,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--pulsar-minimum-magnetic-field``
    * - Header String:
-     - Pulsar_Minimum_Mag_Field
+     - PO_Pulsar_Minimum_Mag_Field
 
 .. _spec-options-props-Q:
 
@@ -1744,7 +1816,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--random-seed``
    * - Header String:
-     - SEED(OPTION)
+     - PO_SEED(OPTION)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1760,7 +1832,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--random-seed`` (specified on the commandline)
    * - Header String:
-     - SEED(CMDLINE)
+     - PO_SEED(CMDLINE)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1776,7 +1848,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--remnant-mass-prescription``
    * - Header String:
-     - Remnant_Mass_Prscrptn
+     - PO_Remnant_Mass_Prscrptn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1792,7 +1864,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--rotational-velocity-distribution``
    * - Header String:
-     - Rotational_Velocity_Dstrbtn
+     - PO_Rotational_Velocity_Dstrbtn
 
 .. _spec-options-props-S:
 
@@ -1812,7 +1884,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--semi-major-axis``
    * - Header String:
-     - Semi-Major_Axis
+     - PO_Semi-Major_Axis
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1828,7 +1900,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--semi-major-axis-distribution``
    * - Header String:
-     - Semi-Major_Axis_Dstrbtn
+     - PO_Semi-Major_Axis_Dstrbtn
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1844,7 +1916,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--semi-major-axis-max``
    * - Header String:
-     - Semi-Major_Axis_Dstrbtn_Max
+     - PO_Semi-Major_Axis_Dstrbtn_Max
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1860,7 +1932,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--semi-major-axis-min``
    * - Header String:
-     - Semi-Major_Axis_Dstrbtn_Min
+     - PO_Semi-Major_Axis_Dstrbtn_Min
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1876,7 +1948,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--stellar-zeta-prescription``
    * - Header String:
-     - Stellar_Zeta_Prscrptn
+     - PO_Stellar_Zeta_Prscrptn
 
 .. _spec-options-props-T:
 
@@ -1902,7 +1974,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--wolf-rayet-multiplier``
    * - Header String:
-     - WR_Factor
+     - PO_WR_Factor
 
 .. _spec-options-props-X:
 
@@ -1926,7 +1998,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--zeta-adiabatic-arbitrary``
    * - Header String:
-     - Zeta_Adiabatic_Arbitrary
+     - PO_Zeta_Adiabatic_Arbitrary
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1942,7 +2014,7 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--zeta-main-sequence``
    * - Header String:
-     - Zeta_Main_Sequence_Giant
+     - PO_Zeta_Main_Sequence_Giant
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1958,5 +2030,5 @@ Following is an alphabetical list of program option properties available for inc
    * - Description:
      - Value of program option ``--zeta-radiative-envelope-giant``
    * - Header String:
-     - Zeta_Radiative_Envelope_Giant
+     - PO_Zeta_Radiative_Envelope_Giant
 

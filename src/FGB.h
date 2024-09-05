@@ -16,6 +16,8 @@ class FGB: virtual public BaseStar, public HG {
 
 public:
 
+    FGB() { m_StellarType = STELLAR_TYPE::FIRST_GIANT_BRANCH; };
+    
     FGB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HG(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::FIRST_GIANT_BRANCH;                                                                                                                                           // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                                             // Initialise if required
@@ -81,7 +83,7 @@ protected:
     bool            IsEndOfPhase() const                                                            { return !ShouldEvolveOnPhase(); }                                                              // Phase ends when age at or after He ignition timescale
     bool            IsSupernova() const                                                             { return false; }                                                                               // Not here
 
-    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
+    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
     void            ResolveHeliumFlash();
     STELLAR_TYPE    ResolveSkippedPhase()                                                           { return STELLAR_TYPE::CORE_HELIUM_BURNING; }                                                   // Evolve to CHeB if phase is skipped
 

@@ -16,6 +16,8 @@ class HeWD: virtual public BaseStar, public WhiteDwarfs {
 
 public:
 
+    HeWD() { m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF; };
+    
     HeWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), WhiteDwarfs(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF;               // Set stellar type
         if (p_Initialise) Initialise();                                 // Initialise if required
@@ -35,14 +37,11 @@ public:
 
 
     // member functions
-    static  double      CalculateLuminosityOnPhase_Static(const double p_Mass, 
-                                                          const double p_Time, 
-                                                          const double p_Metallicity)   { return WhiteDwarfs::CalculateLuminosityOnPhase_Static(p_Mass, 
-                                                                                                                                                p_Time, 
-                                                                                                                                                p_Metallicity, 
-                                                                                                                                                WD_Baryon_Number.at(STELLAR_TYPE::HELIUM_WHITE_DWARF)); }
-    ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
-                                              const double p_DonorThermalMassLossRate);
+    static  double  CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Time, const double p_Metallicity) {
+                        return WhiteDwarfs::CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity, WD_Baryon_Number.at(STELLAR_TYPE::HELIUM_WHITE_DWARF));
+                    }
+
+    ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate);
 
 protected:
 
@@ -56,14 +55,14 @@ protected:
         m_lambdaRitter             = CalculatelambdaRitter();
         m_IsSubChandrasekharTypeIa = false; 
         m_ShouldRejuvenate         = false;
-        m_AccretionRegime          = ACCRETION_REGIME::NONE;
+        m_AccretionRegime          = ACCRETION_REGIME::ZERO;
     }
 
 
     // member functions - alphabetically
-    double          CalculateLambdaDewi() const                                                             { return BaseStar::CalculateLambdaDewi(); }                                     // Not supported - use BaseStar
-    double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }                 // Not supported - use BaseStar (0.0 are dummy values)    JR: todo: check this (type 10 not mentioned as not supported in original code)
-    double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const             { return CalculateLambdaNanjingStarTrack(0.0, 0.0); }                           // 0.0 are dummy values that are not used
+    double          CalculateLambdaDewi() const                                                             { return BaseStar::CalculateLambdaDewi(); }
+    double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }
+    double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const { return CalculateLambdaNanjingStarTrack(0.0, 0.0); }
     double          CalculateLuminosityOnPhase(const double p_Mass,
                                                const double p_Time,
                                                const double p_Metallicity) const                            { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }

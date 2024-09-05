@@ -14,7 +14,11 @@ class MainSequence: virtual public BaseStar {
 
 public:
 
+    MainSequence(){};
+
     MainSequence(const BaseStar& p_BaseStar) : BaseStar(p_BaseStar) {}
+
+    MT_CASE DetermineMassTransferTypeAsDonor() const                                        { return MT_CASE::A; }                                                  // Always case A
 
 
 protected:
@@ -59,6 +63,8 @@ protected:
 
     double          CalculateRadialExtentConvectiveEnvelope() const;
 
+    double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const;
+
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Time, const double p_RZAMS) const;
     double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_RZAMS) const;
     double          CalculateRadiusAtPhaseEnd() const                                       { return CalculateRadiusAtPhaseEnd(m_Mass, m_RZAMS); }                  // Use class member variables
@@ -81,11 +87,14 @@ protected:
 
     void            PerturbLuminosityAndRadius() { }                                                                                                                // NO-OP
 
-    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
+    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
 
     bool            ShouldEvolveOnPhase() const                                             { return (m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]); }    // Evolve on MS phase if age in MS timescale
 
     void            UpdateInitialMass()                                                     { m_Mass0 = m_Mass; }                                                   // Per Hurley et al. 2000, section 7.1
+   
+    void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass);
+    
     void            UpdateAgeAfterMassLoss();                                                                                                                       // Per Hurley et al. 2000, section 7.1
     
     void            UpdateMinimumCoreMass();                                                                                                                        // Set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass

@@ -514,6 +514,7 @@ Following is an alphabetical list of stellar properties available for inclusion 
      - `derived from` BaseStar::m_Error
    * - Description:
      - Error number (if error condition exists, else 0).
+       Refer to :doc:`../Handling errors/error-table` for possible values.
    * - Header Strings:
      - Error, Error(1), Error(2), Error(SN), Error(CP)
 
@@ -529,22 +530,8 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - COMPAS variable:
      - `derived from` BaseStar::m_EvolutionStatus
    * - Description:
-     - Final evolution status (reason stellar evolution was stopped). Will be printed as one of:
-
-        .. list-table::
-           :widths: 35 5
-           :header-rows: 0
-           :class: aligned-text
-
-           * - Simulation completed 
-             - = 1
-           * - Evolution stopped because an error occurred 
-             - = 2
-           * - Allowed time exceeded 
-             - = 3
-           * - Allowed timesteps exceeded 
-             - = 4
-
+     - Final evolution status.
+       Refer to :doc:`../Handling errors/evolution-status-table` for possible values.
    * - Header Strings:
      - Evolution_Status
 
@@ -1349,7 +1336,7 @@ the other is printed in any file, but not both. If both are printed then the fil
    * - COMPAS variable:
      - BaseStar::m_Mdot
    * - Description:
-     - Mass loss rate (\ :math:`M_\odot yr^{−1}`).
+     - Mass loss rate in winds (\ :math:`M_\odot yr^{−1}`).
    * - Header Strings:
      - Mdot, Mdot(1), Mdot(2), Mdot(SN), Mdot(CP)
 

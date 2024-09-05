@@ -14,8 +14,11 @@ class ONeWD: virtual public BaseStar, public WhiteDwarfs {
 
 public:
 
+    ONeWD() { m_StellarType = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF; };
+    
     ONeWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), WhiteDwarfs(p_BaseStar) {
-        if (p_Initialise) Initialise();
+        m_StellarType = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;                                                                                                      // Set stellar type
+        if (p_Initialise) Initialise();                                                                                                                             // Initialise if required
     }
 
     ONeWD* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
@@ -45,10 +48,10 @@ protected:
     void Initialise() {
         m_StellarType = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;                                                                                                      // Set stellar type
         CalculateTimescales();                                                                                                                                      // Initialise timescales
-        m_Age = 0.0;                                                                                                                                                // Set age appropriately
-        m_HShell = 0.0; // Initialize hydrogen shell
-        m_HeShell = 0.0; // Initialize helium shell
-        m_AccretionRegime = ACCRETION_REGIME::NONE;
+        m_Age             = 0.0;                                                                                                                                                // Set age appropriately
+        m_HShell          = 0.0;                                                                                                                                    // Initialize hydrogen shell
+        m_HeShell         = 0.0;                                                                                                                                    // Initialize helium shell
+        m_AccretionRegime = ACCRETION_REGIME::ZERO;
     }
 
 
