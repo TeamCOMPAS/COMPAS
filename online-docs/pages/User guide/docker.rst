@@ -22,7 +22,7 @@ machine or other containers\*.
 Containers are instances of images. An image is a pre-defined
 setup/environment that is instantiated when started as a container
 (containers are to images what objects are to classes). More
-`here <https://stackoverflow.com/questions/23735149/what-is-the-difference-between-a-docker-image-and-a-container#:~:text=An%20instance%20of%20an%20image,of%20layers%20as%20you%20describe.&text=You%20can%20see%20all%20your,an%20image%20is%20a%20container.>`__
+`here <https://stackoverflow.com/questions/23735149/what-is-the-difference-between-a-docker-image-and-a-container>`__
 on the relationship between images and container.
 
 Containers are (almost) always run as a Linux environment. A major
@@ -87,7 +87,7 @@ more complex.
     -e COMPAS_EXECUTABLE_PATH=/app/COMPAS/bin/COMPAS        \
     -e COMPAS_LOGS_OUTPUT_DIR_PATH=/app/COMPAS/logs         \
     teamcompas/compas                                       \
-    python3 /app/starts/runSubmit.py                     
+    python3 /app/starts/runSubmit.py
 
 Breaking down this command:
 
@@ -96,12 +96,12 @@ creates a container
 
 ``--rm``
 `Clean
-up <https://docs.docker.com/engine/reference/run/#clean-up---rm>`__
+up <https://docs.docker.com/engine/containers/run/#clean-up>`__
 destroy the container once it finishes running the command
 
 ``-it``
 short for `-i and
--t <https://docs.docker.com/engine/reference/run/#foreground>`__ -
+-t <https://docs.docker.com/engine/containers/run/#foreground>`__ -
 provides an interactive terminal
 
 ``-v <path-on-host>:<path-in-container>``
@@ -111,16 +111,16 @@ This time we not only want to get the output from COMPAS on the host
 machine, we also want to supply a ``runSubmit.py`` to the container
 from the host machine.
 
-NOTE: if you decide to execute using ``runSubmit.py``, you will need 
-a ``compasConfigDefault.yaml``  file in the same directory. This file 
+NOTE: if you decide to execute using ``runSubmit.py``, you will need
+a ``compasConfigDefault.yaml``  file in the same directory. This file
 can be find in the same directory as the ``runSubmit.py``, and contains
 the default COMPAS choices for stellar and binary physics. These choices
-can be changed by modifying the options available in the ``compasConfigDefault.yaml`` 
+can be changed by modifying the options available in the ``compasConfigDefault.yaml``
 file.
 
 ``-e VAR_NAME=value``
 `Environment
-variables <https://docs.docker.com/engine/reference/run/#env-environment-variables>`__
+variables <https://docs.docker.com/engine/containers/run/#env-environment-variables>`__
 set the environment variable ``VAR_VAME`` to ``value``
 
 ``teamcompas/compas``
@@ -218,11 +218,11 @@ You could copy/paste the following into the terminal...
 ::
 
     docker run --rm -d -v $(pwd)/compas-logs/run_0:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_01.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
-    
+
     docker run --rm -d -v $(pwd)/compas-logs/run_1:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_02.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
-    
+
     docker run --rm -d -v $(pwd)/compas-logs/run_2:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_03.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py &
-    
+
     docker run --rm -d -v $(pwd)/compas-logs/run_3:/app/COMPAS/logs -v $(pwd)/runSubmitMMsolar_04.py:/app/starts/runSubmit.py teamcompas/compas python3 /app/starts/runSubmit.py
 
 ...which would run 4 separate instances of COMPAS, each with its own
@@ -254,7 +254,7 @@ At time of writing, `GitHub
 Actions <https://github.com/features/actions>`__ is facilitating the
 above process. While this is convenient (because it's free and well
 supported) it is quite slow. I have plans to create a
-`runner <https://help.github.com/en/actions/getting-started-with-github-actions/core-concepts-for-github-actions#runner>`__
+`runner <https://help.github.com/en/actions/getting-started-with-github-actions/core-concepts-for-github-actions>`__
 locally with a high core count that can be used to compile COMPAS
 quickly, but haven't gotten around to it yet.
 
@@ -353,6 +353,3 @@ determining the processor type of the **compiling machine**.
 Using -march=native enables all instruction subsets supported by the
 local machine (hence the result might not run on different
 machines).
-
-
-
