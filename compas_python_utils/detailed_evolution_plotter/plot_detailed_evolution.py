@@ -1,6 +1,6 @@
 ###################################################################
 #                                                                 #                                                               
-#  Example of plotting detailed output COMPAS with python         #
+#  Plot the detailed evolution of a COMPAS run                    #
 #                                                                 #
 ###################################################################
 
@@ -11,11 +11,10 @@ import h5py as h5
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import argparse
+import tempfile
 
 HERE = os.path.dirname(os.path.realpath(__file__))
-
-COMPAS_ROOT_DIR = os.path.expandvars(os.environ.get('COMPAS_ROOT_DIR', os.path.join(HERE, '../..')))
-VAN_DEN_HEUVEL_DIR = os.path.join(COMPAS_ROOT_DIR, 'compas_python_utils/detailed_evolution_plotter/van_den_heuvel_figures/')
+VAN_DEN_HEUVEL_DIR = os.path.join(HERE, '/van_den_heuvel_figures/')
 
 
 
@@ -31,10 +30,18 @@ def main():
 
 
 def run_main_plotter(data_path, outdir='.', show=True):
-    Data = h5.File(data_path, 'r')
+
+    ### Collect the raw data and mask for just the end-of-timesteps events
+    RawData = h5.File(data_path, 'r')
+    tf = tempfile.TemporaryFile()
+    Data = h5.File(tf, 'w')
+    maskRecordType4 = RawData['Record_Type'][()] == 4     # Filter first for only end-of-timestep events
+    for key in RawData.keys():
+        Data.create_dataset(key, data=RawData[key][()][maskRecordType4])
+    print(np.unique(Data['Record_Type'][()]))
 
     ### Collect the important events in the detailed evolution
-    events = allEvents(Data).allEvents  # Calculate the events here, for use in plot sizing parameters
+    events = allEvents(Data).allEvents                 # Calculate the events here, for use in plot sizing parameters
     printEvolutionaryHistory(events=events)
 
     ### Produce the two plots
@@ -44,19 +51,22 @@ def run_main_plotter(data_path, outdir='.', show=True):
         plt.show()
 
 
-fontparams = {
-    "font.serif": "Times New Roman",
-    "text.usetex": str(shutil.which("latex") is not None),
-    "axes.grid": "True",
-    "grid.color": "gray",
-    "grid.linestyle": ":",
-    "axes.titlesize": "18",
-    "axes.labelsize": "12",
-    "xtick.labelsize": "10",
-    "ytick.labelsize": "10",
-    "xtick.labelbottom": "True",
-    "legend.framealpha": "1",
-}
+def set_font_params():
+    use_latex = shutil.which("latex") is not None
+    fontparams = {
+        "font.serif": "Times New Roman",
+        "text.usetex": use_latex,
+        "axes.grid": "True",
+        "grid.color": "gray",
+        "grid.linestyle": ":",
+        "axes.titlesize": "18",
+        "axes.labelsize": "12",
+        "xtick.labelsize": "10",
+        "ytick.labelsize": "10",
+        "xtick.labelbottom": "True",
+        "legend.framealpha": "1",
+    }
+    rcParams.update(fontparams)  # Set configurations for uniform plot output
 
 
 ####### Functions to organize and call the plotting functions
@@ -73,9 +83,8 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
     if num_events == 1:
         stopTimeAt = Data['Time'][-1] * 1.05            # Plot all the way to the end of the run if no events beyond ZAMS
     mask = Data['Time'][()] < stopTimeAt                # Mask the data to not include the 'End' events
-    mask &= Data['Record_Type'][()] == 4                # Only include end-of-timestep events
 
-    rcParams.update(fontparams)  # Set configurations for uniform plot output
+    set_font_params()
 
     # Configure 2x2 subplots, for masses, lengths, stellar types, and HR diagram (in order top to bottom left to right)
     fig = plt.figure(figsize=(15, 8))  # W, H
@@ -119,8 +128,7 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
     fig.suptitle('Detailed evolution for seed = {}'.format(Data['SEED'][()][0]), fontsize=18)
     fig.tight_layout(h_pad=1, w_pad=1, rect=(0.08, 0.08, .98, .98), pad=0.)  # (left, bottom, right, top)
 
-    plt.savefig(f'{outdir}/detailedEvolutionPlot.eps', bbox_inches='tight', pad_inches=0, format='eps')
-    return fig
+    safe_save_figure(fig, f'{outdir}/detailedEvolutionPlot.png', bbox_inches='tight', pad_inches=0, format='png')
 
 
 ######## Plotting functions
@@ -309,7 +317,7 @@ def plotVanDenHeuvel(events=None, outdir='.'):
         axs[ii].yaxis.set_label_position("right")
         plt.subplots_adjust(hspace=0)
 
-        if ii == 0:
+        if (ii == 0) or (ii == num_events - 1): 
             pltString = "$t$ = {:.1f} Myr, $a$ = {:.1f} $R_\odot$ \n $M_1$ = {:.1f} $M_\odot$, $M_2$ = {:.1f} $M_\odot$ \n" + \
                         events[ii].eventString
             pltString = pltString.format(events[ii].time, events[ii].a, events[ii].m1, events[ii].m2)
@@ -326,7 +334,7 @@ def plotVanDenHeuvel(events=None, outdir='.'):
                          fontweight='bold')
 
     file_path = os.path.join(outdir, 'vanDenHeuvelPlot.eps')
-    plt.savefig(file_path, bbox_inches='tight', pad_inches=0, format='eps')
+    safe_save_figure(fig, file_path, bbox_inches='tight', pad_inches=0, format='eps')
     return fig
 
 
@@ -409,14 +417,6 @@ class Event(object):
             self.m1prev = Data['Mass(1)'][ii - 1]
             self.m2prev = Data['Mass(2)'][ii - 1]
             self.aprev = Data['SemiMajorAxis'][ii - 1]
-        # Cheap kludge for SN separations - later, should clean up when detailed printing is called
-        if eventClass == 'SN':
-            try:  # Bad form to do a try except, but this works for now
-                self.a = Data['SemiMajorAxis'][ii + 1]
-                self.aprev = Data['SemiMajorAxis'][ii]
-            except:
-                self.a = Data['SemiMajorAxis'][ii]
-                self.aprev = Data['SemiMajorAxis'][ii - 1]
         self.stype1 = Data['Stellar_Type(1)'][ii]
         self.stype2 = Data['Stellar_Type(2)'][ii]
         self.stypeName1 = stellarTypeMap[self.stype1]
@@ -694,6 +694,18 @@ def printFormattedEvolutionLine(time, event, m1, t1, m2, t2, a, e):
     print(
         "{:10.6f}   {:31}  {:7.3f}    {:2}    {:7.3f}    {:2}   {:8.3f}  {:5.3f}".format(time, event, m1, t1, m2, t2, a,
                                                                                          e))
+
+
+def safe_save_figure(fig, filename, **kwargs):
+    # make the directory if it doesn't exist
+    dirname = os.path.dirname(filename)
+    os.makedirs(dirname, exist_ok=True)
+    try:
+        fig.savefig(fname=filename, **kwargs)
+    except RuntimeError:
+        print("Failed to save plot with tex labels turning off tex and reattempting.")
+        rcParams["text.usetex"] = False
+        fig.savefig(fname=filename, **kwargs)
 
 
 if __name__ == "__main__":

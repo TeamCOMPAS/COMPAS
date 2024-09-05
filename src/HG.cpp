@@ -28,7 +28,6 @@ double HG::CalculateRho(const double p_Mass) const {
 }
 
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                                LAMBDA CALCULATIONS                                //
@@ -60,7 +59,7 @@ double HG::CalculateLambdaDewi() const {
     double lambdaCE;
 
          if (utils::Compare(envMass, 1.0) >= 0) lambdaCE = 2.0 * lambda1;                                                   // (A.1) Bottom, Claeys+2014
-	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (std::sqrt(envMass) * (lambda1 - lambda2)));         // (A.1) Mid, Claeys+2014
+	else if (utils::Compare(envMass, 0.0) >  0) lambdaCE = 2.0 * (lambda2 + (std::sqrt(envMass) * (lambda1 - lambda2)));    // (A.1) Mid, Claeys+2014
 	else                                        lambdaCE = 2.0 * lambda2;			                                        // (A.1) Top, Claeys+2014
 
 	return	lambdaCE;
@@ -74,25 +73,28 @@ double HG::CalculateLambdaDewi() const {
  * This function good for HG and FGB stars.
  *
  *
- * double CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
- *
+ * double CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop)
+ * 
+ * @param   [IN]    p_MassIndex                 Mass index
+ * @param   [IN]    p_StellarPop                The stellar population for metallicity (POP I or POP II)
+ * 
  * @return                                      Nanjing lambda for use in common envelope
  */
-double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const {
+double HG::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const {
 
-	DBL_VECTOR maxBG    = {};                                                           // [0] = maxB, [1] = maxG
-	DBL_VECTOR lambdaBG = {};                                                           // [0] = lambdaB, [1] = lambdaG
-	DBL_VECTOR a        = {};                                                           // 0..5 a_coefficients
-	DBL_VECTOR b        = {};                                                           // 0..5 b_coefficients
-    double     Rmax     = std::numeric_limits<double>::max();                           // Upper R limit to applicability of Nanjing polynomials.
+	DBL_VECTOR maxBG    = {};                                                               // [0] = maxB, [1] = maxG
+	DBL_VECTOR lambdaBG = {};                                                               // [0] = lambdaB, [1] = lambdaG
+	DBL_VECTOR a        = {};                                                               // 0..5 a_coefficients
+	DBL_VECTOR b        = {};                                                               // 0..5 b_coefficients
+    double     Rmax     = std::numeric_limits<double>::max();                               // Upper R limit to applicability of Nanjing polynomials.
 
-    switch(p_Zind) {
+    switch (p_StellarPop) {
         // Pop. I metallicity
-        case 1:
-            switch(p_MassInd) {
+        case STELLAR_POPULATION::POPULATION_I:
+            switch (p_MassIndex) {
                 case 0: {
-                    maxBG = { 2.5, 1.5 };
-                    Rmax = 200.0;
+                    maxBG       = { 2.5, 1.5 };
+                    Rmax        = 200.0;
                     double R_in = std::min(Rmax, m_Radius);
                     if (utils::Compare(R_in, 2.7) > 0) {
                         lambdaBG = { 2.33 - (R_in * 9.18E-03), 1.12 - (R_in * 4.59E-03) };
@@ -105,51 +107,51 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
                 }
                 case 1:
                     maxBG = { 4.0, 2.0 };
-                    Rmax = 340.0;
-                    a = { 2.05363, -0.00685, -3.42739E-04, 3.93987E-06, -1.18237E-08, 0.0 };
-                    b = { 1.07658, -0.01041, -4.90553E-05, 1.13528E-06, -3.91609E-09, 0.0 };
+                    Rmax  = 340.0;
+                    a     = { 2.05363, -0.00685, -3.42739E-04, 3.93987E-06, -1.18237E-08, 0.0 };
+                    b     = { 1.07658, -0.01041, -4.90553E-05, 1.13528E-06, -3.91609E-09, 0.0 };
                     break;
                 case 2:
-                    Rmax = 400.0;
+                    Rmax  = 400.0;
                     maxBG = { 2.5, 1.5 };
                     a     = { 2.40831, -0.42459, 0.03431, -9.26879E-04, 8.24522E-06, 0.0 };
                     b     = { 1.30705, -0.22924, 0.01847, -5.06216E-04, 4.57098E-06, 0.0 };
                     break;
                 case 3:
-                    Rmax = 410.0;
+                    Rmax  = 410.0;
                     maxBG = { 2.5, 1.5 };
                     a     = { 1.8186 , -0.17464, 0.00828, -1.31727E-04, 7.08329E-07, 0.0 };
                     b     = { 1.02183, -0.1024 , 0.00493, -8.16343E-05, 4.55426E-07, 0.0 };
                     break;
                 case 4:
                     maxBG = { 1000.0, 8.0 };
-                    Rmax = 430.0;
-                    a = { 1.52581, -0.08125, 0.00219, -2.0527E-05 , 6.79169E-08, 0.0 };
-                    b = { 0.85723, -0.04922, 0.00137, -1.36163E-05, 4.68683E-08, 0.0 };
+                    Rmax  = 430.0;
+                    a     = { 1.52581, -0.08125, 0.00219, -2.0527E-05 , 6.79169E-08, 0.0 };
+                    b     = { 0.85723, -0.04922, 0.00137, -1.36163E-05, 4.68683E-08, 0.0 };
                     break;
                 case 5:
                     maxBG = { 25.5, 5.0 };
-                    Rmax = 440.0;
-                    a = { 1.41601, -0.04965, 8.51527E-04, -5.54384E-06, 1.32336E-08, 0.0 };
-                    b = { 0.78428, -0.02959, 5.2013E-04 , -3.45172E-06, 8.17248E-09, 0.0 };
+                    Rmax  = 440.0;
+                    a     = { 1.41601, -0.04965, 8.51527E-04, -5.54384E-06, 1.32336E-08, 0.0 };
+                    b     = { 0.78428, -0.02959, 5.2013E-04 , -3.45172E-06, 8.17248E-09, 0.0 };
                     break;
                 case 6:
                     maxBG = { 9.0, 3.0 };
-                    Rmax = 420.0;
-                    a = { 1.38344, -0.04093, 5.78952E-04, -3.19227E-06, 6.40902E-09, 0.0 };
-                    b = { 0.76009, -0.02412, 3.47104E-04, -1.92347E-06, 3.79609E-09, 0.0 };
+                    Rmax  = 420.0;
+                    a     = { 1.38344, -0.04093, 5.78952E-04, -3.19227E-06, 6.40902E-09, 0.0 };
+                    b     = { 0.76009, -0.02412, 3.47104E-04, -1.92347E-06, 3.79609E-09, 0.0 };
                     break;
                 case 7:
                     maxBG = { 7.0, 3.0 };
-                    Rmax = 490.0;
-                    a = { 1.35516, -0.03414, 4.02065E-04, -1.85931E-06, 3.08832E-09, 0.0 };
-                    b = { 0.73826, -0.01995, 2.37842E-04, -1.09803E-06, 1.79044E-09, 0.0 };
+                    Rmax  = 490.0;
+                    a     = { 1.35516, -0.03414, 4.02065E-04, -1.85931E-06, 3.08832E-09, 0.0 };
+                    b     = { 0.73826, -0.01995, 2.37842E-04, -1.09803E-06, 1.79044E-09, 0.0 };
                     break;
                 case 8:
                     maxBG = { 4.0, 2.0 };
-                    Rmax = 530.0;
-                    a = { 1.32549, -0.02845, 2.79097E-04, -1.07254E-06, 1.46801E-09, 0.0 };
-                    b = { 0.71571, -0.01657, 1.64607E-04, -6.31935E-07, 8.52082E-10, 0.0 };
+                    Rmax  = 530.0;
+                    a     = { 1.32549, -0.02845, 2.79097E-04, -1.07254E-06, 1.46801E-09, 0.0 };
+                    b     = { 0.71571, -0.01657, 1.64607E-04, -6.31935E-07, 8.52082E-10, 0.0 };
                     break;
                 case 9:
                     Rmax = 600.0;
@@ -159,7 +161,7 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
                     break;
                 case 10:
                     maxBG = { 1.5, 1.0 };
-                    Rmax = 850.0;
+                    Rmax  = 850.0;
                     if (utils::Compare(m_Radius, 0.0) > 0 && utils::Compare(m_Radius, 350.0) <= 0) {
                         a = { 1.28593, -0.02209, 1.79764E-04, -6.21556E-07, 7.59444E-10, 0.0 };
                         b = { 0.68544, -0.01394, 1.20845E-04, -4.29071E-07, 5.29169E-10, 0.0 };
@@ -175,7 +177,7 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
                     break;
                 case 11:
                     maxBG = { 1.5, 1.0 };
-                    Rmax = 1000.0;
+                    Rmax  = 1000.0;
                     if (utils::Compare(m_Radius, 190.0) > 0 && utils::Compare(m_Radius, 600.0) < 0) lambdaBG = { 0.15, 0.15 };
                     else {
                         a = { 1.39332, -0.0318 , 3.95917E-04, -2.23132E-06, 4.50831E-09, 0.0 };
@@ -184,7 +186,7 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
                     break;
                 case 12:
                     maxBG = { 1.5, 1.0 };
-                    Rmax = 1050.0;
+                    Rmax  = 1050.0;
                     if (utils::Compare(m_Radius, 120.0) > 0 && utils::Compare(m_Radius, 170.0) < 0) lambdaBG = { 0.2, 0.2 };
                     else {
                         a = { 1.43177, -0.03533, 5.11128E-04, -3.57633E-06, 9.36778E-09, 0.0 };
@@ -192,10 +194,10 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
                     }
                     break;
                 case 13: {
-                    maxBG = { 1.5, 1.0 };
-                    Rmax = 1200.0;
+                    maxBG       = { 1.5, 1.0 };
+                    Rmax        = 1200.0;
                     double R_in = std::min(Rmax, m_Radius);
-                    lambdaBG = { 1.2 * exp(-R_in / 90.0), 0.55 * exp(-R_in / 160.0) };
+                    lambdaBG    = { 1.2 * exp(-R_in / 90.0), 0.55 * exp(-R_in / 160.0) };
                     break;
                 }
                 case 14:
@@ -208,15 +210,18 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
                     a     = { 0.376 , -0.0018 , 2.81083E-06, -1.67386E-09, 3.35056E-13, 0.0 };
                     b     = { 0.2466, -0.00121, 1.89029E-06, -1.12066E-09, 2.2258E-13 , 0.0 };
                     break;
-                }
-                break;
+
+                default:                                                                    // mass index out of bounds
+                    THROW_ERROR(ERROR::OUT_OF_BOUNDS, "Mass index");                        // throw error
+            }
+            break;
 
         // Pop. II metallicity
-        case 0:
-            switch(p_MassInd) {
+        case STELLAR_POPULATION::POPULATION_II:
+            switch (p_MassIndex) {
                 case 0: {
                     maxBG = { 2.0, 1.5 };
-                    Rmax = 160.0;
+                    Rmax  = 160.0;
                     double R_in = std::min(Rmax, m_Radius);
                     if (utils::Compare(R_in, 12.0) > 0) {
                         lambdaBG = { 1.8 * exp(-R_in / 80.0), exp(-R_in / 45.0) };
@@ -229,7 +234,7 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
                 }
                 case 1:
                     maxBG = { 4.0, 2.0 };
-                    Rmax = 350.0;
+                    Rmax  = 350.0;
                     if (utils::Compare(m_Radius, 22.0) > 0 && utils::Compare(m_Radius, 87.0) < 0) lambdaBG = { 1.95, 0.85 };
                     else {
                         a = { 2.56108, -0.75562, 0.1027 , -0.00495, 8.05436E-05, 0.0 };
@@ -238,76 +243,76 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
                     break;
                 case 2:
                     maxBG = { 600.0, 2.0 };
-                    Rmax = 400.0;
-                    a = { 1.7814 , -0.17138, 0.00754, -9.02652E-05, 0.0, 0.0 };
-                    b = { 0.99218, -0.10082, 0.00451, -5.53632E-05, 0.0, 0.0 };
+                    Rmax  = 400.0;
+                    a     = { 1.7814 , -0.17138, 0.00754, -9.02652E-05, 0.0, 0.0 };
+                    b     = { 0.99218, -0.10082, 0.00451, -5.53632E-05, 0.0, 0.0 };
                     break;
                 case 3:
                     maxBG = { 600.0, 2.0 };
-                    Rmax = 410.0;
-                    a = { 1.65914, -0.10398, 0.0029 , -2.24862E-05, 0.0, 0.0 };
-                    b = { 0.92172, -0.06187, 0.00177, -1.42677E-05, 0.0, 0.0 };
+                    Rmax  = 410.0;
+                    a     = { 1.65914, -0.10398, 0.0029 , -2.24862E-05, 0.0, 0.0 };
+                    b     = { 0.92172, -0.06187, 0.00177, -1.42677E-05, 0.0, 0.0 };
                     break;
                 case 4:
                     maxBG = { 10.0, 3.0 };
-                    Rmax = 320.0;
-                    a = { 1.58701, -0.06897, 0.00129    , -6.99399E-06, 0.0, 0.0 };
-                    b = { 0.87647, -0.04103, 7.91444E-04, -4.41644E-06, 0.0, 0.0 };
+                    Rmax  = 320.0;
+                    a     = { 1.58701, -0.06897, 0.00129    , -6.99399E-06, 0.0, 0.0 };
+                    b     = { 0.87647, -0.04103, 7.91444E-04, -4.41644E-06, 0.0, 0.0 };
                     break;
                 case 5:
                     maxBG = { 4.0, 1.5 };
-                    Rmax = 330.0;
-                    a = { 1.527  , -0.04738, 6.1373E-04 , -2.36835E-06, 0.0, 0.0 };
-                    b = { 0.83636, -0.02806, 3.73346E-04, -1.47016E-06, 0.0, 0.0 };
+                    Rmax  = 330.0;
+                    a     = { 1.527  , -0.04738, 6.1373E-04 , -2.36835E-06, 0.0, 0.0 };
+                    b     = { 0.83636, -0.02806, 3.73346E-04, -1.47016E-06, 0.0, 0.0 };
                     break;
                 case 6:
                     maxBG = { 2.5, 1.0 };
-                    Rmax = 360.0;
-                    a = { 1.49995, -0.03921, 4.2327E-04, -1.37646E-06, 0.0, 0.0 };
-                    b = { 0.81688, -0.02324, 2.5804E-04, -8.54696E-07, 0.0, 0.0 };
+                    Rmax  = 360.0;
+                    a     = { 1.49995, -0.03921, 4.2327E-04, -1.37646E-06, 0.0, 0.0 };
+                    b     = { 0.81688, -0.02324, 2.5804E-04, -8.54696E-07, 0.0, 0.0 };
                     break;
                 case 7:
                     maxBG = { 2.0, 1.0 };
-                    Rmax = 400.0;
-                    a = { 1.46826, -0.03184, 2.85622E-04, -7.91228E-07, 0.0, 0.0 };
-                    b = { 0.79396, -0.01903, 1.77574E-04, -5.04262E-07, 0.0, 0.0 };
+                    Rmax  = 400.0;
+                    a     = { 1.46826, -0.03184, 2.85622E-04, -7.91228E-07, 0.0, 0.0 };
+                    b     = { 0.79396, -0.01903, 1.77574E-04, -5.04262E-07, 0.0, 0.0 };
                     break;
                 case 8:
                     maxBG = { 1.6, 1.0 };
-                    Rmax = 440.0;
-                    a = { 1.49196, -0.03247, 3.08066E-04, -9.53247E-07, 0.0, 0.0 };
-                    b = { 0.805  , -0.02   , 2.01872E-04, -6.4295E-07 , 0.0, 0.0 };
+                    Rmax  = 440.0;
+                    a     = { 1.49196, -0.03247, 3.08066E-04, -9.53247E-07, 0.0, 0.0 };
+                    b     = { 0.805  , -0.02   , 2.01872E-04, -6.4295E-07 , 0.0, 0.0 };
                     break;
                 case 9: {
-                    maxBG = { 1.6, 1.0 };
-                    Rmax = 500.0;
+                    maxBG       = { 1.6, 1.0 };
+                    Rmax        = 500.0;
                     double R_in = std::min(Rmax, m_Radius);
-                    lambdaBG = { 1.75 * exp(-R_in / 35.0), 0.9 * exp(-R_in /35.0) };
+                    lambdaBG    = { 1.75 * exp(-R_in / 35.0), 0.9 * exp(-R_in /35.0) };
                     break;
                 }
                 case 10:
                     maxBG = { 1.6, 1.0 };
-                    Rmax = 600.0;
-                    a = { 1.63634, -0.04646, 7.49351E-04, -5.23622E-06, 0.0, 0.0 };
-                    b = { 1.17934, -0.08481, 0.00329    , -4.69096E-05, 0.0, 0.0 };
+                    Rmax  = 600.0;
+                    a     = { 1.63634, -0.04646, 7.49351E-04, -5.23622E-06, 0.0, 0.0 };
+                    b     = { 1.17934, -0.08481, 0.00329    , -4.69096E-05, 0.0, 0.0 };
                     break;
                 case 11:
                     maxBG = { 1.6, 1.0 };
-                    Rmax = 650.0;
-                    a = { 1.45573, -0.00937, -0.00131,  3.07004E-05, 0.0, 0.0 };
-                    b = { 1.19526, -0.08503,  0.00324, -4.58919E-05, 0.0, 0.0 };
+                    Rmax  = 650.0;
+                    a     = { 1.45573, -0.00937, -0.00131,  3.07004E-05, 0.0, 0.0 };
+                    b     = { 1.19526, -0.08503,  0.00324, -4.58919E-05, 0.0, 0.0 };
                     break;
                 case 12:
                     maxBG = { 1.5, 1.0 };
-                    Rmax = 750.0;
-                    a = { 1.33378,  0.01274, -0.00234,  4.6036E-05 , 0.0, 0.0 };
-                    b = { 1.17731, -0.07834,  0.00275, -3.58108E-05, 0.0, 0.0 };
+                    Rmax  = 750.0;
+                    a     = { 1.33378,  0.01274, -0.00234,  4.6036E-05 , 0.0, 0.0 };
+                    b     = { 1.17731, -0.07834,  0.00275, -3.58108E-05, 0.0, 0.0 };
                     break;
                 case 13:
                     maxBG = { 1.5, 1.0 };
-                    Rmax = 900.0;
-                    a = { 1.27138,  0.00538, -0.0012 ,  1.80776E-05, 0.0, 0.0 };
-                    b = { 1.07496, -0.05737,  0.00153, -1.49005E-05, 0.0, 0.0 };
+                    Rmax  = 900.0;
+                    a     = { 1.27138,  0.00538, -0.0012 ,  1.80776E-05, 0.0, 0.0 };
+                    b     = { 1.07496, -0.05737,  0.00153, -1.49005E-05, 0.0, 0.0 };
                     break;
                 case 14:
                     maxBG = { 20.0, 3.0 };
@@ -319,12 +324,28 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
                     a     = { 1.25332, -0.02065, 1.3107E-04 , -3.67006E-07, 4.58792E-10, -2.09069E-13 };
                     b     = { 0.81716, -0.01436, 9.31143E-05, -2.6539E-07 , 3.30773E-10, -1.51207E-13 };
                     break;
+
+                default:                                                                    // mass index out of bounds
+                    THROW_ERROR(ERROR::OUT_OF_BOUNDS, "Mass index");                        // throw error
             }
             break;
-        }
+
+        default:                                                                            // unknown stellar population
+            // the only ways this can happen are if someone added a STELLAR_POPULATION
+            // and it isn't accounted for in this code, or if there is a defect in the code that causes
+            // this function to be called with a bad parameter.  We should not default here, with or without
+            // a warning.
+            // We are here because the function was called with a stellar population this code doesn't account
+            // for, or as a result of a code defect, and either of those should be flagged as an error and
+            // result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing population or, if the missing
+            // population is superfluous, remove it, or find and fix the code defect.
+
+            THROW_ERROR(ERROR::UNKNOWN_STELLAR_POPULATION);                                 // throw error
+    }
 
     if (lambdaBG.empty()) {
-        if ( (p_Zind == 1) && (p_MassInd == 0) ) {                        // Pop. I metallicity and M = 1 Msun
+        if (p_StellarPop == STELLAR_POPULATION::POPULATION_I && p_MassIndex == 0) {         // Pop. I metallicity and M = 1 Msun
             double x  = (m_Mass - m_CoreMass) / m_Mass;
             double x2 = x * x;
             double x3 = x2 * x;
@@ -370,7 +391,7 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
  *
  * JR: todo: the coefficients and factors here are hard-coded until I figure out an
  * efficient way of putting them in constants.h.  Because they are indexed by a few
- * things: stellar type, metallicity and ZAMS mass the easiet thing would be to  put
+ * things: stellar type, metallicity and ZAMS mass the easiet thing would be to put
  * them in a map - but because they can be re-calculated at every timestep the hashing
  * overhead becomes a performance concern.  Vectors are a good alternative, but I need
  * to figure out how best to structure them for reasonable (and inuitive) access.
@@ -380,6 +401,9 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
  *
  * double CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity)
  *
+ * @param   [IN]    p_Mass                      Mass
+ * @param   [IN]    p_Metallicity               Metallicity
+ * 
  * @return                                      Nanjing lambda for use in common envelope
  */
 double HG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
@@ -680,7 +704,7 @@ double HG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_M
     lambdaBG[1] = std::min(std::max(0.05, lambdaBG[1]), maxBG[1]);          // clamp lambda G to [0.05, maxG]
 
     // Calculate lambda as some combination of lambda_b and lambda_g by
-    // lambda = alpha_th • lambda_b    +  (1-alpha_th) • lambda_g
+    // lambda = alpha_th • lambda_b + (1-alpha_th) • lambda_g
     // Note that this is different from STARTRACK
     return (OPTIONS->CommonEnvelopeAlphaThermal() * lambdaBG[0]) + ((1.0 - OPTIONS->CommonEnvelopeAlphaThermal()) * lambdaBG[1]);
 }
@@ -821,7 +845,7 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
         // this piece of code resets rx if the blue loop is relatively short
         // see Hurley sse, function tblf() in `zfuncs1.f`
         double r1 = 1.0 - rMinHe / ry;
-        r1 = std::max(r1, 1.0E-12);     // JR: I suspect this is where the check came from in the dicussion re blue loop in CHeB::CalculateTimescales() - I don't like this much...
+        r1        = std::max(r1, 1.0E-12);     // JR: I suspect this is where the check came from in the dicussion re blue loop in CHeB::CalculateTimescales() - I don't like this much... **Ilya**
 
         double tblf = (1.0 - b[47]) * PPOW(p_Mass, b[48]) * PPOW(r1, b[49]);                                        // calculate blue-loop fraction of He-burning
         tblf = std::min(1.0, std::max(0.0, tblf));                                                                  // clamp to [0.0, 1.0]
@@ -923,38 +947,6 @@ double HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(const double p_Mass,
 #undef timescales
 }
 
-/*
- * Calculate rejuvenation factor for stellar age based on mass lost/gained during mass transfer
- *
- * Always returns 1.0 for HG
- * The rest of the code is here so sanity checks can be made and an error displayed if a bad prescription was specified in the program options
- *
- *
- * double CalculateMassTransferRejuvenationFactor()
- *
- * @return                                      Rejuvenation factor
- */
-double HG::CalculateMassTransferRejuvenationFactor() const {
-
-    double fRej = 1.0;
-
-    switch (OPTIONS->MassTransferRejuvenationPrescription()) {          // which rejuvenation prescription?
-
-        case MT_REJUVENATION_PRESCRIPTION::NONE:                        // use default Hurley et al. 2000 prescription = 1.0
-        case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                   // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf
-
-            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {              // Rejuvenation factor is unity for mass losing stars
-                fRej = 1.0;
-            }
-            break;
-
-        default:                                                        // unknown prescription - use default Hurley et al. 2000 prescription = 1.0
-            SHOW_WARN(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION);     // show warning
-    }
-
-    return fRej;
-}
-
 
 /*
  * Determines if mass transfer is unstable according to the critical mass ratio.
@@ -1048,24 +1040,34 @@ void HG::UpdateAgeAfterMassLoss() {
  */
 ENVELOPE HG::DetermineEnvelopeType() const {
  
-    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type is RADIATIVE
+    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type
     
     switch (OPTIONS->EnvelopeStatePrescription()) {                                                  // which envelope prescription?
             
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
-            envelope = ENVELOPE::RADIATIVE;                                                          // default treatment
+            envelope = ENVELOPE::RADIATIVE;
             break;
             
-        case ENVELOPE_STATE_PRESCRIPTION::HURLEY:                                                   // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG; we approximate it as convective here
+        case ENVELOPE_STATE_PRESCRIPTION::HURLEY:
+            // eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual
+            // growth of convective envelope over HG, but we approximate it as already convective here
             envelope = ENVELOPE::CONVECTIVE;
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
-            envelope =  utils::Compare(Temperature() * TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            // envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            envelope =  utils::Compare(Temperature() * TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;
             break;
-            
-        default:                                                                                    // unknown prescription - use default envelope type
-            SHOW_WARN(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION, "Using Envelope = CONVECTIVE");   // show warning
+
+        default:                                                                                    // unknown prescription
+            // the only way this can happen is if someone added an ENVELOPE_STATE_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION);                                // throw error               
     }
     
     return envelope;
@@ -1075,7 +1077,6 @@ ENVELOPE HG::DetermineEnvelopeType() const {
 /*
  * Choose timestep for evolution
  *
- * Can obviously do this your own way
  * Given in the discussion in Hurley et al. 2000
  *
  *
@@ -1087,11 +1088,10 @@ ENVELOPE HG::DetermineEnvelopeType() const {
 double HG::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
-    double dtk      = 0.05 * (timescales(tBGB) - timescales(tMS));
-    double dte      = timescales(tBGB) - p_Time;
-    double timestep = std::max(std::min(dtk, dte), NUCLEAR_MINIMUM_TIMESTEP);
+    double dtk = 0.05 * (timescales(tBGB) - timescales(tMS));
+    double dte = timescales(tBGB) - p_Time;    
 
-    return timestep;
+    return std::max(std::min(dtk, dte), NUCLEAR_MINIMUM_TIMESTEP);
 
 #undef timescales
 }
@@ -1116,17 +1116,21 @@ double HG::ChooseTimestep(const double p_Time) const {
  *     - m_COCoreMass
  *     - m_Age
  *
- * STELLAR_TYPE ResolveEnvelopeLoss()
+ * STELLAR_TYPE ResolveEnvelopeLoss(bool p_Force)
+ *
+ * @param   [IN]    p_Force                     Boolean to indicate whether the resolution of the loss of the envelope should be performed
+ *                                              without checking the precondition(s).
+ *                                              Default is false.
  *
  * @return                                      Stellar Type to which star should evolve after losing envelope
  */
-STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_NoCheck) {
+STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_Force) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]              // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]          // for convenience and readability - undefined at end of function
 
     STELLAR_TYPE stellarType = m_StellarType;
 
-    if (p_NoCheck || utils::Compare(m_CoreMass, m_Mass) >= 0) {                  // envelope loss
+    if (p_Force || utils::Compare(m_CoreMass, m_Mass) >= 0) {                   // envelope loss
 
         m_Mass = std::min(m_CoreMass, m_Mass);
 
@@ -1174,6 +1178,7 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
     else {
         stellarType = STELLAR_TYPE::CORE_HELIUM_BURNING;
     }    
+
     return stellarType;
 
 #undef massCutoffs

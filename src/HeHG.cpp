@@ -32,7 +32,7 @@ void HeHG::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
     double LTHe = HeMS::CalculateLuminosityAtPhaseEnd(p_Mass);
 
     timescales(tinf1_HeGB) = timescales(tHeMS) + (1.0 / ((p1 * gbParams(AHe) * gbParams(D))) * PPOW((gbParams(D) / LTHe), p1_p));
-    timescales(tx_HeGB) = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * PPOW((LTHe / gbParams(Lx)), p1_p);
+    timescales(tx_HeGB)    = timescales(tinf1_HeGB) - (timescales(tinf1_HeGB) - timescales(tHeMS)) * PPOW((LTHe / gbParams(Lx)), p1_p);
     timescales(tinf2_HeGB) = timescales(tx_HeGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
 
 #undef gbParams
@@ -56,20 +56,15 @@ void HeHG::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
  */
 void HeHG::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
 #define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
-    GiantBranch::CalculateGBParams(p_Mass, p_GBParams);                         // calculate common values (actually, all)
+
+    HeMS::CalculateGBParams(p_Mass, p_GBParams);    // calculate common values
 
     // recalculate HeHG specific values
-
-	gbParams(B)      = CalculateCoreMass_Luminosity_B_Static();
-	gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass);
-
-    gbParams(Mx)     = GiantBranch::CalculateCoreMass_Luminosity_Mx_Static(p_GBParams);      // depends on B, D, p & q - recalculate if any of those are changed
-    gbParams(Lx)     = GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // JR: Added this - depends on B, D, p, q & Mx - recalculate if any of those are changed
 
 	gbParams(McBAGB) = CalculateCoreMassAtBAGB();
 	gbParams(McBGB)  = CalculateCoreMassAtBGB(p_Mass, p_GBParams);
 
-    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));   // JR: Added this
+    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));
 
 #undef gbParams
 }
@@ -127,12 +122,12 @@ void HeHG::CalculateGBParams_Static(const double      p_Mass0,
 	gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass);
 
     gbParams(Mx)     = GiantBranch::CalculateCoreMass_Luminosity_Mx_Static(p_GBParams);      // depends on B, D, p & q - recalculate if any of those are changed
-    gbParams(Lx)     = GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // JR: Added this - depends on B, D, p, q & Mx - recalculate if any of those are changed
+    gbParams(Lx)     = GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // depends on B, D, p, q & Mx - recalculate if any of those are changed
 
 	gbParams(McBAGB) = p_Mass0;
 	gbParams(McBGB)  = GiantBranch::CalculateCoreMassAtBGB_Static(p_Mass, p_MassCutoffs, p_AnCoefficients, p_GBParams);
 
-    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));               // JR: Added this
+    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));
 
 #undef gbParams
 }
@@ -225,42 +220,6 @@ double HeHG::CalculateCOCoreMassOnPhase() const {
 
 
 /*
- * Calculate rejuvenation factor for stellar age based on mass lost/gained during mass transfer
- *
- * JR: Description?
- *
- * Always returns 1.0 for HeHG - the rejuvenation factor is unity for convective main sequence stars.
- * The rest of the code is here so sanity checks can be made and an error displayed if a bad prescription
- * was specified in the program options
- *
- *
- * double CalculateMassTransferRejuvenationFactor()
- *
- * @return                                      Rejuvenation factor
- */
-double HeHG::CalculateMassTransferRejuvenationFactor() const {
-
-    double fRej = 1.0;
-
-    switch (OPTIONS->MassTransferRejuvenationPrescription()) {          // which rejuvenation prescription?
-
-        case MT_REJUVENATION_PRESCRIPTION::NONE:                        // use default Hurley et al. 2000 prescription = 1.0
-        case MT_REJUVENATION_PRESCRIPTION::STARTRACK:                   // StarTrack 2008 prescription - section 5.6 of http://arxiv.org/pdf/astro-ph/0511811v3.pdf
-
-            if (utils::Compare(m_Mass, m_MassPrev) <= 0) {              // Rejuvenation factor is unity for mass losing stars
-                fRej = 1.0;
-            }
-            break;
-
-        default:                                                        // unknown prescription - use default Hurley et al. 2000 prescription = 1.0
-            SHOW_WARN(ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION);     // show warning
-    }
-
-    return fRej;
-}
-
-
-/*
  * Calculate the perturbation parameter mu
  *
  * Hurley et al. 2000, eqs 97 & 98
@@ -294,15 +253,18 @@ double HeHG::CalculatePerturbationMu() const {
  *
  * double CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity)
  *
+ * @param   [IN]    p_Mass                      Mass
+ * @param   [IN]    p_Metallicity               Metallicity
+ * 
  * @return                                      Nanjing lambda for use in common envelope
  */
 double HeHG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
 
-    double rMin = 0.25;                              // minimum considered radius: Natasha       JR: todo: should this be in constants.h?
-	double rMax = 120.0;                             // maximum considered radius: Natasha       JR: todo: should this be in constants.h?
+    double rMin = 0.25;                              // minimum considered radius: Natasha       JR: should this be in constants.h? Maybe not... Who is Natasha?  **Ilya**
+	double rMax = 120.0;                             // maximum considered radius: Natasha       JR: should this be in constants.h? Maybe not... Who is Natasha?  **Ilya**
 
-	double rMinLambda = 0.3 * PPOW(rMin, -0.8);       // JR: todo: should this be in constants.h?
-	double rMaxLambda = 0.3 * PPOW(rMax, -0.8);       // JR: todo: should this be in constants.h?
+	double rMinLambda = 0.3 * PPOW(rMin, -0.8);       // JR: todo: should this be in constants.h?       JR: should this be in constants.h? Maybe not...  **Ilya**
+	double rMaxLambda = 0.3 * PPOW(rMax, -0.8);       // JR: todo: should this be in constants.h?       JR: should this be in constants.h? Maybe not...  **Ilya**
 
 	return m_Radius < rMin ? rMinLambda : (m_Radius > rMax ? rMaxLambda : 0.3 * PPOW(m_Radius, -0.8));
 }
@@ -325,7 +287,7 @@ double HeHG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p
  */
 ENVELOPE HeHG::DetermineEnvelopeType() const {
     
-    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type is RADIATIVE
+    ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type
     
     switch (OPTIONS->EnvelopeStatePrescription()) {                                                  // which envelope prescription?
             
@@ -333,16 +295,25 @@ ENVELOPE HeHG::DetermineEnvelopeType() const {
             envelope = ENVELOPE::RADIATIVE;                                                          // default treatment
             break;
             
-        case ENVELOPE_STATE_PRESCRIPTION::HURLEY: // Eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual growth of convective envelope over HG, but we approximate it as already convective here
+        case ENVELOPE_STATE_PRESCRIPTION::HURLEY:
+            // eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual
+            // growth of convective envelope over HG, but we approximate it as already convective here
             envelope = ENVELOPE::CONVECTIVE;
             break;
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
             envelope =  utils::Compare(Temperature() *  TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
-            
-        default:                                                                                    // unknown prescription - use default envelope type
-            SHOW_WARN(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION, "Using Envelope = CONVECTIVE");   // show warning
+
+        default:                                                                                    // unknown prescription
+            // the only way this can happen is if someone added an ENVELOPE_STATE_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION);                                // throw error                
     }
     
     return envelope;
@@ -436,19 +407,23 @@ bool HeHG::ShouldEvolveOnPhase() const {
  *     - m_COCoreMass
  *     - m_Age
  *
- * STELLAR_TYPE ResolveEnvelopeLoss()
+ * STELLAR_TYPE ResolveEnvelopeLoss(bool p_Force)
+ *
+ * @param   [IN]    p_Force                     Boolean to indicate whether the resolution of the loss of the envelope should be performed
+ *                                              without checking the precondition(s).
+ *                                              Default is false.
  *
  * @return                                      Stellar Type to which star should evolve after losing envelope
  */
-STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
+STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_Force) {
 
     STELLAR_TYPE stellarType = m_StellarType;
     
-    if(ShouldEnvelopeBeExpelledByPulsations())          { m_EnvelopeJustExpelledByPulsations = true; }
+    if (ShouldEnvelopeBeExpelledByPulsations()) m_EnvelopeJustExpelledByPulsations = true;
     
-    if (p_NoCheck || utils::Compare(m_COCoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {        // Envelope lost - determine what type of star to form
+    if (p_Force || utils::Compare(m_CoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {         // Envelope lost - determine what type of star to form
 
-        m_Mass       = std::min(m_COCoreMass, m_Mass);
+        m_Mass       = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_Mass;
         m_HeCoreMass = m_Mass;
         m_COCoreMass = m_Mass;
@@ -456,7 +431,8 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
         m_Radius     = COWD::CalculateRadiusOnPhase_Static(m_Mass);
         m_Age        = 0.0;
         if (!IsSupernova()) {
-            stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;         //Note that this uses the CO core mass, rather than the core mass at base of AGB or He mass at He star birth suggested by Hurley+, 2000
+            // note that this uses the CO core mass, rather than the core mass at base of AGB or He mass at He star birth suggested by Hurley+, 2000
+            stellarType = (utils::Compare(m_COCoreMass, OPTIONS->MCBUR1() ) < 0) ? STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF : STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
         }
     }
     return stellarType;
@@ -471,7 +447,7 @@ STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_NoCheck) {
  * @return                                      Boolean flag: true if star has gone Supernova, false if not
  */
 bool HeHG::IsSupernova() const {
-    if (utils::Compare(m_COCoreMass, m_Mass) == 0) {    // special case of ultra-stripped-star -- go SN immediately if over ECSN limit
+    if (utils::Compare(m_CoreMass, m_Mass) == 0) {      // special case of ultra-stripped-star -- go SN immediately if over ECSN limit
         return (utils::Compare(m_Mass, MECS) > 0);
     }
         
@@ -487,7 +463,7 @@ bool HeHG::IsSupernova() const {
  * @return                                      double: Initial supernova supernova mass variable
  */
 double HeHG::CalculateInitialSupernovaMass() const {
-    if (utils::Compare(m_COCoreMass, m_Mass) == 0) {    // special case of ultra-stripped-star -- use current mass
+    if (utils::Compare(m_CoreMass, m_Mass) == 0) {      // special case of ultra-stripped-star -- use current mass
         return std::max(m_Mass, m_GBParams[static_cast<int>(GBP::McBAGB)]);
     }
     return GiantBranch::CalculateInitialSupernovaMass();

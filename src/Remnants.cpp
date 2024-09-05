@@ -27,7 +27,7 @@
  */
 DBL_DBL Remnants::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
 
-    double thisMassRate = CalculateEddingtonCriticalRate(); 
+    double thisMassRate     = CalculateEddingtonCriticalRate(); 
 
     double acceptanceRate   = std::min(thisMassRate, p_DonorMassRate);
     double fractionAccreted = acceptanceRate / p_DonorMassRate;
@@ -39,7 +39,6 @@ DBL_DBL Remnants::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
 /*
  * Choose timestep for evolution
  *
- * Can obviously do this your own way
  * Given in the discussion in Hurley et al. 2000
  *
  *
@@ -51,7 +50,6 @@ DBL_DBL Remnants::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
 double Remnants::ChooseTimestep(const double p_Time) const {
 
     double dtk = std::min(std::max(0.1, 10.0 * std::max(0.1, 10.0 * p_Time)), 5.0E2);
-    double dte = dtk;
 
-    return std::max(dte, NUCLEAR_MINIMUM_TIMESTEP);
+    return std::max(dtk, NUCLEAR_MINIMUM_TIMESTEP);
 }

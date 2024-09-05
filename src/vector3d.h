@@ -39,17 +39,11 @@ public:
     double   operator [] (const size_t p_i) const { return (*const_cast<Vector3d*>(this))[p_i]; }
     double&  operator [] (const size_t p_i) {
 
-        // check that supplied index is in range.
-        // if index is not in range, issue a warning and use index modulo 3
-        size_t index = p_i;
-        if (index > 2) {
-            SHOW_WARN(ERROR::INDEX_OUT_OF_RANGE, "Using index modulo 3");                               // index out of range
-            index %= 3;                                                                                 // use index modulo 3
-        }
+        THROW_ERROR_IF(p_i < 0 || p_i > 2, ERROR::INDEX_OUT_OF_RANGE);                                  // this is a code defect
         
-             if (index == 1) return m_x;
-        else if (index == 2) return m_y;
-        else                 return m_z;
+             if (p_i == 1) return m_x;
+        else if (p_i == 2) return m_y;
+        else               return m_z;
     }
    
     void     operator = (const Vector3d p_Vec) { UpdateVector(p_Vec[0], p_Vec[1], p_Vec[2]); }
