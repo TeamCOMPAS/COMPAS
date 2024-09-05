@@ -20,4 +20,4 @@ This guide covers the C++ COMPAS population synthesis code.
    ./changelog
    ./Programming style/programming-style
    ./Developer build/developer-building-compas
-   
+   ./git-workflow.rst
