@@ -1285,8 +1285,9 @@
 //                                        See "What's New" and option documentation for details.
 //                                        (Issue #1170)
 //                                      - added deprecation notice for '--mass-loss-prescription NONE' (should use ZERO) - missed in v03.00.00
+// 03.01.07   JDM - Sep 5, 2024     - Defect repair:
+//                                      - Set mass loss for remnants to zero. 
 
-
-const std::string VERSION_STRING = "03.01.06";
+const std::string VERSION_STRING = "03.01.07";
 
 # endif // __changelog_h__
