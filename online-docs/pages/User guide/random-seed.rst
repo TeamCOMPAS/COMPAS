@@ -5,7 +5,7 @@ The ``--random-seed`` option allows users to specify the initial value to be use
 random seed values increments from its initial value for each star, or binary star, evolved. How the random seed increments depends upon the
 context.
 
-The ``--random-seed`` option can be specified on either, or both, the command line and a :doc:`grid file <./grid-files>` line. If the option 
+The ``--random-seed`` option can be specified on either, or both, the command line and a :doc:`grid file <./Running COMPAS/running-grid>` line. If the option
 is not specified on one or the other, the default value is used (see :doc:`./Program options/program-options-list-defaults`).
 
 In general, if the ``--random-seed`` option is specified, the pseudo-random number generator will be seeded using the specified value for 
