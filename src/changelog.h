@@ -1285,8 +1285,10 @@
 //                                        See "What's New" and option documentation for details.
 //                                        (Issue #1170)
 //                                      - added deprecation notice for '--mass-loss-prescription NONE' (should use ZERO) - missed in v03.00.00
+// 03.01.07   JR - Aug 28, 2024     - Defect repair:
+//                                      - Fix for issue #1219: Option --black-hole-kicks-mode (aka --black-hole-kicks) ignored
 
 
-const std::string VERSION_STRING = "03.01.06";
+const std::string VERSION_STRING = "03.01.07";
 
 # endif // __changelog_h__
