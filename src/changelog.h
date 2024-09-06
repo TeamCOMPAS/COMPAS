@@ -1279,15 +1279,18 @@
 // 03.01.05   JDM - Aug 30, 2024    - Defect repair, minor cleanup:
 //                                      - Related to issue #502: added HG to allowed RSG stellar type check, preventing GB winds from being applied during HG.
 //                                      - Changed all "FLEXIBLE2023" naming to "MERRITT2024"
-// 03.01.06   JR - Aug 28, 2024     - Enhancement:
+// 03.01.06   JR - Aug 30, 2024     - Enhancement:
 //                                      - Added functionality to allow users to specify if WD-binaries should be included in the BSE DCO file
 //                                        New option: --include-WD-binaries-as-DCO
 //                                        See "What's New" and option documentation for details.
 //                                        (Issue #1170)
 //                                      - added deprecation notice for '--mass-loss-prescription NONE' (should use ZERO) - missed in v03.00.00
-// 03.01.07   JDM - Sep 5, 2024     - Defect repair:
+// 03.01.07   JDM - Sep 05, 2024    - Defect repair:
 //                                      - Set wind mass loss for remnants to zero. 
+// 03.01.08   JR - Sep 06, 2024     - Defect repair, typo fixes:
+//                                      - Fix for issue #1219: Option --black-hole-kicks-mode (aka --black-hole-kicks) ignored
+//                                      - Fixed some stray typos
 
-const std::string VERSION_STRING = "03.01.07";
+const std::string VERSION_STRING = "03.01.08";
 
 # endif // __changelog_h__
