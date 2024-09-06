@@ -1291,7 +1291,7 @@
 //                                        --enhance-CHE-lifetimes-luminosities, --scale-CHE-mass-loss-with-surface-helium-abundance,
 //                                        --scale-terminal-wind-velocity-with-metallicity-power
 //                                      - To facilitate --scale-CHE-mass-loss-with-surface-helium-abundance, added basic tracking of 
-//                                        tracking of surface and core hydrogen and helium abundances for CH stars.
+//                                        surface and core hydrogen and helium abundances for CH stars.
 //                                        See "What's New" and option documentation for details
 //
 
