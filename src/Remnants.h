@@ -58,8 +58,9 @@ protected:
                                                 const double p_AccretorMassRate,
                                                 const bool   p_IsHeRich)                                        { return CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); } // Ignore the He content for non-WDs
 
-    double          CalculateMassLossRateHurley()                                                               { return 0.0; }
-    double          CalculateMassLossRateBelczynski2010()                                                                 { return 0.0; }
+    double          CalculateMassLossRateHurley()                                                               { m_DominantMassLossRate = MASS_LOSS_TYPE::NONE ; return 0.0; }
+    double          CalculateMassLossRateBelczynski2010()                                                       { m_DominantMassLossRate = MASS_LOSS_TYPE::NONE ; return 0.0; }
+    double          CalculateMassLossRateMerritt2024()                                                          { m_DominantMassLossRate = MASS_LOSS_TYPE::NONE ; return 0.0; }                                                         // 
 
     double          CalculatePerturbationMuOnPhase() const                                                      { return m_Mu; }                                                        // NO-OP
 
