@@ -1290,7 +1290,11 @@
 // 03.01.08   JR - Sep 06, 2024     - Defect repair, typo fixes:
 //                                      - Fix for issue #1219: Option --black-hole-kicks-mode (aka --black-hole-kicks) ignored
 //                                      - Fixed some stray typos
+// 03.01.09   IM - Sep 07, 2024     - Defect repair:
+//                                      - Fix for issue #1218: increased default MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS, but on failure to find a solution,
+//                                          indicating a narrow range, just pick a midpoint; remove associated error
+//                                      - Corrected --mass-loss-prescription description in documentation
 
-const std::string VERSION_STRING = "03.01.08";
+const std::string VERSION_STRING = "03.01.09";
 
 # endif // __changelog_h__
