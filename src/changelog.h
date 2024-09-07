@@ -1271,8 +1271,30 @@
 //                                      - Fix for issue #1179: Remove unsupported option value (FIXED) for options PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION and PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION
 //                                      - Remove BeBinary-related code (mostly already commented)
 //                                      - Fix typos in comments in BaseBinaryStar.cpp
+// 03.01.03   JR - Aug 27, 2024     - Defect repair, code cleanup:
+//                                      - Fix for issue #1202: Missing system in system parameters file when using range
+//                                      - Remove extraneous references to "kick_direction" in LogTypedefs.h (added in error in v03.00.00)
+// 03.01.04   SS - Aug 28, 2024     - Enhancement:
+//                                      - Add Hendriks+23 pulsational pair instability prescription 
+// 03.01.05   JDM - Aug 30, 2024    - Defect repair, minor cleanup:
+//                                      - Related to issue #502: added HG to allowed RSG stellar type check, preventing GB winds from being applied during HG.
+//                                      - Changed all "FLEXIBLE2023" naming to "MERRITT2024"
+// 03.01.06   JR - Aug 30, 2024     - Enhancement:
+//                                      - Added functionality to allow users to specify if WD-binaries should be included in the BSE DCO file
+//                                        New option: --include-WD-binaries-as-DCO
+//                                        See "What's New" and option documentation for details.
+//                                        (Issue #1170)
+//                                      - added deprecation notice for '--mass-loss-prescription NONE' (should use ZERO) - missed in v03.00.00
+// 03.01.07   JDM - Sep 05, 2024    - Defect repair:
+//                                      - Set wind mass loss for remnants to zero. 
+// 03.01.08   JR - Sep 06, 2024     - Defect repair, typo fixes:
+//                                      - Fix for issue #1219: Option --black-hole-kicks-mode (aka --black-hole-kicks) ignored
+//                                      - Fixed some stray typos
+// 03.01.09   IM - Sep 07, 2024     - Defect repair:
+//                                      - Fix for issue #1218: increased default MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS, but on failure to find a solution,
+//                                          indicating a narrow range, just pick a midpoint; remove associated error
+//                                      - Corrected --mass-loss-prescription description in documentation
 
-
-const std::string VERSION_STRING = "03.01.02";
+const std::string VERSION_STRING = "03.01.09";
 
 # endif // __changelog_h__

@@ -6,9 +6,22 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**03.01.06 Aug 30, 2024**
+
+Added functionality to allow users to specify if WD-binaries should be included in the BSE DCO file via new option ``--include-WD-binaries-as-DCO``.
+When enabled, ``--include-WD-binaries-as-DCO`` changes the definition of "Double Compact Object" from a binary comprised of any two of 
+{Neutron Star, Black Hole} to a binary star comprised of any two of {Helium White Dwarf, Carbon-Oxygen White Dwarf, Oxygen-Neon White Dwarf, Neutron Star, Black Hole}.
+
+The default value for the new option is FALSE.
+
+**03.01.04 Aug 28, 2024**
+
+* New option `'HENDRIKS'` for `--pulsational-pair-instability-prescription` implementing the prescription for pulsational pair instability mass-loss from Hendricks et al. 2023 (https://arxiv.org/abs/2309.09339). 
+* New command line option `--PPI-CO-Core-Shift-Hendriks` for use with the above prescription (see Hendriks+ for an explanation)
+
 **03.01.00 Aug 24, 2024**
 
-* New option to emit gravitational radiation at each timestep of binary evolution: ``--emit-gravitational-radiation``. The effects of radiation are approximated by the change in semimajor axis and eccentricity from Peters 1946 equations 5.6 and 5.7.  Reduce timestep if required to keep orbital separation change per step due to GW radiation within ~ 1%.
+* New option to emit gravitational radiation at each timestep of binary evolution: ``--emit-gravitational-radiation``. The effects of radiation are approximated by the change in semimajor axis and eccentricity from Peters 1964 equations 5.6 and 5.7.  Reduce timestep if required to keep orbital separation change per step due to GW radiation within ~ 1%.
 
 **03.00.00 Jul 26, 2024**
 
