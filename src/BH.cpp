@@ -68,14 +68,14 @@ DBL_DBL_DBL BH::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
  *    FALLBACK: Black holes receive a kick downweighted by the amount of mass falling back onto them
  *
  *
- *  double ReweightSupernovaKickByMass(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass)
+ *  double ReweightSupernovaKickByMass_Static(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass)
  *
  * @param   [IN]    p_vK                        Kick magnitude that would otherwise be applied to a neutron star
  * @param   [IN]    p_FallbackFraction          Fraction of mass that falls back onto the proto-compact object
  * @param   [IN]    p_BlackHoleMass             Mass of remnant (in Msol)
  * @return                                      Kick magnitude
  */
- double BH::ReweightSupernovaKickByMass(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) {
+ double BH::ReweightSupernovaKickByMass_Static(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) {
 
     double vK;
 
@@ -97,7 +97,7 @@ DBL_DBL_DBL BH::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
             // The correct fix for this is to add code for the missing mode or, if the missing mode is
             // superfluous, remove it from the option.
 
-            THROW_ERROR(ERROR::UNKNOWN_BH_KICK_MODE);                                                   // throw error
+            THROW_ERROR_STATIC(ERROR::UNKNOWN_BH_KICK_MODE);                                            // throw error
     }
 
     return vK;

@@ -4,7 +4,7 @@
 #                                                                 #
 ###################################################################
 
-import os, sys
+import os
 import shutil
 import numpy as np
 import h5py as h5
@@ -12,9 +12,9 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import argparse
 import tempfile
+from pathlib import Path
 
-HERE = os.path.dirname(os.path.realpath(__file__))
-VAN_DEN_HEUVEL_DIR = os.path.join(HERE, '/van_den_heuvel_figures/')
+IMG_DIR = Path(__file__).parent / "van_den_heuvel_figures"
 
 
 
@@ -582,7 +582,7 @@ class Event(object):
         on the stellar types, to get the van den Heuvel diagrams.
         """
 
-        self.imgFile = os.path.join(VAN_DEN_HEUVEL_DIR, f'{image_num}.png')
+        self.imgFile = os.path.join(IMG_DIR, f'{image_num}.png')
         img = plt.imread(self.imgFile)  # import image
         if rotate_image:
             img = img[:, ::-1, :]  # flip across y-axis

@@ -20,7 +20,7 @@ def test_plotter(example_compas_output_path, capsys, test_archive_dir):
 
     assert runtime < 30
     assert os.path.exists(os.path.join(test_archive_dir, "vanDenHeuvelPlot.eps"))
-    assert os.path.exists(os.path.join(test_archive_dir, "detailedEvolutionPlot.eps"))
+    assert os.path.exists(os.path.join(test_archive_dir, "detailedEvolutionPlot.png"))
 
     with open(os.path.join(test_archive_dir, "test_plotter.log"), "w") as f:
         f.write(sout)

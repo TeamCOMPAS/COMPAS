@@ -381,17 +381,17 @@ Following is an alphabetical list of stellar properties available for inclusion 
 
            * - None 
              - = 0
-           * - Nieuwenhuijzen and de Jager 
+           * - GB (Giant Branch) 
              - = 1
-           * - Kudritzki and Reimers 
+           * - LBV (Luminous Blue Variable) 
              - = 2
-           * - Vassiliadis and Wood 
+           * - OB (Main Sequence)
              - = 3
-           * - Wolf-Rayet-like (Hamann, Koesterke and de Koter) 
+           * - RSG (Red Supergiant) 
              - = 4
-           * - Vink 
+           * - VMS (Very Massive Main Sequence)
              - = 5
-           * - Luminous Blue Variable 
+           * - WR (Wolf-Rayet) 
              - = 6
 
    * - Header Strings:

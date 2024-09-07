@@ -485,6 +485,11 @@ Prints COMPAS help (-h is short form, --help includes more information).
 
 :ref:`Back to Top <options-props-top>`
 
+**--include-WD-binaries-as-DCO** |br|
+When enabled, changes the definition of "Double Compact Object" from a binary comprised of any two of {Neutron Star, Black Hole} |br|
+to a binary star comprised of any two of {Helium White Dwarf, Carbon-Oxygen White Dwarf, Oxygen-Neon White Dwarf, Neutron Star, Black Hole}. |br|
+Default = FALSE
+
 **--initial-mass** |br|
 Initial mass for a single star when evolving in SSE mode (:math:`M_\odot`). |br|
 Default = Sampled from IMF
@@ -789,8 +794,14 @@ Default = 0.0
 
 **--mass-loss-prescription** |br|
 Mass loss prescription. |br|
-Options: { NONE, HURLEY, VINK } |br|
-Default = VINK
+Options: { ZERO, NONE, HURLEY, BELCZYNSKI2010, MERRITT2024 } |br|
+``ZERO/NONE``     : No wind mass loss |br|
+``HURLEY``        : Mass loss according to Hurley (2000) |br|
+``BELCZYNSKI2010``: Mass loss as per Belczynski (2010), and the default prior to 2023 |br|
+``MERRITT2024``   : Flexible mass loss with phase specific options: (OB, RSG, WR, VMS) |br|
+Default = MERRITT2024 |br|
+DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
+
 
 **--mass-ratio [ -q ]** |br|
 Mass ratio :math:`\frac{m2}{m1}` used to determine secondary mass if not specified via ``--initial-mass-2``. |br|
@@ -1043,6 +1054,10 @@ Default = 135.0
 Print details of population. |br|
 Default = FALSE
 
+**--PPI-CO-Core-Shift-Hendriks** |br|
+Shift in CO core mass for PPI (in Msol) for the Hendriks+23 PPI prescription
+Default = 0.0
+
 **--PPI-lower-limit** |br|
 Minimum core mass for PPI (:math:`M_\odot`). |br|
 Default = 35.0
@@ -1099,7 +1114,8 @@ Default = TRUE
 
 **--pulsational-pair-instability-prescription** |br|
 Pulsational pair instability prescription. |br|
-Options: { COMPAS, STARTRACK, MARCHANT, FARMER } |br|
+Options: { HENDRIKS, COMPAS, STARTRACK, MARCHANT, FARMER } |br|
+``HENDRIKS`` implements the prescription from Hendriks et al. 2023 |br|
 ``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, all as implemented in Stevenson et al. 2019. |br|
 ``FARMER`` follows Farmer et al. 2019 |br|
 Default = MARCHANT
@@ -1425,7 +1441,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --remnant-mass-prescription, --fryer-supernova-engine, --fryer-22-fmix, --fryer-22-mcrit, --maximum-neutron-star-mass, --mcbur1, --allow-non-stripped-ECSN, 
 --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state, --pair-instability-supernovae, --PISN-lower-limit, 
---PISN-upper-limit, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
+--PISN-upper-limit, --PPI-CO-Core-Shift-Hendriks, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 
 --pulsar-birth-magnetic-field-distribution, --pulsar-birth-magnetic-field-distribution-min, --pulsar-birth-magnetic-field-distribution-max, 
 --pulsar-birth-spin-period-distribution, --pulsar-birth-spin-period-distribution-min, --pulsar-birth-spin-period-distribution-max, 
@@ -1444,8 +1460,10 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Administrative**
 
---mode, --number-of-systems, --emit-gravitational-radiation, --evolve-double-white-dwarfs, --evolve-main-sequence-mergers, --evolve-pulsars, --evolve-unbound-systems, --mass-change-fraction, 
---maximum-evolution-time, --maximum-number-timestep-iterations,
+--mode, --number-of-systems, 
+--emit-gravitational-radiation, --evolve-double-white-dwarfs, --evolve-main-sequence-mergers, --evolve-pulsars, --evolve-unbound-systems, 
+--include-WD-binaries-as-DCO,
+--mass-change-fraction, --maximum-evolution-time, --maximum-number-timestep-iterations,
 --radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename
 
 --fp-error-mode

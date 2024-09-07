@@ -1312,7 +1312,8 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
                   (utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) < 0 || utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
                 remnantMass = MULLERMANDEL_MUBH * p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
 		    }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
+                remnantMass = (OPTIONS->MaximumNeutronStarMass() + p_HeCoreMass) / 2.0;
 	    }
     }
     else {                                              // this is an NS
@@ -1323,7 +1324,8 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
                    utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
 			    remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
 		    }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
+                remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
 	    }
 	    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
             while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
@@ -1332,7 +1334,8 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
                    utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
                 remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
             }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
+                remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
         }
         else {
             while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
@@ -1341,7 +1344,8 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
                    utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
                 remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
             }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);
+            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
+                remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
         }
     }
 
@@ -1940,12 +1944,12 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
     switch (OPTIONS->PulsationalPairInstabilityPrescription()) {                                        // which prescription?
 
         case PPI_PRESCRIPTION::COMPAS:                                                                  // Woosley 2017 https://arxiv.org/abs/1608.08939
-            baryonicMass = m_HeCoreMass;                                                                // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static)
+            baryonicMass = m_HeCoreMass;                                                                // strip off the hydrogen envelope if any was left
             m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
             break;
 
         case PPI_PRESCRIPTION::STARTRACK:                                                               // Belczynski et al. 2016 https://arxiv.org/abs/1607.03116
-            baryonicMass = std::min(m_HeCoreMass, STARTRACK_PPISN_HE_CORE_MASS);                        // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static), limit helium core mass to 45 Msun
+            baryonicMass = std::min(m_HeCoreMass, STARTRACK_PPISN_HE_CORE_MASS);                        // strip off the hydrogen envelope if any was left, limit to STARTRACK_PPISN_HE_CORE_MASS (default 45 Msun)
             m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
             break;
 
@@ -1968,7 +1972,7 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
                                                                             (-1.13694590E+03 * m_HeCoreMass) +
                                                                               7.39643451E+03));
 
-            baryonicMass = ratioOfRemnantToHeCoreMass * m_HeCoreMass;                                   // strip off the hydrogen envelope if any was left (factor of 0.9 applied in BH::CalculateNeutrinoMassLoss_Static)
+            baryonicMass = ratioOfRemnantToHeCoreMass * m_HeCoreMass;                                   // strip off the hydrogen envelope if any was left
             m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
             } break;
 
@@ -1996,6 +2000,29 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
             m_Mass = std::min(totalMassPrePPISN, m_Mass);                                               // check if remnant mass is bigger than total mass    
             } break;
     
+        case PPI_PRESCRIPTION::HENDRIKS: {    
+            // Prescription from Hendriks et al. 2023 (https://arxiv.org/abs/2309.09339)
+            // Based on Renzo et al. 2022 (https://iopscience.iop.org/article/10.3847/2515-5172/ac503e)
+            // 
+            // Suggest using --PPI-upper-limit 80.0 and --PISN-lower-limit 80.0
+
+            double DeltaMPPICOShift = OPTIONS->PulsationalPairInstabilityCOCoreShiftHendriks();
+            double DeltaMPPIExtraML = 0.0; 								// Make an option? Currently does nothing
+
+            // Equation (6) of Hendricks et al. 2023			
+            double PPIOnset        = m_COCoreMass - DeltaMPPICOShift - 34.8;
+            double PPIOnsetSquared = PPIOnset * PPIOnset;
+            double PPIOnsetCubed   = PPIOnsetSquared * PPIOnset;
+            double firstTerm  = (0.0006 * m_Log10Metallicity + 0.0054) * PPIOnsetCubed;
+            double secondTerm = 0.0013 * PPIOnsetSquared;
+            double DeltaMPPI  = firstTerm - secondTerm + DeltaMPPIExtraML;
+            
+            DeltaMPPI = std::max(DeltaMPPI, 0.0);						// DeltaMPPI, the amount of the He core that's lost in pulsations, is non-negative
+            m_Mass = std::max(m_HeCoreMass - DeltaMPPI, 0.0);			// Remnant mass should be non-negative		
+            m_Mass = m_Mass > 10.0 ? m_Mass : 0.0;                      // If the predicted remnant mass is below 10 Msun, set it equal to 0 (assume a PISN)
+
+        } break;
+
         default:                                                                                        // unknown prescription
             // the only way this can happen is if someone added a REMNANT_MASS_PRESCRIPTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.

@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Fri Jul 26 19:54:32 2024 by COMPAS v03.00.00
+##~!!~## File Created Fri Aug 30 12:00:32 2024 by COMPAS v03.01.06
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -11,11 +11,11 @@ booleanChoices:
     ### LOGISTICS
 #    --debug-to-file: False                                                # Default: False
 #    --detailed-output: False                                              # Default: False                                                                                                                                                              # WARNING! this creates a data heavy file
+#    --emit-gravitational-radiation: False                                 # Default: False
 #    --enable-warnings: False                                              # Default: False                                                                                                                                                              # option to enable/disable warning messages
 #    --errors-to-file: False                                               # Default: False
 #    --evolve-main-sequence-mergers: False                                 # Default: False
 #    --evolve-unbound-systems: True                                        # Default: True
-#    --emit-gravitational-radiation: False                                 # Default: False
 #    --population-data-printing: False                                     # Default: False
 #    --print-bool-as-string: False                                         # Default: False
 #    --quiet: False                                                        # Default: False
@@ -31,6 +31,7 @@ booleanChoices:
 
     ### BINARY PROPERTIES
 #    --allow-touching-at-birth: False                                      # Default: False                                                                                                                                                              # record binaries that have stars touching at birth in output files
+#    --include-WD-binaries-as-DCO: False                                   # Default: False                                                                                                                                                              # record WD binaries in the BSE DCO file
 
     ### MASS TRANSFER
 #    --angular-momentum-conservation-during-circularisation: False         # Default: False
@@ -194,6 +195,7 @@ numericalChoices:
 #    --pisn-upper-limit: 135.00                                            # Default: 135.00                                                                                                                                                             # Maximum core mass for PISN [Msol]
 #    --ppi-lower-limit: 35.000000                                          # Default: 35.000000                                                                                                                                                          # Minimum core mass for PPI [Msol]
 #    --ppi-upper-limit: 60.000000                                          # Default: 60.000000                                                                                                                                                          # Maximum core mass for PPI [Msol]
+#    --ppi-co-core-shift-hendriks: 0.000000                                # Default: 0.000000                                                                                                                                                           # CO Core shift for PPI [Msol] from Hendriks+23
 #    --rocket-kick-magnitude-1: 0.000000                                   # Default: 0.000000                                                                                                                                                           # (BSE) rocket kick magnitude for the primary should it undergo a supernova event [km/s]
 #    --rocket-kick-magnitude-2: 0.000000                                   # Default: 0.000000                                                                                                                                                           # (BSE) rocket kick magnitude for the secondary should it undergo a supernova event [km/s]
 #    --rocket-kick-theta-1: 0.000000                                       # Default: 0.000000                                                                                                                                                           # (BSE) angle between the orbital plane and the 'z' axis of the rocket kick for the primary star [radians]
@@ -230,7 +232,7 @@ stringChoices:
 #    --initial-mass-function: 'KROUPA'                                     # Default: 'KROUPA'                      # Options: ['KROUPA','UNIFORM','POWERLAW','SALPETER']
 #    --LBV-mass-loss-prescription: 'HURLEY_ADD'                            # Default: 'HURLEY_ADD'                  # Options: ['BELCZYNSKI','HURLEY','HURLEY_ADD','ZERO','NONE']
 #    --luminous-blue-variable-prescription: 'HURLEY_ADD'                   # Default: 'HURLEY_ADD'                  # Options: ['BELCZYNSKI','HURLEY','HURLEY_ADD','ZERO','NONE']
-#    --mass-loss-prescription: 'FLEXIBLE2023'                              # Default: 'FLEXIBLE2023'                # Options: ['FLEXIBLE2023','BELCZYNSKI2010','HURLEY','ZERO','NONE']
+#    --mass-loss-prescription: 'MERRITT2024'                               # Default: 'MERRITT2024'                 # Options: ['MERRITT2024','BELCZYNSKI2010','HURLEY','ZERO','NONE']
 #    --OB-mass-loss: 'VINK2021'                                            # Default: 'VINK2021'                    # Options: ['KRTICKA2018','BJORKLUND2022','VINK2021','VINK2001','ZERO','NONE']
 #    --OB-mass-loss-prescription: 'VINK2021'                               # Default: 'VINK2021'                    # Options: ['KRTICKA2018','BJORKLUND2022','VINK2021','VINK2001','ZERO','NONE']
 #    --RSG-mass-loss: 'DECIN2023'                                          # Default: 'DECIN2023'                   # Options: ['NJ90','KEE2021','YANG2023','DECIN2023','BEASOR2020','VINKSABHAHIT2023','ZERO','NONE']
@@ -240,7 +242,7 @@ stringChoices:
 #    --WR-mass-loss: 'SANDERVINK2023'                                      # Default: 'SANDERVINK2023'              # Options: ['SHENAR2019','SANDERVINK2023','BELCZYNSKI2010']
 #    --WR-mass-loss-prescription: 'SANDERVINK2023'                         # Default: 'SANDERVINK2023'              # Options: ['SHENAR2019','SANDERVINK2023','BELCZYNSKI2010']
 #    --metallicity-distribution: 'ZSOLAR'                                  # Default: 'ZSOLAR'                      # Options: ['LOGUNIFORM','ZSOLAR']
-#    --pulsational-pair-instability-prescription: 'MARCHANT'               # Default: 'MARCHANT'                    # Options: ['FARMER','MARCHANT','STARTRACK','COMPAS']
+#    --pulsational-pair-instability-prescription: 'MARCHANT'               # Default: 'MARCHANT'                    # Options: ['HENDRIKS','FARMER','MARCHANT','STARTRACK','COMPAS']
 
     ### BINARY PROPERTIES
 #    --eccentricity-distribution: 'ZERO'                                   # Default: 'ZERO'                        # Options: ['SANA2012','DUQUENNOYMAYOR1991','GELLER+2013','THERMAL','FLAT','ZERO']
@@ -251,11 +253,11 @@ stringChoices:
 
     ### MASS TRANSFER
 #    --case-BB-stability-prescription: 'ALWAYS_STABLE'                     # Default: 'ALWAYS_STABLE'               # Options: ['ALWAYS_UNSTABLE','TREAT_AS_OTHER_MT','ALWAYS_STABLE_ONTO_NSBH','ALWAYS_STABLE']
-#    --critical-mass-ratio-prescription: 'ZERO'                            # Default: 'ZERO'                        # Options: ['HURLEY_HJELLMING_WEBBINK','GE20_IC','GE20','CLAEYS','ZERO','NONE']
+#    --critical-mass-ratio-prescription: 'NONE'                            # Default: 'NONE'                        # Options: ['HURLEY_HJELLMING_WEBBINK','GE20_IC','GE20','CLAEYS','NONE']
 #    --stellar-zeta-prescription: 'SOBERMAN'                               # Default: 'SOBERMAN'                    # Options: ['ARBITRARY','HURLEY','SOBERMAN']
 #    --mass-transfer-angular-momentum-loss-prescription: 'ISOTROPIC'       # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
 #    --mass-transfer-accretion-efficiency-prescription: 'THERMAL'          # Default: 'THERMAL'                     # Options: ['FIXED','THERMAL']
-#    --mass-transfer-rejuvenation-prescription: 'STARTRACK'                # Default: 'STARTRACK'                   # Options: ['STARTRACK','NONE']
+#    --mass-transfer-rejuvenation-prescription: 'STARTRACK'                # Default: 'STARTRACK'                   # Options: ['STARTRACK','HURLEY']
 #    --mass-transfer-thermal-limit-accretor: 'CFACTOR'                     # Default: 'CFACTOR'                     # Options: ['ROCHELOBE','CFACTOR']
 #    --mass-transfer-thermal-limit-accretor-multiplier: 'CFACTOR'          # Default: 'CFACTOR'                     # Options: ['ROCHELOBE','CFACTOR']
 
@@ -276,8 +278,8 @@ stringChoices:
 #    --kick-direction-distribution: 'ISOTROPIC'                            # Default: 'ISOTROPIC'                   # Options: ['POLES','WEDGE','POWERLAW','PERPENDICULAR','INPLANE','ISOTROPIC']
 #    --neutron-star-equation-of-state: 'SSE'                               # Default: 'SSE'                         # Options: ['ARP3','SSE']
 #    --neutrino-mass-loss-BH-formation: 'FIXED_MASS'                       # Default: 'FIXED_MASS'                  # Options: ['FIXED_MASS','FIXED_FRACTION']
-#    --pulsar-birth-magnetic-field-distribution: 'ZERO'                    # Default: 'ZERO'                        # Options: ['LOGNORMAL','UNIFORM','FLATINLOG','FIXED','ZERO']
-#    --pulsar-birth-spin-period-distribution: 'ZERO'                       # Default: 'ZERO'                        # Options: ['NORMAL','UNIFORM','FIXED','ZERO']
+#    --pulsar-birth-magnetic-field-distribution: 'ZERO'                    # Default: 'ZERO'                        # Options: ['LOGNORMAL','UNIFORM','FLATINLOG','ZERO']
+#    --pulsar-birth-spin-period-distribution: 'ZERO'                       # Default: 'ZERO'                        # Options: ['NORMAL','UNIFORM','ZERO']
 #    --remnant-mass-prescription: 'MULLERMANDEL'                           # Default: 'MULLERMANDEL'                # Options: ['SCHNEIDER2020ALT','SCHNEIDER2020','MULLERMANDEL','MULLER2016','FRYER2022','FRYER2012','BELCZYNSKI2002','HURLEY2000']
 
     ### LOGFILES AND OUTPUTS 
