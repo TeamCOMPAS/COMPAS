@@ -1114,33 +1114,6 @@ double BaseBinaryStar::CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_Im
     return -(3.0 / m_Omega) * (1.0 + (massCompanion / massStar)) * (G_AU_Msol_yr * massCompanion / R1_AU / R1_AU) * R1_over_a_7 * (ImK22 + ((m_Eccentricity * m_Eccentricity) * ((3.0 * ImK10 / 4.0) + (ImK12 / 8.0) - (5.0 * ImK22) + (147.0 * ImK32 / 8.0))));
 }
 
-/*
-* Determine the smallest timestep from binary evolution, such as tides and gravitational waves
-*
-* double BaseBinaryStar::CalculateTimestepBinary()
-*
-* @return                                      Proposed timestep (Myr)
-*/    
-double BaseBinaryStar::CalculateTimestepBinary(){
-
-    DBL_DBL_DBL_DBL ImKlm1 = m_Star1->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star2->Mass());
-    DBL_DBL_DBL_DBL ImKlm2 = m_Star2->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star1->Mass());
-
-    double DSemiMajorAxis1Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1);
-    double DSemiMajorAxis2Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2);
-
-    double DEccentricity1Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1);
-    double DEccentricity2Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);
-                                                
-    double DOmega1Dt_tidal         =  CalculateDOmegaTidalDt(ImKlm1, m_Star1);
-    double DOmega2Dt_tidal         =  CalculateDOmegaTidalDt(ImKlm2,  m_Star2);
-                                                            
-    double DaDt_tidal = 0.01 * m_SemiMajorAxis * std::min(std::abs(1./DSemiMajorAxis1Dt_tidal), std::abs(1./DSemiMajorAxis2Dt_tidal)) * YEAR_TO_MYR;
-    double DeDt_tidal = 0.01 * m_Eccentricity * std::min(std::abs(1./DEccentricity1Dt_tidal), std::abs(1./DEccentricity2Dt_tidal)) * YEAR_TO_MYR;
-    double DOmegaDt_tidal = 0.01 * std::min(std::abs(m_Star1->Omega()/DOmega1Dt_tidal), std::abs(m_Star2->Omega()/DOmega2Dt_tidal)) * YEAR_TO_MYR;
-
-    return std::min(DaDt_tidal, std::min(DeDt_tidal, DOmegaDt_tidal)) * OPTIONS->TimestepMultiplier();
-}
 
 /*
  * Resolves supernova event - one of the stars has gone supernova!
@@ -2524,7 +2497,26 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
     if (OPTIONS->EmitGravitationalRadiation()) {                                                        // emitting GWs?
         dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
     }
+    
+    if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024) {
+        DBL_DBL_DBL_DBL ImKlm1 = m_Star1->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star2->Mass());
+        DBL_DBL_DBL_DBL ImKlm2 = m_Star2->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star1->Mass());
 
+        double DSemiMajorAxis1Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1);
+        double DSemiMajorAxis2Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2);
+
+        double DEccentricity1Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1);
+        double DEccentricity2Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);
+                                                    
+        double DOmega1Dt_tidal         =  CalculateDOmegaTidalDt(ImKlm1, m_Star1);
+        double DOmega2Dt_tidal         =  CalculateDOmegaTidalDt(ImKlm2,  m_Star2);
+                                                                
+        double DaDt_tidal = 0.01 * m_SemiMajorAxis * std::min(std::abs(1./DSemiMajorAxis1Dt_tidal), std::abs(1./DSemiMajorAxis2Dt_tidal)) * YEAR_TO_MYR; // Ensure that the change in sma is 1 percent at most
+        double DeDt_tidal = 0.01 * m_Eccentricity * std::min(std::abs(1./DEccentricity1Dt_tidal), std::abs(1./DEccentricity2Dt_tidal)) * YEAR_TO_MYR; // Ensure that the change in eccentricity is 1 percent at most
+        double DOmegaDt_tidal = 0.01 * m_Omega * std::min(std::abs(1./DOmega1Dt_tidal), std::abs(1./DOmega2Dt_tidal)) * YEAR_TO_MYR; // Ensure that the change in stellar spin is 1 percent of orbital frequency at most
+
+        dt =  std::min(dt, std::min(DaDt_tidal, std::min(DeDt_tidal, DOmegaDt_tidal)));
+        }
     dt *= p_Multiplier;	
 
     return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);    // quantised and not less than minimum
