@@ -715,20 +715,6 @@ namespace utils {
         return false;
     }
 
-
-    /*
-     * Compute initial Helium fraction Y from initial metallicity Z using MESA default
-     *
-     *
-     *  double MESAZAMSHeliumFractionByMetallicity(double p_Z)
-     *
-     * @param   [IN]    p_Z                         Metallicity at ZAMS
-     * @return                                      Helium fraction at ZAMS
-     */
-    double MESAZAMSHeliumFractionByMetallicity(double p_Z){
-        return 0.24 + 2.0 * p_Z;
-    }
-
     /*
      * Pads string to specified length by prepending the string with "0"
      *
