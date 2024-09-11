@@ -30,7 +30,7 @@ The default value for the new option is FALSE.
 
 **03.01.00 Aug 24, 2024**
 
-* New option to emit gravitational radiation at each timestep of binary evolution: ``--emit-gravitational-radiation``. The effects of radiation are approximated by the change in semimajor axis and eccentricity from Peters 1946 equations 5.6 and 5.7.  Reduce timestep if required to keep orbital separation change per step due to GW radiation within ~ 1%.
+* New option to emit gravitational radiation at each timestep of binary evolution: ``--emit-gravitational-radiation``. The effects of radiation are approximated by the change in semimajor axis and eccentricity from Peters 1964 equations 5.6 and 5.7.  Reduce timestep if required to keep orbital separation change per step due to GW radiation within ~ 1%.
 
 **03.00.00 Jul 26, 2024**
 
