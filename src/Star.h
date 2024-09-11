@@ -95,6 +95,12 @@ public:
     bool                ExperiencedPPISN() const                                                                    { return m_Star->ExperiencedPPISN(); }
     bool                ExperiencedUSSN() const                                                                     { return m_Star->ExperiencedUSSN(); }
     double              HeCoreMass() const                                                                          { return m_Star->HeCoreMass(); }
+    double              HeliumAbundanceCore() const                                                                 { return m_Star->HeliumAbundanceCore(); }
+    double              HeliumAbundanceSurface() const                                                              { return m_Star->HeliumAbundanceSurface();} 
+    double              HydrogenAbundanceCore() const                                                               { return m_Star->HydrogenAbundanceCore(); }
+    double              HydrogenAbundanceSurface() const                                                            { return m_Star->HydrogenAbundanceSurface(); }
+    double              InitialHeliumAbundance() const                                                              { return m_Star->InitialHeliumAbundance(); }
+    double              InitialHydrogenAbundance() const                                                            { return m_Star->InitialHydrogenAbundance(); }
     bool                IsAIC() const                                                                               { return m_Star->IsAIC(); }
     bool                IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
     bool                IsDegenerate() const                                                                        { return m_Star->IsDegenerate(); }

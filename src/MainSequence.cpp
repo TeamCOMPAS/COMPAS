@@ -11,6 +11,54 @@
 
 
 /*
+ * Calculate the helium abundance in the core of the star
+ * 
+ * Currently just a simple linear model from the initial helium abundance to 
+ * the maximum helium abundance (assuming that all hydrogen is converted to
+ * helium). 
+ * 
+ * When tau = 0, heliumAbundanceCore = m_initialHeliumAbundance
+ * When tau = 1, heliumAbundanceCore = heliumAbundanceCoreMax = 1.0 - m_Metallicity
+ * 
+ * Should be updated to match detailed models.
+ *
+ * double CalculateHeliumAbundanceCoreOnPhase(p_Tau)
+ * 
+ * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
+ *
+ * @return                                      Helium abundance in the core (Y_c)
+ */
+double MainSequence::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
+
+    double heliumAbundanceCoreMax = 1.0 - m_Metallicity;
+
+    double heliumAbundanceCore = ((heliumAbundanceCoreMax - m_initialHeliumAbundance) * p_Tau) + m_initialHeliumAbundance;
+    
+    return heliumAbundanceCore;
+}
+
+/*
+ * Calculate the hydrogen abundance in the core of the star
+ * 
+ * Currently just a simple linear model. Assumes that hydrogen in the core of 
+ * the star is burned to helium at a constant rate throughout the lifetime. 
+ * 
+ * Should be updated to match detailed models.
+ *
+ * double CalculateHydrogenAbundanceCoreOnPhase(p_Tau)
+ * 
+ * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
+ *
+ * @return                                      Hydrogen abundance in the core (X_c)
+ */
+double MainSequence::CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const {
+
+    double hydrogenAbundanceCore = m_initialHydrogenAbundance * (1.0 - p_Tau);
+
+    return hydrogenAbundanceCore;
+}
+
+/*
  * Calculate timescales in units of Myr
  *
  * Timescales depend on a star's mass, so this needs to be called at least each timestep
@@ -831,8 +879,8 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass)
     m_Mass            = p_Mass;
     m_Mass0           = m_Mass;
     m_MinimumCoreMass = 0.0;
-        
-    double initialHydrogenFraction = 1.0 - utils::MESAZAMSHeliumFractionByMetallicity(m_Metallicity) - m_Metallicity;
+    
+    double initialHydrogenFraction = m_initialHydrogenAbundance;
     
     CalculateTimescales();
     CalculateGBParams();

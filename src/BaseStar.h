@@ -110,6 +110,8 @@ public:
             double              HeliumAbundanceSurface() const                                  { return m_HeliumAbundanceSurface;} 
             double              HydrogenAbundanceCore() const                                   { return m_HydrogenAbundanceCore; }
             double              HydrogenAbundanceSurface() const                                { return m_HydrogenAbundanceSurface; }
+            double              InitialHeliumAbundance() const                                  { return m_initialHeliumAbundance; }
+            double              InitialHydrogenAbundance() const                                { return m_initialHydrogenAbundance; }
             bool                IsAIC() const                                                   { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::AIC; }
             bool                IsCCSN() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::CCSN; }
             bool                IsHeSD() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::HeSD; }
@@ -539,7 +541,7 @@ protected:
     virtual double              CalculateHeliumAbundanceSurfaceOnPhase() const                                          { return m_HeliumAbundanceSurface; }                                        // Default is NO-OP
 
     virtual double              CalculateHydrogenAbundanceCoreOnPhase() const                                           { return m_HydrogenAbundanceCore; }                                         // Default is NO-OP
-    virtual double              CalculateHydrogenAbundanceSurfaceOnPhase() const                                        { return m_HydrogenAbundanceSurface; }                                      // Default is NO-OP
+    virtual double              CalculateHydrogenAbundanceSurfaceOnPhase() const                                        { return m_HydrogenAbundanceSurface; }                                      // Default is NO-OP    
 
     static  double              CalculateHeRateConstant_Static()                                                        { return HE_RATE_CONSTANT; }                                                // Only >= CHeB stars need AHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
     static  double              CalculateHHeRateConstant_Static()                                                       { return HHE_RATE_CONSTANT; }                                               // Only TPAGB stars need AHHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
