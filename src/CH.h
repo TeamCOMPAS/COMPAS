@@ -51,14 +51,14 @@ protected:
 
     // Abundances
     double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;
-    double          CalculateHeliumAbundanceCoreOnPhase() const { return BaseStar::CalculateHeliumAbundanceCoreOnPhase(); };
+    double          CalculateHeliumAbundanceCoreOnPhase() const { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); };
     double          CalculateHeliumAbundanceSurfaceOnPhase(const double p_Tau) const;
-    double          CalculateHeliumAbundanceSurfaceOnPhase() const { return BaseStar::CalculateHeliumAbundanceSurfaceOnPhase(); };
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const { return CalculateHeliumAbundanceSurfaceOnPhase(m_Tau); };
 
     double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;
-    double          CalculateHydrogenAbundanceCoreOnPhase() const { return BaseStar::CalculateHydrogenAbundanceCoreOnPhase(); };
+    double          CalculateHydrogenAbundanceCoreOnPhase() const { return CalculateHydrogenAbundanceCoreOnPhase(m_Tau); };
     double          CalculateHydrogenAbundanceSurfaceOnPhase(const double p_Tau) const;
-    double          CalculateHydrogenAbundanceSurfaceOnPhase() const { return BaseStar::CalculateHydrogenAbundanceSurfaceOnPhase(); };
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const { return CalculateHydrogenAbundanceSurfaceOnPhase(m_Tau); };
     
     // Lifetime
     double          CalculateLogLifetimeRatio(const double p_Mass) const;

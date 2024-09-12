@@ -90,8 +90,19 @@ protected:
             double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase
 
             // Abundances
-            double          CalculateHeliumAbundanceCore(const double p_Tau) const;
-            double          CalculateHydrogenAbundanceCore(const double p_Tau) const                                { return 0.0; }
+            double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                                          { return CalculateHeliumAbundanceCoreOnPhase(); }
+            double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;
+            double          CalculateHeliumAbundanceCoreOnPhase() const                                             { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                          // Use class member variables                                       
+            
+            double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const                                       { return CalculateHeliumAbundanceSurfaceOnPhase(); }
+            double          CalculateHeliumAbundanceSurfaceOnPhase() const                                          { return m_HeliumAbundanceSurface; }                                            // Use class member variables                      
+
+            double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                                        { return CalculateHydrogenAbundanceCoreOnPhase(); } 
+            double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const                         { return 0.0; }
+            double          CalculateHydrogenAbundanceCoreOnPhase() const                                           { return CalculateHydrogenAbundanceCoreOnPhase(m_Tau); }                        // Use class member variables                                 
+
+            double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const                                     { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
+            double          CalculateHydrogenAbundanceSurfaceOnPhase() const                                        { return m_HydrogenAbundanceSurface; }                                          // Use class member variables
 
             double          CalculateInitialSupernovaMass() const                                                   { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
 
