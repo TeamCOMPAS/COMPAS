@@ -793,7 +793,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "enhance-CHE-lifetimes-luminosities",                                             
             po::value<bool>(&p_Options->m_EnhanceCHELifetimesLuminosities)->default_value(p_Options->m_EnhanceCHELifetimesLuminosities)->implicit_value(false),                                                                      
-            ("Whether to enhance the lifetimes and luminosities of chemically homogenously evolving (CHE) stars relative to SSE main sequence lifetimes/luminosities (default = " + std::string(p_Options->m_EnhanceCHELifetimesLuminosities ? "TRUE" : "FALSE") + ")").c_str()
+            ("Whether to enhance the lifetimes and luminosities of chemically homogeneously evolving (CHE) stars relative to SSE main sequence lifetimes/luminosities (default = " + std::string(p_Options->m_EnhanceCHELifetimesLuminosities ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "errors-to-file",                                              
@@ -911,7 +911,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "scale-CHE-mass-loss-with-surface-helium-abundance",                                             
             po::value<bool>(&p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->default_value(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->implicit_value(false),                                                                      
-            ("Whether to transition mass loss rates for chemically homogenously evolving (CHE) stars between OB mass loss rates and Wolf-Rayet (WR) mass loss rates as a function of the surface helium abundance (Ys) as described by Yoon et al. 2006 (default = " + std::string(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance ? "TRUE" : "FALSE") + ")").c_str()
+            ("Whether to transition mass loss rates for chemically homogeneously evolving (CHE) stars between OB mass loss rates and Wolf-Rayet (WR) mass loss rates as a function of the surface helium abundance (Ys) as described by Yoon et al. 2006 (default = " + std::string(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "use-mass-loss",                                               
