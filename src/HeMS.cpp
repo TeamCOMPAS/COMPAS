@@ -19,10 +19,10 @@
  * 
  * @return                                      Helium abundance in the core (Y_c)
  */
-double HeMS::CalculateHeliumAbundanceCore(const double p_Tau) const {
+double HeMS::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
 
     double heliumAbundanceCoreMax = 1.0 - m_Metallicity;
-
+    
     double heliumAbundanceCore = heliumAbundanceCoreMax * (1.0 - p_Tau);
 
     return heliumAbundanceCore;
