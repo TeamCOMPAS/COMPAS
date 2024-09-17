@@ -5,6 +5,7 @@
 #include "Rand.h"
 #include "BaseStar.h"
 #include "vector3d.h"
+#include "BH.h"
 
 // boost includes
 #include <boost/math/distributions.hpp>
@@ -4236,8 +4237,8 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
                                                                                                     // no errors
         m_SupernovaDetails.drawnKickMagnitude = vK;                                                 // drawn kick magnitude
 
-        if (thisSNevent == SN_EVENT::CCSN) {                                                        // core-collapse supernova event this timestep?
-            vK = ReweightSupernovaKickByMass(vK, m_SupernovaDetails.fallbackFraction, m_Mass);      // yes - re-weight kick by mass of remnant according to user specified black hole kicks option, if relevant (default is no reweighting)
+        if (thisSNevent == SN_EVENT::CCSN && utils::IsOneOf(p_StellarType, { STELLAR_TYPE::BLACK_HOLE })) { // core-collapse supernova event this timestep, and remnant is black hole?
+            vK = BH::ReweightSupernovaKickByMass_Static(vK, m_SupernovaDetails.fallbackFraction, m_Mass);   // yes - re-weight kick by mass of remnant according to user specified black hole kicks option, if relevant (default is no reweighting)
         }
         else {                                                                                      // otherwise
             m_SupernovaDetails.fallbackFraction = 0.0;                                              // set fallback fraction to zero
