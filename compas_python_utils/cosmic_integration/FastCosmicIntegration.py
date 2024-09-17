@@ -92,11 +92,11 @@ def find_metallicity_distribution(redshifts, min_logZ_COMPAS, max_logZ_COMPAS,
         min_logZ_COMPAS    --> [float]          Minimum logZ value that COMPAS samples
         max_logZ_COMPAS    --> [float]          Maximum logZ value that COMPAS samples
         
-        mu0    =  0.035    --> [float]          location (mean in normal) at redshift 0
-        muz    = -0.23    --> [float]           redshift scaling/evolution of the location
-        sigma_0 = 0.39     --> [float]          Scale (variance in normal) at redshift 0
-        sigma_z = 0.00     --> [float]          redshift scaling of the scale (variance in normal)
-        alpha   = 0.00    --> [float]           shape (skewness, alpha = 0 retrieves normal dist)
+        mu0    =  0.035    --> [float]          location (mean in normal) at redshift 0 
+        muz    = -0.23    --> [float]           redshift scaling/evolution of the location (alpha in Neijssel+19)
+        sigma_0 = 0.39     --> [float]          Scale (variance in normal) at redshift 0 (sigma in Neijssel+19)
+        sigma_z = 0.00     --> [float]          redshift scaling of the scale (variance in normal, 0 in Neijssel+19)
+        alpha   = 0.00    --> [float]           shape (skewness, alpha = 0 retrieves normal dist as in Neijssel+19)
 
         min_logZ           --> [float]          Minimum logZ at which to calculate dPdlogZ (influences normalization)
         max_logZ           --> [float]          Maximum logZ at which to calculate dPdlogZ (influences normalization)
