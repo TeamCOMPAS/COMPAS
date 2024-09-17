@@ -128,7 +128,6 @@ enum class ERROR: int {
     TOO_MANY_OMEGA_ITERATIONS,                                      // too many iterations in OMEGA root finder
     TOO_MANY_OMEGA_TRIES,                                           // too many tries in OMEGA root finder
     TOO_MANY_PULSAR_SPIN_ITERATIONS,                                // too many iterations calculating the pulsar birth spin period
-    TOO_MANY_REMNANT_MASS_ITERATIONS,                               // too many iterations to calculate remnant mass (MULLERMANDEL)
     TOO_MANY_RETRIES,                                               // generic too many retries
     TOO_MANY_RLOF_ITERATIONS,                                       // too many iterations in RLOF root finder
     TOO_MANY_RLOF_TRIES,                                            // too many tries in RLOF root finder
@@ -301,7 +300,6 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::TOO_MANY_OMEGA_ITERATIONS,                             { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when looking for omega when circularising and synchronising for tides" }},
     { ERROR::TOO_MANY_OMEGA_TRIES,                                  { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when looking for omega when circularising and synchronising for tides" }},
     { ERROR::TOO_MANY_PULSAR_SPIN_ITERATIONS,                       { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations calculating the pulsar birth spin period" }},
-    { ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS,                      { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when calcuating remnant mass (MULLERMANDEL)" }},
     { ERROR::TOO_MANY_RETRIES,                                      { ERROR_SCOPE::ALWAYS,              "Too many retries" }},
     { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::TOO_MANY_RLOF_TRIES,                                   { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when fitting star inside Roche Lobe in RLOF" }},
