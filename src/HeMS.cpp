@@ -316,7 +316,7 @@ double HeMS::CalculateMassLossRateWolfRayetShenar2019() const {
 
     logMdot = C1 + (C2 * log10(m_Luminosity)) + (C3 * log10(Teff)) + (C5 * m_Log10Metallicity); 
 
-    return  OPTIONS->WolfRayetFactor() * PPOW(10.0, logMdot); // Mdot 
+    return PPOW(10.0, logMdot); // Mdot 
 }
 
 
@@ -358,10 +358,10 @@ double HeMS::CalculateMassLossRateMerritt2024() {
             double Mdot_Shenar2019 = CalculateMassLossRateWolfRayetShenar2019(); // OPTIONS->WolfRayetFactor()  is applied in Shenar2019 function
 
             // calculate Vink 2017 mass-loss rate
-            double Mdot_Vink2017 = OPTIONS->WolfRayetFactor() * CalculateMassLossRateHeliumStarVink2017();
+            double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
 
             // apply a minimum of Vink 2017 mass-loss rate to avoid extrapolating to low luminosity
-            MdotWR = std::max(Mdot_Shenar2019, Mdot_Vink2017);
+            MdotWR = OPTIONS->WolfRayetFactor() *  std::max(Mdot_Shenar2019, Mdot_Vink2017);
 
         } break;
 
