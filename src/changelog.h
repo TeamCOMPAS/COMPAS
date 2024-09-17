@@ -1294,7 +1294,7 @@
 //                                      - Fix for issue #1218: increased default MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS, but on failure to find a solution,
 //                                          indicating a narrow range, just pick a midpoint; remove associated error
 //                                      - Corrected --mass-loss-prescription description in documentation
-// 03.01.10   LvS - Sep 07, 2024     - Defect repair:
+// 03.01.10   LvS - Sep 17, 2024     - Defect repair:
 //                                      - Fixed buggy behaviour of wolf-rayet-multiplier 
 
 const std::string VERSION_STRING = "03.01.10";
