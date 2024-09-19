@@ -1297,7 +1297,7 @@
 // 03.02.00   IM - Sep 19, 2024     - Defect repair, cleanup, documentation
 //                                      - Continue evolution on merger at birth (stars touching) if --resolve-main-sequence-merger
 //                                      - Change behavior of Sabhahit+ 2023 VMS winds to default to current OB wind prescription if Gamma threshold is not met
-//                                      - Add recording of MASS_TRANSFER_TIMESCALE (NONE, NUCLEAR, THERMAL, CE), resolving issue #127
+//                                      - Add recording of MASS_TRANSFER_TIMESCALE (NONE, NUCLEAR, THERMAL, CE), resolving issue #1217
 //                                      - Correct (re-)setting of MassLossRateInRLOF, resolving issue #1225
 //                                      - Correct behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF (see #1215)
 //                                      - Correct behaviour of the second stage of 2-stage CE to ensure that the accretor's mass is correctly adjusted

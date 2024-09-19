@@ -9,7 +9,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 **03.02.00 Sep 19, 2024**
 
 Added recording of ``MASS_TRANSFER_TIMESCALE (NONE, NUCLEAR, THERMAL, CE)``.
-Now continuting evolution on mergers at birth (stars touching) if ``--resolve-main-sequence-merger``.
+Now continuing evolution on mergers at birth (stars touching) if ``--resolve-main-sequence-merger``.
 Changed Sabhahit+ 2023 VMS winds to default to current OB wind prescription if Gamma threshold is not met
 Correct the behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF; 
 now ensuring that the accretor's mass is correctly adjusted
