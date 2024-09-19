@@ -1,4 +1,4 @@
-﻿// Class Log
+// Class Log
 //
 // This is where all logging and debugging is performed.
 //
@@ -1339,6 +1339,7 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
                     case TYPENAME::STELLAR_TYPE    : v = static_cast<int>(boost::get<STELLAR_TYPE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::MT_CASE         : v = static_cast<int>(boost::get<MT_CASE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::MT_TRACKING     : v = static_cast<int>(boost::get<MT_TRACKING>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
+                    case TYPENAME::MASS_TRANSFER_TIMESCALE  : v = static_cast<int>(boost::get<MASS_TRANSFER_TIMESCALE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::SN_EVENT        : v = static_cast<int>(boost::get<SN_EVENT>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::SN_STATE        : v = static_cast<int>(boost::get<SN_STATE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::EVOLUTION_STATUS: v = static_cast<int>(boost::get<EVOLUTION_STATUS>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
@@ -2269,6 +2270,7 @@ hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWid
         case TYPENAME::STELLAR_TYPE    : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::MT_CASE         : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::MT_TRACKING     : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MASS_TRANSFER_TIMESCALE  : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::SN_EVENT        : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::SN_STATE        : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::EVOLUTION_STATUS: h5DataType = H5T_NATIVE_INT; break;
