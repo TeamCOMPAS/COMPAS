@@ -1294,7 +1294,15 @@
 //                                      - Fix for issue #1218: increased default MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS, but on failure to find a solution,
 //                                          indicating a narrow range, just pick a midpoint; remove associated error
 //                                      - Corrected --mass-loss-prescription description in documentation
+// 03.02.00   IM - Sep 19, 2024     - Defect repair, cleanup, documentation
+//                                      - Continue evolution on merger at birth (stars touching) if --resolve-main-sequence-merger
+//                                      - Change behavior of Sabhahit+ 2023 VMS winds to default to current OB wind prescription if Gamma threshold is not met
+//                                      - Add recording of MASS_TRANSFER_TIMESCALE (NONE, NUCLEAR, THERMAL, CE), resolving issue #127
+//                                      - Correct (re-)setting of MassLossRateInRLOF, resolving issue #1225
+//                                      - Correct behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF (see #1215)
+//                                      - Correct behaviour of the second stage of 2-stage CE to ensure that the accretor's mass is correctly adjusted
+//                                      - Correct code comments, update documentation where it fell behind
 
-const std::string VERSION_STRING = "03.01.09";
+const std::string VERSION_STRING = "03.02.00";
 
 # endif // __changelog_h__

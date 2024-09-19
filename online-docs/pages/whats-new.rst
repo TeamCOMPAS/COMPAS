@@ -6,6 +6,14 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**03.02.00 Sep 19, 2024**
+
+Added recording of ``MASS_TRANSFER_TIMESCALE (NONE, NUCLEAR, THERMAL, CE)``.
+Now continuting evolution on mergers at birth (stars touching) if ``--resolve-main-sequence-merger``.
+Changed Sabhahit+ 2023 VMS winds to default to current OB wind prescription if Gamma threshold is not met
+Correct the behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF; 
+now ensuring that the accretor's mass is correctly adjusted
+
 **03.01.06 Aug 30, 2024**
 
 Added functionality to allow users to specify if WD-binaries should be included in the BSE DCO file via new option ``--include-WD-binaries-as-DCO``.
