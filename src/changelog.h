@@ -1303,6 +1303,8 @@
 //                                      - Correct behaviour of the second stage of 2-stage CE to ensure that the accretor's mass is correctly adjusted
 //                                      - Update Picker convective envelope mass fit to equal the maximum convective envelope mass when the star is on the AGB
 //                                      - Apply the HG prescription for the convective envelope mass to the entire GB to ensure it evolves smoothly
+//                                      - Resolve issue #1213: updated treatment of 2-stage common envelope for intermediate mass stars, to smoothly reduce from
+//                                              Hirai & Mandel above 8 solar masses to classical "full envelope" removal for stars below 2 solar masses
 //                                      - Correct code comments, update documentation where it fell behind
 
 const std::string VERSION_STRING = "03.02.00";

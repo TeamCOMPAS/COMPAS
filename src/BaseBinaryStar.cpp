@@ -1549,24 +1549,37 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         case CE_FORMALISM::TWO_STAGE: {
             // two-stage common envelope, Hirai & Mandel (2022)
             
-            double convectiveEnvelopeMass1, maxConvectiveEnvelopeMass1;
+            double convectiveEnvelopeMass1, maxConvectiveEnvelopeMass1, endOfFirstStageMass1, mass1=m_Star1->Mass();
             std::tie(convectiveEnvelopeMass1, maxConvectiveEnvelopeMass1) = m_Star1->CalculateConvectiveEnvelopeMass();
             
-            double radiativeIntershellMass1 = m_MassEnv1 - convectiveEnvelopeMass1;
-            double endOfFirstStageMass1     = m_Mass1Final + radiativeIntershellMass1;
-            
-            double convectiveEnvelopeMass2, maxConvectiveEnvelopeMass2;
+            double convectiveEnvelopeMass2, maxConvectiveEnvelopeMass2, endOfFirstStageMass2, mass2=m_Star2->Mass();
             std::tie(convectiveEnvelopeMass2, maxConvectiveEnvelopeMass2) = m_Star2->CalculateConvectiveEnvelopeMass();
             
-            double radiativeIntershellMass2 = m_MassEnv2 - convectiveEnvelopeMass2;
-            double endOfFirstStageMass2     = m_Mass2Final + radiativeIntershellMass2;
+            //if the total mass > 8 Msun, the mass of the envelope participating in the first stage is the mass of the convective outer envelope (as in the current 2-stage model)
+            //if mass < 2 Msun, the entire envelope participates in the first stage
+            //in between, we linearly interpolate [see issue #1213]
             
-            // stage 1: convective envelope removal on a dynamical timescale; assumes lambda = lambda_He
+            if(utils::Compare(mass1, 8.0)>=0)
+                endOfFirstStageMass1        = mass1 - convectiveEnvelopeMass1;
+            else if(utils::Compare(mass1, 2.0)<=0)
+                endOfFirstStageMass1        = m_Mass1Final;
+            else
+                endOfFirstStageMass1        = m_Mass1Final + (m_MassEnv1 - convectiveEnvelopeMass1) * (mass1 - 2.0) / 6.0;
+                
+            if(utils::Compare(mass2, 8.0)>=0)
+                endOfFirstStageMass2        = mass2 - convectiveEnvelopeMass2;
+            else if(utils::Compare(mass2, 2.0)<=0)
+                endOfFirstStageMass2        = m_Mass2Final;
+            else
+                endOfFirstStageMass2        = m_Mass2Final + (m_MassEnv2 - convectiveEnvelopeMass2) * (mass2 - 2.0) / 6.0;
+
+            
+            // stage 1: convective envelope removal on a dynamical timescale; assumes lambda = lambda_He (this still uses the Picker convective envelope mass fit to estimate lambda)
             double lambda1    = m_Star1->CalculateConvectiveEnvelopeLambdaPicker(convectiveEnvelopeMass1, maxConvectiveEnvelopeMass1);
             double lambda2    = m_Star1->CalculateConvectiveEnvelopeLambdaPicker(convectiveEnvelopeMass2, maxConvectiveEnvelopeMass2);
             
-            double k1         = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * convectiveEnvelopeMass1 / m_Star1->Radius();
-            double k2         = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * convectiveEnvelopeMass2 / m_Star2->Radius();
+            double k1         = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * (mass1 - endOfFirstStageMass1) / m_Star1->Radius();
+            double k2         = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * (mass2 - endOfFirstStageMass2) / m_Star2->Radius();
             double k3         = m_Star1->Mass() * m_Star2->Mass() / periastronRsol;                                     // assumes immediate circularisation at periastron at start of CE
             double k4         = endOfFirstStageMass1 * endOfFirstStageMass2;
             
@@ -1578,20 +1591,20 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             // note that in the case where both stars are in RLOF (m_RLOFDetails.simultaneousRLOF), star 1 is arbitrarily first to transfer its radiative intershell
             
             if(m_Star1->IsRLOF()) {
-                if(utils::Compare(radiativeIntershellMass1, 0.0) > 0) {
-                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass1, -radiativeIntershellMass1, endOfFirstStageMass2, m_Star2->IsDegenerate(), 0.0);
+                if(utils::Compare(endOfFirstStageMass1 - m_Mass1Final, 0.0) > 0) {
+                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass1, -(endOfFirstStageMass1 - m_Mass1Final), endOfFirstStageMass2, m_Star2->IsDegenerate(), 0.0);
                 }
-                if(utils::Compare(radiativeIntershellMass2, 0.0) > 0) {
-                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass2, -radiativeIntershellMass2, m_Mass1Final, m_Star1->IsDegenerate(), 0.0);
+                if(utils::Compare(endOfFirstStageMass2 - m_Mass2Final, 0.0) > 0) {
+                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass2, -(endOfFirstStageMass2 - m_Mass2Final), m_Mass1Final, m_Star1->IsDegenerate(), 0.0);
                 }
             }
                    
             else if(m_Star2->IsRLOF()) {
-                if (utils::Compare(radiativeIntershellMass2, 0.0) > 0) {
-                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass2, -radiativeIntershellMass2, endOfFirstStageMass1, m_Star1->IsDegenerate(), 0.0);
+                if (utils::Compare(endOfFirstStageMass2 - m_Mass2Final, 0.0) > 0) {
+                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass2, -(endOfFirstStageMass2 - m_Mass2Final), endOfFirstStageMass1, m_Star1->IsDegenerate(), 0.0);
                 }
-                if (utils::Compare(radiativeIntershellMass1, 0.0) > 0) {
-                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass1, -radiativeIntershellMass1, m_Mass2Final, m_Star2->IsDegenerate(), 0.0);
+                if (utils::Compare(endOfFirstStageMass1 - m_Mass1Final, 0.0) > 0) {
+                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass1, -(endOfFirstStageMass1 - m_Mass1Final), m_Mass2Final, m_Star2->IsDegenerate(), 0.0);
                 }
             }
 
