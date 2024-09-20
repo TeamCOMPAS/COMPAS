@@ -13,6 +13,7 @@ Now continuing evolution on mergers at birth (stars touching) if ``--resolve-mai
 Changed Sabhahit+ 2023 VMS winds to default to current OB wind prescription if Gamma threshold is not met
 Correct the behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF; 
 now ensuring that the accretor's mass is correctly adjusted
+Update the fits for the convective envelope mass and radial extent to ensure smooth behaviour
 
 **03.01.06 Aug 30, 2024**
 
