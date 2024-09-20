@@ -14,6 +14,8 @@ Changed Sabhahit+ 2023 VMS winds to default to current OB wind prescription if G
 Correct the behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF; 
 now ensuring that the accretor's mass is correctly adjusted
 Update the fits for the convective envelope mass and radial extent to ensure smooth behaviour
+Updated treatment of 2-stage common envelope for intermediate mass stars, to smoothly reduce from Hirai & Mandel above 8 solar masses
+to classical "full envelope" removal for stars below 2 solar masses.
 
 **03.01.06 Aug 30, 2024**
 
