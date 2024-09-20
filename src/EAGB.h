@@ -80,8 +80,6 @@ protected:
 
     double          CalculateMassLossRateHurley();
 
-    double          CalculateRadialExtentConvectiveEnvelope() const                                 { return GiantBranch::CalculateRadialExtentConvectiveEnvelope(); }  // Skip CHeB
-
     double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_Luminosity) const { return CalculateRadiusOnPhase(p_Mass, p_Luminosity); }            // Same as on phase
     double          CalculateRadiusAtPhaseEnd() const                                               { return CalculateRadiusAtPhaseEnd(m_Mass, m_Luminosity); }         // Use class member variables
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, m_MassCutoffs[static_cast<int>(MASS_CUTOFF::MHeF)], m_BnCoefficients); }

@@ -1301,6 +1301,8 @@
 //                                      - Correct (re-)setting of MassLossRateInRLOF, resolving issue #1225
 //                                      - Correct behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF (see #1215)
 //                                      - Correct behaviour of the second stage of 2-stage CE to ensure that the accretor's mass is correctly adjusted
+//                                      - Update Picker convective envelope mass fit to equal the maximum convective envelope mass when the star is on the AGB
+//                                      - Apply the HG prescription for the convective envelope mass to the entire GB to ensure it evolves smoothly
 //                                      - Correct code comments, update documentation where it fell behind
 
 const std::string VERSION_STRING = "03.02.00";
