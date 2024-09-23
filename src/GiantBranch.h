@@ -92,7 +92,12 @@ protected:
 
             double          CalculatePerturbationMu() const;
 
-            double          CalculateRadialExtentConvectiveEnvelope() const                                 { return (m_Radius - CalculateConvectiveCoreRadius()); }            // Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 36-40
+            double          CalculateRadialExtentConvectiveEnvelope() const {
+                    // combination of Hurley et al. 2000, end of sec. 7.2, and Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 39-40
+                    double envMass, envMassMax;
+                    std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
+                    return (std::sqrt(envMass / envMassMax) * (m_Radius - CalculateConvectiveCoreRadius()));
+            }
 
             double          CalculateRadiusAtHeIgnition(const double p_Mass) const;
             double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, m_BnCoefficients); }

@@ -78,6 +78,8 @@ public:
 
         m_MassTransfer                     = p_Star.m_MassTransfer;
         m_aMassTransferDiff                = p_Star.m_aMassTransferDiff;
+        
+        m_MassTransferTimescale            = p_Star.m_MassTransferTimescale;
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
 
@@ -339,6 +341,8 @@ private:
 
     bool                m_MassTransfer;
     double              m_aMassTransferDiff;
+    
+    MASS_TRANSFER_TIMESCALE m_MassTransferTimescale;
 
     MT_TRACKING         m_MassTransferTrackerHistory;
 
@@ -428,11 +432,20 @@ private:
 
     void    CalculateMassTransfer(const double p_Dt);
 
-    double  CalculateMassTransferOrbit(const double                 p_DonorMass, 
-                                       const double                 p_DeltaMassDonor, 
-                                             BinaryConstituentStar& p_Accretor, 
+    double  CalculateMassTransferOrbit(const double                 p_DonorMass,
+                                       const double                 p_DeltaMassDonor,
+                                       const double                 p_AccretorMass,
+                                       const bool                   p_IsAccretorDegenerate,
                                        const double                 p_FractionAccreted);
 
+    
+    double  CalculateMassTransferOrbit(const double                 p_DonorMass,
+                                       const double                 p_DeltaMassDonor, 
+                                             BinaryConstituentStar& p_Accretor, 
+                                       const double                 p_FractionAccreted)     { return CalculateMassTransferOrbit(p_DonorMass, p_DeltaMassDonor, p_Accretor.Mass(), p_Accretor.IsDegenerate(), p_FractionAccreted); }
+
+    
+    
     void    CalculateWindsMassLoss();
     void    InitialiseMassTransfer();
 
@@ -575,7 +588,6 @@ private:
         BinaryConstituentStar *m_Accretor;
         ERROR                 *m_Error;
         double                 m_FractionAccreted;
-        double                 m_MassLossRateInRLOF;
     };
 
 
