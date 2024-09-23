@@ -609,6 +609,15 @@ const COMPASUnorderedMap<MASS_RATIO_DISTRIBUTION, std::string> MASS_RATIO_DISTRI
     { MASS_RATIO_DISTRIBUTION::SANA2012,           "SANA2012" }
 };
 
+// mass transfer timescale types
+enum class MASS_TRANSFER_TIMESCALE: int { NONE, NUCLEAR, THERMAL, CE };
+const COMPASUnorderedMap<MASS_TRANSFER_TIMESCALE, std::string> MASS_TRANSFER_TIMESCALE_LABEL = {
+    { MASS_TRANSFER_TIMESCALE::NONE,                "NONE" },
+    { MASS_TRANSFER_TIMESCALE::NUCLEAR,             "NUCLEAR" },
+    { MASS_TRANSFER_TIMESCALE::THERMAL,             "THERMAL" },
+    { MASS_TRANSFER_TIMESCALE::CE,                  "CE" }
+};
+
 // metallicity distributions
 enum class METALLICITY_DISTRIBUTION: int { ZSOLAR, LOGUNIFORM };
 const COMPASUnorderedMap<METALLICITY_DISTRIBUTION, std::string> METALLICITY_DISTRIBUTION_LABEL = {
@@ -1001,6 +1010,7 @@ typedef boost::variant<
     STELLAR_TYPE,
     MT_CASE,
     MT_TRACKING,
+    MASS_TRANSFER_TIMESCALE,
     SN_EVENT,
     SN_STATE,
     EVOLUTION_STATUS
@@ -1217,6 +1227,7 @@ typedef struct RLOFProperties {
     
     double       massLossRateFromDonor;
     double       accretionEfficiency;
+    MASS_TRANSFER_TIMESCALE massTransferTimescale;
 
 } RLOFPropertiesT;
 

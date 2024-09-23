@@ -1072,8 +1072,11 @@ DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     double McoreFinal             = CalculateCoreMassAtBAGB(m_Mass);
     double MconvMax               = std::max(m_Mass - McoreFinal * (1.0 + MinterfMcoref), 0.0);                             // Eq. (9) of Picker+ 2024
     if( utils::Compare(McoreFinal,1.5) < 0 )                                                                                // Picker+ 2024 fits were only made for stars above 8.0 solar masses, with runs down to 5.0 solar masses, so using the final core mass as an approximate threshold of validity
-        MconvMax                  = m_Mass - McoreFinal;                                                                    // unlike massive stars, intermediate-mass stars have almost no radiative intershell at maximum convective envelope extent
+        MconvMax                  = std::max(m_Mass - McoreFinal, 0.0);                                                     // unlike massive stars, intermediate-mass stars have almost no radiative intershell at maximum convective envelope extent
     double convectiveEnvelopeMass = MconvMax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature) / (Tmin - Tonset)));  // Eq. (7) of Picker+ 2024
+    
+    if(utils::Compare(Temperature(), Tmin) <= 0)
+        convectiveEnvelopeMass = MconvMax;                                                                                  // If already on the AGB, the convective envelope mass should be set to its maximum value
     
     return std::tuple<double, double> (convectiveEnvelopeMass, MconvMax);
 }   // /*ILYA*/ check consistency with HG convective envelope radii and masses from Hurley+ 2002, 2000

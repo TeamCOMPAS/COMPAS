@@ -396,6 +396,7 @@ public:
     string operator()(const STELLAR_TYPE           v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_CASE                v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_TRACKING            v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MASS_TRANSFER_TIMESCALE v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_EVENT               v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_STATE               v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const EVOLUTION_STATUS       v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
@@ -438,6 +439,7 @@ public:
     string operator()(const STELLAR_TYPE           v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_CASE                v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_TRACKING            v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MASS_TRANSFER_TIMESCALE v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_EVENT               v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_STATE               v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const EVOLUTION_STATUS       v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
