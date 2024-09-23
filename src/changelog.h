@@ -1306,7 +1306,10 @@
 //                                      - Resolve issue #1213: updated treatment of 2-stage common envelope for intermediate mass stars, to smoothly reduce from
 //                                              Hirai & Mandel above 8 solar masses to classical "full envelope" removal for stars below 2 solar masses
 //                                      - Correct code comments, update documentation where it fell behind
+// 03.02.01   LvS - Sep 23, 2024     - Defect repair:
+//                                      - Fixed buggy behaviour of wolf-rayet-multiplier 
 
-const std::string VERSION_STRING = "03.02.00";
+
+const std::string VERSION_STRING = "03.02.01";
 
 # endif // __changelog_h__
