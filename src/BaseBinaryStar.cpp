@@ -1670,9 +1670,12 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
  *
  */
 void BaseBinaryStar::ResolveMainSequenceMerger() {
-    if (!(m_Star1->IsOneOf(MAIN_SEQUENCE) && m_Star2->IsOneOf(MAIN_SEQUENCE) && OPTIONS->EvolveMainSequenceMergers()))
-        return;                                                                                 // nothing to do if does not satisfy conditions for MS merger
-	
+
+    // sanity check for MS merger: do nothing if conditions for MS merger are not satisfied
+    if (!(m_Star1->IsOneOf(MAIN_SEQUENCE) && m_Star2->IsOneOf(MAIN_SEQUENCE) && OPTIONS->EvolveMainSequenceMergers())) return;
+
+    // resolve MS merger
+    
     double mass1 = m_Star1->Mass();
     double mass2 = m_Star2->Mass();
     double tau1  = m_Star1->Tau();

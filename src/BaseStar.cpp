@@ -118,13 +118,13 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
                                                     : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
 
     // Initial abundances
-    m_initialHeliumAbundance   = CalculateInitialHeliumAbundance();
-    m_HeliumAbundanceCore      = m_initialHeliumAbundance;
-    m_HeliumAbundanceSurface   = m_initialHeliumAbundance;
+    m_initialHeliumAbundance                    = CalculateInitialHeliumAbundance();
+    m_HeliumAbundanceCore                       = m_initialHeliumAbundance;
+    m_HeliumAbundanceSurface                    = m_initialHeliumAbundance;
 
-    m_initialHydrogenAbundance = CalculateInitialHydrogenAbundance();
-    m_HydrogenAbundanceCore    = m_initialHydrogenAbundance;
-    m_HydrogenAbundanceSurface = m_initialHydrogenAbundance;
+    m_initialHydrogenAbundance                  = CalculateInitialHydrogenAbundance();
+    m_HydrogenAbundanceCore                     = m_initialHydrogenAbundance;
+    m_HydrogenAbundanceSurface                  = m_initialHydrogenAbundance;
 
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
     m_RZAMS0                                   = m_RZAMS;
