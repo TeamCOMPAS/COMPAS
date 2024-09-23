@@ -233,7 +233,7 @@ public:
                                                                                                                                                                                          
             double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
         
-            double          CalculateEddingtonLuminosity() const                                                { return CalculateEddingtonLuminosity_Static(m_Mass, m_HeliumAbundanceSurface); }             // Use class member variables
+            double          CalculateEddingtonLuminosity() const                                                { return CalculateEddingtonLuminosity_Static(m_Mass, m_HeliumAbundanceSurface); } // Use class member variables
 
             double          CalculateEddyTurnoverTimescale() const;
 
