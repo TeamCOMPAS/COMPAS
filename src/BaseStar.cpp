@@ -2326,7 +2326,7 @@ double BaseStar::CalculateMassLossRateVMSVink2011() const {
  *
  * @return                                      Mass loss rate in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateVMSSabhahit2023() const {
+double BaseStar::CalculateMassLossRateVMSSabhahit2023() {
 
     double gamma       = EDDINGTON_PARAMETER_FACTOR * m_Luminosity / m_Mass;                                    // Eddington Parameter, independent of surface composition
     double Mswitch     = PPOW(m_Metallicity, -1.574) * 0.0615 + 18.10;                                          // obtained from a powerlaw fit to table 2, given teff=45kK
@@ -2339,7 +2339,7 @@ double BaseStar::CalculateMassLossRateVMSSabhahit2023() const {
         Mdot = Mdotswitch * PPOW((m_Luminosity / Lswitch) , 4.77) * PPOW((m_Mass/Mswitch) , -3.99);
     }
     else {
-        Mdot = CalculateMassLossRateOBVink2001();
+        Mdot = CalculateMassLossRateOB(OPTIONS->OBMassLossPrescription());                                      // not in the VMS regime according to Sabhahit+ 2023, fall back to default OB mass loss prescription
     }
 
     return Mdot;
@@ -2608,7 +2608,7 @@ double BaseStar::CalculateMassLossRateHurley() {
 
 /*
  * Calculate the dominant mass loss mechanism and associated rate for the star at the current evolutionary phase
- * According to Vink - based on implementation in StarTrack 
+ * Follows the implementation in StarTrack
  *
  * 
  * double CalculateMassLossRateBelczynski2010()
@@ -2644,13 +2644,13 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
 
 
 /*
- * Calculate the mass loss rate according to the updated prescription. 
+ * Calculate the mass loss rate according to the updated framework.
  *
- * The structure is similar to the Vink wrapper (previous default), which should be called Belczynski.
- * Mass loss rates for hot, massive OB stars are given by Bjorklund et al. 2022
- * Mass loss rates for helium rich Wolf--Rayet stars are given by Sander (not yet implemented)
- * Mass loss rates for red supergiants are given by Beasor and Davies (not yet implemented)
- * Mass loss rates for luminous blue variables are still given as defined elsewhere in the code
+ * The structure is similar to the CalculateMassLossRateBelczynski2010() wrapper (previous default).
+ * Mass loss rates are divided into several classes: RSG winds, cool star winds,
+ * very massive star (VMS) winds, OB star winds.
+ * Furthermore, LBV winds are computed separately, and, if non-zero, either replace other mass loss
+ * or are added to other wind mass loss if LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD is used.
  * 
  *
  * double CalculateMassLossRateMerritt2024()
@@ -2747,7 +2747,7 @@ double BaseStar::CalculateMassLossRate() {
                 // The correct fix for this is to add code for the missing prescription or, if the missing
                 // prescription is superfluous, remove it from the option.
 
-                THROW_ERROR(ERROR::UNKNOWN_VMS_MASS_LOSS_PRESCRIPTION);                                             // throw error
+                THROW_ERROR(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION);                                                 // throw error
         }
 
         mDot = mDot * OPTIONS->OverallWindMassLossMultiplier();                                                     // apply overall wind mass loss multiplier
