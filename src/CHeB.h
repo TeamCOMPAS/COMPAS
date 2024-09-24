@@ -90,7 +90,7 @@ protected:
     double          CalculateHydrogenAbundanceCoreOnPhase() const               { return 0.0; }                                                                 // Core is hydrogen exhausted                                
     
     double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const         { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
-    double          CalculateHydrogenAbundanceSurfaceOnPhase() const            { return m_initialHydrogenAbundance; }                                          // Use class member variables
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const            { return m_InitialHydrogenAbundance; }                                          // Use class member variables
     
 
     double          CalculateLambdaDewi() const;

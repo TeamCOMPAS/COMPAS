@@ -62,7 +62,7 @@ protected:
     double          CalculateHydrogenAbundanceCoreOnPhase() const                           { return CalculateHydrogenAbundanceCoreOnPhase(m_Tau); }                // Use class member variables                                 
     
     double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const                     { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
-    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                        { return m_initialHydrogenAbundance; }                                  // Use class member variables
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                        { return m_InitialHydrogenAbundance; }                                  // Use class member variables
     
     double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const;
 

@@ -21,7 +21,7 @@
  */
 double HeMS::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
     double heliumAbundanceCoreMax = 1.0 - m_Metallicity;
-    return heliumAbundanceheliumAbundanceCoreMax * (1.0 - p_Tau)Core;
+    return heliumAbundanceCoreMax * (1.0 - p_Tau);
 }
 
 

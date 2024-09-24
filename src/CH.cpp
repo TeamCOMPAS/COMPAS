@@ -386,7 +386,7 @@ double CH::CalculateMassLossRateMerritt2024() {
     double weight = 1.0;    // Initialised to 1.0 to allow us to use the OB mass loss rate by default
     
     // Calculate OB mass loss rate according to the chosen prescription
-    Mdot_OB = BaseStar::CalculateMassLossRateOB(OPTIONS->OBMassLossPrescription());  
+    MdotOB = BaseStar::CalculateMassLossRateOB(OPTIONS->OBMassLossPrescription());  
 
     // If user wants to transition between OB and WR mass loss rates
     if (OPTIONS->ScaleCHEMassLossWithSurfaceHeliumAbundance()) {
@@ -395,7 +395,7 @@ double CH::CalculateMassLossRateMerritt2024() {
         // cloning it, so that we can ask it what its mass loss rate would be if it were
         // a HeMS star
         HeMS *clone = HeMS::Clone((HeMS&)static_cast<const CH&>(*this), OBJECT_PERSISTENCE::EPHEMERAL, false);  // Do not initialise so that we can use same mass, luminosity, radius etc
-        Mdot_WR     = clone->CalculateMassLossRateMerritt2024();                                                // Calculate WR mass loss rate              
+        MdotWR      = clone->CalculateMassLossRateMerritt2024();                                                // Calculate WR mass loss rate              
         delete clone; clone = nullptr;                                                                          // return the memory allocated for the clone  
 
         // Calculate weight for combining these into total mass-loss rate
