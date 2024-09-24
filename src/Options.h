@@ -336,6 +336,7 @@ private:
         "eccentricity-max",
         "eccentricity-min",
         "emit-gravitational-radiation",
+        "enhance-CHE-lifetimes-luminosities",
         "evolve-double-white-dwarfs",
         "evolve-pulsars",
         "evolve-unbound-systems",
@@ -354,9 +355,6 @@ private:
         "kick-phi-2",
         "kick-theta-1",
         "kick-theta-2",
-
-        //"logfile-be-binaries",
-        //"logfile-be-binaries-record-types",
 
         "logfile-common-envelopes",
         "logfile-common-envelopes-record-types",
@@ -401,6 +399,7 @@ private:
         "rocket-kick-theta-1",
         "rocket-kick-theta-2",
 
+        "scale-CHE-mass-loss-with-surface-helium-abundance",
         "semi-major-axis", "a",
         "semi-major-axis-distribution",
         "semi-major-axis-max",
@@ -455,6 +454,8 @@ private:
         "eccentricity-distribution",
         "emit-gravitational-radiation",
         "enable-warnings",
+        "enable-rotationally-enhanced-mass-loss",
+        "enhance-CHE-lifetimes-luminosities",
         "envelope-state-prescription",
         "errors-to-file",
         "evolve-double-white-dwarfs"
@@ -551,6 +552,7 @@ private:
         "rlof-printing",
         "rotational-velocity-distribution",
 
+        "scale-CHE-mass-loss-with-surface-helium-abundance",
         "semi-major-axis-distribution",
         "stellar-zeta-prescription",
         "store-input-files",
@@ -770,8 +772,10 @@ public:
             double                                              m_OrbitalPeriodDistributionMax;                                 // Maximum initial period in days
 
             // Wind mass loss
+            bool                                                m_EnableRotationallyEnhancedMassLoss;                           // Whether to enable rotationally enhanced mass loss
             double                                              m_CoolWindMassLossMultiplier;                                   // Multiplication factor to reduce cool wind mass loss rate at each timestep
             double                                              m_OverallWindMassLossMultiplier;                                // Multiplication factor to reduce the overall wind mass loss rate at each timestep
+            double                                              m_ScaleTerminalWindVelocityWithMetallicityPower;                // Power with which to scale terminal wind velocity with metallicity (v_inf ~ Z^x)
 
             // Eccentricity
             double                                              m_Eccentricity;                                                 // Eccentricity
@@ -823,6 +827,8 @@ public:
                                                                                                                                 
             // CHE - Chemically Homogeneous Evolution
             ENUM_OPT<CHE_MODE>                                  m_CheMode;                                                      // Which Chemically Homogeneous Evolution mode
+            bool                                                m_EnhanceCHELifetimesLuminosities;                              // Whether to enhance the lifetimes and luminosities of CHE stars relative to SSE MS stars
+            bool                                                m_ScaleCHEMassLossWithSurfaceHeliumAbundance;                   // Whether to transition between OB and WR mass loss rates for CHE stars on the MS
 
             // Supernova remnant mass
             ENUM_OPT<REMNANT_MASS_PRESCRIPTION>                 m_RemnantMassPrescription;                                      // Which remnant mass prescription
@@ -1280,8 +1286,11 @@ public:
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
     bool                                        DetailedOutput() const                                                  { return m_CmdLine.optionValues.m_DetailedOutput; }
 
+    bool                                        EnableRotationallyEnhancedMassLoss() const                              { return OPT_VALUE("enable-rotationally-enhanced-mass-loss", m_EnableRotationallyEnhancedMassLoss, true); }
+    bool                                        EnhanceCHELifetimesLuminosities() const                                 { return OPT_VALUE("enhance-CHE-lifetimes-luminosities", m_EnhanceCHELifetimesLuminosities, false); }
     bool                                        EnableWarnings() const                                                  { return m_CmdLine.optionValues.m_EnableWarnings; }
     bool                                        ErrorsToFile() const                                                    { return m_CmdLine.optionValues.m_ErrorsToFile; }
+    
     double                                      Eccentricity() const                                                    { return OPT_VALUE("eccentricity", m_Eccentricity, true); }
     ECCENTRICITY_DISTRIBUTION                   EccentricityDistribution() const                                        { return OPT_VALUE("eccentricity-distribution", m_EccentricityDistribution.type, true); }
     double                                      EccentricityDistributionMax() const                                     { return OPT_VALUE("eccentricity-distribution-max", m_EccentricityDistributionMax, true); }
@@ -1527,6 +1536,8 @@ public:
     double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
     RSG_MASS_LOSS_PRESCRIPTION                  RSGMassLossPrescription() const                                         { return OPTIONS->OptionSpecified("RSG-mass-loss-prescription") ? OPT_VALUE("RSG-mass-loss-prescription", m_RSGMassLossPrescription.type, true) : OPT_VALUE("RSG-mass-loss", m_RSGMassLossPrescription.type, true); } // RSG-mass-loss DEPRECATED June 2024 - remove end 2024
 
+    bool                                        ScaleCHEMassLossWithSurfaceHeliumAbundance() const                      { return OPT_VALUE("scale-CHE-mass-loss-with-surface-helium-abundance", m_ScaleCHEMassLossWithSurfaceHeliumAbundance, false); }
+    double                                      ScaleTerminalWindVelocityWithMetallicityPower() const                   { return OPT_VALUE("scale-terminal-wind-velocity-with-metallicity-power", m_ScaleTerminalWindVelocityWithMetallicityPower, true);}
     double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis, true); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }
     double                                      SemiMajorAxisDistributionMax() const                                    { return OPT_VALUE("semi-major-axis-max", m_SemiMajorAxisDistributionMax, true); }

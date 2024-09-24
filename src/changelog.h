@@ -1308,8 +1308,17 @@
 //                                      - Correct code comments, update documentation where it fell behind
 // 03.02.01   LvS - Sep 23, 2024     - Defect repair:
 //                                      - Fixed buggy behaviour of wolf-rayet-multiplier 
+// 03.03.00   SS - Sep 24, 2024      - Enhancement:
+//                                      - Improvements to modelling of chemically homogeneous evolution
+//                                      - New options: --enable-rotationally-enhanced-mass-loss,
+//                                        --enhance-CHE-lifetimes-luminosities, --scale-CHE-mass-loss-with-surface-helium-abundance,
+//                                        --scale-terminal-wind-velocity-with-metallicity-power
+//                                      - To facilitate --scale-CHE-mass-loss-with-surface-helium-abundance, added basic tracking of 
+//                                        surface and core hydrogen and helium abundances.
+//                                        See "What's New" and option documentation for details
+//
 
 
-const std::string VERSION_STRING = "03.02.01";
+const std::string VERSION_STRING = "03.03.00";
 
 # endif // __changelog_h__

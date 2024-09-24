@@ -9,6 +9,22 @@
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
 
+/*
+ * Calculate the helium abundance in the core of the star
+ * 
+ * Currently just a simple linear model. Should be updated to match detailed models.
+ *
+ * double CalculateHeliumAbundanceCore(const double p_Tau)
+ * 
+ * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
+ * 
+ * @return                                      Helium abundance in the core (Y_c)
+ */
+double CHeB::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
+    double heliumAbundanceCoreMax = 1.0 - m_Metallicity;
+    return heliumAbundanceCoreMax * (1.0 - p_Tau);
+}
+
 
 /*
  * Calculate timescales in units of Myr
@@ -29,8 +45,8 @@ void CHeB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
 
     GiantBranch::CalculateTimescales(p_Mass, p_Timescales);                             // calculate common values
 
-    timescales(tHe)     = CalculateLifetimeOnPhase(p_Mass);
-	timescales(tau_BL)  = CalculateLifetimeOnBluePhase(p_Mass);
+    timescales(tHe)    = CalculateLifetimeOnPhase(p_Mass);
+	timescales(tau_BL) = CalculateLifetimeOnBluePhase(p_Mass);
 
     // JR: The blue loop on CHeB can be 0-length/duration (see Hurley et al., 2000, section 5.3, 
     // particularly eq 58 and beyond).  COMPAS does not allow for a 0-length blue loop - some of 
@@ -53,15 +69,15 @@ void CHeB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
     // Hurley et al. 2000, just before eq 59
     // Naturally clamped to [0, 1]
 	timescales(tauX_BL) = (utils::Compare(p_Mass, massCutoffs(MHeF)) >= 0 && utils::Compare(p_Mass, massCutoffs(MFGB)) < 0)
-                                    ? 1.0 - timescales(tau_BL)                          // intermediate mass stars
-                                    : 0.0;                                              // low and high mass stars
+                            ? 1.0 - timescales(tau_BL)                                  // intermediate mass stars
+                            : 0.0;                                                      // low and high mass stars
 
     // Calculate the relative age at the end of the blue phase of Core Helium Burning
     // Hurley et al. 2000, just before eq 64
     // Naturally clamped to [0, 1]
 	timescales(tauY_BL) = utils::Compare(p_Mass, massCutoffs(MFGB)) >= 0
-                                    ? timescales(tau_BL)                                // high mass stars
-                                    : 1.0;                                              // intermediate and low mass stars
+                            ? timescales(tau_BL)                                        // high mass stars
+                            : 1.0;                                                      // intermediate and low mass stars
 
 #undef massCutoffs
 #undef timescales

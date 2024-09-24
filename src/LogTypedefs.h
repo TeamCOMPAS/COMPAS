@@ -183,7 +183,13 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     HE_CORE_MASS,                                    \
     HE_CORE_MASS_AT_COMMON_ENVELOPE,                 \
     HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        \
+    HELIUM_ABUNDANCE_CORE,                           \
+    HELIUM_ABUNDANCE_SURFACE,                        \
+    HYDROGEN_ABUNDANCE_CORE,                         \
+    HYDROGEN_ABUNDANCE_SURFACE,                      \
     ID,                                              \
+    INITIAL_HELIUM_ABUNDANCE,                        \
+    INITIAL_HYDROGEN_ABUNDANCE,                      \
     INITIAL_STELLAR_TYPE,                            \
     INITIAL_STELLAR_TYPE_NAME,                       \
     IS_AIC,                                          \
@@ -322,7 +328,14 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::HE_CORE_MASS,                                    "HE_CORE_MASS" },
     { STAR_PROPERTY::HE_CORE_MASS_AT_COMMON_ENVELOPE,                 "HE_CORE_MASS_AT_COMMON_ENVELOPE" },
     { STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        "HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION" },
+    { STAR_PROPERTY::HELIUM_ABUNDANCE_CORE,                           "HELIUM_ABUNDANCE_CORE" },
+    { STAR_PROPERTY::HELIUM_ABUNDANCE_SURFACE,                        "HELIUM_ABUNDANCE_SURFACE" },
+    { STAR_PROPERTY::HYDROGEN_ABUNDANCE_CORE,                         "HYDROGEN_ABUNDANCE_CORE" },
+    { STAR_PROPERTY::HYDROGEN_ABUNDANCE_SURFACE,                      "HYDROGEN_ABUNDANCE_SURFACE" },
     { STAR_PROPERTY::ID,                                              "ID" },
+    { STAR_PROPERTY::INITIAL_HELIUM_ABUNDANCE,                        "INITIAL_HELIUM_ABUNDANCE" },
+    { STAR_PROPERTY::INITIAL_HYDROGEN_ABUNDANCE,                      "INITIAL_HYDROGEN_ABUNDANCE" },
+    { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "INITIAL_STELLAR_TYPE" },
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "INITIAL_STELLAR_TYPE" },
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                       "INITIAL_STELLAR_TYPE_NAME" },
     { STAR_PROPERTY::IS_AIC,                                          "IS_AIC" },
@@ -735,6 +748,8 @@ enum class PROGRAM_OPTION: int {
     ECCENTRICITY_DISTRIBUTION_MAX,
     ECCENTRICITY_DISTRIBUTION_MIN,
     EDDINGTON_ACCRETION_FACTOR,
+    ENABLE_ROTATIONALLY_ENHANCED_MASS_LOSS,
+    ENHANCE_CHE_LIFETIMES_LUMINOSITIES,
     ENVELOPE_STATE_PRESCRIPTION,
     EVOLUTION_MODE,
 
@@ -889,7 +904,9 @@ enum class PROGRAM_OPTION: int {
     ROTATIONAL_FREQUENCY,
     ROTATIONAL_FREQUENCY_1,
     ROTATIONAL_FREQUENCY_2,
-
+    
+    SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE,
+    SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,
     SEMI_MAJOR_AXIS,
     SEMI_MAJOR_AXIS_DISTRIBUTION,
     SEMI_MAJOR_AXIS_DISTRIBUTION_MAX,
@@ -955,6 +972,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MAX,                    "ECCENTRICITY_DISTRIBUTION_MAX" },
     { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MIN,                    "ECCENTRICITY_DISTRIBUTION_MIN" },
     { PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR,                       "EDDINGTON_ACCRETION_FACTOR" },
+    { PROGRAM_OPTION::ENABLE_ROTATIONALLY_ENHANCED_MASS_LOSS,           "ENABLE_ROTATIONALLY_ENHANCED_MASS_LOSS" },
+    { PROGRAM_OPTION::ENHANCE_CHE_LIFETIMES_LUMINOSITIES,               "ENHANCE_CHE_LIFETIMES_LUMINOSITIES" }, 
     { PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION,                      "ENVELOPE_STATE_PRESCRIPTION" },
     { PROGRAM_OPTION::EVOLUTION_MODE,                                   "EVOLUTION_MODE" },
 
@@ -1109,6 +1128,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1,                           "ROTATIONAL_FREQUENCY_1" },
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_2,                           "ROTATIONAL_FREQUENCY_2" },
    
+    { PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE,            "SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE" }, 
+    { PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,        "SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER" }, 
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS,                                  "SEMI_MAJOR_AXIS" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION,                     "SEMI_MAJOR_AXIS_DISTRIBUTION" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX,                 "SEMI_MAJOR_AXIS_DISTRIBUTION_MAX" },
@@ -1228,7 +1249,13 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::HE_CORE_MASS,                                      { TYPENAME::DOUBLE,           "Mass_He_Core",                    "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,           "Mass_He_Core@CE",                 "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,          { TYPENAME::DOUBLE,           "Mass_He_Core@CO",                 "Msol",             24, 15}},
+    { ANY_STAR_PROPERTY::HELIUM_ABUNDANCE_SURFACE,                          { TYPENAME::DOUBLE,           "Helium_Abundance_Surface",        "-",                24, 15}},
+    { ANY_STAR_PROPERTY::HELIUM_ABUNDANCE_CORE,                             { TYPENAME::DOUBLE,           "Helium_Abundance_Core",           "-",                24, 15}},
+    { ANY_STAR_PROPERTY::HYDROGEN_ABUNDANCE_SURFACE,                        { TYPENAME::DOUBLE,           "Hydrogen_Abundance_Surface",      "-",                24, 15}},
+    { ANY_STAR_PROPERTY::HYDROGEN_ABUNDANCE_CORE,                           { TYPENAME::DOUBLE,           "Hydrogen_Abundance_Core",         "-",                24, 15}},
     { ANY_STAR_PROPERTY::ID,                                                { TYPENAME::OBJECT_ID,        "ID",                              "-",                12, 1 }},
+    { ANY_STAR_PROPERTY::INITIAL_HELIUM_ABUNDANCE,                          { TYPENAME::DOUBLE,           "Helium_Abundance@ZAMS",           "-",                24, 15}},
+    { ANY_STAR_PROPERTY::INITIAL_HYDROGEN_ABUNDANCE,                        { TYPENAME::DOUBLE,           "Hydrogen_Abundance@ZAMS",         "-",                24, 15}},
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE,                              { TYPENAME::STELLAR_TYPE,     "Stellar_Type@ZAMS",               "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                         { TYPENAME::STRING,           "Stellar_Type@ZAMS",               "-",                42, 1 }},
     { ANY_STAR_PROPERTY::IS_AIC,                                            { TYPENAME::BOOL,             "AIC",                             "State",             0, 0 }},
@@ -1485,6 +1512,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MAX,                            { TYPENAME::DOUBLE,     "PO_Eccentricity_Dstrbtn_Max",               "-",         24, 15}},
     { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MIN,                            { TYPENAME::DOUBLE,     "PO_Eccentricity_Dstrbtn_Min",               "-",         24, 15}},
     { PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR,                               { TYPENAME::DOUBLE,     "PO_Eddington_Accr_Factor",                  "-",         24, 15}},
+    { PROGRAM_OPTION::ENABLE_ROTATIONALLY_ENHANCED_MASS_LOSS,                   { TYPENAME::BOOL,       "PO_Enable_Rotationally_Enhanced_Mass_Loss", "Flag",       0,  0}},
+    { PROGRAM_OPTION::ENHANCE_CHE_LIFETIMES_LUMINOSITIES,                       { TYPENAME::BOOL,       "PO_Enhance_CHE_lifetimes_luminosities",     "Flag",       0,  0}},
     { PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION,                              { TYPENAME::INT,        "PO_Envelope_State_Prscrptn",                "-",          4, 1 }},
     { PROGRAM_OPTION::EVOLUTION_MODE,                                           { TYPENAME::INT,        "PO_Evolution_Mode",                         "Mode",       4, 1 }},
 
@@ -1640,6 +1669,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1,                                   { TYPENAME::DOUBLE,     "PO_Rotational_Frequency(1)",                "Hz",        24, 15}},
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_2,                                   { TYPENAME::DOUBLE,     "PO_Rotational_Frequency(2)",                "Hz",        24, 15}},
    
+    { PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE,                    { TYPENAME::BOOL,       "PO_Scale_CHE_Mass_Loss_Surf_He_Abundance",  "flag",       0,  0}},
+    { PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,                { TYPENAME::DOUBLE,     "PO_Scale_Terminal_Wind_Vel_Metallicity_Power", "-",      24, 15}},
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS,                                          { TYPENAME::DOUBLE,     "PO_Semi-Major_Axis",                        "AU",        24, 15}},
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION,                             { TYPENAME::INT,        "PO_Semi-Major_Axis_Dstrbtn",                "-",          4, 1 }},
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX,                         { TYPENAME::DOUBLE,     "PO_Semi-Major_Axis_Dstrbtn_Max",            "AU",        24, 15}},
