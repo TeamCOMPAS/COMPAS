@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Fri Aug 30 12:00:32 2024 by COMPAS v03.01.06
+##~!!~## File Created Wed Sep  4 10:48:49 2024 by COMPAS v03.02.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -26,8 +26,11 @@ booleanChoices:
     ### STELLAR PROPERTIES
 #    --check-photon-tiring-limit: False                                    # Default: False
 #    --use-mass-loss: True                                                 # Default: True
+#    --enable-rotationally-enhanced-mass-loss: False                       # Default: False
+#    --enhance-CHE-lifetimes-luminosities: False                           # Default: False
 #    --expel-convective-envelope-above-luminosity-threshold: False         # Default: False
 #    --natal-kick-for-PPISN: False                                         # Default: False
+#    --scale-CHE-mass-loss-with-surface-helium-abundance: False            # Default: False
 
     ### BINARY PROPERTIES
 #    --allow-touching-at-birth: False                                      # Default: False                                                                                                                                                              # record binaries that have stars touching at birth in output files
@@ -103,6 +106,7 @@ numericalChoices:
 #    --rotational-frequency: 0.000000                                      # Default: 0.000000
 #    --rotational-frequency-1: 0.000000                                    # Default: 0.000000
 #    --rotational-frequency-2: 0.000000                                    # Default: 0.000000
+#    --scale-terminal-wind-velocity-with-metallicity-power: 0.000000       # Default: 0.000000
 #    --wolf-rayet-multiplier: 1.000000                                     # Default: 1.000000
 
     ### BINARY PROPERTIES

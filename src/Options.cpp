@@ -328,7 +328,8 @@ void Options::OptionValues::Initialise() {
     // Chemically Homogeneous Evolution Mode
     m_CheMode.type                                                  = CHE_MODE::PESSIMISTIC;
     m_CheMode.typeString                                            = CHE_MODE_LABEL.at(m_CheMode.type);
-
+    m_EnhanceCHELifetimesLuminosities                               = false;                                                // default is don't enhance, as in Riley et al.
+    m_ScaleCHEMassLossWithSurfaceHeliumAbundance                    = false;                                                // default is don't scale the mass loss, as in Riley et al.
 
     // Supernova remnant mass prescription options
     m_RemnantMassPrescription.type                                  = REMNANT_MASS_PRESCRIPTION::MULLERMANDEL;
@@ -337,7 +338,7 @@ void Options::OptionValues::Initialise() {
     m_FryerSupernovaEngine.type                                     = SN_ENGINE::DELAYED;
     m_FryerSupernovaEngine.typeString                               = SN_ENGINE_LABEL.at(m_FryerSupernovaEngine.type);
 
-    m_Fryer22fmix                                                   = 0.5;                                                  //default is similar to DELAYED engine in Fryer 2012
+    m_Fryer22fmix                                                   = 0.5;                                                  // default is similar to DELAYED engine in Fryer 2012
     m_Fryer22Mcrit                                                  = 5.75;
 
     m_NeutrinoMassLossAssumptionBH.type                             = NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS;
@@ -378,6 +379,7 @@ void Options::OptionValues::Initialise() {
     m_UseMassLoss                                                   = true;
     m_CheckPhotonTiringLimit                                        = false;
     
+    m_EnableRotationallyEnhancedMassLoss                            = false;
     m_ExpelConvectiveEnvelopeAboveLuminosityThreshold               = false;
     m_LuminosityToMassThreshold                                     = 4.2;      // Podsiadlowski, private communication
 
@@ -399,12 +401,12 @@ void Options::OptionValues::Initialise() {
     m_WRMassLossPrescription.type                                   = WR_MASS_LOSS_PRESCRIPTION::SANDERVINK2023;
     m_WRMassLossPrescription.typeString                             = WR_MASS_LOSS_PRESCRIPTION_LABEL.at(m_WRMassLossPrescription.type);
 
-    // Wind mass loss multiplicitive constants
+    // Wind mass loss multiplicative constants
     m_CoolWindMassLossMultiplier                                    = 1.0;
     m_LuminousBlueVariableFactor                                    = 1.5;
     m_OverallWindMassLossMultiplier                                 = 1.0;
     m_WolfRayetFactor                                               = 1.0;
-
+    m_ScaleTerminalWindVelocityWithMetallicityPower                 = 0.0;
 
     // Mass transfer options
     m_UseMassTransfer                                               = true;
@@ -778,11 +780,20 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<bool>(&p_Options->m_DetailedOutput)->default_value(p_Options->m_DetailedOutput)->implicit_value(true),                                                                      
             ("Print detailed output to file (default = " + std::string(p_Options->m_DetailedOutput ? "TRUE" : "FALSE") + ")").c_str()
         )
-
+        (
+            "enable-rotationally-enhanced-mass-loss",                                             
+            po::value<bool>(&p_Options->m_EnableRotationallyEnhancedMassLoss)->default_value(p_Options->m_EnableRotationallyEnhancedMassLoss)->implicit_value(true),                                                                      
+            ("Enable rotationally enhanced mass loss for rapidly rotating stars following Langer 1998 (default = " + std::string(p_Options->m_EnableRotationallyEnhancedMassLoss ? "TRUE" : "FALSE") + ")").c_str()
+        )
         (
             "enable-warnings",                                             
             po::value<bool>(&p_Options->m_EnableWarnings)->default_value(p_Options->m_EnableWarnings)->implicit_value(true),                                                                      
             ("Display warning messages to stdout (default = " + std::string(p_Options->m_EnableWarnings ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "enhance-CHE-lifetimes-luminosities",                                             
+            po::value<bool>(&p_Options->m_EnhanceCHELifetimesLuminosities)->default_value(p_Options->m_EnhanceCHELifetimesLuminosities)->implicit_value(false),                                                                      
+            ("Whether to enhance the lifetimes and luminosities of chemically homogeneously evolving (CHE) stars relative to SSE main sequence lifetimes/luminosities (default = " + std::string(p_Options->m_EnhanceCHELifetimesLuminosities ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "errors-to-file",                                              
@@ -897,7 +908,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<bool>(&p_Options->m_SwitchLog)->default_value(p_Options->m_SwitchLog)->implicit_value(true),                                                                          
             ("Print switch log to file (default = " + std::string(p_Options->m_SwitchLog ? "TRUE" : "FALSE") + ")").c_str()
         )
-
+        (
+            "scale-CHE-mass-loss-with-surface-helium-abundance",                                             
+            po::value<bool>(&p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->default_value(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->implicit_value(false),                                                                      
+            ("Whether to transition mass loss rates for chemically homogeneously evolving (CHE) stars between OB mass loss rates and Wolf-Rayet (WR) mass loss rates as a function of the surface helium abundance (Ys) as described by Yoon et al. 2006 (default = " + std::string(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance ? "TRUE" : "FALSE") + ")").c_str()
+        )
         (
             "use-mass-loss",                                               
             po::value<bool>(&p_Options->m_UseMassLoss)->default_value(p_Options->m_UseMassLoss)->implicit_value(true),                                                                            
@@ -1561,7 +1576,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<double>(&p_Options->m_RotationalFrequency2)->default_value(p_Options->m_RotationalFrequency2),                                                        
             ("Initial rotational frequency for the secondary star for BSE (Hz) (default = " + std::to_string(p_Options->m_RotationalFrequency2) + ")").c_str()
         )        
-
+        
+        (
+            "scale-terminal-wind-velocity-with-metallicity-power",                                         
+            po::value<double>(&p_Options->m_ScaleTerminalWindVelocityWithMetallicityPower)->default_value(p_Options->m_ScaleTerminalWindVelocityWithMetallicityPower),                                                              
+            ("Power (x) with which to scale the terminal wind velocity (v_inf) with metallicity (Z) in the Vink+2001 prescription (v_inf ~ Z^x)  (default = " + std::to_string(p_Options->m_ScaleTerminalWindVelocityWithMetallicityPower) + ")").c_str()
+        )
         (
             "semi-major-axis,a",                              
             po::value<double>(&p_Options->m_SemiMajorAxis)->default_value(p_Options->m_SemiMajorAxis),                                                        

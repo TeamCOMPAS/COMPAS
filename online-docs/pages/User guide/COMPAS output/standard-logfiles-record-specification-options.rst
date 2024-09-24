@@ -413,7 +413,7 @@ DEPRECATION NOTICE: property ``BLACK_HOLE_KICKS`` has been deprecated and will s
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **ECCENTRICITY_DISTRIBUTION MAX**
+   * - :cspan:`2` **ECCENTRICITY_DISTRIBUTION_MAX**
      -
    * - Data type:
      - DOUBLE
@@ -471,6 +471,38 @@ DEPRECATION NOTICE: property ``BLACK_HOLE_KICKS`` has been deprecated and will s
      - Value of program option ``--envelope-state-prescription``
    * - Header String:
      - PO_Envelope_State_Prscrptn
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **ENABLE_ROTATIONALLY_ENHANCED_MASS_LOSS**
+     -
+   * - Data type:
+     - BOOL
+   * - COMPAS variable:
+     - Options::m_EnableRotationallyEnhancedMassLoss
+   * - Description:
+     - Value of program option ``--enable-rotationally-enhanced-mass-loss``
+   * - Header String:
+     - PO_Enable_Rotationally_Enhanced_Mass_Loss
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **ENHANCE_CHE_LIFETIMES_LUMINOSITIES**
+     -
+   * - Data type:
+     - BOOL
+   * - COMPAS variable:
+     - Options::m_EnhanceCHELifetimesLuminosities
+   * - Description:
+     - Value of program option ``--enhance-CHE-lifetimes-luminosities``
+   * - Header String:
+     - PO_Enhance_CHE_lifetimes_luminosities
 
 .. _spec-options-props-F:
 
@@ -1870,6 +1902,38 @@ DEPRECATION NOTICE: property ``LBV_PRESCRIPTION`` has been deprecated and will s
 
 :ref:`Back to Top <spec-options-props-top>`
 
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE**
+     -
+   * - Data type:
+     - BOOL
+   * - COMPAS variable:
+     - Options::m_ScaleCHEMassLossWithSurfaceHeliumAbundance
+   * - Description:
+     - Value of program option ``--scale-CHE-mass-loss-with-surface-helium-abundance``
+   * - Header String:
+     - PO_Scale_CHE_Mass_Loss_Surf_He_Abundance
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_ScaleTerminalWindVelocityWithMetallicityPower
+   * - Description:
+     - Value of program option ``--scale-terminal-wind-velocity-with-metallicity-power``
+   * - Header String:
+     - PO_Scale_Terminal_Wind_Vel_Metallicity_Power
+   
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0

@@ -11,6 +11,49 @@
 
 
 /*
+ * Calculate the helium abundance in the core of the star
+ * 
+ * Currently just a simple linear model from the initial helium abundance to 
+ * the maximum helium abundance (assuming that all hydrogen is converted to
+ * helium). 
+ * 
+ * When tau = 0, heliumAbundanceCore = m_InitialHeliumAbundance
+ * When tau = 1, heliumAbundanceCore = heliumAbundanceCoreMax = 1.0 - m_Metallicity
+ * 
+ * Should be updated to match detailed models.
+ *
+ * double CalculateHeliumAbundanceCoreOnPhase(const double p_Tau)
+ * 
+ * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
+ *
+ * @return                                      Helium abundance in the core (Y_c)
+ */
+double MainSequence::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
+    double heliumAbundanceCoreMax = 1.0 - m_Metallicity;
+    return ((heliumAbundanceCoreMax - m_InitialHeliumAbundance) * p_Tau) + m_InitialHeliumAbundance;
+}
+
+
+/*
+ * Calculate the hydrogen abundance in the core of the star
+ * 
+ * Currently just a simple linear model. Assumes that hydrogen in the core of 
+ * the star is burned to helium at a constant rate throughout the lifetime. 
+ * 
+ * Should be updated to match detailed models.
+ *
+ * double CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau)
+ * 
+ * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
+ *
+ * @return                                      Hydrogen abundance in the core (X_c)
+ */
+double MainSequence::CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const {
+    return m_InitialHydrogenAbundance * (1.0 - p_Tau);
+}
+
+
+/*
  * Calculate timescales in units of Myr
  *
  * Timescales depend on a star's mass, so this needs to be called at least each timestep
@@ -588,7 +631,7 @@ double MainSequence::CalculateConvectiveCoreMass() const {
     // The clone should not evolve, and so should not log anything, but to be sure the
     // clone does not participate in logging, we set its persistence to EPHEMERAL.
       
-    HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+    HG *clone           = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
     double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
     delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
 
@@ -791,8 +834,7 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_Force) {
  * void UpdateMinimumCoreMass()
  *
  */
-void MainSequence::UpdateMinimumCoreMass()
-{
+void MainSequence::UpdateMinimumCoreMass() {
     if (OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
 
         // We need TAMSCoreMass, which is just the core mass at the start of the HG phase.
@@ -803,7 +845,7 @@ void MainSequence::UpdateMinimumCoreMass()
         // The clone should not evolve, and so should not log anything, but to be sure the
         // clone does not participate in logging, we set its persistence to EPHEMERAL.
       
-        HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+        HG *clone           = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
         double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
         delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
 
@@ -824,15 +866,14 @@ void MainSequence::UpdateMinimumCoreMass()
  * @param   [IN]    p_HydrogenMass              Desired value of hydrogen mass of merger remnant
  *
  */
-void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass)
-{
+void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     m_Mass            = p_Mass;
     m_Mass0           = m_Mass;
     m_MinimumCoreMass = 0.0;
-        
-    double initialHydrogenFraction = 1.0 - utils::MESAZAMSHeliumFractionByMetallicity(m_Metallicity) - m_Metallicity;
+    
+    double initialHydrogenFraction = m_InitialHydrogenAbundance;
     
     CalculateTimescales();
     CalculateGBParams();
