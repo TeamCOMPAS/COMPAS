@@ -627,6 +627,57 @@ Binary Properties
    * - Header String:
      - SEED
 
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+   
+   * - :cspan:`2` **RLOF_ACCRETION_EFFICIENCY:**
+     -
+   * - Data type:
+     - DOUBLE   
+   * - COMPAS variable:
+     - BaseBinaryStar::m_RLOFDetails.propsPostMT->accretionEfficiency
+   * - Description:
+     - Fraction of the mass lost from the donor that ends up on the accretor
+   * - Header String:
+     - beta
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+   
+   * - :cspan:`2` **RLOF_MASS_LOSS_RATE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_RLOFDetails.propsPostMT->massLossRateFromDonor
+   * - Description:   
+     - The rate at which mass is lost from the donor (\ :math:`M_\odot`/yr)
+   * - Header String:
+     - MassTransferRateDonor
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0     
+   :class: aligned-text
+   
+   * - :cspan:`2` **RLOF_MASS_TRANSFER_TIMESCALE:**
+     -
+   * - Data type:
+     - INT
+   * - COMPAS variable:
+     - BaseBinaryStar::m_RLOFDetails.propsPostMT->massTransferTimescale
+   * - Description:
+     - Mass transfer timescale (0 for no mass transfer, 1 for nuclear, 2 for thermal, 3 for common envelope)
+   * - Header String:
+     - MassTransferTimescale
+
+
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0
