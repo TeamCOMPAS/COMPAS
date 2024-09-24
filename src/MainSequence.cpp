@@ -17,7 +17,7 @@
  * the maximum helium abundance (assuming that all hydrogen is converted to
  * helium). 
  * 
- * When tau = 0, heliumAbundanceCore = m_initialHeliumAbundance
+ * When tau = 0, heliumAbundanceCore = m_InitialHeliumAbundance
  * When tau = 1, heliumAbundanceCore = heliumAbundanceCoreMax = 1.0 - m_Metallicity
  * 
  * Should be updated to match detailed models.

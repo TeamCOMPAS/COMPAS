@@ -122,9 +122,9 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_HeliumAbundanceCore                      = m_InitialHeliumAbundance;
     m_HeliumAbundanceSurface                   = m_InitialHeliumAbundance;
 
-    m_initialHydrogenAbundance                 = CalculateInitialHydrogenAbundance();
-    m_HydrogenAbundanceCore                    = m_initialHydrogenAbundance;
-    m_HydrogenAbundanceSurface                 = m_initialHydrogenAbundance;
+    m_InitialHydrogenAbundance                 = CalculateInitialHydrogenAbundance();
+    m_HydrogenAbundanceCore                    = m_InitialHydrogenAbundance;
+    m_HydrogenAbundanceSurface                 = m_InitialHydrogenAbundance;
 
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
     m_RZAMS0                                   = m_RZAMS;
