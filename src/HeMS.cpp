@@ -278,7 +278,7 @@ double HeMS::CalculateMassTransferRejuvenationFactor() {
 double HeMS::CalculateMassLossRateHurley() {
     double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
     double rateKR = CalculateMassLossRateKudritzkiReimers();
-    double rateWR = CalculateMassLossRateWolfRayet(0.0);        // use mu = 0.0 for Helium stars
+    double rateWR = OPTIONS->WolfRayetFactor()  * CalculateMassLossRateWolfRayet(0.0);        // use mu = 0.0 for Helium stars 
 
     m_DominantMassLossRate = MASS_LOSS_TYPE::GB;
     double dominantRate    = std::max(rateNJ, rateKR);
@@ -303,7 +303,7 @@ double HeMS::CalculateMassLossRateHurley() {
  */
 double HeMS::CalculateMassLossRateBelczynski2010() {
     m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
-    return CalculateMassLossRateWolfRayetZDependent(0.0);
+    return OPTIONS->WolfRayetFactor() * CalculateMassLossRateWolfRayetZDependent(0.0);  
 }
 
 
@@ -334,7 +334,7 @@ double HeMS::CalculateMassLossRateWolfRayetShenar2019() const {
 
     logMdot = C1 + (C2 * log10(m_Luminosity)) + (C3 * log10(Teff)) + (C5 * m_Log10Metallicity); 
 
-    return PPOW(10.0, logMdot); // Mdot
+    return PPOW(10.0, logMdot); // Mdot 
 }
 
 
@@ -367,24 +367,24 @@ double HeMS::CalculateMassLossRateMerritt2024() {
             // use whichever gives the highest mass loss rate -- will typically be Vink 2017 for
             // low Mass or Luminosity, and Sander & Vink 2020 for high Mass or Luminosity
 
-            MdotWR = std::max(MdotSander2023, Mdot_Vink2017);
+            MdotWR = OPTIONS->WolfRayetFactor() * std::max(MdotSander2023, MdotVink2017);
 
         } break;
 
         case WR_MASS_LOSS_PRESCRIPTION::SHENAR2019: {
             // mass loss rate for WR stars from Shenar+ 2019
-            double MdotShenar2019 = CalculateMassLossRateWolfRayetShenar2019();
+            double MdotShenar2019 = CalculateMassLossRateWolfRayetShenar2019();                                 // OPTIONS->WolfRayetFactor()  is applied in Shenar2019 function
 
             // calculate Vink 2017 mass-loss rate
             double MdotVink2017   = CalculateMassLossRateHeliumStarVink2017();
 
             // apply a minimum of Vink 2017 mass-loss rate to avoid extrapolating to low luminosity
-            MdotWR = std::max(MdotShenar2019, MdotVink2017);
+            MdotWR = OPTIONS->WolfRayetFactor() * std::max(MdotShenar2019, MdotVink2017);
 
         } break;
 
         case WR_MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010:
-            MdotWR = CalculateMassLossRateBelczynski2010();
+            MdotWR = CalculateMassLossRateBelczynski2010(); // OPTIONS->WolfRayetFactor() is applied in Belczynski2010 function
             break;
 
         default:                                                                                                // unknown prescription
