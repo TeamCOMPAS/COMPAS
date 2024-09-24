@@ -1316,6 +1316,8 @@
 //                                      - To facilitate --scale-CHE-mass-loss-with-surface-helium-abundance, added basic tracking of 
 //                                        surface and core hydrogen and helium abundances.
 //                                        See "What's New" and option documentation for details
+//
+
 
 const std::string VERSION_STRING = "03.03.00";
 
