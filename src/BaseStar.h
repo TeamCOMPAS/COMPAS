@@ -110,8 +110,8 @@ public:
             double              HeliumAbundanceSurface() const                                  { return m_HeliumAbundanceSurface;} 
             double              HydrogenAbundanceCore() const                                   { return m_HydrogenAbundanceCore; }
             double              HydrogenAbundanceSurface() const                                { return m_HydrogenAbundanceSurface; }
-            double              InitialHeliumAbundance() const                                  { return m_initialHeliumAbundance; }
-            double              InitialHydrogenAbundance() const                                { return m_initialHydrogenAbundance; }
+            double              InitialHeliumAbundance() const                                  { return m_InitialHeliumAbundance; }
+            double              InitialHydrogenAbundance() const                                { return m_InitialHydrogenAbundance; }
             bool                IsAIC() const                                                   { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::AIC; }
             bool                IsCCSN() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::CCSN; }
             bool                IsHeSD() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::HeSD; }
@@ -399,8 +399,8 @@ protected:
     unsigned long int       m_RandomSeed;                               // Seeds the random number generator for this star
 
     // Zero Age Main Sequence
-    double                  m_initialHeliumAbundance;                   // Initial helium abundance (Y)
-    double                  m_initialHydrogenAbundance;                 // Initial hydrogen abundance (X)
+    double                  m_InitialHeliumAbundance;                   // Initial helium abundance (Y)
+    double                  m_InitialHydrogenAbundance;                 // Initial hydrogen abundance (X)
     double                  m_LZAMS;                                    // ZAMS Luminosity
     double                  m_MZAMS;                                    // ZAMS Mass
     double                  m_OmegaZAMS;                                // ZAMS Angular Frequency

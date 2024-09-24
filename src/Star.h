@@ -192,7 +192,7 @@ public:
     
     double          CalculateNuclearMassLossRate()                                                                  { return m_Star->CalculateNuclearMassLossRate(); }
     
-    double          CalculateRadialExtentConvectiveEnvelope() { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
+    double          CalculateRadialExtentConvectiveEnvelope()                                                       { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
 
     double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const                        { return m_Star->CalculateRadiusOnPhaseTau(p_Mass, p_Tau); }
     

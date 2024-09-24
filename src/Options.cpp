@@ -328,8 +328,8 @@ void Options::OptionValues::Initialise() {
     // Chemically Homogeneous Evolution Mode
     m_CheMode.type                                                  = CHE_MODE::PESSIMISTIC;
     m_CheMode.typeString                                            = CHE_MODE_LABEL.at(m_CheMode.type);
-    m_EnhanceCHELifetimesLuminosities                               = false;                                                // By default, don't enhance, as in Riley et al.
-    m_ScaleCHEMassLossWithSurfaceHeliumAbundance                    = false;                                                // By default, don't scale the mass loss, as in Riley et al.
+    m_EnhanceCHELifetimesLuminosities                               = false;                                                // default is don't enhance, as in Riley et al.
+    m_ScaleCHEMassLossWithSurfaceHeliumAbundance                    = false;                                                // default is don't scale the mass loss, as in Riley et al.
 
     // Supernova remnant mass prescription options
     m_RemnantMassPrescription.type                                  = REMNANT_MASS_PRESCRIPTION::MULLERMANDEL;
@@ -338,7 +338,7 @@ void Options::OptionValues::Initialise() {
     m_FryerSupernovaEngine.type                                     = SN_ENGINE::DELAYED;
     m_FryerSupernovaEngine.typeString                               = SN_ENGINE_LABEL.at(m_FryerSupernovaEngine.type);
 
-    m_Fryer22fmix                                                   = 0.5;                                                  //default is similar to DELAYED engine in Fryer 2012
+    m_Fryer22fmix                                                   = 0.5;                                                  // default is similar to DELAYED engine in Fryer 2012
     m_Fryer22Mcrit                                                  = 5.75;
 
     m_NeutrinoMassLossAssumptionBH.type                             = NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS;

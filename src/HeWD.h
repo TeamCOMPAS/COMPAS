@@ -60,11 +60,11 @@ protected:
 
 
     // member functions - alphabetically
-    double          CalculateHeliumAbundanceCoreOnPhase() const { return 1.0 - m_Metallicity; };
-    double          CalculateHeliumAbundanceSurfaceOnPhase() const { return 1.0 - m_Metallicity; };
+    double          CalculateHeliumAbundanceCoreOnPhase() const                                             { return 1.0 - m_Metallicity; };
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const                                          { return 1.0 - m_Metallicity; };
     
-    double          CalculateHydrogenAbundanceCoreOnPhase() const { return 0.0; };
-    double          CalculateHydrogenAbundanceSurfaceOnPhase() const { return 0.0; };
+    double          CalculateHydrogenAbundanceCoreOnPhase() const                                           { return 0.0; };
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                                        { return 0.0; };
     
     double          CalculateLambdaDewi() const                                                             { return BaseStar::CalculateLambdaDewi(); }
     double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }

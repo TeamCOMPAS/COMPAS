@@ -79,18 +79,18 @@ protected:
 
     double          CalculateHeCoreMassAtPhaseEnd() const                       { return m_CoreMass; }
 
-    double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                          { return CalculateHeliumAbundanceCoreOnPhase(); }
+    double          CalculateHeliumAbundanceCoreAtPhaseEnd() const              { return CalculateHeliumAbundanceCoreOnPhase(); }
     double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;                                         
-    double          CalculateHeliumAbundanceCoreOnPhase() const                             { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                  // Use class member variables                                       
+    double          CalculateHeliumAbundanceCoreOnPhase() const                 { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                          // Use class member variables                                       
     
-    double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const                       { return CalculateHeliumAbundanceSurfaceOnPhase(); }
-    double          CalculateHeliumAbundanceSurfaceOnPhase() const                          { return m_initialHeliumAbundance; }                                    // Use class member variables                      
+    double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const           { return CalculateHeliumAbundanceSurfaceOnPhase(); }
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const              { return m_InitialHeliumAbundance; }                                            // Use class member variables                      
     
-    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                        { return CalculateHydrogenAbundanceCoreOnPhase(); } 
-    double          CalculateHydrogenAbundanceCoreOnPhase() const                           { return 0.0; }                                                         // Core is hydrogen exhausted                                
+    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const            { return CalculateHydrogenAbundanceCoreOnPhase(); } 
+    double          CalculateHydrogenAbundanceCoreOnPhase() const               { return 0.0; }                                                                 // Core is hydrogen exhausted                                
     
-    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const                     { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
-    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                        { return m_initialHydrogenAbundance; }                                  // Use class member variables
+    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const         { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const            { return m_initialHydrogenAbundance; }                                          // Use class member variables
     
 
     double          CalculateLambdaDewi() const;
