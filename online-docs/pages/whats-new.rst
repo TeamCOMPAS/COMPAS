@@ -6,7 +6,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
-**03.02.00 Sep 4, 2024**
+**03.03.00 Sep 24, 2024**
 
 Added new functionality to improve modelling of chemically homogeneous evolution (CHE). The default behaviour remains unchanged.
 
@@ -14,6 +14,17 @@ Added new functionality to improve modelling of chemically homogeneous evolution
 * New command line option option `--enhance-CHE-lifetimes-luminosities` to enhance CHE lifetimes and luminosities following detailed models from Szecsi et al. (2015) 
 * New command line option option `--scale-CHE-mass-loss-with-surface-helium-abundance` to switch from OB to WR mass loss for CH stars towards the end of the main sequence
 * New command line option option `--scale-terminal-wind-velocity-with-metallicity-power` to scale the terminal wind velocity with the metallicity
+
+**03.02.00 Sep 19, 2024**
+
+Added recording of ``MASS_TRANSFER_TIMESCALE (NONE, NUCLEAR, THERMAL, CE)``.
+Now continuing evolution on mergers at birth (stars touching) if ``--resolve-main-sequence-merger``.
+Changed Sabhahit+ 2023 VMS winds to default to current OB wind prescription if Gamma threshold is not met
+Correct the behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF; 
+now ensuring that the accretor's mass is correctly adjusted
+Update the fits for the convective envelope mass and radial extent to ensure smooth behaviour
+Updated treatment of 2-stage common envelope for intermediate mass stars, to smoothly reduce from Hirai & Mandel above 8 solar masses
+to classical "full envelope" removal for stars below 2 solar masses.
 
 **03.01.06 Aug 30, 2024**
 

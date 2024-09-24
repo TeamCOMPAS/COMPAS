@@ -1294,7 +1294,21 @@
 //                                      - Fix for issue #1218: increased default MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS, but on failure to find a solution,
 //                                          indicating a narrow range, just pick a midpoint; remove associated error
 //                                      - Corrected --mass-loss-prescription description in documentation
-// 03.02.00   SS - Sep 11, 2024      - Enhancement:
+// 03.02.00   IM - Sep 19, 2024     - Defect repair, cleanup, documentation
+//                                      - Continue evolution on merger at birth (stars touching) if --resolve-main-sequence-merger
+//                                      - Change behavior of Sabhahit+ 2023 VMS winds to default to current OB wind prescription if Gamma threshold is not met
+//                                      - Add recording of MASS_TRANSFER_TIMESCALE (NONE, NUCLEAR, THERMAL, CE), resolving issue #1217
+//                                      - Correct (re-)setting of MassLossRateInRLOF, resolving issue #1225
+//                                      - Correct behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF (see #1215)
+//                                      - Correct behaviour of the second stage of 2-stage CE to ensure that the accretor's mass is correctly adjusted
+//                                      - Update Picker convective envelope mass fit to equal the maximum convective envelope mass when the star is on the AGB
+//                                      - Apply the HG prescription for the convective envelope mass to the entire GB to ensure it evolves smoothly
+//                                      - Resolve issue #1213: updated treatment of 2-stage common envelope for intermediate mass stars, to smoothly reduce from
+//                                              Hirai & Mandel above 8 solar masses to classical "full envelope" removal for stars below 2 solar masses
+//                                      - Correct code comments, update documentation where it fell behind
+// 03.02.01   LvS - Sep 23, 2024     - Defect repair:
+//                                      - Fixed buggy behaviour of wolf-rayet-multiplier 
+// 03.03.00   SS - Sep 24, 2024      - Enhancement:
 //                                      - Improvements to modelling of chemically homogeneous evolution
 //                                      - New options: --enable-rotationally-enhanced-mass-loss,
 //                                        --enhance-CHE-lifetimes-luminosities, --scale-CHE-mass-loss-with-surface-helium-abundance,
@@ -1304,8 +1318,7 @@
 //                                        See "What's New" and option documentation for details
 //
 
-
-const std::string VERSION_STRING = "03.02.00";
-
+const std::string VERSION_STRING = "03.03.00";
+>>>>>>> dev
 
 # endif // __changelog_h__
