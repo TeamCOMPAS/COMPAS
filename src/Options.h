@@ -336,6 +336,7 @@ private:
         "eccentricity-max",
         "eccentricity-min",
         "emit-gravitational-radiation",
+        "enhance-CHE-lifetimes-luminosities",
         "evolve-double-white-dwarfs",
         "evolve-pulsars",
         "evolve-unbound-systems",
@@ -354,9 +355,6 @@ private:
         "kick-phi-2",
         "kick-theta-1",
         "kick-theta-2",
-
-        //"logfile-be-binaries",
-        //"logfile-be-binaries-record-types",
 
         "logfile-common-envelopes",
         "logfile-common-envelopes-record-types",
@@ -401,6 +399,7 @@ private:
         "rocket-kick-theta-1",
         "rocket-kick-theta-2",
 
+        "scale-CHE-mass-loss-with-surface-helium-abundance",
         "semi-major-axis", "a",
         "semi-major-axis-distribution",
         "semi-major-axis-max",

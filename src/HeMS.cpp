@@ -13,20 +13,17 @@
  * 
  * Currently just a simple linear model. Should be updated to match detailed models.
  *
- * double CalculateHeliumAbundanceCore(p_Tau)
+ * double CalculateHeliumAbundanceCore(const double p_Tau)
  * 
  * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
  * 
  * @return                                      Helium abundance in the core (Y_c)
  */
 double HeMS::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
-
     double heliumAbundanceCoreMax = 1.0 - m_Metallicity;
-    
-    double heliumAbundanceCore = heliumAbundanceCoreMax * (1.0 - p_Tau);
-
-    return heliumAbundanceCore;
+    return heliumAbundanceheliumAbundanceCoreMax * (1.0 - p_Tau)Core;
 }
+
 
 /*
  * Calculate timescales in units of Myr
@@ -86,6 +83,7 @@ void HeMS::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
 
 #undef gbParams
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -308,6 +306,7 @@ double HeMS::CalculateMassLossRateBelczynski2010() {
     return CalculateMassLossRateWolfRayetZDependent(0.0);
 }
 
+
 /*
  * Calculate the mass-loss rate for Wolf--Rayet stars according to the
  * prescription of Shenar et al. 2019 (https://ui.adsabs.harvard.edu/abs/2019A%26A...627A.151S/abstract)
@@ -357,30 +356,30 @@ double HeMS::CalculateMassLossRateMerritt2024() {
 
         case WR_MASS_LOSS_PRESCRIPTION::SANDERVINK2023: {
             // calculate Sander & Vink 2020 mass-loss rate
-            double Mdot_SanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
+            double MdotSanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
 
             // apply the Sander et al. 2023 temperature correction to the Sander & Vink 2020 rate
-            double Mdot_Sander2023 = CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(Mdot_SanderVink2020);
+            double MdotSander2023     = CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(MdotSanderVink2020);
 
             // calculate Vink 2017 mass-loss rate
-            double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
+            double MdotVink2017       = CalculateMassLossRateHeliumStarVink2017();
 
             // use whichever gives the highest mass loss rate -- will typically be Vink 2017 for
             // low Mass or Luminosity, and Sander & Vink 2020 for high Mass or Luminosity
 
-            MdotWR = std::max(Mdot_Sander2023, Mdot_Vink2017);
+            MdotWR = std::max(MdotSander2023, Mdot_Vink2017);
 
         } break;
 
         case WR_MASS_LOSS_PRESCRIPTION::SHENAR2019: {
             // mass loss rate for WR stars from Shenar+ 2019
-            double Mdot_Shenar2019 = CalculateMassLossRateWolfRayetShenar2019();
+            double MdotShenar2019 = CalculateMassLossRateWolfRayetShenar2019();
 
             // calculate Vink 2017 mass-loss rate
-            double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
+            double MdotVink2017   = CalculateMassLossRateHeliumStarVink2017();
 
             // apply a minimum of Vink 2017 mass-loss rate to avoid extrapolating to low luminosity
-            MdotWR = std::max(Mdot_Shenar2019, Mdot_Vink2017);
+            MdotWR = std::max(MdotShenar2019, MdotVink2017);
 
         } break;
 

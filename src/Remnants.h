@@ -42,11 +42,11 @@ protected:
     void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)                              { GiantBranch::CalculateGBParams(p_Mass, p_GBParams); }                 // Default to GiantBranch  
     void            CalculateGBParams()                                                                         { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
 
-    double          CalculateHeliumAbundanceCoreOnPhase() const { return 0.0; };
-    double          CalculateHeliumAbundanceSurfaceOnPhase() const { return 0.0; };
+    double          CalculateHeliumAbundanceCoreOnPhase() const                                                 { return 0.0; };
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const                                              { return 0.0; };
     
-    double          CalculateHydrogenAbundanceCoreOnPhase() const { return 0.0; };
-    double          CalculateHydrogenAbundanceSurfaceOnPhase() const { return 0.0; };
+    double          CalculateHydrogenAbundanceCoreOnPhase() const                                               { return 0.0; };
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                                            { return 0.0; };
     
     double          CalculateHeCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 

@@ -93,18 +93,18 @@ protected:
     double          CalculateHeCoreMassAtPhaseEnd() const                           { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
     double          CalculateHeCoreMassOnPhase() const                              { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
     
-    double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                          { return 1.0 - m_Metallicity; }                                         
-    double          CalculateHeliumAbundanceCoreOnPhase() const                             { return 1.0 - m_Metallicity; }                                         // Use class member variables                                       
+    double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                  { return 1.0 - m_Metallicity; }                                         
+    double          CalculateHeliumAbundanceCoreOnPhase() const                     { return 1.0 - m_Metallicity; }                                                             // Use class member variables                                       
     
-    double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const                       { return CalculateHeliumAbundanceSurfaceOnPhase(); }
-    double          CalculateHeliumAbundanceSurfaceOnPhase() const                          { return m_initialHeliumAbundance; }                                    // Use class member variables                      
+    double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const               { return CalculateHeliumAbundanceSurfaceOnPhase(); }
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const                  { return m_InitialHeliumAbundance; }                                                        // Use class member variables                      
     
-    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                        { return CalculateHydrogenAbundanceCoreOnPhase(); } 
+    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                { return CalculateHydrogenAbundanceCoreOnPhase(); } 
     double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;                                                          
-    double          CalculateHydrogenAbundanceCoreOnPhase() const                           { return 0.0; }                                                         // Star has exhausted hydrogen in its core                                 
+    double          CalculateHydrogenAbundanceCoreOnPhase() const                   { return 0.0; }                                                                             // Star has exhausted hydrogen in its core                                 
     
-    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const                     { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
-    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                        { return m_initialHydrogenAbundance; }                                  // Use class member variables
+    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const             { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                { return m_initialHydrogenAbundance; }                                                      // Use class member variables
     
 
 
@@ -117,7 +117,7 @@ protected:
     double          CalculateLuminosityOnPhase(const double p_Age, const double p_Mass) const;
     double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Age, m_Mass0); }                                      // Use class member variables
 
-    double          CalculateMassTransferRejuvenationFactor()			    { return 1.0; }
+    double          CalculateMassTransferRejuvenationFactor()                       { return 1.0; }
 
     double          CalculateRadialExtentConvectiveEnvelope() const {
         double envMass, envMassMax;

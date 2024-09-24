@@ -22,20 +22,17 @@
  * 
  * Should be updated to match detailed models.
  *
- * double CalculateHeliumAbundanceCoreOnPhase(p_Tau)
+ * double CalculateHeliumAbundanceCoreOnPhase(const double p_Tau)
  * 
  * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
  *
  * @return                                      Helium abundance in the core (Y_c)
  */
 double MainSequence::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
-
     double heliumAbundanceCoreMax = 1.0 - m_Metallicity;
-
-    double heliumAbundanceCore = ((heliumAbundanceCoreMax - m_initialHeliumAbundance) * p_Tau) + m_initialHeliumAbundance;
-    
-    return heliumAbundanceCore;
+    return ((heliumAbundanceCoreMax - m_InitialHeliumAbundance) * p_Tau) + m_InitialHeliumAbundance;
 }
+
 
 /*
  * Calculate the hydrogen abundance in the core of the star
@@ -45,18 +42,16 @@ double MainSequence::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) con
  * 
  * Should be updated to match detailed models.
  *
- * double CalculateHydrogenAbundanceCoreOnPhase(p_Tau)
+ * double CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau)
  * 
  * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
  *
  * @return                                      Hydrogen abundance in the core (X_c)
  */
 double MainSequence::CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const {
-
-    double hydrogenAbundanceCore = m_initialHydrogenAbundance * (1.0 - p_Tau);
-
-    return hydrogenAbundanceCore;
+    return m_InitialHydrogenAbundance * (1.0 - p_Tau);
 }
+
 
 /*
  * Calculate timescales in units of Myr
@@ -636,7 +631,7 @@ double MainSequence::CalculateConvectiveCoreMass() const {
     // The clone should not evolve, and so should not log anything, but to be sure the
     // clone does not participate in logging, we set its persistence to EPHEMERAL.
       
-    HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+    HG *clone           = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
     double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
     delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
 
@@ -839,8 +834,7 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_Force) {
  * void UpdateMinimumCoreMass()
  *
  */
-void MainSequence::UpdateMinimumCoreMass()
-{
+void MainSequence::UpdateMinimumCoreMass() {
     if (OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
 
         // We need TAMSCoreMass, which is just the core mass at the start of the HG phase.
@@ -851,7 +845,7 @@ void MainSequence::UpdateMinimumCoreMass()
         // The clone should not evolve, and so should not log anything, but to be sure the
         // clone does not participate in logging, we set its persistence to EPHEMERAL.
       
-        HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+        HG *clone           = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
         double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
         delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
 
@@ -872,15 +866,14 @@ void MainSequence::UpdateMinimumCoreMass()
  * @param   [IN]    p_HydrogenMass              Desired value of hydrogen mass of merger remnant
  *
  */
-void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass)
-{
+void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     m_Mass            = p_Mass;
     m_Mass0           = m_Mass;
     m_MinimumCoreMass = 0.0;
     
-    double initialHydrogenFraction = m_initialHydrogenAbundance;
+    double initialHydrogenFraction = m_InitialHydrogenAbundance;
     
     CalculateTimescales();
     CalculateGBParams();
