@@ -1316,9 +1316,10 @@
 //                                      - To facilitate --scale-CHE-mass-loss-with-surface-helium-abundance, added basic tracking of 
 //                                        surface and core hydrogen and helium abundances.
 //                                        See "What's New" and option documentation for details
-//
+// 03.03.01   IM - Sep 25, 2024     - Bug Fix:
+//                                      - Use m_Mass0 rather than m_Mass in GiantBranch::CalculateConvectiveEnvelopeMass() to avoid negative mass radiative intershells as consequences of artificially low BAGB core masses
 
 
-const std::string VERSION_STRING = "03.03.00";
+const std::string VERSION_STRING = "03.03.01";
 
 # endif // __changelog_h__
