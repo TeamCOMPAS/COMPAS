@@ -415,7 +415,6 @@ void Options::OptionValues::Initialise() {
     m_UseMassTransfer                                               = true;
 	m_CirculariseBinaryDuringMassTransfer         	                = true;
 	m_AngularMomentumConservationDuringCircularisation              = false;
-    //m_RetainCoreMassDuringCaseAMassTransfer                         = true;
     m_ConvectiveEnvelopeTemperatureThreshold                        = CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI;
 
     // Case BB/BC mass transfer stability prescription
@@ -879,11 +878,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Suppress printing (default = " + std::string(p_Options->m_Quiet ? "TRUE" : "FALSE") + ")").c_str()
         )
 
-        /*(
-            "retain-core-mass-during-caseA-mass-transfer",
-            po::value<bool>(&p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->default_value(p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->implicit_value(true),
-            ("Retain approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = " + std::string(p_Options->m_RetainCoreMassDuringCaseAMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
-        )*/
         (
             "revised-energy-formalism-nandez-ivanova",                     
             po::value<bool>(&p_Options->m_RevisedEnergyFormalismNandezIvanova)->default_value(p_Options->m_RevisedEnergyFormalismNandezIvanova)->implicit_value(true),                            

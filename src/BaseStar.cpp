@@ -3243,12 +3243,6 @@ void BaseStar::UpdateMassTransferDonorHistory() {
 }
 
 
-void BaseStar::UpdateTotalMassLossRate(const double p_MassLossRate) {
-    //m_TotalMassLossRatePrev = m_TotalMassLossRate;
-    m_TotalMassLossRate = p_MassLossRate;
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                              TEMPERATURE CALCULATIONS                             //
@@ -4743,10 +4737,8 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
         m_COCoreMass      = CalculateCOCoreMassOnPhase();
         m_CoreMass        = CalculateCoreMassOnPhase();
         m_HeCoreMass      = CalculateHeCoreMassOnPhase();
-                        
-        if (m_StellarType == STELLAR_TYPE::MS_GT_07 & p_DeltaTime > 0.0 & m_Mdot > 0.0) {
-            UpdateMinimumCoreMass();
-        }
+                
+        UpdateMinimumCoreMass(p_DeltaTime, m_Mdot);
         
         m_Luminosity = CalculateLuminosityOnPhase();
 

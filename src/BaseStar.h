@@ -357,9 +357,9 @@ public:
                                                        const double p_MassGainPerTimeStep,
                                                        const double p_Epsilon) { }                                                                                                  // Default is NO-OP
 
-    virtual void            UpdateMinimumCoreMass() { };                                                                                                                            // Only set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass; default is NO-OP
+    virtual void            UpdateMinimumCoreMass(const double p_Dt, const double p_TotalMassLossRate) { };                                                                         // Only set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass; default is NO-OP
     
-    virtual void            UpdateTotalMassLossRate(const double p_MassLossRate);
+    virtual void            UpdateTotalMassLossRate(const double p_MassLossRate)                                { m_TotalMassLossRate = p_MassLossRate; }
     
     // printing functions
     bool PrintDetailedOutput(const int p_Id, const SSE_DETAILED_RECORD_TYPE p_RecordType) const { 
@@ -444,7 +444,6 @@ protected:
     double                  m_Temperature;                              // Current temperature (Tsol)
     double                  m_Time;                                     // Current physical time the star has been evolved (Myr)
     double                  m_TotalMassLossRate;
-    double                  m_TotalMassLossRatePrev;
 
     // Previous timestep variables
     double                  m_DtPrev;                                   // Previous timestep

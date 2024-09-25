@@ -88,8 +88,10 @@ protected:
 
     bool            ShouldEvolveOnPhase() const                         { return m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)] && (OPTIONS->OptimisticCHE() || m_Omega >= m_OmegaCHE); } // Evolve on CHE phase if age in MS timescale and spinning at least as fast as CHE threshold
 
-    void            UpdateAgeAfterMassLoss();  
-
+    void            UpdateAgeAfterMassLoss();
+    
+    void            UpdateMinimumCoreMass(const double p_Dt, const double p_TotalMassLossRate) { }
+    
 };
 
 #endif // __CH_h__
