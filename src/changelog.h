@@ -1318,8 +1318,10 @@
 //                                        See "What's New" and option documentation for details
 // 03.03.01   IM - Sep 25, 2024     - Bug Fix:
 //                                      - Use m_Mass0 rather than m_Mass in GiantBranch::CalculateConvectiveEnvelopeMass() to avoid negative mass radiative intershells as consequences of artificially low BAGB core masses
+// 03.03.02   AB - Sep 26, 2024     - Defect repair:
+//                                      - Fix to PR #1216 (added missing lines and fixed typo)
 
 
-const std::string VERSION_STRING = "03.03.01";
+const std::string VERSION_STRING = "03.03.02";
 
 # endif // __changelog_h__
