@@ -10,10 +10,10 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 Added new functionality to improve modelling of chemically homogeneous evolution (CHE). The default behaviour remains unchanged.
 
-* New command line option option `--enable-rotationally-enhanced-mass-loss` to enable rotationally enhanced mass loss following Langer (1998)
-* New command line option option `--enhance-CHE-lifetimes-luminosities` to enhance CHE lifetimes and luminosities following detailed models from Szecsi et al. (2015) 
-* New command line option option `--scale-CHE-mass-loss-with-surface-helium-abundance` to switch from OB to WR mass loss for CH stars towards the end of the main sequence
-* New command line option option `--scale-terminal-wind-velocity-with-metallicity-power` to scale the terminal wind velocity with the metallicity
+* New command line option `--enable-rotationally-enhanced-mass-loss` to enable rotationally enhanced mass loss following Langer (1998)
+* New command line option `--enhance-CHE-lifetimes-luminosities` to enhance CHE lifetimes and luminosities following detailed models from Szecsi et al. (2015) 
+* New command line option `--scale-CHE-mass-loss-with-surface-helium-abundance` to switch from OB to WR mass loss for CH stars towards the end of the main sequence
+* New command line option `--scale-terminal-wind-velocity-with-metallicity-power` to scale the terminal wind velocity with the metallicity
 
 **03.02.00 Sep 19, 2024**
 
