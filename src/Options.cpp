@@ -4652,6 +4652,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MAX                  : value = EccentricityDistributionMax();                                        break;
         case PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MIN                  : value = EccentricityDistributionMin();                                        break;
         case PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR                     : value = EddingtonAccretionFactor();                                           break;
+	case PROGRAM_OPTION::ENABLE_ROTATIONALLY_ENHANCED_MASS_LOSS         : value = EnableRotationallyEnhancedMassLoss();                                 break;
+        case PROGRAM_OPTION::ENHANCE_CHE_LIFETIMES_LUMINOSITIES             : value = EnhanceCHELifetimesLuminosities();                                    break;
         case PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION                    : value = static_cast<int>(EnvelopeStatePrescription());                        break;
         case PROGRAM_OPTION::EVOLUTION_MODE                                 : value = static_cast<int>(EvolutionMode());                                    break;
 
@@ -4808,7 +4810,10 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::ROTATIONAL_FREQUENCY                           : value = RotationalFrequency();                                                break;
         case PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1                         : value = RotationalFrequency1();                                               break;
         case PROGRAM_OPTION::ROTATIONAL_FREQUENCY_2                         : value = RotationalFrequency2();                                               break;
-   
+        
+	case PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE          : value = ScaleCHEMassLossWithSurfaceHeliumAbundance();                         break;
+        case PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER      : value = ScaleTerminalWindVelocityWithMetallicityPower();                      break;
+	    
         case PROGRAM_OPTION::SEMI_MAJOR_AXIS                                : value = SemiMajorAxis();                                                      break;
         case PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION                   : value = static_cast<int>(SemiMajorAxisDistribution());                        break;
         case PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX               : value = SemiMajorAxisDistributionMax();                                       break;
