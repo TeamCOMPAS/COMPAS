@@ -21,6 +21,8 @@ public:
     
     GiantBranch(const BaseStar &p_BaseStar) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {}
 
+    virtual double          CalculateRemnantRadius() const;
+
 
 protected:
 
@@ -114,7 +116,6 @@ protected:
     virtual double          CalculateRemnantLuminosity() const;
             STELLAR_TYPE    CalculateRemnantTypeByMuller2016(const double p_COCoreMass);
 	
-    virtual double          CalculateRemnantRadius() const;
 
             double          CalculateThermalMassLossRate() const                                            { return (m_Mass - m_CoreMass) / CalculateThermalTimescale(); }     // Use class member variables
 

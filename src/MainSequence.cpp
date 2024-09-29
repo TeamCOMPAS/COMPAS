@@ -590,7 +590,7 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
 /*
  * Calculate the radial extent of the star's convective core (if it has one)
  *
- * Preliminary fit from Minori Shikauchi @ ZAMS, does not take evolution into account yet
+ * Uses preliminary fit from Minori Shikauchi @ ZAMS, then a smooth interpolation to the HG
  *
  *
  * double CalculateRadialExtentConvectiveEnvelope()
@@ -598,9 +598,23 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
  * @return                                      Radial extent of the star's convective core in Rsol
  */
 double MainSequence::CalculateConvectiveCoreRadius() const {
-    return utils::Compare(m_Mass, 1.25) < 0
-            ? 0.0                                               // /*ILYA*/ To check
-            : m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57));    
+    if(utils::Compare(m_Mass, 1.25) < 0)                        // low-mass star with a radiative core
+        return 0.0;
+    double convectiveCoreRadiusZAMS = m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57));
+    
+    // We need TAMSCoreRadius, which is just the core radius at the start of the HG phase.
+    // Since we are on the main sequence here, we can clone this object as an HG object
+    // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
+    // we can query the cloned object for its core mass.
+    //
+    // The clone should not evolve, and so should not log anything, but to be sure the
+    // clone does not participate in logging, we set its persistence to EPHEMERAL.
+      
+    HG *clone           = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+    double TAMSCoreRadius = clone->CalculateRemnantRadius();                                    // get core radius from clone
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+
+    return (convectiveCoreRadiusZAMS - m_Tau * (convectiveCoreRadiusZAMS - TAMSCoreRadius));
 }
 
 
