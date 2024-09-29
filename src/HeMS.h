@@ -67,11 +67,12 @@ protected:
 
 
     // member functions - alphabetically
+            DBL_DBL         CalculateConvectiveEnvelopeMass() const                                                 { return std::tuple<double, double> (0.0, 0.0); }                           // No convective envelope for naked He stars
             double          CalculateCOCoreMassAtPhaseEnd() const                                                   { return CalculateCOCoreMassOnPhase(); }                                        // Same as on phase
             double          CalculateCOCoreMassOnPhase() const                                                      { return 0.0;  }                                                                // McCO(HeMS) = 0.0
 
-            double          CalculateConvectiveCoreMass() const                                                     { return MainSequence::CalculateConvectiveCoreMass(); }                         // Temporary solution, until we have tested the rate at which the convective core recedes in HeMS stars
-            double          CalculateConvectiveCoreRadius() const                                                   { return 0.5 * m_Radius; }                                                      // Temporary solution, until we have tested the core radii of HeMS stars
+            double          CalculateConvectiveCoreMass() const;
+            double          CalculateConvectiveCoreRadius() const;
             double          CalculateCoreMassAtPhaseEnd() const                                                     { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase /*ILYA*/ To fix, not everything will become CO core
             double          CalculateCoreMassOnPhase() const                                                        { return 0.0; }                                                                 // Mc(HeMS) = 0.0
 
@@ -121,8 +122,6 @@ protected:
             double          CalculateMomentOfInertia() const                                                        { return MainSequence::CalculateMomentOfInertia(); }
 
             double          CalculatePerturbationMu() const                                                         { return 5.0; }                                                                 // Hurley et al. 2000, eqs 97 & 98
-
-            double          CalculateRadialExtentConvectiveEnvelope() const                                         { return 0.0; }                                                                 // HeMS stars don't have a convective envelope
 
             double          CalculateRadiusAtPhaseEnd(const double p_Mass) const                                    { return CalculateRadiusAtPhaseEnd_Static(p_Mass); }
             double          CalculateRadiusAtPhaseEnd() const                                                       { return CalculateRadiusAtPhaseEnd(m_Mass); }                                   // Use class member variables

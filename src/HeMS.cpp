@@ -159,6 +159,34 @@ double HeMS::CalculateLuminosityOnPhase_Static(const double p_Mass, const double
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
 
+/*
+ * Calculate convective core radius
+ *
+ * Assume equal to total radius at start (for continuity with stripped CHeB or HG star), continuity with HeHG at end of phase, linear growth
+ *
+ *
+ * double CalculateConvectiveCoreRadius()
+ *
+ * @return                                      Convective core radius (solar radii)
+ */
+double HeMS::CalculateConvectiveCoreRadius() const {
+
+    // We need core radius at end of phase, which is just the core radius at the start of the HeHG phase.
+    // Since we are on the He main sequence here, we can clone this object as an HeHG object
+    // and, as long as it is initialised (to correctly set Tau to 0.0 on the HeHG phase),
+    // we can query the cloned object for its core mass.
+    //
+    // The clone should not evolve, and so should not log anything, but to be sure the
+    // clone does not participate in logging, we set its persistence to EPHEMERAL.
+      
+    HeHG *clone           = HeHG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+    double finalConvectiveCoreRadius = clone->CalculateConvectiveCoreRadius();                  // get core radius from clone
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+
+    double initialConvectiveCoreRadius = m_Radius;
+    return (initialConvectiveCoreRadius - m_Tau * (initialConvectiveCoreRadius - finalConvectiveCoreRadius));
+}
+
 
 /*
  * Calculate radius at ZAMS for a Helium Main Sequence star
@@ -225,6 +253,35 @@ double HeMS::CalculateRadiusAtPhaseEnd_Static(const double p_Mass) {
 //                                 MASS CALCULATIONS                                 //
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
+
+
+/*
+ * Calculate convective core mass
+ *
+ * Assume equal to total mass at start (for continuity with stripped CHeB or HG star), continuity with HeHG at end of phase, linear growth
+ *
+ *
+ * double CalculateConvectiveCoreMass()
+ *
+ * @return                                      Convective core mass (solar masses)
+ */
+double HeMS::CalculateConvectiveCoreMass() const {
+
+    // We need core mass at end of phase, which is just the core mass at the start of the HeHG phase.
+    // Since we are on the He main sequence here, we can clone this object as an HeHG object
+    // and, as long as it is initialised (to correctly set Tau to 0.0 on the HeHG phase),
+    // we can query the cloned object for its core mass.
+    //
+    // The clone should not evolve, and so should not log anything, but to be sure the
+    // clone does not participate in logging, we set its persistence to EPHEMERAL.
+      
+    HeHG *clone           = HeHG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL, true);
+    double finalConvectiveCoreMass = clone->CoreMass();                                         // get core mass from clone
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+
+    double initialConvectiveCoreMass = m_Mass;
+    return (initialConvectiveCoreMass - m_Tau * (initialConvectiveCoreMass - finalConvectiveCoreMass));
+}
 
 
 /*
