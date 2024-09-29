@@ -687,7 +687,7 @@ double GiantBranch::CalculateRemnantRadius() const {
  *
  * double CalculateRadialExtentConvectiveEnvelope()
  *
- * @return                                      Radial exten of the convective outer envelope
+ * @return                                      Radial extent of the convective outer envelope
  */
 double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
     double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
