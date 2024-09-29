@@ -96,7 +96,7 @@ protected:
                     // combination of Hurley et al. 2000, end of sec. 7.2, and Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 39-40
                     double envMass, envMassMax;
                     std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
-                    return (std::sqrt(envMass / envMassMax) * (m_Radius - CalculateConvectiveCoreRadius()));
+                    return envMassMax==0 ? 0.0 : (std::sqrt(envMass / envMassMax) * (m_Radius - CalculateConvectiveCoreRadius()));
             }
 
             double          CalculateRadiusAtHeIgnition(const double p_Mass) const;
