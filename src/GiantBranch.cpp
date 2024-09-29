@@ -679,6 +679,32 @@ double GiantBranch::CalculateRemnantRadius() const {
 #undef massCutoffs
 }
 
+/*
+ * Calculate the radial extent of the convective outer envelope
+ *
+ * Combination of Hurley et al. 2000, end of sec. 7.2, and Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 39-40
+ *
+ *
+ * double CalculateRadialExtentConvectiveEnvelope()
+ *
+ * @return                                      Radial exten of the convective outer envelope
+ */
+double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
+    double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
+    std::tie(convectiveEnvelopeMass, convectiveEnvelopeMassMax) = CalculateConvectiveEnvelopeMass();
+    if(utils::Compare(convectiveEnvelopeMass,0) <= 0 || utils::Compare(convectiveEnvelopeMassMax,0) <= 0 )
+        return 0.0;     //massless convective envelope has zero radial extent
+    
+    double convectiveCoreMass = CalculateConvectiveCoreMass(), convectiveCoreRadius = CalculateConvectiveCoreRadius();
+    // assume that the final radiative intershell (if any) would have a density that is a geometric mean of the core density and total density
+    double radiativeIntershellMass = m_Mass - convectiveCoreMass - convectiveEnvelopeMassMax;
+    double convectiveCoreRadiusCubed = convectiveCoreRadius * convectiveCoreRadius * convectiveCoreRadius;
+    double radiativeIntershellDensity = 1.0/(4.0/3.0*M_PI) * std::sqrt(convectiveCoreMass / convectiveCoreRadiusCubed * m_Mass / m_Radius / m_Radius / m_Radius);
+    double outerEdgeRadiativeIntershellCubed = radiativeIntershellMass / (4.0/3.0*M_PI * radiativeIntershellDensity) + convectiveCoreRadiusCubed;
+    
+    return std::sqrt(convectiveEnvelopeMass/convectiveEnvelopeMassMax) * (m_Radius - PPOW(outerEdgeRadiativeIntershellCubed, 1.0/3.0));
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
