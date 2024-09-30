@@ -37,14 +37,15 @@ public:
 
 
     // member functions
+    double  CalculateConvectiveCoreRadius () const                                                          { return std::min(5.0 * CalculateRemnantRadius(), m_Radius); }          // Last paragraph of section 6 of Hurley+ 2000
     static void CalculateGBParams_Static(const double p_Mass0, const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
-
+ 
 
 protected:
 
     void Initialise() {
         m_Tau = 0.0;                                                                                      // Start of phase
-        CalculateTimescales();                                                                                                                                                              // Initialise timescales
+        CalculateTimescales();                                                                            // Initialise timescales
         // Age for HeHG is calculated before switching -
         // can get here via EvolveOneTimestep() and ResolveEnvelopeLoss(),
         // and Age is calculated differently in those cases
@@ -66,8 +67,6 @@ protected:
             double          CalculateCOCoreMassOnPhase() const;
     
             double          CalculateConvectiveCoreMass() const                                                     { return m_CoreMass; }
-
-            double          CalculateConvectiveCoreRadius () const                                                  { return std::min(5.0 * CalculateRemnantRadius(), m_Radius); }          // Last paragraph of section 6 of Hurley+ 2000
 
             double          CalculateCoreMassAtBAGB() const                                                         { return m_Mass0; }                                                     // McBAGB = M0 (Hurely et al. 2000, discussion just before eq 89)
             double          CalculateCoreMassAtPhaseEnd() const                                                     { return m_CoreMass; }                                                  // NO-OP
@@ -94,8 +93,6 @@ protected:
 
             double          CalculatePerturbationMu() const;
             double          CalculatePerturbationMuAtPhaseEnd() const                                               { return m_Mu; }                                                        // NO-OP
-
-            double          CalculateRadialExtentConvectiveEnvelope() const                                         { return HG::CalculateRadialExtentConvectiveEnvelope(); }
 
             double          CalculateRadiusAtPhaseEnd() const                                                       { return m_Radius; }                                                    // NO-OP
             double          CalculateRadiusOnPhase() const;

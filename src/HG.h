@@ -34,7 +34,7 @@ public:
         return clone; 
     }
 
-    static HG* Clone(HG p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+    static HG* Clone(HG& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
         HG* clone = new HG(p_Star, p_Initialise); 
         clone->SetPersistence(p_Persistence); 
         return clone; 
