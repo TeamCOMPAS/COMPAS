@@ -692,17 +692,17 @@ double GiantBranch::CalculateRemnantRadius() const {
 double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
     double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
     std::tie(convectiveEnvelopeMass, convectiveEnvelopeMassMax) = CalculateConvectiveEnvelopeMass();
-    if(utils::Compare(convectiveEnvelopeMass,0) <= 0 || utils::Compare(convectiveEnvelopeMassMax,0) <= 0 )
-        return 0.0;     //massless convective envelope has zero radial extent
+    if (utils::Compare(convectiveEnvelopeMass, 0.0) <= 0 || utils::Compare(convectiveEnvelopeMassMax, 0.0) <= 0 ) return 0.0;   // massless convective envelope has zero radial extent
     
-    double convectiveCoreMass = CalculateConvectiveCoreMass(), convectiveCoreRadius = CalculateConvectiveCoreRadius();
+    double convectiveCoreMass   = CalculateConvectiveCoreMass();
+    double convectiveCoreRadius = CalculateConvectiveCoreRadius();
     // assume that the final radiative intershell (if any) would have a density that is a geometric mean of the core density and total density
-    double radiativeIntershellMass = m_Mass - convectiveCoreMass - convectiveEnvelopeMassMax;
-    double convectiveCoreRadiusCubed = convectiveCoreRadius * convectiveCoreRadius * convectiveCoreRadius;
-    double radiativeIntershellDensity = 1.0/(4.0/3.0*M_PI) * std::sqrt(convectiveCoreMass / convectiveCoreRadiusCubed * m_Mass / m_Radius / m_Radius / m_Radius);
-    double outerEdgeRadiativeIntershellCubed = radiativeIntershellMass / (4.0/3.0*M_PI * radiativeIntershellDensity) + convectiveCoreRadiusCubed;
+    double radiativeIntershellMass           = m_Mass - convectiveCoreMass - convectiveEnvelopeMassMax;
+    double convectiveCoreRadiusCubed         = convectiveCoreRadius * convectiveCoreRadius * convectiveCoreRadius;
+    double radiativeIntershellDensity        = 1.0 / (4.0 /3.0 * M_PI) * std::sqrt(convectiveCoreMass / convectiveCoreRadiusCubed * m_Mass / m_Radius / m_Radius / m_Radius);
+    double outerEdgeRadiativeIntershellCubed = radiativeIntershellMass / (4.0 / 3.0 * M_PI * radiativeIntershellDensity) + convectiveCoreRadiusCubed;
     
-    return std::sqrt(convectiveEnvelopeMass/convectiveEnvelopeMassMax) * (m_Radius - PPOW(outerEdgeRadiativeIntershellCubed, 1.0/3.0));
+    return std::sqrt(convectiveEnvelopeMass/convectiveEnvelopeMassMax) * (m_Radius - std::cbrt(outerEdgeRadiativeIntershellCubed));
 }
 
 
@@ -726,9 +726,7 @@ double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
  */
 double GiantBranch::CalculateCoreMassAtBAGB(const double p_Mass) const {
 #define b m_BnCoefficients  // for convenience and readability - undefined at end of function
-
     return std::sqrt(std::sqrt((b[36] * PPOW(p_Mass, b[37])) + b[38]));   // sqrt() is much faster than PPOW()
-
 #undef b
 }
 
@@ -749,9 +747,7 @@ double GiantBranch::CalculateCoreMassAtBAGB(const double p_Mass) const {
  */
 double GiantBranch::CalculateCoreMassAtBAGB_Static(const double p_Mass, const DBL_VECTOR &p_BnCoefficients) {
 #define b p_BnCoefficients  // for convenience and readability - undefined at end of function
-
     return std::sqrt(std::sqrt((b[36] * PPOW(p_Mass, b[37])) + b[38]));   // sqrt() is much faster than PPOW()
-
 #undef b
 }
 
@@ -1075,7 +1071,7 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  */
 DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     
-    double MinterfMcoref = -0.023 * m_Log10Metallicity - 0.0023;                                                            // Eq. (8) of Picker+ 2024
+    double MinterfMcoref = -0.023 * m_Log10Metallicity - 0.0023;                                                            // eq. (8) of Picker+ 2024
 
     // We need the temperature of the star just after BAGB, which is the temperature at the
     // start of the EAGB phase.  Since we are on the giant branch here, we can clone this
@@ -1092,17 +1088,21 @@ DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     clone->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                          // otherwise, temperature not updated
     double Tmin = clone->Temperature();                                                                                     // get temperature of clone
     delete clone; clone = nullptr;                                                                                          // return the memory allocated for the clone
+    
     // Assume Tonset is always 0.1 dex hotter than Tmin, to avoid issues caused by differences between temperatures
     // in MESA models (used in Picker+ fits) and Pols models (used in Hurley+ SSE tracks), rather than Eq. (6) of Picker+ 2024
-    double Tonset = 1.2589 * Tmin;
+    double Tonset     = 1.2589 * Tmin;
     
-    double McoreFinal             = CalculateCoreMassAtBAGB(m_Mass0);
-    double MconvMax               = std::max(m_Mass - McoreFinal * (1.0 + MinterfMcoref), 0.0);                             // eq. (9) of Picker+ 2024
-    if(utils::Compare(McoreFinal, 1.5) < 0)                                                                                 // Picker+ 2024 fits were only made for stars above 8.0 solar masses, with runs down to 5.0 solar masses, so using the final core mass as an approximate threshold of validity
-        MconvMax                  = std::max(m_Mass - McoreFinal, 0.0);                                                     // unlike massive stars, intermediate-mass stars have almost no radiative intershell at maximum convective envelope extent
-    double convectiveEnvelopeMass = MconvMax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature) / (Tmin - Tonset)));  // eq. (7) of Picker+ 2024
+    double mCoreFinal = CalculateCoreMassAtBAGB(m_Mass0);
+    double mConvMax   = std::max(m_Mass - mCoreFinal * (1.0 + MinterfMcoref), 0.0);                                         // eq. (9) of Picker+ 2024
+
+    // Picker+ 2024 fits were only made for stars above 8.0 solar masses, with runs down to 5.0 solar masses, 
+    // so using the final core mass as an approximate threshold of validity
+    if(utils::Compare(mCoreFinal, 1.5) < 0) mConvMax = std::max(m_Mass - mCoreFinal, 0.0);                                  // unlike massive stars, intermediate-mass stars have almost no radiative intershell at maximum convective envelope extent
     
-    return std::tuple<double, double> (convectiveEnvelopeMass, MconvMax);
+    double convectiveEnvelopeMass = mConvMax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature) / (Tmin - Tonset)));  // eq. (7) of Picker+ 2024
+    
+    return std::tuple<double, double> (convectiveEnvelopeMass, mConvMax);
 }
 
 

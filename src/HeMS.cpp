@@ -179,7 +179,7 @@ double HeMS::CalculateConvectiveCoreRadius() const {
     // The clone should not evolve, and so should not log anything, but to be sure the
     // clone does not participate in logging, we set its persistence to EPHEMERAL.
       
-    HeHG *clone           = HeHG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+    HeHG *clone = HeHG::Clone(static_cast<HeHG&>(const_cast<HeMS&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
     double finalConvectiveCoreRadius = clone->CalculateConvectiveCoreRadius();                  // get core radius from clone
     delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
 
@@ -275,7 +275,7 @@ double HeMS::CalculateConvectiveCoreMass() const {
     // The clone should not evolve, and so should not log anything, but to be sure the
     // clone does not participate in logging, we set its persistence to EPHEMERAL.
       
-    HeHG *clone           = HeHG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL, true);
+    HeHG *clone = HeHG::Clone(static_cast<HeHG&>(const_cast<HeMS&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL, true);
     double finalConvectiveCoreMass = clone->CoreMass();                                         // get core mass from clone
     delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
 
