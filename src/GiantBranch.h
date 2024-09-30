@@ -21,13 +21,15 @@ public:
     
     GiantBranch(const BaseStar &p_BaseStar) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {}
 
+    virtual double          CalculateRemnantRadius() const;
+
 
 protected:
 
 
     // member functions - alphabetically (sort of - some are grouped by functionality)
-            double          CalculateConvectiveCoreMass() const { return m_CoreMass; }
-            double          CalculateConvectiveCoreRadius () const                      { return std::min(CalculateRemnantRadius (), m_Radius); }                       // Last paragraph of section 6 of Hurley+ 2000
+            double          CalculateConvectiveCoreMass() const                                             { return m_CoreMass; }
+            double          CalculateConvectiveCoreRadius () const                                          { return std::min(CalculateRemnantRadius (), m_Radius); }           // Last paragraph of section 6 of Hurley+ 2000
             DBL_DBL         CalculateConvectiveEnvelopeMass() const;
     static  double          CalculateCoreMassAt2ndDredgeUp_Static(const double p_McBAGB);
             double          CalculateCoreMassAtBAGB(const double p_Mass) const;
@@ -49,7 +51,7 @@ protected:
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
     static  void            CalculateGBParams_Static(const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
-            void            CalculateGBParams()                                                             { CalculateGBParams(m_Mass0, m_GBParams); }                 // Use class member variables
+            void            CalculateGBParams()                                                             { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
 
     static  double          CalculateHRateConstant_Static(const double p_Mass);
     
@@ -92,12 +94,7 @@ protected:
 
             double          CalculatePerturbationMu() const;
 
-            double          CalculateRadialExtentConvectiveEnvelope() const {
-                    // combination of Hurley et al. 2000, end of sec. 7.2, and Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 39-40
-                    double envMass, envMassMax;
-                    std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
-                    return (std::sqrt(envMass / envMassMax) * (m_Radius - CalculateConvectiveCoreRadius()));
-            }
+            double          CalculateRadialExtentConvectiveEnvelope() const;
 
             double          CalculateRadiusAtHeIgnition(const double p_Mass) const;
             double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, m_BnCoefficients); }
@@ -114,7 +111,6 @@ protected:
     virtual double          CalculateRemnantLuminosity() const;
             STELLAR_TYPE    CalculateRemnantTypeByMuller2016(const double p_COCoreMass);
 	
-    virtual double          CalculateRemnantRadius() const;
 
             double          CalculateThermalMassLossRate() const                                            { return (m_Mass - m_CoreMass) / CalculateThermalTimescale(); }     // Use class member variables
 

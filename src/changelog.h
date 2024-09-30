@@ -1320,8 +1320,15 @@
 //                                      - Use m_Mass0 rather than m_Mass in GiantBranch::CalculateConvectiveEnvelopeMass() to avoid negative mass radiative intershells as consequences of artificially low BAGB core masses
 // 03.03.02   AB - Sep 26, 2024     - Defect repair:
 //                                      - Fix to PR #1216 (added missing lines and fixed typo)
+// 03.04.00   IM - Sep 29, 2024     - Defect repair, enhancement:
+//                                      - Picker+ 2024 prescription for the convective envelope mass corrected so that T_onset is always 0.1 dex hotter than T_min
+//                                          in order to avoid artifacts due to differences between MESA and Pols SSE tracks
+//                                      - A range of changes to ensure that convective core and convective envelope masses and radii
+//                                          vary smoothly wherever possible, including improvements to convective core mass and radius on the main sequence,
+//                                          on the Helium MS, TPAGB now have fully convective envelopes, etc.
+//                                      - All naked helium stars have purely radiative envelopes, until we develop better models
+//                                      - Minor fixes to code and documentation elsewhere
 
-
-const std::string VERSION_STRING = "03.03.02";
+const std::string VERSION_STRING = "03.04.00";
 
 # endif // __changelog_h__
