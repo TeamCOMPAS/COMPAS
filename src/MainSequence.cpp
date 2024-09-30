@@ -598,8 +598,8 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
  * @return                                      Radial extent of the star's convective core in Rsol
  */
 double MainSequence::CalculateConvectiveCoreRadius() const {
-    if(utils::Compare(m_Mass, 1.25) < 0)                        // low-mass star with a radiative core
-        return 0.0;
+    if(utils::Compare(m_Mass, 1.25) < 0) return 0.0;                                            // low-mass star with a radiative core
+       
     double convectiveCoreRadiusZAMS = m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57));
     
     // We need TAMSCoreRadius, which is just the core radius at the start of the HG phase.
@@ -609,8 +609,8 @@ double MainSequence::CalculateConvectiveCoreRadius() const {
     //
     // The clone should not evolve, and so should not log anything, but to be sure the
     // clone does not participate in logging, we set its persistence to EPHEMERAL.
-      
-    HG *clone           = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+
+    HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
     double TAMSCoreRadius = clone->CalculateRemnantRadius();                                    // get core radius from clone
     delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
 
@@ -645,7 +645,7 @@ double MainSequence::CalculateConvectiveCoreMass() const {
     // The clone should not evolve, and so should not log anything, but to be sure the
     // clone does not participate in logging, we set its persistence to EPHEMERAL.
       
-    HG *clone           = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+    HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
     double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
     delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
 
@@ -695,9 +695,7 @@ DBL_DBL MainSequence::CalculateConvectiveEnvelopeMass() const {
  */
 double MainSequence::CalculateTauOnPhase() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-
     return std::max(0.0, std::min(1.0, m_Age / timescales(tMS)));
-
 #undef timescales
 }
 
@@ -859,7 +857,7 @@ void MainSequence::UpdateMinimumCoreMass() {
         // The clone should not evolve, and so should not log anything, but to be sure the
         // clone does not participate in logging, we set its persistence to EPHEMERAL.
       
-        HG *clone           = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+        HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
         double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
         delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
 

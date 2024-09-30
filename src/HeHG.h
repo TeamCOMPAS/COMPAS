@@ -29,7 +29,7 @@ public:
         return clone; 
     }
 
-    static HeHG* Clone(HeHG p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+    static HeHG* Clone(HeHG& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
         HeHG* clone = new HeHG(p_Star, p_Initialise); 
         clone->SetPersistence(p_Persistence); 
         return clone; 
