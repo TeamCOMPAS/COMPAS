@@ -56,6 +56,11 @@ protected:
         m_AccretionRegime   = ACCRETION_REGIME::ZERO;
     }
 
+    double          CalculateHeliumAbundanceCoreOnPhase() const                     { return 0.0; };
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const                  { return 0.0; };
+    
+    double          CalculateHydrogenAbundanceCoreOnPhase() const                   { return 0.0; };
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                { return 0.0; };
 
     double          CalculateLuminosityOnPhase(const double p_Mass,
                                                const double p_Time,

@@ -117,6 +117,15 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
                                                     ? p_RotationalFrequency                             // yes - use it
                                                     : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
 
+    // Initial abundances
+    m_InitialHeliumAbundance                   = CalculateInitialHeliumAbundance();
+    m_HeliumAbundanceCore                      = m_InitialHeliumAbundance;
+    m_HeliumAbundanceSurface                   = m_InitialHeliumAbundance;
+
+    m_InitialHydrogenAbundance                 = CalculateInitialHydrogenAbundance();
+    m_HydrogenAbundanceCore                    = m_InitialHydrogenAbundance;
+    m_HydrogenAbundanceSurface                 = m_InitialHydrogenAbundance;
+
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
     m_RZAMS0                                   = m_RZAMS;
     m_LZAMS0                                   = m_LZAMS;
@@ -322,8 +331,14 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY:                        value = GetMassTransferDonorHistoryString();                    break;
         case ANY_STAR_PROPERTY::HE_CORE_MASS:                                       value = HeCoreMass();                                           break;
         case ANY_STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_HeCoreMassAtCOFormation();                           break;
+        case ANY_STAR_PROPERTY::HELIUM_ABUNDANCE_CORE:                              value = HeliumAbundanceCore();                                  break;
+        case ANY_STAR_PROPERTY::HELIUM_ABUNDANCE_SURFACE:                           value = HeliumAbundanceSurface();                               break;
+        case ANY_STAR_PROPERTY::HYDROGEN_ABUNDANCE_CORE:                            value = HydrogenAbundanceCore();                                break;
+        case ANY_STAR_PROPERTY::HYDROGEN_ABUNDANCE_SURFACE:                         value = HydrogenAbundanceSurface();                             break;
         case ANY_STAR_PROPERTY::IS_HYDROGEN_POOR:                                   value = SN_IsHydrogenPoor();                                    break;
         case ANY_STAR_PROPERTY::ID:                                                 value = ObjectId();                                             break;
+        case ANY_STAR_PROPERTY::INITIAL_HELIUM_ABUNDANCE:                           value = CalculateInitialHeliumAbundance();                      break;
+        case ANY_STAR_PROPERTY::INITIAL_HYDROGEN_ABUNDANCE:                         value = CalculateInitialHydrogenAbundance();                    break;
         case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
         case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
         case ANY_STAR_PROPERTY::IS_AIC:                                             value = IsAIC();                                                break;
@@ -1736,6 +1751,23 @@ double BaseStar::CalculateInitialEnvelopeMass_Static(const double p_Mass) {
 
 
 /*
+ * Calculate mass loss rate enhancement for rapidly rotating stars
+ *
+ * Langer 1998 (https://ui.adsabs.harvard.edu/abs/1998A%26A...329..551L/abstract) eq 3
+ * 
+ * The exponent originally comes from Bjorkman & Cassinelli 1993 (https://ui.adsabs.harvard.edu/abs/1993ApJ...409..429B/abstract),
+ * based on a fit to data from Friend & Abbott 1986 (https://ui.adsabs.harvard.edu/abs/1986ApJ...311..701F/abstract) 
+ *
+ * double CalculateMassLossRateEnhancementRotation()
+ *
+ * @return                                      Mass loss enhancement factor for rapidly rotating stars
+ */
+double BaseStar::CalculateMassLossRateEnhancementRotation() {
+    return OPTIONS->EnableRotationallyEnhancedMassLoss() ? PPOW((1.0 - m_Omega / OmegaBreak()), -0.43) : 1.0;   // default is no enhancement
+}
+
+
+/*
  * Calculate the mass loss rate on the AGB based on the Mira pulsation period (P0)
  *
  * Hurley et al. 2000, just after eq 106 (from Vassiliadis and Wood 1993)
@@ -1799,6 +1831,52 @@ double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() const {
 
 
 /*
+ * Calculate the opacity for this star (e.g., to determine the Eddington luminosity)
+ *
+ * See text surrounding Equation 6 in Bjorklund et al. 2022 (https://arxiv.org/abs/2203.08218)
+ *
+ * double CalculateOpacity_Static(const double p_HeliumAbundanceSurface)
+ * 
+ * @return                                      Opacity in SI units (m^2/kg)
+ *
+ */
+double BaseStar::CalculateOpacity_Static(const double p_HeliumAbundanceSurface) {
+
+    const double iHe   = 2.0;                                           // Helium ionisation state - For O stars, doubly ionised helium
+    double YHe         = p_HeliumAbundanceSurface;                      // Star's surface helium abundance 
+
+    double kappa_e_cgs = 0.4 * (1.0 + iHe * YHe) / (1.0 + 4.0 * YHe);   // cgs units cm^2/g
+    double kappa_e_SI  = kappa_e_cgs * OPACITY_CGS_TO_SI;               // Convert to SI units - m^2/kg
+
+    return kappa_e_SI;
+}
+
+
+/*
+ * Calculate the Eddington Luminosity L_edd for this star
+ *
+ * See e.g., above Equation 6 in Bjorklund et al. 2022 (https://arxiv.org/abs/2203.08218)
+ * 
+ * double CalculateEddingtonLuminosity_Static(const double p_Mass, const double p_HeliumAbundanceSurface)
+ * 
+ * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_HeliumAbundanceSurface    Helium abundance
+ * @return                                      Eddington luminosity in solar luminosities
+ *
+ */
+double BaseStar::CalculateEddingtonLuminosity_Static(const double p_Mass, const double p_HeliumAbundanceSurface) {
+
+    double kappa_SI = CalculateOpacity_Static(p_HeliumAbundanceSurface);    // Determine opacity
+    
+    double top      = 4.0 * M_PI * G * C * p_Mass * MSOL_TO_KG;
+    double bot      = kappa_SI;
+    double L_Edd    = top / bot;
+
+    return L_Edd;
+}
+
+
+/*
  * Calculate the Eddington factor (L/L_Edd) as required by CalculateMassLossRateBjorklund
  * see text surrounding Equation 6 in https://arxiv.org/abs/2203.08218
  * 
@@ -1809,14 +1887,13 @@ double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() const {
  */
 double BaseStar::CalculateMassLossRateBjorklundEddingtonFactor() const {
 
-    const double iHe  = 2.0;
-    const double YHe  = 0.1;                                                // assumed constant by Bjorklund et al.
-    double kappa_e    = 0.4 * (1.0 + iHe * YHe) / (1.0 + 4.0 * YHe);        // cm^2/g
-    double kappa_e_SI = kappa_e * OPACITY_CGS_TO_SI;                        // m^2/kg
-    double top        = kappa_e_SI * m_Luminosity * LSOLW;
-    double bottom     = 4.0 * M_PI * G * C * m_Mass * MSOL_TO_KG; 
+    const double YHe = 0.1;                                                 // assumed constant by Bjorklund et al.
+        
+    double Ledd      = CalculateEddingtonLuminosity_Static(m_Mass, YHe);    // W
 
-    return top / bottom;
+    double LoverLedd = (m_Luminosity * LSOLW) / Ledd;                       // Dimensionless
+
+    return LoverLedd;
 }
 
 
@@ -1991,7 +2068,7 @@ double BaseStar::CalculateMassLossRateWolfRayetZDependent(const double p_Mu) con
     // TW - Haven't seen StarTrack but I think H&K gives the original equation and V&dK gives the Z dependence
     double rate = 0.0;
     if (utils::Compare(p_Mu, 1.0) < 0) {
-        rate = OPTIONS->WolfRayetFactor() * 1.0E-13 * PPOW(m_Luminosity, 1.5) * PPOW(m_Metallicity / ZSOL, 0.86) * (1.0 - p_Mu);
+        rate = 1.0E-13 * PPOW(m_Luminosity, 1.5) * PPOW(m_Metallicity / ZSOL, 0.86) * (1.0 - p_Mu);
     }
     return rate;
 }
@@ -2015,7 +2092,8 @@ double BaseStar::CalculateMassLossRateOBVink2001() const {
     double teff = m_Temperature * TSOL;  
 
     if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(teff, VINK_MASS_LOSS_BISTABILITY_TEMP) <= 0) {
-        double v         = 1.3;                                                                                 // v_inf/v_esc
+        double v = 1.3;                                                                                         // v_inf/v_esc
+        v        = v * PPOW(m_Metallicity / ZSOL, OPTIONS->ScaleTerminalWindVelocityWithMetallicityPower());    // Scale Vinf with metallicity  
 
         double logMdotOB = -6.688 +
                            (2.210 * log10(m_Luminosity / 1.0E5)) -
@@ -2030,7 +2108,8 @@ double BaseStar::CalculateMassLossRateOBVink2001() const {
     else if (utils::Compare(teff, VINK_MASS_LOSS_BISTABILITY_TEMP) > 0) {
         SHOW_WARN_IF(utils::Compare(teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);            // show warning if winds being used outside comfort zone
 
-        double v         = 2.6;                                                                                 // v_inf/v_esc
+        double v = 2.6;                                                                                         // v_inf/v_esc
+        v        = v * PPOW(m_Metallicity / ZSOL, OPTIONS->ScaleTerminalWindVelocityWithMetallicityPower());    // Scale Vinf with metallicity  
 
         double logMdotOB = -6.697 +
                            (2.194 * log10(m_Luminosity / 1.0E5)) -
@@ -2326,7 +2405,7 @@ double BaseStar::CalculateMassLossRateVMSVink2011() const {
  *
  * @return                                      Mass loss rate in Msol yr^-1
  */
-double BaseStar::CalculateMassLossRateVMSSabhahit2023() const {
+double BaseStar::CalculateMassLossRateVMSSabhahit2023() {
 
     double gamma       = EDDINGTON_PARAMETER_FACTOR * m_Luminosity / m_Mass;                                    // Eddington Parameter, independent of surface composition
     double Mswitch     = PPOW(m_Metallicity, -1.574) * 0.0615 + 18.10;                                          // obtained from a powerlaw fit to table 2, given teff=45kK
@@ -2339,7 +2418,7 @@ double BaseStar::CalculateMassLossRateVMSSabhahit2023() const {
         Mdot = Mdotswitch * PPOW((m_Luminosity / Lswitch) , 4.77) * PPOW((m_Mass/Mswitch) , -3.99);
     }
     else {
-        Mdot = CalculateMassLossRateOBVink2001();
+        Mdot = CalculateMassLossRateOB(OPTIONS->OBMassLossPrescription());                                      // not in the VMS regime according to Sabhahit+ 2023, fall back to default OB mass loss prescription
     }
 
     return Mdot;
@@ -2498,7 +2577,7 @@ double BaseStar::CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu)
         if (utils::Compare(logL0, logL) <= 0) {                                                             // No mass loss for L < L0
             // Equation 13 in Sander & Vink 2020
             double logMdot = alpha * log10(logL - logL0) + 0.75 * (logL - logL0 - 1.0) + logMdot10;
-            Mdot           = PPOW(10.0, logMdot) * OPTIONS->WolfRayetFactor();
+            Mdot           = PPOW(10.0, logMdot);
         }
     }
 
@@ -2608,7 +2687,7 @@ double BaseStar::CalculateMassLossRateHurley() {
 
 /*
  * Calculate the dominant mass loss mechanism and associated rate for the star at the current evolutionary phase
- * According to Vink - based on implementation in StarTrack 
+ * Follows the implementation in StarTrack
  *
  * 
  * double CalculateMassLossRateBelczynski2010()
@@ -2644,13 +2723,13 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
 
 
 /*
- * Calculate the mass loss rate according to the updated prescription. 
+ * Calculate the mass loss rate according to the updated framework.
  *
- * The structure is similar to the Vink wrapper (previous default), which should be called Belczynski.
- * Mass loss rates for hot, massive OB stars are given by Bjorklund et al. 2022
- * Mass loss rates for helium rich Wolf--Rayet stars are given by Sander (not yet implemented)
- * Mass loss rates for red supergiants are given by Beasor and Davies (not yet implemented)
- * Mass loss rates for luminous blue variables are still given as defined elsewhere in the code
+ * The structure is similar to the CalculateMassLossRateBelczynski2010() wrapper (previous default).
+ * Mass loss rates are divided into several classes: RSG winds, cool star winds,
+ * very massive star (VMS) winds, OB star winds.
+ * Furthermore, LBV winds are computed separately, and, if non-zero, either replace other mass loss
+ * or are added to other wind mass loss if LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD is used.
  * 
  *
  * double CalculateMassLossRateMerritt2024()
@@ -2747,7 +2826,7 @@ double BaseStar::CalculateMassLossRate() {
                 // The correct fix for this is to add code for the missing prescription or, if the missing
                 // prescription is superfluous, remove it from the option.
 
-                THROW_ERROR(ERROR::UNKNOWN_VMS_MASS_LOSS_PRESCRIPTION);                                             // throw error
+                THROW_ERROR(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION);                                                 // throw error
         }
 
         mDot = mDot * OPTIONS->OverallWindMassLossMultiplier();                                                     // apply overall wind mass loss multiplier
@@ -4610,14 +4689,20 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (ShouldEvolveOnPhase()) {                                                    // evolve timestep on phase
-        m_Tau             = CalculateTauOnPhase();
+        m_Tau        = CalculateTauOnPhase();
 
-        m_COCoreMass      = CalculateCOCoreMassOnPhase();
-        m_CoreMass        = CalculateCoreMassOnPhase();
-        m_HeCoreMass      = CalculateHeCoreMassOnPhase();
+        m_COCoreMass = CalculateCOCoreMassOnPhase();
+        m_CoreMass   = CalculateCoreMassOnPhase();
+        m_HeCoreMass = CalculateHeCoreMassOnPhase();
         
-        m_Luminosity      = CalculateLuminosityOnPhase();
+        m_Luminosity = CalculateLuminosityOnPhase();
 
+        // Calculate abundances
+        m_HeliumAbundanceCore      = CalculateHeliumAbundanceCoreOnPhase();
+        m_HeliumAbundanceSurface   = CalculateHeliumAbundanceSurfaceOnPhase();
+        m_HydrogenAbundanceCore    = CalculateHydrogenAbundanceCoreOnPhase();
+        m_HydrogenAbundanceSurface = CalculateHydrogenAbundanceSurfaceOnPhase();  
+        
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // radius and possibly new stellar type
 
         m_Mu              = CalculatePerturbationMuOnPhase();

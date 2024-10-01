@@ -59,6 +59,12 @@ protected:
 
             double           CalculateHeCoreMassOnPhase() const                             { return m_HeCoreMass; }                                    // NO-OP
 
+            double           CalculateHeliumAbundanceCoreOnPhase() const                    { return 0.0; };
+            double           CalculateHeliumAbundanceSurfaceOnPhase() const                 { return 0.0; };
+            
+            double           CalculateHydrogenAbundanceCoreOnPhase() const                  { return 0.0; };
+            double           CalculateHydrogenAbundanceSurfaceOnPhase() const               { return 0.0; };
+
             double           CalculateEtaH(const double p_MassIntakeRate);
 
             double           CalculateEtaHe(const double p_MassIntakeRate);

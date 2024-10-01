@@ -34,7 +34,7 @@ public:
         return clone; 
     }
 
-    static HG* Clone(HG p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
+    static HG* Clone(HG& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
         HG* clone = new HG(p_Star, p_Initialise); 
         clone->SetPersistence(p_Persistence); 
         return clone; 
@@ -95,6 +95,21 @@ protected:
     double          CalculateHeCoreMassAtPhaseEnd() const                           { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
     double          CalculateHeCoreMassOnPhase() const                              { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
     
+    double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                  { return 1.0 - m_Metallicity; }                                         
+    double          CalculateHeliumAbundanceCoreOnPhase() const                     { return 1.0 - m_Metallicity; }                                                             // Use class member variables                                       
+    
+    double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const               { return CalculateHeliumAbundanceSurfaceOnPhase(); }
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const                  { return m_InitialHeliumAbundance; }                                                        // Use class member variables                      
+    
+    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                { return CalculateHydrogenAbundanceCoreOnPhase(); } 
+    double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;                                                          
+    double          CalculateHydrogenAbundanceCoreOnPhase() const                   { return 0.0; }                                                                             // Star has exhausted hydrogen in its core                                 
+    
+    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const             { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                { return m_InitialHydrogenAbundance; }                                                      // Use class member variables
+    
+
+
     double          CalculateLambdaDewi() const;
     double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
     double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const;
@@ -104,13 +119,7 @@ protected:
     double          CalculateLuminosityOnPhase(const double p_Age, const double p_Mass) const;
     double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Age, m_Mass0); }                                      // Use class member variables
 
-    double          CalculateMassTransferRejuvenationFactor()			    { return 1.0; }
-
-    double          CalculateRadialExtentConvectiveEnvelope() const {
-        double envMass, envMassMax;
-        std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
-        return (std::sqrt(envMass / envMassMax) * (m_Radius - CalculateConvectiveCoreRadius()));                                                                                // combination of Hurley et al. 2000, end of sec. 7.2, and Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 39-40
-    }
+    double          CalculateMassTransferRejuvenationFactor()                       { return 1.0; }
 
     double          CalculateRadiusAtPhaseEnd(const double p_Mass) const;
     double          CalculateRadiusAtPhaseEnd() const                               { return CalculateRadiusAtPhaseEnd(m_Mass); }                                               // Use class member variables

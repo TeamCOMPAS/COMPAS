@@ -79,6 +79,20 @@ protected:
 
     double          CalculateHeCoreMassAtPhaseEnd() const                       { return m_CoreMass; }
 
+    double          CalculateHeliumAbundanceCoreAtPhaseEnd() const              { return CalculateHeliumAbundanceCoreOnPhase(); }
+    double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;                                         
+    double          CalculateHeliumAbundanceCoreOnPhase() const                 { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                          // Use class member variables                                       
+    
+    double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const           { return CalculateHeliumAbundanceSurfaceOnPhase(); }
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const              { return m_InitialHeliumAbundance; }                                            // Use class member variables                      
+    
+    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const            { return CalculateHydrogenAbundanceCoreOnPhase(); } 
+    double          CalculateHydrogenAbundanceCoreOnPhase() const               { return 0.0; }                                                                 // Core is hydrogen exhausted                                
+    
+    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const         { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const            { return m_InitialHydrogenAbundance; }                                          // Use class member variables
+    
+
     double          CalculateLambdaDewi() const;
     double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
     double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const;
