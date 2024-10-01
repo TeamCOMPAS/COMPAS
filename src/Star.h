@@ -95,6 +95,12 @@ public:
     bool                ExperiencedPPISN() const                                                                    { return m_Star->ExperiencedPPISN(); }
     bool                ExperiencedUSSN() const                                                                     { return m_Star->ExperiencedUSSN(); }
     double              HeCoreMass() const                                                                          { return m_Star->HeCoreMass(); }
+    double              HeliumAbundanceCore() const                                                                 { return m_Star->HeliumAbundanceCore(); }
+    double              HeliumAbundanceSurface() const                                                              { return m_Star->HeliumAbundanceSurface();} 
+    double              HydrogenAbundanceCore() const                                                               { return m_Star->HydrogenAbundanceCore(); }
+    double              HydrogenAbundanceSurface() const                                                            { return m_Star->HydrogenAbundanceSurface(); }
+    double              InitialHeliumAbundance() const                                                              { return m_Star->InitialHeliumAbundance(); }
+    double              InitialHydrogenAbundance() const                                                            { return m_Star->InitialHydrogenAbundance(); }
     bool                IsAIC() const                                                                               { return m_Star->IsAIC(); }
     bool                IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
     bool                IsDegenerate() const                                                                        { return m_Star->IsDegenerate(); }
@@ -186,7 +192,7 @@ public:
     
     double          CalculateNuclearMassLossRate()                                                                  { return m_Star->CalculateNuclearMassLossRate(); }
     
-    double          CalculateRadialExtentConvectiveEnvelope() { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
+    double          CalculateRadialExtentConvectiveEnvelope()                                                       { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
 
     double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const                        { return m_Star->CalculateRadiusOnPhaseTau(p_Mass, p_Tau); }
     

@@ -387,6 +387,14 @@ Default = FALSE
 Display warning messages to stdout. |br|
 Default = FALSE
 
+**--enable-rotationally-enhanced-mass-loss** |br|
+Enable rotationally enhanced mass loss for rapidly rotating stars following Langer (1998)
+Default = FALSE
+
+**--enhance-CHE-lifetimes-luminosities** |br|
+Enhance lifetimes and luminosities of CH stars using a fit to detailed models from Szecsi et al. (2015)
+Default = FALSE
+
 **--envelope-state-prescription** |br|
 Prescription for determining whether the envelope of the star is convective or radiative. |br|
 Options: { LEGACY, HURLEY, FIXED_TEMPERATURE } |br|
@@ -1222,6 +1230,15 @@ DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated an
 .. _options-props-S:
 
 :ref:`Back to Top <options-props-top>`
+
+**--scale-CHE-mass-loss-with-surface-helium-abundance** |br|
+Scale mass loss for chemically homogeneously evolving (CHE) stars with the surface helium abundance. 
+Transition from OB to WR mass loss towards the end of the main sequence.
+Default = False
+
+**--scale-terminal-wind-velocity-with-metallicity-power** |br|
+Scale terminal wind velocity with metallicity to this power
+Default = 0.0
 
 **--semi-major-axis** |br|
 Initial semi-major axis for a binary star when evolving in BSE mode (AU). |br|

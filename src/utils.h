@@ -98,8 +98,6 @@ namespace utils {
 
     bool                                IsOneOf(const STELLAR_TYPE p_StellarType, const STELLAR_TYPE_LIST p_List);
 
-    double                              MESAZAMSHeliumFractionByMetallicity(double p_Z);
-
     std::string                         PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength);
     std::string                         PadTrailingSpaces(const std::string p_Str, const std::size_t p_MaxLength);
     

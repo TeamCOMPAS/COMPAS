@@ -855,7 +855,7 @@ double EAGB::CalculateRemnantRadius() const {
     double R1, R2;
     std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(m_HeCoreMass, CalculateRemnantLuminosity());
 
-    return std::min(R1, R2);
+    return std::min(m_Radius, std::min(R1, R2));
 }
 
 
