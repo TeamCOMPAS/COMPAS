@@ -2057,13 +2057,22 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     double donorMassLossRateThermal = m_Donor->CalculateThermalMassLossRate();
     double donorMassLossRateNuclear = m_Donor->CalculateNuclearMassLossRate();
     
-    std::tie(std::ignore, betaThermal) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateThermal,
-                                                                                 m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
-                                                                                 donorIsHeRich);
-    std::tie(std::ignore, betaNuclear) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateNuclear,
-                                                                                 m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
-                                                                                 donorIsHeRich);
-    
+    //std::tie(std::ignore, betaThermal) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateThermal,
+    //                                                                             m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
+    //                                                                             donorIsHeRich);
+    //std::tie(std::ignore, betaNuclear) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateNuclear,
+    //                                                                             m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
+    //                                                                             donorIsHeRich);
+    double beta = 1.0;
+    double period = std::sqrt( m_SemiMajorAxis* m_SemiMajorAxis* m_SemiMajorAxis / ( m_Donor->Mass() + m_Accretor->Mass())) * 365.25;
+    if (period > 4) {
+        beta = 0.0;
+    }
+
+    betaThermal = beta;
+    betaNuclear = beta;    
+    m_FractionAccreted = beta;
+
     m_ZetaStar = m_Donor->CalculateZetaAdiabatic();
     double zetaEquilibrium = m_Donor->CalculateZetaEquilibrium();
     
