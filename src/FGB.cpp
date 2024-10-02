@@ -29,11 +29,11 @@ double FGB::CalculateLuminosityOnPhase(const double p_Time) const {
 
     // The following declarations are for convenience and readability
     // (could be changed to #defines if performance is an issue - but the optimiser should optimise this away)
-    double AH  = gbParams(AH);
-    double B   = gbParams(B);
-    double D   = gbParams(D);
-    double p   = gbParams(p);
-    double q   = gbParams(q);
+    double AH = gbParams(AH);
+    double B  = gbParams(B);
+    double D  = gbParams(D);
+    double p  = gbParams(p);
+    double q  = gbParams(q);
 
     // Calculate the core mass according to Hurley et al. 2000, eq 39, regardless
     // of whether it is the correct expression to use given the star's mass
@@ -121,7 +121,6 @@ double FGB::CalculateTauOnPhase() const {
 /*
  * Choose timestep for evolution
  *
- * Can obviously do this your own way
  * Given in the discussion in Hurley et al. 2000
  *
  *
@@ -133,14 +132,13 @@ double FGB::CalculateTauOnPhase() const {
 double FGB::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 
-    double dtk = utils::Compare(p_Time, timescales(tMx_FGB)) <= 0       // ah because timescales[4,5,6] are not calculated yet   JR: todo: ?but... timescales[4] is used if this is true...? (and 5 if not)
+    double dtk = utils::Compare(p_Time, timescales(tMx_FGB)) <= 0       // ah because timescales[4,5,6] are not calculated yet   JR: todo: ?but... timescales[4] is used if this is true...? (and 5 if not) 
             ? 0.02 * (timescales(tinf1_FGB) - p_Time)
             : 0.02 * (timescales(tinf2_FGB) - p_Time);
 
-    double dte      = timescales(tHeI) - p_Time;
-    double timestep = std::max(std::min(dtk, dte), NUCLEAR_MINIMUM_TIMESTEP);
+    double dte = timescales(tHeI) - p_Time;
 
-    return timestep;
+    return std::max(std::min(dtk, dte), NUCLEAR_MINIMUM_TIMESTEP);
 
 #undef timescales
 }
@@ -188,18 +186,18 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_Force) {
         
         if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {                                       // Star evolves to Helium White Dwarf
 
-            stellarType  = STELLAR_TYPE::HELIUM_WHITE_DWARF;
+            stellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF;
 
-            m_Age        = 0.0;
-            m_Radius     = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
+            m_Age       = 0.0;
+            m_Radius    = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
         }
         else {                                                                                      // Star evolves to Zero age Naked Helium Main Star
 
-            stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;
+            stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;
 
-            m_Mass0      = m_Mass;
-            m_Age        = 0.0;
-            m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);
+            m_Mass0     = m_Mass;
+            m_Age       = 0.0;
+            m_Radius    = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);
         }
     }
 

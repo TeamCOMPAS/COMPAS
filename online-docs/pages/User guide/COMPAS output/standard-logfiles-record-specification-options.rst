@@ -120,7 +120,25 @@ Following is an alphabetical list of program option properties available for inc
    * - COMPAS variable:
      - Options::m_BlackHoleKicks
    * - Description:
-     - Value of program option ``--black-hole-kicks``
+     - Value of program option ``--black-hole-kicks`` |br|
+   * - Header String:
+     - PO_BH_Kicks
+
+DEPRECATION NOTICE: property ``BLACK_HOLE_KICKS`` has been deprecated and will soon be removed. Please use ``BLACK_HOLE_KICKS_MODE`` in future.
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **BLACK_HOLE_KICKS_MODE**
+     -
+   * - Data type:
+     - INT
+   * - COMPAS variable:
+     - Options::m_BlackHoleKicks
+   * - Description:
+     - Value of program option ``--black-hole-kicks-mode`` |br|
    * - Header String:
      - PO_BH_Kicks
 
@@ -395,7 +413,7 @@ Following is an alphabetical list of program option properties available for inc
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **ECCENTRICITY_DISTRIBUTION MAX**
+   * - :cspan:`2` **ECCENTRICITY_DISTRIBUTION_MAX**
      -
    * - Data type:
      - DOUBLE
@@ -453,6 +471,38 @@ Following is an alphabetical list of program option properties available for inc
      - Value of program option ``--envelope-state-prescription``
    * - Header String:
      - PO_Envelope_State_Prscrptn
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **ENABLE_ROTATIONALLY_ENHANCED_MASS_LOSS**
+     -
+   * - Data type:
+     - BOOL
+   * - COMPAS variable:
+     - Options::m_EnableRotationallyEnhancedMassLoss
+   * - Description:
+     - Value of program option ``--enable-rotationally-enhanced-mass-loss``
+   * - Header String:
+     - PO_Enable_Rotationally_Enhanced_Mass_Loss
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **ENHANCE_CHE_LIFETIMES_LUMINOSITIES**
+     -
+   * - Data type:
+     - BOOL
+   * - COMPAS variable:
+     - Options::m_EnhanceCHELifetimesLuminosities
+   * - Description:
+     - Value of program option ``--enhance-CHE-lifetimes-luminosities``
+   * - Header String:
+     - PO_Enhance_CHE_lifetimes_luminosities
 
 .. _spec-options-props-F:
 
@@ -605,7 +655,7 @@ Following is an alphabetical list of program option properties available for inc
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **KICK_DIRECTION_DISTRIBUTION**
+   * - :cspan:`2` **KICK_DIRECTION**
      -
    * - Data type:
      - INT
@@ -613,6 +663,24 @@ Following is an alphabetical list of program option properties available for inc
      - Options::m_KickDirectionDistribution
    * - Description:
      - Value of program option ``--kick-direction``
+   * - Header String:
+     - PO_Kick_Direction_Dstrbtn
+
+DEPRECATION NOTICE: property ``KICK_DIRECTION`` has been deprecated and will soon be removed. Please use ``KICK_DIRECTION_DISTRIBUTION`` in future.
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **KICK_DIRECTION_DISTRIBUTION**
+     -
+   * - Data type:
+     - INT
+   * - COMPAS variable:
+     - Options::m_KickDirectionDistribution
+   * - Description:
+     - Value of program option ``--kick-direction-distribution``
    * - Header String:
      - PO_Kick_Direction_Dstrbtn
 
@@ -971,6 +1039,26 @@ Following is an alphabetical list of program option properties available for inc
      - Value of program option ``--luminous-blue-variable-prescription``
    * - Header String:
      - PO_LBV_Mass_Loss_Prscrptn
+
+DEPRECATION NOTICE: property ``LBV_PRESCRIPTION`` has been deprecated and will soon be removed. Please use ``LBV_MASS_LOSS_PRESCRIPTION`` in future.
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **LBV_MASS_LOSS_PRESCRIPTION**
+     -
+   * - Data type:
+     - INT
+   * - COMPAS variable:
+     - Options::m_LuminousBlueVariablePrescription
+   * - Description:
+     - Value of program option ``--LBV-mass-loss-prescription``
+   * - Header String:
+     - PO_LBV_Mass_Loss_Prscrptn
+
+:ref:`Back to Top <spec-options-props-top>`
 
 .. _spec-options-props-M:
 
@@ -1537,6 +1625,22 @@ Following is an alphabetical list of program option properties available for inc
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **PPI_CO_CORE_SHIFT_HENDRIKS**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_PulsationalPairInstabilityCOCoreShiftHendriks
+   * - Description:
+     - Value of program option ``--PPI-CO-Core-Shift-Hendriks``
+   * - Header String:
+     - PO_PPI_CO_CORE_SHIFT_HENDRIKS
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **PPI_LOWER_LIMIT**
      -
    * - Data type:
@@ -1798,6 +1902,38 @@ Following is an alphabetical list of program option properties available for inc
 
 :ref:`Back to Top <spec-options-props-top>`
 
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE**
+     -
+   * - Data type:
+     - BOOL
+   * - COMPAS variable:
+     - Options::m_ScaleCHEMassLossWithSurfaceHeliumAbundance
+   * - Description:
+     - Value of program option ``--scale-CHE-mass-loss-with-surface-helium-abundance``
+   * - Header String:
+     - PO_Scale_CHE_Mass_Loss_Surf_He_Abundance
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_ScaleTerminalWindVelocityWithMetallicityPower
+   * - Description:
+     - Value of program option ``--scale-terminal-wind-velocity-with-metallicity-power``
+   * - Header String:
+     - PO_Scale_Terminal_Wind_Vel_Metallicity_Power
+   
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0

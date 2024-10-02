@@ -19,6 +19,8 @@ class HeMS: virtual public BaseStar, public TPAGB {
 
 public:
 
+    HeMS() { m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS; };
+    
     HeMS(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), TPAGB(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                                                                                                                                         // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                                             // Initialise if required
@@ -44,10 +46,14 @@ public:
     static double   CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Tau);
     static double   CalculateLuminosityAtPhaseEnd_Static(const double p_Mass);
 
+           double   CalculateMassLossRateBelczynski2010();
+           double   CalculateMassLossRateMerritt2024();
 
     static DBL_DBL  CalculateRadiusAtPhaseEnd_Static(const double p_Mass, const double p_Luminosity);
     static double   CalculateRadiusAtZAMS_Static(const double p_Mass);
     static double   CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Tau);
+
+    MT_CASE         DetermineMassTransferTypeAsDonor() const                                                        { return MT_CASE::OTHER; }                                                      // Not A, B, C, or NONE
 
 
 protected:
@@ -61,16 +67,17 @@ protected:
 
 
     // member functions - alphabetically
+            DBL_DBL         CalculateConvectiveEnvelopeMass() const                                                 { return std::tuple<double, double> (0.0, 0.0); }                           // No convective envelope for naked He stars
             double          CalculateCOCoreMassAtPhaseEnd() const                                                   { return CalculateCOCoreMassOnPhase(); }                                        // Same as on phase
             double          CalculateCOCoreMassOnPhase() const                                                      { return 0.0;  }                                                                // McCO(HeMS) = 0.0
 
-            double          CalculateConvectiveCoreMass() const                                                     { return MainSequence::CalculateConvectiveCoreMass(); }                         // Temporary solution, until we have tested the rate at which the convective core recedes in HeMS stars
-            double          CalculateConvectiveCoreRadius() const                                                   { return 0.5 * m_Radius; }                                                      // Temporary solution, until we have tested the core radii of HeMS stars
+            double          CalculateConvectiveCoreMass() const;
+            double          CalculateConvectiveCoreRadius() const;
             double          CalculateCoreMassAtPhaseEnd() const                                                     { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase /*ILYA*/ To fix, not everything will become CO core
             double          CalculateCoreMassOnPhase() const                                                        { return 0.0; }                                                                 // Mc(HeMS) = 0.0
 
     static  double          CalculateCoreMass_Luminosity_B_Static()                                                 { return 4.1E4; }
-    static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                              { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }   // pow() is slow - use multiplication
+    static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                              { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }           // pow() is slow - use multiplication
     static  double          CalculateCoreMass_Luminosity_p_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs) { return 5.0; }
     static  double          CalculateCoreMass_Luminosity_q_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs) { return 3.0; }
 
@@ -78,10 +85,25 @@ protected:
             double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return 0.33; }                                                                // As coded in BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
-            void            CalculateGBParams()                                                                     { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
+            void            CalculateGBParams()                                                                     { CalculateGBParams(m_Mass0, m_GBParams); }                                     // Use class member variables
 
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_Mass; }                                                              // McHe(HeMS) = Mass
             double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return CalculateHeCoreMassOnPhase(); }                                        // Same as on phase
+
+            // Abundances
+            double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                                          { return CalculateHeliumAbundanceCoreOnPhase(); }
+            double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;
+            double          CalculateHeliumAbundanceCoreOnPhase() const                                             { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                          // Use class member variables                                       
+            
+            double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const                                       { return CalculateHeliumAbundanceSurfaceOnPhase(); }
+            double          CalculateHeliumAbundanceSurfaceOnPhase() const                                          { return m_HeliumAbundanceSurface; }                                            // Use class member variables                      
+
+            double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                                        { return CalculateHydrogenAbundanceCoreOnPhase(); } 
+            double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const                         { return 0.0; }
+            double          CalculateHydrogenAbundanceCoreOnPhase() const                                           { return CalculateHydrogenAbundanceCoreOnPhase(m_Tau); }                        // Use class member variables                                 
+
+            double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const                                     { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
+            double          CalculateHydrogenAbundanceSurfaceOnPhase() const                                        { return m_HydrogenAbundanceSurface; }                                          // Use class member variables
 
             double          CalculateInitialSupernovaMass() const                                                   { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
 
@@ -93,23 +115,19 @@ protected:
             double          CalculateLuminosityOnPhase() const                                                      { return CalculateLuminosityOnPhase(m_Mass, m_Tau); }                           // Use class member variables
 
             double          CalculateMassLossRateHurley();
-            double          CalculateMassLossRateBelczynski2010();
-            double          CalculateMassLossRateFlexible2023();
             double          CalculateMassLossRateWolfRayetShenar2019() const;
-            
-            double          CalculateMassTransferRejuvenationFactor() const;
+
+            double          CalculateMassTransferRejuvenationFactor();
 
             double          CalculateMomentOfInertia() const                                                        { return MainSequence::CalculateMomentOfInertia(); }
 
             double          CalculatePerturbationMu() const                                                         { return 5.0; }                                                                 // Hurley et al. 2000, eqs 97 & 98
 
-            double          CalculateRadialExtentConvectiveEnvelope() const                                         { return 0.0; }                 // HeMS stars don't have a convective envelope
-
             double          CalculateRadiusAtPhaseEnd(const double p_Mass) const                                    { return CalculateRadiusAtPhaseEnd_Static(p_Mass); }
             double          CalculateRadiusAtPhaseEnd() const                                                       { return CalculateRadiusAtPhaseEnd(m_Mass); }                                   // Use class member variables
     static  double          CalculateRadiusAtPhaseEnd_Static(const double p_Mass);
             double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const                { return CalculateRadiusOnPhase_Static(p_Mass, p_Tau); }
-            double          CalculateRadiusOnPhase() const                                                          { return CalculateRadiusOnPhaseTau(m_Mass, m_Tau); }                          // Use class member variables
+            double          CalculateRadiusOnPhase() const                                                          { return CalculateRadiusOnPhaseTau(m_Mass, m_Tau); }                            // Use class member variables
 
             double          CalculateTauAtPhaseEnd() const                                                          { return 1.0; }
             double          CalculateTauOnPhase() const                                                             { return m_Age / m_Timescales[static_cast<int>(TIMESCALE::tHeMS)]; }

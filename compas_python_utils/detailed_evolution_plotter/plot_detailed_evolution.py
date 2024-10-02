@@ -1,10 +1,10 @@
 ###################################################################
 #                                                                 #                                                               
-#  Example of plotting detailed output COMPAS with python         #
+#  Plot the detailed evolution of a COMPAS run                    #
 #                                                                 #
 ###################################################################
 
-import os, sys
+import os
 import shutil
 import numpy as np
 import h5py as h5
@@ -12,11 +12,9 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import argparse
 import tempfile
+from pathlib import Path
 
-HERE = os.path.dirname(os.path.realpath(__file__))
-
-COMPAS_ROOT_DIR = os.path.expandvars(os.environ.get('COMPAS_ROOT_DIR', os.path.join(HERE, '../..')))
-VAN_DEN_HEUVEL_DIR = os.path.join(COMPAS_ROOT_DIR, 'compas_python_utils/detailed_evolution_plotter/van_den_heuvel_figures/')
+IMG_DIR = Path(__file__).parent / "van_den_heuvel_figures"
 
 
 
@@ -53,19 +51,22 @@ def run_main_plotter(data_path, outdir='.', show=True):
         plt.show()
 
 
-fontparams = {
-    "font.serif": "Times New Roman",
-    "text.usetex": str(shutil.which("latex") is not None),
-    "axes.grid": "True",
-    "grid.color": "gray",
-    "grid.linestyle": ":",
-    "axes.titlesize": "18",
-    "axes.labelsize": "12",
-    "xtick.labelsize": "10",
-    "ytick.labelsize": "10",
-    "xtick.labelbottom": "True",
-    "legend.framealpha": "1",
-}
+def set_font_params():
+    use_latex = shutil.which("latex") is not None
+    fontparams = {
+        "font.serif": "Times New Roman",
+        "text.usetex": use_latex,
+        "axes.grid": "True",
+        "grid.color": "gray",
+        "grid.linestyle": ":",
+        "axes.titlesize": "18",
+        "axes.labelsize": "12",
+        "xtick.labelsize": "10",
+        "ytick.labelsize": "10",
+        "xtick.labelbottom": "True",
+        "legend.framealpha": "1",
+    }
+    rcParams.update(fontparams)  # Set configurations for uniform plot output
 
 
 ####### Functions to organize and call the plotting functions
@@ -83,7 +84,7 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
         stopTimeAt = Data['Time'][-1] * 1.05            # Plot all the way to the end of the run if no events beyond ZAMS
     mask = Data['Time'][()] < stopTimeAt                # Mask the data to not include the 'End' events
 
-    rcParams.update(fontparams)  # Set configurations for uniform plot output
+    set_font_params()
 
     # Configure 2x2 subplots, for masses, lengths, stellar types, and HR diagram (in order top to bottom left to right)
     fig = plt.figure(figsize=(15, 8))  # W, H
@@ -127,7 +128,7 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
     fig.suptitle('Detailed evolution for seed = {}'.format(Data['SEED'][()][0]), fontsize=18)
     fig.tight_layout(h_pad=1, w_pad=1, rect=(0.08, 0.08, .98, .98), pad=0.)  # (left, bottom, right, top)
 
-    plt.savefig(f'{outdir}/detailedEvolutionPlot.eps', bbox_inches='tight', pad_inches=0, format='eps')
+    safe_save_figure(fig, f'{outdir}/detailedEvolutionPlot.png', bbox_inches='tight', pad_inches=0, format='png')
 
 
 ######## Plotting functions
@@ -333,7 +334,7 @@ def plotVanDenHeuvel(events=None, outdir='.'):
                          fontweight='bold')
 
     file_path = os.path.join(outdir, 'vanDenHeuvelPlot.eps')
-    plt.savefig(file_path, bbox_inches='tight', pad_inches=0, format='eps')
+    safe_save_figure(fig, file_path, bbox_inches='tight', pad_inches=0, format='eps')
     return fig
 
 
@@ -581,7 +582,7 @@ class Event(object):
         on the stellar types, to get the van den Heuvel diagrams.
         """
 
-        self.imgFile = os.path.join(VAN_DEN_HEUVEL_DIR, f'{image_num}.png')
+        self.imgFile = os.path.join(IMG_DIR, f'{image_num}.png')
         img = plt.imread(self.imgFile)  # import image
         if rotate_image:
             img = img[:, ::-1, :]  # flip across y-axis
@@ -693,6 +694,18 @@ def printFormattedEvolutionLine(time, event, m1, t1, m2, t2, a, e):
     print(
         "{:10.6f}   {:31}  {:7.3f}    {:2}    {:7.3f}    {:2}   {:8.3f}  {:5.3f}".format(time, event, m1, t1, m2, t2, a,
                                                                                          e))
+
+
+def safe_save_figure(fig, filename, **kwargs):
+    # make the directory if it doesn't exist
+    dirname = os.path.dirname(filename)
+    os.makedirs(dirname, exist_ok=True)
+    try:
+        fig.savefig(fname=filename, **kwargs)
+    except RuntimeError:
+        print("Failed to save plot with tex labels turning off tex and reattempting.")
+        rcParams["text.usetex"] = False
+        fig.savefig(fname=filename, **kwargs)
 
 
 if __name__ == "__main__":

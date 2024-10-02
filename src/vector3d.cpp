@@ -33,11 +33,11 @@ Vector3d::Vector3d(const DBL_VECTOR p_Vec) {
     
     size_t numValuesSupplied = p_Vec.size();
 
-    SHOW_WARN_IF(numValuesSupplied != 3, ERROR::EXPECTED_3D_VECTOR);
+    THROW_ERROR_IF(numValuesSupplied != 3, ERROR::EXPECTED_3D_VECTOR);  // this is a coding error
 
-    m_x = numValuesSupplied >= 1 ? p_Vec[0] : 0.0;
-    m_y = numValuesSupplied >= 2 ? p_Vec[1] : 0.0;
-    m_z = numValuesSupplied >= 3 ? p_Vec[2] : 0.0;
+    m_x = p_Vec[0];
+    m_y = p_Vec[1];
+    m_z = p_Vec[2];
 }
 
 
@@ -122,10 +122,10 @@ Vector3d Vector3d::MatrixMult(const std::vector<DBL_VECTOR>& p_Matrix, const Vec
     Vector3d result = Vector3d(0.0, 0.0, 0.0);
 
     size_t numRowsSupplied = p_Matrix.size();
-    SHOW_WARN_IF(numRowsSupplied != 3, ERROR::EXPECTED_3D_VECTOR);
+    THROW_ERROR_IF(numRowsSupplied != 3, ERROR::EXPECTED_3D_VECTOR);        // this is a code defect
     for (size_t row = 0; row < numRowsSupplied; row++) {
         size_t numColsSupplied = p_Matrix[row].size();
-        SHOW_WARN_IF(numColsSupplied != 3, ERROR::EXPECTED_3D_VECTOR);
+        THROW_ERROR_IF(numColsSupplied != 3, ERROR::EXPECTED_3D_VECTOR);    // this is a code defect
         for (size_t col = 0; col < numColsSupplied; col++) {
             result[row] += p_Matrix[row][col] * p_Vec[col];
         }

@@ -14,7 +14,11 @@ class MainSequence: virtual public BaseStar {
 
 public:
 
+    MainSequence(){};
+
     MainSequence(const BaseStar& p_BaseStar) : BaseStar(p_BaseStar) {}
+
+    MT_CASE DetermineMassTransferTypeAsDonor() const                                        { return MT_CASE::A; }                                                  // Always case A
 
 
 protected:
@@ -46,6 +50,20 @@ protected:
     double          CalculateHeCoreMassAtPhaseEnd() const                                   { return CalculateCoreMassAtPhaseEnd(); }                               // Same as He core mass
     double          CalculateHeCoreMassOnPhase() const                                      { return 0.0; }                                                         // McHe(MS) = 0.0
 
+    double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                          { return CalculateHeliumAbundanceCoreOnPhase(); }
+    double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;                                         
+    double          CalculateHeliumAbundanceCoreOnPhase() const                             { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                  // Use class member variables                                       
+    
+    double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const                       { return CalculateHeliumAbundanceSurfaceOnPhase(); }
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const                          { return m_InitialHeliumAbundance; }                                    // Use class member variables                      
+    
+    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                        { return CalculateHydrogenAbundanceCoreOnPhase(); } 
+    double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;                                                          
+    double          CalculateHydrogenAbundanceCoreOnPhase() const                           { return CalculateHydrogenAbundanceCoreOnPhase(m_Tau); }                // Use class member variables                                 
+    
+    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const                     { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                        { return m_InitialHydrogenAbundance; }                                  // Use class member variables
+    
     double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const;
 
     double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;
