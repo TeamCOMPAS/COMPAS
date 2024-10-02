@@ -1391,10 +1391,16 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, c
  */ 
 double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta) {
 
-    // Get vector of masses from GE20_QCRIT
-    std::vector<double> massesFromGe20 = std::get<0>(GE20_QCRIT);
+    for (auto const& QCRIT_TABLE : { &QCRIT_GE_LOW_Z, &QCRIT_GE_HIGH_Z}) {
+        std::vector<double> massesFromGe20 = std::get<0>(QCRIT_TABLE);
+        std::cout << massesFromGe20[0] << " << worked?" << std::endl ;
+    }
+
+
+    // Get vector of masses from GE20_QCRIT_LOW_Z
+    std::vector<double> massesFromGe20 = std::get<0>(QCRIT_GE_LOW_Z);
     std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>> 
-        radiiQCritsZetasFromGe20 = std::get<1>(GE20_QCRIT);
+        radiiQCritsZetasFromGe20 = std::get<1>(QCRIT_GE_LOW_Z);
 
     std::vector<int> ind = utils::binarySearch(massesFromGe20, m_Mass);
     int lowerMassInd = ind[0];
