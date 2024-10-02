@@ -16,19 +16,24 @@ class WhiteDwarfs: virtual public BaseStar, public Remnants {
 
 public:
 
+    WhiteDwarfs(){};
+
     WhiteDwarfs(const BaseStar &p_BaseStar) : BaseStar(p_BaseStar), Remnants(p_BaseStar) {}
 
 
     // member functions
-    static  double      CalculateLuminosityOnPhase_Static(const double p_Mass, 
-                                                          const double p_Time, 
-                                                          const double p_Metallicity, 
-                                                          const double p_BaryonNumber);
+    static  double  CalculateLuminosityOnPhase_Static(const double p_Mass, 
+                                                      const double p_Time, 
+                                                      const double p_Metallicity, 
+                                                      const double p_BaryonNumber);
 
-    static  double      CalculateRadiusOnPhase_Static(const double p_Mass);
+    static  double  CalculateRadiusOnPhase_Static(const double p_Mass);
+
+    MT_CASE         DetermineMassTransferTypeAsDonor() const                                { return MT_CASE::OTHER; }                                  // Not A, B, C, or NONE
 
 
-    void                ResolveShellChange(const double p_AccretedMass);
+    void            ResolveShellChange(const double p_AccretedMass);
+
 
 protected:
     // member variables
@@ -53,6 +58,12 @@ protected:
             double           CalculateCOCoreMassOnPhase() const                             { return m_COCoreMass; }                                    // NO-OP
 
             double           CalculateHeCoreMassOnPhase() const                             { return m_HeCoreMass; }                                    // NO-OP
+
+            double           CalculateHeliumAbundanceCoreOnPhase() const                    { return 0.0; };
+            double           CalculateHeliumAbundanceSurfaceOnPhase() const                 { return 0.0; };
+            
+            double           CalculateHydrogenAbundanceCoreOnPhase() const                  { return 0.0; };
+            double           CalculateHydrogenAbundanceSurfaceOnPhase() const               { return 0.0; };
 
             double           CalculateEtaH(const double p_MassIntakeRate);
 

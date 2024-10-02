@@ -1205,30 +1205,130 @@
 //                                      - albeit with fixed AM loss (isotropic re-emission).
 // 02.49.01    IM - May 25, 2024     - Defect repair:
 //                                      - AIC now happens only when the mass of an ONeWD exceeds MCS, the Chandrasekhar mass, which requires accretion onto the WD (see Issue # #1138)
-// 02.49.02    VK - June 11, 2024     - Defect repairs:
+// 02.49.02    VK - June 11, 2024    - Defect repairs:
 //                                      - Fixed the sign of IW dissipation in dynamical tides to follow (2,2) mode synchronization.
 //                                      - Changed the definitions of beta and gamma in dynamical tides to be consistent with tri-layered stellar structures as well as bi-layered.
 //                                      - Fixed the definition of epsilon in IW dynamical tides to follow Ogilvie (2013) Eq. (42)
-// 02.49.03    VK - June 13, 2024     - Code cleanup:
+// 02.49.03    VK - June 13, 2024    - Code cleanup:
 //                                      - Removed confusing definition of `one_minus_beta` in Dynamical tides code.
-// 02.49.04    IM - June 19, 2024     - Defect repair, enhancement:
+// 02.49.04    IM - June 19, 2024    - Defect repair, enhancement:
 //                                      - Corrected check for nuclear timescale (slow case A) mass transfer
 //                                      - Reduced MAXIMUM_MASS_TRANSFER_FRACTION_PER_STEP to 0.0001 to improve accuracy of orbital separation updates following mass transfer
 //                                      - Corrected temperature units in Picker formula for Tonset used in the calculation of the convective envelope mass
 //                                      - Code cleanup
-// 02.49.05    IM - June 22, 2024     - Enhancement:
+// 02.49.05    IM - June 22, 2024    - Enhancement:
 //                                      - Replaced fixed-step, first-order integrator for orbital change after mass transfer with an adaptive-step, higher-order ODE integrator for improved speed and accuracy
-// 02.49.06    JDM - July 01, 2024    - Defect repairs:
+// 02.49.06    JDM - July 01, 2024   - Defect repairs:
 //                                      - Changed the VERY_MASSIVE_MINIMUM_MASS threshold to use m_Mass (current), rather than m_ZAMS.                                      
 //                                      - Lowered VINK_MASS_LOSS_MINIMUM_TEMP from 12.5 to 8kK, to eliminate the short interval during CHeB when WR winds were active between the RSG and OB temperature ranges, at low Z.
-// 02.50.00    IM - July 03, 2024     - Enhancement:
+// 02.50.00    IM - July 03, 2024    - Enhancement:
 //                                      - Change TPAGB::IsSupernova() so that stars with base of AGB core masses below MCBUR1 remain on the TPAGB until they make WDs; remove ResolveTypeIIaSN() functionality.
 //                                      - Add --evolve-main-sequence-mergers option which allows for main sequence merger products to continue evolution
 //                                      - Update HG::CalculateRadialExtentConvectiveEnvelope() to use a combination of Hurley & Picker to avoid excessively high convective envelope densities
-// 02.50.01    JR - July 04, 2024     - Defect repair:
+// 02.50.01    JR - July 04, 2024    - Defect repair:
 //                                      - Fix for issue #1160: added prefix "PO_" to all program option header strings to differentiate from stellar/binary properties.
+// 03.00.00    JR - June 24, 2024    - Enhancements, defect repairs, deprecations, code cleanup:
+//                                         1. implementation of more coherent and robust error handling
+//                                         2. added source files (all are .h file, so the makefile does not need to change)
+//                                            The added source files are mostly the result of separating out sections of the constants.h file.
+//                                            I believe it had become too unwieldy, and sectioning it out seemed to be the reasonable thing to do.
+//                                            I broke constants.h into 5 separate files:
+//                                               a. constants.h    - pretty-much just contains constants now
+//                                               b. typedefs.h     - an existing file, but I moved the enum class declarations and associated label maps, except those that pertain directly to logging, from constants.h to typedefs.h
+//                                               c. LogTypedefs.h  - new file containing logging-related type definitions, including things like definitions of the default record composition for the various log files
+//                                               d. ErrorCatalog.h - new file containing the COMPAS error catalog - this where symbolic names for errors are defined, and contains the mapping from symbolic name to error string
+//                                               e. EnumHash.h     - contains the hash function for enum class types
+//                                         3. deprecation of some program options, and some program option values
+//                                         4. fixed what I believe was a defect in `utils::SolveKeplersEquation()` that was causing erroneous "out-of-bounds" warnings for the eccentric anomaly
+//                                         5. added debug functionality to show stack trace and halt the program - see the discussion and implementation of the SIGUSR2 signal handler in `main.cpp`.
+//                                         6. removed BaseBinaryStar class variable m_UK and associated printing functionality - this is trivial to compute in post-processing
+//                                         7. corrected the Hurley remnant mass prescription CalculateRemnantMass_Static() to handle black hole formation
+//                                         8. code cleanup (including removal of unused BE Binaries code)
+// 03.00.01    IM - July 28, 2024    - Enhancements, defect repairs, code cleanup:
+//                                      - Fixed coefficient typo in HeWD::DetermineAccretionRegime()
+//                                      - Added the function MESAZAMSHeliumFractionByMetallicity() to compute the ZAMS He mass fraction in the same way as MESA default
+//                                      - Always allow radiative-envelope donors to survive CE in the TWO_STAGE CE formalism (with documentation clarification)
+//                                      - Set the maximum convective envelope mass to the total envelope mass for intermediate mass stars, where the Picker+ (2024) fits are invalid
+//                                      - Stop evolution on massless remnant + remnant, regardless of --evolve-main-sequence-merger-products (no further evolution expected)
+//                                      - Corrected rejuvenation of main sequence merger products
+// 03.00.02   IM - Aug 7, 2024      - Enhancements, defect repairs, code cleanup:
+//                                      - Continue evolution of main sequence merger products beyond the main sequence
+//                                      - Remove spurious print statement
+//                                      - Typo fixes
+// 03.00.03   JR - Aug 21, 2024     - Defect repair:
+//                                      - Fix for issue 1184: Segmentation Fault (Core Dumped) Encountered in COMPAS V3.0 with "--common-envelope-formalism TWO_STAGE"
+// 03.00.04   JR - Aug 22, 2024     - Defect repair:
+//                                      - Fix for issue #1182: Switch log issue
+// 03.00.05   JR - Aug 22, 2024     - Defect repair:
+//                                      - Reinstate correctly functioning code for floating-point error handling for Linux
+//                                      - Disable floating-point error handling for MacOS - until I can figure out how to
+//                                        make it work properly for both INTEL and ARM architectures.
+// 03.01.00   APB - Aug 24, 2024    - Enhancement:
+//                                      - Implemented gravitational radiation at each timestep of binary evolution. Available with new '--emit-gravitational-radiation' option.  Updates time step dynamically if required.
+// 03.01.01   JR - Aug 24, 2024     - Defect repair:
+//                                      - Fix bad merge - use this version instead of v03.01.00
+// 03.01.02   JR - Aug 24, 2024     - Defect repair, code cleanup:
+//                                      - Fix for issue #1179: Remove unsupported option value (FIXED) for options PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION and PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION
+//                                      - Remove BeBinary-related code (mostly already commented)
+//                                      - Fix typos in comments in BaseBinaryStar.cpp
+// 03.01.03   JR - Aug 27, 2024     - Defect repair, code cleanup:
+//                                      - Fix for issue #1202: Missing system in system parameters file when using range
+//                                      - Remove extraneous references to "kick_direction" in LogTypedefs.h (added in error in v03.00.00)
+// 03.01.04   SS - Aug 28, 2024     - Enhancement:
+//                                      - Add Hendriks+23 pulsational pair instability prescription 
+// 03.01.05   JDM - Aug 30, 2024    - Defect repair, minor cleanup:
+//                                      - Related to issue #502: added HG to allowed RSG stellar type check, preventing GB winds from being applied during HG.
+//                                      - Changed all "FLEXIBLE2023" naming to "MERRITT2024"
+// 03.01.06   JR - Aug 30, 2024     - Enhancement:
+//                                      - Added functionality to allow users to specify if WD-binaries should be included in the BSE DCO file
+//                                        New option: --include-WD-binaries-as-DCO
+//                                        See "What's New" and option documentation for details.
+//                                        (Issue #1170)
+//                                      - added deprecation notice for '--mass-loss-prescription NONE' (should use ZERO) - missed in v03.00.00
+// 03.01.07   JDM - Sep 05, 2024    - Defect repair:
+//                                      - Set wind mass loss for remnants to zero. 
+// 03.01.08   JR - Sep 06, 2024     - Defect repair, typo fixes:
+//                                      - Fix for issue #1219: Option --black-hole-kicks-mode (aka --black-hole-kicks) ignored
+//                                      - Fixed some stray typos
+// 03.01.09   IM - Sep 07, 2024     - Defect repair:
+//                                      - Fix for issue #1218: increased default MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS, but on failure to find a solution,
+//                                          indicating a narrow range, just pick a midpoint; remove associated error
+//                                      - Corrected --mass-loss-prescription description in documentation
+// 03.02.00   IM - Sep 19, 2024     - Defect repair, cleanup, documentation
+//                                      - Continue evolution on merger at birth (stars touching) if --resolve-main-sequence-merger
+//                                      - Change behavior of Sabhahit+ 2023 VMS winds to default to current OB wind prescription if Gamma threshold is not met
+//                                      - Add recording of MASS_TRANSFER_TIMESCALE (NONE, NUCLEAR, THERMAL, CE), resolving issue #1217
+//                                      - Correct (re-)setting of MassLossRateInRLOF, resolving issue #1225
+//                                      - Correct behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF (see #1215)
+//                                      - Correct behaviour of the second stage of 2-stage CE to ensure that the accretor's mass is correctly adjusted
+//                                      - Update Picker convective envelope mass fit to equal the maximum convective envelope mass when the star is on the AGB
+//                                      - Apply the HG prescription for the convective envelope mass to the entire GB to ensure it evolves smoothly
+//                                      - Resolve issue #1213: updated treatment of 2-stage common envelope for intermediate mass stars, to smoothly reduce from
+//                                              Hirai & Mandel above 8 solar masses to classical "full envelope" removal for stars below 2 solar masses
+//                                      - Correct code comments, update documentation where it fell behind
+// 03.02.01   LvS - Sep 23, 2024     - Defect repair:
+//                                      - Fixed buggy behaviour of wolf-rayet-multiplier 
+// 03.03.00   SS - Sep 24, 2024      - Enhancement:
+//                                      - Improvements to modelling of chemically homogeneous evolution
+//                                      - New options: --enable-rotationally-enhanced-mass-loss,
+//                                        --enhance-CHE-lifetimes-luminosities, --scale-CHE-mass-loss-with-surface-helium-abundance,
+//                                        --scale-terminal-wind-velocity-with-metallicity-power
+//                                      - To facilitate --scale-CHE-mass-loss-with-surface-helium-abundance, added basic tracking of 
+//                                        surface and core hydrogen and helium abundances.
+//                                        See "What's New" and option documentation for details
+// 03.03.01   IM - Sep 25, 2024     - Bug Fix:
+//                                      - Use m_Mass0 rather than m_Mass in GiantBranch::CalculateConvectiveEnvelopeMass() to avoid negative mass radiative intershells as consequences of artificially low BAGB core masses
+// 03.03.02   AB - Sep 26, 2024     - Defect repair:
+//                                      - Fix to PR #1216 (added missing lines and fixed typo)
+// 03.04.00   IM - Sep 29, 2024     - Defect repair, enhancement:
+//                                      - Picker+ 2024 prescription for the convective envelope mass corrected so that T_onset is always 0.1 dex hotter than T_min
+//                                          in order to avoid artifacts due to differences between MESA and Pols SSE tracks
+//                                      - A range of changes to ensure that convective core and convective envelope masses and radii
+//                                          vary smoothly wherever possible, including improvements to convective core mass and radius on the main sequence,
+//                                          on the Helium MS, TPAGB now have fully convective envelopes, etc.
+//                                      - All naked helium stars have purely radiative envelopes, until we develop better models
+//                                      - Minor fixes to code and documentation elsewhere
 
-const std::string VERSION_STRING = "02.50.01";
-
+const std::string VERSION_STRING = "03.04.00";
 
 # endif // __changelog_h__

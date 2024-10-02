@@ -6,6 +6,104 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **LATEST RELEASE** |br|
 
+**03.03.00 Sep 24, 2024**
+
+Added new functionality to improve modelling of chemically homogeneous evolution (CHE). The default behaviour remains unchanged.
+
+* New command line option `--enable-rotationally-enhanced-mass-loss` to enable rotationally enhanced mass loss following Langer (1998)
+* New command line option `--enhance-CHE-lifetimes-luminosities` to enhance CHE lifetimes and luminosities following detailed models from Szecsi et al. (2015) 
+* New command line option `--scale-CHE-mass-loss-with-surface-helium-abundance` to switch from OB to WR mass loss for CH stars towards the end of the main sequence
+* New command line option `--scale-terminal-wind-velocity-with-metallicity-power` to scale the terminal wind velocity with the metallicity
+
+**03.02.00 Sep 19, 2024**
+
+Added recording of ``MASS_TRANSFER_TIMESCALE (NONE, NUCLEAR, THERMAL, CE)``.
+Now continuing evolution on mergers at birth (stars touching) if ``--resolve-main-sequence-merger``.
+Changed Sabhahit+ 2023 VMS winds to default to current OB wind prescription if Gamma threshold is not met
+Correct the behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF; 
+now ensuring that the accretor's mass is correctly adjusted
+Update the fits for the convective envelope mass and radial extent to ensure smooth behaviour
+Updated treatment of 2-stage common envelope for intermediate mass stars, to smoothly reduce from Hirai & Mandel above 8 solar masses
+to classical "full envelope" removal for stars below 2 solar masses.
+
+**03.01.06 Aug 30, 2024**
+
+Added functionality to allow users to specify if WD-binaries should be included in the BSE DCO file via new option ``--include-WD-binaries-as-DCO``.
+When enabled, ``--include-WD-binaries-as-DCO`` changes the definition of "Double Compact Object" from a binary comprised of any two of 
+{Neutron Star, Black Hole} to a binary star comprised of any two of {Helium White Dwarf, Carbon-Oxygen White Dwarf, Oxygen-Neon White Dwarf, Neutron Star, Black Hole}.
+
+The default value for the new option is FALSE.
+
+**03.01.04 Aug 28, 2024**
+
+* New option `'HENDRIKS'` for `--pulsational-pair-instability-prescription` implementing the prescription for pulsational pair instability mass-loss from Hendricks et al. 2023 (https://arxiv.org/abs/2309.09339). 
+* New command line option `--PPI-CO-Core-Shift-Hendriks` for use with the above prescription (see Hendriks+ for an explanation)
+
+**03.01.00 Aug 24, 2024**
+
+* New option to emit gravitational radiation at each timestep of binary evolution: ``--emit-gravitational-radiation``. The effects of radiation are approximated by the change in semimajor axis and eccentricity from Peters 1964 equations 5.6 and 5.7.  Reduce timestep if required to keep orbital separation change per step due to GW radiation within ~ 1%.
+
+**03.00.00 Jul 26, 2024**
+
+This is a major release of COMPAS. There are some significant changes in COMPAS operation and functionality in this release. The major change, and the impetus for
+the release, is the implementation of a new, coherent, robust, error handling strategy.
+
+Early versions of COMPAS (versions prior to v03.00.00) did not have a coherent, robust, error-handling strategy. In those versions, errors were typically displayed
+as either errors or warnings (depending on the severity) as they occurred, and evolution of the star (SSE mode) or binary (BSE mode) continued - users were expected
+to check errors or warnings displayed and use results with appropriate caution.  This was not ideal.
+
+In addition, earlier versions of COMPAS did not handle floating-point errors (divide-by-zero, invalid-parameters (e.g. :math:`\sqrt{-2.0}`), etc.) well - in fact the
+code effectively ignored these errors (for a detailed explanation of why this was so, refer to the Error Handling documentation in the Developer Guide
+(See :ref:`developer-guide-fp-errors`).
+
+In COMPAS version 03.00.00 the error handling philosophy has changed, and more coherent and robust error-handling code implemented. The new error-handling philosophy
+is to stop evolution of a star or binary if an error occurs (including, optionally by a program option, floating-point errors), and record in the (SSE/BSE) system
+parameters file the fact that an error occurred, and an error number identifying the error that occurred. This way users can check the system parameters file 
+at the completion of a run for the disposition of a star or binary and, if the evolution of that star or binary was stopped because an error occurred, the 
+actual error that occurred.
+
+Users should refer to the Error Handling documentation in the User Guide (See :doc:`./User guide/Handling errors/handling-errors`).
+Developers should refer to the Error Handling documentation in the Developer Guide (See :doc:`./Developer guide/Services/services-error-handling`).
+
+In addition to the new error handling strategy, a number of program options have been deprecated and replaced by new program options that are more consistent with the
+naming convention we are trying to maintain. The program options deprecated, and their replacements, are:
+
+1. `--mass-transfer`                       , replaced by `--use-mass-transfer` (to be consistent with `--use-mass-loss`)
+#. `--luminous-blue-variable-prescription` , replaced by `--LBV-mass-loss-prescription` (to be consistent with other 'prescription'-type options)
+#. `--OB-mass-loss`                        , replaced by `--OB-mass-loss-prescription` (to be consistent with other 'prescription'-type options)
+#. `--RSG-mass-loss`                       , replaced by `--RSG-mass-loss-prescription` (to be consistent with other 'prescription'- type options)
+#. `--VMS-mass-loss`                       , replaced by `--VMS-mass-loss-prescription` (to be consistent with other 'prescription'- type options)
+#. `--WR-mass-loss`                        , replaced by `--WR-mass-loss-prescription` (to be consistent with other 'prescription'- type options)
+#. `--kick-direction`                      , replaced by `--kick-direction-distribution` (to be consistent with other 'distribution'-type options)
+#. `--mass-transfer-thermal-limit-accretor`, replaced by `--mass-transfer-thermal-limit-accretor-multiplier` (for consistency and to better describe the option)
+#. `--black-hole-kicks`                    , replaced by `--black-hole-kicks-mode` (for consistency and to better describe the option) 
+#. `--chemically-homogeneous-evolution`    , replaced by `--chemically-homogeneous-evolution-mode` (for consistency and to better describe the option)
+
+Deprecated program options will still be available, in tandem with their replacements, for some time (at least six months from the release date of v03.00.00),
+after which time the deprecated options will be removed and only their replacements will be valid options. Appropriate warning messages will be displayed in
+the period of deprecation if deprecated program options are used.
+
+As well as deprecating some program options, some program option values have been deprecated and replaced by new values that are more consistent with the
+naming convention we are trying to maintain. The program option value deprecated, and their replacements, are:
+
+1. `--LBV-mass-loss-prescription`         , value `NONE` replaced by `ZERO`
+#. `--luminous-blue-variable-prescription`, value `NONE` replaced by `ZERO`
+#. `--OB-mass-loss`                       , value `NONE` replaced by `ZERO`
+#. `--OB-mass-loss-prescription`          , value `NONE` replaced by `ZERO`
+#. `--RSG-mass-loss`                      , value `NONE` replaced by `ZERO`
+#. `--RSG-mass-loss-prescription`         , value `NONE` replaced by `ZERO`
+#. `--VMS-mass-loss`                      , value `NONE` replaced by `ZERO`
+#. `--VMS-mass-loss-prescription`         , value `NONE` replaced by `ZERO`
+#. `--WR-mass-loss`                       , value `NONE` replaced by `ZERO`
+#. `--WR-mass-loss-prescription`          , value `NONE` replaced by `ZERO`
+
+Deprecated program option values will still be available, in tandem with their replacements, for some time (at least six months from the release date of v03.00.00),
+after which time the deprecated option values will be removed and only their replacements will be valid option values. Appropriate warning messages will be displayed
+in the period of deprecation if deprecated program option values are used.
+
+Finally, for program option `--mt-rejuvenation-prescription`, the value `NONE` was replaced by `HURLEY`
+
+
 **02.48.01 May 24, 2024**
 
 * changed functionality of ``--output-path`` option so that missing directories in the specified path are created.
@@ -88,7 +186,7 @@ Added mass accretion prescription during CE ``CHEVALIER`` for option ``--common-
 
 **02.35.02 Feb 19, 2023**
 
-* Changed ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1`` and ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2`` to be the Roche lobe radius as computed at periapsis, in units of \ :math:`R_\odot`.
+* Changed ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1`` and ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2`` to be the Roche lobe radius as computed at periapsis, in units of :math:`R_\odot`.
 * Changed header string for ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1`` from ``'RocheLobe(1)|a'`` to ``'RocheLobe(1)'`` - same change made for ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2``.
 * Removed ``BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1`` (header string ``'Radius(1)|RL'``) and ``BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2`` (header string ``'Radius(2)|RL'``) from ``BSE_DETAILED_OUTPUT_REC`` (BSE detailed output file default record).  Note that both variables are still selectable for output via the logfile-definitions file.
 

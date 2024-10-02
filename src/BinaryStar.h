@@ -29,7 +29,6 @@ public:
     BinaryStar(const BinaryStar& p_Star) {
 
         m_ObjectId          = globalObjectId++;                                                 // get unique object id (don't copy source)
-        m_ObjectType        = OBJECT_TYPE::BINARY_STAR;                                         // can only copy from BINARY_STAR
         m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;                                    // permanent - not an ephemeral clone
 
         m_BinaryStar     = new BaseBinaryStar(*(p_Star.m_BinaryStar));                          // copy underlying BaseBinaryStar
@@ -41,7 +40,7 @@ public:
 
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const            { return m_ObjectId; }
-    OBJECT_TYPE         ObjectType() const          { return m_ObjectType; }
+    OBJECT_TYPE         ObjectType() const          { return OBJECT_TYPE::BINARY_STAR; }
     OBJECT_PERSISTENCE  ObjectPersistence() const   { return m_ObjectPersistence; }
     STELLAR_TYPE        StellarType() const         { return m_StellarType; }
 
@@ -68,7 +67,6 @@ private:
     BinaryStar() { }
 
     OBJECT_ID          m_ObjectId;                                                              // Instantiated object's unique object id
-    OBJECT_TYPE        m_ObjectType;                                                            // Instantiated object's object type
     OBJECT_PERSISTENCE m_ObjectPersistence;                                                     // Instantiated object's persistence (permanent or ephemeral)
     STELLAR_TYPE       m_StellarType;                                                           // Stellar type defined in Hurley et al. 2000
 

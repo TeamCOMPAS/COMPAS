@@ -101,11 +101,14 @@ double TPAGB::CalculateLambdaDewi() const {
  * This function good for TPAGB stars.
  *
  *
- * double CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind)
+ * double CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop)
+ *
+ * @param   [IN]    p_MassIndex                 Mass index
+ * @param   [IN]    p_StellarPop                The stellar population for metallicity (POP I or POP II)
  *
  * @return                                      Nanjing lambda for use in common envelope
  */
-double TPAGB::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const {
+double TPAGB::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const {
 
 	DBL_VECTOR maxBG    = {};                                                       // [0] = maxB, [1] = maxG
 	DBL_VECTOR lambdaBG = {};                                                       // [0] = lambdaB, [1] = lambdaG
@@ -113,75 +116,75 @@ double TPAGB::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zi
 	DBL_VECTOR b        = {};                                                       // 0..5 b_coefficients
     double     Rmax     = std::numeric_limits<double>::max();                       // Upper R limit to applicability of Nanjing polynomials.
 
-    switch(p_Zind) {
+    switch (p_StellarPop) {
         // Pop. I metallicity
-        case 1:
-            switch(p_MassInd) {
+        case STELLAR_POPULATION::POPULATION_I:
+            switch (p_MassIndex) {
                 case 0: {
-                    maxBG = { 2.5, 1.5 };
-                    Rmax = 200.0;
+                    maxBG       = { 2.5, 1.5 };
+                    Rmax        = 200.0;
                     double R_in = std::min(Rmax, m_Radius);
-                    double tmp = 0.1 - ( R_in * 3.57E-04);
-                    lambdaBG   = { tmp, tmp };
+                    double tmp  = 0.1 - ( R_in * 3.57E-04);
+                    lambdaBG    = { tmp, tmp };
                     break;
                 }
                 case 1:
                     maxBG = { 4.0, 2.0 };
-                    Rmax = 340.0;
-                    a = { 0.88954, 0.0098 , -3.1411E-05 , 7.66979E-08,  0.0       , 0.0 };
-                    b = { 0.48271, 0.00584, -6.22051E-05, 2.41531E-07, -3.1872E-10, 0.0 };
+                    Rmax  = 340.0;
+                    a     = { 0.88954, 0.0098 , -3.1411E-05 , 7.66979E-08,  0.0       , 0.0 };
+                    b     = { 0.48271, 0.00584, -6.22051E-05, 2.41531E-07, -3.1872E-10, 0.0 };
                     break;
                 case 2:
                     maxBG = { 500.0, 10.0 };
-                    Rmax = 400.0;
-                    a = { -0.04669, 0.00764, -4.32726E-05, 9.31942E-08, 0.0        ,  0.0 };
-                    b = {  0.44889, 0.01102, -6.46629E-05, 5.66857E-09, 7.21818E-10, -1.2201E-12 };
+                    Rmax  = 400.0;
+                    a     = { -0.04669, 0.00764, -4.32726E-05, 9.31942E-08, 0.0        ,  0.0 };
+                    b     = {  0.44889, 0.01102, -6.46629E-05, 5.66857E-09, 7.21818E-10, -1.2201E-12 };
                     break;
                 case 3:
                     maxBG = { 1000.0, 8.0 };
-                    Rmax = 410.0;
-                    a = { -0.37322, 0.00943, -3.26033E-05, 5.37823E-08, 0.0, 0.0 };
-                    b = {  0.13153, 0.00984, -2.89832E-05, 2.63519E-08, 0.0, 0.0 };
+                    Rmax  = 410.0;
+                    a     = { -0.37322, 0.00943, -3.26033E-05, 5.37823E-08, 0.0, 0.0 };
+                    b     = {  0.13153, 0.00984, -2.89832E-05, 2.63519E-08, 0.0, 0.0 };
                     break;
                 case 4:
                     maxBG = { 1000.0, 8.0 };
-                    Rmax = 430.0;
-                    a = { -0.80011, 0.00992, -3.03247E-05,  5.26235E-08, 0.0, 0.0 };
-                    b = { -0.00456, 0.00426,  4.71117E-06, -1.72858E-08, 0.0, 0.0 };
+                    Rmax  = 430.0;
+                    a     = { -0.80011, 0.00992, -3.03247E-05,  5.26235E-08, 0.0, 0.0 };
+                    b     = { -0.00456, 0.00426,  4.71117E-06, -1.72858E-08, 0.0, 0.0 };
                     break;
                 case 5:
                     maxBG = { 25.5, 5.0 };
-                    Rmax = 440.0;
-                    a = { -2.7714 ,  0.06467, -4.01537E-04,  7.98466E-07, 0.0, 0.0 };
-                    b = {  0.23083, -0.00266,  2.21788E-05, -2.35696E-08, 0.0, 0.0 };
+                    Rmax  = 440.0;
+                    a     = { -2.7714 ,  0.06467, -4.01537E-04,  7.98466E-07, 0.0, 0.0 };
+                    b     = {  0.23083, -0.00266,  2.21788E-05, -2.35696E-08, 0.0, 0.0 };
                     break;
                 case 6:
                     maxBG = { 9.0, 3.0 };
-                    Rmax = 420.0;
-                    a = { -0.63266,  0.02054, -1.3646E-04 ,  2.8661E-07 , 0.0, 0.0 };
-                    b = {  0.26294, -0.00253,  1.32272E-05, -7.12205E-09, 0.0, 0.0 };
+                    Rmax  = 420.0;
+                    a     = { -0.63266,  0.02054, -1.3646E-04 ,  2.8661E-07 , 0.0, 0.0 };
+                    b     = {  0.26294, -0.00253,  1.32272E-05, -7.12205E-09, 0.0, 0.0 };
                     break;
                 case 7:
                     maxBG = { 7.0, 3.0 };
-                    Rmax = 490.0;
-                    a = { -0.1288 ,  0.0099 , -6.71455E-05,  1.33568E-07, 0.0, 0.0 };
-                    b = {  0.26956, -0.00219,  7.97743E-06, -1.53296E-09, 0.0, 0.0 };
+                    Rmax  = 490.0;
+                    a     = { -0.1288 ,  0.0099 , -6.71455E-05,  1.33568E-07, 0.0, 0.0 };
+                    b     = {  0.26956, -0.00219,  7.97743E-06, -1.53296E-09, 0.0, 0.0 };
                     break;
                 case 8:
                     maxBG = { 4.0, 2.0 };
-                    Rmax = 530.0;
-                    a = { 1.19804, -0.01961, 1.28222E-04, -3.41278E-07, 3.35614E-10, 0.0 };
-                    b = { 0.40587, -0.0051 , 2.73866E-05, -5.74476E-08, 4.90218E-11, 0.0 };
+                    Rmax  = 530.0;
+                    a     = { 1.19804, -0.01961, 1.28222E-04, -3.41278E-07, 3.35614E-10, 0.0 };
+                    b     = { 0.40587, -0.0051 , 2.73866E-05, -5.74476E-08, 4.90218E-11, 0.0 };
                     break;
                 case 9:
                     maxBG = { 3.0, 1.5 };
-                    Rmax = 600.0;
-                    a = { 0.3707 ,  2.67221E-04, -9.86464E-06, 2.26185E-08, 0.0, 0.0 };
-                    b = { 0.25549, -0.00152    ,  3.35239E-06, 2.24224E-10, 0.0, 0.0 };
+                    Rmax  = 600.0;
+                    a     = { 0.3707 ,  2.67221E-04, -9.86464E-06, 2.26185E-08, 0.0, 0.0 };
+                    b     = { 0.25549, -0.00152    ,  3.35239E-06, 2.24224E-10, 0.0, 0.0 };
                     break;
                 case 10: {
                     maxBG = { 1.5, 1.0 };
-                    Rmax = 850.0;
+                    Rmax  = 850.0;
                     double R_in = std::min(Rmax, m_Radius);
                     if (utils::Compare(R_in, 0.0) > 0 && utils::Compare(R_in, 350.0) <= 0) {
                         a = { 1.28593, -0.02209, 1.79764E-04, -6.21556E-07, 7.59444E-10, 0.0 };
@@ -199,21 +202,21 @@ double TPAGB::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zi
                 }
                 case 11:
                     maxBG = { 1.5, 1.0 };
-                    Rmax = 1000.0;
-                    a = { -106.90553, 0.36469, -4.1472E-04 , 1.57349E-07, 0.0, 0.0 };
-                    b = {  -39.93089, 0.13667, -1.55958E-04, 5.94076E-08, 0.0, 0.0 };
+                    Rmax  = 1000.0;
+                    a     = { -106.90553, 0.36469, -4.1472E-04 , 1.57349E-07, 0.0, 0.0 };
+                    b     = {  -39.93089, 0.13667, -1.55958E-04, 5.94076E-08, 0.0, 0.0 };
                     break;
                 case 12:
                     maxBG = { 1.5, 1.0 };
-                    Rmax = 1050.0;
-                    a = { -154.70559, 0.46718, -4.70169E-04, 1.57773E-07, 0.0, 0.0 };
-                    b = {  -65.39602, 0.19763, -1.99078E-04, 6.68766E-08, 0.0, 0.0 };
+                    Rmax  = 1050.0;
+                    a     = { -154.70559, 0.46718, -4.70169E-04, 1.57773E-07, 0.0, 0.0 };
+                    b     = {  -65.39602, 0.19763, -1.99078E-04, 6.68766E-08, 0.0, 0.0 };
                     break;
                 case 13:
                     maxBG = { 1.5, 1.0 };
-                    Rmax = 1200.0;
-                    a = { -260484.85724, 4.26759E+06, -2.33016E+07, 4.24102E+07, 0.0, 0.0 };
-                    b = { -480055.67991, 7.87484E+06, -4.30546E+07, 7.84699E+07, 0.0, 0.0 };
+                    Rmax  = 1200.0;
+                    a     = { -260484.85724, 4.26759E+06, -2.33016E+07, 4.24102E+07, 0.0, 0.0 };
+                    b     = { -480055.67991, 7.87484E+06, -4.30546E+07, 7.84699E+07, 0.0, 0.0 };
                     break;
                 case 14:
                     maxBG = { 1.0, 0.5 };
@@ -225,27 +228,30 @@ double TPAGB::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zi
                     a     = { 0.376 , -0.0018 , 2.81083E-06, -1.67386E-09, 3.35056E-13, 0.0 };
                     b     = { 0.2466, -0.00121, 1.89029E-06, -1.12066E-09, 2.2258E-13 , 0.0 };
                     break;
-                }
-                break;
+
+                default:                                                                    // mass index out of bounds
+                    THROW_ERROR(ERROR::OUT_OF_BOUNDS, "Mass index");                        // throw error
+            }
+            break;
 
         // Pop. II metallicity
-        case 0:
-            switch(p_MassInd) {
+        case STELLAR_POPULATION::POPULATION_II:
+            switch (p_MassIndex) {
                 case 0:
                     maxBG = { 2.0, 1.5 };
-                    Rmax = 160.0;
-                    a = { 0.24012, -0.01907, 6.09529E-04, -8.17819E-06, 4.83789E-08, -1.04568e-10 };
-                    b = { 0.15504, -0.01238, 3.96633E-04, -5.3329E-06 , 3.16052E-08, -6.84288e-11 };
+                    Rmax  = 160.0;
+                    a     = { 0.24012, -0.01907, 6.09529E-04, -8.17819E-06, 4.83789E-08, -1.04568e-10 };
+                    b     = { 0.15504, -0.01238, 3.96633E-04, -5.3329E-06 , 3.16052E-08, -6.84288e-11 };
                     break;
                 case 1:
                     maxBG = { 4.0, 2.0 };
-                    Rmax = 350.0;
-                    a = { 0.5452 ,  0.00212    , 6.42941E-05, -1.46783E-07, 0.0       ,  0.0 };
-                    b = { 0.30594, -9.58858E-04, 1.12174E-04, -1.04079E-06, 3.4564E-09, -3.91536e-12 };
+                    Rmax  = 350.0;
+                    a     = { 0.5452 ,  0.00212    , 6.42941E-05, -1.46783E-07, 0.0       ,  0.0 };
+                    b     = { 0.30594, -9.58858E-04, 1.12174E-04, -1.04079E-06, 3.4564E-09, -3.91536e-12 };
                     break;
                 case 2: {
                     maxBG = { 600.0, 2.0 };
-                    Rmax = 400.0;
+                    Rmax  = 400.0;
                     double R_in = std::min(Rmax, m_Radius);
                     if (utils::Compare(R_in, 36.0) > 0 && utils::Compare(R_in, 53.0) < 0) lambdaBG = { 1.0, 1.0 };
                     else {
@@ -256,69 +262,69 @@ double TPAGB::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zi
                 }
                 case 3:
                     maxBG = { 600.0, 2.0 };
-                    Rmax = 410.0;
-                    a = { -0.2106 , -0.01574, 2.01107E-04, -6.90334E-07, 7.92713E-10, 0.0 };
-                    b = {  0.36779, -0.00991, 1.19411E-04, -3.59574E-07, 3.33957E-10, 0.0 };
+                    Rmax  = 410.0;
+                    a     = { -0.2106 , -0.01574, 2.01107E-04, -6.90334E-07, 7.92713E-10, 0.0 };
+                    b     = {  0.36779, -0.00991, 1.19411E-04, -3.59574E-07, 3.33957E-10, 0.0 };
                     break;
                 case 4:
                     maxBG = { 10.0, 3.0 };
-                    Rmax = 320.0;
-                    a = { -0.12027,  0.01981, -2.27908E-04,  7.55556E-07, 0.0, 0.0 };
-                    b = {  0.31252, -0.00527,  3.60348E-05, -3.22445E-08, 0.0, 0.0 };
+                    Rmax  = 320.0;
+                    a     = { -0.12027,  0.01981, -2.27908E-04,  7.55556E-07, 0.0, 0.0 };
+                    b     = {  0.31252, -0.00527,  3.60348E-05, -3.22445E-08, 0.0, 0.0 };
                     break;
                 case 5:
                     maxBG = { 4.0, 1.5 };
-                    Rmax = 330.0;
-                    a = { 0.26578,  0.00494, -7.02203E-05, 2.25289E-07, 0.0, 0.0 };
-                    b = { 0.26802, -0.00248,  6.45229E-06, 1.69609E-08, 0.0, 0.0 };
+                    Rmax  = 330.0;
+                    a     = { 0.26578,  0.00494, -7.02203E-05, 2.25289E-07, 0.0, 0.0 };
+                    b     = { 0.26802, -0.00248,  6.45229E-06, 1.69609E-08, 0.0, 0.0 };
                     break;
                 case 6:
                     maxBG = { 2.5, 1.0 };
-                    Rmax = 360.0;
-                    a = { 0.8158 , -0.01633, 1.46552E-04, -5.75308E-07, 8.77711E-10, 0.0 };
-                    b = { 0.26883, -0.00219, 4.12941E-06,  1.33138E-08, 0.0        , 0.0 };
+                    Rmax  = 360.0;
+                    a     = { 0.8158 , -0.01633, 1.46552E-04, -5.75308E-07, 8.77711E-10, 0.0 };
+                    b     = { 0.26883, -0.00219, 4.12941E-06,  1.33138E-08, 0.0        , 0.0 };
                     break;
                 case 7:
                     maxBG = { 2.0, 1.0 };
-                    Rmax = 400.0;
-                    a = { 0.74924, -0.01233, 9.55715E-05, -3.37117E-07, 4.67367E-10, 0.0 };
-                    b = { 0.25249, -0.00161, 8.35478E-07,  1.25999E-08, 0.0        , 0.0 };
+                    Rmax  = 400.0;
+                    a     = { 0.74924, -0.01233, 9.55715E-05, -3.37117E-07, 4.67367E-10, 0.0 };
+                    b     = { 0.25249, -0.00161, 8.35478E-07,  1.25999E-08, 0.0        , 0.0 };
                     break;
                 case 8:
                     maxBG = { 1.6, 1.0 };
-                    Rmax = 440.0;
-                    a = { 0.73147, -0.01076, 7.54308E-05, -2.4114E-07 , 2.95543E-10, 0.0 };
-                    b = { 0.31951, -0.00392, 2.31815E-05, -6.59418E-08, 7.99575E-11, 0.0 };
+                    Rmax  = 440.0;
+                    a     = { 0.73147, -0.01076, 7.54308E-05, -2.4114E-07 , 2.95543E-10, 0.0 };
+                    b     = { 0.31951, -0.00392, 2.31815E-05, -6.59418E-08, 7.99575E-11, 0.0 };
                     break;
                 case 9:
                     maxBG = { 1.6, 1.0 };
-                    Rmax = 500.0;
-                    a = { -9.26519,  0.08064, -2.30952E-04, 2.21986E-07, 0.0, 0.0 };
-                    b = {  0.81491, -0.00161, -8.13352E-06, 1.95775E-08, 0.0, 0.0 };
+                    Rmax  = 500.0;
+                    a     = { -9.26519,  0.08064, -2.30952E-04, 2.21986E-07, 0.0, 0.0 };
+                    b     = {  0.81491, -0.00161, -8.13352E-06, 1.95775E-08, 0.0, 0.0 };
                     break;
                 case 10:
                     maxBG = { 1.6, 1.0 };
-                    Rmax = 600.0;
-                    a = { -51.15252, 0.30238, -5.95397E-04, 3.91798E-07, 0.0, 0.0 };
-                    b = { -13.44   , 0.08141, -1.641E-04  , 1.106E-07  , 0.0, 0.0 };
+                    Rmax  = 600.0;
+                    a     = { -51.15252, 0.30238, -5.95397E-04, 3.91798E-07, 0.0, 0.0 };
+                    b     = { -13.44   , 0.08141, -1.641E-04  , 1.106E-07  , 0.0, 0.0 };
                     break;
                 case 11:
                     maxBG = { 1.6, 1.0 };
-                    Rmax = 650.0;
-                    a = { -140.0   , 0.7126 , -0.00121    , 6.846E-07  , 0.0, 0.0 };
-                    b = {  -44.1964, 0.22592, -3.85124E-04, 2.19324E-07, 0.0, 0.0 };
+                    Rmax  = 650.0;
+                    a     = { -140.0   , 0.7126 , -0.00121    , 6.846E-07  , 0.0, 0.0 };
+                    b     = {  -44.1964, 0.22592, -3.85124E-04, 2.19324E-07, 0.0, 0.0 };
                     break;
                 case 12:
                     maxBG = { 1.5, 1.0 };
-                    Rmax = 750.0;
-                    a = { -358.4    , 1.599  , -0.00238   , 1.178E-06  , 0.0, 0.0 };
-                    b = { -118.13757, 0.52737, -7.8479E-04, 3.89585E-07, 0.0, 0.0 };
+                    Rmax  = 750.0;
+                    a     = { -358.4    , 1.599  , -0.00238   , 1.178E-06  , 0.0, 0.0 };
+                    b     = { -118.13757, 0.52737, -7.8479E-04, 3.89585E-07, 0.0, 0.0 };
                     break;
                 case 13:
                     maxBG = { 1.5, 1.0 };
-                    Rmax = 900.0;
-                    a = { -436.00777, 1.41375, -0.00153    , 5.47573E-07, 0.0, 0.0 };
-                    b = { -144.53456, 0.46579, -4.99197E-04, 1.78027E-07, 0.0, 0.0 };
+                    Rmax  = 900.0;
+                    a     = { -436.00777, 1.41375, -0.00153    , 5.47573E-07, 0.0, 0.0 };
+                    b     = { -144.53456, 0.46579, -4.99197E-04, 1.78027E-07, 0.0, 0.0 };
                     break;
                 case 14:
                     maxBG = { 20.0, 3.0 };
@@ -330,12 +336,28 @@ double TPAGB::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zi
                     a     = { 1.25332, -0.02065, 1.3107E-04 , -3.67006E-07, 4.58792E-10, -2.09069E-13 };
                     b     = { 0.81716, -0.01436, 9.31143E-05, -2.6539E-07 , 3.30773E-10, -1.51207E-13 };
                     break;
+
+                default:                                                                    // mass index out of bounds
+                    THROW_ERROR(ERROR::OUT_OF_BOUNDS, "Mass index");                        // throw error
             }
             break;
-        }
+
+        default:                                                                            // unknown stellar population
+            // the only ways this can happen are if someone added a STELLAR_POPULATION
+            // and it isn't accounted for in this code, or if there is a defect in the code that causes
+            // this function to be called with a bad parameter.  We should not default here, with or without
+            // a warning.
+            // We are here because the function was called with a stellar population this code doesn't account
+            // for, or as a result of a code defect, and either of those should be flagged as an error and
+            // result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing population or, if the missing
+            // population is superfluous, remove it, or find and fix the code defect.
+
+            THROW_ERROR(ERROR::UNKNOWN_STELLAR_POPULATION);                                 // throw error
+    }
 
     if (lambdaBG.empty()) {
-        if ( (p_Zind == 1) && (p_MassInd == 0) ) {                        // Pop. I metallicity and M = 1 Msun
+        if (p_StellarPop == STELLAR_POPULATION::POPULATION_I && p_MassIndex == 0) {         // Pop. I metallicity and M = 1 Msun
             double x  = (m_Mass - m_CoreMass) / m_Mass;
             double x2 = x * x;
             double x3 = x2 * x;
@@ -366,7 +388,7 @@ double TPAGB::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zi
     lambdaBG[0] = std::max( std::min(lambdaBG[0],maxBG[0]), std::max(0.05, lambdaBG[1]) );  // clamp lambda B to [ max(0.05,lambdaG), maxB]
 
     // Calculate lambda as some combination of lambda_b and lambda_g by
-    // lambda = alpha_th • lambda_b    +  (1-alpha_th) • lambda_g
+    // lambda = alpha_th • lambda_b + (1-alpha_th) • lambda_g
     // STARTRACK uses alpha_th = 1/2
     return (OPTIONS->CommonEnvelopeAlphaThermal() * lambdaBG[0]) + ((1.0 - OPTIONS->CommonEnvelopeAlphaThermal()) * lambdaBG[1]);
 }
@@ -391,6 +413,9 @@ double TPAGB::CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zi
  *
  * double CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity)
  *
+ * @param   [IN]    p_Mass                      Mass
+ * @param   [IN]    p_Metallicity               Metallicity
+ * 
  * @return                                      Nanjing lambda for use in common envelope
  */
 double TPAGB::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
@@ -704,7 +729,7 @@ double TPAGB::CalculateLambdaNanjingStarTrack(const double p_Mass, const double 
     lambdaBG[1] = std::min(std::max(0.05, lambdaBG[1]), maxBG[1]);                  // clamp lambda G to [0.05, maxG]
 
     // Calculate lambda as some combination of lambda_b and lambda_g by
-    // lambda = alpha_th • lambda_b    +  (1-alpha_th) • lambda_g
+    // lambda = alpha_th • lambda_b + (1-alpha_th) • lambda_g
     // Note that this is different from STARTRACK
     return (OPTIONS->CommonEnvelopeAlphaThermal() * lambdaBG[0]) + ((1.0 - OPTIONS->CommonEnvelopeAlphaThermal()) * lambdaBG[1]);
 }
@@ -921,7 +946,6 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_Force) {
 /*
  * Choose timestep for evolution
  *
- * Can obviously do this your own way
  * Given in the discussion in Hurley et al. 2000
  *
  *
