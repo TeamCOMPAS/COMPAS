@@ -2558,10 +2558,7 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
         double DeDt_tidal = 0.01 * m_Eccentricity * std::min(std::abs(1./DEccentricity1Dt_tidal), std::abs(1./DEccentricity2Dt_tidal)) * YEAR_TO_MYR; // Ensure that the change in eccentricity is 1 percent at most
         double DOmegaDt_tidal = 0.01 * m_Omega * std::min(std::abs(1./DOmega1Dt_tidal), std::abs(1./DOmega2Dt_tidal)) * YEAR_TO_MYR; // Ensure that the change in stellar spin is 1 percent of orbital frequency at most
 
-        double dt_orbit_limit = (1.0E4 / m_Omega) * YEAR_TO_MYR; // Ensure that no more than 1e4 orbital cycles are skipped in a timestep, since tides get stronger with omega
-        if ((static_cast<int>(m_Star1->StellarType()) < 9 ) && static_cast<int>(m_Star2->StellarType()) < 9) dt_orbit_limit = dt; // Ignore if both stars are MS or compact to avoid unnecessary calculations
-
-        dt =  std::min(dt, std::min(dt_orbit_limit, std::min(DaDt_tidal, std::min(DeDt_tidal, DOmegaDt_tidal))));
+        dt =  std::min(dt_orbit_limit, std::min(DaDt_tidal, std::min(DeDt_tidal, DOmegaDt_tidal)));
         }
     dt *= p_Multiplier;	
 
@@ -2633,7 +2630,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     }
 
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
-
+    
     ProcessTides(p_Dt);                                                                                                 // process tides if required
 
     // assign new values to "previous" values, for following timestep
