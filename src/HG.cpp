@@ -867,23 +867,6 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
 
-// /*
-//  * Calculate the mass of the convective envelope
-//  *
-//  * Based on section 7.2 (after Eq. 111) of Hurley, Pols, Tout (2000)
-//  *
-//  *
-//  * double CalculateConvectiveEnvelopeMass() const
-//  *
-//  * @return                                      Mass of convective envelope in Msol
-//  */
-// DBL_DBL HG::CalculateConvectiveEnvelopeMass() const {
-
-//     double massEnvelope_final = (m_Mass - CalculateConvectiveCoreMass());
-//     double massEnvelope  = m_Tau * massEnvelope_final;
-    
-//     return std::tuple<double, double> (massEnvelope, massEnvelope_final);
-// }
 
 /*
  * Calculate core mass at the end of the Hertzsprung Gap
@@ -1012,6 +995,7 @@ double HG::CalculateTauOnPhase() const {
     return std::max(0.0, std::min(1.0, (m_Age - timescales(tMS)) / (timescales(tBGB) - timescales(tMS))));
 #undef timescales
 }
+
 
 /*
  * Recalculates the star's age after mass loss
