@@ -2558,7 +2558,7 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
         double DeDt_tidal = 0.01 * m_Eccentricity * std::min(std::abs(1./DEccentricity1Dt_tidal), std::abs(1./DEccentricity2Dt_tidal)) * YEAR_TO_MYR; // Ensure that the change in eccentricity is 1 percent at most
         double DOmegaDt_tidal = 0.01 * m_Omega * std::min(std::abs(1./DOmega1Dt_tidal), std::abs(1./DOmega2Dt_tidal)) * YEAR_TO_MYR; // Ensure that the change in stellar spin is 1 percent of orbital frequency at most
 
-        dt =  std::min(dt_orbit_limit, std::min(DaDt_tidal, std::min(DeDt_tidal, DOmegaDt_tidal)));
+        dt =  std::min(dt, std::min(DaDt_tidal, std::min(DeDt_tidal, DOmegaDt_tidal)));
         }
     dt *= p_Multiplier;	
 
