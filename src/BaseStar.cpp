@@ -3539,12 +3539,10 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
     double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
     double radiusIntershellAU    = radiusAU - convectiveEnvRadiusAU;                                    // Outer radial coordinate of radiative intershell
 
-    double LOWEST_FRACTION = 1.0e-4; // Define a threshold below which fractional masses, radii, etc. will be considered zero, for evolution stability
-
     // There should be no Dynamical tides if the entire star is convective, i.e. if there are no convective-radiative boundaries. 
     // If so, return 0.0 for all dynamical components of ImKlm.
     // This condition should be true for low-mass MS stars (<= 0.35 Msol) at ZAMS.
-    if (utils::Compare(radIntershellMass/m_Mass, LOWEST_FRACTION) <= 0 || utils::Compare(radiusIntershellAU, coreRadiusAU) <= 0) {
+    if (utils::Compare(radIntershellMass/m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) <= 0 || utils::Compare(radiusIntershellAU, coreRadiusAU) <= 0) {
         return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           
     }
  
@@ -3573,7 +3571,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
     double w32 = ((p_Omega + p_Omega + p_Omega) - two_OmegaSpin);
         
     // Assume that GW dissipation from core boundary is only efficient if the radiative region extends to the surface, i.e. there is no convective envelope.
-    if (utils::Compare(coreRadiusAU/radiusAU, LOWEST_FRACTION) > 0 && utils::Compare(coreMass/m_Mass, LOWEST_FRACTION) > 0 && utils::Compare(convectiveEnvRadiusAU/radiusAU, LOWEST_FRACTION) < 0 && utils::Compare(envMass/m_Mass, LOWEST_FRACTION) < 0) {                   
+    if (utils::Compare(coreRadiusAU/radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) > 0 && utils::Compare(coreMass/m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) > 0 && utils::Compare(convectiveEnvRadiusAU/radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) < 0 && utils::Compare(envMass/m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) < 0) {                   
         double beta2Dynamical           = 1.0;
         double rhoFactorDynamcial       = 0.1;
         double coreRadius_over_radius   = coreRadiusAU / radiusAU;
@@ -3616,7 +3614,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
     double gamma             = (envMass / (R_3 - rint_3)) / (radIntershellMass / (rint_3 - rc_3));
 
     // There is no GW or IW dissipation from the envelope boundary if no convective envelope, or if convective envelope is denser than radiative intershell
-    if (utils::Compare(convectiveEnvRadiusAU/radiusAU, LOWEST_FRACTION) > 0 && utils::Compare(envMass/m_Mass, LOWEST_FRACTION) > 0 && utils::Compare(gamma, 1.0) < 0) {    
+    if (utils::Compare(convectiveEnvRadiusAU/radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) > 0 && utils::Compare(envMass/m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) > 0 && utils::Compare(gamma, 1.0) < 0) {    
 
          double dyn_prefactor = 3.207452512782476;                                                       // 3^(11/3) * Gamma(1/3)^2 / 40 PI
         double dNdlnr_cbrt = std::cbrt(G_AU_Msol_yr * radIntershellMass / radiusIntershellAU / (radiusAU - radiusIntershellAU) / (radiusAU - radiusIntershellAU));
@@ -3639,7 +3637,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double alpha_2_3_minus_1 = (alpha * 2.0 / 3.0) - 1.0;
 
         // Assume GW dissipation from the envelope boundary only acts if the radiative zone extends to the core, i.e. if there is no convective core.
-        if ((utils::Compare(coreRadiusAU/radiusAU, LOWEST_FRACTION) < 0) && (utils::Compare(coreMass/m_Mass, LOWEST_FRACTION) < 0)) {                              
+        if ((utils::Compare(coreRadiusAU/radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) < 0) && (utils::Compare(coreMass/m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) < 0)) {                              
             double Epsilon           = alpha_11 * envMass / m_Mass * one_minus_gamma_2 * alpha_2_3_minus_1 * alpha_2_3_minus_1 / beta_2 / one_minus_alpha_3 / one_minus_alpha_2;
 
             // (l=1, m=0), Gravity Wave dissipation from envelope boundary is always 0.0 since m=0.0
@@ -3711,9 +3709,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     double rOutAU = m_Radius * RSOL_TO_AU;                                                      // outer boundary of convective envelope
     double rInAU  = (rOutAU - rEnvAU);                                                          // inner boundary of convective envelope
     
-    double LOWEST_FRACTION = 1.0e-4; // Define a threshold below which fractional masses, radii, etc. will be considered zero for stability
-
-    if (utils::Compare(rEnvAU/rOutAU, LOWEST_FRACTION) <= 0 || utils::Compare(envMass/m_Mass, LOWEST_FRACTION) <= 0 || std::isnan(envMass)) return std::make_tuple(0.0, 0.0, 0.0, 0.0);           // skip calculations if there is no convective envelope (to avoid Imk22 = NaN)
+    if (utils::Compare(rEnvAU/rOutAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) <= 0 || utils::Compare(envMass/m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) <= 0 || std::isnan(envMass)) return std::make_tuple(0.0, 0.0, 0.0, 0.0);           // skip calculations if there is no convective envelope (to avoid Imk22 = NaN)
 
     double rOut_2  = rOutAU * rOutAU;
     double rOut_3  = rOut_2 * rOutAU;
