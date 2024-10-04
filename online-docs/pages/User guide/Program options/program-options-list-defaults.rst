@@ -1284,7 +1284,7 @@ Prescription for tidal evolution of the binary. |br|
 Options: { NONE, PERFECT, KAPIL2024 } |br|
 ``NONE`` disables tidal interactions. |br|
 ``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization. |br|
-``KAPIL2024`` uses the prescription from Kapil+ (2024). |br|
+``KAPIL2024`` uses the prescription from Kapil+ (2024). When using this prescription, set ``--chemically-homogeneous-evolution-mode NONE`` to avoid conflicts with stellar spins. |br|
 Default = NONE
 
 **--timestep-filename** |br|
