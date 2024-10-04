@@ -2554,9 +2554,11 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
         double DOmega1Dt_tidal         =  CalculateDOmegaTidalDt(ImKlm1, m_Star1);
         double DOmega2Dt_tidal         =  CalculateDOmegaTidalDt(ImKlm2,  m_Star2);
                                                                 
-        double DaDt_tidal = 0.01 * m_SemiMajorAxis * std::min(std::abs(1./DSemiMajorAxis1Dt_tidal), std::abs(1./DSemiMajorAxis2Dt_tidal)) * YEAR_TO_MYR; // Ensure that the change in sma is 1 percent at most
-        double DeDt_tidal = 0.01 * m_Eccentricity * std::min(std::abs(1./DEccentricity1Dt_tidal), std::abs(1./DEccentricity2Dt_tidal)) * YEAR_TO_MYR; // Ensure that the change in eccentricity is 1 percent at most
-        double DOmegaDt_tidal = 0.01 * m_Omega * std::min(std::abs(1./DOmega1Dt_tidal), std::abs(1./DOmega2Dt_tidal)) * YEAR_TO_MYR; // Ensure that the change in stellar spin is 1 percent of orbital frequency at most
+        // Ensure that the change in orbital and spin properties due to tides in a single timestep is constrained (to 1 percent by default)
+        // Limit the spin evolution of each star based on the orbital frequency rather than its spin frequency, since tides should not cause major problems until synchronization. 
+        double DaDt_tidal              = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis * std::min(std::abs(1./DSemiMajorAxis1Dt_tidal), std::abs(1./DSemiMajorAxis2Dt_tidal)) * YEAR_TO_MYR;
+        double DeDt_tidal              = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity * std::min(std::abs(1./DEccentricity1Dt_tidal), std::abs(1./DEccentricity2Dt_tidal)) * YEAR_TO_MYR;
+        double DOmegaDt_tidal          = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Omega * std::min(std::abs(1./DOmega1Dt_tidal), std::abs(1./DOmega2Dt_tidal)) * YEAR_TO_MYR;
 
         dt =  std::min(dt, std::min(DaDt_tidal, std::min(DeDt_tidal, DOmegaDt_tidal)));
         }
