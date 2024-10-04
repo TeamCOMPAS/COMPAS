@@ -2540,7 +2540,33 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
     if (OPTIONS->EmitGravitationalRadiation()) {                                                        // emitting GWs?
         dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
     }
+    
+    if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024) {
+        DBL_DBL_DBL_DBL ImKlm1 = m_Star1->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star2->Mass());
+        DBL_DBL_DBL_DBL ImKlm2 = m_Star2->CalculateImKlmTidal(m_Omega, m_SemiMajorAxis, m_Star1->Mass());
 
+        double DSemiMajorAxis1Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1);
+        double DSemiMajorAxis2Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2);
+
+        double DEccentricity1Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1);
+        double DEccentricity2Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);
+                                                    
+        double DOmega1Dt_tidal         =  CalculateDOmegaTidalDt(ImKlm1, m_Star1);
+        double DOmega2Dt_tidal         =  CalculateDOmegaTidalDt(ImKlm2,  m_Star2);
+                                                                
+        // Ensure that the change in orbital and spin properties due to tides in a single timestep is constrained (to 1 percent by default)
+        // Limit the spin evolution of each star based on the orbital frequency rather than its spin frequency, since tides should not cause major problems until synchronization. 
+        double DaDt_tidal              = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis * std::min(std::abs(1./DSemiMajorAxis1Dt_tidal), std::abs(1./DSemiMajorAxis2Dt_tidal)) * YEAR_TO_MYR;
+        double DeDt_tidal              = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity * std::min(std::abs(1./DEccentricity1Dt_tidal), std::abs(1./DEccentricity2Dt_tidal)) * YEAR_TO_MYR;
+        double DOmegaDt_tidal          = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Omega * std::min(std::abs(1./DOmega1Dt_tidal), std::abs(1./DOmega2Dt_tidal)) * YEAR_TO_MYR;
+
+        // If any tidal timescales are not well-defined, set them to infinity to avoid issues with taking minima
+        if (std::isnan(DaDt_tidal)) DaDt_tidal = std::numeric_limits<double>::infinity();
+        if (std::isnan(DeDt_tidal)) DeDt_tidal = std::numeric_limits<double>::infinity();
+        if (std::isnan(DOmegaDt_tidal)) DOmegaDt_tidal = std::numeric_limits<double>::infinity();
+        
+        dt =  std::min(dt, std::min(DaDt_tidal, std::min(DeDt_tidal, DOmegaDt_tidal)));
+        }
     dt *= p_Multiplier;	
 
     return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);    // quantised and not less than minimum
@@ -2611,7 +2637,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
     }
 
     CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
-
+    
     ProcessTides(p_Dt);                                                                                                 // process tides if required
 
     // assign new values to "previous" values, for following timestep

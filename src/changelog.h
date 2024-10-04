@@ -1328,7 +1328,12 @@
 //                                          on the Helium MS, TPAGB now have fully convective envelopes, etc.
 //                                      - All naked helium stars have purely radiative envelopes, until we develop better models
 //                                      - Minor fixes to code and documentation elsewhere
-
-const std::string VERSION_STRING = "03.04.00";
+// 03.04.01   VK - Oct 03, 2024     - Defect repair, enhancement:
+//                                      - Added timestep limits from KAPIL2024 model of tides to ChooseTimestep() function
+//                                      - Modified dynamical tides in the KAPIL2024 model to be ineffective when there is both a convective core and a convective envelope
+//                                      - For dynamical and equilibrium tides in the KAPIL2024 model, added a fractional threshold of 0.0001 for radial extent and mass of each region of the star
+//                                           so that tidal dissipation is not applied when the relevant stellar region is too small
+//                                      - Updated online documentation to suggest setting `--chemically-homogeneous-evolution-mode NONE` when using the KAPIL2024 model of tides
+const std::string VERSION_STRING = "03.04.01";
 
 # endif // __changelog_h__
