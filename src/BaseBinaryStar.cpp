@@ -2560,6 +2560,11 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
         double DeDt_tidal              = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity * std::min(std::abs(1./DEccentricity1Dt_tidal), std::abs(1./DEccentricity2Dt_tidal)) * YEAR_TO_MYR;
         double DOmegaDt_tidal          = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Omega * std::min(std::abs(1./DOmega1Dt_tidal), std::abs(1./DOmega2Dt_tidal)) * YEAR_TO_MYR;
 
+        // If any tidal timescales are not well-defined, set them to infinity to avoid issues with taking minima
+        if (std::isnan(DaDt_tidal)) DaDt_tidal = std::numeric_limits<double>::infinity();
+        if (std::isnan(DeDt_tidal)) DeDt_tidal = std::numeric_limits<double>::infinity();
+        if (std::isnan(DOmegaDt_tidal)) DOmegaDt_tidal = std::numeric_limits<double>::infinity();
+        
         dt =  std::min(dt, std::min(DaDt_tidal, std::min(DeDt_tidal, DOmegaDt_tidal)));
         }
     dt *= p_Multiplier;	
