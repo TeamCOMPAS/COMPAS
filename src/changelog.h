@@ -1334,6 +1334,13 @@
 //                                      - For dynamical and equilibrium tides in the KAPIL2024 model, added a fractional threshold of 0.0001 for radial extent and mass of each region of the star
 //                                           so that tidal dissipation is not applied when the relevant stellar region is too small
 //                                      - Updated online documentation to suggest setting `--chemically-homogeneous-evolution-mode NONE` when using the KAPIL2024 model of tides
-const std::string VERSION_STRING = "03.04.01";
+// 03.05.00   JR - Oct 05, 2024     - Enhancement:
+//                                      - Changed order of binary and stellar evolution in BaseBinaryStar::Evolve().  The evaluation of the binary is now done before stellar evolution.
+//                                        This change facilitates the corrent implementation of tides (and may well help elsewhere).  As part of the change the print to the BSE detailed
+//                                        output file post-stellar timestep was removed, and one was added per-stellar timestep.  The post-stellar timestep print was removed because the
+//                                        with the code as it is currently it would be redundant with the post-timestep print, but because we may add code in the future the constant
+//                                        POST_STELLAR_TIMESTEP was left in enum class BSE_DETAILED_RECORD_TYPE in LogTypedefs.h.
+
+const std::string VERSION_STRING = "03.05.00";
 
 # endif // __changelog_h__

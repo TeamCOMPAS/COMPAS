@@ -1749,7 +1749,8 @@ enum class BSE_DETAILED_RECORD_TYPE: unsigned int {                             
     POST_CEE,                                                                                                       // 12 - record was logged immediately following a common envelope event
     POST_SN,                                                                                                        // 13 - record was logged immediately following a supernova event
     POST_MASS_RESOLUTION,                                                                                           // 14 - record was logged immediately following mass resolution (i.e. after winds mass loss & mass transfer complete)
-    POST_MASS_RESOLUTION_MERGER                                                                                     // 15 - record was logged immediately following a merger after mass resolution
+    POST_MASS_RESOLUTION_MERGER,                                                                                    // 15 - record was logged immediately following a merger after mass resolution
+    PRE_STELLAR_TIMESTEP                                                                                            // 16 - record was logged immediately prior to stellar timestep (i.e. the evolution of the constituent stars for a single timestep)
 };
 
 enum class SSE_DETAILED_RECORD_TYPE: unsigned int {                                                                 // SSE_DETAILED_OUTPUT file record type
