@@ -1337,7 +1337,7 @@
 // 03.05.00   JR - Oct 05, 2024     - Enhancement, code cleanup:
 //                                      - Changed order of binary and stellar evolution in BaseBinaryStar::Evolve().  The evaluation of the binary is now done before stellar evolution.
 //                                        This change facilitates the correct implementation of tides (and may well help elsewhere).  As part of the change the print to the BSE detailed
-//                                        output file post-stellar timestep was removed, and one was added per-stellar timestep.  The post-stellar timestep print was removed because the
+//                                        output file post-stellar timestep was removed, and one was added per-stellar timestep.  The post-stellar timestep print was removed because
 //                                        with the code as it is currently it would be redundant with the post-timestep print, but because we may add code in the future the constant
 //                                        POST_STELLAR_TIMESTEP was left in enum class BSE_DETAILED_RECORD_TYPE in LogTypedefs.h.
 
