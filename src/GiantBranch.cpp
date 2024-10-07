@@ -1089,9 +1089,9 @@ DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     double Tmin = clone->Temperature();                                                                                     // get temperature of clone
     delete clone; clone = nullptr;                                                                                          // return the memory allocated for the clone
     
-    // Assume Tonset is always 0.1 dex hotter than Tmin, to avoid issues caused by differences between temperatures
-    // in MESA models (used in Picker+ fits) and Pols models (used in Hurley+ SSE tracks), rather than Eq. (6) of Picker+ 2024
-    double Tonset     = 1.2589 * Tmin;
+    // Use Eq. 6 of Mandel, Hirai, Picker (2024) rather than Eq. 6 of Picker+ 2024 for Tonset to avoid issues caused by
+    // differences between temperatures in MESA models (used in Picker+ fits) and Pols models (used in Hurley+ SSE tracks)
+    double Tonset     = Tmin / std::min(0.0695 - 0.057 * m_Log10Metallicity, 0.95);                                         // eq. (6) of Mandel, Hirai, Picker, 2024
     
     double mCoreFinal = CalculateCoreMassAtBAGB(m_Mass0);
     double mConvMax   = std::max(m_Mass - mCoreFinal * (1.0 + MinterfMcoref), 0.0);                                         // eq. (9) of Picker+ 2024
