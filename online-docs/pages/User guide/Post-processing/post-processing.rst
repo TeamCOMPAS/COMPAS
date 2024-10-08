@@ -28,6 +28,7 @@ Post-processing Demos
     Cosmic Integration <notebooks/CosmicIntegration.ipynb>
     Spin prescriptions <notebooks/spin_prescriptions/calculate_black_hole_spin_pop_synth.ipynb>
     CHE Tutorial <CHE_paper_tutorial/CHE_evolution_demo_ANSWERS.ipynb>
+    CHE Tutorial (no answers)  <CHE_paper_tutorial/CHE_evolution_demo.ipynb>
 
 
 .. rubric:: Footnotes

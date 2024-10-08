@@ -1,0 +1,4 @@
+--initial-mass-1 35 --initial-mass-2 31 -a 3.5 --metallicity 0.001
+--initial-mass-1 31 --initial-mass-2 31 -a 3.5 --metallicity 0.001
+--initial-mass-1 40 --initial-mass-2 31 -a 3.5 --metallicity 0.001
+--initial-mass-1 35 --initial-mass-2 25 -a 3.5 --metallicity 0.001
