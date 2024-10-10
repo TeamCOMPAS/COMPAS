@@ -1341,8 +1341,11 @@
 //                                        with the code as it is currently it would be redundant with the post-timestep print, but because we may add code in the future the constant
 //                                        POST_STELLAR_TIMESTEP was left in enum class BSE_DETAILED_RECORD_TYPE in LogTypedefs.h.
 // 03.05.01   IM - Oct 07, 2024     - Enhancement:
-//                                      - Changed the prescription for Tonset in the Picker+ models to take advantage of improved metallicity-dependent fits 
+//                                      - Changed the prescription for Tonset in the Picker+ models to take advantage of improved metallicity-dependent fits
+// 03.05.02   IM - Oct 10, 2024     - Enhancement, defect repair:
+//                                      - Reverted IsCCSN() to include USSN following a change in 3.00.00 that inadvertently led to no binary orbit updates following USSNe
+//                                      - Include a call to EvolveBinary(0.0) on initialisation of evolved stellar types; this ensures that Switch logs include consistent data for the new stellar type
 
-const std::string VERSION_STRING = "03.05.01";
+const std::string VERSION_STRING = "03.05.02";
 
 # endif // __changelog_h__
