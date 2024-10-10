@@ -112,17 +112,17 @@ public:
             double              HydrogenAbundanceSurface() const                                { return m_HydrogenAbundanceSurface; }
             double              InitialHeliumAbundance() const                                  { return m_InitialHeliumAbundance; }
             double              InitialHydrogenAbundance() const                                { return m_InitialHydrogenAbundance; }
-            bool                IsAIC() const                                                   { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::AIC; }
-            bool                IsCCSN() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::CCSN; }
-            bool                IsHeSD() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::HeSD; }
+            bool                IsAIC() const                                                   { return (m_SupernovaDetails.events.current & SN_EVENT::AIC) == SN_EVENT::AIC; }
+            bool                IsCCSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
+            bool                IsHeSD() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
     virtual bool                IsDegenerate() const                                            { return false; }   // default is not degenerate - White Dwarfs, NS and BH are degenerate
-            bool                IsECSN() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::ECSN; }
+            bool                IsECSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::ECSN) == SN_EVENT::ECSN; }
             bool                IsSN_NONE() const                                               { return m_SupernovaDetails.events.current == SN_EVENT::NONE; }
             bool                IsOneOf(const STELLAR_TYPE_LIST p_List) const;
-            bool                IsPISN() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::PISN; }
-            bool                IsPPISN() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::PPISN; }
-            bool                IsSNIA() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::SNIA; }
-            bool                IsUSSN() const                                                  { return utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::USSN; }
+            bool                IsPISN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::PISN) == SN_EVENT::PISN; }
+            bool                IsPPISN() const                                                 { return (m_SupernovaDetails.events.current & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
+            bool                IsSNIA() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::SNIA) == SN_EVENT::SNIA; }
+            bool                IsUSSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::USSN) == SN_EVENT::USSN; }
             double              LambdaDewi() const                                              { return m_Lambdas.dewi; }
             double              LambdaFixed() const                                             { return m_Lambdas.fixed; }
             double              LambdaKruckow() const                                           { return m_Lambdas.kruckow; }

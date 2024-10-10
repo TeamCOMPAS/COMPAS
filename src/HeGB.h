@@ -53,6 +53,7 @@ protected:
         CalculateTimescales();                                                                                                                                          // Initialise timescales
         if (p_PreviousStellarType != STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP)                                                                                   // If not evolving from HeHG...
             m_Age = CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, m_Timescales[static_cast<int>(TIMESCALE::tHeMS)], m_GBParams);                                     // ... Set age appropriately
+        EvolveOnPhase(0.0);
     }
 
 

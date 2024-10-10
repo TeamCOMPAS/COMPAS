@@ -56,6 +56,8 @@ protected:
         m_IsSubChandrasekharTypeIa = false; 
         m_ShouldRejuvenate         = false;
         m_AccretionRegime          = ACCRETION_REGIME::ZERO;
+        
+        EvolveOnPhase(0.0);
     }
 
 
