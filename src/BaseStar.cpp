@@ -1450,26 +1450,14 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
 
     // Iterate over the two QCRIT_GE tables to get the qcrits at each metallicity
     double qcritPerMetallicity[2];
+    std::vector<GE_QCRIT_TABLE> qCritTables = { QCRIT_GE_LOW_Z, QCRIT_GE_HIGH_Z };
 
-    std::vector<auto> &QCRIT_TABLES { &QCRIT_GE_LOW_Z, &QCRIT_GE_HIGH_Z}; // Is this very large?
-    //double &QCRIT_TABLES[2] = { &QCRIT_GE_LOW_Z, &QCRIT_GE_HIGH_Z}; // Is this very large?
-    //*QCRIT_TABLES[0] = &QCRIT_GE_LOW_Z; 
-    //*QCRIT_TABLES[1] = &QCRIT_GE_HIGH_Z;
+    for (int ii=0; ii<2; ii++) { // iterate over the vector of tables to store qCrits per metallicity
 
-    //std::vector<double QCRIT_TABLES = { &QCRIT_GE_LOW_Z, &QCRIT_GE_HIGH_Z}; // Is this very large?
-    //std::cout << &QCRIT_GE_LOW_Z << std::endl; // This produces the location that I want stored
-    //std::cout << *QCRIT_GE_LOW_Z << std::endl; // This produces the location that I want stored
-    std::cout << QCRIT_TABLES[0]  << std::endl; // This produces the location that I want stored
-    return 0.0;
-
-    /*
-    for (int ii=0; ii<2; ii++) {
-
-        // Get vector of masses from QCRIT_TABLE
-        auto QCRIT_TABLE = QCRIT_TABLES[ii];
-        std::vector<double> massesFromQCritTable = std::get<0>(QCRIT_TABLE);
-        std::vector< std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>>> 
-            radiiQCritsFromQCritTable = std::get<1>(QCRIT_TABLE);
+        // Get vector of masses from qCritTable
+        GE_QCRIT_TABLE &qCritTable = qCritTables[ii];
+        DBL_VECTOR massesFromQCritTable = std::get<0>(qCritTable);
+        GE_QCRIT_RADII_QCRIT_VECTOR radiiQCritsFromQCritTable = std::get<1>(qCritTable);
 
         INT_VECTOR indices = utils::BinarySearch(massesFromQCritTable, m_Mass);
         int lowerMassIndex = indices[0];
@@ -1484,7 +1472,7 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
             upperMassIndex = massesFromQCritTable.size() - 1;
         } 
     
-        // Get vector of radii from QCRIT_TABLE for the lower and upper mass indices
+        // Get vector of radii from qCritTable for the lower and upper mass indices
         std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsFromQCritTable[lowerMassIndex]);
         std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsFromQCritTable[upperMassIndex]);
     
@@ -1526,7 +1514,7 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
             }
         }
     
-        // Get vector of radii from QCRIT_TABLE for both lower and upper masses
+        // Get vector of radii from qCritTable for both lower and upper masses
         INT_VECTOR indicesR0          = utils::BinarySearch(logRadiusVectorLowerMass, log10(m_Radius));
         int lowerRadiusLowerMassIndex = indicesR0[0];
         int upperRadiusLowerMassIndex = indicesR0[1];
@@ -1554,14 +1542,14 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
         }
     
         // Set the 4 boundary points for the 2D interpolation
-        double qLowLowFull = qCritVectorUpperEffLowerMass[lowerRadiusLowerMassIndex];
-        double qLowUppFull = qCritVectorUpperEffLowerMass[upperRadiusLowerMassIndex];
-        double qUppLowFull = qCritVectorUpperEffUpperMass[lowerRadiusUpperMassIndex];
-        double qUppUppFull = qCritVectorUpperEffUpperMass[upperRadiusUpperMassIndex];
-        double qLowLowNonc = qCritVectorLowerEffLowerMass[lowerRadiusLowerMassIndex];
-        double qLowUppNonc = qCritVectorLowerEffLowerMass[upperRadiusLowerMassIndex];
-        double qUppLowNonc = qCritVectorLowerEffUpperMass[lowerRadiusUpperMassIndex];
-        double qUppUppNonc = qCritVectorLowerEffUpperMass[upperRadiusUpperMassIndex];
+        double qUppLowLow = qCritVectorUpperEffLowerMass[lowerRadiusLowerMassIndex];
+        double qUppLowUpp = qCritVectorUpperEffLowerMass[upperRadiusLowerMassIndex];
+        double qUppUppLow = qCritVectorUpperEffUpperMass[lowerRadiusUpperMassIndex];
+        double qUppUppUpp = qCritVectorUpperEffUpperMass[upperRadiusUpperMassIndex];
+        double qLowLowLow = qCritVectorLowerEffLowerMass[lowerRadiusLowerMassIndex];
+        double qLowLowUpp = qCritVectorLowerEffLowerMass[upperRadiusLowerMassIndex];
+        double qLowUppLow = qCritVectorLowerEffUpperMass[lowerRadiusUpperMassIndex];
+        double qLowUppUpp = qCritVectorLowerEffUpperMass[upperRadiusUpperMassIndex];
     
         double logLowerMass   = log10(massesFromQCritTable[lowerMassIndex]);
         double logUpperMass   = log10(massesFromQCritTable[upperMassIndex]);
@@ -1572,38 +1560,23 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
         double upperLogRadiusUpperMass = logRadiusVectorUpperMass[upperRadiusUpperMassIndex];
     
         // Interpolate on logR first, then logM, then on the mass transfer efficiency beta
-        double qCritFullLowerMass    = qLowLowFull + (upperLogRadiusLowerMass - log10(m_Radius)) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qLowUppFull - qLowLowFull);
-        double qCritFullUpperMass    = qUppLowFull + (upperLogRadiusUpperMass - log10(m_Radius)) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qUppUppFull - qUppLowFull);
-        double qCritNoncLowerMass    = qLowLowNonc + (upperLogRadiusLowerMass - log10(m_Radius)) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qLowUppNonc - qLowLowNonc);
-        double qCritNoncUpperMass    = qUppLowNonc + (upperLogRadiusUpperMass - log10(m_Radius)) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qUppUppNonc - qUppLowNonc);
+        double qCritUpperEffLowerMass    = qUppLowLow + (upperLogRadiusLowerMass - log10(m_Radius)) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qUppLowUpp - qUppLowLow);
+        double qCritUpperEffUpperMass    = qUppUppLow + (upperLogRadiusUpperMass - log10(m_Radius)) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qUppUppUpp - qUppUppLow);
+        double qCritLowerEffLowerMass    = qLowLowLow + (upperLogRadiusLowerMass - log10(m_Radius)) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qLowLowUpp - qLowLowLow);
+        double qCritLowerEffUpperMass    = qLowUppLow + (upperLogRadiusUpperMass - log10(m_Radius)) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qLowUppUpp - qLowUppLow);
     
-        double interpolatedQCritFull = qCritFullLowerMass + (logUpperMass - log10(m_Mass)) / (logUpperMass - logLowerMass) * (qCritFullUpperMass - qCritFullLowerMass);
-        double interpolatedQCritNonc = qCritNoncLowerMass + (logUpperMass - log10(m_Mass)) / (logUpperMass - logLowerMass) * (qCritNoncUpperMass - qCritNoncLowerMass);
+        double interpolatedQCritUpperEff = qCritUpperEffLowerMass + (logUpperMass - log10(m_Mass)) / (logUpperMass - logLowerMass) * (qCritUpperEffUpperMass - qCritUpperEffLowerMass);
+        double interpolatedQCritLowerEff = qCritLowerEffLowerMass + (logUpperMass - log10(m_Mass)) / (logUpperMass - logLowerMass) * (qCritLowerEffUpperMass - qCritLowerEffLowerMass);
     
-        double interpolatedQCritForZ = p_massTransferEfficiencyBeta * interpolatedQCritFull + (1.0 - p_massTransferEfficiencyBeta) * interpolatedQCritNonc;
+        double interpolatedQCritForZ = p_massTransferEfficiencyBeta * interpolatedQCritUpperEff + (1.0 - p_massTransferEfficiencyBeta) * interpolatedQCritLowerEff;
         qcritPerMetallicity[ii] = interpolatedQCritForZ;
     }
-    // x1, x2
+    double logZ = log10(m_Metallicity);
     double logZlo = log10(0.001);
-    double logZhi = log10(0.02); // check this
-
-    // y1, y2
-    //qcritPerMetallicity[0]; // lo
-    //qcritPerMetallicity[1]; // hi
+    double logZhi = LOG10_ZSOL;  
     
-    // want y = mx + b
-    // y2 = m*x2 + b
-    // y1 = m*x1 + b
-    // y2-y1 = m(x2-x1)
-    // m = (y2-y1)/(x2-x1)
-    // y2 = (y2-y1)/(x2-x1)*x2 + b
-    // b = (y2-y1)/(x2-x1)*x2 - y2 
-    // y = (y2-y1)/(x2-x1) + (y2-y1)/(x2-x1)*x2 - y2 
-    //   = (y2-y1)/(x2-x1)(1+x2) - y2
-    
-    double interpolatedQCrit = (qcritPerMetallicity[1]-qcritPerMetallicity[0])/(logZhi-logZlo)*(1+logZhi) - qcritPerMetallicity[1] ;
+    double interpolatedQCrit = qcritPerMetallicity[1] + (logZ - logZhi)*(qcritPerMetallicity[1]-qcritPerMetallicity[0])/(logZhi-logZlo);
     return interpolatedQCrit;
-    */
 }
 
 
