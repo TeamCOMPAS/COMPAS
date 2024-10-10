@@ -48,6 +48,7 @@ protected:
     void Initialise() {
         CalculateTimescales();                                                                                                                          // Initialise timescales
         m_Age = 0.0;                                                                                                                                    // Set age appropriately
+        EvolveOnPhase(0.0);
     }
     
     

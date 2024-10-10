@@ -41,6 +41,8 @@ protected:
     void Initialise() {
         CalculateTimescales();                                                                                                                                                                              // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tP)];                                                                                                                                              // Set age appropriately
+        
+        EvolveOnPhase(0.0);
    }
 
 

@@ -55,8 +55,7 @@ protected:
         m_CoreMass   = 0.0;
         m_Mass0      = 0.0;
         
-        m_Radius     = CalculateRadiusOnPhase();                                                                                                                // Set the NS radius, in Rsol
-        m_Luminosity = CalculateLuminosityOnPhase();                                                                                                            // Set the NS luminosity
+        EvolveOnPhase(0.0);
 
         CalculateAndSetPulsarParameters();
     }
