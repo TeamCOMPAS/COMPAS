@@ -54,6 +54,8 @@ protected:
         m_HeShellDetonation = false;
         m_OffCenterIgnition = false;
         m_AccretionRegime   = ACCRETION_REGIME::ZERO;
+        
+        EvolveOnPhase(0.0);
     }
 
     double          CalculateHeliumAbundanceCoreOnPhase() const                     { return 0.0; };

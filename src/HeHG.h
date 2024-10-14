@@ -53,12 +53,7 @@ protected:
         // Update stellar properties at start of HeHG phase (since core definition changes)
         CalculateGBParams();
 
-        m_COCoreMass = CalculateCOCoreMassOnPhase();
-        m_CoreMass   = CalculateCoreMassOnPhase();
-        m_HeCoreMass = CalculateHeCoreMassOnPhase();
-        m_Luminosity = CalculateLuminosityOnPhase();
-
-        std::tie(m_Radius, std::ignore) = CalculateRadiusAndStellarTypeOnPhase();   // Update radius
+        EvolveOnPhase(0.0);
     }
 
 

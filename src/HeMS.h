@@ -63,6 +63,7 @@ protected:
         // JR: Age for HeMS is partially calculated before switching -
         // can get here from various places in ResolveEnvelopeLoss(),
         // and Age is calculated differently in those cases
+        EvolveOnPhase(0.0);
     }
 
 

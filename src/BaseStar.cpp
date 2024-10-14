@@ -3566,19 +3566,18 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
     
     double radIntershellMass = m_Mass - coreMass - envMass;                                             // refers to the combined mass of non-convective layers
 
-    // There should be no Dynamical tides if the entire star is convective, i.e. if there are no convective-radiative boundaries. 
-    // If so, return 0.0 for all dynamical components of ImKlm.
-    // Check mass rather than radial extent, since radiative mass can currently be non-zero for GB stars following Picker+ 2024 (radial extent will be 0 following Hurley 2000).
-    // This condition should be true for low-mass MS stars (<= 0.35 Msol) at ZAMS.
-    if (utils::Compare(radIntershellMass, 0.0) <= 0) {
-        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           
-    }
-
     double radiusAU              = m_Radius * RSOL_TO_AU;
     double coreRadiusAU          = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
     double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
-    double radiusIntershellAU    = radiusAU - convectiveEnvRadiusAU;                                    // outer radial coordinate of radiative intershell
+    double radiusIntershellAU    = radiusAU - convectiveEnvRadiusAU;                                    // Outer radial coordinate of radiative intershell
 
+    // There should be no Dynamical tides if the entire star is convective, i.e. if there are no convective-radiative boundaries. 
+    // If so, return 0.0 for all dynamical components of ImKlm.
+    // This condition should be true for low-mass MS stars (<= 0.35 Msol) at ZAMS.
+    if (utils::Compare(radIntershellMass/m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) <= 0 || utils::Compare(radiusIntershellAU, coreRadiusAU) <= 0) {
+        return std::make_tuple(0.0, 0.0, 0.0, 0.0);                           
+    }
+ 
     double R_3              = radiusAU * radiusAU * radiusAU;
     double R3_over_G_M      = (R_3 / G_AU_Msol_yr / m_Mass);
     double sqrt_R3_over_G_M = std::sqrt(R3_over_G_M);
@@ -3603,7 +3602,8 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
     double w22 = ((p_Omega + p_Omega) - two_OmegaSpin);
     double w32 = ((p_Omega + p_Omega + p_Omega) - two_OmegaSpin);
         
-    if (utils::Compare(coreRadiusAU, 0.0) > 0 && utils::Compare(coreMass, 0.0) > 0) {                   // No GW dissipation from core boundary if no convective core
+    // Assume that GW dissipation from core boundary is only efficient if the radiative region extends to the surface, i.e. there is no convective envelope.
+    if (utils::Compare(coreRadiusAU/radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) > 0 && utils::Compare(coreMass/m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) > 0 && utils::Compare(convectiveEnvRadiusAU/radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) < 0 && utils::Compare(envMass/m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) < 0) {                   
         double beta2Dynamical           = 1.0;
         double rhoFactorDynamcial       = 0.1;
         double coreRadius_over_radius   = coreRadiusAU / radiusAU;
@@ -3617,29 +3617,38 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double s10_4_3 = s10 * std::cbrt(s10);
         double s10_8_3 = s10_4_3 * s10_4_3;
         k10GravityCore = E2Dynamical * (w10 < 0.0 ? -std::abs(s10_8_3) : s10_8_3);
+        if (std::isnan(k10GravityCore)) k10GravityCore = 0.0;
 
         // (l=1, m=2), Gravity Wave dissipation from core boundary
         double s12     = w12 * sqrt_R3_over_G_M;
         double s12_4_3 = s12 * std::cbrt(s12);
         double s12_8_3 = s12_4_3 * s12_4_3;
         k12GravityCore = E2Dynamical * (w12 < 0.0 ? -std::abs(s12_8_3) : s12_8_3);
+        if (std::isnan(k12GravityCore)) k12GravityCore = 0.0;
 
         // (l=2, m=2), Gravity Wave dissipation from core boundary
         double s22     = w22 * sqrt_R3_over_G_M;
         double s22_4_3 = s22 * std::cbrt(s22);
         double s22_8_3 = s22_4_3 * s22_4_3;
         k22GravityCore = E2Dynamical * (w22 < 0.0 ? -std::abs(s22_8_3) : s22_8_3);
+        if (std::isnan(k22GravityCore)) k22GravityCore = 0.0;
 
         // (l=3, m=2), Gravity Wave dissipation from core boundary
         double s32     = w32 * sqrt_R3_over_G_M;
         double s32_4_3 = s32 * std::cbrt(s32);
         double s32_8_3 = s32_4_3 * s32_4_3;
-        k32GravityCore = E2Dynamical * (w32 < 0.0 ? -std::abs(s32_8_3) : s32_8_3);    
+        k32GravityCore = E2Dynamical * (w32 < 0.0 ? -std::abs(s32_8_3) : s32_8_3);
+        if (std::isnan(k32GravityCore)) k32GravityCore = 0.0;    
     }
 
-    // No GW or IW dissipation from envelope if no convective envelope
-    if (utils::Compare(convectiveEnvRadiusAU, 0.0) > 0 && utils::Compare(envMass, 0.0) > 0) {                                                 
-        double dyn_prefactor = 3.207452512782476;                                                       // 3^(11/3) * Gamma(1/3)^2 / 40 PI
+    double rint_3            = radiusIntershellAU * radiusIntershellAU * radiusIntershellAU;
+    double rc_3              = coreRadiusAU * coreRadiusAU * coreRadiusAU;
+    double gamma             = (envMass / (R_3 - rint_3)) / (radIntershellMass / (rint_3 - rc_3));
+
+    // There is no GW or IW dissipation from the envelope boundary if no convective envelope, or if convective envelope is denser than radiative intershell
+    if (utils::Compare(convectiveEnvRadiusAU/radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) > 0 && utils::Compare(envMass/m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) > 0 && utils::Compare(gamma, 1.0) < 0) {    
+
+         double dyn_prefactor = 3.207452512782476;                                                       // 3^(11/3) * Gamma(1/3)^2 / 40 PI
         double dNdlnr_cbrt = std::cbrt(G_AU_Msol_yr * radIntershellMass / radiusIntershellAU / (radiusAU - radiusIntershellAU) / (radiusAU - radiusIntershellAU));
         
         double alpha             = radiusIntershellAU / radiusAU;
@@ -3654,35 +3663,38 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double one_minus_alpha_3 = 1.0 - alpha_3;
         double beta_2            = beta * beta;
 
-        double rint_3            = radiusIntershellAU * radiusIntershellAU * radiusIntershellAU;
-        double rc_3              = coreRadiusAU * coreRadiusAU * coreRadiusAU;
-        double gamma             = (envMass / (R_3 - rint_3)) / (radIntershellMass / (rint_3 - rc_3));
+    
         double one_minus_gamma   = 1.0 - gamma;
         double one_minus_gamma_2 = one_minus_gamma * one_minus_gamma;
         double alpha_2_3_minus_1 = (alpha * 2.0 / 3.0) - 1.0;
 
-        double Epsilon           = alpha_11 * envMass / m_Mass * one_minus_gamma_2 * alpha_2_3_minus_1 * alpha_2_3_minus_1 / beta_2 / one_minus_alpha_3 / one_minus_alpha_2;
+        // Assume GW dissipation from the envelope boundary only acts if the radiative zone extends to the core, i.e. if there is no convective core.
+        if ((utils::Compare(coreRadiusAU/radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) < 0) && (utils::Compare(coreMass/m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) < 0)) {                              
+            double Epsilon           = alpha_11 * envMass / m_Mass * one_minus_gamma_2 * alpha_2_3_minus_1 * alpha_2_3_minus_1 / beta_2 / one_minus_alpha_3 / one_minus_alpha_2;
 
-        // (l=1, m=0), Gravity Wave dissipation from envelope boundary is always 0.0 since m=0.0
+            // (l=1, m=0), Gravity Wave dissipation from envelope boundary is always 0.0 since m=0.0
 
-        // (l=1, m=2), Gravity Wave dissipation from envelope boundary
-        double m_l_factor_12 = 2.0 / (1.0 * (1.0 + 1.0)) / std::cbrt(1.0 * (1.0 + 1.0));                // m * (l(l+1))^{-4/3}
-        double w12_4_3       = w12 * std::cbrt(w12);
-        double w12_8_3       = w12_4_3 * w12_4_3;
-        k12GravityEnv        = dyn_prefactor * m_l_factor_12 * (w12 < 0.0 ? -std::abs(w12_8_3) : w12_8_3) * R3_over_G_M * Epsilon / dNdlnr_cbrt;
+            // (l=1, m=2), Gravity Wave dissipation from envelope boundary
+            double m_l_factor_12 = 2.0 / (1.0 * (1.0 + 1.0)) / std::cbrt(1.0 * (1.0 + 1.0));                // m * (l(l+1))^{-4/3}
+            double w12_4_3       = w12 * std::cbrt(w12);
+            double w12_8_3       = w12_4_3 * w12_4_3;
+            k12GravityEnv        = dyn_prefactor * m_l_factor_12 * (w12 < 0.0 ? -std::abs(w12_8_3) : w12_8_3) * R3_over_G_M * Epsilon / dNdlnr_cbrt;
+            if (std::isnan(k12GravityEnv)) k12GravityEnv = 0.0;  
 
-        // (l=2, m=2), Gravity Wave dissipation from envelope boundary
-        double m_l_factor_22 = 2.0 / (2.0 * (2.0 + 1.0)) / std::cbrt(2.0 * (2.0 + 1.0));                // m * (l(l+1))^{-4/3}
-        double w22_4_3       = w22 * std::cbrt(w22);
-        double w22_8_3       = w22_4_3 * w22_4_3;
-        k22GravityEnv        = dyn_prefactor * m_l_factor_22 * (w22 < 0.0 ? -std::abs(w22_8_3) : w22_8_3) * R3_over_G_M * Epsilon / dNdlnr_cbrt;
+            // (l=2, m=2), Gravity Wave dissipation from envelope boundary
+            double m_l_factor_22 = 2.0 / (2.0 * (2.0 + 1.0)) / std::cbrt(2.0 * (2.0 + 1.0));                // m * (l(l+1))^{-4/3}
+            double w22_4_3       = w22 * std::cbrt(w22);
+            double w22_8_3       = w22_4_3 * w22_4_3;
+            k22GravityEnv        = dyn_prefactor * m_l_factor_22 * (w22 < 0.0 ? -std::abs(w22_8_3) : w22_8_3) * R3_over_G_M * Epsilon / dNdlnr_cbrt;
+            if (std::isnan(k22GravityEnv)) k22GravityEnv = 0.0;  
 
-        // (l=3, m=2), Gravity Wave dissipation from envelope boundary
-        double m_l_factor_32 = 2.0 / (3.0 * (3.0 + 1.0)) / std::cbrt(3.0 * (3.0 + 1.0));                // m * (l(l+1))^{-4/3}
-        double w32_4_3       = w32 * std::cbrt(w32);
-        double w32_8_3       = w32_4_3 * w32_4_3;
-        k32GravityEnv        = dyn_prefactor * m_l_factor_32 * (w32 < 0.0 ? -std::abs(w32_8_3) : w32_8_3) * R3_over_G_M * Epsilon / dNdlnr_cbrt;
-
+            // (l=3, m=2), Gravity Wave dissipation from envelope boundary
+            double m_l_factor_32 = 2.0 / (3.0 * (3.0 + 1.0)) / std::cbrt(3.0 * (3.0 + 1.0));                // m * (l(l+1))^{-4/3}
+            double w32_4_3       = w32 * std::cbrt(w32);
+            double w32_8_3       = w32_4_3 * w32_4_3;
+            k32GravityEnv        = dyn_prefactor * m_l_factor_32 * (w32 < 0.0 ? -std::abs(w32_8_3) : w32_8_3) * R3_over_G_M * Epsilon / dNdlnr_cbrt;
+            if (std::isnan(k32GravityEnv)) k32GravityEnv = 0.0;  
+        }
 
         // (l=2, m=2), Inertial Wave dissipation, convective envelope
         // IW dissipation is only efficient for highly spinning stars, as in Esseldeurs, et al., 2024 
@@ -3694,6 +3706,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
             double bracket3          = 1.0 + (3.0 * gamma / 2.0) + (5.0 * alpha_3 / (2.0 * gamma) * (1.0 + (gamma / 2.0) - (3.0* gamma * gamma / 2.0))) - (9.0 / 4.0 * one_minus_gamma * alpha_5);
             k22InertialEnv           = (100.0 * M_PI / 63.0) * epsilonIW_2 * (alpha_5 / (1.0 - alpha_5)) * one_minus_gamma_2 * one_minus_alpha_4 * bracket1 * bracket1 * bracket2 / bracket3 / bracket3;
             k22InertialEnv           = (w22 < 0.0 ? -std::abs(k22InertialEnv) : std::abs(k22InertialEnv));
+            if (std::isnan(k22InertialEnv)) k22InertialEnv = 0.0;  
         }
     }
 
@@ -3722,11 +3735,13 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     // No contribution from convective core; only convective envelope.
 
     double rEnvAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
-
-    if (utils::Compare(rEnvAU, 0.0) <= 0) return std::make_tuple(0.0, 0.0, 0.0, 0.0);           // skip calculations if there is no convective envelope (to avoid Imk22 = NaN)
-
+    double envMass, envMassMax;
+    std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
+    
     double rOutAU = m_Radius * RSOL_TO_AU;                                                      // outer boundary of convective envelope
     double rInAU  = (rOutAU - rEnvAU);                                                          // inner boundary of convective envelope
+    
+    if (utils::Compare(rEnvAU/rOutAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) <= 0 || utils::Compare(envMass/m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) <= 0 || std::isnan(envMass)) return std::make_tuple(0.0, 0.0, 0.0, 0.0);           // skip calculations if there is no convective envelope (to avoid Imk22 = NaN)
 
     double rOut_2  = rOutAU * rOutAU;
     double rOut_3  = rOut_2 * rOutAU;
@@ -3750,9 +3765,6 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
 
     double omegaSpin     = m_Omega;
     double two_OmegaSpin = omegaSpin + omegaSpin;
-
-    double envMass, envMassMax;
-    std::tie(envMass, envMassMax) = CalculateConvectiveEnvelopeMass();
 
     double rhoConv     = envMass / (4.0 * M_PI * (rOut_3 - rIn_3) / 3.0);
     double lConv       = rEnvAU;                                                                // set length scale to height of convective envelope
@@ -3786,6 +3798,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     double A10_1          = -G_AU_Msol_yr * p_M2 / a_2;
     double A10_2          = A10_1 * A10_1;
     double k10Equilibrium = (3.0 / 2.0) * (16.0 * M_PI / 9.0) * G_AU_Msol_yr * Dnu10 / A10_2 / rOut_3 / omega_t_10;
+    if (std::isnan(k10Equilibrium)) k10Equilibrium = 0.0;
     if (w10 < 0.0) k10Equilibrium = -std::abs(k10Equilibrium);
 
 
@@ -3803,6 +3816,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     double A12_1          = -G_AU_Msol_yr * p_M2 / a_2;
     double A12_2          = A12_1 * A12_1;
     double k12Equilibrium = (3.0 / 2.0) * (16.0 * M_PI / 9.0) * G_AU_Msol_yr * Dnu12 / A12_2 / rOut_3 / omega_t_12;
+    if (std::isnan(k12Equilibrium)) k12Equilibrium = 0.0;
     if (w12 < 0) k12Equilibrium = -std::abs(k12Equilibrium);
 
 
@@ -3820,6 +3834,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     double A22_1          = -G_AU_Msol_yr * p_M2 / a_3;
     double A22_2          = A22_1 * A22_1;
     double k22Equilibrium = (3.0 / 2.0) * (16.0 * M_PI / 15.0) * G_AU_Msol_yr * Dnu22 / A22_2 / rOut_5 / omega_t_22;
+    if (std::isnan(k22Equilibrium)) k22Equilibrium = 0.0;
     if (w22 < 0.0) k22Equilibrium = -std::abs(k22Equilibrium);
 
 
@@ -3837,6 +3852,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmEquilibrium(const double p_Omega, const 
     double A32_1          = -G_AU_Msol_yr * p_M2 / a_4;
     double A32_2          = A32_1 * A32_1;
     double k32Equilibrium = (3.0 / 2.0) * (16.0 * M_PI / 21.0) * G_AU_Msol_yr * Dnu32 / A32_2 / rOut_7 / omega_t_32;
+    if (std::isnan(k32Equilibrium)) k32Equilibrium = 0.0;
     if (w32 < 0.0) k32Equilibrium = -std::abs(k32Equilibrium);
 
     // return ImKlmEquilibrium
