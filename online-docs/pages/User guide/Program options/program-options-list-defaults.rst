@@ -586,9 +586,11 @@ Options: { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MA
 ``FIXED`` always sets the magnitude to a fixed value based on supernova type. |br|
 ``FLAT`` and ``MAXWELLIAN`` draw kicks from uniform or Maxwellian (e.g., Hobbs et al., 2005) distributions, respectively. |br|
 ``BRAYELDRIDGE`` and ``MULLERMANDEL`` use momentum-preserving kicks from Bray & Eldrigde 2018 and Mandel & Mueller 2020, respectively. |br|
-``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 (reduced by a factor of sqrt(3) in the latter case). |br|
-Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; 
-however, the ``MULLERMANDEL`` kick prescription is intended to be consistently used with the ``MULLERMANDEL`` remnant mass prescription. |br|
+``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 |br|
+(reduced by a factor of sqrt(3) in the latter case). |br|
+Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; however, the ``MULLERMANDEL`` |br| 
+kick prescription is intended to be consistently used with the ``MULLERMANDEL`` remnant mass prescription, |br|
+as well as with the ``MALTSEV2024`` remnant mass prescription. |br|
 Default = MULLERMANDEL
 
 **--kick-magnitude-max** |br|
@@ -837,7 +839,7 @@ DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Pl
 
 **--mass-transfer-accretion-efficiency-prescription** |br|
 Mass transfer accretion efficiency prescription. |br|
-Options: { THERMAL, FIXED, CENTRIFUGAL } |br|
+Options: { THERMAL, FIXED } |br|
 Default = THERMAL
 
 **--mass-transfer-angular-momentum-loss-prescription** |br|
@@ -1152,7 +1154,7 @@ Default = 0
 
 **--remnant-mass-prescription** |br|
 Remnant mass prescription. |br|
-Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT } |br|
+Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT, MALTSEV2024 } |br|
 Default = MULLERMANDEL
 
 **--retain-core-mass-during-caseA-mass-transfer** |br|
@@ -1284,7 +1286,7 @@ Prescription for tidal evolution of the binary. |br|
 Options: { NONE, PERFECT, KAPIL2024 } |br|
 ``NONE`` disables tidal interactions. |br|
 ``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization. |br|
-``KAPIL2024`` uses the prescription from Kapil+ (2024). |br|
+``KAPIL2024`` uses the prescription from Kapil+ (2024). When using this prescription, set ``--chemically-homogeneous-evolution-mode NONE`` to avoid conflicts with stellar spins. |br|
 Default = NONE
 
 **--timestep-filename** |br|

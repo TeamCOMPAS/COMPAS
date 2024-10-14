@@ -62,6 +62,7 @@ protected:
         CalculateTimescales();                                                                                                                                  // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tHeI)];                                                                                                // Set age appropriately
         m_MinimumLuminosityOnPhase = CalculateMinimumLuminosityOnPhase(massCutoffs(MHeF), m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_BnCoefficients);    // Calculate once, not many
+        EvolveOnPhase(0.0);
     #undef massCutoffs
     }
 

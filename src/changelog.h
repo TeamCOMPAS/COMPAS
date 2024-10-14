@@ -1328,7 +1328,27 @@
 //                                          on the Helium MS, TPAGB now have fully convective envelopes, etc.
 //                                      - All naked helium stars have purely radiative envelopes, until we develop better models
 //                                      - Minor fixes to code and documentation elsewhere
+// 03.04.01   VK - Oct 03, 2024     - Defect repair, enhancement:
+//                                      - Added timestep limits from KAPIL2024 model of tides to ChooseTimestep() function
+//                                      - Modified dynamical tides in the KAPIL2024 model to be ineffective when there is both a convective core and a convective envelope
+//                                      - For dynamical and equilibrium tides in the KAPIL2024 model, added a fractional threshold of 0.0001 for radial extent and mass of each region of the star
+//                                           so that tidal dissipation is not applied when the relevant stellar region is too small
+//                                      - Updated online documentation to suggest setting `--chemically-homogeneous-evolution-mode NONE` when using the KAPIL2024 model of tides
+// 03.05.00   JR - Oct 05, 2024     - Enhancement, code cleanup:
+//                                      - Changed order of binary and stellar evolution in BaseBinaryStar::Evolve().  The evaluation of the binary is now done before stellar evolution.
+//                                        This change facilitates the correct implementation of tides (and may well help elsewhere).  As part of the change the print to the BSE detailed
+//                                        output file post-stellar timestep was removed, and one was added pre-stellar timestep.  The post-stellar timestep print was removed because
+//                                        with the code as it is currently it would be redundant with the post-timestep print, but because we may add code in the future the constant
+//                                        POST_STELLAR_TIMESTEP was left in enum class BSE_DETAILED_RECORD_TYPE in LogTypedefs.h.
+// 03.05.01   IM - Oct 07, 2024     - Enhancement:
+//                                      - Changed the prescription for Tonset in the Picker+ models to take advantage of improved metallicity-dependent fits
+// 03.05.02   IM - Oct 10, 2024     - Enhancement, defect repair:
+//                                      - Reverted IsCCSN() to include USSN following a change in 3.00.00 that inadvertently led to no binary orbit updates following USSNe
+//                                      - Include a call to EvolveBinary(0.0) on initialisation of evolved stellar types; this ensures that Switch logs include consistent data for the new stellar type
+// 03.06.00   IM - Oct 14, 2024     - Enhancement, code cleanup:
+//                                      - Incorporating the Maltsev+ (2024) prescription for supernova remnant masses
+//                                      - Minor fixes, including in fallback fraction for Schneider SN prescription, documentation
 
-const std::string VERSION_STRING = "03.04.00";
+const std::string VERSION_STRING = "03.06.00";
 
 # endif // __changelog_h__
