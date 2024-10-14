@@ -76,6 +76,7 @@ protected:
             double          CalculateMassLossRateHurley();
 
             double          CalculateBaryonicRemnantMass(const double p_ProtoMass, double p_FallbackMass);
+            double          CalculateFallbackBHMassMullerMandel(const double p_COCoreMass, const double p_HeCoreMass);
             double          CalculateFallbackByBelczynski2002(const double p_COCoreMass);
             double          CalculateFallbackFractionDelayed(const double p_PreSNMass, const double p_ProtoMass, const double p_COCoreMass);
             double          CalculateFallbackFractionRapid(const double p_PreSNMass, const double p_ProtoMass, const double p_COCoreMass);
@@ -85,10 +86,13 @@ protected:
             double          CalculateRemnantMassByBelczynski2002(const double p_Mass, const double p_COCoreMass, const double p_FallbackFraction);
             DBL_DBL         CalculateRemnantMassByFryer2012(const double p_Mass, const double p_COCoreMass);
             DBL_DBL         CalculateRemnantMassByFryer2022(const double p_Mass, const double p_COCoreMass);
+            double          CalculateRemnantMassByMaltsev2024(const double p_COCoreMass, const double p_HeCoreMass);
             double          CalculateRemnantMassByMuller2016(const double p_Mass, const double p_COCoreMass);
             double          CalculateRemnantMassByMullerMandel(const double p_COCoreMass, const double p_HeCoreMass);
             double          CalculateRemnantMassBySchneider2020(const double p_COCoreMass, const bool p_UseSchneiderAlt = false);
             double          CalculateRemnantMassBySchneider2020Alt(const double p_COCoreMass)               { return CalculateRemnantMassBySchneider2020(p_COCoreMass, true); }
+            double          CalculateRemnantNSMassMullerMandel(const double p_COCoreMass, const double p_HeCoreMass);
+
 
             double          CalculateMomentOfInertia() const;
 
