@@ -365,7 +365,35 @@ constexpr double MULLERMANDEL_SIGMABH                   = 0.5;
 constexpr double MULLERMANDEL_MINNS                     = 1.13;
 constexpr double MULLERMANDEL_KICKNS                    = 520.0;                                                    // As calibrated by Kapil+ 2023
 constexpr double MULLERMANDEL_KICKBH                    = 200.0;
-constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3; 
+constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3;
+
+// Constants for the Maltsev+ 2024 SN remnant mass prescription
+constexpr double MALTSEV2024_MMIN                       = 5.62;
+constexpr double MALTSEV2024_MMAX                       = 16.18;
+constexpr double MALTSEV2024_M1S                        = 6.6;
+constexpr double MALTSEV2024_M1C                        = 6.6;
+constexpr double MALTSEV2024_M1B                        = 7.7;
+constexpr double MALTSEV2024_M1A                        = 7.4;
+constexpr double MALTSEV2024_M2S                        = 7.2;
+constexpr double MALTSEV2024_M2C                        = 7.1;
+constexpr double MALTSEV2024_M2B                        = 8.3;
+constexpr double MALTSEV2024_M2A                        = 8.4;
+constexpr double MALTSEV2024_M3S                        = 12.9;
+constexpr double MALTSEV2024_M3C                        = 13.2;
+constexpr double MALTSEV2024_M3B                        = 15.2;
+constexpr double MALTSEV2024_M3A                        = 15.4;
+constexpr double MALTSEV2024_M1SZ01                     = 6.1;
+constexpr double MALTSEV2024_M1CZ01                     = 6.3;
+constexpr double MALTSEV2024_M1BZ01                     = 6.9;
+constexpr double MALTSEV2024_M1AZ01                     = 7.0;
+constexpr double MALTSEV2024_M2SZ01                     = 6.6;
+constexpr double MALTSEV2024_M2CZ01                     = 7.1;
+constexpr double MALTSEV2024_M2BZ01                     = 7.9;
+constexpr double MALTSEV2024_M2AZ01                     = 7.4;
+constexpr double MALTSEV2024_M3SZ01                     = 12.9;
+constexpr double MALTSEV2024_M3CZ01                     = 12.3;
+constexpr double MALTSEV2024_M3BZ01                     = 13.7;
+constexpr double MALTSEV2024_M3AZ01                     = 13.7;
 
 // Constants for WD evolution 
 

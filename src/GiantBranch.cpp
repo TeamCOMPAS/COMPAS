@@ -1202,7 +1202,7 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
 
 
 /*
- * Calculate remnant type given COCoreMass according to the Schneider et al. 2020 prescription (arxiv:2008.08599)
+ * Calculate remnant mass given COCoreMass according to the Schneider et al. 2020 prescription (arxiv:2008.08599)
  *
  * Note that Schneider only prescribes remnant masses for the simple cases of single episode
  * Mass Transfer, so some of the double episode cases here are a bit uncertain, and may
@@ -1296,7 +1296,92 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
 
 
 /*
- * Calculate remnant mass given COCoreMass and HeCoreMass
+ * Calculate remnant mass according to the Maltsev et al. 2024 prescription
+ *
+ * Note that Maltsev2024 prescription is based on the donor type at the first MT event
+ *
+ * double CalculateRemnantMassByMaltsev2024(const double p_COCoreMass)
+ *
+ * @param   [IN]    p_COCoreMass                COCoreMass in Msol
+ * @param   [IN]    p_HeCoreMass                HeCoreMass in Msol
+ * @return                                      Remnant mass in Msol
+ */
+double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass, const double p_HeCoreMass) {
+
+    ST_VECTOR mtHist           = MassTransferDonorHistory();                                                            // mass transfer history vector
+    MT_CASE   massTransferCase = MT_CASE::OTHER;
+    double    log10Z           = m_Log10Metallicity - LOG10_ZSOL;                                                       // log_{10} (Z/Zsol), for convenience
+    double    M1, M2, M3;
+
+    if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0)                                                             // NS formation regardless of metallicity and MT history
+        return CalculateRemnantNSMassMullerMandel(p_COCoreMass, p_HeCoreMass);
+    
+    if (utils::Compare(p_COCoreMass, MALTSEV2024_MMAX) > 0)                                                             // BH formation regardless of metallicity and MT history
+        return p_HeCoreMass;
+    
+    // determine MT history - this will tell us which Schneider MT case prescription should be used
+    if (mtHist.size() == 0) {                                                                                           // no history of MT - effectively single star
+        massTransferCase = MT_CASE::NONE;
+    }
+    else {                                                                                                              // star was MT donor at least once
+        // determine MT_CASE of first MT event
+        STELLAR_TYPE mostRecentDonorType = mtHist[0];                                                                   // stellar type at first MT event (as donor)
+        BaseStar* newStar                = stellarUtils::NewStar(mostRecentDonorType);                                  // create new (empty) star of correct stellar type
+        massTransferCase        = newStar->DetermineMassTransferTypeAsDonor();                                          // get MT type as donor
+        delete newStar; newStar = nullptr;                                                                              // return the memory allocated for the new star
+    }
+
+    // apply the appropriate remnant mass prescription for the chosen MT case
+    switch (massTransferCase) {                                                                                         // which MT_CASE?
+
+        case MT_CASE::NONE:                                                                                             // no history of MT
+        case MT_CASE::OTHER:                                                                                            // if MT happens from naked He stars, WDs, etc., assume that the core properties are not affected
+            M1 = MALTSEV2024_M1S + (MALTSEV2024_M1S - MALTSEV2024_M1SZ01) * log10Z;
+            M2 = MALTSEV2024_M2S + (MALTSEV2024_M2S - MALTSEV2024_M2SZ01) * log10Z;
+            M3 = MALTSEV2024_M3S + (MALTSEV2024_M3S - MALTSEV2024_M3SZ01) * log10Z;
+            break;
+
+        case MT_CASE::A:                                                                                                // case A MT
+            M1 = MALTSEV2024_M1A + (MALTSEV2024_M1A - MALTSEV2024_M1AZ01) * log10Z;
+            M2 = MALTSEV2024_M2A + (MALTSEV2024_M2A - MALTSEV2024_M2AZ01) * log10Z;
+            M3 = MALTSEV2024_M3A + (MALTSEV2024_M3A - MALTSEV2024_M3AZ01) * log10Z;
+            break;
+
+        case MT_CASE::B:                                                                                                // case B MT
+            M1 = MALTSEV2024_M1B + (MALTSEV2024_M1B - MALTSEV2024_M1BZ01) * log10Z;
+            M2 = MALTSEV2024_M2B + (MALTSEV2024_M2B - MALTSEV2024_M2BZ01) * log10Z;
+            M3 = MALTSEV2024_M3B + (MALTSEV2024_M3B - MALTSEV2024_M3BZ01) * log10Z;
+            break;
+
+        case MT_CASE::C:                                                                                                // case C MT
+            M1 = MALTSEV2024_M1C + (MALTSEV2024_M1C - MALTSEV2024_M1CZ01) * log10Z;
+            M2 = MALTSEV2024_M2C + (MALTSEV2024_M2C - MALTSEV2024_M2CZ01) * log10Z;
+            M3 = MALTSEV2024_M3C + (MALTSEV2024_M3C - MALTSEV2024_M3CZ01) * log10Z;
+            break;
+
+        default:                                                                                                        // unknown MT_CASE
+            // the only way this can happen is if someone added an MT_CASE
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because DetermineMassTransferTypeAsDonor() returned an MT_CASE this code doesn't
+            // account for, and that should be flagged as an error and result in termination of the evolution
+            // of the star or binary.
+            // The correct fix for this is to add code for the missing MT_CASE or, if the missing MT_CASE is
+            // incorrect/superfluous, remove it from the possible MT_CASE values.
+
+            THROW_ERROR(ERROR::UNKNOWN_MT_CASE);                                                                        // throw error
+    }
+    
+    if( utils::Compare(p_COCoreMass, M3) >=0 || (utils::Compare(p_COCoreMass, M1) >= 0 && utils::Compare(p_COCoreMass, M2) <= 0) )              // Complete fallback into BH
+        return p_HeCoreMass;
+    else if ( utils::Compare(p_COCoreMass, M2) > 0 && utils::Compare(p_COCoreMass, M3) < 0 && utils::Compare(RAND->Random(0, 1), 0.1) <= 0 )    // Partial fallback BH formation
+        return CalculateFallbackBHMassMullerMandel(p_COCoreMass, p_HeCoreMass);
+    return CalculateRemnantNSMassMullerMandel(p_COCoreMass, p_HeCoreMass);
+}
+
+
+
+/*
+ * Calculate remnant mass given COCoreMass and HeCoreMass in the Mandel & Mueller (2020) prescription
  *
  * Mandel & Mueller, 2020
  *
@@ -1313,17 +1398,12 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
     double pBH               = 0.0;
     double pCompleteCollapse = 0.0;
    
-    std::size_t iterations = 0;
-
-    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0 || utils::Compare(p_HeCoreMass, OPTIONS->MaximumNeutronStarMass()) <= 0 ) {
+    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0 || utils::Compare(p_HeCoreMass, OPTIONS->MaximumNeutronStarMass()) <= 0 )
 	    pBH = 0.0;
-    }
-    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M3) < 0) {
+    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M3) < 0)
     	pBH = 1.0 / (MULLERMANDEL_M3-MULLERMANDEL_M1) * (p_COCoreMass-MULLERMANDEL_M1);
-    }
-    else {
+    else
 	    pBH = 1.0;
-    } 
 
     if (utils::Compare(RAND->Random(0, 1), pBH) < 0) {  // this is a BH
         if (utils::Compare(p_COCoreMass, MULLERMANDEL_M4) < 0)
@@ -1331,51 +1411,93 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
         else
 		    pCompleteCollapse = 1.0;
 
-	    if (utils::Compare(RAND->Random(0, 1), pCompleteCollapse) < 0) {
+	    if (utils::Compare(RAND->Random(0, 1), pCompleteCollapse) < 0)
 		    remnantMass = p_HeCoreMass;
-        }
-	    else {
-		    while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS &&
-                  (utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) < 0 || utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
-                remnantMass = MULLERMANDEL_MUBH * p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
-		    }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
-                remnantMass = (OPTIONS->MaximumNeutronStarMass() + p_HeCoreMass) / 2.0;
-	    }
+	    else
+            remnantMass = CalculateFallbackBHMassMullerMandel(p_COCoreMass, p_HeCoreMass);
     }
-    else {                                              // this is an NS
-	    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
-		    while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
-                  (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                || 
-                   utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 || 
-                   utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
-			    remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
-		    }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
-                remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
-	    }
-	    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
-            while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
-                  (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
-                   utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 || 
-                   utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
-                remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
-            }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
-                remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
-        }
-        else {
-            while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
-                  (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
-                   utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
-                   utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
-                remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
-            }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
-                remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
-        }
-    }
+    else                                               // this is an NS
+        remnantMass = CalculateRemnantNSMassMullerMandel(p_COCoreMass, p_HeCoreMass);
 
+    return remnantMass;
+}
+
+/*
+ * Calculate NS remnant mass given COCoreMass and HeCoreMass
+ *
+ * Mandel & Mueller, 2020; also used by Maltsev2024, so separated out into helper function
+ *
+ *
+ * double CalculateRemnantNSMassByMullerMandel (const double p_COCoreMass, const double p_HeCoreMass)
+ *
+ * @param   [IN]    p_COCoreMass                COCoreMass in Msol
+ * @param   [IN]    p_HeCoreMass                HeCoreMass in Msol
+ * @return                                      Remnant mass in Msol
+ */
+double GiantBranch::CalculateRemnantNSMassMullerMandel(const double p_COCoreMass, const double p_HeCoreMass) {
+
+    double remnantMass      = 0.0;
+    std::size_t iterations  = 0;
+
+    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
+        while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
+               (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
+                utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
+                utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+            remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
+        }
+        if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
+            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
+    }
+    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
+        while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
+               (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
+                utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
+                utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+            remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
+        }
+        if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
+            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
+    }
+    else {
+        while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
+               (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
+                utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
+                utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+            remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
+        }
+        if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
+            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
+    }
+    return remnantMass;
+}
+
+
+/*
+ * Calculate fallback BH mass given COCoreMass, HeCoreMass
+ *
+ * Mandel & Mueller, 2020; also used by Maltsev2024, so separated out into helper function
+ *
+ *
+ * double CalculateFallbackBHMassByMullerMandel (const double p_COCoreMass, const double p_HeCoreMass)
+ *
+ * @param   [IN]    p_COCoreMass                COCoreMass in Msol
+ * @param   [IN]    p_HeCoreMass                HeCoreMass in Msol
+ * @return                                      Remnant mass in Msol
+ */
+double GiantBranch::CalculateFallbackBHMassMullerMandel(const double p_COCoreMass, const double p_HeCoreMass) {
+    
+    double remnantMass      = 0.0;
+    std::size_t iterations  = 0;
+    
+    while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS &&
+           (utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) < 0 || utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+        remnantMass = MULLERMANDEL_MUBH * p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
+    }
+    
+    if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
+        remnantMass = (OPTIONS->MaximumNeutronStarMass() + p_HeCoreMass) / 2.0;
+    
     return remnantMass;
 }
 
@@ -1802,15 +1924,22 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
         case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020:                                                      // Schneider 2020
 
-            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0  JR: ? JD? Simon?
             m_Mass                              = CalculateRemnantMassBySchneider2020(m_COCoreMass);
+            m_SupernovaDetails.fallbackFraction = utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0 ? (m_Mass - NEUTRON_STAR_MASS) / (mass - NEUTRON_STAR_MASS) : 0.0;                                                                   // Fallback fraction of mass beyond proto-neutron-star for BH formation and kicks
             break;
 
         case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT:                                                   // Schneider 2020, alternative
 
-            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0  JR: ? JD? Simon?
             m_Mass                              = CalculateRemnantMassBySchneider2020Alt(m_COCoreMass);
-            break;           
+            m_SupernovaDetails.fallbackFraction = utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0 ? (m_Mass - NEUTRON_STAR_MASS) / (mass - NEUTRON_STAR_MASS) : 0.0;                                                                   // Fallback fraction of mass beyond proto-neutron-star for BH formation and kicks
+            break;
+        
+        case REMNANT_MASS_PRESCRIPTION::MALTSEV2024:                                                        // Maltsev+ 2024
+
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // no subsequent kick adjustment by fallback fraction needed; MULLERMANDEL kick prescription should be used
+            m_Mass                              = CalculateRemnantMassByMaltsev2024(m_COCoreMass, m_HeCoreMass);
+            break;
+            
     
         default:                                                                                            // unknown prescription
             // the only way this can happen is if someone added a REMNANT_MASS_PRESCRIPTION
