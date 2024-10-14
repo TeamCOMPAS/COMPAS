@@ -588,8 +588,8 @@ Options: { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MA
 ``BRAYELDRIDGE`` and ``MULLERMANDEL`` use momentum-preserving kicks from Bray & Eldrigde 2018 and Mandel & Mueller 2020, respectively. |br|
 ``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 |br|
 (reduced by a factor of sqrt(3) in the latter case). |br|
-Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; however, the ``MULLERMANDEL`` 
-|br| kick prescription is intended to be consistently used with the ``MULLERMANDEL`` remnant mass prescription, |br|
+Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; however, the ``MULLERMANDEL`` |br| 
+kick prescription is intended to be consistently used with the ``MULLERMANDEL`` remnant mass prescription, |br|
 as well as with the ``MALTSEV2024`` remnant mass prescription. |br|
 Default = MULLERMANDEL
 
