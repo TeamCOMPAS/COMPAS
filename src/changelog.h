@@ -1348,7 +1348,9 @@
 // 03.06.00   IM - Oct 14, 2024     - Enhancement, code cleanup:
 //                                      - Incorporating the Maltsev+ (2024) prescription for supernova remnant masses
 //                                      - Minor fixes, including in fallback fraction for Schneider SN prescription, documentation
+// 03.07.00  RTW - Oct 16, 2024     - Enhancement:
+//                                      - Added new critical mass ratio tables from Ge et al. 2024
 
-const std::string VERSION_STRING = "03.06.00";
+const std::string VERSION_STRING = "03.07.00";
 
 # endif // __changelog_h__
