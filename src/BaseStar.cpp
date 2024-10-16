@@ -1571,12 +1571,10 @@ double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescripti
         double interpolatedQCritForZ = p_massTransferEfficiencyBeta * interpolatedQCritUpperEff + (1.0 - p_massTransferEfficiencyBeta) * interpolatedQCritLowerEff;
         qcritPerMetallicity[ii] = interpolatedQCritForZ;
     }
-    double logZ = log10(m_Metallicity);
-    double logZlo = log10(0.001);
-    double logZhi = LOG10_ZSOL;  
+    double logZlo = -3;         // log10(0.001)
+    double logZhi = LOG10_ZSOL; // log10(0.02) 
     
-    double interpolatedQCrit = qcritPerMetallicity[1] + (logZ - logZhi)*(qcritPerMetallicity[1]-qcritPerMetallicity[0])/(logZhi-logZlo);
-    return interpolatedQCrit;
+    return qcritPerMetallicity[1] + (m_Log10Metallicity - logZhi)*(qcritPerMetallicity[1] - qcritPerMetallicity[0])/(logZhi - logZlo);
 }
 
 
