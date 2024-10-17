@@ -41,7 +41,14 @@ protected:
     void Initialise() {
         CalculateTimescales();                                                                                                                          // Initialise timescales
         // Age for MS_GT_07 is carried over from CH stars switching to MS after spinning down, so not set to 0.0 here
-        m_MinimumCoreMass = MainSequence::CalculateMixingCoreMassAtZAMS(m_MZAMS);                                                                       // Initialise initial core mass 
+        
+        // Initialise core mass, luminosity, radius, and temperature if Shikauchi core mass prescription is used
+        if (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) {
+            m_MinimumCoreMass = MainSequence::CalculateMixingCoreMassAtZAMS(m_MZAMS);
+            m_Luminosity = MainSequence::CalculateLuminosityShikauchi(m_MinimumCoreMass, m_InitialHeliumAbundance);
+            m_Radius = MainSequence::CalculateRadiusOnPhase(m_Mass, m_Age, m_RZAMS0);
+            m_Temperature = BaseStar::CalculateTemperatureOnPhase_Static(m_Luminosity, m_Radius);
+        }
     }
 
 

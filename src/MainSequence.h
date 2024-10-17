@@ -20,7 +20,7 @@ public:
 
     MT_CASE DetermineMassTransferTypeAsDonor() const                                        { return MT_CASE::A; }                                                  // Always case A
     
-    const std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> SHIKAUCHI_COEFFICIENTS = InterpolateShikauchiCoefficients(m_Metallicity);
+    const std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> SHIKAUCHI_COEFFICIENTS = InterpolateShikauchiCoefficients(m_Metallicity);                 // Interpolate the Shikauchi coefficients for the given metallicity;
 
 protected:
 
@@ -45,7 +45,7 @@ protected:
     double          CalculateCOCoreMassAtPhaseEnd() const                                   { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase
     double          CalculateCOCoreMassOnPhase() const                                      { return 0.0; }                                                         // McCO(MS) = 0.0
 
-    double          CalculateCoreMassAtPhaseEnd() const                                     { return MinimumCoreMass(); }                // Accounts for minimal core mass built up prior to mass loss through mass transfer
+    double          CalculateCoreMassAtPhaseEnd() const                                     { return 0.0; }                // Accounts for minimal core mass built up prior to mass loss through mass transfer
     double          CalculateCoreMassOnPhase() const                                        { return 0.0; }                                                         // Mc(MS) = 0.0 (Hurley et al. 2000, just before eq 28)
 
     double          CalculateHeCoreMassAtPhaseEnd() const                                   { return CalculateCoreMassAtPhaseEnd(); }                               // Same as He core mass
@@ -71,8 +71,10 @@ protected:
     double          CalculateLuminosityAtPhaseEnd() const                                   { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                      // Use class member variables
     double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const;
     double          CalculateLuminosityOnPhase() const                                      { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0); }        // Use class member variables
+    double          CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore) const;
+    double          CalculateLuminosityShikauchiTransitionToHG() const;
     double          CalculateMainSequenceCoreMassMandel();
-    double          CalculateMainSequenceCoreMassShikauchi();
+    DBL_DBL         CalculateMainSequenceCoreMassShikauchi();
     double          CalculateMixingCoreMassAtZAMS(const double p_MZAMS);
     double          CalculateMomentOfInertia() const                                        { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                      // k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
 
@@ -86,7 +88,8 @@ protected:
     double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_RZAMS) const;
     double          CalculateRadiusAtPhaseEnd() const                                       { return CalculateRadiusAtPhaseEnd(m_Mass, m_RZAMS); }                  // Use class member variables
     double          CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase(m_Mass, m_Age, m_RZAMS0); }             // Use class member variables
-
+    double          CalculateRadiusShikauchiTransitionToHG() const;
+ 
     double          CalculateTauAtPhaseEnd() const                                          { return 1.0; }                                                         // tau = 1.0 at end of MS
     double          CalculateTauOnPhase() const;
 
@@ -108,7 +111,7 @@ protected:
 
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
 
-    bool            ShouldEvolveOnPhase() const;                                                 // Evolve on MS phase if age in MS timescale
+    bool            ShouldEvolveOnPhase() const                                             { return (m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]); }    // Evolve on MS phase if age in MS timescale
 
     void            UpdateInitialMass()                                                     { m_Mass0 = m_Mass; }                                                   // Per Hurley et al. 2000, section 7.1
    
@@ -116,7 +119,7 @@ protected:
     
     void            UpdateAgeAfterMassLoss();                                                                                                                       // Per Hurley et al. 2000, section 7.1
     
-    void            UpdateMinimumCoreMass(const double p_Dt, const double p_TotalMassLossRate);                                                                     // Set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass
+    void            UpdateMinimumCoreMass(const double p_Dt, const double p_TotalMassLossRate);
 
 };
 

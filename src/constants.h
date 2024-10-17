@@ -3672,7 +3672,7 @@ const std::vector<std::vector<std::vector<LoveridgeCoefficients>>> LOVERIDGE_COE
 };
 
 // Coefficients for determining core mass for stars on the MS
-// from Shikauchi et al. (2024), ArXiv link https://arxiv.org/abs/2409.00460
+// from Shikauchi et al. (2024), https://arxiv.org/abs/2409.00460
 // from Table 2
 const std::vector<DBL_VECTOR> SHIKAUCHI_ALPHA_COEFFICIENTS = {
     // 0.1*Z_Sun

@@ -796,6 +796,15 @@ Default = 4.2
 
 :ref:`Back to Top <options-props-top>`
 
+**--main-sequence-core-mass-prescription** |br|
+Main sequence core mass prescription. |br|
+Options: {NONE, MANDEL, SHIKAUCHI} |br|
+``NONE``      : No treatment, core mass not tracked on the MS |br|
+``MANDEL``    : The core following case A mass transfer is set equal to the expected core mass of a newly formed HG star
+ with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer |br|
+``SHIKAUCHI`` : Core mass according to Shikauchi et al. (2024) |br|
+Default = MANDEL |br|
+
 **--mass-change-fraction** |br|
 Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
 Recommended value is 0.005. |br|
@@ -1156,12 +1165,6 @@ Default = 0
 Remnant mass prescription. |br|
 Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT, MALTSEV2024 } |br|
 Default = MULLERMANDEL
-
-**--retain-core-mass-during-caseA-mass-transfer** |br|
-If TRUE, preserve a larger donor core mass following case A mass transfer. |br|
-The core is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor,
-scaled by the fraction of the donor's MS lifetime at mass transfer. |br|
-Default = TRUE
 
 **--revised-energy-formalism-nandez-ivanova** |br|
 Enable revised energy formalism of Nandez & Ivanova. |br|
