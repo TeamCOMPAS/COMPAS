@@ -121,6 +121,73 @@ class Options {
 
 private:
 
+
+    // Shows deprecation notices for any deprecated option specified by the user.
+    //
+    // Works for both commandline and gridline options.
+    // 
+    // This is a semi-manual process.  The vectors in the code below needs to be updated by hand whenever we
+    // want to deprecate an option or an option value, and the option (or value) eventually removed when the
+    // deprecation notice period is over and we remove the option or value.
+    // 
+    // Each tuple in the "options" vector records an option that has been deprecated but not yet removed from
+    // the code (so can still be specified by users).  The tuple entries are:
+    // 
+    //     - the option string for the deprecated option (just the option string - no leading "--"))
+    //     - the option string for any replacement for the deprecated option (just the option string - no leading "--"))
+    //       if there is no replacement (i.e. the deprecated option will be removed and no replacement option implemented)
+    //       just set the replacement option string to the empty string ("")
+    //     - a boolean flag to indicate if the deprecation notice for the option has been shown - should be false, and
+    //       will be set true if and when the deprecation notice for that option is shown.  A deprecation notice for a
+    //       deprecated option is only shown once per run.
+    // 
+    // Sometimes we may want to deprecate (and eventually remove) an option value (e.g. one of the possible mass
+    // loss prescriptions).  We may want to do this to rename an option value, or we might want to remove it
+    // completely (without replacement).
+    // 
+    // Each tuple in the "values" vector records an option value that has been deprecated but not yet removed from
+    // the code (so can still be specified by users).  The tuple entries are:
+    // 
+    //     - the option string for which a value is to be deprecated (just the option string - no leading "--"))
+    //     - the value string for the value to be deprecated (e.g. for the value QCRIT_PRESCRIPTION::CLAEYS for the
+    //       option "critical-mass-ratio-prescription", use "CLAEYS")
+    //     - the value string for any replacement value for the deprecated value (e.g. if the value
+    //       QCRIT_PRESCRIPTION::CLAEYS for the option "critical-mass-ratio-prescription", is to be replace with
+    //       QCRIT_PRESCRIPTION::CLAEYS123, use "CLAEYS123")
+    //       if there is no replacement (i.e. the deprecated value will be removed and no replacement value implemented)
+    //       just set the replacement value string to the empty string ("")
+    //     - a boolean flag to indicate if the deprecation notice for the value has been shown - should be false, and
+    //       will be set true if and when the deprecation notice for that value is shown.  A deprecation notice for a
+    //       deprecated value is only shown once per run.
+
+    std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionStrings = {
+        { "black-hole-kicks",                      "black-hole-kicks-mode",                           false },
+        { "chemically-homogeneous-evolution",      "chemically-homogeneous-evolution-mode",           false },
+        { "kick-direction",                        "kick-direction-distribution",                     false },
+        { "luminous-blue-variable-prescription",   "LBV-mass-loss-prescription",                      false },
+        { "mass-transfer",                         "use-mass-transfer",                               false },
+        { "mass-transfer-thermal-limit-accretor",  "mass-transfer-thermal-limit-accretor-multiplier", false },
+        { "OB-mass-loss",                          "OB-mass-loss-prescription",                       false },
+        { "RSG-mass-loss",                         "RSG-mass-loss-prescription",                      false },
+        { "VMS-mass-loss",                         "VMS-mass-loss-prescription",                      false },
+        { "WR-mass-loss",                          "WR-mass-loss-prescription",                       false }
+    };
+
+    std::vector<std::tuple<std::string, std::string, std::string, bool>> deprecatedOptionValues = {
+        { "LBV-mass-loss-prescription",          "NONE", "ZERO", false },
+        { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
+        { "OB-mass-loss",                        "NONE", "ZERO", false },
+        { "OB-mass-loss-prescription",           "NONE", "ZERO", false },
+        { "RSG-mass-loss",                       "NONE", "ZERO", false },
+        { "RSG-mass-loss-prescription",          "NONE", "ZERO", false },
+        { "VMS-mass-loss",                       "NONE", "ZERO", false },
+        { "VMS-mass-loss-prescription",          "NONE", "ZERO", false },
+        { "WR-mass-loss",                        "NONE", "ZERO", false },
+        { "WR-mass-loss-prescription",           "NONE", "ZERO", false }
+    };
+
+
+
     // The following vectors are used to constrain which options can be specified
     // when:
     //
@@ -213,8 +280,6 @@ private:
 
         "log-level", 
         "log-classes",
-
-        //"logfile-be-binaries",
 
         "logfile-common-envelopes",
         "logfile-common-envelopes-record-types",
@@ -313,8 +378,6 @@ private:
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation", 
 
-        //"be-binaries",
-
         "case-BB-stability-prescription",
         "circularise-binary-during-mass-transfer",
         "common-envelope-allow-main-sequence-survive",
@@ -377,7 +440,6 @@ private:
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
-        "mass-transfer-thermal-limit-accretor",  // DEPRECATED June 2024 - remove end 2024
         "mass-transfer-thermal-limit-accretor-multiplier",
         "mass-transfer-thermal-limit-C",
         "maximum-mass-donor-nandez-ivanova",
@@ -429,14 +491,10 @@ private:
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation",
 
-        //"be-binaries",
-
-        "black-hole-kicks", // DEPRECATED June 2024 - remove end 2024
         "black-hole-kicks-mode",
 
         "case-BB-stability-prescription",
         "check-photon-tiring-limit",
-        "chemically-homogeneous-evolution", // DEPRECATED June 2024 - remove end 2024
         "chemically-homogeneous-evolution-mode",
         "circularise-binary-during-mass-transfer",
         "common-envelope-allow-main-sequence-survive",
@@ -477,7 +535,6 @@ private:
         "include-WD-binaries-as-DCO",
         "initial-mass-function", "i",
 
-        "kick-direction",   // DEPRECATED June 2024 - remove end 2024
         "kick-direction-distribution",
         "kick-magnitude-distribution", 
 
@@ -485,9 +542,6 @@ private:
 
         "log-level", 
         "log-classes",
-
-        //"logfile-be-binaries",
-        //"logfile-be-binaries-record-types",
 
         "logfile-common-envelopes",
         "logfile-common-envelopes-record-types",
@@ -507,16 +561,12 @@ private:
         "logfile-system-parameters-record-types",
         "logfile-type",
 
-        "luminous-blue-variable-prescription",  // DEPRECATED June 2024 - remove end 2024
-
         "mass-change-fraction",
         "mass-loss-prescription",
         "mass-ratio-distribution",
-        "mass-transfer",    // DEPRECATED June 2024 - remove end 2024
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
-        "mass-transfer-thermal-limit-accretor", // DEPRECATED June 2024 - remove end 2024
         "mass-transfer-thermal-limit-accretor-multiplier",
         "metallicity-distribution",
         "mode",
@@ -527,7 +577,6 @@ private:
         "neutrino-mass-loss-BH-formation",
         "neutron-star-equation-of-state",
 
-        "OB-mass-loss", // DEPRECATED June 2024 - remove end 2024
         "OB-mass-loss-prescription",
         "orbital-period-distribution",
         "output-container", "c",
@@ -543,7 +592,6 @@ private:
 
         "quiet", 
 
-        "RSG-mass-loss",    // DEPRECATED June 2024 - remove end 2024
         "RSG-mass-loss-prescription",
         "radial-change-fraction",
         "random-seed",
@@ -565,11 +613,9 @@ private:
         "use-mass-loss",
         "use-mass-transfer",
 
-        "VMS-mass-loss",    // DEPRECATED June 2024 - remove end 2024
         "VMW-mass-loss-prescription",
         "version", "v",
 
-        "WR-mass-loss",     // DEPRECATED June 2024 - remove end 2024
         "WR-mass-loss-prescription",
 
         "yaml-template"
@@ -604,9 +650,6 @@ private:
 
         "log-classes",
         "log-level", 
-
-        //"logfile-be-binaries",
-        //"logfile-be-binaries-record-types",
 
         "logfile-common-envelopes",
         "logfile-common-envelopes-record-types",
@@ -1089,8 +1132,6 @@ public:
                 vm[opt].value() = boost::any(val);
             }
 
-            int         OptionSpecified(std::string p_OptionString);
-
             std::string SetCalculatedOptionDefaults(const BOOST_MAP p_BoostMap);
 
         public:
@@ -1213,6 +1254,8 @@ public:
 
     int                         ApplyNextGridLine();
 
+    std::string                 CheckDeprecatedOptionString(const std::string p_OptionString);
+    std::string                 CheckDeprecatedOptionValue(const std::string p_OptionString, const std::string p_OptionValue);
     void                        CloseGridFile() { m_Gridfile.handle.close(); m_Gridfile.filename = ""; m_Gridfile.error = ERROR::EMPTY_FILENAME; }
 
     bool                        Initialise(int p_OptionCount, char *p_OptionStrings[]);
@@ -1231,8 +1274,6 @@ public:
 
     std::string                 SetRandomSeed(const unsigned long int p_RandomSeed, const OPTIONS_ORIGIN p_OptionsSet);
 
-    void                        ShowDeprecations(const bool p_Commandline = true);
-
     // getters
 
     ADD_OPTIONS_TO_SYSPARMS                     AddOptionsToSysParms() const                                            { return m_CmdLine.optionValues.m_AddOptionsToSysParms.type; }
@@ -1246,13 +1287,13 @@ public:
     bool                                        AngularMomentumConservationDuringCircularisation() const                { return OPT_VALUE("angular-momentum-conservation-during-circularisation", m_AngularMomentumConservationDuringCircularisation, true); }
 
 
-    BLACK_HOLE_KICKS_MODE                       BlackHoleKicksMode() const                                              { return OPTIONS->OptionSpecified("black-hole-kicks-mode") ? OPT_VALUE("black-hole-kicks-mode", m_BlackHoleKicksMode.type, true) : OPT_VALUE("black-hole-kicks", m_BlackHoleKicksMode.type, true); } // black-hole-kicks DEPRECATED June 2024 - remove end 2024
+    BLACK_HOLE_KICKS_MODE                       BlackHoleKicksMode() const                                              { return OPT_VALUE("black-hole-kicks-mode", m_BlackHoleKicksMode.type, true); }
     
     CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-BB-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
     
     bool                                        CheckPhotonTiringLimit() const                                          { return OPT_VALUE("check-photon-tiring-limit", m_CheckPhotonTiringLimit, true); }
 
-    CHE_MODE                                    CHEMode() const                                                         { return OPTIONS->OptionSpecified("chemically-homogeneous-evolution-mode") ? OPT_VALUE("chemically-homogeneous-evolution-mode", m_CheMode.type, true) : OPT_VALUE("chemically-homogeneous-evolution", m_CheMode.type, true); } // chemically-homogeneous-evolution DEPRECATED June 2024 - remove end 2024
+    CHE_MODE                                    CHEMode() const                                                         { return OPT_VALUE("chemically-homogeneous-evolution-mode", m_CheMode.type, true); }
 
     bool                                        CirculariseBinaryDuringMassTransfer() const                             { return OPT_VALUE("circularise-binary-during-mass-transfer", m_CirculariseBinaryDuringMassTransfer, true); }
 
@@ -1331,7 +1372,7 @@ public:
     double                                      InitialMassFunctionMin() const                                          { return OPT_VALUE("initial-mass-min", m_InitialMassFunctionMin, true); }
     double                                      InitialMassFunctionPower() const                                        { return OPT_VALUE("initial-mass-power", m_InitialMassFunctionPower, true); }
 
-    KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return OPTIONS->OptionSpecified("kick-direction-distribution") ? OPT_VALUE("kick-direction-distribution", m_KickDirectionDistribution.type, true) : OPT_VALUE("kick-direction", m_KickDirectionDistribution.type, true); } // kick-direction DEPRECATED June 2024 - remove end 2024
+    KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return OPT_VALUE("kick-direction-distribution", m_KickDirectionDistribution.type, true); }
     double                                      KickDirectionPower() const                                              { return OPT_VALUE("kick-direction-power", m_KickDirectionPower, true); }
     double                                      KickScalingFactor() const                                               { return OPT_VALUE("kick-scaling-factor", m_KickScalingFactor, true); }
     KICK_MAGNITUDE_DISTRIBUTION                 KickMagnitudeDistribution() const                                       { return OPT_VALUE("kick-magnitude-distribution", m_KickMagnitudeDistribution.type, true); }
@@ -1400,7 +1441,7 @@ public:
     double                                      LuminosityToMassThreshold() const                                       { return OPT_VALUE("luminosity-to-mass-threshold", m_LuminosityToMassThreshold, true); }
 
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
-    LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPTIONS->OptionSpecified("LBV-mass-loss-prescription") ? OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true) : OPT_VALUE("luminous-blue-variable-prescription", m_LBVMassLossPrescription.type, true); } // luminous-blue-variable-prescription DEPRECATED June 2024 - remove end 2024
+    LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
     
     double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
     
@@ -1437,7 +1478,7 @@ public:
     double                                      MassTransferJlossMacLeodLinearFractionDegen() const                     { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction-degen", m_MassTransferJlossMacLeodLinearFractionDegen, true); }
     double                                      MassTransferJlossMacLeodLinearFractionNonDegen() const                  { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction-non-degen", m_MassTransferJlossMacLeodLinearFractionNonDegen, true); }
     MT_REJUVENATION_PRESCRIPTION                MassTransferRejuvenationPrescription() const                            { return OPT_VALUE("mass-transfer-rejuvenation-prescription", m_MassTransferRejuvenationPrescription.type, true); }
-    MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return OPTIONS->OptionSpecified("mass-transfer-thermal-limit-accretor-multiplier") ? OPT_VALUE("mass-transfer-thermal-limit-accretor-multiplier", m_MassTransferThermallyLimitedVariation.type, true) : OPT_VALUE("mass-transfer-thermal-limit-accretor", m_MassTransferThermallyLimitedVariation.type, true); } // mass-transfer-thermal-limit-accretor DEPRECATED June 2024 - remove end 2024
+    MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return OPT_VALUE("mass-transfer-thermal-limit-accretor-multiplier", m_MassTransferThermallyLimitedVariation.type, true); }
     double                                      MaxEvolutionTime() const                                                { return OPT_VALUE("maximum-evolution-time", m_MaxEvolutionTime, true); }
     double                                      MaximumNeutronStarMass() const                                          { return OPT_VALUE("maximum-neutron-star-mass", m_MaximumNeutronStarMass, true); }
     unsigned long int                           MaxNumberOfTimestepIterations() const                                   { return OPT_VALUE("maximum-number-timestep-iterations", m_MaxNumberOfTimestepIterations, true); }
@@ -1467,7 +1508,7 @@ public:
     std::vector<std::string>                    NotesHdrs() const                                                       { return m_CmdLine.optionValues.m_NotesHdrs; }
  
     size_t                                      nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
-    OB_MASS_LOSS_PRESCRIPTION                   OBMassLossPrescription() const                                          { return OPTIONS->OptionSpecified("OB-mass-loss-prescription") ? OPT_VALUE("OB-mass-loss-prescription", m_OBMassLossPrescription.type, true) : OPT_VALUE("OB-mass-loss", m_OBMassLossPrescription.type, true); } // OB-mass-loss DEPRECATED June 2024 - remove end 2024
+    OB_MASS_LOSS_PRESCRIPTION                   OBMassLossPrescription() const                                          { return OPT_VALUE("OB-mass-loss-prescription", m_OBMassLossPrescription.type, true); }
     bool                                        OptimisticCHE() const                                                   { return CHEMode() == CHE_MODE::OPTIMISTIC; }
 
     double                                      OrbitalPeriod() const                                                   { return OPT_VALUE("orbital-period", m_OrbitalPeriod, true); }
@@ -1534,7 +1575,7 @@ public:
     double                                      RotationalFrequency() const                                             { return OPT_VALUE("rotational-frequency", m_RotationalFrequency, true); }
     double                                      RotationalFrequency1() const                                            { return OPT_VALUE("rotational-frequency-1", m_RotationalFrequency1, true); }
     double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
-    RSG_MASS_LOSS_PRESCRIPTION                  RSGMassLossPrescription() const                                         { return OPTIONS->OptionSpecified("RSG-mass-loss-prescription") ? OPT_VALUE("RSG-mass-loss-prescription", m_RSGMassLossPrescription.type, true) : OPT_VALUE("RSG-mass-loss", m_RSGMassLossPrescription.type, true); } // RSG-mass-loss DEPRECATED June 2024 - remove end 2024
+    RSG_MASS_LOSS_PRESCRIPTION                  RSGMassLossPrescription() const                                         { return OPT_VALUE("RSG-mass-loss-prescription", m_RSGMassLossPrescription.type, true); }
 
     bool                                        ScaleCHEMassLossWithSurfaceHeliumAbundance() const                      { return OPT_VALUE("scale-CHE-mass-loss-with-surface-helium-abundance", m_ScaleCHEMassLossWithSurfaceHeliumAbundance, false); }
     double                                      ScaleTerminalWindVelocityWithMetallicityPower() const                   { return OPT_VALUE("scale-terminal-wind-velocity-with-metallicity-power", m_ScaleTerminalWindVelocityWithMetallicityPower, true);}
@@ -1564,13 +1605,13 @@ public:
 
     bool                                        UseFixedUK() const                                                      { return (m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_UseFixedUK); }
     bool                                        UseMassLoss() const                                                     { return OPT_VALUE("use-mass-loss", m_UseMassLoss, true); }
-    bool                                        UseMassTransfer() const                                                 { return OPTIONS->OptionSpecified("use-mass-transfer") ? OPT_VALUE("use-mass-transfer", m_UseMassTransfer, true) : OPT_VALUE("mass-transfer", m_UseMassTransfer, true); } // mass-loss DEPRECATED June 2024 - remove end 2024
+    bool                                        UseMassTransfer() const                                                 { return OPT_VALUE("use-mass-transfer", m_UseMassTransfer, true); }
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
 
-    VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPTIONS->OptionSpecified("VMS-mass-loss-prescription") ? OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true) : OPT_VALUE("VMS-mass-loss", m_VMSMassLossPrescription.type, true); } // VMS-mass-loss DEPRECATED June 2024 - remove end 2024
+    VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true); }
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
-    WR_MASS_LOSS_PRESCRIPTION                   WRMassLossPrescription() const                                          { return OPTIONS->OptionSpecified("WR-mass-loss-prescription") ? OPT_VALUE("WR-mass-loss-prescription", m_WRMassLossPrescription.type, true) : OPT_VALUE("WR-mass-loss", m_WRMassLossPrescription.type, true); } // WR-mass-loss DEPRECATED June 2024 - remove end 2024
+    WR_MASS_LOSS_PRESCRIPTION                   WRMassLossPrescription() const                                          { return OPT_VALUE("WR-mass-loss-prescription", m_WRMassLossPrescription.type, true); }
     std::string                                 YAMLfilename() const                                                    { return m_CmdLine.optionValues.m_YAMLfilename; }
     std::string                                 YAMLtemplate() const                                                    { return m_CmdLine.optionValues.m_YAMLtemplate; }
 

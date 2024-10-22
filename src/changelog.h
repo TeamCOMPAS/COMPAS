@@ -1350,7 +1350,10 @@
 //                                      - Minor fixes, including in fallback fraction for Schneider SN prescription, documentation
 // 03.07.00  RTW - Oct 16, 2024     - Enhancement:
 //                                      - Added new critical mass ratio tables from Ge et al. 2024
+// 03.07.01   JR - Oct 22, 2024     - Defect repairs:
+//                                      - Restructured deprecations code to revert performance degradation introduced in v03.00.00
+//                                      - Reverted change to `utils::SolveKeplersEquation()` made in v03.00.00 - no idea what I was thinking...
 
-const std::string VERSION_STRING = "03.07.00";
+const std::string VERSION_STRING = "03.07.01";
 
 # endif // __changelog_h__

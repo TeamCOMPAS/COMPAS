@@ -1990,7 +1990,6 @@ double BaseStar::CalculateMassLossRateLBV(const LBV_MASS_LOSS_PRESCRIPTION p_LBV
         
         switch (p_LBVprescription) {                                                                                            // decide which LBV prescription to use
 
-            case LBV_MASS_LOSS_PRESCRIPTION::NONE:    // DEPRECATED June 2024 - remove end 2024 
             case LBV_MASS_LOSS_PRESCRIPTION::ZERO:
                 rate = 0.0;
                 break;
@@ -2472,7 +2471,6 @@ double BaseStar::CalculateMassLossRateOB(const OB_MASS_LOSS_PRESCRIPTION p_OB_Ma
     m_DominantMassLossRate = MASS_LOSS_TYPE::OB;                                                                // set dominant mass loss rate
     
     switch (p_OB_MassLossPrescription) {                                                                        // decide which prescription to use
-        case OB_MASS_LOSS_PRESCRIPTION::NONE:    // DEPRECATED June 2024 - remove end 2024 
         case OB_MASS_LOSS_PRESCRIPTION::ZERO         : rate = 0.0; break;
         case OB_MASS_LOSS_PRESCRIPTION::VINK2001     : rate = CalculateMassLossRateOBVink2001(); break;
         case OB_MASS_LOSS_PRESCRIPTION::VINK2021     : rate = CalculateMassLossRateOBVinkSander2021(); break;
@@ -2512,7 +2510,6 @@ double BaseStar::CalculateMassLossRateRSG(const RSG_MASS_LOSS_PRESCRIPTION p_RSG
     double rate = 0.0;                                                                                          // default return value                                                      
 
     switch (p_RSG_MassLossPrescription) {                                                                       // decide which prescription to use
-        case RSG_MASS_LOSS_PRESCRIPTION::NONE:    // DEPRECATED June 2024 - remove end 2024 
         case RSG_MASS_LOSS_PRESCRIPTION::ZERO            : rate = 0.0; break;
         case RSG_MASS_LOSS_PRESCRIPTION::VINKSABHAHIT2023: rate = CalculateMassLossRateRSGVinkSabhahit2023(); break;            
         case RSG_MASS_LOSS_PRESCRIPTION::BEASOR2020      : rate = CalculateMassLossRateRSGBeasor2020(); break;
@@ -2554,7 +2551,6 @@ double BaseStar::CalculateMassLossRateVMS(const VMS_MASS_LOSS_PRESCRIPTION p_VMS
     double rate = 0.0;                                                      
 
     switch (p_VMS_MassLossPrescription) {                                                                       // decide which prescription to use
-        case VMS_MASS_LOSS_PRESCRIPTION::NONE:    // DEPRECATED June 2024 - remove end 2024 
         case VMS_MASS_LOSS_PRESCRIPTION::ZERO            : rate = 0.0; break;
         case VMS_MASS_LOSS_PRESCRIPTION::BESTENLEHNER2020: rate = CalculateMassLossRateVMSBestenlehner2020(); break;
         case VMS_MASS_LOSS_PRESCRIPTION::VINK2011        : rate = CalculateMassLossRateVMSVink2011(); break;
@@ -2826,7 +2822,6 @@ double BaseStar::CalculateMassLossRate() {
 
         switch (OPTIONS->MassLossPrescription()) {                                                              // which prescription?
 
-            case MASS_LOSS_PRESCRIPTION::NONE:    // DEPRECATED June 2024 - remove end 2024 
             case MASS_LOSS_PRESCRIPTION::ZERO:
                 mDot = 0.0;
                 break;

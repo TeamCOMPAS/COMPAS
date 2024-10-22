@@ -1379,8 +1379,7 @@ namespace utils {
         double nu = 2.0 * atan((std::sqrt((1.0 + e) / (1.0 - e))) * tan(0.5 * E));                                                      // convert eccentric anomaly into true anomaly.  Equation (96) in "A simple toy model" document
 
         if (utils::Compare(E, M_PI) >= 0 && utils::Compare(E, _2_PI) <= 0) nu += _2_PI;                                                 // add 2PI if necessary
-
-        if (utils::Compare(E, 0.0) < 0 && utils::Compare(E, _2_PI) > 0) error = ERROR::OUT_OF_BOUNDS;                                   // E < 0 or E > 2pi
+        else if (utils::Compare(E, 0.0) < 0 || utils::Compare(E, _2_PI) > 0) error = ERROR::OUT_OF_BOUNDS;                              // E < 0 or E > 2pi
 
         return std::make_tuple(error, E, nu);
     }
