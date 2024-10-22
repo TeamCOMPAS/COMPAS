@@ -3299,7 +3299,10 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
         if (errStr.empty()) {                                                                                               // no need if we've already flagged an error
 
-            // replace any deprecated argstrings
+            // replace any deprecated argstrings (both option names and option values)
+            // we do this here so that we don't have to check for deprecated options
+            // during binary/stellar evolution - helps to reduce the performance impact
+            // of deprecated options and option values 
 
             std::vector<std::string> fixedArgs {};                                                                          // vector args fixed for deprecated string
 
@@ -4859,8 +4862,38 @@ std::string Options::SetRandomSeed(const unsigned long int p_RandomSeed, const O
  * @param   [IN]    p_Commandline               Processing commandline options (true) or gridline (false)
  */
 
-// document!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+// deprecatedOptionStrings
+/*
+ * Check whether an option string is the name of a deprecated option.
+ * Show deprecation notice for a deprecated option if necessary.
+ *
+ * The names of deprecated options, and their replacements (if applicable) are stored in the
+ * `deprecatedOptionStrings` vector in Options.h - see Options.h for a description of the vector contents.
+ * 
+ * This function will check the `deprecatedOptionStrings` for the option string passed in p_OptionString,
+ * and if it is found to be a deprecated option, will:
+ * 
+ *     (a) show a deprecation notice for the option if necessary.  Note that a deprecation notice for an
+ *         option will only be shown once per COMPAS run (no matter how many times the deprecated option
+ *         appears on the commandline or in a grid file).
+ * 
+ *     (b) return the replacement option name string, if applicable.  If the deprecated option is not being
+ *         renamed or replaced (i.e. it is just being removed), the retured option name string will be the
+ *         string as passed (i.e. p_OptionString).
+ * 
+ * If the option string passed in p_OptionString is not found to be a deprecated option, the retured option
+ * name string will be the string as passed (i.e. p_OptionString).
+ *
+ * This function is called by the options parsing code to determine if a deprecated option needs to be
+ * replaced with a new option name string at parse time.
+ * 
+ * std::string Options::CheckDeprecatedOptionString(const std::string p_OptionString)
+ * 
+ * @param   [IN]    p_OptionString              The string to be checked against deprecated option names
+ * @return                                      Replacement option name string.  Will just be the input
+ *                                              parameter if it is not a deprecated option, or if it is 
+ *                                              a deprecated option but has no replacement string
+ */
 std::string Options::CheckDeprecatedOptionString(const std::string p_OptionString) {
 
     std::string optionString    = p_OptionString;                                                                                                           // default is no change
@@ -4915,8 +4948,40 @@ std::string Options::CheckDeprecatedOptionString(const std::string p_OptionStrin
 }
 
 
-// document!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+/*
+ * Check whether an option value is a deprecated option value.
+ * Show deprecation notice for a deprecated option value if necessary.
+ *
+ * The names of deprecated option values, and their replacements (if applicable) are stored in the
+ * `deprecatedOptionValues` vector in Options.h - see Options.h for a description of the vector contents.
+ * 
+ * This function will check the `deprecatedOptionValues` for the option string passed in p_OptionString,
+ * and the option value passed in p_OptionValue, and if the option/value pair is found to be a deprecated
+ * option/value pair, will:
+ * 
+ *     (a) show a deprecation notice for the option value if necessary.  Note that a deprecation notice
+ *         for an option/value pair will only be shown once per COMPAS run (no matter how many times the
+ *         deprecated option value appears on the commandline or in a grid file).
+ * 
+ *     (b) return the replacement option value string, if applicable.  If the deprecated option value is
+ *         not being renamed or replaced (i.e. it is just being removed), the retured option value string
+ *         will be the string as passed (i.e. p_OptionValue).
+ * 
+ * If the option value string passed in p_OptionValue is not found to be a deprecated option value, the
+ * retured option value string will be the string as passed (i.e. p_OptionValue).
+ *
+ * This function is called by the options parsing code to determine if a deprecated option value needs to
+ * be replaced with a new option value string at parse time.
+ * 
+ * std::string Options::CheckDeprecatedOptionValue(const std::string p_OptionString, const std::string p_OptionValue)
+ * 
+ * @param   [IN]    p_OptionString              The string to be checked against deprecated option names
+ * @param   [IN]    p_OptionValue               The string to be checked against deprecated option values
+ * @return                                      Replacement option value string.  Will just be the input
+ *                                              parameter if it is not a deprecated option/value pair, or
+ *                                              if it is a deprecated option value but has no replacement
+ *                                              string
+ */
 std::string Options::CheckDeprecatedOptionValue(const std::string p_OptionString, const std::string p_OptionValue) {
 
     std::string optionValue    = p_OptionValue;                                                                                                           // default is no change

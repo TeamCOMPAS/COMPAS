@@ -1732,8 +1732,29 @@ namespace utils {
 
 
     /*
-     *
-     * DOCUMENTATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     * Constructs a vector of strings that represent the stack trace for the current thread
+     * (COMPAS is single-threaded, so in our case, the current process executing COMPAS).
+     * 
+     * We use the gcc library functions to construct the stack trace (gcc calls this a "backtrace"):
+     * 
+     *     - backtrace(), which provides a list of pointers to each of the functions that make
+     *       up the stack trace (the functions called, all the way from main() to the current
+     *       point of execution - this is an instantaneous list, not historic).
+     * 
+     * 
+     *     - backtrace_symbols(), translates the function pointers obtained from backtrace() into
+     *       an array of strings that are the function names.  This typically only works for COMPAS
+     *       functions (because we build COMPAS with debug info included).  We most likely won't have
+     *       symbols for libraries (e.g. libc), so for non-COMPAS functions we insert the string
+     *       "~~LIBFUNC~~" as the function name so users can identify non-COMPAS entries and handle
+     *       them accordingly.
+     * 
+     * Returns a vector of strings representing the function names that comprise the stack trace.
+     * 
+     * 
+     * STR_VECTOR GetStackTrace()
+     * 
+     * @return                                    Vector of strings representing the function names that comprise the stack trace
      */
     STR_VECTOR GetStackTrace() {
 
@@ -1784,17 +1805,18 @@ namespace utils {
 
 
     /*
+     * Displays a stack trace, obtained by calling utils::GetStackTrace(), on stderr
      *
-     * DOCUMENTATION <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     * void ShowStackTrace()
      */
     void ShowStackTrace() {
 
-        STR_VECTOR stackTrace = utils::GetStackTrace();
+        STR_VECTOR stackTrace = utils::GetStackTrace();                                                             // get stack trace
 
-        if (!stackTrace.empty()) {
-            std::cerr << "\nStack trace:\n";
-            for (std::size_t entry = 1; entry < stackTrace.size(); entry++) {               // ignore the eponymous entry
-                std::cerr << "    " << stackTrace[entry] << "\n";
+        if (!stackTrace.empty()) {                                                                                  // anything to show?
+            std::cerr << "\nStack trace:\n";                                                                        // yes - display header
+            for (std::size_t entry = 1; entry < stackTrace.size(); entry++) {                                       // ignore the eponymous entry
+                std::cerr << "    " << stackTrace[entry] << "\n";                                                   // show stacktrace entry
             }
         }
     }

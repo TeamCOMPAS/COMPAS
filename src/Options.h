@@ -62,8 +62,8 @@ const std::string NOT_PROVIDED = std::to_string(255);
 // commandline if in fact the option was specified on the commandline, and it will be
 // the default value for the option if the option was not specified on the commandline.
 //
-// To reiterate: by using the OPT_VALUE macro, the value of the option returned
-// will be (in order of priority):
+// To reiterate: by using the OPT_VALUE macro, the value of the option returned will
+// be (in order of priority):
 //
 //    1. the value specified on the grid line IFF the user specified the option on the 
 //       grid line
@@ -100,12 +100,53 @@ const std::string NOT_PROVIDED = std::to_string(255);
 // In that case the value entered by the user on the commandline will be returned IFF
 // the user specified the option on the commandline, otherwise the default value for
 // the option will be returned.
+//
+// Note that the `optName` argument to this macros should be the option name without
+// the "-" or "--" prefix.
 
 
-#define OPT_VALUE(optName, optValue, fallback)  (m_GridLine.optionValues.m_Populated && \
-                                                (!m_GridLine.optionValues.m_VM[optName].defaulted() || !fallback)) \
+#define OPT_VALUE(optName, optValue, fallback)  ((m_GridLine.optionValues.m_Populated && \
+                                                 (!m_GridLine.optionValues.m_VM[optName].defaulted() || !fallback)) \
                                                     ? m_GridLine.optionValues.optValue \
-                                                    : m_CmdLine.optionValues.optValue
+                                                    : m_CmdLine.optionValues.optValue)
+
+
+// OPT_DEFAULTED macro
+//
+// Use to determine, for a given option, whether an option value was specified or it defaulted
+// to the COMPAS default.  Note that this is different from the question of whether the option
+// value is equal to the COMPAS default - this macro indicates how the option value was set:
+// was it provided by the user, or was it set to the default value because a value was not
+// provided by the user.
+//
+// This is a reasonable proxy for the Option::OptionSpecified() function, but only if the
+// `optName` argument is actually a valid option name.
+//
+// The boost defaulted() function will return:
+//
+//     (a) TRUE  if `optName` is a valid option name and a value was not specified by the user
+//         (so Option::OptionSpecified() would return FALSE)
+//     (b) FALSE if `optName` is a valid option name and a value was specified by the user
+//         (so Option::OptionSpecified() would return TRUE)
+//     (c) FALSE if `optName` is not found in the stored list of valid option names
+//         (i.e not a valid option name)
+//
+// In the (a) and (b) cases the boost defaulted() function (and so this macro) is a valid proxy for 
+// Option::OptionSpecified(), but in the (c) case, while the result is technically correct (i.e the 
+// default value was not set for the option), it is not a valid proxy for Option::OptionSpecified()
+// (in this case, Option::OptionSpecified() would return FALSE)
+//
+// When `optName` is known to be a valid option name, this macro is a valid proxy for, and is ~7 times
+// faster than, Option::OptionSpecified() (because it doesn't need to seach the list of valid option
+// names for `optName`): just take the NOT of the OPT_DEFAULTED macro.
+//
+// Note that the `optName` argument to this macros should be the option name without the "-" or "--" prefix.
+
+
+#define OPT_DEFAULTED(optName) (m_GridLine.optionValues.m_Populated \
+                                ? m_GridLine.optionValues.m_VM[optName].defaulted() \
+                                : m_CmdLine.optionValues.m_VM[optName].defaulted())
+
 
 /*
  * Options Singleton
@@ -122,43 +163,52 @@ class Options {
 private:
 
 
-    // Shows deprecation notices for any deprecated option specified by the user.
+    // The following vectors are used to specify deoprecated option strings, option values,
+    // and their replacements (if applicable).
     //
-    // Works for both commandline and gridline options.
+    // The vectors below need to be updated whenever we deprecate an option or an option value,
+    // and the option (or value) eventually removed when the deprecation notice period is over.
     // 
-    // This is a semi-manual process.  The vectors in the code below needs to be updated by hand whenever we
-    // want to deprecate an option or an option value, and the option (or value) eventually removed when the
-    // deprecation notice period is over and we remove the option or value.
+    //
+    // "deprecatedOptionStrings" vector
+    // --------------------------------
+    //
+    // Each tuple in the "deprecatedOptionStrings" vector records an option that has been deprecated,
+    // but is still available for users to specify.  The tuple entries are:
     // 
-    // Each tuple in the "options" vector records an option that has been deprecated but not yet removed from
-    // the code (so can still be specified by users).  The tuple entries are:
+    //     - the option string for the deprecated option (just the option string - no leading "--")
+    //     - the option string for any replacement for the deprecated option (just the option string,
+    //       no leading "--").  If there is no replacement (i.e. the deprecated option will be removed
+    //       and no replacement option implemented), the replacement option string should be the empty
+    //       string ("")
+    //     - a boolean flag to indicate if the deprecation notice for the option has been shown - should
+    //       be "false" in the vector, and will be set true if and when the deprecation notice for that
+    //       option is shown the first time in a COMPAS run (a deprecation notice for a deprecated option
+    //       is only shown once per COMPAS run).
     // 
-    //     - the option string for the deprecated option (just the option string - no leading "--"))
-    //     - the option string for any replacement for the deprecated option (just the option string - no leading "--"))
-    //       if there is no replacement (i.e. the deprecated option will be removed and no replacement option implemented)
-    //       just set the replacement option string to the empty string ("")
-    //     - a boolean flag to indicate if the deprecation notice for the option has been shown - should be false, and
-    //       will be set true if and when the deprecation notice for that option is shown.  A deprecation notice for a
-    //       deprecated option is only shown once per run.
+    //
+    // "deprecatedOptionValues" vector
+    // -------------------------------
+    //
+    // Sometimes we may want to deprecate an option value (e.g. one of the possible mass loss prescriptions).
+    // We may want to do this to rename an option value, or we might want to remove it completely (without
+    // replacement).
     // 
-    // Sometimes we may want to deprecate (and eventually remove) an option value (e.g. one of the possible mass
-    // loss prescriptions).  We may want to do this to rename an option value, or we might want to remove it
-    // completely (without replacement).
+    // Each tuple in the "deprecatedOptionValues" vector records an option value that has been deprecated,
+    // but is still available for users to specify.  The tuple entries are:
     // 
-    // Each tuple in the "values" vector records an option value that has been deprecated but not yet removed from
-    // the code (so can still be specified by users).  The tuple entries are:
-    // 
-    //     - the option string for which a value is to be deprecated (just the option string - no leading "--"))
-    //     - the value string for the value to be deprecated (e.g. for the value QCRIT_PRESCRIPTION::CLAEYS for the
-    //       option "critical-mass-ratio-prescription", use "CLAEYS")
+    //     - the option string for which a value is to be deprecated (just the option string - no leading "--")
+    //     - the value string for the value to be deprecated (e.g. for the value QCRIT_PRESCRIPTION::CLAEYS for
+    //       the option "critical-mass-ratio-prescription", specify "CLAEYS" in the vector)
     //     - the value string for any replacement value for the deprecated value (e.g. if the value
-    //       QCRIT_PRESCRIPTION::CLAEYS for the option "critical-mass-ratio-prescription", is to be replace with
-    //       QCRIT_PRESCRIPTION::CLAEYS123, use "CLAEYS123")
-    //       if there is no replacement (i.e. the deprecated value will be removed and no replacement value implemented)
-    //       just set the replacement value string to the empty string ("")
-    //     - a boolean flag to indicate if the deprecation notice for the value has been shown - should be false, and
-    //       will be set true if and when the deprecation notice for that value is shown.  A deprecation notice for a
-    //       deprecated value is only shown once per run.
+    //       QCRIT_PRESCRIPTION::CLAEYS for the option "critical-mass-ratio-prescription", is to be replaced
+    //       with QCRIT_PRESCRIPTION::CLAEYS123, specify "CLAEYS123" in the vector).  If there is no replacement
+    //       (i.e. the deprecated value will be removed and no replacement value implemented), the replacement
+    //       value string should be the empty string ("")
+    //     - a boolean flag to indicate if the deprecation notice for the option valuehas been shown - should
+    //       be "false" in the vector, and will be set true if and when the deprecation notice for that option
+    //       value is shown the first time in a COMPAS run (a deprecation notice for a deprecated option value
+    //       is only shown once per COMPAS run).
 
     std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionStrings = {
         { "black-hole-kicks",                      "black-hole-kicks-mode",                           false },
@@ -185,7 +235,6 @@ private:
         { "WR-mass-loss",                        "NONE", "ZERO", false },
         { "WR-mass-loss-prescription",           "NONE", "ZERO", false }
     };
-
 
 
     // The following vectors are used to constrain which options can be specified
@@ -1262,6 +1311,7 @@ public:
     bool                        InitialiseEvolvingObject(const std::string p_OptionsString);
 
     ERROR                       OpenGridFile(const std::string p_GridFilename);
+    bool                        OptionDefaulted(const std::string p_OptionString) const                                 { return OPT_DEFAULTED(p_OptionString); }
     bool                        OptionSpecified(const std::string p_OptionString);
 
     COMPAS_VARIABLE             OptionValue(const T_ANY_PROPERTY p_Property) const;
