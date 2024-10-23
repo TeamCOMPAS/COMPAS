@@ -137,7 +137,7 @@ const std::string NOT_PROVIDED = std::to_string(255);
 // (in this case, Option::OptionSpecified() would return FALSE)
 //
 // When `optName` is known to be a valid option name, this macro is a valid proxy for, and is ~7 times
-// faster than, Option::OptionSpecified() (because it doesn't need to seach the list of valid option
+// faster than, Option::OptionSpecified() (because it doesn't need to search the list of valid option
 // names for `optName`): just take the NOT of the OPT_DEFAULTED macro.
 //
 // Note that the `optName` argument to this macros should be the option name without the "-" or "--" prefix.
