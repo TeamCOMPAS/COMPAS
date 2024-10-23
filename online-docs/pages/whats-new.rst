@@ -4,7 +4,17 @@ What's new
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
 
-**LATEST RELEASE** |br|
+**03.07.01 Oct 23, 2024**
+
+Resolved (and reverted) performance degradation introduced in v03.00.00.
+
+**03.07.00 Oct 16, 2024**
+
+Added new critical mass ratio tables from Ge et al. 2024.
+
+**03.06.00 Oct 14, 2024**
+
+Incorporated the Maltsev+ (2024) prescription for supernova remnant masses.
 
 **03.03.00 Sep 24, 2024**
 
