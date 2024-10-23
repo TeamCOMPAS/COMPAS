@@ -4813,62 +4813,6 @@ std::string Options::SetRandomSeed(const unsigned long int p_RandomSeed, const O
 
 
 /*
- * Shows deprecation notices for any deprecated option specified by the user.
- *
- * Works for both commandline and gridline options.
- * 
- * This is a semi-manual process.  The vectors in the code below needs to be updated by hand whenever we
- * want to deprecate an option or an option value, and the option (or value) eventually removed when the
- * deprecation notice period is over and we remove the option or value.
- * 
- * Each tuple in the "options" vector records an option that has been deprecated but not yet removed from
- * the code (so can still be specified by users).  The tuple entries are:
- * 
- *     - the option string for the deprecated option (just the option string - no leading "--"))
- *     - the option string for any replacement for the deprecated option (just the option string - no leading "--"))
- *       if there is no replacement (i.e. the deprecated option will be removed and no replacement option implemented)
- *       just set the replacement option string to the empty string ("")
- *     - a boolean flag to indicate if the deprecation notice for the option has been shown - should be false, and
- *       will be set true if and when the deprecation notice for that option is shown.  A deprecation notice for a
- *       deprecated option is only shown once per run.
- * 
- * Sometimes we may want to deprecate (and eventually remove) an option value (e.g. one of the possible mass
- * loss prescriptions).  We may want to do this to rename an option value, or we might want to remove it
- * completely (without replacement).
- * 
- * Each tuple in the "values" vector records an option value that has been deprecated but not yet removed from
- * the code (so can still be specified by users).  The tuple entries are:
- * 
- *     - the option string for which a value is to be deprecated (just the option string - no leading "--"))
- *     - the value string for the value to be deprecated (e.g. for the value QCRIT_PRESCRIPTION::CLAEYS for the
- *       option "critical-mass-ratio-prescription", use "CLAEYS")
- *     - the value string for any replacement value for the deprecated value (e.g. if the value
- *       QCRIT_PRESCRIPTION::CLAEYS for the option "critical-mass-ratio-prescription", is to be replace with
- *       QCRIT_PRESCRIPTION::CLAEYS123, use "CLAEYS123")
- *       if there is no replacement (i.e. the deprecated value will be removed and no replacement value implemented)
- *       just set the replacement value string to the empty string ("")
- *     - a boolean flag to indicate if the deprecation notice for the value has been shown - should be false, and
- *       will be set true if and when the deprecation notice for that value is shown.  A deprecation notice for a
- *       deprecated value is only shown once per run.
- *
- * 
- * Deprecation notices will be shown in the order they appear in the vectors - if you want them to be alphabetical
- * then keep the vectors ordered alphabetically.
- * 
- * A deprecation notice for an option will only be shown if the deprecated option is specified by the user.
- * A deprecation notice for an option value will only be shown if the deprecated option value is specified by the user.
- * 
- * Deprecating an option or value should be done very infrequently, so the vectors will mostly be empty and the
- * function will do nothing.
- *
- * 
- * void ShowDeprecations()
- * 
- * @param   [IN]    p_Commandline               Processing commandline options (true) or gridline (false)
- */
-
-// deprecatedOptionStrings
-/*
  * Check whether an option string is the name of a deprecated option.
  * Show deprecation notice for a deprecated option if necessary.
  *

@@ -163,7 +163,7 @@ class Options {
 private:
 
 
-    // The following vectors are used to specify deoprecated option strings, option values,
+    // The following vectors are used to specify deprecated option strings, option values,
     // and their replacements (if applicable).
     //
     // The vectors below need to be updated whenever we deprecate an option or an option value,
