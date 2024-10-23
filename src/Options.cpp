@@ -2644,7 +2644,7 @@ std::string Options::AllowedOptionValuesFormatted(const std::string p_OptionStri
  * whether the user specified it, either at the grid line level, or
  * at the commandline level.
  * 
- * Also note, this function determines if an option was specfied by iterating
+ * Also note, this function determines if an option was specified by iterating
  * over a Boost data structure doing string comparisons.  This can be slow and
  * impact performance.  Consider using the OptiondDefaulted() function instead
  * (see the explanation there).
@@ -4827,10 +4827,10 @@ std::string Options::SetRandomSeed(const unsigned long int p_RandomSeed, const O
  *         appears on the commandline or in a grid file).
  * 
  *     (b) return the replacement option name string, if applicable.  If the deprecated option is not being
- *         renamed or replaced (i.e. it is just being removed), the retured option name string will be the
+ *         renamed or replaced (i.e. it is just being removed), the returned option name string will be the
  *         string as passed (i.e. p_OptionString).
  * 
- * If the option string passed in p_OptionString is not found to be a deprecated option, the retured option
+ * If the option string passed in p_OptionString is not found to be a deprecated option, the retunred option
  * name string will be the string as passed (i.e. p_OptionString).
  *
  * This function is called by the options parsing code to determine if a deprecated option needs to be
@@ -4852,7 +4852,7 @@ std::string Options::CheckDeprecatedOptionString(const std::string p_OptionStrin
     // or it might be and option value.  Option strings will always
     // start with a dash ("-"), and might start with two ("--")
     // We strip any leading dashes, and restore them later for the return value
-    // Doing this won't affect the option values - we're looking for otion
+    // Doing this won't affect the option values - we're looking for option
     // strings here
     std::string prefix = "";                                                                                                                                // option string prefix to restore
     if (optionString[0] == '-') {                                                                                                                           // starts with "-"?
@@ -4913,11 +4913,11 @@ std::string Options::CheckDeprecatedOptionString(const std::string p_OptionStrin
  *         deprecated option value appears on the commandline or in a grid file).
  * 
  *     (b) return the replacement option value string, if applicable.  If the deprecated option value is
- *         not being renamed or replaced (i.e. it is just being removed), the retured option value string
+ *         not being renamed or replaced (i.e. it is just being removed), the returned option value string
  *         will be the string as passed (i.e. p_OptionValue).
  * 
  * If the option value string passed in p_OptionValue is not found to be a deprecated option value, the
- * retured option value string will be the string as passed (i.e. p_OptionValue).
+ * returned option value string will be the string as passed (i.e. p_OptionValue).
  *
  * This function is called by the options parsing code to determine if a deprecated option value needs to
  * be replaced with a new option value string at parse time.
