@@ -83,13 +83,13 @@ Default = FALSE
 :ref:`Back to Top <options-props-top>`
 
 **--black-hole-kicks** |br|
-Black hole kicks relative to NS kicks (not relevant for `MANDELMUELLER` ``--remnant-mass-prescription``). |br|
+Black hole kicks relative to NS kicks (not relevant for `MULLERMANDEL` ``--remnant-mass-prescription``). |br|
 Options: { FULL, REDUCED, ZERO, FALLBACK } |br|
 Default = FALLBACK |br|
 DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--black-hole-kicks-mode`` in future.
 
 **--black-hole-kicks-mode** |br|
-Black hole kicks relative to NS kicks (not relevant for `MANDELMUELLER` ``--remnant-mass-prescription``). |br|
+Black hole kicks relative to NS kicks (not relevant for `MULLERMANDEL` ``--remnant-mass-prescription``). |br|
 Options: { FULL, REDUCED, ZERO, FALLBACK } |br|
 Default = FALLBACK
 
@@ -961,7 +961,7 @@ FALSE indicates PPISN remnants will receive no natal kicks. |br|
 Default = TRUE  
 
 **--neutrino-mass-loss-BH-formation** |br|
-Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not `MANDELMUELLER`). |br|
+Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not `MULLERMANDEL`). |br|
 Options: { FIXED_FRACTION, FIXED_MASS } |br|
 Default = FIXED_MASS
 

@@ -2644,6 +2644,11 @@ std::string Options::AllowedOptionValuesFormatted(const std::string p_OptionStri
  * whether the user specified it, either at the grid line level, or
  * at the commandline level.
  * 
+ * Also note, this function determines if an option was specfied by iterating
+ * over a Boost data structure doing string comparisons.  This can be slow and
+ * impact performance.  Consider using the OptiondDefaulted() function instead
+ * (see the explanation there).
+ * 
  * 
  * bool OptionSpecified(std::string p_OptionString) 
  * 

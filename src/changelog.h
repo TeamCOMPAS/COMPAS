@@ -1350,9 +1350,12 @@
 //                                      - Minor fixes, including in fallback fraction for Schneider SN prescription, documentation
 // 03.07.00  RTW - Oct 16, 2024     - Enhancement:
 //                                      - Added new critical mass ratio tables from Ge et al. 2024
-// 03.07.01   JR - Oct 22, 2024     - Defect repairs:
-//                                      - Restructured deprecations code to revert performance degradation introduced in v03.00.00
+// 03.07.01   JR - Oct 23, 2024     - Defect repairs:
+//                                      - Fix for issue #1246 - performance degradation
+//                                         - Restructured deprecations code to revert performance degradation introduced in v03.00.00
+//                                      - Added OptionDefaulted() function to Options class - see documentation there.
 //                                      - Reverted change to `utils::SolveKeplersEquation()` made in v03.00.00 - no idea what I was thinking...
+//                                      - Changes to documentation per issue #1244.
 
 const std::string VERSION_STRING = "03.07.01";
 
