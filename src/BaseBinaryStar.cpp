@@ -36,11 +36,11 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
     // determine if any if the initial conditions are sampled
     // we consider eccentricity distribution = ECCENTRICITY_DISTRIBUTION::ZERO to be not sampled!
     // we consider metallicity distribution = METALLICITY_DISTRIBUTION::ZSOLAR to be not sampled!
-    bool sampled = !OPTIONS->OptionSpecified("initial-mass-1")  ||
-                   !OPTIONS->OptionSpecified("initial-mass-2")  ||
-                  (!OPTIONS->OptionSpecified("metallicity")     && OPTIONS->MetallicityDistribution() != METALLICITY_DISTRIBUTION::ZSOLAR) ||
-                  (!OPTIONS->OptionSpecified("semi-major-axis") && !OPTIONS->OptionSpecified("orbital-period"))                            ||
-                  (!OPTIONS->OptionSpecified("eccentricity")    && OPTIONS->EccentricityDistribution() != ECCENTRICITY_DISTRIBUTION::ZERO);
+    bool sampled = OPTIONS->OptionDefaulted("initial-mass-1")  ||
+                   OPTIONS->OptionDefaulted("initial-mass-2")  ||
+                  (OPTIONS->OptionDefaulted("metallicity")     && OPTIONS->MetallicityDistribution() != METALLICITY_DISTRIBUTION::ZSOLAR) ||
+                  (OPTIONS->OptionDefaulted("semi-major-axis") && OPTIONS->OptionDefaulted("orbital-period"))                             ||
+                  (OPTIONS->OptionDefaulted("eccentricity")    && OPTIONS->EccentricityDistribution() != ECCENTRICITY_DISTRIBUTION::ZERO);
 
 
     // Single stars are provided with a kick structure that specifies the values of the random
@@ -55,27 +55,27 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
     // that it is a star - so we have to setup the kick structures here for each constituent star.
 
     KickParameters kickParameters1;
-    kickParameters1.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random-1");
+    kickParameters1.magnitudeRandomSpecified = !OPTIONS->OptionDefaulted("kick-magnitude-random-1");
     kickParameters1.magnitudeRandom          = OPTIONS->KickMagnitudeRandom1();
-    kickParameters1.magnitudeSpecified       = OPTIONS->OptionSpecified("kick-magnitude-1");
+    kickParameters1.magnitudeSpecified       = !OPTIONS->OptionDefaulted("kick-magnitude-1");
     kickParameters1.magnitude                = OPTIONS->KickMagnitude1();
-    kickParameters1.phiSpecified             = OPTIONS->OptionSpecified("kick-phi-1");
+    kickParameters1.phiSpecified             = !OPTIONS->OptionDefaulted("kick-phi-1");
     kickParameters1.phi                      = OPTIONS->SN_Phi1();
-    kickParameters1.thetaSpecified           = OPTIONS->OptionSpecified("kick-theta-1");
+    kickParameters1.thetaSpecified           = !OPTIONS->OptionDefaulted("kick-theta-1");
     kickParameters1.theta                    = OPTIONS->SN_Theta1();
-    kickParameters1.meanAnomalySpecified     = OPTIONS->OptionSpecified("kick-mean-anomaly-1");
+    kickParameters1.meanAnomalySpecified     = !OPTIONS->OptionDefaulted("kick-mean-anomaly-1");
     kickParameters1.meanAnomaly              = OPTIONS->SN_MeanAnomaly1();
 
     KickParameters kickParameters2;
-    kickParameters2.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random-2");
+    kickParameters2.magnitudeRandomSpecified = !OPTIONS->OptionDefaulted("kick-magnitude-random-2");
     kickParameters2.magnitudeRandom          = OPTIONS->KickMagnitudeRandom2();
-    kickParameters2.magnitudeSpecified       = OPTIONS->OptionSpecified("kick-magnitude-2");
+    kickParameters2.magnitudeSpecified       = !OPTIONS->OptionDefaulted("kick-magnitude-2");
     kickParameters2.magnitude                = OPTIONS->KickMagnitude2();
-    kickParameters2.phiSpecified             = OPTIONS->OptionSpecified("kick-phi-2");
+    kickParameters2.phiSpecified             = !OPTIONS->OptionDefaulted("kick-phi-2");
     kickParameters2.phi                      = OPTIONS->SN_Phi2();
-    kickParameters2.thetaSpecified           = OPTIONS->OptionSpecified("kick-theta-2");
+    kickParameters2.thetaSpecified           = !OPTIONS->OptionDefaulted("kick-theta-2");
     kickParameters2.theta                    = OPTIONS->SN_Theta2();
-    kickParameters2.meanAnomalySpecified     = OPTIONS->OptionSpecified("kick-mean-anomaly-2");
+    kickParameters2.meanAnomalySpecified     = !OPTIONS->OptionDefaulted("kick-mean-anomaly-2");
     kickParameters2.meanAnomaly              = OPTIONS->SN_MeanAnomaly2();
 
     // loop here to find initial conditions that suit our needs
@@ -89,7 +89,7 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
     int tries = 0;
     do {
 
-        double mass1 = OPTIONS->OptionSpecified("initial-mass-1")                                                                       // user specified primary mass?
+        double mass1 = !OPTIONS->OptionDefaulted("initial-mass-1")                                                                      // user specified primary mass?
                         ? OPTIONS->InitialMass1()                                                                                       // yes, use it
                         : utils::SampleInitialMass(OPTIONS->InitialMassFunction(),                                                      // no - sample it 
                                                    OPTIONS->InitialMassFunctionMax(), 
@@ -97,12 +97,12 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
                                                    OPTIONS->InitialMassFunctionPower());
 
         double mass2 = 0.0;                      
-        if (OPTIONS->OptionSpecified("initial-mass-2")) {                                                                               // user specified secondary mass?
+        if (!OPTIONS->OptionDefaulted("initial-mass-2")) {                                                                              // user specified secondary mass?
             mass2 = OPTIONS->InitialMass2();                                                                                            // yes, use it
         }
         else {                                                                                                                          // no - sample it
             // first, determine mass ratio q    
-            double q = OPTIONS->OptionSpecified("mass-ratio")                                                                           // user specified mass ratio?
+            double q = !OPTIONS->OptionDefaulted("mass-ratio")                                                                          // user specified mass ratio?
                         ? OPTIONS->MassRatio()                                                                                          // yes, use it
                         : utils::SampleMassRatio(OPTIONS->MassRatioDistribution(),                                                      // no - sample it
                                                  OPTIONS->MassRatioDistributionMax(), 
@@ -111,22 +111,22 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
             mass2 = mass1 * q;                                                                                                          // calculate mass2 using mass ratio                                                                     
         }
 
-        double metallicity = OPTIONS->OptionSpecified("metallicity")                                                                    // user specified metallicity?
+        double metallicity = !OPTIONS->OptionDefaulted("metallicity")                                                                   // user specified metallicity?
                                 ? OPTIONS->Metallicity()                                                                                // yes, use it
                                 : utils::SampleMetallicity(OPTIONS->MetallicityDistribution(),                                          // no, sample it
                                                            OPTIONS->MetallicityDistributionMax(), 
                                                            OPTIONS->MetallicityDistributionMin());
 
-        if (OPTIONS->OptionSpecified("semi-major-axis")) {                                                                              // user specified semi-major axis?
+        if (!OPTIONS->OptionDefaulted("semi-major-axis")) {                                                                             // user specified semi-major axis?
             m_SemiMajorAxis = OPTIONS->SemiMajorAxis();                                                                                 // yes, use it
         }
         else {                                                                                                                          // no, semi-major axis not specified
-            if (OPTIONS->OptionSpecified("orbital-period")) {                                                                           // user specified orbital period?
+            if (!OPTIONS->OptionDefaulted("orbital-period")) {                                                                          // user specified orbital period?
                 m_SemiMajorAxis = utils::ConvertPeriodInDaysToSemiMajorAxisInAU(mass1, mass2, OPTIONS->OrbitalPeriod());                // yes - calculate semi-major axis from period
             }
             else {                                                                                                                      // no
-                if (OPTIONS->OptionSpecified("semi-major-axis-distribution") ||                                                         // user specified semi-major axis distribution, or
-                   !OPTIONS->OptionSpecified("orbital-period-distribution" )) {                                                         // user did not specify oprbital period distribution
+                if (!OPTIONS->OptionDefaulted("semi-major-axis-distribution") ||                                                        // user specified semi-major axis distribution, or
+                     OPTIONS->OptionDefaulted("orbital-period-distribution" )) {                                                        // user did not specify oprbital period distribution
                     ERROR error;
                     std::tie(error, m_SemiMajorAxis) = utils::SampleSemiMajorAxis(OPTIONS->SemiMajorAxisDistribution(),                 // yes, sample from semi-major axis distribution (might be default), assumes Opik's law (-1.0 exponent)
                                                                                   OPTIONS->SemiMajorAxisDistributionMax(), 
@@ -149,7 +149,7 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
             }
         }
 
-        m_Eccentricity = OPTIONS->OptionSpecified("eccentricity")                                                                       // user specified eccentricity?
+        m_Eccentricity = !OPTIONS->OptionDefaulted("eccentricity")                                                                      // user specified eccentricity?
                             ? OPTIONS->Eccentricity()                                                                                   // yes, use it
                             : utils::SampleEccentricity(OPTIONS->EccentricityDistribution(),                                            // no, sample it
                                                         OPTIONS->EccentricityDistributionMax(), 
@@ -157,11 +157,11 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
 
         // binary star contains two instances of star to hold masses, radii and luminosities.
         // star 1 initially more massive
-        m_Star1 = OPTIONS->OptionSpecified("rotational-frequency-1")                                                                    // user specified primary rotational frequency?
+        m_Star1 = !OPTIONS->OptionDefaulted("rotational-frequency-1")                                                                   // user specified primary rotational frequency?
                     ? new BinaryConstituentStar(m_RandomSeed, mass1, metallicity, kickParameters1, OPTIONS->RotationalFrequency1() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
                     : new BinaryConstituentStar(m_RandomSeed, mass1, metallicity, kickParameters1);                                     // no - let it be calculated
 
-        m_Star2 = OPTIONS->OptionSpecified("rotational-frequency-2")                                                                    // user specified secondary rotational frequency?
+        m_Star2 = !OPTIONS->OptionDefaulted("rotational-frequency-2")                                                                   // user specified secondary rotational frequency?
                     ? new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2, OPTIONS->RotationalFrequency2() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
                     : new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2);                                     // no - let it be calculated
 
@@ -187,12 +187,12 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
 
             // create new stars with equal masses - all other ZAMS values recalculated
             delete m_Star1;
-            m_Star1 = OPTIONS->OptionSpecified("rotational-frequency-1")                                                                // user specified primary rotational frequency?
+            m_Star1 = !OPTIONS->OptionDefaulted("rotational-frequency-1")                                                               // user specified primary rotational frequency?
                         ? new BinaryConstituentStar(m_RandomSeed, mass1, metallicity, kickParameters1, OPTIONS->RotationalFrequency1() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
                         : new BinaryConstituentStar(m_RandomSeed, mass1, metallicity, kickParameters1);                                 // no - let it be calculated
 
             delete m_Star2;
-            m_Star2 = OPTIONS->OptionSpecified("rotational-frequency-2")                                                                // user specified secondary rotational frequency?
+            m_Star2 = !OPTIONS->OptionDefaulted("rotational-frequency-2")                                                               // user specified secondary rotational frequency?
                         ? new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2, OPTIONS->RotationalFrequency2() * SECONDS_IN_YEAR) // yes - use it (convert from Hz to cycles per year - see BaseStar::CalculateZAMSAngularFrequency())
                         : new BinaryConstituentStar(m_RandomSeed, mass2, metallicity, kickParameters2);                                 // no - let it be calculated
         
