@@ -4830,7 +4830,7 @@ std::string Options::SetRandomSeed(const unsigned long int p_RandomSeed, const O
  *         renamed or replaced (i.e. it is just being removed), the returned option name string will be the
  *         string as passed (i.e. p_OptionString).
  * 
- * If the option string passed in p_OptionString is not found to be a deprecated option, the retunred option
+ * If the option string passed in p_OptionString is not found to be a deprecated option, the returned option
  * name string will be the string as passed (i.e. p_OptionString).
  *
  * This function is called by the options parsing code to determine if a deprecated option needs to be
