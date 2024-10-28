@@ -311,7 +311,7 @@ std::tuple<int, int> EvolveSingleStars() {
                     // if the user specified a random seed in the grid file for the current star, regardless of
                     // whether a random seed was specified on the commandline, the random seed from the grid
                     // file is used, and an offset is added if the grid line also specified ranges or sets for
-                    // and options (if no rangers or sets were specified on the grid line then no offset is added
+                    // and options (if no ranges or sets were specified on the grid line then no offset is added
                     // (i.e. the random seed specified is used as it is)).  Note that in this scenario it is the 
                     // user's responsibility to ensure that there is no duplication of seeds.
 
@@ -641,7 +641,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                 // if the user specified a random seed in the grid file for the current binary, regardless of
                 // whether a random seed was specified on the commandline, the random seed from the grid
                 // file is used, and an offset is added if the grid line also specified ranges or sets for
-                // and options (if no rangers or sets were specified on the grid line then no offset is added
+                // and options (if no ranges or sets were specified on the grid line then no offset is added
                 // (i.e. the random seed specified is used as it)).  Note that in this scenario it is the 
                 // user's responsibility to ensure that there is no duplication of seeds.
              
