@@ -1325,10 +1325,10 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
     }
     else {                                                                                                              // star was MT donor at least once
         // determine MT_CASE of first MT event
-        STELLAR_TYPE mostRecentDonorType = mtHist[0];                                                                   // stellar type at first MT event (as donor)
-        BaseStar* newStar                = stellarUtils::NewStar(mostRecentDonorType);                                  // create new (empty) star of correct stellar type
-        massTransferCase        = newStar->DetermineMassTransferTypeAsDonor();                                          // get MT type as donor
-        delete newStar; newStar = nullptr;                                                                              // return the memory allocated for the new star
+        STELLAR_TYPE stellarTypeAtFirstDonation = mtHist[0];                                                            // stellar type at first MT event (as donor)
+        BaseStar* newStar                       = stellarUtils::NewStar(stellarTypeAtFirstDonation);                    // create new (empty) star of correct stellar type
+        massTransferCase                        = newStar->DetermineMassTransferTypeAsDonor();                          // get MT type as donor
+        delete newStar; newStar                 = nullptr;                                                              // return the memory allocated for the new star
     }
 
     // apply the appropriate remnant mass prescription for the chosen MT case
