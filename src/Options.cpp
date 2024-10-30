@@ -4819,7 +4819,7 @@ std::string Options::SetRandomSeed(const unsigned long int p_RandomSeed, const O
  * The names of deprecated options, and their replacements (if applicable) are stored in the
  * `deprecatedOptionStrings` vector in Options.h - see Options.h for a description of the vector contents.
  * 
- * This function will check the `deprecatedOptionStrings` for the option string passed in p_OptionString,
+ * This function will check `deprecatedOptionStrings` for the option string passed in p_OptionString,
  * and if it is found to be a deprecated option, will:
  * 
  *     (a) show a deprecation notice for the option if necessary.  Note that a deprecation notice for an
@@ -4845,7 +4845,9 @@ std::string Options::SetRandomSeed(const unsigned long int p_RandomSeed, const O
  */
 std::string Options::CheckDeprecatedOptionString(const std::string p_OptionString) {
 
-    std::string optionString    = p_OptionString;                                                                                                           // default is no change
+    // downshift here just in case it hasn't already been done
+    // we only do this once per run (or grid line), so not too onerous
+    std::string optionString    = utils::ToLower(p_OptionString);                                                                                           // default is no change
     std::string newOptionString = p_OptionString;                                                                                                           // default is no change
 
     // the string passed as p_OptionString might be an option string,
@@ -4904,7 +4906,7 @@ std::string Options::CheckDeprecatedOptionString(const std::string p_OptionStrin
  * The names of deprecated option values, and their replacements (if applicable) are stored in the
  * `deprecatedOptionValues` vector in Options.h - see Options.h for a description of the vector contents.
  * 
- * This function will check the `deprecatedOptionValues` for the option string passed in p_OptionString,
+ * This function will check `deprecatedOptionValues` for the option string passed in p_OptionString,
  * and the option value passed in p_OptionValue, and if the option/value pair is found to be a deprecated
  * option/value pair, will:
  * 
@@ -4933,8 +4935,10 @@ std::string Options::CheckDeprecatedOptionString(const std::string p_OptionStrin
  */
 std::string Options::CheckDeprecatedOptionValue(const std::string p_OptionString, const std::string p_OptionValue) {
 
-    std::string optionValue    = p_OptionValue;                                                                                                           // default is no change
-    std::string newOptionValue = p_OptionValue;                                                                                                           // default is no change
+    // downshift here just in case it hasn't already been done
+    // we only do this once per run (or grid line), so not too onerous
+    std::string optionValue    = utils::ToLower(p_OptionValue);                                                                                             // default is no change
+    std::string newOptionValue = p_OptionValue;                                                                                                             // default is no change
 
     // the string passed as p_OptionString will be an option string. Option strings
     // will always start with a dash ("-"), and might start with two ("--").  We need
@@ -4982,5 +4986,77 @@ std::string Options::CheckDeprecatedOptionValue(const std::string p_OptionString
     }
 
     return newOptionValue;
+}
+
+
+/*
+ * Check whether an option property string is the name of a deprecated option property.
+ * ("property" here refers to the name/string to be used to identify options for printing)
+ * This is so we can replace deprecated options in the logfile-definitions file
+ *
+ * The names of deprecated option propertiess, and their replacements (if applicable) are stored in the
+ * `deprecatedOptionProperties` vector in Options.h - see Options.h for a description of the vector contents.
+ * 
+ * This function will check `deprecatedOptionProperties` for the option property string passed in p_OptionProperty,
+ * and if it is found to be a deprecated option property, will:
+ * 
+ *     (a) show a deprecation notice for the option property if necessary.  Note that a deprecation notice for an
+ *         option property will only be shown once per COMPAS run (no matter how many times the deprecated option
+ *         property appears in the logfile-definitions file).
+ * 
+ *     (b) return the replacement option property string, if applicable.  If the deprecated option property is not
+ *         being renamed or replaced (i.e. it is just being removed), the returned option property string will be the
+ *         string as passed (i.e. p_OptionProperty).
+ * 
+ * If the option property passed in p_OptionProperty is not found to be a deprecated option, the retunred option
+ * name string will be the string as passed (i.e. p_OptionProperty).
+ *
+ * This function is called by the logfile-definitions file parsing code to determine if a deprecated option property
+ * needs to be replaced with a new option property string at parse time.
+ * 
+ * std::string Options::CheckDeprecatedOptionProperty(const std::string p_OptionProperty)
+ * 
+ * @param   [IN]    p_OptionProperty            The string to be checked against deprecated property names
+ * @return                                      Replacement option property string.  Will just be the input
+ *                                              parameter if it is not a deprecated option property, or if it 
+ *                                              is a deprecated option property but has no replacement string
+ */
+std::string Options::CheckDeprecatedOptionProperty(const std::string p_OptionProperty) {
+
+    // downshift here just in case it hasn't already been done
+    // we only do this once per run (or grid line), so not too onerous
+    std::string propertyString    = utils::ToLower(p_OptionProperty);                                                                                       // default is no change
+    std::string newPropertyString = p_OptionProperty;                                                                                                       // default is no change
+
+    // check for a match with known deprecated option properties
+    if (!propertyString.empty()) {                                                                                                                          // have option property to check?
+        for (auto& tuple : deprecatedOptionProperties) {                                                                                                    // yes - for each deprecated option property
+            std::string deprecatedOptionProperty = std::get<0>(tuple);                                                                                      // get deprecated option property
+            if (utils::Equals(propertyString, deprecatedOptionProperty)) {                                                                                  // same as supplied option property?
+                                                                                                                                                            // yes
+                // the options property passed as p_OptionProperty is deprecated
+                // if there is a replacement, get it  (could just be deprecated for eventual removal)
+                std::string replacementPropertyStr = std::get<1>(tuple);                                                                                    // get replacement option property
+                if (!replacementPropertyStr.empty()) {                                                                                                      // have replacement?
+                    newPropertyString = replacementPropertyStr;                                                                                             // yes - new option property
+                }
+
+                // show deprecation notice if necessary
+                if (!std::get<2>(tuple)) {                                                                                                                  // already shown?
+                                                                                                                                                            // no - show it
+                    std::string outStr = "DEPRECATION NOTICE: option property '" + deprecatedOptionProperty + "' in the logfile-definitions file has been deprecated and will soon be removed.";
+                    if (!replacementPropertyStr.empty()) outStr += "  Please use '" + newPropertyString + "' in future.";
+                    std::cerr << std::string(outStr) << "\n";
+
+                    // we show the deprecation notice for a given option property once only per run
+                    std::get<2>(tuple) = true;                                                                                                              // flag shown
+                }
+
+                break;                                                                                                                                      // and we're done
+            }
+        }
+    }
+
+    return newPropertyString;
 }
 

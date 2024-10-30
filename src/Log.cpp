@@ -2109,7 +2109,6 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
                                                                                                                                     // yes - add program options
                     // iterate over the PROGRAM_OPTION_DETAIL map and add each entry to the recordProperties vector
                     // unfortunately no guarantee of order since it is an unordered map
-
                     for (auto& iter: PROGRAM_OPTION_DETAIL) {                                                                       // for each entry
                         T_ANY_PROPERTY thisProp = iter.first;                                                                       // program option
                         if (std::find(recordProperties.begin(), recordProperties.end(), thisProp) == recordProperties.end()) {      // already exists in recordProperties vector?
@@ -3543,6 +3542,8 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                     std::size_t namePos = propTypeStr.size() + 2;                                               // yes - start position of property name in token
                                     std::size_t nameLen = tokStr.size() - propTypeStr.size() - 2;                               // length of property name in token
                                     propNameStr = tokStr.substr(namePos, nameLen);                                              // extract property name from token
+
+                                    propNameStr = OPTIONS->CheckDeprecatedOptionProperty(propNameStr);                          // check for deprecated option property
                                 }
                                 else {                                                                                          // didn't get property name - error
                                     error    = ERROR::EXPECTED_PROPERTY_SPECIFIER;                                              // set error

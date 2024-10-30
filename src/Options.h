@@ -236,6 +236,12 @@ private:
         { "WR-mass-loss-prescription",           "NONE", "ZERO", false }
     };
 
+    // the following vector is used to replace deprecated options in the logfile-definitions file
+    std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionProperties = {
+        { "black_hole_kicks", "black_hole_kicks_mode",      false },
+        { "lbv_prescription", "LBV-mass-loss-prescription", false }
+    };
+
 
     // The following vectors are used to constrain which options can be specified
     // when:
@@ -1303,6 +1309,7 @@ public:
 
     int                         ApplyNextGridLine();
 
+    std::string                 CheckDeprecatedOptionProperty(const std::string p_OptionProperty);
     std::string                 CheckDeprecatedOptionString(const std::string p_OptionString);
     std::string                 CheckDeprecatedOptionValue(const std::string p_OptionString, const std::string p_OptionValue);
     void                        CloseGridFile() { m_Gridfile.handle.close(); m_Gridfile.filename = ""; m_Gridfile.error = ERROR::EMPTY_FILENAME; }
