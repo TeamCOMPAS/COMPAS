@@ -715,7 +715,6 @@ enum class PROGRAM_OPTION: int {
     ALLOW_TOUCHING_AT_BIRTH,
     ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,
 
-    BLACK_HOLE_KICKS, // DEPRECATED June 2024 - remove end 2024
     BLACK_HOLE_KICKS_MODE,
     
     CASE_BB_STABILITY_PRESCRIPTION,
@@ -796,7 +795,6 @@ enum class PROGRAM_OPTION: int {
     KICK_THETA_2,
 
     LBV_FACTOR,
-    LBV_PRESCRIPTION, // DEPRECATED June 2024 - remove end 2024
     LBV_MASS_LOSS_PRESCRIPTION,
     MASS_LOSS_PRESCRIPTION,
 
@@ -941,7 +939,6 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH,                          "ALLOW_TOUCHING_AT_BIRTH" },
     { PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,      "ANG_MOM_CONSERVATION_DURING_CIRCULARISATION" },
 
-    { PROGRAM_OPTION::BLACK_HOLE_KICKS,                                 "BLACK_HOLE_KICKS" }, // DEPRECATED June 2024 - remove end 2024
     { PROGRAM_OPTION::BLACK_HOLE_KICKS_MODE,                            "BLACK_HOLE_KICKS_MODE" },
     
     { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                   "CASE_BB_STABILITY_PRESCRIPTION" },
@@ -1019,7 +1016,6 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::KICK_THETA_2,                                     "KICK_THETA_2" },
 
     { PROGRAM_OPTION::LBV_FACTOR,                                       "LBV_FACTOR" },
-    { PROGRAM_OPTION::LBV_PRESCRIPTION,                                 "LBV_MASS_LOSS_PRESCRIPTION" }, // DEPRECATED June 2024 - remove end 2024
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                       "LBV_MASS_LOSS_PRESCRIPTION" },
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                           "MASS_LOSS_PRESCRIPTION" },
 
@@ -1481,7 +1477,6 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH,                                  { TYPENAME::BOOL,       "PO_Allow_Touching@Birth",                   "Flag",       0, 0 }},
     { PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,              { TYPENAME::BOOL,       "PO_Conserve_AngMom@Circ",                   "Flag",       0, 0 }},
 
-    { PROGRAM_OPTION::BLACK_HOLE_KICKS,                                         { TYPENAME::INT,        "PO_BH_Kicks",                               "-",          4, 1 }}, // DEPRECATED June 2024 - remove end 2024
     { PROGRAM_OPTION::BLACK_HOLE_KICKS_MODE,                                    { TYPENAME::INT,        "PO_BH_Kicks_Mode",                          "-",          4, 1 }},
     
     { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                           { TYPENAME::INT,        "PO_BB_Mass_xFer_Stblty_Prscrptn",           "-",          4, 1 }},
@@ -1560,7 +1555,6 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::KICK_THETA_2,                                             { TYPENAME::DOUBLE,     "PO_Kick_Theta(2)",                          "-",         24, 15}},
 
     { PROGRAM_OPTION::LBV_FACTOR,                                               { TYPENAME::DOUBLE,     "PO_LBV_Factor",                             "-",         24, 15}},
-    { PROGRAM_OPTION::LBV_PRESCRIPTION,                                         { TYPENAME::INT,        "PO_LBV_Mass_Loss_Prscrptn (depr)",          "-",          4, 1 }}, // DEPRECATED June 2024 - remove end 2024
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                               { TYPENAME::INT,        "PO_LBV_Mass_Loss_Prscrptn",                 "-",          4, 1 }},
 
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                                   { TYPENAME::INT,        "PO_Mass_Loss_Prscrptn",                     "-",          4, 1 }},

@@ -120,7 +120,7 @@ of Chemically Homogeneous Evolution in COMPAS |br|
 Options: { NONE, OPTIMISTIC, PESSIMISTIC } |br|
 Default = PESSIMISTIC |br|
 
-**--circulariseBinaryDuringMassTransfer** |br|
+**--circularise-binary-during-mass-transfer** |br|
 Circularise binary when it enters a Mass Transfer episode. |br|
 Default = TRUE
 
@@ -174,7 +174,7 @@ Default = FALSE
 Interpolate Nanjing lambda parameters across population I and population II metallicity models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
 Default = FALSE
 
-**--common-envelope-lambda-nanjing-use_rejuvenated-mass** |br|
+**--common-envelope-lambda-nanjing-use-rejuvenated-mass** |br|
 Use rejuvenated or effective ZAMS mass instead of true birth mass when computing Nanjing lambda parameters. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
 Default = FALSE
 

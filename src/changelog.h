@@ -1356,7 +1356,13 @@
 //                                      - Added OptionDefaulted() function to Options class - see documentation there.
 //                                      - Reverted change to `utils::SolveKeplersEquation()` made in v03.00.00 - no idea what I was thinking...
 //                                      - Changes to documentation per issue #1244.
+// 03.07.02   JR - Oct 31, 2024     - Defect repairs:
+//                                      - Fix for error "ERROR:  in COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY) const: Unexpected program option" when
+//                                        options are added to the system parameters file (--add-options-to-sysparms).  Root cause was a couple of deprecated options
+//                                        left in the list of options available for printing to log file.  Fix removes those options.  Also added code to the
+//                                        logfile-definitions parsing function so that deprecated options properties are replaced as required.
+//                                      - Fixed typos per issue #1261
 
-const std::string VERSION_STRING = "03.07.01";
+const std::string VERSION_STRING = "03.07.02";
 
 # endif // __changelog_h__
