@@ -1361,6 +1361,7 @@
 //                                        options are added to the system parameters file (--add-options-to-sysparms).  Root cause was a couple of deprecated options
 //                                        left in the list of options available for printing to log file.  Fix removes those options.  Also added code to the
 //                                        logfile-definitions parsing function so that deprecated options properties are replaced as required.
+//                                      - Fixed typos per issue #1251
 
 const std::string VERSION_STRING = "03.07.02";
 
