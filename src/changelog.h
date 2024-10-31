@@ -1362,7 +1362,11 @@
 //                                        left in the list of options available for printing to log file.  Fix removes those options.  Also added code to the
 //                                        logfile-definitions parsing function so that deprecated options properties are replaced as required.
 //                                      - Fixed typos per issue #1261
+// 03.07.03   VK - Oct 31, 2024     - Defect repairs, bug fixes:
+//                                      - Fixed logic in KAPIL2024 dynamical tides to consider IW and GW dissipation as long as either the mass OR the radial extent of the
+//                                        convective envelope is above threshold
+//                                      - Added code to ensure that timesteps in BaseBinaryStar::ChooseTimestep() are based on absolute values of tidal timescales.
 
-const std::string VERSION_STRING = "03.07.02";
+const std::string VERSION_STRING = "03.07.03";
 
 # endif // __changelog_h__
