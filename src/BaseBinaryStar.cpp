@@ -2552,9 +2552,9 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
                                                                 
         // Ensure that the change in orbital and spin properties due to tides in a single timestep is constrained (to 1 percent by default)
         // Limit the spin evolution of each star based on the orbital frequency rather than its spin frequency, since tides should not cause major problems until synchronization. 
-        double DaDt_tidal              = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis * std::min(std::abs(1.0 / DSemiMajorAxis1Dt_tidal), std::abs(1.0 / DSemiMajorAxis2Dt_tidal)) * YEAR_TO_MYR;
-        double DeDt_tidal              = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity * std::min(std::abs(1.0 / DEccentricity1Dt_tidal), std::abs(1.0 / DEccentricity2Dt_tidal)) * YEAR_TO_MYR;
-        double DOmegaDt_tidal          = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Omega * std::min(std::abs(1.0 / DOmega1Dt_tidal), std::abs(1.0 / DOmega2Dt_tidal)) * YEAR_TO_MYR;
+        double DaDt_tidal              = std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis * std::min(std::abs(1.0 / DSemiMajorAxis1Dt_tidal), std::abs(1.0 / DSemiMajorAxis2Dt_tidal)) * YEAR_TO_MYR);
+        double DeDt_tidal              = std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity * std::min(std::abs(1.0 / DEccentricity1Dt_tidal), std::abs(1.0 / DEccentricity2Dt_tidal)) * YEAR_TO_MYR);
+        double DOmegaDt_tidal          = std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Omega * std::min(std::abs(1.0 / DOmega1Dt_tidal), std::abs(1.0 / DOmega2Dt_tidal)) * YEAR_TO_MYR);
 
         // If any tidal timescales are not well-defined, set them to infinity to avoid issues with taking minima
         // JR: note, this will fail if option --fp-error-mode is not OFF (the calculation above will result in a trap)
@@ -2566,7 +2566,7 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
     }
     dt *= p_Multiplier;	
 
-    return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);    // quantised and not less than minimum
+    return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, TIDES_MNIMUM_FRACTIONAL_NUCLEAR_TIME * NUCLEAR_MINIMUM_TIMESTEP);    // quantised and not less than minimum
 }
 
 
