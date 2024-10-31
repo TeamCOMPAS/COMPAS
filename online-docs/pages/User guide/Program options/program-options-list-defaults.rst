@@ -120,7 +120,7 @@ of Chemically Homogeneous Evolution in COMPAS |br|
 Options: { NONE, OPTIMISTIC, PESSIMISTIC } |br|
 Default = PESSIMISTIC |br|
 
-**--circularise-binary-during-nass-transfer** |br|
+**--circularise-binary-during-mass-transfer** |br|
 Circularise binary when it enters a Mass Transfer episode. |br|
 Default = TRUE
 
