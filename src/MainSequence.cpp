@@ -928,25 +928,31 @@ double MainSequence::CalculateMainSequenceCoreMassShikauchi() {
  * void UpdateMinimumCoreMass()
  *
  */
-void MainSequence::UpdateMinimumCoreMass(const double p_Dt, const double p_TotalMassLossRate) {
-    if (p_Dt == 0.0 || p_TotalMassLossRate != m_TotalMassLossRate)   // Only proceed with calculation if time advances and calculation was not executed in binary evolution
-        return;
+void MainSequence::UpdateMinimumCoreMass() {
     switch (OPTIONS->MainSequenceCoreMassPrescription()) {
         case CORE_MASS_PRESCRIPTION::MANDEL: {
-            m_MinimumCoreMass = CalculateMainSequenceCoreMassMandel();
+            
+            // We need TAMSCoreMass, which is just the core mass at the start of the HG phase.
+            // Since we are on the main sequence here, we can clone this object as an HG object
+            // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
+            // we can query the cloned object for its core mass.
+            //
+            // The clone should not evolve, and so should not log anything, but to be sure the
+            // clone does not participate in logging, we set its persistence to EPHEMERAL.
+            
+            HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+            double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
+            delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+            
+            m_MinimumCoreMass   = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass);    // update minimum core mass
             break;
         }
         case CORE_MASS_PRESCRIPTION::NONE: {
-            m_MinimumCoreMass = 0.0;
+            m_MinimumCoreMass   = 0.0;
             break;
         }
         case CORE_MASS_PRESCRIPTION::SHIKAUCHI: {
-            if (p_TotalMassLossRate >= 0.0) {     // Mass Loss
-                m_MinimumCoreMass = CalculateMainSequenceCoreMassShikauchi();
-            }
-            else {    // Mass gain
-                m_MinimumCoreMass = m_MinimumCoreMass;
-            }
+            m_MinimumCoreMass   = 0.0;
             break;
         }
     }

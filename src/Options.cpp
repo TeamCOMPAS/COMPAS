@@ -411,6 +411,7 @@ void Options::OptionValues::Initialise() {
     // Core mass prescription
     m_MainSequenceCoreMassPrescription.type                         = CORE_MASS_PRESCRIPTION::MANDEL;
     m_MainSequenceCoreMassPrescription.typeString                   = CORE_MASS_PRESCRIPTION_LABEL.at(m_MainSequenceCoreMassPrescription.type);
+
     // Mass transfer options
     m_UseMassTransfer                                               = true;
 	m_CirculariseBinaryDuringMassTransfer         	                = true;
@@ -1785,7 +1786,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             
             ("Main Sequence core mass prescription (" + AllowedOptionValuesFormatted("main-sequence-core-mass-prescription") + ", default = '" + p_Options->m_MainSequenceCoreMassPrescription.typeString + "')").c_str()
         )
-
         (
             "mass-loss-prescription",
             po::value<std::string>(&p_Options->m_MassLossPrescription.typeString)->default_value(p_Options->m_MassLossPrescription.typeString),                                                                  

@@ -618,7 +618,7 @@ private:
         "logfile-system-parameters-record-types",
         "logfile-type",
         "luminous-blue-variable-prescription",  // DEPRECATED June 2024 - remove end 2024
-        
+
         "main-sequence-core-mass-prescription",
         "mass-change-fraction",
         "mass-loss-prescription",
@@ -1503,6 +1503,8 @@ public:
 
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
     LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
+    
+    CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }
     
     CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }
     
