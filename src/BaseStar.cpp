@@ -2857,7 +2857,7 @@ double BaseStar::CalculateMassLossRate() {
 
         mDot = mDot * OPTIONS->OverallWindMassLossMultiplier();                                                     // apply overall wind mass loss multiplier
     }
-    UpdateTotalMassLossRate(mDot);                                                                                  // update mass loss rate
+    UpdateTotalMassLossRate(-mDot);                                                                                 // update mass loss rate
     return mDot;
 }
 
@@ -4715,7 +4715,7 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (ShouldEvolveOnPhase()) {                                                    // evolve timestep on phase
-        UpdateMinimumCoreMass(p_DeltaTime, m_Mdot);                                 // update core mass, relevant for MS stars
+        UpdateMinimumCoreMass(p_DeltaTime, -m_Mdot);                                // update core mass, relevant for MS stars
 
         m_Tau        = CalculateTauOnPhase();
 

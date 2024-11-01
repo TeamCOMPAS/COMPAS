@@ -2052,6 +2052,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                                // donor has a core and an envelope?
             massDiffDonor     = -envMassDonor;                                                                                  // yes - set donor mass loss to (negative of) the envelope mass
             isEnvelopeRemoved = true;
+            m_Accretor->UpdateTotalMassLossRate((-massDiffDonor * m_FractionAccreted) / (p_Dt * MYR_TO_YEAR));                  // update mass loss rate for MS accretor
+            m_Accretor->UpdateMinimumCoreMass(p_Dt, m_Accretor->TotalMassLossRate());                                           // update core mass for MS accretor
         }
         else {                                                                                                                  // donor has no envelope
             massDiffDonor = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                        // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
@@ -2064,10 +2066,10 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 if (utils::Compare(m_MassLossRateInRLOF,donorMassLossRateNuclear) == 0)                                         // if transferring mass on nuclear timescale, limit mass loss amount to rate * timestep (thermal timescale MT always happens in one timestep)
                     massDiffDonor = std::min(massDiffDonor, m_MassLossRateInRLOF * m_Dt);
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
-                m_Donor->UpdateTotalMassLossRate(-massDiffDonor / (p_Dt * MYR_TO_YEAR));
-                m_Donor->UpdateMinimumCoreMass(p_Dt, m_Donor->TotalMassLossRate());
-                m_Accretor->UpdateTotalMassLossRate((massDiffDonor * m_FractionAccreted) / (p_Dt * MYR_TO_YEAR));
-                m_Accretor->UpdateMinimumCoreMass(p_Dt, m_Accretor->TotalMassLossRate());
+                m_Donor->UpdateTotalMassLossRate(massDiffDonor / (p_Dt * MYR_TO_YEAR));                                         // update mass loss rate for MS donor
+                m_Donor->UpdateMinimumCoreMass(p_Dt, m_Donor->TotalMassLossRate());                                             // update core mass for MS donor
+                m_Accretor->UpdateTotalMassLossRate((-massDiffDonor * m_FractionAccreted) / (p_Dt * MYR_TO_YEAR));              // update mass loss rate for MS accretor
+                m_Accretor->UpdateMinimumCoreMass(p_Dt, m_Accretor->TotalMassLossRate());                                       // update core mass for MS accretor
             }
         }
 

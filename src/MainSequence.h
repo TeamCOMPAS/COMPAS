@@ -20,10 +20,12 @@ public:
 
     MT_CASE DetermineMassTransferTypeAsDonor() const                                        { return MT_CASE::A; }                                                  // Always case A
     
-    const std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> SHIKAUCHI_COEFFICIENTS = InterpolateShikauchiCoefficients(m_Metallicity);                 // Interpolate the Shikauchi coefficients for the given metallicity;
+    const std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> SHIKAUCHI_COEFFICIENTS = InterpolateShikauchiCoefficients(m_Metallicity);                 // Interpolate Shikauchi coefficients for the given metallicity;
 
 protected:
-
+    
+    double m_InitialMixingCoreMass = 0.0;
+    double m_HeliumAbundanceCoreOut = m_InitialHeliumAbundance;                            // Previous helium core mass abundance, needed for Shikauchi+ core mass calculation (in case of mass gain)
 
     // member functions - alphabetically
     double          CalculateAlphaL(const double p_Mass) const;
@@ -45,11 +47,11 @@ protected:
     double          CalculateCOCoreMassAtPhaseEnd() const                                   { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase
     double          CalculateCOCoreMassOnPhase() const                                      { return 0.0; }                                                         // McCO(MS) = 0.0
 
-    double          CalculateCoreMassAtPhaseEnd() const                                     { return 0.0; }                // Accounts for minimal core mass built up prior to mass loss through mass transfer
+    double          CalculateCoreMassAtPhaseEnd() const                                     { return 0.0; }                                                         // Accounts for minimal core mass built up prior to mass loss through mass transfer
     double          CalculateCoreMassOnPhase() const                                        { return 0.0; }                                                         // Mc(MS) = 0.0 (Hurley et al. 2000, just before eq 28)
 
     double          CalculateHeCoreMassAtPhaseEnd() const                                   { return CalculateCoreMassAtPhaseEnd(); }                               // Same as He core mass
-    double          CalculateHeCoreMassOnPhase() const                                      { return 0.0; }                                                         // McHe(MS) = 0.0
+    double          CalculateHeCoreMassOnPhase() const                                      { return m_MinimumCoreMass; }                                                         // McHe(MS) = 0.0
 
     double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                          { return CalculateHeliumAbundanceCoreOnPhase(); }
     double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;                                         
@@ -118,7 +120,8 @@ protected:
     void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass);
     
     void            UpdateAgeAfterMassLoss();                                                                                                                       // Per Hurley et al. 2000, section 7.1
-    
+    void            UpdateAgeBasedOnCentralHelium(const double p_Mass, const double p_HeliumAbundanceCore);
+
     void            UpdateMinimumCoreMass(const double p_Dt, const double p_TotalMassLossRate);
 
 };
