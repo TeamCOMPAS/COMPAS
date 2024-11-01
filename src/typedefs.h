@@ -377,6 +377,14 @@ const COMPASUnorderedMap<CHE_MODE, std::string> CHE_MODE_LABEL = {
     { CHE_MODE::PESSIMISTIC, "PESSIMISTIC" }
 };
 
+// main sequence core mass prescription
+enum class CORE_MASS_PRESCRIPTION: int { NONE, MANDEL, SHIKAUCHI };
+const COMPASUnorderedMap<CORE_MASS_PRESCRIPTION, std::string> CORE_MASS_PRESCRIPTION_LABEL = {
+    { CORE_MASS_PRESCRIPTION::NONE,           "NONE" },
+    { CORE_MASS_PRESCRIPTION::MANDEL,         "MANDEL" },
+    { CORE_MASS_PRESCRIPTION::SHIKAUCHI,      "SHIKAUCHI" }
+};
+
 // logfile delimiters
 enum class DELIMITER: int { TAB, SPACE, COMMA };
 const COMPASUnorderedMap<DELIMITER, std::string> DELIMITERLabel = {         // labels
@@ -577,14 +585,6 @@ enum class MASS_CUTOFF: int {
     MCHE,                   // Mass cutoff for calculation of initial angular frequency to determine if CHE occurs
 
     COUNT                   // Sentinel for entry count
-};
-
-// main sequence core mass prescription
-enum class CORE_MASS_PRESCRIPTION: int { NONE, MANDEL, SHIKAUCHI };
-const COMPASUnorderedMap<CORE_MASS_PRESCRIPTION, std::string> CORE_MASS_PRESCRIPTION_LABEL = {
-    { CORE_MASS_PRESCRIPTION::NONE,           "NONE" },     // DEPRECATED June 2024 - remove end 2024
-    { CORE_MASS_PRESCRIPTION::MANDEL,         "MANDEL" },
-    { CORE_MASS_PRESCRIPTION::SHIKAUCHI,      "SHIKAUCHI" }
 };
 
 // mass loss prescriptions

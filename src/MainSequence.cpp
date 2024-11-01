@@ -861,18 +861,16 @@ void MainSequence::UpdateMinimumCoreMass() {
             HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
             double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
             delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
-            
             m_MinimumCoreMass   = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass);    // update minimum core mass
             break;
         }
-        case CORE_MASS_PRESCRIPTION::NONE: {
+        case CORE_MASS_PRESCRIPTION::NONE:
             m_MinimumCoreMass   = 0.0;
             break;
-        }
-        case CORE_MASS_PRESCRIPTION::SHIKAUCHI: {
+            
+        case CORE_MASS_PRESCRIPTION::SHIKAUCHI:
             m_MinimumCoreMass   = 0.0;
             break;
-        }
     }
 }
 

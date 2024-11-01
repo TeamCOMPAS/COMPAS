@@ -2230,6 +2230,16 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown LBV Mass Loss Prescription");
         }
 
+        if (!DEFAULTED("luminous-blue-variable-prescription")) {        // DEPRECATED June 2024 - remove end 2024                   // LBV mass loss prescription
+            std::tie(found, m_LBVMassLossPrescription.type) = utils::GetMapKey(m_LBVMassLossPrescription.typeString, LBV_MASS_LOSS_PRESCRIPTION_LABEL, m_LBVMassLossPrescription.type);
+            COMPLAIN_IF(!found, "Unknown LBV Mass Loss Prescription");
+        }
+        
+        if (!DEFAULTED("main-sequence-core-mass-prescription")) {
+            std::tie(found, m_MainSequenceCoreMassPrescription.type) = utils::GetMapKey(m_MainSequenceCoreMassPrescription.typeString, CORE_MASS_PRESCRIPTION_LABEL, m_MainSequenceCoreMassPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Main Sequence Core Mass Prescription");
+        }
+        
         if (!DEFAULTED("mass-loss-prescription")) {                                                                                 // mass loss prescription
             std::tie(found, m_MassLossPrescription.type) = utils::GetMapKey(m_MassLossPrescription.typeString, MASS_LOSS_PRESCRIPTION_LABEL, m_MassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown Mass Loss Prescription");
@@ -2585,6 +2595,8 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("kick-magnitude-distribution")                       : POPULATE_RET(KICK_MAGNITUDE_DISTRIBUTION_LABEL);              break;
         case _("logfile-type")                                      : POPULATE_RET(LOGFILETYPELabel);                               break;
         case _("LBV-mass-loss-prescription")                        : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);               break;
+        case _("luminous-blue-variable-prescription")               : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);               break; // DEPRECATED June 2024 - remove end 2024
+        case _("main-sequence-core-mass-prescription")              : POPULATE_RET(CORE_MASS_PRESCRIPTION_LABEL);                   break;
         case _("mass-loss-prescription")                            : POPULATE_RET(MASS_LOSS_PRESCRIPTION_LABEL);                   break;
         case _("mass-ratio-distribution")                           : POPULATE_RET(MASS_RATIO_DISTRIBUTION_LABEL);                  break;
         case _("mass-transfer-accretion-efficiency-prescription")   : POPULATE_RET(MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL);     break;

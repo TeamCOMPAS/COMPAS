@@ -483,6 +483,8 @@ private:
         "logfile-rlof-parameters",
         "logfile-rlof-parameters-record-types",
 
+        "main-sequence-core-mass-prescription",
+
         "mass-ratio", "q",
         "mass-ratio-max",
         "mass-ratio-min",
