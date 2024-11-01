@@ -863,34 +863,24 @@ double MainSequence::CalculateMainSequenceCoreMassMandel() {
     HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
     double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
     delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
-    m_MinimumCoreMass   = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass);    // update minimum core mass
+    double minimumCoreMass   = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass);    // update minimum core mass
     //double coreMass = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass);
-    return m_MinimumCoreMass;
+    return minimumCoreMass;
 }
 
 
-double MainSequence::CalculateMainSequenceCoreMassShikauchi(double p_Mdot) {
-    double totalMass = m_MassPrev;
+double MainSequence::CalculateMainSequenceCoreMassShikauchi() {
+    double totalMass = m_Mass;
     double centralHeliumFraction = m_CentralHeliumFraction;
-    double lnMixingCoreMass = std::log(m_MixingCoreMass);
-    
-    controlled_stepper_type controlled_stepper;
-    state_type x(3);
-    x[0] = totalMass;
-    x[1] = centralHeliumFraction;
-    x[2] = lnMixingCoreMass;
-    double mixingCoreMass = std::exp(lnMixingCoreMass);
+    double mixingCoreMass = m_MinimumCoreMass;
+    double lnMixingCoreMass = std::log(mixingCoreMass);
     double logMixingCoreMass = std::log10(mixingCoreMass);
-    
-    if (m_LastSolvedTime == m_Time) {
-        return mixingCoreMass;
-    }
     
     double fmix = SHIKAUCHI_FMIX_COEFFICIENTS[0][0] + SHIKAUCHI_FMIX_COEFFICIENTS[0][1] * std::exp(- m_MZAMS / SHIKAUCHI_FMIX_COEFFICIENTS[0][2]);
     
     double beta = 1.0 - SHIKAUCHI_FMIX_COEFFICIENTS[0][1] * totalMass / (SHIKAUCHI_FMIX_COEFFICIENTS[0][2] * fmix) * std::exp(- totalMass / SHIKAUCHI_FMIX_COEFFICIENTS[0][2]);
     
-    double logL = SHIKAUCHI_L_COEFFICIENTS[0][0] * logMixingCoreMass + SHIKAUCHI_L_COEFFICIENTS[0][1] * x[1] + SHIKAUCHI_L_COEFFICIENTS[0][2] * logMixingCoreMass * x[1] + SHIKAUCHI_L_COEFFICIENTS[0][3] * logMixingCoreMass * logMixingCoreMass + SHIKAUCHI_L_COEFFICIENTS[0][4] * x[1] * x[1] + SHIKAUCHI_L_COEFFICIENTS[0][5] * logMixingCoreMass * logMixingCoreMass * logMixingCoreMass + SHIKAUCHI_L_COEFFICIENTS[0][6] * x[1] * x[1] * x[1] + SHIKAUCHI_L_COEFFICIENTS[0][7] * logMixingCoreMass * logMixingCoreMass * x[1] + SHIKAUCHI_L_COEFFICIENTS[0][8] * logMixingCoreMass * x[1] * x[1] + SHIKAUCHI_L_COEFFICIENTS[0][9];
+    double logL = SHIKAUCHI_L_COEFFICIENTS[0][0] * logMixingCoreMass + SHIKAUCHI_L_COEFFICIENTS[0][1] * centralHeliumFraction + SHIKAUCHI_L_COEFFICIENTS[0][2] * logMixingCoreMass * centralHeliumFraction + SHIKAUCHI_L_COEFFICIENTS[0][3] * logMixingCoreMass * logMixingCoreMass + SHIKAUCHI_L_COEFFICIENTS[0][4] * centralHeliumFraction * centralHeliumFraction + SHIKAUCHI_L_COEFFICIENTS[0][5] * logMixingCoreMass * logMixingCoreMass * logMixingCoreMass + SHIKAUCHI_L_COEFFICIENTS[0][6] * centralHeliumFraction * centralHeliumFraction * centralHeliumFraction + SHIKAUCHI_L_COEFFICIENTS[0][7] * logMixingCoreMass * logMixingCoreMass * centralHeliumFraction + SHIKAUCHI_L_COEFFICIENTS[0][8] * logMixingCoreMass * centralHeliumFraction * centralHeliumFraction + SHIKAUCHI_L_COEFFICIENTS[0][9];
     
     double alpha = PPOW(10.0, std::max(-2.0, SHIKAUCHI_ALPHA_COEFFICIENTS[0][1] * mixingCoreMass + SHIKAUCHI_ALPHA_COEFFICIENTS[0][2])) + SHIKAUCHI_ALPHA_COEFFICIENTS[0][0];
     
@@ -898,41 +888,32 @@ double MainSequence::CalculateMainSequenceCoreMassShikauchi(double p_Mdot) {
     
     double YZAMS = 0.24 + 2.0 * m_Metallicity;
     
-    double Yhat = (x[1] - YZAMS) / (1.0 - YZAMS - m_Metallicity);
+    double Yhat = (centralHeliumFraction - YZAMS) / (1.0 - YZAMS - m_Metallicity);
     
     double delta = std::min(PPOW(10.0, -Yhat + g), 1.0);
     
-    double previousTimestepInYrs = m_DtPrev * 1000000.0;
+    double currentTimestepInYrs = m_Dt * 1.0E6;
     
-    auto ode = [&](const state_type &x, state_type &dxdt, double previousTimestepInYrs) {
-        dxdt[0] = - p_Mdot;
+    double mDot = m_TotalMassLossRate;  //(m_MassPrev - m_Mass) / previousTimestepInYrs;
+    
+    controlled_stepper_type controlled_stepper;
+    state_type x(3);
+    x[0] = totalMass;
+    x[1] = centralHeliumFraction;
+    x[2] = lnMixingCoreMass;
+    
+    auto ode = [&](const state_type &x, state_type &dxdt, const double) {
+        dxdt[0] = - mDot;
         dxdt[1] = PPOW(10.0, logL) / (Q_CNO * mixingCoreMass);
         dxdt[2] = -alpha/(1.0 - alpha * x[1]) * dxdt[1] + beta * delta * dxdt[0] / x[0];
     };
     
-    integrate_adaptive(controlled_stepper, ode, x, 0.0, previousTimestepInYrs, previousTimestepInYrs/1000.0);
+    integrate_adaptive(controlled_stepper, ode, x, 0.0, currentTimestepInYrs, currentTimestepInYrs/100.0);
+    
     mixingCoreMass = std::exp(x[2]);
     m_CentralHeliumFraction = x[1];
-    m_LastSolvedTime = m_Time;
+    
     return mixingCoreMass;
-}
-
-
-double MainSequence::CalculateMainSequenceCoreMass(double p_Mdot) {
-    switch (OPTIONS->MainSequenceCoreMassPrescription()) {
-        case CORE_MASS_PRESCRIPTION::MANDEL: {
-            double coreMass = CalculateMainSequenceCoreMassMandel();
-            return coreMass;
-        }
-        case CORE_MASS_PRESCRIPTION::NONE: {
-            double coreMass = 0.0;
-            return coreMass;
-        }
-        case CORE_MASS_PRESCRIPTION::SHIKAUCHI: {
-            double coreMass = CalculateMainSequenceCoreMassShikauchi(p_Mdot);
-            return coreMass;
-        }
-    }
 }
 
 
@@ -947,7 +928,7 @@ double MainSequence::CalculateMainSequenceCoreMass(double p_Mdot) {
  * void UpdateMinimumCoreMass()
  *
  */
-void MainSequence::UpdateMinimumCoreMass(double p_Mdot) {
+void MainSequence::UpdateMinimumCoreMass() {
     switch (OPTIONS->MainSequenceCoreMassPrescription()) {
         case CORE_MASS_PRESCRIPTION::MANDEL:
             m_MinimumCoreMass = CalculateMainSequenceCoreMassMandel();
@@ -956,7 +937,7 @@ void MainSequence::UpdateMinimumCoreMass(double p_Mdot) {
             m_MinimumCoreMass = 0.0;
             break;
         case CORE_MASS_PRESCRIPTION::SHIKAUCHI:
-            m_MixingCoreMass = CalculateMainSequenceCoreMassShikauchi(p_Mdot);
+            m_MinimumCoreMass = CalculateMainSequenceCoreMassShikauchi();
             break;
     }
 }

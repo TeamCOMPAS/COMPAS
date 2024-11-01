@@ -144,7 +144,6 @@ public:
             double              Mdot() const                                                    { return m_Mdot; }
             double              Metallicity() const                                             { return m_Metallicity; }
             double              MinimumCoreMass() const                                         { return m_MinimumCoreMass; }
-            double              MixingCoreMass() const                                          { return m_MixingCoreMass; }
             double              MZAMS() const                                                   { return m_MZAMS; }
             double              Omega() const                                                   { return m_Omega; }
             double              OmegaCHE() const                                                { return m_OmegaCHE; }
@@ -187,6 +186,7 @@ public:
             double              Temperature() const                                             { return m_Temperature; }
             double              Time() const                                                    { return m_Time; }
             double              Timescale(TIMESCALE p_Timescale) const                          { return m_Timescales[static_cast<int>(p_Timescale)]; }
+            double              TotalMassLossRate() const                                       { return m_TotalMassLossRate; }
             double              TZAMS() const                                                   { return m_TZAMS; }
     virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::ZERO; }
             double              XExponent() const                                               { return m_XExponent; }
@@ -357,9 +357,9 @@ public:
                                                        const double p_MassGainPerTimeStep,
                                                        const double p_Epsilon) { }                                                                                                  // Default is NO-OP
 
-    virtual void            UpdateMinimumCoreMass() { }                                                                                                                             // Only set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass; default is NO-OP
-    virtual void            UpdateMinimumCoreMass(double p_Mdot) { }
-
+    virtual void            UpdateMinimumCoreMass() { };                                                                                                                            // Only set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass; default is NO-OP
+    
+    virtual void            UpdateTotalMassLossRate(const double p_MassLossRate);
     
     // printing functions
     bool PrintDetailedOutput(const int p_Id, const SSE_DETAILED_RECORD_TYPE p_RecordType) const { 
@@ -422,7 +422,6 @@ protected:
     double                  m_CoreMass;                                 // Current core mass (Msol)
     double                  m_Dt;                                       // Size of current timestep (Myr)
     bool                    m_EnvelopeJustExpelledByPulsations;         // Flag to know if the convective envelope has just been expelled by pulsations
-    double                  m_MixingCoreMass;
     double                  m_CentralHeliumFraction;
     double                  m_HeCoreMass;                               // Current He core mass (Msol)
     double                  m_HeliumAbundanceCore;                      // Helium abundance in the core
@@ -444,6 +443,8 @@ protected:
     double                  m_Tau;                                      // Relative time
     double                  m_Temperature;                              // Current temperature (Tsol)
     double                  m_Time;                                     // Current physical time the star has been evolved (Myr)
+    double                  m_TotalMassLossRate;
+    double                  m_TotalMassLossRatePrev;
 
     // Previous timestep variables
     double                  m_DtPrev;                                   // Previous timestep
@@ -528,7 +529,6 @@ protected:
     virtual double              CalculateCOCoreMassOnPhase() const                                                      { return m_COCoreMass; }                                                    // Default is NO-OP
     
     virtual double              CalculateCoreMassAtPhaseEnd() const                                                     { return m_CoreMass; }                                                      // Default is NO-OP
-    virtual double              CalculateMainSequenceCoreMass(double p_Mdot)                                            { return m_MixingCoreMass; }
     static  double              CalculateCoreMassGivenLuminosity_Static(const double p_Luminosity, const DBL_VECTOR &p_GBParams);
     virtual double              CalculateCoreMassOnPhase() const                                                        { return m_CoreMass; }                                                      // Default is NO-OP
 

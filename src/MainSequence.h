@@ -20,12 +20,6 @@ public:
 
     MT_CASE DetermineMassTransferTypeAsDonor() const                                        { return MT_CASE::A; }                                                  // Always case A
 
-    double MixingCoreMass() const                                                           { return m_MixingCoreMass; }
-
-    double CentralHeliumFraction() const                                                    { return m_CentralHeliumFraction; }
-    
-    double m_LastSolvedTime = 0.0;
-
 protected:
 
 
@@ -75,9 +69,8 @@ protected:
     double          CalculateLuminosityAtPhaseEnd() const                                   { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                      // Use class member variables
     double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const;
     double          CalculateLuminosityOnPhase() const                                      { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0); }        // Use class member variables
-    double          CalculateMainSequenceCoreMass(double p_Mdot);
     double          CalculateMainSequenceCoreMassMandel();
-    double          CalculateMainSequenceCoreMassShikauchi(double p_Mdot);
+    double          CalculateMainSequenceCoreMassShikauchi();
     double          CalculateMomentOfInertia() const                                        { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                      // k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
 
     double          CalculatePerturbationMu() const                                         { return 5.0; }                                                         // mu(MS) = 5.0 (Hurley et al. 2000, eqs 97 & 98)
@@ -118,8 +111,7 @@ protected:
     
     void            UpdateAgeAfterMassLoss();                                                                                                                       // Per Hurley et al. 2000, section 7.1
     
-    void            UpdateMinimumCoreMass() { };
-    void            UpdateMinimumCoreMass(double p_Mdot);                                                                                                                        // Set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass
+    void            UpdateMinimumCoreMass();                                                                                                                        // Set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass
 
 };
 
