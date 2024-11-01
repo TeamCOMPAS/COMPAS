@@ -408,11 +408,14 @@ void Options::OptionValues::Initialise() {
     m_WolfRayetFactor                                               = 1.0;
     m_ScaleTerminalWindVelocityWithMetallicityPower                 = 0.0;
 
+    // Core mass prescription
+    m_MainSequenceCoreMassPrescription.type                         = CORE_MASS_PRESCRIPTION::MANDEL;
+    m_MainSequenceCoreMassPrescription.typeString                   = CORE_MASS_PRESCRIPTION_LABEL.at(m_MainSequenceCoreMassPrescription.type);
     // Mass transfer options
     m_UseMassTransfer                                               = true;
 	m_CirculariseBinaryDuringMassTransfer         	                = true;
 	m_AngularMomentumConservationDuringCircularisation              = false;
-    m_RetainCoreMassDuringCaseAMassTransfer                         = true;
+    //m_RetainCoreMassDuringCaseAMassTransfer                         = true;
     m_ConvectiveEnvelopeTemperatureThreshold                        = CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI;
 
     // Case BB/BC mass transfer stability prescription
@@ -876,11 +879,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Suppress printing (default = " + std::string(p_Options->m_Quiet ? "TRUE" : "FALSE") + ")").c_str()
         )
 
-        (
+        /*(
             "retain-core-mass-during-caseA-mass-transfer",
             po::value<bool>(&p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->default_value(p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->implicit_value(true),
             ("Retain approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = " + std::string(p_Options->m_RetainCoreMassDuringCaseAMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
-        )
+        )*/
         (
             "revised-energy-formalism-nandez-ivanova",                     
             po::value<bool>(&p_Options->m_RevisedEnergyFormalismNandezIvanova)->default_value(p_Options->m_RevisedEnergyFormalismNandezIvanova)->implicit_value(true),                            
@@ -1778,7 +1781,19 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "mass-loss-prescription",                                      
+            "luminous-blue-variable-prescription",      // DEPRECATED June 2024 - remove end 2024                                       
+            po::value<std::string>(&p_Options->m_LBVMassLossPrescription.typeString)->default_value(p_Options->m_LBVMassLossPrescription.typeString),                                                                  
+            ("LBV Mass loss prescription (" + AllowedOptionValuesFormatted("luminous-blue-variable-prescription") + ", default = '" + p_Options->m_LBVMassLossPrescription.typeString + "')").c_str()
+        )
+        (
+            "main-sequence-core-mass-prescription",
+            po::value<std::string>(&p_Options->m_MainSequenceCoreMassPrescription.typeString)->default_value(p_Options->m_MainSequenceCoreMassPrescription.typeString),
+            
+            ("Main Sequence core mass prescription (" + AllowedOptionValuesFormatted("main-sequence-core-mass-prescription") + ", default = '" + p_Options->m_MainSequenceCoreMassPrescription.typeString + "')").c_str()
+        )
+
+        (
+            "mass-loss-prescription",
             po::value<std::string>(&p_Options->m_MassLossPrescription.typeString)->default_value(p_Options->m_MassLossPrescription.typeString),                                                                  
             ("Mass loss prescription (" + AllowedOptionValuesFormatted("mass-loss-prescription") + ", default = '" + p_Options->m_MassLossPrescription.typeString + "')").c_str()
         )
