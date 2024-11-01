@@ -138,6 +138,8 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
     m_MinimumCoreMass                          = 0.0;
+    m_MixingCoreMass                           = CalculateMixingCoreMassAtZAMS(m_MZAMS);
+    m_CentralHeliumFraction                    = utils::MESAZAMSHeliumFractionByMetallicity(m_Metallicity);
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
@@ -2992,6 +2994,12 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
 }
 
 
+double BaseStar::CalculateMixingCoreMassAtZAMS(const double p_MZAMS) {
+    double fmix = SHIKAUCHI_FMIX_COEFFICIENTS[0][0] + SHIKAUCHI_FMIX_COEFFICIENTS[0][1] * std::exp(-p_MZAMS / SHIKAUCHI_FMIX_COEFFICIENTS[0][2]);
+    return fmix * p_MZAMS;
+}
+
+
 /*
  * Calculate core mass for a given luminosity using the Mc - L relation
  *
@@ -4721,6 +4729,16 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
         m_HeCoreMass = CalculateHeCoreMassOnPhase();
         
         m_Luminosity = CalculateLuminosityOnPhase();
+        if (m_StellarType == STELLAR_TYPE::MS_GT_07 & m_DtPrev != 0.0 & m_MassPrev - m_Mass != 0.0) {
+            m_MixingCoreMass  = CalculateMainSequenceCoreMass((m_MassPrev - m_Mass) / (m_DtPrev * 1000000.0));
+            //std::cout << m_Time << ":" << m_CentralHeliumFraction << ":" << m_MixingCoreMass << "     ";
+            //std::cout << m_Mass << ":" << m_CentralHeliumFraction << "   ";
+            //UpdateMinimumCoreMass(m_Mdot);
+            //std::cout << m_MixingCoreMass << "   ";
+            //m_CoreMass = CalculateMainSequenceCoreMass(m_Mdot);
+            //_HeCoreMass = m_CoreMass;
+            //std::cout << "MixCore:" << m_MixingCoreMass << " Mass:" << m_Mass << " Mdot:" <<(m_MassPrev - m_Mass) / (m_DtPrev * 1000000.0) << ":timestep" << m_DtPrev << " Yc:" << m_CentralHeliumFraction ;
+        }
 
         // Calculate abundances
         m_HeliumAbundanceCore      = CalculateHeliumAbundanceCoreOnPhase();
@@ -4776,7 +4794,15 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase(const bool p_ResolveEnvelopeLoss) {
             m_COCoreMass  = CalculateCOCoreMassAtPhaseEnd();
             m_CoreMass    = CalculateCoreMassAtPhaseEnd();
             m_HeCoreMass  = CalculateHeCoreMassAtPhaseEnd();
+            if (m_StellarType == STELLAR_TYPE::MS_GT_07) {
+                //m_MixingCoreMass  = CalculateMainSequenceCoreMass(m_Mdot);
+                //m_CoreMass = m_MixingCoreMass;
+                //m_HeCoreMass = m_MixingCoreMass;
+                //std::cout << m_MixingCoreMass << "   ";
+                std::cout << "MixCore:" << m_MixingCoreMass << " Mass:" << m_Mass << " Mdot:" <<(m_MassPrev - m_Mass) / (m_DtPrev * 1000000.0) << ":timestep" << m_DtPrev << " Yc:" << m_CentralHeliumFraction << "  TimePassed:"  << m_Time;
 
+            }
+            
             m_Luminosity  = CalculateLuminosityAtPhaseEnd();
 
             m_Radius      = CalculateRadiusAtPhaseEnd();

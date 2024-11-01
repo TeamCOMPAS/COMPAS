@@ -290,6 +290,8 @@ public:
 
     void            UpdateMinimumCoreMass()                                                                         { m_Star->UpdateMinimumCoreMass(); }
     
+    void            UpdateMinimumCoreMass(double p_Mdot)                                                            { m_Star->UpdateMinimumCoreMass(p_Mdot); }
+    
     void            UpdatePreviousTimestepDuration()                                                                { m_Star->UpdatePreviousTimestepDuration(); }
     
     ACCRETION_REGIME WhiteDwarfAccretionRegime() const                                                              { return m_Star->WhiteDwarfAccretionRegime(); }

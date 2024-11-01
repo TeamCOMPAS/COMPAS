@@ -749,6 +749,22 @@ void MainSequence::UpdateAgeAfterMassLoss() {
     m_Age *= tMSprime / tMS;
 }
 
+
+bool MainSequence::ShouldEvolveOnPhase() const {
+    switch (OPTIONS->MainSequenceCoreMassPrescription()) {
+        case CORE_MASS_PRESCRIPTION::MANDEL: {
+            return (m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]);
+        }
+        case CORE_MASS_PRESCRIPTION::NONE: {
+            return (m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]);
+        }
+        case CORE_MASS_PRESCRIPTION::SHIKAUCHI: {
+            return (m_CentralHeliumFraction <= 1.0 - m_Metallicity & m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]);
+        }
+    }
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                    MISCELLANEOUS FUNCTIONS / CONTROL FUNCTIONS                    //
@@ -835,10 +851,95 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_Force) {
 }
 
 
+double MainSequence::CalculateMainSequenceCoreMassMandel() {
+    // We need TAMSCoreMass, which is just the core mass at the start of the HG phase.
+    // Since we are on the main sequence here, we can clone this object as an HG object
+    // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
+    // we can query the cloned object for its core mass.
+    //
+    // The clone should not evolve, and so should not log anything, but to be sure the
+    // clone does not participate in logging, we set its persistence to EPHEMERAL.
+    
+    HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
+    double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+    m_MinimumCoreMass   = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass);    // update minimum core mass
+    //double coreMass = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass);
+    return m_MinimumCoreMass;
+}
+
+
+double MainSequence::CalculateMainSequenceCoreMassShikauchi(double p_Mdot) {
+    double totalMass = m_MassPrev;
+    double centralHeliumFraction = m_CentralHeliumFraction;
+    double lnMixingCoreMass = std::log(m_MixingCoreMass);
+    
+    controlled_stepper_type controlled_stepper;
+    state_type x(3);
+    x[0] = totalMass;
+    x[1] = centralHeliumFraction;
+    x[2] = lnMixingCoreMass;
+    double mixingCoreMass = std::exp(lnMixingCoreMass);
+    double logMixingCoreMass = std::log10(mixingCoreMass);
+    
+    if (m_LastSolvedTime == m_Time) {
+        return mixingCoreMass;
+    }
+    
+    double fmix = SHIKAUCHI_FMIX_COEFFICIENTS[0][0] + SHIKAUCHI_FMIX_COEFFICIENTS[0][1] * std::exp(- m_MZAMS / SHIKAUCHI_FMIX_COEFFICIENTS[0][2]);
+    
+    double beta = 1.0 - SHIKAUCHI_FMIX_COEFFICIENTS[0][1] * totalMass / (SHIKAUCHI_FMIX_COEFFICIENTS[0][2] * fmix) * std::exp(- totalMass / SHIKAUCHI_FMIX_COEFFICIENTS[0][2]);
+    
+    double logL = SHIKAUCHI_L_COEFFICIENTS[0][0] * logMixingCoreMass + SHIKAUCHI_L_COEFFICIENTS[0][1] * x[1] + SHIKAUCHI_L_COEFFICIENTS[0][2] * logMixingCoreMass * x[1] + SHIKAUCHI_L_COEFFICIENTS[0][3] * logMixingCoreMass * logMixingCoreMass + SHIKAUCHI_L_COEFFICIENTS[0][4] * x[1] * x[1] + SHIKAUCHI_L_COEFFICIENTS[0][5] * logMixingCoreMass * logMixingCoreMass * logMixingCoreMass + SHIKAUCHI_L_COEFFICIENTS[0][6] * x[1] * x[1] * x[1] + SHIKAUCHI_L_COEFFICIENTS[0][7] * logMixingCoreMass * logMixingCoreMass * x[1] + SHIKAUCHI_L_COEFFICIENTS[0][8] * logMixingCoreMass * x[1] * x[1] + SHIKAUCHI_L_COEFFICIENTS[0][9];
+    
+    double alpha = PPOW(10.0, std::max(-2.0, SHIKAUCHI_ALPHA_COEFFICIENTS[0][1] * mixingCoreMass + SHIKAUCHI_ALPHA_COEFFICIENTS[0][2])) + SHIKAUCHI_ALPHA_COEFFICIENTS[0][0];
+    
+    double g = -0.0044 * m_MZAMS + 0.27;
+    
+    double YZAMS = 0.24 + 2.0 * m_Metallicity;
+    
+    double Yhat = (x[1] - YZAMS) / (1.0 - YZAMS - m_Metallicity);
+    
+    double delta = std::min(PPOW(10.0, -Yhat + g), 1.0);
+    
+    double previousTimestepInYrs = m_DtPrev * 1000000.0;
+    
+    auto ode = [&](const state_type &x, state_type &dxdt, double previousTimestepInYrs) {
+        dxdt[0] = - p_Mdot;
+        dxdt[1] = PPOW(10.0, logL) / (Q_CNO * mixingCoreMass);
+        dxdt[2] = -alpha/(1.0 - alpha * x[1]) * dxdt[1] + beta * delta * dxdt[0] / x[0];
+    };
+    
+    integrate_adaptive(controlled_stepper, ode, x, 0.0, previousTimestepInYrs, previousTimestepInYrs/1000.0);
+    mixingCoreMass = std::exp(x[2]);
+    m_CentralHeliumFraction = x[1];
+    m_LastSolvedTime = m_Time;
+    return mixingCoreMass;
+}
+
+
+double MainSequence::CalculateMainSequenceCoreMass(double p_Mdot) {
+    switch (OPTIONS->MainSequenceCoreMassPrescription()) {
+        case CORE_MASS_PRESCRIPTION::MANDEL: {
+            double coreMass = CalculateMainSequenceCoreMassMandel();
+            return coreMass;
+        }
+        case CORE_MASS_PRESCRIPTION::NONE: {
+            double coreMass = 0.0;
+            return coreMass;
+        }
+        case CORE_MASS_PRESCRIPTION::SHIKAUCHI: {
+            double coreMass = CalculateMainSequenceCoreMassShikauchi(p_Mdot);
+            return coreMass;
+        }
+    }
+}
+
+
 /*
  * Update the minimum core mass of a main sequence star that loses mass through Case A mass transfer by
  * setting it equal to the core mass of a TAMS star, scaled by the fractional age.
- * 
+ *
  * The minimum core mass of the star is updated only if the retain-core-mass-during-caseA-mass-transfer
  * option is specified, otherwise it is left unchanged.
  *
@@ -846,30 +947,16 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_Force) {
  * void UpdateMinimumCoreMass()
  *
  */
-void MainSequence::UpdateMinimumCoreMass() {
+void MainSequence::UpdateMinimumCoreMass(double p_Mdot) {
     switch (OPTIONS->MainSequenceCoreMassPrescription()) {
-        case CORE_MASS_PRESCRIPTION::MANDEL: {
-            
-            // We need TAMSCoreMass, which is just the core mass at the start of the HG phase.
-            // Since we are on the main sequence here, we can clone this object as an HG object
-            // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
-            // we can query the cloned object for its core mass.
-            //
-            // The clone should not evolve, and so should not log anything, but to be sure the
-            // clone does not participate in logging, we set its persistence to EPHEMERAL.
-            
-            HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
-            double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
-            delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
-            m_MinimumCoreMass   = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass);    // update minimum core mass
+        case CORE_MASS_PRESCRIPTION::MANDEL:
+            m_MinimumCoreMass = CalculateMainSequenceCoreMassMandel();
             break;
-        }
         case CORE_MASS_PRESCRIPTION::NONE:
-            m_MinimumCoreMass   = 0.0;
+            m_MinimumCoreMass = 0.0;
             break;
-            
         case CORE_MASS_PRESCRIPTION::SHIKAUCHI:
-            m_MinimumCoreMass   = 0.0;
+            m_MixingCoreMass = CalculateMainSequenceCoreMassShikauchi(p_Mdot);
             break;
     }
 }
