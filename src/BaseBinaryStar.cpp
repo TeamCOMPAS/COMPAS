@@ -2548,21 +2548,23 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
         double DEccentricity2Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);
                                                     
         double DOmega1Dt_tidal         = CalculateDOmegaTidalDt(ImKlm1, m_Star1);
-        double DOmega2Dt_tidal         = CalculateDOmegaTidalDt(ImKlm2,  m_Star2);
+        double DOmega2Dt_tidal         = CalculateDOmegaTidalDt(ImKlm2, m_Star2);
                                                                 
         // Ensure that the change in orbital and spin properties due to tides in a single timestep is constrained (to 1 percent by default)
         // Limit the spin evolution of each star based on the orbital frequency rather than its spin frequency, since tides should not cause major problems until synchronization. 
-        double DaDt_tidal              = std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis * std::min(std::abs(1.0 / DSemiMajorAxis1Dt_tidal), std::abs(1.0 / DSemiMajorAxis2Dt_tidal)) * YEAR_TO_MYR);
-        double DeDt_tidal              = std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity * std::min(std::abs(1.0 / DEccentricity1Dt_tidal), std::abs(1.0 / DEccentricity2Dt_tidal)) * YEAR_TO_MYR);
-        double DOmegaDt_tidal          = std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Omega * std::min(std::abs(1.0 / DOmega1Dt_tidal), std::abs(1.0 / DOmega2Dt_tidal)) * YEAR_TO_MYR);
+        double Dt_SemiMajorAxis1_tidal = (DSemiMajorAxis1Dt_tidal == 0.0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / DSemiMajorAxis1Dt_tidal) * YEAR_TO_MYR);
+        double Dt_SemiMajorAxis2_tidal = (DSemiMajorAxis2Dt_tidal == 0.0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / DSemiMajorAxis2Dt_tidal) * YEAR_TO_MYR);
+        double Dt_SemiMajorAxis_tidal  = std::min(Dt_SemiMajorAxis1_tidal, Dt_SemiMajorAxis2_tidal);
 
-        // If any tidal timescales are not well-defined, set them to infinity to avoid issues with taking minima
-        // JR: note, this will fail if option --fp-error-mode is not OFF (the calculation above will result in a trap)
-        if (std::isnan(DaDt_tidal)) DaDt_tidal = std::numeric_limits<double>::infinity();
-        if (std::isnan(DeDt_tidal)) DeDt_tidal = std::numeric_limits<double>::infinity();
-        if (std::isnan(DOmegaDt_tidal)) DOmegaDt_tidal = std::numeric_limits<double>::infinity();
+        double Dt_Eccentricity1_tidal  = (DEccentricity1Dt_tidal == 0.0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / DEccentricity1Dt_tidal) * YEAR_TO_MYR);
+        double Dt_Eccentricity2_tidal  = (DEccentricity2Dt_tidal == 0.0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / DEccentricity2Dt_tidal) * YEAR_TO_MYR);
+        double Dt_Eccentricity_tidal   = std::min(Dt_Eccentricity1_tidal, Dt_Eccentricity2_tidal);
+
+        double Dt_Omega1_tidal         = (DOmega1Dt_tidal == 0.0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Omega / DOmega1Dt_tidal) * YEAR_TO_MYR);
+        double Dt_Omega2_tidal         = (DOmega2Dt_tidal == 0.0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Omega / DOmega2Dt_tidal) * YEAR_TO_MYR);
+        double Dt_Omega_tidal          = std::min(Dt_Omega1_tidal, Dt_Omega2_tidal);
         
-        dt =  std::min(dt, std::min(DaDt_tidal, std::min(DeDt_tidal, DOmegaDt_tidal)));
+        dt =  std::min(dt, std::min(Dt_SemiMajorAxis_tidal, std::min(Dt_Eccentricity_tidal, Dt_Omega_tidal)));
     }
     dt *= p_Multiplier;	
 
