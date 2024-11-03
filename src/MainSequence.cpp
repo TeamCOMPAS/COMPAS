@@ -928,7 +928,7 @@ double MainSequence::CalculateMainSequenceCoreMassShikauchi() {
  * void UpdateMinimumCoreMass()
  *
  */
-void MainSequence::UpdateMinimumCoreMass(double p_Mdot) {
+void MainSequence::UpdateMinimumCoreMass() {
     switch (OPTIONS->MainSequenceCoreMassPrescription()) {
         case CORE_MASS_PRESCRIPTION::MANDEL:
             m_MinimumCoreMass = CalculateMainSequenceCoreMassMandel();
@@ -937,7 +937,7 @@ void MainSequence::UpdateMinimumCoreMass(double p_Mdot) {
             m_MinimumCoreMass = 0.0;
             break;
         case CORE_MASS_PRESCRIPTION::SHIKAUCHI:
-            m_MixingCoreMass = CalculateMainSequenceCoreMassShikauchi(p_Mdot);
+            m_MinimumCoreMass = CalculateMainSequenceCoreMassShikauchi();
             break;
     }
 }

@@ -144,7 +144,6 @@ public:
             double              Mdot() const                                                    { return m_Mdot; }
             double              Metallicity() const                                             { return m_Metallicity; }
             double              MinimumCoreMass() const                                         { return m_MinimumCoreMass; }
-            double              MixingCoreMass() const                                          { return m_MixingCoreMass; }
             double              MZAMS() const                                                   { return m_MZAMS; }
             double              Omega() const                                                   { return m_Omega; }
             double              OmegaCHE() const                                                { return m_OmegaCHE; }
@@ -529,7 +528,6 @@ protected:
     virtual double              CalculateCOCoreMassOnPhase() const                                                      { return m_COCoreMass; }                                                    // Default is NO-OP
     
     virtual double              CalculateCoreMassAtPhaseEnd() const                                                     { return m_CoreMass; }                                                      // Default is NO-OP
-    virtual double              CalculateMainSequenceCoreMass(double p_Mdot)                                            { return m_MixingCoreMass; }
     static  double              CalculateCoreMassGivenLuminosity_Static(const double p_Luminosity, const DBL_VECTOR &p_GBParams);
     virtual double              CalculateCoreMassOnPhase() const                                                        { return m_CoreMass; }                                                      // Default is NO-OP
 

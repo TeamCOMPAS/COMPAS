@@ -290,9 +290,7 @@ public:
                                                                                                                                                          p_Epsilon);}
 
     void            UpdateMinimumCoreMass()                                                                         { m_Star->UpdateMinimumCoreMass(); }
-    
-    void            UpdateMinimumCoreMass(double p_Mdot)                                                            { m_Star->UpdateMinimumCoreMass(p_Mdot); }
-    
+
     void            UpdatePreviousTimestepDuration()                                                                { m_Star->UpdatePreviousTimestepDuration(); }
     
     void            UpdateTotalMassLossRate(const double p_MassLossRate)                                            { m_Star->UpdateTotalMassLossRate(p_MassLossRate); }

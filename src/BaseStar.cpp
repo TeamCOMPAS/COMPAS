@@ -2995,8 +2995,18 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
 
 
 double BaseStar::CalculateMixingCoreMassAtZAMS(const double p_MZAMS) {
-    double fmix = SHIKAUCHI_FMIX_COEFFICIENTS[0][0] + SHIKAUCHI_FMIX_COEFFICIENTS[0][1] * std::exp(-p_MZAMS / SHIKAUCHI_FMIX_COEFFICIENTS[0][2]);
-    return fmix * p_MZAMS;
+    switch (OPTIONS->MainSequenceCoreMassPrescription()) {
+        case CORE_MASS_PRESCRIPTION::MANDEL: {
+            return 0.0;
+        }
+        case CORE_MASS_PRESCRIPTION::NONE: {
+            return 0.0;
+        }
+        case CORE_MASS_PRESCRIPTION::SHIKAUCHI: {
+            double fmix = SHIKAUCHI_FMIX_COEFFICIENTS[0][0] + SHIKAUCHI_FMIX_COEFFICIENTS[0][1] * std::exp(-p_MZAMS / SHIKAUCHI_FMIX_COEFFICIENTS[0][2]);
+            return fmix * p_MZAMS;
+        }
+    }
 }
 
 
@@ -3230,6 +3240,12 @@ void BaseStar::UpdateMassTransferDonorHistory() {
     else if (!utils::IsOneOf(m_StellarType, { m_MassTransferDonorHistory.back() })) {   // first MT as current stellar type?
         m_MassTransferDonorHistory.push_back(m_StellarType);                            // yes - new event
     }
+}
+
+
+void BaseStar::UpdateTotalMassLossRate(const double p_MassLossRate) {
+    //m_TotalMassLossRatePrev = m_TotalMassLossRate;
+    m_TotalMassLossRate = p_MassLossRate;
 }
 
 
@@ -4786,15 +4802,7 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase(const bool p_ResolveEnvelopeLoss) {
             m_COCoreMass  = CalculateCOCoreMassAtPhaseEnd();
             m_CoreMass    = CalculateCoreMassAtPhaseEnd();
             m_HeCoreMass  = CalculateHeCoreMassAtPhaseEnd();
-            if (m_StellarType == STELLAR_TYPE::MS_GT_07) {
-                //m_MixingCoreMass  = CalculateMainSequenceCoreMass(m_Mdot);
-                //m_CoreMass = m_MixingCoreMass;
-                //m_HeCoreMass = m_MixingCoreMass;
-                //std::cout << m_MixingCoreMass << "   ";
-                std::cout << "MixCore:" << m_MixingCoreMass << " Mass:" << m_Mass << " Mdot:" <<(m_MassPrev - m_Mass) / (m_DtPrev * 1000000.0) << ":timestep" << m_DtPrev << " Yc:" << m_CentralHeliumFraction << "  TimePassed:"  << m_Time;
 
-            }
-            
             m_Luminosity  = CalculateLuminosityAtPhaseEnd();
 
             m_Radius      = CalculateRadiusAtPhaseEnd();
