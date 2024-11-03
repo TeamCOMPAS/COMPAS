@@ -928,17 +928,27 @@ double MainSequence::CalculateMainSequenceCoreMassShikauchi() {
  * void UpdateMinimumCoreMass()
  *
  */
-void MainSequence::UpdateMinimumCoreMass() {
+void MainSequence::UpdateMinimumCoreMass(const double p_Dt, const double p_TotalMassLossRate) {
+    if (p_Dt == 0.0 || p_TotalMassLossRate != m_TotalMassLossRate)   // Only proceed with calculation if time advances and calculation was not executed in binary evolution
+        return;
     switch (OPTIONS->MainSequenceCoreMassPrescription()) {
-        case CORE_MASS_PRESCRIPTION::MANDEL:
+        case CORE_MASS_PRESCRIPTION::MANDEL: {
             m_MinimumCoreMass = CalculateMainSequenceCoreMassMandel();
             break;
-        case CORE_MASS_PRESCRIPTION::NONE:
+        }
+        case CORE_MASS_PRESCRIPTION::NONE: {
             m_MinimumCoreMass = 0.0;
             break;
-        case CORE_MASS_PRESCRIPTION::SHIKAUCHI:
-            m_MinimumCoreMass = CalculateMainSequenceCoreMassShikauchi();
+        }
+        case CORE_MASS_PRESCRIPTION::SHIKAUCHI: {
+            if (p_TotalMassLossRate >= 0.0) {     // Mass Loss
+                m_MinimumCoreMass = CalculateMainSequenceCoreMassShikauchi();
+            }
+            else {    // Mass gain
+                m_MinimumCoreMass = m_MinimumCoreMass;
+            }
             break;
+        }
     }
 }
 

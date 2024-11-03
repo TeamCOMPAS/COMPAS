@@ -3243,12 +3243,6 @@ void BaseStar::UpdateMassTransferDonorHistory() {
 }
 
 
-void BaseStar::UpdateTotalMassLossRate(const double p_MassLossRate) {
-    //m_TotalMassLossRatePrev = m_TotalMassLossRate;
-    m_TotalMassLossRate = p_MassLossRate;
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                              TEMPERATURE CALCULATIONS                             //
