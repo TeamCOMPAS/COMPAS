@@ -354,7 +354,6 @@ void BaseBinaryStar::SetRemainingValues() {
 
 	m_MassTransferTrackerHistory                     = MT_TRACKING::NO_MASS_TRANSFER;
     m_MassTransfer                                   = false;
-    m_MassLossRateInRLOF                             = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_JLoss                                          = OPTIONS->MassTransferJloss();
 
@@ -2066,7 +2065,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                     massDiffDonor = std::min(massDiffDonor, m_MassLossRateInRLOF * m_Dt);
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
                 m_Donor->UpdateTotalMassLossRate(-massDiffDonor / (p_Dt * 1.0E6));
-                m_Donor->UpdateMinimumCoreMass(p_Dt, m_Donor->TotalMassLossRate());                                                                               // reset the minimum core mass following case A
+                m_Donor->UpdateMinimumCoreMass(p_Dt, m_Donor->TotalMassLossRate());
                 m_Accretor->UpdateTotalMassLossRate((massDiffDonor * m_FractionAccreted) / (p_Dt * 1.0E6));
                 m_Accretor->UpdateMinimumCoreMass(p_Dt, m_Accretor->TotalMassLossRate());
             }

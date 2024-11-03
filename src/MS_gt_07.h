@@ -41,6 +41,7 @@ protected:
     void Initialise() {
         CalculateTimescales();                                                                                                                          // Initialise timescales
         // Age for MS_GT_07 is carried over from CH stars switching to MS after spinning down, so not set to 0.0 here
+        m_MinimumCoreMass = MainSequence::CalculateMixingCoreMassAtZAMS(m_MZAMS);                                                                       // Initialise initial core mass 
     }
 
 

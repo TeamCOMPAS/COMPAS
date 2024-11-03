@@ -422,7 +422,6 @@ protected:
     double                  m_CoreMass;                                 // Current core mass (Msol)
     double                  m_Dt;                                       // Size of current timestep (Myr)
     bool                    m_EnvelopeJustExpelledByPulsations;         // Flag to know if the convective envelope has just been expelled by pulsations
-    double                  m_CentralHeliumFraction;
     double                  m_HeCoreMass;                               // Current He core mass (Msol)
     double                  m_HeliumAbundanceCore;                      // Helium abundance in the core
     double                  m_HeliumAbundanceSurface;                   // Helium abundance at the surface
@@ -623,8 +622,6 @@ protected:
 
             double              CalculateMaximumCoreMass(double p_Mass) const;
     
-            double              CalculateMixingCoreMassAtZAMS(const double p_MZAMS);
-
             double              CalculateOmegaBreak() const;
 
     static  double              CalculateOpacity_Static(const double p_HeliumAbundanceSurface);

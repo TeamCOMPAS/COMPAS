@@ -137,8 +137,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
-    m_MinimumCoreMass                          = CalculateMixingCoreMassAtZAMS(m_MZAMS);
-    m_CentralHeliumFraction                    = utils::MESAZAMSHeliumFractionByMetallicity(m_Metallicity);
+    m_MinimumCoreMass                          = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
@@ -2994,22 +2993,6 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
 }
 
 
-double BaseStar::CalculateMixingCoreMassAtZAMS(const double p_MZAMS) {
-    switch (OPTIONS->MainSequenceCoreMassPrescription()) {
-        case CORE_MASS_PRESCRIPTION::MANDEL: {
-            return 0.0;
-        }
-        case CORE_MASS_PRESCRIPTION::NONE: {
-            return 0.0;
-        }
-        case CORE_MASS_PRESCRIPTION::SHIKAUCHI: {
-            double fmix = SHIKAUCHI_FMIX_COEFFICIENTS[0][0] + SHIKAUCHI_FMIX_COEFFICIENTS[0][1] * std::exp(-p_MZAMS / SHIKAUCHI_FMIX_COEFFICIENTS[0][2]);
-            return fmix * p_MZAMS;
-        }
-    }
-}
-
-
 /*
  * Calculate core mass for a given luminosity using the Mc - L relation
  *
@@ -4734,11 +4717,11 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
     if (ShouldEvolveOnPhase()) {                                                    // evolve timestep on phase
         m_Tau        = CalculateTauOnPhase();
 
-        m_COCoreMass      = CalculateCOCoreMassOnPhase();
-        m_CoreMass        = CalculateCoreMassOnPhase();
-        m_HeCoreMass      = CalculateHeCoreMassOnPhase();
+        m_COCoreMass = CalculateCOCoreMassOnPhase();
+        m_CoreMass   = CalculateCoreMassOnPhase();
+        m_HeCoreMass = CalculateHeCoreMassOnPhase();
                 
-        UpdateMinimumCoreMass(p_DeltaTime, m_Mdot);
+        UpdateMinimumCoreMass(p_DeltaTime, m_Mdot);                                 // update core mass, relevant for MS stars
         
         m_Luminosity = CalculateLuminosityOnPhase();
 

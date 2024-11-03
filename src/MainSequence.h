@@ -19,6 +19,8 @@ public:
     MainSequence(const BaseStar& p_BaseStar) : BaseStar(p_BaseStar) {}
 
     MT_CASE DetermineMassTransferTypeAsDonor() const                                        { return MT_CASE::A; }                                                  // Always case A
+    
+    const std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> SHIKAUCHI_COEFFICIENTS = InterpolateShikauchiCoefficients(m_Metallicity);
 
 protected:
 
@@ -71,6 +73,7 @@ protected:
     double          CalculateLuminosityOnPhase() const                                      { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0); }        // Use class member variables
     double          CalculateMainSequenceCoreMassMandel();
     double          CalculateMainSequenceCoreMassShikauchi();
+    double          CalculateMixingCoreMassAtZAMS(const double p_MZAMS);
     double          CalculateMomentOfInertia() const                                        { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                      // k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
 
     double          CalculatePerturbationMu() const                                         { return 5.0; }                                                         // mu(MS) = 5.0 (Hurley et al. 2000, eqs 97 & 98)
@@ -96,7 +99,9 @@ protected:
 
     void            EvolveOneTimestepPreamble();
     STELLAR_TYPE    EvolveToNextPhase()                                                     { return STELLAR_TYPE::HERTZSPRUNG_GAP; }
-
+    
+    std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> InterpolateShikauchiCoefficients(const double p_Metallicity) const;
+    
     bool            IsEndOfPhase() const                                                    { return !ShouldEvolveOnPhase(); }                                      // Phase ends when age at or after MS timescale
 
     void            PerturbLuminosityAndRadius() { }                                                                                                                // NO-OP
@@ -111,7 +116,7 @@ protected:
     
     void            UpdateAgeAfterMassLoss();                                                                                                                       // Per Hurley et al. 2000, section 7.1
     
-    void            UpdateMinimumCoreMass();                                                                                                                        // Set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass
+    void            UpdateMinimumCoreMass(const double p_Dt, const double p_TotalMassLossRate);                                                                     // Set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass
 
 };
 
