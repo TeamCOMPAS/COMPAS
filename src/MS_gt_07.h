@@ -45,8 +45,8 @@ protected:
         // Initialise core mass, luminosity, radius, and temperature if Shikauchi core mass prescription is used
         if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (m_MZAMS >= 10.0)) {
             m_InitialMixingCoreMass = MainSequence::CalculateMixingCoreMassAtZAMS(m_MZAMS);
-            m_MinimumCoreMass = m_InitialMixingCoreMass;
-            m_Luminosity = MainSequence::CalculateLuminosityShikauchi(m_MinimumCoreMass, m_InitialHeliumAbundance);
+            m_MainSequenceCoreMass = m_InitialMixingCoreMass;
+            m_Luminosity = MainSequence::CalculateLuminosityShikauchi(m_MainSequenceCoreMass, m_InitialHeliumAbundance);
             m_Radius = MainSequence::CalculateRadiusOnPhase(m_Mass, m_Age, m_RZAMS0);
             m_Temperature = BaseStar::CalculateTemperatureOnPhase_Static(m_Luminosity, m_Radius);
         }

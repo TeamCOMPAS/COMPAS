@@ -135,9 +135,9 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Dt                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Tau                                      = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
+    m_MainSequenceCoreMass                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
-    m_MinimumCoreMass                          = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
@@ -4715,7 +4715,7 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (ShouldEvolveOnPhase()) {                                                    // evolve timestep on phase
-        UpdateMinimumCoreMass(p_DeltaTime, -m_Mdot);                                // update core mass, relevant for MS stars
+        UpdateMainSequenceCoreMass(p_DeltaTime, -m_Mdot);                           // update core mass, relevant for MS stars
 
         m_Tau        = CalculateTauOnPhase();
 

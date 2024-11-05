@@ -90,7 +90,7 @@ protected:
 
     void            UpdateAgeAfterMassLoss();
     
-    void            UpdateMinimumCoreMass(const double p_Dt, const double p_TotalMassLossRate) { }
+    void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate) { }
     
 };
 

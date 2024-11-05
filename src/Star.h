@@ -289,7 +289,7 @@ public:
                                                                                                                                                          p_MassGainPerTimeStep,
                                                                                                                                                          p_Epsilon);}
 
-    void            UpdateMinimumCoreMass(const double p_Dt, const double p_TotalMassLossRate)                      { m_Star->UpdateMinimumCoreMass(p_Dt, p_TotalMassLossRate); }
+    void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate)                 { m_Star->UpdateMainSequenceCoreMass(p_Dt, p_TotalMassLossRate); }
 
     void            UpdatePreviousTimestepDuration()                                                                { m_Star->UpdatePreviousTimestepDuration(); }
     

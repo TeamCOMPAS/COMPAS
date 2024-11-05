@@ -24,8 +24,8 @@ public:
 
 protected:
     
-    double m_InitialMixingCoreMass = 0.0;
-    double m_HeliumAbundanceCoreOut = m_InitialHeliumAbundance;                            // Previous helium core mass abundance, needed for Shikauchi+ core mass calculation (in case of mass gain)
+    double m_InitialMixingCoreMass = 0.0;                                                  // Initial mass of the mixing core, gets initialised in MS_gt_07 class
+    double m_HeliumAbundanceCoreOut = m_InitialHeliumAbundance;                            // Helium abundance just outside the core, needed for Shikauchi+ core mass calculation (in case of mass gain)
 
     // member functions - alphabetically
     double          CalculateAlphaL(const double p_Mass) const;
@@ -51,7 +51,7 @@ protected:
     double          CalculateCoreMassOnPhase() const                                        { return 0.0; }                                                         // Mc(MS) = 0.0 (Hurley et al. 2000, just before eq 28)
 
     double          CalculateHeCoreMassAtPhaseEnd() const                                   { return CalculateCoreMassAtPhaseEnd(); }                               // Same as He core mass
-    double          CalculateHeCoreMassOnPhase() const                                      { return m_MinimumCoreMass; }                                                         // McHe(MS) = 0.0
+    double          CalculateHeCoreMassOnPhase() const                                      { return 0.0; }                                                         // McHe(MS) = 0.0
 
     double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                          { return CalculateHeliumAbundanceCoreOnPhase(); }
     double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;                                         
@@ -76,7 +76,7 @@ protected:
     double          CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore) const;
     double          CalculateLuminosityShikauchiTransitionToHG() const;
     double          CalculateMainSequenceCoreMassMandel();
-    DBL_DBL         CalculateMainSequenceCoreMassShikauchi();
+    DBL_DBL         CalculateMainSequenceCoreMassShikauchi(const double p_Dt);
     double          CalculateMixingCoreMassAtZAMS(const double p_MZAMS);
     double          CalculateMomentOfInertia() const                                        { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                      // k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
 
@@ -120,9 +120,8 @@ protected:
     void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass);
     
     void            UpdateAgeAfterMassLoss();                                                                                                                       // Per Hurley et al. 2000, section 7.1
-    void            UpdateAgeBasedOnCentralHelium(const double p_Mass, const double p_HeliumAbundanceCore);
 
-    void            UpdateMinimumCoreMass(const double p_Dt, const double p_TotalMassLossRate);
+    void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate);
 
 };
 
