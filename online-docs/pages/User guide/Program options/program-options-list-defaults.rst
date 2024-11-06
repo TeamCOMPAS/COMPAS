@@ -219,7 +219,6 @@ Default = 5370
 **--cool-wind-mass-loss-multiplier** |br|
 Multiplicative constant for wind mass loss of cool stars, i.e. those with temperatures below the
 VINK_MASS_LOSS_MINIMUM_TEMP (default 12500K). |br|
-Only applicable when ``--mass-loss-prescription = HURLEY_ADD``. |br|
 Default = 1.0
 
 **--create-YAML-file** |br|
