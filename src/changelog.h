@@ -1362,12 +1362,17 @@
 //                                        left in the list of options available for printing to log file.  Fix removes those options.  Also added code to the
 //                                        logfile-definitions parsing function so that deprecated options properties are replaced as required.
 //                                      - Fixed typos per issue #1261
-// 03.07.03   VK - Nov 01, 2024     - Defect repairs, bug fixes:
+// 03.07.03   VK - Nov 01, 2024     - Defect repairs:
 //                                      - Fixed logic in KAPIL2024 dynamical tides to consider IW and GW dissipation as long as either the mass OR the radial extent of the
 //                                        convective envelope is above threshold
 //                                      - Added code to ensure that timesteps in BaseBinaryStar::ChooseTimestep() are based on absolute values of tidal timescales, 
 //                                        and appropriately handle situations where tidal terms are 0.
+// 03.07.04   JR - Nov 06, 2024     - Defect repairs:
+//                                      - Fix for issue #1263.  Three recently added boolean options (--emit-gravitational-radiation, --enhance-CHE-lifetimes-luminosities, and 
+//                                        --scale-CHE-mass-loss-with-surface-helium-abundance) had their inplicit_value() set incorrectly in Options.cpp - now fixed.
+//                                      - Removed deprecated options from yaml template yaml.h
+//                                      - Addressed documentation issues in issues #1272 and #1273.
 
-const std::string VERSION_STRING = "03.07.03";
+const std::string VERSION_STRING = "03.07.04";
 
 # endif // __changelog_h__
