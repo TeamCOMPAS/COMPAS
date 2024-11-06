@@ -704,13 +704,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         // boolean options - alphabetically
         //
         // Note the "implicit_value()" (in the statements below) for boolean options is not the default option value
-        // When specifying boolean options, user can specify just the option name (e.g. '--emit_gravitaional-radiation'),
-        // or they can specify the option name, and a value for the option (e.g. '--emit_gravitaional-radiation true', or '--emit_gravitaional-radiation false')
+        // When specifying boolean options, users can specify just the option name (e.g. '--emit_gravitaional-radiation'),
+        // or they can specify the option name, and a value for the option (e.g. '--emit_gravitaional-radiation true', or
+	// '--emit_gravitaional-radiation false')
         // The "implicit_value()" in the statements below specifies what value is assigned to the option if only the option name is
         // specified by the user (e.g. if the user specifies just '--emit_gravitaional-radiation', the implicit_value() for that option
         // will be assigned).
         //
-        // The convention we use for COMPAS is that specifying a boolean option by name only assigns the value "true" - so the inlicit_value()
+        // The convention we use for COMPAS is that specifying a boolean option by name only assigns the value "true" - so the implicit_value()
         // for boolean options in the statements below should be set "true"
 
         (
