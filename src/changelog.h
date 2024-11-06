@@ -1369,7 +1369,8 @@
 //                                        and appropriately handle situations where tidal terms are 0.
 // 03.07.04   JR - Nov 06, 2024     - Defect repairs:
 //                                      - Fix for issue #1263.  Three recently added boolean options (--emit-gravitational-radiation, --enhance-CHE-lifetimes-luminosities, and 
-//                                        --scale-CHE-mass-loss-with-surface-helium-abundance) had their inplicit_value() set incorrectly in Options.cpp - now fixed.
+//                                        --scale-CHE-mass-loss-with-surface-helium-abundance) had their implicit_value() set incorrectly in Options.cpp - now fixed.  Also added
+//                                        documentation for developers.
 //                                      - Removed deprecated options from yaml template yaml.h
 //                                      - Addressed documentation issues in issues #1272 and #1273.
 
