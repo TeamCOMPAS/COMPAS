@@ -1373,7 +1373,9 @@
 //                                        documentation for developers.
 //                                      - Removed deprecated options from yaml template yaml.h
 //                                      - Addressed documentation issues in issues #1272 and #1273.
+// 03.07.05   IM - Nov 07, 2024     - Defect repairs:
+//                                      - Fix for issue #1270: root finder functions now check if either of the bracket edges provides a sufficiently good solution, which sometimes happens when the initial guess is very close to the truth
 
-const std::string VERSION_STRING = "03.07.04";
+const std::string VERSION_STRING = "03.07.05";
 
 # endif // __changelog_h__
