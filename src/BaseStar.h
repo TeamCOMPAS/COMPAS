@@ -144,6 +144,7 @@ public:
             double              Mdot() const                                                    { return m_Mdot; }
             double              Metallicity() const                                             { return m_Metallicity; }
             double              MinimumCoreMass() const                                         { return m_MinimumCoreMass; }
+            double              MomentOfInertiaPrevAU() const                                   { return m_MomentOfInertiaPrevAU; }
             double              MZAMS() const                                                   { return m_MZAMS; }
             double              Omega() const                                                   { return m_Omega; }
             double              OmegaCHE() const                                                { return m_OmegaCHE; }
@@ -446,6 +447,7 @@ protected:
     double                  m_MassPrev;                                 // Previous mass (Msol)
     double                  m_OmegaPrev;                                // Previous angular frequency (yr^-1)
     double                  m_RadiusPrev;                               // Previous radius (Rsol)
+    double                  m_MomentOfInertiaPrevAU;                    // Previous moment of inertia (Msol AU^2)
     STELLAR_TYPE            m_StellarTypePrev;                          // Stellar type at previous timestep
 
     // Metallicity variables

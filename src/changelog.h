@@ -1375,7 +1375,10 @@
 //                                      - Addressed documentation issues in issues #1272 and #1273.
 // 03.07.05   IM - Nov 07, 2024     - Defect repairs:
 //                                      - Fix for issue #1270: root finder functions now check if either of the bracket edges provides a sufficiently good solution, which sometimes happens when the initial guess is very close to the truth
+// 03.07.06   VK - Nov 13, 2024     - Enhancement:
+//                                      - Added m_MomentOfInertiaPrevAU member variable to class BaseStar.
+//                                      - Tides behavior updated to adjust initial stellar spins, to account for any mass or radius changes since previous timestep while conserving angular momentum for each star.
 
-const std::string VERSION_STRING = "03.07.05";
+const std::string VERSION_STRING = "03.07.06";
 
 # endif // __changelog_h__

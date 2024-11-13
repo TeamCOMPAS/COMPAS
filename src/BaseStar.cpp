@@ -160,6 +160,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_StellarTypePrev                          = m_StellarType;
     m_MassPrev                                 = m_MZAMS;
     m_RadiusPrev                               = m_RZAMS;
+    m_MomentOfInertiaPrevAU                    = CalculateMomentOfInertiaAU();
     m_DtPrev                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_OmegaPrev                                = m_OmegaZAMS;
     
@@ -4589,6 +4590,7 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
             m_StellarTypePrev = m_StellarType;
             m_MassPrev        = m_Mass;
             m_RadiusPrev      = m_Radius;
+            m_MomentOfInertiaPrevAU = CalculateMomentOfInertiaAU();                                     
     }
     
     // the GBParams and Timescale calculations need to be done before taking the timestep - since
