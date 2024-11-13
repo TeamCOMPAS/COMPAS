@@ -2469,10 +2469,10 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
             // if m_Omega == 0.0 (should only happen on the first timestep), calculate m_Omega here
             if (utils::Compare(m_Omega, 0.0) == 0) m_Omega = OrbitalAngularVelocity();
 
-            // If the stars have changed since the previous timestep, adjust their spins to conserve angular momentum
-            m_Star1->SetOmega(m_Star1->Omega() * m_Star1->MomentOfInertiaPrevAU() / m_Star1->CalculateMomentOfInertiaAU());
-            m_Star2->SetOmega(m_Star2->Omega() * m_Star2->MomentOfInertiaPrevAU() / m_Star2->CalculateMomentOfInertiaAU());
-            m_TotalAngularMomentum   = CalculateAngularMomentum();
+            // If the stars have changed since the previous timestep (and not changed stellar type), adjust their spins to conserve angular momentum
+            if (m_Star1->StellarType() == m_Star1->StellarTypePrev()) m_Star1->SetOmega(m_Star1->Omega() * m_Star1->MomentOfInertiaPrevAU() / m_Star1->CalculateMomentOfInertiaAU());
+            if (m_Star2->StellarType() == m_Star2->StellarTypePrev()) m_Star2->SetOmega(m_Star2->Omega() * m_Star2->MomentOfInertiaPrevAU() / m_Star2->CalculateMomentOfInertiaAU());
+            CalculateEnergyAndAngularMomentum();
         }
 
         switch (OPTIONS->TidesPrescription()) {                                                                                 // which tides prescription?
