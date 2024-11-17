@@ -124,7 +124,6 @@ public:
     double              MZAMS() const                                                                               { return m_Star->MZAMS(); }
     double              Omega() const                                                                               { return m_Star->Omega(); }
     double              OmegaCHE() const                                                                            { return m_Star->OmegaCHE(); }
-    double              OmegaPrev() const                                                                           { return m_Star->OmegaPrev(); }
     double              Radius() const                                                                              { return m_Star->Radius(); }
     double              RadiusPrev() const                                                                          { return m_Star->RadiusPrev(); }
     unsigned long int   RandomSeed() const                                                                          { return m_Star->RandomSeed(); }

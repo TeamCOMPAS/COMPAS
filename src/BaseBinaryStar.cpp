@@ -2416,6 +2416,10 @@ void BaseBinaryStar::ResolveMassChanges() {
     m_Star1->UpdateAgeAfterMassLoss();                                                                  // update age of star1
     m_Star1->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star1
     m_Star1->UpdateAttributes(0.0, 0.0, true);
+    m_Star1->SetOmega(m_Star1->Omega());                                                                // keep same rotation rate on mass loss; corresponds to inefficient angular momentum transport
+    if(m_Star1->MassTransferDiff() > 0.0)                                                                // add angular momentum of accreting material assuming accretion from circular orbit at stellar radius
+        m_Star1->SetOmega(m_Star1->Omega() + m_Star1->MassTransferDiff() * sqrt(G_AU_Msol_yr * m_Star1->Mass() * m_Star1->Radius() * RSOL_TO_AU) / m_Star1->CalculateMomentOfInertiaAU() );
+        
 
     // rinse and repeat for star2
     (void)m_Star2->UpdateAttributes(m_Star2->MassPrev() - m_Star2->Mass() + m_Star2->MassLossDiff() + m_Star2->MassTransferDiff(), 0.0); // update mass for star2
@@ -2423,6 +2427,10 @@ void BaseBinaryStar::ResolveMassChanges() {
     m_Star2->UpdateAgeAfterMassLoss();                                                                  // update age of star2
     m_Star2->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star2
     m_Star2->UpdateAttributes(0.0, 0.0, true);
+    m_Star2->SetOmega(m_Star2->Omega());                                                                // keep same rotation rate on mass loss; corresponds to inefficient angular momentum transport
+    if(m_Star2->MassTransferDiff() > 0.0)                                                                // add angular momentum of accreting material assuming accretion from circular orbit at stellar radius
+        m_Star1->SetOmega(m_Star2->Omega() + m_Star2->MassTransferDiff() * sqrt(G_AU_Msol_yr * m_Star2->Mass() * m_Star2->Radius() * RSOL_TO_AU) / m_Star2->CalculateMomentOfInertiaAU() );
+    
     
     // update binary separation, but only if semimajor axis not already infinite and binary does not contain a massless remnant
     // JR: note, this will (probably) fail if option --fp-error-mode is not OFF (the calculation that resulted in m_SemiMajorAxis = inf will (probably) result in a trap)
