@@ -2417,7 +2417,7 @@ void BaseBinaryStar::ResolveMassChanges() {
     m_Star1->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star1
     m_Star1->UpdateAttributes(0.0, 0.0, true);
     m_Star1->SetOmega(m_Star1->Omega());                                                                // keep same rotation rate on mass loss; corresponds to inefficient angular momentum transport
-    if(m_Star1->MassTransferDiff() > 0.0)                                                                // add angular momentum of accreting material assuming accretion from circular orbit at stellar radius
+    if (m_Star1->MassTransferDiff() > 0.0)                                                              // add angular momentum of accreting material assuming accretion from circular orbit at stellar radius
         m_Star1->SetOmega(m_Star1->Omega() + m_Star1->MassTransferDiff() * sqrt(G_AU_Msol_yr * m_Star1->Mass() * m_Star1->Radius() * RSOL_TO_AU) / m_Star1->CalculateMomentOfInertiaAU() );
         
 
@@ -2428,7 +2428,7 @@ void BaseBinaryStar::ResolveMassChanges() {
     m_Star2->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star2
     m_Star2->UpdateAttributes(0.0, 0.0, true);
     m_Star2->SetOmega(m_Star2->Omega());                                                                // keep same rotation rate on mass loss; corresponds to inefficient angular momentum transport
-    if(m_Star2->MassTransferDiff() > 0.0)                                                                // add angular momentum of accreting material assuming accretion from circular orbit at stellar radius
+    if (m_Star2->MassTransferDiff() > 0.0)                                                              // add angular momentum of accreting material assuming accretion from circular orbit at stellar radius
         m_Star1->SetOmega(m_Star2->Omega() + m_Star2->MassTransferDiff() * sqrt(G_AU_Msol_yr * m_Star2->Mass() * m_Star2->Radius() * RSOL_TO_AU) / m_Star2->CalculateMomentOfInertiaAU() );
     
     
