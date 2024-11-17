@@ -1378,8 +1378,9 @@
 // 03.08.00   IM - Nov 17, 2024     - Enhancements, code cleanup:
 //                                      - Switch to using angular momentum rather than omega as the basic tracker of stellar rotation
 //                                      - Stars that evolve without mass loss do not change angular momentum, but may change omega as the moment of inertia changes
-//                                      - Stars that lose mass through winds or mass transfer keep the same rotation rate (omega) and lose angular momentum -- corresponds to completely inefficient angular momentum transport assumption
+//                                      - Stars that lose mass through winds or mass transfer lose it with the specific angular momentum of their outermost shell
 //                                      - Mass gain through accretion brings in a specific angular momentum equal to that of a Keplerian orbit at the accretor's radius
+//                                      - Clean-up of call to UpdateAttributes() in BaseBinaryStar::ResolveMassChanges()
 //                                      - Associated code clean-up
 
 const std::string VERSION_STRING = "03.08.00";

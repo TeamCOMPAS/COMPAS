@@ -2970,7 +2970,7 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
 
         double mass = CalculateMassLossValues(true, p_UpdateMDt);                                   // calculate new values assuming mass loss applied
 
-        double omega = Omega();
+        double angularMomentumChange = (2.0/3.0) * (mass - m_Mass) * m_Radius * m_Radius * Omega();
         
         // JR: this is here to keep attributes in sync BSE vs SSE
         // Supernovae are caught in UpdateAttributesAndAgeOneTimestep() (hence the need to move the
@@ -2989,7 +2989,7 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
         UpdateAgeAfterMassLoss();                                                                   // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                                      // apply age rejuvenation factor
-        SetOmega(omega);                                                                            // for now, assume mass loss does not change rotation rate, but does change angular momentum (i.e., completely inefficient angular momentum transport)
+        SetAngularMomentum(m_AngularMomentum + angularMomentumChange);                              
     }
 }
 

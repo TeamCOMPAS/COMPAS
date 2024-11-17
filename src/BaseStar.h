@@ -191,12 +191,13 @@ public:
 
 
     // setters
+            void                SetAngularMomentum(double p_AngularMomentum)                    { m_AngularMomentum = std::min(p_AngularMomentum, 0.0); }
             void                SetInitialType(const STELLAR_TYPE p_InitialType)                { m_InitialStellarType = p_InitialType; }
             void                SetError(const ERROR p_Error)                                   { m_Error = p_Error; }
             void                SetObjectId(const OBJECT_ID p_ObjectId)                         { m_ObjectId = p_ObjectId; }
             void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)          { m_ObjectPersistence = p_Persistence; }
 
-            void                SetOmega(double p_Omega)                                         { if (p_Omega >= 0.0) m_AngularMomentum =     CalculateMomentOfInertiaAU() * p_Omega; }           // Do nothing if sanity check fails (JR: I don't really like this, but I think unavoidable - at least for now)
+            void                SetOmega(double p_Omega)                                        { SetAngularMomentum(CalculateMomentOfInertiaAU() * p_Omega); }
 
             void                SetSNCurrentEvent(const SN_EVENT p_SNEvent)                     { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
             void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep

@@ -73,6 +73,7 @@ public:
 
     // getters - alphabetically
     double              Age() const                                                                                 { return m_Star->Age(); }
+    double              AngularMomentum() const                                                                     { return m_Star->AngularMomentum(); }
     double              BindingEnergyFixed() const                                                                  { return m_Star->BindingEnergyFixed(); }
     double              BindingEnergyLoveridge() const                                                              { return m_Star->BindingEnergyLoveridge(); }
     double              BindingEnergyNanjing() const                                                                { return m_Star->BindingEnergyNanjing(); }
@@ -145,7 +146,8 @@ public:
 
     
     // setters
-    void                SetOmega(double p_vRot)                                                                     { m_Star->SetOmega(p_vRot); }
+    void                SetAngularMomentum(double p_AngularMomentum)                                                { m_Star->SetAngularMomentum(p_AngularMomentum); }
+    void                SetOmega(double p_Omega)                                                                    { m_Star->SetOmega(p_Omega); }
     void                SetObjectId(const OBJECT_ID p_ObjectId)                                                     { m_ObjectId = p_ObjectId; }
     void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)                                      { m_ObjectPersistence = p_Persistence; }
     void                UpdateMassTransferDonorHistory()                                                            { m_Star->UpdateMassTransferDonorHistory(); }

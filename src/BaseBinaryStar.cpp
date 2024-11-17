@@ -2410,26 +2410,32 @@ void BaseBinaryStar::ResolveMassChanges() {
     STELLAR_TYPE stellarType1 = m_Star1->StellarTypePrev();                                             // star 1 stellar type before updating attributes
     STELLAR_TYPE stellarType2 = m_Star2->StellarTypePrev();                                             // star 2 stellar type before updating attributes
 
+    double massChange1 = m_Star1->MassLossDiff() + m_Star1->MassTransferDiff();
+    double angularMomentumChange1 = (2.0/3.0) * massChange1 * m_Star1->Radius() * m_Star1->Radius() * m_Star1->Omega();
+    if(massChange1 > 0.0)                                                                               // add angular momentum of accreting material assuming accretion from circular orbit at stellar radius
+        angularMomentumChange1 = massChange1 * sqrt(G_AU_Msol_yr * m_Star1->Mass() * m_Star1->Radius() * RSOL_TO_AU);
     // update mass of star1 according to mass loss and mass transfer, then update age accordingly
-    (void)m_Star1->UpdateAttributes(m_Star1->MassPrev() - m_Star1->Mass() + m_Star1->MassLossDiff() + m_Star1->MassTransferDiff(), 0.0); // update mass for star1
+    (void)m_Star1->UpdateAttributes(massChange1, 0.0); // update mass for star1
     m_Star1->UpdateInitialMass();                                                                       // update effective initial mass of star1 (MS, HG & HeMS)
     m_Star1->UpdateAgeAfterMassLoss();                                                                  // update age of star1
     m_Star1->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star1
     m_Star1->UpdateAttributes(0.0, 0.0, true);
-    m_Star1->SetOmega(m_Star1->Omega());                                                                // keep same rotation rate on mass loss; corresponds to inefficient angular momentum transport
-    if (m_Star1->MassTransferDiff() > 0.0)                                                              // add angular momentum of accreting material assuming accretion from circular orbit at stellar radius
-        m_Star1->SetOmega(m_Star1->Omega() + m_Star1->MassTransferDiff() * sqrt(G_AU_Msol_yr * m_Star1->Mass() * m_Star1->Radius() * RSOL_TO_AU) / m_Star1->CalculateMomentOfInertiaAU() );
+    m_Star1->SetAngularMomentum(m_Star1->AngularMomentum() + angularMomentumChange1);
         
 
     // rinse and repeat for star2
-    (void)m_Star2->UpdateAttributes(m_Star2->MassPrev() - m_Star2->Mass() + m_Star2->MassLossDiff() + m_Star2->MassTransferDiff(), 0.0); // update mass for star2
+    double massChange2 = m_Star2->MassLossDiff() + m_Star2->MassTransferDiff();
+    double angularMomentumChange2 = (2.0/3.0) * massChange2 * m_Star2->Radius() * m_Star2->Radius() * m_Star2->Omega();
+    if(massChange2 > 0.0)                                                                               // add angular momentum of accreting material assuming accretion from circular orbit at stellar radius
+        angularMomentumChange2 = massChange2 * sqrt(G_AU_Msol_yr * m_Star2->Mass() * m_Star2->Radius() * RSOL_TO_AU);
+    // update mass of star1 according to mass loss and mass transfer, then update age accordingly
+    (void)m_Star2->UpdateAttributes(massChange2, 0.0); // update mass for star2
     m_Star2->UpdateInitialMass();                                                                       // update effective initial mass of star 2 (MS, HG & HeMS)
     m_Star2->UpdateAgeAfterMassLoss();                                                                  // update age of star2
     m_Star2->ApplyMassTransferRejuvenationFactor();                                                     // apply age rejuvenation factor for star2
     m_Star2->UpdateAttributes(0.0, 0.0, true);
-    m_Star2->SetOmega(m_Star2->Omega());                                                                // keep same rotation rate on mass loss; corresponds to inefficient angular momentum transport
-    if (m_Star2->MassTransferDiff() > 0.0)                                                              // add angular momentum of accreting material assuming accretion from circular orbit at stellar radius
-        m_Star1->SetOmega(m_Star2->Omega() + m_Star2->MassTransferDiff() * sqrt(G_AU_Msol_yr * m_Star2->Mass() * m_Star2->Radius() * RSOL_TO_AU) / m_Star2->CalculateMomentOfInertiaAU() );
+    m_Star1->SetAngularMomentum(m_Star1->AngularMomentum() + angularMomentumChange2);
+
     
     
     // update binary separation, but only if semimajor axis not already infinite and binary does not contain a massless remnant
