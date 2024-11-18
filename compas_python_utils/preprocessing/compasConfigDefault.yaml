@@ -43,7 +43,6 @@ booleanChoices:
 #    --hmxr-binaries: False                                                # Default: False
 #    --mass-transfer: True                                                 # Default: True
 #    --use-mass-transfer: True                                             # Default: True
-#    --retain-core-mass-during-caseA-mass-transfer: True                   # Default: True
 
     ### COMMON ENVELOPE
 #    --common-envelope-allow-immediate-RLOF-post-CE-survive: False         # Default: False
@@ -236,6 +235,7 @@ stringChoices:
 #    --initial-mass-function: 'KROUPA'                                     # Default: 'KROUPA'                      # Options: ['KROUPA','UNIFORM','POWERLAW','SALPETER']
 #    --LBV-mass-loss-prescription: 'HURLEY_ADD'                            # Default: 'HURLEY_ADD'                  # Options: ['BELCZYNSKI','HURLEY','HURLEY_ADD','ZERO','NONE']
 #    --luminous-blue-variable-prescription: 'HURLEY_ADD'                   # Default: 'HURLEY_ADD'                  # Options: ['BELCZYNSKI','HURLEY','HURLEY_ADD','ZERO','NONE']
+#    --main-sequence-core-mass-prescription: 'MANDEL'                      # Default: 'MANDEL'                      # Options: ['SHIKAUCHI','MANDEL','NONE']
 #    --mass-loss-prescription: 'MERRITT2024'                               # Default: 'MERRITT2024'                 # Options: ['MERRITT2024','BELCZYNSKI2010','HURLEY','ZERO','NONE']
 #    --OB-mass-loss: 'VINK2021'                                            # Default: 'VINK2021'                    # Options: ['KRTICKA2018','BJORKLUND2022','VINK2021','VINK2001','ZERO','NONE']
 #    --OB-mass-loss-prescription: 'VINK2021'                               # Default: 'VINK2021'                    # Options: ['KRTICKA2018','BJORKLUND2022','VINK2021','VINK2001','ZERO','NONE']

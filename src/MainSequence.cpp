@@ -295,10 +295,7 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
     
     // If SHIKAUCHI core prescription is used, return Shikauchi luminosity
     if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (m_MZAMS >= 10.0)) {
-        if ((m_HeliumAbundanceCore == 1.0 - m_Metallicity) && (m_TotalMassLossRate == -m_Mdot))                                 // star in MS hook and mass transfer not ongoing?
-            return CalculateLuminosityShikauchiTransitionToHG(p_Time);
-        else
-            return CalculateLuminosityShikauchi(m_MainSequenceCoreMass, m_HeliumAbundanceCore);
+            return CalculateLuminosityShikauchi(m_MainSequenceCoreMass, m_HeliumAbundanceCore, p_Time);
     }
     
     const double epsilon = 0.01;
@@ -331,48 +328,39 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
 /*
  * Calculate luminosity on the Main Sequence when Shikauchi et al. (2024) core mass prescription is used
  *
- * Shikauchi et al. 2024, eq (A5)
+ * During core hydrogen burning uses eq (A5) from Shikauchi et al. (2024)
  *
+ * When the Main Sequence hook starts (at age 0.99 * tMS) calculates luminosity that smoothly connects the last point
+ * of core hydrogen burning with the first point of the HG
  *
- * double CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore)
+ * double CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore, const double p_Age)
  *
  * @param   [IN]    p_CoreMass                  Main sequence core mass in Msol
  * @param   [IN]    p_HeliumAbundanceCore       Central helium fraction
+ * @param   [IN]    p_Age                       Current age in Myr
  * @return                                      Luminosity on the Main Sequence as a function of current core mass and central helium fraction
  */
-double MainSequence::CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore) const {
+double MainSequence::CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore, const double p_Age) const {
     DBL_VECTOR L_COEFFICIENTS = std::get<2>(SHIKAUCHI_COEFFICIENTS);
     double centralHeliumFraction = p_HeliumAbundanceCore;
     double logMixingCoreMass = std::log10(p_CoreMass);
     
     double logL = L_COEFFICIENTS[0] * logMixingCoreMass + L_COEFFICIENTS[1] * centralHeliumFraction + L_COEFFICIENTS[2] * logMixingCoreMass * centralHeliumFraction + L_COEFFICIENTS[3] * logMixingCoreMass * logMixingCoreMass + L_COEFFICIENTS[4] * centralHeliumFraction * centralHeliumFraction + L_COEFFICIENTS[5] * logMixingCoreMass * logMixingCoreMass * logMixingCoreMass + L_COEFFICIENTS[6] * centralHeliumFraction * centralHeliumFraction * centralHeliumFraction + L_COEFFICIENTS[7] * logMixingCoreMass * logMixingCoreMass * centralHeliumFraction + L_COEFFICIENTS[8] * logMixingCoreMass * centralHeliumFraction * centralHeliumFraction + L_COEFFICIENTS[9];
+    double luminosity = PPOW(10.0, logL);
+    
+    if ((p_HeliumAbundanceCore == 1.0 - m_Metallicity) && (m_TotalMassLossRate == -m_Mdot)) {                                // star in MS hook and mass transfer not ongoing?
+        HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
+        double luminosityTAMS = clone->Luminosity();                                                                         // Get luminosity from clone (with updated Mass0)
+        delete clone; clone = nullptr;                                                                                       // Return the memory allocated for the clone
         
-    return PPOW(10.0, logL);
-}
-
-
-/*
- * Calculate luminosity on the transition from the Main Sequence to the HG when Shikauchi et al. (2024) core mass prescription is used
- *
- * Shikauchi+ prescription cannot be used beyond the MS hook (at age 0.99 * tMS), and this smoothly connects luminosity between
- * the beginning of the hook and the beginning of the HG
- *
- * double CalculateLuminosityShikauchiTransitionToHG(const double p_Age)
- *
- * @param    [IN]    p_Age                      Age in Myr
- * @return                                      Luminosity on the Main Sequence (for age between tHook and tMS)
- */
-double MainSequence::CalculateLuminosityShikauchiTransitionToHG(const double p_Age) const {
-    HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
-    double luminosityTAMS = clone->Luminosity();                                                                        // Get luminosity from clone (with updated Mass0)
-    delete clone; clone = nullptr;                                                                                      // Return the memory allocated for the clone
+        double tMS = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
+        double ageAtHookStart = 0.99 * tMS;
+        double luminosityAtHookStart = luminosity;
+        
+        // Linear interpolation
+        luminosity = (luminosityAtHookStart * (tMS - p_Age) + luminosityTAMS * (p_Age - ageAtHookStart)) / (tMS - ageAtHookStart);
+    }
     
-    double tMS = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
-    double ageAtHookStart = 0.99 * tMS;
-    double luminosityAtHookStart = CalculateLuminosityShikauchi(m_MainSequenceCoreMass, 1.0 - m_Metallicity);
-    
-    // Linear interpolation
-    double luminosity = (luminosityAtHookStart * (tMS - p_Age) + luminosityTAMS * (p_Age - ageAtHookStart)) / (tMS - ageAtHookStart);
     return luminosity;
 }
 
@@ -548,8 +536,7 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
     // If SHIKAUCHI core prescription is used, return radius that smoothly connects the beginning of MS hook and the beginning of HG
     if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (m_MZAMS >= 10.0)) {
         if ((m_HeliumAbundanceCore == 1.0 - m_Metallicity) && (m_TotalMassLossRate == -m_Mdot))                                 // star in MS hook and mass transfer not ongoing?
-            return CalculateRadiusShikauchiTransitionToHG(p_Mass, p_Time, p_RZAMS);
-        else { };                                                                                                               // this is where a new radius prescription would go
+            return CalculateRadiusTransitionToHG(p_Mass, p_Time, p_RZAMS);
     }
         
     const double epsilon = 0.01;
@@ -643,14 +630,14 @@ double MainSequence::CalculateRadiusOnPhaseTau(const double p_Mass, const double
  * Shikauchi+ prescription cannot be used beyond the MS hook (beyond age 0.99 * tMS), and this smoothly connects the radius between
  * the beginning of the hook and the beginning of the HG
  *
- * double CalculateRadiusShikauchiTransitionToHG()
+ * double CalculateRadiusShikauchiTransitionToHG(const double p_Mass, const double p_Age, double const p_RZAMS)
  
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_Age                       Age in Myr
  * @param   [IN]    p_RZAMS                     Zero Age Main Sequence (ZAMS) Radius
  * @return                                      Radius on the Main Sequence (for age between tHook and tMS)
  */
-double MainSequence::CalculateRadiusShikauchiTransitionToHG(const double p_Mass, const double p_Age, double const p_RZAMS) const {
+double MainSequence::CalculateRadiusTransitionToHG(const double p_Mass, const double p_Age, double const p_RZAMS) const {
     double radiusTAMS = CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
     double tMS  = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
     double tauAtHookStart = 0.99;
@@ -830,7 +817,7 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassShikauchi(const double p_Dt) 
     // Eq (A4)
     double beta = 1.0 - FMIX_COEFFICIENTS[1] * totalMass / (FMIX_COEFFICIENTS[2] * fmix) * std::exp(-totalMass / FMIX_COEFFICIENTS[2]);
     // Eq (A5)
-    double logL = std::log10(CalculateLuminosityShikauchi(mixingCoreMass, centralHeliumFraction));
+    double logL = std::log10(CalculateLuminosityShikauchi(mixingCoreMass, centralHeliumFraction, 0.0));
     // Eq (A2)
     double alpha = PPOW(10.0, std::max(-2.0, ALPHA_COEFFICIENTS[1] * mixingCoreMass + ALPHA_COEFFICIENTS[2])) + ALPHA_COEFFICIENTS[0];
     // Eq (A7)

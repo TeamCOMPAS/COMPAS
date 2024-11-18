@@ -798,7 +798,7 @@ Default = 4.2
 **--main-sequence-core-mass-prescription** |br|
 Main sequence core mass prescription. |br|
 Options: {NONE, MANDEL, SHIKAUCHI} |br|
-``NONE``      : No treatment, core mass not tracked on the MS |br|
+``NONE``      : No core mass treatment |br|
 ``MANDEL``    : The core following case A mass transfer is set equal to the expected core mass of a newly formed HG star
  with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer |br|
 ``SHIKAUCHI`` : Core mass according to Shikauchi et al. (2024) |br|
@@ -1420,7 +1420,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Stellar evolution and winds**
 
 --use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
---luminous-blue-variable-multiplier, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
+--luminous-blue-variable-multiplier, --main-sequence-core-mass-prescription, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold,
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 
@@ -1440,7 +1440,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --critical-mass-ratio-helium-giant-degenerate-accretor, --critical-mass-ratio-helium-giant-non-degenerate-accretor, --critical-mass-ratio-white-dwarf-degenerate-accretor, 
 --critical-mass-ratio-white-dwarf-non-degenerate-accretor, --eddington-accretion-factor, --mass-transfer, --use-mass-transfer, --mass-transfer-accretion-efficiency-prescription, 
 --mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-macleod-linear-fraction-degen, --mass-transfer-jloss-macleod-linear-fraction-non-degen, 
---mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-accretor-multiplier, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
+--mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-accretor-multiplier, --mass-transfer-thermal-limit-C, 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
 --circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription

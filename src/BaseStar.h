@@ -357,9 +357,9 @@ public:
                                                        const double p_MassGainPerTimeStep,
                                                        const double p_Epsilon) { }                                                                                                  // Default is NO-OP
 
-    virtual void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate) { }                                                                          // Set minimal core mass for Main Sequence stars losing mass through winds or mass transfer; default is NO-OP
+    virtual void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate) { }                                                                     // Set core mass for Main Sequence stars; default is NO-OP
     
-    virtual void            UpdateTotalMassLossRate(const double p_MassLossRate)                                { m_TotalMassLossRate = p_MassLossRate; }                           // m_TotalMassLossRate = m_Mdot in SSE, during a mass transfer episode m_TotalMassLossRate = m_MassLossRateInRLOF
+    virtual void            UpdateTotalMassLossRate(const double p_MassLossRate)                                { m_TotalMassLossRate = p_MassLossRate; }                           // m_TotalMassLossRate = -m_Mdot in SSE, during a mass transfer episode m_TotalMassLossRate = m_MassLossRateInRLOF
     
     // printing functions
     bool PrintDetailedOutput(const int p_Id, const SSE_DETAILED_RECORD_TYPE p_RecordType) const { 
@@ -442,7 +442,7 @@ protected:
     double                  m_Tau;                                      // Relative time
     double                  m_Temperature;                              // Current temperature (Tsol)
     double                  m_Time;                                     // Current physical time the star has been evolved (Myr)
-    double                  m_TotalMassLossRate;                        // Current mass loss rate from winds or mass transfer (Msol per yr)
+    double                  m_TotalMassLossRate;                        // Current mass loss/gain rate from mass transfer or winds (Msol per yr)
 
     // Previous timestep variables
     double                  m_DtPrev;                                   // Previous timestep
@@ -621,7 +621,7 @@ protected:
     virtual double              CalculateMassTransferRejuvenationFactor()                                               { return 1.0; }
 
             double              CalculateMaximumCoreMass(double p_Mass) const;
-    
+
             double              CalculateOmegaBreak() const;
 
     static  double              CalculateOpacity_Static(const double p_HeliumAbundanceSurface);

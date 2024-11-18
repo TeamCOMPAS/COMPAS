@@ -47,7 +47,7 @@ protected:
     double          CalculateCOCoreMassAtPhaseEnd() const                                   { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase
     double          CalculateCOCoreMassOnPhase() const                                      { return 0.0; }                                                         // McCO(MS) = 0.0
 
-    double          CalculateCoreMassAtPhaseEnd() const                                     { return 0.0; }                                                         // Accounts for minimal core mass built up prior to mass loss through mass transfer
+    double          CalculateCoreMassAtPhaseEnd() const                                     { return 0.0; }                                      // Accounts for minimal core mass built up prior to mass loss through mass transfer
     double          CalculateCoreMassOnPhase() const                                        { return 0.0; }                                                         // Mc(MS) = 0.0 (Hurley et al. 2000, just before eq 28)
 
     double          CalculateHeCoreMassAtPhaseEnd() const                                   { return CalculateCoreMassAtPhaseEnd(); }                               // Same as He core mass
@@ -73,8 +73,7 @@ protected:
     double          CalculateLuminosityAtPhaseEnd() const                                   { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                      // Use class member variables
     double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const;
     double          CalculateLuminosityOnPhase() const                                      { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0); }        // Use class member variables
-    double          CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore) const;
-    double          CalculateLuminosityShikauchiTransitionToHG(const double p_Age) const;
+    double          CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore, const double p_Age) const;
     double          CalculateMainSequenceCoreMassMandel();
     DBL_DBL         CalculateMainSequenceCoreMassShikauchi(const double p_Dt);
     double          CalculateMixingCoreMassAtZAMS(const double p_MZAMS);
@@ -90,10 +89,8 @@ protected:
     double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_RZAMS) const;
     double          CalculateRadiusAtPhaseEnd() const                                       { return CalculateRadiusAtPhaseEnd(m_Mass, m_RZAMS); }                  // Use class member variables
     double          CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase(m_Mass, m_Age, m_RZAMS0); }             // Use class member variables
-    double          CalculateRadiusShikauchiTransitionToHG(const double p_Mass, const double p_Age, double const p_RZAMS) const;
-    
-    double          CalculateRadiusShikauchiTransitionToHGTau(const double p_Mass, const double p_Tau) const;
- 
+    double          CalculateRadiusTransitionToHG(const double p_Mass, const double p_Age, double const p_RZAMS) const;
+     
     double          CalculateTauAtPhaseEnd() const                                          { return 1.0; }                                                         // tau = 1.0 at end of MS
     double          CalculateTauOnPhase() const;
 

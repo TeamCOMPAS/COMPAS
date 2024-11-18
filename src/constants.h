@@ -3671,9 +3671,9 @@ const std::vector<std::vector<std::vector<LoveridgeCoefficients>>> LOVERIDGE_COE
     }
 };
 
-// Coefficients for determining core mass for stars on the MS
+// Coefficients for determining Main Sequence core mass
 // from Shikauchi et al. (2024), https://arxiv.org/abs/2409.00460
-// from Table 2
+// Table 2
 const std::vector<DBL_VECTOR> SHIKAUCHI_ALPHA_COEFFICIENTS = {
     // 0.1*Z_Sun
     {0.45, -0.0557105,  -0.86589929},
@@ -3682,7 +3682,7 @@ const std::vector<DBL_VECTOR> SHIKAUCHI_ALPHA_COEFFICIENTS = {
     // Solar metallicity Z_Sun
     {0.45, -0.05878711, -0.84646162}
 };
-// from Table 3
+// Table 3
 const std::vector<DBL_VECTOR> SHIKAUCHI_FMIX_COEFFICIENTS = {
     // 0.1*Z_Sun
     {0.86914766, -0.60815098, 37.20654856},
@@ -3691,7 +3691,7 @@ const std::vector<DBL_VECTOR> SHIKAUCHI_FMIX_COEFFICIENTS = {
     // Solar metallicity Z_Sun
     {0.86605495, -0.64960375, 35.57019104}
 };
-// from Table 4
+// Table 4
 const std::vector<DBL_VECTOR> SHIKAUCHI_L_COEFFICIENTS = {
     // 0.1*Z_Sun
     {3.2555795,  1.84666823, -0.79986388, -0.75728099, -0.38831172, 0.08223542, 0.49543834, 0.31314176, -0.36705796, 1.72200581},

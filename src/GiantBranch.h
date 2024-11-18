@@ -135,6 +135,8 @@ protected:
             void            UpdateAgeAfterMassLoss() { }                                                                                                                        // NO-OP for most stellar types
 
             void            UpdateInitialMass() { }                                                                                                                             // NO-OP for most stellar types
+    
+            void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate) { }                                                                 // NO-OP for most stellar types
 
 };
 

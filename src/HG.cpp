@@ -818,7 +818,7 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 
     double RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
     
-    // This ensures continuity of stellar tracks when Shikauchi+ core prescription is used
+    // This ensures continuity of stellar tracks when SHIKAUCHI core mass prescription is used
     if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (m_MZAMS >= 10.0))
         RTMS = MainSequence::CalculateRadiusAtPhaseEnd(m_Mass, p_RZAMS);
     
