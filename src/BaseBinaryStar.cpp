@@ -1724,6 +1724,16 @@ void BaseBinaryStar::ResolveMainSequenceMerger() {
     
     m_SemiMajorAxis = std::numeric_limits<float>::infinity();                                   // set separation to infinity to avoid subsequent fake interactions with a massless companion (RLOF, CE, etc.)
     
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (m_Star1->MZAMS() >= 10.0) && (m_Star2->MZAMS() >= 10.0)) {
+        double coreMass1 = m_Star1->MainSequenceCoreMass();
+        double coreMass2 = m_Star2->MainSequenceCoreMass();
+        
+        double coreHeliumMass1 = m_Star1->HeliumAbundanceCore() * coreMass1;
+        double coreHeliumMass2 = m_Star2->HeliumAbundanceCore() * coreMass2;
+        
+        finalHydrogenMass = finalMass * initialHydrogenFraction - coreHeliumMass1 - coreHeliumMass2;
+    }
+    
     m_Star1->UpdateAfterMerger(finalMass, finalHydrogenMass);
     
     m_Star2->SwitchTo(STELLAR_TYPE::MASSLESS_REMNANT);

@@ -817,6 +817,11 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 
     double RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
+    
+    // This ensures continuity of stellar tracks when Shikauchi+ core prescription is used
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (m_MZAMS >= 10.0))
+        RTMS = MainSequence::CalculateRadiusAtPhaseEnd(m_Mass, p_RZAMS);
+    
     double RGB  = GiantBranch::CalculateRadiusOnPhase_Static(p_Mass, m_Luminosity, b);
 
     double rx   = RGB;                                                                                              // Hurley sse terminlogy (rx)

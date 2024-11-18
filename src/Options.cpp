@@ -1785,12 +1785,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_LBVMassLossPrescription.typeString)->default_value(p_Options->m_LBVMassLossPrescription.typeString),                                                                  
             ("LBV Mass loss prescription (" + AllowedOptionValuesFormatted("LBV-mass-loss-prescription") + ", default = '" + p_Options->m_LBVMassLossPrescription.typeString + "')").c_str()
         )
-
-        (
-            "luminous-blue-variable-prescription",      // DEPRECATED June 2024 - remove end 2024                                       
-            po::value<std::string>(&p_Options->m_LBVMassLossPrescription.typeString)->default_value(p_Options->m_LBVMassLossPrescription.typeString),                                                                  
-            ("LBV Mass loss prescription (" + AllowedOptionValuesFormatted("luminous-blue-variable-prescription") + ", default = '" + p_Options->m_LBVMassLossPrescription.typeString + "')").c_str()
-        )
         (
             "main-sequence-core-mass-prescription",
             po::value<std::string>(&p_Options->m_MainSequenceCoreMassPrescription.typeString)->default_value(p_Options->m_MainSequenceCoreMassPrescription.typeString),
@@ -2234,11 +2228,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             std::tie(found, m_LBVMassLossPrescription.type) = utils::GetMapKey(m_LBVMassLossPrescription.typeString, LBV_MASS_LOSS_PRESCRIPTION_LABEL, m_LBVMassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown LBV Mass Loss Prescription");
         }
-
-        if (!DEFAULTED("luminous-blue-variable-prescription")) {        // DEPRECATED June 2024 - remove end 2024                   // LBV mass loss prescription
-            std::tie(found, m_LBVMassLossPrescription.type) = utils::GetMapKey(m_LBVMassLossPrescription.typeString, LBV_MASS_LOSS_PRESCRIPTION_LABEL, m_LBVMassLossPrescription.type);
-            COMPLAIN_IF(!found, "Unknown LBV Mass Loss Prescription");
-        }
         
         if (!DEFAULTED("main-sequence-core-mass-prescription")) {                                                                   // MS core mass prescription
             std::tie(found, m_MainSequenceCoreMassPrescription.type) = utils::GetMapKey(m_MainSequenceCoreMassPrescription.typeString, CORE_MASS_PRESCRIPTION_LABEL, m_MainSequenceCoreMassPrescription.type);
@@ -2600,7 +2589,6 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("kick-magnitude-distribution")                       : POPULATE_RET(KICK_MAGNITUDE_DISTRIBUTION_LABEL);              break;
         case _("logfile-type")                                      : POPULATE_RET(LOGFILETYPELabel);                               break;
         case _("LBV-mass-loss-prescription")                        : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);               break;
-        case _("luminous-blue-variable-prescription")               : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);               break; // DEPRECATED June 2024 - remove end 2024
         case _("main-sequence-core-mass-prescription")              : POPULATE_RET(CORE_MASS_PRESCRIPTION_LABEL);                   break;
         case _("mass-loss-prescription")                            : POPULATE_RET(MASS_LOSS_PRESCRIPTION_LABEL);                   break;
         case _("mass-ratio-distribution")                           : POPULATE_RET(MASS_RATIO_DISTRIBUTION_LABEL);                  break;

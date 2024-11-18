@@ -20,12 +20,12 @@ public:
 
     MT_CASE DetermineMassTransferTypeAsDonor() const                                        { return MT_CASE::A; }                                                  // Always case A
     
-    const std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> SHIKAUCHI_COEFFICIENTS = InterpolateShikauchiCoefficients(m_Metallicity);                 // Interpolate Shikauchi coefficients for the given metallicity;
+    const std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> SHIKAUCHI_COEFFICIENTS = InterpolateShikauchiCoefficients(m_Metallicity);                                 // Interpolate Shikauchi coefficients for the given metallicity;
 
 protected:
     
-    double m_InitialMixingCoreMass = 0.0;                                                  // Initial mass of the mixing core, gets initialised in MS_gt_07 class
-    double m_HeliumAbundanceCoreOut = m_InitialHeliumAbundance;                            // Helium abundance just outside the core, needed for Shikauchi+ core mass calculation (in case of mass gain)
+    double m_InitialMixingCoreMass = 0.0;                                                                                                                           // Initial mass of the mixing core is properly initialised in MS_gt_07 class
+    double m_HeliumAbundanceCoreOut = m_InitialHeliumAbundance;                                                                                                     // Helium abundance just outside the core, needed for Shikauchi+ core mass calculation (in case of mass gain)
 
     // member functions - alphabetically
     double          CalculateAlphaL(const double p_Mass) const;
@@ -74,7 +74,7 @@ protected:
     double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const;
     double          CalculateLuminosityOnPhase() const                                      { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0); }        // Use class member variables
     double          CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore) const;
-    double          CalculateLuminosityShikauchiTransitionToHG() const;
+    double          CalculateLuminosityShikauchiTransitionToHG(const double p_Age) const;
     double          CalculateMainSequenceCoreMassMandel();
     DBL_DBL         CalculateMainSequenceCoreMassShikauchi(const double p_Dt);
     double          CalculateMixingCoreMassAtZAMS(const double p_MZAMS);
@@ -90,7 +90,9 @@ protected:
     double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_RZAMS) const;
     double          CalculateRadiusAtPhaseEnd() const                                       { return CalculateRadiusAtPhaseEnd(m_Mass, m_RZAMS); }                  // Use class member variables
     double          CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase(m_Mass, m_Age, m_RZAMS0); }             // Use class member variables
-    double          CalculateRadiusShikauchiTransitionToHG() const;
+    double          CalculateRadiusShikauchiTransitionToHG(const double p_Mass, const double p_Age, double const p_RZAMS) const;
+    
+    double          CalculateRadiusShikauchiTransitionToHGTau(const double p_Mass, const double p_Tau) const;
  
     double          CalculateTauAtPhaseEnd() const                                          { return 1.0; }                                                         // tau = 1.0 at end of MS
     double          CalculateTauOnPhase() const;

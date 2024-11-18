@@ -617,7 +617,6 @@ private:
         "logfile-system-parameters",
         "logfile-system-parameters-record-types",
         "logfile-type",
-        "luminous-blue-variable-prescription",  // DEPRECATED June 2024 - remove end 2024
 
         "main-sequence-core-mass-prescription",
         "mass-change-fraction",
