@@ -227,8 +227,8 @@ public:
 
     double          EvolveOneTimestep(const double p_Dt, const bool p_Force = false);
 
-    double          InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
-                                         const double p_massTransferEfficiencyBeta)                                 { return m_Star->InterpolateGe20QCrit(p_qCritPrescription, p_massTransferEfficiencyBeta); }
+    double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
+                                         const double p_massTransferEfficiencyBeta)                                 { return m_Star->InterpolateGeEtAlQCrit(p_qCritPrescription, p_massTransferEfficiencyBeta); }
     void            HaltWinds()                                                                                     { m_Star->HaltWinds(); }
 
     void            ResolveAccretion(const double p_AccretionMass)                                                  { m_Star->ResolveAccretion(p_AccretionMass); }
