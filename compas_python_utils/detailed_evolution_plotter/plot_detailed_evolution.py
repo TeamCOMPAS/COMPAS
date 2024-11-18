@@ -15,7 +15,8 @@ import argparse
 import tempfile
 from pathlib import Path
 
-IMG_DIR = "/home/rwillcox/astro/compas/COMPAS/compas_python_utils/detailed_evolution_plotter/van_den_heuvel_figures/"
+IMG_DIR = Path(__file__).parent / "van_den_heuvel_figures"
+
 
 
 def main():
