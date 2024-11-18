@@ -1379,8 +1379,11 @@
 //                                      - Switch to using angular momentum rather than omega as the basic tracker of stellar rotation
 //                                      - Stars that evolve without mass loss do not change angular momentum, but may change omega as the moment of inertia changes
 //                                      - Stars that lose mass through winds or mass transfer lose it with the specific angular momentum of their outermost shell
+//                                      - Stars that lose the entire envelope keep their pre-envelope-loss rotational frequency
 //                                      - Mass gain through accretion brings in a specific angular momentum equal to that of a Keplerian orbit at the accretor's radius
-//                                      - Clean-up of call to UpdateAttributes() in BaseBinaryStar::ResolveMassChanges()
+//                                      - Chemically homogeneous evolution is now checked for at binary initialisation and stars are assigned the orbital frequency if that exceeds the CHE threshold
+//                                      - However, subsequently, only CHE stars are artificially kept in co-rotation with binary (ignoring angular momentum conservation) only if TIDES_PRESCRIPTION::NONE is used
+//                                      - Clean-up of BaseBinaryStar::ResolveMassChanges(): if m_Mass variable has already been updated (because ResolveEnvelopeLoss() has been called), no need to update attributes again
 //                                      - Associated code clean-up
 
 const std::string VERSION_STRING = "03.08.00";
