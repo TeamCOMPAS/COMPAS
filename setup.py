@@ -40,7 +40,8 @@ INSTALL_REQUIRES = [
     "latex",
     "PyYAML",
     "tqdm",
-    "corner"
+    "corner",
+    "requests"
 ]
 EXTRA_REQUIRE = dict(
     docs=[
