@@ -2414,13 +2414,10 @@ void BaseBinaryStar::ResolveMassChanges() {
                                                                                                         // no - resolve mass changes      
         double massChange = m_Star1->MassLossDiff() + m_Star1->MassTransferDiff();                      // mass change due to winds and mass transfer
         if (utils::Compare(massChange, 0.0) != 0) {                                                     // winds/mass transfer changes mass?
-            // yes - calculate new angular momentum
-            double angularMomentumChange = (2.0 / 3.0) * massChange * m_Star1->Radius() * m_Star1->Radius() * m_Star1->Omega();
-            if (utils::Compare(massChange, 0.0) > 0) {                                                  // winds/mass transfer increases mass?
-                // yes - add angular momentum of accreting material assuming accretion from circular orbit at stellar radius
-                angularMomentumChange = massChange * sqrt(G_AU_Msol_yr * m_Star1->Mass() * m_Star1->Radius() * RSOL_TO_AU);
-            }
-
+            // yes - calculate new angular momentum; assume accretor is adding angular momentum from a circular orbit at the stellar radius
+            double angularMomentumChange = (utils::Compare(massChange, 0.0) > 0) ?
+                massChange * sqrt(G_AU_Msol_yr * m_Star1->Mass() * m_Star1->Radius() * RSOL_TO_AU) :
+                (2.0 / 3.0) * massChange * m_Star1->Radius() * m_Star1->Radius() * m_Star1->Omega();
             // update mass of star according to mass loss and mass transfer, then update age accordingly
             (void)m_Star1->UpdateAttributes(massChange, 0.0);                                           // update mass for star
             m_Star1->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
@@ -2440,13 +2437,10 @@ void BaseBinaryStar::ResolveMassChanges() {
                                                                                                         // no - resolve mass changes                          
         double massChange = m_Star2->MassLossDiff() + m_Star2->MassTransferDiff();                      // mass change due to winds and mass transfer
         if (utils::Compare(massChange, 0.0) != 0) {                                                     // winds/mass transfer changes mass?
-            // yes - calculate new angular momentum
-            double angularMomentumChange = (2.0 / 3.0) * massChange * m_Star2->Radius() * m_Star2->Radius() * m_Star2->Omega();
-            if (utils::Compare(massChange, 0.0) > 0) {                                                  // winds/mass transfer increases mass?                                                                          
-                // yes - add angular momentum of accreting material assuming accretion from circular orbit at stellar radius
-                angularMomentumChange = massChange * sqrt(G_AU_Msol_yr * m_Star2->Mass() * m_Star2->Radius() * RSOL_TO_AU);
-            }
-
+            // yes - calculate new angular momentum; assume accretor is adding angular momentum from a circular orbit at the stellar radius
+            double angularMomentumChange = (utils::Compare(massChange, 0.0) > 0) ?
+                massChange * sqrt(G_AU_Msol_yr * m_Star2->Mass() * m_Star2->Radius() * RSOL_TO_AU) :
+                (2.0 / 3.0) * massChange * m_Star2->Radius() * m_Star2->Radius() * m_Star2->Omega();
             // update mass of star according to mass loss and mass transfer, then update age accordingly
             (void)m_Star2->UpdateAttributes(massChange, 0.0);                                           // update mass for star
             m_Star2->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
