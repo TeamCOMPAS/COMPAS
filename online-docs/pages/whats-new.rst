@@ -3,6 +3,12 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.08.00 Nov 18, 2024**
+
+Updated implementation of the mass transfer stability critical mass ratio tables from the team of Hongwei Ge.
+We now use all the most up to do date tables they've produced (public or otherwise) from Papers I-V, including
+variations for adiabatic and isentropic treatments, variable accretion efficiency, and two different metallicities, 
+as well as for He stars (albeit only for adiabatic, fully conservative, solar metallicity stars). 
 
 **03.07.01 Oct 23, 2024**
 
