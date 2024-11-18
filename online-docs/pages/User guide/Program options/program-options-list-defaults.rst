@@ -219,7 +219,6 @@ Default = 5370
 **--cool-wind-mass-loss-multiplier** |br|
 Multiplicative constant for wind mass loss of cool stars, i.e. those with temperatures below the
 VINK_MASS_LOSS_MINIMUM_TEMP (default 12500K). |br|
-Only applicable when ``--mass-loss-prescription = VINK``. |br|
 Default = 1.0
 
 **--create-YAML-file** |br|
@@ -447,7 +446,7 @@ Options: { DELAYED, RAPID } |br|
 Default = DELAYED
 
 **--fryer-22-fmix** |br|
-Parameter describing the mixing growth time when using the 'FRYER2022' remnant mass distribution  :cite:`Fryer2022`. |br|
+Parameter describing the mixing growth time when using the 'FRYER2022' remnant mass prescription  :cite:`Fryer2022`. |br|
 Default = 0.5, which is closest to the 'DELAYED' remnant mass prescription from :cite:`Fryer2012`. |br|
 A value of 4.0 is closest to  the 'RAPID' remnant mass prescription from :cite:`Fryer2012`. |br|
 If the FALLBACK option is used for the kicks, then the proto core masses will be determined by the fryer-supernova-engine option.

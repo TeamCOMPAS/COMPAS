@@ -257,6 +257,14 @@ protected:
             if (fabs(func(root.first + (root.second - root.first) / 2.0)) <= ROOT_ABS_TOLERANCE) {          // solution within tolerance?
                 done = true;                                                                                // yes - we're done
             }
+            else if (fabs(func(root.first)) <= ROOT_ABS_TOLERANCE) {                                        // solution within tolerance at endpoint 1?
+                root.second=root.first;
+                done = true;                                                                                // yes - we're done
+            }
+            else if (fabs(func(root.second)) <= ROOT_ABS_TOLERANCE) {                                       // solution within tolerance at endpoint 2?
+                root.first=root.second;
+                done = true;                                                                                // yes - we're done
+            }
             else {                                                                                          // no - try again
                 // we don't have an acceptable solution - reduce search step size and try again
                 factorFrac /= 2.0;                                                                          // reduce fractional part of factor

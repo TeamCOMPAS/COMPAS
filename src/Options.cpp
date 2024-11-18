@@ -705,6 +705,17 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
 
         // boolean options - alphabetically
+        //
+        // Note the "implicit_value()" (in the statements below) for boolean options is not the default option value
+        // When specifying boolean options, users can specify just the option name (e.g. '--emit_gravitaional-radiation'),
+        // or they can specify the option name, and a value for the option (e.g. '--emit_gravitaional-radiation true', or
+	// '--emit_gravitaional-radiation false')
+        // The "implicit_value()" in the statements below specifies what value is assigned to the option if only the option name is
+        // specified by the user (e.g. if the user specifies just '--emit_gravitaional-radiation', the implicit_value() for that option
+        // will be assigned).
+        //
+        // The convention we use for COMPAS is that specifying a boolean option by name only assigns the value "true" - so the implicit_value()
+        // for boolean options in the statements below should be set "true"
 
         (
             "allow-non-stripped-ECSN",
@@ -795,7 +806,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
         (
             "enhance-CHE-lifetimes-luminosities",                                             
-            po::value<bool>(&p_Options->m_EnhanceCHELifetimesLuminosities)->default_value(p_Options->m_EnhanceCHELifetimesLuminosities)->implicit_value(false),                                                                      
+            po::value<bool>(&p_Options->m_EnhanceCHELifetimesLuminosities)->default_value(p_Options->m_EnhanceCHELifetimesLuminosities)->implicit_value(true),                                                                      
             ("Whether to enhance the lifetimes and luminosities of chemically homogeneously evolving (CHE) stars relative to SSE main sequence lifetimes/luminosities (default = " + std::string(p_Options->m_EnhanceCHELifetimesLuminosities ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
@@ -825,7 +836,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
         (
             "emit-gravitational-radiation",                                      
-            po::value<bool>(&p_Options->m_EmitGravitationalRadiation)->default_value(p_Options->m_EmitGravitationalRadiation)->implicit_value(false),                                                          
+            po::value<bool>(&p_Options->m_EmitGravitationalRadiation)->default_value(p_Options->m_EmitGravitationalRadiation)->implicit_value(true),                                                          
             ("Emit gravitational radiation at each timestep of binary evolution (default = " + std::string(p_Options->m_EmitGravitationalRadiation ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
@@ -902,7 +913,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
         (
             "scale-CHE-mass-loss-with-surface-helium-abundance",                                             
-            po::value<bool>(&p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->default_value(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->implicit_value(false),                                                                      
+            po::value<bool>(&p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->default_value(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->implicit_value(true),                                                                      
             ("Whether to transition mass loss rates for chemically homogeneously evolving (CHE) stars between OB mass loss rates and Wolf-Rayet (WR) mass loss rates as a function of the surface helium abundance (Ys) as described by Yoon et al. 2006 (default = " + std::string(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
