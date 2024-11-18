@@ -78,7 +78,7 @@ public:
 
     // getters - alphabetically
             double              Age() const                                                     { return m_Age; }
-            double              AngularMomentum() const                                         { return CalculateMomentOfInertiaAU() * m_Omega; }
+            double              AngularMomentum() const                                         { return m_AngularMomentum; }
             double              BindingEnergyFixed() const                                      { return m_BindingEnergies.fixed; }
             double              BindingEnergyNanjing() const                                    { return m_BindingEnergies.nanjing; }
             double              BindingEnergyLoveridge() const                                  { return m_BindingEnergies.loveridge; }
@@ -145,10 +145,9 @@ public:
             double              Mdot() const                                                    { return m_Mdot; }
             double              Metallicity() const                                             { return m_Metallicity; }
             double              MZAMS() const                                                   { return m_MZAMS; }
-            double              Omega() const                                                   { return m_Omega; }
+            double              Omega() const                                                   { return m_AngularMomentum / CalculateMomentOfInertiaAU(); }
             double              OmegaCHE() const                                                { return m_OmegaCHE; }
             double              OmegaBreak() const                                              { return CalculateOmegaBreak(); }
-            double              OmegaPrev() const                                               { return m_OmegaPrev; }
             double              OmegaZAMS() const                                               { return m_OmegaZAMS; }
             COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
             double              PulsarMagneticField() const                                     { return m_PulsarDetails.magneticField; }
@@ -193,12 +192,13 @@ public:
 
 
     // setters
+            void                SetAngularMomentum(double p_AngularMomentum)                    { m_AngularMomentum = std::min(p_AngularMomentum, 0.0); }
             void                SetInitialType(const STELLAR_TYPE p_InitialType)                { m_InitialStellarType = p_InitialType; }
             void                SetError(const ERROR p_Error)                                   { m_Error = p_Error; }
             void                SetObjectId(const OBJECT_ID p_ObjectId)                         { m_ObjectId = p_ObjectId; }
             void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)          { m_ObjectPersistence = p_Persistence; }
 
-            void                SetOmega(double p_vRot)                                         { if (p_vRot >= 0.0) m_Omega = p_vRot; };                                           // Do nothing if sanity check fails (JR: I don't really like this, but I think unavoidable - at least for now)
+            void                SetOmega(double p_Omega)                                        { SetAngularMomentum(CalculateMomentOfInertiaAU() * p_Omega); }
 
             void                SetSNCurrentEvent(const SN_EVENT p_SNEvent)                     { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
             void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep
@@ -418,6 +418,7 @@ protected:
 
     // Current timestep variables
     double                  m_Age;                                      // Current effective age (changes with mass loss/gain) (Myr)
+    double                  m_AngularMomentum;                          // Angular Momentum (Msol * AU^2 / yr)
     double                  m_COCoreMass;                               // Current CO core mass (Msol)
     double                  m_CoreMass;                                 // Current core mass (Msol)
     double                  m_Dt;                                       // Size of current timestep (Myr)
@@ -437,7 +438,6 @@ protected:
     MASS_LOSS_TYPE          m_DominantMassLossRate;                     // Current dominant type of wind mass loss
 
     double                  m_Mu;                                       // Current small envelope parameter mu
-    double                  m_Omega;                                    // Current angular frequency (yr^-1)
     double                  m_Radius;                                   // Current radius (Rsol)
     double                  m_Tau;                                      // Relative time
     double                  m_Temperature;                              // Current temperature (Tsol)
@@ -447,7 +447,6 @@ protected:
     // Previous timestep variables
     double                  m_DtPrev;                                   // Previous timestep
     double                  m_MassPrev;                                 // Previous mass (Msol)
-    double                  m_OmegaPrev;                                // Previous angular frequency (yr^-1)
     double                  m_RadiusPrev;                               // Previous radius (Rsol)
     STELLAR_TYPE            m_StellarTypePrev;                          // Stellar type at previous timestep
 

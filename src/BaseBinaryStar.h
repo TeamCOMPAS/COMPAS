@@ -83,7 +83,6 @@ public:
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
 
-        m_Omega                            = p_Star.m_Omega;
         m_OrbitalVelocityPreSN             = p_Star.m_OrbitalVelocityPreSN;
 
         m_RLOFDetails                      = p_Star.m_RLOFDetails;
@@ -203,7 +202,6 @@ public:
     bool                MassesEquilibratedAtBirth() const           { return m_Flags.massesEquilibratedAtBirth; }
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_Flags.mergesInHubbleTime; }
-    double              Omega() const                               { return m_Omega; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
     double              OrbitalAngularVelocity() const              { return std::sqrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
@@ -346,7 +344,6 @@ private:
 
     MT_TRACKING         m_MassTransferTrackerHistory;
 
-    double              m_Omega;                                                            // Orbital frequency
     double              m_OrbitalVelocityPreSN;
 
     BinaryRLOFDetailsT  m_RLOFDetails;                                                      // RLOF details
