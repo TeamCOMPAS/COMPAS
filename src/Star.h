@@ -73,6 +73,7 @@ public:
 
     // getters - alphabetically
     double              Age() const                                                                                 { return m_Star->Age(); }
+    double              AngularMomentum() const                                                                     { return m_Star->AngularMomentum(); }
     double              BindingEnergyFixed() const                                                                  { return m_Star->BindingEnergyFixed(); }
     double              BindingEnergyLoveridge() const                                                              { return m_Star->BindingEnergyLoveridge(); }
     double              BindingEnergyNanjing() const                                                                { return m_Star->BindingEnergyNanjing(); }
@@ -124,7 +125,6 @@ public:
     double              MZAMS() const                                                                               { return m_Star->MZAMS(); }
     double              Omega() const                                                                               { return m_Star->Omega(); }
     double              OmegaCHE() const                                                                            { return m_Star->OmegaCHE(); }
-    double              OmegaPrev() const                                                                           { return m_Star->OmegaPrev(); }
     double              Radius() const                                                                              { return m_Star->Radius(); }
     double              RadiusPrev() const                                                                          { return m_Star->RadiusPrev(); }
     unsigned long int   RandomSeed() const                                                                          { return m_Star->RandomSeed(); }
@@ -146,7 +146,8 @@ public:
 
     
     // setters
-    void                SetOmega(double p_vRot)                                                                     { m_Star->SetOmega(p_vRot); }
+    void                SetAngularMomentum(double p_AngularMomentum)                                                { m_Star->SetAngularMomentum(p_AngularMomentum); }
+    void                SetOmega(double p_Omega)                                                                    { m_Star->SetOmega(p_Omega); }
     void                SetObjectId(const OBJECT_ID p_ObjectId)                                                     { m_ObjectId = p_ObjectId; }
     void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)                                      { m_ObjectPersistence = p_Persistence; }
     void                UpdateMassTransferDonorHistory()                                                            { m_Star->UpdateMassTransferDonorHistory(); }
@@ -241,7 +242,7 @@ public:
                                                    const double p_CompanionRadius,
                                                    const double p_CompanionEnvelope)                                { return m_Star->ResolveCommonEnvelopeAccretion(p_FinalMass, p_CompanionMass, p_CompanionRadius, p_CompanionEnvelope); } 
 
-    void            ResolveEnvelopeLossAndSwitch()                                                                  { (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true)); }
+    void            ResolveEnvelopeLossAndSwitch();
 
     void            ResolveShellChange(const double p_AccretedMass)                                                 { m_Star->ResolveShellChange(p_AccretedMass); }
 

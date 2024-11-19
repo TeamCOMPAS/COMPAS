@@ -176,6 +176,22 @@ bool Star::RevertState() {
     return result;
 }
 
+/*
+ *
+ * Resolve the loss of an envelope, including switching the stellar type.
+ *
+ * Keep the rotation frequency of the core equal to the pre-envelope-loss rotation frequency
+ * (envelope loss is rapid, so no time for angular momentum transport)
+ *
+ * void ResolveEnvelopeLossAndSwitch()
+ *
+ */
+void Star::ResolveEnvelopeLossAndSwitch() {
+    double omega = Omega();
+    (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true));
+    SetOmega(omega);
+}
+
 
 /*
  * Apply mass changes if required, age the star one timestep, advance the simulation time, and update the

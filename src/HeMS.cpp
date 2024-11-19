@@ -628,17 +628,15 @@ STELLAR_TYPE HeMS::EvolveToNextPhase() {
  * 
  * Function to interpolate in mass and radius to calculate the stellar response of a He star to mass loss.
  * Functionally works the same as the interpolator for H-rich stars, except that there is only one variation
- * for the He-poor stars. 
+ * for the H-poor stars. 
  *
  * Function takes no input (unlike in the H-rich case) because the existing table only applies for fully conservative 
  * mass transfer and the GE fully adiabatic response, not the artificially isentropic one. Also only for Z=Zsol.
  *
  * Interpolation is done linearly in logM and logR. 
  * 
- * double BaseStar::InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta) 
+ * double HeMS::InterpolateGeEtAlQCrit()
  * 
- * @param   [IN]    p_qCritPrescription          Adopted critical mass ratio prescription
- * @param   [IN]    p_massTransferEfficiencyBeta Mass transfer accretion efficiency
  * @return                                       Interpolated value of either the critical mass ratio or zeta for given stellar mass / radius
  */ 
 double HeMS::InterpolateGeEtAlQCrit() {
