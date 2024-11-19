@@ -1385,7 +1385,9 @@
 //                                      - However, subsequently, only CHE stars are artificially kept in co-rotation with binary (ignoring angular momentum conservation) only if TIDES_PRESCRIPTION::NONE is used
 //                                      - Clean-up of BaseBinaryStar::ResolveMassChanges(): if m_Mass variable has already been updated (because ResolveEnvelopeLoss() has been called), no need to update attributes again
 //                                      - Associated code clean-up
+// 03.08.01   IM - Nov 19, 2024     - Defect repairs
+//                                      - Multiple rotation-related fixes to 03.08.01 (units, initialisation, min->max typo, retain omega on envelope loss)
 
-const std::string VERSION_STRING = "03.08.00";
+const std::string VERSION_STRING = "03.08.01";
 
 # endif // __changelog_h__

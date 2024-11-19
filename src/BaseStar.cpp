@@ -111,13 +111,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_LZAMS                                    = CalculateLuminosityAtZAMS(m_MZAMS);
     m_TZAMS                                    = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
 
-    m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
-
-    m_OmegaZAMS                                = p_RotationalFrequency >= 0.0                           // valid rotational frequency passed in?
-                                                    ? p_RotationalFrequency                             // yes - use it
-                                                    : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
-    m_AngularMomentum                          = CalculateMomentOfInertiaAU() * m_OmegaZAMS;
-
     // Initial abundances
     m_InitialHeliumAbundance                   = CalculateInitialHeliumAbundance();
     m_HeliumAbundanceCore                      = m_InitialHeliumAbundance;
@@ -143,6 +136,12 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
 	m_ComponentVelocity						   = Vector3d();
+    
+    m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
+    m_OmegaZAMS                                = p_RotationalFrequency >= 0.0                           // valid rotational frequency passed in?
+                                                    ? p_RotationalFrequency                             // yes - use it
+                                                    : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
+    m_AngularMomentum                          = CalculateMomentOfInertiaAU() * m_OmegaZAMS;
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -2970,8 +2969,8 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
 
         double mass = CalculateMassLossValues(true, p_UpdateMDt);                                   // calculate new values assuming mass loss applied
 
-        double angularMomentumChange = (2.0/3.0) * (mass - m_Mass) * m_Radius * m_Radius * Omega();
-        
+        double angularMomentumChange = (2.0/3.0) * (mass - m_Mass) * m_Radius * RSOL_TO_AU * m_Radius * RSOL_TO_AU * Omega();
+                
         // JR: this is here to keep attributes in sync BSE vs SSE
         // Supernovae are caught in UpdateAttributesAndAgeOneTimestep() (hence the need to move the
         // call to PrintStashedSupernovaDetails() in Star:EvolveOneTimestep())
