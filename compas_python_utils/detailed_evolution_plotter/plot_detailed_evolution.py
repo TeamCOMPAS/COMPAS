@@ -25,8 +25,7 @@ def main():
     parser.add_argument('--dont-show', action='store_false', help='Dont show the plots')
     args = parser.parse_args()
     
-    use_latex = True
-    run_main_plotter(args.data_path, outdir=args.outdir, show=args.dont_show, use_latex=use_latex)
+    run_main_plotter(args.data_path, outdir=args.outdir, show=args.dont_show, use_latex=True)
 
 
 def run_main_plotter(data_path, outdir='.', show=True, use_latex=True):
