@@ -191,7 +191,7 @@ public:
 
 
     // setters
-            void                SetAngularMomentum(double p_AngularMomentum)                    { m_AngularMomentum = std::min(p_AngularMomentum, 0.0); }
+            void                SetAngularMomentum(double p_AngularMomentum)                    { m_AngularMomentum = std::max(p_AngularMomentum, 0.0); }
             void                SetInitialType(const STELLAR_TYPE p_InitialType)                { m_InitialStellarType = p_InitialType; }
             void                SetError(const ERROR p_Error)                                   { m_Error = p_Error; }
             void                SetObjectId(const OBJECT_ID p_ObjectId)                         { m_ObjectId = p_ObjectId; }

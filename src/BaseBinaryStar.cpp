@@ -2417,7 +2417,7 @@ void BaseBinaryStar::ResolveMassChanges() {
             // yes - calculate new angular momentum; assume accretor is adding angular momentum from a circular orbit at the stellar radius
             double angularMomentumChange = (utils::Compare(massChange, 0.0) > 0) ?
                 massChange * sqrt(G_AU_Msol_yr * m_Star1->Mass() * m_Star1->Radius() * RSOL_TO_AU) :
-                (2.0 / 3.0) * massChange * m_Star1->Radius() * m_Star1->Radius() * m_Star1->Omega();
+                (2.0 / 3.0) * massChange * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Omega();
             // update mass of star according to mass loss and mass transfer, then update age accordingly
             (void)m_Star1->UpdateAttributes(massChange, 0.0);                                           // update mass for star
             m_Star1->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
@@ -2440,7 +2440,7 @@ void BaseBinaryStar::ResolveMassChanges() {
             // yes - calculate new angular momentum; assume accretor is adding angular momentum from a circular orbit at the stellar radius
             double angularMomentumChange = (utils::Compare(massChange, 0.0) > 0) ?
                 massChange * sqrt(G_AU_Msol_yr * m_Star2->Mass() * m_Star2->Radius() * RSOL_TO_AU) :
-                (2.0 / 3.0) * massChange * m_Star2->Radius() * m_Star2->Radius() * m_Star2->Omega();
+                (2.0 / 3.0) * massChange * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Omega();
             // update mass of star according to mass loss and mass transfer, then update age accordingly
             (void)m_Star2->UpdateAttributes(massChange, 0.0);                                           // update mass for star
             m_Star2->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
