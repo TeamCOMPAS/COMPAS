@@ -16,8 +16,6 @@ from pathlib import Path
 
 IMG_DIR = Path(__file__).parent / "van_den_heuvel_figures"
 
-
-
 def main():
     parser = argparse.ArgumentParser(description='Plot detailed evolution of a COMPAS binary')
     default_data_path = "./COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5"
@@ -322,7 +320,7 @@ def plotVanDenHeuvel(events=None, outdir='.', use_latex=True):
     if num_events == 1:
         axs = [axs]
     fig.set_figwidth(9)
-    plt.rcParams["text.usetex"] = True  # Use latex
+    set_font_params(use_latex)
 
     for ii in range(num_events):
         img = events[ii].eventImage
