@@ -53,8 +53,8 @@ def run_main_plotter(data_path, outdir='.', show=True, use_latex=True):
         plt.show()
 
 
-def set_font_params():
-    use_latex = shutil.which("latex") is not None
+def set_font_params(use_latex=True):
+    use_latex = use_latex and (shutil.which("latex") is not None)
     fontparams = {
         "font.serif": "Times New Roman",
         "text.usetex": use_latex,
@@ -86,7 +86,7 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True, use_latex=T
         stopTimeAt = Data['Time'][-1] * 1.05            # Plot all the way to the end of the run if no events beyond ZAMS
     mask = Data['Time'][()] < stopTimeAt                # Mask the data to not include the 'End' events
 
-    set_font_params()
+    set_font_params(use_latex)
 
     # Configure 2x2 subplots, for masses, lengths, stellar types, and HR diagram (in order top to bottom left to right)
     fig = plt.figure(figsize=(15, 8))  # W, H
