@@ -5,7 +5,6 @@
 ###################################################################
 
 import os
-import requests
 import shutil
 import numpy as np
 import h5py as h5
@@ -28,18 +27,9 @@ def main():
     parser.add_argument('--dont-show', action='store_false', help='Dont show the plots')
     args = parser.parse_args()
     
-    use_latex = not is_on_github_actions() # revert to regular strings in this case
+    use_latex = True
     run_main_plotter(args.data_path, outdir=args.outdir, show=args.dont_show, use_latex=use_latex)
 
-def is_on_github_actions():
-    if "CI" not in os.environ or not os.environ["CI"] or "GITHUB_RUN_ID" not in os.environ:
-        return False
-
-    headers = {"Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}"}
-    url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
-    response = requests.get(url, headers=headers)
-
-    return response.status_code == 200 and "workflow_runs" in response.json()
 
 def run_main_plotter(data_path, outdir='.', show=True, use_latex=True):
 

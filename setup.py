@@ -41,7 +41,6 @@ INSTALL_REQUIRES = [
     "PyYAML",
     "tqdm",
     "corner",
-    "requests"
 ]
 EXTRA_REQUIRE = dict(
     docs=[
