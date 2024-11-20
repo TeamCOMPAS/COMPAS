@@ -1465,6 +1465,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     double periastronRsol    = PeriastronRsol();                                                                        // periastron, Rsol (before CEE)
     double rRLd1Rsol         = periastronRsol * CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass());      // Roche-lobe radius at periastron in Rsol at the moment where CEE begins, seen by star1
     double rRLd2Rsol         = periastronRsol * CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass());      // Roche-lobe radius at periastron in Rsol at the moment where CEE begins, seen by star2
+    double omegaSpin1_pre_CE = m_Star1->Omega();                                                                        // star1 spin (before CEE)
+    double omegaSpin2_pre_CE = m_Star2->Omega();                                                                        // star2 spin (before CEE)
     
     bool isDonorMS = false;                                                                                             // check for main sequence donor
     if (OPTIONS->AllowMainSequenceStarToSurviveCommonEnvelope()) {                                                      // allow main sequence stars to survive CEE?
@@ -1642,11 +1644,13 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         
         if (envelopeFlag1) {
             m_Star1->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star1 and switch to new stellar type
+            m_Star1->SetOmega(omegaSpin1_pre_CE);                                                                       // restore core spin after envelope loss
             m_MassTransferTrackerHistory = MT_TRACKING::CE_1_TO_2_SURV;
         }
 
         if (envelopeFlag2) {
             m_Star2->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star1 and switch to new stellar type
+            m_Star2->SetOmega(omegaSpin2_pre_CE);                                                                       // restore core spin after envelope loss
             m_MassTransferTrackerHistory = MT_TRACKING::CE_2_TO_1_SURV;
         }
         
