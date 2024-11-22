@@ -97,6 +97,9 @@ protected:
     void            EvolveOneTimestepPreamble();
     STELLAR_TYPE    EvolveToNextPhase()                                                     { return STELLAR_TYPE::HERTZSPRUNG_GAP; }
 
+    double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
+                                           const double p_massTransferEfficiencyBeta); // RTW do I need a const here?       
+
     bool            IsEndOfPhase() const                                                    { return !ShouldEvolveOnPhase(); }                                      // Phase ends when age at or after MS timescale
 
     void            PerturbLuminosityAndRadius() { }                                                                                                                // NO-OP

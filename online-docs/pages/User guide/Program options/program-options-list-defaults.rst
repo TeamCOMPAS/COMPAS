@@ -311,11 +311,11 @@ Default = 1.28
 
 **--critical-mass-ratio-prescription** |br|
 Critical mass ratio stability prescription (if any). |br|
-Options: { NONE, ZERO, CLAEYS, GE20, GE20_IC, HURLEY_HJELLMING_WEBBINK } |br|
+Options: { NONE, ZERO, CLAEYS, GE, GE_IC, HURLEY_HJELLMING_WEBBINK } |br|
 ``NONE``    defaults to the zeta prescription for stability. |br|
 ``CLAEYS``  uses qCrit values from Claeys et al. 2014. |br|
-``GE20``    uses qCrit values from Ge et al. 2020 (adiabatic assumption). |br|
-``GE20_IC`` uses qCrit values from Ge et al. 2020 (isentropic envelope assumption). |br|
+``GE``      uses qCrit values from Ge et al. series (Papers I-V) (adiabatic assumption). |br|
+``GE_IC``   uses qCrit values from Ge et al. series (Papers I-V) (isentropic envelope assumption). |br|
 ``HURLEY_HJELLMING_WEBBINK`` uses qCrit values from Hurley et al. 2002 (Hjellming & Webbink 1987 for mass transfer from a giant primary). |br|
 Warning: if running with ``--critical-mass-ratio-prescription``, zetas will not be computed, so should not be trusted in the outputs. |br|
 Default = NONE |br|
