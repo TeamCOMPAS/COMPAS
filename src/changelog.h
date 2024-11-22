@@ -1387,9 +1387,12 @@
 //                                      - Associated code clean-up
 // 03.08.01   IM - Nov 19, 2024     - Defect repairs
 //                                      - Multiple rotation-related fixes to 03.08.01 (units, initialisation, min->max typo, retain omega on envelope loss)
-// 03.08.02   VK - Nov 20, 2024     - Defect repairs
+// 03.08.02  RTW - Nov 18, 2024     - Enhancement:
+//                                      - Added new critical mass ratio tables for He stars from Ge et al. team
+//                                      - Cleaned up the stability calculation for H-rich stars as well, specifically implementing nearest neighbor for extrapolation
+//                                      - Now all of their results from Papers I-V are included (including those requested in private comm.)
+// 03.08.03   VK - Nov 20, 2024     - Defect repairs
 //                                      - Fixed behavior for core spin to be retained after envelope loss.
-
-const std::string VERSION_STRING = "03.08.02";
+const std::string VERSION_STRING = "03.08.03";
 
 # endif // __changelog_h__
