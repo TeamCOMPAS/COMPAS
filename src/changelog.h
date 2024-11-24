@@ -1391,7 +1391,8 @@
 //                                      - Added new critical mass ratio tables for He stars from Ge et al. team
 //                                      - Cleaned up the stability calculation for H-rich stars as well, specifically implementing nearest neighbor for extrapolation
 //                                      - Now all of their results from Papers I-V are included (including those requested in private comm.)
-
-const std::string VERSION_STRING = "03.08.02";
+// 03.08.03   VK - Nov 20, 2024     - Defect repairs
+//                                      - Fixed behavior for core spin to be retained after envelope loss.
+const std::string VERSION_STRING = "03.08.03";
 
 # endif // __changelog_h__
