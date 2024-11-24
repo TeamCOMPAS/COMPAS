@@ -1644,13 +1644,13 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         
         if (envelopeFlag1) {
             m_Star1->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star1 and switch to new stellar type
-            m_Star1->SetOmega(omegaSpin1_pre_CE);                                                                       // restore core spin after envelope loss
+            m_Star1->SetOmega(omegaSpin1_pre_CE);                                                                       // keep the rotation frequency of the core equal to the pre-envelope-loss rotation frequency
             m_MassTransferTrackerHistory = MT_TRACKING::CE_1_TO_2_SURV;
         }
 
         if (envelopeFlag2) {
             m_Star2->ResolveEnvelopeLossAndSwitch();                                                                    // resolve envelope loss for star1 and switch to new stellar type
-            m_Star2->SetOmega(omegaSpin2_pre_CE);                                                                       // restore core spin after envelope loss
+            m_Star2->SetOmega(omegaSpin2_pre_CE);                                                                       // keep the rotation frequency of the core equal to the pre-envelope-loss rotation frequency
             m_MassTransferTrackerHistory = MT_TRACKING::CE_2_TO_1_SURV;
         }
         
