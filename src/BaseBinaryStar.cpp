@@ -2451,7 +2451,7 @@ void BaseBinaryStar::ResolveMassChanges() {
     // no need to resolve mass changes if the mass has already been updated
     // calculate mass change due to winds and mass transfer
     if (utils::Compare(m_Star2->MassPrev(), m_Star2->Mass()) == 0) {                                    // mass already updated?
-                                                                                                        // no - resolve mass changes                          
+                                                                                                        // no - resolve mass changes
         double massChange = m_Star2->MassLossDiff() + m_Star2->MassTransferDiff();                      // mass change due to winds and mass transfer
         if (utils::Compare(massChange, 0.0) != 0) {                                                     // winds/mass transfer changes mass?
             // yes - calculate new angular momentum; assume accretor is adding angular momentum from a circular orbit at the stellar radius
