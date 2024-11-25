@@ -530,6 +530,8 @@ void HeMS::UpdateAgeAfterMassLoss() {
     double tHeMSprime = CalculateLifetimeOnPhase_Static(m_Mass);
 
     m_Age *= tHeMSprime / tHeMS;
+    
+    CalculateTimescales(m_Mass, m_Timescales);
 }
 
 

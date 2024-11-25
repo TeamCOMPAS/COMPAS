@@ -1995,6 +1995,9 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     double zetaEquilibrium = m_Donor->CalculateZetaEquilibrium();
     
     m_ZetaLobe = CalculateZetaRocheLobe(jLoss, betaNuclear);                                                                    // try nuclear timescale mass transfer first
+    
+    std::cout<<"Donor is star 1?"<<m_Star1->IsRLOF()<<"Donor type"<<(int)m_Donor->StellarType()<<" mass"<< m_Donor->Mass()<<" zetaEq"<<zetaEquilibrium<<" betaNuc"<<betaNuclear<<" zetaLobe"<<CalculateZetaRocheLobe(jLoss, betaNuclear)<<std::endl;
+    std::cout<<" zetaAd"<<m_ZetaStar<<" betaTh"<<betaThermal<<" zetaLobe"<<CalculateZetaRocheLobe(jLoss, betaThermal)<<std::endl;
     if (m_Donor->IsOneOf(ALL_MAIN_SEQUENCE) && utils::Compare(zetaEquilibrium, m_ZetaLobe) > 0) {
         m_MassLossRateInRLOF    = donorMassLossRateNuclear;
         m_FractionAccreted      = betaNuclear;
@@ -2090,6 +2093,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                                                   m_MassTransferTrackerHistory == MT_TRACKING::STABLE_1_TO_2_SURV;
             }
         }
+        std::cout<<"MassTransferTimescale"<<(int)m_MassTransferTimescale<<" MassDiffDonor"<<massDiffDonor<<" donor mass at end"<<m_Donor->Mass()<< "Time:"<<Time()<<std::endl;
     }
     
 	// Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
@@ -2097,6 +2101,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         m_Donor->SetRLOFOntoNS();                                                                                               // donor donated mass to a neutron star
         m_Accretor->SetRecycledNS();                                                                                            // accretor is (was) a recycled NS
 	}
+    
 }
 
 

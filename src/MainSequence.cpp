@@ -745,8 +745,13 @@ void MainSequence::UpdateAgeAfterMassLoss() {
     double tMS       = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
     double tBGBprime = CalculateLifetimeToBGB(m_Mass);
     double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass, tBGBprime);
+    std::cout<<"Time"<<Time()<<"m_Age"<<m_Age<<"tMS"<<tMS<<"tBGBprime"<<tBGBprime<<"tMSprime"<<tMSprime<<std::endl;
 
     m_Age *= tMSprime / tMS;
+    std::cout<<"m_Age"<<m_Age<<std::endl;
+    std::cout<<"Old MS lifetime"<<m_Timescales[static_cast<int>(TIMESCALE::tMS)]<<std::endl;
+    CalculateTimescales(m_Mass, m_Timescales);                                      // must update timescales
+    std::cout<<"New MS lifetime"<<m_Timescales[static_cast<int>(TIMESCALE::tMS)]<<std::endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

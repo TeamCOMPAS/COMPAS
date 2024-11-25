@@ -325,7 +325,7 @@ public:
     virtual double          ResolveCommonEnvelopeAccretion(const double p_FinalMass,
                                                            const double p_CompanionMass     = 0.0,
                                                            const double p_CompanionRadius   = 0.0,
-                                                           const double p_CompanionEnvelope = 0.0)              { return p_FinalMass - Mass(); }                                    // LvS: todo: more consistent super eddington accretion during CE should also affect e.g. MS stars
+                                                           const double p_CompanionEnvelope = 0.0)              { return p_FinalMass - Mass(); }                                    // Overwritten in NS.h; for now, no accretion on stars other than compact objects during CE
 
     virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false)                                           { return m_StellarType; }
 
