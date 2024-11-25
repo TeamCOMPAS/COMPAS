@@ -539,12 +539,13 @@ private:
      *
      *
      * Constructor: initialise the class
-     * template <class T> RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted)
+     * template <class T> RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_MaximumAccretedMass, ERROR *p_Error)
      *
      * @param   [IN]    p_Binary                    (Pointer to) The binary star under examination
      * @param   [IN]    p_Donor                     (Pointer to) The star donating mass
      * @param   [IN]    p_Accretor                  (Pointer to) The star accreting mass
-     * @param   [IN]    p_FractionAccreted          The fraction of the donated mass accreted by the accretor
+     * @param   [IN]    p_FractionAccreted          The fraction of the donated mass accreted by the accretor (for thermal timescale accretion)
+     * @param   [IN]    p_MaximumAccretedMass       The total amount of mass that can be accreted (for nuclear timescale accretion, p_FractionAccreted should be negative for this to be used)
      * @param   [IN]    p_Error                     (Address of variable to record) Error encountered in functor
      * 
      * Function: calculate radius difference after mass loss
@@ -555,12 +556,13 @@ private:
      */    
     template <class T>
     struct RadiusEqualsRocheLobeFunctor {
-        RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, ERROR *p_Error) {
+        RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_MaximumAccretedMass, ERROR *p_Error) {
             m_Binary           = p_Binary;
             m_Donor            = p_Donor;
             m_Accretor         = p_Accretor;
             m_Error            = p_Error;
             m_FractionAccreted = p_FractionAccreted;
+            m_MaximumAccretedMass = p_MaximumAccretedMass;
         }
         T operator()(double const& p_dM) {
 
@@ -572,11 +574,17 @@ private:
             double donorMass     = m_Donor->Mass();
             double accretorMass  = m_Accretor->Mass();
             
-            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(m_Donor->Mass(), -p_dM , *m_Accretor, m_FractionAccreted);
-            double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (m_Binary->FractionAccreted() * p_dM)) * AU_TO_RSOL;
+            // beta is the actual accretion efficiency; if p_FractionAccreted is negative (placeholder
+            // for nuclear timescale accretion efficiency, for which the total accretion mass over the
+            // duration of the timestep is known), then the ratio of the maximum allowed accreted
+            // mass / donated mass is used
+            double beta = (utils::Compare(m_FractionAccreted, 0.0) >=0 ) ? m_FractionAccreted : std::min(m_MaximumAccretedMass/p_dM, 1.0);
+            
+            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorMass, -p_dM , *m_Accretor, beta);
+            double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (beta * p_dM)) * AU_TO_RSOL;
             
             double radiusAfterMassLoss = m_Donor->CalculateRadiusOnPhaseTau(donorMass-p_dM, m_Donor->Tau());
-                        
+            
             return (RLRadius - radiusAfterMassLoss);
         }
     private:
@@ -585,10 +593,11 @@ private:
         BinaryConstituentStar *m_Accretor;
         ERROR                 *m_Error;
         double                 m_FractionAccreted;
+        double                 m_MaximumAccretedMass;
     };
 
 
-    double MassLossToFitInsideRocheLobe(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted);
+    double MassLossToFitInsideRocheLobe(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_MaximumAccretedMass);
     
     double OmegaAfterSynchronisation(const double p_M1, const double p_M2, const double p_I1, const double p_I2, const double p_Ltot, const double p_Guess);
     

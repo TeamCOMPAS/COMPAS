@@ -142,6 +142,7 @@ enum class ERROR: int {
     UNEXPECTED_PROGRAM_OPTION,                                      // unexpected program option
     UNEXPECTED_PROPERTY,                                            // unexpected property
     UNEXPECTED_PROPERTY_TYPE,                                       // unexpected property type
+    UNEXPECTED_ROOT_FINDER_FAILURE,                                 // unexpected root finder failure
     UNEXPECTED_SN_EVENT,                                            // unexpected supernova event in this context
     UNEXPECTED_STELLAR_PROPERTY,                                    // unexpected stellar property
     UNEXPECTED_STELLAR_PROPERTY_TYPE,                               // unexpected stellar property type
@@ -314,6 +315,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNEXPECTED_PROGRAM_OPTION,                             { ERROR_SCOPE::ALWAYS,              "Unexpected program option" }},
     { ERROR::UNEXPECTED_PROPERTY,                                   { ERROR_SCOPE::ALWAYS,              "Unexpected property" }},
     { ERROR::UNEXPECTED_PROPERTY_TYPE,                              { ERROR_SCOPE::ALWAYS,              "Unexpected property type" }},
+    { ERROR::UNEXPECTED_ROOT_FINDER_FAILURE,                        { ERROR_SCOPE::ALWAYS,              "Unexpected root finder failure" }},
     { ERROR::UNEXPECTED_SN_EVENT,                                   { ERROR_SCOPE::ALWAYS,              "Unexpected supernova event in this context" }},
     { ERROR::UNEXPECTED_STELLAR_PROPERTY,                           { ERROR_SCOPE::ALWAYS,              "Unexpected stellar property" }},
     { ERROR::UNEXPECTED_STELLAR_PROPERTY_TYPE,                      { ERROR_SCOPE::ALWAYS,              "Unexpected stellar property type" }},
