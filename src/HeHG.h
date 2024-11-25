@@ -128,7 +128,7 @@ protected:
             bool            ShouldEvolveOnPhase() const;
             bool            ShouldSkipPhase() const                                                                 { return false; }                                                       // Never skip HeMS phase
 
-            void            UpdateAgeAfterMassLoss()                                                                { GiantBranch::UpdateAgeAfterMassLoss(); }                              // Skip HeMS
+            void            UpdateAgeAfterMassLoss()                                                                { GiantBranch::UpdateAgeAfterMassLoss(); }                              // No action for He giants
             void            UpdateInitialMass()                                                                     { GiantBranch::UpdateInitialMass(); }                                   // Skip HeMS
 };
 

@@ -149,6 +149,10 @@ protected:
 
             ENVELOPE        DetermineEnvelopeType() const                                                           { return ENVELOPE::RADIATIVE; }                                                 // Always RADIATIVE
 
+            double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
+                                                   const double p_massTransferEfficiencyBeta)                       { return InterpolateGeEtAlQCrit(); }                                            // The function arguments are irrelavant for He stars, for now
+            double          InterpolateGeEtAlQCrit(); 
+
             bool            IsEndOfPhase() const                                                                    { return !ShouldEvolveOnPhase(); }
             bool            IsSupernova() const                                                                     { return false; }                                                               // Not here
 

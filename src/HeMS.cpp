@@ -530,6 +530,8 @@ void HeMS::UpdateAgeAfterMassLoss() {
     double tHeMSprime = CalculateLifetimeOnPhase_Static(m_Mass);
 
     m_Age *= tHeMSprime / tHeMS;
+    
+    CalculateTimescales(m_Mass, m_Timescales);
 }
 
 
@@ -619,4 +621,107 @@ STELLAR_TYPE HeMS::EvolveToNextPhase() {
     return STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;
 
 #undef timescales
+}
+
+
+
+/* 
+ * Interpolate Ge+ Critical Mass Ratios, for H-poor stars
+ * 
+ * Function to interpolate in mass and radius to calculate the stellar response of a He star to mass loss.
+ * Functionally works the same as the interpolator for H-rich stars, except that there is only one variation
+ * for the H-poor stars. 
+ *
+ * Function takes no input (unlike in the H-rich case) because the existing table only applies for fully conservative 
+ * mass transfer and the GE fully adiabatic response, not the artificially isentropic one. Also only for Z=Zsol.
+ *
+ * Interpolation is done linearly in logM and logR. 
+ * 
+ * double HeMS::InterpolateGeEtAlQCrit()
+ * 
+ * @return                                       Interpolated value of either the critical mass ratio or zeta for given stellar mass / radius
+ */ 
+double HeMS::InterpolateGeEtAlQCrit() {
+
+    // Get vector of masses from qCritTable
+    GE_QCRIT_TABLE_HE qCritTable = QCRIT_GE_HE_STAR;
+    DBL_VECTOR massesFromQCritTable = std::get<0>(qCritTable);
+    GE_QCRIT_RADII_QCRIT_VECTOR_HE radiiQCritsFromQCritTable = std::get<1>(qCritTable);
+
+    INT_VECTOR indices = utils::BinarySearch(massesFromQCritTable, m_Mass);
+    int lowerMassIndex = indices[0];
+    int upperMassIndex = indices[1];
+    
+    if (lowerMassIndex == -1) {                                                   // if masses are out of range, set to endpoints
+        lowerMassIndex = 0; 
+        upperMassIndex = 1;
+    } 
+    else if (upperMassIndex == -1) { 
+        lowerMassIndex = massesFromQCritTable.size() - 2; 
+        upperMassIndex = massesFromQCritTable.size() - 1;
+    } 
+    
+    // Get vector of radii from qCritTable for the lower and upper mass indices
+    std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsFromQCritTable[lowerMassIndex]);
+    std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsFromQCritTable[upperMassIndex]);
+
+    // Get the qCrit vector for the lower and upper mass bounds 
+    std::vector<double> qCritVectorLowerMass = std::get<1>(radiiQCritsFromQCritTable[lowerMassIndex]);
+    std::vector<double> qCritVectorUpperMass = std::get<1>(radiiQCritsFromQCritTable[upperMassIndex]);
+
+    
+    // Get vector of radii from qCritTable for both lower and upper masses
+    INT_VECTOR indicesR0          = utils::BinarySearch(logRadiusVectorLowerMass, log10(m_Radius));
+    int lowerRadiusLowerMassIndex = indicesR0[0];
+    int upperRadiusLowerMassIndex = indicesR0[1];
+    
+    if (lowerRadiusLowerMassIndex == -1) {                                        // if radii are out of range, set to endpoints
+        lowerRadiusLowerMassIndex = 0; 
+        upperRadiusLowerMassIndex = 1; 
+    }
+    else if (upperRadiusLowerMassIndex == -1) {                                                   
+        lowerRadiusLowerMassIndex = logRadiusVectorLowerMass.size() - 2; 
+        upperRadiusLowerMassIndex = logRadiusVectorLowerMass.size() - 1; 
+    }
+    
+    INT_VECTOR indicesR1          = utils::BinarySearch(logRadiusVectorUpperMass, log10(m_Radius));
+    int lowerRadiusUpperMassIndex = indicesR1[0];
+    int upperRadiusUpperMassIndex = indicesR1[1];
+    
+    if (lowerRadiusUpperMassIndex == -1) {                                        // if radii are out of range, set to endpoints
+        lowerRadiusUpperMassIndex = 0; 
+        upperRadiusUpperMassIndex = 1; 
+    }
+    else if (upperRadiusUpperMassIndex == -1) {                                                   
+        lowerRadiusUpperMassIndex = logRadiusVectorUpperMass.size() - 2; 
+        upperRadiusUpperMassIndex = logRadiusVectorUpperMass.size() - 1; 
+    }
+    
+    // Set the 4 boundary points for the 2D interpolation
+    double qLowLow = qCritVectorLowerMass[lowerRadiusLowerMassIndex];
+    double qLowUpp = qCritVectorLowerMass[upperRadiusLowerMassIndex];
+    double qUppLow = qCritVectorUpperMass[lowerRadiusUpperMassIndex];
+    double qUppUpp = qCritVectorUpperMass[upperRadiusUpperMassIndex];
+    
+    double lowerLogRadiusLowerMass = logRadiusVectorLowerMass[lowerRadiusLowerMassIndex];
+    double upperLogRadiusLowerMass = logRadiusVectorLowerMass[upperRadiusLowerMassIndex];
+    double lowerLogRadiusUpperMass = logRadiusVectorUpperMass[lowerRadiusUpperMassIndex];
+    double upperLogRadiusUpperMass = logRadiusVectorUpperMass[upperRadiusUpperMassIndex];
+    
+    double logLowerMass = log10(massesFromQCritTable[lowerMassIndex]);
+    double logUpperMass = log10(massesFromQCritTable[upperMassIndex]);
+    
+    // Interpolate on logR first, then logM, using nearest neighbor for extrapolation
+    double logRadius = log10(m_Radius);
+    double qCritLowerMass = (logRadius < lowerLogRadiusLowerMass) ? qLowLow
+                          : (logRadius > upperLogRadiusLowerMass) ? qLowUpp
+                          : qLowLow + (upperLogRadiusLowerMass - logRadius) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qLowUpp - qLowLow);
+    double qCritUpperMass = (logRadius < lowerLogRadiusUpperMass) ? qUppLow
+                          : (logRadius > upperLogRadiusUpperMass) ? qUppUpp 
+                          : qUppLow + (upperLogRadiusUpperMass - logRadius) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qUppUpp - qUppLow);
+
+    double logMass = log10(m_Mass);
+    return   (logMass < logLowerMass) ? qCritLowerMass
+           : (logMass > logUpperMass) ? qCritUpperMass
+           : qCritLowerMass + (logUpperMass - logMass) / (logUpperMass - logLowerMass) * (qCritUpperMass - qCritLowerMass);
 }

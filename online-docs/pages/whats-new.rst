@@ -3,6 +3,26 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.08.02 Nov 18, 2024**
+
+Updated implementation of the mass transfer stability critical mass ratio tables from the team of Hongwei Ge.
+We now use all the most up to do date tables they've produced (public or otherwise) from Papers I-V, including
+variations for adiabatic and isentropic treatments, variable accretion efficiency, and two different metallicities, 
+as well as for He stars (albeit only for adiabatic, fully conservative, solar metallicity stars). 
+
+**03.08.00 Nov 18, 2024**
+
+Improved the treatment of stellar rotation (with further corrections in 03.08.01):
+
+* Assume rigid body rotation
+* Keep the angular moment of a star constant when there is no mass loss
+* When a star with radius r and angular frequency omega loses mass dm through winds or mass transfer, it loses angular momentum dL = 
+(2/3) dm r^2 omega
+* (However, angular momentum never drops below zero)
+* When a star loses its envelope, the remaining core is assumed to rotate with the same rotation rate as the preceding star
+* When a star of mass m and radius r gains mass dm through accretion, it gain angular momentum dL = dm \sqrt{G m r}
+* If initial binary rotation is fast enough for a star to be CHE, it is set to that rotation frequency without regard for the tidal 
+prescription; CHE stars remain tidally locked if the tidal prescription is NONE
 
 **03.07.01 Oct 23, 2024**
 

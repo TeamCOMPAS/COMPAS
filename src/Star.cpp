@@ -176,6 +176,17 @@ bool Star::RevertState() {
     return result;
 }
 
+/*
+ *
+ * Resolve the loss of an envelope, including switching the stellar type.
+ *
+ * void ResolveEnvelopeLossAndSwitch()
+ *
+ */
+void Star::ResolveEnvelopeLossAndSwitch() {
+    (void)SwitchTo(m_Star->ResolveEnvelopeLoss(true));
+}
+
 
 /*
  * Apply mass changes if required, age the star one timestep, advance the simulation time, and update the

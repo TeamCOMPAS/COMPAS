@@ -224,6 +224,8 @@ private:
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool>> deprecatedOptionValues = {
+        { "critical-mass-ratio-prescription",    "GE20", "GE", false },
+        { "critical-mass-ratio-prescription",    "GE20_IC", "GE_IC", false },
         { "LBV-mass-loss-prescription",          "NONE", "ZERO", false },
         { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
         { "OB-mass-loss",                        "NONE", "ZERO", false },

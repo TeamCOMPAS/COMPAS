@@ -277,10 +277,11 @@ void CH::UpdateAgeAfterMassLoss() {
     // Calculate the ratio of the lifetime of a CH star to a normal MS star
     double lifetimeRatio = CalculateLifetimeRatio(m_Mass);
 
-    tBGBprime *= lifetimeRatio;
     tMSprime  *= lifetimeRatio;
 
     m_Age *= tMSprime / tMS;
+    
+    CalculateTimescales(m_Mass, m_Timescales);
 }
 
 

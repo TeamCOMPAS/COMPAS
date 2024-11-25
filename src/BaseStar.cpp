@@ -111,13 +111,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_LZAMS                                    = CalculateLuminosityAtZAMS(m_MZAMS);
     m_TZAMS                                    = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
 
-    m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
-
-    m_OmegaZAMS                                = p_RotationalFrequency >= 0.0                           // valid rotational frequency passed in?
-                                                    ? p_RotationalFrequency                             // yes - use it
-                                                    : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
-    m_AngularMomentum                          = CalculateMomentOfInertiaAU() * m_OmegaZAMS;
-
     // Initial abundances
     m_InitialHeliumAbundance                   = CalculateInitialHeliumAbundance();
     m_HeliumAbundanceCore                      = m_InitialHeliumAbundance;
@@ -144,6 +137,12 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Temperature                              = m_TZAMS;
     m_TotalMassLossRate                        = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_ComponentVelocity						   = Vector3d();
+    
+    m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
+    m_OmegaZAMS                                = p_RotationalFrequency >= 0.0                           // valid rotational frequency passed in?
+                                                    ? p_RotationalFrequency                             // yes - use it
+                                                    : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
+    m_AngularMomentum                          = CalculateMomentOfInertiaAU() * m_OmegaZAMS;
 
     m_CoreMass                                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_COCoreMass                               = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -1401,9 +1400,9 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, c
                 qCrit = 0.0;
                 break;
                 
-            case QCRIT_PRESCRIPTION::GE20: 
-            case QCRIT_PRESCRIPTION::GE20_IC:
-                qCrit = CalculateCriticalMassRatioGe20(OPTIONS->QCritPrescription(), p_massTransferEfficiencyBeta);   
+            case QCRIT_PRESCRIPTION::GE: 
+            case QCRIT_PRESCRIPTION::GE_IC:
+                qCrit = CalculateCriticalMassRatioGeEtAl(OPTIONS->QCritPrescription(), p_massTransferEfficiencyBeta);   
                 break;
 
             case QCRIT_PRESCRIPTION::CLAEYS:
@@ -1429,152 +1428,6 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, c
 }
 
 
-/* 
- * Interpolate Ge+20 Critical Mass Ratios 
- * 
- * Function takes input QCRIT_PRESCRIPTION, currently either of the prescriptions for critical mass ratios
- * from Ge et al. (2020), GE20 or GE20_IC. The first is the full adiabatic response, the second assumes
- * artificially isentropic envelopes. From private communication with Ge, we have an updated datatable that
- * includes qCrit for fully conservative and fully non-conservative MT, so we now interpolate on those as well.
- *
- * Interpolation is done linearly in logM, logR, and logZ
- * 
- * double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta) 
- * 
- * @param   [IN]    p_qCritPrescription          Adopted critical mass ratio prescription
- * @param   [IN]    p_massTransferEfficiencyBeta Mass transfer accretion efficiency
- * @return                                       Interpolated value of either the critical mass ratio or zeta for given stellar mass / radius
- */ 
-double BaseStar::InterpolateGe20QCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta) {
-
-    // Iterate over the two QCRIT_GE tables to get the qcrits at each metallicity
-    double qcritPerMetallicity[2];
-    std::vector<GE_QCRIT_TABLE> qCritTables = { QCRIT_GE_LOW_Z, QCRIT_GE_HIGH_Z };
-
-    for (int ii=0; ii<2; ii++) { // iterate over the vector of tables to store qCrits per metallicity
-
-        // Get vector of masses from qCritTable
-        GE_QCRIT_TABLE &qCritTable = qCritTables[ii];
-        DBL_VECTOR massesFromQCritTable = std::get<0>(qCritTable);
-        GE_QCRIT_RADII_QCRIT_VECTOR radiiQCritsFromQCritTable = std::get<1>(qCritTable);
-
-        INT_VECTOR indices = utils::BinarySearch(massesFromQCritTable, m_Mass);
-        int lowerMassIndex = indices[0];
-        int upperMassIndex = indices[1];
-    
-        if (lowerMassIndex == -1) {                                                   // if masses are out of range, set to endpoints
-            lowerMassIndex = 0; 
-            upperMassIndex = 1;
-        } 
-        else if (upperMassIndex == -1) { 
-            lowerMassIndex = massesFromQCritTable.size() - 2; 
-            upperMassIndex = massesFromQCritTable.size() - 1;
-        } 
-    
-        // Get vector of radii from qCritTable for the lower and upper mass indices
-        std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsFromQCritTable[lowerMassIndex]);
-        std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsFromQCritTable[upperMassIndex]);
-    
-        // Get the qCrit vector for the lower and upper mass bounds 
-        std::vector<double> qCritVectorUpperEffLowerMass;
-        std::vector<double> qCritVectorUpperEffUpperMass;
-        std::vector<double> qCritVectorLowerEffLowerMass;
-        std::vector<double> qCritVectorLowerEffUpperMass;
-        
-        // Set the appropriate qCrit vector, depends on MT eff and whether you use GE20 STD or IC
-        if (p_qCritPrescription == QCRIT_PRESCRIPTION::GE20) {
-            if (p_massTransferEfficiencyBeta > 0.5) {
-                qCritVectorUpperEffLowerMass = std::get<1>(radiiQCritsFromQCritTable[lowerMassIndex]);
-                qCritVectorUpperEffUpperMass = std::get<1>(radiiQCritsFromQCritTable[upperMassIndex]);
-                qCritVectorLowerEffLowerMass = std::get<2>(radiiQCritsFromQCritTable[lowerMassIndex]);
-                qCritVectorLowerEffUpperMass = std::get<2>(radiiQCritsFromQCritTable[upperMassIndex]);
-            }
-            else {
-                qCritVectorUpperEffLowerMass = std::get<2>(radiiQCritsFromQCritTable[lowerMassIndex]);
-                qCritVectorUpperEffUpperMass = std::get<2>(radiiQCritsFromQCritTable[upperMassIndex]);
-                qCritVectorLowerEffLowerMass = std::get<3>(radiiQCritsFromQCritTable[lowerMassIndex]);
-                qCritVectorLowerEffUpperMass = std::get<3>(radiiQCritsFromQCritTable[upperMassIndex]);
-
-            }
-        }
-        else if (p_qCritPrescription == QCRIT_PRESCRIPTION::GE20_IC) {
-            if (p_massTransferEfficiencyBeta > 0.5) {
-                qCritVectorUpperEffLowerMass = std::get<4>(radiiQCritsFromQCritTable[lowerMassIndex]);
-                qCritVectorUpperEffUpperMass = std::get<4>(radiiQCritsFromQCritTable[upperMassIndex]);
-                qCritVectorLowerEffLowerMass = std::get<5>(radiiQCritsFromQCritTable[lowerMassIndex]);
-                qCritVectorLowerEffUpperMass = std::get<5>(radiiQCritsFromQCritTable[upperMassIndex]);
-            }
-            else {
-                qCritVectorUpperEffLowerMass = std::get<5>(radiiQCritsFromQCritTable[lowerMassIndex]);
-                qCritVectorUpperEffUpperMass = std::get<5>(radiiQCritsFromQCritTable[upperMassIndex]);
-                qCritVectorLowerEffLowerMass = std::get<6>(radiiQCritsFromQCritTable[lowerMassIndex]);
-                qCritVectorLowerEffUpperMass = std::get<6>(radiiQCritsFromQCritTable[upperMassIndex]);
-
-            }
-        }
-    
-        // Get vector of radii from qCritTable for both lower and upper masses
-        INT_VECTOR indicesR0          = utils::BinarySearch(logRadiusVectorLowerMass, log10(m_Radius));
-        int lowerRadiusLowerMassIndex = indicesR0[0];
-        int upperRadiusLowerMassIndex = indicesR0[1];
-    
-        if (lowerRadiusLowerMassIndex == -1) {                                        // if radii are out of range, set to endpoints
-            lowerRadiusLowerMassIndex = 0; 
-            upperRadiusLowerMassIndex = 1; 
-        }
-        else if (upperRadiusLowerMassIndex == -1) {                                                   
-            lowerRadiusLowerMassIndex = logRadiusVectorLowerMass.size() - 2; 
-            upperRadiusLowerMassIndex = logRadiusVectorLowerMass.size() - 1; 
-        }
-    
-        INT_VECTOR indicesR1          = utils::BinarySearch(logRadiusVectorUpperMass, log10(m_Radius));
-        int lowerRadiusUpperMassIndex = indicesR1[0];
-        int upperRadiusUpperMassIndex = indicesR1[1];
-    
-        if (lowerRadiusUpperMassIndex == -1) {                                        // if radii are out of range, set to endpoints
-            lowerRadiusUpperMassIndex = 0; 
-            upperRadiusUpperMassIndex = 1; 
-        }
-        else if (upperRadiusUpperMassIndex == -1) {                                                   
-            lowerRadiusUpperMassIndex = logRadiusVectorUpperMass.size() - 2; 
-            upperRadiusUpperMassIndex = logRadiusVectorUpperMass.size() - 1; 
-        }
-    
-        // Set the 4 boundary points for the 2D interpolation
-        double qUppLowLow = qCritVectorUpperEffLowerMass[lowerRadiusLowerMassIndex];
-        double qUppLowUpp = qCritVectorUpperEffLowerMass[upperRadiusLowerMassIndex];
-        double qUppUppLow = qCritVectorUpperEffUpperMass[lowerRadiusUpperMassIndex];
-        double qUppUppUpp = qCritVectorUpperEffUpperMass[upperRadiusUpperMassIndex];
-        double qLowLowLow = qCritVectorLowerEffLowerMass[lowerRadiusLowerMassIndex];
-        double qLowLowUpp = qCritVectorLowerEffLowerMass[upperRadiusLowerMassIndex];
-        double qLowUppLow = qCritVectorLowerEffUpperMass[lowerRadiusUpperMassIndex];
-        double qLowUppUpp = qCritVectorLowerEffUpperMass[upperRadiusUpperMassIndex];
-    
-        double logLowerMass   = log10(massesFromQCritTable[lowerMassIndex]);
-        double logUpperMass   = log10(massesFromQCritTable[upperMassIndex]);
-        
-        double lowerLogRadiusLowerMass = logRadiusVectorLowerMass[lowerRadiusLowerMassIndex];
-        double upperLogRadiusLowerMass = logRadiusVectorLowerMass[upperRadiusLowerMassIndex];
-        double lowerLogRadiusUpperMass = logRadiusVectorUpperMass[lowerRadiusUpperMassIndex];
-        double upperLogRadiusUpperMass = logRadiusVectorUpperMass[upperRadiusUpperMassIndex];
-    
-        // Interpolate on logR first, then logM, then on the mass transfer efficiency beta
-        double qCritUpperEffLowerMass    = qUppLowLow + (upperLogRadiusLowerMass - log10(m_Radius)) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qUppLowUpp - qUppLowLow);
-        double qCritUpperEffUpperMass    = qUppUppLow + (upperLogRadiusUpperMass - log10(m_Radius)) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qUppUppUpp - qUppUppLow);
-        double qCritLowerEffLowerMass    = qLowLowLow + (upperLogRadiusLowerMass - log10(m_Radius)) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qLowLowUpp - qLowLowLow);
-        double qCritLowerEffUpperMass    = qLowUppLow + (upperLogRadiusUpperMass - log10(m_Radius)) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qLowUppUpp - qLowUppLow);
-    
-        double interpolatedQCritUpperEff = qCritUpperEffLowerMass + (logUpperMass - log10(m_Mass)) / (logUpperMass - logLowerMass) * (qCritUpperEffUpperMass - qCritUpperEffLowerMass);
-        double interpolatedQCritLowerEff = qCritLowerEffLowerMass + (logUpperMass - log10(m_Mass)) / (logUpperMass - logLowerMass) * (qCritLowerEffUpperMass - qCritLowerEffLowerMass);
-    
-        double interpolatedQCritForZ = p_massTransferEfficiencyBeta * interpolatedQCritUpperEff + (1.0 - p_massTransferEfficiencyBeta) * interpolatedQCritLowerEff;
-        qcritPerMetallicity[ii] = interpolatedQCritForZ;
-    }
-    double logZlo = -3;         // log10(0.001)
-    double logZhi = LOG10_ZSOL; // log10(0.02) 
-    
-    return qcritPerMetallicity[1] + (m_Log10Metallicity - logZhi)*(qcritPerMetallicity[1] - qcritPerMetallicity[0])/(logZhi - logZlo);
-}
 
 
 /*
@@ -2973,8 +2826,8 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
 
         double mass = CalculateMassLossValues(true, p_UpdateMDt);                                   // calculate new values assuming mass loss applied
 
-        double angularMomentumChange = (2.0/3.0) * (mass - m_Mass) * m_Radius * m_Radius * Omega();
-        
+        double angularMomentumChange = (2.0/3.0) * (mass - m_Mass) * m_Radius * RSOL_TO_AU * m_Radius * RSOL_TO_AU * Omega();
+                
         // JR: this is here to keep attributes in sync BSE vs SSE
         // Supernovae are caught in UpdateAttributesAndAgeOneTimestep() (hence the need to move the
         // call to PrintStashedSupernovaDetails() in Star:EvolveOneTimestep())

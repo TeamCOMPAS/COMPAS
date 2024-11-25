@@ -1022,6 +1022,8 @@ void HG::UpdateAgeAfterMassLoss() {
     double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass0, tBGBprime);
 
     m_Age = tMSprime + (((tBGBprime - tMSprime) / (tBGB - tMS)) * (m_Age - tMS));
+    
+    CalculateTimescales(m_Mass0, m_Timescales);
 }
 
 

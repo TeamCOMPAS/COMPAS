@@ -1385,7 +1385,16 @@
 //                                      - However, subsequently, only CHE stars are artificially kept in co-rotation with binary (ignoring angular momentum conservation) only if TIDES_PRESCRIPTION::NONE is used
 //                                      - Clean-up of BaseBinaryStar::ResolveMassChanges(): if m_Mass variable has already been updated (because ResolveEnvelopeLoss() has been called), no need to update attributes again
 //                                      - Associated code clean-up
-
-const std::string VERSION_STRING = "03.08.00";
+// 03.08.01   IM - Nov 19, 2024     - Defect repairs
+//                                      - Multiple rotation-related fixes to 03.08.01 (units, initialisation, min->max typo, retain omega on envelope loss)
+// 03.08.02  RTW - Nov 18, 2024     - Enhancement:
+//                                      - Added new critical mass ratio tables for He stars from Ge et al. team
+//                                      - Cleaned up the stability calculation for H-rich stars as well, specifically implementing nearest neighbor for extrapolation
+//                                      - Now all of their results from Papers I-V are included (including those requested in private comm.)
+// 03.08.03   VK - Nov 20, 2024     - Defect repair:
+//                                      - Fixed behavior for core spin to be retained after envelope loss
+// 03.08.04   IM - Nov 25, 2024     - Defect repair:
+//                                      - Recalculate timescales when updating stellar age after mass loss (addresses issue #1231)
+const std::string VERSION_STRING = "03.08.04";
 
 # endif // __changelog_h__
