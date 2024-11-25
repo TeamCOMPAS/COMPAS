@@ -747,6 +747,7 @@ void MainSequence::UpdateAgeAfterMassLoss() {
     double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass, tBGBprime);
 
     m_Age *= tMSprime / tMS;
+    CalculateTimescales(m_Mass, m_Timescales);                                      // must update timescales
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

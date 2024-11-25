@@ -1995,6 +1995,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     double zetaEquilibrium = m_Donor->CalculateZetaEquilibrium();
     
     m_ZetaLobe = CalculateZetaRocheLobe(jLoss, betaNuclear);                                                                    // try nuclear timescale mass transfer first
+    
     if (m_Donor->IsOneOf(ALL_MAIN_SEQUENCE) && utils::Compare(zetaEquilibrium, m_ZetaLobe) > 0) {
         m_MassLossRateInRLOF    = donorMassLossRateNuclear;
         m_FractionAccreted      = betaNuclear;
@@ -2097,6 +2098,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         m_Donor->SetRLOFOntoNS();                                                                                               // donor donated mass to a neutron star
         m_Accretor->SetRecycledNS();                                                                                            // accretor is (was) a recycled NS
 	}
+    
 }
 
 
