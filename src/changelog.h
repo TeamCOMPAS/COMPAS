@@ -1399,6 +1399,12 @@
 //                                      - The nuclear timescale mass transfer rate is now set by the requirement that the star ends the time step just filling its Roche lobe (addresses issue #1285)
 //                                      - Fix an issue with the root finder for fitting into the RL that led to artificial failures to find a root
 //                                      - Fix issue (likely introduced in 03.08.00) with the accretor not gaining mass appropriately
-const std::string VERSION_STRING = "03.09.00";
+// 03.10.00   AB - Nov 26, 2024     - Enhancement:
+//                                      - Added Shikauchi et al. (2024) core mass prescription, describing convective core evolution under mass loss/gain
+//                                      - Added new luminosity prescription from Shikauchi et al. (2024)
+//                                      - Added treatment for rejuvenation for main sequence accretors
+//                                      - New options: --main-sequence-core-mass-prescription SHIKAUCHI (new prescription), MANDEL (replaces --retain-core-mass-during-caseA-mass-transfer),
+//                                        NONE (no core mass treatment)
+const std::string VERSION_STRING = "03.10.00";
 
 # endif // __changelog_h__

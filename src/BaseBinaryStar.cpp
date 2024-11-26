@@ -2091,7 +2091,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             m_MassTransferTrackerHistory = m_Donor == m_Star1 ? MT_TRACKING::STABLE_1_TO_2_SURV : MT_TRACKING::STABLE_2_TO_1_SURV;  // record what happened - for later printing
             double massGainAccretor = -massDiffDonor * m_FractionAccreted;                                                      // set accretor mass gain to mass loss * conservativeness
 
-            m_Accretor->UpdateTotalMassLossRate(massGainAccretor / (p_Dt * MYR_TO_YEAR));                                       // update mass loss rate for MS accretor
+            m_Accretor->UpdateTotalMassLossRate(massGainAccretor / (p_Dt * MYR_TO_YEAR));                                       // update mass gain rate for MS accretor
             m_Accretor->UpdateMainSequenceCoreMass(p_Dt, m_Accretor->TotalMassLossRate());                                      // update core mass for MS accretor
 
             m_Donor->SetMassTransferDiffAndResolveWDShellChange(massDiffDonor);                                                 // set new mass of donor
