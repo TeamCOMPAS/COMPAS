@@ -1989,33 +1989,46 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         jLoss = CalculateGammaAngularMomentumLoss();                                                                            // no - re-calculate angular momentum
     }
     
+    m_MassTransferTimescale         = MASS_TRANSFER_TIMESCALE::NONE;                                                            // initial reset
     double betaThermal              = 0.0;                                                                                      // fraction of mass accreted if accretion proceeds on thermal timescale
-    double betaNuclear              = 0.0;                                                                                      // fraction of mass accreted if accretion proceeds on nuclear timescale
+    double maximumAccretionRate     = 0.0;                                                                                      // accretion rate if accretion proceeds on thermal timescale
     double donorMassLossRateThermal = m_Donor->CalculateThermalMassLossRate();
-    double donorMassLossRateNuclear = m_Donor->CalculateNuclearMassLossRate();
-    
-    std::tie(std::ignore, betaThermal) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateThermal,
+ 
+    std::tie(maximumAccretionRate, betaThermal) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateThermal,
                                                                                  m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
                                                                                  donorIsHeRich);
-    std::tie(std::ignore, betaNuclear) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateNuclear,
-                                                                                 m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
-                                                                                 donorIsHeRich);
-    
-    m_ZetaStar             = m_Donor->CalculateZetaAdiabatic();
-    double zetaEquilibrium = m_Donor->CalculateZetaEquilibrium();
-    
-    m_ZetaLobe = CalculateZetaRocheLobe(jLoss, betaNuclear);                                                                    // try nuclear timescale mass transfer first
-    
-    if (m_Donor->IsOneOf(ALL_MAIN_SEQUENCE) && utils::Compare(zetaEquilibrium, m_ZetaLobe) > 0) {
-        m_MassLossRateInRLOF    = donorMassLossRateNuclear;
-        m_FractionAccreted      = betaNuclear;
-        m_MassTransferTimescale = MASS_TRANSFER_TIMESCALE::NUCLEAR;
+    double massDiffDonor            = 0.0;
+        
+    // can the mass transfer happen on a nuclear timescale?  only considering this for MS donors
+    if (m_Donor->IsOneOf(ALL_MAIN_SEQUENCE)) {
+        // technically, we do not know how much mass the accretor should gain until we do the calculation, which impacts the RL size, so we will check whether a nuclear timescale MT was feasible later
+        double maximumAccretedMass = maximumAccretionRate * m_Dt;
+        if (OPTIONS->MassTransferAccretionEfficiencyPrescription() == MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED) {
+            massDiffDonor = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, -1.0, maximumAccretedMass);                     // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, fixed accretion amount
+            m_FractionAccreted = std::min(maximumAccretedMass, massDiffDonor) / massDiffDonor;
+        }
+        else {
+            m_FractionAccreted = maximumAccretionRate / donorMassLossRateThermal;   // relevant for MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION
+            massDiffDonor = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted, 0.0);                       // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, fixed beta
+        }
+        
+        // check that the star really would have consistently fit into the Roche lobe
+        double zetaEquilibrium = m_Donor->CalculateZetaEquilibrium();                                                               // note: value is only meaningful for MS donor
+        double zetaLobe = CalculateZetaRocheLobe(jLoss, m_FractionAccreted);
+        if (utils::Compare(zetaEquilibrium, zetaLobe) > 0  && massDiffDonor > 0.0) {                                                // yes, it's nuclear timescale mass transfer; no need for utils::Compare here
+            m_MassLossRateInRLOF    = massDiffDonor / m_Dt;
+            m_MassTransferTimescale = MASS_TRANSFER_TIMESCALE::NUCLEAR;
+            m_ZetaStar              = zetaEquilibrium;
+            m_ZetaLobe              = zetaLobe;
+        }
     }
-    else {
-        m_ZetaLobe = CalculateZetaRocheLobe(jLoss, betaThermal);
+    if (m_MassTransferTimescale != MASS_TRANSFER_TIMESCALE::NUCLEAR) {                                                          // thermal timescale mass transfer (we will check for dynamically unstable / CE mass transfer later)
+        m_ZetaLobe              = CalculateZetaRocheLobe(jLoss, betaThermal);
+        m_ZetaStar              = m_Donor->CalculateZetaAdiabatic();
         m_MassLossRateInRLOF    = donorMassLossRateThermal;
         m_FractionAccreted      = betaThermal;
         m_MassTransferTimescale = MASS_TRANSFER_TIMESCALE::THERMAL;
+        massDiffDonor           = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, betaThermal, 0.0);                        // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
     }
         
     double aInitial = m_SemiMajorAxis;                                                                                          // semi-major axis in default units, AU, current timestep
@@ -2053,9 +2066,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     }
     else {                                                                                                                      // stable MT
             
-        m_MassTransferTrackerHistory = m_Donor == m_Star1 ? MT_TRACKING::STABLE_1_TO_2_SURV : MT_TRACKING::STABLE_2_TO_1_SURV;  // record what happened - for later printing
-
-        double massDiffDonor;
         double envMassDonor    = m_Donor->Mass() - m_Donor->CoreMass();
         bool isEnvelopeRemoved = false;
 
@@ -2064,24 +2074,21 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             isEnvelopeRemoved = true;
         }
         else {                                                                                                                  // donor has no envelope
-            massDiffDonor = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted);                        // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
-            
             if (massDiffDonor <= 0.0) {                                                                                         // no root found
-                // if donor cannot lose mass to fit inside Roche lobe, the only viable action is to enter CE phase
+                // if donor cannot lose mass to fit inside Roche lobe, the only viable action is to enter CE phase -- but this probably should not happen...
+                SHOW_WARN(ERROR::UNEXPECTED_ROOT_FINDER_FAILURE);
                 m_CEDetails.CEEnow = true;                                                                                      // flag CE
             }
             else {                                                                                                              // have required mass loss
-                if (utils::Compare(m_MassLossRateInRLOF,donorMassLossRateNuclear) == 0)                                         // if transferring mass on nuclear timescale, limit mass loss amount to rate * timestep (thermal timescale MT always happens in one timestep)
-                    massDiffDonor = std::min(massDiffDonor, m_MassLossRateInRLOF * m_Dt);
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
                 m_Donor->UpdateTotalMassLossRate(massDiffDonor / (p_Dt * MYR_TO_YEAR));                                         // update mass loss rate for MS donor
                 m_Donor->UpdateMainSequenceCoreMass(p_Dt, m_Donor->TotalMassLossRate());                                        // update core mass for MS donor
             }
-
         }
 
         if (!m_CEDetails.CEEnow) {                                                                                              // CE flagged?
                                                                                                                                 // no
+            m_MassTransferTrackerHistory = m_Donor == m_Star1 ? MT_TRACKING::STABLE_1_TO_2_SURV : MT_TRACKING::STABLE_2_TO_1_SURV;  // record what happened - for later printing
             double massGainAccretor = -massDiffDonor * m_FractionAccreted;                                                      // set accretor mass gain to mass loss * conservativeness
 
             m_Accretor->UpdateTotalMassLossRate(massGainAccretor / (p_Dt * MYR_TO_YEAR));                                       // update mass loss rate for MS accretor
@@ -2091,6 +2098,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             m_Accretor->SetMassTransferDiffAndResolveWDShellChange(massGainAccretor);                                           // set new mass of accretor
 
             aFinal              = CalculateMassTransferOrbit(m_Donor->Mass(), massDiffDonor, *m_Accretor, m_FractionAccreted);  // calculate new orbit
+            
             m_aMassTransferDiff = aFinal - aInitial;                                                                            // set change in orbit (semi-major axis)
                                                                                                                     
             STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                             // donor stellar type before resolving envelope loss
@@ -2123,15 +2131,16 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
  * Uses boost::math::tools::bracket_and_solve_root()
  *
  *
- * double MassLossToFitInsideRocheLobe(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted)
+ * double MassLossToFitInsideRocheLobe(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_MaximumAccretedMass)
  *
  * @param   [IN]    p_Binary                    (Pointer to) The binary star under examination
  * @param   [IN]    p_Donor                     (Pointer to) The star donating mass
  * @param   [IN]    p_Accretor                  (Pointer to) The star accreting mass
- * @param   [IN]    p_FractionAccreted          The fraction of the donated mass accreted by the accretor
+ * @param   [IN]    p_FractionAccreted          The fraction of the donated mass accreted by the accretor (for thermal timescale accretion)
+ * @param   [IN]    p_MaximumAccretedMass       The total amount of mass that can be accreted (for nuclear timescale accretion, p_FractionAccreted should be negative for this to be used)
  * @return                                      Root found: will be -1.0 if no acceptable real root found
  */
-double BaseBinaryStar::MassLossToFitInsideRocheLobe(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted) {
+double BaseBinaryStar::MassLossToFitInsideRocheLobe(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_MaximumAccretedMass) {
     
     const boost::uintmax_t maxit = ADAPTIVE_RLOF_MAX_ITERATIONS;                                        // Limit to maximum iterations.
     boost::uintmax_t it          = maxit;                                                               // Initially our chosen max iterations, but updated with actual.
@@ -2150,19 +2159,21 @@ double BaseBinaryStar::MassLossToFitInsideRocheLobe(BaseBinaryStar *p_Binary, Bi
 
     double factorFrac = ADAPTIVE_RLOF_SEARCH_FACTOR_FRAC;                                               // search step size factor fractional part
     double factor     = 1.0 + factorFrac;                                                               // factor to determine search step size (size = guess * factor)
-
+    
     std::pair<double, double> root(-1.0, -1.0);                                                         // initialise root - default return
     std::size_t tries = 0;                                                                              // number of tries
     bool done         = false;                                                                          // finished (found root or exceed maximum tries)?
     ERROR error       = ERROR::NONE;
-    RadiusEqualsRocheLobeFunctor<double> func = RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor, p_FractionAccreted, &error); // no need to check error here
+    RadiusEqualsRocheLobeFunctor<double> func = RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor, p_FractionAccreted, p_MaximumAccretedMass, &error);
     while (!done) {                                                                                     // while no error and acceptable root found
 
-        double semiMajorAxis       = p_Binary->CalculateMassTransferOrbit(p_Donor->Mass(), -guess , *p_Accretor, p_FractionAccreted);
-        double RLRadius            = semiMajorAxis * (1.0 - p_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(p_Donor->Mass() - guess, p_Accretor->Mass() + (p_Binary->FractionAccreted() * guess)) * AU_TO_RSOL;
-        double radiusAfterMassLoss =  p_Donor->CalculateRadiusOnPhaseTau(p_Donor->Mass()-guess, p_Donor->Tau());
-        bool   isRising            = radiusAfterMassLoss > RLRadius ? true : false;                     // guess for direction of search
-        
+        bool   isRising            = true;                                              //guess for direction of search
+        // while the change in the functor at guess may be more appropriate -- something like
+        // isRising = (RLRadiusGuess-radiusAfterMassLoss) > (RLRadius - radius)? true : false;
+        // or isRising = func((const double)guess) >= func((const double)guess * factor) ? false : true;
+        // -- this choice is more robust given that we will be taking smaller steps anyway (following factor reduction)
+        // if a bigger step does not find a solution
+
 
         // run the root finder
         // regardless of any exceptions or errors, display any problems as a warning, then
@@ -2453,8 +2464,8 @@ void BaseBinaryStar::ResolveMassChanges() {
     // (a sign that ResolveEnvelopeLossAndSwitch() has been called after the full envelope was stripped)
     // no need to resolve mass changes if the mass has already been updated
     // calculate mass change due to winds and mass transfer
-    if (utils::Compare(m_Star1->MassPrev(), m_Star1->Mass()) == 0) {                                    // mass already updated?
-                                                                                                        // no - resolve mass changes                          
+    if (utils::Compare(m_Star2->MassPrev(), m_Star2->Mass()) == 0) {                                    // mass already updated?
+                                                                                                        // no - resolve mass changes
         double massChange = m_Star2->MassLossDiff() + m_Star2->MassTransferDiff();                      // mass change due to winds and mass transfer
         if (utils::Compare(massChange, 0.0) != 0) {                                                     // winds/mass transfer changes mass?
             // yes - calculate new angular momentum; assume accretor is adding angular momentum from a circular orbit at the stellar radius

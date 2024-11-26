@@ -1395,6 +1395,10 @@
 //                                      - Fixed behavior for core spin to be retained after envelope loss
 // 03.08.04   IM - Nov 25, 2024     - Defect repair:
 //                                      - Recalculate timescales when updating stellar age after mass loss (addresses issue #1231)
-const std::string VERSION_STRING = "03.08.04";
+// 03.09.00   IM - Nov 25, 2024     - Defect repair, enhancement
+//                                      - The nuclear timescale mass transfer rate is now set by the requirement that the star ends the time step just filling its Roche lobe (addresses issue #1285)
+//                                      - Fix an issue with the root finder for fitting into the RL that led to artificial failures to find a root
+//                                      - Fix issue (likely introduced in 03.08.00) with the accretor not gaining mass appropriately
+const std::string VERSION_STRING = "03.09.00";
 
 # endif // __changelog_h__
