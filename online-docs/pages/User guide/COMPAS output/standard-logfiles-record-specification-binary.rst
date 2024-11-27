@@ -1822,11 +1822,59 @@ both. If both are printed then the file will contain two columns with the same h
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseBinaryStar::m_SystemicVelocity
+     - BaseBinaryStar::m_SystemicVelocity.Magnitude()
    * - Description:
-     - Post-supernova systemic (centre-of-mass) velocity (\ :math:`km s^{-1}`).
+     - Post-supernova systemic (centre-of-mass) speed (\ :math:`km s^{-1}`).
    * - Header String:
      - SystemicSpeed
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SYSTEMIC_VELOCITY_X**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_SystemicVelocity.xValue()
+   * - Description:
+     - Post-supernova systemic (centre-of-mass) velocity in x-direction (\ :math:`km s^{-1}`).
+   * - Header String:
+     - SystemicVelocityX
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SYSTEMIC_VELOCITY_Y**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_SystemicVelocity.yValue()
+   * - Description:
+     - Post-supernova systemic (centre-of-mass) velocity in y-direction (\ :math:`km s^{-1}`).
+   * - Header String:
+     - SystemicVelocityY
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SYSTEMIC_VELOCITY_Z**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_SystemicVelocity.zValue()
+   * - Description:
+     - Post-supernova systemic (centre-of-mass) velocity in z-direction (\ :math:`km s^{-1}`).
+   * - Header String:
+     - SystemicVelocityZ
 
 .. _binary-props-T:
 
