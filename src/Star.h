@@ -197,6 +197,8 @@ public:
 
     double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const                        { return m_Star->CalculateRadiusOnPhaseTau(p_Mass, p_Tau); }
     
+    double          CalculateRemnantRadius()                                                                        { return m_Star->CalculateRemnantRadius(); }
+    
     void            CalculateSNAnomalies(const double p_Eccentricity)                                               { m_Star->CalculateSNAnomalies(p_Eccentricity); }
     
     double          CalculateSNKickMagnitude(const double p_RemnantMass, 

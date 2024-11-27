@@ -1,6 +1,7 @@
 #include "HeHG.h"
 #include "HeGB.h"
 #include "COWD.h"
+#include "HeWD.h"
 
 
 /*
@@ -232,6 +233,21 @@ double HeHG::CalculateCOCoreMassOnPhase() const {
 double HeHG::CalculatePerturbationMu() const {
     double McMax = CalculateMaximumCoreMass(m_Mass);
     return std::max(5.0 * ((McMax - m_CoreMass) / McMax), 0.0);         //return non-negative value to avoid round-off issues
+}
+
+/*
+ * Calculate radius of the remnant the star would become if it lost all of its
+ * envelope immediately (i.e. M = Mc, coreMass)
+ *
+ * Hurley et al. 2000, end of section 6
+ *
+ *
+ * double CalculateRemnantRadius()
+ *
+ * @return                                      Radius of remnant core in Rsol
+ */
+double HeHG::CalculateRemnantRadius() const {
+    return HeWD::CalculateRadiusOnPhase_Static(m_CoreMass);
 }
 
 

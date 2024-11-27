@@ -2,6 +2,7 @@
 #include "HeMS.h"
 #include "HeWD.h"
 
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                     COEFFICIENT AND CONSTANT CALCULATIONS ETC.                    //
@@ -858,6 +859,22 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 #undef timescales
 #undef massCutoffs
 #undef b
+}
+
+
+/*
+ * Calculate radius of the remnant the star would become if it lost all of its
+ * envelope immediately (i.e. M = Mc, coreMass)
+ *
+ * Hurley et al. 2000, end of section 6
+ *
+ *
+ * double CalculateRemnantRadius()
+ *
+ * @return                                      Radius of remnant core in Rsol
+ */
+double HG::CalculateRemnantRadius() const {
+    return HeMS::CalculateRadiusOnPhase_Static(m_CoreMass, 0.0);
 }
 
 

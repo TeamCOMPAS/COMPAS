@@ -21,9 +21,6 @@ public:
     
     GiantBranch(const BaseStar &p_BaseStar) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {}
 
-    virtual double          CalculateRemnantRadius() const;
-
-
 protected:
 
 

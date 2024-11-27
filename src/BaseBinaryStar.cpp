@@ -1640,6 +1640,10 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         }
     }
 
+    if (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || utils::Compare(m_Star1->CalculateRemnantRadius() + m_Star2->CalculateRemnantRadius(), m_SemiMajorAxis * AU_TO_RSOL) > 0) {                                                                             // catch merger in CE here, do not update stars
+        m_Flags.stellarMerger = true;
+    }
+    
 	if (!m_Flags.stellarMerger) {
 
         STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                             // star 1 stellar type before resolving envelope loss
@@ -1667,10 +1671,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_CEE);                  // yes - print (log) detailed output
         }
 	}
-
-    if (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || utils::Compare(m_Star1->Radius() + m_Star2->Radius(), m_SemiMajorAxis * AU_TO_RSOL) > 0) {
-        m_Flags.stellarMerger = true;
-    }
 
     // if stars are evolving as CHE stars, update their rotational frequency under the assumption of tidal locking if tides are not enabled
     if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::NONE) {

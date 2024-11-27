@@ -40,6 +40,7 @@ public:
     double  CalculateConvectiveCoreRadius () const                                                          { return std::min(5.0 * CalculateRemnantRadius(), m_Radius); }          // Last paragraph of section 6 of Hurley+ 2000
     static void CalculateGBParams_Static(const double p_Mass0, const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
  
+    double  CalculateRemnantRadius() const;
 
 protected:
 

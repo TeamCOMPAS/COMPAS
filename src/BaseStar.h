@@ -281,6 +281,9 @@ public:
     virtual double          CalculateRadialExtentConvectiveEnvelope() const                                     { return 0.0; }                                                     // Default for stars with no convective envelope
     
     virtual double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const            { return 0.0; }                                                     // Only defined for MS stars
+    
+            double          CalculateRemnantRadius() const                                                      { return Radius(); }    // relevant for MS stars, over-written for GB stars
+
 
             void            CalculateSNAnomalies(const double p_Eccentricity);
 
