@@ -1201,6 +1201,10 @@ void BaseBinaryStar::ResolveSupernova() {
         m_Supernova->CalculateSNAnomalies(eccentricityPrev);
         double cosEccAnomaly = cos(m_Supernova->SN_EccentricAnomaly());        
         double sinEccAnomaly = sin(m_Supernova->SN_EccentricAnomaly());
+        if ((utils::Compare(eccentricityPrev, 0.0) == 0) && m_Companion->IsOneOf(SN_REMNANTS)) {                                // If circular and first SN, fix eccentric anomaly to 0
+            cosEccAnomaly = 1;
+            sinEccAnomaly = 0;
+        }
 
         // Derived quantities
         double aPrev   = semiMajorAxisPrev_km;
