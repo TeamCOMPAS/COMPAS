@@ -1644,16 +1644,13 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         }
     }
 
-    std::cout<<"some of radii"<<m_Star1->CalculateRemnantRadius() + m_Star2->CalculateRemnantRadius()<<"sep"<<m_SemiMajorAxis * AU_TO_RSOL<<std::endl;
-    
     if (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || utils::Compare(m_Star1->CalculateRemnantRadius() + m_Star2->CalculateRemnantRadius(), m_SemiMajorAxis * AU_TO_RSOL) > 0) {                                                                             // catch merger in CE here, do not update stars
         m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
         m_Flags.stellarMerger = true;
-        std::cout<<"Yes, merger!"<<std::endl;
     }
     
-	if (!m_Flags.stellarMerger) {
-
+	if (!m_Flags.stellarMerger) {                                                                                       // stellar merger?
+                                                                                                                        // no - continue evolution
         STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                             // star 1 stellar type before resolving envelope loss
         STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                             // star 2 stellar type before resolving envelope loss
         
@@ -1678,28 +1675,29 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         if (m_Star1->StellarType() != stellarType1 || m_Star2->StellarType() != stellarType2) {                         // stellar type change?
             (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_CEE);                  // yes - print (log) detailed output
         }
-	}
 
-    // if stars are evolving as CHE stars, update their rotational frequency under the assumption of tidal locking if tides are not enabled
-    if (!m_Flags.stellarMerger && OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::NONE) {
-        double omega = OrbitalAngularVelocity();                                                                        // orbital angular velocity
-        if (m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star1->SetOmega(omega);
-        if (m_Star2->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star2->SetOmega(omega);
-    }
+        // if stars are evolving as CHE stars, update their rotational frequency under the assumption of tidal locking if tides are not enabled
+        if (!m_Flags.stellarMerger && OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::NONE) {
+            double omega = OrbitalAngularVelocity();                                                                    // orbital angular velocity
+            if (m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star1->SetOmega(omega);
+            if (m_Star2->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star2->SetOmega(omega);
+        }
 
-    
-    m_Star1->SetPostCEEValues();                                                                                        // squirrel away post CEE stellar values for star 1
-    m_Star2->SetPostCEEValues();                                                                                        // squirrel away post CEE stellar values for star 2
-    SetPostCEEValues(m_SemiMajorAxis * AU_TO_RSOL, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                         // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
+        m_Star1->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 1
+        m_Star2->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 2
+        SetPostCEEValues(m_SemiMajorAxis * AU_TO_RSOL, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                     // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
 
-    if (m_RLOFDetails.immediateRLOFPostCEE == true && !OPTIONS->AllowImmediateRLOFpostCEToSurviveCommonEnvelope()) {    // is there immediate post-CE RLOF which is not allowed?
+        if (m_RLOFDetails.immediateRLOFPostCEE == true && !OPTIONS->AllowImmediateRLOFpostCEToSurviveCommonEnvelope()) {// is there immediate post-CE RLOF which is not allowed?
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
             m_Flags.stellarMerger        = true;
+        }
     }
 
+/* Ilya - should we execute the following statement if a stellar merger has occurred - we won't have stored post CEE stellar values for the stars... */
+/* I suppose we could still execute line 1688 above sto set the binary values */
+/* note we could have set the stellar merger flag as late as line 1692 above */
     (void)PrintCommonEnvelope();                                                                                        // print (log) common envelope details
     
-    std::cout<<"Flag"<<m_Flags.stellarMerger<<"TypeA"<<(int)m_Star1->StellarType()<<"TypeB"<<(int)m_Star2->StellarType()<<std::endl;
 }
 
 
@@ -2897,24 +2895,27 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         }
     }
 
-    if ((m_Star1->IsSNevent() || m_Star2->IsSNevent())) {
-        EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) if mass changes are responsible for a supernova
-        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                             // print (log) detailed output
-        if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-            (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_SN);                                          // print (log) pulsar evolution parameters 
+    if (!StellarMerger()) {                                                                                             // stellar merger?
+                                                                                                                        // no - continue evolution
+        if ((m_Star1->IsSNevent() || m_Star2->IsSNevent())) {
+            EvaluateSupernovae();                                                                                       // evaluate supernovae (both stars) if mass changes are responsible for a supernova
+            (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                         // print (log) detailed output
+            if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
+                (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_SN);                                      // print (log) pulsar evolution parameters 
+            }
         }
-    }
 
-    CalculateEnergyAndAngularMomentum();                                                                                // perform energy and angular momentum calculations
+        CalculateEnergyAndAngularMomentum();                                                                            // perform energy and angular momentum calculations
     
-    ProcessTides(p_Dt);                                                                                                 // process tides if required
+        ProcessTides(p_Dt);                                                                                             // process tides if required
 
-    // assign new values to "previous" values, for following timestep
-    m_EccentricityPrev  = m_Eccentricity;
-    m_SemiMajorAxisPrev = m_SemiMajorAxis;
+        // assign new values to "previous" values, for following timestep
+        m_EccentricityPrev  = m_Eccentricity;
+        m_SemiMajorAxisPrev = m_SemiMajorAxis;
 
-    m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star1
-    m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);      // update pulsar parameters for star2
+        m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star1
+        m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star2
+    }
 }
 
 
@@ -3146,45 +3147,48 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::PRE_STELLAR_TIMESTEP);                                        // print (log) detailed output
 
-                error = EvolveOneTimestep(dt);                                                                                          // evolve the binary system one timestep
-                if (error != ERROR::NONE) {                                                                                             // SSE error for either constituent star?
-                    evolutionStatus = EVOLUTION_STATUS::SSE_ERROR;                                                                      // yes - stop evolution
-                }
-                else {                                                                                                                  // continue evolution
-
-                    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                                      // print (log) detailed output: this is after all changes made in the timestep
-
-                    if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) evolutionStatus = EVOLUTION_STATUS::STEPS_UP;              // number of timesteps for evolution exceeds maximum
-                    else if (evolutionStatus == EVOLUTION_STATUS::CONTINUE && usingProvidedTimesteps && stepNum >= timesteps.size()) {  // using user-provided timesteps and all consumed
-                        evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_EXHAUSTED;                                                        // yes - set status
-                        SHOW_WARN(ERROR::TIMESTEPS_EXHAUSTED);                                                                          // show warning
-                    }
-                }
-
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
                                                                                                                                         // yes
-                    // if user selects to emit GWs, calculate the effects of radiation
-                    //   - note that this is placed before the call to ChooseTimestep() because when
-                    //     emitting GWs the timestep is a function of gravitational radiation                    
-                    if (OPTIONS->EmitGravitationalRadiation()) CalculateGravitationalRadiation();
+                    error = EvolveOneTimestep(dt);                                                                                      // evolve the binary system one timestep
+                    if (error != ERROR::NONE) {                                                                                         // SSE error for either constituent star?
+                        evolutionStatus = EVOLUTION_STATUS::SSE_ERROR;                                                                  // yes - stop evolution
+                    }
+                    else {                                                                                                              // continue evolution
 
-                    m_Star2->UpdatePreviousTimestepDuration();                                                                          // update stellar property for star2
-                    m_Star1->UpdatePreviousTimestepDuration();                                                                          // update stellar property for star1
+                        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                                  // print (log) detailed output: this is after all changes made in the timestep
+
+                        if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) evolutionStatus = EVOLUTION_STATUS::STEPS_UP;          // number of timesteps for evolution exceeds maximum
+                        else if (evolutionStatus == EVOLUTION_STATUS::CONTINUE && usingProvidedTimesteps && stepNum >= timesteps.size()) { // using user-provided timesteps and all consumed
+                            evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_EXHAUSTED;                                                    // yes - set status
+                            SHOW_WARN(ERROR::TIMESTEPS_EXHAUSTED);                                                                      // show warning
+                        }
+                    }
+
+                    if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                // continue evolution?
+                                                                                                                                        // yes
+                        // if user selects to emit GWs, calculate the effects of radiation
+                        //   - note that this is placed before the call to ChooseTimestep() because when
+                        //     emitting GWs the timestep is a function of gravitational radiation                    
+                        if (OPTIONS->EmitGravitationalRadiation()) CalculateGravitationalRadiation();
+
+                        m_Star2->UpdatePreviousTimestepDuration();                                                                      // update stellar property for star2
+                        m_Star1->UpdatePreviousTimestepDuration();                                                                      // update stellar property for star1
                 
-                    if (usingProvidedTimesteps) {                                                                                       // user-provided timesteps?
-                        // select a timestep
-                        //   - don't quantise
-                        //   - don't apply timestep multiplier
-                        // (we assume user wants the timesteps in the file)
-                        // 
-                        // Open question: should we clamp this to NUCLEAR_MINIMUM_TIMESTEP?
-                        dt = timesteps[stepNum];
-                    }
-                    else {                                                                                                              // no - not using user-provided timesteps
-                        dt = ChooseTimestep(OPTIONS->TimestepMultiplier());
-                    }
+                        if (usingProvidedTimesteps) {                                                                                   // user-provided timesteps?
+                            // select a timestep
+                            //   - don't quantise
+                            //   - don't apply timestep multiplier
+                            // (we assume user wants the timesteps in the file)
+                            // 
+                            // Open question: should we clamp this to NUCLEAR_MINIMUM_TIMESTEP?
+                            dt = timesteps[stepNum];
+                        }
+                        else {                                                                                                          // no - not using user-provided timesteps
+                            dt = ChooseTimestep(OPTIONS->TimestepMultiplier());
+                        }
 
-                    stepNum++;                                                                                                          // increment stepNum
+                        stepNum++;                                                                                                      // increment stepNum
+                    }
                 }
             }
 
