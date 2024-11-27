@@ -2229,7 +2229,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown LBV Mass Loss Prescription");
         }
         
-        if (!DEFAULTED("main-sequence-core-mass-prescription")) {                                                                   // MS core mass prescription
+        if (!DEFAULTED("main-sequence-core-mass-prescription")) {                                                                   // main sequence core mass prescription
             std::tie(found, m_MainSequenceCoreMassPrescription.type) = utils::GetMapKey(m_MainSequenceCoreMassPrescription.typeString, CORE_MASS_PRESCRIPTION_LABEL, m_MainSequenceCoreMassPrescription.type);
             COMPLAIN_IF(!found, "Unknown Main Sequence Core Mass Prescription");
         }

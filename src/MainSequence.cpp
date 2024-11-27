@@ -627,8 +627,9 @@ double MainSequence::CalculateRadiusOnPhaseTau(const double p_Mass, const double
 /*
  * Calculate radius on the transition from the Main Sequence to the HG when Shikauchi et al. (2024) core mass prescription is used
  *
- * Shikauchi+ prescription cannot be used beyond the MS hook (beyond age 0.99 * tMS), and this smoothly connects the radius between
- * the beginning of the hook and the beginning of the HG
+ * SHIKAUCHI core mass prescription cannot be used beyond the MS hook (beyond age 0.99 * tMS), and this function smoothly connects
+ * the radius between the beginning of the hook and the beginning of the HG
+ *
  *
  * double CalculateRadiusShikauchiTransitionToHG(const double p_Mass, const double p_Age, double const p_RZAMS)
  
@@ -845,34 +846,31 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassShikauchi(const double p_Dt) 
     double deltaCoreMass = newMixingCoreMass - mixingCoreMass;                                  // Difference in core mass
 
     if (deltaCoreMass > 0.0) {                                                                  // If the core grows, we need to account for rejuvenation
-        if (newMixingCoreMass < m_InitialMixingCoreMass) {                                      // New core mass less than initial core mass?
+        if (newMixingCoreMass < m_InitialMainSequenceCoreMass) {                                      // New core mass less than initial core mass?
                         
             // Use boost adaptive ODE solver
             state_type x(1);
             x[0] = heliumFractionOut;
             auto ode = [&](const state_type &x, state_type &dxdt, const double) {
                 // Calculate the change in helium abundance just outside the core, assuming linear profile
-                dxdt[0] = (heliumFractionOut - m_InitialHeliumAbundance) / (mixingCoreMass - m_InitialMixingCoreMass) * (deltaCoreMass / currentTimestepInYrs);
+                dxdt[0] = (heliumFractionOut - m_InitialHeliumAbundance) / (mixingCoreMass - m_InitialMainSequenceCoreMass) * (deltaCoreMass / currentTimestepInYrs);
             };
             integrate_adaptive(controlled_stepper, ode, x, 0.0, currentTimestepInYrs, currentTimestepInYrs/100.0);
         
             // Calculate the change in helium abundance in the core, assuming linear profile between Yc and Y0, and that the the accreted gas has helium fraction Y0
-            double deltaY = (heliumFractionOut - centralHeliumFraction) / (mixingCoreMass + deltaCoreMass) * deltaCoreMass + 0.5 / (mixingCoreMass + deltaCoreMass) * (heliumFractionOut - m_InitialHeliumAbundance) / (mixingCoreMass - m_InitialMixingCoreMass) * deltaCoreMass * deltaCoreMass;
-            
+            double deltaY = (heliumFractionOut - centralHeliumFraction) / (mixingCoreMass + deltaCoreMass) * deltaCoreMass + 0.5 / (mixingCoreMass + deltaCoreMass) * (heliumFractionOut - m_InitialHeliumAbundance) / (mixingCoreMass - m_InitialMainSequenceCoreMass) * deltaCoreMass * deltaCoreMass;
             newCentralHeliumFraction = centralHeliumFraction + deltaY;
             m_HeliumAbundanceCoreOut = x[0];
         }
         else {                                                                                  // New core mass greater or equal to the initial core mass?
             double firstTerm = (heliumFractionOut - centralHeliumFraction) / (mixingCoreMass + deltaCoreMass) * deltaCoreMass;
-            // Second term is not valid if the initial core mass had been previously exceeded
-            double secondTerm = (m_InitialMixingCoreMass != CalculateMixingCoreMassAtZAMS(m_MZAMS)) ? 0.0 : 0.5 / (mixingCoreMass + deltaCoreMass) * (heliumFractionOut - m_InitialHeliumAbundance) / (mixingCoreMass - m_InitialMixingCoreMass) * deltaCoreMass * deltaCoreMass;
+            // Second term is set to zero if the initial core mass had been previously exceeded
+            double secondTerm = (m_InitialMainSequenceCoreMass != CalculateInitialMainSequenceCoreMass(m_MZAMS)) ? 0.0 : 0.5 / (mixingCoreMass + deltaCoreMass) * (heliumFractionOut - m_InitialHeliumAbundance) / (mixingCoreMass - m_InitialMainSequenceCoreMass) * deltaCoreMass * deltaCoreMass;
             
-            // Change in helium abundance
-            double deltaY = firstTerm + secondTerm;
-            
+            double deltaY = firstTerm + secondTerm;                                             // Change in helium abundance
             newCentralHeliumFraction = centralHeliumFraction + deltaY;
             m_HeliumAbundanceCoreOut = m_InitialHeliumAbundance;
-            m_InitialMixingCoreMass = newMixingCoreMass;
+            m_InitialMainSequenceCoreMass = newMixingCoreMass;
         }
     }
     else
@@ -885,12 +883,13 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassShikauchi(const double p_Dt) 
 /*
  * Calculate the initial core mass of a main sequence star using Equation (A3) from Shikauchi et al. (2024)
  *
- * double CalculateMixingCoreMassAtZAMS(const double p_MZAMS)
+ *
+ * double CalculateInitialMainSequenceCoreMass(const double p_MZAMS)
  *
  * @param   [IN]    p_MZAMS                     Mass at ZAMS in Msol
  * @return                                      Mass of the convective core in Msol at ZAMS
  */
-double MainSequence::CalculateMixingCoreMassAtZAMS(const double p_MZAMS) {
+double MainSequence::CalculateInitialMainSequenceCoreMass(const double p_MZAMS) {
     DBL_VECTOR fmixCoefficients = std::get<1>(SHIKAUCHI_COEFFICIENTS);
     double fmix = fmixCoefficients[0] + fmixCoefficients[1] * std::exp(-p_MZAMS / fmixCoefficients[2]);
     return fmix * p_MZAMS;
@@ -900,6 +899,7 @@ double MainSequence::CalculateMixingCoreMassAtZAMS(const double p_MZAMS) {
 /*
  * Update the core mass of a main sequence star that loses mass through winds or Case A mass transfer
  * When Shikauchi et al. (2024) core prescription is used, also update the core helium abundance and effective age
+ *
  *
  * void UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate)
  *
@@ -1137,8 +1137,8 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     m_HydrogenAbundanceCore = 1.0 - m_Metallicity - m_HeliumAbundanceCore;
     
     if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (p_Mass >= 10.0)) {
-        m_InitialMixingCoreMass = CalculateMixingCoreMassAtZAMS(p_Mass);                         // update initial mixing core mass
-        m_MainSequenceCoreMass = m_InitialMixingCoreMass;
+        m_InitialMainSequenceCoreMass = CalculateInitialMainSequenceCoreMass(p_Mass);                         // update initial mixing core mass
+        m_MainSequenceCoreMass = m_InitialMainSequenceCoreMass;
     }
     
     UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);

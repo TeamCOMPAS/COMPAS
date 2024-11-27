@@ -24,8 +24,8 @@ public:
 
 protected:
     
-    double m_InitialMixingCoreMass = 0.0;                                                                                                                           // Initial mass of the mixing core is properly initialised in MS_gt_07 class
-    double m_HeliumAbundanceCoreOut = m_InitialHeliumAbundance;                                                                                                     // Helium abundance just outside the core, needed for Shikauchi+ core mass calculation (in case of mass gain)
+    double m_InitialMainSequenceCoreMass = 0.0;                                                                                                                     // Initial mass of the mixing core is initialised in MS_gt_07 class
+    double m_HeliumAbundanceCoreOut = m_InitialHeliumAbundance;                                                                                                     // Helium abundance just outside the core, used for rejuvenation calculations
 
     // member functions - alphabetically
     double          CalculateAlphaL(const double p_Mass) const;
@@ -47,7 +47,7 @@ protected:
     double          CalculateCOCoreMassAtPhaseEnd() const                                   { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase
     double          CalculateCOCoreMassOnPhase() const                                      { return 0.0; }                                                         // McCO(MS) = 0.0
 
-    double          CalculateCoreMassAtPhaseEnd() const                                     { return 0.0; }                                      // Accounts for minimal core mass built up prior to mass loss through mass transfer
+    double          CalculateCoreMassAtPhaseEnd() const                                     { return 0.0; }                                                         // Same as on phase
     double          CalculateCoreMassOnPhase() const                                        { return 0.0; }                                                         // Mc(MS) = 0.0 (Hurley et al. 2000, just before eq 28)
 
     double          CalculateHeCoreMassAtPhaseEnd() const                                   { return CalculateCoreMassAtPhaseEnd(); }                               // Same as He core mass
@@ -76,7 +76,7 @@ protected:
     double          CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore, const double p_Age) const;
     double          CalculateMainSequenceCoreMassMandel();
     DBL_DBL         CalculateMainSequenceCoreMassShikauchi(const double p_Dt);
-    double          CalculateMixingCoreMassAtZAMS(const double p_MZAMS);
+    double          CalculateInitialMainSequenceCoreMass(const double p_MZAMS);
     double          CalculateMomentOfInertia() const                                        { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                      // k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
 
     double          CalculatePerturbationMu() const                                         { return 5.0; }                                                         // mu(MS) = 5.0 (Hurley et al. 2000, eqs 97 & 98)
@@ -103,7 +103,7 @@ protected:
 
     void            EvolveOneTimestepPreamble();
     STELLAR_TYPE    EvolveToNextPhase()                                                     { return STELLAR_TYPE::HERTZSPRUNG_GAP; }
-        
+
     double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
                                            const double p_massTransferEfficiencyBeta); // RTW do I need a const here?
     
