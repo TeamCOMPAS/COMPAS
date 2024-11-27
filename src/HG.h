@@ -9,7 +9,6 @@
 #include <boost/math/tools/roots.hpp>
 
 #include "GiantBranch.h"
-#include "HeMS.h"
 
 
 class BaseStar;
@@ -117,8 +116,6 @@ protected:
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS) const;
     double          CalculateRadiusOnPhase() const                                  { return CalculateRadiusOnPhase(m_Mass0, m_Tau, m_RZAMS0); }                                // Use class member variables
     
-    double          CalculateRemnantRadius() const;
-
     double          CalculateRho(const double p_Mass) const;
 
     double          CalculateTauAtPhaseEnd() const                                  { return 1.0; }                                                                             // tau = 1.0 at end of HG

@@ -1640,8 +1640,12 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         }
     }
 
+    std::cout<<"some of radii"<<m_Star1->CalculateRemnantRadius() + m_Star2->CalculateRemnantRadius()<<"sep"<<m_SemiMajorAxis * AU_TO_RSOL<<std::endl;
+    
     if (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || utils::Compare(m_Star1->CalculateRemnantRadius() + m_Star2->CalculateRemnantRadius(), m_SemiMajorAxis * AU_TO_RSOL) > 0) {                                                                             // catch merger in CE here, do not update stars
+        m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
         m_Flags.stellarMerger = true;
+        std::cout<<"Yes, merger!"<<std::endl;
     }
     
 	if (!m_Flags.stellarMerger) {
@@ -1673,7 +1677,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 	}
 
     // if stars are evolving as CHE stars, update their rotational frequency under the assumption of tidal locking if tides are not enabled
-    if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::NONE) {
+    if (!m_Flags.stellarMerger && OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::NONE) {
         double omega = OrbitalAngularVelocity();                                                                        // orbital angular velocity
         if (m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star1->SetOmega(omega);
         if (m_Star2->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star2->SetOmega(omega);
@@ -1690,6 +1694,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     }
 
     (void)PrintCommonEnvelope();                                                                                        // print (log) common envelope details
+    
+    std::cout<<"Flag"<<m_Flags.stellarMerger<<"TypeA"<<(int)m_Star1->StellarType()<<"TypeB"<<(int)m_Star2->StellarType()<<std::endl;
 }
 
 

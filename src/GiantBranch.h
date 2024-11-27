@@ -20,6 +20,8 @@ public:
     GiantBranch(){};
     
     GiantBranch(const BaseStar &p_BaseStar) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {}
+    
+    double          CalculateRemnantRadius() const;
 
 protected:
 

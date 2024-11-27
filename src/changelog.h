@@ -1401,6 +1401,8 @@
 //                                      - Fix issue (likely introduced in 03.08.00) with the accretor not gaining mass appropriately
 // 03.09.01  RTW - Nov 27, 2024     - Enhancement:
 //                                      - Added systemic velocity components x, y, and z to the output
-const std::string VERSION_STRING = "03.09.01";
+// 03.09.03   IM - Nov 28, 2024     - Enhancement, defect repair:
+//                                      - Delay changing stellar types until after checking for whether remnant cores would touch in a common enevelope, use core radii instead (fix to #1286)
+const std::string VERSION_STRING = "03.09.03";
 
 # endif // __changelog_h__
