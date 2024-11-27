@@ -246,6 +246,9 @@ public:
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
     double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
     double              SystemicSpeed() const                       { return m_SystemicVelocity.Magnitude(); }
+    double              SystemicVelocityX() const                   { return m_SystemicVelocity.xValue(); }
+    double              SystemicVelocityY() const                   { return m_SystemicVelocity.yValue(); }
+    double              SystemicVelocityZ() const                   { return m_SystemicVelocity.zValue(); }
     double              Time() const                                { return m_Time; }
     double              TimeToCoalescence() const                   { return m_TimeToCoalescence; }
     double              TotalAngularMomentum() const                { return m_TotalAngularMomentum; }

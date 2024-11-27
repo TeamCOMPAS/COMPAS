@@ -622,6 +622,9 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::SUPERNOVA_STATE:                                      value = SN_State();                                                         break;
         case BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE:                            value = SynchronizationTimescale();                                         break;
         case BINARY_PROPERTY::SYSTEMIC_SPEED:                                       value = SystemicSpeed();                                                    break;
+        case BINARY_PROPERTY::SYSTEMIC_VELOCITY_X:                                  value = SystemicVelocityX();                                                break;
+        case BINARY_PROPERTY::SYSTEMIC_VELOCITY_Y:                                  value = SystemicVelocityY();                                                break;
+        case BINARY_PROPERTY::SYSTEMIC_VELOCITY_Z:                                  value = SystemicVelocityZ();                                                break;
         case BINARY_PROPERTY::TIME:                                                 value = Time();                                                             break;
         case BINARY_PROPERTY::TIME_TO_COALESCENCE:                                  value = TimeToCoalescence();                                                break;
         case BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM:                               value = TotalAngularMomentum();                                             break;

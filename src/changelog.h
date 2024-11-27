@@ -1399,6 +1399,8 @@
 //                                      - The nuclear timescale mass transfer rate is now set by the requirement that the star ends the time step just filling its Roche lobe (addresses issue #1285)
 //                                      - Fix an issue with the root finder for fitting into the RL that led to artificial failures to find a root
 //                                      - Fix issue (likely introduced in 03.08.00) with the accretor not gaining mass appropriately
-const std::string VERSION_STRING = "03.09.00";
+// 03.09.01  RTW - Nov 27, 2024     - Enhancement:
+//                                      - Added systemic velocity components x, y, and z to the output
+const std::string VERSION_STRING = "03.09.01";
 
 # endif // __changelog_h__
