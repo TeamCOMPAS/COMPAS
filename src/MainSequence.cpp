@@ -492,10 +492,11 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
     double tau1   = std::min(1.0, (p_Time / tHook));                                                                            // Hurley et al. 2000, eq 14
     double tau2   = std::max(0.0, std::min(1.0, (p_Time - ((1.0 - epsilon) * tHook)) / (epsilon * tHook)));                     // Hurley et al. 2000, eq 15
 
-    // pow() is slow - use multipliaction where it makes sense
+    // pow() is slow - use multiplication where it makes sense
     double tau_3  = tau * tau * tau;
-    double tau_10 = tau_3 * tau_3 * tau_3 * tau;
-    double tau_40 = tau_10 * tau_10 * tau_10 * tau_10;
+    double tau_10 = tau<FLOAT_TOLERANCE_ABSOLUTE ? 0.0: tau_3 * tau_3 * tau_3 * tau;                                            // direct comparison, to avoid underflow
+    double tau_40 = tau_10<FLOAT_TOLERANCE_ABSOLUTE ? 0.0: tau_10 * tau_10 * tau_10 * tau_10;                                   // direct comparison, to avoid underflow
+    
     double tau1_3 = tau1 * tau1 * tau1;
     double tau2_3 = tau2 * tau2 * tau2;
 

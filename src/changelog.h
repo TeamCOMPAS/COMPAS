@@ -1408,6 +1408,7 @@
 //                                      - Delay changing stellar types until after checking for whether remnant cores would touch in a common enevelope, use core radii instead (partial fix to #1286)
 //                                      - Define a new function MainSequence::TAMSCoreMass(); use it for determining the amount of He in a star during MS mergers
 //                                      - Switch both stars to Massless remnants during a CE merger, resolve #1265
+//                                      - Minor fixes, including to #1255, #1258
 const std::string VERSION_STRING = "03.09.03";
 
 # endif // __changelog_h__
