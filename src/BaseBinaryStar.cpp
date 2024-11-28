@@ -1692,10 +1692,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             m_Flags.stellarMerger        = true;
         }
     }
-
-/* Ilya - should we execute the following statement if a stellar merger has occurred - we won't have stored post CEE stellar values for the stars... */
-/* I suppose we could still execute line 1688 above sto set the binary values */
-/* note we could have set the stellar merger flag as late as line 1692 above */
+    
     (void)PrintCommonEnvelope();                                                                                        // print (log) common envelope details
     
 }
@@ -1721,9 +1718,8 @@ void BaseBinaryStar::ResolveMainSequenceMerger() {
     double tau1  = m_Star1->Tau();
     double tau2  = m_Star2->Tau();
 
-    // /*ILYA*/ temporary solution, should use TAMS core mass
-    double TAMSCoreMass1 = 0.3 * mass1;
-    double TAMSCoreMass2 = 0.3 * mass2;
+    double TAMSCoreMass1 = m_Star1->TAMSCoreMass();
+    double TAMSCoreMass2 = m_Star2->TAMSCoreMass();
     
     double q   = std::min(mass1 / mass2, mass2 / mass1);
     double phi = 0.3 * q / (1.0 + q) / (1.0 + q);                                               // fraction of mass lost in merger, Wang+ 2022, https://www.nature.com/articles/s41550-021-01597-5
@@ -3088,8 +3084,12 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 if (StellarMerger() && !HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                 // have stars merged without merger already being resolved?
                     if (m_Star1->IsOneOf(MAIN_SEQUENCE) && m_Star2->IsOneOf(MAIN_SEQUENCE) && OPTIONS->EvolveMainSequenceMergers())     // yes - both MS and evolving MS merger products?
                         ResolveMainSequenceMerger();                                                                                    // yes - handle main sequence mergers gracefully; no need to change evolution status
-                    else
+                    else {
+                        // make both stars massless remnants if merging during CE, so this is recorded in the Switch log; eventually, will want to implement a more careful prescription for the merger product, perhaps allowing further evolution of the merger product
+                        m_Star1->SwitchTo(STELLAR_TYPE::MASSLESS_REMNANT);
+                        m_Star2->SwitchTo(STELLAR_TYPE::MASSLESS_REMNANT);
                         evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                             // no - for now, stop evolution
+                    }
                 }
                 else if (HasStarsTouching()) {                                                                                          // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
                     evolutionStatus = EVOLUTION_STATUS::STARS_TOUCHING;                                                                 // yes - stop evolution

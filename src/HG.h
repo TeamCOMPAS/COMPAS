@@ -138,6 +138,7 @@ protected:
     bool            ShouldEvolveOnPhase() const                                     { return (utils::Compare(m_Age, m_Timescales[static_cast<int>(TIMESCALE::tBGB)]) < 0); }    // Evolve on HG phase if age < Base Giant Branch timescale
     bool            ShouldSkipPhase() const                                         { return false; }                                                                           // Never skip HG phase
 
+    double          TAMSCoreMass() const                                            { return 0.0; }
     void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass) { }                                                                                                 // Nothing to do for stars beyond the Main Sequence for now
     void            UpdateAgeAfterMassLoss();                                                                                                                                   // Per Hurley et al. 2000, section 7.1
 

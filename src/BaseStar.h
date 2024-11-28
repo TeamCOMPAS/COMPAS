@@ -343,6 +343,8 @@ public:
             void            StashSupernovaDetails(const STELLAR_TYPE p_StellarType,
                                                   const SSE_SN_RECORD_TYPE p_RecordType = SSE_SN_RECORD_TYPE::DEFAULT) { LOGGING->StashSSESupernovaDetails(this, p_StellarType, p_RecordType); }
 
+    virtual double          TAMSCoreMass() const                                                                { return 0.0; }                                                                                                             // except MS stars
+    
     virtual void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass) { }                                                                                             // Default is NO-OP
     virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
 

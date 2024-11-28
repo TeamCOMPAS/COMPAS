@@ -636,20 +636,7 @@ double MainSequence::CalculateConvectiveCoreRadius() const {
  * @return                                      Mass of convective core in Msol
  */
 double MainSequence::CalculateConvectiveCoreMass() const {
-
-    // We need TAMSCoreMass, which is just the core mass at the start of the HG phase.
-    // Since we are on the main sequence here, we can clone this object as an HG object
-    // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
-    // we can query the cloned object for its core mass.
-    //
-    // The clone should not evolve, and so should not log anything, but to be sure the
-    // clone does not participate in logging, we set its persistence to EPHEMERAL.
-      
-    HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
-    double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
-    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
-
-    double finalConvectiveCoreMass   = TAMSCoreMass;
+    double finalConvectiveCoreMass   = TAMSCoreMass();                                          // core mass at TAMS
     double initialConvectiveCoreMass = finalConvectiveCoreMass / 0.6;
     return (initialConvectiveCoreMass - m_Tau * (initialConvectiveCoreMass - finalConvectiveCoreMass));
 }
@@ -849,21 +836,32 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_Force) {
  */
 void MainSequence::UpdateMinimumCoreMass() {
     if (OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
-
-        // We need TAMSCoreMass, which is just the core mass at the start of the HG phase.
-        // Since we are on the main sequence here, we can clone this object as an HG object
-        // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
-        // we can query the cloned object for its core mass.
-        //
-        // The clone should not evolve, and so should not log anything, but to be sure the
-        // clone does not participate in logging, we set its persistence to EPHEMERAL.
-      
-        HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
-        double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
-        delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
-
-        m_MinimumCoreMass   = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass);    // update minimum core mass
+        m_MinimumCoreMass   = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass());    // update minimum core mass
     }
+}
+
+/*
+ * Return the expected core mass at terminal age main sequence, i.e., at the start of the HG phase
+ *
+ * double TAMSCoreMass() const
+ *
+ *
+ * @return                                      TAMS core Mass (Msol)
+ *
+ */
+double MainSequence::TAMSCoreMass() const {
+    // Since we are on the main sequence here, we can clone this object as an HG object
+    // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
+    // we can query the cloned object for its core mass.
+    //
+    // The clone should not evolve, and so should not log anything, but to be sure the
+    // clone does not participate in logging, we set its persistence to EPHEMERAL.
+    
+    HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
+    double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+    
+    return TAMSCoreMass;
 }
 
 

@@ -107,6 +107,8 @@ protected:
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
 
     bool            ShouldEvolveOnPhase() const                                             { return (m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]); }    // Evolve on MS phase if age in MS timescale
+    
+    double          TAMSCoreMass() const;
 
     void            UpdateInitialMass()                                                     { m_Mass0 = m_Mass; }                                                   // Per Hurley et al. 2000, section 7.1
    
