@@ -494,8 +494,8 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
 
     // pow() is slow - use multiplication where it makes sense
     double tau_3  = tau * tau * tau;
-    double tau_10 = tau<FLOAT_TOLERANCE_ABSOLUTE ? 0.0: tau_3 * tau_3 * tau_3 * tau;                                            // direct comparison, to avoid underflow
-    double tau_40 = tau_10<FLOAT_TOLERANCE_ABSOLUTE ? 0.0: tau_10 * tau_10 * tau_10 * tau_10;                                   // direct comparison, to avoid underflow
+    double tau_10 = tau < FLOAT_TOLERANCE_ABSOLUTE ? 0.0: tau_3 * tau_3 * tau_3 * tau;                                          // direct comparison, to avoid underflow
+    double tau_40 = tau_10 < FLOAT_TOLERANCE_ABSOLUTE ? 0.0: tau_10 * tau_10 * tau_10 * tau_10;                                 // direct comparison, to avoid underflow
     
     double tau1_3 = tau1 * tau1 * tau1;
     double tau2_3 = tau2 * tau2 * tau2;
