@@ -67,5 +67,21 @@ Note that the BSE SwitchLog file has the following columns automatically appende
    * - Header String:
      - "SWITCHING_TO"
 
+**IS_MERGER**
+
+.. list-table::
+   :widths: 20 80 
+   :header-rows: 0
+   :class: aligned-text
+
+   * - Data type:
+     - BOOL
+   * - COMPAS variable:
+     - Not applicable
+   * - Description:
+     - Flag to indicate if the switchlog record records a merger (rather than a simple switch)
+   * - Header String:
+     - "IS_MERGER"
+
 These columns will always be automatically appended to each BSE Switch Log record: they cannot be removed via the log file record 
 specifications file.

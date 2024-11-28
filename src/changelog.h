@@ -1409,6 +1409,8 @@
 //                                      - Define a new function MainSequence::TAMSCoreMass(); use it for determining the amount of He in a star during MS mergers
 //                                      - Switch both stars to Massless remnants during a CE merger, resolve #1265
 //                                      - Minor fixes, including to #1255, #1258
-const std::string VERSION_STRING = "03.09.03";
+// 03.10.00   JR - Nov 29, 2024     - Enhancement:
+//                                      - added functionality to allow stellar mergers (for BSE) to be logged to switchlog file (see documentation for details)
+const std::string VERSION_STRING = "03.10.00";
 
 # endif // __changelog_h__

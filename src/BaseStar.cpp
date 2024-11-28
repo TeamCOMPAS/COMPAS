@@ -2494,8 +2494,6 @@ double BaseStar::CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(c
     else {
         logMdotCorrected = logMdotUncorrected;
     }
-
-    std::cout<<logMdotCorrected<<std::endl;
     
     return PPOW(10.0, logMdotCorrected);
 }
