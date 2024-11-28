@@ -1344,7 +1344,7 @@
 //                                      - Changed the prescription for Tonset in the Picker+ models to take advantage of improved metallicity-dependent fits
 // 03.05.02   IM - Oct 10, 2024     - Enhancement, defect repair:
 //                                      - Reverted IsCCSN() to include USSN following a change in 3.00.00 that inadvertently led to no binary orbit updates following USSNe
-//                                      - Include a call to EvolveBinary(0.0) on initialisation of evolved stellar types; this ensures that Switch logs include consistent data for the new stellar type
+//                                      - Include a call to EvolveOnPhase(0.0) on initialisation of evolved stellar types; this ensures that Switch logs include consistent data for the new stellar type
 // 03.06.00   IM - Oct 14, 2024     - Enhancement, code cleanup:
 //                                      - Incorporating the Maltsev+ (2024) prescription for supernova remnant masses
 //                                      - Minor fixes, including in fallback fraction for Schneider SN prescription, documentation
