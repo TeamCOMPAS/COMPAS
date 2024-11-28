@@ -847,7 +847,7 @@ Options: { JEANS, ISOTROPIC, CIRCUMBINARY, MACLEOD_LINEAR, ARBITRARY } |br|
 Default = ISOTROPIC
 
 **--mass-transfer-fa** |br|
-Mass Transfer fraction accreted. |br|
+Mass Transfer fraction accreted (beta). |br|
 Used when ``--mass-transfer-accretion-efficiency-prescription = FIXED_FRACTION``. |br|
 Default = 0.5
 
@@ -1122,10 +1122,11 @@ Enable mass loss due to pulsational-pair-instability (PPI). |br|
 Default = TRUE
 
 **--pulsational-pair-instability-prescription** |br|
-Pulsational pair instability prescription. |br|
+Pulsational pair instability prescription (only relevant when using ``--pulsational-pair-instability``). |br|
 Options: { HENDRIKS, COMPAS, STARTRACK, MARCHANT, FARMER } |br|
 ``HENDRIKS`` implements the prescription from Hendriks et al. 2023 |br|
-``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, all as implemented in Stevenson et al. 2019. |br|
+``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, 
+all as implemented in Stevenson et al. 2019. |br|
 ``FARMER`` follows Farmer et al. 2019 |br|
 Default = MARCHANT
 

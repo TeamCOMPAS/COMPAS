@@ -3,6 +3,13 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.09.00 Nov 25, 2024**
+
+Improved nuclear timescale mass transfer: the nuclear timescale mass transfer rate is now set by the requirement that the star 
+ends the time step just filling its Roche lobe.
+Fixed several significant mass-transfer issues, such as accretors not gaining mass appropriately and failures
+in the root solver for fitting the star into the Roche lobe that were leading to artificial common envelopes and mergers.
+
 **03.08.02 Nov 18, 2024**
 
 Updated implementation of the mass transfer stability critical mass ratio tables from the team of Hongwei Ge.

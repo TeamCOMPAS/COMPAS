@@ -2,6 +2,7 @@
 #include "HeMS.h"
 #include "HeWD.h"
 
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                     COEFFICIENT AND CONSTANT CALCULATIONS ETC.                    //
@@ -859,6 +860,7 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 #undef massCutoffs
 #undef b
 }
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////

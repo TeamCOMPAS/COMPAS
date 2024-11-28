@@ -52,6 +52,8 @@ public:
     static DBL_DBL  CalculateRadiusAtPhaseEnd_Static(const double p_Mass, const double p_Luminosity);
     static double   CalculateRadiusAtZAMS_Static(const double p_Mass);
     static double   CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Tau);
+    
+           double   CalculateRemnantRadius() const                                                                  { return Radius(); }
 
     MT_CASE         DetermineMassTransferTypeAsDonor() const                                                        { return MT_CASE::OTHER; }                                                      // Not A, B, C, or NONE
 
