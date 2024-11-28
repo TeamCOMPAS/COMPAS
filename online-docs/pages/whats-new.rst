@@ -28,13 +28,11 @@ Improved the treatment of stellar rotation (with further corrections in 03.08.01
 
 * Assume rigid body rotation
 * Keep the angular moment of a star constant when there is no mass loss
-* When a star with radius r and angular frequency omega loses mass dm through winds or mass transfer, it loses angular momentum dL = 
-(2/3) dm r^2 omega
+* When a star with radius r and angular frequency omega loses mass dm through winds or mass transfer, it loses angular momentum dL = (2/3) dm r^2 omega
 * (However, angular momentum never drops below zero)
 * When a star loses its envelope, the remaining core is assumed to rotate with the same rotation rate as the preceding star
 * When a star of mass m and radius r gains mass dm through accretion, it gain angular momentum dL = dm \sqrt{G m r}
-* If initial binary rotation is fast enough for a star to be CHE, it is set to that rotation frequency without regard for the tidal 
-prescription; CHE stars remain tidally locked if the tidal prescription is NONE
+* If initial binary rotation is fast enough for a star to be CHE, it is set to that rotation frequency without regard for the tidal prescription; CHE stars remain tidally locked if the tidal prescription is NONE
 
 **03.07.01 Oct 23, 2024**
 
