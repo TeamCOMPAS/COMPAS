@@ -837,7 +837,7 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_Force) {
  */
 void MainSequence::UpdateMinimumCoreMass() {
     if (OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
-        m_MinimumCoreMass   = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass());    // update minimum core mass
+        m_MinimumCoreMass = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass());      // update minimum core mass
     }
 }
 
