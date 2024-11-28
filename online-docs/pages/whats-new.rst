@@ -6,7 +6,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 **03.10.00 Nov 29, 2024**
 
 Added functionality to log stellar mergers in the BSE switchlog file.
-Switchlog merger records come in pairs (one for each star) so that the setllar type of each star is recorded.
+Switchlog merger records come in pairs (one for each star) so that the stellar type of each star is recorded.
 
 **03.09.00 Nov 28, 2024**
 
