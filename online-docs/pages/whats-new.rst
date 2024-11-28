@@ -3,7 +3,12 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
-**03.09.00 Nov 25, 2024**
+**03.10.00 Nov 29, 2024**
+
+Added functionality to log stellar mergers in the BSE switchlog file.
+Switchlog merger records come in pairs (one for each star) so that the setllar type of each star is recorded.
+
+**03.09.00 Nov 28, 2024**
 
 Improved nuclear timescale mass transfer: the nuclear timescale mass transfer rate is now set by the requirement that the star 
 ends the time step just filling its Roche lobe.
