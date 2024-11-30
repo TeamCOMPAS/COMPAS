@@ -114,7 +114,7 @@ void HeHG::CalculateGBParams_Static(const double      p_Mass0,
                                           DBL_VECTOR &p_GBParams) {
 
 #define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
-
+    
     GiantBranch::CalculateGBParams_Static(p_Mass, p_LogMetallicityXi, p_MassCutoffs, p_AnCoefficients, p_BnCoefficients, p_GBParams);                                     // calculate common values (actually, all)
 
     // recalculate HeHG specific values
@@ -125,6 +125,12 @@ void HeHG::CalculateGBParams_Static(const double      p_Mass0,
     gbParams(Mx)     = GiantBranch::CalculateCoreMass_Luminosity_Mx_Static(p_GBParams);      // depends on B, D, p & q - recalculate if any of those are changed
     gbParams(Lx)     = GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // depends on B, D, p, q & Mx - recalculate if any of those are changed
 
+    // need to reset p and q to HeHG specific versions -- while they are set in GiantBranch::CalculateGBParams_Static(), that uses
+    // the GiantBranch versions of CalculateCoreMass_Luminosity_p_Static and CalculateCoreMass_Luminosity_q_Static
+    // should return to this and understand desired behavior...
+    gbParams(p) = CalculateCoreMass_Luminosity_p_Static(p_Mass, p_MassCutoffs);
+    gbParams(q) = CalculateCoreMass_Luminosity_q_Static(p_Mass, p_MassCutoffs);
+    
 	gbParams(McBAGB) = p_Mass0;
 	gbParams(McBGB)  = GiantBranch::CalculateCoreMassAtBGB_Static(p_Mass, p_MassCutoffs, p_AnCoefficients, p_GBParams);
 

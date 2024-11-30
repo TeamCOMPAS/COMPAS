@@ -2494,8 +2494,6 @@ double BaseStar::CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(c
     else {
         logMdotCorrected = logMdotUncorrected;
     }
-
-    std::cout<<logMdotCorrected<<std::endl;
     
     return PPOW(10.0, logMdotCorrected);
 }
@@ -2846,7 +2844,7 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
         UpdateAgeAfterMassLoss();                                                                   // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                                      // apply age rejuvenation factor
-        SetAngularMomentum(m_AngularMomentum + angularMomentumChange);                              
+        SetAngularMomentum(m_AngularMomentum + angularMomentumChange);
     }
 }
 
