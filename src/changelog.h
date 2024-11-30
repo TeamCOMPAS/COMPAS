@@ -1414,6 +1414,7 @@
 // 03.10.01   IM - Nov 30, 2024     - Defect repair:
 //                                      - corrected treatment of rotation to retain pre-mass-loss spin frequency, not angular momentum, on complete envelope removal during stable mass transfer
 //                                      - fixed issue with updating helium giants that manifested as supernovae with nan core mass (see #1245)
+//                                      - added check for exceeding Chandrasekhar mass when computing white dwarf radius (resolves issue #1264)
 const std::string VERSION_STRING = "03.10.01";
 
 # endif // __changelog_h__
