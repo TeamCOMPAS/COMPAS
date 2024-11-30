@@ -2099,8 +2099,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                             // donor stellar type before resolving envelope loss
             
             if (isEnvelopeRemoved) {                                                                                            // if this was an envelope stripping episode, resolve envelope loss
-                m_Star1->ResolveEnvelopeLossAndSwitch();                                                                        // resolve envelope loss for the donor and switch to new stellar type
-                m_Star1->SetOmega(omegaDonor_pre_MT);                                                                           // keep the rotation frequency of the core equal to the pre-envelope-loss rotation frequency
+                m_Donor->ResolveEnvelopeLossAndSwitch();                                                                        // resolve envelope loss for the donor and switch to new stellar type
+                m_Donor->SetOmega(omegaDonor_pre_MT);                                                                           // keep the rotation frequency of the core equal to the pre-envelope-loss rotation frequency
             }
             
             if (m_Donor->StellarType() != stellarTypeDonor) {                                                                   // stellar type change?
