@@ -1411,6 +1411,9 @@
 //                                      - Minor fixes, including to #1255, #1258
 // 03.10.00   JR - Nov 29, 2024     - Enhancement:
 //                                      - added functionality to allow stellar mergers (for BSE) to be logged to switchlog file (see documentation for details)
-const std::string VERSION_STRING = "03.10.00";
+// 03.10.01   IM - Nov 30, 2024     - Defect repair:
+//                                      - corrected treatment of rotation to retain pre-mass-loss spin frequency, not angular momentum, on complete envelope removal during stable mass transfer
+//                                      - fixed issue with updating helium giants that manifested as supernovae with nan core mass (see #1245)
+const std::string VERSION_STRING = "03.10.01";
 
 # endif // __changelog_h__
