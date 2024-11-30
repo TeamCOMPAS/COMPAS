@@ -2751,12 +2751,13 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         // ( i) the steller type from which the star is switching
                         // (ii) the stellar type to which the star is switching
                         //
-                        // if we are writing to the BSE Switch file we add three pre-defined columns
+                        // if we are writing to the BSE Switch file we add four pre-defined columns
                         // to the end of the log record.  These are:
                         //
                         // (  i) the star switching - 1 = primary, 2 = secondary
                         // ( ii) the steller type from which the star is switching
                         // (iii) the stellar type to which the star is switching
+                        // ( iv) boolean flag indicating whether a merger occurred 
                         //
                         // These are hard-coded here rather than in the *_PROPERTY_DETAIL maps in
                         // constants.h so that they will always be present in the switch file -
@@ -2768,7 +2769,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fileDetails.hdrStrings.push_back("Star_Switching");                                                                 // append header string for field
                             fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accommodates header string)
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field
                         }
 
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG || p_Logfile == LOGFILE::SSE_SWITCH_LOG) {                                     // BSE Switch Log or SSE Switch Log
@@ -2784,12 +2785,20 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
 
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accommodates header string)
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accommodates header string)
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field
+                        }
+
+                        if (p_Logfile == LOGFILE::BSE_SWITCH_LOG) {                                                                             // BSE Switch Log
+                            fileDetails.propertyTypes.push_back(TYPENAME::BOOL);                                                                // append property typename
+                            fileDetails.hdrStrings.push_back("Is_Merger");                                                                      // append header string for field
+                            fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
+                            fileDetails.typeStrings.push_back("BOOL");                                                                          // append type string for field
+                            fileDetails.fmtStrings.push_back("0.0");                                                                            // append format string for field
                         }
 
                         // we add the record type column to the end of the log record here for all logfiles
-                        // except the switch files (BSE_SWITCH_LOG and SSE_SWOTCH_LOG).
+                        // except the switch files (BSE_SWITCH_LOG and SSE_SWITCH_LOG).
                         //
                         // This is hard-coded here rather than in the *_PROPERTY_DETAIL maps in constants.h
                         // so that it will always be present in the logfile - this way users can't add or 

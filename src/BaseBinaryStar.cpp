@@ -3094,11 +3094,12 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 if (StellarMerger() && !HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                 // have stars merged without merger already being resolved?
                     if (m_Star1->IsOneOf(MAIN_SEQUENCE) && m_Star2->IsOneOf(MAIN_SEQUENCE) && OPTIONS->EvolveMainSequenceMergers())     // yes - both MS and evolving MS merger products?
                         ResolveMainSequenceMerger();                                                                                    // yes - handle main sequence mergers gracefully; no need to change evolution status
-                    else {
-                        // make both stars massless remnants if merging during CE, so this is recorded in the Switch log; eventually, will want to implement a more careful prescription for the merger product, perhaps allowing further evolution of the merger product
-                        m_Star1->SwitchTo(STELLAR_TYPE::MASSLESS_REMNANT);
-                        m_Star2->SwitchTo(STELLAR_TYPE::MASSLESS_REMNANT);
-                        evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                             // no - for now, stop evolution
+                    else {                                                                                                              // no - for now, log the merger and stop evolution
+                        // log the merger to the switchlog file
+                        // eventually, will want to implement a more careful prescription for the merger product,
+                        // perhaps allowing further evolution of the merger product
+                        (void)LogMergerToSwitchLog();                                                                                   // log merger
+                        evolutionStatus = EVOLUTION_STATUS::STELLAR_MERGER;                                                             // stop evolution
                     }
                 }
                 else if (HasStarsTouching()) {                                                                                          // binary components touching? (should usually be avoided as MT or CE or merger should happen prior to this)
