@@ -2844,7 +2844,7 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
         UpdateAgeAfterMassLoss();                                                                   // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                                      // apply age rejuvenation factor
-        SetAngularMomentum(m_AngularMomentum + angularMomentumChange);                              
+        SetAngularMomentum(m_AngularMomentum + angularMomentumChange);
     }
 }
 
