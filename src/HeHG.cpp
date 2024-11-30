@@ -127,7 +127,7 @@ void HeHG::CalculateGBParams_Static(const double      p_Mass0,
 
     // need to reset p and q to HeHG specific versions -- while they are set in GiantBranch::CalculateGBParams_Static(), that uses
     // the GiantBranch versions of CalculateCoreMass_Luminosity_p_Static and CalculateCoreMass_Luminosity_q_Static
-    // should return to this and understand desired behavior...
+    // should return to this and understand desired behavior - *ILYA*
     gbParams(p) = CalculateCoreMass_Luminosity_p_Static(p_Mass, p_MassCutoffs);
     gbParams(q) = CalculateCoreMass_Luminosity_q_Static(p_Mass, p_MassCutoffs);
     
