@@ -2437,8 +2437,6 @@ void BaseBinaryStar::ResolveMassChanges() {
     STELLAR_TYPE stellarType1 = m_Star1->StellarTypePrev();                                             // star 1 stellar type before updating attributes
     STELLAR_TYPE stellarType2 = m_Star2->StellarTypePrev();                                             // star 2 stellar type before updating attributes
 
-    //std::cout<<"Time"<<Time()<<"Prev"<<m_Star1->MassPrev()<<"cur"<<m_Star1->Mass()<<"change"<<m_Star1->MassLossDiff() + m_Star1->MassTransferDiff()<<"loss"<<m_Star1->MassLossDiff()<<"transfer"<<m_Star1->MassTransferDiff()<<std::endl;
-
     // star1
     // determine if the star's mass has already been updated
     // (a sign that ResolveEnvelopeLossAndSwitch() has been called after the full envelope was stripped)
