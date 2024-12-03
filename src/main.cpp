@@ -311,12 +311,9 @@ std::tuple<int, int> EvolveSingleStars() {
                     // if the user specified a random seed in the grid file for the current star, regardless of
                     // whether a random seed was specified on the commandline, the random seed from the grid
                     // file is used, and an offset is added if the grid line also specified ranges or sets for
-                    // and options (if no rangers or sets were specified on the grid line then no offset is added
-                    // (i.e. the random seed specified is used as it)).  Note that in this scenario it is the 
+                    // and options (if no ranges or sets were specified on the grid line then no offset is added
+                    // (i.e. the random seed specified is used as is)).  Note that in this scenario it is the 
                     // user's responsibility to ensure that there is no duplication of seeds.
-
-                    // show deprecation noitices if using a grid file (already done for commandline options)
-                    if (usingGrid) OPTIONS->ShowDeprecations(false);
 
                     std::string       errorStr;                                                                             // error string
                     unsigned long int randomSeed = 0l;                                                                      // random seed
@@ -644,12 +641,9 @@ std::tuple<int, int> EvolveBinaryStars() {
                 // if the user specified a random seed in the grid file for the current binary, regardless of
                 // whether a random seed was specified on the commandline, the random seed from the grid
                 // file is used, and an offset is added if the grid line also specified ranges or sets for
-                // and options (if no rangers or sets were specified on the grid line then no offset is added
-                // (i.e. the random seed specified is used as it)).  Note that in this scenario it is the 
+                // and options (if no ranges or sets were specified on the grid line then no offset is added
+                // (i.e. the random seed specified is used as is)).  Note that in this scenario it is the 
                 // user's responsibility to ensure that there is no duplication of seeds.
-
-                // show deprecation noitices if using a grid file (already done for commandline options)
-                if (usingGrid) OPTIONS->ShowDeprecations(false);
              
                 unsigned long int thisId = index + gridLineVariation;                                               // set the id for the binary
 
@@ -840,18 +834,15 @@ int main(int argc, char * argv[]) {
     else {                                                                                          // yes - have commandline options
         if (OPTIONS->RequestedHelp()) {                                                             // user requested help?
             (void)utils::SplashScreen();                                                            // yes - show splash screen
-            OPTIONS->ShowDeprecations();                                                            // show deprecation noticess - do this all the time
             OPTIONS->ShowHelp();                                                                    // show help
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
         else if (OPTIONS->RequestedVersion()) {                                                     // user requested version?
             (void)utils::SplashScreen();                                                            // yes - show splash screen
-            OPTIONS->ShowDeprecations();                                                            // show deprecation noticess - do this all the time
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
         else if (!OPTIONS->YAMLfilename().empty()) {                                                // user requested YAML file creation?
             (void)utils::SplashScreen();                                                            // yes - show splash screen
-            OPTIONS->ShowDeprecations();                                                            // show deprecation noticess - do this all the time
             yaml::MakeYAMLfile(OPTIONS->YAMLfilename(), OPTIONS->YAMLtemplate());                   // create YAML file
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
@@ -889,7 +880,6 @@ int main(int argc, char * argv[]) {
                            OPTIONS->LogfileType());                                                 // log file type
 
             (void)utils::SplashScreen();                                                            // announce ourselves
-            OPTIONS->ShowDeprecations();                                                            // show deprecation noticess - do this all the time
 
             if (!LOGGING->Enabled()) programStatus = PROGRAM_STATUS::LOGGING_FAILED;                // logging failed to start
             else {   

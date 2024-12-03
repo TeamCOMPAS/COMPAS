@@ -381,17 +381,17 @@ Following is an alphabetical list of stellar properties available for inclusion 
 
            * - None 
              - = 0
-           * - Nieuwenhuijzen and de Jager 
+           * - GB (Giant Branch) 
              - = 1
-           * - Kudritzki and Reimers 
+           * - LBV (Luminous Blue Variable) 
              - = 2
-           * - Vassiliadis and Wood 
+           * - OB (Main Sequence)
              - = 3
-           * - Wolf-Rayet-like (Hamann, Koesterke and de Koter) 
+           * - RSG (Red Supergiant) 
              - = 4
-           * - Vink 
+           * - VMS (Very Massive Main Sequence)
              - = 5
-           * - Luminous Blue Variable 
+           * - WR (Wolf-Rayet) 
              - = 6
 
    * - Header Strings:
@@ -718,6 +718,70 @@ Following is an alphabetical list of stellar properties available for inclusion 
 .. _stellar-props-H:
 
 :ref:`Back to Top <stellar-props-top>`
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **HELIUM_ABUNDANCE_CORE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_HeliumAbundanceCore
+   * - Description:
+     - Helium abundance in the core (Yc).
+   * - Header Strings:
+     - Helium_Abundance_Core
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **HELIUM_ABUNDANCE_SURFACE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_HeliumAbundanceSurface
+   * - Description:
+     - Helium abundance at the surface (Ys).
+   * - Header Strings:
+     - Helium_Abundance_Surface
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **HYDROGEN_ABUNDANCE_CORE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_HydrogenAbundanceCore
+   * - Description:
+     - Hydrogen abundance in the core (Xc).
+   * - Header Strings:
+     - Hydrogen_Abundance_Core
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **HYDROGEN_ABUNDANCE_SURFACE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_HydrogenAbundanceSurface
+   * - Description:
+     - Hydrogen abundance at the surface (Xs).
+   * - Header Strings:
+     - Hydrogen_Abundance_Surface
 
 .. flat-table::
    :widths: 25 75 1 1

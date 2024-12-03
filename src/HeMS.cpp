@@ -8,6 +8,22 @@
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
 
+/*
+ * Calculate the helium abundance in the core of the star
+ * 
+ * Currently just a simple linear model. Should be updated to match detailed models.
+ *
+ * double CalculateHeliumAbundanceCore(const double p_Tau)
+ * 
+ * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
+ * 
+ * @return                                      Helium abundance in the core (Y_c)
+ */
+double HeMS::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
+    double heliumAbundanceCoreMax = 1.0 - m_Metallicity;
+    return heliumAbundanceCoreMax * (1.0 - p_Tau);
+}
+
 
 /*
  * Calculate timescales in units of Myr
@@ -67,6 +83,7 @@ void HeMS::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
 
 #undef gbParams
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -142,6 +159,34 @@ double HeMS::CalculateLuminosityOnPhase_Static(const double p_Mass, const double
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
 
+/*
+ * Calculate convective core radius
+ *
+ * Assume equal to total radius at start (for continuity with stripped CHeB or HG star), continuity with HeHG at end of phase, linear growth
+ *
+ *
+ * double CalculateConvectiveCoreRadius()
+ *
+ * @return                                      Convective core radius (solar radii)
+ */
+double HeMS::CalculateConvectiveCoreRadius() const {
+
+    // We need core radius at end of phase, which is just the core radius at the start of the HeHG phase.
+    // Since we are on the He main sequence here, we can clone this object as an HeHG object
+    // and, as long as it is initialised (to correctly set Tau to 0.0 on the HeHG phase),
+    // we can query the cloned object for its core mass.
+    //
+    // The clone should not evolve, and so should not log anything, but to be sure the
+    // clone does not participate in logging, we set its persistence to EPHEMERAL.
+      
+    HeHG *clone = HeHG::Clone(static_cast<HeHG&>(const_cast<HeMS&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
+    double finalConvectiveCoreRadius = clone->CalculateConvectiveCoreRadius();                  // get core radius from clone
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+
+    double initialConvectiveCoreRadius = m_Radius;
+    return (initialConvectiveCoreRadius - m_Tau * (initialConvectiveCoreRadius - finalConvectiveCoreRadius));
+}
+
 
 /*
  * Calculate radius at ZAMS for a Helium Main Sequence star
@@ -211,6 +256,35 @@ double HeMS::CalculateRadiusAtPhaseEnd_Static(const double p_Mass) {
 
 
 /*
+ * Calculate convective core mass
+ *
+ * Assume equal to total mass at start (for continuity with stripped CHeB or HG star), continuity with HeHG at end of phase, linear growth
+ *
+ *
+ * double CalculateConvectiveCoreMass()
+ *
+ * @return                                      Convective core mass (solar masses)
+ */
+double HeMS::CalculateConvectiveCoreMass() const {
+
+    // We need core mass at end of phase, which is just the core mass at the start of the HeHG phase.
+    // Since we are on the He main sequence here, we can clone this object as an HeHG object
+    // and, as long as it is initialised (to correctly set Tau to 0.0 on the HeHG phase),
+    // we can query the cloned object for its core mass.
+    //
+    // The clone should not evolve, and so should not log anything, but to be sure the
+    // clone does not participate in logging, we set its persistence to EPHEMERAL.
+      
+    HeHG *clone = HeHG::Clone(static_cast<HeHG&>(const_cast<HeMS&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL, true);
+    double finalConvectiveCoreMass = clone->CoreMass();                                         // get core mass from clone
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+
+    double initialConvectiveCoreMass = m_Mass;
+    return (initialConvectiveCoreMass - m_Tau * (initialConvectiveCoreMass - finalConvectiveCoreMass));
+}
+
+
+/*
  * Calculate rejuvenation factor for stellar age based on mass lost/gained during mass transfer
  *
  * Description?
@@ -261,7 +335,7 @@ double HeMS::CalculateMassTransferRejuvenationFactor() {
 double HeMS::CalculateMassLossRateHurley() {
     double rateNJ = CalculateMassLossRateNieuwenhuijzenDeJager();
     double rateKR = CalculateMassLossRateKudritzkiReimers();
-    double rateWR = CalculateMassLossRateWolfRayet(0.0);        // use mu = 0.0 for Helium stars
+    double rateWR = OPTIONS->WolfRayetFactor()  * CalculateMassLossRateWolfRayet(0.0);        // use mu = 0.0 for Helium stars 
 
     m_DominantMassLossRate = MASS_LOSS_TYPE::GB;
     double dominantRate    = std::max(rateNJ, rateKR);
@@ -286,8 +360,9 @@ double HeMS::CalculateMassLossRateHurley() {
  */
 double HeMS::CalculateMassLossRateBelczynski2010() {
     m_DominantMassLossRate = MASS_LOSS_TYPE::WR;
-    return CalculateMassLossRateWolfRayetZDependent(0.0);
+    return OPTIONS->WolfRayetFactor() * CalculateMassLossRateWolfRayetZDependent(0.0);  
 }
+
 
 /*
  * Calculate the mass-loss rate for Wolf--Rayet stars according to the
@@ -316,7 +391,7 @@ double HeMS::CalculateMassLossRateWolfRayetShenar2019() const {
 
     logMdot = C1 + (C2 * log10(m_Luminosity)) + (C3 * log10(Teff)) + (C5 * m_Log10Metallicity); 
 
-    return PPOW(10.0, logMdot); // Mdot
+    return PPOW(10.0, logMdot); // Mdot 
 }
 
 
@@ -338,35 +413,35 @@ double HeMS::CalculateMassLossRateMerritt2024() {
 
         case WR_MASS_LOSS_PRESCRIPTION::SANDERVINK2023: {
             // calculate Sander & Vink 2020 mass-loss rate
-            double Mdot_SanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
+            double MdotSanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
 
             // apply the Sander et al. 2023 temperature correction to the Sander & Vink 2020 rate
-            double Mdot_Sander2023 = CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(Mdot_SanderVink2020);
+            double MdotSander2023     = CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(MdotSanderVink2020);
 
             // calculate Vink 2017 mass-loss rate
-            double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
+            double MdotVink2017       = CalculateMassLossRateHeliumStarVink2017();
 
             // use whichever gives the highest mass loss rate -- will typically be Vink 2017 for
             // low Mass or Luminosity, and Sander & Vink 2020 for high Mass or Luminosity
 
-            MdotWR = std::max(Mdot_Sander2023, Mdot_Vink2017);
+            MdotWR = OPTIONS->WolfRayetFactor() * std::max(MdotSander2023, MdotVink2017);
 
         } break;
 
         case WR_MASS_LOSS_PRESCRIPTION::SHENAR2019: {
             // mass loss rate for WR stars from Shenar+ 2019
-            double Mdot_Shenar2019 = CalculateMassLossRateWolfRayetShenar2019();
+            double MdotShenar2019 = CalculateMassLossRateWolfRayetShenar2019();                                 // OPTIONS->WolfRayetFactor()  is applied in Shenar2019 function
 
             // calculate Vink 2017 mass-loss rate
-            double Mdot_Vink2017 = CalculateMassLossRateHeliumStarVink2017();
+            double MdotVink2017   = CalculateMassLossRateHeliumStarVink2017();
 
             // apply a minimum of Vink 2017 mass-loss rate to avoid extrapolating to low luminosity
-            MdotWR = std::max(Mdot_Shenar2019, Mdot_Vink2017);
+            MdotWR = OPTIONS->WolfRayetFactor() * std::max(MdotShenar2019, MdotVink2017);
 
         } break;
 
         case WR_MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010:
-            MdotWR = CalculateMassLossRateBelczynski2010();
+            MdotWR = CalculateMassLossRateBelczynski2010(); // OPTIONS->WolfRayetFactor() is applied in Belczynski2010 function
             break;
 
         default:                                                                                                // unknown prescription
@@ -455,6 +530,8 @@ void HeMS::UpdateAgeAfterMassLoss() {
     double tHeMSprime = CalculateLifetimeOnPhase_Static(m_Mass);
 
     m_Age *= tHeMSprime / tHeMS;
+    
+    CalculateTimescales(m_Mass, m_Timescales);
 }
 
 
@@ -544,4 +621,107 @@ STELLAR_TYPE HeMS::EvolveToNextPhase() {
     return STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;
 
 #undef timescales
+}
+
+
+
+/* 
+ * Interpolate Ge+ Critical Mass Ratios, for H-poor stars
+ * 
+ * Function to interpolate in mass and radius to calculate the stellar response of a He star to mass loss.
+ * Functionally works the same as the interpolator for H-rich stars, except that there is only one variation
+ * for the H-poor stars. 
+ *
+ * Function takes no input (unlike in the H-rich case) because the existing table only applies for fully conservative 
+ * mass transfer and the GE fully adiabatic response, not the artificially isentropic one. Also only for Z=Zsol.
+ *
+ * Interpolation is done linearly in logM and logR. 
+ * 
+ * double HeMS::InterpolateGeEtAlQCrit()
+ * 
+ * @return                                       Interpolated value of either the critical mass ratio or zeta for given stellar mass / radius
+ */ 
+double HeMS::InterpolateGeEtAlQCrit() {
+
+    // Get vector of masses from qCritTable
+    GE_QCRIT_TABLE_HE qCritTable = QCRIT_GE_HE_STAR;
+    DBL_VECTOR massesFromQCritTable = std::get<0>(qCritTable);
+    GE_QCRIT_RADII_QCRIT_VECTOR_HE radiiQCritsFromQCritTable = std::get<1>(qCritTable);
+
+    INT_VECTOR indices = utils::BinarySearch(massesFromQCritTable, m_Mass);
+    int lowerMassIndex = indices[0];
+    int upperMassIndex = indices[1];
+    
+    if (lowerMassIndex == -1) {                                                   // if masses are out of range, set to endpoints
+        lowerMassIndex = 0; 
+        upperMassIndex = 1;
+    } 
+    else if (upperMassIndex == -1) { 
+        lowerMassIndex = massesFromQCritTable.size() - 2; 
+        upperMassIndex = massesFromQCritTable.size() - 1;
+    } 
+    
+    // Get vector of radii from qCritTable for the lower and upper mass indices
+    std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsFromQCritTable[lowerMassIndex]);
+    std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsFromQCritTable[upperMassIndex]);
+
+    // Get the qCrit vector for the lower and upper mass bounds 
+    std::vector<double> qCritVectorLowerMass = std::get<1>(radiiQCritsFromQCritTable[lowerMassIndex]);
+    std::vector<double> qCritVectorUpperMass = std::get<1>(radiiQCritsFromQCritTable[upperMassIndex]);
+
+    
+    // Get vector of radii from qCritTable for both lower and upper masses
+    INT_VECTOR indicesR0          = utils::BinarySearch(logRadiusVectorLowerMass, log10(m_Radius));
+    int lowerRadiusLowerMassIndex = indicesR0[0];
+    int upperRadiusLowerMassIndex = indicesR0[1];
+    
+    if (lowerRadiusLowerMassIndex == -1) {                                        // if radii are out of range, set to endpoints
+        lowerRadiusLowerMassIndex = 0; 
+        upperRadiusLowerMassIndex = 1; 
+    }
+    else if (upperRadiusLowerMassIndex == -1) {                                                   
+        lowerRadiusLowerMassIndex = logRadiusVectorLowerMass.size() - 2; 
+        upperRadiusLowerMassIndex = logRadiusVectorLowerMass.size() - 1; 
+    }
+    
+    INT_VECTOR indicesR1          = utils::BinarySearch(logRadiusVectorUpperMass, log10(m_Radius));
+    int lowerRadiusUpperMassIndex = indicesR1[0];
+    int upperRadiusUpperMassIndex = indicesR1[1];
+    
+    if (lowerRadiusUpperMassIndex == -1) {                                        // if radii are out of range, set to endpoints
+        lowerRadiusUpperMassIndex = 0; 
+        upperRadiusUpperMassIndex = 1; 
+    }
+    else if (upperRadiusUpperMassIndex == -1) {                                                   
+        lowerRadiusUpperMassIndex = logRadiusVectorUpperMass.size() - 2; 
+        upperRadiusUpperMassIndex = logRadiusVectorUpperMass.size() - 1; 
+    }
+    
+    // Set the 4 boundary points for the 2D interpolation
+    double qLowLow = qCritVectorLowerMass[lowerRadiusLowerMassIndex];
+    double qLowUpp = qCritVectorLowerMass[upperRadiusLowerMassIndex];
+    double qUppLow = qCritVectorUpperMass[lowerRadiusUpperMassIndex];
+    double qUppUpp = qCritVectorUpperMass[upperRadiusUpperMassIndex];
+    
+    double lowerLogRadiusLowerMass = logRadiusVectorLowerMass[lowerRadiusLowerMassIndex];
+    double upperLogRadiusLowerMass = logRadiusVectorLowerMass[upperRadiusLowerMassIndex];
+    double lowerLogRadiusUpperMass = logRadiusVectorUpperMass[lowerRadiusUpperMassIndex];
+    double upperLogRadiusUpperMass = logRadiusVectorUpperMass[upperRadiusUpperMassIndex];
+    
+    double logLowerMass = log10(massesFromQCritTable[lowerMassIndex]);
+    double logUpperMass = log10(massesFromQCritTable[upperMassIndex]);
+    
+    // Interpolate on logR first, then logM, using nearest neighbor for extrapolation
+    double logRadius = log10(m_Radius);
+    double qCritLowerMass = (logRadius < lowerLogRadiusLowerMass) ? qLowLow
+                          : (logRadius > upperLogRadiusLowerMass) ? qLowUpp
+                          : qLowLow + (upperLogRadiusLowerMass - logRadius) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qLowUpp - qLowLow);
+    double qCritUpperMass = (logRadius < lowerLogRadiusUpperMass) ? qUppLow
+                          : (logRadius > upperLogRadiusUpperMass) ? qUppUpp 
+                          : qUppLow + (upperLogRadiusUpperMass - logRadius) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qUppUpp - qUppLow);
+
+    double logMass = log10(m_Mass);
+    return   (logMass < logLowerMass) ? qCritLowerMass
+           : (logMass > logUpperMass) ? qCritUpperMass
+           : qCritLowerMass + (logUpperMass - logMass) / (logUpperMass - logLowerMass) * (qCritUpperMass - qCritLowerMass);
 }

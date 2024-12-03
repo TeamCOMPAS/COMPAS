@@ -83,13 +83,13 @@ Default = FALSE
 :ref:`Back to Top <options-props-top>`
 
 **--black-hole-kicks** |br|
-Black hole kicks relative to NS kicks (not relevant for `MANDELMUELLER` ``--remnant-mass-prescription``). |br|
+Black hole kicks relative to NS kicks (not relevant for `MULLERMANDEL` ``--remnant-mass-prescription``). |br|
 Options: { FULL, REDUCED, ZERO, FALLBACK } |br|
 Default = FALLBACK |br|
 DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--black-hole-kicks-mode`` in future.
 
 **--black-hole-kicks-mode** |br|
-Black hole kicks relative to NS kicks (not relevant for `MANDELMUELLER` ``--remnant-mass-prescription``). |br|
+Black hole kicks relative to NS kicks (not relevant for `MULLERMANDEL` ``--remnant-mass-prescription``). |br|
 Options: { FULL, REDUCED, ZERO, FALLBACK } |br|
 Default = FALLBACK
 
@@ -120,7 +120,7 @@ of Chemically Homogeneous Evolution in COMPAS |br|
 Options: { NONE, OPTIMISTIC, PESSIMISTIC } |br|
 Default = PESSIMISTIC |br|
 
-**--circulariseBinaryDuringMassTransfer** |br|
+**--circularise-binary-during-mass-transfer** |br|
 Circularise binary when it enters a Mass Transfer episode. |br|
 Default = TRUE
 
@@ -174,7 +174,7 @@ Default = FALSE
 Interpolate Nanjing lambda parameters across population I and population II metallicity models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
 Default = FALSE
 
-**--common-envelope-lambda-nanjing-use_rejuvenated-mass** |br|
+**--common-envelope-lambda-nanjing-use-rejuvenated-mass** |br|
 Use rejuvenated or effective ZAMS mass instead of true birth mass when computing Nanjing lambda parameters. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
 Default = FALSE
 
@@ -219,7 +219,6 @@ Default = 5370
 **--cool-wind-mass-loss-multiplier** |br|
 Multiplicative constant for wind mass loss of cool stars, i.e. those with temperatures below the
 VINK_MASS_LOSS_MINIMUM_TEMP (default 12500K). |br|
-Only applicable when ``--mass-loss-prescription = VINK``. |br|
 Default = 1.0
 
 **--create-YAML-file** |br|
@@ -312,11 +311,11 @@ Default = 1.28
 
 **--critical-mass-ratio-prescription** |br|
 Critical mass ratio stability prescription (if any). |br|
-Options: { NONE, ZERO, CLAEYS, GE20, GE20_IC, HURLEY_HJELLMING_WEBBINK } |br|
+Options: { NONE, ZERO, CLAEYS, GE, GE_IC, HURLEY_HJELLMING_WEBBINK } |br|
 ``NONE``    defaults to the zeta prescription for stability. |br|
 ``CLAEYS``  uses qCrit values from Claeys et al. 2014. |br|
-``GE20``    uses qCrit values from Ge et al. 2020 (adiabatic assumption). |br|
-``GE20_IC`` uses qCrit values from Ge et al. 2020 (isentropic envelope assumption). |br|
+``GE``      uses qCrit values from Ge et al. series (Papers I-V) (adiabatic assumption). |br|
+``GE_IC``   uses qCrit values from Ge et al. series (Papers I-V) (isentropic envelope assumption). |br|
 ``HURLEY_HJELLMING_WEBBINK`` uses qCrit values from Hurley et al. 2002 (Hjellming & Webbink 1987 for mass transfer from a giant primary). |br|
 Warning: if running with ``--critical-mass-ratio-prescription``, zetas will not be computed, so should not be trusted in the outputs. |br|
 Default = NONE |br|
@@ -387,6 +386,14 @@ Default = FALSE
 Display warning messages to stdout. |br|
 Default = FALSE
 
+**--enable-rotationally-enhanced-mass-loss** |br|
+Enable rotationally enhanced mass loss for rapidly rotating stars following Langer (1998)
+Default = FALSE
+
+**--enhance-CHE-lifetimes-luminosities** |br|
+Enhance lifetimes and luminosities of CH stars using a fit to detailed models from Szecsi et al. (2015)
+Default = FALSE
+
 **--envelope-state-prescription** |br|
 Prescription for determining whether the envelope of the star is convective or radiative. |br|
 Options: { LEGACY, HURLEY, FIXED_TEMPERATURE } |br|
@@ -439,7 +446,7 @@ Options: { DELAYED, RAPID } |br|
 Default = DELAYED
 
 **--fryer-22-fmix** |br|
-Parameter describing the mixing growth time when using the 'FRYER2022' remnant mass distribution  :cite:`Fryer2022`. |br|
+Parameter describing the mixing growth time when using the 'FRYER2022' remnant mass prescription  :cite:`Fryer2022`. |br|
 Default = 0.5, which is closest to the 'DELAYED' remnant mass prescription from :cite:`Fryer2012`. |br|
 A value of 4.0 is closest to  the 'RAPID' remnant mass prescription from :cite:`Fryer2012`. |br|
 If the FALLBACK option is used for the kicks, then the proto core masses will be determined by the fryer-supernova-engine option.
@@ -578,9 +585,11 @@ Options: { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MA
 ``FIXED`` always sets the magnitude to a fixed value based on supernova type. |br|
 ``FLAT`` and ``MAXWELLIAN`` draw kicks from uniform or Maxwellian (e.g., Hobbs et al., 2005) distributions, respectively. |br|
 ``BRAYELDRIDGE`` and ``MULLERMANDEL`` use momentum-preserving kicks from Bray & Eldrigde 2018 and Mandel & Mueller 2020, respectively. |br|
-``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 (reduced by a factor of sqrt(3) in the latter case). |br|
-Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; 
-however, the ``MULLERMANDEL`` kick prescription is intended to be consistently used with the ``MULLERMANDEL`` remnant mass prescription. |br|
+``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 |br|
+(reduced by a factor of sqrt(3) in the latter case). |br|
+Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; however, the ``MULLERMANDEL`` |br| 
+kick prescription is intended to be consistently used with the ``MULLERMANDEL`` remnant mass prescription, |br|
+as well as with the ``MALTSEV2024`` remnant mass prescription. |br|
 Default = MULLERMANDEL
 
 **--kick-magnitude-max** |br|
@@ -794,12 +803,14 @@ Default = 0.0
 
 **--mass-loss-prescription** |br|
 Mass loss prescription. |br|
-Options: { ZERO, HURLEY, BELCZYNSKI2010, MERRITT2024 } |br|
-``NONE``          : No wind mass loss |br|
+Options: { ZERO, NONE, HURLEY, BELCZYNSKI2010, MERRITT2024 } |br|
+``ZERO/NONE``     : No wind mass loss |br|
 ``HURLEY``        : Mass loss according to Hurley (2000) |br|
 ``BELCZYNSKI2010``: Mass loss as per Belczynski (2010), and the default prior to 2023 |br|
 ``MERRITT2024``   : Flexible mass loss with phase specific options: (OB, RSG, WR, VMS) |br|
-Default = MERRITT2024
+Default = MERRITT2024 |br|
+DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
+
 
 **--mass-ratio [ -q ]** |br|
 Mass ratio :math:`\frac{m2}{m1}` used to determine secondary mass if not specified via ``--initial-mass-2``. |br|
@@ -827,7 +838,7 @@ DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Pl
 
 **--mass-transfer-accretion-efficiency-prescription** |br|
 Mass transfer accretion efficiency prescription. |br|
-Options: { THERMAL, FIXED, CENTRIFUGAL } |br|
+Options: { THERMAL, FIXED } |br|
 Default = THERMAL
 
 **--mass-transfer-angular-momentum-loss-prescription** |br|
@@ -836,7 +847,7 @@ Options: { JEANS, ISOTROPIC, CIRCUMBINARY, MACLEOD_LINEAR, ARBITRARY } |br|
 Default = ISOTROPIC
 
 **--mass-transfer-fa** |br|
-Mass Transfer fraction accreted. |br|
+Mass Transfer fraction accreted (beta). |br|
 Used when ``--mass-transfer-accretion-efficiency-prescription = FIXED_FRACTION``. |br|
 Default = 0.5
 
@@ -949,7 +960,7 @@ FALSE indicates PPISN remnants will receive no natal kicks. |br|
 Default = TRUE  
 
 **--neutrino-mass-loss-BH-formation** |br|
-Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not `MANDELMUELLER`). |br|
+Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not `MULLERMANDEL`). |br|
 Options: { FIXED_FRACTION, FIXED_MASS } |br|
 Default = FIXED_MASS
 
@@ -1111,10 +1122,11 @@ Enable mass loss due to pulsational-pair-instability (PPI). |br|
 Default = TRUE
 
 **--pulsational-pair-instability-prescription** |br|
-Pulsational pair instability prescription. |br|
+Pulsational pair instability prescription (only relevant when using ``--pulsational-pair-instability``). |br|
 Options: { HENDRIKS, COMPAS, STARTRACK, MARCHANT, FARMER } |br|
 ``HENDRIKS`` implements the prescription from Hendriks et al. 2023 |br|
-``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, all as implemented in Stevenson et al. 2019. |br|
+``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, 
+all as implemented in Stevenson et al. 2019. |br|
 ``FARMER`` follows Farmer et al. 2019 |br|
 Default = MARCHANT
 
@@ -1142,7 +1154,7 @@ Default = 0
 
 **--remnant-mass-prescription** |br|
 Remnant mass prescription. |br|
-Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT } |br|
+Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT, MALTSEV2024 } |br|
 Default = MULLERMANDEL
 
 **--retain-core-mass-during-caseA-mass-transfer** |br|
@@ -1221,6 +1233,15 @@ DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated an
 
 :ref:`Back to Top <options-props-top>`
 
+**--scale-CHE-mass-loss-with-surface-helium-abundance** |br|
+Scale mass loss for chemically homogeneously evolving (CHE) stars with the surface helium abundance. 
+Transition from OB to WR mass loss towards the end of the main sequence.
+Default = False
+
+**--scale-terminal-wind-velocity-with-metallicity-power** |br|
+Scale terminal wind velocity with metallicity to this power
+Default = 0.0
+
 **--semi-major-axis** |br|
 Initial semi-major axis for a binary star when evolving in BSE mode (AU). |br|
 Default = 0.1
@@ -1265,7 +1286,7 @@ Prescription for tidal evolution of the binary. |br|
 Options: { NONE, PERFECT, KAPIL2024 } |br|
 ``NONE`` disables tidal interactions. |br|
 ``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization. |br|
-``KAPIL2024`` uses the prescription from Kapil+ (2024). |br|
+``KAPIL2024`` uses the prescription from Kapil+ (2024). When using this prescription, set ``--chemically-homogeneous-evolution-mode NONE`` to avoid conflicts with stellar spins. |br|
 Default = NONE
 
 **--timestep-filename** |br|

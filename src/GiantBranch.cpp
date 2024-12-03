@@ -679,6 +679,32 @@ double GiantBranch::CalculateRemnantRadius() const {
 #undef massCutoffs
 }
 
+/*
+ * Calculate the radial extent of the convective outer envelope
+ *
+ * Combination of Hurley et al. 2000, end of sec. 7.2, and Hurley et al. 2002, sec. 2.3, particularly subsec. 2.3.1, eqs 39-40
+ *
+ *
+ * double CalculateRadialExtentConvectiveEnvelope()
+ *
+ * @return                                      Radial extent of the convective outer envelope
+ */
+double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
+    double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
+    std::tie(convectiveEnvelopeMass, convectiveEnvelopeMassMax) = CalculateConvectiveEnvelopeMass();
+    if (utils::Compare(convectiveEnvelopeMass, 0.0) <= 0 || utils::Compare(convectiveEnvelopeMassMax, 0.0) <= 0 ) return 0.0;   // massless convective envelope has zero radial extent
+    
+    double convectiveCoreMass   = CalculateConvectiveCoreMass();
+    double convectiveCoreRadius = CalculateConvectiveCoreRadius();
+    // assume that the final radiative intershell (if any) would have a density that is a geometric mean of the core density and total density
+    double radiativeIntershellMass           = m_Mass - convectiveCoreMass - convectiveEnvelopeMassMax;
+    double convectiveCoreRadiusCubed         = convectiveCoreRadius * convectiveCoreRadius * convectiveCoreRadius;
+    double radiativeIntershellDensity        = 1.0 / (4.0 /3.0 * M_PI) * std::sqrt(convectiveCoreMass / convectiveCoreRadiusCubed * m_Mass / m_Radius / m_Radius / m_Radius);
+    double outerEdgeRadiativeIntershellCubed = radiativeIntershellMass / (4.0 / 3.0 * M_PI * radiativeIntershellDensity) + convectiveCoreRadiusCubed;
+    
+    return std::sqrt(convectiveEnvelopeMass/convectiveEnvelopeMassMax) * (m_Radius - std::cbrt(outerEdgeRadiativeIntershellCubed));
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -700,9 +726,7 @@ double GiantBranch::CalculateRemnantRadius() const {
  */
 double GiantBranch::CalculateCoreMassAtBAGB(const double p_Mass) const {
 #define b m_BnCoefficients  // for convenience and readability - undefined at end of function
-
     return std::sqrt(std::sqrt((b[36] * PPOW(p_Mass, b[37])) + b[38]));   // sqrt() is much faster than PPOW()
-
 #undef b
 }
 
@@ -723,9 +747,7 @@ double GiantBranch::CalculateCoreMassAtBAGB(const double p_Mass) const {
  */
 double GiantBranch::CalculateCoreMassAtBAGB_Static(const double p_Mass, const DBL_VECTOR &p_BnCoefficients) {
 #define b p_BnCoefficients  // for convenience and readability - undefined at end of function
-
     return std::sqrt(std::sqrt((b[36] * PPOW(p_Mass, b[37])) + b[38]));   // sqrt() is much faster than PPOW()
-
 #undef b
 }
 
@@ -748,10 +770,12 @@ double GiantBranch::CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR
 #define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]                // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
+    if (utils::Compare(p_Mass, massCutoffs(MHeF)) <= 0)     return 0.0;                                                 // No McBGB for stars with mass below the helium flash threshold, see text above Eq. (44) of Hurley+ (2000)
+    
     double luminosity = GiantBranch::CalculateLuminosityAtPhaseBase_Static(massCutoffs(MHeF), m_AnCoefficients);
     double Mc_MHeF    = BaseStar::CalculateCoreMassGivenLuminosity_Static(luminosity, p_GBParams);
     double c          = (Mc_MHeF * Mc_MHeF * Mc_MHeF * Mc_MHeF) - (MC_L_C1 * PPOW(massCutoffs(MHeF), MC_L_C2));         // pow() is slow - use multiplication
-
+    
     return std::min((0.95 * gbParams(McBAGB)), std::sqrt(std::sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));            // sqrt is much faster than PPOW()
 
 #undef massCutoffs
@@ -1049,9 +1073,7 @@ double GiantBranch::CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPre
  */
 DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     
-    double MinterfMcoref = -0.023 * m_Log10Metallicity - 0.0023;                                                            // Eq. (8) of Picker+ 2024
-    double Tonset        = -129.7 * m_Log10Metallicity * m_Log10Metallicity - 920.1 * m_Log10Metallicity + 2887.1;          // Eq. (6) of Picker+ 2024
-    Tonset              /= TSOL;                                                                                            // convert to solar units
+    double MinterfMcoref = -0.023 * m_Log10Metallicity - 0.0023;                                                            // eq. (8) of Picker+ 2024
 
     // We need the temperature of the star just after BAGB, which is the temperature at the
     // start of the EAGB phase.  Since we are on the giant branch here, we can clone this
@@ -1065,18 +1087,25 @@ DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     // underlying object is, we cast it to EAGB&.
 
     EAGB *clone = EAGB::Clone(static_cast<EAGB&>(const_cast<GiantBranch&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
-    clone->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                          // Otherwise, temperature not updated
+    clone->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);                                                          // otherwise, temperature not updated
     double Tmin = clone->Temperature();                                                                                     // get temperature of clone
     delete clone; clone = nullptr;                                                                                          // return the memory allocated for the clone
-
-    double McoreFinal             = CalculateCoreMassAtBAGB(m_Mass);
-    double MconvMax               = std::max(m_Mass - McoreFinal * (1.0 + MinterfMcoref), 0.0);                             // Eq. (9) of Picker+ 2024
-    if( utils::Compare(McoreFinal,1.5) < 0 )                                                                                // Picker+ 2024 fits were only made for stars above 8.0 solar masses, with runs down to 5.0 solar masses, so using the final core mass as an approximate threshold of validity
-        MconvMax                  = m_Mass - McoreFinal;                                                                    // unlike massive stars, intermediate-mass stars have almost no radiative intershell at maximum convective envelope extent
-    double convectiveEnvelopeMass = MconvMax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature) / (Tmin - Tonset)));  // Eq. (7) of Picker+ 2024
     
-    return std::tuple<double, double> (convectiveEnvelopeMass, MconvMax);
-}   // /*ILYA*/ check consistency with HG convective envelope radii and masses from Hurley+ 2002, 2000
+    // Use Eq. 6 of Mandel, Hirai, Picker (2024) rather than Eq. 6 of Picker+ 2024 for Tonset to avoid issues caused by
+    // differences between temperatures in MESA models (used in Picker+ fits) and Pols models (used in Hurley+ SSE tracks)
+    double Tonset     = Tmin / std::min(0.0695 - 0.057 * m_Log10Metallicity, 0.95);                                         // eq. (6) of Mandel, Hirai, Picker, 2024
+    
+    double mCoreFinal = CalculateCoreMassAtBAGB(m_Mass0);
+    double mConvMax   = std::max(m_Mass - mCoreFinal * (1.0 + MinterfMcoref), 0.0);                                         // eq. (9) of Picker+ 2024
+
+    // Picker+ 2024 fits were only made for stars above 8.0 solar masses, with runs down to 5.0 solar masses, 
+    // so using the final core mass as an approximate threshold of validity
+    if(utils::Compare(mCoreFinal, 1.5) < 0) mConvMax = std::max(m_Mass - mCoreFinal, 0.0);                                  // unlike massive stars, intermediate-mass stars have almost no radiative intershell at maximum convective envelope extent
+    
+    double convectiveEnvelopeMass = mConvMax / (1.0 + exp(4.6 * (Tmin + Tonset - 2.0 * m_Temperature) / (Tmin - Tonset)));  // eq. (7) of Picker+ 2024
+    
+    return std::tuple<double, double> (convectiveEnvelopeMass, mConvMax);
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1175,7 +1204,7 @@ STELLAR_TYPE GiantBranch::CalculateRemnantTypeByMuller2016(const double p_COCore
 
 
 /*
- * Calculate remnant type given COCoreMass according to the Schneider et al. 2020 prescription (arxiv:2008.08599)
+ * Calculate remnant mass given COCoreMass according to the Schneider et al. 2020 prescription (arxiv:2008.08599)
  *
  * Note that Schneider only prescribes remnant masses for the simple cases of single episode
  * Mass Transfer, so some of the double episode cases here are a bit uncertain, and may
@@ -1269,7 +1298,92 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
 
 
 /*
- * Calculate remnant mass given COCoreMass and HeCoreMass
+ * Calculate remnant mass according to the Maltsev et al. 2024 prescription
+ *
+ * Note that Maltsev2024 prescription is based on the donor type at the first MT event
+ *
+ * double CalculateRemnantMassByMaltsev2024(const double p_COCoreMass)
+ *
+ * @param   [IN]    p_COCoreMass                COCoreMass in Msol
+ * @param   [IN]    p_HeCoreMass                HeCoreMass in Msol
+ * @return                                      Remnant mass in Msol
+ */
+double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass, const double p_HeCoreMass) {
+
+    ST_VECTOR mtHist           = MassTransferDonorHistory();                                                            // mass transfer history vector
+    MT_CASE   massTransferCase = MT_CASE::OTHER;
+    double    log10Z           = m_Log10Metallicity - LOG10_ZSOL;                                                       // log_{10} (Z/Zsol), for convenience
+    double    M1, M2, M3;
+
+    if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0)                                                             // NS formation regardless of metallicity and MT history
+        return CalculateRemnantNSMassMullerMandel(p_COCoreMass, p_HeCoreMass);
+    
+    if (utils::Compare(p_COCoreMass, MALTSEV2024_MMAX) > 0)                                                             // BH formation regardless of metallicity and MT history
+        return p_HeCoreMass;
+    
+    // determine MT history - this will tell us which Schneider MT case prescription should be used
+    if (mtHist.size() == 0) {                                                                                           // no history of MT - effectively single star
+        massTransferCase = MT_CASE::NONE;
+    }
+    else {                                                                                                              // star was MT donor at least once
+        // determine MT_CASE of first MT event
+        STELLAR_TYPE mostRecentDonorType = mtHist[0];                                                                   // stellar type at first MT event (as donor)
+        BaseStar* newStar                = stellarUtils::NewStar(mostRecentDonorType);                                  // create new (empty) star of correct stellar type
+        massTransferCase        = newStar->DetermineMassTransferTypeAsDonor();                                          // get MT type as donor
+        delete newStar; newStar = nullptr;                                                                              // return the memory allocated for the new star
+    }
+
+    // apply the appropriate remnant mass prescription for the chosen MT case
+    switch (massTransferCase) {                                                                                         // which MT_CASE?
+
+        case MT_CASE::NONE:                                                                                             // no history of MT
+        case MT_CASE::OTHER:                                                                                            // if MT happens from naked He stars, WDs, etc., assume that the core properties are not affected
+            M1 = MALTSEV2024_M1S + (MALTSEV2024_M1S - MALTSEV2024_M1SZ01) * log10Z;
+            M2 = MALTSEV2024_M2S + (MALTSEV2024_M2S - MALTSEV2024_M2SZ01) * log10Z;
+            M3 = MALTSEV2024_M3S + (MALTSEV2024_M3S - MALTSEV2024_M3SZ01) * log10Z;
+            break;
+
+        case MT_CASE::A:                                                                                                // case A MT
+            M1 = MALTSEV2024_M1A + (MALTSEV2024_M1A - MALTSEV2024_M1AZ01) * log10Z;
+            M2 = MALTSEV2024_M2A + (MALTSEV2024_M2A - MALTSEV2024_M2AZ01) * log10Z;
+            M3 = MALTSEV2024_M3A + (MALTSEV2024_M3A - MALTSEV2024_M3AZ01) * log10Z;
+            break;
+
+        case MT_CASE::B:                                                                                                // case B MT
+            M1 = MALTSEV2024_M1B + (MALTSEV2024_M1B - MALTSEV2024_M1BZ01) * log10Z;
+            M2 = MALTSEV2024_M2B + (MALTSEV2024_M2B - MALTSEV2024_M2BZ01) * log10Z;
+            M3 = MALTSEV2024_M3B + (MALTSEV2024_M3B - MALTSEV2024_M3BZ01) * log10Z;
+            break;
+
+        case MT_CASE::C:                                                                                                // case C MT
+            M1 = MALTSEV2024_M1C + (MALTSEV2024_M1C - MALTSEV2024_M1CZ01) * log10Z;
+            M2 = MALTSEV2024_M2C + (MALTSEV2024_M2C - MALTSEV2024_M2CZ01) * log10Z;
+            M3 = MALTSEV2024_M3C + (MALTSEV2024_M3C - MALTSEV2024_M3CZ01) * log10Z;
+            break;
+
+        default:                                                                                                        // unknown MT_CASE
+            // the only way this can happen is if someone added an MT_CASE
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because DetermineMassTransferTypeAsDonor() returned an MT_CASE this code doesn't
+            // account for, and that should be flagged as an error and result in termination of the evolution
+            // of the star or binary.
+            // The correct fix for this is to add code for the missing MT_CASE or, if the missing MT_CASE is
+            // incorrect/superfluous, remove it from the possible MT_CASE values.
+
+            THROW_ERROR(ERROR::UNKNOWN_MT_CASE);                                                                        // throw error
+    }
+    
+    if( utils::Compare(p_COCoreMass, M3) >=0 || (utils::Compare(p_COCoreMass, M1) >= 0 && utils::Compare(p_COCoreMass, M2) <= 0) )              // Complete fallback into BH
+        return p_HeCoreMass;
+    else if ( utils::Compare(p_COCoreMass, M2) > 0 && utils::Compare(p_COCoreMass, M3) < 0 && utils::Compare(RAND->Random(0, 1), 0.1) <= 0 )    // Partial fallback BH formation
+        return CalculateFallbackBHMassMullerMandel(p_COCoreMass, p_HeCoreMass);
+    return CalculateRemnantNSMassMullerMandel(p_COCoreMass, p_HeCoreMass);
+}
+
+
+
+/*
+ * Calculate remnant mass given COCoreMass and HeCoreMass in the Mandel & Mueller (2020) prescription
  *
  * Mandel & Mueller, 2020
  *
@@ -1286,17 +1400,12 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
     double pBH               = 0.0;
     double pCompleteCollapse = 0.0;
    
-    std::size_t iterations = 0;
-
-    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0 || utils::Compare(p_HeCoreMass, OPTIONS->MaximumNeutronStarMass()) <= 0 ) {
+    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0 || utils::Compare(p_HeCoreMass, OPTIONS->MaximumNeutronStarMass()) <= 0 )
 	    pBH = 0.0;
-    }
-    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M3) < 0) {
+    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M3) < 0)
     	pBH = 1.0 / (MULLERMANDEL_M3-MULLERMANDEL_M1) * (p_COCoreMass-MULLERMANDEL_M1);
-    }
-    else {
+    else
 	    pBH = 1.0;
-    } 
 
     if (utils::Compare(RAND->Random(0, 1), pBH) < 0) {  // this is a BH
         if (utils::Compare(p_COCoreMass, MULLERMANDEL_M4) < 0)
@@ -1304,47 +1413,93 @@ double GiantBranch::CalculateRemnantMassByMullerMandel(const double p_COCoreMass
         else
 		    pCompleteCollapse = 1.0;
 
-	    if (utils::Compare(RAND->Random(0, 1), pCompleteCollapse) < 0) {
+	    if (utils::Compare(RAND->Random(0, 1), pCompleteCollapse) < 0)
 		    remnantMass = p_HeCoreMass;
-        }
-	    else {
-		    while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS &&
-                  (utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) < 0 || utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
-                remnantMass = MULLERMANDEL_MUBH * p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
-		    }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);
-	    }
+	    else
+            remnantMass = CalculateFallbackBHMassMullerMandel(p_COCoreMass, p_HeCoreMass);
     }
-    else {                                              // this is an NS
-	    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
-		    while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
-                  (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                || 
-                   utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 || 
-                   utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
-			    remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
-		    }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);
-	    }
-	    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
-            while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
-                  (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
-                   utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 || 
-                   utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
-                remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
-            }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);
-        }
-        else {
-            while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
-                  (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
-                   utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
-                   utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
-                remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
-            }
-            if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_REMNANT_MASS_ITERATIONS);
-        }
-    }
+    else                                               // this is an NS
+        remnantMass = CalculateRemnantNSMassMullerMandel(p_COCoreMass, p_HeCoreMass);
 
+    return remnantMass;
+}
+
+/*
+ * Calculate NS remnant mass given COCoreMass and HeCoreMass
+ *
+ * Mandel & Mueller, 2020; also used by Maltsev2024, so separated out into helper function
+ *
+ *
+ * double CalculateRemnantNSMassByMullerMandel (const double p_COCoreMass, const double p_HeCoreMass)
+ *
+ * @param   [IN]    p_COCoreMass                COCoreMass in Msol
+ * @param   [IN]    p_HeCoreMass                HeCoreMass in Msol
+ * @return                                      Remnant mass in Msol
+ */
+double GiantBranch::CalculateRemnantNSMassMullerMandel(const double p_COCoreMass, const double p_HeCoreMass) {
+
+    double remnantMass      = 0.0;
+    std::size_t iterations  = 0;
+
+    if (utils::Compare(p_COCoreMass, MULLERMANDEL_M1) < 0) {
+        while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
+               (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
+                utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
+                utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+            remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
+        }
+        if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
+            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
+    }
+    else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
+        while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
+               (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
+                utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
+                utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+            remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
+        }
+        if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
+            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
+    }
+    else {
+        while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
+               (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
+                utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
+                utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+            remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
+        }
+        if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
+            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
+    }
+    return remnantMass;
+}
+
+
+/*
+ * Calculate fallback BH mass given COCoreMass, HeCoreMass
+ *
+ * Mandel & Mueller, 2020; also used by Maltsev2024, so separated out into helper function
+ *
+ *
+ * double CalculateFallbackBHMassByMullerMandel (const double p_COCoreMass, const double p_HeCoreMass)
+ *
+ * @param   [IN]    p_COCoreMass                COCoreMass in Msol
+ * @param   [IN]    p_HeCoreMass                HeCoreMass in Msol
+ * @return                                      Remnant mass in Msol
+ */
+double GiantBranch::CalculateFallbackBHMassMullerMandel(const double p_COCoreMass, const double p_HeCoreMass) {
+    
+    double remnantMass      = 0.0;
+    std::size_t iterations  = 0;
+    
+    while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS &&
+           (utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) < 0 || utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+        remnantMass = MULLERMANDEL_MUBH * p_COCoreMass + RAND->RandomGaussian(MULLERMANDEL_SIGMABH);
+    }
+    
+    if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
+        remnantMass = (OPTIONS->MaximumNeutronStarMass() + p_HeCoreMass) / 2.0;
+    
     return remnantMass;
 }
 
@@ -1771,15 +1926,22 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
         case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020:                                                      // Schneider 2020
 
-            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0  JR: ? JD? Simon?
             m_Mass                              = CalculateRemnantMassBySchneider2020(m_COCoreMass);
+            m_SupernovaDetails.fallbackFraction = utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0 ? (m_Mass - NEUTRON_STAR_MASS) / (mass - NEUTRON_STAR_MASS) : 0.0;                                                                   // Fallback fraction of mass beyond proto-neutron-star for BH formation and kicks
             break;
 
         case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT:                                                   // Schneider 2020, alternative
 
-            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // TODO: sort out fallback - I think it should be 0  JR: ? JD? Simon?
             m_Mass                              = CalculateRemnantMassBySchneider2020Alt(m_COCoreMass);
-            break;           
+            m_SupernovaDetails.fallbackFraction = utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0 ? (m_Mass - NEUTRON_STAR_MASS) / (mass - NEUTRON_STAR_MASS) : 0.0;                                                                   // Fallback fraction of mass beyond proto-neutron-star for BH formation and kicks
+            break;
+        
+        case REMNANT_MASS_PRESCRIPTION::MALTSEV2024:                                                        // Maltsev+ 2024
+
+            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // no subsequent kick adjustment by fallback fraction needed; MULLERMANDEL kick prescription should be used
+            m_Mass                              = CalculateRemnantMassByMaltsev2024(m_COCoreMass, m_HeCoreMass);
+            break;
+            
     
         default:                                                                                            // unknown prescription
             // the only way this can happen is if someone added a REMNANT_MASS_PRESCRIPTION

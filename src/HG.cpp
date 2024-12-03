@@ -2,6 +2,7 @@
 #include "HeMS.h"
 #include "HeWD.h"
 
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                     COEFFICIENT AND CONSTANT CALCULATIONS ETC.                    //
@@ -861,6 +862,7 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 }
 
 
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                                 MASS CALCULATIONS                                 //
@@ -1017,6 +1019,8 @@ void HG::UpdateAgeAfterMassLoss() {
     double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass0, tBGBprime);
 
     m_Age = tMSprime + (((tBGBprime - tMSprime) / (tBGB - tMS)) * (m_Age - tMS));
+    
+    CalculateTimescales(m_Mass0, m_Timescales);
 }
 
 

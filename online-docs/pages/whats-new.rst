@@ -3,8 +3,68 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.10.00 Nov 29, 2024**
 
-**LATEST RELEASE** |br|
+Added functionality to log stellar mergers in the BSE switchlog file.
+Switchlog merger records come in pairs (one for each star) so that the stellar type of each star is recorded.
+
+**03.09.00 Nov 28, 2024**
+
+Improved nuclear timescale mass transfer: the nuclear timescale mass transfer rate is now set by the requirement that the star 
+ends the time step just filling its Roche lobe.
+Fixed several significant mass-transfer issues, such as accretors not gaining mass appropriately and failures
+in the root solver for fitting the star into the Roche lobe that were leading to artificial common envelopes and mergers.
+
+**03.08.02 Nov 18, 2024**
+
+Updated implementation of the mass transfer stability critical mass ratio tables from the team of Hongwei Ge.
+We now use all the most up to do date tables they've produced (public or otherwise) from Papers I-V, including
+variations for adiabatic and isentropic treatments, variable accretion efficiency, and two different metallicities, 
+as well as for He stars (albeit only for adiabatic, fully conservative, solar metallicity stars). 
+
+**03.08.00 Nov 18, 2024**
+
+Improved the treatment of stellar rotation (with further corrections in 03.08.01):
+
+* Assume rigid body rotation
+* Keep the angular moment of a star constant when there is no mass loss
+* When a star with radius r and angular frequency omega loses mass dm through winds or mass transfer, it loses angular momentum dL = (2/3) dm r^2 omega
+* (However, angular momentum never drops below zero)
+* When a star loses its envelope, the remaining core is assumed to rotate with the same rotation rate as the preceding star
+* When a star of mass m and radius r gains mass dm through accretion, it gain angular momentum dL = dm \sqrt{G m r}
+* If initial binary rotation is fast enough for a star to be CHE, it is set to that rotation frequency without regard for the tidal prescription; CHE stars remain tidally locked if the tidal prescription is NONE
+
+**03.07.01 Oct 23, 2024**
+
+Resolved (and reverted) performance degradation introduced in v03.00.00.
+
+**03.07.00 Oct 16, 2024**
+
+Added new critical mass ratio tables from Ge et al. 2024.
+
+**03.06.00 Oct 14, 2024**
+
+Incorporated the Maltsev+ (2024) prescription for supernova remnant masses.
+
+**03.03.00 Sep 24, 2024**
+
+Added new functionality to improve modelling of chemically homogeneous evolution (CHE). The default behaviour remains unchanged.
+
+* New command line option `--enable-rotationally-enhanced-mass-loss` to enable rotationally enhanced mass loss following Langer (1998)
+* New command line option `--enhance-CHE-lifetimes-luminosities` to enhance CHE lifetimes and luminosities following detailed models from Szecsi et al. (2015) 
+* New command line option `--scale-CHE-mass-loss-with-surface-helium-abundance` to switch from OB to WR mass loss for CH stars towards the end of the main sequence
+* New command line option `--scale-terminal-wind-velocity-with-metallicity-power` to scale the terminal wind velocity with the metallicity
+
+**03.02.00 Sep 19, 2024**
+
+Added recording of ``MASS_TRANSFER_TIMESCALE (NONE, NUCLEAR, THERMAL, CE)``.
+Now continuing evolution on mergers at birth (stars touching) if ``--resolve-main-sequence-merger``.
+Changed Sabhahit+ 2023 VMS winds to default to current OB wind prescription if Gamma threshold is not met
+Correct the behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF; 
+now ensuring that the accretor's mass is correctly adjusted
+Update the fits for the convective envelope mass and radial extent to ensure smooth behaviour
+Updated treatment of 2-stage common envelope for intermediate mass stars, to smoothly reduce from Hirai & Mandel above 8 solar masses
+to classical "full envelope" removal for stars below 2 solar masses.
 
 **03.01.06 Aug 30, 2024**
 
@@ -21,7 +81,7 @@ The default value for the new option is FALSE.
 
 **03.01.00 Aug 24, 2024**
 
-* New option to emit gravitational radiation at each timestep of binary evolution: ``--emit-gravitational-radiation``. The effects of radiation are approximated by the change in semimajor axis and eccentricity from Peters 1946 equations 5.6 and 5.7.  Reduce timestep if required to keep orbital separation change per step due to GW radiation within ~ 1%.
+* New option to emit gravitational radiation at each timestep of binary evolution: ``--emit-gravitational-radiation``. The effects of radiation are approximated by the change in semimajor axis and eccentricity from Peters 1964 equations 5.6 and 5.7.  Reduce timestep if required to keep orbital separation change per step due to GW radiation within ~ 1%.
 
 **03.00.00 Jul 26, 2024**
 

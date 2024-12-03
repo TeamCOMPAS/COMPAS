@@ -1,4 +1,4 @@
-﻿// Class Log
+// Class Log
 //
 // This is where all logging and debugging is performed.
 //
@@ -1339,6 +1339,7 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
                     case TYPENAME::STELLAR_TYPE    : v = static_cast<int>(boost::get<STELLAR_TYPE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::MT_CASE         : v = static_cast<int>(boost::get<MT_CASE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::MT_TRACKING     : v = static_cast<int>(boost::get<MT_TRACKING>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
+                    case TYPENAME::MASS_TRANSFER_TIMESCALE  : v = static_cast<int>(boost::get<MASS_TRANSFER_TIMESCALE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::SN_EVENT        : v = static_cast<int>(boost::get<SN_EVENT>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::SN_STATE        : v = static_cast<int>(boost::get<SN_STATE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::EVOLUTION_STATUS: v = static_cast<int>(boost::get<EVOLUTION_STATUS>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
@@ -2108,7 +2109,6 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
                                                                                                                                     // yes - add program options
                     // iterate over the PROGRAM_OPTION_DETAIL map and add each entry to the recordProperties vector
                     // unfortunately no guarantee of order since it is an unordered map
-
                     for (auto& iter: PROGRAM_OPTION_DETAIL) {                                                                       // for each entry
                         T_ANY_PROPERTY thisProp = iter.first;                                                                       // program option
                         if (std::find(recordProperties.begin(), recordProperties.end(), thisProp) == recordProperties.end()) {      // already exists in recordProperties vector?
@@ -2269,6 +2269,7 @@ hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWid
         case TYPENAME::STELLAR_TYPE    : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::MT_CASE         : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::MT_TRACKING     : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MASS_TRANSFER_TIMESCALE  : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::SN_EVENT        : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::SN_STATE        : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::EVOLUTION_STATUS: h5DataType = H5T_NATIVE_INT; break;
@@ -2750,12 +2751,13 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         // ( i) the steller type from which the star is switching
                         // (ii) the stellar type to which the star is switching
                         //
-                        // if we are writing to the BSE Switch file we add three pre-defined columns
+                        // if we are writing to the BSE Switch file we add four pre-defined columns
                         // to the end of the log record.  These are:
                         //
                         // (  i) the star switching - 1 = primary, 2 = secondary
                         // ( ii) the steller type from which the star is switching
                         // (iii) the stellar type to which the star is switching
+                        // ( iv) boolean flag indicating whether a merger occurred 
                         //
                         // These are hard-coded here rather than in the *_PROPERTY_DETAIL maps in
                         // constants.h so that they will always be present in the switch file -
@@ -2767,7 +2769,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fileDetails.hdrStrings.push_back("Star_Switching");                                                                 // append header string for field
                             fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accommodates header string)
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field
                         }
 
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG || p_Logfile == LOGFILE::SSE_SWITCH_LOG) {                                     // BSE Switch Log or SSE Switch Log
@@ -2783,12 +2785,20 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
 
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accommodates header string)
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accommodates header string)
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field
+                        }
+
+                        if (p_Logfile == LOGFILE::BSE_SWITCH_LOG) {                                                                             // BSE Switch Log
+                            fileDetails.propertyTypes.push_back(TYPENAME::BOOL);                                                                // append property typename
+                            fileDetails.hdrStrings.push_back("Is_Merger");                                                                      // append header string for field
+                            fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
+                            fileDetails.typeStrings.push_back("BOOL");                                                                          // append type string for field
+                            fileDetails.fmtStrings.push_back("0.0");                                                                            // append format string for field
                         }
 
                         // we add the record type column to the end of the log record here for all logfiles
-                        // except the switch files (BSE_SWITCH_LOG and SSE_SWOTCH_LOG).
+                        // except the switch files (BSE_SWITCH_LOG and SSE_SWITCH_LOG).
                         //
                         // This is hard-coded here rather than in the *_PROPERTY_DETAIL maps in constants.h
                         // so that it will always be present in the logfile - this way users can't add or 
@@ -3541,6 +3551,8 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                     std::size_t namePos = propTypeStr.size() + 2;                                               // yes - start position of property name in token
                                     std::size_t nameLen = tokStr.size() - propTypeStr.size() - 2;                               // length of property name in token
                                     propNameStr = tokStr.substr(namePos, nameLen);                                              // extract property name from token
+
+                                    propNameStr = OPTIONS->CheckDeprecatedOptionProperty(propNameStr);                          // check for deprecated option property
                                 }
                                 else {                                                                                          // didn't get property name - error
                                     error    = ERROR::EXPECTED_PROPERTY_SPECIFIER;                                              // set error

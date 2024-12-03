@@ -50,6 +50,20 @@ protected:
     double          CalculateHeCoreMassAtPhaseEnd() const                                   { return CalculateCoreMassAtPhaseEnd(); }                               // Same as He core mass
     double          CalculateHeCoreMassOnPhase() const                                      { return 0.0; }                                                         // McHe(MS) = 0.0
 
+    double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                          { return CalculateHeliumAbundanceCoreOnPhase(); }
+    double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;                                         
+    double          CalculateHeliumAbundanceCoreOnPhase() const                             { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                  // Use class member variables                                       
+    
+    double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const                       { return CalculateHeliumAbundanceSurfaceOnPhase(); }
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const                          { return m_InitialHeliumAbundance; }                                    // Use class member variables                      
+    
+    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                        { return CalculateHydrogenAbundanceCoreOnPhase(); } 
+    double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;                                                          
+    double          CalculateHydrogenAbundanceCoreOnPhase() const                           { return CalculateHydrogenAbundanceCoreOnPhase(m_Tau); }                // Use class member variables                                 
+    
+    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const                     { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                        { return m_InitialHydrogenAbundance; }                                  // Use class member variables
+    
     double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const;
 
     double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;
@@ -83,6 +97,9 @@ protected:
     void            EvolveOneTimestepPreamble();
     STELLAR_TYPE    EvolveToNextPhase()                                                     { return STELLAR_TYPE::HERTZSPRUNG_GAP; }
 
+    double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
+                                           const double p_massTransferEfficiencyBeta); // RTW do I need a const here?       
+
     bool            IsEndOfPhase() const                                                    { return !ShouldEvolveOnPhase(); }                                      // Phase ends when age at or after MS timescale
 
     void            PerturbLuminosityAndRadius() { }                                                                                                                // NO-OP
@@ -90,6 +107,8 @@ protected:
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
 
     bool            ShouldEvolveOnPhase() const                                             { return (m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]); }    // Evolve on MS phase if age in MS timescale
+    
+    double          TAMSCoreMass() const;
 
     void            UpdateInitialMass()                                                     { m_Mass0 = m_Mass; }                                                   // Per Hurley et al. 2000, section 7.1
    

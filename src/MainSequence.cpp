@@ -11,6 +11,49 @@
 
 
 /*
+ * Calculate the helium abundance in the core of the star
+ * 
+ * Currently just a simple linear model from the initial helium abundance to 
+ * the maximum helium abundance (assuming that all hydrogen is converted to
+ * helium). 
+ * 
+ * When tau = 0, heliumAbundanceCore = m_InitialHeliumAbundance
+ * When tau = 1, heliumAbundanceCore = heliumAbundanceCoreMax = 1.0 - m_Metallicity
+ * 
+ * Should be updated to match detailed models.
+ *
+ * double CalculateHeliumAbundanceCoreOnPhase(const double p_Tau)
+ * 
+ * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
+ *
+ * @return                                      Helium abundance in the core (Y_c)
+ */
+double MainSequence::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
+    double heliumAbundanceCoreMax = 1.0 - m_Metallicity;
+    return ((heliumAbundanceCoreMax - m_InitialHeliumAbundance) * p_Tau) + m_InitialHeliumAbundance;
+}
+
+
+/*
+ * Calculate the hydrogen abundance in the core of the star
+ * 
+ * Currently just a simple linear model. Assumes that hydrogen in the core of 
+ * the star is burned to helium at a constant rate throughout the lifetime. 
+ * 
+ * Should be updated to match detailed models.
+ *
+ * double CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau)
+ * 
+ * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
+ *
+ * @return                                      Hydrogen abundance in the core (X_c)
+ */
+double MainSequence::CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const {
+    return m_InitialHydrogenAbundance * (1.0 - p_Tau);
+}
+
+
+/*
  * Calculate timescales in units of Myr
  *
  * Timescales depend on a star's mass, so this needs to be called at least each timestep
@@ -449,10 +492,11 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
     double tau1   = std::min(1.0, (p_Time / tHook));                                                                            // Hurley et al. 2000, eq 14
     double tau2   = std::max(0.0, std::min(1.0, (p_Time - ((1.0 - epsilon) * tHook)) / (epsilon * tHook)));                     // Hurley et al. 2000, eq 15
 
-    // pow() is slow - use multipliaction where it makes sense
+    // pow() is slow - use multiplication where it makes sense
     double tau_3  = tau * tau * tau;
-    double tau_10 = tau_3 * tau_3 * tau_3 * tau;
-    double tau_40 = tau_10 * tau_10 * tau_10 * tau_10;
+    double tau_10 = tau < FLOAT_TOLERANCE_ABSOLUTE ? 0.0: tau_3 * tau_3 * tau_3 * tau;                                          // direct comparison, to avoid underflow
+    double tau_40 = tau_10 < FLOAT_TOLERANCE_ABSOLUTE ? 0.0: tau_10 * tau_10 * tau_10 * tau_10;                                 // direct comparison, to avoid underflow
+    
     double tau1_3 = tau1 * tau1 * tau1;
     double tau2_3 = tau2 * tau2 * tau2;
 
@@ -547,7 +591,7 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
 /*
  * Calculate the radial extent of the star's convective core (if it has one)
  *
- * Preliminary fit from Minori Shikauchi @ ZAMS, does not take evolution into account yet
+ * Uses preliminary fit from Minori Shikauchi @ ZAMS, then a smooth interpolation to the HG
  *
  *
  * double CalculateRadialExtentConvectiveEnvelope()
@@ -555,9 +599,23 @@ double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
  * @return                                      Radial extent of the star's convective core in Rsol
  */
 double MainSequence::CalculateConvectiveCoreRadius() const {
-    return utils::Compare(m_Mass, 1.25) < 0
-            ? 0.0                                               // /*ILYA*/ To check
-            : m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57));    
+    if(utils::Compare(m_Mass, 1.25) < 0) return 0.0;                                            // low-mass star with a radiative core
+       
+    double convectiveCoreRadiusZAMS = m_Mass * (0.06 + 0.05 * exp(-m_Mass / 61.57));
+    
+    // We need TAMSCoreRadius, which is just the core radius at the start of the HG phase.
+    // Since we are on the main sequence here, we can clone this object as an HG object
+    // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
+    // we can query the cloned object for its core mass.
+    //
+    // The clone should not evolve, and so should not log anything, but to be sure the
+    // clone does not participate in logging, we set its persistence to EPHEMERAL.
+
+    HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
+    double TAMSCoreRadius = clone->CalculateRemnantRadius();                                    // get core radius from clone
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+
+    return (convectiveCoreRadiusZAMS - m_Tau * (convectiveCoreRadiusZAMS - TAMSCoreRadius));
 }
 
 
@@ -579,20 +637,7 @@ double MainSequence::CalculateConvectiveCoreRadius() const {
  * @return                                      Mass of convective core in Msol
  */
 double MainSequence::CalculateConvectiveCoreMass() const {
-
-    // We need TAMSCoreMass, which is just the core mass at the start of the HG phase.
-    // Since we are on the main sequence here, we can clone this object as an HG object
-    // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
-    // we can query the cloned object for its core mass.
-    //
-    // The clone should not evolve, and so should not log anything, but to be sure the
-    // clone does not participate in logging, we set its persistence to EPHEMERAL.
-      
-    HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
-    double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
-    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
-
-    double finalConvectiveCoreMass   = TAMSCoreMass;
+    double finalConvectiveCoreMass   = TAMSCoreMass();                                          // core mass at TAMS
     double initialConvectiveCoreMass = finalConvectiveCoreMass / 0.6;
     return (initialConvectiveCoreMass - m_Tau * (initialConvectiveCoreMass - finalConvectiveCoreMass));
 }
@@ -638,9 +683,7 @@ DBL_DBL MainSequence::CalculateConvectiveEnvelopeMass() const {
  */
 double MainSequence::CalculateTauOnPhase() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-
     return std::max(0.0, std::min(1.0, m_Age / timescales(tMS)));
-
 #undef timescales
 }
 
@@ -692,6 +735,7 @@ void MainSequence::UpdateAgeAfterMassLoss() {
     double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass, tBGBprime);
 
     m_Age *= tMSprime / tMS;
+    CalculateTimescales(m_Mass, m_Timescales);                                      // must update timescales
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -791,24 +835,34 @@ STELLAR_TYPE MainSequence::ResolveEnvelopeLoss(bool p_Force) {
  * void UpdateMinimumCoreMass()
  *
  */
-void MainSequence::UpdateMinimumCoreMass()
-{
+void MainSequence::UpdateMinimumCoreMass() {
     if (OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) {
-
-        // We need TAMSCoreMass, which is just the core mass at the start of the HG phase.
-        // Since we are on the main sequence here, we can clone this object as an HG object
-        // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
-        // we can query the cloned object for its core mass.
-        //
-        // The clone should not evolve, and so should not log anything, but to be sure the
-        // clone does not participate in logging, we set its persistence to EPHEMERAL.
-      
-        HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL);
-        double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
-        delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
-
-        m_MinimumCoreMass   = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass);    // update minimum core mass
+        m_MinimumCoreMass = std::max(m_MinimumCoreMass, CalculateTauOnPhase() * TAMSCoreMass());      // update minimum core mass
     }
+}
+
+/*
+ * Return the expected core mass at terminal age main sequence, i.e., at the start of the HG phase
+ *
+ * double TAMSCoreMass() const
+ *
+ *
+ * @return                                      TAMS core Mass (Msol)
+ *
+ */
+double MainSequence::TAMSCoreMass() const {
+    // Since we are on the main sequence here, we can clone this object as an HG object
+    // and, as long as it is initialised (to correctly set Tau to 0.0 on the HG phase),
+    // we can query the cloned object for its core mass.
+    //
+    // The clone should not evolve, and so should not log anything, but to be sure the
+    // clone does not participate in logging, we set its persistence to EPHEMERAL.
+    
+    HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
+    double TAMSCoreMass = clone->CoreMass();                                                    // get core mass from clone
+    delete clone; clone = nullptr;                                                              // return the memory allocated for the clone
+    
+    return TAMSCoreMass;
 }
 
 
@@ -824,15 +878,14 @@ void MainSequence::UpdateMinimumCoreMass()
  * @param   [IN]    p_HydrogenMass              Desired value of hydrogen mass of merger remnant
  *
  */
-void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass)
-{
+void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     m_Mass            = p_Mass;
     m_Mass0           = m_Mass;
     m_MinimumCoreMass = 0.0;
-        
-    double initialHydrogenFraction = 1.0 - utils::MESAZAMSHeliumFractionByMetallicity(m_Metallicity) - m_Metallicity;
+    
+    double initialHydrogenFraction = m_InitialHydrogenAbundance;
     
     CalculateTimescales();
     CalculateGBParams();
@@ -844,4 +897,167 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass)
     UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);
     
     #undef timescales
+}
+
+
+
+/* 
+ * Interpolate Ge+ Critical Mass Ratios, for H-rich stars
+ * 
+ * Function takes input QCRIT_PRESCRIPTION, currently either of the prescriptions for critical mass ratios
+ * from Ge et al. (2020), GE or GE_IC. The first is the full adiabatic response, the second assumes
+ * artificially isentropic envelopes. From private communication with Ge, we have an updated datatable that
+ * includes qCrit for fully conservative and fully non-conservative MT, so we now interpolate on those as well.
+ *
+ * Interpolation is done linearly in logM, logR, and logZ
+ * 
+ * double BaseStar::InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta) 
+ * 
+ * @param   [IN]    p_qCritPrescription          Adopted critical mass ratio prescription
+ * @param   [IN]    p_massTransferEfficiencyBeta Mass transfer accretion efficiency
+ * @return                                       Interpolated value of either the critical mass ratio or zeta for given stellar mass / radius
+ */ 
+double MainSequence::InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, const double p_massTransferEfficiencyBeta) {
+
+    // Iterate over the two QCRIT_GE tables to get the qcrits at each metallicity
+    double qCritPerMetallicity[2];
+    std::vector<GE_QCRIT_TABLE> qCritTables = { QCRIT_GE_LOW_Z, QCRIT_GE_HIGH_Z };
+
+    for (int ii=0; ii<2; ii++) { // iterate over the vector of tables to store qCrits per metallicity
+
+        // Get vector of masses from qCritTable
+        GE_QCRIT_TABLE &qCritTable = qCritTables[ii];
+        DBL_VECTOR massesFromQCritTable = std::get<0>(qCritTable);
+        GE_QCRIT_RADII_QCRIT_VECTOR radiiQCritsFromQCritTable = std::get<1>(qCritTable);
+
+        INT_VECTOR indices = utils::BinarySearch(massesFromQCritTable, m_Mass);
+        int lowerMassIndex = indices[0];
+        int upperMassIndex = indices[1];
+    
+        if (lowerMassIndex == -1) {                                                   // if masses are out of range, set to endpoints
+            lowerMassIndex = 0; 
+            upperMassIndex = 1;
+        } 
+        else if (upperMassIndex == -1) { 
+            lowerMassIndex = massesFromQCritTable.size() - 2; 
+            upperMassIndex = massesFromQCritTable.size() - 1;
+        } 
+    
+        // Get vector of radii from qCritTable for the lower and upper mass indices
+        std::vector<double> logRadiusVectorLowerMass = std::get<0>(radiiQCritsFromQCritTable[lowerMassIndex]);
+        std::vector<double> logRadiusVectorUpperMass = std::get<0>(radiiQCritsFromQCritTable[upperMassIndex]);
+    
+        // Get the qCrit vector for the lower and upper mass bounds 
+        std::vector<double> qCritVectorUpperEffLowerMass;
+        std::vector<double> qCritVectorUpperEffUpperMass;
+        std::vector<double> qCritVectorLowerEffLowerMass;
+        std::vector<double> qCritVectorLowerEffUpperMass;
+        
+        // Set the appropriate qCrit vector, depends on MT eff and whether you use GE STD or IC
+        if (p_qCritPrescription == QCRIT_PRESCRIPTION::GE) {
+            if (p_massTransferEfficiencyBeta > 0.5) {
+                qCritVectorUpperEffLowerMass = std::get<1>(radiiQCritsFromQCritTable[lowerMassIndex]);
+                qCritVectorUpperEffUpperMass = std::get<1>(radiiQCritsFromQCritTable[upperMassIndex]);
+                qCritVectorLowerEffLowerMass = std::get<2>(radiiQCritsFromQCritTable[lowerMassIndex]);
+                qCritVectorLowerEffUpperMass = std::get<2>(radiiQCritsFromQCritTable[upperMassIndex]);
+            }
+            else {
+                qCritVectorUpperEffLowerMass = std::get<2>(radiiQCritsFromQCritTable[lowerMassIndex]);
+                qCritVectorUpperEffUpperMass = std::get<2>(radiiQCritsFromQCritTable[upperMassIndex]);
+                qCritVectorLowerEffLowerMass = std::get<3>(radiiQCritsFromQCritTable[lowerMassIndex]);
+                qCritVectorLowerEffUpperMass = std::get<3>(radiiQCritsFromQCritTable[upperMassIndex]);
+
+            }
+        }
+        else if (p_qCritPrescription == QCRIT_PRESCRIPTION::GE_IC) {
+            if (p_massTransferEfficiencyBeta > 0.5) {
+                qCritVectorUpperEffLowerMass = std::get<4>(radiiQCritsFromQCritTable[lowerMassIndex]);
+                qCritVectorUpperEffUpperMass = std::get<4>(radiiQCritsFromQCritTable[upperMassIndex]);
+                qCritVectorLowerEffLowerMass = std::get<5>(radiiQCritsFromQCritTable[lowerMassIndex]);
+                qCritVectorLowerEffUpperMass = std::get<5>(radiiQCritsFromQCritTable[upperMassIndex]);
+            }
+            else {
+                qCritVectorUpperEffLowerMass = std::get<5>(radiiQCritsFromQCritTable[lowerMassIndex]);
+                qCritVectorUpperEffUpperMass = std::get<5>(radiiQCritsFromQCritTable[upperMassIndex]);
+                qCritVectorLowerEffLowerMass = std::get<6>(radiiQCritsFromQCritTable[lowerMassIndex]);
+                qCritVectorLowerEffUpperMass = std::get<6>(radiiQCritsFromQCritTable[upperMassIndex]);
+
+            }
+        }
+    
+        // Get vector of radii from qCritTable for both lower and upper masses
+        INT_VECTOR indicesR0          = utils::BinarySearch(logRadiusVectorLowerMass, log10(m_Radius));
+        int lowerRadiusLowerMassIndex = indicesR0[0];
+        int upperRadiusLowerMassIndex = indicesR0[1];
+    
+        if (lowerRadiusLowerMassIndex == -1) {                                        // if radii are out of range, set to endpoints
+            lowerRadiusLowerMassIndex = 0; 
+            upperRadiusLowerMassIndex = 1; 
+        }
+        else if (upperRadiusLowerMassIndex == -1) {                                                   
+            lowerRadiusLowerMassIndex = logRadiusVectorLowerMass.size() - 2; 
+            upperRadiusLowerMassIndex = logRadiusVectorLowerMass.size() - 1; 
+        }
+    
+        INT_VECTOR indicesR1          = utils::BinarySearch(logRadiusVectorUpperMass, log10(m_Radius));
+        int lowerRadiusUpperMassIndex = indicesR1[0];
+        int upperRadiusUpperMassIndex = indicesR1[1];
+    
+        if (lowerRadiusUpperMassIndex == -1) {                                        // if radii are out of range, set to endpoints
+            lowerRadiusUpperMassIndex = 0; 
+            upperRadiusUpperMassIndex = 1; 
+        }
+        else if (upperRadiusUpperMassIndex == -1) {                                                   
+            lowerRadiusUpperMassIndex = logRadiusVectorUpperMass.size() - 2; 
+            upperRadiusUpperMassIndex = logRadiusVectorUpperMass.size() - 1; 
+        }
+    
+        // Set the 4 boundary points for the 2D interpolation
+        double qUppLowLow = qCritVectorUpperEffLowerMass[lowerRadiusLowerMassIndex];
+        double qUppLowUpp = qCritVectorUpperEffLowerMass[upperRadiusLowerMassIndex];
+        double qUppUppLow = qCritVectorUpperEffUpperMass[lowerRadiusUpperMassIndex];
+        double qUppUppUpp = qCritVectorUpperEffUpperMass[upperRadiusUpperMassIndex];
+        double qLowLowLow = qCritVectorLowerEffLowerMass[lowerRadiusLowerMassIndex];
+        double qLowLowUpp = qCritVectorLowerEffLowerMass[upperRadiusLowerMassIndex];
+        double qLowUppLow = qCritVectorLowerEffUpperMass[lowerRadiusUpperMassIndex];
+        double qLowUppUpp = qCritVectorLowerEffUpperMass[upperRadiusUpperMassIndex];
+    
+        double lowerLogRadiusLowerMass = logRadiusVectorLowerMass[lowerRadiusLowerMassIndex];
+        double upperLogRadiusLowerMass = logRadiusVectorLowerMass[upperRadiusLowerMassIndex];
+        double lowerLogRadiusUpperMass = logRadiusVectorUpperMass[lowerRadiusUpperMassIndex];
+        double upperLogRadiusUpperMass = logRadiusVectorUpperMass[upperRadiusUpperMassIndex];
+
+        double logLowerMass   = log10(massesFromQCritTable[lowerMassIndex]);
+        double logUpperMass   = log10(massesFromQCritTable[upperMassIndex]);
+    
+        // Interpolate on logR first, then logM, then on the efficiency, using nearest neighbor for extrapolation
+        double logRadius = log10(m_Radius);
+        double qCritUpperEffLowerMass = (logRadius < lowerLogRadiusLowerMass) ? qUppLowLow
+                                      : (logRadius > upperLogRadiusLowerMass) ? qUppLowUpp
+                                      : qUppLowLow + (upperLogRadiusLowerMass - logRadius) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qUppLowUpp - qUppLowLow);
+        double qCritUpperEffUpperMass = (logRadius < lowerLogRadiusUpperMass) ? qUppUppLow
+                                      : (logRadius > upperLogRadiusUpperMass) ? qUppUppUpp
+                                      : qUppUppLow + (upperLogRadiusUpperMass - logRadius) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qUppUppUpp - qUppUppLow);
+        double qCritLowerEffLowerMass = (logRadius < lowerLogRadiusLowerMass) ? qLowLowLow
+                                      : (logRadius > upperLogRadiusLowerMass) ? qLowLowUpp
+                                      : qLowLowLow + (upperLogRadiusLowerMass - logRadius) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qLowLowUpp - qLowLowLow);
+        double qCritLowerEffUpperMass = (logRadius < lowerLogRadiusUpperMass) ? qLowUppLow
+                                      : (logRadius > upperLogRadiusUpperMass) ? qLowUppUpp
+                                      : qLowUppLow + (upperLogRadiusUpperMass - logRadius) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qLowUppUpp - qLowUppLow);
+    
+        double logMass = log10(m_Mass);
+        double interpolatedQCritUpperEff = (logMass < logLowerMass) ? qCritUpperEffLowerMass
+                                         : (logMass > logUpperMass) ? qCritUpperEffUpperMass
+                                         : qCritUpperEffLowerMass + (logUpperMass - logMass) / (logUpperMass - logLowerMass) * (qCritUpperEffUpperMass - qCritUpperEffLowerMass);
+        double interpolatedQCritLowerEff = (logMass < logLowerMass) ? qCritLowerEffLowerMass
+                                         : (logMass > logUpperMass) ? qCritLowerEffUpperMass
+                                         : qCritLowerEffLowerMass + (logUpperMass - logMass) / (logUpperMass - logLowerMass) * (qCritLowerEffUpperMass - qCritLowerEffLowerMass);
+    
+        double interpolatedQCritForZ = p_massTransferEfficiencyBeta * interpolatedQCritUpperEff + (1.0 - p_massTransferEfficiencyBeta) * interpolatedQCritLowerEff;                 // Don't need to use nearest neighbor for this, beta is always between 0 and 1
+        qCritPerMetallicity[ii] = interpolatedQCritForZ;
+    }
+    double logZlo = -3;         // log10(0.001)
+    double logZhi = LOG10_ZSOL; // log10(0.02) 
+    
+    return qCritPerMetallicity[1] + (m_Log10Metallicity - logZhi)*(qCritPerMetallicity[1] - qCritPerMetallicity[0])/(logZhi - logZlo);
 }

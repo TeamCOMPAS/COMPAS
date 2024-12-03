@@ -41,6 +41,8 @@ protected:
     void Initialise() {
         CalculateTimescales();                                                                                                                                                                      // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tBGB)];                                                                                                                                    // Set age appropriately
+        
+        EvolveOnPhase(0.0);
     }
 
 
@@ -63,8 +65,6 @@ protected:
     double          CalculateLuminosityAtPhaseEnd() const                                           { return CalculateLuminosityAtPhaseEnd(m_Age); }                                                // Use class member variables
     double          CalculateLuminosityOnPhase(const double p_Time) const;
     double          CalculateLuminosityOnPhase() const                                              { return CalculateLuminosityOnPhase(m_Age); }                                                   // Use class member variables
-
-    double          CalculateRadialExtentConvectiveEnvelope() const                                 { return m_Radius - CalculateConvectiveCoreRadius(); }                                          // Skip HG
 
     double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_Luminosity) const { return GiantBranch::CalculateRadiusOnPhase(p_Mass, p_Luminosity); }                  // Skip HG - same as on phase
     double          CalculateRadiusAtPhaseEnd() const                                               { return CalculateRadiusAtPhaseEnd(m_Mass, m_Luminosity); }                                     // Use class member variables

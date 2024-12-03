@@ -62,6 +62,7 @@ protected:
         CalculateTimescales();                                                                                                                                  // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tHeI)];                                                                                                // Set age appropriately
         m_MinimumLuminosityOnPhase = CalculateMinimumLuminosityOnPhase(massCutoffs(MHeF), m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_BnCoefficients);    // Calculate once, not many
+        EvolveOnPhase(0.0);
     #undef massCutoffs
     }
 
@@ -78,6 +79,20 @@ protected:
     double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const    { return 0.33; }                                                                // As coded in BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
 
     double          CalculateHeCoreMassAtPhaseEnd() const                       { return m_CoreMass; }
+
+    double          CalculateHeliumAbundanceCoreAtPhaseEnd() const              { return CalculateHeliumAbundanceCoreOnPhase(); }
+    double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;                                         
+    double          CalculateHeliumAbundanceCoreOnPhase() const                 { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                          // Use class member variables                                       
+    
+    double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const           { return CalculateHeliumAbundanceSurfaceOnPhase(); }
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const              { return m_InitialHeliumAbundance; }                                            // Use class member variables                      
+    
+    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const            { return CalculateHydrogenAbundanceCoreOnPhase(); } 
+    double          CalculateHydrogenAbundanceCoreOnPhase() const               { return 0.0; }                                                                 // Core is hydrogen exhausted                                
+    
+    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const         { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const            { return m_InitialHydrogenAbundance; }                                          // Use class member variables
+    
 
     double          CalculateLambdaDewi() const;
     double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
