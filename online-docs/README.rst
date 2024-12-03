@@ -23,13 +23,17 @@ Updating the documentation
 Building the documentation locally
 ----------------------------------
 
-In 'docs/online-docs' directory (after installing the COMPAS-py utils):
+In the repository root directory:
 
 .. code-block:: bash
 
-   pip install -r requirements.txt
-   make clean
-   make html
+    pip install -e '.[dev]'
+    cd online-docs
+    make clean
+    make html
+
+
+
 
 View results in 'docs/online-docs/_build/html/index.html'
 
