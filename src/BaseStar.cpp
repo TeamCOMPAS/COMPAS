@@ -2479,6 +2479,8 @@ double BaseStar::CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu)
  */
 double BaseStar::CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot) const {
 
+    if (p_Mdot <= 0.0) return 0.0;                                  // nothing to adjust
+    
     const double teffRef = 141.0E3;                                 // reference effective temperature in Kelvin
     const double teffMin = 100.0E3;                                 // minimum effective temperature in Kelvin to apply correction
 
@@ -2493,7 +2495,7 @@ double BaseStar::CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(c
     else {
         logMdotCorrected = logMdotUncorrected;
     }
-
+    
     return PPOW(10.0, logMdotCorrected);
 }
 
@@ -2845,7 +2847,7 @@ void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
         UpdateAgeAfterMassLoss();                                                                   // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                                      // apply age rejuvenation factor
-        SetAngularMomentum(m_AngularMomentum + angularMomentumChange);                              
+        SetAngularMomentum(m_AngularMomentum + angularMomentumChange);
     }
 }
 

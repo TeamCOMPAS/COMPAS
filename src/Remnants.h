@@ -24,6 +24,9 @@ public:
     // member functions
     
     static  double  CalculateRemnantMass_Static(const double p_COCoreMass)                                      {  return utils::Compare(p_COCoreMass, 7.0)< 0 ? 1.17 + (0.09 * p_COCoreMass) : p_COCoreMass; }                                                                                  // Hurley et al., eq 92; Hurley says that a >7.0 CO core leads to a collapse into a BH, but is ambiguous about the BH mass in this case -- we will assume it's just the CO core
+    
+            double  CalculateRemnantRadius() const                                                              { return Radius(); }
+
 
 protected:
 

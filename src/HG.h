@@ -11,50 +11,47 @@
 #include "GiantBranch.h"
 
 
-// JR: todo: revisit this one day - sometimes HG works better as GiantBranch, sometimes not...
-// Right now it is GiantBranch - figure out which is more appropriate
-
 class BaseStar;
 class GiantBranch;
 
 class HG: virtual public BaseStar, public GiantBranch {
-
+    
 public:
-
+    
     HG() { m_StellarType = STELLAR_TYPE::HERTZSPRUNG_GAP; };
     
     HG(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), GiantBranch(p_BaseStar) {
-        m_StellarType = STELLAR_TYPE::HERTZSPRUNG_GAP;                                                                                                                          // Set stellar type 
+        m_StellarType = STELLAR_TYPE::HERTZSPRUNG_GAP;                                                                                                                          // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                         // Initialise if required
     }
-
+    
     HG* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        HG* clone = new HG(*this, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        HG* clone = new HG(*this, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
-
+    
     static HG* Clone(HG& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        HG* clone = new HG(p_Star, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        HG* clone = new HG(p_Star, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
-
+    
     MT_CASE DetermineMassTransferTypeAsDonor() const { return MT_CASE::B; }                                                                                                     // Always case B
-
-
+    
+    
 protected:
-
+    
     void Initialise() {
-
+        
         m_Tau = 0.0;                                                                                                                                                            // Start of phase
-
+        
         // update stellar properties at start of HG phase (since core definition changes)
         CalculateGBParams();
         CalculateTimescales();
-                                                                                                                                                                                // Initialise timescales
+        // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];                                                                                                                 // Set age appropriately
-
+        
         // update effective "initial" mass (m_Mass0) so that the core mass is at least equal to the minimum core mass but no more than total mass
         // (only relevant if MANDEL or SHIKAUCHI main sequence core mass prescription is used)
         if (utils::Compare(CalculateCoreMassOnPhase(m_Mass0, m_Age), std::min(m_Mass, MainSequenceCoreMass())) < 0) {
@@ -69,56 +66,56 @@ protected:
         }
         EvolveOnPhase(0.0);
     }
-
-
+    
+    
     // member functions - alphabetically
     double          CalculateCOCoreMassAtPhaseEnd() const                           { return 0.0; }                                                                             // McCO(HG) = 0.0
     double          CalculateCOCoreMassOnPhase() const                              { return 0.0; }                                                                             // McCO(HG) = 0.0
-
+    
     double          CalculateCoreMassAt2ndDredgeUp(const DBL_VECTOR &p_GBParams)    { return p_GBParams[static_cast<int>(GBP::McDU)]; }                                         // NO-OP
     double          CalculateCoreMassAtPhaseEnd(const double p_Mass) const;
     double          CalculateCoreMassAtPhaseEnd() const                             { return CalculateCoreMassAtPhaseEnd(m_Mass0); }                                            // Use class member variables
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const;
     double          CalculateCoreMassOnPhase() const                                { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                        // Use class member variables
     double          CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(const double p_Mass, const double p_Time) const;                                                           //  Ignore previous core mass constraint when computing expected core mass
-
+    
     double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
     double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const        { return 0.25; }                                                                            // As coded in BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
-
+    
     double          CalculateHeCoreMassAtPhaseEnd() const                           { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
     double          CalculateHeCoreMassOnPhase() const                              { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
     
-    double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                  { return 1.0 - m_Metallicity; }                                         
-    double          CalculateHeliumAbundanceCoreOnPhase() const                     { return 1.0 - m_Metallicity; }                                                             // Use class member variables                                       
+    double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                  { return 1.0 - m_Metallicity; }
+    double          CalculateHeliumAbundanceCoreOnPhase() const                     { return 1.0 - m_Metallicity; }                                                             // Use class member variables
     
     double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const               { return CalculateHeliumAbundanceSurfaceOnPhase(); }
-    double          CalculateHeliumAbundanceSurfaceOnPhase() const                  { return m_InitialHeliumAbundance; }                                                        // Use class member variables                      
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const                  { return m_InitialHeliumAbundance; }                                                        // Use class member variables
     
-    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                { return CalculateHydrogenAbundanceCoreOnPhase(); } 
-    double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;                                                          
-    double          CalculateHydrogenAbundanceCoreOnPhase() const                   { return 0.0; }                                                                             // Star has exhausted hydrogen in its core                                 
+    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                { return CalculateHydrogenAbundanceCoreOnPhase(); }
+    double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;
+    double          CalculateHydrogenAbundanceCoreOnPhase() const                   { return 0.0; }                                                                             // Star has exhausted hydrogen in its core
     
-    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const             { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
+    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const             { return CalculateHydrogenAbundanceSurfaceOnPhase(); }
     double          CalculateHydrogenAbundanceSurfaceOnPhase() const                { return m_InitialHydrogenAbundance; }                                                      // Use class member variables
     
-
-
+    
+    
     double          CalculateLambdaDewi() const;
     double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
     double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const;
-
+    
     double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;
     double          CalculateLuminosityAtPhaseEnd() const                           { return CalculateLuminosityAtPhaseEnd(m_Mass0);}                                           // Use class member variables
     double          CalculateLuminosityOnPhase(const double p_Age, const double p_Mass) const;
     double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Age, m_Mass0); }                                      // Use class member variables
-
+    
     double          CalculateMassTransferRejuvenationFactor()                       { return 1.0; }
-
+    
     double          CalculateRadiusAtPhaseEnd(const double p_Mass) const;
     double          CalculateRadiusAtPhaseEnd() const                               { return CalculateRadiusAtPhaseEnd(m_Mass); }                                               // Use class member variables
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS) const;
     double          CalculateRadiusOnPhase() const                                  { return CalculateRadiusOnPhase(m_Mass0, m_Tau, m_RZAMS0); }                                // Use class member variables
-
+    
     double          CalculateRho(const double p_Mass) const;
 
     double          CalculateTauAtPhaseEnd() const                                  { return 1.0; }                                                                             // tau = 1.0 at end of HG
@@ -141,6 +138,7 @@ protected:
     bool            ShouldEvolveOnPhase() const                                     { return (utils::Compare(m_Age, m_Timescales[static_cast<int>(TIMESCALE::tBGB)]) < 0); }    // Evolve on HG phase if age < Base Giant Branch timescale
     bool            ShouldSkipPhase() const                                         { return false; }                                                                           // Never skip HG phase
 
+    double          TAMSCoreMass() const                                            { return 0.0; }
     void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass) { }                                                                                                 // Nothing to do for stars beyond the Main Sequence for now
     void            UpdateAgeAfterMassLoss();                                                                                                                                   // Per Hurley et al. 2000, section 7.1
 

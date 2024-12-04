@@ -1344,7 +1344,7 @@
 //                                      - Changed the prescription for Tonset in the Picker+ models to take advantage of improved metallicity-dependent fits
 // 03.05.02   IM - Oct 10, 2024     - Enhancement, defect repair:
 //                                      - Reverted IsCCSN() to include USSN following a change in 3.00.00 that inadvertently led to no binary orbit updates following USSNe
-//                                      - Include a call to EvolveBinary(0.0) on initialisation of evolved stellar types; this ensures that Switch logs include consistent data for the new stellar type
+//                                      - Include a call to EvolveOnPhase(0.0) on initialisation of evolved stellar types; this ensures that Switch logs include consistent data for the new stellar type
 // 03.06.00   IM - Oct 14, 2024     - Enhancement, code cleanup:
 //                                      - Incorporating the Maltsev+ (2024) prescription for supernova remnant masses
 //                                      - Minor fixes, including in fallback fraction for Schneider SN prescription, documentation
@@ -1404,12 +1404,24 @@
 // 03.09.02  RTW - Nov 27, 2024     - Defect repair, enhancement:
 //                                      - Fixed bugs in vector3d related to indexing and rotation
 //                                      - Added tweak for circular systems at first SN, to fix the x-axis along the separation vector
-// 03.10.00   AB - Nov 28, 2024     - Enhancement:
+// 03.09.03   IM - Nov 28, 2024     - Enhancement, defect repair:
+//                                      - Delay changing stellar types until after checking for whether remnant cores would touch in a common enevelope, use core radii instead (partial fix to #1286)
+//                                      - Define a new function MainSequence::TAMSCoreMass(); use it for determining the amount of He in a star during MS mergers
+//                                      - Switch both stars to Massless remnants during a CE merger, resolve #1265
+//                                      - Minor fixes, including to #1255, #1258
+// 03.10.00   JR - Nov 29, 2024     - Enhancement:
+//                                      - added functionality to allow stellar mergers (for BSE) to be logged to switchlog file (see documentation for details)
+// 03.10.01   IM - Nov 30, 2024     - Defect repair:
+//                                      - corrected treatment of rotation to retain pre-mass-loss spin frequency, not angular momentum, on complete envelope removal during stable mass transfer
+//                                      - fixed issue with updating helium giants that manifested as supernovae with nan core mass (see #1245)
+//                                      - added check for exceeding Chandrasekhar mass when computing white dwarf radius (resolves issue #1264)
+//                                      - added check to only compute McBGB for stars with mass above MHeF, following text above Eq. 44 in Hurley+, 2000 (resolves issue #1256)
+// 03.11.00   AB - Dec 04, 2024     - Enhancement:
 //                                      - Added Shikauchi et al. (2024) core mass prescription, describing convective core evolution under mass loss/gain
 //                                      - New options: --main-sequence-core-mass-prescription SHIKAUCHI (new prescription), MANDEL (replaces --retain-core-mass-during-caseA-mass-transfer),
 //                                        NONE (no core mass treatment)
 //                                      - Added new luminosity prescription from Shikauchi et al. (2024)
 //                                      - Added treatment for rejuvenation of main sequence accretors
-const std::string VERSION_STRING = "03.10.00";
+const std::string VERSION_STRING = "03.11.00";
 
 # endif // __changelog_h__

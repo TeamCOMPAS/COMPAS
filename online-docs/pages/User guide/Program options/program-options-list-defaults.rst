@@ -5,7 +5,7 @@ Any program options that are not specified take default values.
 
 - On the command line, program options that are not explicitly specified default to the COMPAS default value for the option (as specified in the COMPAS code - may be sampled from a distribution).
 
-- On a :doc:`grid file <../grid-files>` line, program options that are not explicitly specified default to the value specified for that option on the command line. If the program option was not explicitly specified on the command line, it will default to the COMPAS default value for the option, as described above. That is, the value for any option not specified on a grid file line option falls back to the value specified on the command line, which falls back to the COMPAS default if it was not specified on the command line.
+- On a :doc:`grid file <../Running COMPAS/running-grid>` line, program options that are not explicitly specified default to the value specified for that option on the command line. If the program option was not explicitly specified on the command line, it will default to the COMPAS default value for the option, as described above. That is, the value for any option not specified on a grid file line option falls back to the value specified on the command line, which falls back to the COMPAS default if it was not specified on the command line.
 
 
 .. _options-props-top:
@@ -462,7 +462,7 @@ Default = 5.75
 :ref:`Back to Top <options-props-top>`
 
 **--grid** |br|
-Grid filename. (See :doc:`Grid files <../grid-files>`) |br|
+Grid filename. (See :doc:`grid file <../Running COMPAS/running-grid>`) |br|
 Default = ’’ (None)
 
 **--grid-lines-to-process** |br|
@@ -856,7 +856,7 @@ Options: { JEANS, ISOTROPIC, CIRCUMBINARY, MACLEOD_LINEAR, ARBITRARY } |br|
 Default = ISOTROPIC
 
 **--mass-transfer-fa** |br|
-Mass Transfer fraction accreted. |br|
+Mass Transfer fraction accreted (beta). |br|
 Used when ``--mass-transfer-accretion-efficiency-prescription = FIXED_FRACTION``. |br|
 Default = 0.5
 
@@ -1131,10 +1131,11 @@ Enable mass loss due to pulsational-pair-instability (PPI). |br|
 Default = TRUE
 
 **--pulsational-pair-instability-prescription** |br|
-Pulsational pair instability prescription. |br|
+Pulsational pair instability prescription (only relevant when using ``--pulsational-pair-instability``). |br|
 Options: { HENDRIKS, COMPAS, STARTRACK, MARCHANT, FARMER } |br|
 ``HENDRIKS`` implements the prescription from Hendriks et al. 2023 |br|
-``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, all as implemented in Stevenson et al. 2019. |br|
+``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, 
+all as implemented in Stevenson et al. 2019. |br|
 ``FARMER`` follows Farmer et al. 2019 |br|
 Default = MARCHANT
 

@@ -282,6 +282,9 @@ public:
     virtual double          CalculateRadialExtentConvectiveEnvelope() const                                     { return 0.0; }                                                     // Default for stars with no convective envelope
     
     virtual double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const            { return 0.0; }                                                     // Only defined for MS stars
+    
+    virtual double          CalculateRemnantRadius() const                                                      { return Radius(); }    // relevant for MS stars, over-written for GB stars
+
 
             void            CalculateSNAnomalies(const double p_Eccentricity);
 
@@ -341,6 +344,8 @@ public:
             void            StashSupernovaDetails(const STELLAR_TYPE p_StellarType,
                                                   const SSE_SN_RECORD_TYPE p_RecordType = SSE_SN_RECORD_TYPE::DEFAULT) { LOGGING->StashSSESupernovaDetails(this, p_StellarType, p_RecordType); }
 
+    virtual double          TAMSCoreMass() const                                                                { return 0.0; }                                                                                                             // except MS stars
+    
     virtual void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass) { }                                                                                             // Default is NO-OP
     virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
 

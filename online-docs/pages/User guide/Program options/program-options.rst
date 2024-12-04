@@ -6,7 +6,7 @@ parameters that affect the evolution of single and binary stars, and the composi
 stars being evolved. Furthermore, COMPAS allows some parameters to be specified as ranges, or sets, of
 values via the program options, allowing users to specify a grid of parameter values on the command line.
 
-Combining command-line program options ranges and sets with a :doc:`grid file <../grid-files>` allows users
+Combining command-line program options ranges and sets with a :doc:`grid file <../Running COMPAS/running-grid>` allows users
 more flexibility and the ability to specify more complex combinations of parameter values.
 
 Not all program options can be specified as ranges or sets of values. Options for which mixing different

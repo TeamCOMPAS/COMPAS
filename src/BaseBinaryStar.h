@@ -267,10 +267,10 @@ public:
 
             EVOLUTION_STATUS       Evolve();
 
-            bool                   PrintSwitchLog(const bool p_PrimarySwitching) {                                      // print to the switch log file
+            bool                   PrintSwitchLog(const bool p_PrimarySwitching, const bool p_IsMerger = false) {       // print to the switch log file
                                        return OPTIONS->SwitchLog()                                                      // switch logging enabled?
                                            ? (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT    // yes, switch logging enabled - is this a 'permanent' object (i.e. not an ephemeral clone)?
-                                               ? LOGGING->LogBSESwitchLog(this, p_PrimarySwitching)                     // yes, permanent - log it
+                                               ? LOGGING->LogBSESwitchLog(this, p_PrimarySwitching, p_IsMerger)         // yes, permanent - log it
                                                : true                                                                   // no, ephemeral - ignore the log request
                                              )
                                            : true;                                                                      // no - switch logging not enabled - ignore the log request
@@ -504,7 +504,19 @@ private:
     void    UpdateSystemicVelocity(Vector3d p_newVelocity)                      { m_SystemicVelocity += p_newVelocity; } 
 
     // printing functions
-    
+
+    bool LogMergerToSwitchLog() {
+        // switchlog merger records come in pairs - one for each star
+        // record merger for primary
+        LOGGING->SetSwitchParameters(m_ObjectId, ObjectType(), m_ObjectPersistence, m_Star1->StellarType(), m_Star1->StellarType());        // store switch details to LOGGING service
+        if (PrintSwitchLog(true, true)) {                                                                                                   // record merger details to switchlog
+            // record merger for secondary
+            LOGGING->SetSwitchParameters(m_ObjectId, ObjectType(), m_ObjectPersistence, m_Star2->StellarType(), m_Star2->StellarType());    // store switch details to LOGGING service
+            return PrintSwitchLog(false, true);                                                                                             // record merger details to switchlog
+        }
+        return false;
+    }
+
     bool PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType = RLOF_RECORD_TYPE::DEFAULT);
     
     bool PrintBinarySystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::DEFAULT) const { 

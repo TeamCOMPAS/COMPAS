@@ -3,6 +3,7 @@ name: Dockerhub Image CI
 on:
   push:
     branches: [ dev ]
+  workflow_dispatch: null
 
 jobs:
   release:
