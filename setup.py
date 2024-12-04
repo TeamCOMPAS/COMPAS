@@ -44,16 +44,18 @@ INSTALL_REQUIRES = [
 ]
 EXTRA_REQUIRE = dict(
     docs=[
-        "sphinx",
+        "sphinx>=7.0.1",
         "numpydoc",
         "nbsphinx",
-        "sphinx_rtd_theme",
+        "sphinx_rtd_theme>=1.2.2",
         "sphinx-tabs",
         "sphinx-argparse",
         "sphinx-math-dollar",
         "sphinxcontrib.bibtex",
         "linuxdoc",
-        "ipython"
+        "ipython",
+        "readthedocs-sphinx-search>=0.1.1b",
+        "sphinx-togglebutton",
     ],
     dev=[
         "pytest-cov",
