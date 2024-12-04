@@ -27,4 +27,6 @@ There are a few tests that are run automatically when you push your changes to t
 
 The tests will fail if the fiducial binary system does not lead to a binary black hole merger.
 
-.. include:: ../../../py_tests/test_data/run.sh
+.. literalinclude:: ../../../py_tests/test_data/run.sh
+   :linenos:
+   :language: bash

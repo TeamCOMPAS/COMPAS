@@ -185,5 +185,5 @@ Next steps
 ----------
 Once you have completed the steps shown above, you're ready to run COMPAS. The :doc:`COMPAS User Guide <../User guide/user-guide>`
 explains in detail how to run COMPAS, but to check that COMPAS is installed correctly, and to get a taste of what running COMPAS looks
-like, you could try the :doc:`COMPAS Tutorial <../User guide/Tutorial/example-compas-run>`.
+like, you could try the :doc:`COMPAS Tutorial <../User guide/Running COMPAS/running-compas>`.
 

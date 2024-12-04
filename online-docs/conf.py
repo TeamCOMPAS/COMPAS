@@ -51,6 +51,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinxarg.ext",
     "sphinx_tabs.tabs",
+    "sphinx_togglebutton",
 ]
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
