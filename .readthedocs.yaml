@@ -22,7 +22,6 @@ formats: []
 # Set the version of Python and other tools you might need
 python:
   install:
-    - requirements: requirements.txt
     - method: pip
       path: .
       extra_requirements:
