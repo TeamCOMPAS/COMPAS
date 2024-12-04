@@ -1,4 +1,4 @@
-Examining detailed output
+Running detailed output
 =========================
 
 The COMPAS run from the tutorial creates a new directory ``COMPAS_Output``, inside which you will find the following files/directories 
