@@ -32,6 +32,7 @@ jobs:
         with:
           python-version: '3.9'
           cache: pip
+          cache-dependency-path: setup.py
       - name: Install TeXLive
         uses: teatimeguest/setup-texlive-action@v3
       - name: Install dependencies on ubuntu
