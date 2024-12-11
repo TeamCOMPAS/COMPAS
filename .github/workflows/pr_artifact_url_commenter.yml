@@ -1,4 +1,4 @@
-name: Comment on Pull Request and Show Summary
+name: Comment on Pull request
 
 on:
   workflow_run:
@@ -7,71 +7,69 @@ on:
       - completed
 
 jobs:
-  comment-and-summarize:
+  comment:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
+      - name: Get Artifact and Pull request info
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_RUN_EVENT_OBJ: ${{ toJSON(github.event.workflow_run) }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          PREVIOUS_JOB_ID=$(jq -r '.id' <<< "$WORKFLOW_RUN_EVENT_OBJ")
+          echo "PREVIOUS_JOB_ID=$PREVIOUS_JOB_ID" >> "$GITHUB_ENV"
+          
+          SUITE_ID=$(jq -r '.check_suite_id' <<< "$WORKFLOW_RUN_EVENT_OBJ")
+          echo "SUITE_ID=$SUITE_ID" >> "$GITHUB_ENV"
+          
+          ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" \
+            --jq ".artifacts[] | select(.workflow_run.id==$PREVIOUS_JOB_ID and .expired==false and .name=='detailedEvolutionPlot.png') | .id" | head -n1)
+          echo "ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
+          
+          PR_NUMBER=$(gh api "/repos/$OWNER/$REPO/commits/${{ github.event.workflow_run.head_sha }}/pulls" --jq '.[0].number')
+          echo "PR_NUMBER=${PR_NUMBER:-null}" >> "$GITHUB_ENV"
+          
+          HEAD_SHA=${{ github.event.workflow_run.head_sha }}
+          echo "HEAD_SHA=$HEAD_SHA" >> "$GITHUB_ENV"
+
       - name: Download artifact
+        if: env.PR_NUMBER != 'null' && env.ARTIFACT_ID != ''
+        run: |
+          gh api /repos/${{ github.repository }}/actions/artifacts/${{ env.ARTIFACT_ID }}/zip -H "Accept: application/vnd.github.v3+json" --output artifact.zip
+          unzip artifact.zip
+          rm artifact.zip
+
+      - name: Update Comment
+        if: env.PR_NUMBER != 'null' && env.ARTIFACT_ID != ''
+        env:
+          JOB_PATH: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ env.PREVIOUS_JOB_ID }}"
+          ARTIFACT_URL: "${{ github.server_url }}/${{ github.repository }}/suites/${{ env.SUITE_ID }}/artifacts/${{ env.ARTIFACT_ID }}"
         uses: actions/github-script@v6
         with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.name,
-              run_id: ${{ github.event.workflow_run.id }},
-            });
-            const matchArtifact = artifacts.data.artifacts.find((artifact) => {
-              return artifact.name == "detailedEvolutionPlot.png"
-            });
-            const download = await github.rest.actions.downloadArtifact({
-              owner: context.repo.owner,
-              repo: context.repo.name,
-              artifact_id: matchArtifact.id,
-              archive_format: 'zip',
-            });
             const fs = require('fs');
-            fs.writeFileSync('${{github.workspace}}/detailedEvolutionPlot.zip', Buffer.from(download.data));
-
-      - run: unzip detailedEvolutionPlot.zip
-
-      - name: Get PR Number
-        id: get-pr-number
-        run: |
-          PR_NUMBER=$(gh api /repos/${{ github.repository }}/commits/${{ github.event.workflow_run.head_sha }}/pulls --jq '.[0].number')
-          echo "PR_NUMBER=${PR_NUMBER:-null}" >> $GITHUB_OUTPUT
-
-      - name: Find Comment
-        uses: peter-evans/find-comment@v3
-        id: find-comment
-        if: steps.get-pr-number.outputs.PR_NUMBER != 'null'
-        with:
-          issue-number: ${{ steps.get-pr-number.outputs.PR_NUMBER }}
-          comment-author: 'github-actions[bot]'
-
-      - name: Update or Create Comment
-        uses: peter-evans/create-or-update-comment@v3
-        if: steps.get-pr-number.outputs.PR_NUMBER != 'null'
-        with:
-          issue-number: ${{ steps.get-pr-number.outputs.PR_NUMBER }}
-          comment-id: ${{ steps.find-comment.outputs.comment-id }}
-          body: |
-            ## COMPAS Test Results
-            
-            The COMPAS compile test has completed successfully.
-            
-            ![Detailed Evolution Plot](detailedEvolutionPlot.png)
-            
-            [Link to workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }})
-
-      - name: Create Summary
-        run: |
-          echo "## COMPAS Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "The COMPAS compile test has completed successfully." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "![Detailed Evolution Plot](detailedEvolutionPlot.png)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Compas Build: Success" >> $GITHUB_STEP_SUMMARY
-          echo "- Python Utils Installation: Success" >> $GITHUB_STEP_SUMMARY
-          echo "- Example COMPAS Job: Success" >> $GITHUB_STEP_SUMMARY
-          echo "- Pytest Execution: Success" >> $GITHUB_STEP_SUMMARY
+            const imageData = fs.readFileSync('detailedEvolutionPlot.png', {encoding: 'base64'});
+            github.rest.issues.createComment({
+              issue_number: process.env.PR_NUMBER,
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              body: `
+                ![badge]
+                
+                Build Successful! You can find a link to the downloadable artifact below.
+                
+                | Name     | Link                    |
+                | -------- | ----------------------- |
+                | Commit   | ${process.env.HEAD_SHA} |
+                | Logs     | ${process.env.JOB_PATH} |
+                | Download | ${process.env.ARTIFACT_URL} |
+                
+                ### Detailed Evolution Plot
+                ![Detailed Evolution Plot](data:image/png;base64,${imageData})
+                
+                [badge]: https://img.shields.io/badge/Build_Success!-0d1117?style=for-the-badge&labelColor=3fb950&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjZmZmZmZmIj48cGF0aCBkPSJNMjEuMDMgNS43MmEuNzUuNzUgMCAwIDEgMCAxLjA2bC0xMS41IDExLjVhLjc0Ny43NDcgMCAwIDEtMS4wNzItLjAxMmwtNS41LTUuNzVhLjc1Ljc1IDAgMSAxIDEuMDg0LTEuMDM2bDQuOTcgNS4xOTVMMTkuOTcgNS43MmEuNzUuNzUgMCAwIDEgMS4wNiAwWiI+PC9wYXRoPjwvc3ZnPg==
+              `
+            })

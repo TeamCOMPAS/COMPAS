@@ -1,7 +1,6 @@
 name: COMPAS compile test
-
-on:
-  workflow_dispatch:
+'on':
+  workflow_dispatch: null
   pull_request:
     branches:
       - dev
@@ -26,7 +25,13 @@ jobs:
       ARTIFACT_PATH: py_tests/test_artifacts
 
     name: Build COMPAS
-    runs-on: ubuntu-22.04
+    runs-on: '${{ matrix.os}}'
+    container: '${{matrix.container}}'
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -37,6 +42,7 @@ jobs:
       - name: Install TeXLive
         uses: teatimeguest/setup-texlive-action@v3
       - name: Install dependencies on ubuntu
+        if: 'startsWith(matrix.os, ''ubuntu-2'')'
         run: |
           cd misc/cicd-scripts
           chmod 755 linux-dependencies
@@ -80,10 +86,6 @@ jobs:
           name: '${{ env.ARTIFACT_NAME }}'
           path: '${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_NAME }}'
           if-no-files-found: error
-      - name: Encode image to base64 # otherwise it wont be able to render i think...
-        run: |
-          BASE64_IMAGE=$(base64 -w 0 ${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_NAME }})
-          echo "BASE64_IMAGE=$BASE64_IMAGE" >> $GITHUB_ENV
       - name: Test Summary
         run: |
           echo "### Test Results" >> $GITHUB_STEP_SUMMARY
@@ -91,6 +93,3 @@ jobs:
           echo "- Python Utils Installation: Success" >> $GITHUB_STEP_SUMMARY
           echo "- Example COMPAS Job: Success" >> $GITHUB_STEP_SUMMARY
           echo "- Pytest Execution: Success" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Detailed Evolution Plot" >> $GITHUB_STEP_SUMMARY
-          echo "<img src="data:image/png;base64,${BASE64_IMAGE}" alt="Detailed Evolution Plot">" >> $GITHUB_STEP_SUMMARY
