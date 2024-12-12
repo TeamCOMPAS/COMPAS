@@ -97,7 +97,7 @@ protected:
             STELLAR_TYPE    EvolveToNextPhase()                                                                     { return m_StellarType; }                                                               // NO-OP
 
             bool            IsEndOfPhase() const                                                                    { return !ShouldEvolveOnPhase(); }                                                      // Phase ends when envelope loss or going supernova
-            bool            IsSupernova() const                                                                     { return (utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >= 0 && utils::Compare(CalculateInitialSupernovaMass(), OPTIONS->MCBUR1()) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0); } // Going supernova if still has envelope and core mass large enough
+            bool            IsSupernova() const;
 
             STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
             void            ResolveHeliumFlash() { }                                                                                                                                                        // NO-OP

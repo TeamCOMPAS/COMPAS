@@ -1926,9 +1926,6 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
             double mWinds2 = m_Star2->CalculateMassLossValues(true);                                                            // calculate new values assuming mass loss applied
 
             double aWinds  = m_SemiMajorAxisPrev * (m_Star1->Mass() + m_Star2->Mass()) / (mWinds1 + mWinds2);                   // new semi-major axis after wind mass loss, integrated to ensure a*M conservation
-
-            std::cout<<"Types"<<(int)m_Star1->StellarType()<<" "<<(int)m_Star2->StellarType()<<"prev masses"<<m_Star1->Mass()<<" "<<m_Star2->Mass()<<std::endl;
-            std::cout<<" new masses"<<mWinds1<<" "<<mWinds2<<"old a "<<m_SemiMajorAxisPrev<<"new a "<<aWinds<<std::endl;
             
             m_Star1->SetMassLossDiff(mWinds1 - m_Star1->Mass());                                                                // JR: todo: find a better way?
             m_Star2->SetMassLossDiff(mWinds2 - m_Star2->Mass());                                                                // JR: todo: find a better way?

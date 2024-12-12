@@ -926,7 +926,7 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_Force) {
     if (ShouldEnvelopeBeExpelledByPulsations()) m_EnvelopeJustExpelledByPulsations = true;
 
     if (p_Force || (utils::Compare(m_CoreMass, m_Mass)) >= 0 || m_EnvelopeJustExpelledByPulsations) {   // envelope loss
-        
+                
         m_Mass       = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_Mass;
         m_HeCoreMass = m_Mass;
@@ -966,4 +966,20 @@ double TPAGB::ChooseTimestep(const double p_Time) const {
     return std::max(std::min(dtk, dte), NUCLEAR_MINIMUM_TIMESTEP);
 
 #undef timescales
+}
+
+/*
+ * Determine if star should continue evolution as a Supernova
+ *
+ *
+ * bool IsSupernova()
+ *
+ * @return                                      Boolean flag: true if star has gone Supernova, false if not
+ */
+bool TPAGB::IsSupernova() const {
+    if(utils::SNEventType(m_SupernovaDetails.events.current) != SN_EVENT::NONE)
+        return true;                                                                            // already labeled as going through a SN right now
+    double snMass = CalculateInitialSupernovaMass();                                            // calculate SN initial mass
+    return ( utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >=0 && utils::Compare(snMass, OPTIONS->MCBUR1()) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0 );
+    // no supernova if CO core mass is too low or helium core mass is too low at base of AGB or the envelope has already been removed
 }
