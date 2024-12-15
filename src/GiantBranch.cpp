@@ -1991,7 +1991,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
 
 /*
- * Resolve Electron capture Supernova
+ * Resolve Electron Capture Supernova
  *
  * Calculate the mass of the remnant and set remnant type - always a Neutron Star
  * Updates attributes of star; sets SN flags
@@ -2007,39 +2007,16 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
  * @return                                      Stellar type of remnant (always STELLAR_TYPE::NEUTRON_STAR)
  */
 STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
-
-    STELLAR_TYPE stellarType = m_StellarType;                                                   // remnant stellar type
-
-    if (!m_MassTransferDonorHistory.empty() || (OPTIONS->AllowNonStrippedECSN())) {             // if progenitor has never been a MT donor, is it allowed to ECSN?
-                                                                                                // yes
-        m_Mass       = MECS_REM;                                                                // defined in constants.h
-        m_CoreMass   = m_Mass;
-        m_HeCoreMass = m_Mass;
-        m_COCoreMass = m_Mass;
-        m_Mass0      = m_Mass;
-    
-        stellarType  = STELLAR_TYPE::NEUTRON_STAR;
-    
-        SetSNCurrentEvent(SN_EVENT::ECSN);                                                      // electron capture SN happening now
-        SetSNPastEvent(SN_EVENT::ECSN);                                                         // ... and will be a past event
-    }
-    else {                                                                                      // not allowed to ECSN, treat as ONeWD 
+    m_Mass       = MECS_REM;                                                                // defined in constants.h
+    m_CoreMass   = m_Mass;
+    m_HeCoreMass = m_Mass;
+    m_COCoreMass = m_Mass;
+    m_Mass0      = m_Mass;
         
-        if (utils::Compare(m_COCoreMass, MCH) > 0) {
-            SHOW_WARN(ERROR::WHITE_DWARF_TOO_MASSIVE, "Setting mass to Chandraskhar mass.");
-        }
-        m_Mass       = std::min(m_COCoreMass, MCH);                                             // no WD masses above Chandrasekhar mass
-        m_CoreMass   = m_Mass;
-        m_HeCoreMass = m_Mass;
-        m_COCoreMass = m_Mass;
-        m_Mass0      = m_Mass;
-        m_Radius     = WhiteDwarfs::CalculateRadiusOnPhase_Static(m_Mass);                      // radius is defined equivalently for all WDs
-        m_Luminosity = ONeWD::CalculateLuminosityOnPhase_Static(m_Mass, m_Time, m_Metallicity); // need to set the luminosity for ONeWD specifically
-    
-        stellarType  = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
-    }	    
+    SetSNCurrentEvent(SN_EVENT::ECSN);                                                      // electron capture SN happening now
+    SetSNPastEvent(SN_EVENT::ECSN);                                                         // ... and will be a past event
 
-    return stellarType;
+    return STELLAR_TYPE::NEUTRON_STAR;
 }
 
 
@@ -2252,8 +2229,8 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
 
             stellarType = ResolvePairInstabilitySN();                                               // MR
         }
-        else if (utils::Compare(snMass, MCBUR2) < 0) {                                              // Electron Capture Supernova
-            stellarType = ResolveElectronCaptureSN();                                               // NS or ONeWD
+        else if (utils::Compare(snMass, MCBUR2) < 0 && (!m_MassTransferDonorHistory.empty() || OPTIONS->AllowNonStrippedECSN())) {
+            stellarType = ResolveElectronCaptureSN();                                               // electron capture SN; requires progenitor to have been a MT donor unless non-stripped ECSN are allowed; forms NS
         }
         else {                                                                                      // Core Collapse Supernova
             stellarType = ResolveCoreCollapseSN();                                                  // BH or NS

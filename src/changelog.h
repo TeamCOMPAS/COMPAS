@@ -1416,6 +1416,9 @@
 //                                      - fixed issue with updating helium giants that manifested as supernovae with nan core mass (see #1245)
 //                                      - added check for exceeding Chandrasekhar mass when computing white dwarf radius (resolves issue #1264)
 //                                      - added check to only compute McBGB for stars with mass above MHeF, following text above Eq. 44 in Hurley+, 2000 (resolves issue #1256)
-const std::string VERSION_STRING = "03.10.01";
+// 03.10.02   IM - Dec 13, 2024     - Defect repair:
+//                                      - if the Hurley supernova criteria are met yet ECSN criteria based on mass transfer history are not met, a normal CCSN ensues as opposed to an ONeWD
+//                                      - exactly preserve the product of semi-major axis * total mass on wind mass loss
+const std::string VERSION_STRING = "03.10.02";
 
 # endif // __changelog_h__
