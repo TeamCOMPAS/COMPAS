@@ -224,9 +224,14 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
 
     if (!done) error = ERROR::INVALID_INITIAL_ATTRIBUTES;                                                                               // too many iterations - bad initial conditions
 
-    if (error != ERROR::NONE) THROW_ERROR(error);                                                                                       // throw error if necessary
-
-    SetRemainingValues();                                                                                                               // complete the construction of the binary
+    if (error != ERROR::NONE) {                                                                                                         // ok?
+        m_EvolutionStatus   = EVOLUTION_STATUS::BINARY_ERROR;                                                                           // set evolutionary status
+        (void)PrintBinarySystemParameters();                                                                                            // no - print (log) binary system parameters
+        THROW_ERROR(error);                                                                                                             // throw error - can't return it...
+    }
+    else {                                                                                                                              // yes - ok
+        SetRemainingValues();                                                                                                           // complete the construction of the binary
+    }
 }
 
 
@@ -1644,7 +1649,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         }
     }
 
-    if (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || utils::Compare(m_Star1->CalculateRemnantRadius() + m_Star2->CalculateRemnantRadius(), m_SemiMajorAxis * AU_TO_RSOL) > 0) {                                                                             // catch merger in CE here, do not update stars
+    if (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || utils::Compare(m_Star1->CalculateRemnantRadius() + m_Star2->CalculateRemnantRadius(), m_SemiMajorAxis * AU_TO_RSOL) > 0) { // catch merger in CE here, do not update stars
         m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
         m_Flags.stellarMerger = true;
     }
