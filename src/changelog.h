@@ -1423,7 +1423,13 @@
 //                                      - fix for issue #1310 - run terminates prematurely if error in grid file
 // 03.10.04  RTW - Nov 27, 2024     - Defect repair:
 //                                      - fix for issue #1247 - SN Euler angles had incomplete logic, leading to a div by zero in some cases
+// 03.11.00   YS - Dec 19, 2024     - Updates to NS.cpp and NS.h:
+//                                      - Fixing issues that during mass transfer, recycling of neutron star sometimes leading to negative spin periods. 
+//                                      - Added function NS::deltaAngularMomentumByPulsarAccretion() for the integration of angular momentum of neutron star during mass transfer. 
+//                                      - Update to NS::UpdateMagneticFieldAndSpin(), specifically adding 
+//                                      - Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star would accrete mass during a common envelope event. 
+//                                      - Fixing to issue #1002
 
-const std::string VERSION_STRING = "03.10.04";
+const std::string VERSION_STRING = "03.11.00";
 
 # endif // __changelog_h__
