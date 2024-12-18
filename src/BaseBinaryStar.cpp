@@ -1312,19 +1312,23 @@ void BaseBinaryStar::ResolveSupernova() {
             // then the cross product is not well-defined, and we need to account for degeneracy between eccentricity vectors.
             // Also, if either eccentricity is 0.0, then the eccentricity vector is not well defined.
 
-            if ((utils::Compare(m_ThetaE, 0.0) == 0) &&                                                                         // orbitalAngularMomentumVectorPrev parallel to orbitalAngularMomentumVector?
-                ((utils::Compare(eccentricityPrev, 0.0) > 0) && (utils::Compare(m_Eccentricity, 0.0) > 0))) {                   // ... and both eccentricityVectorPrev and eccentricityVector well-defined?
-
-                double psiPlusPhi = angleBetween(eccentricityVector, eccentricityVectorPrev);                                   // yes - then psi + phi is constant
-                m_PhiE            = _2_PI * RAND->Random();    
-                m_PsiE            = psiPlusPhi - m_PhiE;
-            }
-            else if ((utils::Compare(m_ThetaE, M_PI) == 0) &&                                                                   // orbitalAngularMomentumVectorPrev anti-parallel to orbitalAngularMomentumVector?
-                    ((utils::Compare(eccentricityPrev, 0.0) > 0) &&  (utils::Compare(m_Eccentricity, 0.0) > 0))) {              // ... and both eccentricityVectorPrev and eccentricityVector well-defined?
-                                                                                                   
-                double psiMinusPhi = angleBetween(eccentricityVector, eccentricityVectorPrev);                                  // yes - then psi - phi is constant
-                m_PhiE             = _2_PI * RAND->Random();    
-                m_PsiE             = psiMinusPhi + m_PhiE;
+            if ((utils::Compare(m_ThetaE, 0.0) == 0) || (utils::Compare(m_ThetaE, M_PI) == 0)) {                                // orbitalAngularMomentumVectorPrev parallel or anti-parallel to orbitalAngularMomentumVector
+                if ((utils::Compare(eccentricityPrev, 0.0) == 0) || (utils::Compare(m_Eccentricity, 0.0) == 0)) {               // either e_prev or e_now is 0, so eccentricity vector is not well-defined
+                    m_PhiE            = _2_PI * RAND->Random();    
+                    m_PsiE            = _2_PI * RAND->Random();    
+                } 
+                else {                                                                                                          // both eccentricityVectorPrev and eccentricityVector well-defined
+                    if (utils::Compare(m_ThetaE, 0.0) == 0){                                                                    // Orbital AM is parallel ?
+                        double psiPlusPhi = angleBetween(eccentricityVector, eccentricityVectorPrev);                               // yes - then psi + phi is constant
+                        m_PhiE            = _2_PI * RAND->Random();    
+                        m_PsiE            = psiPlusPhi - m_PhiE;
+                    }
+                    else {                                      
+                        double psiMinusPhi = angleBetween(eccentricityVector, eccentricityVectorPrev);                              // no - then psi - phi is constant
+                        m_PhiE             = _2_PI * RAND->Random();    
+                        m_PsiE             = psiMinusPhi + m_PhiE;
+                    }
+                }
             }
             else {                                                                                                              // neither - the cross product of the orbit normals is well-defined
                 Vector3d orbitalPivotAxis = cross(orbitalAngularMomentumVectorPrev, orbitalAngularMomentumVector);              // cross product of the orbit normals
