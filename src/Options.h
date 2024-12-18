@@ -1096,6 +1096,8 @@ public:
 
             double                                              m_mCBUR1;                                                       // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
 
+            // Neutron star accretion in common envelope
+            ENUM_OPT<NS_ACCRETION_IN_CE>                        m_NeutronStarAccretionInCE;                                     // NS accretion in common envelope
 
             // Neutron star equation of state
             ENUM_OPT<NS_EOS>                                    m_NeutronStarEquationOfState;                                   // NS EOS
@@ -1559,6 +1561,7 @@ public:
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-BH-formation-value", m_NeutrinoMassLossValueBH, true); }
 
+    NS_ACCRETION_IN_CE                          NeutronStarAccretionInCE() const                                        { return OPT_VALUE("neutron-star-accretion-in-ce", m_NeutronStarAccretionInCE.type, true); }
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return OPT_VALUE("neutron-star-equation-of-state", m_NeutronStarEquationOfState.type, true); }
 
     std::string                                 Notes(const size_t p_Idx) const                                         { return OPT_VALUE("notes", m_Notes[p_Idx], true); }

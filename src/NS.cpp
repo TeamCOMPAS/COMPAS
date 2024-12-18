@@ -401,10 +401,75 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
 
 
 /*
+ * Calculate the magnetic field, spin and spin-down rate of a neutron star,
+ * when it's accreting mass from companion through stable mass transfer,
+ * and also returns change in angular momentum (delta(J)) for integration. 
+ * The calculations used in this function follow closely Sec. 2.2.1 in arxiv:1912.02415 
+ * We carry out the calculations in this function using cgs units. 
+ * This function is called in the NS::UpdateMagneticFieldAndSpin() function
+ *
+ * Returns the updated: 
+ *    dJ/dm: change in angular momentum per mass transferred. 
+ *
+ * DBL_DBL_DBL_DBL deltaAngularMomentumByPulsarAccretion(const double p_MagField, const double p_SpinFrequency, const double p_AngularMomentum, const double p_Stepsize, const double p_MassGainPerTimeStep, const double kappa, const double p_Epsilon)
+ * @param   [IN]    p_MagField                  NS magnetic field strength at the beginning of accretion (in Gauss)
+ * @param   [IN]    p_SpinFrequency             Spin frequency for the NS at the beginning of accretion (in Hz)
+ * @param   [IN]    p_AngularMomentum           Angular momentum of the NS at the beginning of accretion (g cm-2 / s)
+ * @param   [IN]    p_Stepsize                  Timestep size for integration (in seconds)
+ * @param   [IN]    p_MassGainPerTimeStep       Mass transferred from the secondary for each iteration (in g)
+ * @param   [IN]    p_Kappa                     Magnetic field mass decay scale (in g)
+ * @param   [IN]    p_Epsilon                   Efficiency factor allowing for uncertainties of coupling magnetic field and matter.
+ * @param   [IN]    p_MoI                       Moment of Inertia
+ * @return                                      Tuple containing the updated magnetic field strength, spin frequency, spin-down rate and angular momentum of neutron star
+ */
+DBL_DBL_DBL_DBL NS::DeltaAngularMomentumByPulsarAccretion(const double p_MassGainPerTimeStep, const double p_Mass, const double p_Radius, const double p_MagField, const double p_SpinFrequency, const double p_AngularMomentum, const double p_Stepsize, const double p_Kappa, const double p_Epsilon, const double p_MoI)  {
+
+    double initialMagField_G      = p_MagField;         
+    double magFieldLowerLimit_G   = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) ;                               // convert to Gauss                                
+    double mass_g                 = p_Mass * MSOL_TO_G;                                                                    // in g
+    double r_cm                   = p_Radius * RSOL_TO_KM * KM_TO_CM;    
+    double angularMomentum        = p_AngularMomentum;
+
+    //Magnetic field decay due to mass transfer. 
+    //Follows Eq. 12 in arxiv:1912.02415 
+    double newPulsarMagneticField = (initialMagField_G - magFieldLowerLimit_G) * exp(-p_MassGainPerTimeStep / p_Kappa) + magFieldLowerLimit_G;
+    
+    // calculate the Alfven radius for an accreting neutron star
+    // see Equation 10 in arxiv:1912.02415 
+    double mDot           =  p_MassGainPerTimeStep / p_Stepsize;
+    double R_CM_6         =  r_cm * r_cm * r_cm * r_cm * r_cm * r_cm;
+    double p              =  R_CM_6 * R_CM_6 / (mass_g * mass_g * mDot);
+    double q              =  PPOW(p, 1.0/7.0);
+    double alfvenConst    =  PPOW(2 * PI_2 / G_CGS, 1.0/7.0) ; 
+    double alfvenRadius   =  alfvenConst * q * PPOW(initialMagField_G, 4.0/7.0); 
+    double magneticRadius =  alfvenRadius / 2.0;
+
+    // calculate the difference in the keplerian angular velocity at the magnetic radius
+    // and surface angular velocity of the neutron star
+    // magnetic radius is half of alfven radius 
+    // see Equation 2 in 1994MNRAS.269..455J / Equation 9 in arxiv:1912.02415 
+    double keplerianVelocityAtMagneticRadius        = std::sqrt((G_CGS) * mass_g / magneticRadius); 
+    double keplerianAngularVelocityAtMagneticRadius = keplerianVelocityAtMagneticRadius / magneticRadius;
+    double omegaDifference                          = keplerianAngularVelocityAtMagneticRadius - p_SpinFrequency;
+
+    // calculate the change in angular momentum due to accretion
+    // see Equation 12 in arXiv:0805.0059/ Equation 8 in arxiv:1912.02415 
+    double deltaJ        =  p_Epsilon * omegaDifference * magneticRadius * magneticRadius ;
+    double Jdot          =  p_Epsilon * omegaDifference * magneticRadius * magneticRadius * mDot; 
+    return std::make_tuple(newPulsarMagneticField, 
+                           (angularMomentum + Jdot * p_Stepsize) / p_MoI, 
+                           deltaJ * mDot / p_MoI, 
+                           deltaJ);
+}
+
+
+/*
  * Update the magnetic field and spins of neutron stars in the following situations:
  * 
- * 1).  JR: What situations?
- * 
+ * 1).  Isolated or post mass-transfer spin-down of neutron star
+ * 2).  Neutron star in interacting binary system experiencing mass-transfer induced spin change for 
+ *      2.1).  Roche Lobe overflow, and 
+ *      2.2).  Common Envelope 
  * Modifies the following class member variables:
  *
  *    m_AngularMomentum_CGS
@@ -428,8 +493,8 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
  */
 void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_RecycledNS, const double p_Stepsize, const double p_MassGainPerTimeStep, const double p_Epsilon) {
 
-    double initialMagField    = m_PulsarDetails.magneticField;                                                                  // (in T)
     double magFieldLowerLimit = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;    
+    double magFieldLowerLimit_G = magFieldLowerLimit * TESLA_TO_GAUSS ;
     double kappa              = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_KG;     
   
     if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGainPerTimeStep, 0.0) == 0 )) {
@@ -437,49 +502,79 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         SpinDownIsolatedPulsar(p_Stepsize);
     }
     else if (utils::Compare(m_PulsarDetails.spinFrequency, _2_PI * 1000.0) < 0 && 
-             (p_RecycledNS || p_CommonEnvelope) && utils::Compare(p_MassGainPerTimeStep, 0.0) > 0) {
+             (p_RecycledNS || (p_CommonEnvelope  && OPTIONS->NeutronStarAccretionInCE() == NS_ACCRETION_IN_CE::DISK)) 
+             && utils::Compare(p_MassGainPerTimeStep, 0.0) > 0) {
         
         // This part of the code does pulsar recycling through accretion
         // recycling happens for pulsar with spin period larger than 1 ms and in a binary system with mass transfer
         // the pulsar being recycled is either in a common envolope, or should have started the recycling process in previous time steps.
-        double mass_kg                = m_Mass * MSOL_TO_KG;                                                                    // in kg
-        double r_m                    = m_Radius * RSOL_TO_KM * KM_TO_M;                                                        // in metres
-        double r_m_6                  =  r_m * r_m * r_m * r_m * r_m * r_m;
-        
-        double MoI_SI                 = m_MomentOfInertia_CGS * CGS_SI;
-        double angularMomentum_SI     = m_AngularMomentum_CGS * CGS_SI;
-       
-        double newPulsarMagneticField = (initialMagField - magFieldLowerLimit) * exp(-p_MassGainPerTimeStep / 1000.0 / kappa) + magFieldLowerLimit;
-        
-        // calculate the Alfven radius for an accreting neutron star
-        // see Equation 8 in  arXiv:0903.3538v2
-        double mDot         =  p_MassGainPerTimeStep / 1000.0 / p_Stepsize;
-        double B_4          =  newPulsarMagneticField * newPulsarMagneticField * newPulsarMagneticField * newPulsarMagneticField;
-        double R_a_top      =  8.0 * r_m_6 * r_m_6 * B_4;
-        double R_a_bot      =  mass_kg * mDot * mDot * G;
-        double alfvenRadius =  PPOW(R_a_top / R_a_bot, 1.0 / 7.0);
-        
-        // calculate the difference in the keplerian angular velocity and surface angular velocity of the neutron star in m
-        // see Equation 2 in 1994MNRAS.269..455J       
-        double keplerianVelocityAtAlfvenRadius        = std::sqrt(2.0 * G * mass_kg / alfvenRadius); 
-        double keplerianAngularVelocityAtAlfvenRadius = 4.0 * M_PI * keplerianVelocityAtAlfvenRadius / alfvenRadius;
-        double velocityDifference                     = keplerianAngularVelocityAtAlfvenRadius - m_PulsarDetails.spinFrequency;
+        //double newAM = -1.0; //updated angular momentum
+            double radiusNS               = m_Radius;
+            double InitialAngularMomentum_CGS = m_AngularMomentum_CGS;
+            double thisB = m_PulsarDetails.magneticField * TESLA_TO_GAUSS ;
+            double thisF = m_PulsarDetails.spinFrequency  ;
+            double thisFdot = m_PulsarDetails.spinDownRate  ;
+            double thisM = m_Mass ;
+            double divideTimestepBy = 10.0;
+            
+            double thisMassGain = p_MassGainPerTimeStep / G_TO_KG / divideTimestepBy; 
+            double thisTimestepSize = p_Stepsize / divideTimestepBy;
+            controlled_stepper_type controlled_stepper;
 
-        // calculate the change in angular momentum due to accretion
-        // see Equation 12 in arXiv:0805.0059/ Equation 8 in arxiv:1912.02415 
-        double Jdot        = p_Epsilon * velocityDifference * alfvenRadius * alfvenRadius * mDot;
-        angularMomentum_SI = angularMomentum_SI + Jdot * p_Stepsize;
-        
-        if (utils::Compare(angularMomentum_SI / MoI_SI, 0.0) > 0) {
-            m_PulsarDetails.magneticField = newPulsarMagneticField;
-            m_PulsarDetails.spinFrequency = angularMomentum_SI / MoI_SI;
-            m_PulsarDetails.spinDownRate  = Jdot / MoI_SI;
-            m_AngularMomentum_CGS         = angularMomentum_SI / CGS_SI;
-        } 
-        else {
-            SpinDownIsolatedPulsar(p_Stepsize);
-        }        
+            state_type x(5);
+            x[0] = m_AngularMomentum_CGS;
+            x[1] = thisB;
+            x[2] = thisF;
+            x[3] = thisFdot;
+            x[4] = thisM;
+
+            // Solve for the angular momentum of the NS after accretion. 
+            // Use boost adaptive ODE solver for speed and accuracy and ensure the result is always positive. 
+            struct DynamicODE
+            {
+                double mass, radius, magField, spinFrequency, angularMomentum, stepsize, kkappa, epsilon, momentI;
+                DynamicODE( double mass0, double radius0, double magField0, double spinFreq0, double AM0, 
+                double stepsize0, double kkappa0, double epsilon0, double momentI0) : mass(mass0), radius(radius0), magField(magField0), 
+                spinFrequency(spinFreq0), angularMomentum(AM0), stepsize(stepsize0), kkappa(kkappa0), epsilon(epsilon0), momentI(momentI0)  {}
+
+                void operator()( state_type& x , state_type& dxdt , double p_MassChange ) const {
+                    DBL_DBL_DBL_DBL results = NS::DeltaAngularMomentumByPulsarAccretion(
+                        p_MassChange, mass, radius, magField, spinFrequency, angularMomentum, stepsize, kkappa, epsilon, momentI);
+                    dxdt[0] = std::get<3>(results) ;
+                    x[1] = std::get<0>(results);
+                    x[2] = std::get<1>(results);
+                    x[3] = std::get<2>(results);
+                    x[4] = mass + p_MassChange/MSOL_TO_G;
+            }
+            };
+            integrate_adaptive(controlled_stepper, DynamicODE{x[4], radiusNS, x[1], x[2], x[0], thisTimestepSize, 
+            kappa, p_Epsilon, m_MomentOfInertia_CGS}, x, 0.0, p_MassGainPerTimeStep / G_TO_KG, thisMassGain);
+
+            m_AngularMomentum_CGS         = x[0] ;
+            m_PulsarDetails.magneticField = x[1] * GAUSS_TO_TESLA;
+            m_PulsarDetails.spinFrequency = x[2] ;
+            // Calculating the spin-down according to Eq. 11 in arxiv:1912.02415 
+            m_PulsarDetails.spinDownRate  = (m_AngularMomentum_CGS - InitialAngularMomentum_CGS) / m_MomentOfInertia_CGS / p_Stepsize;
+
     }
+    else if (p_CommonEnvelope && (OPTIONS->NeutronStarAccretionInCE() == NS_ACCRETION_IN_CE::SURFACE)) {
+            // Mass transfer through CE when accretion happens at the surface of the NS
+            double initialMagField        = m_PulsarDetails.magneticField;
+            double initialMagField_G      = initialMagField * TESLA_TO_GAUSS;        
+            
+            double mass_g                 = m_Mass * MSOL_TO_G;                                                                    // in g
+            double r_cm                   = m_Radius * RSOL_TO_KM * KM_TO_CM;                                                        // in cm
+            m_MomentOfInertia_CGS         = CalculateMomentOfInertiaCGS() ; 
+            double newPulsarMagneticField = (initialMagField_G - magFieldLowerLimit_G) * exp(-p_MassGainPerTimeStep / G_TO_KG / kappa) + magFieldLowerLimit_G;
+            double r_cm_3                 = r_cm * r_cm * r_cm ;
+            // angular momentum of the accreted materials as they fall onto the surface of the NS. 
+            double Jacc                   = m_MomentOfInertia_CGS * PPOW(G_CGS * mass_g /r_cm_3, 0.5) * p_MassGainPerTimeStep / G_TO_KG / mass_g ;
+            
+            m_AngularMomentum_CGS         = m_AngularMomentum_CGS + Jacc ;
+            m_PulsarDetails.magneticField = newPulsarMagneticField * GAUSS_TO_TESLA;
+            m_PulsarDetails.spinFrequency = m_AngularMomentum_CGS / m_MomentOfInertia_CGS ;
+            m_PulsarDetails.spinDownRate  = Jacc / p_Stepsize  / m_MomentOfInertia_CGS;
+        }        
     else  {
         //In all other conditions, treat the pulsar as isolated. 
         SpinDownIsolatedPulsar(p_Stepsize);
