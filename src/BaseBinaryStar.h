@@ -434,6 +434,7 @@ private:
                                        const double                 p_FractionAccreted);
 
     void    CalculateWindsMassLoss();
+    void    CalculateWindAccretionMassGain();
     void    InitialiseMassTransfer();
 
     double  CalculateOrbitalAngularMomentum(const double p_Star1Mass,

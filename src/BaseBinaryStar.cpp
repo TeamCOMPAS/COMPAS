@@ -1876,6 +1876,8 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
     if (OPTIONS->UseMassTransfer() && m_MassTransfer) {
             m_Star1->SetMassLossDiff(0.0);                                                                                      // JR would prefer to avoid a Setter for aesthetic reasons
             m_Star2->SetMassLossDiff(0.0);
+            m_Star1->SetWindAccretionMassGain(0.0);
+            m_Star2->SetWindAccretionMassGain(0.0);
             m_Star1->HaltWinds();
             m_Star2->HaltWinds();
     }
@@ -1887,6 +1889,9 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
 
             double aWinds  = m_SemiMajorAxisPrev / (2.0 - ((m_Star1->MassPrev() + m_Star2->MassPrev()) / (mWinds1 + mWinds2))); // new semi-major axis for circularlised orbit
 
+            
+
+
             m_Star1->SetMassLossDiff(mWinds1 - m_Star1->Mass());                                                                // JR: todo: find a better way?
             m_Star2->SetMassLossDiff(mWinds2 - m_Star2->Mass());                                                                // JR: todo: find a better way?
 
@@ -1895,6 +1900,29 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
     }
 }
 
+/*
+ * Calculate the mass accreted from the wind.
+ * 
+ * void CalculateWindAccretionMassGain()
+ */
+void BaseBinaryStar::CalculateWindAccretionMassGain() {
+
+    // Posibility for OPTION -> UseWindAccretion
+
+    double windVelocity = 1; // Placeholder, calculation is still to be implemented (also different for the two stars)
+    double epsilon_w = 3/2; // magic number, for which I have to find a reliable source
+
+    double totalMass = m_Star1->Mass() + m_Star2->Mass();
+
+    double v_orb = sqrt(G * ( totalMass ) / m_SemiMajorAxis); // check units
+
+    double windAccretion1 = - pow(G * m_Star2->Mass() /pow(windVelocity,2), 2) * epsilon_w / (2 * pow(m_SemiMajorAxis,2)) / pow(1 + pow(v_orb/windVelocity,2),3/2) * m_Star2->MassLossDiff();
+    double windAccretion2 = - pow(G * m_Star1->Mass() /pow(windVelocity,2), 2) * epsilon_w / (2 * pow(m_SemiMajorAxis,2)) / pow(1 + pow(v_orb/windVelocity,2),3/2) * m_Star1->MassLossDiff();
+
+    m_Star1->SetWindAccretionMassGain(windAccretion1); // check units
+    m_Star2->SetWindAccretionMassGain(windAccretion2); // check units
+
+}
 
 /*
  *  Check if mass transfer should happen (either star, but not both, overflowing Roche Lobe)

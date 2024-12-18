@@ -2756,7 +2756,6 @@ double BaseStar::CalculateMassLossRate() {
     return mDot;
 }
 
-
 /*
  * Calculate the nuclear mass loss rate as the mass divided by the radial expansion timescale
  * We do not use CalculateRadialExpansionTimescale(), however, since in the process of mass transfer the previous radius
