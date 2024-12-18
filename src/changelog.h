@@ -1419,6 +1419,11 @@
 // 03.10.02   IM - Dec 13, 2024     - Defect repair:
 //                                      - if the Hurley supernova criteria are met yet ECSN criteria based on mass transfer history are not met, a normal CCSN ensues as opposed to an ONeWD
 //                                      - exactly preserve the product of semi-major axis * total mass on wind mass loss
-const std::string VERSION_STRING = "03.10.02";
+// 03.10.03   JR - Dec 16, 2024     - Defect repair:
+//                                      - fix for issue #1310 - run terminates prematurely if error in grid file
+// 03.10.04  RTW - Nov 27, 2024     - Defect repair:
+//                                      - fix for issue #1247 - SN Euler angles had incomplete logic, leading to a div by zero in some cases
+
+const std::string VERSION_STRING = "03.10.04";
 
 # endif // __changelog_h__

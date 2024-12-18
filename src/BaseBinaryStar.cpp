@@ -224,9 +224,14 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
 
     if (!done) error = ERROR::INVALID_INITIAL_ATTRIBUTES;                                                                               // too many iterations - bad initial conditions
 
-    if (error != ERROR::NONE) THROW_ERROR(error);                                                                                       // throw error if necessary
-
-    SetRemainingValues();                                                                                                               // complete the construction of the binary
+    if (error != ERROR::NONE) {                                                                                                         // ok?
+        m_EvolutionStatus   = EVOLUTION_STATUS::BINARY_ERROR;                                                                           // set evolutionary status
+        (void)PrintBinarySystemParameters();                                                                                            // no - print (log) binary system parameters
+        THROW_ERROR(error);                                                                                                             // throw error - can't return it...
+    }
+    else {                                                                                                                              // yes - ok
+        SetRemainingValues();                                                                                                           // complete the construction of the binary
+    }
 }
 
 
@@ -1307,19 +1312,23 @@ void BaseBinaryStar::ResolveSupernova() {
             // then the cross product is not well-defined, and we need to account for degeneracy between eccentricity vectors.
             // Also, if either eccentricity is 0.0, then the eccentricity vector is not well defined.
 
-            if ((utils::Compare(m_ThetaE, 0.0) == 0) &&                                                                         // orbitalAngularMomentumVectorPrev parallel to orbitalAngularMomentumVector?
-                ((utils::Compare(eccentricityPrev, 0.0) > 0) && (utils::Compare(m_Eccentricity, 0.0) > 0))) {                   // ... and both eccentricityVectorPrev and eccentricityVector well-defined?
-
-                double psiPlusPhi = angleBetween(eccentricityVector, eccentricityVectorPrev);                                   // yes - then psi + phi is constant
-                m_PhiE            = _2_PI * RAND->Random();    
-                m_PsiE            = psiPlusPhi - m_PhiE;
-            }
-            else if ((utils::Compare(m_ThetaE, M_PI) == 0) &&                                                                   // orbitalAngularMomentumVectorPrev anti-parallel to orbitalAngularMomentumVector?
-                    ((utils::Compare(eccentricityPrev, 0.0) > 0) &&  (utils::Compare(m_Eccentricity, 0.0) > 0))) {              // ... and both eccentricityVectorPrev and eccentricityVector well-defined?
-                                                                                                   
-                double psiMinusPhi = angleBetween(eccentricityVector, eccentricityVectorPrev);                                  // yes - then psi - phi is constant
-                m_PhiE             = _2_PI * RAND->Random();    
-                m_PsiE             = psiMinusPhi + m_PhiE;
+            if ((utils::Compare(m_ThetaE, 0.0) == 0) || (utils::Compare(m_ThetaE, M_PI) == 0)) {                                // orbitalAngularMomentumVectorPrev parallel or anti-parallel to orbitalAngularMomentumVector
+                if ((utils::Compare(eccentricityPrev, 0.0) == 0) || (utils::Compare(m_Eccentricity, 0.0) == 0)) {               // either e_prev or e_now is 0, so eccentricity vector is not well-defined
+                    m_PhiE            = _2_PI * RAND->Random();    
+                    m_PsiE            = _2_PI * RAND->Random();    
+                } 
+                else {                                                                                                          // both eccentricityVectorPrev and eccentricityVector well-defined
+                    if (utils::Compare(m_ThetaE, 0.0) == 0){                                                                    // Orbital AM is parallel ?
+                        double psiPlusPhi = angleBetween(eccentricityVector, eccentricityVectorPrev);                               // yes - then psi + phi is constant
+                        m_PhiE            = _2_PI * RAND->Random();    
+                        m_PsiE            = psiPlusPhi - m_PhiE;
+                    }
+                    else {                                      
+                        double psiMinusPhi = angleBetween(eccentricityVector, eccentricityVectorPrev);                              // no - then psi - phi is constant
+                        m_PhiE             = _2_PI * RAND->Random();    
+                        m_PsiE             = psiMinusPhi + m_PhiE;
+                    }
+                }
             }
             else {                                                                                                              // neither - the cross product of the orbit normals is well-defined
                 Vector3d orbitalPivotAxis = cross(orbitalAngularMomentumVectorPrev, orbitalAngularMomentumVector);              // cross product of the orbit normals
@@ -1644,7 +1653,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         }
     }
 
-    if (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || utils::Compare(m_Star1->CalculateRemnantRadius() + m_Star2->CalculateRemnantRadius(), m_SemiMajorAxis * AU_TO_RSOL) > 0) {                                                                             // catch merger in CE here, do not update stars
+    if (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || utils::Compare(m_Star1->CalculateRemnantRadius() + m_Star2->CalculateRemnantRadius(), m_SemiMajorAxis * AU_TO_RSOL) > 0) { // catch merger in CE here, do not update stars
         m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
         m_Flags.stellarMerger = true;
     }
