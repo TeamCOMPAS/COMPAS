@@ -538,12 +538,12 @@ void Options::OptionValues::Initialise() {
 
     // Neutron star accretion scenario in common envelope
     m_NeutronStarAccretionInCE.type                                 = NS_ACCRETION_IN_CE::ZERO;
-    m_NeutronStarAccretionInCE.typeString                           = NS_ACCRETION_IN_CELabel.at(m_NeutronStarAccretionInCE.type);
+    m_NeutronStarAccretionInCE.typeString                           = NS_ACCRETION_IN_CE_LABEL.at(m_NeutronStarAccretionInCE.type);
 
 
     // Neutron star equation of state
     m_NeutronStarEquationOfState.type                               = NS_EOS::SSE;
-    m_NeutronStarEquationOfState.typeString                         = NS_EOSLabel.at(m_NeutronStarEquationOfState.type);
+    m_NeutronStarEquationOfState.typeString                         = NS_EOS_LABEL.at(m_NeutronStarEquationOfState.type);
 
 
     // Pulsar birth magnetic field distribution
@@ -2290,12 +2290,12 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         }
 
         if (!DEFAULTED("neutron-star-accretion-in-ce")) {                                                                         // neutron star accretion in common envelope
-            std::tie(found, m_NeutronStarAccretionInCE.type) = utils::GetMapKey(m_NeutronStarAccretionInCE.typeString, NS_ACCRETION_IN_CELabel, m_NeutronStarAccretionInCE.type);
-            COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
+            std::tie(found, m_NeutronStarAccretionInCE.type) = utils::GetMapKey(m_NeutronStarAccretionInCE.typeString, NS_ACCRETION_IN_CE_LABEL, m_NeutronStarAccretionInCE.type);
+            COMPLAIN_IF(!found, "Unknown Neutron Star Accretion in Common Envelope");
         }
 
         if (!DEFAULTED("neutron-star-equation-of-state")) {                                                                         // neutron star equation of state
-            std::tie(found, m_NeutronStarEquationOfState.type) = utils::GetMapKey(m_NeutronStarEquationOfState.typeString, NS_EOSLabel, m_NeutronStarEquationOfState.type);
+            std::tie(found, m_NeutronStarEquationOfState.type) = utils::GetMapKey(m_NeutronStarEquationOfState.typeString, NS_EOS_LABEL, m_NeutronStarEquationOfState.type);
             COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
         }
 
@@ -2605,8 +2605,8 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("metallicity-distribution")                          : POPULATE_RET(METALLICITY_DISTRIBUTION_LABEL);                 break;
         case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                           break;
         case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);          break;
-        case _("neutron-star-accretion-in-ce")                      : POPULATE_RET(NS_ACCRETION_IN_CELabel);                        break;
-        case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOSLabel);                                    break;
+        case _("neutron-star-accretion-in-ce")                      : POPULATE_RET(NS_ACCRETION_IN_CE_LABEL);                        break;
+        case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOS_LABEL);                                    break;
         case _("OB-mass-loss-prescription")                         : POPULATE_RET(OB_MASS_LOSS_PRESCRIPTION_LABEL);                break;
         case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);              break;
         case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL); break;

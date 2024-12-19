@@ -3,6 +3,12 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.11.00 Dec 19, 2024**
+
+Updated neutron star recycling/spin-up treatments.
+* New command line option `--neutron-star-accretion-in-ce` to determine how a NS accretes mass in common envelope. 
+
+
 **03.10.00 Nov 29, 2024**
 
 Added functionality to log stellar mergers in the BSE switchlog file.

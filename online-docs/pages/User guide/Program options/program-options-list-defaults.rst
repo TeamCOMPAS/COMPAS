@@ -968,6 +968,14 @@ Default = FIXED_MASS
 Amount of mass lost in neutrinos during BH formation (either as fraction or in solar masses, depending on the value of ``--neutrino-mass-loss-bh-formation``). |br|
 Default = 0.1
 
+**--neutron-star-accretion-in-ce** |br|
+Assumption about neutron star accretion in CE. |br|
+ZERO indicates no accretion onto NS in CE. |br|
+DISK indicates a RLOF like disk accretion onto NS at Alfven radius. |br|
+SURFACE indicates mass is directly accreted onto the surface of the NS. |br|
+Options: { ZERO, DISK, SURFACE } |br|
+Default = ZERO
+
 **--neutron-star-equation-of-state** |br|
 Neutron star equation of state. |br|
 Options: { SSE, ARP3 } |br|

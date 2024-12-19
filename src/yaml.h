@@ -336,6 +336,7 @@ namespace yaml {
             "    --fryer-supernova-engine",
             "    --kick-magnitude-distribution",
             "    --kick-direction-distribution",
+            "    --neutron-star-accretion-in-ce",
             "    --neutron-star-equation-of-state",
             "    --neutrino-mass-loss-BH-formation",
             "    --pulsar-birth-magnetic-field-distribution",

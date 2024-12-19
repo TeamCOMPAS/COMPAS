@@ -1424,11 +1424,11 @@
 // 03.10.04  RTW - Nov 27, 2024     - Defect repair:
 //                                      - fix for issue #1247 - SN Euler angles had incomplete logic, leading to a div by zero in some cases
 // 03.11.00   YS - Dec 19, 2024     - Updates to NS.cpp and NS.h:
-//                                      - Fixing issues that during mass transfer, recycling of neutron star sometimes leading to negative spin periods. 
-//                                      - Added function NS::deltaAngularMomentumByPulsarAccretion() for the integration of angular momentum of neutron star during mass transfer. 
-//                                      - Update to NS::UpdateMagneticFieldAndSpin(), specifically adding 
+//                                      - This update fixes the issue that during mass transfer, the spin-up of a neutron star sometimes creates a negative spin period. 
+//                                      - Added function NS::DeltaAngularMomentumByPulsarAccretion() for the integration of angular momentum of neutron star during mass transfer. 
+//                                      - Update to NS::UpdateMagneticFieldAndSpin(). For NS accreting in RLOF, adding BOOST ODE integrator to calculate the spin-up/recycling. 
 //                                      - Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star would accrete mass during a common envelope event. 
-//                                      - Fixing to issue #1002
+//                                      - Fix for issue #1002
 
 const std::string VERSION_STRING = "03.11.00";
 

@@ -502,6 +502,8 @@ private:
         "maximum-mass-donor-nandez-ivanova",
         "minimum-secondary-mass",
 
+        "neutron-star-accretion-in-ce",
+
         "orbital-period",
         "orbital-period-distribution",
         "orbital-period-max",
