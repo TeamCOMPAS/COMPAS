@@ -40,7 +40,7 @@ public:
     // member functions - alphabetically
     static  DBL_DBL_DBL CalculateCoreCollapseSNParams_Static(const double p_Mass);
 
-    static  DBL_DBL_DBL_DBL DeltaAngularMomentumByPulsarAccretion(const double p_MassGainPerTimeStep, 
+    static  DBL_DBL_DBL DeltaAngularMomentumByPulsarAccretion(const double p_MassGainPerTimeStep, 
                                                 const double p_MagField, 
                                                 const double p_Mass, 
                                                 const double p_Radius,
