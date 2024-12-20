@@ -1730,7 +1730,7 @@ void BaseBinaryStar::ResolveMainSequenceMerger() {
     
     m_SemiMajorAxis = std::numeric_limits<float>::infinity();                                   // set separation to infinity to avoid subsequent fake interactions with a massless companion (RLOF, CE, etc.)
     
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (m_Star1->MZAMS() >= 10.0) && (m_Star2->MZAMS() >= 10.0)) {
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (utils::Compare(m_Star1->MZAMS(), SHIKAUCHI_LOWER_MASS_LIMIT) >= 0) && (utils::Compare(m_Star2->MZAMS(), SHIKAUCHI_LOWER_MASS_LIMIT) >= 0)) {
         double coreMass1 = m_Star1->MainSequenceCoreMass();
         double coreMass2 = m_Star2->MainSequenceCoreMass();
         

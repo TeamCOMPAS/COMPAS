@@ -43,7 +43,7 @@ protected:
         // Age for MS_GT_07 is carried over from CH stars switching to MS after spinning down, so not set to 0.0 here
         
         // Initialise core mass, luminosity, radius, and temperature if Shikauchi core mass prescription is used
-        if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (m_MZAMS >= 10.0)) {
+        if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (utils::Compare(m_MZAMS, SHIKAUCHI_LOWER_MASS_LIMIT) >= 0)) {
             m_InitialMainSequenceCoreMass = MainSequence::CalculateInitialMainSequenceCoreMass(m_MZAMS);
             m_MainSequenceCoreMass        = m_InitialMainSequenceCoreMass;
             m_Luminosity                  = MainSequence::CalculateLuminosityShikauchi(m_MainSequenceCoreMass, m_InitialHeliumAbundance, m_Age);

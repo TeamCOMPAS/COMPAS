@@ -290,7 +290,7 @@ constexpr double FARMER_PPISN_UPP_LIM_QUAD_REGIME       = 60.0;                 
 constexpr double FARMER_PPISN_UPP_LIM_INSTABILLITY      = 140.0;                                                    // Maximum CO core mass to result in PI (upper edge of PISN gap) from FARMER PPISN prescription
 constexpr double STARTRACK_PPISN_HE_CORE_MASS           = 45.0;                                                     // Helium core mass remaining following PPISN as assumed in StarTrack (Belczynski et al. 2017 https://arxiv.org/abs/1607.03116)
 
-constexpr double Q_CNO                                  = 9.9073E10;                                                // Energy released per unit mass by hydrogen fusion via the CNO cycle in Lsol Msol-1
+constexpr double Q_CNO                                  = 9.9073E4;                                                 // Energy released per unit mass by hydrogen fusion via the CNO cycle in Lsol Myr Msol-1
 
 // logging constants
 
@@ -3732,6 +3732,11 @@ const std::vector<std::vector<std::vector<LoveridgeCoefficients>>> LOVERIDGE_COE
         }
     }
 };
+
+
+// Initial mass of stars above which (including the limit) we allow
+// convective core mass calculations from Shikauchi et al. (2024)
+constexpr double SHIKAUCHI_LOWER_MASS_LIMIT = 15.0;
 
 // Coefficients for determining Main Sequence core mass
 // from Shikauchi et al. (2024), https://arxiv.org/abs/2409.00460

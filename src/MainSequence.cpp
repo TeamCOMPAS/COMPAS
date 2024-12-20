@@ -31,7 +31,7 @@
 double MainSequence::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
     
     // If SHIKAUCHI core mass prescription is used, core helium abundance is calculated with the core mass
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (m_MZAMS >= 10.0))
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (utils::Compare(m_MZAMS, SHIKAUCHI_LOWER_MASS_LIMIT) >= 0))
         return m_HeliumAbundanceCore;
     
     double heliumAbundanceCoreMax = 1.0 - m_Metallicity;
@@ -56,7 +56,7 @@ double MainSequence::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) con
 double MainSequence::CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const {
     
     // If SHIKAUCHI core mass prescription is used, core helium abundance is calculated with the core mass
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (m_MZAMS >= 10.0))
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (utils::Compare(m_MZAMS, SHIKAUCHI_LOWER_MASS_LIMIT) >= 0))
         return 1.0 - m_HeliumAbundanceCore - m_Metallicity;
     
     return m_InitialHydrogenAbundance * (1.0 - p_Tau);
@@ -294,7 +294,7 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     
     // If SHIKAUCHI core prescription is used, return Shikauchi luminosity
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (m_MZAMS >= 10.0)) {
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (utils::Compare(m_MZAMS, SHIKAUCHI_LOWER_MASS_LIMIT) >= 0)) {
             return CalculateLuminosityShikauchi(m_MainSequenceCoreMass, m_HeliumAbundanceCore, p_Time);
     }
     
@@ -342,16 +342,15 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
  */
 double MainSequence::CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore, const double p_Age) const {
     DBL_VECTOR L_COEFFICIENTS    = std::get<2>(SHIKAUCHI_COEFFICIENTS);
-    double centralHeliumFraction = p_HeliumAbundanceCore;
     double logMixingCoreMass     = std::log10(p_CoreMass);
     
-    double logL = L_COEFFICIENTS[0] * logMixingCoreMass + L_COEFFICIENTS[1] * centralHeliumFraction + L_COEFFICIENTS[2] * logMixingCoreMass * centralHeliumFraction + L_COEFFICIENTS[3] * logMixingCoreMass * logMixingCoreMass + L_COEFFICIENTS[4] * centralHeliumFraction * centralHeliumFraction + L_COEFFICIENTS[5] * logMixingCoreMass * logMixingCoreMass * logMixingCoreMass + L_COEFFICIENTS[6] * centralHeliumFraction * centralHeliumFraction * centralHeliumFraction + L_COEFFICIENTS[7] * logMixingCoreMass * logMixingCoreMass * centralHeliumFraction + L_COEFFICIENTS[8] * logMixingCoreMass * centralHeliumFraction * centralHeliumFraction + L_COEFFICIENTS[9];
+    double logL = L_COEFFICIENTS[0] * logMixingCoreMass + L_COEFFICIENTS[1] * p_HeliumAbundanceCore + L_COEFFICIENTS[2] * logMixingCoreMass * p_HeliumAbundanceCore + L_COEFFICIENTS[3] * logMixingCoreMass * logMixingCoreMass + L_COEFFICIENTS[4] * p_HeliumAbundanceCore * p_HeliumAbundanceCore + L_COEFFICIENTS[5] * logMixingCoreMass * logMixingCoreMass * logMixingCoreMass + L_COEFFICIENTS[6] * p_HeliumAbundanceCore * p_HeliumAbundanceCore * p_HeliumAbundanceCore + L_COEFFICIENTS[7] * logMixingCoreMass * logMixingCoreMass * p_HeliumAbundanceCore + L_COEFFICIENTS[8] * logMixingCoreMass * p_HeliumAbundanceCore * p_HeliumAbundanceCore + L_COEFFICIENTS[9];
     double luminosity = PPOW(10.0, logL);
     
-    if ((p_HeliumAbundanceCore == 1.0 - m_Metallicity) && (m_TotalMassLossRate == -m_Mdot)) {                                // star in MS hook and mass transfer not ongoing?
+    if ((utils::Compare(p_HeliumAbundanceCore, 1.0 - m_Metallicity) == 0) && (utils::Compare(m_TotalMassLossRate, -m_Mdot) == 0)) {       // star in MS hook and mass transfer not ongoing?
         HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
-        double luminosityTAMS = clone->Luminosity();                                                                         // Get luminosity from clone (with updated Mass0)
-        delete clone; clone = nullptr;                                                                                       // Return the memory allocated for the clone
+        double luminosityTAMS = clone->Luminosity();                                                                                      // Get luminosity from clone (with updated Mass0)
+        delete clone; clone = nullptr;                                                                                                    // Return the memory allocated for the clone
         
         double tMS                   = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
         double ageAtHookStart        = 0.99 * tMS;
@@ -534,8 +533,8 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     
     // If SHIKAUCHI core prescription is used, return radius that smoothly connects the beginning of MS hook and the beginning of HG
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (m_MZAMS >= 10.0)) {
-        if ((m_HeliumAbundanceCore == 1.0 - m_Metallicity) && (m_TotalMassLossRate == -m_Mdot))                                 // star in MS hook and mass transfer not ongoing?
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (utils::Compare(m_MZAMS, SHIKAUCHI_LOWER_MASS_LIMIT) >= 0)) {
+        if ((utils::Compare(m_HeliumAbundanceCore, 1.0 - m_Metallicity) == 0) && (utils::Compare(m_TotalMassLossRate, -m_Mdot) == 0))                                 // star in MS hook and mass transfer not ongoing?
             return CalculateRadiusTransitionToHG(p_Mass, p_Time, p_RZAMS);
     }
         
@@ -640,7 +639,10 @@ double MainSequence::CalculateRadiusOnPhaseTau(const double p_Mass, const double
  * @return                                      Radius on the Main Sequence (for age between tHook and tMS)
  */
 double MainSequence::CalculateRadiusTransitionToHG(const double p_Mass, const double p_Age, double const p_RZAMS) const {
-    double radiusTAMS        = CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
+    HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
+    double radiusTAMS = clone->Radius();                                                                                      // Get radius from clone (with updated Mass0)
+    delete clone; clone = nullptr;                                                                                            // Return the memory allocated for the clone
+    
     double tMS               = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
     double tauAtHookStart    = 0.99;
     double ageAtHookStart    = tauAtHookStart * tMS;
@@ -767,70 +769,61 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassShikauchi(const double p_Dt) 
     DBL_VECTOR FMIX_COEFFICIENTS  = std::get<1>(SHIKAUCHI_COEFFICIENTS);
     DBL_VECTOR L_COEFFICIENTS     = std::get<2>(SHIKAUCHI_COEFFICIENTS);
     
-    double totalMass             = m_Mass;
-    double centralHeliumFraction = m_HeliumAbundanceCore;
-    double mixingCoreMass        = m_MainSequenceCoreMass;
-    double lnMixingCoreMass      = std::log(mixingCoreMass);
-    double heliumFractionOut     = m_HeliumAbundanceCoreOut;
-        
     // Eq (A3)
     double fmix  = FMIX_COEFFICIENTS[0] + FMIX_COEFFICIENTS[1] * std::exp(-m_MZAMS / FMIX_COEFFICIENTS[2]);
     // Eq (A4)
-    double beta  = 1.0 - FMIX_COEFFICIENTS[1] * totalMass / (FMIX_COEFFICIENTS[2] * fmix) * std::exp(-totalMass / FMIX_COEFFICIENTS[2]);
+    double beta  = 1.0 - FMIX_COEFFICIENTS[1] * m_Mass / (FMIX_COEFFICIENTS[2] * fmix) * std::exp(-m_Mass / FMIX_COEFFICIENTS[2]);
     // Eq (A5)
-    double logL  = std::log10(CalculateLuminosityShikauchi(mixingCoreMass, centralHeliumFraction, 0.0));
+    double logL  = std::log10(CalculateLuminosityShikauchi(m_MainSequenceCoreMass, m_HeliumAbundanceCore, 0.0));
     // Eq (A2)
-    double alpha = PPOW(10.0, std::max(-2.0, ALPHA_COEFFICIENTS[1] * mixingCoreMass + ALPHA_COEFFICIENTS[2])) + ALPHA_COEFFICIENTS[0];
+    double alpha = PPOW(10.0, std::max(-2.0, ALPHA_COEFFICIENTS[1] * m_MainSequenceCoreMass + ALPHA_COEFFICIENTS[2])) + ALPHA_COEFFICIENTS[0];
     // Eq (A7)
     double g     = -0.0044 * m_MZAMS + 0.27;
     // Eq (10)
-    double Yhat  = (centralHeliumFraction - m_InitialHeliumAbundance) / (1.0 - m_InitialHeliumAbundance - m_Metallicity);
+    double Yhat  = (m_HeliumAbundanceCore - m_InitialHeliumAbundance) / (1.0 - m_InitialHeliumAbundance - m_Metallicity);
     // Eq (A6)
     double delta = std::min(PPOW(10.0, -Yhat + g), 1.0);
-    
-    double currentTimestepInYrs = p_Dt * MYR_TO_YEAR;
-    double mDot                 = m_TotalMassLossRate;                                          // Positive for mass gain, negative for mass loss
     
     // Use boost adaptive ODE solver
     controlled_stepper_type controlled_stepper;
     state_type x(2);
-    x[0] = centralHeliumFraction;
-    x[1] = lnMixingCoreMass;
+    x[0] = m_HeliumAbundanceCore;
+    x[1] = std::log(m_MainSequenceCoreMass);
     auto ode = [&](const state_type &x, state_type &dxdt, const double) {
         // Eq (13)
-        dxdt[0] = PPOW(10.0, logL) / (Q_CNO * mixingCoreMass);
+        dxdt[0] = PPOW(10.0, logL) / (Q_CNO * std::exp(x[1]));
         // Eq (12)
-        dxdt[1] = - alpha / (1.0 - alpha * centralHeliumFraction) * dxdt[0] + beta * delta * mDot / totalMass;
+        dxdt[1] = - alpha / (1.0 - alpha * x[0]) * dxdt[0] + beta * delta * m_TotalMassLossRate / (YEAR_TO_MYR * m_Mass);
     };
-    integrate_adaptive(controlled_stepper, ode, x, 0.0, currentTimestepInYrs, currentTimestepInYrs/100.0);
+    integrate_adaptive(controlled_stepper, ode, x, 0.0, p_Dt, p_Dt);
     
     double newMixingCoreMass        = std::exp(x[1]);                                           // New mixing core mass
     double newCentralHeliumFraction = x[0];                                                     // New central helium fraction
-    double deltaCoreMass            = newMixingCoreMass - mixingCoreMass;                       // Difference in core mass
+    double deltaCoreMass            = newMixingCoreMass - m_MainSequenceCoreMass;               // Difference in core mass
 
     if (deltaCoreMass > 0.0) {                                                                  // If the core grows, we need to account for rejuvenation
-        if (newMixingCoreMass < m_InitialMainSequenceCoreMass) {                                // New core mass less than initial core mass?
+        if (utils::Compare(newMixingCoreMass, m_InitialMainSequenceCoreMass) < 0) {             // New core mass less than initial core mass?
             // Use boost adaptive ODE solver
             state_type x(1);
-            x[0] = heliumFractionOut;
+            x[0] = m_HeliumAbundanceCoreOut;
             auto ode = [&](const state_type &x, state_type &dxdt, const double) {
                 // Calculate the change in helium abundance just outside the core, assuming linear profile
-                dxdt[0] = (heliumFractionOut - m_InitialHeliumAbundance) / (mixingCoreMass - m_InitialMainSequenceCoreMass) * (deltaCoreMass / currentTimestepInYrs);
+                dxdt[0] = (m_HeliumAbundanceCoreOut - m_InitialHeliumAbundance) / (m_MainSequenceCoreMass - m_InitialMainSequenceCoreMass) * (deltaCoreMass / p_Dt);
             };
-            integrate_adaptive(controlled_stepper, ode, x, 0.0, currentTimestepInYrs, currentTimestepInYrs/100.0);
+            integrate_adaptive(controlled_stepper, ode, x, 0.0, p_Dt, p_Dt);
         
             // Calculate the change in helium abundance in the core, assuming linear profile between Yc and Y0, and that the the accreted gas has helium fraction Y0
-            double deltaY            = (heliumFractionOut - centralHeliumFraction) / (mixingCoreMass + deltaCoreMass) * deltaCoreMass + 0.5 / (mixingCoreMass + deltaCoreMass) * (heliumFractionOut - m_InitialHeliumAbundance) / (mixingCoreMass - m_InitialMainSequenceCoreMass) * deltaCoreMass * deltaCoreMass;
-            newCentralHeliumFraction = centralHeliumFraction + deltaY;
+            double deltaY            = (m_HeliumAbundanceCoreOut - m_HeliumAbundanceCore) / (m_MainSequenceCoreMass + deltaCoreMass) * deltaCoreMass + 0.5 / (m_MainSequenceCoreMass + deltaCoreMass) * (m_HeliumAbundanceCoreOut - m_InitialHeliumAbundance) / (m_MainSequenceCoreMass - m_InitialMainSequenceCoreMass) * deltaCoreMass * deltaCoreMass;
+            newCentralHeliumFraction = m_HeliumAbundanceCore + deltaY;
             m_HeliumAbundanceCoreOut = x[0];
         }
         else {                                                                                  // New core mass greater or equal to the initial core mass?
-            double firstTerm  = (heliumFractionOut - centralHeliumFraction) / (mixingCoreMass + deltaCoreMass) * deltaCoreMass;
+            double firstTerm  = (m_HeliumAbundanceCoreOut - m_HeliumAbundanceCore) / (m_MainSequenceCoreMass + deltaCoreMass) * deltaCoreMass;
             // Second term is set to zero if the initial core mass had been previously exceeded
-            double secondTerm = (m_InitialMainSequenceCoreMass != CalculateInitialMainSequenceCoreMass(m_MZAMS)) ? 0.0 : 0.5 / (mixingCoreMass + deltaCoreMass) * (heliumFractionOut - m_InitialHeliumAbundance) / (mixingCoreMass - m_InitialMainSequenceCoreMass) * deltaCoreMass * deltaCoreMass;
+            double secondTerm = (utils::Compare(m_InitialMainSequenceCoreMass, CalculateInitialMainSequenceCoreMass(m_MZAMS)) != 0) ? 0.0 : 0.5 / (m_MainSequenceCoreMass + deltaCoreMass) * (m_HeliumAbundanceCoreOut - m_InitialHeliumAbundance) / (m_MainSequenceCoreMass - m_InitialMainSequenceCoreMass) * deltaCoreMass * deltaCoreMass;
             
             double deltaY                 = firstTerm + secondTerm;                             // Change in helium abundance
-            newCentralHeliumFraction      = centralHeliumFraction + deltaY;
+            newCentralHeliumFraction      = m_HeliumAbundanceCore + deltaY;
             m_HeliumAbundanceCoreOut      = m_InitialHeliumAbundance;
             m_InitialMainSequenceCoreMass = newMixingCoreMass;
         }
@@ -874,31 +867,29 @@ void MainSequence::UpdateMainSequenceCoreMass(const double p_Dt, const double p_
             m_MainSequenceCoreMass = 0.0;
             break;
         }
-        case CORE_MASS_PRESCRIPTION::MANDEL: {                                                                                              // Calculate the minimum core mass of a main sequence star that loses mass through Case A mass transfer as the core mass of a TAMS star, scaled by the fractional age.
-            if ((p_Dt != 0.0) && (p_TotalMassLossRate != -m_Mdot) && (p_TotalMassLossRate < 0.0))                                           // Only update core mass if total mass loss rate was updated in binary evolution, not applied to SSE and only applied to donors
-                m_MainSequenceCoreMass = std::max(m_MainSequenceCoreMass, CalculateTauOnPhase() * TAMSCoreMass());;
+        case CORE_MASS_PRESCRIPTION::MANDEL: {                                                                                                      // Calculate the minimum core mass of a main sequence star that loses mass through Case A mass transfer as the core mass of a TAMS star, scaled by the fractional age.
+            if ((utils::Compare(p_Dt, 0.0) != 0) && (utils::Compare(p_TotalMassLossRate, -m_Mdot) != 0) && (p_TotalMassLossRate < 0.0))             // Only update core mass if total mass loss rate was updated in binary evolution, not applied to SSE and only applied to donors
+                m_MainSequenceCoreMass = std::max(m_MainSequenceCoreMass, CalculateTauOnPhase() * TAMSCoreMass());
             break;
         }
-        case CORE_MASS_PRESCRIPTION::SHIKAUCHI: {                                                                                           // Set core mass following Shikauchi et al. (2024)
-            if ((p_Dt == 0.0) || (p_TotalMassLossRate != m_TotalMassLossRate))                                                              // Do not proceed with updating the core mass if time does not advance or calculation was done in binary evolution (total mass loss rate had been updated)
+        case CORE_MASS_PRESCRIPTION::SHIKAUCHI: {                                                                                                   // Set core mass following Shikauchi et al. (2024)
+            if ((utils::Compare(p_Dt, 0.0) == 0) || (utils::Compare(p_TotalMassLossRate, m_TotalMassLossRate) != 0))                                // Do not proceed with updating the core mass if time does not advance or calculation was done in binary evolution (total mass loss rate had been updated)
                 return;
-            double mixingCoreMass;
             double centralHeliumFraction;
             std::tuple<double, double> ShikauchiSolution;
             double tMS = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
 
-            if ((m_MZAMS >= 10.0) && (m_HeliumAbundanceCore < 1.0 - m_Metallicity))  {                                                      // MZAMS >= 10 Msol (SHIKAUCHI prescription) and no calculations past the MS hook (Yc = 1 - Z)
+            if ((utils::Compare(m_MZAMS, SHIKAUCHI_LOWER_MASS_LIMIT) >= 0) && (utils::Compare(m_HeliumAbundanceCore, 1.0 - m_Metallicity) < 0))  {  // MZAMS >= 15 Msol (SHIKAUCHI prescription) and no calculations past the MS hook (Yc = 1 - Z)
                 ShikauchiSolution      = CalculateMainSequenceCoreMassShikauchi(p_Dt);
-                mixingCoreMass         = std::get<0>(ShikauchiSolution);
+                m_MainSequenceCoreMass = std::get<0>(ShikauchiSolution);                                                                            // Update the core mass
                 centralHeliumFraction  = std::get<1>(ShikauchiSolution);
-                m_HeliumAbundanceCore  = std::min(centralHeliumFraction, 1.0 - m_Metallicity);                                              // Update the core helium abundance
-                m_MainSequenceCoreMass = mixingCoreMass;                                                                                    // Update the core mass
-                m_Age                  = (m_HeliumAbundanceCore - m_InitialHeliumAbundance) / m_InitialHydrogenAbundance * 0.99 * tMS;      // Update the effective age based on central helium fraction
+                m_HeliumAbundanceCore  = std::min(centralHeliumFraction, 1.0 - m_Metallicity);                                                      // Update the core helium abundance
+                m_Age                  = (m_HeliumAbundanceCore - m_InitialHeliumAbundance) / m_InitialHydrogenAbundance * 0.99 * tMS;              // Update the effective age based on central helium fraction
             }
-            else if ((p_TotalMassLossRate < 0.0) && (m_MZAMS < 10.0) && (p_TotalMassLossRate != -m_Mdot)) {                                 // Mass loss and MZAMS < 10 Msol (Mandel core prescription used, which retains higher core mass after case A mass transfer -- does not take into account mass loss from winds)
-                m_MainSequenceCoreMass = CalculateMainSequenceCoreMassMandel();
+            else if ((p_TotalMassLossRate < 0.0) && (utils::Compare(m_MZAMS, SHIKAUCHI_LOWER_MASS_LIMIT) < 0) && (utils::Compare(p_TotalMassLossRate, -m_Mdot) != 0)) {   // Mass loss and MZAMS < 15 Msol (Mandel core prescription used, which retains higher core mass after case A mass transfer -- does not take into account mass loss from winds)
+                m_MainSequenceCoreMass = std::max(m_MainSequenceCoreMass, CalculateTauOnPhase() * TAMSCoreMass());
             }
-            else { };                                                                                                                       // Other cases
+            else { };                                                                                                                               // Other cases
             break;
         }
     }
@@ -1123,7 +1114,7 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     
     m_HydrogenAbundanceCore = 1.0 - m_Metallicity - m_HeliumAbundanceCore;
     
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (p_Mass >= 10.0)) {
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (utils::Compare(m_MZAMS, SHIKAUCHI_LOWER_MASS_LIMIT) >= 0)) {
         m_InitialMainSequenceCoreMass = CalculateInitialMainSequenceCoreMass(p_Mass);                         // update initial mixing core mass
         m_MainSequenceCoreMass        = m_InitialMainSequenceCoreMass;
     }
@@ -1320,29 +1311,29 @@ std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> MainSequence::InterpolateShikauc
     double middle = std::log10(1.0/3.0 * ZSOL_ASPLUND);
     double high   = std::log10(ZSOL_ASPLUND);
     
-    if (logZ <= low)                                                      // Linear extrapolation (constant) for metallicity lower than the lowest bound
+    if (utils::Compare(logZ, low) <= 0)                                                                         // Linear extrapolation (constant) for metallicity lower than the lowest bound
         return std::tuple<DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> (SHIKAUCHI_ALPHA_COEFFICIENTS[0], SHIKAUCHI_FMIX_COEFFICIENTS[0], SHIKAUCHI_L_COEFFICIENTS[0]);
     
-    else if ((logZ > low) && (logZ <= middle)) {                          // Linear interpolation between metallicity low and middle
-        for (int i = 0; i < 3; i++)
+    else if ((utils::Compare(logZ, low) > 0) && (utils::Compare(logZ, middle) <= 0)) {                          // Linear interpolation between metallicity low and middle
+        for (size_t i = 0; i < 3; i++) {
             alphaCoeff[i] = (SHIKAUCHI_ALPHA_COEFFICIENTS[0][i] * (middle - logZ) + SHIKAUCHI_ALPHA_COEFFICIENTS[1][i] * (logZ - low)) / (middle - low);
-        for (int i = 0; i < 3; i++)
             fmixCoeff[i]  = (SHIKAUCHI_FMIX_COEFFICIENTS[0][i] * (middle - logZ) + SHIKAUCHI_FMIX_COEFFICIENTS[1][i] * (logZ - low)) / (middle - low);
-        for (int i = 0; i < 10; i++)
+        }
+        for (size_t i = 0; i < 10; i++)
             lCoeff[i]     = (SHIKAUCHI_L_COEFFICIENTS[0][i] * (middle - logZ) + SHIKAUCHI_L_COEFFICIENTS[1][i] * (logZ - low)) / (middle - low);
         return std::tuple<DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> (alphaCoeff, fmixCoeff, lCoeff);
     }
     
-    else if ((logZ > middle) && (logZ < high)) {                          // Linear interpolation between metallicity middle and high
-        for (int i = 0; i < 3; i++)
+    else if ((utils::Compare(logZ, middle) > 0) && (utils::Compare(logZ, high) < 0)) {                          // Linear interpolation between metallicity middle and high
+        for (size_t i = 0; i < 3; i++) {
             alphaCoeff[i] = (SHIKAUCHI_ALPHA_COEFFICIENTS[1][i] * (high - logZ) + SHIKAUCHI_ALPHA_COEFFICIENTS[2][i] * (logZ - middle)) / (high - middle);
-        for (int i = 0; i < 3; i++)
             fmixCoeff[i]  = (SHIKAUCHI_FMIX_COEFFICIENTS[1][i] * (high - logZ) + SHIKAUCHI_FMIX_COEFFICIENTS[2][i] * (logZ - middle)) / (high - middle);
-        for (int i = 0; i < 10; i++)
+        }
+        for (size_t i = 0; i < 10; i++)
             lCoeff[i]     = (SHIKAUCHI_L_COEFFICIENTS[1][i] * (high - logZ) + SHIKAUCHI_L_COEFFICIENTS[2][i] * (logZ - middle)) / (high - middle);
         return std::tuple<DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> (alphaCoeff, fmixCoeff, lCoeff);
     }
     
-    else                                                                  // Linear extrapolation (constant) for metallicity equal to solar or higher
+    else                                                                                                        // Linear extrapolation (constant) for metallicity equal to solar or higher
         return std::tuple<DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> (SHIKAUCHI_ALPHA_COEFFICIENTS[2], SHIKAUCHI_FMIX_COEFFICIENTS[2], SHIKAUCHI_L_COEFFICIENTS[2]);
 }
