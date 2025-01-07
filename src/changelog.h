@@ -1423,7 +1423,9 @@
 //                                      - fix for issue #1310 - run terminates prematurely if error in grid file
 // 03.10.04  RTW - Nov 27, 2024     - Defect repair:
 //                                      - fix for issue #1247 - SN Euler angles had incomplete logic, leading to a div by zero in some cases
+// 03.10.05   VK - Jan 7, 2025      - Enhancement:
+//                                      - Modified the KAPIL2024 tides to ignore quadratic 'e' terms for spin and separation evolution if they incorrectly spin up an already synchronized star.
 
-const std::string VERSION_STRING = "03.10.04";
+const std::string VERSION_STRING = "03.10.05";
 
 # endif // __changelog_h__
