@@ -1429,6 +1429,7 @@
 //                                      - Update to NS::UpdateMagneticFieldAndSpin(). For NS accreting in RLOF, adding BOOST ODE integrator to calculate the spin-up/recycling. 
 //                                      - Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star would accrete mass during a common envelope event. 
 //                                      - Fix for issue #1002
+//                                      - Fixing for issue #1257
 
 const std::string VERSION_STRING = "03.11.00";
 

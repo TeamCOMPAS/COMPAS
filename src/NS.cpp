@@ -330,15 +330,28 @@ void NS::CalculateAndSetPulsarParameters() {
 
     m_PulsarDetails.magneticField     = PPOW(10.0, CalculateBirthMagneticField()) * GAUSS_TO_TESLA;         // magnetic field in Gauss -> convert to Tesla
     m_PulsarDetails.spinPeriod        = CalculateBirthSpinPeriod();                                         // spin period in ms
-    m_PulsarDetails.spinFrequency     = _2_PI / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS);
-    m_PulsarDetails.birthPeriod       = m_PulsarDetails.spinPeriod * SECONDS_IN_MS;                         // convert from ms to s 
-    
     m_MomentOfInertia_CGS             = CalculateMomentOfInertiaCGS();                                      // in CGS g cm^2
 	
-    // Note we convert neutronStarMomentOfInertia from CGS to SI here
-    m_PulsarDetails.spinDownRate      = CalculateSpinDownRate(m_PulsarDetails.spinFrequency, m_MomentOfInertia_CGS, m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM);  
-    m_PulsarDetails.birthSpinDownRate = m_PulsarDetails.spinDownRate; 
-    m_AngularMomentum_CGS             = m_MomentOfInertia_CGS * m_PulsarDetails.spinFrequency;              // in CGS g cm^2 s^-1
+    if ((utils::Compare(m_PulsarDetails.spinPeriod, 0.0) == 0) || 
+        (utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0)) {
+            // if initial spin period or magnetic field is set to ZERO
+            // then assume spin or magnetic field evolution is not calculated
+            // and use 0.0 as placeholders instead of going through calculations with 0s 
+            m_PulsarDetails.spinDownRate = 0.0;
+            m_PulsarDetails.spinFrequency = 0.0;
+            m_PulsarDetails.spinPeriod = 0.0; 
+            m_PulsarDetails.magneticField = 0.0;
+            m_AngularMomentum_CGS = 0.0;
+    }
+    else {
+        m_PulsarDetails.spinFrequency     = _2_PI / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS);
+        m_PulsarDetails.birthPeriod       = m_PulsarDetails.spinPeriod * SECONDS_IN_MS;                         // convert from ms to s 
+
+        // Note we convert neutronStarMomentOfInertia from CGS to SI here
+        m_PulsarDetails.spinDownRate      = CalculateSpinDownRate(m_PulsarDetails.spinFrequency, m_MomentOfInertia_CGS, m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM);  
+        m_PulsarDetails.birthSpinDownRate = m_PulsarDetails.spinDownRate; 
+        m_AngularMomentum_CGS             = m_MomentOfInertia_CGS * m_PulsarDetails.spinFrequency;             // in CGS g cm^2 s^-1
+    }
 }
 
 
@@ -495,6 +508,17 @@ DBL_DBL_DBL NS::DeltaAngularMomentumByPulsarAccretion_Static(const double p_Mass
  * @param   [IN]    p_Epsilon                   Uncertainty due to mass loss
  */
 void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_RecycledNS, const double p_Stepsize, const double p_MassGainPerTimeStep, const double p_Epsilon) {
+
+    if ((utils::Compare(m_PulsarDetails.spinPeriod, 0.0) == 0) || 
+        (utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0)) {
+            // if spin period or magnetic field is zero, set all pulsar parameters to 0 
+            // instead of doing calculations with 0s. 
+            m_PulsarDetails.spinDownRate = 0.0;
+            m_PulsarDetails.spinFrequency = 0.0;
+            m_PulsarDetails.spinPeriod = 0.0; 
+            m_PulsarDetails.magneticField = 0.0;
+        return; 
+    }
 
     double magFieldLowerLimit = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;    
     double magFieldLowerLimit_G = magFieldLowerLimit * TESLA_TO_GAUSS ;
