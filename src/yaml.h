@@ -108,6 +108,7 @@ namespace yaml {
             "    --circularise-binary-during-mass-transfer",
             "    --hmxr-binaries",
             "    --use-mass-transfer",
+            "    --retain-core-mass-during-caseA-mass-transfer",
             "",
             "    ### COMMON ENVELOPE",
             "    --common-envelope-allow-immediate-RLOF-post-CE-survive",

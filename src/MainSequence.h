@@ -47,7 +47,7 @@ protected:
     double          CalculateCOCoreMassAtPhaseEnd() const                                   { return CalculateCOCoreMassOnPhase(); }                                // Same as on phase
     double          CalculateCOCoreMassOnPhase() const                                      { return 0.0; }                                                         // McCO(MS) = 0.0
 
-    double          CalculateCoreMassAtPhaseEnd() const                                     { return 0.0; }                                                         // Same as on phase
+    double          CalculateCoreMassAtPhaseEnd() const                                     { return (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::MANDEL) ? MainSequenceCoreMass() : 0.0; }      // Accounts for minimal core mass built up prior to mass loss through mass transfer
     double          CalculateCoreMassOnPhase() const                                        { return 0.0; }                                                         // Mc(MS) = 0.0 (Hurley et al. 2000, just before eq 28)
 
     double          CalculateHeCoreMassAtPhaseEnd() const                                   { return CalculateCoreMassAtPhaseEnd(); }                               // Same as He core mass
@@ -74,7 +74,7 @@ protected:
     double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const;
     double          CalculateLuminosityOnPhase() const                                      { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0); }        // Use class member variables
     double          CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore, const double p_Age) const;
-    DBL_DBL         CalculateMainSequenceCoreMassShikauchi(const double p_Dt);
+    void            CalculateMainSequenceCoreMassShikauchi(const double p_Dt, const double p_MassLossRate);
     double          CalculateInitialMainSequenceCoreMass(const double p_MZAMS) const;
     double          CalculateMomentOfInertia() const                                        { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                      // k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
 
@@ -124,7 +124,7 @@ protected:
     
     void            UpdateAgeAfterMassLoss();                                                                                                                       // Per Hurley et al. 2000, section 7.1
 
-    void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate);
+    void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_MassLossRate);
 
 };
 

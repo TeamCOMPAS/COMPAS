@@ -43,6 +43,7 @@ booleanChoices:
 #    --hmxr-binaries: False                                                # Default: False
 #    --mass-transfer: True                                                 # Default: True
 #    --use-mass-transfer: True                                             # Default: True
+#    --retain-core-mass-during-caseA-mass-transfer: True                   # Default: True
 
     ### COMMON ENVELOPE
 #    --common-envelope-allow-immediate-RLOF-post-CE-survive: False         # Default: False

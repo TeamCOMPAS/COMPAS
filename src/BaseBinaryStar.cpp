@@ -2089,7 +2089,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             else {                                                                                                              // have required mass loss
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
                 m_Donor->UpdateTotalMassLossRate(massDiffDonor / (p_Dt * MYR_TO_YEAR));                                         // update mass loss rate for MS donor
-                m_Donor->UpdateMainSequenceCoreMass(p_Dt, m_Donor->TotalMassLossRate());                                        // update core mass for MS donor
+                m_Donor->UpdateMainSequenceCoreMass(p_Dt, massDiffDonor / (p_Dt * MYR_TO_YEAR));                                // update core mass for MS donor
             }
         }
 
@@ -2101,7 +2101,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             double omegaDonor_pre_MT = m_Donor->Omega();                                                                        // used if full donor envelope is removed
 
             m_Accretor->UpdateTotalMassLossRate(massGainAccretor / (p_Dt * MYR_TO_YEAR));                                       // update mass gain rate for MS accretor
-            m_Accretor->UpdateMainSequenceCoreMass(p_Dt, m_Accretor->TotalMassLossRate());                                      // update core mass for MS accretor
+            m_Accretor->UpdateMainSequenceCoreMass(p_Dt, massGainAccretor / (p_Dt * MYR_TO_YEAR));                              // update core mass for MS accretor
 
             m_Donor->SetMassTransferDiffAndResolveWDShellChange(massDiffDonor);                                                 // set new mass of donor
             m_Accretor->SetMassTransferDiffAndResolveWDShellChange(massGainAccretor);                                           // set new mass of accretor

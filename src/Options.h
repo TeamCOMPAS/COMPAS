@@ -211,16 +211,17 @@ private:
     //       is only shown once per COMPAS run).
 
     std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionStrings = {
-        { "black-hole-kicks",                      "black-hole-kicks-mode",                           false },
-        { "chemically-homogeneous-evolution",      "chemically-homogeneous-evolution-mode",           false },
-        { "kick-direction",                        "kick-direction-distribution",                     false },
-        { "luminous-blue-variable-prescription",   "LBV-mass-loss-prescription",                      false },
-        { "mass-transfer",                         "use-mass-transfer",                               false },
-        { "mass-transfer-thermal-limit-accretor",  "mass-transfer-thermal-limit-accretor-multiplier", false },
-        { "OB-mass-loss",                          "OB-mass-loss-prescription",                       false },
-        { "RSG-mass-loss",                         "RSG-mass-loss-prescription",                      false },
-        { "VMS-mass-loss",                         "VMS-mass-loss-prescription",                      false },
-        { "WR-mass-loss",                          "WR-mass-loss-prescription",                       false }
+        { "black-hole-kicks",                            "black-hole-kicks-mode",                           false },
+        { "chemically-homogeneous-evolution",            "chemically-homogeneous-evolution-mode",           false },
+        { "kick-direction",                              "kick-direction-distribution",                     false },
+        { "luminous-blue-variable-prescription",         "LBV-mass-loss-prescription",                      false },
+        { "mass-transfer",                               "use-mass-transfer",                               false },
+        { "mass-transfer-thermal-limit-accretor",        "mass-transfer-thermal-limit-accretor-multiplier", false },
+        { "OB-mass-loss",                                "OB-mass-loss-prescription",                       false },
+        { "retain-core-mass-during-caseA-mass-transfer", "",                                                false },
+        { "RSG-mass-loss",                               "RSG-mass-loss-prescription",                      false },
+        { "VMS-mass-loss",                               "VMS-mass-loss-prescription",                      false },
+        { "WR-mass-loss",                                "WR-mass-loss-prescription",                       false }
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool>> deprecatedOptionValues = {
@@ -992,6 +993,8 @@ public:
         
             bool                                                m_ExpelConvectiveEnvelopeAboveLuminosityThreshold;              // Whether to expel the convective envelope in a pulsation when log_10(L/M) reaches the threshold defined by m_LuminosityToMassThreshold
             double                                              m_LuminosityToMassThreshold;                                    // Threshold value of log_10(L/M) above which the convective envelope is expelled in a pulsation
+        
+            bool                                                m_RetainCoreMassDuringCaseAMassTransfer;                        // Whether to retain the approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = false)
 
             ENUM_OPT<CORE_MASS_PRESCRIPTION>                    m_MainSequenceCoreMassPrescription;                             // Which MS core prescription
         
@@ -1621,6 +1624,9 @@ public:
     
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
+    
+    bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
+    
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
 
     double                                      RocketKickMagnitude1() const                                            { return OPT_VALUE("rocket-kick-magnitude-1", m_RocketKickMagnitude1, true); }
