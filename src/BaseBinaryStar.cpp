@@ -310,9 +310,10 @@ void BaseBinaryStar::SetRemainingValues() {
         // newly-assigned rotational frequencies
 
         // star 1
-        if (utils::Compare(omega, m_Star1->OmegaCHE()) >= 0) {                                                                               // star 1 CH?
-            if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not already Chemically Homogeneous
-            m_Star1->SetOmega(omega);
+        if (utils::Compare(omega, m_Star1->OmegaCHE()) >= 0) {                                                                                          // star 1 CH?
+            if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) {
+                (void)m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                                    // yes, switch if not already Chemically Homogeneous
+                m_Star1->SetOmega(omega); }                                                                                                             // set omega at onset of CHE
         }
         else if (m_Star1->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  (don't use utils::Compare() here)
             if (m_Star1->StellarType() != STELLAR_TYPE::MS_LTE_07) (void)m_Star1->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                              // MS <= 0.7 Msol - switch if necessary
@@ -322,9 +323,10 @@ void BaseBinaryStar::SetRemainingValues() {
         }
 
         // star 2
-        if (utils::Compare(omega, m_Star2->OmegaCHE()) >= 0) {                                                                               // star 2 CH?
-            if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not already Chemically Homogeneous
-            m_Star2->SetOmega(omega);
+        if (utils::Compare(omega, m_Star2->OmegaCHE()) >= 0) {                                                                                          // star 2 CH?
+            if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) {
+                (void)m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                                    // yes, switch if not already Chemically Homogeneous
+                m_Star2->SetOmega(omega); }                                                                                                             // set omega at onset of CHE
         }
         else if (m_Star2->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  (don't use utils::Compare() here)
             if (m_Star2->StellarType() != STELLAR_TYPE::MS_LTE_07) (void)m_Star2->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                              // MS <= 0.0 Msol - switch if necessary
@@ -1685,13 +1687,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_CEE);                  // yes - print (log) detailed output
         }
 
-        // if stars are evolving as CHE stars, update their rotational frequency under the assumption of tidal locking if tides are not enabled
-        if (!m_Flags.stellarMerger && OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::NONE) {
-            double omega = OrbitalAngularVelocity();                                                                    // orbital angular velocity
-            if (m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star1->SetOmega(omega);
-            if (m_Star2->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star2->SetOmega(omega);
-        }
-
         m_Star1->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 1
         m_Star2->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 2
         SetPostCEEValues(m_SemiMajorAxis * AU_TO_RSOL, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                     // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
@@ -2507,12 +2502,6 @@ void BaseBinaryStar::ResolveMassChanges() {
         m_Star2->ResetEnvelopeExpulsationByPulsations();
     }
 
-    // if CHE enabled, update rotational frequency for constituent stars - assume tidally locked if tidal mode is none (otherwise, let tides do the work)
-    if(OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::NONE) {
-        double omega = OrbitalAngularVelocity();                                                        // orbital angular velocity
-        if (m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star1->SetOmega(omega);
-        if (m_Star2->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star2->SetOmega(omega);
-    }
 
 
     CalculateEnergyAndAngularMomentum();                                                                // perform energy and angular momentum calculations
@@ -2541,9 +2530,80 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
         switch (OPTIONS->TidesPrescription()) {                                                                                 // which tides prescription?
             case TIDES_PRESCRIPTION::NONE: {                                                                                    // NONE - tides not enabled
             
-                // do nothing, except for CHE stars which are allowed to remain CHE even though this does not preserve angular momentum
-                if (m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star1->SetOmega(omega);
-                if (m_Star2->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) m_Star2->SetOmega(omega);
+                // do nothing, except for CHE stars which are allowed to remain CHE
+
+                // if both stars are CHE, synchronize both spins and assume circular orbit, as in PERFECT tides
+                if (OPTIONS->CHEMode() != CHE_MODE::NONE && HasTwoOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS})) {
+                    double omega = OmegaAfterSynchronisation(m_Star1->Mass(), m_Star2->Mass(), m_Star1->CalculateMomentOfInertiaAU(), m_Star2->CalculateMomentOfInertiaAU(), m_TotalAngularMomentum, OrbitalAngularVelocity());
+
+                    if (omega >= 0.0) {                                                                                             // root found? (don't use utils::Compare() here)
+                                                                                                                                    // yes
+                        m_Star1->SetOmega(omega);                                                                                   // synchronise star 1
+                        m_Star2->SetOmega(omega);                                                                                   // synchronise star 2
+
+                        m_SemiMajorAxis        = std::cbrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / omega / omega);     // re-calculate semi-major axis
+                        m_Eccentricity         = 0.0;                                                                               // circularise
+                        m_TotalAngularMomentum = CalculateAngularMomentum();                                                        // re-calculate total angular momentum
+                        m_OrbitalAngularMomentum = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
+                    }
+                    else {                                                                                                          // no (real) root found
+                    
+                    // no real root found - push the binary to a common envelope
+                    // place the constituent star closest to RLOF at RLOF and use that to
+                    // calculate semi-major axis, then use that to calculate omega
+                    
+                    double ratio1 = m_Star1->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Star1->Mass());                      // star 1 ratio of radius to Roche lobe radius
+                    double ratio2 = m_Star2->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Star2->Mass());                      // star 2 ratio of radius to Roche lobe radius
+                    
+                    double radius;
+                    double mass1;
+                    double mass2;
+                    if (ratio1 >= ratio2) {                                                                                     // star 1 closer to RLOF than star 2 (or same)?
+                        radius = m_Star1->Radius();                                                                             // yes - use star 1 to calculate semi-major axis at RLOF
+                        mass1  = m_Star1->Mass();
+                        mass2  = m_Star2->Mass();
+                    }
+                    else {                                                                                                      // no - star 2 closer to RLOF than star 1
+                        radius = m_Star2->Radius();                                                                             // use star 2 to calculate semi-major axis at RLOF
+                        mass1  = m_Star2->Mass();
+                        mass2  = m_Star1->Mass();
+                    }
+                    
+                    m_Eccentricity  = 0.0;                                                                                      // assume circular
+                    m_SemiMajorAxis = radius * RSOL_TO_AU / CalculateRocheLobeRadius_Static(mass1, mass2);                      // new semi-major axis - should tip into CE
+                    }
+                }
+                // if only one star is CHE, then circularize the binary, synchronize only the CHE star, and leave the other star untouched
+                else if (OPTIONS->CHEMode() != CHE_MODE::NONE && HasOneOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS})) {            // one CHE star?
+                    double che_mass;
+                    double companion_mass;
+                    double che_moment_of_inertia;
+                    double Ltot;
+                    if (m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) {
+                        che_mass = m_Star1->Mass();
+                        companion_mass = m_Star2->Mass();
+                        che_moment_of_inertia = m_Star1->CalculateMomentOfInertiaAU();
+                        Ltot = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity) + m_Star1->AngularMomentum();
+                        }
+                    else {
+                        che_mass = m_Star2->Mass();
+                        companion_mass = m_Star1->Mass();
+                        che_moment_of_inertia = m_Star2->CalculateMomentOfInertiaAU();
+                        Ltot = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity) + m_Star2->AngularMomentum();
+                        }
+                    // Use the synchronization formula assuming a circular orbit and ignoring the companion angular momentum
+                    double omega = OmegaAfterSynchronisation(che_mass, companion_mass, che_moment_of_inertia, 0.0, Ltot, OrbitalAngularVelocity());
+                    if (omega >= 0.0) {                                                                                         // root found? (don't use utils::Compare() here)
+                                                                                                                                // yes
+                        if (m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS){m_Star1->SetOmega(omega);}
+                        else if (m_Star2->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS){m_Star2->SetOmega(omega);}        
+                                                                                
+                        m_SemiMajorAxis = std::cbrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / omega / omega);            // re-calculate semi-major axis
+                        m_Eccentricity         = 0.0;                                                                               // circularise
+                        m_TotalAngularMomentum = CalculateAngularMomentum();                                                        // re-calculate total angular momentum
+                        m_OrbitalAngularMomentum = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
+                    }
+                }
                     
             } break;
         
@@ -2569,6 +2629,7 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
                 m_SemiMajorAxis          = m_SemiMajorAxis + ((DSemiMajorAxis1Dt + DSemiMajorAxis2Dt) * p_Dt * MYR_TO_YEAR);    // evolve separation
                 m_Eccentricity           = m_Eccentricity + ((DEccentricity1Dt + DEccentricity2Dt) * p_Dt * MYR_TO_YEAR);       // evolve eccentricity
                 m_TotalAngularMomentum   = CalculateAngularMomentum();                                                          // re-calculate total angular momentum
+                m_OrbitalAngularMomentum = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
 
             } break;
 
@@ -2587,6 +2648,7 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
                     m_SemiMajorAxis        = std::cbrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / omega / omega);     // re-calculate semi-major axis
                     m_Eccentricity         = 0.0;                                                                               // circularise
                     m_TotalAngularMomentum = CalculateAngularMomentum();                                                        // re-calculate total angular momentum
+                    m_OrbitalAngularMomentum = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
                 }
                 else {                                                                                                          // no (real) root found
                     

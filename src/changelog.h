@@ -1427,11 +1427,12 @@
 //                                      - fix for issue #1317 - SN events not always logged in BSE SN file when evolving MS merger products
 //                                      - added code to ensure final BSE detailed output file TIMESTEP_COMPLETED record is always logged
 //                                        (may duplicate FINAL_STATE record, but logging TIMESTEP_COMPLETED is consistent, and it's what most people look for) 
-// 03.10.06   VK - Jan 08, 2025     - Defect repair:
+// 03.11.00   VK - Jan 08, 2025     - Enhancement, Defect repair:
 //                                      - Fix for issue #1303 - Reduction in production of BHBH from CHE
-//                                      - Modified CHE logic to compare against orbital angular frequency rather than the stellar angular frequency, in case the stars have not been spun up yet
+//                                      - Modified CHE initialization logic to compare against orbital angular frequency rather than the stellar angular frequency, in case the stars have not been spun up yet
+//                                      - Moved all CHE rotation related code to ProcessTides(), ensuring that any spin up conserves total angular momentum
 
 
-const std::string VERSION_STRING = "03.10.06";
+const std::string VERSION_STRING = "03.11.00";
 
 # endif // __changelog_h__
