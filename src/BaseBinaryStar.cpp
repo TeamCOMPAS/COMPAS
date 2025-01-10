@@ -310,7 +310,7 @@ void BaseBinaryStar::SetRemainingValues() {
         // newly-assigned rotational frequencies
 
         // star 1
-        if (utils::Compare(m_Star1->Omega(), m_Star1->OmegaCHE()) >= 0) {                                                                               // star 1 CH?
+        if (utils::Compare(omega, m_Star1->OmegaCHE()) >= 0) {                                                                               // star 1 CH?
             if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not already Chemically Homogeneous
             m_Star1->SetOmega(omega);
         }
@@ -322,7 +322,7 @@ void BaseBinaryStar::SetRemainingValues() {
         }
 
         // star 2
-        if (utils::Compare(m_Star2->Omega(), m_Star2->OmegaCHE()) >= 0) {                                                                               // star 2 CH?
+        if (utils::Compare(omega, m_Star2->OmegaCHE()) >= 0) {                                                                               // star 2 CH?
             if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) (void)m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);    // yes, switch if not already Chemically Homogeneous
             m_Star2->SetOmega(omega);
         }
