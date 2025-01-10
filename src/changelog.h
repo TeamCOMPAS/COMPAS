@@ -1423,7 +1423,11 @@
 //                                      - fix for issue #1310 - run terminates prematurely if error in grid file
 // 03.10.04  RTW - Nov 27, 2024     - Defect repair:
 //                                      - fix for issue #1247 - SN Euler angles had incomplete logic, leading to a div by zero in some cases
-// 03.11.00   YS - Dec 19, 2024     - Updates to NS.cpp and NS.h:
+// 03.10.05   JR - Jan 08, 2025     - Defect repair:
+//                                      - fix for issue #1317 - SN events not always logged in BSE SN file when evolving MS merger products
+//                                      - added code to ensure final BSE detailed output file TIMESTEP_COMPLETED record is always logged
+//                                        (may duplicate FINAL_STATE record, but logging TIMESTEP_COMPLETED is consistent, and it's what most people look for) 
+// 03.11.00   YS - Jan 10, 2025     - Updates to NS.cpp and NS.h:
 //                                      - This update fixes the issue that during mass transfer, the spin-up of a neutron star sometimes creates a negative spin period. 
 //                                      - Added function NS::DeltaAngularMomentumByPulsarAccretion() for the integration of angular momentum of neutron star during mass transfer. 
 //                                      - Update to NS::UpdateMagneticFieldAndSpin(). For NS accreting in RLOF, adding BOOST ODE integrator to calculate the spin-up/recycling. 
