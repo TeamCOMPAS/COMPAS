@@ -387,9 +387,9 @@ const COMPASUnorderedMap<CHE_MODE, std::string> CHE_MODE_LABEL = {
 // main sequence core mass prescription
 enum class CORE_MASS_PRESCRIPTION: int { NONE, MANDEL, SHIKAUCHI };
 const COMPASUnorderedMap<CORE_MASS_PRESCRIPTION, std::string> CORE_MASS_PRESCRIPTION_LABEL = {
-    { CORE_MASS_PRESCRIPTION::NONE,           "NONE" },
-    { CORE_MASS_PRESCRIPTION::MANDEL,         "MANDEL" },
-    { CORE_MASS_PRESCRIPTION::SHIKAUCHI,      "SHIKAUCHI" }
+    { CORE_MASS_PRESCRIPTION::NONE,      "NONE" },
+    { CORE_MASS_PRESCRIPTION::MANDEL,    "MANDEL" },
+    { CORE_MASS_PRESCRIPTION::SHIKAUCHI, "SHIKAUCHI" }
 };
 
 // logfile delimiters

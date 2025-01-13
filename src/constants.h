@@ -292,6 +292,10 @@ constexpr double STARTRACK_PPISN_HE_CORE_MASS           = 45.0;                 
 
 constexpr double Q_CNO                                  = 9.9073E4;                                                 // Energy released per unit mass by hydrogen fusion via the CNO cycle in Lsol Myr Msol-1
 
+// Initial mass of stars above which (including the limit) we allow convective core mass calculations from Shikauchi et al. (2024)
+// Note that this value should always be > 0.7 Msol
+constexpr double SHIKAUCHI_LOWER_MASS_LIMIT             = 15.0;
+
 // logging constants
 
 const LOGFILETYPE DEFAULT_LOGFILE_TYPE                  = LOGFILETYPE::HDF5;                                        // Default logfile type
@@ -421,6 +425,7 @@ constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2      = -0.98023471;
 constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_0        = -9.21757267;
 constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_1        = 3.57319872;
 constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_2        = -1.2137735;
+
 
 // coefficients for the calculation of initial angular frequency for Chemically Homogeneous Evolution
 // Mandel from Butler 2018
@@ -3734,38 +3739,25 @@ const std::vector<std::vector<std::vector<LoveridgeCoefficients>>> LOVERIDGE_COE
 };
 
 
-// Initial mass of stars above which (including the limit) we allow
-// convective core mass calculations from Shikauchi et al. (2024)
-constexpr double SHIKAUCHI_LOWER_MASS_LIMIT = 15.0;
-
 // Coefficients for determining Main Sequence core mass
 // from Shikauchi et al. (2024), https://arxiv.org/abs/2409.00460
 // Table 2
 const std::vector<DBL_VECTOR> SHIKAUCHI_ALPHA_COEFFICIENTS = {
-    // 0.1*Z_Sun
-    {0.45, -0.0557105,  -0.86589929},
-    // 1/3*Z_Sun
-    {0.45, -0.06968022, -0.73688164},
-    // Solar metallicity Z_Sun
-    {0.45, -0.05878711, -0.84646162}
+    {0.45, -0.0557105,  -0.86589929},       // 0.1*Z_Sun
+    {0.45, -0.06968022, -0.73688164},       // 1/3*Z_Sun
+    {0.45, -0.05878711, -0.84646162}        // Solar metallicity Z_Sun
 };
 // Table 3
 const std::vector<DBL_VECTOR> SHIKAUCHI_FMIX_COEFFICIENTS = {
-    // 0.1*Z_Sun
-    {0.86914766, -0.60815098, 37.20654856},
-    // 1/3*Z_Sun
-    {0.86269445, -0.62623353, 35.74630996},
-    // Solar metallicity Z_Sun
-    {0.86605495, -0.64960375, 35.57019104}
+    {0.86914766, -0.60815098, 37.20654856},     // 0.1*Z_Sun
+    {0.86269445, -0.62623353, 35.74630996},     // 1/3*Z_Sun
+    {0.86605495, -0.64960375, 35.57019104}      // Solar metallicity Z_Sun
 };
 // Table 4
 const std::vector<DBL_VECTOR> SHIKAUCHI_L_COEFFICIENTS = {
-    // 0.1*Z_Sun
-    {3.2555795,  1.84666823, -0.79986388, -0.75728099, -0.38831172, 0.08223542, 0.49543834, 0.31314176, -0.36705796, 1.72200581},
-    // 1/3*Z_Sun
-    {3.35622529, 1.96904931, -0.88894808, -0.81112488, -0.47925922, 0.09056925, 0.53094768, 0.33971972, -0.35581284, 1.65390003},
-    // Solar metallicity Z_Sun
-    {3.27883249, 1.79370338, -0.71413866, -0.77019351, -0.3898752,  0.07499563, 0.5920458,  0.33846556, -0.49649838, 1.71263853}
+    {3.2555795,  1.84666823, -0.79986388, -0.75728099, -0.38831172, 0.08223542, 0.49543834, 0.31314176, -0.36705796, 1.72200581},   // 0.1*Z_Sun
+    {3.35622529, 1.96904931, -0.88894808, -0.81112488, -0.47925922, 0.09056925, 0.53094768, 0.33971972, -0.35581284, 1.65390003},   // 1/3*Z_Sun
+    {3.27883249, 1.79370338, -0.71413866, -0.77019351, -0.3898752,  0.07499563, 0.5920458,  0.33846556, -0.49649838, 1.71263853}    // Solar metallicity Z_Sun
 };
 
 #endif // __constants_h__
