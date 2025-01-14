@@ -2396,7 +2396,7 @@ double BaseBinaryStar::CalculateAngularMomentum(const double p_SemiMajorAxis,
 
     double Jorb = CalculateOrbitalAngularMomentum(p_Star1Mass, p_Star2Mass, p_SemiMajorAxis, p_Eccentricity);
 
-	return (p_Star1MomentOfInertia * p_Star1SpinAngularVelocity) + (p_Star2MomentOfInertia * p_Star2SpinAngularVelocity) + Jorb;
+    return (p_Star1MomentOfInertia * p_Star1SpinAngularVelocity) + (p_Star2MomentOfInertia * p_Star2SpinAngularVelocity) + Jorb;
 }
 
 
@@ -2418,8 +2418,8 @@ void BaseBinaryStar::CalculateEnergyAndAngularMomentum() {
     m_OrbitalAngularMomentumPrev = m_OrbitalAngularMomentum;
     m_TotalAngularMomentumPrev   = m_TotalAngularMomentum;
 
-	double totalMass             = m_Star1->Mass() + m_Star2->Mass();
-	double reducedMass           = (m_Star1->Mass() * m_Star2->Mass()) / totalMass;
+    double totalMass             = m_Star1->Mass() + m_Star2->Mass();
+    double reducedMass           = (m_Star1->Mass() * m_Star2->Mass()) / totalMass;
 
     m_OrbitalEnergy              = CalculateOrbitalEnergy(reducedMass, totalMass, m_SemiMajorAxis);
     m_OrbitalAngularMomentum     = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
@@ -2457,9 +2457,9 @@ void BaseBinaryStar::ResolveMassChanges() {
     
         if (utils::Compare(massChange, 0.0) != 0) {                                                     // winds/mass transfer changes mass?
             // yes - calculate new angular momentum; assume accretor is adding angular momentum from a circular orbit at the stellar radius
-            double angularMomentumChange = (utils::Compare(massChange, 0.0) > 0) ?
-                massChange * sqrt(G_AU_Msol_yr * m_Star1->Mass() * m_Star1->Radius() * RSOL_TO_AU) :
-                (2.0 / 3.0) * massChange * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Omega();
+            double angularMomentumChange = (utils::Compare(massChange, 0.0) > 0)
+		                            ? massChange * sqrt(G_AU_Msol_yr * m_Star1->Mass() * m_Star1->Radius() * RSOL_TO_AU)
+		                            : (2.0 / 3.0) * massChange * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Omega();
             // update mass of star according to mass loss and mass transfer, then update age accordingly
             (void)m_Star1->UpdateAttributes(massChange, 0.0);                                           // update mass for star
             m_Star1->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
@@ -2480,9 +2480,9 @@ void BaseBinaryStar::ResolveMassChanges() {
         double massChange = m_Star2->MassLossDiff() + m_Star2->MassTransferDiff();                      // mass change due to winds and mass transfer
         if (utils::Compare(massChange, 0.0) != 0) {                                                     // winds/mass transfer changes mass?
             // yes - calculate new angular momentum; assume accretor is adding angular momentum from a circular orbit at the stellar radius
-            double angularMomentumChange = (utils::Compare(massChange, 0.0) > 0) ?
-                massChange * sqrt(G_AU_Msol_yr * m_Star2->Mass() * m_Star2->Radius() * RSOL_TO_AU) :
-                (2.0 / 3.0) * massChange * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Omega();
+            double angularMomentumChange = (utils::Compare(massChange, 0.0) > 0)
+		                            ? massChange * sqrt(G_AU_Msol_yr * m_Star2->Mass() * m_Star2->Radius() * RSOL_TO_AU)
+		                            : (2.0 / 3.0) * massChange * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Omega();
             // update mass of star according to mass loss and mass transfer, then update age accordingly
             (void)m_Star2->UpdateAttributes(massChange, 0.0);                                           // update mass for star
             m_Star2->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
@@ -2508,8 +2508,6 @@ void BaseBinaryStar::ResolveMassChanges() {
         m_Star2->ResetEnvelopeExpulsationByPulsations();
     }
 
-
-
     CalculateEnergyAndAngularMomentum();                                                                // perform energy and angular momentum calculations
 
     if ((m_Star1->StellarType() != stellarType1) || (m_Star2->StellarType() != stellarType2)) {         // stellar type change?
@@ -2530,7 +2528,6 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
 
     if (!m_Unbound) {                                                                                                           // binary bound?
                                                                                                                                 // yes - process tides if enabled
-
         double omega = OrbitalAngularVelocity();
         
         switch (OPTIONS->TidesPrescription()) {                                                                                 // which tides prescription?
@@ -2540,31 +2537,32 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
 
                 // if at least one star is CHE, then circularize the binary and synchronize only the CHE stars conserving total angular momentum
                 if (OPTIONS->CHEMode() != CHE_MODE::NONE && HasOneOf({STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS})) {                 // one CHE star?
-                    double che_I1 = 0.0;
-                    double che_I2 = 0.0;
+                    double che_I1   = 0.0;
+                    double che_I2   = 0.0;
                     double che_Ltot = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
 
                     if (m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) {
-                        che_I1 = m_Star1->CalculateMomentOfInertiaAU();
+                        che_I1    = m_Star1->CalculateMomentOfInertiaAU();
                         che_Ltot += m_Star1->AngularMomentum();
-                        }
+                    }
+			
                     if (m_Star2->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) {
-                        che_I2 = m_Star2->CalculateMomentOfInertiaAU();
+                        che_I2    = m_Star2->CalculateMomentOfInertiaAU();
                         che_Ltot += m_Star2->AngularMomentum();
-                        }
+                    }
 
                     double omega_sync = OmegaAfterSynchronisation(m_Star1->Mass(), m_Star2->Mass(), che_I1, che_I2, che_Ltot, omega);
-                    if (omega_sync >= 0.0) {                                                                                        // root found? (don't use utils::Compare() here)
-                                                                                                                                    // yes
+                    if (omega_sync >= 0.0) {                                                                                    // root found? (don't use utils::Compare() here)
+                                                                                                                                // yes
                         if (m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS){m_Star1->SetOmega(omega_sync);}
                         if (m_Star2->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS){m_Star2->SetOmega(omega_sync);}        
                                                                                 
-                        m_SemiMajorAxis = std::cbrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / omega_sync / omega_sync);  // re-calculate semi-major axis
-                        m_Eccentricity         = 0.0;                                                                               // circularise
-                        m_TotalAngularMomentum = CalculateAngularMomentum();                                                        // re-calculate total angular momentum
+                        m_SemiMajorAxis = std::cbrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / omega_sync / omega_sync); // re-calculate semi-major axis
+                        m_Eccentricity           = 0.0;                                                                         // circularise
+                        m_TotalAngularMomentum   = CalculateAngularMomentum();                                                  // re-calculate total angular momentum
                         m_OrbitalAngularMomentum = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
                     }
-                    else {                                                                                                          // no (real) root found, synchronize CHE stars ignoring angular momentum conservation
+                    else {                                                                                                      // no (real) root found, synchronize CHE stars ignoring angular momentum conservation
                         if (m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS){m_Star1->SetOmega(omega);}
                         if (m_Star2->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS){m_Star2->SetOmega(omega);}
                     }
@@ -2610,9 +2608,9 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
                     m_Star1->SetOmega(omega);                                                                                   // synchronise star 1
                     m_Star2->SetOmega(omega);                                                                                   // synchronise star 2
 
-                    m_SemiMajorAxis        = std::cbrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / omega / omega);     // re-calculate semi-major axis
-                    m_Eccentricity         = 0.0;                                                                               // circularise
-                    m_TotalAngularMomentum = CalculateAngularMomentum();                                                        // re-calculate total angular momentum
+                    m_SemiMajorAxis          = std::cbrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / omega / omega);   // re-calculate semi-major axis
+                    m_Eccentricity           = 0.0;                                                                             // circularise
+                    m_TotalAngularMomentum   = CalculateAngularMomentum();                                                      // re-calculate total angular momentum
                     m_OrbitalAngularMomentum = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
                 }
                 else {                                                                                                          // no (real) root found
@@ -2655,6 +2653,7 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
         }
     }
 }
+
 
 /*
  * Root solver to determine rotational frequency after synchronisation for tides
@@ -2757,7 +2756,6 @@ double BaseBinaryStar::OmegaAfterSynchronisation(const double p_M1, const double
 
     return root.first + (root.second - root.first) / 2.0;                                               // midway between brackets (could return brackets...)
 }
-
 
 
 /*
