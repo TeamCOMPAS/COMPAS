@@ -301,19 +301,14 @@ void BaseBinaryStar::SetRemainingValues() {
 
         // check for CHE
         //
-        // because we've changed the rotational frequency of the constituent stars we
-        // have to reset the stellar type - at this stage, based on their rotational
-        // frequency at birth, they may have already been assigned one of MS_LTE_07,
-        // MS_GT_07, or CHEMICALLY_HOMOGENEOUS
-        //
-        // here we need to change from MS_* -> CH, or from CH->MS* based on the
-        // newly-assigned rotational frequencies
+        // here we need to change from MS_* -> CH, or from CH->MS* based on the binary orbital frequency, assuming that the stars are tidally locked
+        // set the spin to the orbital frequency, unless the user has specified a spin frequency
 
         // star 1
         if (utils::Compare(omega, m_Star1->OmegaCHE()) >= 0) {                                                                                          // star 1 CH?
             if (m_Star1->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) {
                 (void)m_Star1->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                                    // yes, switch if not already Chemically Homogeneous
-                m_Star1->SetOmega(omega); }                                                                                                             // set omega at onset of CHE
+                if (OPTIONS->OptionDefaulted("rotational-frequency-1")) m_Star1->SetOmega(omega); }                                                     // set spin to orbital frequency unless user specified
         }
         else if (m_Star1->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  (don't use utils::Compare() here)
             if (m_Star1->StellarType() != STELLAR_TYPE::MS_LTE_07) (void)m_Star1->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                              // MS <= 0.7 Msol - switch if necessary
@@ -326,7 +321,7 @@ void BaseBinaryStar::SetRemainingValues() {
         if (utils::Compare(omega, m_Star2->OmegaCHE()) >= 0) {                                                                                          // star 2 CH?
             if (m_Star2->StellarType() != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS) {
                 (void)m_Star2->SwitchTo(STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS, true);                                                                    // yes, switch if not already Chemically Homogeneous
-                m_Star2->SetOmega(omega); }                                                                                                             // set omega at onset of CHE
+                if (OPTIONS->OptionDefaulted("rotational-frequency-2")) m_Star2->SetOmega(omega); }                                                     // set spin to orbital frequency unless user specified
         }
         else if (m_Star2->MZAMS() <= 0.7) {                                                                                                             // no - MS - initial mass determines actual type  (don't use utils::Compare() here)
             if (m_Star2->StellarType() != STELLAR_TYPE::MS_LTE_07) (void)m_Star2->SwitchTo(STELLAR_TYPE::MS_LTE_07, true);                              // MS <= 0.0 Msol - switch if necessary
@@ -2558,13 +2553,13 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
                         che_Ltot += m_Star2->AngularMomentum();
                         }
 
-                    double omega = OmegaAfterSynchronisation(m_Star1->Mass(), m_Star2->Mass(), che_I1, che_I2, che_Ltot, OrbitalAngularVelocity());
-                    if (omega >= 0.0) {                                                                                             // root found? (don't use utils::Compare() here)
+                    double omega_sync = OmegaAfterSynchronisation(m_Star1->Mass(), m_Star2->Mass(), che_I1, che_I2, che_Ltot, omega);
+                    if (omega_sync >= 0.0) {                                                                                        // root found? (don't use utils::Compare() here)
                                                                                                                                     // yes
-                        if (m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS){m_Star1->SetOmega(omega);}
-                        if (m_Star2->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS){m_Star2->SetOmega(omega);}        
+                        if (m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS){m_Star1->SetOmega(omega_sync);}
+                        if (m_Star2->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS){m_Star2->SetOmega(omega_sync);}        
                                                                                 
-                        m_SemiMajorAxis = std::cbrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / omega / omega);            // re-calculate semi-major axis
+                        m_SemiMajorAxis = std::cbrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / omega_sync / omega_sync);  // re-calculate semi-major axis
                         m_Eccentricity         = 0.0;                                                                               // circularise
                         m_TotalAngularMomentum = CalculateAngularMomentum();                                                        // re-calculate total angular momentum
                         m_OrbitalAngularMomentum = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
