@@ -2917,8 +2917,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         }
     }
 
-    if (!StellarMerger()) {                                                                                             // stellar merger?
-                                                                                                                        // no - continue evolution
+    if (!StellarMerger() || (HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) && OPTIONS->EvolveMainSequenceMergers())) {   // check stellar merger or evolving MS mergers
+                                                                                                                        // continue evolution
         if ((m_Star1->IsSNevent() || m_Star2->IsSNevent())) {
             EvaluateSupernovae();                                                                                       // evaluate supernovae (both stars) if mass changes are responsible for a supernova
             (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                         // print (log) detailed output
@@ -3172,23 +3172,25 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                     }
                 }
 
-                (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::PRE_STELLAR_TIMESTEP);                                        // print (log) detailed output
-
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
                                                                                                                                         // yes
+                    (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::PRE_STELLAR_TIMESTEP);                                    // print (log) detailed output
+
                     error = EvolveOneTimestep(dt);                                                                                      // evolve the binary system one timestep
                     if (error != ERROR::NONE) {                                                                                         // SSE error for either constituent star?
                         evolutionStatus = EVOLUTION_STATUS::SSE_ERROR;                                                                  // yes - stop evolution
                     }
-                    else {                                                                                                              // continue evolution
+                }
 
-                        (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                                  // print (log) detailed output: this is after all changes made in the timestep
+                (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                                          // print (log) detailed output: this is after all changes made in the timestep
 
-                        if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) evolutionStatus = EVOLUTION_STATUS::STEPS_UP;          // number of timesteps for evolution exceeds maximum
-                        else if (evolutionStatus == EVOLUTION_STATUS::CONTINUE && usingProvidedTimesteps && stepNum >= timesteps.size()) { // using user-provided timesteps and all consumed
-                            evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_EXHAUSTED;                                                    // yes - set status
-                            SHOW_WARN(ERROR::TIMESTEPS_EXHAUSTED);                                                                      // show warning
-                        }
+
+                if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
+                                                                                                                                        // yes
+                    if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) evolutionStatus = EVOLUTION_STATUS::STEPS_UP;              // number of timesteps for evolution exceeds maximum
+                    else if (evolutionStatus == EVOLUTION_STATUS::CONTINUE && usingProvidedTimesteps && stepNum >= timesteps.size()) {  // using user-provided timesteps and all consumed
+                        evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_EXHAUSTED;                                                        // yes - set status
+                        SHOW_WARN(ERROR::TIMESTEPS_EXHAUSTED);                                                                          // show warning
                     }
 
                     if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                // continue evolution?
