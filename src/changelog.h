@@ -1427,7 +1427,9 @@
 //                                      - fix for issue #1317 - SN events not always logged in BSE SN file when evolving MS merger products
 //                                      - added code to ensure final BSE detailed output file TIMESTEP_COMPLETED record is always logged
 //                                        (may duplicate FINAL_STATE record, but logging TIMESTEP_COMPLETED is consistent, and it's what most people look for) 
+// 03.10.06   VK - Jan 13, 2025      - Enhancement:
+//                                      - Modified the KAPIL2024 tides to ignore quadratic 'e' terms (for spin and separation evolution) if they spin up an already synchronized star.
 
-const std::string VERSION_STRING = "03.10.05";
+const std::string VERSION_STRING = "03.10.06";
 
 # endif // __changelog_h__
