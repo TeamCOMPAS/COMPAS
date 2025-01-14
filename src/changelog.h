@@ -1430,9 +1430,11 @@
 // 03.10.06   VK - Jan 13, 2025      - Enhancement:
 //                                      - Modified the KAPIL2024 tides to ignore quadratic 'e' terms (for spin and separation evolution) if they spin up an already synchronized star.
 // 03.11.00   VK - Jan 14, 2025     - Enhancement, Defect repair:
-//                                      - Fix for issue #1303 - Reduction in production of BHBH from CHE
-//                                      - Modified CHE initialization logic to compare against orbital angular frequency rather than the stellar angular frequency, in case the stars have not been spun up yet
-//                                      - Moved all CHE rotation related code to ProcessTides(), ensuring that any spin up conserves total angular momentum
+//                                      - Fix for issue #1303 - Reduction in production of BHBH from CHE, other CHE-related improvements.
+//                                      - Stars that have sufficiently rapid angular frequencies at ZAMS are now initialized as CHE stars, regardless of the tidal prescription.
+//                                      - At CHE initialization, stellar spin is set to orbital frequency, unless rotational frequency has been specified by user. This process does not conserve angular momentum (implicitly assuming spin-up in the pre-ZAMS phase).
+//                                      - When checking for CHE, compare threshold frequency against orbit rather than stellar spin, in case the star has zero frequency (no tides, no user-specified value).
+//                                      - Moved all CHE rotation related code to ProcessTides(), ensuring that any spin up during binary evolution conserves total angular momentum.
 
 const std::string VERSION_STRING = "03.11.00";
 
