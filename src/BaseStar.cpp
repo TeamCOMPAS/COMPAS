@@ -4533,7 +4533,7 @@ STELLAR_TYPE BaseStar::UpdateAttributesAndAgeOneTimestep(const double p_DeltaMas
         stellarType = STELLAR_TYPE::MASSLESS_REMNANT;
     }
     else {
-        stellarType = ResolveSupernova();                                                       // handle supernova              
+        stellarType = ResolveSupernova();                                                       // handle supernova
         if (stellarType == m_StellarType) {                                                     // still on phase?
             
             UpdateAttributesAndAgeOneTimestepPreamble(p_DeltaMass, p_DeltaMass0, p_DeltaTime);  // apply mass changes and save current values if required

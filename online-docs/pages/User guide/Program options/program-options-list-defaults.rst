@@ -857,7 +857,7 @@ Default = ISOTROPIC
 
 **--mass-transfer-fa** |br|
 Mass Transfer fraction accreted (beta). |br|
-Used when ``--mass-transfer-accretion-efficiency-prescription = FIXED_FRACTION``. |br|
+Used when ``--mass-transfer-accretion-efficiency-prescription = FIXED``. |br|
 Default = 0.5
 
 **--mass-transfer-jloss** |br|

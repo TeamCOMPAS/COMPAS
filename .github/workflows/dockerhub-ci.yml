@@ -5,26 +5,41 @@ on:
     branches: [ dev ]
   workflow_dispatch: null
 
+# Ensures only the latest workflow run for the same branch is active, canceling any in-progress runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   release:
     name: Build Docker image and push to DockerHub
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
-        
+      - uses: actions/checkout@v4
+
       - name: Log in to Dockerhub
-        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-      
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Get release version
         run: echo "COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/changelog.h | sed 's/.*"\(.*\)"[^"]*$/\1/')" >> $GITHUB_ENV
-        
+
       - name: Print version
         run: echo $COMPAS_VERSION
-        
-      - name: Build and tag Docker image
-        run: docker build -t teamcompas/compas:$COMPAS_VERSION -t teamcompas/compas:latest .
-        
-      - name: Push Docker image
-        run: |
-          docker push teamcompas/compas:$COMPAS_VERSION
-          docker push teamcompas/compas:latest
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            teamcompas/compas:${{ env.COMPAS_VERSION }}
+            teamcompas/compas:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
