@@ -20,13 +20,14 @@ public:
 
     MT_CASE DetermineMassTransferTypeAsDonor() const                                        { return MT_CASE::A; }                                                  // Always case A
     
-    const std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> SHIKAUCHI_COEFFICIENTS = InterpolateShikauchiCoefficients(m_Metallicity);                                 // Interpolate Shikauchi coefficients for the given metallicity;
+    const std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> SHIKAUCHI_COEFFICIENTS = InterpolateShikauchiCoefficients(m_Metallicity);                                 // Interpolate Shikauchi coefficients for the given metallicity
 
 protected:
     
     // member variables
 
     double          m_InitialMainSequenceCoreMass = 0.0;                                                                                                            // Initial mass of the mixing core is initialised in MS_gt_07 class
+    double          m_HeliumAbundanceCoreOut = m_InitialHeliumAbundance;                                                                                            // Helium abundance just outside the core, used for rejuvenation calculations
 
     // member functions - alphabetically
     double          CalculateAlphaL(const double p_Mass) const;

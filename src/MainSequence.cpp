@@ -734,9 +734,9 @@ double MainSequence::CalculateConvectiveCoreMass() const {
  * Based on section 7.2 (after Eq. 111) of Hurley, Pols, Tout (2000)
  *
  *
- * double CalculateConvectiveEnvelopeMass() const
+ * DBL_DBL CalculateConvectiveEnvelopeMass() const
  *
- * @return                                      Mass of convective envelope in Msol
+ * @return                                      Tuple containing current mass of convective envelope and mass at ZAMS in Msol
  */
 DBL_DBL MainSequence::CalculateConvectiveEnvelopeMass() const {
     if (utils::Compare(m_Mass, 1.25) > 0) return std::tuple<double, double> (0.0, 0.0);
@@ -765,8 +765,6 @@ DBL_DBL MainSequence::CalculateConvectiveEnvelopeMass() const {
  */
 DBL_DBL MainSequence::CalculateMainSequenceCoreMassShikauchi(const double p_Dt, const double p_MassLossRate) {
     
-    static double heliumAbundanceCoreOut{ m_InitialHeliumAbundance };                                                                                           // Helium abundance just outside the core - initially m_InitialHeliumAbundance
-
     // get Shikauchi coefficients
     DBL_VECTOR ALPHA_COEFFICIENTS = std::get<0>(SHIKAUCHI_COEFFICIENTS);
     DBL_VECTOR FMIX_COEFFICIENTS  = std::get<1>(SHIKAUCHI_COEFFICIENTS);
@@ -798,7 +796,7 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassShikauchi(const double p_Dt, 
     if (deltaCoreMass > 0.0) {                                                                                                                                  // If the core grows, we need to account for rejuvenation
         if (utils::Compare(newMixingCoreMass, m_InitialMainSequenceCoreMass) < 0) {                                                                             // New core mass less than initial core mass?
             // Common factors
-            double f1 = heliumAbundanceCoreOut - m_InitialHeliumAbundance;
+            double f1 = m_HeliumAbundanceCoreOut - m_InitialHeliumAbundance;
             double f2 = m_MainSequenceCoreMass - m_InitialMainSequenceCoreMass;
             double f3 = m_MainSequenceCoreMass + deltaCoreMass;
 
@@ -806,33 +804,33 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassShikauchi(const double p_Dt, 
             double deltaYout = f1 / f2 * deltaCoreMass;
 
             // Calculate the change in core helium abundance, assuming linear profile between Yc and Y0, and that the the accreted gas has helium fraction Y0
-            double deltaY            = (heliumAbundanceCoreOut - m_HeliumAbundanceCore) / f3 * deltaCoreMass + 0.5 / f3 * f1 / f2 * deltaCoreMass * deltaCoreMass;
+            double deltaY            = (m_HeliumAbundanceCoreOut - m_HeliumAbundanceCore) / f3 * deltaCoreMass + 0.5 / f3 * f1 / f2 * deltaCoreMass * deltaCoreMass;
             newCentralHeliumFraction = m_HeliumAbundanceCore + deltaY;
-            heliumAbundanceCoreOut  += deltaYout;
+            m_HeliumAbundanceCoreOut  += deltaYout;
         }
         else {                                                                                                                                                  // New core mass greater or equal to the initial core mass?
             double deltaCoreMass1         = m_InitialMainSequenceCoreMass - m_MainSequenceCoreMass;                                                             // Mass accreted up to the initial core mass
             double deltaCoreMass2         = deltaCoreMass - deltaCoreMass1;                                                                                     // Remaining accreted mass
-            newCentralHeliumFraction      = (m_MainSequenceCoreMass * m_HeliumAbundanceCore + 0.5 * (heliumAbundanceCoreOut + m_InitialHeliumAbundance) * deltaCoreMass1 + deltaCoreMass2 * m_InitialHeliumAbundance) / (m_MainSequenceCoreMass + deltaCoreMass);
-            heliumAbundanceCoreOut        = m_InitialHeliumAbundance;
+            newCentralHeliumFraction      = (m_MainSequenceCoreMass * m_HeliumAbundanceCore + 0.5 * (m_HeliumAbundanceCoreOut + m_InitialHeliumAbundance) * deltaCoreMass1 + deltaCoreMass2 * m_InitialHeliumAbundance) / (m_MainSequenceCoreMass + deltaCoreMass);
+            m_HeliumAbundanceCoreOut        = m_InitialHeliumAbundance;
             m_InitialMainSequenceCoreMass = newMixingCoreMass;
         }
     }
     else
-        heliumAbundanceCoreOut = newCentralHeliumFraction;                                                                                                      // If core did not grow, Y_out = Y_c
+        m_HeliumAbundanceCoreOut = newCentralHeliumFraction;                                                                                                      // If core did not grow, Y_out = Y_c
     
     return std::tuple<double, double> (newMixingCoreMass, std::min(newCentralHeliumFraction, 1.0 - m_Metallicity));
 }
 
 
 /*
- * Calculate the initial core mass of a main sequence star using Equation (A3) from Shikauchi et al. (2024)
- *
+ * Calculate the initial convective core mass of a main sequence star using Equation (A3) from Shikauchi et al. (2024),
+ * also used for calculating core mass after MS merger
  *
  * double CalculateInitialMainSequenceCoreMass(const double p_MZAMS)
  *
- * @param   [IN]    p_MZAMS                     Mass at ZAMS in Msol
- * @return                                      Mass of the convective core in Msol at ZAMS
+ * @param   [IN]    p_MZAMS                     Mass at ZAMS or after merger in Msol
+ * @return                                      Mass of the convective core at ZAMS or after merger in Msol
  */
 double MainSequence::CalculateInitialMainSequenceCoreMass(const double p_MZAMS) const {
     DBL_VECTOR fmixCoefficients = std::get<1>(SHIKAUCHI_COEFFICIENTS);
@@ -858,7 +856,7 @@ void MainSequence::UpdateMainSequenceCoreMass(const double p_Dt, const double p_
     double age                  = m_Age;                                                                                                // default is no change
 
     switch (OPTIONS->MainSequenceCoreMassPrescription()) {
-        case CORE_MASS_PRESCRIPTION::NONE: 
+        case CORE_MASS_PRESCRIPTION::ZERO: 
             mainSequenceCoreMass = 0.0;
             break;
         
@@ -881,7 +879,7 @@ void MainSequence::UpdateMainSequenceCoreMass(const double p_Dt, const double p_
                     std::tie(mainSequenceCoreMass, heliumAbundanceCore) = CalculateMainSequenceCoreMassShikauchi(p_Dt, p_MassLossRate); // calculate and update the core mass and central helium fraction
 
                     double tMS = m_Timescales[static_cast<int>(TIMESCALE::tMS)];       
-                    age        = (m_HeliumAbundanceCore - m_InitialHeliumAbundance) / m_InitialHydrogenAbundance * 0.99 * tMS;          // update the effective age based on central helium fraction
+                    age        = (heliumAbundanceCore - m_InitialHeliumAbundance) / m_InitialHydrogenAbundance * 0.99 * tMS;            // update the effective age based on central helium fraction
                 }
             }
             // MZAMS less than the limit? MANDEL prescription used
