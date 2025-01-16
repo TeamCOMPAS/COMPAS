@@ -968,6 +968,7 @@ double TPAGB::ChooseTimestep(const double p_Time) const {
 #undef timescales
 }
 
+
 /*
  * Determine if star should continue evolution as a Supernova
  *
@@ -977,9 +978,8 @@ double TPAGB::ChooseTimestep(const double p_Time) const {
  * @return                                      Boolean flag: true if star has gone Supernova, false if not
  */
 bool TPAGB::IsSupernova() const {
-    if(utils::SNEventType(m_SupernovaDetails.events.current) != SN_EVENT::NONE)
-        return true;                                                                            // already labeled as going through a SN right now
-    double snMass = CalculateInitialSupernovaMass();                                            // calculate SN initial mass
-    return ( utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >=0 && utils::Compare(snMass, OPTIONS->MCBUR1()) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0 );
     // no supernova if CO core mass is too low or helium core mass is too low at base of AGB or the envelope has already been removed
+    return utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >=0  && 
+           utils::Compare(CalculateInitialSupernovaMass(), OPTIONS->MCBUR1())    >= 0 && 
+           utils::Compare(m_COCoreMass, m_Mass) < 0;
 }

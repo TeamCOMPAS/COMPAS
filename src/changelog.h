@@ -1427,7 +1427,7 @@
 //                                      - fix for issue #1317 - SN events not always logged in BSE SN file when evolving MS merger products
 //                                      - added code to ensure final BSE detailed output file TIMESTEP_COMPLETED record is always logged
 //                                        (may duplicate FINAL_STATE record, but logging TIMESTEP_COMPLETED is consistent, and it's what most people look for) 
-// 03.10.06   VK - Jan 13, 2025      - Enhancement:
+// 03.10.06   VK - Jan 13, 2025     - Enhancement:
 //                                      - Modified the KAPIL2024 tides to ignore quadratic 'e' terms (for spin and separation evolution) if they spin up an already synchronized star.
 // 03.11.00   VK - Jan 14, 2025     - Enhancement, Defect repair:
 //                                      - Fix for issue #1303 - Reduction in production of BHBH from CHE, other CHE-related improvements.
@@ -1441,7 +1441,9 @@
 //                                        ZERO (main sequence core mass set to zero, no treatment)
 //                                      - Added new luminosity prescription for main sequence stars from Shikauchi et al. (2024)
 //                                      - Added treatment for rejuvenation of main sequence accretors when the new prescription is used
+// 03.12.01   JR - Jan 17, 2025     - Defect repair:
+//                                      - (partial?) fix for issue #1149 - remove conditional from TPAGB::IsSupernova().  Whether it fixes issue 1149 completely or not, the conditional shouldn't be there...
 
-const std::string VERSION_STRING = "03.12.00";
+const std::string VERSION_STRING = "03.12.01";
 
 # endif // __changelog_h__
