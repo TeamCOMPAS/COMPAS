@@ -979,7 +979,7 @@ double TPAGB::ChooseTimestep(const double p_Time) const {
  */
 bool TPAGB::IsSupernova() const {
     // no supernova if CO core mass is too low or helium core mass is too low at base of AGB or the envelope has already been removed
-    return utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >=0  && 
+    return utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >= 0 && 
            utils::Compare(CalculateInitialSupernovaMass(), OPTIONS->MCBUR1())    >= 0 && 
            utils::Compare(m_COCoreMass, m_Mass) < 0;
 }
