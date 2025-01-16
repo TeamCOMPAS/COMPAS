@@ -137,13 +137,13 @@ public:
             double              LogMetallicitySigma() const                                     { return m_Log10Metallicity; }                  // sigma in Hurley+ 2000
             double              LogMetallicityXi() const                                        { return m_Log10Metallicity - LOG10_ZSOL; }     // xi in Hurley+ 2000
             double              Luminosity() const                                              { return m_Luminosity; }
+            double              MainSequenceCoreMass() const                                    { return m_MainSequenceCoreMass; }
             double              Mass() const                                                    { return m_Mass; }
             double              Mass0() const                                                   { return m_Mass0; }
             double              MassPrev() const                                                { return m_MassPrev; }
             ST_VECTOR           MassTransferDonorHistory() const                                { return m_MassTransferDonorHistory; }
             double              Mdot() const                                                    { return m_Mdot; }
             double              Metallicity() const                                             { return m_Metallicity; }
-            double              MinimumCoreMass() const                                         { return m_MinimumCoreMass; }
             double              MZAMS() const                                                   { return m_MZAMS; }
             double              Omega() const                                                   { return m_AngularMomentum / CalculateMomentOfInertiaAU(); }
             double              OmegaCHE() const                                                { return m_OmegaCHE; }
@@ -185,6 +185,7 @@ public:
             double              Temperature() const                                             { return m_Temperature; }
             double              Time() const                                                    { return m_Time; }
             double              Timescale(TIMESCALE p_Timescale) const                          { return m_Timescales[static_cast<int>(p_Timescale)]; }
+            double              TotalMassLossRate() const                                       { return m_TotalMassLossRate; }
             double              TZAMS() const                                                   { return m_TZAMS; }
     virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::ZERO; }
             double              XExponent() const                                               { return m_XExponent; }
@@ -212,7 +213,7 @@ public:
 
 
     // member functions - alphabetically
-            void            ApplyMassTransferRejuvenationFactor()                                               { m_Age *= CalculateMassTransferRejuvenationFactor(); }             // Apply age rejuvenation factor
+            void            ApplyMassTransferRejuvenationFactor()                               { m_Age *= CalculateMassTransferRejuvenationFactor(); }                             // Apply age rejuvenation factor
 
             void            CalculateBindingEnergies(const double p_CoreMass, const double p_EnvMass, const double p_Radius);
     
@@ -282,7 +283,7 @@ public:
     
     virtual double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const            { return 0.0; }                                                     // Only defined for MS stars
     
-    virtual double          CalculateRemnantRadius() const                                                      { return Radius(); }    // relevant for MS stars, over-written for GB stars
+    virtual double          CalculateRemnantRadius() const                                                      { return Radius(); }                                                // Relevant for MS stars, over-written for GB stars
 
 
             void            CalculateSNAnomalies(const double p_Eccentricity);
@@ -343,7 +344,7 @@ public:
             void            StashSupernovaDetails(const STELLAR_TYPE p_StellarType,
                                                   const SSE_SN_RECORD_TYPE p_RecordType = SSE_SN_RECORD_TYPE::DEFAULT) { LOGGING->StashSSESupernovaDetails(this, p_StellarType, p_RecordType); }
 
-    virtual double          TAMSCoreMass() const                                                                { return 0.0; }                                                                                                             // except MS stars
+    virtual double          TAMSCoreMass() const                                                                { return 0.0; }                                                     // Except MS stars
     
     virtual void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass) { }                                                                                             // Default is NO-OP
     virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
@@ -362,8 +363,9 @@ public:
                                                        const double p_MassGainPerTimeStep,
                                                        const double p_Epsilon) { }                                                                                                  // Default is NO-OP
 
-    virtual void            UpdateMinimumCoreMass() { }                                                                                                                             // Only set minimal core mass following Main Sequence mass transfer to MS age fraction of TAMS core mass; default is NO-OP
-
+    virtual void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate) { }                                                                     // Set core mass for Main Sequence stars; default is NO-OP
+    
+    virtual void            UpdateTotalMassLossRate(const double p_MassLossRate)                                { m_TotalMassLossRate = p_MassLossRate; }                           // m_TotalMassLossRate = -m_Mdot in SSE, during a mass transfer episode m_TotalMassLossRate = m_MassLossRateInRLOF
     
     // printing functions
     bool PrintDetailedOutput(const int p_Id, const SSE_DETAILED_RECORD_TYPE p_RecordType) const { 
@@ -379,7 +381,7 @@ public:
     }
 
     bool PrintSwitchLog() const { 
-        return OPTIONS->SwitchLog() ? (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT ? LOGGING->LogSSESwitchLog(this) : true) : true;                                                                                                        // Write record to SSE Switchlog log file
+        return OPTIONS->SwitchLog() ? (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT ? LOGGING->LogSSESwitchLog(this) : true) : true;                      // Write record to SSE Switchlog log file
     }
 
     bool PrintSystemParameters(const SSE_SYSPARMS_RECORD_TYPE p_RecordType = SSE_SYSPARMS_RECORD_TYPE::DEFAULT) const {
@@ -434,9 +436,9 @@ protected:
     double                  m_HydrogenAbundanceSurface;                 // Hydrogen abundance at the surface
     bool                    m_LBVphaseFlag;                             // Flag to know if the star satisfied the conditions, at any point in its evolution, to be considered a Luminous Blue Variable (LBV)
     double                  m_Luminosity;                               // Current luminosity (Lsol)
+    double                  m_MainSequenceCoreMass;                     // Core mass of main sequence stars (Msol)
     double                  m_Mass;                                     // Current mass (Msol)
     double                  m_Mass0;                                    // Current effective initial mass (Msol)
-    double                  m_MinimumCoreMass;                          // Minimum core mass at end of main sequence (MS stars have no core in the Hurley prescription)
     double                  m_MinimumLuminosityOnPhase;                 // Only required for CHeB stars, but only needs to be calculated once per star
     double                  m_Mdot;                                     // Current mass loss rate in winds (Msol per yr)
     MASS_LOSS_TYPE          m_DominantMassLossRate;                     // Current dominant type of wind mass loss
@@ -446,6 +448,7 @@ protected:
     double                  m_Tau;                                      // Relative time
     double                  m_Temperature;                              // Current temperature (Tsol)
     double                  m_Time;                                     // Current physical time the star has been evolved (Myr)
+    double                  m_TotalMassLossRate;                        // Current mass loss/gain rate from mass transfer or winds (Msol per yr)
 
     // Previous timestep variables
     double                  m_DtPrev;                                   // Previous timestep

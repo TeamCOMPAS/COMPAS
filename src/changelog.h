@@ -1435,7 +1435,13 @@
 //                                      - At CHE initialization, stellar spin is set to orbital frequency, unless rotational frequency has been specified by user. This process does not conserve angular momentum (implicitly assuming spin-up in the pre-ZAMS phase).
 //                                      - When checking for CHE, compare threshold frequency against orbit rather than stellar spin, in case the star has zero frequency (no tides, no user-specified value).
 //                                      - Moved all CHE rotation related code to ProcessTides(), ensuring that any spin up during binary evolution conserves total angular momentum.
+// 03.12.00   AB - Jan 16, 2025     - Enhancement:
+//                                      - Added Shikauchi et al. (2024) core mass prescription, describing convective core evolution under mass loss/gain
+//                                      - New options: --main-sequence-core-mass-prescription SHIKAUCHI (new prescription), MANDEL (replaces --retain-core-mass-during-caseA-mass-transfer),
+//                                        ZERO (main sequence core mass set to zero, no treatment)
+//                                      - Added new luminosity prescription for main sequence stars from Shikauchi et al. (2024)
+//                                      - Added treatment for rejuvenation of main sequence accretors when the new prescription is used
 
-const std::string VERSION_STRING = "03.11.00";
+const std::string VERSION_STRING = "03.12.00";
 
 # endif // __changelog_h__

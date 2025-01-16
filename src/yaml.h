@@ -299,6 +299,7 @@ namespace yaml {
             "    --envelope-state-prescription",
             "    --initial-mass-function",
             "    --LBV-mass-loss-prescription",
+            "    --main-sequence-core-mass-prescription",
             "    --mass-loss-prescription",
             "    --OB-mass-loss-prescription",
             "    --RSG-mass-loss-prescription",

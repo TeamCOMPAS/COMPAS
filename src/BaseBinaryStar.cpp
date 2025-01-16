@@ -1736,8 +1736,22 @@ void BaseBinaryStar::ResolveMainSequenceMerger() {
 	
     double finalMass               = (1.0 - phi) * (mass1 + mass2);
     double initialHydrogenFraction = m_Star1->InitialHydrogenAbundance();
-    double finalHydrogenMass       = finalMass * initialHydrogenFraction - tau1 * TAMSCoreMass1 * initialHydrogenFraction - tau2 * TAMSCoreMass2 * initialHydrogenFraction;
     
+    double finalHydrogenMass;
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) &&
+        (utils::Compare(m_Star1->MZAMS(), SHIKAUCHI_LOWER_MASS_LIMIT) >= 0)                &&
+        (utils::Compare(m_Star2->MZAMS(), SHIKAUCHI_LOWER_MASS_LIMIT) >= 0)) {
+        
+        double coreMass1       = m_Star1->MainSequenceCoreMass();
+        double coreMass2       = m_Star2->MainSequenceCoreMass();
+        
+        double coreHeliumMass1 = m_Star1->HeliumAbundanceCore() * coreMass1;
+        double coreHeliumMass2 = m_Star2->HeliumAbundanceCore() * coreMass2;
+        
+        finalHydrogenMass      = finalMass * initialHydrogenFraction - coreHeliumMass1 - coreHeliumMass2;
+    }
+    else finalHydrogenMass     = finalMass * initialHydrogenFraction - tau1 * TAMSCoreMass1 * initialHydrogenFraction - tau2 * TAMSCoreMass2 * initialHydrogenFraction;
+       
     m_SemiMajorAxis = std::numeric_limits<float>::infinity();                                   // set separation to infinity to avoid subsequent fake interactions with a massless companion (RLOF, CE, etc.)
     
     m_Star1->UpdateAfterMerger(finalMass, finalHydrogenMass);
@@ -2088,22 +2102,25 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             }
             else {                                                                                                              // have required mass loss
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
-                m_Donor->UpdateMinimumCoreMass();                                                                               // reset the minimum core mass following case A
+                m_Donor->UpdateTotalMassLossRate(massDiffDonor / (p_Dt * MYR_TO_YEAR));                                         // update mass loss rate for MS donor
+                m_Donor->UpdateMainSequenceCoreMass(p_Dt, massDiffDonor / (p_Dt * MYR_TO_YEAR));                                // update core mass for MS donor
             }
         }
 
         if (!m_CEDetails.CEEnow) {                                                                                              // CE flagged?
                                                                                                                                 // no
-            m_MassTransferTrackerHistory = m_Donor == m_Star1 ? MT_TRACKING::STABLE_1_TO_2_SURV : MT_TRACKING::STABLE_2_TO_1_SURV;  // record what happened - for later printing
-            double massGainAccretor = -massDiffDonor * m_FractionAccreted;                                                      // set accretor mass gain to mass loss * conservativeness
-            
+            m_MassTransferTrackerHistory = m_Donor == m_Star1 ? MT_TRACKING::STABLE_1_TO_2_SURV : MT_TRACKING::STABLE_2_TO_1_SURV; // record what happened - for later printing
+
+            double massGainAccretor  = -massDiffDonor * m_FractionAccreted;                                                     // set accretor mass gain to mass loss * conservativeness
             double omegaDonor_pre_MT = m_Donor->Omega();                                                                        // used if full donor envelope is removed
+
+            m_Accretor->UpdateTotalMassLossRate(massGainAccretor / (p_Dt * MYR_TO_YEAR));                                       // update mass gain rate for MS accretor
+            m_Accretor->UpdateMainSequenceCoreMass(p_Dt, massGainAccretor / (p_Dt * MYR_TO_YEAR));                              // update core mass for MS accretor
 
             m_Donor->SetMassTransferDiffAndResolveWDShellChange(massDiffDonor);                                                 // set new mass of donor
             m_Accretor->SetMassTransferDiffAndResolveWDShellChange(massGainAccretor);                                           // set new mass of accretor
 
             aFinal              = CalculateMassTransferOrbit(m_Donor->Mass(), massDiffDonor, *m_Accretor, m_FractionAccreted);  // calculate new orbit
-            
             m_aMassTransferDiff = aFinal - aInitial;                                                                            // set change in orbit (semi-major axis)
                                                                                                                     
             STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                             // donor stellar type before resolving envelope loss

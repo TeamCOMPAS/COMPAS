@@ -817,10 +817,15 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 
-    double RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
-    double RGB  = GiantBranch::CalculateRadiusOnPhase_Static(p_Mass, m_Luminosity, b);
+    double RTMS;  
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (utils::Compare(m_MZAMS, SHIKAUCHI_LOWER_MASS_LIMIT) >= 0))
+        RTMS = MainSequence::CalculateRadiusAtPhaseEnd(m_Mass, p_RZAMS);                                            // ensures continuity of stellar tracks when SHIKAUCHI core mass prescription is used
+    else
+        RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
 
-    double rx   = RGB;                                                                                              // Hurley sse terminlogy (rx)
+    double RGB = GiantBranch::CalculateRadiusOnPhase_Static(p_Mass, m_Luminosity, b);
+
+    double rx  = RGB;                                                                                               // Hurley sse terminlogy (rx)
 
     if (utils::Compare(p_Mass, massCutoffs(MFGB)) > 0) {                                                            // mass above threshold for He ignition?
                                                                                                                     // yes

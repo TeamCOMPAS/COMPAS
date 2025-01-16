@@ -211,16 +211,17 @@ private:
     //       is only shown once per COMPAS run).
 
     std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionStrings = {
-        { "black-hole-kicks",                      "black-hole-kicks-mode",                           false },
-        { "chemically-homogeneous-evolution",      "chemically-homogeneous-evolution-mode",           false },
-        { "kick-direction",                        "kick-direction-distribution",                     false },
-        { "luminous-blue-variable-prescription",   "LBV-mass-loss-prescription",                      false },
-        { "mass-transfer",                         "use-mass-transfer",                               false },
-        { "mass-transfer-thermal-limit-accretor",  "mass-transfer-thermal-limit-accretor-multiplier", false },
-        { "OB-mass-loss",                          "OB-mass-loss-prescription",                       false },
-        { "RSG-mass-loss",                         "RSG-mass-loss-prescription",                      false },
-        { "VMS-mass-loss",                         "VMS-mass-loss-prescription",                      false },
-        { "WR-mass-loss",                          "WR-mass-loss-prescription",                       false }
+        { "black-hole-kicks",                            "black-hole-kicks-mode",                           false },
+        { "chemically-homogeneous-evolution",            "chemically-homogeneous-evolution-mode",           false },
+        { "kick-direction",                              "kick-direction-distribution",                     false },
+        { "luminous-blue-variable-prescription",         "LBV-mass-loss-prescription",                      false },
+        { "mass-transfer",                               "use-mass-transfer",                               false },
+        { "mass-transfer-thermal-limit-accretor",        "mass-transfer-thermal-limit-accretor-multiplier", false },
+        { "OB-mass-loss",                                "OB-mass-loss-prescription",                       false },
+        { "retain-core-mass-during-caseA-mass-transfer", "",                                                false },
+        { "RSG-mass-loss",                               "RSG-mass-loss-prescription",                      false },
+        { "VMS-mass-loss",                               "VMS-mass-loss-prescription",                      false },
+        { "WR-mass-loss",                                "WR-mass-loss-prescription",                       false }
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool>> deprecatedOptionValues = {
@@ -618,6 +619,7 @@ private:
         "logfile-system-parameters-record-types",
         "logfile-type",
 
+        "main-sequence-core-mass-prescription",
         "mass-change-fraction",
         "mass-loss-prescription",
         "mass-ratio-distribution",
@@ -991,8 +993,10 @@ public:
         
             bool                                                m_ExpelConvectiveEnvelopeAboveLuminosityThreshold;              // Whether to expel the convective envelope in a pulsation when log_10(L/M) reaches the threshold defined by m_LuminosityToMassThreshold
             double                                              m_LuminosityToMassThreshold;                                    // Threshold value of log_10(L/M) above which the convective envelope is expelled in a pulsation
-	
+        
             bool                                                m_RetainCoreMassDuringCaseAMassTransfer;                        // Whether to retain the approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = false)
+
+            ENUM_OPT<CORE_MASS_PRESCRIPTION>                    m_MainSequenceCoreMassPrescription;                             // Which MS core prescription
         
             ENUM_OPT<CASE_BB_STABILITY_PRESCRIPTION>            m_CaseBBStabilityPrescription;									// Which prescription for the stability of case BB/BC mass transfer
 
@@ -1501,6 +1505,8 @@ public:
 
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
     LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
+    
+    CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }
     
     double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
     

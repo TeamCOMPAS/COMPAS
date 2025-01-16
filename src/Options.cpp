@@ -408,6 +408,10 @@ void Options::OptionValues::Initialise() {
     m_WolfRayetFactor                                               = 1.0;
     m_ScaleTerminalWindVelocityWithMetallicityPower                 = 0.0;
 
+    // Core mass prescription
+    m_MainSequenceCoreMassPrescription.type                         = CORE_MASS_PRESCRIPTION::MANDEL;
+    m_MainSequenceCoreMassPrescription.typeString                   = CORE_MASS_PRESCRIPTION_LABEL.at(m_MainSequenceCoreMassPrescription.type);
+
     // Mass transfer options
     m_UseMassTransfer                                               = true;
 	m_CirculariseBinaryDuringMassTransfer         	                = true;
@@ -886,7 +890,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<bool>(&p_Options->m_Quiet)->default_value(p_Options->m_Quiet)->implicit_value(true),                                                                                        
             ("Suppress printing (default = " + std::string(p_Options->m_Quiet ? "TRUE" : "FALSE") + ")").c_str()
         )
-
+        
         (
             "retain-core-mass-during-caseA-mass-transfer",
             po::value<bool>(&p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->default_value(p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->implicit_value(true),
@@ -1787,9 +1791,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_LBVMassLossPrescription.typeString)->default_value(p_Options->m_LBVMassLossPrescription.typeString),                                                                  
             ("LBV Mass loss prescription (" + AllowedOptionValuesFormatted("LBV-mass-loss-prescription") + ", default = '" + p_Options->m_LBVMassLossPrescription.typeString + "')").c_str()
         )
-
         (
-            "mass-loss-prescription",                                      
+            "main-sequence-core-mass-prescription",
+            po::value<std::string>(&p_Options->m_MainSequenceCoreMassPrescription.typeString)->default_value(p_Options->m_MainSequenceCoreMassPrescription.typeString),
+            
+            ("Main Sequence core mass prescription (" + AllowedOptionValuesFormatted("main-sequence-core-mass-prescription") + ", default = '" + p_Options->m_MainSequenceCoreMassPrescription.typeString + "')").c_str()
+        )
+        (
+            "mass-loss-prescription",
             po::value<std::string>(&p_Options->m_MassLossPrescription.typeString)->default_value(p_Options->m_MassLossPrescription.typeString),                                                                  
             ("Mass loss prescription (" + AllowedOptionValuesFormatted("mass-loss-prescription") + ", default = '" + p_Options->m_MassLossPrescription.typeString + "')").c_str()
         )
@@ -2225,7 +2234,12 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             std::tie(found, m_LBVMassLossPrescription.type) = utils::GetMapKey(m_LBVMassLossPrescription.typeString, LBV_MASS_LOSS_PRESCRIPTION_LABEL, m_LBVMassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown LBV Mass Loss Prescription");
         }
-
+        
+        if (!DEFAULTED("main-sequence-core-mass-prescription")) {                                                                   // main sequence core mass prescription
+            std::tie(found, m_MainSequenceCoreMassPrescription.type) = utils::GetMapKey(m_MainSequenceCoreMassPrescription.typeString, CORE_MASS_PRESCRIPTION_LABEL, m_MainSequenceCoreMassPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Main Sequence Core Mass Prescription");
+        }
+        
         if (!DEFAULTED("mass-loss-prescription")) {                                                                                 // mass loss prescription
             std::tie(found, m_MassLossPrescription.type) = utils::GetMapKey(m_MassLossPrescription.typeString, MASS_LOSS_PRESCRIPTION_LABEL, m_MassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown Mass Loss Prescription");
@@ -2581,6 +2595,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("kick-magnitude-distribution")                       : POPULATE_RET(KICK_MAGNITUDE_DISTRIBUTION_LABEL);              break;
         case _("logfile-type")                                      : POPULATE_RET(LOGFILETYPELabel);                               break;
         case _("LBV-mass-loss-prescription")                        : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);               break;
+        case _("main-sequence-core-mass-prescription")              : POPULATE_RET(CORE_MASS_PRESCRIPTION_LABEL);                   break;
         case _("mass-loss-prescription")                            : POPULATE_RET(MASS_LOSS_PRESCRIPTION_LABEL);                   break;
         case _("mass-ratio-distribution")                           : POPULATE_RET(MASS_RATIO_DISTRIBUTION_LABEL);                  break;
         case _("mass-transfer-accretion-efficiency-prescription")   : POPULATE_RET(MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL);     break;

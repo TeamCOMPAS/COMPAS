@@ -118,6 +118,7 @@ public:
     double              LambdaKruckow() const                                                                       { return m_Star->LambdaKruckow(); }
     double              LambdaDewi() const                                                                          { return m_Star->LambdaDewi(); }
     double              Luminosity() const                                                                          { return m_Star->Luminosity(); }
+    double              MainSequenceCoreMass() const                                                                { return m_Star->MainSequenceCoreMass(); }
     double              Mass() const                                                                                { return m_Star->Mass(); }
     double              Mass0() const                                                                               { return m_Star->Mass0(); }
     double              MassPrev() const                                                                            { return m_Star->MassPrev(); }
@@ -142,6 +143,7 @@ public:
     double              Tau() const                                                                                 { return m_Star->Tau(); }
     double              Temperature() const                                                                         { return m_Star->Temperature(); }
     double              Timescale(TIMESCALE p_Timescale) const                                                      { return m_Star->Timescale(p_Timescale); }
+    double              TotalMassLossRate() const                                                                   { return m_Star->TotalMassLossRate(); }
     double              XExponent() const                                                                           { return m_Star->XExponent(); }
 
     
@@ -293,9 +295,11 @@ public:
                                                                                                                                                          p_MassGainPerTimeStep,
                                                                                                                                                          p_Epsilon);}
 
-    void            UpdateMinimumCoreMass()                                                                         { m_Star->UpdateMinimumCoreMass(); }
-    
+    void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate)                 { m_Star->UpdateMainSequenceCoreMass(p_Dt, p_TotalMassLossRate); }
+
     void            UpdatePreviousTimestepDuration()                                                                { m_Star->UpdatePreviousTimestepDuration(); }
+    
+    void            UpdateTotalMassLossRate(const double p_MassLossRate)                                            { m_Star->UpdateTotalMassLossRate(p_MassLossRate); }
     
     ACCRETION_REGIME WhiteDwarfAccretionRegime() const                                                              { return m_Star->WhiteDwarfAccretionRegime(); }
 
