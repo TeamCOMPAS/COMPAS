@@ -25,9 +25,9 @@ public:
 protected:
     
     // member variables
-
-    double          m_InitialMainSequenceCoreMass = 0.0;                                                                                                            // Initial mass of the mixing core is initialised in MS_gt_07 class
+    
     double          m_HeliumAbundanceCoreOut = m_InitialHeliumAbundance;                                                                                            // Helium abundance just outside the core, used for rejuvenation calculations
+    double          m_InitialMainSequenceCoreMass = 0.0;                                                                                                            // Initial mass of the mixing core is initialised in MS_gt_07 class
 
     // member functions - alphabetically
     double          CalculateAlphaL(const double p_Mass) const;
