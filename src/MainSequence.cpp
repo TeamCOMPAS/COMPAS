@@ -804,15 +804,15 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassShikauchi(const double p_Dt, 
             double deltaYout = f1 / f2 * deltaCoreMass;
 
             // Calculate the change in core helium abundance, assuming linear profile between Yc and Y0, and that the the accreted gas has helium fraction Y0
-            double deltaY            = (m_HeliumAbundanceCoreOut - m_HeliumAbundanceCore) / f3 * deltaCoreMass + 0.5 / f3 * f1 / f2 * deltaCoreMass * deltaCoreMass;
-            newCentralHeliumFraction = m_HeliumAbundanceCore + deltaY;
-            m_HeliumAbundanceCoreOut  += deltaYout;
+            double deltaY             = (m_HeliumAbundanceCoreOut - m_HeliumAbundanceCore) / f3 * deltaCoreMass + 0.5 / f3 * f1 / f2 * deltaCoreMass * deltaCoreMass;
+            newCentralHeliumFraction  = m_HeliumAbundanceCore + deltaY;
+            m_HeliumAbundanceCoreOut += deltaYout;
         }
         else {                                                                                                                                                  // New core mass greater or equal to the initial core mass?
             double deltaCoreMass1         = m_InitialMainSequenceCoreMass - m_MainSequenceCoreMass;                                                             // Mass accreted up to the initial core mass
             double deltaCoreMass2         = deltaCoreMass - deltaCoreMass1;                                                                                     // Remaining accreted mass
             newCentralHeliumFraction      = (m_MainSequenceCoreMass * m_HeliumAbundanceCore + 0.5 * (m_HeliumAbundanceCoreOut + m_InitialHeliumAbundance) * deltaCoreMass1 + deltaCoreMass2 * m_InitialHeliumAbundance) / (m_MainSequenceCoreMass + deltaCoreMass);
-            m_HeliumAbundanceCoreOut        = m_InitialHeliumAbundance;
+            m_HeliumAbundanceCoreOut      = m_InitialHeliumAbundance;
             m_InitialMainSequenceCoreMass = newMixingCoreMass;
         }
     }
