@@ -3,7 +3,6 @@
 #  Plot the detailed evolution of a COMPAS run                    #
 #                                                                 #
 ###################################################################
-
 import os
 import shutil
 import numpy as np
@@ -13,9 +12,10 @@ from matplotlib import rcParams
 import argparse
 import tempfile
 from pathlib import Path
+from .plot_to_json import get_plot_data, get_events_data, NumpyEncoder
+import json
 
 IMG_DIR = Path(__file__).parent / "van_den_heuvel_figures"
-
 
 
 def main():
@@ -26,10 +26,10 @@ def main():
     parser.add_argument('--outdir', type=str, default='.', help='Path to the directory to save the figures')
     parser.add_argument('--dont-show', action='store_false', help='Dont show the plots')
     args = parser.parse_args()
-    run_main_plotter(args.data_path, outdir=args.outdir, show=args.dont_show)
+    run_main_plotter(args.data_path, outdir=args.outdir, show=args.dont_show, as_json=True)
+    
 
-
-def run_main_plotter(data_path, outdir='.', show=True):
+def run_main_plotter(data_path, outdir='.', show=True, as_json=False):
 
     ### Collect the raw data and mask for just the end-of-timesteps events
     RawData = h5.File(data_path, 'r')
@@ -40,13 +40,17 @@ def run_main_plotter(data_path, outdir='.', show=True):
         Data.create_dataset(key, data=RawData[key][()][maskRecordType4])
     print(np.unique(Data['Record_Type'][()]))
 
-    ### Collect the important events in the detailed evolution
+    ## Collect the important events in the detailed evolution
     events = allEvents(Data).allEvents                 # Calculate the events here, for use in plot sizing parameters
     printEvolutionaryHistory(events=events)
 
     ### Produce the two plots
-    makeDetailedPlots(Data, events, outdir=outdir)
-    plotVanDenHeuvel(events=events, outdir=outdir)
+    detailed = makeDetailedPlots(Data, events, outdir=outdir, as_json=as_json)
+    vdh = plotVanDenHeuvel(events=events, outdir=outdir, as_json=as_json)
+
+    if as_json:
+        return json.dumps({**detailed, **vdh}, cls=NumpyEncoder)
+
     if show:
         plt.show()
 
@@ -71,7 +75,7 @@ def set_font_params():
 
 ####### Functions to organize and call the plotting functions
 
-def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
+def makeDetailedPlots(Data=None, events=None, outdir='.', show=True, as_json=False):
     listOfPlots = [plotMassAttributes, plotLengthAttributes, plotStellarTypeAttributes, plotHertzsprungRussell]
 
     events = [event for event in events if event.eventClass != 'Stype']  # want to ignore simple stellar type changes
@@ -128,6 +132,11 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
     fig.suptitle('Detailed evolution for seed = {}'.format(Data['SEED'][()][0]), fontsize=18)
     fig.tight_layout(h_pad=1, w_pad=1, rect=(0.08, 0.08, .98, .98), pad=0.)  # (left, bottom, right, top)
 
+    if as_json:
+        fig_json = get_plot_data(fig)
+        plt.close('all')
+        return fig_json
+
     safe_save_figure(fig, f'{outdir}/detailedEvolutionPlot.png', bbox_inches='tight', pad_inches=0, format='png')
 
 
@@ -148,6 +157,8 @@ def plotMassAttributes(ax=None, Data=None, mask=None, **kwargs):
 
     ax.set_ylabel(r'Mass $/ \; M_{\odot}$')
 
+    ax.tag = "mass_plot"
+
     return ax.get_legend_handles_labels()
 
 
@@ -162,6 +173,8 @@ def plotLengthAttributes(ax=None, Data=None, mask=None, **kwargs):
 
     ax.set_ylabel(r'Radius $/ \; R_{\odot}$')
     ax.set_yscale('log')
+
+    ax.tag = "length_plot"
 
     return ax.get_legend_handles_labels()
 
@@ -296,12 +309,16 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, **kwargs)
     ax.legend(framealpha=1, prop={'size': 8})
     ax.grid(linestyle=':', c='gray')
 
+    ax.tag = "hr_plot"
+
     return ax.get_legend_handles_labels()
 
-
-def plotVanDenHeuvel(events=None, outdir='.'):
+def plotVanDenHeuvel(events=None, outdir='.', as_json=False):
     # Only want events with an associated image
     events = [event for event in events if (event.eventImage is not None)]
+    if as_json:
+        return get_events_data(events)
+
     num_events = len(events)
     fig, axs = plt.subplots(num_events, 1)
     if num_events == 1:
@@ -426,7 +443,7 @@ class Event(object):
 
         self.eventImage = None
         self.endState = None  # sets the endstate - only relevant if eventClass=='End'
-        self.eventString = self.getEventDetails(**kwargs)
+        self.eventString, self.image_num, self.rotate_image = self.getEventDetails(**kwargs)
 
     def getEventDetails(self, **kwargs):
         """
@@ -574,7 +591,7 @@ class Event(object):
         if image_num != None:
             self.eventImage = self.getEventImage(image_num, rotate_image)
 
-        return eventString
+        return eventString, image_num, rotate_image
 
     def getEventImage(self, image_num, rotate_image):
         """
