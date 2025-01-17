@@ -288,7 +288,8 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
 #define a m_AnCoefficients                                          // for convenience and readability - undefined at end of function
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     
-    // If BRCEK core prescription is used, return luminosity from Shikauchi et al. (2024)
+    // If BRCEK core prescription is used, return luminosity from Shikauchi et al. (2024) during core hydrogen burning or
+    // luminosity that smoothly connects MS and HG during MS hook
     if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
             return CalculateLuminosityBrcek(m_MainSequenceCoreMass, m_HeliumAbundanceCore, p_Time);
     }
@@ -321,11 +322,11 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
 
 
 /*
- * Calculate luminosity when BRCEK core mass prescription is used
+ * Calculate luminosity on the Main Sequence when BRCEK core mass prescription is used
  *
  * During core hydrogen burning uses eq (A5) from Shikauchi et al. (2024)
  *
- * When the Main Sequence hook starts (at age 0.99 * tMS) calculates luminosity that smoothly connects the last point
+ * When the Main Sequence hook starts (at age 0.99 * tMS), calculate luminosity that smoothly connects the last point
  * of core hydrogen burning with the first point of the HG
  *
  * double CalculateLuminosityBrcek(const double p_CoreMass, const double p_HeliumAbundanceCore, const double p_Age)
