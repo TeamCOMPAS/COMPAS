@@ -818,8 +818,8 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 
     double RTMS;  
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (utils::Compare(m_MZAMS, SHIKAUCHI_LOWER_MASS_LIMIT) >= 0))
-        RTMS = MainSequence::CalculateRadiusAtPhaseEnd(m_Mass, p_RZAMS);                                            // ensures continuity of stellar tracks when SHIKAUCHI core mass prescription is used
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0))
+        RTMS = MainSequence::CalculateRadiusAtPhaseEnd(m_Mass, p_RZAMS);                                            // ensures continuity of stellar tracks when BRCEK core mass prescription is used
     else
         RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
 
