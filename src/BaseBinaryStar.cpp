@@ -1738,9 +1738,9 @@ void BaseBinaryStar::ResolveMainSequenceMerger() {
     double initialHydrogenFraction = m_Star1->InitialHydrogenAbundance();
     
     double finalHydrogenMass;
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) &&
-        (utils::Compare(m_Star1->MZAMS(), SHIKAUCHI_LOWER_MASS_LIMIT) >= 0)                &&
-        (utils::Compare(m_Star2->MZAMS(), SHIKAUCHI_LOWER_MASS_LIMIT) >= 0)) {
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) &&
+        (utils::Compare(m_Star1->MZAMS(), BRCEK_LOWER_MASS_LIMIT) >= 0)                &&
+        (utils::Compare(m_Star2->MZAMS(), BRCEK_LOWER_MASS_LIMIT) >= 0)) {
         
         double coreMass1       = m_Star1->MainSequenceCoreMass();
         double coreMass2       = m_Star2->MainSequenceCoreMass();

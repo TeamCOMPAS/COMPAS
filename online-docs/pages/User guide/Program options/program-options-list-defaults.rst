@@ -797,11 +797,10 @@ Default = 4.2
 
 **--main-sequence-core-mass-prescription** |br|
 Main sequence core mass prescription. |br|
-Options: {ZERO, MANDEL, SHIKAUCHI} |br|
-``ZERO``      : No core mass treatment, set to zero |br|
-``MANDEL``    : The core following case A mass transfer is set equal to the expected core mass of a newly formed HG star
- with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer |br|
-``SHIKAUCHI`` : Core mass according to Shikauchi et al. (2024) |br|
+Options: {ZERO, MANDEL, BRCEK} |br|
+``ZERO``   : No core mass treatment, set to zero |br|
+``MANDEL`` : The core following case A mass transfer is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer |br|
+``BRCEK``  : Core mass according to Shikauchi et al. (2024) with added rejuvenation of MS accretors and updated stellar tracks |br|
 Default = MANDEL |br|
 
 **--mass-change-fraction** |br|
