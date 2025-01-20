@@ -2850,45 +2850,52 @@ void BaseBinaryStar::EmitGravitationalWave(const double p_Dt) {
  */
 double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
 
-    double dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep());                   // timestep based on orbital timescale
+    // Timesteps required by individual stars
+    double dt1 = m_Star1->CalculateTimestep();
+    double dt2 = m_Star2->CalculateTimestep();
+    double dt = std::min(dt1, dt2);
 
-    if (OPTIONS->EmitGravitationalRadiation()) {                                                        // emitting GWs?
-        dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
-    }
+    if (!IsUnbound()){                                                                      // Check that binary is bound
+
+        if (OPTIONS->EmitGravitationalRadiation()) {                                        // emitting GWs?
+            dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
+        }
     
-    if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024) {                                // tides prescription = KAPIL2024
-                                                                                                        // yes - need to adjust dt
-        
-        double omega                   = OrbitalAngularVelocity();
-        
-        DBL_DBL_DBL_DBL ImKlm1         = m_Star1->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star2->Mass());
-        DBL_DBL_DBL_DBL ImKlm2         = m_Star2->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star1->Mass());
+        if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024) {                                // tides prescription = KAPIL2024
+                                                                                                            // yes - need to adjust dt
+            
+            double omega                   = OrbitalAngularVelocity();
+            
+            DBL_DBL_DBL_DBL ImKlm1         = m_Star1->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star2->Mass());
+            DBL_DBL_DBL_DBL ImKlm2         = m_Star2->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star1->Mass());
 
-        double DSemiMajorAxis1Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1);
-        double DSemiMajorAxis2Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2);
+            double DSemiMajorAxis1Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1);
+            double DSemiMajorAxis2Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2);
 
-        double DEccentricity1Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1);
-        double DEccentricity2Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);
-                                                    
-        double DOmega1Dt_tidal         = CalculateDOmegaTidalDt(ImKlm1, m_Star1);
-        double DOmega2Dt_tidal         = CalculateDOmegaTidalDt(ImKlm2, m_Star2);
-                                                                
-        // Ensure that the change in orbital and spin properties due to tides in a single timestep is constrained (to 1 percent by default)
-        // Limit the spin evolution of each star based on the orbital frequency rather than its spin frequency, since tides should not cause major problems until synchronization. 
-        double Dt_SemiMajorAxis1_tidal = utils::Compare(DSemiMajorAxis1Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / DSemiMajorAxis1Dt_tidal) * YEAR_TO_MYR;
-        double Dt_SemiMajorAxis2_tidal = utils::Compare(DSemiMajorAxis2Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / DSemiMajorAxis2Dt_tidal) * YEAR_TO_MYR;
-        double Dt_SemiMajorAxis_tidal  = std::min(Dt_SemiMajorAxis1_tidal, Dt_SemiMajorAxis2_tidal);
+            double DEccentricity1Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1);
+            double DEccentricity2Dt_tidal  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);
+                                                        
+            double DOmega1Dt_tidal         = CalculateDOmegaTidalDt(ImKlm1, m_Star1);
+            double DOmega2Dt_tidal         = CalculateDOmegaTidalDt(ImKlm2, m_Star2);
+                                                                    
+            // Ensure that the change in orbital and spin properties due to tides in a single timestep is constrained (to 1 percent by default)
+            // Limit the spin evolution of each star based on the orbital frequency rather than its spin frequency, since tides should not cause major problems until synchronization. 
+            double Dt_SemiMajorAxis1_tidal = utils::Compare(DSemiMajorAxis1Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / DSemiMajorAxis1Dt_tidal) * YEAR_TO_MYR;
+            double Dt_SemiMajorAxis2_tidal = utils::Compare(DSemiMajorAxis2Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / DSemiMajorAxis2Dt_tidal) * YEAR_TO_MYR;
+            double Dt_SemiMajorAxis_tidal  = std::min(Dt_SemiMajorAxis1_tidal, Dt_SemiMajorAxis2_tidal);
 
-        double Dt_Eccentricity1_tidal  = utils::Compare(DEccentricity1Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / DEccentricity1Dt_tidal) * YEAR_TO_MYR;
-        double Dt_Eccentricity2_tidal  = utils::Compare(DEccentricity2Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / DEccentricity2Dt_tidal) * YEAR_TO_MYR;
-        double Dt_Eccentricity_tidal   = std::min(Dt_Eccentricity1_tidal, Dt_Eccentricity2_tidal);
+            double Dt_Eccentricity1_tidal  = utils::Compare(DEccentricity1Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / DEccentricity1Dt_tidal) * YEAR_TO_MYR;
+            double Dt_Eccentricity2_tidal  = utils::Compare(DEccentricity2Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / DEccentricity2Dt_tidal) * YEAR_TO_MYR;
+            double Dt_Eccentricity_tidal   = std::min(Dt_Eccentricity1_tidal, Dt_Eccentricity2_tidal);
 
-        double Dt_Omega1_tidal         = utils::Compare(DOmega1Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * omega / DOmega1Dt_tidal) * YEAR_TO_MYR;
-        double Dt_Omega2_tidal         = utils::Compare(DOmega2Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * omega / DOmega2Dt_tidal) * YEAR_TO_MYR;
-        double Dt_Omega_tidal          = std::min(Dt_Omega1_tidal, Dt_Omega2_tidal);
-        
-        dt = std::min(dt, std::min(Dt_SemiMajorAxis_tidal, std::min(Dt_Eccentricity_tidal, Dt_Omega_tidal)));
+            double Dt_Omega1_tidal         = utils::Compare(DOmega1Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * omega / DOmega1Dt_tidal) * YEAR_TO_MYR;
+            double Dt_Omega2_tidal         = utils::Compare(DOmega2Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * omega / DOmega2Dt_tidal) * YEAR_TO_MYR;
+            double Dt_Omega_tidal          = std::min(Dt_Omega1_tidal, Dt_Omega2_tidal);
+            
+            dt = std::min(dt, std::min(Dt_SemiMajorAxis_tidal, std::min(Dt_Eccentricity_tidal, Dt_Omega_tidal)));
+        }
     }
+
     dt *= p_Multiplier;	
 
     return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, TIDES_MNIMUM_FRACTIONAL_NUCLEAR_TIME * NUCLEAR_MINIMUM_TIMESTEP);    // quantised and not less than minimum
@@ -3199,8 +3206,14 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                         else if (!OPTIONS->EvolveDoubleWhiteDwarfs() && IsWDandWD()) {                                                  // double WD and their evolution is not enabled?
                             evolutionStatus = EVOLUTION_STATUS::WD_WD;                                                                  // yes - do not evolve double WD systems
                         }
-                        else if ((HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) && !OPTIONS->EvolveMainSequenceMergers()) || IsMRandRemant()) { // at least one massless remnant and not evolving MS merger products, or is MR + stellar remnant
-                            evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                                       // yes - stop evolution
+                        else if ((HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT }) && !OPTIONS->EvolveMainSequenceMergers()) || 
+                                IsMRandRemant()) {                                                         // at least one massless remnant and not evolving MS merger products, or is MR + stellar remnant        
+                            if (IsMRandNS() && OPTIONS->EvolvePulsars()){                                                               // However, keep evolving if the stellar remnant is a neutron star and we are evolving pulsars
+                                evolutionStatus = EVOLUTION_STATUS::CONTINUE;
+                            }
+                            else{
+                                evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                                   // yes - stop evolution
+                            }
                         }
                     }
                 }
