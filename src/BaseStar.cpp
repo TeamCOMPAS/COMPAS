@@ -120,6 +120,11 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_HydrogenAbundanceCore                    = m_InitialHydrogenAbundance;
     m_HydrogenAbundanceSurface                 = m_InitialHydrogenAbundance;
 
+    // Initial surface magnetic field strength 
+    m_SurfaceMagneticFieldStrengthZAMS         = CalculateZAMSSurfaceMagneticFieldStrength();
+    m_SurfaceMagneticFieldStrength             = m_SurfaceMagneticFieldStrengthZAMS;
+    m_SurfaceMagneticFieldStrengthPrev         = m_SurfaceMagneticFieldStrength;
+
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
     m_RZAMS0                                   = m_RZAMS;
     m_LZAMS0                                   = m_LZAMS;
@@ -338,6 +343,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::INITIAL_HYDROGEN_ABUNDANCE:                         value = CalculateInitialHydrogenAbundance();                    break;
         case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
         case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
+        case ANY_STAR_PROPERTY::INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH:            value = InitialSurfaceMagneticFieldStrength();                  break;
         case ANY_STAR_PROPERTY::IS_AIC:                                             value = IsAIC();                                                break;
         case ANY_STAR_PROPERTY::IS_CCSN:                                            value = IsCCSN();                                               break;
         case ANY_STAR_PROPERTY::IS_HeSD:                                            value = IsHeSD();                                               break;
@@ -376,6 +382,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE:                        value = PulsarBirthSpinDownRate();                              break;
         case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE:                         value = CalculateRadialExpansionTimescale();                    break;
         case ANY_STAR_PROPERTY::RADIUS:                                             value = Radius();                                               break;
+        case ANY_STAR_PROPERTY::RADIUS_PREV:                                        value = RadiusPrev();                                           break;
         case ANY_STAR_PROPERTY::RANDOM_SEED:                                        value = RandomSeed();                                           break;
         case ANY_STAR_PROPERTY::ROCKET_KICK_MAGNITUDE:                              value = SN_RocketKickMagnitude();                               break;
         case ANY_STAR_PROPERTY::ROCKET_KICK_PHI:                                    value = SN_RocketKickPhi();                                     break;
@@ -390,6 +397,8 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER:             value = SN_KickMagnitudeRandom();                               break;
         case ANY_STAR_PROPERTY::SUPERNOVA_PHI:                                      value = SN_Phi();                                               break;
         case ANY_STAR_PROPERTY::SUPERNOVA_THETA:                                    value = SN_Theta();                                             break;
+        case ANY_STAR_PROPERTY::SURFACE_MAGNETIC_FIELD_STRENGTH:                    value = SurfaceMagneticFieldStrength();                         break;
+        case ANY_STAR_PROPERTY::SURFACE_MAGNETIC_FIELD_STRENGTH_PREV:               value = SurfaceMagneticFieldStrengthPrev();                     break;
         case ANY_STAR_PROPERTY::TEMPERATURE:                                        value = Temperature() * TSOL;                                   break;
         case ANY_STAR_PROPERTY::THERMAL_TIMESCALE:                                  value = CalculateThermalTimescale();                            break;
         case ANY_STAR_PROPERTY::TIME:                                               value = Time();                                                 break;
@@ -3333,7 +3342,6 @@ double BaseStar::CalculateZAMSAngularFrequency(const double p_MZAMS, const doubl
     return utils::Compare(vRot, 0.0) == 0 ? 0.0 : 45.35 * vRot / p_RZAMS;               // Hurley et al. 2000, eq 108
 }
 
-
 /*
  * Calculate the break up angular velocity of a star in rad/yr units, where [G] = 4*pi^2 AU^3 yr^-2 Msol^-1
  *
@@ -4349,6 +4357,56 @@ double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const double p_convecti
 //                                                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////
 
+/*
+ * Calculate the initial (ZAMS) surface magnetic field strength in G
+ *
+ *
+ * double CalculateZAMSSurfaceMagneticFieldStrength()
+ *
+ * @return                                      Initial (ZAMS) surface magnetic field strength in G
+ */
+double BaseStar::CalculateZAMSSurfaceMagneticFieldStrength() {
+
+    double Bsurf = 0.0;
+
+    // case ZERO return 0
+    // case Makarenko21 return 
+
+    switch (OPTIONS->SurfaceMagneticFieldDistribution()) {                                        // which prescription?
+
+        case SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO:                                            // ZERO
+            Bsurf = 0.0;
+            break;
+        
+        case SURFACE_MAGNETIC_FIELD_DISTRIBUTION::MAKARENKO21:
+
+            // Distribution from Makarenko et al. 2021 (https://arxiv.org/abs/2104.10579)
+            // Two log-normal component (high field and low field) distributions
+            // Really, this is applicable to OBA stars (so roughly 1.5 Msun and above). 
+            // Lower mass stars may have different magnetic field distributions
+
+            double log10Bsurf = 0.0;
+
+            double r1 = RAND->Random();                   // Draw a random number between 0 and 1
+            double r2 = 0.0;
+            if (r1 < SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_FRACTION){                   // Draw from low-field subpopulation
+                r2 = RAND->RandomGaussian(SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_SIGMA);
+                log10Bsurf = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_MEAN + r2;
+            }
+            else{                                                                                   // Draw from high-field subpopulation
+                r2 = RAND->RandomGaussian(SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_SIGMA);
+                log10Bsurf = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_MEAN + r2;
+            }
+
+            Bsurf = PPOW(10.0, log10Bsurf);
+
+            break;
+
+    }
+
+    return Bsurf;  
+}
+
 
 /*
  * Determines if the star is one of a list of stellar types passed
@@ -4446,7 +4504,8 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
             m_StellarTypePrev = m_StellarType;
             m_MassPrev        = m_Mass;
             m_RadiusPrev      = m_Radius;
-    }
+            m_SurfaceMagneticFieldStrengthPrev = m_SurfaceMagneticFieldStrength;
+    } 
     
     // the GBParams and Timescale calculations need to be done before taking the timestep - since
     // the binary code ultimately calls this via UpdateAttributesAndAgeOneTimestep(), the GBParams
@@ -4585,6 +4644,9 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
         m_HydrogenAbundanceCore    = CalculateHydrogenAbundanceCoreOnPhase();
         m_HydrogenAbundanceSurface = CalculateHydrogenAbundanceSurfaceOnPhase();  
         
+        // Update surface magnetic field
+        m_SurfaceMagneticFieldStrength = CalculateSurfaceMagneticFieldStrengthOnPhase();
+
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // radius and possibly new stellar type
 
         m_Mu              = CalculatePerturbationMuOnPhase();

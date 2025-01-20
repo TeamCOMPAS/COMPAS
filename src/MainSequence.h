@@ -84,6 +84,8 @@ protected:
     double          CalculateRadiusAtPhaseEnd() const                                       { return CalculateRadiusAtPhaseEnd(m_Mass, m_RZAMS); }                  // Use class member variables
     double          CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase(m_Mass, m_Age, m_RZAMS0); }             // Use class member variables
 
+    double          CalculateSurfaceMagneticFieldStrengthOnPhase() const;
+
     double          CalculateTauAtPhaseEnd() const                                          { return 1.0; }                                                         // tau = 1.0 at end of MS
     double          CalculateTauOnPhase() const;
 
@@ -101,6 +103,8 @@ protected:
                                            const double p_massTransferEfficiencyBeta); // RTW do I need a const here?       
 
     bool            IsEndOfPhase() const                                                    { return !ShouldEvolveOnPhase(); }                                      // Phase ends when age at or after MS timescale
+
+    void            MagneticFieldAmplificationMerger();
 
     void            PerturbLuminosityAndRadius() { }                                                                                                                // NO-OP
 

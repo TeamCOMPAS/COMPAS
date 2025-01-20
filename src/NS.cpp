@@ -133,6 +133,15 @@ DBL_DBL_DBL NS::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
     return std::make_tuple(luminosity, radius, temperature);
 }
 
+// DBL_DBL_DBL_DBL NS::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
+//     double luminosity  = CalculateLuminosityOnPhase_Static(p_Mass, 0.0);                                        // luminosity of Neutron Star as it cools
+//     double radius      = CalculateRadiusOnPhase_Static(p_Mass);                                                 // radius of Neutron Star in Rsol
+//     double temperature = BaseStar::CalculateTemperatureOnPhase_Static(luminosity, radius);                      // temperature of NS
+//     double Bsurf       = CalculateSurfaceMagneticFieldStrengthOnPhase();                                        // Surface magnetic field strength
+
+//     return std::make_tuple(luminosity, radius, temperature, Bsurf);
+// }
+
 
 /*
  * Calculate the spin period of a Pulsar at birth according to selected distribution (by commandline option)
@@ -199,6 +208,9 @@ double NS::CalculateBirthSpinPeriod() {
 double NS::CalculateBirthMagneticField() {
 
 	double log10B;
+    
+    // Update surface magnetic field strength
+    m_SurfaceMagneticFieldStrength = CalculateSurfaceMagneticFieldStrengthOnPhase();
 
     switch (OPTIONS->PulsarBirthMagneticFieldDistribution()) {                                                  // which distribution?
 
@@ -229,6 +241,13 @@ double NS::CalculateBirthMagneticField() {
             double sigma = 0.55;
 
             log10B = RAND->RandomGaussian(sigma) + mean;
+            } break;
+
+        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLUX_CONSERVATION: {
+
+            // Calculate magnetic field strength by conserving magnetic flux of the progenitor
+            log10B = log10(m_SurfaceMagneticFieldStrength);
+            
             } break;
 
         default:                                                                                                // unknown prescription

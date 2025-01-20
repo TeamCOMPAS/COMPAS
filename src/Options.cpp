@@ -542,6 +542,8 @@ void Options::OptionValues::Initialise() {
 
 
     // Pulsar birth magnetic field distribution
+    m_SurfaceMagneticFieldDistribution.type                         = SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO;
+    m_SurfaceMagneticFieldDistribution.typeString                   = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(m_SurfaceMagneticFieldDistribution.type);
     m_PulsarBirthMagneticFieldDistribution.type                     = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO;
     m_PulsarBirthMagneticFieldDistribution.typeString               = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(m_PulsarBirthMagneticFieldDistribution.type);
     m_PulsarBirthMagneticFieldDistributionMin                       = 11.0;
@@ -1904,6 +1906,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Prescription for stellar zeta (" + AllowedOptionValuesFormatted("stellar-zeta-prescription") + ", default = '" + p_Options->m_StellarZetaPrescription.typeString + "')").c_str()
         )
         (
+            "surface-magnetic-field-distribution",                    
+            po::value<std::string>(&p_Options->m_SurfaceMagneticFieldDistribution.typeString)->default_value(p_Options->m_SurfaceMagneticFieldDistribution.typeString),                                  
+            ("Initial (ZAMS) distribution of stellar surface magnetic field strengths (" + AllowedOptionValuesFormatted("surface-magnetic-field-distribution") + ", default = '" + p_Options->m_SurfaceMagneticFieldDistribution.typeString + "')").c_str()
+        )
+
+        (
             "tides-prescription",                            
             po::value<std::string>(&p_Options->m_TidesPrescription.typeString)->default_value(p_Options->m_TidesPrescription.typeString),                                                                                                    
             ("Tides Prescription (" + AllowedOptionValuesFormatted("tides-prescription") + ", default = '" + p_Options->m_TidesPrescription.typeString + "')").c_str()
@@ -2329,6 +2337,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
         }
 
+        if (!DEFAULTED("surface-magnetic-field-distribution")) {                                                                    // ZAMS stellar surface magnetic field distribution
+            std::tie(found, m_SurfaceMagneticFieldDistribution.type) = utils::GetMapKey(m_SurfaceMagneticFieldDistribution.typeString, SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LABEL, m_SurfaceMagneticFieldDistribution.type);
+            COMPLAIN_IF(!found, "Unknown Surface Magnetic Field Distribution");
+        }
+
         if (!DEFAULTED("tides-prescription")) {                                                                                     // tides prescription
             std::tie(found, m_TidesPrescription.type) = utils::GetMapKey(m_TidesPrescription.typeString, TIDES_PRESCRIPTION_LABEL, m_TidesPrescription.type);
             COMPLAIN_IF(!found, "Unknown Tides Prescription");
@@ -2601,6 +2614,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);         break;
         case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);             break;
         case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                        break;
+        case _("surface-magnetic-field-distribution")               : POPULATE_RET(SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LABEL);      break;
         case _("tides-prescription")                                : POPULATE_RET(TIDES_PRESCRIPTION_LABEL);                       break;
         case _("VMS-mass-loss-prescription")                        : POPULATE_RET(VMS_MASS_LOSS_PRESCRIPTION_LABEL);               break;
         case _("WR-mass-loss-prescription")                         : POPULATE_RET(WR_MASS_LOSS_PRESCRIPTION_LABEL);                break;
@@ -4766,6 +4780,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION                      : value = static_cast<int>(StellarZetaPrescription());                          break;
 
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION            : value = static_cast<int>(SurfaceMagneticFieldDistribution());                 break;
+        
         case PROGRAM_OPTION::TIDES_PRESCRIPTION                             : value = static_cast<int>(TidesPrescription());                                break;
 
         case PROGRAM_OPTION::WR_FACTOR                                      : value = WolfRayetFactor();                                                    break;

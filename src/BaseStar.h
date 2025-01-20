@@ -112,6 +112,7 @@ public:
             double              HydrogenAbundanceSurface() const                                { return m_HydrogenAbundanceSurface; }
             double              InitialHeliumAbundance() const                                  { return m_InitialHeliumAbundance; }
             double              InitialHydrogenAbundance() const                                { return m_InitialHydrogenAbundance; }
+            double              InitialSurfaceMagneticFieldStrength() const                     { return m_SurfaceMagneticFieldStrengthZAMS; }
             bool                IsAIC() const                                                   { return (m_SupernovaDetails.events.current & SN_EVENT::AIC) == SN_EVENT::AIC; }
             bool                IsCCSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
             bool                IsHeSD() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
@@ -181,6 +182,8 @@ public:
             double              SN_KickMagnitudeRandom() const                                  { return m_SupernovaDetails.kickMagnitudeRandom; }
             double              Speed() const                                                   { return m_ComponentVelocity.Magnitude(); }
             COMPAS_VARIABLE     StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
+            double              SurfaceMagneticFieldStrength() const                            { return m_SurfaceMagneticFieldStrength; }
+            double              SurfaceMagneticFieldStrengthPrev() const                        { return m_SurfaceMagneticFieldStrengthPrev; }
             double              Tau() const                                                     { return m_Tau; }
             double              Temperature() const                                             { return m_Temperature; }
             double              Time() const                                                    { return m_Time; }
@@ -413,8 +416,9 @@ protected:
     double                  m_OmegaCHE;                                 // Minimum angular frequency at which CHE will occur (calculated at ZAMS)
     double                  m_RZAMS;                                    // ZAMS Radius
     double                  m_TZAMS;                                    // ZAMS Temperature
-
-
+    double                  m_SurfaceMagneticFieldStrengthZAMS;         // ZAMS Surface Magnetic Field Strength
+    double                  m_MagneticFluxZAMS;                         // ZAMS Magnetic flux
+    
     // Effective Zero Age Main Sequence
     double                  m_LZAMS0;                                   // Effective ZAMS Luminosity
     double                  m_RZAMS0;                                   // Effective ZAMS Radius
@@ -443,6 +447,7 @@ protected:
 
     double                  m_Mu;                                       // Current small envelope parameter mu
     double                  m_Radius;                                   // Current radius (Rsol)
+    double                  m_SurfaceMagneticFieldStrength;             // Current surface magnetic field strength
     double                  m_Tau;                                      // Relative time
     double                  m_Temperature;                              // Current temperature (Tsol)
     double                  m_Time;                                     // Current physical time the star has been evolved (Myr)
@@ -452,6 +457,7 @@ protected:
     double                  m_MassPrev;                                 // Previous mass (Msol)
     double                  m_RadiusPrev;                               // Previous radius (Rsol)
     STELLAR_TYPE            m_StellarTypePrev;                          // Stellar type at previous timestep
+    double                  m_SurfaceMagneticFieldStrengthPrev;         // Surface magnetic field strength at previous timestep
 
     // Metallicity variables
     double                  m_Metallicity;                              // Metallicity
@@ -668,6 +674,9 @@ protected:
 
     virtual void                CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                             // Use class member variables
     virtual void                CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                                                              // Default is NO-OP
+
+            double              CalculateZAMSSurfaceMagneticFieldStrength();            
+    virtual double              CalculateSurfaceMagneticFieldStrengthOnPhase() const                                    { return m_SurfaceMagneticFieldStrength; }                                  // Default is NO-OP
 
             double              CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS);
 

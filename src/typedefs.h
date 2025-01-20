@@ -3,7 +3,7 @@
 
 
 // This is where developer-defined types are defined - except for types that pertain directly to
-// the COMPAS looging functionality (including the definition of the default record composition
+// the COMPAS logging functionality (including the definition of the default record composition
 // for the various log files) - those are listed in LogTypedefs.h
 
 
@@ -764,13 +764,21 @@ const COMPASUnorderedMap<PPI_PRESCRIPTION, std::string> PPI_PRESCRIPTION_LABEL =
 // program status
 enum class PROGRAM_STATUS: int { SUCCESS, CONTINUE, STOPPED, ERROR_IN_COMMAND_LINE, LOGGING_FAILED, ERROR_UNHANDLED_EXCEPTION };
 
+// ZAMS stellar surface magnetic field strength distributions
+enum class SURFACE_MAGNETIC_FIELD_DISTRIBUTION: int { ZERO, MAKARENKO21 };
+const COMPASUnorderedMap<SURFACE_MAGNETIC_FIELD_DISTRIBUTION, std::string> SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LABEL = {
+    { SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO,        "ZERO" },
+    { SURFACE_MAGNETIC_FIELD_DISTRIBUTION::MAKARENKO21, "MAKARENKO21" }
+};
+
 // pulsar birth magnetic field distributions
-enum class PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION: int { ZERO, FLATINLOG, UNIFORM, LOGNORMAL };
+enum class PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION: int { ZERO, FLATINLOG, UNIFORM, LOGNORMAL, FLUX_CONSERVATION };
 const COMPASUnorderedMap<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, std::string> PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL = {
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO,      "ZERO" },
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLATINLOG, "FLATINLOG" },
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::UNIFORM,   "UNIFORM" },
-    { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL, "LOGNORMAL" }
+    { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL, "LOGNORMAL" },
+    { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLUX_CONSERVATION, "FLUX_CONSERVATION" }
 };
 
 // pulsar birth spin period distributions

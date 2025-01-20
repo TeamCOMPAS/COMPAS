@@ -59,6 +59,10 @@ protected:
     double  CalculateMassLossRate()                                                 { return 0.0; }                                                     // Ensure that BHs don't lose mass in winds
     double  CalculateMomentOfInertia() const                                        { return (2.0 / 5.0) * m_Mass * m_Radius * m_Radius; }
     double  CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase_Static(m_Mass); }                   // Use class member variables - returns radius in Rsol
+    
+    // Black hole has no magnetic field (no-hair theorem)
+    double  CalculateSurfaceMagneticFieldStrength() const                           { return 0.0; }
+    double  CalculateSurfaceMagneticFieldStrengthOnPhase() const                    { return 0.0; }
 };
 
 #endif // __BH_h__

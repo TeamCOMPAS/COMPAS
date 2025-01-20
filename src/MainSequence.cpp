@@ -52,6 +52,21 @@ double MainSequence::CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) c
     return m_InitialHydrogenAbundance * (1.0 - p_Tau);
 }
 
+/*
+ * Calculate the surface magnetic field strength of a star
+ * 
+ * Assumes conservation of magnetic flux, so the field just varies with the stellar radius
+ * 
+ * Bnew = Bold * (Rold / Rnew)^2
+ * 
+ * double CalculateSurfaceMagneticFieldStrengthOnPhase
+ * 
+ * @return                                      Surface magnetic field strength
+ */
+double MainSequence::CalculateSurfaceMagneticFieldStrengthOnPhase() const {
+    double radiusRatio = RadiusPrev()/Radius();
+    return SurfaceMagneticFieldStrengthPrev() * radiusRatio * radiusRatio;
+}
 
 /*
  * Calculate timescales in units of Myr
@@ -893,12 +908,24 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     m_Tau = (initialHydrogenFraction - p_HydrogenMass / m_Mass) / initialHydrogenFraction;       // assumes uniformly mixed merger product and a uniform rate of H fusion on main sequence
     
     m_Age = m_Tau * timescales(tMS);
+
+    MagneticFieldAmplificationMerger();
     
     UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);
     
     #undef timescales
 }
 
+/*
+ * Amplify the surface magnetic field of the merger product (cf. Schneider et al. 2019)
+ *
+ * void MainSequence::MagneticFieldAmplificationMerger()
+ * 
+ * */
+void MainSequence::MagneticFieldAmplificationMerger(){
+    const double MAGNETIC_FIELD_AMPLIFICATION_FACTOR = 1000.0;
+    m_SurfaceMagneticFieldStrengthPrev *= MAGNETIC_FIELD_AMPLIFICATION_FACTOR; // Assume magnetic field increased in merger product. m_SurfaceMagneticFieldStrength is updated in UpdateAttributesAndAgeOneTimestep
+}
 
 
 /* 

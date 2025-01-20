@@ -156,6 +156,13 @@ constexpr double JOULES_TO_ERG                          = 1.0E7;                
 constexpr double TESLA_TO_GAUSS                         = 1.0E4;					                                // convert Tesla to Gauss
 constexpr double GAUSS_TO_TESLA                         = 1.0 / TESLA_TO_GAUSS;                                     // convert Gauss to Tesla
 
+// Constants for the two-lognormal model for stellar surface magnetic fields from Makarenko et al. 2021
+constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_FRACTION = 0.9;                                  // Fraction of stars drawn from the low component
+constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_MEAN     = 0.14;                                 // Mean of the low field component
+constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_SIGMA    = 0.7;                                  // Sigma of the low field component
+constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_MEAN    = 2.82;                                 // Mean of the high field component
+constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_SIGMA   = 0.65;                                 // Sigma of the high field component
+
 // systems
 constexpr double CGS_SI                                 = G_TO_KG * CM_TO_M * CM_TO_M;                              // convert CGS to SI
 
