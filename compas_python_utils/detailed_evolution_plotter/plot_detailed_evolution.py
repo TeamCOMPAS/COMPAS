@@ -133,7 +133,7 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True, as_json=Fal
     fig.tight_layout(h_pad=1, w_pad=1, rect=(0.08, 0.08, .98, .98), pad=0.)  # (left, bottom, right, top)
 
     if as_json:
-        fig_json = get_plot_data(fig)
+        fig_json = get_plot_data([('mass', ax1), ('length', ax2), ('hr', ax4)])
         plt.close('all')
         return fig_json
 
@@ -157,8 +157,6 @@ def plotMassAttributes(ax=None, Data=None, mask=None, **kwargs):
 
     ax.set_ylabel(r'Mass $/ \; M_{\odot}$')
 
-    ax.tag = "mass_plot"
-
     return ax.get_legend_handles_labels()
 
 
@@ -173,8 +171,6 @@ def plotLengthAttributes(ax=None, Data=None, mask=None, **kwargs):
 
     ax.set_ylabel(r'Radius $/ \; R_{\odot}$')
     ax.set_yscale('log')
-
-    ax.tag = "length_plot"
 
     return ax.get_legend_handles_labels()
 
@@ -308,8 +304,6 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, **kwargs)
 
     ax.legend(framealpha=1, prop={'size': 8})
     ax.grid(linestyle=':', c='gray')
-
-    ax.tag = "hr_plot"
 
     return ax.get_legend_handles_labels()
 

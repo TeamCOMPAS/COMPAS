@@ -40,57 +40,6 @@ def get_artist_colour(artist):
     """    
     return to_hex(to_rgba(artist.get_color(), artist.get_alpha()), keep_alpha=True)
 
-def get_ref_line_data(ref_line, label):
-    """Obtain the data and metadata needed to render reference lines on the GWLandscape service
-
-    Parameters
-    ----------
-    ref_line : pyplot.Line2D
-        Reference line object to be rendered
-    label : str
-        Name of the reference line
-
-    Returns
-    -------
-    dict
-        Dictionary with the data and metadata needed to render the reference line
-    """    
-    ref_line_meta = get_line_meta(ref_line, "y", label)
-
-    xs, ys = ref_line.get_xdata(), ref_line.get_ydata()
-
-    if xs[0] == xs[-1] and len(set(xs)) == 1:
-        ref_line_meta["type"] = "vline"
-    elif ys[0] == ys[-1] and len(set(ys)) == 1:
-        ref_line_meta["type"] = "hline"
-    else:
-        ref_line_meta["type"] = "ref"
-
-    ref_line_meta["points"] = [
-        {"x": xs[0], "y": ys[0]},
-        {"x": xs[-1], "y": ys[-1]},
-    ]
-    return ref_line_meta
-
-def get_text_data(text):
-    """Obtain the data needed to render text elements on the GWLandscape service
-
-    Parameters
-    ----------
-    text : pyplot.Text
-        Text object to be rendered
-
-    Returns
-    -------
-    dict
-        Dictionary containing the data and metadata necessary to render the text elements
-    """    
-    return {
-        "label": text.get_text(),
-        "x": text.get_position()[0],
-        "y": text.get_position()[1],
-        "colour": get_artist_colour(text)
-    }
 
 def get_line_dashes(line):
     """Obtain the dash pattern of a line. This uses a private attribute of the Line2D class or
@@ -112,6 +61,7 @@ def get_line_dashes(line):
         _, dashes = _scale_dashes(*_get_dash_pattern(line.get_linestyle()), line.get_linewidth())
     
     return " ".join(map(str, dashes)) if dashes else None
+
 
 def get_line_meta(line, y_key, label=None):
     """Get the metadata for a line
@@ -139,6 +89,71 @@ def get_line_meta(line, y_key, label=None):
         "label": line.get_label() if label is None else label,
         "type": "data"
     }
+
+
+def get_ref_line_data(ref_line, label):
+    """Obtain the data and metadata needed to render reference lines on the GWLandscape service
+
+    Parameters
+    ----------
+    ref_line : pyplot.Line2D
+        Reference line object to be rendered
+    label : str
+        Name of the reference line
+
+    Returns
+    -------
+    dict
+        Dictionary with the data and metadata needed to render the reference line
+    """    
+    ref_line_meta = get_line_meta(ref_line, "y", label)
+
+    xs, ys = ref_line.get_xdata(), ref_line.get_ydata()
+
+    if xs[0] == xs[-1] and len(set(xs)) == 1:
+        ref_line_meta["type"] = "vline"
+    elif ys[0] == ys[-1] and len(set(ys)) == 1:
+        ref_line_meta["type"] = "hline"
+    else:
+        ref_line_meta["type"] = "ref"
+
+    if ref_line_meta in ["vline", "hline"]:
+        ref_line_data = [
+            {"x": xs[0], "y": ys[0]},
+            {"x": xs[-1], "y": ys[-1]},
+        ]
+    else:
+        ref_line_data = [{"x": x, "y": y} for x, y in ref_line.get_xydata()]
+
+    return {
+        "meta": ref_line_meta,
+        "data": ref_line_data
+    }
+
+def get_text_data(text):
+    """Obtain the data needed to render text elements on the GWLandscape service
+
+    Parameters
+    ----------
+    text : pyplot.Text
+        Text object to be rendered
+
+    Returns
+    -------
+    dict
+        Dictionary containing the data and metadata necessary to render the text elements
+    """    
+    return {
+        "meta": {
+            "label": text.get_text(),
+            "colour": get_artist_colour(text)
+        },
+        "data": {
+            "x": text.get_position()[0],
+            "y": text.get_position()[1],
+        }
+    }
+
 
 def get_line_groups(lines):
     """Takes a list of Line2D objects and organises them into groups based on whether or not they have the same
@@ -170,13 +185,14 @@ def get_line_groups(lines):
             groups.append({"x_data": x_data, "y_data": [y_data], "meta": [meta]})
     return groups
 
-def get_plot_data(fig):
+def get_plot_data(axes_map):
     """Takes a pyplot Figure instance and outputs JSON data to render the plots on the GWLandscape service
 
     Parameters
     ----------
-    fig : pyplot.Figure
-        Pyplot Figure to replicate
+    axes_map : list
+        List up tuples, where first item in each tuple is the label of the plot,
+        and the second item is the pyplot.Axes object
 
     Returns
     -------
@@ -187,10 +203,7 @@ def get_plot_data(fig):
         "plots": {}
     }
 
-    for ax in fig.get_axes():
-        if not hasattr(ax, "tag"):
-            continue
-
+    for label, ax in axes_map:
         if ax.xaxis_inverted():
             ax.invert_xaxis()
 
@@ -212,7 +225,7 @@ def get_plot_data(fig):
                 group["data"].append(row)
             groups.append(group)
 
-        json_data["plots"][ax.tag] = {
+        json_data["plots"][label] = {
             "meta": {
                 "xAxis": {
                     "label": ax.get_xlabel(),
