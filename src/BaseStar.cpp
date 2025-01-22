@@ -223,6 +223,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_BaryonicMassOfMaximumNeutronStarMass     = (0.075 * OPTIONS->MaximumNeutronStarMass() * OPTIONS->MaximumNeutronStarMass()) + OPTIONS->MaximumNeutronStarMass();
 
     // Pulsar details
+    m_PulsarDetails.birthMagneticField         = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.magneticField              = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.spinPeriod                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.spinFrequency              = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -375,6 +376,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::OMEGA:                                              value = Omega() / SECONDS_IN_YEAR;                              break;
         case ANY_STAR_PROPERTY::OMEGA_BREAK:                                        value = OmegaBreak() / SECONDS_IN_YEAR;                         break;
         case ANY_STAR_PROPERTY::OMEGA_ZAMS:                                         value = OmegaZAMS() / SECONDS_IN_YEAR;                          break;
+        case ANY_STAR_PROPERTY::PULSAR_BIRTH_MAGNETIC_FIELD:                        value = PulsarBirthMagneticField();                             break;
         case ANY_STAR_PROPERTY::PULSAR_MAGNETIC_FIELD:                              value = PulsarMagneticField();                                  break;
         case ANY_STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE:                              value = PulsarSpinDownRate();                                   break;
         case ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY:                              value = PulsarSpinFrequency();                                  break;
@@ -4372,9 +4374,6 @@ double BaseStar::CalculateZAMSSurfaceMagneticFieldStrength() {
 
     double Bsurf = 0.0;
 
-    // case ZERO return 0
-    // case Makarenko21 return 
-
     switch (OPTIONS->SurfaceMagneticFieldDistribution()) {                                        // which prescription?
 
         case SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO:                                            // ZERO
@@ -4387,7 +4386,8 @@ double BaseStar::CalculateZAMSSurfaceMagneticFieldStrength() {
             // Two log-normal component (high field and low field) distributions
             // Really, this is applicable to OBA stars (so roughly 1.5 Msun and above). 
             // Lower mass stars may have different magnetic field distributions
-
+            // This distribution is defined in Gauss. 
+            
             double log10Bsurf = 0.0;
 
             double r1 = RAND->Random();                   // Draw a random number between 0 and 1

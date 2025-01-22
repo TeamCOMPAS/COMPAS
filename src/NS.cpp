@@ -336,6 +336,7 @@ double NS::CalculateSpinDownRate(const double p_Omega, const double p_MomentOfIn
  *
  *    m_AngularMomentum_CGS
  *    m_MomentOfInertia_CGS
+ *    m_PulsarDetails.birthMagneticField
  *    m_PulsarDetails.birthPeriod
  *    m_PulsarDetails.birthSpinDownRate
  *    m_PulsarDetails.magneticField
@@ -347,17 +348,18 @@ double NS::CalculateSpinDownRate(const double p_Omega, const double p_MomentOfIn
  */
 void NS::CalculateAndSetPulsarParameters() {
 
-    m_PulsarDetails.magneticField     = PPOW(10.0, CalculateBirthMagneticField()) * GAUSS_TO_TESLA;         // magnetic field in Gauss -> convert to Tesla
-    m_PulsarDetails.spinPeriod        = CalculateBirthSpinPeriod();                                         // spin period in ms
-    m_PulsarDetails.spinFrequency     = _2_PI / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS);
-    m_PulsarDetails.birthPeriod       = m_PulsarDetails.spinPeriod * SECONDS_IN_MS;                         // convert from ms to s 
+    m_PulsarDetails.birthMagneticField = PPOW(10.0, CalculateBirthMagneticField()) * GAUSS_TO_TESLA;         // birth magnetic field in Gauss -> convert to Tesla
+    m_PulsarDetails.magneticField      = m_PulsarDetails.birthMagneticField;                                 
+    m_PulsarDetails.spinPeriod         = CalculateBirthSpinPeriod();                                         // spin period in ms
+    m_PulsarDetails.spinFrequency      = _2_PI / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS);
+    m_PulsarDetails.birthPeriod        = m_PulsarDetails.spinPeriod * SECONDS_IN_MS;                         // convert from ms to s 
     
-    m_MomentOfInertia_CGS             = CalculateMomentOfInertiaCGS();                                      // in CGS g cm^2
+    m_MomentOfInertia_CGS              = CalculateMomentOfInertiaCGS();                                      // in CGS g cm^2
 	
     // Note we convert neutronStarMomentOfInertia from CGS to SI here
-    m_PulsarDetails.spinDownRate      = CalculateSpinDownRate(m_PulsarDetails.spinFrequency, m_MomentOfInertia_CGS, m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM);  
-    m_PulsarDetails.birthSpinDownRate = m_PulsarDetails.spinDownRate; 
-    m_AngularMomentum_CGS             = m_MomentOfInertia_CGS * m_PulsarDetails.spinFrequency;              // in CGS g cm^2 s^-1
+    m_PulsarDetails.spinDownRate       = CalculateSpinDownRate(m_PulsarDetails.spinFrequency, m_MomentOfInertia_CGS, m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM);  
+    m_PulsarDetails.birthSpinDownRate  = m_PulsarDetails.spinDownRate; 
+    m_AngularMomentum_CGS              = m_MomentOfInertia_CGS * m_PulsarDetails.spinFrequency;              // in CGS g cm^2 s^-1
 }
 
 

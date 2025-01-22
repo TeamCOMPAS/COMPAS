@@ -1173,6 +1173,7 @@ typedef struct SupernovaDetails {                           // Holds attributes,
 
 // pulsar parameters (if star becomes a Neutron Star)
 typedef struct PulsarDetails {
+    double birthMagneticField;                              // Pulsar birth magnetic field strength (G)
     double magneticField;                                   // Pulsar magnetic field strength (G)
     double spinPeriod;                                      // Pulsar spin period (ms)
     double spinFrequency;                                   // Pulsar spin frequency in rads per second
