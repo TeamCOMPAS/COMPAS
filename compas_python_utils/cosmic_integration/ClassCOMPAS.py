@@ -2,7 +2,8 @@
 import numpy as np
 import h5py as h5
 import os
-from . import totalMassEvolvedPerZ as MPZ
+# from . import totalMassEvolvedPerZ as MPZ
+import totalMassEvolvedPerZ as MPZ
 
 
 class COMPASData(object):
@@ -64,7 +65,7 @@ class COMPASData(object):
             print("          and optionally self.setGridAndMassEvolved() if using a metallicity grid")
 
     def setCOMPASDCOmask(
-        self, types="BBH", withinHubbleTime=True, pessimistic=True, noRLOFafterCEE=True
+        self, types="BHBH", withinHubbleTime=True, pessimistic=True, noRLOFafterCEE=True
     ):
         # By default, we mask for BBHs that merge within a Hubble time, assuming
         # the pessimistic CEE prescription (HG donors cannot survive a CEE) and
@@ -89,16 +90,14 @@ class COMPASData(object):
         # mask on stellar types (where 14=BH and 13=NS), BHNS can be BHNS or NSBH
         type_masks = {
             "all": np.repeat(True, len(dco_seeds)),
-            "BBH": np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14),
-            "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13), np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14)),
-            "BNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),
-
-            # ## MELANIE CHANGE - defining types of masks for BWDs and COWD systems    
-            # "BWD": np.logical_or(np.logical_and(stellar_type_1==12,stellar_type_2==11),np.logical_or(np.logical_and(stellar_type_1==12,stellar_type_2==10),np.logical_or(np.logical_and(stellar_type_1==11,stellar_type_2==12),np.logical_or(np.logical_and(stellar_type_1==11,stellar_type_2==10),np.logical_or(np.logical_and(stellar_type_1==10,stellar_type_2==12),np.logical_or(np.logical_and(stellar_type_1==10,stellar_type_2==11),np.logical_or(np.logical_and(stellar_type_1==10,stellar_type_2==10),np.logical_or(np.logical_and(stellar_type_1==11,stellar_type_2==11),np.logical_and(stellar_type_1==12,stellar_type_2==12))))))))),
-
+            "BHBH": np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14),
+            "BHNS": np.logical_and(np.isin(stellar_type_1,[13,14]),np.isin(stellar_type_2,[13,14])),
+            "NSNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),  
+            "WDWD": np.logical_and(np.isin(stellar_type_1,[10,11,12]),np.isin(stellar_type_2,[10,11,12]))
         }
-        type_masks["CHE_BBH"]     = np.logical_and(self.CHE_mask, type_masks["BBH"]) if types == "CHE_BBH" else np.repeat(False, len(dco_seeds))
-        type_masks["NON_CHE_BBH"] = np.logical_and(np.logical_not(self.CHE_mask), type_masks["BBH"]) if types == "NON_CHE_BBH" else np.repeat(True, len(dco_seeds))
+
+        type_masks["CHE_BBH"]     = np.logical_and(self.CHE_mask, type_masks["BHBH"]) if types == "CHE_BBH" else np.repeat(False, len(dco_seeds))
+        type_masks["NON_CHE_BBH"] = np.logical_and(np.logical_not(self.CHE_mask), type_masks["BHBH"]) if types == "NON_CHE_BBH" else np.repeat(True, len(dco_seeds))
 
         # if the user wants to make RLOF or optimistic CEs
         if noRLOFafterCEE or pessimistic:
@@ -129,13 +128,10 @@ class COMPASData(object):
 
         # create a mask for each dco type supplied
         self.DCOmask = type_masks[types] * hubble_mask * rlof_mask * pessimistic_mask
-        self.BHBHmask = type_masks["BBH"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.BHBHmask = type_masks["BHBH"] * hubble_mask * rlof_mask * pessimistic_mask
         self.BHNSmask = type_masks["BHNS"] * hubble_mask * rlof_mask * pessimistic_mask
-        self.NSNSmask = type_masks["BNS"] * hubble_mask * rlof_mask * pessimistic_mask
-
-        # ## MELANIE CHANGE - adding masks for BWD and COWD systems 
-        # self.WDWDmask = type_masks["BWD"] * hubble_mask * rlof_mask * pessimistic_mask
-
+        self.NSNSmask = type_masks["NSNS"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.WDWDmask = type_masks["WDWD"] * hubble_mask * rlof_mask * pessimistic_mask
         self.CHE_BHBHmask = type_masks["CHE_BBH"] * hubble_mask * rlof_mask * pessimistic_mask
         self.NonCHE_BHBHmask = type_masks["NON_CHE_BBH"] * hubble_mask * rlof_mask * pessimistic_mask
         self.allTypesMask = type_masks["all"] * hubble_mask * rlof_mask * pessimistic_mask
