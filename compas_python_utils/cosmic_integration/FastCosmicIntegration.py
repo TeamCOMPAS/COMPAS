@@ -6,13 +6,16 @@ import matplotlib.pyplot as plt
 import scipy
 from scipy.interpolate import interp1d
 from scipy.stats import norm as NormDist
-from compas_python_utils.cosmic_integration import ClassCOMPAS
-from compas_python_utils.cosmic_integration import selection_effects
+# from compas_python_utils.cosmic_integration import ClassCOMPAS
+import ClassCOMPAS
+# from compas_python_utils.cosmic_integration import selection_effects
+import selection_effects
 import warnings
 import astropy.units as u
 import argparse
 import importlib
-from compas_python_utils.cosmic_integration.cosmology import get_cosmology
+# from compas_python_utils.cosmic_integration.cosmology import get_cosmology
+from cosmology import get_cosmology
 
 def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10.0, cosmology=None):
     """ 
@@ -310,7 +313,7 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
 
     return detection_probability
 
-def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weight_column=None,
+def find_detection_rate(path, dco_type="BHBH", merger_output_filename=None, weight_column=None,
                         merges_hubble_time=True, pessimistic_CEE=True, no_RLOF_after_CEE=True,
                         max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10,
                         use_sampled_mass_ranges=True, m1_min=5 * u.Msun, m1_max=150 * u.Msun, m2_min=0.1 * u.Msun, fbin=0.7,
@@ -332,7 +335,7 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
             == Arguments for finding and masking COMPAS file ==
             ===================================================
             path                   --> [string] Path to the COMPAS data file that contains the output
-            dco_type               --> [string] Which DCO type to calculate rates for: one of ["all", "BBH", "BHNS", "BNS"]
+            dco_type               --> [string] Which DCO type to calculate rates for: one of ["all", "BHBH", "BHNS", "NSNS", "WDWD"]
             merger_output_filename --> [string] Optional name of output file to store merging DCOs (do not create the extra output if None)
             weight_column          --> [string] Name of column in "DoubleCompactObjects" file that contains adaptive sampling weights
                                                     (Leave this as None if you have unweighted samples)
@@ -529,6 +532,8 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
     print('shape redshifts', np.shape(redshifts))
     print('shape COMPAS.sw_weights', np.shape(COMPAS.sw_weights) )
     print('COMPAS.DCOmask', COMPAS.DCOmask, ' was set for dco_type', dco_type)
+    if dco_type=='all':
+        print('Note that rates are calculated for ALL systems in the DCO table, this could include WDWD')
     print('shape COMPAS COMPAS.DCOmask', np.shape(COMPAS.DCOmask) )
 
     #################################################
@@ -579,7 +584,7 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
             N_dco_in_z_bin      = (merger_rate[:,:] * fine_shell_volumes[:])
             print('fine_shell_volumes', fine_shell_volumes)
 
-            # The number of merging BBHs that need a weight
+            # The number of merging BHBHs that need a weight
             N_dco  = len(merger_rate[:,0])
             
             ####################
@@ -761,10 +766,10 @@ def parse_cli_args():
     parser.add_argument("--path", dest='path', help="Path to the COMPAS file that contains the output", type=str,
                         default="COMPAS_Output.h5")
     
-    # For what DCO would you like the rate?  options: ALL, BHBH, BHNS NSNS
+    # For what DCO would you like the rate?  options: ALL, BHBH, BHNS NSNS, WDWD
     parser.add_argument("--dco_type", dest='dco_type',
-                        help="Which DCO type you used to calculate rates, one of: ['all', 'BBH', 'BHNS', 'BNS'] ",
-                        type=str, default="BBH")
+                        help="Which DCO type you used to calculate rates, one of: ['all', 'BHBH', 'BHNS', 'NSNS', 'WDWD'] ",
+                        type=str, default="BHBH")
     parser.add_argument("--weight", dest='weight_column',
                         help="Name of column w AIS sampling weights, i.e. 'mixture_weight'(leave as None for unweighted samples) ",
                         type=str, default=None)
@@ -849,7 +854,7 @@ def main():
         dco_type=args.dco_type,
         weight_column=args.weight_column,
         pessimistic_CEE=args.remove_pessimistic_CEE,
-        no_RLOF_after_CEE=args.remove_RLOF_after_CEE
+        no_RLOF_after_CEE=args.remove_RLOF_after_CEE,
         max_redshift=args.max_redshift,
         max_redshift_detection=args.max_redshift_detection,
         redshift_step=args.redshift_step,
