@@ -31,12 +31,13 @@ class COMPASData(object):
         self.mass2 = None  # Msun
         self.DCOmask = None
         self.allTypesMask = None
-        self.BBHmask = None
-        self.DNSmask = None
+        self.BHBHmask = None
+        self.NSNSmask = None
         self.BHNSmask = None
+        self.WDWDmask = None
         self.CHE_mask = None
-        self.CHE_BBHmask = None
-        self.NonCHE_BBHmask = None
+        self.CHE_BHBHmask = None
+        self.NonCHE_BHBHmask = None
         self.initialZ = None
         self.sw_weights = None
         self.n_systems = None
@@ -91,6 +92,10 @@ class COMPASData(object):
             "BBH": np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14),
             "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13), np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14)),
             "BNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),
+
+            # ## MELANIE CHANGE - defining types of masks for BWDs and COWD systems    
+            # "BWD": np.logical_or(np.logical_and(stellar_type_1==12,stellar_type_2==11),np.logical_or(np.logical_and(stellar_type_1==12,stellar_type_2==10),np.logical_or(np.logical_and(stellar_type_1==11,stellar_type_2==12),np.logical_or(np.logical_and(stellar_type_1==11,stellar_type_2==10),np.logical_or(np.logical_and(stellar_type_1==10,stellar_type_2==12),np.logical_or(np.logical_and(stellar_type_1==10,stellar_type_2==11),np.logical_or(np.logical_and(stellar_type_1==10,stellar_type_2==10),np.logical_or(np.logical_and(stellar_type_1==11,stellar_type_2==11),np.logical_and(stellar_type_1==12,stellar_type_2==12))))))))),
+
         }
         type_masks["CHE_BBH"]     = np.logical_and(self.CHE_mask, type_masks["BBH"]) if types == "CHE_BBH" else np.repeat(False, len(dco_seeds))
         type_masks["NON_CHE_BBH"] = np.logical_and(np.logical_not(self.CHE_mask), type_masks["BBH"]) if types == "NON_CHE_BBH" else np.repeat(True, len(dco_seeds))
@@ -124,11 +129,15 @@ class COMPASData(object):
 
         # create a mask for each dco type supplied
         self.DCOmask = type_masks[types] * hubble_mask * rlof_mask * pessimistic_mask
-        self.BBHmask = type_masks["BBH"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.BHBHmask = type_masks["BBH"] * hubble_mask * rlof_mask * pessimistic_mask
         self.BHNSmask = type_masks["BHNS"] * hubble_mask * rlof_mask * pessimistic_mask
-        self.DNSmask = type_masks["BNS"] * hubble_mask * rlof_mask * pessimistic_mask
-        self.CHE_BBHmask = type_masks["CHE_BBH"] * hubble_mask * rlof_mask * pessimistic_mask
-        self.NonCHE_BBHmask = type_masks["NON_CHE_BBH"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.NSNSmask = type_masks["BNS"] * hubble_mask * rlof_mask * pessimistic_mask
+
+        # ## MELANIE CHANGE - adding masks for BWD and COWD systems 
+        # self.WDWDmask = type_masks["BWD"] * hubble_mask * rlof_mask * pessimistic_mask
+
+        self.CHE_BHBHmask = type_masks["CHE_BBH"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.NonCHE_BHBHmask = type_masks["NON_CHE_BBH"] * hubble_mask * rlof_mask * pessimistic_mask
         self.allTypesMask = type_masks["all"] * hubble_mask * rlof_mask * pessimistic_mask
         self.optimisticmask = pessimistic_mask
 
