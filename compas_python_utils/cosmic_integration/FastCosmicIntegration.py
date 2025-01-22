@@ -760,6 +760,7 @@ def parse_cli_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", dest='path', help="Path to the COMPAS file that contains the output", type=str,
                         default="COMPAS_Output.h5")
+    
     # For what DCO would you like the rate?  options: ALL, BHBH, BHNS NSNS
     parser.add_argument("--dco_type", dest='dco_type',
                         help="Which DCO type you used to calculate rates, one of: ['all', 'BBH', 'BHNS', 'BNS'] ",
@@ -767,7 +768,13 @@ def parse_cli_args():
     parser.add_argument("--weight", dest='weight_column',
                         help="Name of column w AIS sampling weights, i.e. 'mixture_weight'(leave as None for unweighted samples) ",
                         type=str, default=None)
-
+    parser.add_argument("--keep_pessimistic_CEE", dest='remove_pessimistic_CEE',
+                    help="keep_pessimistic_CEE will set remove_pessimistic_CEE to false. The default behaviour (remove_pessimistic_CEE == True), will mask binaries that binaries that experience a CEE while on the HG", 
+                    action='store_false', default=True)
+    parser.add_argument("--keepRLOF_postCE", dest='remove_RLOF_after_CEE',
+                        help="keepRLOF_postCE will set remove_RLOF_after_CEE to false. The default behaviour (remove_RLOF_after_CEE == True), will mask binaries that have immediate RLOF after a CCE", 
+                        action='store_false', default=True)
+    
     # Options for the redshift evolution and detector sensitivity
     parser.add_argument("--maxz", dest='max_redshift', help="Maximum redshift to use in array", type=float, default=10)
     parser.add_argument("--zSF", dest='z_first_SF', help="redshift of first star formation", type=float, default=10)
@@ -841,6 +848,8 @@ def main():
         args.path,
         dco_type=args.dco_type,
         weight_column=args.weight_column,
+        pessimistic_CEE=args.remove_pessimistic_CEE,
+        no_RLOF_after_CEE=args.remove_RLOF_after_CEE
         max_redshift=args.max_redshift,
         max_redshift_detection=args.max_redshift_detection,
         redshift_step=args.redshift_step,
