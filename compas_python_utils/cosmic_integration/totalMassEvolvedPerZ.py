@@ -66,7 +66,7 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None, mass_ratio_pdf_funct
     m2_low : `float`
         Lower limit on the sampled secondary mass
     f_bin : `float`
-        Binary fraction
+        Binary fraction, if set to -1, you will use a mass-dependent binary fraction
     mass_ratio_pdf_function : `function`, optional
         Function to calculate the mass ratio PDF, by default a uniform mass ratio distribution
     mi, aij : `float`
@@ -91,7 +91,7 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None, mass_ratio_pdf_funct
     def full_integral(mass, m1, m2, m3, m4, a12, a23, a34):
         primary_mass = IMF(mass, m1, m2, m3, m4, a12, a23, a34) * mass
         
-        if f_bin == None:
+        if f_bin == -1:
             f_bin = get_binary_fraction(mass)
 
         # find the expected companion mass given the mass ratio pdf function
@@ -108,7 +108,7 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None, mass_ratio_pdf_funct
         # define the primary mass in the same way
         primary_mass = IMF(mass, m1, m2, m3, m4, a12, a23, a34) * mass
 
-        if f_bin == None:
+        if f_bin == -1:
             f_bin = get_binary_fraction(mass)
 
         # find the fraction that are below the m2 mass cut
