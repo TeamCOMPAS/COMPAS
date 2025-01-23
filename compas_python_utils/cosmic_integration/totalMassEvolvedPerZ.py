@@ -77,6 +77,7 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin, mass_ratio_pdf_function=l
     fraction
         The fraction of mass in a COMPAS population relative to the total Universal population
     """ 
+    
     # first, for normalisation purposes, we can find the integral with no COMPAS cuts
     def full_integral(mass, m1, m2, m3, m4, a12, a23, a34):
         primary_mass = IMF(mass, m1, m2, m3, m4, a12, a23, a34) * mass
