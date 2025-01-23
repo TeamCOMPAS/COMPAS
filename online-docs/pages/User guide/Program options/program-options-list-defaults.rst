@@ -1090,7 +1090,12 @@ Default = FALSE
 
 **--pulsar-birth-magnetic-field-distribution** |br|
 Pulsar birth magnetic field distribution. |br|
-Options: { ZERO, FLATINLOG, UNIFORM, LOGNORMAL } |br|
+Options: { ZERO, FLATINLOG, UNIFORM, LOGNORMAL, FLUX_CONSERVATION } |br|
+``ZERO`` initialises all fields to zero. |br|
+``FLATINLOG`` uses a log uniform distribution between `--pulsar-birth-magnetic-field-distribution-min` and `--pulsar-birth-magnetic-field-distribution-max`. |br|
+``UNIFORM`` uses a uniform distribution between `--pulsar-birth-magnetic-field-distribution-min` and `--pulsar-birth-magnetic-field-distribution-max`. |br|
+``LOGNORMAL`` uses the log normal distribution from Faucher-Giguere & Kaspi 2006. |br|
+``FLUX_CONSERVATION`` assumes conservation of magnetic flux to calculate the pulsar magnetic field. |br|
 Default = ZERO
 
 **--pulsar-birth-magnetic-field-distribution-max** |br|
@@ -1104,6 +1109,9 @@ Default = 11.0
 **--pulsar-birth-spin-period-distribution** |br|
 Pulsar birth spin period distribution. |br|
 Options: { ZERO, UNIFORM, NORMAL } |br|
+``ZERO`` initialises all spins to zero. |br|
+``UNIFORM`` uses a uniform distribution between `--pulsar-birth-spin-period-distribution-min` and `--pulsar-birth-spin-period-distribution-max` |br|
+``NORMAL`` uses a normal distribution with parameters from Faucher-Giguere and Kaspi (2006) |br|
 Default = ZERO
 
 **--pulsar-birth-spin-period-distribution-max** |br|
@@ -1282,6 +1290,13 @@ Default = SOBERMAN
 **--store-input-files** |br|
 Enables copying of any specified grid file and/or logfile-definitios file to the COMPAS output container. |br|
 Default = TRUE
+
+**--surface-magnetic-field-distribution** |br|
+Initial (ZAMS) distribution of stellar surface magnetic field strengths. |br| 
+Options: ['MAKARENKO21','ZERO']
+``MAKARENKO21`` uses the distribution from Makarenko et al. (2021) |br|
+``ZERO`` initialises all fields to zero. |br|
+default = ZERO
 
 **--switch-log** |br|
 Enables printing of the Switch Log logfile. |br|
