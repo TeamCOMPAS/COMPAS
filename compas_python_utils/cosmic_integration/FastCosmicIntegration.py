@@ -614,7 +614,7 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
             detection_index = z_index if z_index < n_redshifts_detection else n_redshifts_detection
 
             print('You will only save data up to redshift ', maxz, ', i.e. index', z_index)
-            save_redshifts        = redshifts
+            save_redshifts        = redshifts[:z_index]
             save_merger_rate      = merger_rate[:,:z_index]
             save_detection_rate   = detection_rate[:,:detection_index]
 
