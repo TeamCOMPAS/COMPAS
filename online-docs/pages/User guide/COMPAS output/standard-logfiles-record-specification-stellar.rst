@@ -1569,6 +1569,17 @@ the other is printed in any file, but not both. If both are printed then the fil
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **PULSAR_BIRTH_MAGNETIC_FIELD**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_PulsarDetails.birthMagneticField
+   * - Description:
+     - Pulsar magnetic field (G) at birth.
+   * - Header Strings:
+     - Pulsar_Birth_Magnetic_Field, Pulsar_Birth_Magnetic_Field(1), Pulsar_Birth_Magnetic_Field(2), Pulsar_Birth_Magnetic_Field(SN), Pulsar_Birth_Magnetic_Field(CP)
+  
    * - :cspan:`2` **PULSAR_BIRTH_PERIOD**
      -
    * - Data type:
