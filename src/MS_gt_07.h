@@ -46,7 +46,7 @@ protected:
         if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
             m_InitialMainSequenceCoreMass = MainSequence::CalculateInitialMainSequenceCoreMass(m_MZAMS);
             m_MainSequenceCoreMass        = m_InitialMainSequenceCoreMass;
-            m_Luminosity                  = MainSequence::CalculateLuminosityBrcek(m_MainSequenceCoreMass, m_InitialHeliumAbundance, m_Age);
+            m_Luminosity                  = MainSequence::CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0);
             m_Radius                      = MainSequence::CalculateRadiusOnPhase(m_Mass, m_Age, m_RZAMS0);
             m_Temperature                 = BaseStar::CalculateTemperatureOnPhase_Static(m_Luminosity, m_Radius);
         }
