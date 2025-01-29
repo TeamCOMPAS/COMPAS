@@ -294,7 +294,7 @@ constexpr double Q_CNO                                  = 9.9073E4;             
 
 // Initial mass of stars above which (including the limit) we allow convective core mass calculations from Shikauchi et al. (2024) and rejuvenation calculations
 // Note that this value should always be > 0.7 Msol
-constexpr double BRCEK_LOWER_MASS_LIMIT             = 15.0;
+constexpr double BRCEK_LOWER_MASS_LIMIT             = 1.5;
 
 // logging constants
 
