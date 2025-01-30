@@ -1444,9 +1444,13 @@
 // 03.12.01   JR - Jan 17, 2025     - Defect repair:
 //                                      - (partial?) fix for issue #1149 - remove conditional from TPAGB::IsSupernova().  Whether it fixes issue 1149 completely or not, the conditional shouldn't be there...
 // 03.12.02   SS - Jan 20, 2025     - Defect repair:
-//                                      -  fix for issue #1324 - allow for evolution of pulsars formed from main sequence merger products. Changed CalculateTimestep to ChooseTimestep in MR.h and added check for bound binary to BaseBinaryStar::ChooseTimestep
+//                                      - fix for issue #1324 - allow for evolution of pulsars formed from main sequence merger products.
+//                                        Changed CalculateTimestep to ChooseTimestep in MR.h and added check for bound binary to BaseBinaryStar::ChooseTimestep
+// 03.12.03   JR - Jan 29, 2025     - Defect repair:
+//                                      - fixes initialisation in MS_gt_07::Initialise() for CORE_MASS_PRESCRIPTION::SHIKAUCHI (now allows for CH stars that spin down)
+//                                      - minor code cleanup
 
 
-const std::string VERSION_STRING = "03.12.02";
+const std::string VERSION_STRING = "03.12.03";
 
 # endif // __changelog_h__
