@@ -133,7 +133,7 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True, as_json=Fal
     fig.tight_layout(h_pad=1, w_pad=1, rect=(0.08, 0.08, .98, .98), pad=0.)  # (left, bottom, right, top)
 
     if as_json:
-        fig_json = get_plot_data([('mass', ax1), ('length', ax2), ('hr', ax4)])
+        fig_json = get_plot_data([('mass_plot', ax1), ('length_plot', ax2), ('hr_plot', ax4)])
         plt.close('all')
         return fig_json
 
