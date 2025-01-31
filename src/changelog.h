@@ -1439,7 +1439,7 @@
 //                                      - Added Shikauchi et al. (2024) core mass prescription, describing convective core evolution under mass loss/gain
 //                                      - New options: --main-sequence-core-mass-prescription SHIKAUCHI (new prescription), MANDEL (replaces --retain-core-mass-during-caseA-mass-transfer),
 //                                        ZERO (main sequence core mass set to zero, no treatment)
-//                                      - Updated stellar tracks with added luminosity prescription for main sequence stars from Shikauchi et al. (2024)
+//                                      - Added new luminosity prescription for main sequence stars from Shikauchi et al. (2024)
 //                                      - Added treatment for rejuvenation of main sequence accretors when the new prescription is used
 // 03.12.01   JR - Jan 17, 2025     - Defect repair:
 //                                      - (partial?) fix for issue #1149 - remove conditional from TPAGB::IsSupernova().  Whether it fixes issue 1149 completely or not, the conditional shouldn't be there...

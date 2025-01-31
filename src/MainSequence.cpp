@@ -777,12 +777,12 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassBrcek(const double p_Dt, cons
     double g     = -0.0044 * m_MZAMS + 0.27;                                                                                                                    // ibid, eq (A7)
     double delta = std::min(PPOW(10.0, -(m_HeliumAbundanceCore - m_InitialHeliumAbundance) / (1.0 - m_InitialHeliumAbundance - m_Metallicity) + g), 1.0);       // ibid, eq (A6)
     
-    double deltaYc = CalculateLuminosityOnPhase() / (Q_CNO * m_MainSequenceCoreMass) * p_Dt;                                                                    // Change in central helium fraction
-    double deltaCoreMassNatural = - alpha / (1 - alpha * m_HeliumAbundanceCore) * deltaYc * m_MainSequenceCoreMass;                                             // Change in core mass due to natural decay
-    double deltaMass = p_MassLossRate * p_Dt * MYR_TO_YEAR;                                                                                                     // Total mass lost/gained
-    double deltaCoreMassML = m_MainSequenceCoreMass * delta * ((m_Mass + deltaMass) * fmix(m_Mass + deltaMass) / (m_Mass * fmix(m_Mass)) - 1);                  // Change in core mass due to mass loss/gain
+    double deltaYc              = CalculateLuminosityOnPhase() / (Q_CNO * m_MainSequenceCoreMass) * p_Dt;                                                       // Change in central helium fraction; ibid, eq (12)
+    double deltaMass            = p_MassLossRate * p_Dt * MYR_TO_YEAR;                                                                                          // Total mass lost/gained
+    double deltaCoreMassML      = m_MainSequenceCoreMass * delta * ((m_Mass + deltaMass) * fmix(m_Mass + deltaMass) / (m_Mass * fmix(m_Mass)) - 1);             // Change in core mass due to mass loss/gain
+    double deltaCoreMassNatural = -alpha / (1 - alpha * m_HeliumAbundanceCore) * deltaYc * m_MainSequenceCoreMass;                                              // Change in core mass due to natural decay; ibid, eq (4)
+    double deltaCoreMass        = deltaCoreMassNatural + deltaCoreMassML;                                                                                       // Total difference in core mass
     
-    double deltaCoreMass            = deltaCoreMassNatural + deltaCoreMassML;                                                                                   // Difference in core mass
     double newMixingCoreMass        = m_MainSequenceCoreMass + deltaCoreMass;                                                                                   // New mixing core mass
     double newCentralHeliumFraction = m_HeliumAbundanceCore + deltaYc;                                                                                          // New central helium fraction
 
@@ -862,7 +862,7 @@ void MainSequence::UpdateMainSequenceCoreMass(const double p_Dt, const double p_
         
         case CORE_MASS_PRESCRIPTION::BRCEK:
             // Set core mass following Shikauchi et al. (2024) and account for rejuvenation if core grows
-            // MZAMS greater than the limit? BRCEK prescription valid
+            // MZAMS >= BRCEK_LOWER_MASS_LIMIT? BRCEK prescription valid
             if (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0) {
                 // Only proceed with calculations if star is not in MS hook (Yc < 1-Z), time step is not zero,
                 // and when the mass loss rate argument is equal to the total mass loss rate
@@ -875,7 +875,7 @@ void MainSequence::UpdateMainSequenceCoreMass(const double p_Dt, const double p_
                     age        = (heliumAbundanceCore - m_InitialHeliumAbundance) / m_InitialHydrogenAbundance * 0.99 * tMS;            // update the effective age based on central helium fraction
                 }
             }
-            // MZAMS less than the limit? MANDEL prescription used
+            // MZAMS < BRCEK_LOWER_MASS_LIMIT? MANDEL prescription used
             else {
                 // Only applied to donors as part of binary evolution, not applied to SSE
                 if ((p_MassLossRate < 0.0) && (utils::Compare(p_MassLossRate, -m_Mdot) != 0))
