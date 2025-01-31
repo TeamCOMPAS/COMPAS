@@ -801,7 +801,7 @@ Options: {ZERO, MANDEL, BRCEK} |br|
 ``ZERO``   : No core mass treatment, set to zero |br|
 ``MANDEL`` : The core following case A mass transfer is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer |br|
 ``BRCEK``  : Core mass according to Shikauchi et al. (2024) with added rejuvenation of MS accretors and updated stellar tracks |br|
-Default = MANDEL |br|
+Default = MANDEL
 
 **--mass-change-fraction** |br|
 Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
