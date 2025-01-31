@@ -1437,7 +1437,7 @@
 //                                      - Moved all CHE rotation related code to ProcessTides(), ensuring that any spin up during binary evolution conserves total angular momentum.
 // 03.12.00   AB - Jan 16, 2025     - Enhancement:
 //                                      - Added Shikauchi et al. (2024) core mass prescription, describing convective core evolution under mass loss/gain
-//                                      - New options: --main-sequence-core-mass-prescription BRCEK (new prescription), MANDEL (replaces --retain-core-mass-during-caseA-mass-transfer),
+//                                      - New options: --main-sequence-core-mass-prescription SHIKAUCHI (new prescription), MANDEL (replaces --retain-core-mass-during-caseA-mass-transfer),
 //                                        ZERO (main sequence core mass set to zero, no treatment)
 //                                      - Updated stellar tracks with added luminosity prescription for main sequence stars from Shikauchi et al. (2024)
 //                                      - Added treatment for rejuvenation of main sequence accretors when the new prescription is used
@@ -1449,8 +1449,12 @@
 // 03.12.03   JR - Jan 29, 2025     - Defect repair:
 //                                      - fixes initialisation in MS_gt_07::Initialise() for CORE_MASS_PRESCRIPTION::SHIKAUCHI (now allows for CH stars that spin down)
 //                                      - minor code cleanup
+// 03.12.04   AB - Jan 31, 2025     - Enhancement:
+//                                      - SHIKAUCHI option for main sequence core mass renamed to BRCEK
+//                                      - allowed main sequence core mass calculations for lower mass stars and replaced ODEs
+//                                      - always update Mass0 in HG.h when BRCEK prescription is used
 
 
-const std::string VERSION_STRING = "03.12.03";
+const std::string VERSION_STRING = "03.12.04";
 
 # endif // __changelog_h__
