@@ -52,9 +52,10 @@ protected:
         // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];                                                                                                                 // Set age appropriately
         
-        // update effective "initial" mass (m_Mass0) so that the core mass is at least equal to the minimum core mass but no more than total mass
+        // update effective "initial" mass (m_Mass0) so that core mass matches main sequence core mass
         // (only relevant if MANDEL or BRCEK main sequence core mass prescription is used)
-        if (utils::Compare(CalculateCoreMassOnPhase(m_Mass0, m_Age), std::min(m_Mass, MainSequenceCoreMass())) < 0) {
+        if (utils::Compare(CalculateCoreMassOnPhase(m_Mass0, m_Age), std::min(m_Mass, MainSequenceCoreMass())) < 0 ||
+            (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK && utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
             double desiredCoreMass = std::min(m_Mass, MainSequenceCoreMass());                                                                                                  // desired core mass
             m_Mass0                = Mass0ToMatchDesiredCoreMass(this, desiredCoreMass);                                                                                        // use root finder to find new core mass estimate
             if (m_Mass0 <= 0.0) {                                                                                                                                               // no root found - no solution for estimated core mass
