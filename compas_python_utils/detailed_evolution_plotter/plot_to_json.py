@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import _get_dash_pattern, _scale_dashes
 from matplotlib.colors import to_hex, to_rgba
+from compas_python_utils.detailed_evolution_plotter.plot_detailed_evolution import run_main_plotter
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -372,3 +373,25 @@ def get_events_data(events):
             for i, event in enumerate(events)
         ]
     }
+
+
+def get_plot_json(data_path):
+    """Get a JSON string containing the information needed to render line and VDH plots on the
+    GWLandscape service for a specific COMPAS output file
+
+    Parameters
+    ----------
+    data_path : str or Path
+        Path to the COMPAS output file
+
+    Returns
+    -------
+    str
+        JSON string containing 
+    """
+    detailed_fig, _, events = run_main_plotter(data_path, outdir=None, show=False)
+    axes = detailed_fig.get_axes()
+    plots_data = get_plot_data([('mass_plot', axes[0]), ('length_plot', axes[1]), ('hr_plot', axes[3])])
+    events_data = get_events_data(events)
+    return json.dumps({**plots_data, **events_data}, cls=NumpyEncoder)
+    

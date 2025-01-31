@@ -12,15 +12,9 @@ from matplotlib import rcParams
 import argparse
 import tempfile
 from pathlib import Path
-from .plot_to_json import get_plot_data, get_events_data, NumpyEncoder
-import json
 
 IMG_DIR = Path(__file__).parent / "van_den_heuvel_figures"
 
-<<<<<<< HEAD
-=======
-
->>>>>>> e1052dbc (Initial work on plotting backend)
 def main():
     parser = argparse.ArgumentParser(description='Plot detailed evolution of a COMPAS binary')
     default_data_path = "./COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5"
@@ -49,11 +43,13 @@ def run_main_plotter(data_path, outdir='.', show=True, use_latex=True):
     printEvolutionaryHistory(events=events)
 
     ### Produce the two plots
-    makeDetailedPlots(Data, events, outdir=outdir, use_latex=use_latex)
-    plotVanDenHeuvel(events=events, outdir=outdir, use_latex=use_latex)
+    detailed_fig = makeDetailedPlots(Data, events, outdir=outdir, use_latex=use_latex)
+    vdh_fig, vdh_events = plotVanDenHeuvel(events=events, outdir=outdir, use_latex=use_latex)
+
     if show:
         plt.show()
 
+    return detailed_fig, vdh_fig, vdh_events
 
 def set_font_params(use_latex=True):
     use_latex = use_latex and (shutil.which("latex") is not None)
@@ -132,12 +128,10 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True, use_latex=T
     fig.suptitle('Detailed evolution for seed = {}'.format(Data['SEED'][()][0]), fontsize=18)
     fig.tight_layout(h_pad=1, w_pad=1, rect=(0.08, 0.08, .98, .98), pad=0.)  # (left, bottom, right, top)
 
-    if as_json:
-        fig_json = get_plot_data([('mass_plot', ax1), ('length_plot', ax2), ('hr_plot', ax4)])
-        plt.close('all')
-        return fig_json
-
-    safe_save_figure(fig, f'{outdir}/detailedEvolutionPlot.png', bbox_inches='tight', pad_inches=0, format='png')
+    if outdir is not None:
+        safe_save_figure(fig, f'{outdir}/detailedEvolutionPlot.png', bbox_inches='tight', pad_inches=0, format='png')
+    
+    return fig
 
 
 ######## Plotting functions
@@ -324,8 +318,6 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
 def plotVanDenHeuvel(events=None, outdir='.', use_latex=True):
     # Only want events with an associated image
     events = [event for event in events if (event.eventImage is not None)]
-    if as_json:
-        return get_events_data(events)
 
     num_events = len(events)
     fig, axs = plt.subplots(num_events, 1)
@@ -366,9 +358,11 @@ def plotVanDenHeuvel(events=None, outdir='.', use_latex=True):
         axs[ii].annotate(chr(ord('@') + 1 + ii), xy=(-0.15, 0.8), xycoords='axes fraction', fontsize=8,
                          fontweight='bold')
 
-    file_path = os.path.join(outdir, 'vanDenHeuvelPlot.eps')
-    safe_save_figure(fig, file_path, bbox_inches='tight', pad_inches=0, format='eps')
-    return fig
+    if outdir is not None:
+        file_path = os.path.join(outdir, 'vanDenHeuvelPlot.eps')
+        safe_save_figure(fig, file_path, bbox_inches='tight', pad_inches=0, format='eps')
+
+    return fig, events
 
 
 ### Helper functions
