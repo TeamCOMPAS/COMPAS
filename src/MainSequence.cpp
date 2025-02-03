@@ -288,10 +288,16 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
 #define a m_AnCoefficients                                          // for convenience and readability - undefined at end of function
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     
-    // If BRCEK core prescription is used, return luminosity from Shikauchi et al. (2024) during core hydrogen burning or
-    // luminosity that smoothly connects MS and HG during MS hook, valid for stars with MZAMS >= 15 Msol
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, std::max(15.0, BRCEK_LOWER_MASS_LIMIT)) >= 0)) {
-            return CalculateLuminosityBrcek(m_MainSequenceCoreMass, m_HeliumAbundanceCore, p_Time);
+    // If BRCEK core prescription is used, return luminosity from Shikauchi et al. (2024) during core hydrogen burning (valid for MZAMS >= 15 Msol) or
+    // luminosity that smoothly connects MS and HG during MS hook (valid for MZAMS >= BRCEK_LOWER_MASS_LIMIT)
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
+        double tMS = timescales(tMS);
+        if (utils::Compare(p_Time, 0.99 * tMS) > 0)                                                                             // star in MS hook?
+            return CalculateLuminosityTransitionToHG(p_Mass, p_Time, p_LZAMS);
+        else {
+            if (utils::Compare(m_MZAMS, 15.0) >= 0)
+                return CalculateLuminosityShikauchi(m_MainSequenceCoreMass, m_HeliumAbundanceCore);
+        }
     }
     
     const double epsilon = 0.01;
@@ -326,36 +332,51 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
  *
  * During core hydrogen burning uses eq (A5) from Shikauchi et al. (2024), valid for stars with MZAMS >= 15 Msol
  *
- * When the Main Sequence hook starts (at age 0.99 * tMS), calculate luminosity that smoothly connects the last point
- * of core hydrogen burning with the first point of the HG
- *
- * double CalculateLuminosityBrcek(const double p_CoreMass, const double p_HeliumAbundanceCore, const double p_Age)
+ * double CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore)
  *
  * @param   [IN]    p_CoreMass                  Main sequence core mass in Msol
  * @param   [IN]    p_HeliumAbundanceCore       Central helium fraction
- * @param   [IN]    p_Age                       Current age in Myr
  * @return                                      Luminosity on the Main Sequence as a function of current core mass and central helium fraction
  */
-double MainSequence::CalculateLuminosityBrcek(const double p_CoreMass, const double p_HeliumAbundanceCore, const double p_Age) const {
+double MainSequence::CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore) const {
     DBL_VECTOR L_COEFFICIENTS = std::get<2>(SHIKAUCHI_COEFFICIENTS);
     double logMixingCoreMass  = std::log10(p_CoreMass);
-    double tMS                = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
     
     double logL = L_COEFFICIENTS[0] * logMixingCoreMass + L_COEFFICIENTS[1] * p_HeliumAbundanceCore + L_COEFFICIENTS[2] * logMixingCoreMass * p_HeliumAbundanceCore + L_COEFFICIENTS[3] * logMixingCoreMass * logMixingCoreMass + L_COEFFICIENTS[4] * p_HeliumAbundanceCore * p_HeliumAbundanceCore + L_COEFFICIENTS[5] * logMixingCoreMass * logMixingCoreMass * logMixingCoreMass + L_COEFFICIENTS[6] * p_HeliumAbundanceCore * p_HeliumAbundanceCore * p_HeliumAbundanceCore + L_COEFFICIENTS[7] * logMixingCoreMass * logMixingCoreMass * p_HeliumAbundanceCore + L_COEFFICIENTS[8] * logMixingCoreMass * p_HeliumAbundanceCore * p_HeliumAbundanceCore + L_COEFFICIENTS[9];
-    double luminosity = PPOW(10.0, logL);
     
-    if (utils::Compare(p_Age, 0.99 * tMS) >= 0) {                                                                                         // Star in MS hook?
-        HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
-        double luminosityTAMS = clone->Luminosity();                                                                                      // Get luminosity from clone (with updated Mass0)
-        delete clone; clone = nullptr;                                                                                                    // Return the memory allocated for the clone
-        
-        double ageAtHookStart        = 0.99 * tMS;
-        double luminosityAtHookStart = luminosity;                                                                                        // In the hook, core helium abundance fixed at 1-Z and core mass is not changing
-        
-        luminosity = (luminosityAtHookStart * (tMS - p_Age) + luminosityTAMS * (p_Age - ageAtHookStart)) / (tMS - ageAtHookStart);        // Linear interpolation
+    return PPOW(10.0, logL);
+}
 
-    }
-    return luminosity;
+
+/*
+ * Calculate luminosity on the transition from the Main Sequence to the HG when BRCEK core mass prescription is used
+ *
+ * Luminosity prescription from Shikauchi et al. (2024) cannot be used beyond the MS hook (beyond age 0.99 * tMS), and this
+ * function smoothly connects the luminosity between the beginning of the hook and the beginning of the HG
+ *
+ *
+ * double CalculateLuminosityTransitionToHG(const double p_Mass, const double p_Age, double const p_LZAMS)
+ *
+ * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Age                       Age in Myr
+ * @param   [IN]    p_LZAMS                     Zero Age Main Sequence (ZAMS) luminosity
+ * @return                                      Luminosity on the Main Sequence (for age between tHook and tMS)
+ */
+double MainSequence::CalculateLuminosityTransitionToHG(const double p_Mass, const double p_Age, double const p_LZAMS) const {
+    HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
+    double luminosityTAMS = clone->Luminosity();                                                                                // Get luminosity from clone (with updated Mass0)
+    delete clone; clone = nullptr;                                                                                              // Return the memory allocated for the clone
+    
+    double tMS               = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
+    double ageAtHookStart    = 0.99 * tMS;
+    
+    double luminosityAtHookStart;
+    if (utils::Compare(m_MZAMS, std::max(15.0, BRCEK_LOWER_MASS_LIMIT)) >= 0)
+        luminosityAtHookStart = CalculateLuminosityShikauchi(m_MainSequenceCoreMass, m_HeliumAbundanceCore);                    // In the hook, core helium abundance fixed at 1-Z and core mass is not changing
+    else
+        luminosityAtHookStart = CalculateLuminosityOnPhase(ageAtHookStart, p_Mass, p_LZAMS);                                    // Do not use Shikauchi luminosity for MZAMS < 15 Msun
+    
+    return (luminosityAtHookStart * (tMS - p_Age) + luminosityTAMS * (p_Age - ageAtHookStart)) / (tMS - ageAtHookStart);        // Linear interpolation
 }
 
 
@@ -528,10 +549,10 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     
     // If BRCEK core prescription is used, return radius that smoothly connects the beginning of MS hook and the beginning of HG,
-    // valid for stars with MZAMS >= 15 Msol
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, std::max(15.0, BRCEK_LOWER_MASS_LIMIT)) >= 0)) {
+    // valid for stars with MZAMS >= BRCEK_LOWER_MASS_LIMIT
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
         double tMS = timescales(tMS);
-        if (utils::Compare(p_Time, 0.99 * tMS) >= 0)                                                                             // star in MS hook?
+        if (utils::Compare(p_Time, 0.99 * tMS) > 0)                                                                             // star in MS hook?
             return CalculateRadiusTransitionToHG(p_Mass, p_Time, p_RZAMS);
     }
         
