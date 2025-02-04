@@ -172,6 +172,14 @@ double NS::CalculateBirthSpinPeriod() {
 
             } break;
 
+        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::LOGNORMAL: {                                                // LOGNORMAL distribution from Igoshev et al. 2022 https://arxiv.org/abs/2205.06823
+            
+            double sigma = PULSAR_BIRTH_PERIOD_DISTRIBUTION_IGOSHEV22_SIGMA;
+            double mean  = PULSAR_BIRTH_PERIOD_DISTRIBUTION_IGOSHEV22_MEAN;
+            double log10P = RAND->RandomGaussian(sigma) + mean;
+            pSpin = PPOW(10.0, log10P) * 1000.0;                                                                // convert s to ms
+        } break;
+
         default:                                                                                                // unknown prescription
             // the only way this can happen is if someone added a PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
@@ -462,7 +470,7 @@ double NS::CalculateMagneticFieldDecayTimescale(){
 
     double taud = 0.0;
     double Bref = 1E11; // Reference magnetic field (in G) at which OPTIONS->PulsarMagneticFieldDecayTimescale is defined
-    
+
     if (OPTIONS->PulsarMagneticFieldDecayTimescalePower() == 0.0){              // No scaling with magnetic field
         taud = OPTIONS->PulsarMagneticFieldDecayTimescale();                    // Decay timescale is just a constant
     }
