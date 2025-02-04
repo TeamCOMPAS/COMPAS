@@ -457,7 +457,7 @@ class Event(object):
 
         self.eventImage = None
         self.endState = None  # sets the endstate - only relevant if eventClass=='End'
-        self.eventString = self.getEventDetails(use_latex=use_latex, **kwargs)
+        self.eventString, self.image_num, self.rotate_image = self.getEventDetails(use_latex=use_latex, **kwargs)
 
     def getEventDetails(self, use_latex=True, **kwargs):
         """
