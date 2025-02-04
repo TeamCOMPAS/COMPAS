@@ -3,6 +3,7 @@
 #  Plot the detailed evolution of a COMPAS run                    #
 #                                                                 #
 ###################################################################
+
 import os
 import shutil
 import numpy as np
@@ -16,6 +17,7 @@ from pathlib import Path
 IMG_DIR = Path(__file__).parent / "van_den_heuvel_figures"
 
 
+
 def main():
     parser = argparse.ArgumentParser(description='Plot detailed evolution of a COMPAS binary')
     default_data_path = "./COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5"
@@ -25,7 +27,7 @@ def main():
     parser.add_argument('--dont-show', action='store_false', help='Dont show the plots')
     args = parser.parse_args()
     run_main_plotter(args.data_path, outdir=args.outdir, show=args.dont_show)
-    
+
 
 def run_main_plotter(data_path, outdir='.', show=True):
 
@@ -38,7 +40,7 @@ def run_main_plotter(data_path, outdir='.', show=True):
         Data.create_dataset(key, data=RawData[key][()][maskRecordType4])
     print(np.unique(Data['Record_Type'][()]))
 
-    ## Collect the important events in the detailed evolution
+    ### Collect the important events in the detailed evolution
     events = allEvents(Data).allEvents                 # Calculate the events here, for use in plot sizing parameters
     printEvolutionaryHistory(events=events)
 
@@ -301,10 +303,10 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, **kwargs)
 
     return ax.get_legend_handles_labels()
 
+
 def plotVanDenHeuvel(events=None, outdir='.'):
     # Only want events with an associated image
     events = [event for event in events if (event.eventImage is not None)]
-
     num_events = len(events)
     fig, axs = plt.subplots(num_events, 1)
     if num_events == 1:
