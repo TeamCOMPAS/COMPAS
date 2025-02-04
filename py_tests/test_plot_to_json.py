@@ -303,7 +303,7 @@ def test_get_line_groups(plot_lines):
     # Easier to just convert to a JSON string and then compare those, though this may fail if dicts
     # are returned to being unordered in the future
     returned = json.dumps(
-        plot_to_json.get_line_groups(plot_lines), cls=plot_to_json.NumpyEncoder
+        plot_to_json.get_line_groups(plot_lines, 'test_label'), cls=plot_to_json.NumpyEncoder
     )
     expected = json.dumps(
         [
@@ -316,7 +316,7 @@ def test_get_line_groups(plot_lines):
                         "dashes": "3.7 1.6",
                         "width": 1.0,
                         "xKey": "x",
-                        "yKey": "y0",
+                        "yKey": "y0-test_label",
                         "label": "Test line 1",
                         "type": "data",
                     },
@@ -325,7 +325,7 @@ def test_get_line_groups(plot_lines):
                         "dashes": None,
                         "width": 1.0,
                         "xKey": "x",
-                        "yKey": "y2",
+                        "yKey": "y2-test_label",
                         "label": "Test line 3",
                         "type": "data",
                     },
@@ -340,7 +340,7 @@ def test_get_line_groups(plot_lines):
                         "dashes": "6.4 1.6 1.0 1.6",
                         "width": 1.0,
                         "xKey": "x",
-                        "yKey": "y1",
+                        "yKey": "y1-test_label",
                         "label": "Test line 2",
                         "type": "data",
                     }
@@ -382,18 +382,18 @@ def test_get_plot_data(setup_fig_ax, plot_lines, plot_ref_lines, plot_texts):
                         {
                             "data": [
                                 {
-                                    "y0": np.int64(1),
-                                    "y2": np.int64(2),
+                                    "y0-test": np.int64(1),
+                                    "y2-test": np.int64(2),
                                     "x": np.int64(1),
                                 },
                                 {
-                                    "y0": np.int64(2),
-                                    "y2": np.int64(4),
+                                    "y0-test": np.int64(2),
+                                    "y2-test": np.int64(4),
                                     "x": np.int64(2),
                                 },
                                 {
-                                    "y0": np.int64(3),
-                                    "y2": np.int64(6),
+                                    "y0-test": np.int64(3),
+                                    "y2-test": np.int64(6),
                                     "x": np.int64(3),
                                 },
                             ],
@@ -403,7 +403,7 @@ def test_get_plot_data(setup_fig_ax, plot_lines, plot_ref_lines, plot_texts):
                                     "dashes": "3.7 1.6",
                                     "width": 1.0,
                                     "xKey": "x",
-                                    "yKey": "y0",
+                                    "yKey": "y0-test",
                                     "label": "Test line 1",
                                     "type": "data",
                                 },
@@ -412,7 +412,7 @@ def test_get_plot_data(setup_fig_ax, plot_lines, plot_ref_lines, plot_texts):
                                     "dashes": None,
                                     "width": 1.0,
                                     "xKey": "x",
-                                    "yKey": "y2",
+                                    "yKey": "y2-test",
                                     "label": "Test line 3",
                                     "type": "data",
                                 },
@@ -420,9 +420,9 @@ def test_get_plot_data(setup_fig_ax, plot_lines, plot_ref_lines, plot_texts):
                         },
                         {
                             "data": [
-                                {"y1": np.int64(1), "x": np.int64(2)},
-                                {"y1": np.int64(2), "x": np.int64(4)},
-                                {"y1": np.int64(3), "x": np.int64(6)},
+                                {"y1-test": np.int64(1), "x": np.int64(2)},
+                                {"y1-test": np.int64(2), "x": np.int64(4)},
+                                {"y1-test": np.int64(3), "x": np.int64(6)},
                             ],
                             "meta": [
                                 {
@@ -430,7 +430,7 @@ def test_get_plot_data(setup_fig_ax, plot_lines, plot_ref_lines, plot_texts):
                                     "dashes": "6.4 1.6 1.0 1.6",
                                     "width": 1.0,
                                     "xKey": "x",
-                                    "yKey": "y1",
+                                    "yKey": "y1-test",
                                     "label": "Test line 2",
                                     "type": "data",
                                 }
