@@ -5,6 +5,7 @@
 #include "Rand.h"
 #include "BaseStar.h"
 #include "vector3d.h"
+#include "NS.h"
 #include "BH.h"
 
 // boost includes
@@ -4376,35 +4377,49 @@ double BaseStar::CalculateZAMSSurfaceMagneticFieldStrength() {
 
     switch (OPTIONS->SurfaceMagneticFieldDistribution()) {                                        // which prescription?
 
-        case SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO:                                            // ZERO
+        case SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO: {                                           // ZERO
             Bsurf = 0.0;
-            break;
+        } break;
         
-        case SURFACE_MAGNETIC_FIELD_DISTRIBUTION::MAKARENKO21:
+        case SURFACE_MAGNETIC_FIELD_DISTRIBUTION::MAKARENKO21: {
 
             // Distribution from Makarenko et al. 2021 (https://arxiv.org/abs/2104.10579)
             // Two log-normal component (high field and low field) distributions
+            // Can recover single log normal distribution by setting flow = 1.0
             // Really, this is applicable to OBA stars (so roughly 1.5 Msun and above). 
             // Lower mass stars may have different magnetic field distributions
             // This distribution is defined in Gauss. 
-            
+
             double log10Bsurf = 0.0;
 
             double r1 = RAND->Random();                   // Draw a random number between 0 and 1
             double r2 = 0.0;
-            if (r1 < SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_FRACTION){                   // Draw from low-field subpopulation
-                r2 = RAND->RandomGaussian(SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_SIGMA);
-                log10Bsurf = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_MEAN + r2;
+            if (r1 < OPTIONS->SurfaceMagneticFieldDistributionFLow()){                   // Draw from low-field subpopulation
+                r2 = RAND->RandomGaussian(OPTIONS->SurfaceMagneticFieldDistributionLowStd());
+                log10Bsurf = OPTIONS->SurfaceMagneticFieldDistributionLowMean() + r2;
             }
             else{                                                                                   // Draw from high-field subpopulation
-                r2 = RAND->RandomGaussian(SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_SIGMA);
-                log10Bsurf = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_MEAN + r2;
+                r2 = RAND->RandomGaussian(OPTIONS->SurfaceMagneticFieldDistributionHighStd());
+                log10Bsurf = OPTIONS->SurfaceMagneticFieldDistributionHighMean() + r2;
             }
 
             Bsurf = PPOW(10.0, log10Bsurf);
 
-            break;
+        } break;
 
+        case SURFACE_MAGNETIC_FIELD_DISTRIBUTION::NS_BIRTH_DIST: {
+            
+            double BNS = NS::DrawBirthMagneticField_Static();                   // Get NS birth magnetic field strength
+            double canonical_NS_radius = NEUTRON_STAR_RADIUS * KM_TO_RSOL;      // Canonical neutron star radius (10 km) converted to Rsol
+            double radiusRatio = canonical_NS_radius/Radius();
+            Bsurf = BNS * radiusRatio * radiusRatio;                            // Calculate birth surface field strength (in G) that would give that NS field, assuming flux conservation. Use multiplication to avoid expensive pow                                                                 
+            
+            } break;
+
+        default: {
+
+            THROW_ERROR(ERROR::UNKNOWN_SURFACE_MAGNETIC_FIELD_DISTRIBUTION);                               // throw error
+        }
     }
 
     return Bsurf;  

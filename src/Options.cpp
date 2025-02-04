@@ -544,15 +544,25 @@ void Options::OptionValues::Initialise() {
     m_NeutronStarEquationOfState.type                               = NS_EOS::SSE;
     m_NeutronStarEquationOfState.typeString                         = NS_EOSLabel.at(m_NeutronStarEquationOfState.type);
 
+    // Magnetic field amplification factor during mergers
+    m_MagneticFieldAmplificationFactorMerger                        = MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER;
 
-    // Pulsar birth magnetic field distribution
+    // Stellar surface magnetic field distribution
     m_SurfaceMagneticFieldDistribution.type                         = SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO;
     m_SurfaceMagneticFieldDistribution.typeString                   = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(m_SurfaceMagneticFieldDistribution.type);
+    m_SurfaceMagneticFieldDistributionFLow                          = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_FRACTION;
+    m_SurfaceMagneticFieldDistributionLowMean                       = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_MEAN;
+    m_SurfaceMagneticFieldDistributionLowStd                        = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_SIGMA;
+    m_SurfaceMagneticFieldDistributionHighMean                      = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_MEAN;
+    m_SurfaceMagneticFieldDistributionHighStd                       = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_SIGMA;
+
+    // Pulsar birth magnetic field distribution
+    m_PulsarBirthMagneticFieldAssumption.type                       = PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::RANDOM_DRAW;
+    m_PulsarBirthMagneticFieldAssumption.typeString                 = PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION_LABEL.at(m_PulsarBirthMagneticFieldAssumption.type);
     m_PulsarBirthMagneticFieldDistribution.type                     = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO;
     m_PulsarBirthMagneticFieldDistribution.typeString               = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(m_PulsarBirthMagneticFieldDistribution.type);
     m_PulsarBirthMagneticFieldDistributionMin                       = 11.0;
     m_PulsarBirthMagneticFieldDistributionMax                       = 13.0;
-
 
     // Pulsar birth spin period distribution string
     m_PulsarBirthSpinPeriodDistribution.type                        = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::ZERO;
@@ -561,6 +571,7 @@ void Options::OptionValues::Initialise() {
     m_PulsarBirthSpinPeriodDistributionMax                          = 100.0;
 
     m_PulsarMagneticFieldDecayTimescale                             = 1000.0;
+    m_PulsarMagneticFieldDecayTimescalePower                        = 0.0;
     m_PulsarMagneticFieldDecayMassscale                             = 0.025;
     m_PulsarLog10MinimumMagneticField                               = 8.0;
 
@@ -1346,6 +1357,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "magnetic-field-amplification-factor-merger",
+            po::value<double>(&p_Options->m_MagneticFieldAmplificationFactorMerger)->default_value(p_Options->m_MagneticFieldAmplificationFactorMerger),
+            ("Factor by which magnetic fields are assumed to be amplified during stellar merger (default = " + std::to_string(p_Options->m_MagneticFieldAmplificationFactorMerger) + ")").c_str()
+        )
+        (
             "mass-change-fraction",
             po::value<double>(&p_Options->m_MassChangeFraction)->default_value(p_Options->m_MassChangeFraction),
             ("Approximate goal for fractional mass change per timestep for SSE and BSE (default = " + std::to_string(p_Options->m_MassChangeFraction) + ")").c_str()
@@ -1530,6 +1546,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Timescale on which magnetic field decays, in Myr (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescale) + ")").c_str()
         )
         (
+            "pulsar-magnetic-field-decay-timescale-power",                       
+            po::value<double>(&p_Options->m_PulsarMagneticFieldDecayTimescalePower)->default_value(p_Options->m_PulsarMagneticFieldDecayTimescalePower),                                                    
+            ("Power law scaling (with magnetic field strength) for the timescale on which magnetic field decays (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescalePower) + ")").c_str()
+        )
+        (
             "pulsar-minimum-magnetic-field",                               
             po::value<double>(&p_Options->m_PulsarLog10MinimumMagneticField)->default_value(p_Options->m_PulsarLog10MinimumMagneticField),                                                        
             ("Minimum pulsar magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarLog10MinimumMagneticField) + ")").c_str()
@@ -1607,6 +1628,32 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "semi-major-axis-min",                                         
             po::value<double>(&p_Options->m_SemiMajorAxisDistributionMin)->default_value(p_Options->m_SemiMajorAxisDistributionMin),                                                              
             ("Minimum semi-major axis, in AU, to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMin) + ")").c_str()
+        )
+
+        (
+            "surface-magnetic-field-distribution-flow",                    
+            po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionFLow)->default_value(p_Options->m_SurfaceMagneticFieldDistributionFLow),                                  
+            ("Fraction of stars with stellar surface magnetic fields drawn from the low component (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionFLow) + ")").c_str()
+        )
+        (
+            "surface-magnetic-field-distribution-low-mean",                    
+            po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionLowMean)->default_value(p_Options->m_SurfaceMagneticFieldDistributionLowMean),                                  
+            ("Log10(Mean) of the low component of the stellar surface magnetic field distribution (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionLowMean) + ")").c_str()
+        )
+        (
+            "surface-magnetic-field-distribution-low-std",                    
+            po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionLowStd)->default_value(p_Options->m_SurfaceMagneticFieldDistributionLowStd),                                  
+            ("Log10(Standard deviation) of the low component of the stellar surface magnetic field distribution (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionLowStd) + ")").c_str()
+        )
+        (
+            "surface-magnetic-field-distribution-high-mean",                    
+            po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionHighMean)->default_value(p_Options->m_SurfaceMagneticFieldDistributionHighMean),                                  
+            ("Log10(Mean) of the high component of the stellar surface magnetic field distribution (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionHighMean) + ")").c_str()
+        )
+        (
+            "surface-magnetic-field-distribution-high-std",                    
+            po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionHighStd)->default_value(p_Options->m_SurfaceMagneticFieldDistributionLowStd),                                  
+            ("Log10(Standard deviation) of the high component of the stellar surface magnetic field distribution (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionHighStd) + ")").c_str()
         )
 
         (
@@ -1873,6 +1920,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "pulsar-birth-magnetic-field-assumption",                    
+            po::value<std::string>(&p_Options->m_PulsarBirthMagneticFieldAssumption.typeString)->default_value(p_Options->m_PulsarBirthMagneticFieldAssumption.typeString),                                  
+            ("Pulsar Birth Magnetic Field assumption (" + AllowedOptionValuesFormatted("pulsar-birth-magnetic-field-assumption") + ", default = '" + p_Options->m_PulsarBirthMagneticFieldAssumption.typeString + "')").c_str()
+        )
+        (
             "pulsar-birth-magnetic-field-distribution",                    
             po::value<std::string>(&p_Options->m_PulsarBirthMagneticFieldDistribution.typeString)->default_value(p_Options->m_PulsarBirthMagneticFieldDistribution.typeString),                                  
             ("Pulsar Birth Magnetic Field distribution (" + AllowedOptionValuesFormatted("pulsar-birth-magnetic-field-distribution") + ", default = '" + p_Options->m_PulsarBirthMagneticFieldDistribution.typeString + "')").c_str()
@@ -1919,7 +1971,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_SurfaceMagneticFieldDistribution.typeString)->default_value(p_Options->m_SurfaceMagneticFieldDistribution.typeString),                                  
             ("Initial (ZAMS) distribution of stellar surface magnetic field strengths (" + AllowedOptionValuesFormatted("surface-magnetic-field-distribution") + ", default = '" + p_Options->m_SurfaceMagneticFieldDistribution.typeString + "')").c_str()
         )
-
         (
             "tides-prescription",                            
             po::value<std::string>(&p_Options->m_TidesPrescription.typeString)->default_value(p_Options->m_TidesPrescription.typeString),                                                                                                    
@@ -2311,6 +2362,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown OB Mass Loss Prescription");
         }
 
+        if (!DEFAULTED("pulsar-birth-magnetic-field-assumption")) {                                                               // pulsar birth magnetic field distribution
+            std::tie(found, m_PulsarBirthMagneticFieldAssumption.type) = utils::GetMapKey(m_PulsarBirthMagneticFieldAssumption.typeString, PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION_LABEL, m_PulsarBirthMagneticFieldAssumption.type);
+            COMPLAIN_IF(!found, "Unknown Pulsar Birth Magnetic Field Assumption");
+        }
+
         if (!DEFAULTED("pulsar-birth-magnetic-field-distribution")) {                                                               // pulsar birth magnetic field distribution
             std::tie(found, m_PulsarBirthMagneticFieldDistribution.type) = utils::GetMapKey(m_PulsarBirthMagneticFieldDistribution.typeString, PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL, m_PulsarBirthMagneticFieldDistribution.type);
             COMPLAIN_IF(!found, "Unknown Pulsar Birth Magnetic Field Distribution");
@@ -2413,6 +2469,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
  
         COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
 
+        COMPLAIN_IF(m_MagneticFieldAmplificationFactorMerger < 0.0, "Magnetic field amplification factor for merger (--magnetic-field-amplification-factor-merger) < 0");
+
         COMPLAIN_IF(m_MassChangeFraction < 0.0, "Mass change fraction per timestep (--mass-change-fraction) < 0");
         
         COMPLAIN_IF(m_MassRatio <= 0.0 || m_MassRatio > 1.0, "Mass ratio (--mass-ratio) must be greater than 0 and less than or equal to 1");
@@ -2452,6 +2510,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_OverallWindMassLossMultiplier < 0.0, "Overall wind mass loss multiplier (--overall-wind-mass-loss-multiplier) < 0.0");
 
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale") && m_PulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
+        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale-power") && m_PulsarMagneticFieldDecayTimescalePower <= 0.0, "Pulsar magnetic field decay timescale power (--pulsar-magnetic-field-decay-timescale-power) <= 0");
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
 
         COMPLAIN_IF(m_RadialChangeFraction < 0.0, "Radial change fraction per timestep (--radial-change-fraction) < 0");
@@ -2459,6 +2518,13 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(!DEFAULTED("rotational-frequency")  && m_RotationalFrequency < 0.0, "Rotational frequency (--rotational-frequency) < 0");
         COMPLAIN_IF(!DEFAULTED("rotational-frequency-1") && m_RotationalFrequency1 < 0.0, "Primary rotational frequency (--rotational-frequency-1) < 0");
         COMPLAIN_IF(!DEFAULTED("rotational-frequency-2") && m_RotationalFrequency2 < 0.0, "Secondary rotational frequency (--rotational-frequency-2) < 0");
+
+        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionFLow < 0.0, "Flow (--surface-magnetic-field-distribution-flow) < 0.0");
+        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionFLow > 1.0, "Flow (--surface-magnetic-field-distribution-flow) > 0.0");
+        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionLowMean  < 0.0, "Mean of low surface field component (--surface-magnetic-field-distribution-low-mean) < 0.0");
+        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionLowStd   < 0.0, "Std of low surface field component (--surface-magnetic-field-distribution-low-std) < 0.0");
+        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionHighMean < 0.0, "Mean of high surface field component (--surface-magnetic-field-distribution-high-mean) < 0.0");
+        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionHighStd  < 0.0, "Std of high surface field component (--surface-magnetic-field-distribution-high-std) < 0.0");
 
         COMPLAIN_IF(m_SemiMajorAxisDistributionMin < 0.0, "Minimum semi-major Axis (--semi-major-axis-min) < 0");
         COMPLAIN_IF(m_SemiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
@@ -2621,6 +2687,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOSLabel);                                    break;
         case _("OB-mass-loss-prescription")                         : POPULATE_RET(OB_MASS_LOSS_PRESCRIPTION_LABEL);                break;
         case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);              break;
+        case _("pulsar-birth-magnetic-field-assumption")            : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION_LABEL);   break;
         case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL); break;
         case _("pulsar-birth-spin-period-distribution")             : POPULATE_RET(PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);    break;
         case _("pulsational-pair-instability-prescription")         : POPULATE_RET(PPI_PRESCRIPTION_LABEL);                         break;
@@ -4676,7 +4743,9 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::LBV_FACTOR                                     : value = LuminousBlueVariableFactor();                                         break;
         case PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION                     : value = static_cast<int>(LBVMassLossPrescription());                          break;
-            
+        
+        case PROGRAM_OPTION::MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER     : value = MagneticFieldAmplificationFactorMerger();                             break;
+
         case PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION                         : value = static_cast<int>(MassLossPrescription());                             break;
 
         case PROGRAM_OPTION::MASS_RATIO                                     : value = MassRatio();                                                          break;                     
@@ -4796,7 +4865,12 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION                      : value = static_cast<int>(StellarZetaPrescription());                          break;
 
         case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION            : value = static_cast<int>(SurfaceMagneticFieldDistribution());                 break;
-        
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_FLOW       : value = SurfaceMagneticFieldDistributionFLow();                               break;
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_MEAN   : value = SurfaceMagneticFieldDistributionLowMean();                            break;
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_STD    : value = SurfaceMagneticFieldDistributionLowStd();                             break;
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_MEAN  : value = SurfaceMagneticFieldDistributionHighMean();                           break;
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD   : value = SurfaceMagneticFieldDistributionHighStd();                            break;
+
         case PROGRAM_OPTION::TIDES_PRESCRIPTION                             : value = static_cast<int>(TidesPrescription());                                break;
 
         case PROGRAM_OPTION::WR_FACTOR                                      : value = WolfRayetFactor();                                                    break;

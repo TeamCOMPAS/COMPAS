@@ -1151,8 +1151,7 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
  * 
  * */
 void MainSequence::MagneticFieldAmplificationMerger(){
-    const double MAGNETIC_FIELD_AMPLIFICATION_FACTOR = 1000.0;
-    m_SurfaceMagneticFieldStrengthPrev *= MAGNETIC_FIELD_AMPLIFICATION_FACTOR; // Assume magnetic field increased in merger product. m_SurfaceMagneticFieldStrength is updated in UpdateAttributesAndAgeOneTimestep
+    m_SurfaceMagneticFieldStrengthPrev *= OPTIONS->MagneticFieldAmplificationFactorMerger(); // Assume magnetic field increased in merger product. m_SurfaceMagneticFieldStrength is updated in UpdateAttributesAndAgeOneTimestep
 }
 
 /* 

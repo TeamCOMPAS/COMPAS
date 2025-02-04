@@ -811,6 +811,9 @@ enum class PROGRAM_OPTION: int {
 
     LBV_FACTOR,
     LBV_MASS_LOSS_PRESCRIPTION,
+
+    MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER,
+
     MASS_LOSS_PRESCRIPTION,
 
     MASS_RATIO,
@@ -896,7 +899,8 @@ enum class PROGRAM_OPTION: int {
 
     PULSAR_MAGNETIC_FIELD_DECAY_MASS_SCALE,
     PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE,
-
+    PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE_POWER,
+    
     PULSAR_MINIMUM_MAGNETIC_FIELD,
 
     QCRIT_PRESCRIPTION,
@@ -928,6 +932,11 @@ enum class PROGRAM_OPTION: int {
     STELLAR_ZETA_PRESCRIPTION,
 
     SURFACE_MAGNETIC_FIELD_DISTRIBUTION,
+    SURFACE_MAGNETIC_FIELD_DISTRIBUTION_FLOW,
+    SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_MEAN,
+    SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_STD,
+    SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_MEAN,
+    SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD,
 
     TIDES_PRESCRIPTION,
 
@@ -1034,6 +1043,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::LBV_FACTOR,                                       "LBV_FACTOR" },
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                       "LBV_MASS_LOSS_PRESCRIPTION" },
+    { PROGRAM_OPTION::MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER,       "MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER"},
+    
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                           "MASS_LOSS_PRESCRIPTION" },
 
     { PROGRAM_OPTION::MASS_RATIO,                                       "MASS_RATIO" },
@@ -1119,6 +1130,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_MASS_SCALE,           "PULSAR_MAGNETIC_FIELD_DECAY_MASS_SCALE" },
     { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE,           "PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE" },
+    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE_POWER,     "PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE_POWER" },
 
     { PROGRAM_OPTION::PULSAR_MINIMUM_MAGNETIC_FIELD,                    "PULSAR_MINIMUM_MAGNETIC_FIELD" },
 
@@ -1149,8 +1161,13 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MIN,                 "SEMI_MAJOR_AXIS_DISTRIBUTION_MIN" },
 
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                        "STELLAR_ZETA_PRESCRIPTION" },
-
+ 
     { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION,              "SURFACE_MAGNETIC_FIELD_DISTRIBUTION" },
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_FLOW,         "SURFACE_MAGNETIC_FIELD_DISTRIBUTION_FLOW" },
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_MEAN,     "SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_MEAN" },
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_STD,      "SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_STD" },
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_MEAN,    "SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_MEAN" },
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD,     "SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD" },
 
     { PROGRAM_OPTION::TIDES_PRESCRIPTION,                               "TIDES_PRESCRIPTION" },
 
@@ -1584,6 +1601,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::LBV_FACTOR,                                               { TYPENAME::DOUBLE,     "PO_LBV_Factor",                             "-",         24, 15}},
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                               { TYPENAME::INT,        "PO_LBV_Mass_Loss_Prscrptn",                 "-",          4, 1 }},
 
+    { PROGRAM_OPTION::MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER,               { TYPENAME::DOUBLE,     "PO_Magnetic_Field_Amp_Fact",                "-",         24, 15}},
+
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                                   { TYPENAME::INT,        "PO_Mass_Loss_Prscrptn",                     "-",          4, 1 }},
 
     { PROGRAM_OPTION::MASS_RATIO,                                               { TYPENAME::DOUBLE,     "PO_Mass_Ratio",                             "-",         24, 15}},
@@ -1668,7 +1687,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 
     { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_MASS_SCALE,                   { TYPENAME::DOUBLE,     "PO_Pulsar_Mag_Field_Decay_mScale",          "Msol",      24, 15}},
     { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE,                   { TYPENAME::DOUBLE,     "PO_Pulsar_Mag_Field_Decay_tScale",          "Myr",       24, 15}},
-
+    { PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE_POWER,             { TYPENAME::DOUBLE,     "PO_Pulsar_Mag_Field_Decay_tScale_Pwr",      "-",         24, 15}},
+    
     { PROGRAM_OPTION::PULSAR_MINIMUM_MAGNETIC_FIELD,                            { TYPENAME::DOUBLE,     "PO_Pulsar_Minimum_Mag_Field",               "Gauss",     24, 15}},
 
     { PROGRAM_OPTION::QCRIT_PRESCRIPTION,                                       { TYPENAME::INT,        "PO_qCrit_Prescription",                     "-",          4, 1 }},
@@ -1699,7 +1719,12 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                                { TYPENAME::INT,        "PO_Stellar_Zeta_Prscrptn",                  "-",          4, 1 }},
 
-    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION,                      { TYPENAME::INT,        "PO_Surface_Magnetic_Field_Dstrbtn",         "-",          4, 1 }},
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION,                      { TYPENAME::INT,        "PO_Surface_Magnetic_Field_Dstrbtn",          "-",         4, 1 }},
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_FLOW,                 { TYPENAME::DOUBLE,     "PO_Surface_Magnetic_Field_Dstrbtn_Flow",     "-",        24, 15 }},
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_MEAN,             { TYPENAME::DOUBLE,     "PO_Surface_Magnetic_Field_Dstrbtn_Low_Mean", "-",        24, 15 }},
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_STD,              { TYPENAME::DOUBLE,     "PO_Surface_Magnetic_Field_Dstrbtn_Low_Std",  "-",        24, 15 }},
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_MEAN,            { TYPENAME::DOUBLE,     "PO_Surface_Magnetic_Field_Dstrbtn_High_Mean","-",        24, 15 }},
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD,             { TYPENAME::DOUBLE,     "PO_Surface_Magnetic_Field_Dstrbtn_High_Std", "-",        24, 15 }},
 
     { PROGRAM_OPTION::TIDES_PRESCRIPTION,                                       { TYPENAME::INT,        "PO_Tides_Prscrptn",                         "-",          4, 1 }},
 

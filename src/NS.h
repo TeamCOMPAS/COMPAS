@@ -40,6 +40,8 @@ public:
     // member functions - alphabetically
     static  DBL_DBL_DBL CalculateCoreCollapseSNParams_Static(const double p_Mass);
 
+    static  double      DrawBirthMagneticField_Static();
+
     MT_CASE             DetermineMassTransferTypeAsDonor() const                { return MT_CASE::NONE; }                                                       // Always NONE
 
 
@@ -73,6 +75,8 @@ protected:
     static  double          CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Time);
             double          CalculateLuminosityOnPhase() const                  { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age); }                    // Use class member variables
 
+            double          CalculateMagneticFieldDecayTimescale();
+        
             double          CalculateMassLossRate()                             { return 0.0; }                                                                 // Ensure that NSs don't lose mass in winds
     
             double          CalculateMomentOfInertiaCGS() const;                                                                                                // MoI in CGS
@@ -85,7 +89,7 @@ protected:
             double          CalculateSpinDownRate(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius) const;
 
             double          ChooseTimestep(const double p_Time) const;
-
+    
             STELLAR_TYPE    EvolveToNextPhase()                                 { return STELLAR_TYPE::BLACK_HOLE; }
 
             double          ResolveCommonEnvelopeAccretion(const double p_FinalMass,

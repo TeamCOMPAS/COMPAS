@@ -71,7 +71,7 @@ double NS::CalculateRadiusOnPhaseInKM_Static(const double p_Mass) {
     switch (OPTIONS->NeutronStarEquationOfState()) {                                            // which equation-of-state?
 
         case NS_EOS::SSE:                                                                       // SSE
-            radius = 10.0;
+            radius = NEUTRON_STAR_RADIUS;
             break;
 
         case NS_EOS::ARP3: {                                                                    // ARP3
@@ -133,15 +133,6 @@ DBL_DBL_DBL NS::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
     return std::make_tuple(luminosity, radius, temperature);
 }
 
-// DBL_DBL_DBL_DBL NS::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
-//     double luminosity  = CalculateLuminosityOnPhase_Static(p_Mass, 0.0);                                        // luminosity of Neutron Star as it cools
-//     double radius      = CalculateRadiusOnPhase_Static(p_Mass);                                                 // radius of Neutron Star in Rsol
-//     double temperature = BaseStar::CalculateTemperatureOnPhase_Static(luminosity, radius);                      // temperature of NS
-//     double Bsurf       = CalculateSurfaceMagneticFieldStrengthOnPhase();                                        // Surface magnetic field strength
-
-//     return std::make_tuple(luminosity, radius, temperature, Bsurf);
-// }
-
 
 /*
  * Calculate the spin period of a Pulsar at birth according to selected distribution (by commandline option)
@@ -195,22 +186,20 @@ double NS::CalculateBirthSpinPeriod() {
     return pSpin;
 }
 
-
 /*
- * Calculate (log10 of) the magnetic field (in G) for a Pulsar at birth
+ * Draw (log10 of) the magnetic field (in G) for a pulsar at birth
  * according to selected distribution (by commandline option)
- *
- *
- * double CalculateBirthMagneticField()
- *
+ * 
+ * Declared as static so that can be used in MainSequence to draw 
+ * birth surface field which will produce this field
+ * 
+ * double DrawBirthMagneticField()
+ * 
  * @return                                      log10 of the birth magnetic field in G
  */
-double NS::CalculateBirthMagneticField() {
+double NS::DrawBirthMagneticField_Static() {
 
-	double log10B;
-    
-    // Update surface magnetic field strength
-    m_SurfaceMagneticFieldStrength = CalculateSurfaceMagneticFieldStrengthOnPhase();
+    double log10B = 0.0;
 
     switch (OPTIONS->PulsarBirthMagneticFieldDistribution()) {                                                  // which distribution?
 
@@ -243,13 +232,6 @@ double NS::CalculateBirthMagneticField() {
             log10B = RAND->RandomGaussian(sigma) + mean;
             } break;
 
-        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLUX_CONSERVATION: {
-
-            // Calculate magnetic field strength by conserving magnetic flux of the progenitor
-            log10B = log10(m_SurfaceMagneticFieldStrength);
-            
-            } break;
-
         default:                                                                                                // unknown prescription
             // the only way this can happen is if someone added a PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
@@ -258,11 +240,116 @@ double NS::CalculateBirthMagneticField() {
             // The correct fix for this is to add code for the missing prescription or, if the missing
             // prescription is superfluous, remove it from the option.
 
-            THROW_ERROR(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION);                               // throw error
+            THROW_ERROR_STATIC(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION);                               // throw error
     }
 
     return log10B;
+
 }
+
+
+/*
+ * Calculate (log10 of) the magnetic field (in G) for a Pulsar at birth
+ * according to selected distribution (by commandline option)
+ *
+ *
+ * double CalculateBirthMagneticField()
+ *
+ * @return                                      log10 of the birth magnetic field in G
+ */
+double NS::CalculateBirthMagneticField(){
+
+    // Update surface magnetic field strength
+    m_SurfaceMagneticFieldStrength = CalculateSurfaceMagneticFieldStrengthOnPhase();
+
+    double log10B = 0.0;
+
+    switch (OPTIONS->PulsarBirthMagneticFieldAssumption()) {                                                  // which distribution?
+
+        case PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::RANDOM_DRAW:                                               // Random draw from user specified distribution
+            log10B = DrawBirthMagneticField_Static();
+            break;
+        
+        case PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::FLUX_CONSERVATION:                                         // Calculate using flux conservation based on stellar surface magnetic field strength
+            log10B = log10(m_SurfaceMagneticFieldStrength);
+            break;
+        
+        default:
+            THROW_ERROR(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION);                                 // throw error
+    }
+
+    return log10B;
+
+}
+
+// /*
+//  * Calculate (log10 of) the magnetic field (in G) for a Pulsar at birth
+//  * according to selected distribution (by commandline option)
+//  *
+//  *
+//  * double CalculateBirthMagneticField()
+//  *
+//  * @return                                      log10 of the birth magnetic field in G
+//  */
+// double NS::CalculateBirthMagneticField() {
+    
+//     // Update surface magnetic field strength
+//     m_SurfaceMagneticFieldStrength = CalculateSurfaceMagneticFieldStrengthOnPhase();
+
+//     double log10B = 0.0;
+
+//     switch (OPTIONS->PulsarBirthMagneticFieldDistribution()) {                                                  // which distribution?
+
+//         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO:                                                    // ZERO
+//             log10B = 0.0;
+//             break;
+
+//         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLATINLOG: {                                             // FLAT IN LOG distribution from Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (log10B0min = , log10B0max = )
+
+//             double maximum = OPTIONS->PulsarBirthMagneticFieldDistributionMax();
+//             double minimum = OPTIONS->PulsarBirthMagneticFieldDistributionMin();
+
+//             log10B = minimum + (RAND->Random() * (maximum - minimum));
+
+//             } break;
+
+//         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::UNIFORM: {                                               // UNIFORM flat distribution used in Kiel et al 2008 https://arxiv.org/abs/0805.0059 (log10B0min = 11, log10B0max = 13.5 see section 3.4 and Table 1.)
+            
+//             double maximum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMax());
+//             double minimum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMin());
+
+//             log10B = log10(minimum + (RAND->Random() * (maximum - minimum)));
+//             } break;
+
+//         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL: {                                             // LOG NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
+
+//             double mean  = 12.65;
+//             double sigma = 0.55;
+
+//             log10B = RAND->RandomGaussian(sigma) + mean;
+//             } break;
+
+//         // case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLUX_CONSERVATION: {
+
+//         //     // Calculate magnetic field strength by conserving magnetic flux of the progenitor
+//         //     log10B = log10(m_SurfaceMagneticFieldStrength);
+            
+//         //     } break;
+
+//         default:                                                                                                // unknown prescription
+//             // the only way this can happen is if someone added a PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION
+//             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+//             // We are here because the user chose a prescription this code doesn't account for, and that should
+//             // be flagged as an error and result in termination of the evolution of the star or binary.
+//             // The correct fix for this is to add code for the missing prescription or, if the missing
+//             // prescription is superfluous, remove it from the option.
+
+//             THROW_ERROR(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION);                               // throw error
+//     }
+
+//     return log10B;
+
+// }
 
 
 /*
@@ -364,6 +451,29 @@ void NS::CalculateAndSetPulsarParameters() {
 
 
 /*
+ * Calculate the NS magnetic field decay timescale (in Myr)
+ * 
+ * double CalculateMagneticFieldDecayTimescale
+ * 
+ * @return                                      Magnetic field decay timescale for an isolated neutron star in Myr
+ *  
+ * */
+double NS::CalculateMagneticFieldDecayTimescale(){
+
+    double taud = 0.0;
+    double Bref = 1E11; // Reference magnetic field (in G) at which OPTIONS->PulsarMagneticFieldDecayTimescale is defined
+    
+    if (OPTIONS->PulsarMagneticFieldDecayTimescalePower() == 0.0){              // No scaling with magnetic field
+        taud = OPTIONS->PulsarMagneticFieldDecayTimescale();                    // Decay timescale is just a constant
+    }
+    else{
+        taud = OPTIONS->PulsarMagneticFieldDecayTimescale() * PPOW(Bref/m_PulsarDetails.magneticField, OPTIONS->PulsarMagneticFieldDecayTimescalePower());
+    }
+    
+    return taud;
+}
+
+/*
  * Update the magnetic field and spins of neutron stars when it's deemed to be an isolated pulsar. 
  *
  * This function is called in multiple situations in the NS::UpdateMagneticFieldAndSpin() function
@@ -393,7 +503,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     double initialSpinPeriod      = _2_PI / m_PulsarDetails.spinFrequency;
     double magFieldLowerLimit     = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;    
     double magFieldLowerLimit_G   = magFieldLowerLimit * TESLA_TO_GAUSS;                                   
-    double tau                    = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
+    double tau                    = CalculateMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
 
     // calculate isolated decay of the magnetic field for a neutron star
     // see Equation 6 in  arXiv:0903.3538v2       

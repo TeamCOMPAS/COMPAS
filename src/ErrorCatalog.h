@@ -176,6 +176,7 @@ enum class ERROR: int {
     UNKNOWN_PPI_PRESCRIPTION,                                       // unknown pulsational pair instability prescription
     UNKNOWN_PROGRAM_OPTION,                                         // unknown program option
     UNKNOWN_PROPERTY_TYPE,                                          // unknown property type
+    UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION,                 // unknown pulsar birth magnetic field assumption
     UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,               // unknown pulsar birth magnetic field distribution
     UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                  // unknown pulsar birth spin period distribution
     UNKNOWN_Q_DISTRIBUTION,                                         // unknown q-distribution
@@ -188,6 +189,7 @@ enum class ERROR: int {
     UNKNOWN_STELLAR_POPULATION,                                     // unknown stellar population
     UNKNOWN_STELLAR_PROPERTY,                                       // unknown stellar property
     UNKNOWN_STELLAR_TYPE,                                           // unknown stellar type
+    UNKNOWN_SURFACE_MAGNETIC_FIELD_DISTRIBUTION,                    // unknown surface magnetic field distribution
     UNKNOWN_TIDES_PRESCRIPTION,                                     // unknown tides prescription
     UNKNOWN_VMS_MASS_LOSS_PRESCRIPTION,                             // unknown VMS mass loss prescription
     UNKNOWN_VROT_PRESCRIPTION,                                      // unknown rorational velocity prescription
@@ -349,6 +351,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_PPI_PRESCRIPTION,                              { ERROR_SCOPE::ALWAYS,              "Unknown pulsational pair instability prescription" }},
     { ERROR::UNKNOWN_PROGRAM_OPTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown program option" }},
     { ERROR::UNKNOWN_PROPERTY_TYPE,                                 { ERROR_SCOPE::ALWAYS,              "Unknown property type" }},
+    { ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION,        { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth magnetic field assumption" }},
     { ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,      { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth magnetic field distribution" }},
     { ERROR::UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,         { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth spin period distribution" }},
     { ERROR::UNKNOWN_Q_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown q-distribution" }},

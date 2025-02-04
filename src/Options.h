@@ -644,6 +644,7 @@ private:
         "pair-instability-supernovae",
         "population-data-printing",
         "print-bool-as-string",
+        "pulsar-birth-magnetic-field-assumption",
         "pulsar-birth-magnetic-field-distribution",
         "pulsar-birth-spin-period-distribution",
         "pulsational-pair-instability",
@@ -663,7 +664,9 @@ private:
         "semi-major-axis-distribution",
         "stellar-zeta-prescription",
         "store-input-files",
+
         "surface-magnetic-field-distribution",
+
         "switch-log",
 
         "tides-prescription",
@@ -1105,19 +1108,30 @@ public:
             // Neutron star equation of state
             ENUM_OPT<NS_EOS>                                    m_NeutronStarEquationOfState;                                   // NS EOS
 
+            // Magnetic field amplification factor merger
+            double                                              m_MagneticFieldAmplificationFactorMerger;
 
-            // Pulsar birth magnetic field distribution string
+            // Stellar surface magnetic field distribution
             ENUM_OPT<SURFACE_MAGNETIC_FIELD_DISTRIBUTION>       m_SurfaceMagneticFieldDistribution;
+            double                                              m_SurfaceMagneticFieldDistributionFLow;
+            double                                              m_SurfaceMagneticFieldDistributionLowMean;
+            double                                              m_SurfaceMagneticFieldDistributionLowStd;
+            double                                              m_SurfaceMagneticFieldDistributionHighMean;
+            double                                              m_SurfaceMagneticFieldDistributionHighStd;
+            
+            // Pulsar birth magnetic field distribution 
+            ENUM_OPT<PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION>    m_PulsarBirthMagneticFieldAssumption;                           // Assumption to make for birth magnetic field distribution for pulsars
             ENUM_OPT<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION>  m_PulsarBirthMagneticFieldDistribution;                         // Birth magnetic field distribution for pulsars
             double                                              m_PulsarBirthMagneticFieldDistributionMin;                      // Minimum birth magnetic field (log10 B/G)
             double                                              m_PulsarBirthMagneticFieldDistributionMax;                      // Maximum birth magnetic field (log10 B/G)
 
-            // Pulsar birth spin period distribution string
+            // Pulsar birth spin period distribution
             ENUM_OPT<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION>     m_PulsarBirthSpinPeriodDistribution;                            // Birth spin period distribution for pulsars
             double                                              m_PulsarBirthSpinPeriodDistributionMin;                         // Minimum birth spin period (ms)
             double                                              m_PulsarBirthSpinPeriodDistributionMax;                         // Maximum birth spin period (ms)
 
             double                                              m_PulsarMagneticFieldDecayTimescale;                            // Timescale on which magnetic field decays (Myr)
+            double                                              m_PulsarMagneticFieldDecayTimescalePower;                       // Power law scaling (with magnetic field strength) for the timescale on which magnetic field decays
             double                                              m_PulsarMagneticFieldDecayMassscale;                            // Mass scale on which magnetic field decays during accretion (solar masses)
             double                                              m_PulsarLog10MinimumMagneticField;                              // log10 of the minimum pulsar magnetic field in Gauss
 
@@ -1510,6 +1524,8 @@ public:
     
     CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }
     
+    double                                      MagneticFieldAmplificationFactorMerger() const                          { return OPT_VALUE("magnetic-field-amplification-factor-merger", m_MagneticFieldAmplificationFactorMerger, true); }
+
     double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
     
     MASS_LOSS_PRESCRIPTION                      MassLossPrescription() const                                            { return OPT_VALUE("mass-loss-prescription", m_MassLossPrescription.type, true); }
@@ -1594,6 +1610,7 @@ public:
     bool                                        PopulationDataPrinting() const                                          { return m_CmdLine.optionValues.m_PopulationDataPrinting; }
     bool                                        PrintBoolAsString() const                                               { return m_CmdLine.optionValues.m_PrintBoolAsString; }
 
+    PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION      PulsarBirthMagneticFieldAssumption() const                              { return OPT_VALUE("pulsar-birth-magnetic-field-assumption", m_PulsarBirthMagneticFieldAssumption.type, true); }
     PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION    PulsarBirthMagneticFieldDistribution() const                            { return OPT_VALUE("pulsar-birth-magnetic-field-distribution", m_PulsarBirthMagneticFieldDistribution.type, true); }
     double                                      PulsarBirthMagneticFieldDistributionMax() const                         { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-max", m_PulsarBirthMagneticFieldDistributionMax, true); }
     double                                      PulsarBirthMagneticFieldDistributionMin() const                         { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-min", m_PulsarBirthMagneticFieldDistributionMin, true); }
@@ -1606,6 +1623,7 @@ public:
 
     double                                      PulsarMagneticFieldDecayMassscale() const                               { return OPT_VALUE("pulsar-magnetic-field-decay-massscale", m_PulsarMagneticFieldDecayMassscale, true); }
     double                                      PulsarMagneticFieldDecayTimescale() const                               { return OPT_VALUE("pulsar-magnetic-field-decay-timescale", m_PulsarMagneticFieldDecayTimescale, true); }
+    double                                      PulsarMagneticFieldDecayTimescalePower() const                          { return OPT_VALUE("pulsar-magnetic-field-decay-timescale-power", m_PulsarMagneticFieldDecayTimescalePower, true); }
 
     PPI_PRESCRIPTION                            PulsationalPairInstabilityPrescription() const                          { return OPT_VALUE("pulsational-pair-instability-prescription", m_PulsationalPairInstabilityPrescription.type, true); }
     double                                      PulsationalPairInstabilityLowerLimit() const                            { return OPT_VALUE("PPI-lower-limit", m_PulsationalPairInstabilityLowerLimit, true); }
@@ -1659,12 +1677,19 @@ public:
     double                                      SN_Phi2() const                                                         { return OPT_VALUE("kick-phi-2", m_KickPhi2, true); }
     double                                      SN_Theta1() const                                                       { return OPT_VALUE("kick-theta-1", m_KickTheta1, true); }
     double                                      SN_Theta2() const                                                       { return OPT_VALUE("kick-theta-2", m_KickTheta2, true); }
+    
+    ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
 
     bool                                        StoreInputFiles() const                                                 { return m_CmdLine.optionValues.m_StoreInputFiles; }
-    SURFACE_MAGNETIC_FIELD_DISTRIBUTION         SurfaceMagneticFieldDistribution() const                                { return OPT_VALUE("surface-magnetic-field-distribution", m_SurfaceMagneticFieldDistribution.type, true); }
+    
+    SURFACE_MAGNETIC_FIELD_DISTRIBUTION         SurfaceMagneticFieldDistribution() const                                { return OPT_VALUE("surface-magnetic-field-distribution",           m_SurfaceMagneticFieldDistribution.type,    true); }
+    double                                      SurfaceMagneticFieldDistributionFLow() const                            { return OPT_VALUE("surface-magnetic-field-distribution-flow",      m_SurfaceMagneticFieldDistributionFLow,     true); }
+    double                                      SurfaceMagneticFieldDistributionLowMean() const                         { return OPT_VALUE("surface-magnetic-field-distribution-low-mean",  m_SurfaceMagneticFieldDistributionLowMean,  true); }
+    double                                      SurfaceMagneticFieldDistributionLowStd() const                          { return OPT_VALUE("surface-magnetic-field-distribution-low-std",   m_SurfaceMagneticFieldDistributionLowStd,   true); }
+    double                                      SurfaceMagneticFieldDistributionHighMean() const                        { return OPT_VALUE("surface-magnetic-field-distribution-high-mean", m_SurfaceMagneticFieldDistributionHighMean, true); }
+    double                                      SurfaceMagneticFieldDistributionHighStd() const                         { return OPT_VALUE("surface-magnetic-field-distribution-high-std",  m_SurfaceMagneticFieldDistributionHighStd,  true); }
+    
     bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }
-
-    ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
 
     TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return OPT_VALUE("tides-prescription", m_TidesPrescription.type, true); }
 
