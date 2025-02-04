@@ -4409,11 +4409,14 @@ double BaseStar::CalculateZAMSSurfaceMagneticFieldStrength() {
 
         case SURFACE_MAGNETIC_FIELD_DISTRIBUTION::NS_BIRTH_DIST: {
             
-            double BNS = NS::DrawBirthMagneticField_Static();                   // Get NS birth magnetic field strength
-            double canonical_NS_radius = NEUTRON_STAR_RADIUS * KM_TO_RSOL;      // Canonical neutron star radius (10 km) converted to Rsol
-            double radiusRatio = canonical_NS_radius/Radius();
-            Bsurf = BNS * radiusRatio * radiusRatio;                            // Calculate birth surface field strength (in G) that would give that NS field, assuming flux conservation. Use multiplication to avoid expensive pow                                                                 
+            double BNS = PPOW(10.0, NS::DrawBirthMagneticField_Static());                // Get NS birth magnetic field strength. DrawBirthMagneticField_Static gives log10(B)
+            double canonical_NS_radius = NEUTRON_STAR_RADIUS;                            // Canonical neutron star radius (10 km) converted to Rsol
             
+            double radiusZAMS  = RZAMS();                                                // Get ZAMS radius of the star
+
+            double radiusRatio = canonical_NS_radius/radiusZAMS;
+            Bsurf = BNS * radiusRatio * radiusRatio;                                     // Calculate birth surface field strength (in G) that would give that NS field, assuming flux conservation. Use multiplication to avoid expensive pow                                                                 
+
             } break;
 
         default: {
