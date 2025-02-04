@@ -3,6 +3,7 @@
 #  Plot the detailed evolution of a COMPAS run                    #
 #                                                                 #
 ###################################################################
+
 import os
 import shutil
 import numpy as np
@@ -38,7 +39,7 @@ def run_main_plotter(data_path, outdir='.', show=True, use_latex=True):
         Data.create_dataset(key, data=RawData[key][()][maskRecordType4])
     print(np.unique(Data['Record_Type'][()]))
 
-    ## Collect the important events in the detailed evolution
+    ### Collect the important events in the detailed evolution
     events = allEvents(Data).allEvents                 # Calculate the events here, for use in plot sizing parameters
     printEvolutionaryHistory(events=events)
 
@@ -318,7 +319,6 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
 def plotVanDenHeuvel(events=None, outdir='.', use_latex=True):
     # Only want events with an associated image
     events = [event for event in events if (event.eventImage is not None)]
-
     num_events = len(events)
     fig, axs = plt.subplots(num_events, 1)
     if num_events == 1:
