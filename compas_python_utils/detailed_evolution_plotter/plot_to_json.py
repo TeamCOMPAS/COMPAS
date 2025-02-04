@@ -240,7 +240,7 @@ def get_text_data(text):
     }
 
 
-def get_line_groups(lines):
+def get_line_groups(lines, label):
     """Takes a list of Line2D objects and organises them into groups based on whether or not they have the same
     x data. Each group contains the x data for the group, a list of y axis data for each line in the group, and
     the metadata for each line.
@@ -250,6 +250,8 @@ def get_line_groups(lines):
     ----------
     lines : list
         List of pyplot Line2D objects
+    label : str
+        Label of the plot, used to give unique labels for the data
 
     Returns
     -------
@@ -260,7 +262,7 @@ def get_line_groups(lines):
     for i, line in enumerate(lines):
         x_data = line.get_xdata()
         y_data = line.get_ydata()
-        meta = get_line_meta(line, f"y{i}")
+        meta = get_line_meta(line, f"y{i}-{label}")
         for group in groups:
             if np.array_equal(group["x_data"], x_data):
                 group["y_data"].append(y_data)
@@ -303,7 +305,7 @@ def get_plot_data(axes_map):
         ]
         texts = [get_text_data(text) for text in filter(_artist_is_text, artists)]
 
-        line_groups = get_line_groups(filter(_artist_is_line, artists))
+        line_groups = get_line_groups(filter(_artist_is_line, artists), label)
 
         groups = []
         for line_group in line_groups:
