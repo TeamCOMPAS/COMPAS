@@ -1405,7 +1405,7 @@
 //                                      - Fixed bugs in vector3d related to indexing and rotation
 //                                      - Added tweak for circular systems at first SN, to fix the x-axis along the separation vector
 // 03.09.03   IM - Nov 28, 2024     - Enhancement, defect repair:
-//                                      - Delay changing stellar types until after checking for whether remnant cores would touch in a common enevelope, use core radii instead (partial fix to #1286)
+//                                      - Delay changing stellar types until after checking for whether remnant cores would touch in a common envelope, use core radii instead (partial fix to #1286)
 //                                      - Define a new function MainSequence::TAMSCoreMass(); use it for determining the amount of He in a star during MS mergers
 //                                      - Switch both stars to Massless remnants during a CE merger, resolve #1265
 //                                      - Minor fixes, including to #1255, #1258
@@ -1449,8 +1449,12 @@
 // 03.12.03   JR - Jan 29, 2025     - Defect repair:
 //                                      - fixes initialisation in MS_gt_07::Initialise() for CORE_MASS_PRESCRIPTION::SHIKAUCHI (now allows for CH stars that spin down)
 //                                      - minor code cleanup
+// 03.12.04   IM - Feb 08, 2025
+//                                      - replaced name of COMPAS PPISN prescription with WOOSLEY (issue #1278)
 
 
-const std::string VERSION_STRING = "03.12.03";
+
+
+const std::string VERSION_STRING = "03.12.04";
 
 # endif // __changelog_h__
