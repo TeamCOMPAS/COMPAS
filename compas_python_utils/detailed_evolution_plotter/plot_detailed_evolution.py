@@ -494,14 +494,16 @@ class Event(object):
                     image_num = 44
             elif mtValue == 3:
                 eventString = r'Common envelope initiated by 1'
-                if (self.stype1 < 13) & (self.stype2 < 13):
+                if self.stype2 < 13:
                     image_num = 28
                 else:
                     image_num = 49
+                    rotate_image = True
             elif mtValue == 4:
                 eventString = r'Common envelope initiated by 2'
-                if (self.stype1 < 13) & (self.stype2 < 13):
+                if self.stype1 < 13:
                     image_num = 28
+                    rotate_image = True
                 else:
                     image_num = 49
             elif mtValue == 5:
@@ -542,8 +544,12 @@ class Event(object):
             else:
                 if compType < 13:
                     image_num = 13  # 13 for normal companion
+                elif compType == 13:
+                    image_num = 15  # 15 for NS companion
                 else:
-                    image_num = 15  # 15 for CO companion
+                    image_num = 17  # 17 for BH companion
+            if whichStar == 2:
+                rotate_image = True
 
         elif eventClass == 'Stype':
             whichStar = kwargs['whichStar']
@@ -582,6 +588,8 @@ class Event(object):
                     image_num = 51
                 else:
                     image_num = 53
+                    if (stype1 == 14) & (stype2 == 13):
+                        rotate_image = True
 
             elif state == "Unbound":
                 eventString = r'Unbound: {}+{}'.format(self.stypeName1, self.stypeName2)
