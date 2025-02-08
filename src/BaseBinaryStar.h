@@ -434,6 +434,10 @@ private:
                                        const double                 p_FractionAccreted);
 
     void    CalculateWindsMassLoss();
+    double  CalculateWindVelocity(const double p_DonorMass, 
+                                  const double p_DonorRadius, 
+                                  const double p_semiMajorAxis);
+                                  
     void    CalculateWindAccretionMassGain();
     void    InitialiseMassTransfer();
 

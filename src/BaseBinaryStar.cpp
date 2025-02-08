@@ -1900,6 +1900,31 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
     }
 }
 
+
+/*
+* Calculating Wind velocity
+*
+* This function should probably be moved later but for now this is the easiest to write
+* 
+* For now this returns the wind velocity without saving this anywhere, this is something I would like to talk about with Reinhold before implementing more completely
+*
+* double CalculateWindVelocity()
+*/
+double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const double p_DonorRadius, const double p_semiMajorAxis) {
+
+    double escapeVelocity = std::sqrt(2 * G_AU_Msol_yr * p_DonorMass / p_DonorRadius); // AU / yr
+
+    double ratioSeparationToRadius = p_semiMajorAxis / p_DonorRadius;
+    double ratioSeparationToRadiusPow2 = ratioSeparationToRadius * ratioSeparationToRadius; 
+
+    double alpha_w = 0.04 * ratioSeparationToRadiusPow2 / (1 + 0.04 * ratioSeparationToRadiusPow2);
+
+    return alpha_w * escapeVelocity;
+
+}
+
+
+
 /*
  * Calculate the mass accreted from the wind.
  * 
@@ -1907,20 +1932,33 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
  */
 void BaseBinaryStar::CalculateWindAccretionMassGain() {
 
+    // Bondi and Hoyle formula for now
+    // Make sure we are in the regime where we can assume Bondi and Hoyle
+
     // Posibility for OPTION -> UseWindAccretion
 
-    double windVelocity = 1; // Placeholder, calculation is still to be implemented (also different for the two stars)
-    double epsilon_w = 3/2; // magic number, for which I have to find a reliable source
+    double windVelocity1 = CalculateWindVelocity(m_Star1->Mass(), m_Star1->Radius(), m_SemiMajorAxis);
+    double windVelocity2 = CalculateWindVelocity(m_Star2->Mass(), m_Star2->Radius(), m_SemiMajorAxis);
 
-    double totalMass = m_Star1->Mass() + m_Star2->Mass();
+    double windVelocity1Pow2 = windVelocity1 * windVelocity1;
+    double windVelocity2Pow2 = windVelocity2 * windVelocity2;
 
-    double v_orb = sqrt(G * ( totalMass ) / m_SemiMajorAxis); // check units
+    double xi_w = 3/2; // comes from Bondi and Hoyle, look at the details
 
-    double windAccretion1 = - pow(G * m_Star2->Mass() /pow(windVelocity,2), 2) * epsilon_w / (2 * pow(m_SemiMajorAxis,2)) / pow(1 + pow(v_orb/windVelocity,2),3/2) * m_Star2->MassLossDiff();
-    double windAccretion2 = - pow(G * m_Star1->Mass() /pow(windVelocity,2), 2) * epsilon_w / (2 * pow(m_SemiMajorAxis,2)) / pow(1 + pow(v_orb/windVelocity,2),3/2) * m_Star1->MassLossDiff();
+    double totalMass = m_Star1->Mass() + m_Star2->Mass(); // Msun
 
-    m_Star1->SetWindAccretionMassGain(windAccretion1); // check units
-    m_Star2->SetWindAccretionMassGain(windAccretion2); // check units
+    double orbitalVelocity = sqrt(G_AU_Msol_yr * ( totalMass ) / m_SemiMajorAxis); // orbital velocity in AU/yr
+
+    double v1Pow2 = (orbitalVelocity * orbitalVelocity) / (windVelocity1 * windVelocity1); 
+    double v2Pow2 = (orbitalVelocity * orbitalVelocity) / (windVelocity2 * windVelocity2);
+
+    double AUpow2 = m_SemiMajorAxis * m_SemiMajorAxis; // use multiplication - pow() is slow
+
+    double windAccretion1 = - pow(G_AU_Msol_yr * m_Star2->Mass() / windVelocity1Pow2, 2) * xi_w / (2 * AUpow2) / pow(1 + v1Pow2, 3/2) * m_Star2->MassLossDiff();
+    double windAccretion2 = - pow(G_AU_Msol_yr * m_Star1->Mass() / windVelocity2Pow2, 2) * xi_w / (2 * AUpow2) / pow(1 + v2Pow2 ,3/2) * m_Star1->MassLossDiff();
+
+    m_Star1->SetWindAccretionMassGain(windAccretion1); // Msun / yr
+    m_Star2->SetWindAccretionMassGain(windAccretion2); // Msun / yr
 
 }
 
