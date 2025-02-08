@@ -579,27 +579,28 @@ class Event(object):
                 T0 = a ** 4 / 4 / beta
                 Tdelay = T0 * (1 - e ** 2) ** (7 / 2) * (
                         1 + 0.31 * e ** 10 + 0.27 * e ** 20 + 0.2 * e ** 1000) / 3.15e7 / 1e6
-                eventString = r'Double compact object ({}+{}) merging in {:.2e} Myr (total from birth {:.2e} Myr)'.format(self.stypeName1, self.stypeName2, Tdelay, Tdelay+self.time)
+                eventString = r'Double compact object ({}+{}) merging in {:.2e} Myr'.format(self.stypeName1, self.stypeName2, Tdelay)
+                self.time=self.time+Tdelay
 
-                if (stype1 == 13) & (stype2 == 13):
+                if (stype1 == 13) and (stype2 == 13):
                     image_num = 55
-                elif (stype1 == 14) & (stype2 == 14):
+                elif (stype1 == 14) and (stype2 == 14):
                     image_num = 51
                 else:
                     image_num = 53
-                    if (stype1 == 14) & (stype2 == 13):
+                    if (stype1 == 14) and (stype2 == 13):
                         rotate_image = True
 
             elif state == "Unbound":
                 eventString = r'Unbound: {}+{}'.format(self.stypeName1, self.stypeName2)
-                if (stype1 == 13) & (stype2 < 13):
+                if (stype1 == 13) and (stype2 < 13):
                     image_num = 19
-                elif (stype1 < 13) & (stype2 == 13):
+                elif (stype1 < 13) and (stype2 == 13):
                     image_num = 19
                     rotate_image = True
-                elif (stype1 == 14) & (stype2 < 13):
+                elif (stype1 == 14) and (stype2 < 13):
                     image_num = 20
-                elif (stype1 < 13) & (stype2 == 14):
+                elif (stype1 < 13) and (stype2 == 14):
                     image_num = 20
                     rotate_image = True
                 else:
@@ -724,7 +725,7 @@ def printEvolutionaryHistory(Data=None, events=None):
 
     for event in events:
         ii = event.index
-        printFormattedEvolutionLine(Data['Time'][ii], event.eventString.replace('$', ''),
+        printFormattedEvolutionLine(event.time, event.eventString.replace('$', ''),
                                     Data['Mass(1)'][ii], Data['Stellar_Type(1)'][ii],
                                     Data['Mass(2)'][ii], Data['Stellar_Type(2)'][ii],
                                     Data['SemiMajorAxis'][ii], Data['Eccentricity'][ii])
