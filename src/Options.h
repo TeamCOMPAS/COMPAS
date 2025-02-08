@@ -205,7 +205,7 @@ private:
     //       with QCRIT_PRESCRIPTION::CLAEYS123, specify "CLAEYS123" in the vector).  If there is no replacement
     //       (i.e. the deprecated value will be removed and no replacement value implemented), the replacement
     //       value string should be the empty string ("")
-    //     - a boolean flag to indicate if the deprecation notice for the option valuehas been shown - should
+    //     - a boolean flag to indicate if the deprecation notice for the option value has been shown - should
     //       be "false" in the vector, and will be set true if and when the deprecation notice for that option
     //       value is shown the first time in a COMPAS run (a deprecation notice for a deprecated option value
     //       is only shown once per COMPAS run).
@@ -229,6 +229,7 @@ private:
         { "critical-mass-ratio-prescription",    "GE20_IC", "GE_IC", false },
         { "LBV-mass-loss-prescription",          "NONE", "ZERO", false },
         { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
+        { "pulsational-pair-instability-prescription", "COMPAS", "WOOSLEY", false},
         { "OB-mass-loss",                        "NONE", "ZERO", false },
         { "OB-mass-loss-prescription",           "NONE", "ZERO", false },
         { "RSG-mass-loss",                       "NONE", "ZERO", false },

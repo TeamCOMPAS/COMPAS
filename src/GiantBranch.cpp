@@ -2078,6 +2078,7 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
     double baryonicMass;
     switch (OPTIONS->PulsationalPairInstabilityPrescription()) {                                        // which prescription?
 
+        case PPI_PRESCRIPTION::COMPAS:                                                                  // deprecated Feb 2025, to be removed
         case PPI_PRESCRIPTION::WOOSLEY:                                                                 // Woosley 2017 https://arxiv.org/abs/1608.08939
             baryonicMass = m_HeCoreMass;                                                                // strip off the hydrogen envelope if any was left
             m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
