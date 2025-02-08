@@ -579,8 +579,7 @@ class Event(object):
                 T0 = a ** 4 / 4 / beta
                 Tdelay = T0 * (1 - e ** 2) ** (7 / 2) * (
                         1 + 0.31 * e ** 10 + 0.27 * e ** 20 + 0.2 * e ** 1000) / 3.15e7 / 1e6
-                eventString = r'Double compact object ({}+{}) merging in {:.2e} Myr'.format(self.stypeName1,
-                                                                                            self.stypeName2, Tdelay)
+                eventString = r'Double compact object ({}+{}) merging in {:.2e} Myr (total from birth {:.2e} Myr)'.format(self.stypeName1, self.stypeName2, Tdelay, Tdelay+self.time)
 
                 if (stype1 == 13) & (stype2 == 13):
                     image_num = 55

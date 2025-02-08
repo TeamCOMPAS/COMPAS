@@ -1449,7 +1449,7 @@
 // 03.12.03   JR - Jan 29, 2025     - Defect repair:
 //                                      - fixes initialisation in MS_gt_07::Initialise() for CORE_MASS_PRESCRIPTION::SHIKAUCHI (now allows for CH stars that spin down)
 //                                      - minor code cleanup
-// 03.12.04   IM - Feb 08, 2025
+// 03.12.04   IM - Feb 08, 2025     - Enhancement
 //                                      - replaced name of COMPAS PPISN prescription with WOOSLEY (issue #1278)
 
 
