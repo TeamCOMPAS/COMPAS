@@ -1449,7 +1449,8 @@
 // 03.12.03   JR - Jan 29, 2025     - Defect repair:
 //                                      - fixes initialisation in MS_gt_07::Initialise() for CORE_MASS_PRESCRIPTION::SHIKAUCHI (now allows for CH stars that spin down)
 //                                      - minor code cleanup
-// 03.12.04   IM - Feb 08, 2025     - Enhancement
+// 03.12.04   IM - Feb 08, 2025     - Enhancement:
+//                                      - only reset mass0 to mass on the HG when mass0 > mass (i.e., on mass loss, not mass gain, and not if mass0 is intentionally set to yield a lower core mass as may be required by the BRCEK rejuvenation prescription)
 //                                      - replaced name of COMPAS PPISN prescription with WOOSLEY (issue #1278)
 
 
