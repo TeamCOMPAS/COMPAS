@@ -292,9 +292,9 @@ constexpr double STARTRACK_PPISN_HE_CORE_MASS           = 45.0;                 
 
 constexpr double Q_CNO                                  = 9.9073E4;                                                 // Energy released per unit mass by hydrogen fusion via the CNO cycle in Lsol Myr Msol-1
 
-// Initial mass of stars above which (including the limit) we allow convective core mass calculations from Shikauchi et al. (2024)
+// Initial mass of stars above which (including the limit) we allow convective core mass calculations from Shikauchi et al. (2024) and rejuvenation calculations
 // Note that this value should always be > 0.7 Msol
-constexpr double SHIKAUCHI_LOWER_MASS_LIMIT             = 15.0;
+constexpr double BRCEK_LOWER_MASS_LIMIT             = 15.0;
 
 // logging constants
 
