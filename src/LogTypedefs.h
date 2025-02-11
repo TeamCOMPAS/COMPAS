@@ -1711,7 +1711,8 @@ enum class LOGFILE: int {
     SSE_DETAILED_OUTPUT,
     SSE_SUPERNOVAE,
     SSE_SWITCH_LOG,
-    SSE_SYSTEM_PARAMETERS
+    SSE_SYSTEM_PARAMETERS,
+    SSE_PULSAR_EVOLUTION
 };
 
 
@@ -1727,7 +1728,7 @@ enum class DCO_RECORD_TYPE: unsigned int {                                      
     DEFAULT = 1                                                                                                     // 1 - default BSE_DOUBLE_COMPACT_OBJECTS file record type
 };
 
-enum class PULSAR_RECORD_TYPE: unsigned int {                                                                       // BSE_PULSAR_EVOLUTION file record type
+enum class BSE_PULSAR_RECORD_TYPE: unsigned int {                                                                   // BSE_PULSAR_EVOLUTION file record type
     DEFAULT = 1,                                                                                                    // 1 - default BSE_PULSAR_EVOLUTION file record type
     POST_SN,                                                                                                        // 2 - record was logged immediately following a supernova event
     POST_BINARY_TIMESTEP                                                                                            // 3 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
@@ -1762,6 +1763,12 @@ enum class SSE_DETAILED_RECORD_TYPE: unsigned int {                             
     POST_MASS_LOSS,                                                                                                 //  3 - record was logged after after mass loss resolution
     TIMESTEP_COMPLETED,                                                                                             //  4 - record was logged immediately following the completion of the timestep (after all changes to the star)
     FINAL_STATE                                                                                                     //  5 - record describes the final state of the star
+};
+
+enum class SSE_PULSAR_RECORD_TYPE: unsigned int {                                                                   // SSE_PULSAR_EVOLUTION file record type
+    DEFAULT = 1,                                                                                                    // 1 - default SSE_PULSAR_EVOLUTION file record type
+    POST_SN,                                                                                                        // 2 - record was logged immediately following a supernova event
+    TIMESTEP_COMPLETED                                                                                              // 3 - record was logged immediately following the completion of the timestep (after all changes to the star)
 };
 
 enum class BSE_SN_RECORD_TYPE: unsigned int {                                                                       // BSE_SUPERNOVAE file record type
@@ -2249,6 +2256,23 @@ const ANY_PROPERTY_VECTOR SSE_SYSTEM_PARAMETERS_REC = {
 };
 
 
+// SSE_PULSAR_EVOLUTION_REC
+//
+// Default record definition for the SSE Pulsar Evolution logfile
+//
+const ANY_PROPERTY_VECTOR SSE_PULSAR_EVOLUTION_REC = {
+    STAR_PROPERTY::RANDOM_SEED,
+    STAR_PROPERTY::MASS,
+    STAR_PROPERTY::STELLAR_TYPE,
+    STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,
+    STAR_PROPERTY::PULSAR_SPIN_FREQUENCY,
+    STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE,
+    STAR_PROPERTY::PULSAR_BIRTH_PERIOD,
+    STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
+    STAR_PROPERTY::TIME,
+    STAR_PROPERTY::DT
+};
+
 // enum class LOGFILE_CLASS
 // Symbolic names for logfile types
 enum class LOGFILE_CLASS: int { NONE, STELLAR, BINARY };
@@ -2276,7 +2300,8 @@ const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
     { LOGFILE::SSE_DETAILED_OUTPUT,        { "SSE_Detailed_Output",            SSE_DETAILED_OUTPUT_REC,        "SSE_DETAILED",    "SSE_DETAILED_REC",    LOGFILE_CLASS::STELLAR }},
     { LOGFILE::SSE_SUPERNOVAE,             { "SSE_Supernovae",                 SSE_SUPERNOVAE_REC,             "SSE_SNE",         "SSE_SNE_REC",         LOGFILE_CLASS::STELLAR }},
     { LOGFILE::SSE_SWITCH_LOG,             { "SSE_Switch_Log",                 SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",  "SSE_SWITCH_REC",      LOGFILE_CLASS::STELLAR }},
-    { LOGFILE::SSE_SYSTEM_PARAMETERS,      { "SSE_System_Parameters",          SSE_SYSTEM_PARAMETERS_REC,      "SSE_SYSPARMS",    "SSE_SYSPARMS_REC",    LOGFILE_CLASS::STELLAR }}
+    { LOGFILE::SSE_SYSTEM_PARAMETERS,      { "SSE_System_Parameters",          SSE_SYSTEM_PARAMETERS_REC,      "SSE_SYSPARMS",    "SSE_SYSPARMS_REC",    LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_PULSAR_EVOLUTION,       { "SSE_Pulsar_Evolution",           SSE_PULSAR_EVOLUTION_REC,       "SSE_PULSARS",     "SSE_PULSARS_REC",     LOGFILE_CLASS::STELLAR }}
 };
 
 #endif // __LogTypedefs_h__
