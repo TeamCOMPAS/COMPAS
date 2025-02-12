@@ -481,8 +481,11 @@ DBL_DBL_DBL NS::DeltaAngularMomentumByPulsarAccretion_Static(const double p_Mass
     
     return std::make_tuple(newPulsarMagneticField, 
                            (angularMomentum + Jdot * p_Stepsize) / p_MoI, 
-                           //deltaJ
-                           angularMomentum + Jdot * p_Stepsize);
+                           // uncomment if using BOOST integrator;
+                           p_Epsilon * omegaDifference * magneticRadius * magneticRadius);
+
+                           // uncomment if using the manual integrator with the for loops. 
+                           // angularMomentum + Jdot * p_Stepsize);
 }
 
 
@@ -578,7 +581,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             //         if (++count >= divideTimestepBy) done = true;        
             //     }
             // }
-            // std::cout << "divide time step into " << divideTimestepBy << std::endl;
+            // // std::cout << "divide time step into " << divideTimestepBy << std::endl;
             // double newTimeStepSize = p_Stepsize / divideTimestepBy;
             // double newMassGain = p_MassGainPerTimeStep / G_TO_KG / divideTimestepBy ; 
             // m_AngularMomentum_CGS = InitialAngularMomentum_CGS;
@@ -586,7 +589,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             // m_PulsarDetails.spinFrequency = InitialSpinFrequency;
             // accretionResults = DeltaAngularMomentumByPulsarAccretion_Static
             // (newMassGain, m_Mass, m_Radius, m_PulsarDetails.magneticField, 
-            // m_PulsarDetails.spinFrequency, m_AngularMomentum_CGS, newTimeStepSize, kappa, p_Epsilon, m_MomentOfInertia_CGS, true);
+            // m_PulsarDetails.spinFrequency, m_AngularMomentum_CGS, newTimeStepSize, kappa, p_Epsilon, m_MomentOfInertia_CGS, false); //true);
             // for (int n = 1; n<= int(divideTimestepBy); n++){
                 
             //     double last_B_2    = std::get<0>(accretionResults);
@@ -595,7 +598,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
                 
             //     accretionResults = DeltaAngularMomentumByPulsarAccretion_Static
             //     (newMassGain, m_Mass, m_Radius, last_B_2, 
-            // last_f_2, last_am_2, newTimeStepSize, kappa, p_Epsilon, m_MomentOfInertia_CGS,true);
+            // last_f_2, last_am_2, newTimeStepSize, kappa, p_Epsilon, m_MomentOfInertia_CGS, false);//true);
           
             // m_PulsarDetails.magneticField = std::get<0>(accretionResults);
             // m_PulsarDetails.spinFrequency = std::get<1>(accretionResults);
@@ -612,8 +615,8 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             double thisF = m_PulsarDetails.spinFrequency  ;
             double thisM = m_Mass ;
             double divideTimestepBy = 50000.0;
-            std::cout<< "at MT "<< thisM << " " << thisF << " " << thisB << " " << p_Stepsize
-            << " " << p_MassGainPerTimeStep << " " << kappa << std::endl;
+            //std::cout<< "at MT "<< thisM << " " << thisF << " " << thisB << " " << p_Stepsize
+            //<< " " << p_MassGainPerTimeStep << " " << kappa << std::endl;
             double thisMassGain = p_MassGainPerTimeStep / G_TO_KG / divideTimestepBy; 
             double thisTimestepSize = p_Stepsize / divideTimestepBy;
 
@@ -641,7 +644,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
                     x[1] = std::get<0>(results);
                     x[2] = std::get<1>(results);
                     x[3] = mass + p_MassChange/MSOL_TO_G;
-                    std::cout << "End of INT " << x[1] << " " << x[2] << std::endl;
+                    //std::cout << "End of INT " << x[1] << " " << x[2] << std::endl;
             }
             };
 
@@ -654,6 +657,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             // Calculating the spin-down according to Eq. 11 in arxiv:1912.02415 
             m_PulsarDetails.spinDownRate  = (m_AngularMomentum_CGS - InitialAngularMomentum_CGS) / m_MomentOfInertia_CGS / p_Stepsize;
     
+            // uncomment for debugging. 
             std::cout << " end of MT " << m_Mass << " " << p_MassGainPerTimeStep / G_TO_KG << " " << p_Stepsize << " " << 
             m_AngularMomentum_CGS << " " << m_PulsarDetails.magneticField << " " << m_PulsarDetails.spinFrequency <<  std::endl;
     }
