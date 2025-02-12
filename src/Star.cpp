@@ -427,6 +427,10 @@ double Star::EvolveOneTimestep(const double p_Dt, const bool p_Force) {
 
     (void)m_Star->ResolveMassLoss(!p_Force);                                                                    // apply wind mass loss if required
 
+    if(OPTIONS->EvolvePulsars() && m_Star->StellarType() == STELLAR_TYPE::NEUTRON_STAR){                        // If star is a neutron star and we are evolving pulsars
+        (void)m_Star->SpinDownIsolatedPulsar(dt * MYR_TO_YEAR * SECONDS_IN_YEAR);                               // Convert dt to seconds for this function (uses cgs units)                                                         // Update pulsar parameters due to spin down as an isolated pulsar
+    }
+
     (void)m_Star->PrintStashedSupernovaDetails();                                                               // print stashed SSE Supernova log record if necessary
 
     (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::POST_MASS_LOSS);                          // log record - post mass loss

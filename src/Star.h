@@ -262,6 +262,7 @@ public:
     double     	    SN_RocketKickPhi()       									                                    { return m_Star->SN_RocketKickPhi(); }
     double     	    SN_RocketKickTheta()       									                                    { return m_Star->SN_RocketKickTheta(); }
     
+    void            SpinDownIsolatedPulsar(const double p_Stepsize)                                                 { m_Star->SpinDownIsolatedPulsar(p_Stepsize); }
 
     STELLAR_TYPE    SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
     
