@@ -480,8 +480,11 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
             else if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) {                                     // out of timesteps?
                 evolutionStatus = EVOLUTION_STATUS::STEPS_UP;                                                   // set status
             }
-            else if (!m_Star->IsOneOf(NON_COMPACT_OBJECTS)) {                                                   // compact object?
-                evolutionStatus = EVOLUTION_STATUS::DONE;                                                       // yes - we're done
+            else if (m_Star->IsOneOf(COMPACT_OBJECTS) && !OPTIONS->EvolvePulsars()){                            // If star is a compact object and we are not evolving pulsars
+                evolutionStatus = EVOLUTION_STATUS::DONE;                                                       // we are done
+            }
+            else if (m_Star->IsOneOf(WHITE_DWARFS) || m_Star->StellarType() == STELLAR_TYPE::BLACK_HOLE){       // If compact object is a WD or BH, we're done even if we are evolving pulsars
+                evolutionStatus = EVOLUTION_STATUS::DONE;
             }
             else if (usingProvidedTimesteps && stepNum >= timesteps.size()) {                                   // using user-provided timesteps and all consumed?
                 evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_EXHAUSTED;                                        // yes - set status
@@ -506,7 +509,11 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
                 EvolveOneTimestep(dt, true);                                                                    // evolve for timestep
                 UpdateAttributes(0.0, 0.0, true);                                                               // keeps SSE in sync with BSE
 
-                (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);          // log detailed output record  
+                (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);          // log detailed output record 
+                
+                if (m_Star->StellarType() == STELLAR_TYPE::NEUTRON_STAR && OPTIONS->EvolvePulsars()){           // Pulsar output if star is a neutron star and user wants pulsar output
+                    (void)m_Star->PrintPulsarEvolutionParameters(SSE_PULSAR_RECORD_TYPE::TIMESTEP_COMPLETED);   // log pulsar evolution parameters
+                } 
             }
         }
 
