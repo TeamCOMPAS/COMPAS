@@ -24,6 +24,9 @@ public:
     // member functions
     
     static  double  CalculateRemnantMass_Static(const double p_COCoreMass)                                      {  return utils::Compare(p_COCoreMass, 7.0)< 0 ? 1.17 + (0.09 * p_COCoreMass) : p_COCoreMass; }                                                                                  // Hurley et al., eq 92; Hurley says that a >7.0 CO core leads to a collapse into a BH, but is ambiguous about the BH mass in this case -- we will assume it's just the CO core
+    
+            double  CalculateRemnantRadius() const                                                              { return Radius(); }
+
 
 protected:
 
@@ -42,6 +45,12 @@ protected:
     void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)                              { GiantBranch::CalculateGBParams(p_Mass, p_GBParams); }                 // Default to GiantBranch  
     void            CalculateGBParams()                                                                         { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
 
+    double          CalculateHeliumAbundanceCoreOnPhase() const                                                 { return 0.0; };
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const                                              { return 0.0; };
+    
+    double          CalculateHydrogenAbundanceCoreOnPhase() const                                               { return 0.0; };
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                                            { return 0.0; };
+    
     double          CalculateHeCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 
     DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const   { return std::make_tuple(0.0, 0.0, 0.0, 0.0); }              // Default is no tidal response

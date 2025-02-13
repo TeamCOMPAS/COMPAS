@@ -12,6 +12,12 @@ name: COMPAS compile test
   push:
     branches:
       - dev
+      -
+# Ensures only the latest workflow run for the same branch is active, canceling any in-progress runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   compas:
     env:
@@ -25,17 +31,18 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-20.04
+          - ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.9'
           cache: pip
+          cache-dependency-path: setup.py
       - name: Install TeXLive
         uses: teatimeguest/setup-texlive-action@v3
       - name: Install dependencies on ubuntu
-        if: 'startsWith(matrix.os, ''ubuntu-20'')'
+        if: 'startsWith(matrix.os, ''ubuntu-2'')'
         run: |
           cd misc/cicd-scripts
           chmod 755 linux-dependencies
@@ -66,7 +73,7 @@ jobs:
           coverage html
           coverage-badge -o coverage_badge.svg -f
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: code-coverage
           path: |
@@ -74,8 +81,15 @@ jobs:
             coverage_badge.svg
       - name: Archive COMPAS detailed-evolution plot
         id: upload
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v4
         with:
           name: '${{ env.ARTIFACT_NAME }}'
           path: '${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_NAME }}'
           if-no-files-found: error
+      - name: Test Summary
+        run: |
+          echo "### Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Compas Build: Success" >> $GITHUB_STEP_SUMMARY
+          echo "- Python Utils Installation: Success" >> $GITHUB_STEP_SUMMARY
+          echo "- Example COMPAS Job: Success" >> $GITHUB_STEP_SUMMARY
+          echo "- Pytest Execution: Success" >> $GITHUB_STEP_SUMMARY

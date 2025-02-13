@@ -2,6 +2,7 @@
 #include "HeMS.h"
 #include "HeWD.h"
 
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                     COEFFICIENT AND CONSTANT CALCULATIONS ETC.                    //
@@ -816,10 +817,15 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 
-    double RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
-    double RGB  = GiantBranch::CalculateRadiusOnPhase_Static(p_Mass, m_Luminosity, b);
+    double RTMS;  
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (utils::Compare(m_MZAMS, SHIKAUCHI_LOWER_MASS_LIMIT) >= 0))
+        RTMS = MainSequence::CalculateRadiusAtPhaseEnd(m_Mass, p_RZAMS);                                            // ensures continuity of stellar tracks when SHIKAUCHI core mass prescription is used
+    else
+        RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
 
-    double rx   = RGB;                                                                                              // Hurley sse terminlogy (rx)
+    double RGB = GiantBranch::CalculateRadiusOnPhase_Static(p_Mass, m_Luminosity, b);
+
+    double rx  = RGB;                                                                                               // Hurley sse terminlogy (rx)
 
     if (utils::Compare(p_Mass, massCutoffs(MFGB)) > 0) {                                                            // mass above threshold for He ignition?
                                                                                                                     // yes
@@ -859,6 +865,7 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 #undef massCutoffs
 #undef b
 }
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1017,6 +1024,8 @@ void HG::UpdateAgeAfterMassLoss() {
     double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass0, tBGBprime);
 
     m_Age = tMSprime + (((tBGBprime - tMSprime) / (tBGB - tMS)) * (m_Age - tMS));
+    
+    CalculateTimescales(m_Mass0, m_Timescales);
 }
 
 
@@ -1194,9 +1203,12 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
  *
  */
 void HG::UpdateInitialMass() {
-    // only update mass0 if the current mass would yield a core mass larger than or equal to the current core mass
+    // only update mass0 on mass loss if the current mass would yield a core mass larger than or equal to the current core mass
     // i.e., no unphysical core mass decrease would ensue
-    if (utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass, m_Age)) <= 0) {
+    // (we do not update mass0 on mass gain on the HG -- there is no instruction for doing so in Hurley; adding this
+    // check also avoid difficulties for the BRCEK rejuvenation prescription, when mass0 may be set to enforce a core mass
+    // that is lower than would be expected for the current mass value according to the Hurley prescription)
+    if (utils::Compare(m_Mass0, m_Mass) > 0 && utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass, m_Age)) <= 0) {
         m_Mass0 = m_Mass;
     }
 }

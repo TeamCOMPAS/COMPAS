@@ -41,6 +41,19 @@ protected:
     void Initialise() {
         CalculateTimescales();                                                                                                                          // Initialise timescales
         // Age for MS_GT_07 is carried over from CH stars switching to MS after spinning down, so not set to 0.0 here
+        
+        // Initialise core mass, luminosity, radius, and temperature if Shikauchi core mass prescription is used
+        // Only do this once - this should not be done if a CH star spins down and becomes a MS star (when using CHE_MODE::PESSIMISTIC)
+        if (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI &&                                                         // Shikauchi core mass prescription?
+            utils::Compare(m_MZAMS, SHIKAUCHI_LOWER_MASS_LIMIT) >= 0                         &&                                                         // ZAMS mass >= SHIKAUCHI_LOWER_MASS_LIMIT?
+            m_Time <= 0.0) {                                                                                                                            // star not yet aged past creation?
+                                                                                                                                                        // yes - initialise
+            m_InitialMainSequenceCoreMass = MainSequence::CalculateInitialMainSequenceCoreMass(m_MZAMS);
+            m_MainSequenceCoreMass        = m_InitialMainSequenceCoreMass;
+            m_Luminosity                  = MainSequence::CalculateLuminosityShikauchi(m_MainSequenceCoreMass, m_InitialHeliumAbundance, m_Age);
+            m_Radius                      = MainSequence::CalculateRadiusOnPhase(m_Mass, m_Age, m_RZAMS0);
+            m_Temperature                 = BaseStar::CalculateTemperatureOnPhase_Static(m_Luminosity, m_Radius);
+        }
     }
 
 

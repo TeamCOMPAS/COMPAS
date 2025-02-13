@@ -2,7 +2,7 @@ Mixing ranges and sets
 ======================
 
 Ranges and sets can be specified together, and there is no limit to the number of ranges or sets that can be
-specified on the command line, or in the :doc:`grid file <../grid-files>`.
+specified on the command line, or in the :doc:`grid file <../Running COMPAS/running-grid>`.
 
 Running COMPAS with the command::
 

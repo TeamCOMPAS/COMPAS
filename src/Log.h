@@ -396,6 +396,7 @@ public:
     string operator()(const STELLAR_TYPE           v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_CASE                v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_TRACKING            v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MASS_TRANSFER_TIMESCALE v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_EVENT               v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_STATE               v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const EVOLUTION_STATUS       v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
@@ -438,6 +439,7 @@ public:
     string operator()(const STELLAR_TYPE           v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_CASE                v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_TRACKING            v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MASS_TRANSFER_TIMESCALE v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_EVENT               v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_STATE               v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const EVOLUTION_STATUS       v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
@@ -476,6 +478,7 @@ private:
         m_TypeSwitchingFrom           = STELLAR_TYPE::NONE;                         // stellar type from which the Star object is switching - default NONE
         m_TypeSwitchingTo             = STELLAR_TYPE::NONE;                         // stellar type to which the Star object is switching - default NONE
         m_PrimarySwitching            = false;                                      // Star switching is primary star of binary - default false
+        m_SwitchIsMerger              = false;                                      // Switchlog record records a merger (rather than a simple switch)
 
         m_SSESupernovae_DelayedWrite.logRecordType       = 0;                       // delayed log record type for SSE_Supernovae file - initially 0 (set later)
         m_SSESupernovae_DelayedWrite.logRecordString     = "";                      // delayed log record (string) for SSE_Supernovae file - initially empty
@@ -574,6 +577,7 @@ private:
     ANY_PROPERTY_VECTOR m_SSE_SNE_Rec         = SSE_SUPERNOVAE_REC;                 // default specification
     ANY_PROPERTY_VECTOR m_SSE_Switch_Rec      = SSE_SWITCH_LOG_REC;                 // default specification
     ANY_PROPERTY_VECTOR m_SSE_SysParms_Rec    = SSE_SYSTEM_PARAMETERS_REC;          // default specification
+    ANY_PROPERTY_VECTOR m_SSE_Pulsars_Rec     = SSE_PULSAR_EVOLUTION_REC;                    // default specification
 
     // logfile annotation specifications
     //
@@ -604,7 +608,7 @@ private:
     BOOL_VECTOR m_SSE_SNE_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_SSE_Switch_Notes      = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_SSE_SysParms_Notes    = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-
+    BOOL_VECTOR m_SSE_Pulsars_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
 
     // the following block of variables support the BSE Switch Log file
     
@@ -614,6 +618,7 @@ private:
     STELLAR_TYPE       m_TypeSwitchingFrom;                                         // the stellar type from which the Star object is switching
     STELLAR_TYPE       m_TypeSwitchingTo;                                           // the stellar type to which the Star object is switching
     bool               m_PrimarySwitching;                                          // flag to indicate whether the primary star of the binary is switching
+    bool               m_SwitchIsMerger;                                            // flag to indicate whether the switchlog record records a merger (rather than a simple switch)
 
 
     // the following struct supports delayed writes to logfiles
@@ -862,12 +867,13 @@ private:
             // ( i) the stellar type from which the star is switching
             // (ii) the stellar type to which the star is switching
             //
-            // if we are writing to the BSE Switch file we add three pre-defined columns
+            // if we are writing to the BSE Switch file we add four pre-defined columns
             // to the end of the log record.  These are:
             //
             // (  i) the star switching - 1 = primary, 2 = secondary
             // ( ii) the stellar type from which the star is switching
             // (iii) the stellar type to which the star is switching
+            // ( iv) boolean flag indicating whether a merger occurred
             //
             // These are hard-coded here rather than in the *_PROPERTY_DETAIL maps in
             // constants.h so that they will always be present in the switch file -
@@ -879,7 +885,7 @@ private:
             if (p_LogFile == LOGFILE::BSE_SWITCH_LOG) {
                 int starSwitching = m_PrimarySwitching ? 1 : 2;                                                                 // primary (1) or secondary (2)
                 if (hdf5) {                                                                                                     // yes - HDF5 file?
-                    logRecordValues.push_back(starSwitching);                                                                   // add value to vector of values
+                    logRecordValues.push_back(starSwitching);                                                                   // yes - add value to vector of values
                 }
                 else {                                                                                                          // no - CSV, TSV, or TXT file
                     logRecord += utils::vFormat(fmtStr.c_str(), starSwitching) + delimiter;                                     // add value string to log record - with delimiter
@@ -899,6 +905,15 @@ private:
                 }
                 else {                                                                                                          // no - CSV, TSV, or TXT file
                     logRecord += utils::vFormat(fmtStr.c_str(), m_TypeSwitchingTo) + delimiter;                                 // add value string to log record - with delimiter
+                }
+            }
+
+            if (p_LogFile == LOGFILE::BSE_SWITCH_LOG) {
+                if (hdf5) {                                                                                                     // HDF5 file?
+                    logRecordValues.push_back(m_SwitchIsMerger);                                                                // yes - add value to vector of values
+                }
+                else {                                                                                                          // no - CSV, TSV, or TXT file
+                    logRecord += utils::vFormat(fmtStr.c_str(), m_SwitchIsMerger) + delimiter;                                  // add value string to log record - with delimiter
                 }
             }
 
@@ -1194,15 +1209,16 @@ public:
 
     template <class T>
     bool LogBSEPulsarEvolutionParameters(const T* const p_Binary,
-                                         const PULSAR_RECORD_TYPE p_RecordType)     { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)), 0, LOGFILE::BSE_PULSAR_EVOLUTION, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
+                                         const BSE_PULSAR_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)), 0, LOGFILE::BSE_PULSAR_EVOLUTION, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
 
     template <class T>
     bool LogBSESupernovaDetails(const T* const p_Binary,
                                 const BSE_SN_RECORD_TYPE p_RecordType)              { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE)), 0, LOGFILE::BSE_SUPERNOVAE, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
     
     template <class T>
-    bool LogBSESwitchLog(const T* const p_Binary, const bool p_PrimarySwitching) {
-        m_PrimarySwitching = p_PrimarySwitching;        
+    bool LogBSESwitchLog(const T* const p_Binary, const bool p_PrimarySwitching, const bool p_IsMerger) {
+        m_PrimarySwitching = p_PrimarySwitching;
+        m_SwitchIsMerger   = p_IsMerger;        
         return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG)), 0, LOGFILE::BSE_SWITCH_LOG, 1U, p_Binary);
     }
 
@@ -1236,6 +1252,10 @@ public:
     template <class T>
     bool LogSSESystemParameters(const T* const p_Star,
                                 const SSE_SYSPARMS_RECORD_TYPE p_RecordType)        { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS)), 0, LOGFILE::SSE_SYSTEM_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
+
+    template <class T>
+    bool LogSSEPulsarEvolutionParameters(const T* const p_Star,
+                                         const SSE_PULSAR_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PULSAR_EVOLUTION)), 0, LOGFILE::SSE_PULSAR_EVOLUTION, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
 
     void ClearSSESupernovaStash() {
         m_SSESupernovae_DelayedWrite.logRecordType       = 0;                       // delayed log record type for SSE_Supernovae file - initially 0 (set later)

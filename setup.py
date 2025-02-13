@@ -24,7 +24,7 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3",
 ]
 INSTALL_REQUIRES = [
-    "numpy",
+    "numpy>=1.16",
     "h5py",
     "argparse",
     "stroopwafel",
@@ -33,10 +33,10 @@ INSTALL_REQUIRES = [
     "flake8",
     "black==22.10.0",
     "isort",
-    "matplotlib",
+    "matplotlib>=3.3.2",
     "pandas",
-    "astropy",
-    "scipy",
+    "astropy>=4.0",
+    "scipy>=1.5.0",
     "latex",
     "PyYAML",
     "tqdm",
@@ -44,16 +44,19 @@ INSTALL_REQUIRES = [
 ]
 EXTRA_REQUIRE = dict(
     docs=[
-        "sphinx",
+        "sphinx>=7.0.1",
         "numpydoc",
         "nbsphinx",
-        "sphinx_rtd_theme",
+        "sphinx_rtd_theme>=1.2.2",
         "sphinx-tabs",
         "sphinx-argparse",
-        "sphinx-math-dollar",
+        "sphinx-math-dollar>=1.2",
         "sphinxcontrib.bibtex",
         "linuxdoc",
-        "ipython"
+        "ipython",
+        "readthedocs-sphinx-search>=0.1.1b",
+        "sphinx-togglebutton",
+        "linuxdoc>=20210324"
     ],
     dev=[
         "pytest-cov",

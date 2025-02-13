@@ -41,8 +41,8 @@ public:
 
         THROW_ERROR_IF(p_i < 0 || p_i > 2, ERROR::INDEX_OUT_OF_RANGE);                                  // this is a code defect
         
-             if (p_i == 1) return m_x;
-        else if (p_i == 2) return m_y;
+             if (p_i == 0) return m_x;
+        else if (p_i == 1) return m_y;
         else               return m_z;
     }
    
