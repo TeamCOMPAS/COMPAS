@@ -120,6 +120,8 @@ protected:
 
     double          CalculateTauAtPhaseEnd() const                                  { return 1.0; }                                                                             // tau = 1.0 at end of HG
     double          CalculateTauOnPhase() const;
+    
+    double          CalculateZetaEquilibrium()                                      { return -std::numeric_limits<double>::infinity(); }                                         // Nuclear timescale MT should be impossible from HG stars that evolve on a thermal timescale
 
     double          ChooseTimestep(const double p_Time) const;
 

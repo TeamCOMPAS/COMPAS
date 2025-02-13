@@ -100,6 +100,7 @@ protected:
 
     double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)  { return OPTIONS->ZetaMainSequence(); }
 
+    double          CalculateZetaEquilibrium();
     double          ChooseTimestep(const double p_Time) const;
 
     void            EvolveOneTimestepPreamble();
