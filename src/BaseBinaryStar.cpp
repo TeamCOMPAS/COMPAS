@@ -1915,9 +1915,9 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
     double escapeVelocity = std::sqrt(2 * G_AU_Msol_yr * p_DonorMass / p_DonorRadius); // AU / yr
 
     double ratioSeparationToRadius = p_semiMajorAxis / p_DonorRadius;
-    double ratioSeparationToRadiusPow2 = ratioSeparationToRadius * ratioSeparationToRadius; 
+    double ratioSeparationToRadiusSquared = ratioSeparationToRadius * ratioSeparationToRadius; 
 
-    double alpha_w = 0.04 * ratioSeparationToRadiusPow2 / (1 + 0.04 * ratioSeparationToRadiusPow2);
+    double alpha_w = 0.04 * ratioSeparationToRadiusSquared / (1 + 0.04 * ratioSeparationToRadiusSquared);
 
     return alpha_w * escapeVelocity;
 
@@ -1934,6 +1934,7 @@ void BaseBinaryStar::CalculateWindAccretionMassGain() {
 
     // Bondi and Hoyle formula for now
     // Make sure we are in the regime where we can assume Bondi and Hoyle
+    // Bondi radius: 2MG/v_dot^2
 
     // Posibility for OPTION -> UseWindAccretion
 
