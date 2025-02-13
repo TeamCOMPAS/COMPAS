@@ -69,8 +69,15 @@ double MainSequence::CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) c
  * @return                                      Surface magnetic field strength
  */
 double MainSequence::CalculateSurfaceMagneticFieldStrengthOnPhase() const {
-    double radiusRatio = RadiusPrev()/Radius();
-    return SurfaceMagneticFieldStrengthPrev() * radiusRatio * radiusRatio;
+
+    double Rold = RadiusPrev();
+    double Rnew = Radius();
+    double Bold = SurfaceMagneticFieldStrengthPrev();
+
+    double radiusRatio = Rold/Rnew;
+    double Bnew = Bold * radiusRatio * radiusRatio;
+    
+    return Bnew;
 }
 
 /*

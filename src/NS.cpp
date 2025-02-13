@@ -39,11 +39,13 @@ double NS::ChooseTimestep(const double p_Time) const {
 
     double result = 500.0;                                      // default value
 
-         if (p_Time < 0.01 ) result = 0.001;
-    else if (p_Time < 0.1  ) result = 0.01;
-    else if (p_Time < 1.0  ) result = 0.1;
-    else if (p_Time < 10.0 ) result = 1.0;
-    else if (p_Time < 500.0) {
+         if (p_Time < 0.0001) result = 0.00001;                 // For pulsars younger than 10^-4 Myr = 100 yrs, timestep = 10^-5 Myr = 10 yrs
+    else if (p_Time < 0.001 ) result = 0.0001;                  // For pulsars younger than 10^-3 Myr = 1000 yrs, take 10^-4 Myr = 100 yr timesteps
+    else if (p_Time < 0.01  ) result = 0.001;                    
+    else if (p_Time < 0.1   ) result = 0.01;
+    else if (p_Time < 1.0   ) result = 0.1;
+    else if (p_Time < 10.0  ) result = 1.0;
+    else if (p_Time < 500.0 ) {
         double slope      = 1.58859191006;                      // 1.58859191006 = log10(500.0) / (log10(500.0) - 1.0)
         double log10_step = slope * (log10(p_Time) - 1.0);
         result            = PPOW(10.0, log10_step);
@@ -71,7 +73,7 @@ double NS::CalculateRadiusOnPhaseInKM_Static(const double p_Mass) {
     switch (OPTIONS->NeutronStarEquationOfState()) {                                            // which equation-of-state?
 
         case NS_EOS::SSE:                                                                       // SSE
-            radius = NEUTRON_STAR_RADIUS;
+            radius = NEUTRON_STAR_RADIUS * RSOL_TO_KM;                                          // convert Rsol to km
             break;
 
         case NS_EOS::ARP3: {                                                                    // ARP3
@@ -164,7 +166,7 @@ double NS::CalculateBirthSpinPeriod() {
 
             double mean  = 300.0;
             double sigma = 150.0;
-
+            
             // this should terminate naturally, but just in case we add a guard
             std::size_t iterations = 0;
             do { pSpin = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_SPIN_ITERATIONS && utils::Compare(pSpin, 0.0) < 0);
@@ -269,7 +271,7 @@ double NS::CalculateBirthMagneticField(){
 
     // Update surface magnetic field strength
     m_SurfaceMagneticFieldStrength = CalculateSurfaceMagneticFieldStrengthOnPhase();
-
+    
     double log10B = 0.0;
 
     switch (OPTIONS->PulsarBirthMagneticFieldAssumption()) {                                                  // which distribution?
@@ -289,75 +291,6 @@ double NS::CalculateBirthMagneticField(){
     return log10B;
 
 }
-
-// /*
-//  * Calculate (log10 of) the magnetic field (in G) for a Pulsar at birth
-//  * according to selected distribution (by commandline option)
-//  *
-//  *
-//  * double CalculateBirthMagneticField()
-//  *
-//  * @return                                      log10 of the birth magnetic field in G
-//  */
-// double NS::CalculateBirthMagneticField() {
-    
-//     // Update surface magnetic field strength
-//     m_SurfaceMagneticFieldStrength = CalculateSurfaceMagneticFieldStrengthOnPhase();
-
-//     double log10B = 0.0;
-
-//     switch (OPTIONS->PulsarBirthMagneticFieldDistribution()) {                                                  // which distribution?
-
-//         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO:                                                    // ZERO
-//             log10B = 0.0;
-//             break;
-
-//         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLATINLOG: {                                             // FLAT IN LOG distribution from Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (log10B0min = , log10B0max = )
-
-//             double maximum = OPTIONS->PulsarBirthMagneticFieldDistributionMax();
-//             double minimum = OPTIONS->PulsarBirthMagneticFieldDistributionMin();
-
-//             log10B = minimum + (RAND->Random() * (maximum - minimum));
-
-//             } break;
-
-//         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::UNIFORM: {                                               // UNIFORM flat distribution used in Kiel et al 2008 https://arxiv.org/abs/0805.0059 (log10B0min = 11, log10B0max = 13.5 see section 3.4 and Table 1.)
-            
-//             double maximum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMax());
-//             double minimum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMin());
-
-//             log10B = log10(minimum + (RAND->Random() * (maximum - minimum)));
-//             } break;
-
-//         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL: {                                             // LOG NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
-
-//             double mean  = 12.65;
-//             double sigma = 0.55;
-
-//             log10B = RAND->RandomGaussian(sigma) + mean;
-//             } break;
-
-//         // case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLUX_CONSERVATION: {
-
-//         //     // Calculate magnetic field strength by conserving magnetic flux of the progenitor
-//         //     log10B = log10(m_SurfaceMagneticFieldStrength);
-            
-//         //     } break;
-
-//         default:                                                                                                // unknown prescription
-//             // the only way this can happen is if someone added a PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION
-//             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
-//             // We are here because the user chose a prescription this code doesn't account for, and that should
-//             // be flagged as an error and result in termination of the evolution of the star or binary.
-//             // The correct fix for this is to add code for the missing prescription or, if the missing
-//             // prescription is superfluous, remove it from the option.
-
-//             THROW_ERROR(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION);                               // throw error
-//     }
-
-//     return log10B;
-
-// }
 
 
 /*
@@ -482,6 +415,91 @@ double NS::CalculateMagneticFieldDecayTimescale(){
 }
 
 /*
+ * Calculate the magnetic field strength as a function of time due to magnetic field decay
+ * 
+ * double CalculateMagneticFieldStrengthOnPhase(const double p_Time, const double p_initialMagField)
+ * 
+ * @param       [IN]    p_Time                  Time in seconds
+ * @param       [IN]    p_initialMagField       Initial magnetic field strength in G
+ * @return              Magnetic field strength timescale for an isolated neutron star in Myr
+ * 
+ */
+double NS::CalculateMagneticFieldStrengthOnPhase(const double p_Time, const double p_initialMagField){
+
+    double magneticFieldStrength = 0.0;
+
+    double magFieldLowerLimit    = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA; 
+    double tau                   = CalculateMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR; 
+    const double alpha           = OPTIONS->PulsarMagneticFieldDecayTimescalePower();                                
+
+    if (alpha == 0.0){              // see Equation 6 in  arXiv:0903.3538v2    
+        magneticFieldStrength    = magFieldLowerLimit + (p_initialMagField - magFieldLowerLimit) * exp(-p_Time / tau);   // update pulsar magnetic field in SI. 
+    }
+    else{                   // Equation 8 in Dall'Osso et al. 2012 (https://ui.adsabs.harvard.edu/abs/2012MNRAS.422.2878D/abstract) but with a minimum magnetic field
+        magneticFieldStrength    = magFieldLowerLimit + (p_initialMagField - magFieldLowerLimit) * PPOW(1.0 + alpha*(p_Time/tau), 1.0/alpha);
+    }
+
+    return magneticFieldStrength;
+}
+
+/*
+ * Calculate the spin period as a function of time
+ * 
+ * Equation 9 in Dall'Osso et al. 2012 (https://ui.adsabs.harvard.edu/abs/2012MNRAS.422.2878D/abstract)
+ * 
+ * double CalculateSpinPeriodOnPhase(const double p_Time, const double p_initialSpinPeriod)
+ * 
+ * @param       [IN]    p_Time                  Time in seconds
+ * @param       [IN]    p_initialMagField       Initial magnetic field strength in G
+ * @param       [IN]    p_initialSpinPeriod     Initial spin period in s
+ * @return              Spin period (in s) of isolated neutron star after some time p_Time
+ * 
+ */
+double NS::CalculateSpinPeriodOnPhase(const double p_Time, const double p_initialMagField, const double p_initialSpinPeriod){
+    
+    // Initialise variables for results
+    double spinPeriodSquared = 0.0;
+    double spinPeriod        = 0.0;
+    double brackets          = 0.0;
+    
+    // Get user specified options
+    double magFieldLowerLimit = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA; 
+    double tau                = CalculateMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR; 
+    const double alpha        = OPTIONS->PulsarMagneticFieldDecayTimescalePower();     
+
+    // Precompute values
+    double NSradius_IN_CM         = m_Radius * RSOL_TO_KM * KM_TO_CM;
+    double NSradius_3             = NSradius_IN_CM * NSradius_IN_CM * NSradius_IN_CM;
+    double NSradius_6             = NSradius_3 * NSradius_3;
+    constexpr double _8_PI_2      = 8.0 * PI_2;
+    constexpr double _3_C_3       = 3.0E6 * C * C * C;        
+
+    double initialMagField        = p_initialMagField;                                                          // (in T)
+    double initialMagField_G      = initialMagField * TESLA_TO_GAUSS;
+    
+    double prefactor = (_8_PI_2 * NSradius_6)/(_3_C_3 * m_MomentOfInertia_CGS); // Common prefactor
+
+    double initialSpinPeriodSquared = p_initialSpinPeriod * p_initialSpinPeriod; // Initial spin period squared. Use multiplication rather than pow for efficiency
+
+    // Calculate the term in the brackets that depends on alpha
+    if (alpha == 0.0){                      // Equation 6 in arxiv:1912.02415
+        brackets = 0.5 * (1.0 - exp(-2.0*p_Time/tau));
+    }
+    else if (alpha == 2.0){
+        brackets = 0.5 * log(1.0 + (2.0*p_Time/tau));
+    }
+    else{                                   // alpha != 0 or 2
+        brackets = (1.0 / (2.0 - alpha)) * (1.0 - PPOW(1.0 + alpha * (p_Time/tau), ((alpha - 2.0)/alpha))); 
+    }
+
+    spinPeriodSquared = initialSpinPeriodSquared + prefactor * initialMagField_G * initialMagField_G * brackets; // spin period squared
+    
+    spinPeriod = sqrt(spinPeriodSquared); // final spin period
+
+    return spinPeriod;
+}
+
+/*
  * Update the magnetic field and spins of neutron stars when it's deemed to be an isolated pulsar. 
  *
  * This function is called in multiple situations in the NS::UpdateMagneticFieldAndSpin() function
@@ -500,41 +518,22 @@ double NS::CalculateMagneticFieldDecayTimescale(){
  */
 void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     
-    double NSradius_IN_CM         = m_Radius * RSOL_TO_KM * KM_TO_CM;
-    double NSradius_3             = NSradius_IN_CM * NSradius_IN_CM * NSradius_IN_CM;
-    double NSradius_6             = NSradius_3 * NSradius_3;
-    constexpr double _8_PI_2      = 8.0 * PI_2;
-    constexpr double _3_C_3       = 3.0E6 * C * C * C;                                                                      // 3.0 * (C * 100.0) * (C * 100.0) * (C * 100.0)
-    
+    // Get initial state
     double initialMagField        = m_PulsarDetails.magneticField;                                                          // (in T)
-    double initialMagField_G      = initialMagField * TESLA_TO_GAUSS;
+    // double initialMagField_G      = initialMagField * TESLA_TO_GAUSS;
     double initialSpinPeriod      = _2_PI / m_PulsarDetails.spinFrequency;
-    double magFieldLowerLimit     = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA;    
-    double magFieldLowerLimit_G   = magFieldLowerLimit * TESLA_TO_GAUSS;                                   
-    double tau                    = CalculateMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                 
 
-    // calculate isolated decay of the magnetic field for a neutron star
-    // see Equation 6 in  arXiv:0903.3538v2       
-    m_PulsarDetails.magneticField = magFieldLowerLimit + (initialMagField - magFieldLowerLimit) * exp(-p_Stepsize / tau);   // update pulsar magnetic field in SI. 
+    // Calculate isolated decay of the magnetic field for a neutron star
+    m_PulsarDetails.magneticField = CalculateMagneticFieldStrengthOnPhase(p_Stepsize, initialMagField);                                                                       // pulsar spin frequency
     
-    // calculate the spin down rate for isolated neutron stars
-    // see Equation 6 in arxiv:1912.02415
-    // The rest of the calculations are carried out in cgs.   
-    double constant2              = (_8_PI_2 * NSradius_6) / (_3_C_3 * m_MomentOfInertia_CGS);
-    double term1                  = magFieldLowerLimit_G * magFieldLowerLimit_G * p_Stepsize;
-    double term2                  = tau * magFieldLowerLimit_G * ( m_PulsarDetails.magneticField * TESLA_TO_GAUSS - initialMagField_G);
-    double term3                  = (tau / 2.0) * (TESLA_TO_GAUSS * TESLA_TO_GAUSS * (m_PulsarDetails.magneticField * m_PulsarDetails.magneticField) - (initialMagField_G * initialMagField_G));
-    double Psquared               = 2.0 * constant2 * (term1 - term2 - term3) + (initialSpinPeriod * initialSpinPeriod);
-    
-    double P_f                    = std::sqrt(Psquared);
-    m_PulsarDetails.spinFrequency = _2_PI / P_f;                                                                            // pulsar spin frequency
+    // Calculate final spin period due to magnetic braking
+    double finalSpinPeriod        = CalculateSpinPeriodOnPhase(p_Stepsize, initialMagField, initialSpinPeriod);
+    m_PulsarDetails.spinFrequency = _2_PI / finalSpinPeriod;
 
-    // calculate the spin down rate for isolated neutron stars
-    // see Equation 4 in arXiv:0903.3538v2 (Our version is in cgs)      
-    double pDotTop                = constant2 * TESLA_TO_GAUSS * TESLA_TO_GAUSS * m_PulsarDetails.magneticField * m_PulsarDetails.magneticField;
-    double pDot                   = pDotTop / P_f;
-    m_PulsarDetails.spinDownRate  = -_2_PI * pDot / (P_f * P_f);  
+    // Record spin down rate
+    m_PulsarDetails.spinDownRate  = CalculateSpinDownRate(m_PulsarDetails.spinFrequency, m_MomentOfInertia_CGS, m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM);
 
+    // Update pulsar angular momentum (J = I omega)
     m_AngularMomentum_CGS         = m_PulsarDetails.spinFrequency * m_MomentOfInertia_CGS;                                  // angular momentum of star in CGS
 }
 

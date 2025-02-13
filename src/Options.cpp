@@ -2510,7 +2510,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_OverallWindMassLossMultiplier < 0.0, "Overall wind mass loss multiplier (--overall-wind-mass-loss-multiplier) < 0.0");
 
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale") && m_PulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
-        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale-power") && m_PulsarMagneticFieldDecayTimescalePower <= 0.0, "Pulsar magnetic field decay timescale power (--pulsar-magnetic-field-decay-timescale-power) <= 0");
+        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale-power") && m_PulsarMagneticFieldDecayTimescalePower < 0.0, "Pulsar magnetic field decay timescale power (--pulsar-magnetic-field-decay-timescale-power) < 0"); // Power should be >= 0
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
 
         COMPLAIN_IF(m_RadialChangeFraction < 0.0, "Radial change fraction per timestep (--radial-change-fraction) < 0");

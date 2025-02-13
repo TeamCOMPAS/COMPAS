@@ -76,7 +76,8 @@ protected:
             double          CalculateLuminosityOnPhase() const                  { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age); }                    // Use class member variables
 
             double          CalculateMagneticFieldDecayTimescale();
-        
+            double          CalculateMagneticFieldStrengthOnPhase(const double p_Time, const double p_initialMagField);
+
             double          CalculateMassLossRate()                             { return 0.0; }                                                                 // Ensure that NSs don't lose mass in winds
     
             double          CalculateMomentOfInertiaCGS() const;                                                                                                // MoI in CGS
@@ -87,6 +88,7 @@ protected:
             double          CalculateRadiusOnPhase() const                      { return CalculateRadiusOnPhase_Static(m_Mass); }                               // Radius on phase in Rsol
 
             double          CalculateSpinDownRate(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius) const;
+            double          CalculateSpinPeriodOnPhase(const double p_Time, const double p_initialMagField, const double p_initialSpinPeriod);
 
             double          ChooseTimestep(const double p_Time) const;
     
