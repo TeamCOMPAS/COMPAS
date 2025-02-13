@@ -1452,10 +1452,13 @@
 // 03.12.04   IM - Feb 08, 2025     - Enhancement:
 //                                      - only reset mass0 to mass on the HG when mass0 > mass (i.e., on mass loss, not mass gain, and not if mass0 is intentionally set to yield a lower core mass as may be required by the BRCEK rejuvenation prescription)
 //                                      - replaced name of COMPAS PPISN prescription with WOOSLEY (issue #1278)
+// 03.13.00   SS - Feb 12, 2025    - Defect repair:
+//                                      - Added SSE_Pulsar_Evolution output to address issue #1333. Prepended BSE_ to PULSAR_RECORD_TYPE and associated variables
+//                                      - Changed stopping condition for single stars to continue evolving neutron stars (as pulsars) if EvolvePulsars is True
+//                                      - Added a call to SpinDownIsolatedPulsar to Star::EvolveOneTimestep to update pulsar attributes (spin period, magnetic field etc) for single stars
+// 03.13.01   IM - Feb 13, 2025    - Enhancement:
+//                                      - Allowed nuclear timescale mass transfer for evolved donors (issue #1327)
 
-
-
-
-const std::string VERSION_STRING = "03.12.04";
+const std::string VERSION_STRING = "03.13.01";
 
 # endif // __changelog_h__
