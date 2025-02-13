@@ -484,10 +484,8 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
             else if (stepNum >= OPTIONS->MaxNumberOfTimestepIterations()) {                                     // out of timesteps?
                 evolutionStatus = EVOLUTION_STATUS::STEPS_UP;                                                   // set status
             }
-            else if (m_Star->IsOneOf(COMPACT_OBJECTS) && !OPTIONS->EvolvePulsars()){                            // If star is a compact object and we are not evolving pulsars
-                evolutionStatus = EVOLUTION_STATUS::DONE;                                                       // we are done
-            }
-            else if (m_Star->IsOneOf(WHITE_DWARFS) || m_Star->StellarType() == STELLAR_TYPE::BLACK_HOLE){       // If compact object is a WD or BH, we're done even if we are evolving pulsars
+            else if (m_Star->IsOneOf(WHITE_DWARFS) || m_Star->StellarType() == STELLAR_TYPE::BLACK_HOLE || 
+                    (m_Star->StellarType() == STELLAR_TYPE::NEUTRON_STAR && !OPTIONS->EvolvePulsars() ) ){      // If a WD or BH, or an NS but not evolving pulsars, we're done
                 evolutionStatus = EVOLUTION_STATUS::DONE;
             }
             else if (usingProvidedTimesteps && stepNum >= timesteps.size()) {                                   // using user-provided timesteps and all consumed?
