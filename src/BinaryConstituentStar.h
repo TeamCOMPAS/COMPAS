@@ -16,11 +16,7 @@ class BinaryConstituentStar: virtual public Star {
 
 public:
 
-    BinaryConstituentStar() : Star() {
-        m_ObjectId          = globalObjectId++;
-        m_ObjectType        = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;
-        m_ObjectPersistence = OBJECT_PERSISTENCE::PERMANENT;
-    };
+    BinaryConstituentStar() : Star() { };
 
     BinaryConstituentStar(const unsigned long int p_RandomSeed, 
                           const double            p_Mass, 
@@ -28,10 +24,6 @@ public:
                           const double            p_Metallicity, 
                           const KickParameters    p_KickParameters,
                           const double            p_RotationalVelocity = -1.0) : Star(p_RandomSeed, p_Mass, p_InitialStellarType, p_Metallicity, p_KickParameters, p_RotationalVelocity) {
-
-        m_ObjectId                                   = globalObjectId++;
-        m_ObjectType                                 = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;
-        m_ObjectPersistence                          = OBJECT_PERSISTENCE::PERMANENT;
 
         m_Companion                                  = nullptr;
 
@@ -61,8 +53,8 @@ public:
         m_Flags.recycledNS                           = false;
         m_Flags.rlofOntoNS                           = false;
 
-        m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_MassLossDiff                               = DEFAULT_INITIAL_DOUBLE_VALUE;
+        m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_OrbitalEnergyPreSN                         = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_OrbitalEnergyPostSN                        = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -80,16 +72,12 @@ public:
     // Copy constructor
     BinaryConstituentStar(const BinaryConstituentStar& p_Star) : Star(p_Star) {
 
-        m_ObjectId                 = globalObjectId++;                      // get unique object id (don't copy source)
-        m_ObjectType               = OBJECT_TYPE::BINARY_CONSTITUENT_STAR;  // can only copy from BINARY_CONSTITUENT_STAR
-        m_ObjectPersistence        = p_Star.m_ObjectPersistence;            // object persistence
-
         m_CEDetails                = p_Star.m_CEDetails;
 
         m_Flags                    = p_Star.m_Flags;
 
-        m_MassTransferDiff         = p_Star.m_MassTransferDiff;
         m_MassLossDiff             = p_Star.m_MassLossDiff;
+        m_MassTransferDiff         = p_Star.m_MassTransferDiff;
 
         m_OrbitalEnergyPreSN       = p_Star.m_OrbitalEnergyPreSN;
         m_OrbitalEnergyPostSN      = p_Star.m_OrbitalEnergyPostSN;
@@ -148,7 +136,7 @@ public:
 
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const                                                { return m_ObjectId; }
-    OBJECT_TYPE         ObjectType() const                                              { return m_ObjectType; }
+    OBJECT_TYPE         ObjectType() const                                              { return OBJECT_TYPE::BINARY_CONSTITUENT_STAR; }
     OBJECT_PERSISTENCE  ObjectPersistence() const                                       { return m_ObjectPersistence; }
 
 
@@ -169,12 +157,11 @@ public:
     double          HeCoreMassAtCEE() const                                             { return m_CEDetails.HeCoreMass; }
 
     bool            IsRLOF() const                                                      { return m_RLOFDetails.isRLOF; }
-    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN() || IsAIC(); }
+    bool            IsSNevent() const                                                   { return IsCCSN() || IsECSN() || IsPISN() || IsPPISN() || IsAIC() || IsSNIA() || IsHeSD(); }
 
     double          LambdaAtCEE() const                                                 { return m_CEDetails.lambda; }
     double          LuminosityPostCEE() const                                           { return m_CEDetails.postCEE.luminosity; }
     double          LuminosityPreCEE() const                                            { return m_CEDetails.preCEE.luminosity; }
-
     double          MassLossDiff() const                                                { return m_MassLossDiff; }
     double          MassPostCEE() const                                                 { return m_CEDetails.postCEE.mass; }
     double          MassPreCEE() const                                                  { return m_CEDetails.preCEE.mass; }
@@ -202,8 +189,6 @@ public:
 
     // setters
     void            SetCompanion(BinaryConstituentStar* p_Companion)                    { m_Companion = p_Companion; }                              // this star's companion star
-
-    void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  JR: todo:  sanity check?
     void            SetMassTransferDiffAndResolveWDShellChange(const double p_MassTransferDiff);
 
     void            SetOrbitalEnergyPostSN(const double p_OrbitalEnergyPostSN)          { m_OrbitalEnergyPostSN = p_OrbitalEnergyPostSN; };
@@ -217,15 +202,22 @@ public:
 
     void            CalculateCommonEnvelopeValues();
 
-    void            CalculateOmegaTidesIndividualDiff(const double p_OrbitalAngularVelocity) { m_OmegaTidesIndividualDiff = p_OrbitalAngularVelocity - OmegaPrev(); }
-
     double          CalculateCircularisationTimescale(const double p_SemiMajorAxis);
 
     double          CalculateSynchronisationTimescale(const double p_SemiMajorAxis);
 
     void            InitialiseMassTransfer(const bool p_CommonEnvelope, const double p_SemiMajorAxis, const double p_Eccentricity);
 
-    void            ResolveCommonEnvelopeAccretion(const double p_FinalMass);
+    void            ResolveCommonEnvelopeAccretion(const double p_FinalMass,
+                                                   const double p_CompanionMass     = 0.0,
+                                                   const double p_CompanionRadius   = 0.0,
+                                                   const double p_CompanionEnvelope = 0.0) { m_MassTransferDiff = Star::ResolveCommonEnvelopeAccretion(p_FinalMass,
+                                                                                                                                                       m_Companion->Mass(),
+                                                                                                                                                       m_Companion->Radius(),
+                                                                                                                                                       m_Companion->MassPreCEE() - m_Companion->CoreMassAtCEE());
+                                                                                             ResolveAccretion(m_MassTransferDiff);
+                                                     
+                                                                                           }  
 
     void            SetPostCEEValues();
     void            SetPreCEEValues();
@@ -239,18 +231,14 @@ public:
                                                const double p_Epsilon)                  { Star::UpdateMagneticFieldAndSpin(p_CommonEnvelope, 
                                                                                                                            ExperiencedRecycledNS(), 
                                                                                                                            p_Stepsize, 
-                                                                                                                           m_MassTransferDiff * MSOL_TO_KG, p_Epsilon); }  // JR: todo: revisit this
+                                                                                                                           m_MassTransferDiff * MSOL_TO_KG, p_Epsilon); }
 
-    // setters
+    void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  Sanity check?
     void            SetObjectId(const OBJECT_ID p_ObjectId)                             { m_ObjectId = p_ObjectId; }
     void            SetPersistence(const OBJECT_PERSISTENCE p_Persistence)              { m_ObjectPersistence = p_Persistence; }
 
 
 private:
-
-    OBJECT_ID               m_ObjectId;                             // Instantiated object's unique object id
-    OBJECT_TYPE             m_ObjectType;                           // Instantiated object's object type
-    OBJECT_PERSISTENCE      m_ObjectPersistence;                    // Instantiated object's persistence (permanent or ephemeral)
 
     // member variables - alphabetically
 
@@ -279,7 +267,6 @@ private:
 
 
 	// member functions - alphabetically 
-    double                  CalculateMassAccretedForCO(const double p_Mass, const double p_CompanionMass, const double p_CompanionRadius) const;
 };
 
 #endif // __BinaryConstituentStar_h__

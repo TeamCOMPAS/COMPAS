@@ -13,22 +13,25 @@ double BH::CalculateNeutrinoMassLoss_Static(const double p_BaryonicMass) {
 
     double gravitationalMass = 0.0;
 
-    switch (OPTIONS->NeutrinoMassLossAssumptionBH()) {                                      // which assumption?
+    switch (OPTIONS->NeutrinoMassLossAssumptionBH()) {                                                  // which assumption?
 
-        case NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_FRACTION:                               // FIXED FRACTION
+        case NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_FRACTION:                                           // FIXED FRACTION
             gravitationalMass = p_BaryonicMass * (1.0 - OPTIONS->NeutrinoMassLossValueBH());
             break;
 
-        case NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS:                                   // FIXED MASS
+        case NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS:                                               // FIXED MASS
             gravitationalMass = p_BaryonicMass - OPTIONS->NeutrinoMassLossValueBH();
             break;
+    
+        default:                                                                                        // unknown prescription
+            // the only way this can happen is if someone added a NEUTRINO_MASS_LOSS_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose an assumption this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing assumption or, if the missing
+            // assumption is superfluous, remove it from the option.
 
-        default:                                                                            // unknown assumption
-            SHOW_WARN_STATIC(ERROR::UNKNOWN_NEUTRINO_MASS_LOSS_PRESCRIPTION,                // show warning
-                             "Using gravitational mass = baryonic mass = " + std::to_string(p_BaryonicMass),
-                             OBJECT_TYPE::BASE_STAR,
-                             STELLAR_TYPE::BLACK_HOLE);
-            gravitationalMass = p_BaryonicMass;
+            THROW_ERROR_STATIC(ERROR::UNKNOWN_NEUTRINO_MASS_LOSS_PRESCRIPTION);                         // throw error
     }
 
     return gravitationalMass;
@@ -45,9 +48,9 @@ double BH::CalculateNeutrinoMassLoss_Static(const double p_BaryonicMass) {
  * @return                                      Tuple containing Luminosity, Radius and Temperature of Black Hole
  */
 DBL_DBL_DBL BH::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
-    double luminosity  = BH::CalculateLuminosityOnPhase_Static();                            // Luminosity of BH
-    double radius      = BH::CalculateRadiusOnPhase_Static(p_Mass);                          // Schwarzschild radius (not correct for rotating BH)
-    double temperature = BaseStar::CalculateTemperatureOnPhase_Static(luminosity, radius);   // Temperature of BH
+    double luminosity  = BH::CalculateLuminosityOnPhase_Static();                                   // luminosity of BH
+    double radius      = BH::CalculateRadiusOnPhase_Static(p_Mass);                                 // Schwarzschild radius (not correct for rotating BH)
+    double temperature = BaseStar::CalculateTemperatureOnPhase_Static(luminosity, radius);          // temperature of BH
 
     return std::make_tuple(luminosity, radius, temperature);
 }
@@ -65,39 +68,36 @@ DBL_DBL_DBL BH::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
  *    FALLBACK: Black holes receive a kick downweighted by the amount of mass falling back onto them
  *
  *
- *  double ReweightSupernovaKickByMass(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass)
+ *  double ReweightSupernovaKickByMass_Static(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass)
  *
  * @param   [IN]    p_vK                        Kick magnitude that would otherwise be applied to a neutron star
  * @param   [IN]    p_FallbackFraction          Fraction of mass that falls back onto the proto-compact object
  * @param   [IN]    p_BlackHoleMass             Mass of remnant (in Msol)
  * @return                                      Kick magnitude
  */
- double BH::ReweightSupernovaKickByMass(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) {
+ double BH::ReweightSupernovaKickByMass_Static(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) {
 
     double vK;
 
-    switch (OPTIONS->BlackHoleKicks()) {                            // which BH kicks option specified?
+    switch (OPTIONS->BlackHoleKicksMode()) {                                                            // which BH kicks mode?
 
-        case BLACK_HOLE_KICKS::FULL:                                // BH receives full kick - no adjustment necessary
-            vK = p_vK;
-            break;
+        case BLACK_HOLE_KICKS_MODE::ZERO    : vK = 0.0; break;                                          // BH Kicks are set to zero regardless of BH mass or kick magnitude drawn.
 
-        case BLACK_HOLE_KICKS::REDUCED:                             // Kick is reduced by the ratio of the black hole mass to neutron star mass i.e. v_bh = ns/bh  *v_ns
-            vK = p_vK * NEUTRON_STAR_MASS / p_BlackHoleMass;
-            break;
+        case BLACK_HOLE_KICKS_MODE::FULL    : vK = p_vK; break;                                         // BH receives full kick - no adjustment necessary
 
-        case BLACK_HOLE_KICKS::ZERO:
-            vK = 0.0;                                               // BH Kicks are set to zero regardless of BH mass or kick magnitude drawn.
-            break;
+        case BLACK_HOLE_KICKS_MODE::REDUCED : vK = p_vK * NEUTRON_STAR_MASS / p_BlackHoleMass; break;   // kick is reduced by the ratio of the neutron star mass to the black hole mass
 
-        case BLACK_HOLE_KICKS::FALLBACK:                            // Using the so-called 'fallback' prescription for BH kicks
-            vK = p_vK * (1.0 - p_FallbackFraction);
-            break;
+        case BLACK_HOLE_KICKS_MODE::FALLBACK: vK = p_vK * (1.0 - p_FallbackFraction); break;            // using the so-called 'fallback' mode for BH kicks
+    
+        default:                                                                                        // unknown mode
+            // the only way this can happen is if someone added a BLACK_HOLE_KICKS_MODE
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a mode this code doesn't account for, and that should be
+            // flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing mode or, if the missing mode is
+            // superfluous, remove it from the option.
 
-        default:                                                    // unknown BH kick option - shouldn't happen
-            vK = p_vK;                                              // return vK unchanged
-            m_Error = ERROR::UNKNOWN_BH_KICK_OPTION;                // set error value
-            SHOW_WARN(m_Error);                                     // warn that an error occurred
+            THROW_ERROR_STATIC(ERROR::UNKNOWN_BH_KICK_MODE);                                            // throw error
     }
 
     return vK;

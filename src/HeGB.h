@@ -16,6 +16,8 @@ class HeGB: virtual public BaseStar, public HeHG {
 
 public:
 
+    HeGB() { m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH; };
+    
     HeGB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HeHG(p_BaseStar, false) {
         STELLAR_TYPE currentStellarType = m_StellarType;                                                                                                                // Stellar type evolving from
         m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH;                                                                                                   // Set stellar type
@@ -36,14 +38,13 @@ public:
 
 
     // member functions - alphabetically
-    static  double      CalculateAgeOnPhase_Static(const double p_Mass, const double p_CoreMass, const double p_tHeMS, const DBL_VECTOR &p_GBParams);
+    static  double  CalculateAgeOnPhase_Static(const double p_Mass, const double p_CoreMass, const double p_tHeMS, const DBL_VECTOR &p_GBParams);
 
-    static  double      CalculateCoreMassOnPhase_Static(const double p_Mass, const double p_Time, const double p_tHeMS, const DBL_VECTOR &p_GBParams);
+    static  double  CalculateCoreMassOnPhase_Static(const double p_Mass, const double p_Time, const double p_tHeMS, const DBL_VECTOR &p_GBParams);
 
-    static  double      CalculateLuminosityOnPhase_Static(const double p_CoreMass, const double p_GBPB, const double p_GBPD);
+    static  double  CalculateLuminosityOnPhase_Static(const double p_CoreMass, const double p_GBPB, const double p_GBPD);
 
-    double          CalculateRadialExtentConvectiveEnvelope() const                                 { return FGB::CalculateRadialExtentConvectiveEnvelope(); }                             
-    static  DBL_DBL     CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Luminosity);
+    static  DBL_DBL CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Luminosity);
 
 
 protected:
@@ -51,7 +52,8 @@ protected:
     void Initialise(const STELLAR_TYPE p_PreviousStellarType) {
         CalculateTimescales();                                                                                                                                          // Initialise timescales
         if (p_PreviousStellarType != STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP)                                                                                   // If not evolving from HeHG...
-            m_Age = CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, m_Timescales[static_cast<int>(TIMESCALE::tHeMS)], m_GBParams);                                     // ... Set age appropriately
+            m_Age = CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, m_Timescales[static_cast<int>(TIMESCALE::tHeMS)], m_GBParams);                                 // ... Set age appropriately
+        EvolveOnPhase(0.0);
     }
 
 
@@ -68,7 +70,7 @@ protected:
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) const;
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                                  { return CalculateRadiusAndStellarTypeOnPhase(m_Mass, m_Luminosity); }
             
-    ENVELOPE    DetermineEnvelopeType() const                                                                       { return ENVELOPE::CONVECTIVE; }                        // Always CONVECTIVE
+    ENVELOPE    DetermineEnvelopeType() const                                                                       { return ENVELOPE::CONVECTIVE; }                        // Always CONVECTIVE    
 };
 
 #endif // __HeGB_h__

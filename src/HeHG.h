@@ -16,6 +16,8 @@ class HeHG: virtual public BaseStar, public HeMS {
 
 public:
 
+    HeHG() { m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP; };
+    
     HeHG(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HeMS(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP;                                                                                                                    // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                                     // Initialise if required
@@ -35,25 +37,24 @@ public:
 
 
     // member functions
+    double  CalculateConvectiveCoreRadius () const                                                          { return std::min(5.0 * CalculateRemnantRadius(), m_Radius); }          // Last paragraph of section 6 of Hurley+ 2000
     static void CalculateGBParams_Static(const double p_Mass0, const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
-
+ 
+    double  CalculateRemnantRadius() const;
 
 protected:
 
     void Initialise() {
         m_Tau = 0.0;                                                                                      // Start of phase
-        CalculateTimescales();                                                                                                                                                              // Initialise timescales
-        // JR: Age for HeHG is calculated before switching -
+        CalculateTimescales();                                                                            // Initialise timescales
+        // Age for HeHG is calculated before switching -
         // can get here via EvolveOneTimestep() and ResolveEnvelopeLoss(),
         // and Age is calculated differently in those cases
         
-        //Update stellar properties at start of HeHG phase (since core definition changes)
+        // Update stellar properties at start of HeHG phase (since core definition changes)
         CalculateGBParams();
-        m_COCoreMass  = CalculateCOCoreMassOnPhase();
-        m_CoreMass    = CalculateCoreMassOnPhase();
-        m_HeCoreMass  = CalculateHeCoreMassOnPhase();
-        m_Luminosity  = CalculateLuminosityOnPhase();
-        std::tie(m_Radius, std::ignore) = CalculateRadiusAndStellarTypeOnPhase();   // Update radius
+
+        EvolveOnPhase(0.0);
     }
 
 
@@ -61,16 +62,11 @@ protected:
             double          CalculateCOCoreMassAtPhaseEnd() const                                                   { return m_COCoreMass; }  //*ILYA* check                                               // NO-OP
             double          CalculateCOCoreMassOnPhase() const;
     
-            double          CalculateConvectiveCoreMass() const { return m_CoreMass; }
-
-            double          CalculateConvectiveCoreRadius () const                                                  { return std::min(5.0 * CalculateRemnantRadius(), m_Radius); }   // Last paragraph of section 6 of Hurley+ 2000
+            double          CalculateConvectiveCoreMass() const                                                     { return m_CoreMass; }
 
             double          CalculateCoreMassAtBAGB() const                                                         { return m_Mass0; }                                                     // McBAGB = M0 (Hurely et al. 2000, discussion just before eq 89)
             double          CalculateCoreMassAtPhaseEnd() const                                                     { return m_CoreMass; }                                                  // NO-OP
             double          CalculateCoreMassOnPhase() const                                                        { return m_COCoreMass; }                                                // Mc(HeMS) = McCOMass
-
-    static  double          CalculateCoreMass_Luminosity_B_Static()                                                 { return 4.1E4; }
-    static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass)                              { return 5.5E4 / (1.0 + (0.4 * p_Mass * p_Mass * p_Mass * p_Mass)); }     // pow() is slow - use multiplication
 
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
             double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return 1.28; }                                                        // From BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
@@ -82,19 +78,17 @@ protected:
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_Mass; }                                                      // NO-OP
 
             double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
-            double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const             { return CalculateLambdaNanjingStarTrack(0.0, 0.0); }                   // 0.0 are dummy values that are not used
+            double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const { return CalculateLambdaNanjingStarTrack(0.0, 0.0); }        // 0.0 are dummy values that are not used
 
             double          CalculateLuminosityOnPhase() const;
             double          CalculateLuminosityAtPhaseEnd() const                                                   { return m_Luminosity; }                                                // NO-OP
 
-            double          CalculateMassTransferRejuvenationFactor() const;
+            double          CalculateMassTransferRejuvenationFactor()                                               { return 1.0; }
 
             double          CalculateMomentOfInertia() const                                                        { return GiantBranch::CalculateMomentOfInertia(); }
 
             double          CalculatePerturbationMu() const;
             double          CalculatePerturbationMuAtPhaseEnd() const                                               { return m_Mu; }                                                        // NO-OP
-
-            double          CalculateRadialExtentConvectiveEnvelope() const                                         { return HG::CalculateRadialExtentConvectiveEnvelope(); }
 
             double          CalculateRadiusAtPhaseEnd() const                                                       { return m_Radius; }                                                    // NO-OP
             double          CalculateRadiusOnPhase() const;
@@ -127,7 +121,7 @@ protected:
     
             void            PerturbLuminosityAndRadius()                                                            { GiantBranch::PerturbLuminosityAndRadius(); }                          // NO-OP
 
-            STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
+            STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
             void            ResolveHeliumFlash() { }                                                                                                                                        // NO-OP
             STELLAR_TYPE    ResolveSkippedPhase()                                                                   { return m_StellarType; }                                               // NO-OP
 
@@ -135,9 +129,8 @@ protected:
             bool            ShouldEvolveOnPhase() const;
             bool            ShouldSkipPhase() const                                                                 { return false; }                                                       // Never skip HeMS phase
 
-            void            UpdateAgeAfterMassLoss()                                                                { GiantBranch::UpdateAgeAfterMassLoss(); }                              // Skip HeMS
+            void            UpdateAgeAfterMassLoss()                                                                { GiantBranch::UpdateAgeAfterMassLoss(); }                              // No action for He giants
             void            UpdateInitialMass()                                                                     { GiantBranch::UpdateInitialMass(); }                                   // Skip HeMS
-
 };
 
 #endif // __HeHG_h__

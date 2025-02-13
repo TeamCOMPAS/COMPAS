@@ -16,6 +16,8 @@ class EAGB: virtual public BaseStar, public CHeB {
 
 public:
 
+    EAGB() { m_StellarType = STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH; };
+    
     EAGB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), CHeB(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH;                                                                                                    // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                 // Initialise if required
@@ -35,10 +37,12 @@ public:
 
 
     // member functions
-    static double CalculateRadiusOnPhase_Static(const double      p_Mass,
-                                                const double      p_Luminosity,
-                                                const double      p_MHeF,
-                                                const DBL_VECTOR &p_BnCoefficients);
+    static double   CalculateRadiusOnPhase_Static(const double      p_Mass,
+                                                  const double      p_Luminosity,
+                                                  const double      p_MHeF,
+                                                  const DBL_VECTOR &p_BnCoefficients);
+
+    MT_CASE         DetermineMassTransferTypeAsDonor() const                                        { return MT_CASE::C; }                                              // Always case C
 
 
 protected:
@@ -46,6 +50,7 @@ protected:
     void Initialise() {
         CalculateTimescales();                                                                                                                                          // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tHeI)] + m_Timescales[static_cast<int>(TIMESCALE::tHe)];                                                       // Set age appropriately
+        EvolveOnPhase(0.0);
     }
 
 
@@ -65,7 +70,7 @@ protected:
     double          CalculateInitialSupernovaMass() const                                           { return m_GBParams[static_cast<int>(GBP::McBAGB)]; }               // For EAGB & TPAGB we use the mass at Base Asymptotic Giant Branch to determine SN type
 
     double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
-    double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const;
+    double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const;
 
     double          CalculateLifetimeTo2ndDredgeUp(const double p_Tinf1_FAGB, const double p_Tinf2_FAGB) const;
 
@@ -75,8 +80,6 @@ protected:
     double          CalculateLuminosityOnPhase() const                                              { return CalculateLuminosityOnPhase(m_COCoreMass); }
 
     double          CalculateMassLossRateHurley();
-
-    double          CalculateRadialExtentConvectiveEnvelope() const                                 { return GiantBranch::CalculateRadialExtentConvectiveEnvelope(); }  // Skip CHeB
 
     double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_Luminosity) const { return CalculateRadiusOnPhase(p_Mass, p_Luminosity); }            // Same as on phase
     double          CalculateRadiusAtPhaseEnd() const                                               { return CalculateRadiusAtPhaseEnd(m_Mass, m_Luminosity); }         // Use class member variables
@@ -101,7 +104,7 @@ protected:
     bool            IsEndOfPhase() const                                                            { return !ShouldEvolveOnPhase(); }                                  // Phase ends when age at or after DU timescale, and no TPAGB
     bool            IsSupernova() const;
 
-    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
+    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
     void            ResolveHeliumFlash() {  }                                                                                                                           // NO-OP
     STELLAR_TYPE    ResolveSkippedPhase()                                                           { return m_StellarType; }                                           // NO-OP
 

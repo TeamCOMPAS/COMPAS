@@ -69,7 +69,7 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
     if (utils::Compare(logMassTransferRate, logMdotUppHe) >= 0) {
         etaHe = PPOW(10, logMdotUppHe - logMassTransferRate);
     } 
-    else if (utils::Compare(logMassTransferRate, logMdotMidHe) >= 0) {  // JR: do we need this since it's the default?  Or may it change here?  Or just here for clarity?
+    else if (utils::Compare(logMassTransferRate, logMdotMidHe) >= 0) {
         etaHe = 1.0;
     } 
     else if (utils::Compare(logMassTransferRate, logMdotLowHe) >= 0) {
@@ -155,6 +155,8 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     // sanity check for mass - just return 0.0 if mass <= 0
     if (utils::Compare(p_Mass, 0.0) <= 0) return 0.0;
     
+    if (utils::Compare(p_Mass, MCH) >= 0) return NEUTRON_STAR_RADIUS;                               // only expected to come up if asking for the core or remnant radius of a giant star
+    
     double MCH_Mass_one_third  = std::cbrt(MCH / p_Mass); 
     double MCH_Mass_two_thirds = MCH_Mass_one_third * MCH_Mass_one_third;
 
@@ -192,8 +194,23 @@ void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
 	        m_HShell += p_AccretedMass;
             break;
 
-        default:
-            SHOW_WARN(ERROR::WARNING, "Accretion Regime not set for WD, no mass added to shell.");  // show warning 
+        case ACCRETION_REGIME::NONE:    // DEPRECATED June 2024 - remove end 2024 
+        case ACCRETION_REGIME::ZERO:
+            SHOW_WARN(ERROR::UNEXPECTED_ACCRETION_REGIME, "No mass added to shell");        // show warning
+            break;
+
+        default:                                                                            // unknown stellar population
+            // the only ways this can happen are if someone added an ACCRETION_REGIME
+            // and it isn't accounted for in this code, or if there is a defect in the code that causes
+            // this function to be called with a bad parameter.  We should not default here, with or without
+            // a warning.
+            // We are here because the function was called with an accrestion regeime this code doesn't account
+            // for, or as a result of a code defect, and either of those should be flagged as an error and
+            // result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing population or, if the missing
+            // population is superfluous, remove it, or find and fix the code defect.
+
+            THROW_ERROR(ERROR::UNKNOWN_ACCRETION_REGIME);                                   // throw error
     }
 }
 

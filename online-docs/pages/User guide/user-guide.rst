@@ -9,12 +9,11 @@ This section contains the basic user guide for COMPAS.
 
    ./configuration
    ./Program options/program-options
-   ./grid-files
    ./timestep-files
    ./random-seed
    ./Running COMPAS/running-compas
    ./COMPAS output/output
-   ./Pre-processing/pre-processing
+   ./Handling errors/handling-errors
+   ./pre-processing
    ./Post-processing/post-processing
-   ./Tutorial/example-compas-run
    ./docker

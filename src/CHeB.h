@@ -16,6 +16,8 @@ class CHeB: virtual public BaseStar, public FGB {
 
 public:
 
+    CHeB() { m_StellarType = STELLAR_TYPE::CORE_HELIUM_BURNING; };
+    
     CHeB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), FGB(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::CORE_HELIUM_BURNING;                                                                                                      // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                         // Initialise if required
@@ -60,6 +62,7 @@ protected:
         CalculateTimescales();                                                                                                                                  // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tHeI)];                                                                                                // Set age appropriately
         m_MinimumLuminosityOnPhase = CalculateMinimumLuminosityOnPhase(massCutoffs(MHeF), m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_BnCoefficients);    // Calculate once, not many
+        EvolveOnPhase(0.0);
     #undef massCutoffs
     }
 
@@ -77,9 +80,23 @@ protected:
 
     double          CalculateHeCoreMassAtPhaseEnd() const                       { return m_CoreMass; }
 
+    double          CalculateHeliumAbundanceCoreAtPhaseEnd() const              { return CalculateHeliumAbundanceCoreOnPhase(); }
+    double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;                                         
+    double          CalculateHeliumAbundanceCoreOnPhase() const                 { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                          // Use class member variables                                       
+    
+    double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const           { return CalculateHeliumAbundanceSurfaceOnPhase(); }
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const              { return m_InitialHeliumAbundance; }                                            // Use class member variables                      
+    
+    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const            { return CalculateHydrogenAbundanceCoreOnPhase(); } 
+    double          CalculateHydrogenAbundanceCoreOnPhase() const               { return 0.0; }                                                                 // Core is hydrogen exhausted                                
+    
+    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const         { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const            { return m_InitialHydrogenAbundance; }                                          // Use class member variables
+    
+
     double          CalculateLambdaDewi() const;
     double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
-    double          CalculateLambdaNanjingEnhanced(const int p_MassInd, const int p_Zind) const;
+    double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const;
 
     double          CalculateLifetimeOnBluePhase(const double p_Mass);
     double          CalculateLifetimeOnPhase(const double p_Mass);
@@ -108,7 +125,7 @@ protected:
     double          CalculateTauOnPhase() const;
 
     void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
-    void            CalculateTimescales()                                       { CalculateTimescales(m_Mass0, m_Timescales); }                        // Use class member variables
+    void            CalculateTimescales()                                       { CalculateTimescales(m_Mass0, m_Timescales); }                                 // Use class member variables
 
     double          ChooseTimestep(const double p_Time) const;
 
@@ -119,7 +136,7 @@ protected:
     bool            IsEndOfPhase() const                                        { return !ShouldEvolveOnPhase(); }                                              // Phase ends when age at or after He Burning
     bool            IsSupernova() const                                         { return false; }                                                               // Not here
 
-    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_NoCheck = false);
+    STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
     void            ResolveHeliumFlash() {  }                                                                                                                   // NO-OP
 
     bool            ShouldEnvelopeBeExpelledByPulsations() const { return ( OPTIONS->ExpelConvectiveEnvelopeAboveLuminosityThreshold() && DetermineEnvelopeType() == ENVELOPE::CONVECTIVE && utils::Compare( log10(m_Luminosity/m_Mass), OPTIONS->LuminosityToMassThreshold() ) >= 0 ) ; }                             // Envelope of convective star with luminosity to mass ratio beyond threshold should be expelled

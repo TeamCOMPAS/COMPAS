@@ -99,8 +99,8 @@ Including annotations in log files
 
 Annotations can be included in the record specifiers for any of the standard log files in the same way that other program options
 are included: they can be included in the default log file record specifiers in ``constants.h`` (compile-time configuration: see
-:doc:`../../Developer guide/constants-dot-h`), and/or they can be added to, or removed from, the default log file record specifiers
-via the use of a log file definitions file (run-time configuration: see :doc:`./standard-logfiles-record-specification`).
+:doc:`../../Developer guide/Headers/constants-dot-h`), and/or they can be added to, or removed from, the default log file record
+specifiers via the use of a log file definitions file (run-time configuration: see :doc:`./standard-logfiles-record-specification`).
 
 
 At compile-time

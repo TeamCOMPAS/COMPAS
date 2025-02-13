@@ -16,19 +16,24 @@ class WhiteDwarfs: virtual public BaseStar, public Remnants {
 
 public:
 
+    WhiteDwarfs(){};
+
     WhiteDwarfs(const BaseStar &p_BaseStar) : BaseStar(p_BaseStar), Remnants(p_BaseStar) {}
 
 
     // member functions
-    static  double      CalculateLuminosityOnPhase_Static(const double p_Mass, 
-                                                          const double p_Time, 
-                                                          const double p_Metallicity, 
-                                                          const double p_BaryonNumber);
+    static  double  CalculateLuminosityOnPhase_Static(const double p_Mass, 
+                                                      const double p_Time, 
+                                                      const double p_Metallicity, 
+                                                      const double p_BaryonNumber);
 
-    static  double      CalculateRadiusOnPhase_Static(const double p_Mass);
+    static  double  CalculateRadiusOnPhase_Static(const double p_Mass);
+
+    MT_CASE         DetermineMassTransferTypeAsDonor() const                                { return MT_CASE::OTHER; }                                  // Not A, B, C, or NONE
 
 
-    void                ResolveShellChange(const double p_AccretedMass);
+    void            ResolveShellChange(const double p_AccretedMass);
+
 
 protected:
     // member variables
@@ -54,6 +59,12 @@ protected:
 
             double           CalculateHeCoreMassOnPhase() const                             { return m_HeCoreMass; }                                    // NO-OP
 
+            double           CalculateHeliumAbundanceCoreOnPhase() const                    { return 0.0; };
+            double           CalculateHeliumAbundanceSurfaceOnPhase() const                 { return 0.0; };
+            
+            double           CalculateHydrogenAbundanceCoreOnPhase() const                  { return 0.0; };
+            double           CalculateHydrogenAbundanceSurfaceOnPhase() const               { return 0.0; };
+
             double           CalculateEtaH(const double p_MassIntakeRate);
 
             double           CalculateEtaHe(const double p_MassIntakeRate);
@@ -63,10 +74,10 @@ protected:
             double           Calculatel0Ritter() const                                      { return (m_Metallicity > 0.01) ? 1995262.3 : 31622.8; }    // Luminosity constant which depends on metallicity in Ritter 1999, eq 10
 
     virtual DBL_DBL          CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                         const bool   p_IsHeRich)           { return std::make_tuple(0.0, 0.0); }                       // Should never be called JR: is this true?  Not implemented in ONeWD clas?
+                                                         const bool   p_IsHeRich)           { return std::make_tuple(0.0, 0.0); }
             DBL_DBL          CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                          const double p_AccretorMassRate,
-                                                         const bool   p_IsHeRich)           { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); } // Ignore the input accretion rate for WDs
+                                                         const bool   p_IsHeRich)           { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); }
 
             double           CalculateXRitter() const                                       { return (m_Metallicity > 0.01) ? 0.7 : 0.8 ; }             // Assumed Hydrogen-mass fraction
 
@@ -79,7 +90,6 @@ protected:
 
             ENVELOPE         DetermineEnvelopeType() const                                  { return ENVELOPE::CONVECTIVE; }                            // Always CONVECTIVE
 
-            bool             IsMassAboveEcsnThreshold() const                               { return (utils::Compare(m_Mass, MECS) > 0); }              // Mass exceeds ECSN threshold mass
             bool             IsMassAboveChandrasekhar() const                               { return (utils::Compare(m_Mass, MCH) > 0); }               // Mass exceeds Chandrasekhar limit 
 
             STELLAR_TYPE     ResolveAIC();  

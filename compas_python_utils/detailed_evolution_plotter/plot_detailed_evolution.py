@@ -1,23 +1,20 @@
 ###################################################################
 #                                                                 #                                                               
-#  Example of plotting detailed output COMPAS with python         #
+#  Plot the detailed evolution of a COMPAS run                    #
 #                                                                 #
 ###################################################################
 
-import os, sys
+import os
 import shutil
 import numpy as np
 import h5py as h5
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import argparse
+import tempfile
+from pathlib import Path
 
-HERE = os.path.dirname(os.path.realpath(__file__))
-
-COMPAS_ROOT_DIR = os.path.expandvars(os.environ.get('COMPAS_ROOT_DIR', os.path.join(HERE, '../..')))
-VAN_DEN_HEUVEL_DIR = os.path.join(COMPAS_ROOT_DIR, 'compas_python_utils/detailed_evolution_plotter/van_den_heuvel_figures/')
-
-
+IMG_DIR = Path(__file__).parent / "van_den_heuvel_figures"
 
 def main():
     parser = argparse.ArgumentParser(description='Plot detailed evolution of a COMPAS binary')
@@ -27,41 +24,55 @@ def main():
     parser.add_argument('--outdir', type=str, default='.', help='Path to the directory to save the figures')
     parser.add_argument('--dont-show', action='store_false', help='Dont show the plots')
     args = parser.parse_args()
-    run_main_plotter(args.data_path, outdir=args.outdir, show=args.dont_show)
+    
+    run_main_plotter(args.data_path, outdir=args.outdir, show=args.dont_show, use_latex=True)
 
 
-def run_main_plotter(data_path, outdir='.', show=True):
-    Data = h5.File(data_path, 'r')
+def run_main_plotter(data_path, outdir='.', show=True, use_latex=True):
+
+    ### Collect the raw data and mask for just the end-of-timesteps events
+    RawData = h5.File(data_path, 'r')
+    tf = tempfile.TemporaryFile()
+    Data = h5.File(tf, 'w')
+    maskRecordType4 = RawData['Record_Type'][()] == 4     # Filter first for only end-of-timestep events
+    for key in RawData.keys():
+        Data.create_dataset(key, data=RawData[key][()][maskRecordType4])
+    print(np.unique(Data['Record_Type'][()]))
 
     ### Collect the important events in the detailed evolution
-    events = allEvents(Data).allEvents  # Calculate the events here, for use in plot sizing parameters
+    events = allEvents(Data).allEvents                 # Calculate the events here, for use in plot sizing parameters
     printEvolutionaryHistory(events=events)
 
     ### Produce the two plots
-    makeDetailedPlots(Data, events, outdir=outdir)
-    plotVanDenHeuvel(events=events, outdir=outdir)
+    detailed_fig = makeDetailedPlots(Data, events, outdir=outdir, use_latex=use_latex)
+    vdh_fig, vdh_events = plotVanDenHeuvel(events=events, outdir=outdir, use_latex=use_latex)
+
     if show:
         plt.show()
 
+    return detailed_fig, vdh_fig, vdh_events
 
-fontparams = {
-    "font.serif": "Times New Roman",
-    "text.usetex": str(shutil.which("latex") is not None),
-    "axes.grid": "True",
-    "grid.color": "gray",
-    "grid.linestyle": ":",
-    "axes.titlesize": "18",
-    "axes.labelsize": "12",
-    "xtick.labelsize": "10",
-    "ytick.labelsize": "10",
-    "xtick.labelbottom": "True",
-    "legend.framealpha": "1",
-}
+def set_font_params(use_latex=True):
+    use_latex = use_latex and (shutil.which("latex") is not None)
+    fontparams = {
+        "font.serif": "Times New Roman",
+        "text.usetex": use_latex,
+        "axes.grid": "True",
+        "grid.color": "gray",
+        "grid.linestyle": ":",
+        "axes.titlesize": "18",
+        "axes.labelsize": "12",
+        "xtick.labelsize": "10",
+        "ytick.labelsize": "10",
+        "xtick.labelbottom": "True",
+        "legend.framealpha": "1",
+    }
+    rcParams.update(fontparams)  # Set configurations for uniform plot output
 
 
 ####### Functions to organize and call the plotting functions
 
-def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
+def makeDetailedPlots(Data=None, events=None, outdir='.', show=True, use_latex=True):
     listOfPlots = [plotMassAttributes, plotLengthAttributes, plotStellarTypeAttributes, plotHertzsprungRussell]
 
     events = [event for event in events if event.eventClass != 'Stype']  # want to ignore simple stellar type changes
@@ -73,9 +84,8 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
     if num_events == 1:
         stopTimeAt = Data['Time'][-1] * 1.05            # Plot all the way to the end of the run if no events beyond ZAMS
     mask = Data['Time'][()] < stopTimeAt                # Mask the data to not include the 'End' events
-    mask &= Data['Record_Type'][()] == 4                # Only include end-of-timestep events
 
-    rcParams.update(fontparams)  # Set configurations for uniform plot output
+    set_font_params(use_latex)
 
     # Configure 2x2 subplots, for masses, lengths, stellar types, and HR diagram (in order top to bottom left to right)
     fig = plt.figure(figsize=(15, 8))  # W, H
@@ -92,7 +102,7 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
         # TODO: Set the reverse log scale for time
 
         # Plot the data
-        handles, labels = specificPlot(ax=ax, Data=Data, events=events, mask=mask)
+        handles, labels = specificPlot(ax=ax, Data=Data, events=events, mask=mask, use_latex=use_latex)
 
         # Add some breathing space at the top of the plot
         ymin, ymax = ax.get_ylim()
@@ -119,14 +129,16 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True):
     fig.suptitle('Detailed evolution for seed = {}'.format(Data['SEED'][()][0]), fontsize=18)
     fig.tight_layout(h_pad=1, w_pad=1, rect=(0.08, 0.08, .98, .98), pad=0.)  # (left, bottom, right, top)
 
-    plt.savefig(f'{outdir}/detailedEvolutionPlot.eps', bbox_inches='tight', pad_inches=0, format='eps')
+    if outdir is not None:
+        safe_save_figure(fig, f'{outdir}/detailedEvolutionPlot.png', bbox_inches='tight', pad_inches=0, format='png')
+    
     return fig
 
 
 ######## Plotting functions
 
 
-def plotMassAttributes(ax=None, Data=None, mask=None, **kwargs):
+def plotMassAttributes(ax=None, Data=None, mask=None, use_latex=True, **kwargs):
     ### Plot mass attributes
     # Create new column for total mass
     Mtot = Data['Mass(1)'][()][mask] + Data['Mass(2)'][()][mask]
@@ -138,12 +150,15 @@ def plotMassAttributes(ax=None, Data=None, mask=None, **kwargs):
     ax.plot(Data['Time'][()][mask], Data['Mass_He_Core(2)'][()][mask], linestyle='--', c='b', label='He Core 2')
     ax.plot(Data['Time'][()][mask], Data['Mass_CO_Core(2)'][()][mask], linestyle=':', c='b', label='CO Core 2')
 
-    ax.set_ylabel(r'Mass $/ \; M_{\odot}$')
+    if use_latex:
+        ax.set_ylabel(r'Mass $/ \; M_{\odot}$')
+    else:
+        ax.set_ylabel('Mass / Msun')
 
     return ax.get_legend_handles_labels()
 
 
-def plotLengthAttributes(ax=None, Data=None, mask=None, **kwargs):
+def plotLengthAttributes(ax=None, Data=None, mask=None, use_latex=True, **kwargs):
     ### Plot radius attributes
     ax.plot(Data['Time'][()][mask], Data['SemiMajorAxis'][()][mask], linestyle='-', c='k', label='Semi-Major Axis')
     ax.plot(Data['Time'][()][mask], Data['SemiMajorAxis'][()][mask] * (1 - Data['Eccentricity'][()][mask]), linestyle=':', c='k', label='Periapsis')
@@ -152,13 +167,16 @@ def plotLengthAttributes(ax=None, Data=None, mask=None, **kwargs):
     ax.plot(Data['Time'][()][mask], Data['RocheLobe(1)'][()][mask], linestyle='--', c='r', label='Roche Radius 1')
     ax.plot(Data['Time'][()][mask], Data['RocheLobe(2)'][()][mask], linestyle='--', c='b', label='Roche Radius 2')
 
-    ax.set_ylabel(r'Radius $/ \; R_{\odot}$')
+    if use_latex:
+        ax.set_ylabel(r'Radius $/ \; R_{\odot}$')
+    else:
+        ax.set_ylabel('Radius / Rsun')
     ax.set_yscale('log')
 
     return ax.get_legend_handles_labels()
 
 
-def plotEccentricity(ax=None, Data=None, mask=None, **kwargs):
+def plotEccentricity(ax=None, Data=None, mask=None, use_latex=True, **kwargs):
     ### Plot eccentricity
     ax.plot(Data['Time'][()], Data['Eccentricity'][()], linestyle='-', c='k')  # , label= 'Eccentricity')
     ax.set_ylabel('Eccentricity')
@@ -169,7 +187,7 @@ def plotEccentricity(ax=None, Data=None, mask=None, **kwargs):
     return None, None
 
 
-def plotStellarTypeAttributes(ax=None, Data=None, mask=None, **kwargs):
+def plotStellarTypeAttributes(ax=None, Data=None, mask=None, use_latex=True, **kwargs):
     ### Plot stellar types
     stellarTypes, useTypes, typeNameMap = getStellarTypes(Data)
 
@@ -189,7 +207,7 @@ def plotStellarTypeAttributes(ax=None, Data=None, mask=None, **kwargs):
     return ax.get_legend_handles_labels()
 
 
-def plotStellarTypeAttributesAndEccentricity(ax=None, Data=None, mask=None, **kwargs):
+def plotStellarTypeAttributesAndEccentricity(ax=None, Data=None, mask=None, use_latex=True, **kwargs):
     ax1 = ax
     ax2 = ax.twinx()
 
@@ -225,7 +243,7 @@ def plotStellarTypeAttributesAndEccentricity(ax=None, Data=None, mask=None, **kw
     return handles, labels
 
 
-def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, **kwargs):
+def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex=True, **kwargs):
     ### Plot HR diagram: L vs Teff
 
     # Data['Teff(1)'][()] #K
@@ -240,7 +258,10 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, **kwargs)
     ax.plot(Data['Teff(1)'][()][mask], Data['Luminosity(1)'][()][mask], linestyle='-', c='r', label='Star 1')
     ax.plot(Data['Teff(2)'][()][mask], Data['Luminosity(2)'][()][mask], linestyle='-', c='b', label='Star 2')
     ax.set_xlabel(r'Temperature [log(T/K)]')
-    ax.set_ylabel(r'Luminosity [log($L/L_\odot$)]')
+    if use_latex:
+        ax.set_ylabel(r'Luminosity [log($L/L_\odot$)]')
+    else:
+        ax.set_ylabel('Luminosity [log(L/Lsun)]')
     ax.set_xscale('log')
     ax.set_yscale('log')
     xlim = ax.get_xlim()
@@ -271,10 +292,14 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, **kwargs)
         Tbot = np.sqrt(np.sqrt(Lbot / (R * R))) * 6e3  # K
         Lrgt = get_L(Trgt / 6e3)
         alpha = 0.4
+        if use_latex:
+            str = r"$R_\odot^{{{exp}}}$".format(exp=exp)
+        else:
+            str = "Rsun{exp}".format(exp=exp)
         if (Tbot > Trgt) and (Tbot < xlim[1]):
-            ax.text(x=Tbot, y=Lbot, s=r"$R_\odot^{{{exp}}}$".format(exp=exp), alpha=alpha)
+            ax.text(x=Tbot, y=Lbot, s=str, alpha=alpha)
         elif (Lrgt > Lbot) and (Lrgt < ylim[1]):
-            ax.text(x=Trgt, y=Lrgt, s=r"$R_\odot^{{{exp}}}$".format(exp=exp), alpha=alpha)
+            ax.text(x=Trgt, y=Lrgt, s=str, alpha=alpha)
 
     # Add in the letters corresponding to various events
     event_times = [event.time for event in events]
@@ -291,7 +316,7 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, **kwargs)
     return ax.get_legend_handles_labels()
 
 
-def plotVanDenHeuvel(events=None, outdir='.'):
+def plotVanDenHeuvel(events=None, outdir='.', use_latex=True):
     # Only want events with an associated image
     events = [event for event in events if (event.eventImage is not None)]
     num_events = len(events)
@@ -299,7 +324,7 @@ def plotVanDenHeuvel(events=None, outdir='.'):
     if num_events == 1:
         axs = [axs]
     fig.set_figwidth(9)
-    plt.rcParams["text.usetex"] = True  # Use latex
+    set_font_params(use_latex)
 
     for ii in range(num_events):
         img = events[ii].eventImage
@@ -309,13 +334,21 @@ def plotVanDenHeuvel(events=None, outdir='.'):
         axs[ii].yaxis.set_label_position("right")
         plt.subplots_adjust(hspace=0)
 
-        if ii == 0:
-            pltString = "$t$ = {:.1f} Myr, $a$ = {:.1f} $R_\odot$ \n $M_1$ = {:.1f} $M_\odot$, $M_2$ = {:.1f} $M_\odot$ \n" + \
-                        events[ii].eventString
+        if (ii == 0) or (ii == num_events - 1): 
+            if use_latex:
+                pltString = "$t$ = {:.1f} Myr, $a$ = {:.1f} $R_\odot$ \n $M_1$ = {:.1f} $M_\odot$, $M_2$ = {:.1f} $M_\odot$ \n" + \
+                            events[ii].eventString
+            else:
+                pltString = "t = {:.1f} Myr, a = {:.1f} Rsun \n M1 = {:.1f} Msun, M2 = {:.1f} Msun \n" + \
+                            events[ii].eventString
             pltString = pltString.format(events[ii].time, events[ii].a, events[ii].m1, events[ii].m2)
         else:
-            pltString = "$t$ = {:.1f} Myr, $a$ = {:.1f} to {:.1f} $R_\odot$ \n $M_1$ = {:.1f} to {:.1f} $M_\odot$, $M_2$ = {:.1f} to {:.1f} $M_\odot$ \n" + \
-                        events[ii].eventString
+            if use_latex:
+                pltString = "$t$ = {:.1f} Myr, $a$ = {:.1f} to {:.1f} $R_\odot$ \n $M_1$ = {:.1f} to {:.1f} $M_\odot$, $M_2$ = {:.1f} to {:.1f} $M_\odot$ \n" + \
+                            events[ii].eventString
+            else:
+                pltString = "t = {:.1f} Myr, a = {:.1f} to {:.1f} Rsun \n M1 = {:.1f} to {:.1f} Msun, M2 = {:.1f} to {:.1f} Msun \n" + \
+                            events[ii].eventString
             pltString = pltString.format(events[ii].time, events[ii].aprev, events[ii].a, events[ii].m1prev,
                                          events[ii].m1, events[ii].m2prev, events[ii].m2)
 
@@ -325,22 +358,28 @@ def plotVanDenHeuvel(events=None, outdir='.'):
         axs[ii].annotate(chr(ord('@') + 1 + ii), xy=(-0.15, 0.8), xycoords='axes fraction', fontsize=8,
                          fontweight='bold')
 
-    file_path = os.path.join(outdir, 'vanDenHeuvelPlot.eps')
-    plt.savefig(file_path, bbox_inches='tight', pad_inches=0, format='eps')
-    return fig
+    if outdir is not None:
+        file_path = os.path.join(outdir, 'vanDenHeuvelPlot.eps')
+        safe_save_figure(fig, file_path, bbox_inches='tight', pad_inches=0, format='eps')
+
+    return fig, events
 
 
 ### Helper functions
 
-def getStellarTypes(Data):
+def getStellarTypes(Data, use_latex=True):
     """
     This function extracts only the stellar types which actually arise in the binary's evolution,
     and produces a map between the used type numbers and names.
     """
 
     # List of Hurley stellar types
-    stellarTypes = [r'MS$<0.7M_\odot$', r'MS$\geq0.7M_\odot$', 'HG', 'FGB', 'CHeB', 'EAGB', 'TPAGB', 'HeMS', 'HeHG',
-                    'HeGB', 'HeWD', 'COWD', 'ONeWD', 'NS', 'BH', 'MR', 'CHE']
+    if use_latex:
+        stellarTypes = [r'MS$<0.7M_\odot$', r'MS$\geq0.7M_\odot$', 'HG', 'FGB', 'CHeB', 'EAGB', 'TPAGB', 'HeMS', 'HeHG',
+                        'HeGB', 'HeWD', 'COWD', 'ONeWD', 'NS', 'BH', 'MR', 'CHE']
+    else:
+        stellarTypes = ['MS_lt_0.7Msun', r'MS_gte_0.7Msun', 'HG', 'FGB', 'CHeB', 'EAGB', 'TPAGB', 'HeMS', 'HeHG',
+                        'HeGB', 'HeWD', 'COWD', 'ONeWD', 'NS', 'BH', 'MR', 'CHE']
 
     useTypes = np.unique(np.append(Data['Stellar_Type(1)'][()], Data['Stellar_Type(2)'][()]))
     if (0 in useTypes) != (1 in useTypes):  # XOR
@@ -389,7 +428,7 @@ def space_out(original_vals, min_separation=None):
 
 class Event(object):
 
-    def __init__(self, Data, index, eventClass, stellarTypeMap, **kwargs):
+    def __init__(self, Data, index, eventClass, stellarTypeMap, use_latex=True, **kwargs):
 
         self.Data = Data
         self.index = index
@@ -409,14 +448,6 @@ class Event(object):
             self.m1prev = Data['Mass(1)'][ii - 1]
             self.m2prev = Data['Mass(2)'][ii - 1]
             self.aprev = Data['SemiMajorAxis'][ii - 1]
-        # Cheap kludge for SN separations - later, should clean up when detailed printing is called
-        if eventClass == 'SN':
-            try:  # Bad form to do a try except, but this works for now
-                self.a = Data['SemiMajorAxis'][ii + 1]
-                self.aprev = Data['SemiMajorAxis'][ii]
-            except:
-                self.a = Data['SemiMajorAxis'][ii]
-                self.aprev = Data['SemiMajorAxis'][ii - 1]
         self.stype1 = Data['Stellar_Type(1)'][ii]
         self.stype2 = Data['Stellar_Type(2)'][ii]
         self.stypeName1 = stellarTypeMap[self.stype1]
@@ -426,9 +457,9 @@ class Event(object):
 
         self.eventImage = None
         self.endState = None  # sets the endstate - only relevant if eventClass=='End'
-        self.eventString = self.getEventDetails(**kwargs)
+        self.eventString, self.image_num, self.rotate_image = self.getEventDetails(use_latex=use_latex, **kwargs)
 
-    def getEventDetails(self, **kwargs):
+    def getEventDetails(self, use_latex=True, **kwargs):
         """
         Use the event class and timestep, and possibly additional kwargs,
         to define the event string in a systematic way
@@ -518,7 +549,10 @@ class Event(object):
             whichStar = kwargs['whichStar']
             stypePre = self.stellarTypeMap[Data['Stellar_Type({})'.format(whichStar)][ii - 1]]
             stypePost = self.stellarTypeMap[Data['Stellar_Type({})'.format(whichStar)][ii]]
-            eventString = r'Star {}: {}-$>${}'.format(whichStar, stypePre, stypePost)
+            if use_latex:
+                eventString = r'Star {}: {}-$>${}'.format(whichStar, stypePre, stypePost)
+            else:
+                eventString = 'Star {}: {}->{}'.format(whichStar, stypePre, stypePost)
 
         elif eventClass == 'End':
             state = kwargs['state']
@@ -574,7 +608,7 @@ class Event(object):
         if image_num != None:
             self.eventImage = self.getEventImage(image_num, rotate_image)
 
-        return eventString
+        return eventString, image_num, rotate_image
 
     def getEventImage(self, image_num, rotate_image):
         """
@@ -582,7 +616,7 @@ class Event(object):
         on the stellar types, to get the van den Heuvel diagrams.
         """
 
-        self.imgFile = os.path.join(VAN_DEN_HEUVEL_DIR, f'{image_num}.png')
+        self.imgFile = os.path.join(IMG_DIR, f'{image_num}.png')
         img = plt.imread(self.imgFile)  # import image
         if rotate_image:
             img = img[:, ::-1, :]  # flip across y-axis
@@ -654,9 +688,9 @@ class allEvents(object):
 
         return allEvents
 
-    def addEvent(self, ii, eventClass, **kwargs):
+    def addEvent(self, ii, eventClass, use_latex=True, **kwargs):
 
-        newEvent = Event(self.Data, ii, eventClass, self.stellarTypeMap, **kwargs)
+        newEvent = Event(self.Data, ii, eventClass, self.stellarTypeMap, use_latex=use_latex, **kwargs)
         self.allEvents.append(newEvent)
         return newEvent.endState == 'Merger'
 
@@ -694,6 +728,18 @@ def printFormattedEvolutionLine(time, event, m1, t1, m2, t2, a, e):
     print(
         "{:10.6f}   {:31}  {:7.3f}    {:2}    {:7.3f}    {:2}   {:8.3f}  {:5.3f}".format(time, event, m1, t1, m2, t2, a,
                                                                                          e))
+
+
+def safe_save_figure(fig, filename, **kwargs):
+    # make the directory if it doesn't exist
+    dirname = os.path.dirname(filename)
+    os.makedirs(dirname, exist_ok=True)
+    try:
+        fig.savefig(fname=filename, **kwargs)
+    except RuntimeError:
+        print("Failed to save plot with tex labels turning off tex and reattempting.")
+        rcParams["text.usetex"] = False
+        fig.savefig(fname=filename, **kwargs)
 
 
 if __name__ == "__main__":
