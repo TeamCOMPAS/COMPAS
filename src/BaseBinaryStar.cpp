@@ -2937,7 +2937,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) - immediate event
         (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                             // print (log) detailed output
         if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-            (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_SN);                                          // print (log) pulsar evolution parameters 
+            (void)PrintPulsarEvolutionParameters(BSE_PULSAR_RECORD_TYPE::POST_SN);                                          // print (log) pulsar evolution parameters 
         }
     }
     else {
@@ -2960,7 +2960,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
             EvaluateSupernovae();                                                                                       // evaluate supernovae (both stars) if mass changes are responsible for a supernova
             (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                         // print (log) detailed output
             if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-                (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_SN);                                      // print (log) pulsar evolution parameters 
+                (void)PrintPulsarEvolutionParameters(BSE_PULSAR_RECORD_TYPE::POST_SN);                                      // print (log) pulsar evolution parameters 
             }
         }
 
@@ -3175,7 +3175,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
                                                                                                                                         // yes
                     if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-                        (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_BINARY_TIMESTEP);                                 // print (log) pulsar evolution parameters 
+                        (void)PrintPulsarEvolutionParameters(BSE_PULSAR_RECORD_TYPE::POST_BINARY_TIMESTEP);                                 // print (log) pulsar evolution parameters 
                     }
                         
                     if (IsDCO() && !IsUnbound()) {                                                                                      // bound double compact object?
