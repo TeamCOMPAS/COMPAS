@@ -1405,7 +1405,7 @@
 //                                      - Fixed bugs in vector3d related to indexing and rotation
 //                                      - Added tweak for circular systems at first SN, to fix the x-axis along the separation vector
 // 03.09.03   IM - Nov 28, 2024     - Enhancement, defect repair:
-//                                      - Delay changing stellar types until after checking for whether remnant cores would touch in a common enevelope, use core radii instead (partial fix to #1286)
+//                                      - Delay changing stellar types until after checking for whether remnant cores would touch in a common envelope, use core radii instead (partial fix to #1286)
 //                                      - Define a new function MainSequence::TAMSCoreMass(); use it for determining the amount of He in a star during MS mergers
 //                                      - Switch both stars to Massless remnants during a CE merger, resolve #1265
 //                                      - Minor fixes, including to #1255, #1258
@@ -1444,9 +1444,20 @@
 // 03.12.01   JR - Jan 17, 2025     - Defect repair:
 //                                      - (partial?) fix for issue #1149 - remove conditional from TPAGB::IsSupernova().  Whether it fixes issue 1149 completely or not, the conditional shouldn't be there...
 // 03.12.02   SS - Jan 20, 2025     - Defect repair:
-//                                      -  fix for issue #1324 - allow for evolution of pulsars formed from main sequence merger products. Changed CalculateTimestep to ChooseTimestep in MR.h and added check for bound binary to BaseBinaryStar::ChooseTimestep
+//                                      - fix for issue #1324 - allow for evolution of pulsars formed from main sequence merger products.
+//                                        Changed CalculateTimestep to ChooseTimestep in MR.h and added check for bound binary to BaseBinaryStar::ChooseTimestep
+// 03.12.03   JR - Jan 29, 2025     - Defect repair:
+//                                      - fixes initialisation in MS_gt_07::Initialise() for CORE_MASS_PRESCRIPTION::SHIKAUCHI (now allows for CH stars that spin down)
+//                                      - minor code cleanup
+// 03.12.04   IM - Feb 08, 2025     - Enhancement:
+//                                      - only reset mass0 to mass on the HG when mass0 > mass (i.e., on mass loss, not mass gain, and not if mass0 is intentionally set to yield a lower core mass as may be required by the BRCEK rejuvenation prescription)
+//                                      - replaced name of COMPAS PPISN prescription with WOOSLEY (issue #1278)
+// 03.13.00   SS - Feb 12, 2025    - Defect repair:
+//                                      - Added SSE_Pulsar_Evolution output to address issue #1333. Prepended BSE_ to PULSAR_RECORD_TYPE and associated variables
+//                                      - Changed stopping condition for single stars to continue evolving neutron stars (as pulsars) if EvolvePulsars is True
+//                                      - Added a call to SpinDownIsolatedPulsar to Star::EvolveOneTimestep to update pulsar attributes (spin period, magnetic field etc) for single stars
+//
 
-
-const std::string VERSION_STRING = "03.12.02";
+const std::string VERSION_STRING = "03.13.00";
 
 # endif // __changelog_h__

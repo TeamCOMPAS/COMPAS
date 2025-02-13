@@ -577,6 +577,7 @@ private:
     ANY_PROPERTY_VECTOR m_SSE_SNE_Rec         = SSE_SUPERNOVAE_REC;                 // default specification
     ANY_PROPERTY_VECTOR m_SSE_Switch_Rec      = SSE_SWITCH_LOG_REC;                 // default specification
     ANY_PROPERTY_VECTOR m_SSE_SysParms_Rec    = SSE_SYSTEM_PARAMETERS_REC;          // default specification
+    ANY_PROPERTY_VECTOR m_SSE_Pulsars_Rec     = SSE_PULSAR_EVOLUTION_REC;                    // default specification
 
     // logfile annotation specifications
     //
@@ -607,7 +608,7 @@ private:
     BOOL_VECTOR m_SSE_SNE_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_SSE_Switch_Notes      = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_SSE_SysParms_Notes    = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-
+    BOOL_VECTOR m_SSE_Pulsars_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
 
     // the following block of variables support the BSE Switch Log file
     
@@ -1208,7 +1209,7 @@ public:
 
     template <class T>
     bool LogBSEPulsarEvolutionParameters(const T* const p_Binary,
-                                         const PULSAR_RECORD_TYPE p_RecordType)     { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)), 0, LOGFILE::BSE_PULSAR_EVOLUTION, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
+                                         const BSE_PULSAR_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)), 0, LOGFILE::BSE_PULSAR_EVOLUTION, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
 
     template <class T>
     bool LogBSESupernovaDetails(const T* const p_Binary,
@@ -1251,6 +1252,10 @@ public:
     template <class T>
     bool LogSSESystemParameters(const T* const p_Star,
                                 const SSE_SYSPARMS_RECORD_TYPE p_RecordType)        { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS)), 0, LOGFILE::SSE_SYSTEM_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
+
+    template <class T>
+    bool LogSSEPulsarEvolutionParameters(const T* const p_Star,
+                                         const SSE_PULSAR_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PULSAR_EVOLUTION)), 0, LOGFILE::SSE_PULSAR_EVOLUTION, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
 
     void ClearSSESupernovaStash() {
         m_SSESupernovae_DelayedWrite.logRecordType       = 0;                       // delayed log record type for SSE_Supernovae file - initially 0 (set later)

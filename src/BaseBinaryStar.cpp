@@ -2850,19 +2850,16 @@ void BaseBinaryStar::EmitGravitationalWave(const double p_Dt) {
  */
 double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
 
-    // Timesteps required by individual stars
-    double dt1 = m_Star1->CalculateTimestep();
-    double dt2 = m_Star2->CalculateTimestep();
-    double dt = std::min(dt1, dt2);
+    double dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep());       // dt = smaller of timesteps required by individual stars
 
-    if (!IsUnbound()){                                                                      // Check that binary is bound
+    if (!IsUnbound()) {                                                                     // check that binary is bound
 
         if (OPTIONS->EmitGravitationalRadiation()) {                                        // emitting GWs?
             dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
         }
     
-        if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024) {                                // tides prescription = KAPIL2024
-                                                                                                            // yes - need to adjust dt
+        if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024) {                // tides prescription = KAPIL2024
+                                                                                            // yes - need to adjust dt
             
             double omega                   = OrbitalAngularVelocity();
             
@@ -2898,7 +2895,7 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
 
     dt *= p_Multiplier;	
 
-    return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, TIDES_MNIMUM_FRACTIONAL_NUCLEAR_TIME * NUCLEAR_MINIMUM_TIMESTEP);    // quantised and not less than minimum
+    return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, TIDES_MNIMUM_FRACTIONAL_NUCLEAR_TIME * NUCLEAR_MINIMUM_TIMESTEP); // quantised and not less than minimum
 }
 
 
@@ -2940,7 +2937,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         EvaluateSupernovae();                                                                                           // evaluate supernovae (both stars) - immediate event
         (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                             // print (log) detailed output
         if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-            (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_SN);                                          // print (log) pulsar evolution parameters 
+            (void)PrintPulsarEvolutionParameters(BSE_PULSAR_RECORD_TYPE::POST_SN);                                          // print (log) pulsar evolution parameters 
         }
     }
     else {
@@ -2963,7 +2960,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
             EvaluateSupernovae();                                                                                       // evaluate supernovae (both stars) if mass changes are responsible for a supernova
             (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_SN);                                         // print (log) detailed output
             if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-                (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_SN);                                      // print (log) pulsar evolution parameters 
+                (void)PrintPulsarEvolutionParameters(BSE_PULSAR_RECORD_TYPE::POST_SN);                                      // print (log) pulsar evolution parameters 
             }
         }
 
@@ -3178,7 +3175,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
                                                                                                                                         // yes
                     if (HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {
-                        (void)PrintPulsarEvolutionParameters(PULSAR_RECORD_TYPE::POST_BINARY_TIMESTEP);                                 // print (log) pulsar evolution parameters 
+                        (void)PrintPulsarEvolutionParameters(BSE_PULSAR_RECORD_TYPE::POST_BINARY_TIMESTEP);                                 // print (log) pulsar evolution parameters 
                     }
                         
                     if (IsDCO() && !IsUnbound()) {                                                                                      // bound double compact object?

@@ -3,6 +3,16 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.13.00 Feb 13, 2025**
+
+* Added pulsar evolution and output (SSE_Pulsar_Evolution) for SSE mode
+* Changed stopping condition for single stars to continue evolving pulsars if ``--evolve-pulsars`` is ``TRUE``
+* Updated documentation for new output
+
+**03.12.04 Feb 8, 2025**
+
+* Replaced name of ``COMPAS`` PPISN prescription with ``WOOSLEY``; ``COMPAS`` is now deprecated
+
 **03.12.00 Jan 16, 2025**
 
 * Added convective core mass prescription for main sequence stars from Shikauchi+ (2024), describing how the core mass evolves under mass loss and mass gain.
