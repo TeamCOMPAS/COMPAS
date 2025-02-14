@@ -2043,10 +2043,10 @@ void BaseBinaryStar::CalculateWindAccretionMassGain() {
 
     // if the Radius of the star is smaller than the Bondi radius, it can accrete mass through wind accretion
     if (radiusBondi1 > m_Star1->Radius()) { m_Star1->SetWindAccretionMassGain(windAccretion1); } // Msun / yr
-    else { m_Star1->SetWindAccretionMassGain(windAccretion1); }
+    else { m_Star1->SetWindAccretionMassGain(0.0); }
     
     if (radiusBondi2 > m_Star2->Radius()) { m_Star2->SetWindAccretionMassGain(windAccretion2); }// Msun / yr
-    else { m_Star2->SetWindAccretionMassGain(windAccretion2); }
+    else { m_Star2->SetWindAccretionMassGain(0.0); }
 
     // if WindAccretionPrescription is NONE, there is no wind accretion
     if (OPTIONS->WindAccretionPrescription() == WIND_ACCRETION_PRESCRIPTION::NONE) {
