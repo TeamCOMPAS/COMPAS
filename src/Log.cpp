@@ -298,6 +298,7 @@ void Log::Start(const string      p_LogBasePathString,
         if (NotesPropertyPresent(m_SSE_SNE_Rec        )) m_SSE_SNE_Notes         = BOOL_VECTOR(m_SSE_SNE_Notes.size(), true);
         if (NotesPropertyPresent(m_SSE_Switch_Rec     )) m_SSE_Switch_Notes      = BOOL_VECTOR(m_SSE_Switch_Notes.size(), true);
         if (NotesPropertyPresent(m_SSE_SysParms_Rec   )) m_SSE_SysParms_Notes    = BOOL_VECTOR(m_SSE_SysParms_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_Pulsars_Rec    )) m_SSE_Pulsars_Notes     = BOOL_VECTOR(m_SSE_Pulsars_Notes.size(), true);
 
         // process the logfile definitions file if specified
         m_Enabled = UpdateAllLogfileRecordSpecs();                                                                          // update all logfile record specifications - disable logging upon failure
@@ -2133,6 +2134,11 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
                 annotations      = m_SSE_Switch_Notes;                                                                              // logfile annotations
                 break;
 
+            case LOGFILE::SSE_PULSAR_EVOLUTION:                                                                                     // SSE_PULSAR_EVOLUTION
+                recordProperties = m_SSE_Pulsars_Rec;                                                                               // record properties
+                annotations      = m_SSE_Pulsars_Notes;                                                                             // logfile annotations
+                break;
+
             case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                    // SSE_SYSTEM_PARAMETERS
                 recordProperties = m_SSE_SysParms_Rec;                                                                              // record properties
                 annotations      = m_SSE_SysParms_Notes;                                                                            // logfile annotations
@@ -2491,6 +2497,13 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     fileDetails.recordTypes      = -1;
                     fileDetails.recordProperties = m_SSE_Switch_Rec;
                     fileDetails.annotations      = m_SSE_Switch_Notes;
+                    break;
+
+                case LOGFILE::SSE_PULSAR_EVOLUTION:                                                                                             // SSE_PULSAR_EVOLUTION
+                    fileDetails.filename         = OPTIONS->LogfilePulsarEvolution();
+                    fileDetails.recordTypes      = OPTIONS->LogfilePulsarEvolutionRecordTypes();
+                    fileDetails.recordProperties = m_SSE_Pulsars_Rec;
+                    fileDetails.annotations      = m_SSE_Pulsars_Notes;
                     break;
 
                 case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                            // SSE_SYSTEM_PARAMETERS
@@ -3142,6 +3155,10 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
             if (p_UseDefaultProps) baseProps = m_SSE_Switch_Rec;
             baseNotes = m_SSE_Switch_Notes;
             break;
+        case LOGFILE::SSE_PULSAR_EVOLUTION:
+            if (p_UseDefaultProps) baseProps = m_SSE_Pulsars_Rec;
+            baseNotes = m_SSE_Pulsars_Notes;
+            break;
         case LOGFILE::SSE_SYSTEM_PARAMETERS:
             if (p_UseDefaultProps) baseProps = m_SSE_SysParms_Rec;
             baseNotes = m_SSE_SysParms_Notes;
@@ -3247,6 +3264,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
         case LOGFILE::SSE_DETAILED_OUTPUT       : m_SSE_Detailed_Rec    = newProps; m_SSE_Detailed_Notes    = newNotes; break;
         case LOGFILE::SSE_SUPERNOVAE            : m_SSE_SNE_Rec         = newProps; m_SSE_SNE_Notes         = newNotes; break;
         case LOGFILE::SSE_SWITCH_LOG            : m_SSE_Switch_Rec      = newProps; m_SSE_Switch_Notes      = newNotes; break;
+        case LOGFILE::SSE_PULSAR_EVOLUTION      : m_SSE_Pulsars_Rec     = newProps; m_SSE_Pulsars_Notes     = newNotes; break;
         case LOGFILE::SSE_SYSTEM_PARAMETERS     : m_SSE_SysParms_Rec    = newProps; m_SSE_SysParms_Notes    = newNotes; break;
         default: break;                                                                                                 // avoids compiler warning...
     }
@@ -3287,6 +3305,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  * <rec_name>   ::= "SSE_SYSPARMS_REC"       |				# SSE only
  *                  "SSE_SWITCH_REC"         |				# SSE only
  *                  "SSE_SNE_REC"            |				# SSE only
+ *                  "SSE_PULSARS_REC"        |				# SSE only
  *                  "SSE_DETAILED_REC"       |				# SSE only
  *                  "BSE_SYSPARMS_REC"       |				# BSE only
  *                  "BSE_DCO_REC"            |				# BSE only
