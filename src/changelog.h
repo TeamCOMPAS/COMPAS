@@ -1452,11 +1452,15 @@
 // 03.12.04   IM - Feb 08, 2025     - Enhancement:
 //                                      - only reset mass0 to mass on the HG when mass0 > mass (i.e., on mass loss, not mass gain, and not if mass0 is intentionally set to yield a lower core mass as may be required by the BRCEK rejuvenation prescription)
 //                                      - replaced name of COMPAS PPISN prescription with WOOSLEY (issue #1278)
-// 03.12.05   AB - Feb 10, 2025     - Enhancement:
-//                                      - SHIKAUCHI option for main sequence core mass renamed to BRCEK
-//                                      - allowed main sequence core mass calculations for lower mass stars and replaced ODEs
-//                                      - always update Mass0 in HG.h when BRCEK prescription is used
+// 03.13.00   SS - Feb 12, 2025    - Defect repair:
+//                                      - Added SSE_Pulsar_Evolution output to address issue #1333. Prepended BSE_ to PULSAR_RECORD_TYPE and associated variables
+//                                      - Changed stopping condition for single stars to continue evolving neutron stars (as pulsars) if EvolvePulsars is True
+//                                      - Added a call to SpinDownIsolatedPulsar to Star::EvolveOneTimestep to update pulsar attributes (spin period, magnetic field etc) for single stars
+// 03.13.01   AB - Feb 14, 2025    - Enhancement:
+//                                      - Option SHIKAUCHI for main sequence core mass renamed to BRCEK
+//                                      - Allowed main sequence core mass calculations for lower mass stars
+//                                      - Always update Mass0 in HG.h when BRCEK prescription is used
 
-const std::string VERSION_STRING = "03.12.05";
+const std::string VERSION_STRING = "03.13.01";
 
 # endif // __changelog_h__

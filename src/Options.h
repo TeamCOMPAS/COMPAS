@@ -1471,7 +1471,13 @@ public:
     std::string                                 LogfileDoubleCompactObjects() const                                     { return m_CmdLine.optionValues.m_LogfileDoubleCompactObjects; }
     int                                         LogfileDoubleCompactObjectsRecordTypes() const                          { return m_CmdLine.optionValues.m_LogfileDoubleCompactObjectsRecordTypes; }
     std::string                                 LogfileNamePrefix() const                                               { return m_CmdLine.optionValues.m_LogfileNamePrefix; }
-    std::string                                 LogfilePulsarEvolution() const                                          { return m_CmdLine.optionValues.m_LogfilePulsarEvolution; }
+    std::string                                 LogfilePulsarEvolution() const                                          { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-pulsar-evolution"].defaulted()
+                                                                                                                                    ? m_CmdLine.optionValues.m_LogfilePulsarEvolution
+                                                                                                                                    : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PULSAR_EVOLUTION))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION))
+                                                                                                                                      );
+                                                                                                                        }
     int                                         LogfilePulsarEvolutionRecordTypes() const                               { return m_CmdLine.optionValues.m_LogfilePulsarEvolutionRecordTypes; }
     std::string                                 LogfileRLOFParameters() const                                           { return m_CmdLine.optionValues.m_LogfileRLOFParameters; }
     int                                         LogfileRLOFParametersRecordTypes() const                                { return m_CmdLine.optionValues.m_LogfileRLOFParametersRecordTypes; }

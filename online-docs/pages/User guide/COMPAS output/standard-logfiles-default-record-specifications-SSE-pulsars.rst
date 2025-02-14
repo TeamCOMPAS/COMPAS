@@ -1,0 +1,17 @@
+SSE pulsar evolution
+====================
+
+Default record definition for the SSE Pulsar Evolution log file::
+
+    const ANY_PROPERTY_VECTOR SSE_PULSAR_EVOLUTION_REC = {
+        STAR_PROPERTY::RANDOM_SEED,
+        STAR_PROPERTY::MASS,
+        STAR_PROPERTY::STELLAR_TYPE,
+        STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,
+        STAR_PROPERTY::PULSAR_SPIN_FREQUENCY,
+        STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE,
+        STAR_PROPERTY::PULSAR_BIRTH_PERIOD,
+        STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
+        STAR_PROPERTY::TIME,
+        STAR_PROPERTY::DT
+    };
