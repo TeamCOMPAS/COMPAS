@@ -408,6 +408,10 @@ void Options::OptionValues::Initialise() {
     m_WolfRayetFactor                                               = 1.0;
     m_ScaleTerminalWindVelocityWithMetallicityPower                 = 0.0;
 
+    // Wind accretion
+    m_WindAccretionPrescription.type                                = WIND_ACCRETION_PRESCRIPTION::NONE;
+    m_WindAccretionPrescription.typeString                          = WIND_ACCRETION_PRESCRIPTION_LABEL.at(m_WindAccretionPrescription.type);
+
     // Core mass prescription
     m_MainSequenceCoreMassPrescription.type                         = CORE_MASS_PRESCRIPTION::MANDEL;
     m_MainSequenceCoreMassPrescription.typeString                   = CORE_MASS_PRESCRIPTION_LABEL.at(m_MainSequenceCoreMassPrescription.type);
@@ -1934,6 +1938,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Very massive star mass loss prescription (" + AllowedOptionValuesFormatted("VMS-mass-loss-prescription") + ", default = '" + p_Options->m_VMSMassLossPrescription.typeString + "')").c_str()
         )
         (
+            "wind-accretion-prescription",
+            po::value<std::string>(&p_Options->m_WindAccretionPrescription.typeString)->default_value(p_Options->m_WindAccretionPrescription.typeString),
+            ("Used wind prescription for Wind accretion (default = '" + p_Options->m_WindAccretionPrescription.typeString + "')").c_str()
+        )
+        (
             "WR-mass-loss-prescription",
             po::value<std::string>(&p_Options->m_WRMassLossPrescription.typeString)->default_value(p_Options->m_WRMassLossPrescription.typeString),                                                                  
             ("WR mass loss prescription (" + AllowedOptionValuesFormatted("WR-mass-loss-prescription") + ", default = '" + p_Options->m_WRMassLossPrescription.typeString + "')").c_str()
@@ -2353,6 +2362,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Very Massive (VMS) Mass Loss Prescription");
         }
 
+        if (!DEFAULTED("wind-accretion-prescription")) {                                                                            // wind accretion prescription
+            std::tie(found, m_WindAccretionPrescription.type) = utils::GetMapKey(m_WindAccretionPrescription.typeString, WIND_ACCRETION_PRESCRIPTION_LABEL, m_WindAccretionPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Wind Accretion Prescription");
+        }
+
         if (!DEFAULTED("WR-mass-loss-prescription")) {                                                                              // WR mass loss prescription
             std::tie(found, m_WRMassLossPrescription.type) = utils::GetMapKey(m_WRMassLossPrescription.typeString, WR_MASS_LOSS_PRESCRIPTION_LABEL, m_WRMassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown WR Mass Loss Prescription");
@@ -2618,6 +2632,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                        break;
         case _("tides-prescription")                                : POPULATE_RET(TIDES_PRESCRIPTION_LABEL);                       break;
         case _("VMS-mass-loss-prescription")                        : POPULATE_RET(VMS_MASS_LOSS_PRESCRIPTION_LABEL);               break;
+        case _("wind-accretion-prescription")                       : POPULATE_RET(WIND_ACCRETION_PRESCRIPTION_LABEL);              break;
         case _("WR-mass-loss-prescription")                         : POPULATE_RET(WR_MASS_LOSS_PRESCRIPTION_LABEL);                break;
         default: break;
     }

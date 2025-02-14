@@ -1963,11 +1963,7 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
 
 
 /*
-* Calculating Wind velocity
-*
-* This function should probably be moved later but for now this is the easiest to write
-* 
-* For now this returns the wind velocity without saving this anywhere, this is something I would like to talk about with Reinhold before implementing more completely
+* Calculating Wind velocity according to the given WindAccretionPrescription()
 *
 * double CalculateWindVelocity()
 */
@@ -1975,12 +1971,36 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
 
     double escapeVelocity = std::sqrt(2 * G_AU_Msol_yr * p_DonorMass / p_DonorRadius); // AU / yr
 
-    double ratioSeparationToRadius = p_semiMajorAxis / p_DonorRadius;
-    double ratioSeparationToRadiusSquared = ratioSeparationToRadius * ratioSeparationToRadius; 
+    double windVelocity = 0;
 
-    double alpha_w = 0.04 * ratioSeparationToRadiusSquared / (1 + 0.04 * ratioSeparationToRadiusSquared);
+	switch (OPTIONS->WindAccretionPrescription()) {                                                                             // which prescription?
 
-    return alpha_w * escapeVelocity;
+        case WIND_ACCRETION_PRESCRIPTION::YUNGELSON1995: { // Wind velocity according to Yungleson (1995)
+
+            double ratioSeparationToRadius = p_semiMajorAxis / p_DonorRadius;
+            double ratioSeparationToRadiusSquared = ratioSeparationToRadius * ratioSeparationToRadius; 
+
+            double alpha_w = 0.04 * ratioSeparationToRadiusSquared / (1 + 0.04 * ratioSeparationToRadiusSquared);
+
+            windVelocity = alpha_w * escapeVelocity;
+
+        }
+
+        case WIND_ACCRETION_PRESCRIPTION::HIRAI2005: { // Wind velocity with Finite disc correction according to Hirai & Mandel (2005)
+
+            double alpha_force_multiplier = 0.5;        // I think it would be best to make this an OPTION
+
+            windVelocity = 2.5 * (alpha_force_multiplier / (1 - alpha_force_multiplier) ) * escapeVelocity * PPOW((1 - p_DonorRadius / p_semiMajorAxis),0.7);
+
+        }
+
+        case WIND_ACCRETION_PRESCRIPTION::NONE: { windVelocity = 0; } // This should not be called, but otherwise C++ complains when building COMPAS
+
+        // This function should not be called if the OPTION WIND_ACCRETION_PRESCRIPTION is not YUNGELSON1995 or HIRAI2005. Does this need an THROW_ERROR?
+    
+        default: { windVelocity = 0; } // This should not be called, but otherwise C++ complains when building COMPAS
+
+    return windVelocity; }
 
 }
 
@@ -1997,30 +2017,44 @@ void BaseBinaryStar::CalculateWindAccretionMassGain() {
     // Make sure we are in the regime where we can assume Bondi and Hoyle
     // Bondi radius: 2MG/v_dot^2
 
-    // Posibility for OPTION -> UseWindAccretion
-
     double windVelocity1 = CalculateWindVelocity(m_Star1->Mass(), m_Star1->Radius(), m_SemiMajorAxis);
     double windVelocity2 = CalculateWindVelocity(m_Star2->Mass(), m_Star2->Radius(), m_SemiMajorAxis);
 
-    double windVelocity1Pow2 = windVelocity1 * windVelocity1;
-    double windVelocity2Pow2 = windVelocity2 * windVelocity2;
+    double windVelocity1Squared = windVelocity1 * windVelocity1;
+    double windVelocity2Squared = windVelocity2 * windVelocity2;
 
-    double xi_w = 3/2; // comes from Bondi and Hoyle, look at the details
+    double xi_w = 3/2; // comes from Bondi and Hoyle, look at the details, maybe at this as an OPTION
 
     double totalMass = m_Star1->Mass() + m_Star2->Mass(); // Msun
 
     double orbitalVelocity = sqrt(G_AU_Msol_yr * ( totalMass ) / m_SemiMajorAxis); // orbital velocity in AU/yr
 
-    double v1Pow2 = (orbitalVelocity * orbitalVelocity) / (windVelocity1 * windVelocity1); 
-    double v2Pow2 = (orbitalVelocity * orbitalVelocity) / (windVelocity2 * windVelocity2);
+    double v1Squared = (orbitalVelocity * orbitalVelocity) / (windVelocity1 * windVelocity1); 
+    double v2Squared = (orbitalVelocity * orbitalVelocity) / (windVelocity2 * windVelocity2);
 
-    double AUpow2 = m_SemiMajorAxis * m_SemiMajorAxis; // use multiplication - pow() is slow
+    double AUSquared = m_SemiMajorAxis * m_SemiMajorAxis; // use multiplication - pow() is slow
 
-    double windAccretion1 = - pow(G_AU_Msol_yr * m_Star2->Mass() / windVelocity1Pow2, 2) * xi_w / (2 * AUpow2) / pow(1 + v1Pow2, 3/2) * m_Star2->MassLossDiff();
-    double windAccretion2 = - pow(G_AU_Msol_yr * m_Star1->Mass() / windVelocity2Pow2, 2) * xi_w / (2 * AUpow2) / pow(1 + v2Pow2 ,3/2) * m_Star1->MassLossDiff();
+    double windAccretion1 = - PPOW(G_AU_Msol_yr * m_Star2->Mass() / windVelocity1Squared, 2) * xi_w / (2 * AUSquared) / PPOW(1 + v1Squared, 3/2) * m_Star2->MassLossDiff();
+    double windAccretion2 = - PPOW(G_AU_Msol_yr * m_Star1->Mass() / windVelocity2Squared, 2) * xi_w / (2 * AUSquared) / PPOW(1 + v2Squared, 3/2) * m_Star1->MassLossDiff();
 
-    m_Star1->SetWindAccretionMassGain(windAccretion1); // Msun / yr
-    m_Star2->SetWindAccretionMassGain(windAccretion2); // Msun / yr
+
+    double radiusBondi1 = 2 * G_AU_Msol_yr / (windVelocity1Squared * (1 + v1Squared)) * AU_TO_RSOL; // Bondi radius in Rsol
+    double radiusBondi2 = 2 * G_AU_Msol_yr / (windVelocity2Squared * (1 + v2Squared)) * AU_TO_RSOL; // Bondi radius in Rsol
+
+    // if the Radius of the star is smaller than the Bondi radius, it can accrete mass through wind accretion
+    if (radiusBondi1 > m_Star1->Radius()) { m_Star1->SetWindAccretionMassGain(windAccretion1); } // Msun / yr
+    else { m_Star1->SetWindAccretionMassGain(windAccretion1); }
+    
+    if (radiusBondi2 > m_Star2->Radius()) { m_Star2->SetWindAccretionMassGain(windAccretion2); }// Msun / yr
+    else { m_Star2->SetWindAccretionMassGain(windAccretion2); }
+
+    // if WindAccretionPrescription is NONE, there is no wind accretion
+    if (OPTIONS->WindAccretionPrescription() == WIND_ACCRETION_PRESCRIPTION::NONE) {
+
+        m_Star1->SetWindAccretionMassGain(0.0); // Msun / yr
+        m_Star2->SetWindAccretionMassGain(0.0); // Msun / yr
+
+    }
 
 }
 

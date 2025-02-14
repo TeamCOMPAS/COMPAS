@@ -525,6 +525,8 @@ private:
         "semi-major-axis-distribution",
         "semi-major-axis-max",
         "semi-major-axis-min",
+
+        "wind-accretion-prescription"
     };
 
     
@@ -676,6 +678,7 @@ private:
         "VMW-mass-loss-prescription",
         "version", "v",
 
+        "wind-accretion-prescription",
         "WR-mass-loss-prescription",
 
         "yaml-template"
@@ -879,6 +882,9 @@ public:
             double                                              m_CoolWindMassLossMultiplier;                                   // Multiplication factor to reduce cool wind mass loss rate at each timestep
             double                                              m_OverallWindMassLossMultiplier;                                // Multiplication factor to reduce the overall wind mass loss rate at each timestep
             double                                              m_ScaleTerminalWindVelocityWithMetallicityPower;                // Power with which to scale terminal wind velocity with metallicity (v_inf ~ Z^x)
+
+            // Wind accretion
+            ENUM_OPT<WIND_ACCRETION_PRESCRIPTION>               m_WindAccretionPrescription;                                    // Which wind accretion prescription is used
 
             // Eccentricity
             double                                              m_Eccentricity;                                                 // Eccentricity
@@ -1682,6 +1688,7 @@ public:
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
 
     VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true); }
+    WIND_ACCRETION_PRESCRIPTION                 WindAccretionPrescription() const                                     { return OPT_VALUE("wind-accretion-prescription", m_WindAccretionPrescription.type, true);}
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
     WR_MASS_LOSS_PRESCRIPTION                   WRMassLossPrescription() const                                          { return OPT_VALUE("WR-mass-loss-prescription", m_WRMassLossPrescription.type, true); }
     std::string                                 YAMLfilename() const                                                    { return m_CmdLine.optionValues.m_YAMLfilename; }
