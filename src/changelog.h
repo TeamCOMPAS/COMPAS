@@ -1456,8 +1456,9 @@
 //                                      - Added SSE_Pulsar_Evolution output to address issue #1333. Prepended BSE_ to PULSAR_RECORD_TYPE and associated variables
 //                                      - Changed stopping condition for single stars to continue evolving neutron stars (as pulsars) if EvolvePulsars is True
 //                                      - Added a call to SpinDownIsolatedPulsar to Star::EvolveOneTimestep to update pulsar attributes (spin period, magnetic field etc) for single stars
-//
+// 03.13.01   IM - Feb 13, 2025    - Enhancement:
+//                                      - Allowed nuclear timescale mass transfer for evolved donors (issue #1327)
 
-const std::string VERSION_STRING = "03.13.00";
+const std::string VERSION_STRING = "03.13.01";
 
 # endif // __changelog_h__

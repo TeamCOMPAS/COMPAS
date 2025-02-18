@@ -974,6 +974,24 @@ void MainSequence::UpdateAgeAfterMassLoss() {
 }
 
 
+/*
+ * Calculate the Equilibrium zeta
+ *
+ *
+ * double CalculateZetaEquilibrium
+ *
+ * @return                                      Equilibrium zeta
+ */
+double MainSequence::CalculateZetaEquilibrium() {
+    double deltaMass           = -m_Mass / 1.0E5;
+    double radiusAfterMassGain = CalculateRadiusOnPhaseTau(m_Mass + deltaMass, m_Tau);
+    double zetaEquilibrium     = (radiusAfterMassGain - m_Radius) / deltaMass * m_Mass / m_Radius;      // dlnR / dlnM
+
+    return zetaEquilibrium;
+}
+    
+
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
 //                    MISCELLANEOUS FUNCTIONS / CONTROL FUNCTIONS                    //

@@ -1364,24 +1364,6 @@ double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
 
 
 /*
- * Calculate the Equilibrium zeta
- *
- *
- * double CalculateZetaEquilibrium
- *
- * @return                                      Equilibrium zeta
- */
-double BaseStar::CalculateZetaEquilibrium() {
-    
-    double deltaMass           = -m_Mass / 1.0E5;
-    double radiusAfterMassGain = CalculateRadiusOnPhaseTau(m_Mass + deltaMass, m_Tau);
-    double zetaEquilibrium     = (radiusAfterMassGain - m_Radius) / deltaMass * m_Mass / m_Radius;      // dlnR / dlnM
-
-    return zetaEquilibrium;
-}
-    
-
-/*
  * Calculate the critical mass ratio for unstable mass transfer
  *
  * double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, const double p_massTransferEfficiencyBeta)
