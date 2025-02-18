@@ -14,24 +14,24 @@ jobs:
         with:
           fetch-depth: 0  # Ensures full git history is available
 
-      - name: Check if changelog.h was changed
+      - name: Check if src/changelog.h was changed
         id: file_check
         run: |
           # Compare the pushed commits to see if changelog.h was updated
-          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "changelog.h"; then
-            echo "changelog.h was changed"
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "src/changelog.h"; then
+            echo "src/changelog.h was changed"
             echo "changed=true" >> $GITHUB_OUTPUT
           else
-            echo "changelog.h was NOT changed"
+            echo "src/changelog.h was NOT changed"
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Extract version string from changelog.h
+      - name: Extract version string from src/changelog.h
         id: get_version
         if: steps.file_check.outputs.changed == 'true'
         run: |
           # Assumes a line like: const std::string VERSION_STRING = "03.13.01";
-          VERSION=$(grep 'const std::string VERSION_STRING' changelog.h | sed -E 's/.*"([^"]+)".*/\1/')
+          VERSION=$(grep 'const std::string VERSION_STRING' src/changelog.h | sed -E 's/.*"([^"]+)".*/\1/')
           echo "Extracted version: ${VERSION}"
           # Export the version to be used in subsequent steps
           echo "version=${VERSION}" >> $GITHUB_ENV
