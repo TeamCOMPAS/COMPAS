@@ -1,0 +1,59 @@
+name: Tag & Release on changelog.h Update
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tag_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensures full git history is available
+
+      - name: Check if changelog.h was changed
+        id: file_check
+        run: |
+          # Compare the pushed commits to see if changelog.h was updated
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "changelog.h"; then
+            echo "changelog.h was changed"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changelog.h was NOT changed"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Extract version string from changelog.h
+        id: get_version
+        if: steps.file_check.outputs.changed == 'true'
+        run: |
+          # Assumes a line like: const std::string VERSION_STRING = "03.13.01";
+          VERSION=$(grep 'const std::string VERSION_STRING' changelog.h | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "Extracted version: ${VERSION}"
+          # Export the version to be used in subsequent steps
+          echo "version=${VERSION}" >> $GITHUB_ENV
+
+      - name: Create Git Tag
+        if: steps.file_check.outputs.changed == 'true'
+        run: |
+          # Configure Git user
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          # Prefix tag with "v". Adjust if you prefer a different format.
+          TAG="v${{ env.version }}"
+          echo "Creating tag: $TAG"
+          git tag "$TAG"
+          git push origin "$TAG"
+
+      - name: Create GitHub Release
+        if: steps.file_check.outputs.changed == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.version }}
+          name: Release v${{ env.version }}
+          body: "Auto-generated release for version v${{ env.version }}"
+          draft: false
+          prerelease: false
