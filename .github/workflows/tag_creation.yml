@@ -42,7 +42,6 @@ jobs:
           # Configure Git user
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          # Prefix tag with "v". Adjust if you prefer a different format.
           TAG="v${{ env.version }}"
           echo "Creating tag: $TAG"
           git tag "$TAG"
