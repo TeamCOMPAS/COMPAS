@@ -755,12 +755,7 @@ double HG::CalculateLuminosityAtPhaseEnd(const double p_Mass) const {
 double HG::CalculateLuminosityOnPhase(const double p_Age, const double p_Mass) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
-    double LTMS;
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0) && (utils::Compare(m_MZAMS, 15.0) <= 0))
-        LTMS = MainSequence::CalculateLuminosityAtPhaseEnd(m_Mass);                                            // ensures continuity of stellar tracks for lower mass stars when BRCEK core mass prescription is used
-    else
-        LTMS = MainSequence::CalculateLuminosityAtPhaseEnd(p_Mass);
-    
+    double LTMS = MainSequence::CalculateLuminosityAtPhaseEnd(p_Mass);
     double LEHG = CalculateLuminosityAtPhaseEnd(p_Mass);
     double tMS  = timescales(tMS);
     double tBGB = timescales(tBGB);
