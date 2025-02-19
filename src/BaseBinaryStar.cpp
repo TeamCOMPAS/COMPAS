@@ -2020,8 +2020,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                                                                                  donorIsHeRich);
     double massDiffDonor            = 0.0;
         
-    // can the mass transfer happen on a nuclear timescale?  only considering this for MS donors
-    if (m_Donor->IsOneOf(ALL_MAIN_SEQUENCE)) {
+    // can the mass transfer happen on a nuclear timescale?
+    if (m_Donor->IsOneOf(NON_COMPACT_OBJECTS)) {
         // technically, we do not know how much mass the accretor should gain until we do the calculation, which impacts the RL size, so we will check whether a nuclear timescale MT was feasible later
         double maximumAccretedMass = maximumAccretionRate * m_Dt;
         if (OPTIONS->MassTransferAccretionEfficiencyPrescription() == MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED) {
@@ -2034,7 +2034,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         }
         
         // check that the star really would have consistently fit into the Roche lobe
-        double zetaEquilibrium = m_Donor->CalculateZetaEquilibrium();                                                               // note: value is only meaningful for MS donor
+        double zetaEquilibrium = m_Donor->CalculateZetaEquilibrium();
         double zetaLobe = CalculateZetaRocheLobe(jLoss, m_FractionAccreted);
         if (utils::Compare(zetaEquilibrium, zetaLobe) > 0  && massDiffDonor > 0.0) {                                                // yes, it's nuclear timescale mass transfer; no need for utils::Compare here
             m_MassLossRateInRLOF    = massDiffDonor / m_Dt;
