@@ -42,7 +42,7 @@ protected:
         CalculateTimescales();                                                                                                                          // Initialise timescales
         // Age for MS_GT_07 is carried over from CH stars switching to MS after spinning down, so not set to 0.0 here
         
-        // Initialise core mass, luminosity, radius, and temperature if Shikauchi core mass prescription is used
+        // Initialise core mass, luminosity, radius, and temperature if Brcek core mass prescription is used
         // Only do this once - this should not be done if a CH star spins down and becomes a MS star (when using CHE_MODE::PESSIMISTIC)
         if (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK &&                                                             // Brcek core mass prescription?
             utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0                         &&                                                             // ZAMS mass >= BRCEK_LOWER_MASS_LIMIT?
