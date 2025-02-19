@@ -3,6 +3,10 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.13.01 Feb 13, 2025**
+
+* Enabled nuclear timescale mass transfer from evolved donors
+
 **03.13.00 Feb 13, 2025**
 
 * Added pulsar evolution and output (SSE_Pulsar_Evolution) for SSE mode

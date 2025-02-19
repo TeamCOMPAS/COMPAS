@@ -108,6 +108,8 @@ protected:
             void            CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
     
             double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                  { return GiantBranch::CalculateZetaConstantsByEnvelope(p_ZetaPrescription); } // Calculate Zetas as for other giant stars (HeMS stars were an exception)
+    
+            double          CalculateZetaEquilibrium()                                                              { return -std::numeric_limits<double>::infinity(); }                     // Nuclear timescale MT should be impossible from HG stars that evolve on a thermal timescale
 
             double          ChooseTimestep(const double p_Time) const;
 

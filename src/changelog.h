@@ -1456,11 +1456,13 @@
 //                                      - Added SSE_Pulsar_Evolution output to address issue #1333. Prepended BSE_ to PULSAR_RECORD_TYPE and associated variables
 //                                      - Changed stopping condition for single stars to continue evolving neutron stars (as pulsars) if EvolvePulsars is True
 //                                      - Added a call to SpinDownIsolatedPulsar to Star::EvolveOneTimestep to update pulsar attributes (spin period, magnetic field etc) for single stars
-// 03.13.01   AB - Feb 14, 2025    - Enhancement:
+// 03.13.01   IM - Feb 13, 2025    - Enhancement:
+//                                      - Allowed nuclear timescale mass transfer for evolved donors (issue #1327)
+// 03.13.02   AB - Feb 19, 2025    - Enhancement:
 //                                      - Option SHIKAUCHI for main sequence core mass renamed to BRCEK
 //                                      - Allowed main sequence core mass calculations for lower mass stars
 //                                      - Always update Mass0 in HG.h when BRCEK prescription is used
 
-const std::string VERSION_STRING = "03.13.01";
+const std::string VERSION_STRING = "03.13.02";
 
 # endif // __changelog_h__
