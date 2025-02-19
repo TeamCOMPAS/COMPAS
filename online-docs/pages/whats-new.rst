@@ -3,6 +3,10 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.13.02 Feb 19, 2025**
+
+* Replaced name of ``SHIKAUCHI`` main sequence core mass prescription with ``BRCEK``.
+
 **03.13.01 Feb 13, 2025**
 
 * Enabled nuclear timescale mass transfer from evolved donors
@@ -20,7 +24,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 **03.12.00 Jan 16, 2025**
 
 * Added convective core mass prescription for main sequence stars from Shikauchi+ (2024), describing how the core mass evolves under mass loss and mass gain.
-* New command line option ``--main-sequence-core-mass-prescription`` with arguments ``BRCEK`` (new prescription), ``MANDEL`` (replaces the functionality of ``--retain-core-mass-during-caseA-mass-transfer``), and ``ZERO`` (core mass set to zero, no treatment).
+* New command line option ``--main-sequence-core-mass-prescription`` with arguments ``SHIKAUCHI`` (new prescription), ``MANDEL`` (replaces the functionality of ``--retain-core-mass-during-caseA-mass-transfer``), and ``ZERO`` (core mass set to zero, no treatment).
 * Updated stellar tracks with added luminosity prescription for main sequence stars from Shikauchi+ (2024).
 * Added treatment for rejuvenation of main sequence accretors when the new prescription is used.
 

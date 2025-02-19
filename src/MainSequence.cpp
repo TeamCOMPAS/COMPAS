@@ -295,7 +295,7 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
         if (utils::Compare(p_Time, 0.99 * tMS) > 0)                                                                             // star in MS hook?
             return CalculateLuminosityTransitionToHG(p_Mass, p_Time, p_LZAMS);
         else {
-            if (utils::Compare(m_MZAMS, 15.0) >= 0)
+            if (utils::Compare(m_MZAMS, 15.0) >= 0)                                                                             // use Shikauchi luminosity if MZAMS >= 15 Msun
                 return CalculateLuminosityShikauchi(m_MainSequenceCoreMass, m_HeliumAbundanceCore);
         }
     }
@@ -367,8 +367,8 @@ double MainSequence::CalculateLuminosityTransitionToHG(const double p_Mass, cons
     double luminosityTAMS = clone->Luminosity();                                                                                // Get luminosity from clone (with updated Mass0)
     delete clone; clone = nullptr;                                                                                              // Return the memory allocated for the clone
     
-    double tMS               = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
-    double ageAtHookStart    = 0.99 * tMS;
+    double tMS            = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
+    double ageAtHookStart = 0.99 * tMS;
     
     double luminosityAtHookStart;
     if (utils::Compare(m_MZAMS, std::max(15.0, BRCEK_LOWER_MASS_LIMIT)) >= 0)
