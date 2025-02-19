@@ -819,7 +819,9 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 
     double RTMS;  
     if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0))
-        RTMS = MainSequence::CalculateRadiusAtPhaseEnd(m_Mass, p_RZAMS);                                            // ensures continuity of stellar tracks when BRCEK core mass prescription is used
+        // p_Mass generally has the value of m_Mass0, but since m_Mass is used for radius calculations on the MS and m_Mass0
+        // is updated to a new value when BRCEK prescription is used, we need to use m_Mass here to keep radius continuous
+        RTMS = MainSequence::CalculateRadiusAtPhaseEnd(m_Mass, p_RZAMS);
     else
         RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
 
