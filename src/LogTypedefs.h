@@ -1704,6 +1704,7 @@ enum class LOGFILE: int {
     BSE_DOUBLE_COMPACT_OBJECTS,
     BSE_PULSAR_EVOLUTION,
     BSE_RLOF_PARAMETERS,
+    BSE_WRLOF_PARAMETERS,
     BSE_SUPERNOVAE,
     BSE_SWITCH_LOG,
     BSE_SYSTEM_PARAMETERS,
@@ -1736,6 +1737,10 @@ enum class BSE_PULSAR_RECORD_TYPE: unsigned int {                               
 
 enum class RLOF_RECORD_TYPE: unsigned int {                                                                         // BSE_RLOF_PARAMETERS file record type
     DEFAULT = 1                                                                                                     // 1 - default BSE_RLOF_PARAMETERS file record type
+};
+
+enum class WRLOF_RECORD_TYPE: unsigned int {                                                                        // BSE_WRLOF_PARAMETERS file record type
+    DEFAULT = 1                                                                                                     // 1 - default BSE_WRLOF_PARAMETERS file record type
 };
 
 enum class BSE_DETAILED_RECORD_TYPE: unsigned int {                                                                 // BSE_DETAILED_OUTPUT file record type
@@ -2080,6 +2085,16 @@ const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
 };
 
 
+// BSE_WRLOF_PARAMETERS_REC
+//
+// Default record definition for the WRLOF Parameters logfile
+//
+const ANY_PROPERTY_VECTOR BSE_WRLOF_PARAMETERS_REC = {
+    BINARY_PROPERTY::RANDOM_SEED,
+    // RTW TODO
+};
+
+
 // BSE_SUPERNOVAE_REC
 //
 // Default record definition for the BSE Supernovae logfile
@@ -2291,6 +2306,7 @@ const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
     { LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, { "BSE_Double_Compact_Objects",     BSE_DOUBLE_COMPACT_OBJECTS_REC, "BSE_DCO",         "BSE_DCO_REC",         LOGFILE_CLASS::BINARY }},
     { LOGFILE::BSE_PULSAR_EVOLUTION,       { "BSE_Pulsar_Evolution",           BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",     "BSE_PULSARS_REC",     LOGFILE_CLASS::BINARY }},
     { LOGFILE::BSE_RLOF_PARAMETERS,        { "BSE_RLOF",                       BSE_RLOF_PARAMETERS_REC,        "BSE_RLOF",        "BSE_RLOF_REC",        LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_WRLOF_PARAMETERS,       { "BSE_WRLOF",                      BSE_WRLOF_PARAMETERS_REC,       "BSE_WRLOF",       "BSE_WRLOF_REC",       LOGFILE_CLASS::BINARY }},
     { LOGFILE::BSE_SUPERNOVAE,             { "BSE_Supernovae",                 BSE_SUPERNOVAE_REC,             "BSE_SNE",         "BSE_SNE_REC",         LOGFILE_CLASS::BINARY }},
     { LOGFILE::BSE_SWITCH_LOG,             { "BSE_Switch_Log",                 BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",  "BSE_SWITCH_REC",      LOGFILE_CLASS::BINARY }},
     { LOGFILE::BSE_SYSTEM_PARAMETERS,      { "BSE_System_Parameters",          BSE_SYSTEM_PARAMETERS_REC,      "BSE_SYSPARMS",    "BSE_SYSPARMS_REC",    LOGFILE_CLASS::BINARY }},

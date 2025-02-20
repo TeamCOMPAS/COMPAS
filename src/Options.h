@@ -818,6 +818,7 @@ public:
             bool                                                m_PrintBoolAsString;                                            // Flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
             bool                                                m_Quiet;                                                        // Suppress some output
             bool                                                m_RlofPrinting;                                                 // RLOF printing
+            bool                                                m_WrlofPrinting;                                                // WRLOF printing
 
             bool                                                m_ShortHelp;                                                    // Flag to indicate whether user wants short help ('-h', just option names) or long help ('--help', plus descriptions)
 
@@ -1158,6 +1159,7 @@ public:
             std::string                                         m_LogfileSupernovae;                                            // output file name: supernovae
             std::string                                         m_LogfileCommonEnvelopes;                                       // output file name: common envelopes
             std::string                                         m_LogfileRLOFParameters;                                        // output file name: Roche Lobe overflow
+            std::string                                         m_LogfileWRLOFParameters;                                       // output file name: Wind Roche Lobe overflow
             std::string                                         m_LogfilePulsarEvolution;                                       // output file name: pulsar evolution
             std::string                                         m_LogfileSwitchLog;                                             // output file name: switch log
 
@@ -1167,6 +1169,7 @@ public:
             int                                                 m_LogfileSupernovaeRecordTypes;                                 // enabled record types: supernovae
             int                                                 m_LogfileCommonEnvelopesRecordTypes;                            // enabled record types: common envelopes
             int                                                 m_LogfileRLOFParametersRecordTypes;                             // enabled record types: Roche Lobe overflow
+            int                                                 m_LogfileWRLOFParametersRecordTypes;                            // enabled record types: Wind Roche Lobe overflow
             int                                                 m_LogfilePulsarEvolutionRecordTypes;                            // enabled record types: pulsar evolution
 
             ENUM_OPT<ADD_OPTIONS_TO_SYSPARMS>                   m_AddOptionsToSysParms;                                         // Whether/when to add program option columns to BSE/SSE sysparms file
@@ -1487,6 +1490,8 @@ public:
     int                                         LogfilePulsarEvolutionRecordTypes() const                               { return m_CmdLine.optionValues.m_LogfilePulsarEvolutionRecordTypes; }
     std::string                                 LogfileRLOFParameters() const                                           { return m_CmdLine.optionValues.m_LogfileRLOFParameters; }
     int                                         LogfileRLOFParametersRecordTypes() const                                { return m_CmdLine.optionValues.m_LogfileRLOFParametersRecordTypes; }
+    std::string                                 LogfileWRLOFParameters() const                                          { return m_CmdLine.optionValues.m_LogfileWRLOFParameters; }
+    int                                         LogfileWRLOFParametersRecordTypes() const                               { return m_CmdLine.optionValues.m_LogfileWRLOFParametersRecordTypes; }
     std::string                                 LogfileSupernovae() const                                               { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-supernovae"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileSupernovae
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
@@ -1641,6 +1646,7 @@ public:
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
     
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
+    bool                                        WRLOFPrinting() const                                                   { return m_CmdLine.optionValues.m_WrlofPrinting; }
 
     double                                      RocketKickMagnitude1() const                                            { return OPT_VALUE("rocket-kick-magnitude-1", m_RocketKickMagnitude1, true); }
     double                                      RocketKickMagnitude2() const                                            { return OPT_VALUE("rocket-kick-magnitude-2", m_RocketKickMagnitude2, true); }
@@ -1688,7 +1694,7 @@ public:
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
 
     VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true); }
-    WIND_ACCRETION_PRESCRIPTION                 WindAccretionPrescription() const                                     { return OPT_VALUE("wind-accretion-prescription", m_WindAccretionPrescription.type, true);}
+    WIND_ACCRETION_PRESCRIPTION                 WindAccretionPrescription() const                                       { return OPT_VALUE("wind-accretion-prescription", m_WindAccretionPrescription.type, true);}
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
     WR_MASS_LOSS_PRESCRIPTION                   WRMassLossPrescription() const                                          { return OPT_VALUE("WR-mass-loss-prescription", m_WRMassLossPrescription.type, true); }
     std::string                                 YAMLfilename() const                                                    { return m_CmdLine.optionValues.m_YAMLfilename; }

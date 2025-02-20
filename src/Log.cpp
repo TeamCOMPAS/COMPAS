@@ -289,6 +289,7 @@ void Log::Start(const string      p_LogBasePathString,
         if (NotesPropertyPresent(m_BSE_Detailed_Rec   )) m_BSE_Detailed_Notes    = BOOL_VECTOR(m_BSE_Detailed_Notes.size(), true);
         if (NotesPropertyPresent(m_BSE_Pulsars_Rec    )) m_BSE_Pulsars_Notes     = BOOL_VECTOR(m_BSE_Pulsars_Notes.size(), true);
         if (NotesPropertyPresent(m_BSE_RLOF_Rec       )) m_BSE_RLOF_Notes        = BOOL_VECTOR(m_BSE_RLOF_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_WRLOF_Rec      )) m_BSE_WRLOF_Notes       = BOOL_VECTOR(m_BSE_WRLOF_Notes.size(), true);
         if (NotesPropertyPresent(m_BSE_SNE_Rec        )) m_BSE_SNE_Notes         = BOOL_VECTOR(m_BSE_SNE_Notes.size(), true);
         if (NotesPropertyPresent(m_BSE_Switch_Rec     )) m_BSE_Switch_Notes      = BOOL_VECTOR(m_BSE_Switch_Notes.size(), true);
         if (NotesPropertyPresent(m_BSE_SysParms_Rec   )) m_BSE_SysParms_Notes    = BOOL_VECTOR(m_BSE_SysParms_Notes.size(), true);
@@ -2089,6 +2090,11 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
                 annotations      = m_BSE_RLOF_Notes;                                                                                // logfile annotations
                 break;
 
+            case LOGFILE::BSE_WRLOF_PARAMETERS:                                                                                     // BSE_WRLOF_PARAMETERS
+                recordProperties = m_BSE_WRLOF_Rec;                                                                                 // record properties
+                annotations      = m_BSE_WRLOF_Notes;                                                                               // logfile annotations
+                break;
+
             case LOGFILE::BSE_SUPERNOVAE:                                                                                           // BSE_SUPERNOVAE
                 recordProperties = m_BSE_SNE_Rec;                                                                                   // record properties
                 annotations      = m_BSE_SNE_Notes;                                                                                 // logfile annotations
@@ -2447,6 +2453,13 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     fileDetails.recordTypes      = OPTIONS->LogfileRLOFParametersRecordTypes();
                     fileDetails.recordProperties = m_BSE_RLOF_Rec;
                     fileDetails.annotations      = m_BSE_RLOF_Notes;
+                    break;
+
+                case LOGFILE::BSE_WRLOF_PARAMETERS:                                                                                             // BSE_WRLOF_PARAMETERS
+                    fileDetails.filename         = OPTIONS->LogfileWRLOFParameters();
+                    fileDetails.recordTypes      = OPTIONS->LogfileWRLOFParametersRecordTypes();
+                    fileDetails.recordProperties = m_BSE_WRLOF_Rec;
+                    fileDetails.annotations      = m_BSE_WRLOF_Notes;
                     break;
 
                 case LOGFILE::BSE_SUPERNOVAE:                                                                                                   // BSE_SUPERNOVAE
@@ -3131,6 +3144,10 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
             if (p_UseDefaultProps) baseProps = m_BSE_RLOF_Rec;
             baseNotes = m_BSE_RLOF_Notes;
             break;
+        case LOGFILE::BSE_WRLOF_PARAMETERS:
+            if (p_UseDefaultProps) baseProps = m_BSE_WRLOF_Rec;
+            baseNotes = m_BSE_WRLOF_Notes;
+            break;
         case LOGFILE::BSE_SUPERNOVAE:
             if (p_UseDefaultProps) baseProps = m_BSE_SNE_Rec;
             baseNotes = m_BSE_SNE_Notes;
@@ -3258,6 +3275,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
         case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec         = newProps; m_BSE_DCO_Notes         = newNotes; break;
         case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec     = newProps; m_BSE_Pulsars_Notes     = newNotes; break;
         case LOGFILE::BSE_RLOF_PARAMETERS       : m_BSE_RLOF_Rec        = newProps; m_BSE_RLOF_Notes        = newNotes; break;
+        case LOGFILE::BSE_WRLOF_PARAMETERS      : m_BSE_WRLOF_Rec       = newProps; m_BSE_WRLOF_Notes       = newNotes; break;
         case LOGFILE::BSE_SUPERNOVAE            : m_BSE_SNE_Rec         = newProps; m_BSE_SNE_Notes         = newNotes; break;
         case LOGFILE::BSE_SWITCH_LOG            : m_BSE_Switch_Rec      = newProps; m_BSE_Switch_Notes      = newNotes; break;
         case LOGFILE::BSE_SYSTEM_PARAMETERS     : m_BSE_SysParms_Rec    = newProps; m_BSE_SysParms_Notes    = newNotes; break;
@@ -3312,6 +3330,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  *                  "BSE_SNE_REC"            |				# BSE only
  *                  "BSE_CEE_REC"            |				# BSE only
  *                  "BSE_RLOF_REC"           |				# BSE only
+ *                  "BSE_WRLOF_REC"          |				# BSE only
  *                  "BSE_PULSARS_REC"        |				# BSE only
  *                  "BSE_DETAILED_REC"	     |				# BSE only
  *                  "BSE_SWITCH_REC"		   			    # BSE only

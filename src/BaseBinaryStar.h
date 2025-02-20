@@ -452,7 +452,7 @@ private:
                                   const double p_DonorRadius, 
                                   const double p_semiMajorAxis);
                                   
-    void    CalculateWindAccretionMassGain();
+    void    CalculateWindAccretionRate();
     void    InitialiseMassTransfer();
 
     double  CalculateOrbitalAngularMomentum(const double p_Star1Mass,
@@ -525,6 +525,8 @@ private:
 
     bool PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType = RLOF_RECORD_TYPE::DEFAULT);
     
+    bool PrintWRLOFParameters(const WRLOF_RECORD_TYPE p_RecordType = WRLOF_RECORD_TYPE::DEFAULT);
+
     bool PrintBinarySystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::DEFAULT) const { 
         return LOGGING->LogBSESystemParameters(this, p_RecordType);
     }
