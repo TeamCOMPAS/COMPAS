@@ -86,6 +86,7 @@ protected:
             double           CalculateInitialSupernovaMass() const                          { return 0.0; }
 
             double           CalculateRadiusOnPhase(const double p_Mass) const              { return CalculateRadiusOnPhase_Static(p_Mass); }
+            double           CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const   { return CalculateRadiusOnPhase (p_Mass); }     // ignore luminosity argument for WDs
             double           CalculateRadiusOnPhase() const                                 { return CalculateRadiusOnPhase(m_Mass); }                  // Use class member variables
 
             ENVELOPE         DetermineEnvelopeType() const                                  { return ENVELOPE::CONVECTIVE; }                            // Always CONVECTIVE
