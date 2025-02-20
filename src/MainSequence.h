@@ -85,6 +85,8 @@ protected:
 
     double          CalculateRadialExtentConvectiveEnvelope() const;
 
+    double          CalculateRadiusOnMassChange(double p_dM)                                { return CalculateRadiusOnPhaseTau(m_Mass + p_dM, m_Tau); }
+    
     double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const;
 
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Time, const double p_RZAMS) const;
