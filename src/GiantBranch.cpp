@@ -639,7 +639,7 @@ double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
 
     double LHeI      = CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
     double RmHe      = CHeB::CalculateMinimumRadiusOnPhase_Static(p_Mass, m_CoreMass, m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_MinimumLuminosityOnPhase, m_BnCoefficients);
-    double RGB_LHeI  = GiantBranch::CalculateRadiusOnPhase(p_Mass, LHeI);
+    double RGB_LHeI  = CalculateRadiusOnPhase(p_Mass, LHeI);
 
     if (utils::Compare(p_Mass, massCutoffs(MFGB)) <= 0) {
         RHeI = RGB_LHeI;
