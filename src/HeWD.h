@@ -83,7 +83,7 @@ protected:
                                                 const bool   p_IsHeRich)                                    { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); }            // Ignore the input accretion rate for WDs
 
     double          CalculateRadiusOnPhase(const double p_Mass) const                                       { return CalculateRadiusOnPhase_Static(p_Mass); }
-    double          CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const   { return CalculateRadiusOnPhase (p_Mass); }     // ignore luminosity argument for WDs
+    double          CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const                        { return CalculateRadiusOnPhase(p_Mass); }                                      // ignore luminosity argument for WDs
     double          CalculateRadiusOnPhase() const                                                          { return CalculateRadiusOnPhase(m_Mass); }                                      // Use class member variables
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                          { return BaseStar::CalculateRadiusAndStellarTypeOnPhase(); }
 
