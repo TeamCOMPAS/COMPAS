@@ -38,16 +38,16 @@ public:
 protected:
     // member variables
 
-            bool                    m_HeShellDetonation;                                                                                                // Flag to initialize He-Shell detonation (i.e. as described in Wang. 2018, sect 5 2018RAA....18...49W)
-            double                  m_HeShell;                                                                                                          // Current WD He-shell size (Msol). Increases through accretion.
-            double                  m_HShell;                                                                                                           // Current WD H-shell size (Msol). Increases through accretion.
-            double                  m_l0Ritter;                                                                                                         // Parameter from numerical calculations, see Ritter 1999, section 3. Eqs 10 and 12, as well as table 2. Corresponds to L0.
-            double                  m_LambdaRitter;                                                                                                     // Parameter from numerical calculations, see Ritter 1999, section 3. Eqs 10 and 12, as well as table 2.
-            bool                    m_OffCenterIgnition;                                                                                                // Flag for CO WD evolution into ONe WD
-            bool                    m_ShouldRejuvenate;                                                                                                 // Flag for evolution of HeWD back into HeMS
-            bool                    m_IsSubChandrasekharTypeIa;                                                                                         // Flag for SubCh SN of HeWD
-            double                  m_XRitter;                                                                                                          // Assumed hydrogen-mass fraction of material being accreted by He WD, as in Ritter 1999, table 2.
-            ACCRETION_REGIME        m_AccretionRegime;
+            bool             m_HeShellDetonation;                                                                                                       // Flag to initialize He-Shell detonation (i.e. as described in Wang. 2018, sect 5 2018RAA....18...49W)
+            double           m_HeShell;                                                                                                                 // Current WD He-shell size (Msol). Increases through accretion.
+            double           m_HShell;                                                                                                                  // Current WD H-shell size (Msol). Increases through accretion.
+            double           m_L0Ritter;                                                                                                                // Parameter from numerical calculations, see Ritter 1999, section 3. Eqs 10 and 12, as well as table 2. Corresponds to L0.
+            double           m_LambdaRitter;                                                                                                            // Parameter from numerical calculations, see Ritter 1999, section 3. Eqs 10 and 12, as well as table 2.
+            bool             m_OffCenterIgnition;                                                                                                       // Flag for CO WD evolution into ONe WD
+            bool             m_ShouldRejuvenate;                                                                                                        // Flag for evolution of HeWD back into HeMS
+            bool             m_IsSubChandrasekharTypeIa;                                                                                                // Flag for SubCh SN of HeWD
+            double           m_XRitter;                                                                                                                 // Assumed hydrogen-mass fraction of material being accreted by He WD, as in Ritter 1999, table 2.
+            ACCRETION_REGIME m_AccretionRegime;
             
             // member functions - alphabetically
             double           CalculateAccretionRegime(const bool   p_DonorIsHeRich,
@@ -79,9 +79,9 @@ protected:
                                                          const double p_AccretorMassRate,
                                                          const bool   p_IsHeRich)           { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); }
 
-            double           CalculateXRitter() const                                       { return (Utils::Compare(m_Metallicity, 0.01) > 0 ? 0.7 : 0.8; } // Assumed Hydrogen-mass fraction
+            double           CalculateXRitter() const                                       { return utils::Compare(m_Metallicity, 0.01) > 0 ? 0.7 : 0.8; } // Assumed Hydrogen-mass fraction
 
-            double           CalculateLambdaRitter() const                                  { return (Utils::Compare(m_Metallicity, 0.01) > 0 ? 8.0 : 5.0; } // Exponent for the assumed core-mass and luminosity relationship in Ritter 1999
+            double           CalculateLambdaRitter() const                                  { return utils::Compare(m_Metallicity, 0.01) > 0 ? 8.0 : 5.0; } // Exponent for the assumed core-mass and luminosity relationship in Ritter 1999
 
             double           CalculateInitialSupernovaMass() const                          { return 0.0; }
 
