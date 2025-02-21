@@ -282,10 +282,18 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
 
         L = get_L(T)
         ax.plot(T_K, L, '--k', alpha=0.2)
+
         # Plot the Rsol text at the bottom and right
-        Lbot = ylim[0] * 8  # Lsun  -2
-        Trgt = xlim[0] * 2  # 3e3
-        Tbot = np.sqrt(np.sqrt(Lbot / (R * R))) * 6e3  # K
+        logymin = np.log10(ylim[0])
+        logymax = np.log10(ylim[1])
+        logyrange = logymax - logymin
+        
+        logLbot = logymin + 0.1 * logyrange              # place labels some fraction of the y-axis up the plot
+
+        Lbot = 10**logLbot 
+        Trgt = xlim[0] * 2                              
+        
+        Tbot = np.sqrt(np.sqrt(Lbot / (R * R))) * 6e3   # K
         Lrgt = get_L(Trgt / 6e3)
         alpha = 0.4
         if use_latex:
@@ -301,7 +309,7 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
     ax.invert_xaxis() # invert x-axis
-    
+
     # Add in the letters corresponding to various events
     event_times = [event.time for event in events]
     mask2 = mask & (np.in1d(Data['Time'][()], event_times))
