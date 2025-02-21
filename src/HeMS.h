@@ -132,6 +132,7 @@ protected:
             double          CalculateRadiusOnMassChange(double p_dM)                                                { return CalculateRadiusOnPhaseTau(m_Mass + p_dM, m_Tau); }
             double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const                { return CalculateRadiusOnPhase_Static(p_Mass, p_Tau); }
             double          CalculateRadiusOnPhase() const                                                          { return CalculateRadiusOnPhaseTau(m_Mass, m_Tau); }                            // Use class member variables
+            double          CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const                        { return CalculateRadiusOnPhase(); }        // not a meaningful calculation for HeMS star, ignore arguments
 
             double          CalculateTauAtPhaseEnd() const                                                          { return 1.0; }
             double          CalculateTauOnPhase() const                                                             { return m_Age / m_Timescales[static_cast<int>(TIMESCALE::tHeMS)]; }
