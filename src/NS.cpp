@@ -429,16 +429,16 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
  * @param   [IN]    p_MagField                  NS magnetic field strength at the beginning of accretion (in Gauss)
  * @param   [IN]    p_SpinFrequency             Spin frequency for the NS at the beginning of accretion (in Hz)
  * @param   [IN]    p_AngularMomentum           Angular momentum of the NS at the beginning of accretion (g cm-2 / s)
- * @param   [IN]    p_Stepsize                  Timestep size for integration (in seconds)
+ * @param   [IN]    p_mDot                      Mass transfer rate (in gram / seconds)
  * @param   [IN]    p_Kappa                     Magnetic field mass decay scale (in g)
  * @param   [IN]    p_Epsilon                   Efficiency factor allowing for uncertainties of coupling magnetic field and matter.
  * @param   [IN]    p_MoI                       Moment of Inertia (in g cm^2)
  * @return                                      Tuple containing the updated magnetic field strength, spin frequency and change in the angular momentum of neutron star
  */
 
-DBL_DBL_DBL NS::DeltaAngularMomentumByPulsarAccretion_Static(const double p_MassGainPerTimeStep, const double p_Mass, const double p_Radius, const double p_MagField, const double p_SpinFrequency, const double p_AngularMomentum, const double p_Stepsize, const double p_Kappa, const double p_Epsilon, const double p_MoI, const bool to_print)  {
+double NS::DeltaAngularMomentumByPulsarAccretion_Static(const double p_MassGainPerTimeStep, const double p_Mass, const double p_Radius, const double p_MagField, const double p_SpinFrequency, const double p_AngularMomentum, const double p_mDot, const double p_Kappa, const double p_Epsilon, const double p_MoI, const bool to_print)  {
     if (utils::Compare(p_MassGainPerTimeStep, 0.0) <= 0) {
-        return std::make_tuple(0.0, 0.0, 0.0);
+        return 0.0; //std::make_tuple(0.0, 0.0, 0.0);
     }
     double initialMagField        = p_MagField;         
     double magFieldLowerLimit     = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) ;                                                        
@@ -446,18 +446,18 @@ DBL_DBL_DBL NS::DeltaAngularMomentumByPulsarAccretion_Static(const double p_Mass
     double r_cm                   = p_Radius * RSOL_TO_KM * KM_TO_CM;    
     double angularMomentum        = p_AngularMomentum;
     
-    //Magnetic field decay due to mass transfer. 
-    //Follows Eq. 12 in arxiv:1912.02415 
-    double newPulsarMagneticField = (initialMagField - magFieldLowerLimit) * exp(-p_MassGainPerTimeStep / p_Kappa) + magFieldLowerLimit;
+    //  Magnetic field decay due to mass transfer. 
+    //  Follows Eq. 12 in arxiv:1912.02415 
+    // double newPulsarMagneticField = (initialMagField - magFieldLowerLimit) * exp(-p_MassGainPerTimeStep / p_Kappa) + magFieldLowerLimit;
     // std::cout << "In INT " << p_MagField << " " << p_AngularMomentum << " " << p_SpinFrequency << std::endl;
     if (to_print) {
         std::cout << "In INT " << p_MagField << " " << magFieldLowerLimit << " " << p_MassGainPerTimeStep << " " << p_SpinFrequency << std::endl;;
     }
     // calculate the Alfven radius for an accreting neutron star
     // see Equation 10 in arxiv:1912.02415 
-    double mDot           =  p_MassGainPerTimeStep / p_Stepsize;
+    //double mDot           =  p_mDot; ///p_MassGainPerTimeStep / p_Stepsize;
     double R_CM_6         =  r_cm * r_cm * r_cm * r_cm * r_cm * r_cm;
-    double p              =  R_CM_6 * R_CM_6 / (mDot * mDot * mass_g);
+    double p              =  R_CM_6 * R_CM_6 / (p_mDot * p_mDot * mass_g);
     double q              =  PPOW(p, 1.0/7.0);
     double alfvenConst    =  PPOW(2 * PI_2 / G_CGS, 1.0/7.0) ; 
     double alfvenRadius   =  alfvenConst * q * PPOW(initialMagField, 4.0/7.0); 
@@ -473,19 +473,22 @@ DBL_DBL_DBL NS::DeltaAngularMomentumByPulsarAccretion_Static(const double p_Mass
     
     // calculate the change in angular momentum due to accretion
     // see Equation 12 in arXiv:0805.0059/ Equation 8 in arxiv:1912.02415 
-    // double deltaJ        =  p_Epsilon * omegaDifference * magneticRadius * magneticRadius ;
-    double Jdot          =  p_Epsilon * omegaDifference * magneticRadius * magneticRadius * mDot; 
+    double deltaJdm      =  p_Epsilon * omegaDifference * magneticRadius * magneticRadius ;
+    double Jdot          =  p_Epsilon * omegaDifference * magneticRadius * magneticRadius * p_mDot; 
+    //double newAM         =  angularMomentum + Jdot * p_Stepsize ;
     if (to_print){
-        std::cout << "In INT2 " <<p_MassGainPerTimeStep << " " << p_Stepsize << " " << mDot << " " <<  magneticRadius << " " << keplerianAngularVelocityAtMagneticRadius << " " << p_SpinFrequency << " " <<  (angularMomentum + Jdot * p_Stepsize) / p_MoI << std::endl ; 
+        std::cout << "In INT2: dM=" <<p_MassGainPerTimeStep << " ,mDot=" << p_mDot 
+        << " ,RA=" <<  magneticRadius << " ,OK=" << keplerianAngularVelocityAtMagneticRadius << std::endl ; 
     }
     
-    return std::make_tuple(newPulsarMagneticField, 
-                           (angularMomentum + Jdot * p_Stepsize) / p_MoI, 
-                           // uncomment if using BOOST integrator;
-                           p_Epsilon * omegaDifference * magneticRadius * magneticRadius);
+    return deltaJdm;
+    // return std::make_tuple(newPulsarMagneticField, 
+    //                        (angularMomentum + Jdot * p_Stepsize) / p_MoI, 
+    //                        // uncomment if using BOOST integrator;
+    //                        deltaJdm);
 
-                           // uncomment if using the manual integrator with the for loops. 
-                           // angularMomentum + Jdot * p_Stepsize);
+    //                        // uncomment if using the manual integrator with the for loops. 
+    //                        //newAM);
 }
 
 
@@ -529,9 +532,9 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         return; 
     }
 
-    double magFieldLowerLimit = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) ;    
+    static double magFieldLowerLimit = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) ;    
     
-    double kappa              = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_G ;     
+    static double kappa              = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_G ;     
   
     if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGainPerTimeStep, 0.0) == 0 )) {
         // these are the ''classical'' isolated pulsars
@@ -553,7 +556,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             
             // std::tuple <double, double, double> accretionResults = DeltaAngularMomentumByPulsarAccretion_Static
             // (p_MassGainPerTimeStep / G_TO_KG, m_Mass, m_Radius, InitialMagField, 
-            // InitialSpinFrequency, InitialAngularMomentum_CGS, p_Stepsize, kappa, p_Epsilon, m_MomentOfInertia_CGS, false);
+            // InitialSpinFrequency, InitialAngularMomentum_CGS, p_Stepsize, kappa, p_Epsilon, m_MomentOfInertia_CGS, true);
             // int divideTimestepBy = 200;
             // bool done      = false;
             // while (!done && utils::Compare(divideTimestepBy, 10000000) < 0.0) {
@@ -569,13 +572,13 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
 
             //     std::tie(B, f, am) = DeltaAngularMomentumByPulsarAccretion_Static
             // (thisMassGain, m_Mass, m_Radius, InitialMagField, InitialSpinFrequency,
-            //  InitialAngularMomentum_CGS, thisTimestepSize, kappa, p_Epsilon, m_MomentOfInertia_CGS, false);
+            //  InitialAngularMomentum_CGS, thisTimestepSize, kappa, p_Epsilon, m_MomentOfInertia_CGS, true);
 
             //     int count = 0;
             //     while (!done) {
             //         std::tie(B, f, am) = DeltaAngularMomentumByPulsarAccretion_Static
             //         (thisMassGain, m_Mass, m_Radius, B, 
-            // f, am, thisTimestepSize, kappa, p_Epsilon, m_MomentOfInertia_CGS, false);
+            // f, am, thisTimestepSize, kappa, p_Epsilon, m_MomentOfInertia_CGS, true);
                     
             //         if (utils::Compare(f, 0.0) < 0) break;
             //         if (++count >= divideTimestepBy) done = true;        
@@ -598,7 +601,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
                 
             //     accretionResults = DeltaAngularMomentumByPulsarAccretion_Static
             //     (newMassGain, m_Mass, m_Radius, last_B_2, 
-            // last_f_2, last_am_2, newTimeStepSize, kappa, p_Epsilon, m_MomentOfInertia_CGS, false);//true);
+            // last_f_2, last_am_2, newTimeStepSize, kappa, p_Epsilon, m_MomentOfInertia_CGS, true);
           
             // m_PulsarDetails.magneticField = std::get<0>(accretionResults);
             // m_PulsarDetails.spinFrequency = std::get<1>(accretionResults);
@@ -614,11 +617,12 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             double thisB = m_PulsarDetails.magneticField ;
             double thisF = m_PulsarDetails.spinFrequency  ;
             double thisM = m_Mass ;
-            double divideTimestepBy = 50000.0;
+            double divideTimestepBy = 200.0;
             //std::cout<< "at MT "<< thisM << " " << thisF << " " << thisB << " " << p_Stepsize
             //<< " " << p_MassGainPerTimeStep << " " << kappa << std::endl;
             double thisMassGain = p_MassGainPerTimeStep / G_TO_KG / divideTimestepBy; 
             double thisTimestepSize = p_Stepsize / divideTimestepBy;
+            double mDot = p_MassGainPerTimeStep / G_TO_KG / p_Stepsize;
 
             controlled_stepper_type controlled_stepper;
 
@@ -632,23 +636,23 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             // Use boost adaptive ODE solver for speed and accuracy and ensure the result is always positive. 
             struct DynamicODE
             {
-                double mass, radius, magField, spinFrequency, angularMomentum, stepsize, kkappa, epsilon, momentI;
+                double mass, radius, magField, spinFrequency, angularMomentum, stepsize, mdot, kkappa, epsilon, momentI;
                 DynamicODE( double mass0, double radius0, double magField0, double spinFreq0, double AM0, 
-                double stepsize0, double kkappa0, double epsilon0, double momentI0) : mass(mass0), radius(radius0), magField(magField0), 
-                spinFrequency(spinFreq0), angularMomentum(AM0), stepsize(stepsize0), kkappa(kkappa0), epsilon(epsilon0), momentI(momentI0)  {}
+                double stepsize0, double mdot0, double kkappa0, double epsilon0, double momentI0) : mass(mass0), radius(radius0), magField(magField0), 
+                spinFrequency(spinFreq0), angularMomentum(AM0), stepsize(stepsize0), mdot(mdot0), kkappa(kkappa0), epsilon(epsilon0), momentI(momentI0)  {}
 
                 void operator()( state_type& x , state_type& dxdt , double p_MassChange ) const {
-                    DBL_DBL_DBL results = NS::DeltaAngularMomentumByPulsarAccretion_Static(
-                        p_MassChange, mass, radius, magField, spinFrequency, angularMomentum, stepsize, kkappa, epsilon, momentI, false);
-                    dxdt[0] = std::get<2>(results) ;
-                    x[1] = std::get<0>(results);
-                    x[2] = std::get<1>(results);
+                    double results = NS::DeltaAngularMomentumByPulsarAccretion_Static(
+                        p_MassChange, mass, radius, magField, spinFrequency, angularMomentum, mdot, kkappa, epsilon, momentI, true);
+                    dxdt[0] = results; //std::get<2>(results) ;
+                    x[1] =  (magField - magFieldLowerLimit) * exp(-p_MassChange / kappa) + magFieldLowerLimit; //std::get<0>(results);
+                    x[2] =  x[0] / momentI;//std::get<1>(results);
                     x[3] = mass + p_MassChange/MSOL_TO_G;
-                    //std::cout << "End of INT " << x[1] << " " << x[2] << std::endl;
+                    std::cout << "End of INT " << x[0] <<" " << x[1] << " " << x[2] << std::endl;
             }
             };
 
-            integrate_adaptive(controlled_stepper, DynamicODE{x[3], radiusNS, x[1], x[2], x[0], thisTimestepSize, 
+            integrate_adaptive(controlled_stepper, DynamicODE{x[3], radiusNS, x[1], x[2], x[0],p_Stepsize,mDot, 
             kappa, p_Epsilon, m_MomentOfInertia_CGS}, x, 0.0, p_MassGainPerTimeStep / G_TO_KG, thisMassGain);
             
             m_AngularMomentum_CGS         = x[0] ;
