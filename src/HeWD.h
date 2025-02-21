@@ -50,7 +50,7 @@ protected:
         m_Age                      = 0.0;                               // Set age appropriately
         m_HShell                   = 0.0;                               // Initialize Hydrogen Shell
         m_HeShell                  = 0.0;                               // Initialize Helium Shell
-        m_l0Ritter                 = Calculatel0Ritter();
+        m_L0Ritter                 = Calculatel0Ritter();
         m_XRitter                  = CalculateXRitter();
         m_LambdaRitter             = CalculateLambdaRitter();
         m_IsSubChandrasekharTypeIa = false; 
