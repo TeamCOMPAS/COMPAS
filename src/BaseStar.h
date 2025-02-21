@@ -281,7 +281,7 @@ public:
     
     virtual double          CalculateRadialExtentConvectiveEnvelope() const                                     { return 0.0; }                                                     // Default for stars with no convective envelope
     
-    virtual double          CalculateRadiusOnMassChange(double p_dM)                                            { return Radius(); }
+    virtual double          CalculateRadiusOnMassChange(double p_dM)                                            { return Radius(); } // NO-OP
         
     virtual double          CalculateRemnantRadius() const                                                      { return Radius(); }                                                // Relevant for MS stars, over-written for GB stars
 
