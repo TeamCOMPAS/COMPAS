@@ -255,6 +255,7 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
     else:
         mask &= maskNoCOs
 
+    # Plot evolutionary tracks for star 1 and star 2
     ax.plot(Data['Teff(1)'][()][mask], Data['Luminosity(1)'][()][mask], linestyle='-', c='r', label='Star 1')
     ax.plot(Data['Teff(2)'][()][mask], Data['Luminosity(2)'][()][mask], linestyle='-', c='b', label='Star 2')
     ax.set_xlabel(r'Temperature [log(T/K)]')
@@ -264,20 +265,15 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
         ax.set_ylabel('Luminosity [log(L/Lsun)]')
     ax.set_xscale('log')
     ax.set_yscale('log')
-    xlim = ax.get_xlim()
+
+    # Get the default x and y limits
+    xlim = ax.get_xlim() 
     ylim = ax.get_ylim()
-    ax.set_xlim([min(1e3, xlim[0]), max(3e6, xlim[1])])
-    ax.set_ylim([min(1e-4, ylim[0]), max(1e6, ylim[1])])
-    xlim = ax.get_xlim()
-    ylim = ax.get_ylim()
-    ax.invert_xaxis()
 
     # Add lines of const radii
     for R in np.logspace(-9, 5, 15):
         exp = "{:.1e}".format(R)
         exp = exp[-3] + exp[-1]
-        if ((int(exp) % 2) == 1):  # skip odd ones to remove clutter
-            continue
         T_K = np.logspace(3, 7, 41)  # in K
         T = T_K / 6e3  # Tsol=6e3K
 
@@ -293,14 +289,19 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
         Lrgt = get_L(Trgt / 6e3)
         alpha = 0.4
         if use_latex:
-            str = r"$R_\odot^{{{exp}}}$".format(exp=exp)
+            str = r"$10^{{{exp}}}\,R_\odot$".format(exp=exp)
         else:
-            str = "Rsun{exp}".format(exp=exp)
+            str = "10^{exp} Rsun".format(exp=exp)
         if (Tbot > Trgt) and (Tbot < xlim[1]):
             ax.text(x=Tbot, y=Lbot, s=str, alpha=alpha)
         elif (Lrgt > Lbot) and (Lrgt < ylim[1]):
             ax.text(x=Trgt, y=Lrgt, s=str, alpha=alpha)
 
+    # Set x and y limits
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+    ax.invert_xaxis() # invert x-axis
+    
     # Add in the letters corresponding to various events
     event_times = [event.time for event in events]
     mask2 = mask & (np.in1d(Data['Time'][()], event_times))
