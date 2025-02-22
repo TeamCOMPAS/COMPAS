@@ -599,7 +599,7 @@ private:
             double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorMass, -p_dM , *m_Accretor, beta);
             double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (beta * p_dM)) * AU_TO_RSOL;
             
-            double radiusAfterMassLoss = m_Donor->CalculateRadiusOnPhaseTau(donorMass-p_dM, m_Donor->Tau());
+            double radiusAfterMassLoss = m_Donor->CalculateRadiusOnMassChange(-p_dM);
             
             return (RLRadius - radiusAfterMassLoss);
         }
