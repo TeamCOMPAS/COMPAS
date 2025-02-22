@@ -1462,7 +1462,14 @@
 //                                      - Option SHIKAUCHI for main sequence core mass renamed to BRCEK
 //                                      - Allowed main sequence core mass calculations for lower mass stars
 //                                      - Always update Mass0 in HG.h when BRCEK prescription is used
+// 03.14.00   YS - Jan 10, 2025     - Updates to NS.cpp and NS.h:
+//                                      - This update fixes the issue that during mass transfer, the spin-up of a neutron star sometimes creates a negative spin period. 
+//                                      - Added function NS::DeltaAngularMomentumByPulsarAccretion() for the integration of angular momentum of neutron star during mass transfer. 
+//                                      - Update to NS::UpdateMagneticFieldAndSpin(). For NS accreting in RLOF, adding BOOST ODE integrator to calculate the spin-up/recycling. 
+//                                      - Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star would accrete mass during a common envelope event. 
+//                                      - Fix for issue #1002
+//                                      - Fixing for issue #1257
 
-const std::string VERSION_STRING = "03.13.02";
+const std::string VERSION_STRING = "03.14.00";
 
 # endif // __changelog_h__

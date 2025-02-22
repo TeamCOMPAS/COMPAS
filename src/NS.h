@@ -40,6 +40,19 @@ public:
     // member functions - alphabetically
     static  DBL_DBL_DBL CalculateCoreCollapseSNParams_Static(const double p_Mass);
 
+    static  double DeltaAngularMomentumByPulsarAccretion_Static(const double p_MassGainPerTimeStep, 
+                                                const double p_Mass, 
+                                                const double p_Radius,
+                                                const double p_MagField, 
+                                                const double p_SpinFrequency, 
+                                                const double p_AngularMomentum, 
+                                                const double p_Stepsize, 
+                                                const double p_Kappa, 
+                                                const double p_Epsilon,
+                                                const double p_MoI,
+                                                const bool   to_print
+                                                ) ;
+    
     MT_CASE             DetermineMassTransferTypeAsDonor() const                { return MT_CASE::NONE; }                                                       // Always NONE
 
 

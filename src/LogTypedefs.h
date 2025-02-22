@@ -860,6 +860,7 @@ enum class PROGRAM_OPTION: int {
 
     NOTES,
 
+    NS_ACCRETION_IN_CE,
     NS_EOS,
 
     ORBITAL_PERIOD,
@@ -1081,6 +1082,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::NOTES,                                            "NOTES" },
 
+    { PROGRAM_OPTION::NS_ACCRETION_IN_CE,                               "NS_ACCRETION_IN_CE" },
     { PROGRAM_OPTION::NS_EOS,                                           "NS_EOS" },
 
     { PROGRAM_OPTION::ORBITAL_PERIOD,                                   "ORBITAL_PERIOD" },
@@ -1623,6 +1625,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                         { TYPENAME::INT,        "PO_Neutrino_Mass_Loss_Assmptn",             "-",          4, 1 }},
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                              { TYPENAME::DOUBLE,     "PO_Neutrino_Mass_Loss_Value",               "-",         24, 15}},
 
+    { PROGRAM_OPTION::NS_ACCRETION_IN_CE,                                       { TYPENAME::INT,        "PO_NS_ACCRETION_IN_CE",                     "-",          4, 1 }},
     { PROGRAM_OPTION::NS_EOS,                                                   { TYPENAME::INT,        "PO_NS_EOS",                                 "-",          4, 1 }},
 
     { PROGRAM_OPTION::ORBITAL_PERIOD,                                           { TYPENAME::DOUBLE,     "PO_Orbital_Period",                         "days",      24, 15}},
