@@ -1462,7 +1462,12 @@
 //                                      - Option SHIKAUCHI for main sequence core mass renamed to BRCEK
 //                                      - Allowed main sequence core mass calculations for lower mass stars
 //                                      - Always update Mass0 in HG.h when BRCEK prescription is used
+// 03.13.03   IM - Feb 20, 2025    - Defect Repairs, Enhancement:
+//                                      - Fixed typo in implementation of Tonset for convective envelope mass calculation (cf. Mandel, Hirai, Picker, 2024)
+//                                      - Corrected radial estimates for mass losing Giant Branch stars
+//                                      - Added new functionality, CalculateRadiusOnMassChange(), to streamline code
+//                                      - Fixed typo in calculation of binding energy of secondary's envelope in the 2-stage CE prescription
 
-const std::string VERSION_STRING = "03.13.02";
+const std::string VERSION_STRING = "03.13.03";
 
 # endif // __changelog_h__

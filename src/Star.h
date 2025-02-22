@@ -197,7 +197,7 @@ public:
     
     double          CalculateRadialExtentConvectiveEnvelope()                                                       { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
 
-    double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const                        { return m_Star->CalculateRadiusOnPhaseTau(p_Mass, p_Tau); }
+    double          CalculateRadiusOnMassChange(double p_dM)                                                        { return m_Star->CalculateRadiusOnMassChange(p_dM); }
     
     double          CalculateRemnantRadius()                                                                        { return m_Star->CalculateRemnantRadius(); }
     
