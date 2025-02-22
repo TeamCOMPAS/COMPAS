@@ -708,9 +708,17 @@ const COMPASUnorderedMap<NEUTRINO_MASS_LOSS_PRESCRIPTION, std::string> NEUTRINO_
     { NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS,     "FIXED_MASS" }
 };
 
+// neutron star accretion scenario under common envelope
+enum class NS_ACCRETION_IN_CE: int { ZERO, SURFACE, DISK };
+const COMPASUnorderedMap<NS_ACCRETION_IN_CE, std::string> NS_ACCRETION_IN_CE_LABEL = {
+    { NS_ACCRETION_IN_CE::ZERO,  "ZERO" },
+    { NS_ACCRETION_IN_CE::SURFACE, "SURFACE" },
+    { NS_ACCRETION_IN_CE::DISK, "DISK" },
+};
+
 // neutron star equations of state
 enum class NS_EOS: int { SSE, ARP3 };
-const COMPASUnorderedMap<NS_EOS, std::string> NS_EOSLabel = {
+const COMPASUnorderedMap<NS_EOS, std::string> NS_EOS_LABEL = {
     { NS_EOS::SSE,  "SSE" },
     { NS_EOS::ARP3, "ARP3" }
 };

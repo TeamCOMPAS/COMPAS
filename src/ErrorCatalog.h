@@ -171,6 +171,7 @@ enum class ERROR: int {
     UNKNOWN_MT_REJUVENATION_PRESCRIPTION,                           // unknown mass transfer rejuvenation prescription
     UNKNOWN_MT_THERMALLY_LIMITED_VARIATION,                         // unknown mass transfer thermally limited variation
     UNKNOWN_NEUTRINO_MASS_LOSS_PRESCRIPTION,                        // unknown neutrino mass loss prescription
+    UNKNOWN_NS_ACCRETION_IN_CE,                                     // unknown NS accretion in common envelope
     UNKNOWN_NS_EOS,                                                 // unknown NS equation-of-state
     UNKNOWN_OB_MASS_LOSS_PRESCRIPTION,                              // unknown OB mass loss prescription
     UNKNOWN_PPI_PRESCRIPTION,                                       // unknown pulsational pair instability prescription
@@ -344,6 +345,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_MT_THERMALLY_LIMITED_VARIATION,                { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer thermally limited variation" }},
     { ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown mass loss prescription" }},
     { ERROR::UNKNOWN_NEUTRINO_MASS_LOSS_PRESCRIPTION,               { ERROR_SCOPE::ALWAYS,              "Unknown neutrino mass loss prescription" }},
+    { ERROR::UNKNOWN_NS_ACCRETION_IN_CE,                            { ERROR_SCOPE::ALWAYS,              "Unknown NS accretion in common envelope" }},
     { ERROR::UNKNOWN_NS_EOS,                                        { ERROR_SCOPE::ALWAYS,              "Unknown NS equation-of-state" }},
     { ERROR::UNKNOWN_OB_MASS_LOSS_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown OB mass loss prescription" }},
     { ERROR::UNKNOWN_PPI_PRESCRIPTION,                              { ERROR_SCOPE::ALWAYS,              "Unknown pulsational pair instability prescription" }},
