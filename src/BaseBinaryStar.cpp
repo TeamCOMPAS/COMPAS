@@ -1986,7 +1986,7 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
 
         }
 
-        case WIND_ACCRETION_PRESCRIPTION::HIRAI2005: { // Wind velocity with Finite disc correction according to Hirai & Mandel (2005)
+        case WIND_ACCRETION_PRESCRIPTION::HIRAI2021: { // Wind velocity with Finite disc correction according to Hirai & Mandel (2021)
 
             double alpha_force_multiplier = 0.5;        // I think it would be best to make this an OPTION
 
@@ -1996,7 +1996,7 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
 
         case WIND_ACCRETION_PRESCRIPTION::NONE: { windVelocity = 0; } // This should not be called, but otherwise C++ complains when building COMPAS
 
-        // This function should not be called if the OPTION WIND_ACCRETION_PRESCRIPTION is not YUNGELSON1995 or HIRAI2005. Does this need an THROW_ERROR?
+        // This function should not be called if the OPTION WIND_ACCRETION_PRESCRIPTION is not YUNGELSON1995 or HIRAI2021. Does this need an THROW_ERROR?
     
         default: { windVelocity = 0; } // This should not be called, but otherwise C++ complains when building COMPAS
 
