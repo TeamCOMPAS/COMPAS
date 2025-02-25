@@ -150,6 +150,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Mu                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mdot                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_DominantMassLossRate                     = MASS_LOSS_TYPE::NONE;
+    m_WindAccretionRate                        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_MinimumLuminosityOnPhase                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_LBVphaseFlag                             = false;
@@ -1362,24 +1363,6 @@ double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
     return ((2.0 / 3.0) * m / oneMinusM) - ((1.0 / 3.0) * (oneMinusM / (1.0 + (m + m)))) - (0.03 * m) + (0.2 * m / (1.0 + (1.0 / oneMinusM_6))); // eq (61) Soberman, Phinney, vdHeuvel (1997)
 }
 
-
-/*
- * Calculate the Equilibrium zeta
- *
- *
- * double CalculateZetaEquilibrium
- *
- * @return                                      Equilibrium zeta
- */
-double BaseStar::CalculateZetaEquilibrium() {
-    
-    double deltaMass           = -m_Mass / 1.0E5;
-    double radiusAfterMassGain = CalculateRadiusOnPhaseTau(m_Mass + deltaMass, m_Tau);
-    double zetaEquilibrium     = (radiusAfterMassGain - m_Radius) / deltaMass * m_Mass / m_Radius;      // dlnR / dlnM
-
-    return zetaEquilibrium;
-}
-    
 
 /*
  * Calculate the critical mass ratio for unstable mass transfer
@@ -2716,6 +2699,7 @@ double BaseStar::CalculateMassLossRate() {
     return mDot;
 }
 
+
 /*
  * Calculate the nuclear mass loss rate as the mass divided by the radial expansion timescale
  * We do not use CalculateRadialExpansionTimescale(), however, since in the process of mass transfer the previous radius
@@ -2802,6 +2786,35 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
     }
 
     return mass;
+}
+
+/*
+ * Calculate values for dt, mDot and mass assuming wind mass gain is applied
+ * Copied somewhat from CalculateMassLossValues above
+ *
+ * Class member variables m_Mass and m_Dt are not updated directly by this function - the calculated mass is returned as the functional return
+ *
+ * - calculates mass gain from winds
+ * - calculates new mass based on mass gain
+ *
+ * Returns existing value for mass if mass loss not being used (program option)
+ *
+ *
+ * double CalculateMassGainValues()  
+ *
+ * @return                                      calculated mass (mSol)
+ */
+double BaseStar::CalculateMassGainValues() {
+
+    double massGain = 0;
+    if (OPTIONS->WindAccretionPrescription() != WIND_ACCRETION_PRESCRIPTION::NONE) {
+        
+        // only if using wind accretion (program option)
+                                                                            
+        double windAccretionRate = m_WindAccretionRate;
+        massGain = m_Dt * windAccretionRate * 1.0E6;                     // calculate mass loss - unlimited, should add a check later
+    }
+    return massGain;
 }
 
 

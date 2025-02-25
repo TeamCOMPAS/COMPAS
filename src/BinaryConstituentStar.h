@@ -54,7 +54,6 @@ public:
 
         m_MassLossDiff                               = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
-        m_MassGainWindAccretion                      = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_OrbitalEnergyPreSN                         = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_OrbitalEnergyPostSN                        = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -66,6 +65,8 @@ public:
         m_RLOFDetails.isRLOF                         = false;
         m_RLOFDetails.experiencedRLOF                = false;
         m_RLOFDetails.RLOFPostCEE                    = false;
+
+        m_WindAccretionRate                          = DEFAULT_INITIAL_DOUBLE_VALUE;
     }
 
 
@@ -78,7 +79,6 @@ public:
 
         m_MassLossDiff             = p_Star.m_MassLossDiff;
         m_MassTransferDiff         = p_Star.m_MassTransferDiff;
-        m_MassGainWindAccretion    = p_Star.m_MassGainWindAccretion;
 
         m_OrbitalEnergyPreSN       = p_Star.m_OrbitalEnergyPreSN;
         m_OrbitalEnergyPostSN      = p_Star.m_OrbitalEnergyPostSN;
@@ -88,6 +88,8 @@ public:
         m_OmegaTidesIndividualDiff = p_Star.m_OmegaTidesIndividualDiff;
 
         m_RLOFDetails              = p_Star.m_RLOFDetails;
+
+        m_WindAccretionRate        = p_Star.m_WindAccretionRate;
 
         // This BinaryConstituentStar's companion is an instance of the BinaryConstituentStar class
         // Here we copy the pointer to the companion object - note that it could be a nullptr if the
@@ -187,7 +189,7 @@ public:
     double          ThermalTimescalePostCEE() const                                     { return m_CEDetails.postCEE.thermalTimescale; }
     double          ThermalTimescalePreCEE() const                                      { return m_CEDetails.preCEE.thermalTimescale; }
 
-    double          WindAccretionMassGain() const                                       { return m_MassGainWindAccretion; }
+    double          WindAccretionRate() const                                           { return m_WindAccretionRate; }
 
     // setters
     void            SetCompanion(BinaryConstituentStar* p_Companion)                    { m_Companion = p_Companion; }                              // this star's companion star
@@ -236,7 +238,7 @@ public:
                                                                                                                            m_MassTransferDiff * MSOL_TO_KG, p_Epsilon); }
 
     void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  Sanity check?
-    void            SetWindAccretionMassGain(const double p_WindAccretionMassGain)      { m_MassGainWindAccretion = p_WindAccretionMassGain; }
+    void            SetWindAccretionRate(const double p_WindAccretionRate)              { m_WindAccretionRate = p_WindAccretionRate; }
     void            SetObjectId(const OBJECT_ID p_ObjectId)                             { m_ObjectId = p_ObjectId; }
     void            SetPersistence(const OBJECT_PERSISTENCE p_Persistence)              { m_ObjectPersistence = p_Persistence; }
 
@@ -256,7 +258,7 @@ private:
 
     double                  m_MassLossDiff;
     double                  m_MassTransferDiff;
-    double                  m_MassGainWindAccretion;                // Mass accreted from wind
+    double                  m_WindAccretionRate;                    // Accreted rate from wind
 
     double                  m_OmegaTidesIndividualDiff;
 

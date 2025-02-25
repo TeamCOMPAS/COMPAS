@@ -568,6 +568,7 @@ private:
     ANY_PROPERTY_VECTOR m_BSE_Detailed_Rec    = BSE_DETAILED_OUTPUT_REC;            // default specification
     ANY_PROPERTY_VECTOR m_BSE_Pulsars_Rec     = BSE_PULSAR_EVOLUTION_REC;           // default specification
     ANY_PROPERTY_VECTOR m_BSE_RLOF_Rec        = BSE_RLOF_PARAMETERS_REC;            // default specification
+    ANY_PROPERTY_VECTOR m_BSE_WRLOF_Rec       = BSE_WRLOF_PARAMETERS_REC;           // default specification
     ANY_PROPERTY_VECTOR m_BSE_SNE_Rec         = BSE_SUPERNOVAE_REC;                 // default specification
     ANY_PROPERTY_VECTOR m_BSE_Switch_Rec      = BSE_SWITCH_LOG_REC;                 // default specification
     ANY_PROPERTY_VECTOR m_BSE_SysParms_Rec    = BSE_SYSTEM_PARAMETERS_REC;          // default specification
@@ -599,6 +600,7 @@ private:
     BOOL_VECTOR m_BSE_Detailed_Notes    = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_BSE_Pulsars_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_BSE_RLOF_Notes        = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_WRLOF_Notes       = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_BSE_SNE_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_BSE_Switch_Notes      = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_BSE_SysParms_Notes    = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
@@ -1237,6 +1239,10 @@ public:
     template <class T>
     bool LogRLOFParameters(const T* const p_Binary,
                            const RLOF_RECORD_TYPE p_RecordType)                     { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS)), 0, LOGFILE::BSE_RLOF_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
+
+    template <class T>
+    bool LogWRLOFParameters(const T* const p_Binary,
+                            const WRLOF_RECORD_TYPE p_RecordType)                   { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_WRLOF_PARAMETERS)), 0, LOGFILE::BSE_WRLOF_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
 
     template <class T>
     bool LogSSEDetailedOutput(const T* const p_Star, const int p_Id,

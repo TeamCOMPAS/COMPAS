@@ -179,6 +179,7 @@ void Options::OptionValues::Initialise() {
     m_PrintBoolAsString                                             = false;
     m_Quiet                                                         = false;
     m_RlofPrinting                                                  = true;
+    m_WrlofPrinting                                                 = true;
 
     m_ShortHelp                                                     = true;
 
@@ -606,6 +607,8 @@ void Options::OptionValues::Initialise() {
     m_LogfilePulsarEvolutionRecordTypes                             = -1;                                                                   // all record types
     m_LogfileRLOFParameters                                         = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));
     m_LogfileRLOFParametersRecordTypes                              = -1;                                                                   // all record types
+    m_LogfileWRLOFParameters                                        = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_WRLOF_PARAMETERS));
+    m_LogfileWRLOFParametersRecordTypes                             = -1;                                                                   // all record types
     m_LogfileSupernovae                                             = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));          // assume BSE - get real answer when we know mode
     m_LogfileSupernovaeRecordTypes                                  = -1;                                                                   // all record types
     m_LogfileSwitchLog                                              = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));          // assume BSE - get real answer when we know mode
@@ -936,6 +939,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<bool>(&p_Options->m_UseMassTransfer)->default_value(p_Options->m_UseMassTransfer)->implicit_value(true),                                                                    
             ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
         )
+        (
+            "wrlof-printing",                                                
+            po::value<bool>(&p_Options->m_WrlofPrinting)->default_value(p_Options->m_WrlofPrinting)->implicit_value(true),                                                                          
+            ("Enable output parameters before/after WRLOF (default = " + std::string(p_Options->m_WrlofPrinting ? "TRUE" : "FALSE") + ")").c_str()
+        )
 
         // numerical options - alphabetically grouped by type 
 
@@ -1003,6 +1011,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "logfile-rlof-parameters-record-types",                                 
             po::value<int>(&p_Options->m_LogfileRLOFParametersRecordTypes)->default_value(p_Options->m_LogfileRLOFParametersRecordTypes),                                                                      
             ("Enabled record types for BSE RLOF Parameters logfile ( default = " + std::to_string(p_Options->m_LogfileRLOFParametersRecordTypes) + ")").c_str()
+        )
+        (
+            "logfile-wrlof-parameters-record-types",                                 
+            po::value<int>(&p_Options->m_LogfileWRLOFParametersRecordTypes)->default_value(p_Options->m_LogfileWRLOFParametersRecordTypes),                                                                      
+            ("Enabled record types for BSE WRLOF Parameters logfile ( default = " + std::to_string(p_Options->m_LogfileWRLOFParametersRecordTypes) + ")").c_str()
         )
         (
             "logfile-supernovae-record-types",                                      
@@ -1940,7 +1953,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "wind-accretion-prescription",
             po::value<std::string>(&p_Options->m_WindAccretionPrescription.typeString)->default_value(p_Options->m_WindAccretionPrescription.typeString),
-            ("Used wind prescription for Wind accretion (default = '" + p_Options->m_WindAccretionPrescription.typeString + "')").c_str()
+            ("Wind accretion prescription (" + AllowedOptionValuesFormatted("wind-accretion-prescription") + ", default = '" + p_Options->m_WindAccretionPrescription.typeString + "')").c_str()
         )
         (
             "WR-mass-loss-prescription",

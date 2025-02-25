@@ -265,6 +265,7 @@ public:
             double          CalculateMassChangeTimescale() const                                                { return CalculateMassChangeTimescale_Static(m_StellarType, m_StellarTypePrev, m_Mass, m_MassPrev, m_DtPrev); }  // Use class member variables
 
             double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false);                                                               // JR: todo: better name?
+            double          CalculateMassGainValues();                                                               
 
     virtual double          CalculateMomentOfInertia() const                                                    { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                  // Defaults to MS. k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
     virtual double          CalculateMomentOfInertiaAU() const                                                  { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
@@ -303,7 +304,7 @@ public:
             double          CalculateZetaAdiabatic();
     virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                                     // Use inheritance hierarchy
     
-            double          CalculateZetaEquilibrium();
+            double          CalculateZetaEquilibrium()                                                          { return 0.0; }
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
             void            ClearSupernovaStash()                                                               { LOGGING->ClearSSESupernovaStash(); }                              // Clear contents of SSE supernova stash
@@ -448,6 +449,7 @@ protected:
     double                  m_MinimumLuminosityOnPhase;                 // Only required for CHeB stars, but only needs to be calculated once per star
     double                  m_Mdot;                                     // Current mass loss rate in winds (Msol per yr)
     MASS_LOSS_TYPE          m_DominantMassLossRate;                     // Current dominant type of wind mass loss
+    double                  m_WindAccretionRate;                        // Current wind accretion rate (Msol per yr)
 
     double                  m_Mu;                                       // Current small envelope parameter mu
     double                  m_Radius;                                   // Current radius (Rsol)
