@@ -222,16 +222,34 @@ def analytical_star_forming_mass_per_binary_using_kroupa_imf(
         p(M) \propto M^-1.3 for M between m2 and m3;
         p(M) = alpha * M^-2.3 for M between m3 and m4;
 
+    m1_min, m1_max are the min and max sampled primary masses
+    m2_min is the min sampled secondary mass
+
     @Ilya Mandel's derivation
     """
     m1, m2, m3, m4 = imf_mass_bounds
     if m1_min < m3:
         raise ValueError(f"This analytical derivation requires IMF break m3  < m1_min ({m3} !< {m1_min})")
+    if m1_min > m1_max:
+        raise ValueError(f"Minimum sampled primary mass cannot be above maximum sampled primary mass: m1_min ({m1_min} !<  m1_max {m1_max})")
+    if m1_max > m4:
+        raise ValueError(f"Maximum sampled primary mass cannot be above maximum mass of Kroupa IMF:  m1_max ({m1_max} !<  m4 {m4})")
+    
+    # normalize IMF over the complete mass range:
     alpha = (-(m4**(-1.3)-m3**(-1.3))/1.3 - (m3**(-0.3)-m2**(-0.3))/(m3*0.3) + (m2**0.7-m1**0.7)/(m2*m3*0.7))**(-1)
+
     # average mass of stars (average mass of all binaries is a factor of 1.5 larger)
     m_avg = alpha * (-(m4**(-0.3)-m3**(-0.3))/0.3 + (m3**0.7-m2**0.7)/(m3*0.7) + (m2**1.7-m1**1.7)/(m2*m3*1.7))
-    # fraction of binaries that COMPAS simulates
+
+    # fraction of binaries that COMPAS simulates (N_binaries_in_COMPAS/N_binaries_in_universe) 
+    # i.e.,  p(m1)p(m2|m1) dm1dm2, which can be rewritten as p(m1)p(q|m1) dm1dq, assuming a flat mass q dist with m2_max = m1_max
     fint = -alpha / 1.3 * (m1_max ** (-1.3) - m1_min ** (-1.3)) + alpha * m2_min / 2.3 * (m1_max ** (-2.3) - m1_min ** (-2.3))
+
+    # Average mass of systems (M_rep_by_all_binary_systems/N_binaries_in_universe)
+    # 1.5 = Average number of stars in single and binary systems, (1-fbin)/fbin) = ratio of single/binary systems
+    average_mass_per_binary = m_avg * (1.5 + (1-fbin)/fbin)
+
     # mass represented by each binary simulated by COMPAS
-    m_rep = (1/fint) * m_avg * (1.5 + (1-fbin)/fbin)
+    # N_binaries_in_universe/N_binaries_in_COMPAS * M_rep_by_all_binary_systems/N_binaries_in_universe
+    m_rep = (1/fint) * average_mass_per_binary 
     return m_rep
