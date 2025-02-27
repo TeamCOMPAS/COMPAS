@@ -269,6 +269,7 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,          \
     TRUE_ANOMALY,                                    \
     TZAMS,                                           \
+    WIND_ACCRETION_RATE,                             \
     ZETA_HURLEY,                                     \
     ZETA_HURLEY_HE,                                  \
     ZETA_SOBERMAN,                                   \
@@ -415,6 +416,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,          "TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION" },
     { STAR_PROPERTY::TRUE_ANOMALY,                                    "TRUE_ANOMALY" },
     { STAR_PROPERTY::TZAMS,                                           "TZAMS" },
+    { STAR_PROPERTY::WIND_ACCRETION_RATE,                             "WIND_ACCRETION_RATE"},
     { STAR_PROPERTY::ZETA_HURLEY,                                     "ZETA_HURLEY" },
     { STAR_PROPERTY::ZETA_HURLEY_HE,                                  "ZETA_HURLEY_HE" },
     { STAR_PROPERTY::ZETA_SOBERMAN,                                   "ZETA_SOBERMAN" },
@@ -1337,6 +1339,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,            { TYPENAME::DOUBLE,           "Mass_Total@CO",                   "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::TRUE_ANOMALY,                                      { TYPENAME::DOUBLE,           "True_Anomaly(psi)",               "-",                24, 15}},
     { ANY_STAR_PROPERTY::TZAMS,                                             { TYPENAME::DOUBLE,           "Teff@ZAMS",                       "K",                24, 15}},
+    { ANY_STAR_PROPERTY::WIND_ACCRETION_RATE,                               { TYPENAME::DOUBLE,           "dmWindAccretion",                 "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::ZETA_HURLEY,                                       { TYPENAME::DOUBLE,           "Zeta_Hurley",                     "-",                24, 15}},
     { ANY_STAR_PROPERTY::ZETA_HURLEY_HE,                                    { TYPENAME::DOUBLE,           "Zeta_Hurley_He",                  "-",                24, 15}},
     { ANY_STAR_PROPERTY::ZETA_SOBERMAN,                                     { TYPENAME::DOUBLE,           "Zeta_Soberman",                   "-",                24, 15}},
@@ -2091,6 +2094,8 @@ const ANY_PROPERTY_VECTOR BSE_RLOF_PARAMETERS_REC = {
 //
 const ANY_PROPERTY_VECTOR BSE_WRLOF_PARAMETERS_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
+    STAR_1_PROPERTY::WIND_ACCRETION_RATE,
+    STAR_2_PROPERTY::WIND_ACCRETION_RATE
     // RTW TODO
 };
 
