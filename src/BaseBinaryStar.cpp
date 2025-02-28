@@ -2076,17 +2076,17 @@ void BaseBinaryStar::CalculateWindAccretionRate() {
     
         double xi_w = 3/2; // comes from Bondi and Hoyle, look at the details, maybe at this as an OPTION
     
-        double totalMass = m_Star1->Mass() + m_Star2->Mass(); // Msun
+        double totalMass = m_Star1->Mass() + m_Star2->Mass(); // Msunlen(dmW1[dmW1 != 0])
     
         double orbitalVelocity = sqrt(G_AU_Msol_yr * ( totalMass ) / m_SemiMajorAxis); // orbital velocity in AU/yr
     
         double v1Squared = (orbitalVelocity * orbitalVelocity) / (windVelocity1 * windVelocity1); 
         double v2Squared = (orbitalVelocity * orbitalVelocity) / (windVelocity2 * windVelocity2);
     
-        double auSquared = m_SemiMajorAxis * m_SemiMajorAxis; // use multiplication - pow() is slow
+        double aSquared = m_SemiMajorAxis * m_SemiMajorAxis; // use multiplication - pow() is slow
     
-        double windAccretionRate1 = - PPOW(G_AU_Msol_yr * m_Star2->Mass() / windVelocity1Squared, 2) * xi_w / (2 * auSquared) / PPOW(1 + v1Squared, 3/2) * m_Star2->MassLossDiff();
-        double windAccretionRate2 = - PPOW(G_AU_Msol_yr * m_Star1->Mass() / windVelocity2Squared, 2) * xi_w / (2 * auSquared) / PPOW(1 + v2Squared, 3/2) * m_Star1->MassLossDiff();
+        double windAccretionRate1 = - PPOW(G_AU_Msol_yr * m_Star2->Mass() / windVelocity2Squared, 2) * xi_w / (2 * aSquared) / PPOW(1 + v1Squared, 3/2) * m_Star2->MassLossDiff();
+        double windAccretionRate2 = - PPOW(G_AU_Msol_yr * m_Star1->Mass() / windVelocity1Squared, 2) * xi_w / (2 * aSquared) / PPOW(1 + v2Squared, 3/2) * m_Star1->MassLossDiff();
     
     
         double radiusBondi1 = 2 * G_AU_Msol_yr / (windVelocity1Squared * (1 + v1Squared)) * AU_TO_RSOL; // Bondi radius in Rsol
