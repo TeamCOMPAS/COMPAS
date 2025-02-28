@@ -2011,7 +2011,7 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
 */
 double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const double p_DonorRadius, const double p_semiMajorAxis) {
 
-    double escapeVelocity = std::sqrt(2 * G_AU_Msol_yr * p_DonorMass / p_DonorRadius); // AU / yr
+    double escapeVelocity = std::sqrt(2 * G_AU_Msol_yr * p_DonorMass / (p_DonorRadius * RSOL_TO_AU)); // AU / yr
 
     double windVelocity = 0;
 
@@ -2032,7 +2032,7 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
 
             double alpha_force_multiplier = 0.5;        // I think it would be best to make this an OPTION
 
-            windVelocity = 2.5 * (alpha_force_multiplier / (1 - alpha_force_multiplier) ) * escapeVelocity * PPOW((1 - p_DonorRadius / p_semiMajorAxis),0.7);
+            windVelocity = 2.5 * (alpha_force_multiplier / (1 - alpha_force_multiplier) ) * escapeVelocity * PPOW((1 - p_DonorRadius / (p_semiMajorAxis * AU_TO_RSOL)),0.7);
 
         }
 
@@ -2093,11 +2093,11 @@ void BaseBinaryStar::CalculateWindAccretionRate() {
         double radiusBondi2 = 2 * G_AU_Msol_yr * m_Star2->Mass() / (windVelocity1Squared * (1 + v1Squared)) * AU_TO_RSOL; // Bondi radius in Rsol
     
         // if the Radius of the star is smaller than the Bondi radius, it can accrete mass through wind accretion
-        if (radiusBondi1 > m_Star1->Radius()) { m_Star1->SetWindAccretionRate(windAccretionRate1); } // Msun / yr
-        else { m_Star1->SetWindAccretionRate(0.0); }
+        if (radiusBondi1 > m_Star1->Radius()) { m_Star1->SetWindAccretionRate(windAccretionRate1); std::cout << 'Bondi radius';} // Msun / yr
+        else { m_Star1->SetWindAccretionRate(0.0);}
         
-        if (radiusBondi2 > m_Star2->Radius()) { m_Star2->SetWindAccretionRate(windAccretionRate2); }// Msun / yr
-        else { m_Star2->SetWindAccretionRate(0.0); }
+        if (radiusBondi2 > m_Star2->Radius()) { m_Star2->SetWindAccretionRate(windAccretionRate2); std::cout << 'Bondi radius';}// Msun / yr
+        else { m_Star2->SetWindAccretionRate(0.0);}
     }
 
 
