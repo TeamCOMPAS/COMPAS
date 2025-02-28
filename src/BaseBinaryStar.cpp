@@ -2013,13 +2013,13 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
 
     double escapeVelocity = std::sqrt(2 * G_AU_Msol_yr * p_DonorMass / (p_DonorRadius * RSOL_TO_AU)); // AU / yr
 
-    double windVelocity = 0;
+    double windVelocity;
 
 	switch (OPTIONS->WindAccretionPrescription()) {                                                                             // which prescription?
 
         case WIND_ACCRETION_PRESCRIPTION::YUNGELSON1995: { // Wind velocity according to Yungleson (1995)
 
-            double ratioSeparationToRadius = p_semiMajorAxis / p_DonorRadius;
+            double ratioSeparationToRadius = p_semiMajorAxis * AU_TO_RSOL / p_DonorRadius;
             double ratioSeparationToRadiusSquared = ratioSeparationToRadius * ratioSeparationToRadius; 
 
             double alpha_w = 0.04 * ratioSeparationToRadiusSquared / (1 + 0.04 * ratioSeparationToRadiusSquared);
@@ -2068,35 +2068,34 @@ void BaseBinaryStar::CalculateWindAccretionRate() {
     }
     else {
 
-        double windVelocity1 = CalculateWindVelocity(m_Star1->Mass(), m_Star1->Radius(), m_SemiMajorAxis); // Wind for Star1 as donor
-        double windVelocity2 = CalculateWindVelocity(m_Star2->Mass(), m_Star2->Radius(), m_SemiMajorAxis); // Wind for Star2 as donor
+        double windVelocity1 = CalculateWindVelocity(m_Star1->Mass(), m_Star1->Radius(), m_SemiMajorAxis); // Wind for Star1 as donor [AU / yr]
+        double windVelocity2 = CalculateWindVelocity(m_Star2->Mass(), m_Star2->Radius(), m_SemiMajorAxis); // Wind for Star2 as donor [AU / yr]
     
         double windVelocity1Squared = windVelocity1 * windVelocity1;
         double windVelocity2Squared = windVelocity2 * windVelocity2;
     
         double xi_w = 3/2; // comes from Bondi and Hoyle, look at the details, maybe at this as an OPTION
     
-        double totalMass = m_Star1->Mass() + m_Star2->Mass(); // Msunlen(dmW1[dmW1 != 0])
+        double totalMass = m_Star1->Mass() + m_Star2->Mass(); // Msol
     
-        double orbitalVelocity = sqrt(G_AU_Msol_yr * ( totalMass ) / m_SemiMajorAxis); // orbital velocity in AU/yr
+        double orbitalVelocitySquared = abs(G_AU_Msol_yr * ( totalMass ) / m_SemiMajorAxis); // orbital velocity in AU/yr
     
-        double v1Squared = (orbitalVelocity * orbitalVelocity) / (windVelocity1 * windVelocity1); 
-        double v2Squared = (orbitalVelocity * orbitalVelocity) / (windVelocity2 * windVelocity2);
+        double v1Squared = orbitalVelocitySquared / windVelocity1Squared; 
+        double v2Squared = orbitalVelocitySquared / windVelocity2Squared;
     
         double aSquared = m_SemiMajorAxis * m_SemiMajorAxis; // use multiplication - pow() is slow
     
         double windAccretionRate1 = - PPOW(G_AU_Msol_yr * m_Star1->Mass() / windVelocity2Squared, 2) * xi_w / (2 * aSquared) / PPOW(1 + v2Squared, 3/2) * m_Star2->MassLossDiff();
         double windAccretionRate2 = - PPOW(G_AU_Msol_yr * m_Star2->Mass() / windVelocity1Squared, 2) * xi_w / (2 * aSquared) / PPOW(1 + v1Squared, 3/2) * m_Star1->MassLossDiff();
-    
-    
-        double radiusBondi1 = 2 * G_AU_Msol_yr * m_Star1->Mass() / (windVelocity2Squared * (1 + v2Squared)) * AU_TO_RSOL; // Bondi radius in Rsol
-        double radiusBondi2 = 2 * G_AU_Msol_yr * m_Star2->Mass() / (windVelocity1Squared * (1 + v1Squared)) * AU_TO_RSOL; // Bondi radius in Rsol
+
+        double radiusBondi1 = 2 * G_AU_Msol_yr * m_Star1->Mass() / (windVelocity2Squared + orbitalVelocitySquared) * AU_TO_RSOL; // Bondi radius in Rsol
+        double radiusBondi2 = 2 * G_AU_Msol_yr * m_Star2->Mass() / (windVelocity1Squared + orbitalVelocitySquared) * AU_TO_RSOL; // Bondi radius in Rsol
     
         // if the Radius of the star is smaller than the Bondi radius, it can accrete mass through wind accretion
-        if (radiusBondi1 > m_Star1->Radius()) { m_Star1->SetWindAccretionRate(windAccretionRate1); std::cout << 'Bondi radius';} // Msun / yr
+        if (radiusBondi1 > m_Star1->Radius()) { m_Star1->SetWindAccretionRate(windAccretionRate1); std::cout << "Bondi radius";} // Msun / yr
         else { m_Star1->SetWindAccretionRate(0.0);}
         
-        if (radiusBondi2 > m_Star2->Radius()) { m_Star2->SetWindAccretionRate(windAccretionRate2); std::cout << 'Bondi radius';}// Msun / yr
+        if (radiusBondi2 > m_Star2->Radius()) { m_Star2->SetWindAccretionRate(windAccretionRate2); std::cout << "Bondi radius";} // Msun / yr
         else { m_Star2->SetWindAccretionRate(0.0);}
     }
 
