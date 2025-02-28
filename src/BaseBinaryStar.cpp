@@ -2859,6 +2859,13 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
 
     if (!IsUnbound()) {                                                                     // check that binary is bound
 
+        // halve the time step if approaching RL overflow (but not if it's already very close to overflow)
+        double radiusToRL1=StarToRocheLobeRadiusRatio1();
+        double radiusToRL2=StarToRocheLobeRadiusRatio2();
+        if ((utils::Compare(radiusToRL1*(1.0+2.0*OPTIONS->RadialChangeFraction()), 1.0) >= 0 && utils::Compare(radiusToRL1*(1.0+0.5*OPTIONS->RadialChangeFraction()), 1.0) <= 0) ||
+            (utils::Compare(radiusToRL2*(1.0+2.0*OPTIONS->RadialChangeFraction()), 1.0) >= 0 && utils::Compare(radiusToRL2*(1.0+0.5*OPTIONS->RadialChangeFraction()), 1.0) <= 0))
+            dt = dt / 2.0;
+
         if (OPTIONS->EmitGravitationalRadiation()) {                                        // emitting GWs?
             dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
         }

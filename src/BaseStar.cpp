@@ -2727,42 +2727,24 @@ double BaseStar::CalculateNuclearMassLossRate() {
 
 
 /*
- * Calculate mass loss given mass loss rate - uses timestep passed (p_Dt)
- * Returned mass loss is limited to MAXIMUM_MASS_LOSS_FRACTION (e.g., 1%) of current mass
- *
- *
- * double CalculateMassLoss_Static(const double p_Mass, const double p_Mdot, const double p_Dt)
- *
- * @param   [IN]    p_Mass                      Mass in Msol
- * @param   [IN]    p_Mdot                      Mass loss rate
- * @param   [IN]    p_Dt                        Timestep
- * @return                                      Mass loss
- */
-double BaseStar::CalculateMassLoss_Static(const double p_Mass, const double p_Mdot, const double p_Dt) {
-    return max(0.0, min(p_Mdot * p_Dt * 1.0E6, p_Mass * MAXIMUM_MASS_LOSS_FRACTION));       // mass loss rate given in Msol per year, times are in Myr so need to multiply by 10^6
-}
-
-
-/*
  * Calculate values for dt, mDot and mass assuming mass loss is applied
  *
- * Class member variables m_Mdot and m_Dt are updated directly by this function if required (see parameters)
+ * Class member variable m_Mdot is updated directly by this function if required (see parameters)
  * Class member variables m_Mass is not updated directly by this function - the calculated mass is returned as the functional return
  *
- * - calculates (and limits) mass loss
- * - calculate new timestep (dt) and mass loss rate (mDot) to match (possibly limited) mass loss
+ * - calculates mass loss
+ * - calculate new mass loss rate (mDot) to match (possibly limited) mass loss
  * - calculates new mass (mass) based on (possibly limited) mass loss
  *
  * Returns existing value for mass if mass loss not being used (program option)
  *
  *
- * double CalculateMassLossValues(const bool p_UpdateMDot, const bool p_UpdateMDt)  // JR: todo: pick a better name for this...
+ * double CalculateMassLossValues(const bool p_UpdateMDot)
  *
  * @param   [IN]    p_UpdateMDot                flag to indicate whether the class member variable m_Mdot should be updated (default is false)
- * @param   [IN]    p_UpdateMDt                 flag to indicate whether the class member variable m_Dt should be updated (default is false)
  * @return                                      calculated mass (mSol)
  */
-double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_UpdateMDt) {
+double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot) {
 
     double mass = m_Mass;
 
@@ -2770,18 +2752,16 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
 
         double mDot     = CalculateMassLossRate();                              // calculate mass loss rate
         if (p_UpdateMDot) m_Mdot = mDot;                                        // update class member variable if necessary
-        double massLoss = CalculateMassLoss_Static(mass, mDot, m_Dt);           // calculate mass loss - limited to (mass * MAXIMUM_MASS_LOSS_FRACTION)
+        double massLoss = max(0.0, mDot * m_Dt * 1.0E6);                        // calculate mass loss; mass loss rate given in Msol per year, times are in Myr so need to multiply by 10^6
 
         if (OPTIONS->CheckPhotonTiringLimit()) {
             double lim = m_Luminosity / (G_SOLAR_YEAR * m_Mass / m_Radius);     // calculate the photon tiring limit in Msol yr^-1 using Owocki & Gayley 1997, equation slightly clearer in Owocki+2004 Eq. 20
             massLoss   = std::min(massLoss, lim);                               // limit mass loss to the photon tiring limit
+            if (p_UpdateMDot) m_Mdot = massLoss / m_Dt / 1.0E6;                 // update class member variable if necessary
         }
 
         mass -= massLoss;                                                       // new mass based on mass loss
         
-        // update class member variable if necessary: new timestep to match limited mass loss
-        if (p_UpdateMDt & (utils::Compare(massLoss, (mass * MAXIMUM_MASS_LOSS_FRACTION)) >= 0) )
-            m_Dt = std::round(massLoss / (mDot * 1.0E6) / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM;
     }
 
     return mass;
@@ -2793,22 +2773,20 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
  *
  * - calculates mass loss rate
  * - calculates (and limits) mass loss
- * - resets timestep (m_Dt) and mass loss rate (m_Mdot) to match (possibly limited) mass loss
+ * - resets mass loss rate (m_Mdot) to match (possibly limited) mass loss
  * - calculates and sets new mass (m_Mass) based on (possibly limited) mass loss
  * - applies mass rejuvenation factor and calculates new age
  * - updates angular momentum of mass-losing star
  *
  *
- * double ResolveMassLoss(const bool p_UpdateMDt)
- * 
- * @param   [IN]    p_UpdateMDt                 flag to indicate whether the class member variable m_Dt should be updated in BaseStar::CalculateMassLossValues()
- *                                              (default is true)
+ * void ResolveMassLoss()
+ *
  */
-void BaseStar::ResolveMassLoss(const bool p_UpdateMDt) {
+void BaseStar::ResolveMassLoss() {
 
     if (OPTIONS->UseMassLoss()) {
 
-        double mass = CalculateMassLossValues(true, p_UpdateMDt);                                   // calculate new values assuming mass loss applied
+        double mass = CalculateMassLossValues(true);                                                // calculate new values assuming mass loss applied
 
         double angularMomentumChange = (2.0/3.0) * (mass - m_Mass) * m_Radius * RSOL_TO_AU * m_Radius * RSOL_TO_AU * Omega();
                 
@@ -4363,26 +4341,25 @@ bool BaseStar::IsOneOf(const STELLAR_TYPE_LIST p_List) const {
  * @return                                      Timestep
  */
 double BaseStar::CalculateTimestep() {
-
+    
+    double radialExpansionTimescale = CalculateRadialExpansionTimescale();
+    double massChangeTimescale = CalculateMassChangeTimescale();
+    double dt = 0.0;
+    if(massChangeTimescale > 0.0)                                                                           // negative means it could not be computed (e.g., just after stellar type change)
+        dt = OPTIONS->MassChangeFraction() * massChangeTimescale;
+    if(radialExpansionTimescale > 0.0)                                                                      // negative means it could not be computed (e.g., just after stellar type change)
+        dt = dt <= 0.0 ? OPTIONS->RadialChangeFraction() * radialExpansionTimescale : std::min(dt, OPTIONS->RadialChangeFraction() * radialExpansionTimescale);
+    
     // the GBParams and Timescale calculations need to be done
     // before the timestep calculation - since the binary code
     // calls this functiom, the GBParams and Timescale functions
     // are called here
-
     CalculateGBParams();                                                                                    // calculate giant branch parameters
     CalculateTimescales();                                                                                  // calculate timescales
-    double radialExpansionTimescale = CalculateRadialExpansionTimescale();
-    double massChangeTimescale = CalculateMassChangeTimescale();
-
-    double dt = ChooseTimestep(m_Age);
-    
-    if( OPTIONS->RadialChangeFraction()!=0 && radialExpansionTimescale > 0.0 )                              // if radial expansion timescale was computed
-        dt = min(dt, OPTIONS->RadialChangeFraction() * radialExpansionTimescale);
-    if( OPTIONS->MassChangeFraction()!=0 && massChangeTimescale > 0.0 )                                     // if mass change timescale was computed
-        dt = min(dt, OPTIONS->MassChangeFraction() * massChangeTimescale);
-    
+    dt = dt <= 0.0 ? ChooseTimestep(m_Age) : std::min(dt, ChooseTimestep(m_Age));
+            
     dt = max(round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
-        
+    
     return dt;
 }
 
