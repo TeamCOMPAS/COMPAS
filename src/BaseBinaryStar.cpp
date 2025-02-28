@@ -2090,8 +2090,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         double envMassDonor    = m_Donor->Mass() - m_Donor->CoreMass();
         bool isEnvelopeRemoved = false;
 
-        if (utils::Compare(m_Donor->CoreMass(), 0) > 0 && utils::Compare(envMassDonor, 0) > 0) {                                // donor has a core and an envelope
-            if(m_MassTransferTimescale == MASS_TRANSFER_TIMESCALE::THERMAL || utils::Compare (massDiffDonor, envMassDonor) >= 0 ) {
+        if (utils::Compare(m_Donor->CoreMass(), 0.0) > 0 && utils::Compare(envMassDonor, 0.0) > 0) {                            // donor has a core and an envelope
+            if (m_MassTransferTimescale == MASS_TRANSFER_TIMESCALE::THERMAL || utils::Compare (massDiffDonor, envMassDonor) >= 0) {
                 // remove entire envelope if thermal timescale MT from a giant or if the amount of necessary mass loss exceeds the envelope mass
                 massDiffDonor     = -envMassDonor;
                 isEnvelopeRemoved = true;
