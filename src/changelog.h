@@ -1469,7 +1469,9 @@
 //                                      - Fixed typo in calculation of binding energy of secondary's envelope in the 2-stage CE prescription
 // 03.13.04   IM - Feb 28, 2025    - Defect Repair:
 //                                      - Fix to issue #1327: partial envelope removal on nuclear timescale MT from giants now enabled
+// 03.14.00   IM - Mar 1, 2025     - Enhancements:
+//                                      - Updates to improve convergence without sacrificing computational speed
 
-const std::string VERSION_STRING = "03.13.04";
+const std::string VERSION_STRING = "03.14.00";
 
 # endif // __changelog_h__
