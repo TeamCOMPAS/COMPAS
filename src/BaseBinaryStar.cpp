@@ -2068,8 +2068,8 @@ void BaseBinaryStar::CalculateWindAccretionRate() {
     }
     else {
 
-        double windVelocity1 = CalculateWindVelocity(m_Star1->Mass(), m_Star1->Radius(), m_SemiMajorAxis);
-        double windVelocity2 = CalculateWindVelocity(m_Star2->Mass(), m_Star2->Radius(), m_SemiMajorAxis);
+        double windVelocity1 = CalculateWindVelocity(m_Star1->Mass(), m_Star1->Radius(), m_SemiMajorAxis); // Wind for Star1 as donor
+        double windVelocity2 = CalculateWindVelocity(m_Star2->Mass(), m_Star2->Radius(), m_SemiMajorAxis); // Wind for Star2 as donor
     
         double windVelocity1Squared = windVelocity1 * windVelocity1;
         double windVelocity2Squared = windVelocity2 * windVelocity2;
@@ -2085,12 +2085,12 @@ void BaseBinaryStar::CalculateWindAccretionRate() {
     
         double aSquared = m_SemiMajorAxis * m_SemiMajorAxis; // use multiplication - pow() is slow
     
-        double windAccretionRate1 = - PPOW(G_AU_Msol_yr * m_Star2->Mass() / windVelocity2Squared, 2) * xi_w / (2 * aSquared) / PPOW(1 + v1Squared, 3/2) * m_Star2->MassLossDiff();
-        double windAccretionRate2 = - PPOW(G_AU_Msol_yr * m_Star1->Mass() / windVelocity1Squared, 2) * xi_w / (2 * aSquared) / PPOW(1 + v2Squared, 3/2) * m_Star1->MassLossDiff();
+        double windAccretionRate1 = - PPOW(G_AU_Msol_yr * m_Star1->Mass() / windVelocity2Squared, 2) * xi_w / (2 * aSquared) / PPOW(1 + v2Squared, 3/2) * m_Star2->MassLossDiff();
+        double windAccretionRate2 = - PPOW(G_AU_Msol_yr * m_Star2->Mass() / windVelocity1Squared, 2) * xi_w / (2 * aSquared) / PPOW(1 + v1Squared, 3/2) * m_Star1->MassLossDiff();
     
     
-        double radiusBondi1 = 2 * G_AU_Msol_yr / (windVelocity1Squared * (1 + v1Squared)) * AU_TO_RSOL; // Bondi radius in Rsol
-        double radiusBondi2 = 2 * G_AU_Msol_yr / (windVelocity2Squared * (1 + v2Squared)) * AU_TO_RSOL; // Bondi radius in Rsol
+        double radiusBondi1 = 2 * G_AU_Msol_yr * m_Star1->Mass() / (windVelocity2Squared * (1 + v2Squared)) * AU_TO_RSOL; // Bondi radius in Rsol
+        double radiusBondi2 = 2 * G_AU_Msol_yr * m_Star2->Mass() / (windVelocity1Squared * (1 + v1Squared)) * AU_TO_RSOL; // Bondi radius in Rsol
     
         // if the Radius of the star is smaller than the Bondi radius, it can accrete mass through wind accretion
         if (radiusBondi1 > m_Star1->Radius()) { m_Star1->SetWindAccretionRate(windAccretionRate1); } // Msun / yr
