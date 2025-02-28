@@ -1467,7 +1467,9 @@
 //                                      - Corrected radial estimates for mass losing Giant Branch stars
 //                                      - Added new functionality, CalculateRadiusOnMassChange(), to streamline code
 //                                      - Fixed typo in calculation of binding energy of secondary's envelope in the 2-stage CE prescription
+// 03.13.04   IM - Feb 28, 2025    - Defect Repair:
+//                                      - Fix to issue #1327: partial envelope removal on nuclear timescale MT from giants now enabled
 
-const std::string VERSION_STRING = "03.13.03";
+const std::string VERSION_STRING = "03.13.04";
 
 # endif // __changelog_h__
