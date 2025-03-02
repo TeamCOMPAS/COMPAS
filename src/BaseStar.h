@@ -264,7 +264,7 @@ public:
     
             double          CalculateMassChangeTimescale() const                                                { return CalculateMassChangeTimescale_Static(m_StellarType, m_StellarTypePrev, m_Mass, m_MassPrev, m_DtPrev); }  // Use class member variables
 
-            double          CalculateMassLossValues(const bool p_UpdateMDot = false);
+            double          CalculateMassLossValues(double p_Dt, const bool p_UpdateMDot = false);
 
     virtual double          CalculateMomentOfInertia() const                                                    { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                  // Defaults to MS. k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
     virtual double          CalculateMomentOfInertiaAU() const                                                  { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
@@ -333,7 +333,7 @@ public:
 
     virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false)                                           { return m_StellarType; }
 
-    virtual void            ResolveMassLoss();
+    virtual void            ResolveMassLoss(double p_Dt);
 
     virtual void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                     // Default does nothing, use inheritance for WDs.
        
