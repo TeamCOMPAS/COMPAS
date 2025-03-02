@@ -1469,8 +1469,10 @@
 //                                      - Fixed typo in calculation of binding energy of secondary's envelope in the 2-stage CE prescription
 // 03.13.04   IM - Feb 28, 2025    - Defect Repair:
 //                                      - Fix to issue #1327: partial envelope removal on nuclear timescale MT from giants now enabled
-// 03.14.00   IM - Mar 1, 2025     - Enhancements:
+// 03.14.00   IM - Mar 3, 2025     - Defect Repairs, Enhancements:
 //                                      - Updates to improve convergence without sacrificing computational speed
+//                                      - Capped total wind mass loss rate at MAXIMUM_WIND_MASS_LOSS_RATE (set to 0.1 Msol/yr) for all prescriptions
+//                                      - Changed order of calls to stellar evolution and wind mass loss in SSE to match BSE
 
 const std::string VERSION_STRING = "03.14.00";
 

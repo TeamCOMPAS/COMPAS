@@ -362,14 +362,14 @@ STELLAR_TYPE Star::AgeOneTimestep(const double p_DeltaTime, bool p_Switch) {
 void Star::EvolveOneTimestep(const double p_Dt) {
 
     STELLAR_TYPE stellarType;
+    
+    (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::PRE_MASS_LOSS);                           // log record - pre mass loss
+    
+    m_Star->ResolveMassLoss(p_Dt);                                                                              // apply wind mass loss if required
 
     stellarType = AgeOneTimestep(p_Dt, false);                                                                  // age the star one time step - modify stellar attributes as appropriate, but do not switch stellar type
 
     (void)SwitchTo(stellarType);                                                                                // switch phase if required
-    
-    (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::PRE_MASS_LOSS);                           // log record - pre mass loss
-    
-    m_Star->ResolveMassLoss();                                                                                  // apply wind mass loss if required
 
     if(OPTIONS->EvolvePulsars() && m_Star->StellarType() == STELLAR_TYPE::NEUTRON_STAR){                        // if star is a neutron star and we are evolving pulsars
         (void)m_Star->SpinDownIsolatedPulsar(p_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR);                             // update pulsar parameters due to spin down as an isolated pulsar; convert timestep to seconds for this function (uses cgs units)
@@ -421,6 +421,9 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
 
         unsigned long int stepNum = 0;                                                                          // initialise step number
         while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {
+            if (m_Star->StellarType() == STELLAR_TYPE::MASSLESS_REMNANT) {
+                evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;
+            }
             if (m_Star->Time() > OPTIONS->MaxEvolutionTime()) {                                                 // out of time?
                 evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                                   // set status
             }
