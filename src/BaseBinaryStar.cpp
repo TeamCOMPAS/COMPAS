@@ -1930,9 +1930,10 @@ double BaseBinaryStar::CalculateZetaRocheLobe(const double p_jLoss, const double
  * JR: todo: flesh-out this documentation
  *
  *
- * void CalculateWindsMassLoss()
+ * @param   [IN]    p_Dt                      Time step
+ * void CalculateWindsMassLoss(double p_Dt)
  */
-void BaseBinaryStar::CalculateWindsMassLoss() {
+void BaseBinaryStar::CalculateWindsMassLoss(double p_Dt) {
 
     m_aMassLossDiff = 0.0;                                                                                                      // initially - no change to orbit (semi-major axis) due to winds mass loss
 
@@ -1946,8 +1947,8 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
     else {
         if (OPTIONS->UseMassLoss()) {                                                                                           // mass loss enabled?
 
-            double mWinds1 = m_Star1->CalculateMassLossValues(true);                                                            // calculate new values assuming mass loss applied
-            double mWinds2 = m_Star2->CalculateMassLossValues(true);                                                            // calculate new values assuming mass loss applied
+            double mWinds1 = m_Star1->CalculateMassLossValues(p_Dt, true);                                                      // calculate new values assuming mass loss applied
+            double mWinds2 = m_Star2->CalculateMassLossValues(p_Dt, true);                                                      // calculate new values assuming mass loss applied
 
             double aWinds  = m_SemiMajorAxisPrev * (m_Star1->Mass() + m_Star2->Mass()) / (mWinds1 + mWinds2);                   // new semi-major axis after wind mass loss, integrated to ensure a*M conservation
             
@@ -2934,7 +2935,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
 
     (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_MT);                                                 // print (log) detailed output
 
-    CalculateWindsMassLoss();                                                                                           // calculate mass loss dues to winds
+    CalculateWindsMassLoss(p_Dt);                                                                                       // calculate mass loss dues to winds
 
     (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_WINDS);                                              // print (log) detailed output
 

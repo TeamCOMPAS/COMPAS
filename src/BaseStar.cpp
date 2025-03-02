@@ -4364,8 +4364,8 @@ double BaseStar::CalculateTimestep() {
     
     // there is a chance that mass loss from winds is much faster than previously estimated if, say, LBV winds have turned on
     // we therefore precompute the mass loss rate to avoid taking an overly long timestep, despite the extra computational costs
-    double massChangeWinds = m_Mass - CalculateMassLossValues(dt, true);
-    dt = min(dt, OPTIONS->MassChangeFraction() * (dt * m_Mass / massChangeWinds) );
+    double massChangeWinds = m_Mass - CalculateMassLossValues(dt, false);
+    dt = min(dt, OPTIONS->MassChangeFraction() * (dt * m_Mass / massChangeWinds) );    
             
     dt = max(round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, NUCLEAR_MINIMUM_TIMESTEP);
         
