@@ -447,7 +447,7 @@ private:
 
     
     
-    void    CalculateWindsMassLoss();
+    void    CalculateWindsMassLoss(double p_Dt);
     void    InitialiseMassTransfer();
 
     double  CalculateOrbitalAngularMomentum(const double p_Star1Mass,
