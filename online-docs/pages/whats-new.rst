@@ -3,6 +3,11 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.14.00 Mar 3, 2025**
+
+Updated neutron star recycling/spin-up treatments.
+* New command line option `--neutron-star-accretion-in-ce` to determine how a NS accretes mass in common envelope. 
+
 **03.13.02 Feb 19, 2025**
 
 * Replaced name of ``SHIKAUCHI`` main sequence core mass prescription with ``BRCEK``.
