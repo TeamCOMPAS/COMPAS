@@ -52,11 +52,12 @@ protected:
         // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tMS)];                                                                                                                 // Set age appropriately
         
-        // update effective "initial" mass (m_Mass0) so that the core mass is at least equal to the minimum core mass but no more than total mass
-        // (only relevant if RetainCoreMassDuringCaseAMassTransfer())
-        if (utils::Compare(CalculateCoreMassOnPhase(m_Mass0, m_Age), std::min(m_Mass, MinimumCoreMass())) < 0) {
-            double desiredCoreMass = std::min(m_Mass, MinimumCoreMass());                                                                                                       // desired core mass
-            m_Mass0 = Mass0ToMatchDesiredCoreMass(this, desiredCoreMass);                                                                                                       // use root finder to find new core mass estimate
+        // update effective "initial" mass (m_Mass0) so that core mass matches main sequence core mass
+        // (only relevant if MANDEL or BRCEK main sequence core mass prescription is used)
+        if (utils::Compare(CalculateCoreMassOnPhase(m_Mass0, m_Age), std::min(m_Mass, MainSequenceCoreMass())) < 0 ||
+            (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK && utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
+            double desiredCoreMass = std::min(m_Mass, MainSequenceCoreMass());                                                                                                  // desired core mass
+            m_Mass0                = std::max(Mass0ToMatchDesiredCoreMass(this, desiredCoreMass), std::min(m_Mass, m_MZAMS));                                                   // use root finder to find new core mass estimate, m_Mass0 should not be lower than m_Mass unless star gained mass
             if (m_Mass0 <= 0.0) {                                                                                                                                               // no root found - no solution for estimated core mass
                 m_Mass0 = m_Mass;                                                                                                                                               // if no root found we keep m_Mass0 equal to the total mass
             }
@@ -115,11 +116,14 @@ protected:
     double          CalculateRadiusAtPhaseEnd() const                               { return CalculateRadiusAtPhaseEnd(m_Mass); }                                               // Use class member variables
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS) const;
     double          CalculateRadiusOnPhase() const                                  { return CalculateRadiusOnPhase(m_Mass0, m_Tau, m_RZAMS0); }                                // Use class member variables
+    double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return GiantBranch::CalculateRadiusOnPhase(p_Mass, p_Luminosity); }                                // Treats HG stars as GB stars
     
     double          CalculateRho(const double p_Mass) const;
 
     double          CalculateTauAtPhaseEnd() const                                  { return 1.0; }                                                                             // tau = 1.0 at end of HG
     double          CalculateTauOnPhase() const;
+    
+    double          CalculateZetaEquilibrium()                                      { return -std::numeric_limits<double>::infinity(); }                                         // Nuclear timescale MT should be impossible from HG stars that evolve on a thermal timescale
 
     double          ChooseTimestep(const double p_Time) const;
 

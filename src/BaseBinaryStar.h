@@ -189,6 +189,7 @@ public:
                                                                     }
     bool                IsNSandBH() const                           { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsNSandNS() const                           { return HasTwoOf({STELLAR_TYPE::NEUTRON_STAR}); }
+    bool                IsMRandNS() const                           { return HasOneOf({STELLAR_TYPE::NEUTRON_STAR}) && HasOneOf({STELLAR_TYPE::MASSLESS_REMNANT}); }
     bool                IsMRandRemant() const                       { return HasOneOf({STELLAR_TYPE::MASSLESS_REMNANT}) && HasOneOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF, STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE}); }
     bool                IsUnbound() const                           { return (utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || (utils::Compare(m_Eccentricity, 1.0) > 0)); }         // semi major axis <= 0.0 means unbound, presumably by SN)
     bool                IsWDandWD() const                           { return HasTwoOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF}); }
@@ -535,7 +536,7 @@ private:
         return LOGGING->LogCommonEnvelope(this, p_RecordType);
     }
     
-    bool PrintPulsarEvolutionParameters(const PULSAR_RECORD_TYPE p_RecordType = PULSAR_RECORD_TYPE::DEFAULT) const {
+    bool PrintPulsarEvolutionParameters(const BSE_PULSAR_RECORD_TYPE p_RecordType = BSE_PULSAR_RECORD_TYPE::DEFAULT) const {
         return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_RecordType) : true;
     }
     
@@ -598,7 +599,7 @@ private:
             double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorMass, -p_dM , *m_Accretor, beta);
             double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (beta * p_dM)) * AU_TO_RSOL;
             
-            double radiusAfterMassLoss = m_Donor->CalculateRadiusOnPhaseTau(donorMass-p_dM, m_Donor->Tau());
+            double radiusAfterMassLoss = m_Donor->CalculateRadiusOnMassChange(-p_dM);
             
             return (RLRadius - radiusAfterMassLoss);
         }

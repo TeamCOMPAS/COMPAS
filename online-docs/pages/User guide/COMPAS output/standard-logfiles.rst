@@ -40,7 +40,7 @@ The standard log files are:
        * -
          -
        * - Pulsar Evolution
-         - Records detailed Pulsar evolution information during BSE.
+         - Records detailed Pulsar evolution information during SSE/BSE.
        * -
          - Enable with program option ``--evolve-pulsars``.
        * -

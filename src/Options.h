@@ -205,22 +205,23 @@ private:
     //       with QCRIT_PRESCRIPTION::CLAEYS123, specify "CLAEYS123" in the vector).  If there is no replacement
     //       (i.e. the deprecated value will be removed and no replacement value implemented), the replacement
     //       value string should be the empty string ("")
-    //     - a boolean flag to indicate if the deprecation notice for the option valuehas been shown - should
+    //     - a boolean flag to indicate if the deprecation notice for the option value has been shown - should
     //       be "false" in the vector, and will be set true if and when the deprecation notice for that option
     //       value is shown the first time in a COMPAS run (a deprecation notice for a deprecated option value
     //       is only shown once per COMPAS run).
 
     std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionStrings = {
-        { "black-hole-kicks",                      "black-hole-kicks-mode",                           false },
-        { "chemically-homogeneous-evolution",      "chemically-homogeneous-evolution-mode",           false },
-        { "kick-direction",                        "kick-direction-distribution",                     false },
-        { "luminous-blue-variable-prescription",   "LBV-mass-loss-prescription",                      false },
-        { "mass-transfer",                         "use-mass-transfer",                               false },
-        { "mass-transfer-thermal-limit-accretor",  "mass-transfer-thermal-limit-accretor-multiplier", false },
-        { "OB-mass-loss",                          "OB-mass-loss-prescription",                       false },
-        { "RSG-mass-loss",                         "RSG-mass-loss-prescription",                      false },
-        { "VMS-mass-loss",                         "VMS-mass-loss-prescription",                      false },
-        { "WR-mass-loss",                          "WR-mass-loss-prescription",                       false }
+        { "black-hole-kicks",                            "black-hole-kicks-mode",                           false },
+        { "chemically-homogeneous-evolution",            "chemically-homogeneous-evolution-mode",           false },
+        { "kick-direction",                              "kick-direction-distribution",                     false },
+        { "luminous-blue-variable-prescription",         "LBV-mass-loss-prescription",                      false },
+        { "mass-transfer",                               "use-mass-transfer",                               false },
+        { "mass-transfer-thermal-limit-accretor",        "mass-transfer-thermal-limit-accretor-multiplier", false },
+        { "OB-mass-loss",                                "OB-mass-loss-prescription",                       false },
+        { "retain-core-mass-during-caseA-mass-transfer", "",                                                false },
+        { "RSG-mass-loss",                               "RSG-mass-loss-prescription",                      false },
+        { "VMS-mass-loss",                               "VMS-mass-loss-prescription",                      false },
+        { "WR-mass-loss",                                "WR-mass-loss-prescription",                       false }
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool>> deprecatedOptionValues = {
@@ -228,6 +229,7 @@ private:
         { "critical-mass-ratio-prescription",    "GE20_IC", "GE_IC", false },
         { "LBV-mass-loss-prescription",          "NONE", "ZERO", false },
         { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
+        { "pulsational-pair-instability-prescription", "COMPAS", "WOOSLEY", false},
         { "OB-mass-loss",                        "NONE", "ZERO", false },
         { "OB-mass-loss-prescription",           "NONE", "ZERO", false },
         { "RSG-mass-loss",                       "NONE", "ZERO", false },
@@ -620,6 +622,7 @@ private:
         "logfile-system-parameters-record-types",
         "logfile-type",
 
+        "main-sequence-core-mass-prescription",
         "mass-change-fraction",
         "mass-loss-prescription",
         "mass-ratio-distribution",
@@ -993,8 +996,10 @@ public:
         
             bool                                                m_ExpelConvectiveEnvelopeAboveLuminosityThreshold;              // Whether to expel the convective envelope in a pulsation when log_10(L/M) reaches the threshold defined by m_LuminosityToMassThreshold
             double                                              m_LuminosityToMassThreshold;                                    // Threshold value of log_10(L/M) above which the convective envelope is expelled in a pulsation
-	
+        
             bool                                                m_RetainCoreMassDuringCaseAMassTransfer;                        // Whether to retain the approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = false)
+
+            ENUM_OPT<CORE_MASS_PRESCRIPTION>                    m_MainSequenceCoreMassPrescription;                             // Which MS core prescription
         
             ENUM_OPT<CASE_BB_STABILITY_PRESCRIPTION>            m_CaseBBStabilityPrescription;									// Which prescription for the stability of case BB/BC mass transfer
 
@@ -1470,7 +1475,13 @@ public:
     std::string                                 LogfileDoubleCompactObjects() const                                     { return m_CmdLine.optionValues.m_LogfileDoubleCompactObjects; }
     int                                         LogfileDoubleCompactObjectsRecordTypes() const                          { return m_CmdLine.optionValues.m_LogfileDoubleCompactObjectsRecordTypes; }
     std::string                                 LogfileNamePrefix() const                                               { return m_CmdLine.optionValues.m_LogfileNamePrefix; }
-    std::string                                 LogfilePulsarEvolution() const                                          { return m_CmdLine.optionValues.m_LogfilePulsarEvolution; }
+    std::string                                 LogfilePulsarEvolution() const                                          { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-pulsar-evolution"].defaulted()
+                                                                                                                                    ? m_CmdLine.optionValues.m_LogfilePulsarEvolution
+                                                                                                                                    : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PULSAR_EVOLUTION))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION))
+                                                                                                                                      );
+                                                                                                                        }
     int                                         LogfilePulsarEvolutionRecordTypes() const                               { return m_CmdLine.optionValues.m_LogfilePulsarEvolutionRecordTypes; }
     std::string                                 LogfileRLOFParameters() const                                           { return m_CmdLine.optionValues.m_LogfileRLOFParameters; }
     int                                         LogfileRLOFParametersRecordTypes() const                                { return m_CmdLine.optionValues.m_LogfileRLOFParametersRecordTypes; }
@@ -1505,6 +1516,8 @@ public:
 
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
     LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
+    
+    CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }
     
     double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
     

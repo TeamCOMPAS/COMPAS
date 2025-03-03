@@ -795,6 +795,14 @@ Default = 4.2
 
 :ref:`Back to Top <options-props-top>`
 
+**--main-sequence-core-mass-prescription** |br|
+Main sequence core mass prescription. |br|
+Options: {ZERO, MANDEL, BRCEK} |br|
+``ZERO``   : No core mass treatment, set to zero |br|
+``MANDEL`` : The core following case A mass transfer is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer |br|
+``BRCEK``  : Core mass according to Shikauchi et al. (2024) with added rejuvenation of MS accretors and updated stellar tracks |br|
+Default = MANDEL
+
 **--mass-change-fraction** |br|
 Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
 Recommended value is 0.005. |br|
@@ -1131,9 +1139,9 @@ Default = TRUE
 
 **--pulsational-pair-instability-prescription** |br|
 Pulsational pair instability prescription (only relevant when using ``--pulsational-pair-instability``). |br|
-Options: { HENDRIKS, COMPAS, STARTRACK, MARCHANT, FARMER } |br|
+Options: { HENDRIKS, WOOSLEY, STARTRACK, MARCHANT, FARMER } |br|
 ``HENDRIKS`` implements the prescription from Hendriks et al. 2023 |br|
-``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, 
+``WOOSLEY``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, 
 all as implemented in Stevenson et al. 2019. |br|
 ``FARMER`` follows Farmer et al. 2019 |br|
 Default = MARCHANT
@@ -1169,7 +1177,8 @@ Default = MULLERMANDEL
 If TRUE, preserve a larger donor core mass following case A mass transfer. |br|
 The core is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor,
 scaled by the fraction of the donor's MS lifetime at mass transfer. |br|
-Default = TRUE
+Default = TRUE |br|
+DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--main-sequence-core-mass-prescription MANDEL`` in future.
 
 **--revised-energy-formalism-nandez-ivanova** |br|
 Enable revised energy formalism of Nandez & Ivanova. |br|
@@ -1426,7 +1435,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Stellar evolution and winds**
 
 --use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
---luminous-blue-variable-multiplier, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
+--luminous-blue-variable-multiplier, --main-sequence-core-mass-prescription, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold,
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 

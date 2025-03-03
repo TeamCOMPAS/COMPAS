@@ -129,12 +129,13 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Dt                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Tau                                      = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
+    m_MainSequenceCoreMass                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
-    m_MinimumCoreMass                          = 0.0;
     m_Luminosity                               = m_LZAMS;
     m_Radius                                   = m_RZAMS;
     m_Temperature                              = m_TZAMS;
+    m_TotalMassLossRate                        = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_ComponentVelocity						   = Vector3d();
     
     m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
@@ -1361,24 +1362,6 @@ double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
     return ((2.0 / 3.0) * m / oneMinusM) - ((1.0 / 3.0) * (oneMinusM / (1.0 + (m + m)))) - (0.03 * m) + (0.2 * m / (1.0 + (1.0 / oneMinusM_6))); // eq (61) Soberman, Phinney, vdHeuvel (1997)
 }
 
-
-/*
- * Calculate the Equilibrium zeta
- *
- *
- * double CalculateZetaEquilibrium
- *
- * @return                                      Equilibrium zeta
- */
-double BaseStar::CalculateZetaEquilibrium() {
-    
-    double deltaMass           = -m_Mass / 1.0E5;
-    double radiusAfterMassGain = CalculateRadiusOnPhaseTau(m_Mass + deltaMass, m_Tau);
-    double zetaEquilibrium     = (radiusAfterMassGain - m_Radius) / deltaMass * m_Mass / m_Radius;      // dlnR / dlnM
-
-    return zetaEquilibrium;
-}
-    
 
 /*
  * Calculate the critical mass ratio for unstable mass transfer
@@ -2709,7 +2692,9 @@ double BaseStar::CalculateMassLossRate() {
 
         mDot = mDot * OPTIONS->OverallWindMassLossMultiplier();                                                     // apply overall wind mass loss multiplier
     }
-
+    
+    UpdateTotalMassLossRate(-mDot);                                                                                 // update total mass loss rate
+    
     return mDot;
 }
 
@@ -4571,12 +4556,15 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
     STELLAR_TYPE stellarType = m_StellarType;
 
     if (ShouldEvolveOnPhase()) {                                                    // evolve timestep on phase
+        
+        UpdateMainSequenceCoreMass(p_DeltaTime, -m_Mdot);                           // update core mass, relevant for MS stars
+
         m_Tau        = CalculateTauOnPhase();
 
         m_COCoreMass = CalculateCOCoreMassOnPhase();
         m_CoreMass   = CalculateCoreMassOnPhase();
         m_HeCoreMass = CalculateHeCoreMassOnPhase();
-        
+
         m_Luminosity = CalculateLuminosityOnPhase();
 
         // Calculate abundances
@@ -4627,7 +4615,7 @@ STELLAR_TYPE BaseStar::ResolveEndOfPhase(const bool p_ResolveEnvelopeLoss) {
         if (p_ResolveEnvelopeLoss) stellarType = ResolveEnvelopeLoss();         // if required, resolve envelope loss if it occurs
 
         if (stellarType == m_StellarType) {                                     // staying on phase?
-
+            
             m_Tau         = CalculateTauAtPhaseEnd();
 
             m_COCoreMass  = CalculateCOCoreMassAtPhaseEnd();

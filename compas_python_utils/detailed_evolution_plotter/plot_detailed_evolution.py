@@ -44,11 +44,13 @@ def run_main_plotter(data_path, outdir='.', show=True, use_latex=True):
     printEvolutionaryHistory(events=events)
 
     ### Produce the two plots
-    makeDetailedPlots(Data, events, outdir=outdir, use_latex=use_latex)
-    plotVanDenHeuvel(events=events, outdir=outdir, use_latex=use_latex)
+    detailed_fig = makeDetailedPlots(Data, events, outdir=outdir, use_latex=use_latex)
+    vdh_fig, vdh_events = plotVanDenHeuvel(events=events, outdir=outdir, use_latex=use_latex)
+
     if show:
         plt.show()
 
+    return detailed_fig, vdh_fig, vdh_events
 
 def set_font_params(use_latex=True):
     use_latex = use_latex and (shutil.which("latex") is not None)
@@ -127,7 +129,10 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True, use_latex=T
     fig.suptitle('Detailed evolution for seed = {}'.format(Data['SEED'][()][0]), fontsize=18)
     fig.tight_layout(h_pad=1, w_pad=1, rect=(0.08, 0.08, .98, .98), pad=0.)  # (left, bottom, right, top)
 
-    safe_save_figure(fig, f'{outdir}/detailedEvolutionPlot.png', bbox_inches='tight', pad_inches=0, format='png')
+    if outdir is not None:
+        safe_save_figure(fig, f'{outdir}/detailedEvolutionPlot.png', bbox_inches='tight', pad_inches=0, format='png')
+    
+    return fig
 
 
 ######## Plotting functions
@@ -250,6 +255,7 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
     else:
         mask &= maskNoCOs
 
+    # Plot evolutionary tracks for star 1 and star 2
     ax.plot(Data['Teff(1)'][()][mask], Data['Luminosity(1)'][()][mask], linestyle='-', c='r', label='Star 1')
     ax.plot(Data['Teff(2)'][()][mask], Data['Luminosity(2)'][()][mask], linestyle='-', c='b', label='Star 2')
     ax.set_xlabel(r'Temperature [log(T/K)]')
@@ -259,20 +265,15 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
         ax.set_ylabel('Luminosity [log(L/Lsun)]')
     ax.set_xscale('log')
     ax.set_yscale('log')
-    xlim = ax.get_xlim()
+
+    # Get the default x and y limits
+    xlim = ax.get_xlim() 
     ylim = ax.get_ylim()
-    ax.set_xlim([min(1e3, xlim[0]), max(3e6, xlim[1])])
-    ax.set_ylim([min(1e-4, ylim[0]), max(1e6, ylim[1])])
-    xlim = ax.get_xlim()
-    ylim = ax.get_ylim()
-    ax.invert_xaxis()
 
     # Add lines of const radii
     for R in np.logspace(-9, 5, 15):
         exp = "{:.1e}".format(R)
         exp = exp[-3] + exp[-1]
-        if ((int(exp) % 2) == 1):  # skip odd ones to remove clutter
-            continue
         T_K = np.logspace(3, 7, 41)  # in K
         T = T_K / 6e3  # Tsol=6e3K
 
@@ -281,20 +282,33 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
 
         L = get_L(T)
         ax.plot(T_K, L, '--k', alpha=0.2)
+
         # Plot the Rsol text at the bottom and right
-        Lbot = ylim[0] * 8  # Lsun  -2
-        Trgt = xlim[0] * 2  # 3e3
-        Tbot = np.sqrt(np.sqrt(Lbot / (R * R))) * 6e3  # K
+        logymin = np.log10(ylim[0])
+        logymax = np.log10(ylim[1])
+        logyrange = logymax - logymin
+        
+        logLbot = logymin + 0.1 * logyrange              # place labels some fraction of the y-axis up the plot
+
+        Lbot = 10**logLbot 
+        Trgt = xlim[0] * 2                              
+        
+        Tbot = np.sqrt(np.sqrt(Lbot / (R * R))) * 6e3   # K
         Lrgt = get_L(Trgt / 6e3)
         alpha = 0.4
         if use_latex:
-            str = r"$R_\odot^{{{exp}}}$".format(exp=exp)
+            str = r"$10^{{{exp}}}\,R_\odot$".format(exp=exp)
         else:
-            str = "Rsun{exp}".format(exp=exp)
+            str = "10^{exp} Rsun".format(exp=exp)
         if (Tbot > Trgt) and (Tbot < xlim[1]):
             ax.text(x=Tbot, y=Lbot, s=str, alpha=alpha)
         elif (Lrgt > Lbot) and (Lrgt < ylim[1]):
             ax.text(x=Trgt, y=Lrgt, s=str, alpha=alpha)
+
+    # Set x and y limits
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+    ax.invert_xaxis() # invert x-axis
 
     # Add in the letters corresponding to various events
     event_times = [event.time for event in events]
@@ -353,9 +367,11 @@ def plotVanDenHeuvel(events=None, outdir='.', use_latex=True):
         axs[ii].annotate(chr(ord('@') + 1 + ii), xy=(-0.15, 0.8), xycoords='axes fraction', fontsize=8,
                          fontweight='bold')
 
-    file_path = os.path.join(outdir, 'vanDenHeuvelPlot.eps')
-    safe_save_figure(fig, file_path, bbox_inches='tight', pad_inches=0, format='eps')
-    return fig
+    if outdir is not None:
+        file_path = os.path.join(outdir, 'vanDenHeuvelPlot.eps')
+        safe_save_figure(fig, file_path, bbox_inches='tight', pad_inches=0, format='eps')
+
+    return fig, events
 
 
 ### Helper functions
@@ -450,7 +466,7 @@ class Event(object):
 
         self.eventImage = None
         self.endState = None  # sets the endstate - only relevant if eventClass=='End'
-        self.eventString = self.getEventDetails(use_latex=use_latex, **kwargs)
+        self.eventString, self.image_num, self.rotate_image = self.getEventDetails(use_latex=use_latex, **kwargs)
 
     def getEventDetails(self, use_latex=True, **kwargs):
         """
@@ -487,14 +503,16 @@ class Event(object):
                     image_num = 44
             elif mtValue == 3:
                 eventString = r'Common envelope initiated by 1'
-                if (self.stype1 < 13) & (self.stype2 < 13):
+                if self.stype2 < 13:
                     image_num = 28
                 else:
                     image_num = 49
+                    rotate_image = True
             elif mtValue == 4:
                 eventString = r'Common envelope initiated by 2'
-                if (self.stype1 < 13) & (self.stype2 < 13):
+                if self.stype1 < 13:
                     image_num = 28
+                    rotate_image = True
                 else:
                     image_num = 49
             elif mtValue == 5:
@@ -535,8 +553,12 @@ class Event(object):
             else:
                 if compType < 13:
                     image_num = 13  # 13 for normal companion
+                elif compType == 13:
+                    image_num = 15  # 15 for NS companion
                 else:
-                    image_num = 15  # 15 for CO companion
+                    image_num = 17  # 17 for BH companion
+            if whichStar == 2:
+                rotate_image = True
 
         elif eventClass == 'Stype':
             whichStar = kwargs['whichStar']
@@ -566,26 +588,28 @@ class Event(object):
                 T0 = a ** 4 / 4 / beta
                 Tdelay = T0 * (1 - e ** 2) ** (7 / 2) * (
                         1 + 0.31 * e ** 10 + 0.27 * e ** 20 + 0.2 * e ** 1000) / 3.15e7 / 1e6
-                eventString = r'Double compact object ({}+{}) merging in {:.2e} Myr'.format(self.stypeName1,
-                                                                                            self.stypeName2, Tdelay)
+                eventString = r'Double compact object ({}+{}) merging in {:.2e} Myr'.format(self.stypeName1, self.stypeName2, Tdelay)
+                self.time=self.time+Tdelay
 
-                if (stype1 == 13) & (stype2 == 13):
+                if (stype1 == 13) and (stype2 == 13):
                     image_num = 55
-                elif (stype1 == 14) & (stype2 == 14):
+                elif (stype1 == 14) and (stype2 == 14):
                     image_num = 51
                 else:
                     image_num = 53
+                    if (stype1 == 14) and (stype2 == 13):
+                        rotate_image = True
 
             elif state == "Unbound":
                 eventString = r'Unbound: {}+{}'.format(self.stypeName1, self.stypeName2)
-                if (stype1 == 13) & (stype2 < 13):
+                if (stype1 == 13) and (stype2 < 13):
                     image_num = 19
-                elif (stype1 < 13) & (stype2 == 13):
+                elif (stype1 < 13) and (stype2 == 13):
                     image_num = 19
                     rotate_image = True
-                elif (stype1 == 14) & (stype2 < 13):
+                elif (stype1 == 14) and (stype2 < 13):
                     image_num = 20
-                elif (stype1 < 13) & (stype2 == 14):
+                elif (stype1 < 13) and (stype2 == 14):
                     image_num = 20
                     rotate_image = True
                 else:
@@ -601,7 +625,7 @@ class Event(object):
         if image_num != None:
             self.eventImage = self.getEventImage(image_num, rotate_image)
 
-        return eventString
+        return eventString, image_num, rotate_image
 
     def getEventImage(self, image_num, rotate_image):
         """
@@ -710,7 +734,7 @@ def printEvolutionaryHistory(Data=None, events=None):
 
     for event in events:
         ii = event.index
-        printFormattedEvolutionLine(Data['Time'][ii], event.eventString.replace('$', ''),
+        printFormattedEvolutionLine(event.time, event.eventString.replace('$', ''),
                                     Data['Mass(1)'][ii], Data['Stellar_Type(1)'][ii],
                                     Data['Mass(2)'][ii], Data['Stellar_Type(2)'][ii],
                                     Data['SemiMajorAxis'][ii], Data['Eccentricity'][ii])
