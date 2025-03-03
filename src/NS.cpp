@@ -407,17 +407,17 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
  * See sec. 2.2.1 in arxiv:1912.02415
  * 
  *
- * double DeltaAngularMomentumByAccretion_Static(const double p_Mass, const double p_Radius, const double p_MagField, const double p_SpinFrequency, const double p_mDot, const double p_Epsilon)
+ * double DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6, const double p_MagField, const double p_SpinFrequency, const double p_mDot, const double p_Epsilon)
  * 
  * @param   [IN]    p_Mass                      Initial mass of the NS (g)
- * @param   [IN]    p_Radius                    Radius of the NS (cm)
+ * @param   [IN]    p_Radius_6                  (Radius of the NS (cm))^6 (for performance - so it isn't calculated at every integration step)
  * @param   [IN]    p_MagField                  NS magnetic field strength at the beginning of accretion (Gauss)
  * @param   [IN]    p_SpinFrequency             Spin frequency for the NS at the beginning of accretion (Hz)
  * @param   [IN]    p_mDot                      Mass transfer rate (g s^-1)
  * @param   [IN]    p_Epsilon                   Efficiency factor allowing for uncertainties of coupling magnetic field and matter
  * @return                                      Change in angular momentum wrt mass (dA/dM) of NS due to accretion
  */
-double NS::DeltaAngularMomentumByAccretion_Static(const double p_Mass, const double p_Radius, const double p_MagField, const double p_SpinFrequency, const double p_mDot, const double p_Epsilon)  {
+double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6, const double p_MagField, const double p_SpinFrequency, const double p_mDot, const double p_Epsilon)  {
 
     if (utils::Compare(p_SpinFrequency, 0.0) == 0 || utils::Compare(p_MagField, 0.0) == 0) {    // NS spinning?
         return 0.0;                                                                             // no - return 0.0
@@ -425,8 +425,7 @@ double NS::DeltaAngularMomentumByAccretion_Static(const double p_Mass, const dou
     
     // calculate the Alfven radius for an accreting neutron star
     // see eq 10 in arxiv:1912.02415 
-    double radius_6       = p_Radius * p_Radius * p_Radius * p_Radius * p_Radius * p_Radius;
-    double p              = radius_6 * radius_6 / (p_mDot * p_mDot * p_Mass);
+    double p              = p_Radius_6 * p_Radius_6 / (p_mDot * p_mDot * p_Mass);
     double q              = PPOW(p, 1.0 / 7.0);
     double magneticRadius = ALFVEN_CONST * q * PPOW(p_MagField, 4.0 / 7.0) / 2.0;               // Alfven radius / 2.0 (cm)
     
@@ -502,224 +501,56 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         // the pulsar being recycled is either in a common envelope, or should have started the recycling process in previous time steps
        
         // solve for the angular momentum of the NS after accretion
-        // the accretor will gain p_MassGain g over p_TimeStep seconds
+        // the accretor will gain p_MassGain g over p_Stepsize seconds
 
-        double initialAngularMomentum_CGS = m_AngularMomentum_CGS;
-        double initialMagField            = m_PulsarDetails.magneticField;
-        double initialSpinFreq            = m_PulsarDetails.spinFrequency;
-        double initialMoI                 = m_MomentOfInertia_CGS;
-        double initialMass                = m_Mass * MSOL_TO_G;
+        double initialAngularMomentum_CGS = m_AngularMomentum_CGS;                                                                          // initial angular momentum
+        double initialMagField            = m_PulsarDetails.magneticField;                                                                  // initial magnetic field
+        double initialMass                = m_Mass * MSOL_TO_G;                                                                             // initial mass of NS in g
 
-        double mass         = initialMass;                                                                                                  // mass of NS in g
-        double radius       = m_Radius * RSOL_TO_CM;                                                                                        // radius of NS in cm
-        double mDot         = p_MassGain / p_Stepsize;                                                                                      // required mass transfer rate (g s^-1)
-        double requiredMass = mass + p_MassGain;                                                                                            // required final mass of NS (after accretion) in g
+        double radius                     = m_Radius * RSOL_TO_CM;                                                                          // radius of NS in cm
+        double radius_6                   = radius * radius * radius * radius * radius * radius;                                            // for performance - do it once
+        double mDot                       = p_MassGain / p_Stepsize;                                                                        // required mass transfer rate (g s^-1)
+        double massFinal                  = initialMass + p_MassGain;                                                                       // required final mass of NS (after accretion) in g
+
 
         // calculate initial mass slice size for integration
-        double jAcc         = DeltaAngularMomentumByAccretion_Static(mass, radius, m_PulsarDetails.magneticField, m_PulsarDetails.spinFrequency, mDot, p_Epsilon);
-        double massSlice    = std::fabs(m_AngularMomentum_CGS / 1000.0) / jAcc;                                                             // abs(Jx10^-3) / dJdM
-        int    numSteps     = std::ceil(p_MassGain / massSlice);                                                                            // steps required
-        massSlice           = p_MassGain / (double)numSteps;                                                                                // mass slice as a factor of p_MassGain
-
-
-        #define PR 15 // precision for diagnostic write
-
-        // manual check
-        
-        std::cout << "Begin manual check\n";
-
-        size_t step = 0;
-        while (utils::Compare(mass, requiredMass) < 0) {
-            jAcc                          = DeltaAngularMomentumByAccretion_Static(mass, radius, m_PulsarDetails.magneticField, m_PulsarDetails.spinFrequency, mDot, p_Epsilon);
-            m_AngularMomentum_CGS        += jAcc * massSlice;
-            mass                         += massSlice;
-            m_PulsarDetails.magneticField = (m_PulsarDetails.magneticField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-massSlice / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT;
-            m_MomentOfInertia_CGS         = CalculateMomentOfInertiaCGS_Static(mass, radius);
-            m_PulsarDetails.spinFrequency = m_AngularMomentum_CGS / m_MomentOfInertia_CGS;
-
-            step++;
-            
-            if (step % 1000000 == 0) std::cout << std::fixed << std::setprecision(PR) << std::scientific << std::boolalpha << "step = " << step << " of " << numSteps
-                                                                                                                           << ", massSlice = " << massSlice 
-                                                                                                                           << ", mass = " << mass 
-                                                                                                                           << ", requiredMass = " << requiredMass 
-                                                                                                                           << ", massSlice = " << massSlice 
-                                                                                                                           << ", jAcc = " << jAcc << "\n"
-                                                                                                                           << ", jAcc * massSlice = " << jAcc * massSlice 
-                                                                                                                           << ", initialAngularMomentum_CGS = " << initialAngularMomentum_CGS 
-                                                                                                                           << ", m_AngularMomentum_CGS = " << m_AngularMomentum_CGS 
-                                                                                                                           << ", m_MomentOfInertia_CGS = " << m_MomentOfInertia_CGS 
-                                                                                                                           << ", m_PulsarDetails.magneticField = " << m_PulsarDetails.magneticField 
-                                                                                                                           << ", m_PulsarDetails.spinFrequency = " << m_PulsarDetails.spinFrequency
-                                                                                                                           << "\n"; 
-        }
-
-        std::cout << "End manual check\n";
-        std::cout << std::fixed << std::setprecision(PR) << std::scientific << std::boolalpha << "initial mass = " << initialMass
-                                                                                              << ", final mass = " << mass 
-                                                                                              << ", required mass = " << requiredMass
-                                                                                              << ", initial J= " << initialAngularMomentum_CGS 
-                                                                                              << ", final J = " << m_AngularMomentum_CGS 
-                                                                                              << ", initial B = " << initialMagField 
-                                                                                              << ", final B = " << m_PulsarDetails.magneticField 
-                                                                                              << ", initial f = " << initialSpinFreq 
-                                                                                              << ", final f = " << m_PulsarDetails.spinFrequency 
-                                                                                              << ", initial MoI = " << initialMoI 
-                                                                                              << ", finl MoI = " << m_MomentOfInertia_CGS 
-                                                                                              << ", steps = " << step
-                                                                                              << "\n\n\n";
-
-
+        double jAcc         = DeltaJByAccretion_Static(initialMass, radius_6, m_PulsarDetails.magneticField, m_PulsarDetails.spinFrequency, mDot, p_Epsilon);
+        double massSlice    = std::fabs(m_AngularMomentum_CGS / 1000.0 / jAcc);                                                             // abs(Jx10^-3 / dJdM)
 
         // use boost ODE solver for speed and accuracy
 
         // define the ODE
-
-        boost::numeric::odeint::max_step_checker maxStepChecker(10000);
-
-        // set initial state
-        state_type x(4);
-        x[0] = initialAngularMomentum_CGS;              // angular momentum
-        x[1] = m_Mass * MSOL_TO_G;                      // mass (g)
-        x[2] = initialMagField;                         // magnetic field
-        x[3] = 0.0;                                     // mass gain - debug check
-
-        // ODE observer - called before first mass step, then after every mass step
-        struct observer {
-        
-            double m_InitialMass;
-            int    m_MaxSteps, m_ThisStep;
-            observer(const double initialMass, const int maxSteps, size_t& thisStep) : m_InitialMass(initialMass), m_MaxSteps(maxSteps), m_ThisStep(thisStep) { }
-        
-            void operator () (const state_type& x , double m) {
-                std::cout << std::fixed << std::setprecision(PR) << std::scientific << std::boolalpha << "obs: step = " << ++m_ThisStep << " of " << m_MaxSteps
-                                                                                                      << ", x[0] = " << x[0] 
-                                                                                                      << ", x[1] = " << x[1] 
-                                                                                                      << ", x[2] = " << x[2] 
-                                                                                                      << ", x[3] = " << x[3] 
-                                                                                                      << ", initial mass = " << m_InitialMass 
-                                                                                                      << ", mass diff = " << x[1] - m_InitialMass 
-                                                                                                      << "\n";
-            }
-        };
+        // initial state
+        state_type x(1);
+        x[0] = initialAngularMomentum_CGS;                                                                                                  // angular momentum
 
         // ODE
         struct ode {
-            double p_Radius, p_Mdot, p_Epsilon;
-            ode(double radius, double mdot, double epsilon) : p_Radius(radius), p_Mdot(mdot), p_Epsilon(epsilon) { }
+            double p_Mass, p_Radius, p_Radius_6, p_MagField, p_Mdot, p_Epsilon;
+            ode(double mass, double radius, double radius_6, double magField, double mdot, double epsilon) :
+                p_Mass(mass), p_Radius(radius), p_Radius_6(radius_6), p_MagField(magField), p_Mdot(mdot), p_Epsilon(epsilon) { }
 
-            // x is the current state of the ODE
-            // dxdm is the change of state wrt mass
-            // p_MassDelta is the change in mass of the NS for this step (but note there can be multiple interim (inner?) steps between calls to the observer)
+            // x is the current state of the ODE (x[0] = angular momentum J)
+            // dxdm is the change of state wrt mass (dxdm[0] = dJdm)
+            // p_MassDelta is the cumulative change in mass of the NS
             void operator () (const state_type& x, state_type& dxdm, double p_MassDelta ) const {
-                double f = x[0] / CalculateMomentOfInertiaCGS_Static(x[1], p_Radius);
-                dxdm[0]  = DeltaAngularMomentumByAccretion_Static(x[1], p_Radius, x[2], f, p_Mdot, p_Epsilon);
-                dxdm[1]  = p_MassDelta;
-                dxdm[2]  = ((x[2] - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassDelta / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT) - x[2];
-                dxdm[3]  = p_MassDelta;
+                double m = p_Mass + p_MassDelta;
+                double B = (p_MagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassDelta / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT;
+                double f = x[0] / CalculateMomentOfInertiaCGS_Static(m, p_Radius);
+                dxdm[0]  = DeltaJByAccretion_Static(m, p_Radius_6, B, f, p_Mdot, p_Epsilon);                                    
             }
         };
 
-        
-        // the boost ODE solver hangs - at least it doesn't complete within the limit of my patience...
-        // this is a manual integration using a boost stepper
-        // this overshoots - we could probablt mitigate that somewhat in a couple of different ways
-
-        std::cout << "Begin boost manual integration\n";
-
-        // set initial state
-        x[0] = initialAngularMomentum_CGS;              // angular momentum
-        x[1] = m_Mass * MSOL_TO_G;                      // mass (g)
-        x[2] = initialMagField;                         // magnetic field
-        x[3] = 0.0;                                     // mass gain - debug check
-
-        // define and initialise a stepper
-        auto stepper1 = boost::numeric::odeint::make_dense_output(1.0e-12, 1.0e-12, boost::numeric::odeint::runge_kutta_dopri5<state_type>());
-        stepper1.initialize(x, 0.0, massSlice);
-
-        // loop until mass gain ("current_time()"") equals or exceeds required mass gain
-        // limit the number of steps to 1000000 as a sanity check
-        double massGain = 0.0;
-        step            = 0;
-        while ((stepper1.current_time() < p_MassGain ) && (step < 1000000)) {
-
-            massGain += stepper1.current_time();
-            std::cout << std::fixed << std::setprecision(PR) << std::scientific << std::boolalpha << "step = " << step 
-                                                                                                  << ", t (m) = " << stepper1.current_time() 
-                                                                                                  << "x[1] (mass) = " << stepper1.current_state()[1] 
-                                                                                                  << ", massGain = " << massGain 
-                                                                                                  << ", requiredMass = " << requiredMass 
-                                                                                                  << ", p_MassGain = " << p_MassGain << "\n";
-            if (stepper1.current_state()[1] >= requiredMass || massGain > p_MassGain) {
-                // mitigate overshoot here...
-                break;
-            }
-
-            stepper1.do_step(ode{ radius, mDot, p_Epsilon });
-            step++;
-        }
-        
-        m_AngularMomentum_CGS         = stepper1.current_state()[0];
-        mass                          = stepper1.current_state()[1];
-        m_PulsarDetails.magneticField = stepper1.current_state()[2];
-        m_MomentOfInertia_CGS         = CalculateMomentOfInertiaCGS_Static(mass, radius);
-        m_PulsarDetails.spinFrequency = m_AngularMomentum_CGS / m_MomentOfInertia_CGS;
-        m_PulsarDetails.spinDownRate  = (m_AngularMomentum_CGS - initialAngularMomentum_CGS) / m_MomentOfInertia_CGS / p_Stepsize;  // eq. 11 in arxiv:1912.02415         
-
-        std::cout << "End boost manual integration\n";
-        std::cout << std::fixed << std::setprecision(PR) << std::scientific << std::boolalpha << "initial mass = " << initialMass
-                                                                                              << ", final mass = " << mass 
-                                                                                              << ", required mass = " << requiredMass
-                                                                                              << ", initial J= " << initialAngularMomentum_CGS 
-                                                                                              << ", final J = " << m_AngularMomentum_CGS 
-                                                                                              << ", initial B = " << initialMagField 
-                                                                                              << ", final B = " << m_PulsarDetails.magneticField 
-                                                                                              << ", initial f = " << initialSpinFreq 
-                                                                                              << ", final f = " << m_PulsarDetails.spinFrequency 
-                                                                                              << ", initial MoI = " << initialMoI 
-                                                                                              << ", finl MoI = " << m_MomentOfInertia_CGS 
-                                                                                              << ", steps = " << step
-                                                                                              << "\n\n\n";
-
-
-        // define stepper
-
-        controlled_stepper_type stepper;
-        // I think a dense stepper is better for multiple variables
-        //auto stepper = boost::numeric::odeint::make_dense_output(1.0e-12, 1.0e-12, boost::numeric::odeint::runge_kutta_dopri5<state_type>());
- 
-        std::cout << "Begin boost integration\n";
-       
         // integrate
-        step = 0;
-
-        // integrate_adaptive will not stop - need to ctrl-C to stop...
-        int steps = integrate_adaptive(stepper, ode{ radius, mDot, p_Epsilon }, x, 0.0, p_MassGain, massSlice, observer(initialMass, numSteps, step));
-
-//        int steps = integrate_n_steps(stepper, ode{ radius, mDot, p_Epsilon }, x, 0.0, massSlice / 10000.0, numSteps , observer(initialMass, numSteps, step), maxStepChecker);
-//        int steps = integrate_const(stepper, ode{ radius, mDot, p_Epsilon }, x, 0.0, p_MassGain, massSlice , observer(initialMass, numSteps, step), maxStepChecker);
-                   
+        controlled_stepper_type stepper;
+        (void)integrate_adaptive(stepper, ode{ initialMass, radius, radius_6, initialMagField, mDot, p_Epsilon }, x, 0.0, p_MassGain, massSlice);
+                
+        // final values
         m_AngularMomentum_CGS         = x[0];
-        mass                          = x[1];
-        m_PulsarDetails.magneticField = x[2];
-        m_MomentOfInertia_CGS         = CalculateMomentOfInertiaCGS_Static(mass, radius);
-        m_PulsarDetails.spinFrequency = x[0] / m_MomentOfInertia_CGS;
-        m_PulsarDetails.spinDownRate  = (x[0] - initialAngularMomentum_CGS) / m_MomentOfInertia_CGS / p_Stepsize;   // eq. 11 in arxiv:1912.02415 
-
-        std::cout << "End boost integration\n";
-        std::cout << std::fixed << std::setprecision(PR) << std::scientific << std::boolalpha << "initial mass = " << initialMass
-                                                                                              << ", final mass = " << mass 
-                                                                                              << ", required mass = " << requiredMass
-                                                                                              << ", initial J= " << initialAngularMomentum_CGS 
-                                                                                              << ", final J = " << m_AngularMomentum_CGS 
-                                                                                              << ", initial B = " << initialMagField 
-                                                                                              << ", final B = " << m_PulsarDetails.magneticField 
-                                                                                              << ", initial f = " << initialSpinFreq 
-                                                                                              << ", final f = " << m_PulsarDetails.spinFrequency 
-                                                                                              << ", initial MoI = " << initialMoI 
-                                                                                              << ", finl MoI = " << m_MomentOfInertia_CGS 
-                                                                                              << ", steps = " << steps
-                                                                                              << "\n";
+        m_MomentOfInertia_CGS         = CalculateMomentOfInertiaCGS_Static(massFinal, radius);
+        m_PulsarDetails.magneticField = (initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassGain / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT;
+        m_PulsarDetails.spinFrequency = m_AngularMomentum_CGS / m_MomentOfInertia_CGS;
+        m_PulsarDetails.spinDownRate  = (m_AngularMomentum_CGS - initialAngularMomentum_CGS) / m_MomentOfInertia_CGS / p_Stepsize;          // eq. 11 in arxiv:1912.02415 
     }      
     else {                                                                                                                                  // otherwise...    
         SpinDownIsolatedPulsar(p_Stepsize);                                                                                                 // ...treat the pulsar as isolated - spin down
