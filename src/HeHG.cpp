@@ -157,20 +157,24 @@ double HeHG::CalculateLuminosityOnPhase() const {
 }
 
 
+
 /*
  * Calculate radius of a Helium HertzSprung Gap star
  *
  * Uses Helium Giant Branch radius
  *
  *
- * double CalculateRadiusOnPhase()
+ * double CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) 
+ *
+ * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Luminosity                Luminosity in Lsol
  *
  * @return                                      Radius of a Helium HertzSprung Gap star
  */
-double HeHG::CalculateRadiusOnPhase() const {
+double HeHG::CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const {
 
     double R1, R2;
-    std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(m_Mass, m_Luminosity);
+    std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity);
 
     return std::min(R1, R2);
 }
