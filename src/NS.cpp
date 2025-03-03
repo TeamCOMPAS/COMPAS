@@ -531,6 +531,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             m_PulsarDetails.magneticField = 0.0;
         return; 
     }
+    std::cout << "MT TEST IN UPDATE: " << m_PulsarDetails.spinFrequency << std::endl;
 
     static double magFieldLowerLimit = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) ;    
     
@@ -539,6 +540,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
     if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGainPerTimeStep, 0.0) == 0 )) {
         // these are the ''classical'' isolated pulsars
         SpinDownIsolatedPulsar(p_Stepsize);
+        std::cout << " PSR1 " << std::endl;
     }
     else if (utils::Compare(m_PulsarDetails.spinFrequency, _2_PI * 1000.0) < 0 && 
              (!p_CommonEnvelope || (p_CommonEnvelope  && OPTIONS->NeutronStarAccretionInCE() == NS_ACCRETION_IN_CE::DISK)) 
@@ -617,7 +619,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             double thisB = m_PulsarDetails.magneticField ;
             double thisF = m_PulsarDetails.spinFrequency  ;
             double thisM = m_Mass ;
-            double divideTimestepBy = 200.0;
+            double divideTimestepBy = 50000.0;
             //std::cout<< "at MT "<< thisM << " " << thisF << " " << thisB << " " << p_Stepsize
             //<< " " << p_MassGainPerTimeStep << " " << kappa << std::endl;
             double thisMassGain = p_MassGainPerTimeStep / G_TO_KG / divideTimestepBy; 
@@ -687,6 +689,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         }        
     else  {
         //In all other conditions, treat the pulsar as isolated. 
+        std::cout << "PSR3" << std::endl;
         SpinDownIsolatedPulsar(p_Stepsize);
     }
 }
