@@ -998,7 +998,7 @@ void MainSequence::UpdateAgeAfterMassLoss() {
  */
 double MainSequence::CalculateZetaEquilibrium() {
     double deltaMass           = -m_Mass / 1.0E5;
-    double radiusAfterMassGain = CalculateRadiusOnPhaseTau(m_Mass + deltaMass, m_Tau);
+    double radiusAfterMassGain = CalculateRadiusOnMassChange(deltaMass);
     double zetaEquilibrium     = (radiusAfterMassGain - m_Radius) / deltaMass * m_Mass / m_Radius;      // dlnR / dlnM
 
     return zetaEquilibrium;

@@ -1093,7 +1093,7 @@ DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     
     // Use Eq. 6 of Mandel, Hirai, Picker (2024) rather than Eq. 6 of Picker+ 2024 for Tonset to avoid issues caused by
     // differences between temperatures in MESA models (used in Picker+ fits) and Pols models (used in Hurley+ SSE tracks)
-    double Tonset     = Tmin / std::min(0.0695 - 0.057 * m_Log10Metallicity, 0.95);                                         // eq. (6) of Mandel, Hirai, Picker, 2024
+    double Tonset     = Tmin / std::min(0.695 - 0.057 * m_Log10Metallicity, 0.95);                                          // eq. (6) of Mandel, Hirai, Picker, 2024
     
     double mCoreFinal = CalculateCoreMassAtBAGB(m_Mass0);
     double mConvMax   = std::max(m_Mass - mCoreFinal * (1.0 + MinterfMcoref), 0.0);                                         // eq. (9) of Picker+ 2024
