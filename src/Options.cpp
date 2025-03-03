@@ -207,9 +207,9 @@ void Options::OptionValues::Initialise() {
     m_MaxNumberOfTimestepIterations                                 = 99999;
     m_TimestepsFileName                                             = "";
 
-    m_TimestepMultiplier                                            = 1.0;
-    m_RadialChangeFraction                                          = MAXIMUM_RADIAL_CHANGE;
     m_MassChangeFraction                                            = MAXIMUM_MASS_LOSS_FRACTION;
+    m_RadialChangeFraction                                          = MAXIMUM_RADIAL_CHANGE;
+    m_TimestepMultiplier                                            = 1.0;
     
     // Initial mass options
     m_InitialMass                                                   = 5.0;

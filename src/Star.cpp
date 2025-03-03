@@ -421,8 +421,8 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
 
         unsigned long int stepNum = 0;                                                                          // initialise step number
         while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {
-            if (m_Star->StellarType() == STELLAR_TYPE::MASSLESS_REMNANT) {
-                evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;
+            if (m_Star->StellarType() == STELLAR_TYPE::MASSLESS_REMNANT) {                                      // massless remnant?
+                evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                           // set status
             }
             if (m_Star->Time() > OPTIONS->MaxEvolutionTime()) {                                                 // out of time?
                 evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                                   // set status
