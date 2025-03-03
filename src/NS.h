@@ -94,6 +94,8 @@ protected:
     static  double          CalculateRadiusOnPhaseInKM_Static(const double p_Mass);                                                                             // Radius on phase in km
     static  double          CalculateRadiusOnPhase_Static(const double p_Mass)  { return CalculateRadiusOnPhaseInKM_Static(p_Mass) * KM_TO_RSOL; }              // Radius on phase in Rsol
             double          CalculateRadiusOnPhase() const                      { return CalculateRadiusOnPhase_Static(m_Mass); }                               // Radius on phase in Rsol
+    
+            double          CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const                        { return CalculateRadiusOnPhase(); }        // not a meaningful calculation for NS, ignore arguments
 
             double          CalculateSpinDownRate(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius) const;
 

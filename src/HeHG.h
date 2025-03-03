@@ -91,7 +91,11 @@ protected:
             double          CalculatePerturbationMuAtPhaseEnd() const                                               { return m_Mu; }                                                        // NO-OP
 
             double          CalculateRadiusAtPhaseEnd() const                                                       { return m_Radius; }                                                    // NO-OP
-            double          CalculateRadiusOnPhase() const;
+   
+            double          CalculateRadiusOnMassChange(double p_dM)                                                { return CalculateRadiusOnPhase(m_Mass + p_dM, m_Luminosity); }
+            double          CalculateRadiusOnPhase() const                                                          { return CalculateRadiusOnPhase(m_Mass, m_Luminosity); }
+            double          CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const;
+
 
             std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) const;
             std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                          { return CalculateRadiusAndStellarTypeOnPhase(m_Mass, m_Luminosity); }
@@ -108,6 +112,8 @@ protected:
             void            CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
     
             double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                  { return GiantBranch::CalculateZetaConstantsByEnvelope(p_ZetaPrescription); } // Calculate Zetas as for other giant stars (HeMS stars were an exception)
+    
+            double          CalculateZetaEquilibrium()                                                              { return -std::numeric_limits<double>::infinity(); }                     // Nuclear timescale MT should be impossible from HG stars that evolve on a thermal timescale
 
             double          ChooseTimestep(const double p_Time) const;
 

@@ -50,9 +50,9 @@ protected:
         m_Age                      = 0.0;                               // Set age appropriately
         m_HShell                   = 0.0;                               // Initialize Hydrogen Shell
         m_HeShell                  = 0.0;                               // Initialize Helium Shell
-        m_l0Ritter                 = Calculatel0Ritter();
+        m_L0Ritter                 = Calculatel0Ritter();
         m_XRitter                  = CalculateXRitter();
-        m_lambdaRitter             = CalculatelambdaRitter();
+        m_LambdaRitter             = CalculateLambdaRitter();
         m_IsSubChandrasekharTypeIa = false; 
         m_ShouldRejuvenate         = false;
         m_AccretionRegime          = ACCRETION_REGIME::ZERO;
@@ -62,11 +62,11 @@ protected:
 
 
     // member functions - alphabetically
-    double          CalculateHeliumAbundanceCoreOnPhase() const                                             { return 1.0 - m_Metallicity; };
-    double          CalculateHeliumAbundanceSurfaceOnPhase() const                                          { return 1.0 - m_Metallicity; };
+    double          CalculateHeliumAbundanceCoreOnPhase() const                                             { return 1.0 - m_Metallicity; }
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const                                          { return 1.0 - m_Metallicity; }
     
-    double          CalculateHydrogenAbundanceCoreOnPhase() const                                           { return 0.0; };
-    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                                        { return 0.0; };
+    double          CalculateHydrogenAbundanceCoreOnPhase() const                                           { return 0.0; }
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                                        { return 0.0; }
     
     double          CalculateLambdaDewi() const                                                             { return BaseStar::CalculateLambdaDewi(); }
     double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }
@@ -83,6 +83,7 @@ protected:
                                                 const bool   p_IsHeRich)                                    { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); }            // Ignore the input accretion rate for WDs
 
     double          CalculateRadiusOnPhase(const double p_Mass) const                                       { return CalculateRadiusOnPhase_Static(p_Mass); }
+    double          CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const                        { return CalculateRadiusOnPhase(p_Mass); }                                      // ignore luminosity argument for WDs
     double          CalculateRadiusOnPhase() const                                                          { return CalculateRadiusOnPhase(m_Mass); }                                      // Use class member variables
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                          { return BaseStar::CalculateRadiusAndStellarTypeOnPhase(); }
 
