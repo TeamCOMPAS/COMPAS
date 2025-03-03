@@ -65,7 +65,7 @@ public:
     // member functions - alphabetically
     static  DBL_DBL_DBL CalculateCoreCollapseSNParams_Static(const double p_Mass);
 
-    static double       DeltaAngularMomentumByAccretion_Static(const double p_Mass, const double p_Radius, const double p_MagField, const double p_SpinFrequency, const double p_mDot, const double p_Epsilon);
+    static double       DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6, const double p_MagField, const double p_SpinFrequency, const double p_mDot, const double p_Epsilon);
 
     MT_CASE             DetermineMassTransferTypeAsDonor() const                { return MT_CASE::NONE; }                                                       // Always NONE
 
