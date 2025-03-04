@@ -4348,10 +4348,10 @@ double BaseStar::CalculateTimestep() {
     double massChangeTimescale      = CalculateMassChangeTimescale();
     double dt                       = 0.0;
 
-    if (massChangeTimescale > 0.0)                                                                           // negative means it could not be computed (e.g., just after stellar type change)
+    if (massChangeTimescale > 0.0)                                                                           // non-positive means it could not be computed (e.g., just after stellar type change)
         dt = OPTIONS->MassChangeFraction() * massChangeTimescale;
 
-    if (radialExpansionTimescale > 0.0)                                                                      // negative means it could not be computed (e.g., just after stellar type change)
+    if (radialExpansionTimescale > 0.0)                                                                      // non-positive means it could not be computed (e.g., just after stellar type change)
         dt = dt <= 0.0 ? OPTIONS->RadialChangeFraction() * radialExpansionTimescale : min(dt, OPTIONS->RadialChangeFraction() * radialExpansionTimescale);
     
     // the GBParams and Timescale calculations need to be done
