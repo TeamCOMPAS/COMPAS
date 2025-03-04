@@ -5,7 +5,8 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **03.14.00 Mar 3, 2025**
 
-* Updates to improve convergence without sacrificing computational speed
+* Updates to improve convergence without sacrificing computational speed, including updates to default mass and radial change fractions 
+per time step and their usage
 * Capped total wind mass loss rate at MAXIMUM_WIND_MASS_LOSS_RATE (set to 0.1 Msol/yr) for all prescriptions
 * Changed order of calls in SSE evolution to better match BSE evolution
 

@@ -1470,7 +1470,7 @@
 // 03.13.04   IM - Feb 28, 2025    - Defect Repair:
 //                                      - Fix to issue #1327: partial envelope removal on nuclear timescale MT from giants now enabled
 // 03.14.00   IM - Mar 3, 2025     - Defect Repairs, Enhancements:
-//                                      - Updates to improve convergence without sacrificing computational speed
+//                                      - Updates to improve convergence without sacrificing computational speed, including updates to default mass and radial change fractions per time step and their usage
 //                                      - Capped total wind mass loss rate at MAXIMUM_WIND_MASS_LOSS_RATE (set to 0.1 Msol/yr) for all prescriptions
 //                                      - Changed order of calls to stellar evolution and wind mass loss in SSE to match BSE
 
