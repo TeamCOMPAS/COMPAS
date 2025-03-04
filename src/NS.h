@@ -22,6 +22,7 @@ public:
 
         // set NS values based on options provided (so we don't need to do this every timestep)
         // JR: these are good candidates for the "globals/constants" singleton...
+        ALFVEN_CONST             = PPOW(2.0 * PI_2 / G_CGS, 1.0 / 7.0);
         NS_MAG_FIELD_LOWER_LIMIT = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField());
         NS_DECAY_MASS_SCALE      = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_G;
         NS_DECAY_TIME_SCALE      = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR; 
@@ -32,6 +33,7 @@ public:
 
         // set NS values based on options provided (so we don't need to do this every timestep)
         // JR: these are good candidates for the "globals/constants" singleton...
+        ALFVEN_CONST             = PPOW(2.0 * PI_2 / G_CGS, 1.0 / 7.0);
         NS_MAG_FIELD_LOWER_LIMIT = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField());
         NS_DECAY_MASS_SCALE      = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_G;
         NS_DECAY_TIME_SCALE      = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR; 
@@ -57,6 +59,8 @@ public:
     // static variables that only need to be calculated once
     // be aware that these variables are global (because they're static), and are shared amongst all NS instances
     // JR: these are good candidates for the "globals/constants" singleton...
+
+    static inline double ALFVEN_CONST { 0.0 };                                                                                                                  // Constant for calculating Alfven radius - CGS units (mu0 = 1.0)
     static inline double NS_MAG_FIELD_LOWER_LIMIT { 0.0 };
     static inline double NS_DECAY_MASS_SCALE { 0.0 };
     static inline double NS_DECAY_TIME_SCALE { 0.0 }; 
