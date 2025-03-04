@@ -292,8 +292,6 @@ constexpr double STARTRACK_PPISN_HE_CORE_MASS           = 45.0;                 
 
 constexpr double Q_CNO                                  = 9.9073E4;                                                 // Energy released per unit mass by hydrogen fusion via the CNO cycle in Lsol Myr Msol-1
 
-constexpr double ALFVEN_CONST                           = std::pow(2.0 * PI_2 / G_CGS, 1.0 / 7.0);                  // Constant for calculatinf Alfven radius - CGS units (mu0 = 1.0)
-
 // Initial mass of stars above which (including the limit) we allow convective core mass calculations from Shikauchi et al. (2024) and rejuvenation calculations
 // Note that this value should always be > 0.7 Msol
 constexpr double BRCEK_LOWER_MASS_LIMIT                 = 1.5;
