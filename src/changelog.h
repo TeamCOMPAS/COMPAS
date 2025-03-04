@@ -1469,13 +1469,12 @@
 //                                      - Fixed typo in calculation of binding energy of secondary's envelope in the 2-stage CE prescription
 // 03.13.04   IM - Feb 28, 2025    - Defect Repair:
 //                                      - Fix to issue #1327: partial envelope removal on nuclear timescale MT from giants now enabled
-// 03.14.00   YS - Mar 3, 2025     - Updates to NS.cpp and NS.h:
-//                                      - This update fixes the issue that during mass transfer, the spin-up of a neutron star sometimes creates a negative spin period. 
-//                                      - Added function NS::DeltaAngularMomentumByPulsarAccretion() for the integration of angular momentum of neutron star during mass transfer. 
-//                                      - Update to NS::UpdateMagneticFieldAndSpin(). For NS accreting in RLOF, adding BOOST ODE integrator to calculate the spin-up/recycling. 
-//                                      - Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star would accrete mass during a common envelope event. 
+// 03.14.00   YS/JR - Mar 03, 2025 - Defect repairs, Enhancement:
+//                                      - Fixed the issue that during mass transfer, the spin-up of a neutron star sometimes creates a negative spin period
+//                                      - Updated to NS::UpdateMagneticFieldAndSpin() for the spin-up/recycling: added Boost integration of angular momentum of neutron star during mass transfer 
+//                                      - Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star accretes mass during a common envelope event
 //                                      - Fix for issue #1002
-//                                      - Fixing for issue #1257
+//                                      - Fix for issue #1257
 
 const std::string VERSION_STRING = "03.14.00";
 
