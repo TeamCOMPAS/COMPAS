@@ -2805,7 +2805,6 @@ void BaseStar::ResolveMassLoss(double p_Dt) {
             if (IsSupernova() && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) ClearSupernovaStash();
         }
 
-        // JR: should we update the initial mass before or after we update the age after mass loss?  Or doesn't it really matter? **Ilya**
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)
         UpdateAgeAfterMassLoss();                                                                   // update age (MS, HG & HeMS)
         ApplyMassTransferRejuvenationFactor();                                                      // apply age rejuvenation factor
@@ -2983,7 +2982,7 @@ double BaseStar::CalculateMassAccretedForCO(const double p_Mass,
 
         case CE_ACCRETION_PRESCRIPTION::CHEVALIER:                                                              // CHEVALIER
                                                                                                                 // Model 2 from van Son et al. 2020
-            deltaMass = (p_Mass * p_CompanionMass) / (2.0 * (p_Mass + p_CompanionMass)) ;                       // Hoyle littleton accretion rate times inspiral time
+            deltaMass = (p_Mass * p_CompanionMass) / (2.0 * (p_Mass + p_CompanionMass)) ;                       // Hoyle-Lyttleton accretion rate times inspiral time
             break;
 
         default:                                                                                                // unknown prescription
@@ -4352,7 +4351,6 @@ double BaseStar::CalculateTimestep() {
     if (massChangeTimescale > 0.0)                                                                           // negative means it could not be computed (e.g., just after stellar type change)
         dt = OPTIONS->MassChangeFraction() * massChangeTimescale;
 
-    // *Ilya* what happens if radialExpansionTimescale == 0.0?  According to this, dt is unchanged - but could have been set above if massChangeTimescale > 0.0  Is that what you want?
     if (radialExpansionTimescale > 0.0)                                                                      // negative means it could not be computed (e.g., just after stellar type change)
         dt = dt <= 0.0 ? OPTIONS->RadialChangeFraction() * radialExpansionTimescale : min(dt, OPTIONS->RadialChangeFraction() * radialExpansionTimescale);
     
