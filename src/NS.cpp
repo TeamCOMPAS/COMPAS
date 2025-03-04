@@ -279,7 +279,7 @@ double NS::CalculateMomentOfInertiaCGS_Static(const double p_Mass, const double 
  * double CalculateSpinDownRate(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius)
  *
  * @param   [IN]    p_Omega                     Pulsar spin frequency. 
- * @param   [IN]    p_MomentOfInteria           Moment of Interia of the Neutron Star in kg m^2
+ * @param   [IN]    p_MomentOfInteria           Moment of Interia of the Neutron Star in g cm^2
  * @param   [IN]    p_MagField                  Magnetic field in Gauss 
  * @param   [IN]    p_Radius                    Radius of the Neutron Star in kilometres
  * @return                                      Spin down rate (spin frequency derivative) of an isolated Neutron Star in s^(-2)
@@ -339,8 +339,6 @@ void NS::CalculateAndSetPulsarParameters() {
         m_PulsarDetails.spinFrequency = _2_PI / (m_PulsarDetails.spinPeriod * SECONDS_IN_MS);                               // ms -> seconds
         m_PulsarDetails.birthPeriod   = m_PulsarDetails.spinPeriod * SECONDS_IN_MS;                                         // ms -> seconds 
 
-        // Note we convert neutron star MomentOfInertia from CGS to SI here
-        // JR: we do? CalculateSpinDownRate() documentation indicates MoI arg is in kg m^2 - ROBERT, please check and update documentation/comment as necessary
         m_PulsarDetails.spinDownRate      = CalculateSpinDownRate(m_PulsarDetails.spinFrequency, m_MomentOfInertia_CGS, m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM);  
         m_PulsarDetails.birthSpinDownRate = m_PulsarDetails.spinDownRate; 
         m_AngularMomentum_CGS             = m_MomentOfInertia_CGS * m_PulsarDetails.spinFrequency;                          // in CGS g cm^2 s^-1
@@ -376,7 +374,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
  
     // calculate isolated decay of the magnetic field for a neutron star
     // see Equation 6 in  arXiv:0903.3538v2       
-    m_PulsarDetails.magneticField = NS::NS_MAG_FIELD_LOWER_LIMIT + (initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_Stepsize / NS::NS_DECAY_TIME_SCALE); // update pulsar magnetic field in SI. 
+    m_PulsarDetails.magneticField = NS::NS_MAG_FIELD_LOWER_LIMIT + (initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_Stepsize / NS::NS_DECAY_TIME_SCALE); // update pulsar magnetic field in cgs. 
     
     // calculate the spin down rate for isolated neutron stars
     // see Equation 6 in arxiv:1912.02415
@@ -415,7 +413,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
  * @param   [IN]    p_SpinFrequency             Spin frequency for the NS at the beginning of accretion (Hz)
  * @param   [IN]    p_mDot                      Mass transfer rate (g s^-1)
  * @param   [IN]    p_Epsilon                   Efficiency factor allowing for uncertainties of coupling magnetic field and matter
- * @return                                      Change in angular momentum wrt mass (dA/dM) of NS due to accretion
+ * @return                                      Change in angular momentum wrt mass (dJ/dM) of NS due to accretion
  */
 double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6, const double p_MagField, const double p_SpinFrequency, const double p_mDot, const double p_Epsilon)  {
 

@@ -1475,6 +1475,7 @@
 //                                      - Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star accretes mass during a common envelope event
 //                                      - Fix for issue #1002
 //                                      - Fix for issue #1257
+//                                      - Pulsar magnetic field strength is now recorded in Gauss instead of Tesla 
 
 const std::string VERSION_STRING = "03.14.00";
 
