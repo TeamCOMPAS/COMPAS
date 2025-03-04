@@ -7,6 +7,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 Updated neutron star recycling/spin-up treatments.
 * New command line option `--neutron-star-accretion-in-ce` to determine how a NS accretes mass in common envelope. 
+* Pulsar magnetic field strength in BSE_Pulsar_Evolution file is now recorded in Gauss instead of Tesla 
 
 **03.13.02 Feb 19, 2025**
 
