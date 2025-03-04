@@ -112,7 +112,7 @@ protected:
     void            ResolveEnvelopeMassAtPhaseEnd(const double p_Tau) const                                     { ResolveEnvelopeMassOnPhase(p_Tau); }                                  // Same as on phase
     void            ResolveEnvelopeMassOnPhase(const double p_Tau) const { }                                                                                                            // NO-OP
 
-    void            ResolveMassLoss(const bool p_UpdateMDt = true) { }                                                                                                                  // NO-OP
+    void            ResolveMassLoss(double p_Dt) { }                                                                                                                                    // NO-OP
 
     STELLAR_TYPE    ResolveSkippedPhase()                                                                       { return BaseStar::ResolveSkippedPhase(); }                             // Default to BaseStar
                                                                                                                                                                                         //

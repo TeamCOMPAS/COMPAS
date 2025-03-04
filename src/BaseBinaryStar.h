@@ -100,7 +100,7 @@ public:
         m_SynchronizationTimescale         = p_Star.m_SynchronizationTimescale;
 
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
-        m_NormalizedOrbitalAngularMomentumVector     = p_Star.m_NormalizedOrbitalAngularMomentumVector;
+        m_NormalizedOrbitalAngularMomentumVector = p_Star.m_NormalizedOrbitalAngularMomentumVector;
         m_ThetaE                           = p_Star.m_ThetaE;
         m_PhiE                             = p_Star.m_PhiE;  
         m_PsiE                             = p_Star.m_PsiE;  
@@ -443,11 +443,11 @@ private:
     double  CalculateMassTransferOrbit(const double                 p_DonorMass,
                                        const double                 p_DeltaMassDonor, 
                                              BinaryConstituentStar& p_Accretor, 
-                                       const double                 p_FractionAccreted)     { return CalculateMassTransferOrbit(p_DonorMass, p_DeltaMassDonor, p_Accretor.Mass(), p_Accretor.IsDegenerate(), p_FractionAccreted); }
+                                       const double                 p_FractionAccreted) { return CalculateMassTransferOrbit(p_DonorMass, p_DeltaMassDonor, p_Accretor.Mass(), p_Accretor.IsDegenerate(), p_FractionAccreted); }
 
     
     
-    void    CalculateWindsMassLoss();
+    void    CalculateWindsMassLoss(double p_Dt);
     void    InitialiseMassTransfer();
 
     double  CalculateOrbitalAngularMomentum(const double p_Star1Mass,
@@ -582,7 +582,7 @@ private:
         }
         T operator()(double const& p_dM) {
 
-            if (p_dM >= m_Donor->Mass()) {                  // Can't remove more than the donor's mass
+            if (p_dM >= m_Donor->Mass()) {                  // can't remove more than the donor's mass
                 *m_Error = ERROR::TOO_MANY_RLOF_ITERATIONS; // set error
                 return 1000.0 * ROOT_ABS_TOLERANCE;         // arbitrary value to indicate no (sensible) solution found
             }
