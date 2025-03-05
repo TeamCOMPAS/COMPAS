@@ -3,11 +3,18 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
-**03.14.00 Mar 3, 2025**
+**03.15.00 Mar 5, 2025**
 
 Updated neutron star recycling/spin-up treatments.
 * New command line option `--neutron-star-accretion-in-ce` to determine how a NS accretes mass in common envelope. 
 * Pulsar magnetic field strength in BSE_Pulsar_Evolution file is now recorded in Gauss instead of Tesla 
+
+**03.14.00 Mar 3, 2025**
+
+* Updates to improve convergence without sacrificing computational speed, including updates to default mass and radial change fractions 
+per time step and their usage
+* Capped total wind mass loss rate at MAXIMUM_WIND_MASS_LOSS_RATE (set to 0.1 Msol/yr) for all prescriptions
+* Changed order of calls in SSE evolution to better match BSE evolution
 
 **03.13.02 Feb 19, 2025**
 

@@ -1469,7 +1469,11 @@
 //                                      - Fixed typo in calculation of binding energy of secondary's envelope in the 2-stage CE prescription
 // 03.13.04   IM - Feb 28, 2025    - Defect Repair:
 //                                      - Fix to issue #1327: partial envelope removal on nuclear timescale MT from giants now enabled
-// 03.14.00   YS/JR - Mar 03, 2025 - Defect repairs, Enhancement:
+// 03.14.00   IM - Mar 3, 2025     - Defect Repairs, Enhancements:
+//                                      - Updates to improve convergence without sacrificing computational speed, including updates to default mass and radial change fractions per time step and their usage
+//                                      - Capped total wind mass loss rate at MAXIMUM_WIND_MASS_LOSS_RATE (set to 0.1 Msol/yr) for all prescriptions
+//                                      - Changed order of calls to stellar evolution and wind mass loss in SSE to match BSE
+// 03.15.00   YS/JR - Mar 03, 2025 - Defect repairs, Enhancement:
 //                                      - Fixed the issue that during mass transfer, the spin-up of a neutron star sometimes creates a negative spin period
 //                                      - Updated to NS::UpdateMagneticFieldAndSpin() for the spin-up/recycling: added Boost integration of angular momentum of neutron star during mass transfer 
 //                                      - Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star accretes mass during a common envelope event
@@ -1477,6 +1481,6 @@
 //                                      - Fix for issue #1257
 //                                      - Pulsar magnetic field strength is now recorded in Gauss instead of Tesla 
 
-const std::string VERSION_STRING = "03.14.00";
+const std::string VERSION_STRING = "03.15.00";
 
 # endif // __changelog_h__
