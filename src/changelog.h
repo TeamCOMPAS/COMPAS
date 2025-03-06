@@ -1474,8 +1474,8 @@
 //                                      - Capped total wind mass loss rate at MAXIMUM_WIND_MASS_LOSS_RATE (set to 0.1 Msol/yr) for all prescriptions
 //                                      - Changed order of calls to stellar evolution and wind mass loss in SSE to match BSE
 // 03.15.00   YS/JR - Mar 03, 2025 - Defect repairs, Enhancement:
-//                                      - Fixed the issue that during mass transfer, the spin-up of a neutron star sometimes creates a negative spin period
-//                                      - Updated to NS::UpdateMagneticFieldAndSpin() for the spin-up/recycling: added Boost integration of angular momentum of neutron star during mass transfer 
+//                                      - Fixed the issue that during mass transfer, the spin-up of a neutron star sometimes created a negative spin period
+//                                      - Updated NS::UpdateMagneticFieldAndSpin() for spin-up/recycling: added Boost integration of angular momentum of neutron star during mass transfer 
 //                                      - Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star accretes mass during a common envelope event
 //                                      - Fix for issue #1002
 //                                      - Fix for issue #1257
