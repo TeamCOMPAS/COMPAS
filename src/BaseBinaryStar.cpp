@@ -2020,12 +2020,13 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
         case WIND_ACCRETION_PRESCRIPTION::YUNGELSON1995: { // Wind velocity according to Yungleson (1995)
 
             double ratioSeparationToRadius = p_semiMajorAxis * AU_TO_RSOL / p_DonorRadius;
-            double ratioSeparationToRadiusSquared = ratioSeparationToRadius * ratioSeparationToRadius; 
+            double ratioSeparationToRadiusSquared = ratioSeparationToRadius * ratioSeparationToRadius;
 
             double alpha_w = 0.04 * ratioSeparationToRadiusSquared / (1 + 0.04 * ratioSeparationToRadiusSquared);
 
             windVelocity = alpha_w * escapeVelocity;
 
+	    break;
         }
 
         case WIND_ACCRETION_PRESCRIPTION::HIRAI2021: { // Wind velocity with Finite disc correction according to Hirai & Mandel (2021)
@@ -2034,15 +2035,16 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
 
             windVelocity = 2.5 * (alpha_force_multiplier / (1 - alpha_force_multiplier) ) * escapeVelocity * PPOW((1 - p_DonorRadius / (p_semiMajorAxis * AU_TO_RSOL)),0.7);
 
+	   break;
         }
 
-        case WIND_ACCRETION_PRESCRIPTION::NONE: { windVelocity = 0; } // This should not be called, but otherwise C++ complains when building COMPAS
-
         // This function should not be called if the OPTION WIND_ACCRETION_PRESCRIPTION is not YUNGELSON1995 or HIRAI2021. Does this need an THROW_ERROR?
-    
-        default: { windVelocity = 0; } // This should not be called, but otherwise C++ complains when building COMPAS
 
-    return windVelocity; }
+	default: { windVelocity = 0; break;}
+
+	}
+
+    return windVelocity;
 
 }
 
@@ -2070,7 +2072,7 @@ void BaseBinaryStar::CalculateWindAccretionRate() {
 
         double windVelocity1 = CalculateWindVelocity(m_Star1->Mass(), m_Star1->Radius(), m_SemiMajorAxis); // Wind for Star1 as donor [AU / yr]
         double windVelocity2 = CalculateWindVelocity(m_Star2->Mass(), m_Star2->Radius(), m_SemiMajorAxis); // Wind for Star2 as donor [AU / yr]
-    
+
         double windVelocity1Squared = windVelocity1 * windVelocity1;
         double windVelocity2Squared = windVelocity2 * windVelocity2;
     
@@ -2080,7 +2082,7 @@ void BaseBinaryStar::CalculateWindAccretionRate() {
     
         double orbitalVelocitySquared = abs(G_AU_Msol_yr * ( totalMass ) / m_SemiMajorAxis); // orbital velocity in AU/yr
     
-        double v1Squared = orbitalVelocitySquared / windVelocity1Squared; 
+        double v1Squared = orbitalVelocitySquared / windVelocity1Squared;
         double v2Squared = orbitalVelocitySquared / windVelocity2Squared;
     
         double aSquared = m_SemiMajorAxis * m_SemiMajorAxis; // use multiplication - pow() is slow
@@ -2092,10 +2094,10 @@ void BaseBinaryStar::CalculateWindAccretionRate() {
         double radiusBondi2 = 2 * G_AU_Msol_yr * m_Star2->Mass() / (windVelocity1Squared + orbitalVelocitySquared) * AU_TO_RSOL; // Bondi radius in Rsol
     
         // if the Radius of the star is smaller than the Bondi radius, it can accrete mass through wind accretion
-        if (radiusBondi1 > m_Star1->Radius()) { m_Star1->SetWindAccretionRate(windAccretionRate1); std::cout << "Bondi radius";} // Msun / yr
+        if (radiusBondi1 > m_Star1->Radius()) { m_Star1->SetWindAccretionRate(windAccretionRate1);} // Msun / yr
         else { m_Star1->SetWindAccretionRate(0.0);}
         
-        if (radiusBondi2 > m_Star2->Radius()) { m_Star2->SetWindAccretionRate(windAccretionRate2); std::cout << "Bondi radius";} // Msun / yr
+        if (radiusBondi2 > m_Star2->Radius()) { m_Star2->SetWindAccretionRate(windAccretionRate2);} // Msun / yr
         else { m_Star2->SetWindAccretionRate(0.0);}
     }
 
