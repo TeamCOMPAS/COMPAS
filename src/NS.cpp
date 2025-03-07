@@ -157,13 +157,25 @@ double NS::CalculateBirthSpinPeriod() {
             double maximum = OPTIONS->PulsarBirthSpinPeriodDistributionMax();
             double minimum = OPTIONS->PulsarBirthSpinPeriodDistributionMin();
 
+            if ((utils::Compare(maximum, minimum) < 0.0) ||
+                (utils::Compare(maximum, 0.0) < 0.0)) {
+                // Initial distribution check. If maximum is set below minimum or below 0,
+                // default to maximum = 100 ms and minimum = 10 ms
+                maximum = 100.0;
+                minimum = 10.0;
+            } else if (utils::Compare(minimum, 0.0) < 0.0) {
+                // Initial distribution check. If minimum is below 0, 
+                // it defaults to maximume/10
+                minimum = maximum / 10.0;
+            }
+
             pSpin = minimum + (RAND->Random() * (maximum - minimum));
             } break;
 
         case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL: {                                                   // NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
 
-            double mean  = 300.0;
-            double sigma = 150.0;
+            double mean  = OPTIONS->PulsarBirthSpinPeriodDistributionMean();
+            double sigma = OPTIONS->PulsarBirthSpinPeriodDistributionSigma();
 
             // this should terminate naturally, but just in case we add a guard
             std::size_t iterations = 0;
@@ -210,7 +222,18 @@ double NS::CalculateBirthMagneticField() {
 
             double maximum = OPTIONS->PulsarBirthMagneticFieldDistributionMax();
             double minimum = OPTIONS->PulsarBirthMagneticFieldDistributionMin();
-
+            
+            if ((utils::Compare(maximum, minimum) < 0.0) ||
+                (utils::Compare(maximum, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0.0)) {
+                // Initial distribution check. If maximum is set below minimum or below lower limit,
+                // default to maximum = 10^13 G and minimum = 10^11 G
+                maximum = 13.0;
+                minimum = 11.0;
+            } else if (utils::Compare(minimum, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0.0) {
+                // Initial distribution check. If minimum is below the mangetic field lower limit, 
+                // it defaults to the lower limit.
+                minimum = NS::NS_MAG_FIELD_LOWER_LIMIT;
+            }
             log10B = minimum + (RAND->Random() * (maximum - minimum));
 
             } break;
@@ -219,16 +242,31 @@ double NS::CalculateBirthMagneticField() {
             
             double maximum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMax());
             double minimum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMin());
-
+            if ((utils::Compare(maximum, minimum) < 0.0) ||
+                (utils::Compare(maximum, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0.0)) {
+                // Initial distribution check. If maximum is set below minimum or below lower limit,
+                // default to maximum = 10^13 G and minimum = 10^11 G
+                maximum = PPOW(10.0, 13.0);
+                minimum = PPOW(10.0, 11.0);
+            } else if (utils::Compare(minimum, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0.0) {
+                // Initial distribution check. If minimum is below the mangetic field lower limit, 
+                // it defaults to the lower limit.
+                minimum = PPOW(10.0, NS::NS_MAG_FIELD_LOWER_LIMIT);
+            }
             log10B = log10(minimum + (RAND->Random() * (maximum - minimum)));
             } break;
 
         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL: {                                             // LOG NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
 
-            double mean  = 12.65;
-            double sigma = 0.55;
+            double mean  = OPTIONS->PulsarBirthMagneticFieldDistributionMean();
+            double sigma = OPTIONS->PulsarBirthMagneticFieldDistributionSigma();
 
             log10B = RAND->RandomGaussian(sigma) + mean;
+
+            // this should terminate naturally, but just in case we add a guard
+            std::size_t iterations = 0;
+            do { log10B = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_MAG_ITERATIONS && utils::Compare(log10B, 0.0) < 0);
+            if (iterations >= PULSAR_MAG_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_MAG_ITERATIONS);
             } break;
 
         default:                                                                                                // unknown prescription
@@ -262,7 +300,7 @@ double NS::CalculateBirthMagneticField() {
  * @return                                      Moment of inertia in g cm^2
  */
 double NS::CalculateMomentOfInertiaCGS_Static(const double p_Mass, const double p_Radius) {
-    double m_r = p_Mass / MSOL_TO_G / (p_Radius / KM_TO_CM);
+    double m_r = (p_Mass / MSOL_TO_G) / (p_Radius / KM_TO_CM);
     return 0.237 * p_Mass * p_Radius * p_Radius * (1.0 + (4.2 * m_r) + 90.0 * m_r * m_r * m_r * m_r);
 }
 
@@ -323,8 +361,8 @@ void NS::CalculateAndSetPulsarParameters() {
     m_PulsarDetails.spinPeriod    = CalculateBirthSpinPeriod();                                                             // spin period in ms
     m_MomentOfInertia_CGS         = CalculateMomentOfInertiaCGS();                                                          // in CGS g cm^2
 	
-    if (utils::Compare(m_PulsarDetails.spinPeriod, 0.0) == 0 || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {  // spin period or magnetic field 0.0?
-                                                                                                                            // yes - set all values to 0.0
+    if (utils::Compare(m_PulsarDetails.spinPeriod, 0.0) == 0 || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {  // Not spinning or magnetic field 0.0?
+                                                                                                                            // yes - set spin period to infinity and all other values to 0.0
         m_PulsarDetails.spinDownRate      = 0.0;
         m_PulsarDetails.birthSpinDownRate = 0.0;
         m_PulsarDetails.spinFrequency     = 0.0;
@@ -393,10 +431,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     m_PulsarDetails.spinPeriod    = std::sqrt(Psquared);
     m_PulsarDetails.spinFrequency = _2_PI / m_PulsarDetails.spinPeriod;                                                                                                // pulsar spin frequency
 
-    // calculate the spin down rate for isolated neutron stars
-    // see Equation 5 in arXiv:2406.11428 
-    double pDotTop                = constant2 * m_PulsarDetails.magneticField * m_PulsarDetails.magneticField;
-    m_PulsarDetails.spinDownRate  = pDotTop / m_PulsarDetails.spinPeriod;
+    m_PulsarDetails.spinDownRate  = CalculateSpinDownRate(m_PulsarDetails.spinPeriod, m_MomentOfInertia_CGS, m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM) ; 
 
     m_AngularMomentum_CGS         = m_PulsarDetails.spinFrequency * m_MomentOfInertia_CGS;                                                      // angular momentum of star in CGS
 }
@@ -452,6 +487,7 @@ double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6
  * Modifies the following class member variables:
  *
  *    m_AngularMomentum_CGS
+ *    m_MomentOfInertia_CGS            
  *    m_PulsarDetails.spinFrequency
  *    m_PulsarDetails.spinPeriod
  *    m_PulsarDetails.magneticField

@@ -555,6 +555,8 @@ void Options::OptionValues::Initialise() {
     m_PulsarBirthMagneticFieldDistribution.typeString               = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(m_PulsarBirthMagneticFieldDistribution.type);
     m_PulsarBirthMagneticFieldDistributionMin                       = 11.0;
     m_PulsarBirthMagneticFieldDistributionMax                       = 13.0;
+    m_PulsarBirthMagneticFieldDistributionMean                      = 12.65;
+    m_PulsarBirthMagneticFieldDistributionSigma                     = 0.55;
 
 
     // Pulsar birth spin period distribution string
@@ -562,6 +564,8 @@ void Options::OptionValues::Initialise() {
     m_PulsarBirthSpinPeriodDistribution.typeString                  = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL.at(m_PulsarBirthSpinPeriodDistribution.type);
     m_PulsarBirthSpinPeriodDistributionMin                          = 10.0;
     m_PulsarBirthSpinPeriodDistributionMax                          = 100.0;
+    m_PulsarBirthSpinPeriodDistributionMean                         = 75.0;
+    m_PulsarBirthSpinPeriodDistributionSigma                        = 25.0;
 
     m_PulsarMagneticFieldDecayTimescale                             = 1000.0;
     m_PulsarMagneticFieldDecayMassscale                             = 0.025;
@@ -1511,6 +1515,15 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-birth-magnetic-field-distribution-min",                
             po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMin)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMin),                                        
             ("Minimum pulsar birth magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMin) + ")").c_str()
+        )(
+            "pulsar-birth-magnetic-field-distribution-mean",                
+            po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMean)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMean),                                        
+            ("Mean of normal or lognormal distribution for birth magnetic field (log10 B/G) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMean) + ")").c_str()
+        )
+        (
+            "pulsar-birth-magnetic-field-distribution-sigma",                
+            po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionSigma)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionSigma),                                        
+            ("Standard deviation of normal or lognormal distribution for birth magnetic field (log10 B/G) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionSigma) + ")").c_str()
         )
         (
             "pulsar-birth-spin-period-distribution-max",                   
@@ -1521,6 +1534,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-birth-spin-period-distribution-min",                   
             po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionMin)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionMin),                                              
             ("Minimum pulsar birth spin period, in ms (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMin) + ")").c_str()
+        )
+        (
+            "pulsar-birth-spin-period-distribution-mean",                   
+            po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionMean)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionMean),                                              
+            ("Mean of normal or lognormal distribution for birth spin period (ms) (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMax) + ")").c_str()
+        )
+        (
+            "pulsar-birth-spin-period-distribution-sigma",                   
+            po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionSigma)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionSigma),                                              
+            ("Standard deviation of normal or lognormal distribution for birth spin period (ms) (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionSigma) + ")").c_str()
         )
         (
             "pulsar-magnetic-field-decay-massscale",                       
