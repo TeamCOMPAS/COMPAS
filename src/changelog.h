@@ -1477,9 +1477,15 @@
 //                                      - Fixed the issue that during mass transfer, the spin-up of a neutron star sometimes created a negative spin period
 //                                      - Updated NS::UpdateMagneticFieldAndSpin() for spin-up/recycling: added Boost integration of angular momentum of neutron star during mass transfer 
 //                                      - Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star accretes mass during a common envelope event
+//                                      - Updated references to pulsar calculations. 
+//                                      - Default pulsar birth spin period distribution is set to NORMAL instead of ZERO; and non-spinning pulsars now have spin period of inifinty instead of zero. 
+//                                      - Default pulsar birth magnetic field distribution is set to LOGNORMAL
 //                                      - Fix for issue #1002
 //                                      - Fix for issue #1257
-//                                      - Pulsar magnetic field strength is now recorded in Gauss instead of Tesla 
+//                                      - Changes to SSE/BSE_Pulsar_Evolution file:
+//                                        1). Pulsar magnetic field strength is now recorded in Gauss instead of Tesla 
+//                                        2). Spin of pulsar is now by default recorded with period (s) instead of frequency (Hz)
+//                                        3). Spin-down of pulsar (m_PulsarDetails.spinDownRate) is now tracking period derivative (p-dot, s/s) instead of frequency derivative (omega-dot, rad/s^2)
 
 const std::string VERSION_STRING = "03.15.00";
 

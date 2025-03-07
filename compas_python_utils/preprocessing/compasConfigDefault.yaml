@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Tue Mar  4 14:20:27 2025 by COMPAS v03.14.00
+##~!!~## File Created Fri Mar  7 12:22:56 2025 by COMPAS v03.15.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -82,11 +82,11 @@ numericalChoices:
 #    --hdf5-chunk-size: 100000                                             # Default: 100000
 #    --hdf5-buffer-size: 1                                                 # Default: 1
 #    --log-level: 0                                                        # Default: 0
-#    --mass-change-fraction: 0.000000                                      # Default: 0.000000                                                                                                                                                                         # approximate desired fractional changes in stellar mass per timestep
+#    --mass-change-fraction: 0.001000                                      # Default: 0.001000                                                                                                                                                                         # approximate desired fractional changes in stellar mass per timestep
 #    --maximum-evolution-time: 13700.00                                    # Default: 13700.00                                                                                                                                                                         # maximum physical time a system can be evolved [Myr]
 #    --maximum-number-timestep-iterations: 99999                           # Default: 99999
 #    --number-of-systems: 10                                               # Default: 10                                                                                                                                                                               # number of systems per batch
-#    --radial-change-fraction: 0.000000                                    # Default: 0.000000                                                                                                                                                                         # approximate desired fractional changes in stellar radius per timestep
+#    --radial-change-fraction: 0.100000                                    # Default: 0.100000                                                                                                                                                                         # approximate desired fractional changes in stellar radius per timestep
 #    --timestep-multiplier: 1.000000                                       # Default: 1.000000                                                                                                                                                                         # optional multiplier relative to default time step duration
 
     ### STELLAR PROPERTIES
@@ -274,8 +274,8 @@ stringChoices:
 #    --neutron-star-accretion-in-ce: 'ZERO'                                # Default: 'ZERO'                        # Options: ['DISK','SURFACE','ZERO']
 #    --neutron-star-equation-of-state: 'SSE'                               # Default: 'SSE'                         # Options: ['ARP3','SSE']
 #    --neutrino-mass-loss-BH-formation: 'FIXED_MASS'                       # Default: 'FIXED_MASS'                  # Options: ['FIXED_MASS','FIXED_FRACTION']
-#    --pulsar-birth-magnetic-field-distribution: 'ZERO'                    # Default: 'ZERO'                        # Options: ['LOGNORMAL','UNIFORM','FLATINLOG','ZERO']
-#    --pulsar-birth-spin-period-distribution: 'ZERO'                       # Default: 'ZERO'                        # Options: ['NORMAL','UNIFORM','ZERO']
+#    --pulsar-birth-magnetic-field-distribution: 'LOGNORMAL'               # Default: 'LOGNORMAL'                   # Options: ['LOGNORMAL','UNIFORM','FLATINLOG','ZERO']
+#    --pulsar-birth-spin-period-distribution: 'NORMAL'                     # Default: 'NORMAL'                      # Options: ['NORMAL','UNIFORM','INF']
 #    --remnant-mass-prescription: 'MULLERMANDEL'                           # Default: 'MULLERMANDEL'                # Options: ['MALTSEV2024','SCHNEIDER2020ALT','SCHNEIDER2020','MULLERMANDEL','MULLER2016','FRYER2022','FRYER2012','BELCZYNSKI2002','HURLEY2000']
 
     ### LOGFILES AND OUTPUTS 
