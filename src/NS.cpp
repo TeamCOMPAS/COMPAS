@@ -140,7 +140,7 @@ DBL_DBL_DBL NS::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
  *
  * double CalculateBirthSpinPeriod()
  *
- * @return                                      Birth spin period of Pulsar in ms
+ * @return                                      Birth spin period of Pulsar in s
  */
 double NS::CalculateBirthSpinPeriod() {
 
@@ -281,7 +281,7 @@ double NS::CalculateMomentOfInertiaCGS_Static(const double p_Mass, const double 
  * @param   [IN]    p_MomentOfInteria           Moment of Interia of the Neutron Star in g cm^2
  * @param   [IN]    p_MagField                  Magnetic field in Gauss 
  * @param   [IN]    p_Radius                    Radius of the Neutron Star in kilometres
- * @return                                      Spin down rate (spin frequency derivative) of an isolated Neutron Star in s^(-2)
+ * @return                                      Spin down rate (spin period derivative) of an isolated Neutron Star in s^(-2)
  */
 double NS::CalculateSpinDownRate(const double p_Period, const double p_MomentOfInteria, const double p_MagField, const double p_Radius) const {
 
@@ -334,7 +334,7 @@ void NS::CalculateAndSetPulsarParameters() {
         m_AngularMomentum_CGS             = 0.0;
     }
     else {                                                                                                                  // no - calculate values
-        m_PulsarDetails.spinFrequency     = _2_PI / (m_PulsarDetails.spinPeriod);                               // ms -> seconds
+        m_PulsarDetails.spinFrequency     = _2_PI / m_PulsarDetails.spinPeriod;                              
         m_PulsarDetails.birthPeriod       = m_PulsarDetails.spinPeriod ;                                         
 
         m_PulsarDetails.spinDownRate      = CalculateSpinDownRate(m_PulsarDetails.spinPeriod, m_MomentOfInertia_CGS, m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM);  
@@ -351,6 +351,7 @@ void NS::CalculateAndSetPulsarParameters() {
  *
  *    m_AngularMomentum_CGS
  *    m_PulsarDetails.spinFrequency
+ *    m_PulsarDetails.spinPeriod
  *    m_PulsarDetails.magneticField
  *    m_PulsarDetails.spinDownRate
  *
@@ -374,7 +375,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     // see Equation 6 in  arXiv:0903.3538v2       
     if (utils::Compare(initialMagField, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0) {
         // if magnetic field is already lower than the lower limit, 
-        // set it to the lower limit.
+        // set it to the value at the beginning of the timestep.
         m_PulsarDetails.magneticField = initialMagField ;
     }
     else {
@@ -396,7 +397,6 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     // see Equation 5 in arXiv:2406.11428 
     double pDotTop                = constant2 * m_PulsarDetails.magneticField * m_PulsarDetails.magneticField;
     m_PulsarDetails.spinDownRate  = pDotTop / m_PulsarDetails.spinPeriod;
-    //m_PulsarDetails.spinDownRate  = -_2_PI * pDot / (m_PulsarDetails.spinPeriod * m_PulsarDetails.spinPeriod);  
 
     m_AngularMomentum_CGS         = m_PulsarDetails.spinFrequency * m_MomentOfInertia_CGS;                                                      // angular momentum of star in CGS
 }
@@ -473,7 +473,7 @@ double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6
 void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_RecycledNS, double p_Stepsize, double p_MassGain, const double p_Epsilon) {
 
     if (m_PulsarDetails.spinPeriod == INFINITY || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {                  // NS spinning?
-        // not spinning - set all pulsar attributes to 0.0 and return
+        // not spinning - set all pulsar attributes to 0.0, spin period to infinity, and return
         m_PulsarDetails.spinDownRate  = 0.0;
         m_PulsarDetails.spinFrequency = 0.0;
         m_PulsarDetails.spinPeriod    = std::numeric_limits<float>::infinity();
@@ -494,7 +494,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         m_AngularMomentum_CGS        += jAcc;                                                                                               // angular momentum of the accreted material as it falls onto the surface of the NS
         if (utils::Compare(m_PulsarDetails.magneticField, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0) {
             // if magnetic field is already lower than the lower limit, 
-            // set it to the lower limit.
+            // set it to the value at the beginning of the timestep.
             m_PulsarDetails.magneticField = m_PulsarDetails.magneticField ;
         }
         else {
@@ -562,7 +562,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         m_MomentOfInertia_CGS         = CalculateMomentOfInertiaCGS_Static(massFinal, radius);
         if (utils::Compare(initialMagField, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0) {
             // if magnetic field is already lower than the lower limit, 
-            // set it to the lower limit.
+            // set it to the value at the beginning of the timestep.
             m_PulsarDetails.magneticField = initialMagField ;
         }
         else {
