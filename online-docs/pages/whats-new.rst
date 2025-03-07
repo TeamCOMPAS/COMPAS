@@ -7,7 +7,11 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 Updated neutron star recycling/spin-up treatments.
 * New command line option `--neutron-star-accretion-in-ce` to determine how a NS accretes mass in common envelope. 
+* Default for pulsar birth spin period distribution is now "NORMAL" distribution instead of "ZERO". Non-spinning neutron star now have spin period of infinity instead of zero. 
+* Default for pulsar birth magnetic field distribution is now "LOGNORMAL" instead of "ZERO".
 * Pulsar magnetic field strength in BSE_Pulsar_Evolution file is now recorded in Gauss instead of Tesla 
+* Pulsar spin down rate is now tracking period derivative instead of frequency derivative.
+* SSE/BSE_Pulsar_Evolution file now records pulsar spin period (s) instead of spin frequency. 
 
 **03.14.00 Mar 3, 2025**
 
