@@ -128,6 +128,7 @@ enum class ERROR: int {
     TOO_MANY_OMEGA_ITERATIONS,                                      // too many iterations in OMEGA root finder
     TOO_MANY_OMEGA_TRIES,                                           // too many tries in OMEGA root finder
     TOO_MANY_PULSAR_SPIN_ITERATIONS,                                // too many iterations calculating the pulsar birth spin period
+    TOO_MANY_PULSAR_MAG_ITERATIONS,                                 // too many iterations calculating the pulsar birth magnetic field
     TOO_MANY_RETRIES,                                               // generic too many retries
     TOO_MANY_RLOF_ITERATIONS,                                       // too many iterations in RLOF root finder
     TOO_MANY_RLOF_TRIES,                                            // too many tries in RLOF root finder

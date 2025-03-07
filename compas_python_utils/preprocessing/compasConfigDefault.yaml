@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Fri Mar  7 12:22:56 2025 by COMPAS v03.15.00
+##~!!~## File Created Fri Mar  7 17:41:06 2025 by COMPAS v03.15.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -209,8 +209,12 @@ numericalChoices:
     ### PULSAR PARAMETERS
 #    --pulsar-birth-magnetic-field-distribution-min: 11.000000             # Default: 11.000000                                                                                                                                                                        # [log10(B/G)]
 #    --pulsar-birth-magnetic-field-distribution-max: 13.000000             # Default: 13.000000                                                                                                                                                                        # [log10(B/G)]
+#    --pulsar-birth-magnetic-field-distribution-mean: 12.650000            # Default: 12.650000                                                                                                                                                                        # [log10(B/G)]
+#    --pulsar-birth-magnetic-field-distribution-sigma: 0.550000            # Default: 0.550000                                                                                                                                                                         # [log10(B/G)]
 #    --pulsar-birth-spin-period-distribution-min: 10.000000                # Default: 10.000000                                                                                                                                                                        # [ms]
 #    --pulsar-birth-spin-period-distribution-max: 100.00                   # Default: 100.00                                                                                                                                                                           # [ms]
+#    --pulsar-birth-spin-period-distribution-mean: 75.000000               # Default: 75.000000                                                                                                                                                                        # [ms]
+#    --pulsar-birth-spin-period-distribution-sigma: 25.000000              # Default: 25.000000                                                                                                                                                                        # [ms]
 #    --pulsar-magnetic-field-decay-timescale: 1000.00                      # Default: 1000.00                                                                                                                                                                          # [Myr]
 #    --pulsar-magnetic-field-decay-massscale: 0.025000                     # Default: 0.025000                                                                                                                                                                         # [Msol]
 #    --pulsar-minimum-magnetic-field: 8.000000                             # Default: 8.000000                                                                                                                                                                         # [log10(B/G)]
