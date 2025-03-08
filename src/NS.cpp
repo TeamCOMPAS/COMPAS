@@ -316,7 +316,7 @@ double NS::CalculateMomentOfInertiaCGS_Static(const double p_Mass, const double 
  * double CalculateSpinDownRate(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius)
  *
  * @param   [IN]    p_Period                    Pulsar spin period (s). 
- * @param   [IN]    p_MomentOfInteria           Moment of Intertia of the Neutron Star (g cm^2)
+ * @param   [IN]    p_MomentOfInteria           Moment of Inertia of the Neutron Star (g cm^2)
  * @param   [IN]    p_MagField                  Magnetic field (Gauss )
  * @param   [IN]    p_Radius                    Radius of the Neutron Star (kilometres)
  * @return                                      Spin down rate (spin period derivative) of an isolated Neutron Star (s^-2)
