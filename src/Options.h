@@ -504,6 +504,8 @@ private:
         "maximum-mass-donor-nandez-ivanova",
         "minimum-secondary-mass",
 
+        "neutron-star-accretion-in-ce",
+
         "orbital-period",
         "orbital-period-distribution",
         "orbital-period-max",
@@ -1101,6 +1103,8 @@ public:
 
             double                                              m_mCBUR1;                                                       // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
 
+            // Neutron star accretion in common envelope
+            ENUM_OPT<NS_ACCRETION_IN_CE>                        m_NeutronStarAccretionInCE;                                     // NS accretion in common envelope
 
             // Neutron star equation of state
             ENUM_OPT<NS_EOS>                                    m_NeutronStarEquationOfState;                                   // NS EOS
@@ -1110,11 +1114,15 @@ public:
             ENUM_OPT<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION>  m_PulsarBirthMagneticFieldDistribution;                         // Birth magnetic field distribution for pulsars
             double                                              m_PulsarBirthMagneticFieldDistributionMin;                      // Minimum birth magnetic field (log10 B/G)
             double                                              m_PulsarBirthMagneticFieldDistributionMax;                      // Maximum birth magnetic field (log10 B/G)
+            double                                              m_PulsarBirthMagneticFieldDistributionMean;                     // Mean of normal or lognormal distribution for birth magnetic field (log10 B/G)
+            double                                              m_PulsarBirthMagneticFieldDistributionSigma;                    // Standard deviation of normal or lognormal distribution for birth magnetic field (log10 B/G)
 
             // Pulsar birth spin period distribution string
             ENUM_OPT<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION>     m_PulsarBirthSpinPeriodDistribution;                            // Birth spin period distribution for pulsars
             double                                              m_PulsarBirthSpinPeriodDistributionMin;                         // Minimum birth spin period (ms)
             double                                              m_PulsarBirthSpinPeriodDistributionMax;                         // Maximum birth spin period (ms)
+            double                                              m_PulsarBirthSpinPeriodDistributionMean;                        // Mean of normal or lognormal distribution for birth spin period (ms)
+            double                                              m_PulsarBirthSpinPeriodDistributionSigma;                       // Standard deviation of normal or lognormal distribution for birth spin period (ms)
 
             double                                              m_PulsarMagneticFieldDecayTimescale;                            // Timescale on which magnetic field decays (Myr)
             double                                              m_PulsarMagneticFieldDecayMassscale;                            // Mass scale on which magnetic field decays during accretion (solar masses)
@@ -1572,6 +1580,7 @@ public:
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-BH-formation-value", m_NeutrinoMassLossValueBH, true); }
 
+    NS_ACCRETION_IN_CE                          NeutronStarAccretionInCE() const                                        { return OPT_VALUE("neutron-star-accretion-in-ce", m_NeutronStarAccretionInCE.type, true); }
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return OPT_VALUE("neutron-star-equation-of-state", m_NeutronStarEquationOfState.type, true); }
 
     std::string                                 Notes(const size_t p_Idx) const                                         { return OPT_VALUE("notes", m_Notes[p_Idx], true); }
@@ -1602,10 +1611,14 @@ public:
     PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION    PulsarBirthMagneticFieldDistribution() const                            { return OPT_VALUE("pulsar-birth-magnetic-field-distribution", m_PulsarBirthMagneticFieldDistribution.type, true); }
     double                                      PulsarBirthMagneticFieldDistributionMax() const                         { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-max", m_PulsarBirthMagneticFieldDistributionMax, true); }
     double                                      PulsarBirthMagneticFieldDistributionMin() const                         { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-min", m_PulsarBirthMagneticFieldDistributionMin, true); }
+    double                                      PulsarBirthMagneticFieldDistributionMean() const                        { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-mean", m_PulsarBirthMagneticFieldDistributionMean, true); }
+    double                                      PulsarBirthMagneticFieldDistributionSigma() const                       { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-sigma", m_PulsarBirthMagneticFieldDistributionSigma, true); }
 
     PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION       PulsarBirthSpinPeriodDistribution() const                               { return OPT_VALUE("pulsar-birth-spin-period-distribution", m_PulsarBirthSpinPeriodDistribution.type, true); }
     double                                      PulsarBirthSpinPeriodDistributionMax() const                            { return OPT_VALUE("pulsar-birth-spin-period-distribution-max", m_PulsarBirthSpinPeriodDistributionMax, true); }
     double                                      PulsarBirthSpinPeriodDistributionMin() const                            { return OPT_VALUE("pulsar-birth-spin-period-distribution-min", m_PulsarBirthSpinPeriodDistributionMin, true); }
+    double                                      PulsarBirthSpinPeriodDistributionMean() const                           { return OPT_VALUE("pulsar-birth-spin-period-distribution-mean", m_PulsarBirthSpinPeriodDistributionMean, true); }
+    double                                      PulsarBirthSpinPeriodDistributionSigma() const                          { return OPT_VALUE("pulsar-birth-spin-period-distribution-sigma", m_PulsarBirthSpinPeriodDistributionSigma, true); }
 
     double                                      PulsarLog10MinimumMagneticField() const                                 { return OPT_VALUE("pulsar-minimum-magnetic-field", m_PulsarLog10MinimumMagneticField, true); }
 

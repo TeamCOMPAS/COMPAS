@@ -708,9 +708,17 @@ const COMPASUnorderedMap<NEUTRINO_MASS_LOSS_PRESCRIPTION, std::string> NEUTRINO_
     { NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS,     "FIXED_MASS" }
 };
 
+// neutron star accretion scenario under common envelope
+enum class NS_ACCRETION_IN_CE: int { ZERO, SURFACE, DISK };
+const COMPASUnorderedMap<NS_ACCRETION_IN_CE, std::string> NS_ACCRETION_IN_CE_LABEL = {
+    { NS_ACCRETION_IN_CE::ZERO,  "ZERO" },
+    { NS_ACCRETION_IN_CE::SURFACE, "SURFACE" },
+    { NS_ACCRETION_IN_CE::DISK, "DISK" },
+};
+
 // neutron star equations of state
 enum class NS_EOS: int { SSE, ARP3 };
-const COMPASUnorderedMap<NS_EOS, std::string> NS_EOSLabel = {
+const COMPASUnorderedMap<NS_EOS, std::string> NS_EOS_LABEL = {
     { NS_EOS::SSE,  "SSE" },
     { NS_EOS::ARP3, "ARP3" }
 };
@@ -784,9 +792,9 @@ const COMPASUnorderedMap<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, std::string> 
 };
 
 // pulsar birth spin period distributions
-enum class PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION: int { ZERO, UNIFORM, NORMAL };
+enum class PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION: int { INF, UNIFORM, NORMAL };
 const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL = {
-    { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::ZERO,    "ZERO" },
+    { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::INF,     "INF" },
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM, "UNIFORM" },
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL,  "NORMAL" }
 };

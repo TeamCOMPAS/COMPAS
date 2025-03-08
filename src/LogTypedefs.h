@@ -860,6 +860,7 @@ enum class PROGRAM_OPTION: int {
 
     NOTES,
 
+    NS_ACCRETION_IN_CE,
     NS_EOS,
 
     ORBITAL_PERIOD,
@@ -1081,6 +1082,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::NOTES,                                            "NOTES" },
 
+    { PROGRAM_OPTION::NS_ACCRETION_IN_CE,                               "NS_ACCRETION_IN_CE" },
     { PROGRAM_OPTION::NS_EOS,                                           "NS_EOS" },
 
     { PROGRAM_OPTION::ORBITAL_PERIOD,                                   "ORBITAL_PERIOD" },
@@ -1299,12 +1301,12 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::OMEGA_ZAMS,                                        { TYPENAME::DOUBLE,           "Omega@ZAMS",                      "Hz",               24, 15}},
     { ANY_STAR_PROPERTY::ORBITAL_ENERGY_POST_SUPERNOVA,                     { TYPENAME::DOUBLE,           "Orbital_Energy>SN",               "Msol^2AU^-1",      24, 15}},
     { ANY_STAR_PROPERTY::ORBITAL_ENERGY_PRE_SUPERNOVA,                      { TYPENAME::DOUBLE,           "Orbital_Energy<SN",               "Msol^2AU^-1",      24, 15}},
-    { ANY_STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,                             { TYPENAME::DOUBLE,           "Pulsar_Mag_Field",                "Tesla",            24, 15}},
-    { ANY_STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE,                             { TYPENAME::DOUBLE,           "Pulsar_Spin_Down",                "rad/s^2",          24, 15}},
+    { ANY_STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,                             { TYPENAME::DOUBLE,           "Pulsar_Mag_Field",                "Gauss",            24, 15}},
+    { ANY_STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE,                             { TYPENAME::DOUBLE,           "Pulsar_Spin_Down",                "s/s",              24, 15}},
     { ANY_STAR_PROPERTY::PULSAR_BIRTH_PERIOD,                               { TYPENAME::DOUBLE,           "Pulsar_Birth_Period",             "s",                24, 15}},
     { ANY_STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,                       { TYPENAME::DOUBLE,           "Pulsar_Birth_Spin_Down",          "s/s",              24, 15}},
     { ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY,                             { TYPENAME::DOUBLE,           "Pulsar_Spin_Freq",                "rad/s",            24, 15}},
-    { ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD,                                { TYPENAME::DOUBLE,           "Pulsar_Spin_Period",              "ms",               24, 15}},
+    { ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD,                                { TYPENAME::DOUBLE,           "Pulsar_Spin_Period",              "s",                24, 15}},
     { ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE,                        { TYPENAME::DOUBLE,           "Tau_Radial",                      "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE,   { TYPENAME::DOUBLE,           "Tau_Radial>CE",                   "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE,    { TYPENAME::DOUBLE,           "Tau_Radial<CE",                   "Myr",              24, 15}},
@@ -1623,6 +1625,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                         { TYPENAME::INT,        "PO_Neutrino_Mass_Loss_Assmptn",             "-",          4, 1 }},
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                              { TYPENAME::DOUBLE,     "PO_Neutrino_Mass_Loss_Value",               "-",         24, 15}},
 
+    { PROGRAM_OPTION::NS_ACCRETION_IN_CE,                                       { TYPENAME::INT,        "PO_NS_ACCRETION_IN_CE",                     "-",          4, 1 }},
     { PROGRAM_OPTION::NS_EOS,                                                   { TYPENAME::INT,        "PO_NS_EOS",                                 "-",          4, 1 }},
 
     { PROGRAM_OPTION::ORBITAL_PERIOD,                                           { TYPENAME::DOUBLE,     "PO_Orbital_Period",                         "days",      24, 15}},
@@ -1969,8 +1972,8 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,
     STAR_1_PROPERTY::PULSAR_MAGNETIC_FIELD,
     STAR_2_PROPERTY::PULSAR_MAGNETIC_FIELD,
-    STAR_1_PROPERTY::PULSAR_SPIN_FREQUENCY,
-    STAR_2_PROPERTY::PULSAR_SPIN_FREQUENCY,
+    STAR_1_PROPERTY::PULSAR_SPIN_PERIOD,
+    STAR_2_PROPERTY::PULSAR_SPIN_PERIOD,
     STAR_1_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_2_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_1_PROPERTY::PULSAR_BIRTH_PERIOD,
@@ -2018,8 +2021,8 @@ const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
     BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,
     STAR_1_PROPERTY::PULSAR_MAGNETIC_FIELD,
     STAR_2_PROPERTY::PULSAR_MAGNETIC_FIELD,
-    STAR_1_PROPERTY::PULSAR_SPIN_FREQUENCY,
-    STAR_2_PROPERTY::PULSAR_SPIN_FREQUENCY,
+    STAR_1_PROPERTY::PULSAR_SPIN_PERIOD,
+    STAR_2_PROPERTY::PULSAR_SPIN_PERIOD,
     STAR_1_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_2_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_1_PROPERTY::PULSAR_BIRTH_PERIOD,
@@ -2204,7 +2207,7 @@ const ANY_PROPERTY_VECTOR SSE_PULSAR_EVOLUTION_REC = {
     STAR_PROPERTY::MASS,
     STAR_PROPERTY::STELLAR_TYPE,
     STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,
-    STAR_PROPERTY::PULSAR_SPIN_FREQUENCY,
+    STAR_PROPERTY::PULSAR_SPIN_PERIOD,
     STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_PROPERTY::PULSAR_BIRTH_PERIOD,
     STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,

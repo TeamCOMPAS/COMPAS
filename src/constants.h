@@ -278,6 +278,7 @@ constexpr double ADAPTIVE_MASS0_SEARCH_FACTOR_FRAC      = 1.0;                  
 constexpr int    MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS = 1000;                                                   // Maximum number of iterations to find remnant mass in GiantBranch::CalculateRemnantMassByMullerMandel()
 
 constexpr int    PULSAR_SPIN_ITERATIONS                 = 100;                                                      // Maximum number of iterations to find pulsar birth spin period in NS::CalculatePulsarBirthSpinPeriod()
+constexpr int    PULSAR_MAG_ITERATIONS                  = 100;                                                      // Maximum number of iterations to find pulsar birth magnetic field in NS::CalculateBirthMagneticField()
 
 constexpr int    SEMI_MAJOR_AXIS_SAMPLES                = 100;                                                      // Maximum number of samples when sampling period/semi-major axis in utils::SampleSemiMajorAxis()
 
@@ -294,8 +295,6 @@ constexpr double FARMER_PPISN_UPP_LIM_INSTABILLITY      = 140.0;                
 constexpr double STARTRACK_PPISN_HE_CORE_MASS           = 45.0;                                                     // Helium core mass remaining following PPISN as assumed in StarTrack (Belczynski et al. 2017 https://arxiv.org/abs/1607.03116)
 
 constexpr double Q_CNO                                  = 9.9073E4;                                                 // Energy released per unit mass by hydrogen fusion via the CNO cycle in Lsol Myr Msol-1
-
-constexpr double ALFVEN_CONST                           = std::pow(2.0 * PI_2 / G_CGS, 1.0 / 7.0);                  // Constant for calculatinf Alfven radius - CGS units (mu0 = 1.0)
 
 // Initial mass of stars above which (including the limit) we allow convective core mass calculations from Shikauchi et al. (2024) and rejuvenation calculations
 // Note that this value should always be > 0.7 Msol
