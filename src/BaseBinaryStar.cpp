@@ -1878,11 +1878,14 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
             double p_MassDonor0, p_MassAccretor0, p_FractionAccreted, p_IsAccretorDegenerate;
             ode(double massDonor0, double massAccretor0, double fractionAccreted, bool isAccretorDegenerate) : p_MassDonor0(massDonor0), p_MassAccretor0(massAccretor0), p_FractionAccreted(fractionAccreted), p_IsAccretorDegenerate(isAccretorDegenerate) {}
 
-            void operator()(state_type const& x, state_type& dxdt, double p_MassChange ) const {
+            // x is the current state of the ODE (x[0] = semi-major axis a)
+            // dxdm is the change of state wrt mass (dxdm[0] = dadm)
+            // p_MassChange is the cumulative change in mass of the star(s)
+            void operator()(state_type const& x, state_type& dxdm, double p_MassChange ) const {
                 double massD = p_MassDonor0 + p_MassChange;
                 double massA = p_MassAccretor0 - p_MassChange * p_FractionAccreted;
                 double jLoss = CalculateGammaAngularMomentumLoss_Static(massD, massA, p_IsAccretorDegenerate);
-                dxdt[0]      = (-2.0 / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / (massA + massD)))) * x[0];
+                dxdm[0]      = (-2.0 / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / (massA + massD)))) * x[0];
             }
         };
 
@@ -2521,6 +2524,7 @@ void BaseBinaryStar::ResolveMassChanges() {
 
     // update binary separation, but only if semimajor axis not already infinite and binary does not contain a massless remnant
     // JR: note, this will (probably) fail if option --fp-error-mode is not OFF (the calculation that resulted in m_SemiMajorAxis = inf will (probably) result in a trap)
+    // Maybe use std::isfinite(p_SemiMajorAxis) to ensure p_SemiMajorAxis is not NaN or inf
     if (!isinf(m_SemiMajorAxis) && !HasOneOf({STELLAR_TYPE::MASSLESS_REMNANT}))
         m_SemiMajorAxis = m_SemiMajorAxisPrev + m_aMassLossDiff + m_aMassTransferDiff;
     

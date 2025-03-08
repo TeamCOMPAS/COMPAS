@@ -3,6 +3,20 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.15.00 Mar 5, 2025**
+
+Updated neutron star recycling/spin-up treatments.
+* New command line option `--neutron-star-accretion-in-ce` to determine how a NS accretes mass in common envelope. 
+* New command line options `----pulsar-birth-magnetic-field-distribution-mean` and `----pulsar-birth-magnetic-field-distribution-sigma` to determine the birth distribution of pulsar magnetic field when it's normal or lognormal. 
+* New command line options `----pulsar-birth-spin-period-distribution-mean` and `----pulsar-birth-spin-period-distribution-sigma` to determine the birth distribution of pulsar period when it's normal or lognormal.  
+* Default for pulsar birth spin period distribution is now "NORMAL" distribution instead of "ZERO". Non-spinning neutron star now have spin period of infinity instead of zero. 
+* Default for pulsar birth magnetic field distribution is now "LOGNORMAL" instead of "ZERO".
+* Pulsar magnetic field strength in BSE_Pulsar_Evolution file is now recorded in Gauss instead of Tesla 
+* Pulsar spin down rate is now tracking period derivative instead of frequency derivative.
+* SSE/BSE_Pulsar_Evolution file by default now records pulsar spin period (s) instead of spin frequency. Spin frequency is still tracked and can be added as an output in the logfiles.
+* New safeguard protocols in NS::CalculateBirthSpinPeriod() and NS::CalculateBirthMagneticField() to check the inputs for birth distributions of pulsar spin period and magnetic field are valid. However, users are strongly encouraged to make sensible inputs. 
+* Consider neutron star not spinning when spin period is infinity, spin frequency is 0 or magnetic field is 0, and all subsequent pulsar parameters are set to 0.
+
 **03.14.00 Mar 3, 2025**
 
 * Updates to improve convergence without sacrificing computational speed, including updates to default mass and radial change fractions 
