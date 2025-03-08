@@ -1473,7 +1473,9 @@
 //                                      - Updates to improve convergence without sacrificing computational speed, including updates to default mass and radial change fractions per time step and their usage
 //                                      - Capped total wind mass loss rate at MAXIMUM_WIND_MASS_LOSS_RATE (set to 0.1 Msol/yr) for all prescriptions
 //                                      - Changed order of calls to stellar evolution and wind mass loss in SSE to match BSE
+// 03.14.01   IM - Mar 9, 2025     - Defect Repair:
+//                                      - Added a check to prevent a divide-by-zero error from the previous PR (resolves issue #1345)
 
-const std::string VERSION_STRING = "03.14.00";
+const std::string VERSION_STRING = "03.14.01";
 
 # endif // __changelog_h__
