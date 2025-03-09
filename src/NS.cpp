@@ -136,7 +136,8 @@ DBL_DBL_DBL NS::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
 
 /*
  * Calculate the spin period of a Pulsar at birth according to selected distribution (by commandline option)
- *
+ * Users should note that when choosing the NOSPIN option, 
+ * pulsar spin frequency is set to 0 and spin period is infinity. 
  *
  * double CalculateBirthSpinPeriod()
  *
@@ -148,26 +149,15 @@ double NS::CalculateBirthSpinPeriod() {
 
     switch (OPTIONS->PulsarBirthSpinPeriodDistribution()) {                                                     // which distribution?
 
-        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::INF:                                                        // INFINITY if pulsar not spinning 
-            pSpin = std::numeric_limits<float>::infinity();
-            break;
+        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NOSPIN: {                                                   // Set pulsar spin frequency to 0 if pulsar not spinning. 
+            double pSpinFrequency = 0.0;
+            pSpin = _2_PI/pSpinFrequency;
+            } break;
 
         case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM: {                                                  // UNIFORM distribution between minimum and maximum value as in Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (default Pmin = and Pmax = )
                                                                                                                 // and also Kiel et al 2008 https://arxiv.org/abs/0805.0059 (default Pmin = 10 ms and Pmax 100 ms, section 3.4)
             double maximum = OPTIONS->PulsarBirthSpinPeriodDistributionMax();
             double minimum = OPTIONS->PulsarBirthSpinPeriodDistributionMin();
-
-            if ((utils::Compare(maximum, minimum) < 0.0) ||
-                (utils::Compare(maximum, 0.0) < 0.0)) {
-                // Initial distribution check. If maximum is set below minimum or below 0,
-                // default to maximum = 100 ms and minimum = 10 ms
-                maximum = 100.0;
-                minimum = 10.0;
-            } else if (utils::Compare(minimum, 0.0) < 0.0) {
-                // Initial distribution check. If minimum is below 0, 
-                // it defaults to maximum/10
-                minimum = maximum / 10.0;
-            }
 
             pSpin = minimum + (RAND->Random() * (maximum - minimum));
             } break;
@@ -223,17 +213,6 @@ double NS::CalculateBirthMagneticField() {
             double maximum = OPTIONS->PulsarBirthMagneticFieldDistributionMax();
             double minimum = OPTIONS->PulsarBirthMagneticFieldDistributionMin();
             
-            if ((utils::Compare(maximum, minimum) < 0.0) ||
-                (utils::Compare(maximum, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0.0)) {
-                // Initial distribution check. If maximum is set below minimum or below lower limit,
-                // default to maximum = 10^13 G and minimum = 10^11 G
-                maximum = 13.0;
-                minimum = 11.0;
-            } else if (utils::Compare(minimum, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0.0) {
-                // Initial distribution check. If minimum is below the mangetic field lower limit, 
-                // it defaults to the lower limit.
-                minimum = NS::NS_MAG_FIELD_LOWER_LIMIT;
-            }
             log10B = minimum + (RAND->Random() * (maximum - minimum));
 
             } break;
@@ -242,17 +221,7 @@ double NS::CalculateBirthMagneticField() {
             
             double maximum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMax());
             double minimum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMin());
-            if ((utils::Compare(maximum, minimum) < 0.0) ||
-                (utils::Compare(maximum, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0.0)) {
-                // Initial distribution check. If maximum is set below minimum or below lower limit,
-                // default to maximum = 10^13 G and minimum = 10^11 G
-                maximum = PPOW(10.0, 13.0);
-                minimum = PPOW(10.0, 11.0);
-            } else if (utils::Compare(minimum, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0.0) {
-                // Initial distribution check. If minimum is below the mangetic field lower limit, 
-                // it defaults to the lower limit.
-                minimum = PPOW(10.0, NS::NS_MAG_FIELD_LOWER_LIMIT);
-            }
+
             log10B = log10(minimum + (RAND->Random() * (maximum - minimum)));
             } break;
 
@@ -340,7 +309,9 @@ double NS::CalculateSpinDownRate(const double p_Period, const double p_MomentOfI
 
 
 /*
- * Calculate and set pulsar parameters at birth of pulsar
+ * Calculate and set pulsar parameters at birth of pulsar.
+ * Users should note that when choosing the NOSPIN option, 
+ * pulsar spin frequency is set to 0 and spin period is infinity. 
  *
  * Modifies the following class member variables:
  *
@@ -361,12 +332,12 @@ void NS::CalculateAndSetPulsarParameters() {
     m_PulsarDetails.spinPeriod    = CalculateBirthSpinPeriod();                                                             // spin period in ms
     m_MomentOfInertia_CGS         = CalculateMomentOfInertiaCGS();                                                          // MoI in CGS g cm^2
 	
-    if (utils::Compare(m_PulsarDetails.spinPeriod, 0.0) == 0 || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {  // Not spinning or magnetic field 0.0?
-                                                                                                                            // yes - set spin period to infinity and all other values to 0.0
+    if (utils::Compare(m_PulsarDetails.spinFrequency, 0.0) == 0 || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {  // Not spinning or magnetic field 0.0?
+                                                                                                                               // yes - set all pulsar parameters (except for spin period) to 0.0 and spin period to infinity 
         m_PulsarDetails.spinDownRate      = 0.0;
         m_PulsarDetails.birthSpinDownRate = 0.0;
         m_PulsarDetails.spinFrequency     = 0.0;
-        m_PulsarDetails.spinPeriod        = std::numeric_limits<float>::infinity();
+        m_PulsarDetails.spinPeriod        = _2_PI / m_PulsarDetails.spinFrequency;
         m_PulsarDetails.birthPeriod       = 0.0;
         m_PulsarDetails.magneticField     = 0.0;
         m_AngularMomentum_CGS             = 0.0;
@@ -384,6 +355,8 @@ void NS::CalculateAndSetPulsarParameters() {
 
 /*
  * Update the magnetic field and spins of isolated pulsar
+ * Users should note that when pulsar is not spinning, 
+ * this function exits without changing anything. 
  *
  * Modifies the following class member variables:
  *
@@ -399,6 +372,10 @@ void NS::CalculateAndSetPulsarParameters() {
  * @param   [IN]    p_Stepsize                  Timestep size for integration (in seconds)
  */
 void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
+
+    if (utils::Compare(m_PulsarDetails.spinFrequency, 0.0) == 0 || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {    // NS spinning?
+        return ;                                                                                                              // no - return 0.0
+    }
     
     double radius_IN_CM      = m_Radius * RSOL_TO_KM * KM_TO_CM;
     double radius_3          = radius_IN_CM * radius_IN_CM * radius_IN_CM;
@@ -477,7 +454,9 @@ double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6
 
 /*
  * Update the magnetic field and spins of neutron stars in the following situations:
- * Note: this function uses CGS units and requires parameters in CGS units where applicable
+ * Note 1 : this function uses CGS units and requires parameters in CGS units where applicable
+ * Note 2 : Users should note that when pulsar is not spinning (frequency or magnetic field == 0), 
+ *          pulsar spin period is set to infinity and all other parameters to 0.
  * 
  * 1).  Isolated or post mass-transfer spin-down of neutron star
  * 2).  Neutron star in interacting binary system experiencing mass-transfer induced spin change for 
@@ -508,11 +487,11 @@ double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6
  */
 void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_RecycledNS, double p_Stepsize, double p_MassGain, const double p_Epsilon) {
 
-    if (!isfinite(m_PulsarDetails.spinPeriod) || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {                                 // NS spinning?
+    if (utils::Compare(m_PulsarDetails.spinFrequency, 0.0) == 0 || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {                                 // NS spinning?
         // not spinning - set all pulsar attributes to 0.0, spin period to infinity, and return
         m_PulsarDetails.spinDownRate  = 0.0;
         m_PulsarDetails.spinFrequency = 0.0;
-        m_PulsarDetails.spinPeriod    = std::numeric_limits<float>::infinity();
+        m_PulsarDetails.spinPeriod    = _2_PI / m_PulsarDetails.spinFrequency;
         m_PulsarDetails.magneticField = 0.0;
         return; 
     }

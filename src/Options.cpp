@@ -2477,7 +2477,13 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_OverallWindMassLossMultiplier < 0.0, "Overall wind mass loss multiplier (--overall-wind-mass-loss-multiplier) < 0.0");
 
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale") && m_PulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
-        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
+        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
+
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMax <= m_PulsarBirthMagneticFieldDistributionMin, "Pulsar birth magnetic field max (--pulsar-birth-magnetic-field-distribution-max) <= min (--pulsar-birth-magnetic-field-distribution-max)");
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMin <= m_PulsarLog10MinimumMagneticField, "Pulsar birth magnetic field min (--pulsar-birth-magnetic-field-distribution-min) <= lower limit (--pulsar-minimum-magnetic-field)");
+        
+        COMPLAIN_IF(m_PulsarBirthSpinPeriodDistributionMax <= m_PulsarBirthSpinPeriodDistributionMin, "Pulsar birth spin period max (--pulsar-birth-spin-period-distribution-max) <= min (--pulsar-birth-spin-period-distribution-max)");
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMin <= 0.0, "Pulsar birth magnetic field min (--pulsar-birth-spin-period-distribution-min) <= 0");
 
         COMPLAIN_IF(m_RadialChangeFraction <= 0.0, "Radial change fraction per timestep (--radial-change-fraction) <= 0");
         
@@ -2643,8 +2649,8 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("metallicity-distribution")                          : POPULATE_RET(METALLICITY_DISTRIBUTION_LABEL);                 break;
         case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                           break;
         case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);          break;
-        case _("neutron-star-accretion-in-ce")                      : POPULATE_RET(NS_ACCRETION_IN_CE_LABEL);                        break;
-        case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOS_LABEL);                                    break;
+        case _("neutron-star-accretion-in-ce")                      : POPULATE_RET(NS_ACCRETION_IN_CE_LABEL);                       break;
+        case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOS_LABEL);                                   break;
         case _("OB-mass-loss-prescription")                         : POPULATE_RET(OB_MASS_LOSS_PRESCRIPTION_LABEL);                break;
         case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);              break;
         case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL); break;

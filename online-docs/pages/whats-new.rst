@@ -14,7 +14,7 @@ Updated neutron star recycling/spin-up treatments.
 * Pulsar magnetic field strength in BSE_Pulsar_Evolution file is now recorded in Gauss instead of Tesla 
 * Pulsar spin down rate is now tracking period derivative instead of frequency derivative.
 * SSE/BSE_Pulsar_Evolution file by default now records pulsar spin period (s) instead of spin frequency. Spin frequency is still tracked and can be added as an output in the logfiles.
-* New safeguard protocols in NS::CalculateBirthSpinPeriod() and NS::CalculateBirthMagneticField() to check the inputs for birth distributions of pulsar spin period and magnetic field are valid. However, users are strongly encouraged to make sensible inputs. 
+* New safeguard protocols in to check the inputs for birth distributions of pulsar spin period and magnetic field are valid. If not, prompt error messages and stop the run. 
 * Consider neutron star not spinning when spin period is infinity, spin frequency is 0 or magnetic field is 0, and all subsequent pulsar parameters are set to 0.
 
 **03.14.00 Mar 3, 2025**
