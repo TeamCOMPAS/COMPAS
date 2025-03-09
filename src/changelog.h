@@ -1481,7 +1481,7 @@
 //                                      - Fix for issue #1002
 //                                      - Fix for issue #1257
 //                                      - Updated references to pulsar calculations. 
-//                                      - Added safeguards in NS::CalculateBirthSpinPeriod() and NS::CalculateBirthMagneticField() to make sure the inputs are valid. 
+//                                      - Added safeguards to make sure the inputs of birth spin period and magnetic field inputs are valid. If not, raise error messages and stop run. 
 //                                      - Consider neutron star not spinning when spin period is infinity, spin frequency is 0 or magnetic field is 0, and all subsequent pulsar parameters are set to 0.
 //                                      - Changes in program options:
 //                                        1). Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star accretes mass during a common envelope event
